@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+<!--
+   <extension
+         point="org.openl.base.languageConfiguration">
+      <languageConfiguration
+            name="xls"
+            id="org.openl.rules.lang.xls">
+         <property
+               name="org.openl.rules.lang.xls.file.extensions"
+               value="xls">
+         </property>
+      </languageConfiguration>
+   </extension>
+   <extension
+         point="org.openl.base.builderConfiguration">
+      <builderConfiguration
+            name="xls"
+            id="org.openl.rules.lang.xls">
+      </builderConfiguration>
+   </extension>
+   
+-->   
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Excel OpenL Tablets Editor"
+            extensions="xls"
+            icon="icons/full/obj16/xls_obj.gif"
+            class="org.openl.rules.eclipse.xls.editor.XlsEditor"
+            contributorClass="org.openl.rules.eclipse.xls.editor.XlsEditorContributor"
+            id="org.openl.rules.eclipse.xls.editor.XlsEditor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.consoleLineTrackers">
+      <consoleLineTracker
+            class="org.openl.rules.eclipse.xls.launching.XlsConsoleTracker"
+            processType="java"
+            id="org.openl.rules.eclipse.xls.XlsConsoleTracker">
+      </consoleLineTracker>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.core.classpathVariableInitializer">
+      <classpathVariableInitializer
+            class="org.openl.util.eclipse.PluginClasspathVariableInitializer"
+            variable="org.openl.rules.eclipse_HOME"/>
+   </extension>
+
+</plugin>
