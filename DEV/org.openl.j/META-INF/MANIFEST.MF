@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.openl.j
 Bundle-Version: 4.1.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.openl.core
+Require-Bundle: org.openl.core;visibility:=reexport
