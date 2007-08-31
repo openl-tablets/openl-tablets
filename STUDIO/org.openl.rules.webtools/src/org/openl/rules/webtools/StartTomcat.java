@@ -22,8 +22,13 @@ public class StartTomcat
 	public static void main(String[] args) throws Exception
 	{
 		
+//		System.out.println("OpenL Tomcat Starter,  Version " + OpenLVersion.getVersion() + 
+//				" Build " + OpenLVersion.getBuild() + " http://openl-tablets.sourceforge.net  (c) 2006,2007\n");
+		
 		System.out.println("OpenL Tomcat Starter,  Version " + OpenLVersion.getVersion() + 
-				" Build " + OpenLVersion.getBuild() + " http://openl-tablets.sourceforge.net  (c) 2006,2007\n");
+				" Build " + OpenLVersion.getBuild() + " " + 
+				OpenLVersion.getURL()  + " (c) " + OpenLVersion.getCopyrightYear() +"\n");
+		
 		
 		String chome = System.getProperty("catalina.home");
 
