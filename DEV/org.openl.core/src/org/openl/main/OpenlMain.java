@@ -266,7 +266,8 @@ public class OpenlMain implements SourceCodeURLConstants
 	public static void main(String[] args) throws Exception
 	{
 		System.out.println("OpenL main(),  Version " + OpenLVersion.getVersion() + 
-				" Build " + OpenLVersion.getBuild() + " http://openl-tablets.sourceforge.net/  (c) 2006");
+				" Build " + OpenLVersion.getBuild() + " " + 
+				OpenLVersion.getURL()  + " (c) " + OpenLVersion.getCopyrightYear());
 		
 		new OpenlMain(null).run(args);
 	}
