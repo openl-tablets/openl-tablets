@@ -9,6 +9,7 @@
 	<antcall target="copy_project" ><param name="plugin_name" value="org.openl.tablets.tutorial2"/></antcall>	
 	<antcall target="copy_project" ><param name="plugin_name" value="org.openl.tablets.tutorial3"/></antcall>	
 	<antcall target="copy_project" ><param name="plugin_name" value="org.openl.tablets.tutorial4"/></antcall>	
+	<antcall target="copy_project" ><param name="plugin_name" value="org.openl.tablets.tutorial5"/></antcall>	
 </target>	
 	
 	

@@ -423,14 +423,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod vehicleEligibility_Method;
-  public void vehicleEligibility(org.openl.tablets.tutorial4.Vehicle v)  {
+  static org.openl.types.IOpenMethod setVehicleEligibilityScore_Method;
+  public void setVehicleEligibilityScore(org.openl.tablets.tutorial4.Vehicle v)  {
     Object[] __params = new Object[1];
     __params[0] = v;
     try
     {
     Object __myInstance = __instance;
-    vehicleEligibility_Method.invoke(__myInstance, __params, __env);  }
+    setVehicleEligibilityScore_Method.invoke(__myInstance, __params, __env);  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -440,15 +440,105 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod coverageSurcharge_Method;
-  public org.openl.meta.DoubleValue coverageSurcharge(org.openl.tablets.tutorial4.Vehicle vehicle)  {
+  static org.openl.types.IOpenMethod driverRisk_Method;
+  public java.lang.String driverRisk(org.openl.tablets.tutorial4.Driver driver)  {
+    Object[] __params = new Object[1];
+    __params[0] = driver;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = driverRisk_Method.invoke(__myInstance, __params, __env);
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod driverAgeType_Method;
+  public java.lang.String driverAgeType(org.openl.tablets.tutorial4.Driver driver)  {
+    Object[] __params = new Object[1];
+    __params[0] = driver;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = driverAgeType_Method.invoke(__myInstance, __params, __env);
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod injuryRating_Method;
+  public java.lang.String injuryRating(org.openl.tablets.tutorial4.Vehicle vehicle)  {
     Object[] __params = new Object[1];
     __params[0] = vehicle;
     try
     {
     Object __myInstance = __instance;
-    Object __res = coverageSurcharge_Method.invoke(__myInstance, __params, __env);
+    Object __res = injuryRating_Method.invoke(__myInstance, __params, __env);
+   return (java.lang.String)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod injuryRatingSurcharge_Method;
+  public org.openl.meta.DoubleValue injuryRatingSurcharge(java.lang.String injuryRating)  {
+    Object[] __params = new Object[1];
+    __params[0] = injuryRating;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = injuryRatingSurcharge_Method.invoke(__myInstance, __params, __env);
    return (org.openl.meta.DoubleValue)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod driverRiskScore_Method;
+  public org.openl.meta.DoubleValue driverRiskScore(java.lang.String risk)  {
+    Object[] __params = new Object[1];
+    __params[0] = risk;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = driverRiskScore_Method.invoke(__myInstance, __params, __env);
+   return (org.openl.meta.DoubleValue)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod theftRating_Method;
+  public java.lang.String theftRating(org.openl.tablets.tutorial4.Vehicle vehicle)  {
+    Object[] __params = new Object[1];
+    __params[0] = vehicle;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = theftRating_Method.invoke(__myInstance, __params, __env);
+   return (java.lang.String)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -509,33 +599,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod driverTypeScore_Method;
-  public org.openl.meta.DoubleValue driverTypeScore(java.lang.String ageType, java.lang.String eligibility)  {
-    Object[] __params = new Object[2];
-    __params[0] = ageType;
-    __params[1] = eligibility;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = driverTypeScore_Method.invoke(__myInstance, __params, __env);
-   return (org.openl.meta.DoubleValue)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod clientTierScoreAdjustment_Method;
-  public org.openl.meta.DoubleValue clientTierScoreAdjustment(java.lang.String clientTier)  {
+  static org.openl.types.IOpenMethod ageSurcharge_Method;
+  public org.openl.meta.DoubleValue ageSurcharge(org.openl.tablets.tutorial4.Vehicle vehicle)  {
     Object[] __params = new Object[1];
-    __params[0] = clientTier;
+    __params[0] = vehicle;
     try
     {
     Object __myInstance = __instance;
-    Object __res = clientTierScoreAdjustment_Method.invoke(__myInstance, __params, __env);
+    Object __res = ageSurcharge_Method.invoke(__myInstance, __params, __env);
    return (org.openl.meta.DoubleValue)__res;  }
   catch(Throwable t)
   {
@@ -546,33 +617,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod driverEligibility_Method;
-  public java.lang.String driverEligibility(org.openl.tablets.tutorial4.Driver driver, java.lang.String ageType)  {
-    Object[] __params = new Object[2];
-    __params[0] = driver;
-    __params[1] = ageType;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = driverEligibility_Method.invoke(__myInstance, __params, __env);
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod driverPremium_Method;
-  public org.openl.meta.DoubleValue driverPremium(org.openl.tablets.tutorial4.DriverCalc di)  {
+  static org.openl.types.IOpenMethod driverAccidentPremium_Method;
+  public org.openl.meta.DoubleValue driverAccidentPremium(org.openl.tablets.tutorial4.DriverCalc di)  {
     Object[] __params = new Object[1];
     __params[0] = di;
     try
     {
     Object __myInstance = __instance;
-    Object __res = driverPremium_Method.invoke(__myInstance, __params, __env);
+    Object __res = driverAccidentPremium_Method.invoke(__myInstance, __params, __env);
    return (org.openl.meta.DoubleValue)__res;  }
   catch(Throwable t)
   {
@@ -618,14 +670,15 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod driverRisk_Method;
-  public java.lang.String driverRisk(org.openl.tablets.tutorial4.Driver driver)  {
-    Object[] __params = new Object[1];
+  static org.openl.types.IOpenMethod driverEligibility_Method;
+  public java.lang.String driverEligibility(org.openl.tablets.tutorial4.Driver driver, java.lang.String ageType)  {
+    Object[] __params = new Object[2];
     __params[0] = driver;
+    __params[1] = ageType;
     try
     {
     Object __myInstance = __instance;
-    Object __res = driverRisk_Method.invoke(__myInstance, __params, __env);
+    Object __res = driverEligibility_Method.invoke(__myInstance, __params, __env);
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -636,32 +689,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod theftRating_Method;
-  public java.lang.String theftRating(org.openl.tablets.tutorial4.Vehicle vehicle)  {
-    Object[] __params = new Object[1];
-    __params[0] = vehicle;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = theftRating_Method.invoke(__myInstance, __params, __env);
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod setVehicleEligibilityScore_Method;
-  public void setVehicleEligibilityScore(org.openl.tablets.tutorial4.Vehicle v)  {
+  static org.openl.types.IOpenMethod vehicleEligibility_Method;
+  public void vehicleEligibility(org.openl.tablets.tutorial4.Vehicle v)  {
     Object[] __params = new Object[1];
     __params[0] = v;
     try
     {
     Object __myInstance = __instance;
-    setVehicleEligibilityScore_Method.invoke(__myInstance, __params, __env);  }
+    vehicleEligibility_Method.invoke(__myInstance, __params, __env);  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -671,32 +706,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod driverRiskScore_Method;
-  public org.openl.meta.DoubleValue driverRiskScore(java.lang.String risk)  {
-    Object[] __params = new Object[1];
-    __params[0] = risk;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = driverRiskScore_Method.invoke(__myInstance, __params, __env);
-   return (org.openl.meta.DoubleValue)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod driverAccidentPremium_Method;
-  public org.openl.meta.DoubleValue driverAccidentPremium(org.openl.tablets.tutorial4.DriverCalc di)  {
+  static org.openl.types.IOpenMethod driverPremium_Method;
+  public org.openl.meta.DoubleValue driverPremium(org.openl.tablets.tutorial4.DriverCalc di)  {
     Object[] __params = new Object[1];
     __params[0] = di;
     try
     {
     Object __myInstance = __instance;
-    Object __res = driverAccidentPremium_Method.invoke(__myInstance, __params, __env);
+    Object __res = driverPremium_Method.invoke(__myInstance, __params, __env);
    return (org.openl.meta.DoubleValue)__res;  }
   catch(Throwable t)
   {
@@ -707,15 +724,15 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod policyEligibility_Method;
-  public java.lang.String policyEligibility(org.openl.tablets.tutorial4.Policy p)  {
+  static org.openl.types.IOpenMethod clientTierScoreAdjustment_Method;
+  public org.openl.meta.DoubleValue clientTierScoreAdjustment(java.lang.String clientTier)  {
     Object[] __params = new Object[1];
-    __params[0] = p;
+    __params[0] = clientTier;
     try
     {
     Object __myInstance = __instance;
-    Object __res = policyEligibility_Method.invoke(__myInstance, __params, __env);
-   return (java.lang.String)__res;  }
+    Object __res = clientTierScoreAdjustment_Method.invoke(__myInstance, __params, __env);
+   return (org.openl.meta.DoubleValue)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -759,6 +776,42 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
+  static org.openl.types.IOpenMethod basePrice_Method;
+  public org.openl.meta.DoubleValue basePrice(org.openl.tablets.tutorial4.Vehicle vehicle)  {
+    Object[] __params = new Object[1];
+    __params[0] = vehicle;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = basePrice_Method.invoke(__myInstance, __params, __env);
+   return (org.openl.meta.DoubleValue)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod coverageSurcharge_Method;
+  public org.openl.meta.DoubleValue coverageSurcharge(org.openl.tablets.tutorial4.Vehicle vehicle)  {
+    Object[] __params = new Object[1];
+    __params[0] = vehicle;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = coverageSurcharge_Method.invoke(__myInstance, __params, __env);
+   return (org.openl.meta.DoubleValue)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod calcDriverPremium_Method;
   public org.openl.meta.DoubleValue calcDriverPremium(org.openl.tablets.tutorial4.DriverCalc di)  {
     Object[] __params = new Object[1];
@@ -777,15 +830,15 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod ageSurcharge_Method;
-  public org.openl.meta.DoubleValue ageSurcharge(org.openl.tablets.tutorial4.Vehicle vehicle)  {
+  static org.openl.types.IOpenMethod policyEligibility_Method;
+  public java.lang.String policyEligibility(org.openl.tablets.tutorial4.Policy p)  {
     Object[] __params = new Object[1];
-    __params[0] = vehicle;
+    __params[0] = p;
     try
     {
     Object __myInstance = __instance;
-    Object __res = ageSurcharge_Method.invoke(__myInstance, __params, __env);
-   return (org.openl.meta.DoubleValue)__res;  }
+    Object __res = policyEligibility_Method.invoke(__myInstance, __params, __env);
+   return (java.lang.String)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -813,68 +866,15 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod injuryRating_Method;
-  public java.lang.String injuryRating(org.openl.tablets.tutorial4.Vehicle vehicle)  {
-    Object[] __params = new Object[1];
-    __params[0] = vehicle;
+  static org.openl.types.IOpenMethod driverTypeScore_Method;
+  public org.openl.meta.DoubleValue driverTypeScore(java.lang.String ageType, java.lang.String eligibility)  {
+    Object[] __params = new Object[2];
+    __params[0] = ageType;
+    __params[1] = eligibility;
     try
     {
     Object __myInstance = __instance;
-    Object __res = injuryRating_Method.invoke(__myInstance, __params, __env);
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod basePrice_Method;
-  public org.openl.meta.DoubleValue basePrice(org.openl.tablets.tutorial4.Vehicle vehicle)  {
-    Object[] __params = new Object[1];
-    __params[0] = vehicle;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = basePrice_Method.invoke(__myInstance, __params, __env);
-   return (org.openl.meta.DoubleValue)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod driverAgeType_Method;
-  public java.lang.String driverAgeType(org.openl.tablets.tutorial4.Driver driver)  {
-    Object[] __params = new Object[1];
-    __params[0] = driver;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = driverAgeType_Method.invoke(__myInstance, __params, __env);
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod injuryRatingSurcharge_Method;
-  public org.openl.meta.DoubleValue injuryRatingSurcharge(java.lang.String injuryRating)  {
-    Object[] __params = new Object[1];
-    __params[0] = injuryRating;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = injuryRatingSurcharge_Method.invoke(__myInstance, __params, __env);
+    Object __res = driverTypeScore_Method.invoke(__myInstance, __params, __env);
    return (org.openl.meta.DoubleValue)__res;  }
   catch(Throwable t)
   {
@@ -931,9 +931,19 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     testDrivers1_Field = __class.getField("testDrivers1");
     driverRiskTestTestAll_Method = __class.getMatchingMethod("driverRiskTestTestAll", new IOpenClass[] {
 });
-    vehicleEligibility_Method = __class.getMatchingMethod("vehicleEligibility", new IOpenClass[] {
+    setVehicleEligibilityScore_Method = __class.getMatchingMethod("setVehicleEligibilityScore", new IOpenClass[] {
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
-    coverageSurcharge_Method = __class.getMatchingMethod("coverageSurcharge", new IOpenClass[] {
+    driverRisk_Method = __class.getMatchingMethod("driverRisk", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Driver.class)});
+    driverAgeType_Method = __class.getMatchingMethod("driverAgeType", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Driver.class)});
+    injuryRating_Method = __class.getMatchingMethod("injuryRating", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
+    injuryRatingSurcharge_Method = __class.getMatchingMethod("injuryRatingSurcharge", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.lang.String.class)});
+    driverRiskScore_Method = __class.getMatchingMethod("driverRiskScore", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.lang.String.class)});
+    theftRating_Method = __class.getMatchingMethod("theftRating", new IOpenClass[] {
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
     theftRatingTestTestAll_Method = __class.getMatchingMethod("theftRatingTestTestAll", new IOpenClass[] {
 });
@@ -941,49 +951,39 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 });
     driverTypeScoreTestTestAll_Method = __class.getMatchingMethod("driverTypeScoreTestTestAll", new IOpenClass[] {
 });
-    driverTypeScore_Method = __class.getMatchingMethod("driverTypeScore", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class),
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
-    clientTierScoreAdjustment_Method = __class.getMatchingMethod("clientTierScoreAdjustment", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
-    driverEligibility_Method = __class.getMatchingMethod("driverEligibility", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Driver.class),
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
-    driverPremium_Method = __class.getMatchingMethod("driverPremium", new IOpenClass[] {
+    ageSurcharge_Method = __class.getMatchingMethod("ageSurcharge", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
+    driverAccidentPremium_Method = __class.getMatchingMethod("driverAccidentPremium", new IOpenClass[] {
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.DriverCalc.class)});
     clientTierScoreAdjustmentTestTestAll_Method = __class.getMatchingMethod("clientTierScoreAdjustmentTestTestAll", new IOpenClass[] {
 });
     theftRatingSurcharge_Method = __class.getMatchingMethod("theftRatingSurcharge", new IOpenClass[] {
       JavaOpenClass.getOpenClass(java.lang.String.class)});
-    driverRisk_Method = __class.getMatchingMethod("driverRisk", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Driver.class)});
-    theftRating_Method = __class.getMatchingMethod("theftRating", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
-    setVehicleEligibilityScore_Method = __class.getMatchingMethod("setVehicleEligibilityScore", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
-    driverRiskScore_Method = __class.getMatchingMethod("driverRiskScore", new IOpenClass[] {
+    driverEligibility_Method = __class.getMatchingMethod("driverEligibility", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Driver.class),
       JavaOpenClass.getOpenClass(java.lang.String.class)});
-    driverAccidentPremium_Method = __class.getMatchingMethod("driverAccidentPremium", new IOpenClass[] {
+    vehicleEligibility_Method = __class.getMatchingMethod("vehicleEligibility", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
+    driverPremium_Method = __class.getMatchingMethod("driverPremium", new IOpenClass[] {
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.DriverCalc.class)});
-    policyEligibility_Method = __class.getMatchingMethod("policyEligibility", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Policy.class)});
+    clientTierScoreAdjustment_Method = __class.getMatchingMethod("clientTierScoreAdjustment", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.lang.String.class)});
     injuryRatingTestTestAll_Method = __class.getMatchingMethod("injuryRatingTestTestAll", new IOpenClass[] {
 });
     driverAgeTypeTestTestAll_Method = __class.getMatchingMethod("driverAgeTypeTestTestAll", new IOpenClass[] {
 });
-    calcDriverPremium_Method = __class.getMatchingMethod("calcDriverPremium", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.DriverCalc.class)});
-    ageSurcharge_Method = __class.getMatchingMethod("ageSurcharge", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
-    driverRiskPremium_Method = __class.getMatchingMethod("driverRiskPremium", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.DriverCalc.class)});
-    injuryRating_Method = __class.getMatchingMethod("injuryRating", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
     basePrice_Method = __class.getMatchingMethod("basePrice", new IOpenClass[] {
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
-    driverAgeType_Method = __class.getMatchingMethod("driverAgeType", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Driver.class)});
-    injuryRatingSurcharge_Method = __class.getMatchingMethod("injuryRatingSurcharge", new IOpenClass[] {
+    coverageSurcharge_Method = __class.getMatchingMethod("coverageSurcharge", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Vehicle.class)});
+    calcDriverPremium_Method = __class.getMatchingMethod("calcDriverPremium", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.DriverCalc.class)});
+    policyEligibility_Method = __class.getMatchingMethod("policyEligibility", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.Policy.class)});
+    driverRiskPremium_Method = __class.getMatchingMethod("driverRiskPremium", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial4.DriverCalc.class)});
+    driverTypeScore_Method = __class.getMatchingMethod("driverTypeScore", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.lang.String.class),
       JavaOpenClass.getOpenClass(java.lang.String.class)});
 
     __initialized=true;
