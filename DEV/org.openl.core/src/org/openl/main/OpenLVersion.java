@@ -18,7 +18,11 @@ public class OpenLVersion
 	static final public String prop_file_name ="openl.version.properties";
 	static final public String prop_version_name ="openl.version";
 	static final public String prop_build_name ="openl.build";
+	static final public String prop_url_name ="openl.url";
+	static final public String prop_year_name ="openl.copyrightyear";
 
+	
+	
 	public static String getVersion()
 	{
 		return getProperties().getProperty(prop_version_name, "???");
@@ -27,8 +31,20 @@ public class OpenLVersion
 	public static String getBuild()
 	{
 		return getProperties().getProperty(prop_build_name, "??");
-		
 	}
+	
+	public static String getURL()
+	{
+		return getProperties().getProperty(prop_url_name, "??");
+	}
+	
+	
+	public static String getCopyrightYear()
+	{
+		return getProperties().getProperty(prop_year_name, "??");
+	}
+	
+	
 	
 	static synchronized Properties getProperties()
 	{
