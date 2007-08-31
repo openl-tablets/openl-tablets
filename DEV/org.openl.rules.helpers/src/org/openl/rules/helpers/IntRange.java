@@ -36,6 +36,16 @@ public class IntRange implements INumberRange
 	}
 
 	
+	public int getMin()
+	{
+		return lowerBound + lowerType;
+	}
+
+	public int getMax()
+	{
+		return upperBound - upperType;
+	}
+	
 	
 	void parse(String s)
 	{
