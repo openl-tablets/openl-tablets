@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openl.rules.helpers
 Bundle-Version: 4.1.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.openl.core;visibility:=reexport,
- org.openl.j;visibility:=reexport
 Export-Package: org.openl.rules.helpers,
  org.openl.rules.java
+Require-Bundle: org.openl.commons;visibility:=reexport,
+ org.openl.core;visibility:=reexport
