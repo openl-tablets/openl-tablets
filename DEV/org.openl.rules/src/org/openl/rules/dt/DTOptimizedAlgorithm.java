@@ -15,6 +15,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -223,6 +224,11 @@ public class DTOptimizedAlgorithm
 			IAggregateInfo aggr = paramType.getAggregateInfo();
 			if (aggr.isAggregate(paramType) && aggr.getComponentType(paramType) == methodType)
 				return new ContainsInAryIndexedEvaluator();
+			
+			IRangeAdaptor ra = getRangeAdaptor(methodType, paramType); 
+			if (ra != null)
+				return new RangeIndexedEvaluator(ra);
+			
 			break;
 		case 2:
 			IOpenClass paramType0 = params[0].getType();
@@ -234,7 +240,7 @@ public class DTOptimizedAlgorithm
 				if (c != int.class && c != long.class && c != double.class && c != float.class && !Comparable.class.isAssignableFrom(c))
 					throw new BoundError(null, "Type " + methodType.getName() + " is not Comparable", null, condition.getSourceCodeModule());
 					
-				return new RangeIndexedEvaluator();
+				return new RangeIndexedEvaluator(null);
 			}	
 			
 			aggr = paramType1.getAggregateInfo();
@@ -262,6 +268,21 @@ public class DTOptimizedAlgorithm
 	
 	
 	
+
+	/**
+	 * @param methodType
+	 * @param paramType
+	 * @return
+	 */
+	private static IRangeAdaptor getRangeAdaptor(IOpenClass methodType, IOpenClass paramType)
+	{
+		if (methodType == JavaOpenClass.INT && paramType.getInstanceClass() == org.openl.rules.helpers.IntRange.class)
+			return new IRangeAdaptor.IntRangeAdaptor();	
+		return null;
+	}
+
+
+
 
 	static public class RuleParamHolder
 	{
@@ -411,7 +432,7 @@ public class DTOptimizedAlgorithm
 		{
 			if (evaluators[i].isIndexed())
 			{
-				Object[][] values = table.getConditionRows()[0].getParamValues();
+				Object[][] values = table.getConditionRows()[i].getParamValues();
 				Object[][] precalculatedParams = prepareIndexedParams(values);
 				params.add(precalculatedParams);
 			}

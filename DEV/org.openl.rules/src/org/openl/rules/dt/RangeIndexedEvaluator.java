@@ -24,14 +24,23 @@ import org.openl.vm.IRuntimeEnv;
 public class RangeIndexedEvaluator  implements IDTConditionEvaluator
 {
 
+	IRangeAdaptor adaptor = null;
+	
+	
+	public RangeIndexedEvaluator(IRangeAdaptor adaptor)
+	{
+		this.adaptor = adaptor;
+	}
 
-	
-	
+
+
 	public IIntSelector getSelector(IDTCondition condition, Object target, Object[] dtparams, IRuntimeEnv env)
 	{
 		Object value = condition.getEvaluator().invoke(target, dtparams, env);
 		return new RangeSelector(condition, value, target, dtparams, env);
 	}
+
+	
 
 	
 	static class RangeSelector implements IIntSelector
@@ -81,7 +90,7 @@ public class RangeIndexedEvaluator  implements IDTConditionEvaluator
 	public ADTRuleIndex makeIndex(Object[][] indexedparams, IIntIterator it)
 	{
 		
-		if (it.size() < 3)
+		if (it.size() < 1)
 			return null;
 		
 		IntervalMap map = new IntervalMap();
@@ -104,8 +113,20 @@ public class RangeIndexedEvaluator  implements IDTConditionEvaluator
 				continue;
 			}	
 			
-			Comparable vFrom = (Comparable)indexedparams[i][0];
-			Comparable vTo = (Comparable)indexedparams[i][1];
+			Comparable vFrom = null;
+			Comparable vTo = null;
+
+			if (adaptor == null)
+			{	
+			
+				vFrom = (Comparable)indexedparams[i][0];
+				vTo = (Comparable)indexedparams[i][1];
+			}
+			else
+			{
+				vFrom = adaptor.getMin(indexedparams[i][0]);
+				vTo = adaptor.getMax(indexedparams[i][0]);
+			}	
 			map.putInterval(vFrom, vTo, new Integer(i));
 			
 		}

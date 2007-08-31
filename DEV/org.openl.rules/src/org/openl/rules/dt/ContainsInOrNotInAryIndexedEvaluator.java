@@ -167,6 +167,8 @@ public class ContainsInOrNotInAryIndexedEvaluator implements IDTConditionEvaluat
 					dtrb.addRule(i);
 				}
 				
+				emptyBuilder.addRule(i); //!!!!!
+				
 			}
 			
 			
