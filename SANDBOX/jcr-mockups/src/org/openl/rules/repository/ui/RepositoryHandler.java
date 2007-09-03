@@ -1,9 +1,15 @@
-package org.openl.rules.ui;
+package org.openl.rules.repository.ui;
 
-import org.openl.rules.ui.tree.TreeFile;
-import org.openl.rules.ui.tree.TreeFolder;
-import org.openl.rules.ui.tree.TreeProject;
+import org.openl.rules.repository.ui.tree.TreeFile;
+import org.openl.rules.repository.ui.tree.TreeFolder;
+import org.openl.rules.repository.ui.tree.TreeProject;
 
+/**
+ * Handler for Repository/Projects Tree
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class RepositoryHandler {
 
 //	private JcrRepository jcrRepository;

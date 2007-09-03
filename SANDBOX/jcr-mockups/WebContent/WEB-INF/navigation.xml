@@ -6,13 +6,13 @@
 	<navigation-rule>
 		<from-view-id>/index.jsp</from-view-id>
 		<navigation-case>
-			<from-outcome>jcrTree</from-outcome>
-			<to-view-id>/jcrTree.jsp</to-view-id>
+			<from-outcome>jcrMain</from-outcome>
+			<to-view-id>/jcrMain.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
 
 	<navigation-rule>
-		<from-view-id>/jcrTree.jsp</from-view-id>
+		<from-view-id>/jcrMain.jsp</from-view-id>
 		<navigation-case>
 			<from-outcome>index</from-outcome>
 			<to-view-id>/index.jsp</to-view-id>

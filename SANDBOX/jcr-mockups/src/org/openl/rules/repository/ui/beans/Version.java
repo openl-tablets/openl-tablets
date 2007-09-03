@@ -1,4 +1,4 @@
-package org.openl.rules.ui.beans;
+package org.openl.rules.repository.ui.beans;
 
 public class Version {
 	private String versionName;
