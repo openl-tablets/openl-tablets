@@ -1,7 +1,6 @@
-package org.openl.rules.ui;
+package org.openl.rules.repository.ui;
 
 /**
- * 
  * UI / RichFaces related constants
  * 
  * @author Aleh Bykhavets

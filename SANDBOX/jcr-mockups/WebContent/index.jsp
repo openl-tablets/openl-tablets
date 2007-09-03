@@ -16,7 +16,7 @@
 <f:view>
 		<h:form>
 			<h:outputText>Go to Repository Screen >>></h:outputText>
-			<h:commandButton value="JCR-170" action="jcrTree"/>
+			<h:commandButton value="JCR-170" action="jcrMain"/>
 		</h:form>
 </f:view>
 

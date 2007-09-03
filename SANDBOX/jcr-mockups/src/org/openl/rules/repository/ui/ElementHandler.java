@@ -1,10 +1,16 @@
-package org.openl.rules.ui;
+package org.openl.rules.repository.ui;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openl.rules.ui.beans.Element;
+import org.openl.rules.repository.ui.beans.Element;
 
+/**
+ * Handler for Properties->Elements Tab
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class ElementHandler {
 	private List<Element> elements;
 
@@ -17,6 +23,11 @@ public class ElementHandler {
 		elements.add(new Element("rules", "1.4", "08/11/2007 11:07am", "Lee Vong"));
 	}
 	
+	/**
+	 * Gets list of elements for 'Elements' tab.
+	 * 
+	 * @return list of elements for a entity
+	 */
 	public List<Element> getElements() {
 		return elements;
 	}

@@ -1,4 +1,4 @@
-package org.openl.rules.ui.tree;
+package org.openl.rules.repository.ui.tree;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;

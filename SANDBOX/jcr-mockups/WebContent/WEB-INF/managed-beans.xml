@@ -5,19 +5,19 @@
 
 	<managed-bean>
 		<managed-bean-name>repositoryHandler</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.RepositoryHandler</managed-bean-class>
+		<managed-bean-class>org.openl.rules.repository.ui.RepositoryHandler</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
 
 	<managed-bean>
 		<managed-bean-name>versionHandler</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.VersionHandler</managed-bean-class>
+		<managed-bean-class>org.openl.rules.repository.ui.VersionHandler</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
 
 	<managed-bean>
 		<managed-bean-name>elementHandler</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.ElementHandler</managed-bean-class>
+		<managed-bean-class>org.openl.rules.repository.ui.ElementHandler</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
 

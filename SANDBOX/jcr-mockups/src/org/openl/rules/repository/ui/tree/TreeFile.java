@@ -1,6 +1,6 @@
-package org.openl.rules.ui.tree;
+package org.openl.rules.repository.ui.tree;
 
-import org.openl.rules.ui.UiConst;
+import org.openl.rules.repository.ui.UiConst;
 
 /**
  * Represents OpenL file in a tree.
