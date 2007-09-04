@@ -147,4 +147,13 @@ public class TableModel
 
 	}
 
+	/**
+	 *	Cells property getter 
+	 * @return cells
+	 */
+	public ICellModel[][] getCells() {
+		return cells;
+	}
+	
+	
 }
