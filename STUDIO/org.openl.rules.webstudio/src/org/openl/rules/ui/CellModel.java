@@ -374,4 +374,39 @@ public class CellModel implements ICellModel
 		this.valign = valign;
 	}
 
+	
+	/**
+	 *	Returns style string for cell 
+	 * @param tm
+	 * @return style string for cell
+	 */
+	public String getHtmlStyle(TableModel tm) {
+		
+		StringBuffer sb = new StringBuffer();
+		if (halign != null)
+			sb.append("text-align:" + halign + ";");
+		
+		if (valign != null)
+			sb.append("vertical-align:" + valign + ";");
+		
+		if (width != 0)
+			sb.append("width:" + width + ";");
+		
+		if (rgbBackground == null)
+			rgbBackground = WHITE;
+		
+		
+		short[] color = rgbBackground;
+		sb.append("background-color:" + WebTool.toRgbString(color) + ";");
+		
+		
+		
+		if (borderStyle != null || font != null)
+		{
+			borderToHtml(sb, tm);
+			WebTool.fontToHtml(font, sb);
+		}
+		return sb.toString();
+	}
+
 }
