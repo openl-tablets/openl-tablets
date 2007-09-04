@@ -240,5 +240,14 @@ public class WebTool extends StringTool
 		
 		return buf == null ? "" : buf.toString();
 	}
+
+	/**
+	 * Returns 'rgfb(red,green,blue)' string
+	 * @param color
+	 * @return 'rgb(red,green,blue)' string
+	 */
+	static public String toRgbString(short[] color) {
+		return "rgb(" + String.valueOf(color[0]) + "," + String.valueOf(color[1]) + "," + String.valueOf(color[2]) + ")";
+	}
 	
 }
