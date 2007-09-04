@@ -100,11 +100,13 @@ function open_win(url)
 
 <%=studio.getModel().showErrors(elementID)%>
 
-<!--
-<a href="showTableEditor.jsp?elementID=<%=elementID%>">Edit Table</a>
 
+<%-- 
+<a href="showTableEditor.jsp?elementID=<%=elementID%>">Edit Table</a>
+--%>
+<a href="showTableEditor2.jsf?elementID=<%=elementID%>">Edit Table</a>
 &nbsp;<a href="copyTable.jsp?elementID=<%=elementID%>">Copy Table</a>
--->
+
 
 <div>
 &nbsp;<%=studio.getModel().showTable(elementID, view)%>
