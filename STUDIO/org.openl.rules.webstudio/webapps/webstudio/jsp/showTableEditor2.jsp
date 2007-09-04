@@ -41,8 +41,69 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title><%=text%></title>
+<script type="text/javascript">
+function open_win(url)
+{
+   window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+}
+</script>
 </head>
 <body>
+
+<table><tr>
+<td>
+<img src="../images/excel-workbook.png"/>
+<a class="left" href="showLinks.jsp?<%=url%>" target="show_app_hidden" title="<%=uri%>">
+      &nbsp;<%=text+ " : " + name%></a>
+      
+<%
+	if (isRunnable && se.length == 0)
+	{
+	  String tgtUrl = "../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID=" +elementID + "&first=true";
+%>   
+
+&nbsp;<a href="runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../images/test.gif"/></a>   
+&nbsp;<a onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#"  title="Trace"><img border=0 src="../images/trace.gif"/></a>   
+ 
+
+<%
+	}
+	
+
+	if (isTestable && se.length == 0)
+	{
+	  String tgtUrl = "../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID=" +elementID + "&first=true";
+%>   
+
+&nbsp;<a href="runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../images/test_ok.gif"/></a>   
+
+<%
+	}
+
+
+%>
+</td>
+<td>
+<%
+	String[] menuParamsView = {"transparency", "filterType", "view"}; 
+	String parsView = WebTool.listParamsExcept(menuParamsView, request);
+
+	
+	String view = request.getParameter("view");
+	if (view == null)
+	{
+		view = studio.getModel().getTableView();
+	}
+%>
+
+&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business"><img border=0 src="../images/business-view.png" title="Business View"/></a>
+&nbsp;<a class="image2" href="?<%=parsView%>&view=view.developer"><img border=0 src="../images/developer-view.png" title="Developer (Full) View"/></a>
+</td>
+</tr></table>      
+
+<%=studio.getModel().showErrors(elementID)%>
+
+
 
 <f:view>
 <a4j:form>
