@@ -6,4 +6,9 @@
   	<managed-bean-class>org.openl.jsf.EditorBean</managed-bean-class>
   	<managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
+  <managed-bean>
+  	<managed-bean-name>inplaceEditorBean</managed-bean-name>
+  	<managed-bean-class>org.openl.jsf.InplaceEditorBean</managed-bean-class>
+  	<managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
 </faces-config>

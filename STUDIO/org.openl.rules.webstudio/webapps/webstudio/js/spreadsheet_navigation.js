@@ -5,6 +5,7 @@ var initialRow=1;
 var initialColumn=1;
 var lastCell;
 var lastColor;
+var lastBorderWidth;
 
 var selectColor1 = 'rgb(255,255,0)'; 
 var selectColor2 = 'rgb(255,0,0)';
@@ -40,20 +41,19 @@ function checkInitial() {
 
 function refreshSelection() {
 	var cell = findCell(currentRow,currentColumn);
+	
 	if (undefined != lastColor) {
 		lastCell.style.backgroundColor = lastColor;
 	}
 	lastColor = cell.style.backgroundColor;
-	if (cell.style.backgroundColor != selectColor1) {
-		cell.style.backgroundColor = selectColor1;
-	} else {
-		cell.style.backgroundColor = selectColor2;
-	}
-//	cell.style.backgroundColor = invertRGB(cell.style.backgroundColor);
+	cell.style.backgroundColor = selectColor1;
+
 	lastCell = cell;
 	
+	stopEditing();
+	
 	//document.getElementById('editor_form:value').value = lastCell.elements[0].innerHTML;	
-	document.getElementById('editor_form:value').value = document.getElementById('spreadsheet:0:' + lastCell.title + 'text').innerHTML;
+	//document.getElementById('editor_form:value').value = document.getElementById('spreadsheet:0:' + lastCell.title + 'text').innerHTML;
 }
 
 function findCell(row,column) {
@@ -96,15 +96,15 @@ function move(direction) {
 	refreshSelection();	
 }
 
-function beginEditing() {
-	if ((null != lastCell) && (undefined != lastCell)) {
-		alert(lastCell.title);
-		document.getElementById('editor_form:current_cell_title').value=lastCell.title;
-		//document.getElementById('editor_form').submit();
-		alert(document.getElementById('editor_form:current_cell_title').value);
-		document.getElementById('editor_form:activator').onclick();
-	}
-}
+//function beginEditing() {
+//	if ((null != lastCell) && (undefined != lastCell)) {
+//		alert(lastCell.title);
+//		document.getElementById('editor_form:current_cell_title').value=lastCell.title;
+//		//document.getElementById('editor_form').submit();
+//		alert(document.getElementById('editor_form:current_cell_title').value);
+//		document.getElementById('editor_form:activator').onclick();
+	//}
+//}
 
 function findElement(id) {
 
@@ -134,7 +134,7 @@ function bodyOnKeyUp(event)
 		case(13):
 		case(113):
 			//alert('ENTER pressed');
-			//beginEditing();
+			beginEditing();
 			break;
 //		default:
 //			alert('unknown key pressed');

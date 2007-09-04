@@ -34,6 +34,16 @@
    boolean isTestable  = studio.getModel().isTestable(elementID);
    org.openl.syntax.ISyntaxError[] se = studio.getModel().getErrors(elementID);
    
+	String[] menuParamsView = {"transparency", "filterType", "view"}; 
+	String parsView = WebTool.listParamsExcept(menuParamsView, request);
+	String view = request.getParameter("view");
+	if (view == null)
+	{
+		view = studio.getModel().getTableView();
+	}
+   
+   FacesContext fc = FacesContext.getCurrentInstance();
+   TableWriter tw = new TableWriter(elementID,view,studio);
 %>
 
 
@@ -41,14 +51,31 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title><%=text%></title>
+<link href="../css/style1.css" rel="stylesheet" type="text/css" />
+<script language="javascript" type="text/javascript" src="../js/spreadsheet_navigation.js"></script>
 <script type="text/javascript">
+initialRow = '<%=tw.getInitialRow()%>';
+initialColumn = '<%=tw.getInitialColumn()%>';
+
 function open_win(url)
 {
    window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
 }
+
+function beginEditing() {
+	//alert('beginEditing');
+	if ((null != lastCell) && (undefined != lastCell)) {
+		document.getElementById('editor_form:cell_title').value = lastCell.title;
+		document.getElementById('editor_form:begin_editing').click();
+	} 
+}
+
+function stopEditing() {
+	
+}
 </script>
 </head>
-<body>
+<body onkeydown='javascript:bodyOnKeyUp(event);' onmouseup='bodyOnMouseDown(event);'>
 
 <table><tr>
 <td>
@@ -84,17 +111,7 @@ function open_win(url)
 %>
 </td>
 <td>
-<%
-	String[] menuParamsView = {"transparency", "filterType", "view"}; 
-	String parsView = WebTool.listParamsExcept(menuParamsView, request);
 
-	
-	String view = request.getParameter("view");
-	if (view == null)
-	{
-		view = studio.getModel().getTableView();
-	}
-%>
 
 &nbsp;<a class="image2" href="?<%=parsView%>&view=view.business"><img border=0 src="../images/business-view.png" title="Business View"/></a>
 &nbsp;<a class="image2" href="?<%=parsView%>&view=view.developer"><img border=0 src="../images/developer-view.png" title="Developer (Full) View"/></a>
@@ -104,11 +121,18 @@ function open_win(url)
 <%=studio.getModel().showErrors(elementID)%>
 
 
+<br />
 
 <f:view>
-<a4j:form>
-<h:inputText value="#{editorBean.cellTitle}" />
-<a4j:commandButton action="#{editorBean.beginEditing}" value="click me" />
+<%
+tw.render(out);
+%>
+<a4j:form id="editor_form">
+<h:inputHidden id="cell_title" value="#{editorBean.cellTitle}" />
+<h:inputHidden id="row" value="#{editorBean.row}" />
+<h:inputHidden id="row" value="#{editorBean.column}" />
+
+<a4j:commandButton reRender="spreadsheet" id="begin_editing" style="visibility:hidden" action="#{editorBean.beginEditing}" value="click me" />
 </a4j:form>
 </f:view>
 
