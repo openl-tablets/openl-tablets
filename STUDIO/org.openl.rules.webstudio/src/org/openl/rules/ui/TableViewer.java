@@ -486,5 +486,25 @@ public class TableViewer
 		}
 
 	}
+	
+	/**
+	 * Default constructor 
+	 */
+	public TableViewer() {
+		
+	}
+
+	/**
+	 * Two argument constructor
+	 * @param grid
+	 * @param reg
+	 */
+	public TableViewer(IGrid grid, IGridRegion reg) {
+		super();
+		this.grid = grid;
+		this.reg = reg;
+	}
+	
+	
 
 }
