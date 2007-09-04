@@ -96,12 +96,6 @@ public class TableWriter {
 	
 	protected void modifyView(UIViewRoot root) {
 
-		
-		UIComponent spr = root.findComponent("spreadsheet");
-		if (null != spr) {
-			spr.getParent().getChildren().remove(spr);
-		}
-		
 		if ((null != root) && (null == root.findComponent("spreadsheet"))) {
 			//
 			//printComponent(root, "-");
@@ -201,7 +195,7 @@ public class TableWriter {
 	public void render(Writer writer) {
 		FacesContext fc = FacesContext.getCurrentInstance();
 		UIViewRoot root = fc.getViewRoot();
-		root.getChildren().clear();
+		//root.getChildren().clear();
 		//UIViewRoot root = new UIViewRoot();
 		fc.setResponseWriter(new HtmlResponseWriterImpl(writer, "text/html", "UTF-8"));
 		modifyView(root);
@@ -214,7 +208,9 @@ public class TableWriter {
 	
 	public TableWriter(int elementID,String view,WebStudio studio) {
 		//
+		System.out.println("initializing table model:begin");
 		initializeTableModel(elementID,view,studio);
+		System.out.println("initializing table model:end");
 		//printTableModel();
 		//
 	}

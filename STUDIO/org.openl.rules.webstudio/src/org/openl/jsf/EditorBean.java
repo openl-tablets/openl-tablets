@@ -1,41 +1,16 @@
 package org.openl.jsf;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlInputText;
+import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
-import org.openl.rules.ui.EditorHelper;
-import org.openl.rules.ui.WebStudio;
 
 public class EditorBean {
 
-	protected Integer row;
-	protected Integer column;
-	protected Integer elementID;
 	protected String value;
 	
-	public Integer getElementID() {
-		return elementID;
-	}
-
-	public void setElementID(Integer elementID) {
-		this.elementID = elementID;
-	}
 	
-	public Integer getRow() {
-		return row;
-	}
-
-	public void setRow(Integer row) {
-		this.row = row;
-	}
-
-	public Integer getColumn() {
-		return column;
-	}
-
-	public void setColumn(Integer column) {
-		this.column = column;
-	}
 	
 	public String getValue() {
 		return value;
@@ -45,19 +20,47 @@ public class EditorBean {
 		this.value = value;
 	}
 
-	public WebStudio getWebStudio() {
-		return (WebStudio)(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("studio"));
-	}
-	
-	// <jsp:useBean id='editor' scope='session' class="org.openl.rules.ui.EditorHelper" />	
-	public EditorHelper getEditorHelper() {
-		EditorHelper result = new EditorHelper();
-		result.setTableID(getElementID(), getWebStudio().getModel());
+	protected HtmlOutputText createText(String text,String id,boolean escape) {
+		//
+		HtmlOutputText result = new HtmlOutputText();
+		result.setId(id);
+		result.setValue(text);
+		result.setEscape(escape);
 		return result;
 	}
 	
 	
+	protected String cellTitle;
 
+	public String getCellTitle() {
+		return cellTitle;
+	}
+
+	public void setCellTitle(String cellTitle) {
+		this.cellTitle = cellTitle;
+	}
+	
+	public void beginEditing() {
+		System.out.println("-----------------------------------");
+				
+		System.out.println("beginEditing:" + getCellTitle());
+		FacesContext fc = FacesContext.getCurrentInstance();
+		UIComponent comp = fc.getViewRoot().findComponent("spreadsheet").findComponent(getCellTitle());
+		System.out.println(comp);
+
+		HtmlOutputText hot = (HtmlOutputText)(comp.findComponent(getCellTitle() + "text"));
+		comp.getChildren().clear();
+		HtmlInputText hit = new HtmlInputText();
+		value = String.valueOf(hot.getValue());
+		hit.setSize(20);
+		hit.setValue("#{editorBean.value}");
+		comp.getChildren().add(hit);
+		
+		//printComponent(fc.getViewRoot(), "-");
+		
+		System.out.println("-----------------------------------");
+	}
+	
 	public void printComponent(UIComponent comp,String prefix) {
 		if (null != comp) {
 			System.out.println(prefix + comp.getClass() + ";id=" + comp.getId());
@@ -67,16 +70,4 @@ public class EditorBean {
 		}
 	}
 	
-	public void addRowBefore() {
-		System.out.println("addRowBefore");
-	}
-	
-	public void updateCellValue() {
-		System.out.println("updateCellValue");
-		System.out.println("row=" + getRow());
-		System.out.println("column=" + getColumn());
-		System.out.println("value=" + getValue());
-	}
 }
-
-
