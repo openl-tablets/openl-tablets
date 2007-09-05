@@ -12,6 +12,13 @@
 		<f:facet name="header">
 			<h:outputText value="Repository" />
 		</f:facet>
+<!--
+		<h:selectOneMenu value="prj1" style="width:300px">
+			<f:selectItem itemValue="prj1" />
+			<f:selectItem itemValue="prj2" />
+			<f:selectItem itemValue="prj3" />
+		</h:selectOneMenu>
+-->
 
 		<rich:tree style="width:300px" switchType="server"
 			value="#{repositoryHandler.data}" var="item" nodeFace="#{item.type}">

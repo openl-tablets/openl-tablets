@@ -13,7 +13,7 @@
 				<h:outputText value="Properties of Elements" />
 			</f:facet>
 
-			<rich:tabPanel style="width:600px">
+			<rich:tabPanel>
 				<rich:tab label="Properties">
 				
 					<jsp:include page="jcrPropProject.jsp"/>
