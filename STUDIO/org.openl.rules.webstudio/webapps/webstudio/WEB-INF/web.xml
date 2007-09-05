@@ -9,6 +9,18 @@
   <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
 </listener>
 
+<!--  
+    <context-param>
+        <param-name>facelets.DEVELOPMENT</param-name>
+        <param-value>true</param-value>
+    </context-param>
+	
+	<context-param>
+		<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
+		<param-value>.xhtml</param-value>
+	</context-param>
+-->
+
  <!--  
  <context-param>
   <param-name>javax.faces.CONFIG_FILES</param-name>

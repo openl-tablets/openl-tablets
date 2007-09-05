@@ -10,8 +10,6 @@ public class EditorBean {
 
 	protected String value;
 	
-	
-	
 	public String getValue() {
 		return value;
 	}

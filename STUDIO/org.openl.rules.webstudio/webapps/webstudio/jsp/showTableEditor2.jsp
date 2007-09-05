@@ -150,11 +150,17 @@ tw.render(out);
 	<h:inputHidden id="column" value="#{topEditorBean.column}" />
 	<h:inputText id="text" value="#{topEditorBean.text}" size="50" />
 	<a4j:commandButton reRender="spreadsheet" id="save_button" value="Save" action="#{topEditorBean.save}" />
-	<a4j:commandButton reRender="spreadsheet" id="cancel_button" value="Cancel" action="#{topEditorBean.cancel}" />
+	<br /><br />
+		<a4j:commandButton reRender="spreadsheet" id="add_row_before_button" value="Add row before" action="#{topEditorBean.addRowBefore}" />
+		<a4j:commandButton reRender="spreadsheet" id="add_row_after_button" value="Add row after" action="#{topEditorBean.addRowAfter}" />
+		<a4j:commandButton reRender="spreadsheet" id="remove_row_button" value="Remove row" action="#{topEditorBean.removeRow}" />
+	<br />
+		<a4j:commandButton reRender="spreadsheet" id="add_column_before_button" value="Add column before" action="#{topEditorBean.addColumnBefore}" />
+		<a4j:commandButton reRender="spreadsheet" id="add_column_after_button" value="Add column after" action="#{topEditorBean.addColumnAfter}" />
+		<a4j:commandButton reRender="spreadsheet" id="remove_column_button" value="Remove column" action="#{topEditorBean.removeColumn}" />
 </a4j:form>
+<br /><br />
 </f:view>
-
-
 
 </body>
 </html>
