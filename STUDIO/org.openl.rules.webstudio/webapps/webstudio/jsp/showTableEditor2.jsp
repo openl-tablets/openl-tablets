@@ -73,6 +73,15 @@ function beginEditing() {
 function stopEditing() {
 	
 }
+
+function refreshSelectionAfter() {
+	document.getElementById('top_editor_form:text').value = document.getElementById('spreadsheet:0:' + lastCell.title + 'text').innerHTML;
+	var pos = extractPosition(lastCell.title);
+	//alert(pos);
+	document.getElementById('top_editor_form:row').value = pos[0];	
+	document.getElementById('top_editor_form:column').value = pos[1];
+	document.getElementById('top_editor_form:elementID').value = '<%=elementID%>';
+}
 </script>
 </head>
 <body onkeydown='javascript:bodyOnKeyUp(event);' onmouseup='bodyOnMouseDown(event);'>
@@ -123,18 +132,29 @@ function stopEditing() {
 
 <br />
 
-<f:view>
+<f:view >
 <%
 tw.render(out);
 %>
 <a4j:form id="editor_form">
 <h:inputHidden id="cell_title" value="#{editorBean.cellTitle}" />
+<%-- 
 <h:inputHidden id="row" value="#{editorBean.row}" />
 <h:inputHidden id="row" value="#{editorBean.column}" />
-
+--%>
 <a4j:commandButton reRender="spreadsheet" id="begin_editing" style="visibility:hidden" action="#{editorBean.beginEditing}" value="click me" />
 </a4j:form>
+<a4j:form id="top_editor_form">
+	<h:inputHidden id="elementID" value="#{topEditorBean.elementID}" />
+	<h:inputHidden id="row" value="#{topEditorBean.row}" />
+	<h:inputHidden id="column" value="#{topEditorBean.column}" />
+	<h:inputText id="text" value="#{topEditorBean.text}" size="50" />
+	<a4j:commandButton reRender="spreadsheet" id="save_button" value="Save" action="#{topEditorBean.save}" />
+	<a4j:commandButton reRender="spreadsheet" id="cancel_button" value="Cancel" action="#{topEditorBean.cancel}" />
+</a4j:form>
 </f:view>
+
+
 
 </body>
 </html>
