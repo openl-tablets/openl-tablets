@@ -8,12 +8,12 @@ import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.WebStudio;
 
 public class TopEditorBean {
-
+	
 	protected Integer elementID;
 	protected String text;
 	protected Integer row;
 	protected Integer column;
-
+	
 	public Map getSessionMap() {
 		return FacesContext.getCurrentInstance().getExternalContext().getSessionMap();	
 	}
@@ -48,26 +48,11 @@ public class TopEditorBean {
 	}
 
 	public String getText() {
-		System.out.println("getText");
 		return text;
 	}
 
 	public void setText(String text) {
-		System.out.println("setText");
 		this.text = text;
-	}
-
-	public void save() {
-		System.out.println("save:begin");
-		System.out.println("text=" + text);
-		System.out.println("row=" + row);
-		System.out.println("column=" + column);
-		getEditorHelper().getModel().setCellValue(getColumn()-1, getRow()-1, text);
-		System.out.println("save:end");
-	}
-	
-	public void cancel() {
-		System.out.println("cancel:" + text);
 	}
 
 	public Integer getElementID() {
@@ -78,5 +63,53 @@ public class TopEditorBean {
 		this.elementID = elementID;
 	}
 	
+	/*
+	 if (request.getParameter("remove") != null)
+		editor.getModel().removeRows(1, row);
+	else if (request.getParameter("insert") != null)
+		editor.getModel().insertRows(1, row);
+	else if (request.getParameter("insertC") != null)
+		editor.getModel().insertColumns(1, col);
+	else if (request.getParameter("removeC") != null)
+		editor.getModel().removeColumns(1, col);
+	else if (request.getParameter("undo") != null)
+		editor.getModel().undo();
+	else if (request.getParameter("redo") != null)
+		editor.getModel().redo();
+	else if (request.getParameter("edit") != null)
+		editor.getModel().setCellValue(col, row, cell);
+	else if (request.getParameter("save") != null)
+		editor.getModel().save();
+	else if (request.getParameter("cancel") != null)
+		editor.getModel().cancel();
+	  */
 	
+	
+	public void save() {
+		getEditorHelper().getModel().setCellValue(getColumn()-1, getRow()-1, text);
+	}
+
+	public void addRowBefore() {
+		getEditorHelper().getModel().insertRows(1, getRow()-1);
+	}
+	
+	public void addRowAfter() {
+		getEditorHelper().getModel().insertRows(1, getRow());
+	}
+	
+	public void removeRow() {
+		getEditorHelper().getModel().removeRows(1, getRow()-1);
+	}
+
+	public void addColumnBefore() {
+		getEditorHelper().getModel().insertColumns(1, getColumn()-1);
+	}
+	
+	public void addColumnAfter() {
+		getEditorHelper().getModel().insertColumns(1, getColumn());
+	}
+	
+	public void removeColumn() {
+		getEditorHelper().getModel().removeColumns(1, getColumn()-1);
+	}
 }

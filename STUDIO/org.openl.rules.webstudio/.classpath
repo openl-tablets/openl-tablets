@@ -19,5 +19,8 @@
 	<classpathentry kind="lib" path="lib/standard.jar"/>
 	<classpathentry kind="lib" path="/org.openl.lib.apache.tomcat/apache-tomcat-5.5.17/common/lib/jsp-api.jar"/>
 	<classpathentry kind="lib" path="/org.openl.lib.apache.tomcat/apache-tomcat-5.5.17/common/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/jsf-facelets.jar"/>
+	<classpathentry kind="lib" path="lib/el-api.jar"/>
+	<classpathentry kind="lib" path="lib/el-ri.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
