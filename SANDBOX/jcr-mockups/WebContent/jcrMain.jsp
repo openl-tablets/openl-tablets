@@ -26,6 +26,15 @@
     font-size:12px;
   }
   
+  BODY {
+    scrollbar-base-color: #BED6F8;
+    scrollbar-shadow-color: #F2F7FF;
+    scrollbar-highlight-color: #F2F7FF;
+    scrollbar-arrow-color: #000000;
+    scrollbar-darkshadow-color: #C6DEFF;
+    scrollbar-3dlight-color: #C6DEFF;
+  }
+  
 </style>
 		<h:form>
 <div>
