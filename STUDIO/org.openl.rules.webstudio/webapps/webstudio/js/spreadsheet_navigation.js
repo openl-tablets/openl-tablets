@@ -16,7 +16,6 @@ function parse_rgb(s) {
 	var s2 = s.substring(i1+1,s.length);
 	var i2 = s2.indexOf(',');
 	var green = s2.substring(0,i2);
-	var s3 = s2.substring(i2+1,s2.length);
 	var blue = s3.substring(0,s3.length-1);
 	
 	return [red,green,blue];		
@@ -52,8 +51,7 @@ function refreshSelection() {
 	
 	stopEditing();
 	
-	//document.getElementById('editor_form:value').value = lastCell.elements[0].innerHTML;	
-	//document.getElementById('editor_form:value').value = document.getElementById('spreadsheet:0:' + lastCell.title + 'text').innerHTML;
+	refreshSelectionAfter();	
 }
 
 function findCell(row,column) {

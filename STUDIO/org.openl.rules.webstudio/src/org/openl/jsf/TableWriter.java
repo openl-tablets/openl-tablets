@@ -195,7 +195,7 @@ public class TableWriter {
 	public void render(Writer writer) {
 		FacesContext fc = FacesContext.getCurrentInstance();
 		UIViewRoot root = fc.getViewRoot();
-		//root.getChildren().clear();
+		root.getChildren().clear();
 		//UIViewRoot root = new UIViewRoot();
 		fc.setResponseWriter(new HtmlResponseWriterImpl(writer, "text/html", "UTF-8"));
 		modifyView(root);
