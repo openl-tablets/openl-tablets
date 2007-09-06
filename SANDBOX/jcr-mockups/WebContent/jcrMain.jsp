@@ -64,10 +64,6 @@
     background-image: none;
   }
   
-  .dr-table-headercell {
-/*    background: #99ccff; */
-  }
-
 <!--
     scrollbar-base-color: #BED6F8;
     scrollbar-shadow-color: #F2F7FF;
