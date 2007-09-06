@@ -7,7 +7,7 @@
 	</welcome-file-list>
 	<context-param>
 		<param-name>org.ajax4jsf.SKIN</param-name>
-		<param-value>blueSky</param-value>
+		<param-value>default</param-value>
 	</context-param>
 	<context-param>
 		<param-name>javax.faces.CONFIG_FILES</param-name>
