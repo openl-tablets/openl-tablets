@@ -168,7 +168,7 @@ public class CellModel implements ICellModel
 
 	static final short[] WHITE = { 255, 255, 255 };
 
-	private void atttributesToHtml(StringBuffer buf, TableModel table)
+	public void atttributesToHtml(StringBuffer buf, TableModel table)
 	{
 		
 		

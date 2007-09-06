@@ -9,7 +9,8 @@
   <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
 </listener>
 
-<!--  
+
+<!--    
     <context-param>
         <param-name>facelets.DEVELOPMENT</param-name>
         <param-value>true</param-value>

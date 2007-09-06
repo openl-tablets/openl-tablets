@@ -5,7 +5,12 @@ var initialRow=1;
 var initialColumn=1;
 var lastCell;
 var lastColor;
-var lastBorderWidth;
+var oldMargin;
+var oldPadding;
+var oldBorder;
+var oldBorderWidth;
+var oldBorderStyle;
+var oldBorderColor;
 
 var selectColor1 = 'rgb(255,255,0)'; 
 var selectColor2 = 'rgb(255,0,0)';
@@ -41,11 +46,34 @@ function checkInitial() {
 function refreshSelection() {
 	var cell = findCell(currentRow,currentColumn);
 	
-	if (undefined != lastColor) {
-		lastCell.style.backgroundColor = lastColor;
+//	if (undefined != lastColor) {
+//		lastCell.style.backgroundColor = lastColor;
+//	}
+//	lastColor = cell.style.backgroundColor;
+//	cell.style.backgroundColor = selectColor1;
+
+
+	if (undefined != lastCell) {
+		lastCell.style.margin = oldMargin;
+		lastCell.style.padding = oldPadding;
+		lastCell.style.border = oldBorder;
+		lastCell.style.borderWidth = oldBorderWidth;
+		lastCell.style.borderStyle = oldBorderStyle;
+		lastCell.style.borderColor = oldBorderColor;
+	//	alert(oldBorder);
 	}
-	lastColor = cell.style.backgroundColor;
-	cell.style.backgroundColor = selectColor1;
+	oldMargin = cell.style.margin;
+	oldPadding = cell.style.padding;
+	oldBorder = cell.style.border;
+	oldBorderWidth = cell.style.borderWidth;
+	oldBorderStyle = cell.style.borderStyle;
+	oldBorderColor = cell.style.borderColor;
+	
+	cell.style.margin='1px';
+	cell.style.padding='1px';
+	cell.style.borderWidth = '3px';
+	cell.style.borderStyle = 'solid';
+	cell.style.borderColor = '#666633';
 
 	lastCell = cell;
 	

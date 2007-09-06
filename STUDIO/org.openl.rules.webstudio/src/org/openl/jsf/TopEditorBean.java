@@ -9,6 +9,8 @@ import org.openl.rules.ui.WebStudio;
 
 public class TopEditorBean {
 	
+	protected String test2 = "IT IS TEST2";
+	
 	protected Integer elementID;
 	protected String text;
 	protected Integer row;
@@ -112,4 +114,14 @@ public class TopEditorBean {
 	public void removeColumn() {
 		getEditorHelper().getModel().removeColumns(1, getColumn()-1);
 	}
+
+	public String getTest2() {
+		return test2;
+	}
+
+	public void setTest2(String test2) {
+		this.test2 = test2;
+	}
+	
+	
 }

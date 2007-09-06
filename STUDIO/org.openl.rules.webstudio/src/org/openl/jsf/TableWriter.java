@@ -9,6 +9,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 
 import org.apache.myfaces.shared_impl.renderkit.html.HtmlResponseWriterImpl;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -94,9 +95,49 @@ public class TableWriter {
 		System.out.println("printTableModel:end");
 	}
 	
+	protected void _modifyView(UIViewRoot root) {
+		//
+		root.getChildren().remove(root.findComponent("spreadsheet"));
+		UIViewRoot spr = new UIViewRoot();
+		spr.setId("spreadsheet");
+		root.getChildren().add(spr);
+		
+		spr.getChildren().add(createText("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n", root.createUniqueId(), false));
+		for (int i=0; i < tableModel.getCells().length; i++) {
+			spr.getChildren().add(createText("<tr>\n", root.createUniqueId(), false));
+			for (int j=0; j < tableModel.getCells()[i].length; j++) {
+				ICellModel cell = tableModel.getCells()[i][j];
+				if ((null != cell) && (cell.isReal())) {
+					StringBuffer sb = new StringBuffer();
+					sb.append("<td");
+					if (cell instanceof CellModel) {
+						((CellModel)(cell)).atttributesToHtml(sb, tableModel);
+					}
+					
+					StringBuffer id = new StringBuffer();
+					for(int k=0;k<cell.getRowspan();k++) {
+						for(int l=0; l < cell.getColspan(); l++) {
+							id.append("cell-" + String.valueOf(i+k+1) + "-" + String.valueOf(j+l+1) + "_");
+						}
+					}
+					
+					sb.append(" title=\"").append(id).append("\">\n");
+					
+					spr.getChildren().add(createText(sb.toString(), root.createUniqueId(), false));
+					spr.getChildren().add(createText(cell.getContent(), id.append("text").toString(), false));
+					spr.getChildren().add(createText("</td>\n", root.createUniqueId(), false));
+				}
+			}
+			spr.getChildren().add(createText("</tr>\n", root.createUniqueId(), false));
+		}
+		spr.getChildren().add(createText("</table>", root.createUniqueId(), false));
+	}
+	
 	protected void modifyView(UIViewRoot root) {
 
-		if ((null != root) && (null == root.findComponent("spreadsheet"))) {
+		root.getChildren().remove(root.findComponent("spreadsheet"));
+		
+		if (null != root) {
 			//
 			//printComponent(root, "-");
 			HtmlDataTable hdt = new HtmlDataTable();
@@ -104,6 +145,7 @@ public class TableWriter {
 			hdt.setId("spreadsheet");
 			hdt.setValue("#{testBean.rows1}");
 			hdt.setVar("row");
+			hdt.setStyleClass("");
 //			hdt.getChildren().add(createColumn(2,1,false,createText("cell1",root.createUniqueId()),root.createUniqueId()));
 //			hdt.getChildren().add(createColumn(1,1,false,createText("cell2",root.createUniqueId()),root.createUniqueId()));
 //			hdt.getChildren().add(createColumn(1,1,true,createText("cell3",root.createUniqueId()),root.createUniqueId()));
@@ -193,16 +235,20 @@ public class TableWriter {
 	}
 
 	public void render(Writer writer) {
+		//
 		FacesContext fc = FacesContext.getCurrentInstance();
+		ResponseWriter rw = fc.getResponseWriter();
 		UIViewRoot root = fc.getViewRoot();
-		root.getChildren().clear();
-		//UIViewRoot root = new UIViewRoot();
-		fc.setResponseWriter(new HtmlResponseWriterImpl(writer, "text/html", "UTF-8"));
-		modifyView(root);
 		try {
-			renderResponse(fc,root);
+			fc.setResponseWriter(new HtmlResponseWriterImpl(writer, "text/html", "UTF-8"));
+			printComponent(root,"-");
+			//modifyView(root);
+			_modifyView(root);			
+			renderResponse(fc,root.findComponent("spreadsheet"));
 		} catch (IOException ex) {
 			ex.printStackTrace();
+		} finally {
+			fc.setResponseWriter(rw);
 		}
 	}
 	
