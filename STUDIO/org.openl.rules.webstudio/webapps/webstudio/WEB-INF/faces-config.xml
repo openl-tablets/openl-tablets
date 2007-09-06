@@ -9,7 +9,11 @@
     </view-handler>
   </application>
 -->
-
+  <managed-bean>
+  	<managed-bean-name>tableWriterBean</managed-bean-name>
+  	<managed-bean-class>org.openl.jsf.TableWriterBean</managed-bean-class>
+  	<managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
   <managed-bean>
   	<managed-bean-name>editorBean</managed-bean-name>
   	<managed-bean-class>org.openl.jsf.EditorBean</managed-bean-class>
@@ -25,4 +29,11 @@
   	<managed-bean-class>org.openl.jsf.TopEditorBean</managed-bean-class>
   	<managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
+  
+  <managed-bean>
+  	<managed-bean-name>testBean</managed-bean-name>
+  	<managed-bean-class>org.openl.jsf.TestBean</managed-bean-class>
+  	<managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  
 </faces-config>
