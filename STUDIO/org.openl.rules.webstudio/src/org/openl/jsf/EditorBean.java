@@ -142,6 +142,6 @@ public class EditorBean {
 	
 	public void stopEditing() {
 		//
-		
+		System.out.println("stopEditing");
 	}
 }

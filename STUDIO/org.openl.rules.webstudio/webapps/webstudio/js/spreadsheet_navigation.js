@@ -194,6 +194,7 @@ function extractPosition(title) {
 
 function bodyOnMouseDown(event) {
 	
+	if (false == isEditing) {
 	
 	var targetTitle;
 	if(undefined != event.target) {
@@ -225,5 +226,9 @@ function bodyOnMouseDown(event) {
 				refreshSelection();
 			}
 		//}
+	}
+	
+	} else {
+		stopEditing();
 	}
 }

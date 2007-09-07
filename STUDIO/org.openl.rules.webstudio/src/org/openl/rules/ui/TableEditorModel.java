@@ -5,15 +5,14 @@
 package org.openl.rules.ui;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Vector;
 
 import org.openl.jsf.HtmlInputTextActivator;
 import org.openl.jsf.HtmlSelectActivator;
 import org.openl.jsf.ICellEditorActivator;
+import org.openl.jsf.editor.metadata.impl.HtmlSelectMetadata;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
@@ -374,10 +373,11 @@ public class TableEditorModel
 	 */
 	public Object getCellEditorMetadata(int row,int column) {
 		// TODO
-		int a[];
-		Arrays as;
 		switch(row) {
-			case 1:return Arrays.asList(new String[]{"alt1","alt2","alt3"});
+			case 1:
+				HtmlSelectMetadata md = new HtmlSelectMetadata();
+				md.setList(Arrays.asList(new String[]{"alt1","alt2","alt3"}));
+				return md;
 			default:return null;
 		}
 	}
