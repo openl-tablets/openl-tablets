@@ -1,6 +1,7 @@
 package org.openl.jsf;
 
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
@@ -10,6 +11,8 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webtools.WebTool;
 
 public class TableWriterBean {
+	
+	public boolean ajaxrequest = false;
 
 	public void printComponent(UIComponent comp,String prefix) {
 		if (null != comp) {
@@ -71,7 +74,7 @@ public class TableWriterBean {
 	   org.openl.syntax.ISyntaxError[] se = studio.getModel().getErrors(elementID);
 	   
 		String[] menuParamsView = {"transparency", "filterType", "view"}; 
-		this.parsView = WebTool._listParamsExcept(menuParamsView, request);
+		this.parsView = WebTool.listParamsExcept2(menuParamsView, request);
 		this.view = (String)(request.get("view"));
 		if (view == null)
 		{
@@ -87,7 +90,7 @@ public class TableWriterBean {
 	
 	public void render(Writer writer) {
 		//
-		TableWriter tw = new TableWriter(elementID,view,getWebStudio());
+		TableWriter tw = new TableWriter(elementID,view,getWebStudio(),ajaxrequest);
 		setInitialRow(tw.getInitialRow());
 		setInitialColumn(tw.getInitialColumn());
 		tw.render(writer);
