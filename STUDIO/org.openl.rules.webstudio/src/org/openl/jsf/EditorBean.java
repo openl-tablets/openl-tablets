@@ -1,14 +1,25 @@
 package org.openl.jsf;
 
+import java.util.Map;
+
 import javax.faces.component.UIComponent;
-import javax.faces.component.html.HtmlInputText;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
+
+import org.ajax4jsf.ajax.html.AjaxForm;
+import org.ajax4jsf.ajax.html.HtmlAjaxCommandButton;
+import org.apache.myfaces.el.MethodBindingImpl;
+import org.apache.myfaces.el.ValueBindingImpl;
+import org.openl.rules.ui.EditorHelper;
+import org.openl.rules.ui.WebStudio;
 
 
 public class EditorBean {
 
+	protected Integer row;
+	protected Integer column;
 	protected String value;
+	protected Integer elementID;
 	
 	public String getValue() {
 		return value;
@@ -39,24 +50,44 @@ public class EditorBean {
 	}
 	
 	public void beginEditing() {
-		System.out.println("-----------------------------------");
-				
-		System.out.println("beginEditing:" + getCellTitle());
-		FacesContext fc = FacesContext.getCurrentInstance();
-		UIComponent comp = fc.getViewRoot().findComponent("spreadsheet").findComponent(getCellTitle());
-		System.out.println(comp);
+		TableWriterBean twb = (TableWriterBean)(FacesContext.getCurrentInstance().
+				getApplication().getVariableResolver().resolveVariable(
+						FacesContext.getCurrentInstance(),"tableWriterBean"));
+		twb.ajaxrequest = true;
 
-		HtmlOutputText hot = (HtmlOutputText)(comp.findComponent(getCellTitle() + "text"));
-		comp.getChildren().clear();
-		HtmlInputText hit = new HtmlInputText();
-		value = String.valueOf(hot.getValue());
-		hit.setSize(20);
-		hit.setValue("#{editorBean.value}");
-		comp.getChildren().add(hit);
-		
-		//printComponent(fc.getViewRoot(), "-");
-		
-		System.out.println("-----------------------------------");
+		FacesContext fc = FacesContext.getCurrentInstance();
+		UIComponent spr = fc.getViewRoot().findComponent("spreadsheet");
+		//
+		HtmlAjaxCommandButton button = (HtmlAjaxCommandButton)(fc.getViewRoot().findComponent("editor_form").findComponent("begin_editing"));
+		button.setReRender(getCellTitle() + "text");
+		//	
+		HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
+		int i = spr.getChildren().indexOf(hot);
+		//
+		String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
+		if (null != cellType) {
+			ICellEditorActivator activator = (ICellEditorActivator)(getEditorHelper().getModel().getCellEditors().get(cellType));
+			this.value = String.valueOf(hot.getValue());
+			UIComponent editor = activator.createInstance(value, getEditorHelper().getModel().getCellEditorMetadata(row-1, column-1));
+			editor.setValueBinding("value", new ValueBindingImpl(fc.getApplication(),"#{editorBean.value}"));
+			editor.setId(fc.getViewRoot().createUniqueId());
+			spr.getChildren().remove(i);
+			
+			AjaxForm af = new AjaxForm();
+			af.setId(getCellTitle()+"text");
+			HtmlAjaxCommandButton submit_button = new HtmlAjaxCommandButton();
+			submit_button.setStyle("visibility:hidden");
+			submit_button.setId("submit_button");
+			submit_button.setAction(new MethodBindingImpl(fc.getApplication(),"#{editorBean.stopEditing}",new Class[]{}));
+			af.getChildren().add(submit_button);
+			af.getChildren().add(editor);
+			
+			spr.getChildren().add(i, af);
+			//HtmlInputText hit = new HtmlInputText();
+			//hit.setValue(hot.getValue());
+			//hit.setId(getCellTitle()+"text");
+			//hit.setSize(20);
+		}
 	}
 	
 	public void printComponent(UIComponent comp,String prefix) {
@@ -68,4 +99,49 @@ public class EditorBean {
 		}
 	}
 	
+	public Map getSessionMap() {
+		return FacesContext.getCurrentInstance().getExternalContext().getSessionMap();	
+	}
+
+	public WebStudio getWebStudio() {
+		return (WebStudio)(getSessionMap().get("studio"));
+	}
+	
+	public EditorHelper getEditorHelper() {
+		if (!getSessionMap().containsKey("editor")) {
+			EditorHelper result = new EditorHelper();
+			result.setTableID(elementID, getWebStudio().getModel());
+			getSessionMap().put("editor",result);
+		}
+		return (EditorHelper)(getSessionMap().get("editor"));
+	}
+
+	public Integer getElementID() {
+		return elementID;
+	}
+
+	public void setElementID(Integer elementID) {
+		this.elementID = elementID;
+	}
+
+	public Integer getRow() {
+		return row;
+	}
+
+	public void setRow(Integer row) {
+		this.row = row;
+	}
+
+	public Integer getColumn() {
+		return column;
+	}
+
+	public void setColumn(Integer column) {
+		this.column = column;
+	}
+	
+	public void stopEditing() {
+		//
+		
+	}
 }
