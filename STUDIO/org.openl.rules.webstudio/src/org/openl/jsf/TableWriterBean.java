@@ -1,17 +1,17 @@
 package org.openl.jsf;
 
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webtools.WebTool;
 
 public class TableWriterBean {
-	
+
 	public boolean ajaxrequest = false;
 
 	public void printComponent(UIComponent comp,String prefix) {
@@ -48,8 +48,7 @@ public class TableWriterBean {
 	public WebStudio getWebStudio() {
 		return (WebStudio)(getSessionMap().get("studio"));
 	}
-	
-	
+
 	protected void initialize() {
 		//
 		WebStudio studio = getWebStudio();

@@ -2,11 +2,13 @@ package org.openl.jsf;
 
 import java.util.Map;
 
+import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
+import org.ajax4jsf.ajax.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.WebStudio;
-
 public class TopEditorBean {
 	
 	protected String test2 = "IT IS TEST2";
@@ -15,6 +17,7 @@ public class TopEditorBean {
 	protected String text;
 	protected Integer row;
 	protected Integer column;
+	protected String cellTitle;
 	
 	public Map getSessionMap() {
 		return FacesContext.getCurrentInstance().getExternalContext().getSessionMap();	
@@ -88,6 +91,17 @@ public class TopEditorBean {
 	
 	
 	public void save() {
+		TableWriterBean twb = (TableWriterBean)(FacesContext.getCurrentInstance().
+				getApplication().getVariableResolver().resolveVariable(
+						FacesContext.getCurrentInstance(),"tableWriterBean"));
+		twb.ajaxrequest = true;
+		
+		FacesContext fc = FacesContext.getCurrentInstance();
+		UIComponent spr = fc.getViewRoot().findComponent("spreadsheet");
+		HtmlAjaxCommandButton button = (HtmlAjaxCommandButton)(fc.getViewRoot().findComponent("top_editor_form").findComponent("save_button"));
+		button.setReRender(getCellTitle() + "text");
+		HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
+		hot.setValue(getText());
 		getEditorHelper().getModel().setCellValue(getColumn()-1, getRow()-1, text);
 	}
 
@@ -122,6 +136,13 @@ public class TopEditorBean {
 	public void setTest2(String test2) {
 		this.test2 = test2;
 	}
-	
+
+	public String getCellTitle() {
+		return cellTitle;
+	}
+
+	public void setCellTitle(String cellTitle) {
+		this.cellTitle = cellTitle;
+	}
 	
 }

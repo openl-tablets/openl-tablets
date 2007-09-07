@@ -56,20 +56,29 @@ function beginEditing() {
 	if ((null != lastCell) && (undefined != lastCell)) {
 		document.getElementById('editor_form:cell_title').value = lastCell.title;
 		document.getElementById('editor_form:begin_editing').click();
+		isEditing = true;
 	} 
 }
 
 function stopEditing() {
-	
+	if (isEditing) {
+		alert(document.getElementById(lastCell.title + 'text'));
+	}
 }
 
 function refreshSelectionAfter() {
-	document.getElementById('top_editor_form:text').value = document.getElementById(lastCell.title + 'text').innerHTML;
+	//document.getElementById('top_editor_form:text').value = document.getElementById(lastCell.title + 'text').innerHTML;
 	var pos = extractPosition(lastCell.title);
 	//alert(pos);
 	document.getElementById('top_editor_form:row').value = pos[0];	
 	document.getElementById('top_editor_form:column').value = pos[1];
 	document.getElementById('top_editor_form:elementID').value = '<%=elementID%>';
+	document.getElementById('top_editor_form:cell_title').value = lastCell.title;
+
+	document.getElementById('editor_form:row').value = pos[0];	
+	document.getElementById('editor_form:column').value = pos[1];
+	document.getElementById('editor_form:elementID').value = '<%=elementID%>';
+	document.getElementById('editor_form:cell_title').value = lastCell.title;
 }
 </script>
 
@@ -130,20 +139,22 @@ function refreshSelectionAfter() {
 <f:view>
 
 <a4j:form id="editor_form">
-<h:inputHidden id="cell_title" value="#{editorBean.cellTitle}" />
-<%-- 
-<h:inputHidden id="row" value="#{editorBean.row}" />
-<h:inputHidden id="row" value="#{editorBean.column}" />
---%>
-<a4j:commandButton reRender="spreadsheet" id="begin_editing" style="visibility:hidden" action="#{editorBean.beginEditing}" value="click me" />
+	<h:inputHidden id="elementID"  value="#{editorBean.elementID}" />
+	<h:inputHidden id="cell_title" value="#{editorBean.cellTitle}" />
+	<h:inputHidden id="row"        value="#{editorBean.row}" />
+	<h:inputHidden id="column"     value="#{editorBean.column}" />
+	<a4j:commandButton reRender="spreadsheet" id="begin_editing" style="visibility:hidden" action="#{editorBean.beginEditing}" value="click me" />
 </a4j:form>
 
 <a4j:form id="top_editor_form">
 	<h:inputHidden id="elementID" value="#{topEditorBean.elementID}" />
+	<h:inputHidden id="cell_title" value="#{topEditorBean.cellTitle}" />	
 	<h:inputHidden id="row" value="#{topEditorBean.row}" />
 	<h:inputHidden id="column" value="#{topEditorBean.column}" />
+	<%-- 
 	<h:inputText id="text" value="#{topEditorBean.text}" size="50" />
 	<a4j:commandButton reRender="spreadsheet" id="save_button" value="Save" action="#{topEditorBean.save}" />
+	--%>
 	<br /><br />
 		<a4j:commandButton reRender="spreadsheet" id="add_row_before_button" value="Add row before" action="#{topEditorBean.addRowBefore}" />
 		<a4j:commandButton reRender="spreadsheet" id="add_row_after_button" value="Add row after" action="#{topEditorBean.addRowAfter}" />
@@ -155,10 +166,10 @@ function refreshSelectionAfter() {
 </a4j:form>
 <br />
 
+<h:panelGroup id="spreadsheet">
+<%twb.render(out);%>
+</h:panelGroup>
 
-
-
-&nbsp;<div><%twb.render(out);%></div>
 </f:view>
 <%--
 &nbsp;<%=studio.getModel().showTable(elementID, view)%>

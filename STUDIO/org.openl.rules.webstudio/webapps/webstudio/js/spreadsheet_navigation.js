@@ -15,6 +15,8 @@ var oldBorderColor;
 var selectColor1 = 'rgb(255,255,0)'; 
 var selectColor2 = 'rgb(255,0,0)';
 
+var isEditing = false;
+
 function parse_rgb(s) {
 	var i1 = s.indexOf(',');
 	var red = s.substring(4,i1);
@@ -138,6 +140,7 @@ function findElement(id) {
 
 function bodyOnKeyUp(event) 
 {
+	if (false == isEditing) {
 	//alert(event.keyCode);
 	switch(event.keyCode) {
 		case(40):
@@ -164,6 +167,15 @@ function bodyOnKeyUp(event)
 			break;
 //		default:
 //			alert('unknown key pressed');
+	}
+	} else {
+	switch(event.keyCode) {
+		case(13):
+		case(113):
+			//alert('ENTER pressed');
+			stopEditing();
+			break;
+		}
 	}
 }
 

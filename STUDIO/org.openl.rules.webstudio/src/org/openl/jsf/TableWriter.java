@@ -31,6 +31,7 @@ import org.richfaces.component.html.HtmlDataTable;
 public class TableWriter {
 	//
 	
+		
 	public void printComponent(UIComponent comp,String prefix) {
 		if (null != comp) {
 			System.out.println(prefix + comp.getClass() + ";id=" + comp.getId());
@@ -43,6 +44,7 @@ public class TableWriter {
 	protected TableModel tableModel;
 	protected int initialRow;
 	protected int initialColumn;
+	protected boolean ajaxrequest;
 	
 	public int getInitialRow() {
 		return initialRow;
@@ -95,13 +97,10 @@ public class TableWriter {
 		System.out.println("printTableModel:end");
 	}
 	
-	protected void _modifyView(UIViewRoot root) {
+	protected void modifyView2(UIViewRoot root) {
 		//
-		root.getChildren().remove(root.findComponent("spreadsheet"));
-		UIViewRoot spr = new UIViewRoot();
-		spr.setId("spreadsheet");
-		root.getChildren().add(spr);
-		
+		UIComponent spr = root.findComponent("spreadsheet");
+		spr.getChildren().clear();
 		spr.getChildren().add(createText("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n", root.createUniqueId(), false));
 		for (int i=0; i < tableModel.getCells().length; i++) {
 			spr.getChildren().add(createText("<tr>\n", root.createUniqueId(), false));
@@ -241,9 +240,12 @@ public class TableWriter {
 		UIViewRoot root = fc.getViewRoot();
 		try {
 			fc.setResponseWriter(new HtmlResponseWriterImpl(writer, "text/html", "UTF-8"));
-			printComponent(root,"-");
+			//printComponent(root,"-");
 			//modifyView(root);
-			_modifyView(root);			
+			if (!ajaxrequest) {
+				modifyView2(root);
+			}
+			//printComponent(root, "-");
 			renderResponse(fc,root.findComponent("spreadsheet"));
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -252,8 +254,9 @@ public class TableWriter {
 		}
 	}
 	
-	public TableWriter(int elementID,String view,WebStudio studio) {
+	public TableWriter(int elementID,String view,WebStudio studio,boolean ajaxrequest) {
 		//
+		this.ajaxrequest = ajaxrequest;
 		System.out.println("initializing table model:begin");
 		initializeTableModel(elementID,view,studio);
 		System.out.println("initializing table model:end");
@@ -261,9 +264,4 @@ public class TableWriter {
 		//
 	}
 	
-	public void addRow() {
-		for (int i=0; i < tableModel.getCells().length; i++) {
-			
-		}
-	}
 }

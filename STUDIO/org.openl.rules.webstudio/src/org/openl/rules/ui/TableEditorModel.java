@@ -5,8 +5,15 @@
 package org.openl.rules.ui;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
+import org.openl.jsf.HtmlInputTextActivator;
+import org.openl.jsf.HtmlSelectActivator;
+import org.openl.jsf.ICellEditorActivator;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
@@ -26,6 +33,81 @@ import org.openl.rules.table.xls.XlsUndoGrid;
  */
 public class TableEditorModel
 {
+	
+	
+	/**
+	 * Table Headers – syntax depends on first keyword
+	 */
+	public static final String TH_CELL_TYPE = "TH_CELL_TYPE";
+
+	/**
+	 * Condition/Action header
+	 */
+	public static final String CA_HEADER_CELL_TYPE = "CA_HEADER_CELL_TYPE ";
+	
+	/**
+	 * Condition/Action Formula (advanced feature would be the code completion)
+	 */ 
+	public static final String CA_FORMULA_CELL_TYPE = "CA_FORMULA_CELL_TYPE";
+
+	/**
+	 *  Condition/Action Parameter Definition (type name)
+	 */
+	public static final String CA_PARAMETER_DEFINITION_CELL_TYPE = "CA_PARAMETER_DEFINITION_CELL_TYPE";
+
+	/**
+	 * Condition/Action Display Column Header
+	 */
+	public static final String CA_DISPLAY_COLUMN_HEADER_CELL_TYPE = "CA_DISPLAY_COLUMN_HEADER_CELL_TYPE";
+	
+
+	/**
+	 * Condition/Action value cell – the type is defined by Parameter Definition – constrained data entry based on the Domain of the Parameter Type (also known as Subtype in Exigen Rules; the RDF/OWL uses the word Range to define what we used to call Domain, and the word Domain for what we in Java call the Declaring Class  or Declaring Type; we need to decide which terminology we are going to use –  I start to lean toward RDF/OWL even though it will conflict with our Range classes – will be IntRange, DoubleRange etc. – but the superclass should be renamed to ArithmeticRange); the cell editors should include comboboxes for enumerations, range validators for numbers, other types of specialized editors – calendars, ranges; it also should allow to input formulas – similar to Condition/Action formula if the first character was ‘=’. 
+	 */
+	public static final String CA_ENUMERATION_CELL_TYPE = "CA_ENUMERATION_CELL_TYPE";
+	public static final String CA_NUMBER_CELL_TYPE = "CA_NUMBER_CELL_TYPE";
+	public static final String CA_DATETIME_CELL_TYPE = "CA_DATETIME_CELL_TYPE";
+
+	/**
+	 * Date Table Column Headers – constrained to the set of the allowed names + continuations (like in address.zip) 
+	 */
+	public static final String DT_COLUMN_HEADER_CELL_TYPE = "DT_COLUMN_HEADER_CELL_TYPE";
+
+	/**
+	 * Data Table Foreign Keys – constrained to the list of tables with the specific type 
+	 */
+	public static final String DT_FOREIGN_KEY_CELL_TYPE = "DT_FOREIGN_KEY_CELL_TYPE";
+
+	/**
+	 * Data Display Column Header
+	 */
+	public static final String DD_COLUMN_HEADER_CELL_TYPE = "DD_COLUMN_HEADER_CELL_TYPE";
+
+	/**
+	 * Data Cell – the same as for DT cell, except for formulas (for now)
+	 */
+	public static final String DD_FORMULA_CELL_TYPE = "DD_FORMULA_CELL_TYPE";
+	public static final String DD_ENUMERATION_CELL_TYPE = "DD_ENUMERATION_CELL_TYPE";
+	public static final String DD_NUMBER_CELL_TYPE = "DD_NUMBER_CELL_TYPE";
+	public static final String DD_DATETIME_CELL_TYPE = "DD_DATETIME_CELL_TYPE";
+	
+
+	/**
+	 * Specialty Cells – like Environment include and import cells
+	 */
+	public static final String SPECIAL_CELL_TYPE = "SPECIAL_CELL_TYPE";
+	
+	/**
+	 * Stores all the registered editors
+	 */
+	protected Hashtable<String,ICellEditorActivator> cellEditors = new Hashtable<String,ICellEditorActivator>();
+	{
+		// TODO:add all the editors
+		cellEditors.put(TH_CELL_TYPE, new HtmlInputTextActivator());
+		cellEditors.put(CA_ENUMERATION_CELL_TYPE, new HtmlSelectActivator());
+	}
+	
+	
 	
 	static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 	
@@ -251,6 +333,52 @@ public class TableEditorModel
 	{
 		return IGridRegion.Tool.width(region) > nCols;
 	}
+
+	/**
+	 * cellEditors getter
+	 * @return cellEditors
+	 */
+	public Hashtable<String, ICellEditorActivator> getCellEditors() {
+		return cellEditors;
+	}
+
+	/**
+	 * cellEditors setter
+	 * @param cellEditors
+	 */
+	public void setCellEditors(Hashtable<String, ICellEditorActivator> cellEditors) {
+		this.cellEditors = cellEditors;
+	}
+
 	
-	
+	/**
+	 * Gets type of a specified cell
+	 * @param row
+	 * @param column
+	 * @return cell type
+	 */
+	public String getCellType(int row,int column) {
+		// TODO
+		switch(row) {
+			case 0:return TH_CELL_TYPE;
+			case 1:return CA_ENUMERATION_CELL_TYPE;
+			default:return null;
+		}
+	}
+
+	/**
+	 * Gets editor metadata for a specified cell
+	 * @param row
+	 * @param column
+	 * @return editor metadata
+	 */
+	public Object getCellEditorMetadata(int row,int column) {
+		// TODO
+		int a[];
+		Arrays as;
+		switch(row) {
+			case 1:return Arrays.asList(new String[]{"alt1","alt2","alt3"});
+			default:return null;
+		}
+	}
 }
