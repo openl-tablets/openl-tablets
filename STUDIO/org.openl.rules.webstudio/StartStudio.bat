@@ -1,5 +1,6 @@
 @echo off
 
+rem test ignore
 rem set the classes
 setlocal EnableDelayedExpansion
 
