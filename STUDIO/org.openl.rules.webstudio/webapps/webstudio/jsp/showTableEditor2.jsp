@@ -62,7 +62,8 @@ function beginEditing() {
 
 function stopEditing() {
 	if (isEditing) {
-		alert(document.getElementById(lastCell.title + 'text'));
+		var b = document.getElementById(lastCell.title + 'text' + ':' + 'submit_button');
+		//b.click(); 
 	}
 }
 
@@ -167,7 +168,9 @@ function refreshSelectionAfter() {
 <br />
 
 <h:panelGroup id="spreadsheet">
+<f:verbatim>
 <%twb.render(out);%>
+</f:verbatim>
 </h:panelGroup>
 
 </f:view>

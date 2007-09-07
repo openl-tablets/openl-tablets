@@ -6,6 +6,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UISelectItem;
 import javax.faces.component.html.HtmlSelectOneListbox;
 
+import org.openl.jsf.editor.metadata.IHtmlSelectMetadata;
+
 public class HtmlSelectActivator implements ICellEditorActivator {
 	
 	@Override
@@ -13,8 +15,8 @@ public class HtmlSelectActivator implements ICellEditorActivator {
 		//
 		HtmlSelectOneListbox result = new HtmlSelectOneListbox();
 		result.setSize(1);
-		if (metadata instanceof List) {
-			List l = (List)metadata;
+		if (metadata instanceof IHtmlSelectMetadata) {
+			List l = ((IHtmlSelectMetadata)metadata).getList();
 			for (int i=0; i < l.size(); i++) {
 				UISelectItem item = new UISelectItem();
 				item.setItemValue(l.get(i));
