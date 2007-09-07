@@ -214,10 +214,8 @@ public class WebTool extends StringTool
 
 	}
 
-	public static String listParamsExcept(String[] usedParams, HttpServletRequest request)
-	{
-		Map pmap = request.getParameterMap();
-		
+	
+	public static String listParamsExcept(String[] usedParams, Map pmap) {
 		StringBuffer buf = null;
 		
 		for (Iterator iter = pmap.keySet().iterator(); iter.hasNext();)
@@ -239,6 +237,37 @@ public class WebTool extends StringTool
 		}
 		
 		return buf == null ? "" : buf.toString();
+	}
+	
+
+	public static String listParamsExcept2(String[] usedParams, Map pmap) {
+		StringBuffer buf = null;
+		
+		for (Iterator iter = pmap.keySet().iterator(); iter.hasNext();)
+		{
+			String pname = (String) iter.next();
+			
+			if (ArrayTool.contains(usedParams, pname))
+				continue;
+			if (buf == null)
+			{
+				buf=new StringBuffer(100);
+//				buf.append('?');
+			}
+			else
+				buf.append('&');
+			
+			String value = (String)pmap.get(pname);
+			buf.append(pname).append('=').append(StringTool.encodeURL(value));
+		}
+		
+		return buf == null ? "" : buf.toString();
+	}
+
+	
+	public static String listParamsExcept(String[] usedParams, HttpServletRequest request)
+	{
+		return listParamsExcept(usedParams, request.getParameterMap());
 	}
 
 	/**
