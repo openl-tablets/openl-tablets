@@ -14,6 +14,7 @@ public class HtmlSelectActivator implements ICellEditorActivator {
 	public UIComponent createInstance(Object value, Object metadata) {
 		//
 		HtmlSelectOneListbox result = new HtmlSelectOneListbox();
+		result.setOnchange("javascript:stopEditing2();");
 		result.setSize(1);
 		if (metadata instanceof IHtmlSelectMetadata) {
 			List l = ((IHtmlSelectMetadata)metadata).getList();
