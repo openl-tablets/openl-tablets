@@ -4,16 +4,13 @@
 <%@ page import = "javax.faces.context.FacesContext" %>
 <%@ page import = "org.openl.jsf.*" %>
 
-
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich" %>
 <%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j" %>
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c"%>
 
-
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
-
 
 <%@include file="checkTimeout.jsp"%>
 
@@ -33,7 +30,6 @@ String view = twb.getView();
 String s_id = twb.getSid();
 %>
 
-
 <html>
 
 <head>
@@ -51,20 +47,83 @@ function open_win(url)
    window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
 }
 
+function calculateFullPosition(el) {
+	var x = el.offsetLeft;
+	var y = el.offsetTop;
+	if (null == el.offsetParent) {
+		return [x,y];
+	} else {
+		var p = calculateFullPosition(el.offsetParent);
+		return [x+p[0],y+p[1]];
+	}
+}
+
+function onScreen(e) {
+   // Test whether the supplied element is visible.
+   var rp = e.offsetParent;
+   if (rp == null)
+      return false;
+   var pleft = e.offsetLeft;
+   var ptop = e.offsetTop;
+   while (true) {
+      if (!((pleft >= rp.scrollLeft) &&
+            (pleft <= rp.scrollLeft + rp.clientWidth) &&
+            (ptop >= rp.scrollTop) &&
+            (ptop <= rp.scrollTop + rp.clientHeight)))
+         return false;
+      pleft += rp.offsetLeft - rp.scrollLeft ;
+      ptop += rp.offsetTop - rp.scrollTop;
+      rp = rp.offsetParent;
+      if (rp == null)
+         return true;
+   }
+}
+
+
 function beginEditing() {
 	//alert('beginEditing');
 	if ((null != lastCell) && (undefined != lastCell)) {
-		document.getElementById('editor_form:cell_title').value = lastCell.title;
-		document.getElementById('editor_form:begin_editing').click();
+//		var x = lastCell.offsetLeft;
+//		var y = lastCell.offsetTop;
+		var p = calculateFullPosition(lastCell);
+//		alert(lastCell.offsetWidth);
+		 		
 		isEditing = true;
+		document.getElementById('popup_editor_form:x').value = p[0] + 1;
+		document.getElementById('popup_editor_form:y').value = p[1] + 1;
+		document.getElementById('popup_editor_form:width').value = lastCell.offsetWidth;
+		document.getElementById('popup_editor_form:height').value = lastCell.offsetHeight;
+		document.getElementById('popup_editor_form:button').click();
+		
+//		alert(s);
+//		Richfaces.showModalPanel('mp',s);
+//		document.getElementById('editor_form:cell_title').value = lastCell.title;
+//		document.getElementById('editor_form:begin_editing').click();
+//		isEditing = true;
 	} 
 }
 
+function activateInplaceEditor() {
+	//alert('activateInplaceEditor');
+	Richfaces.showModalPanel('popup_editor','');	
+}
+
 function stopEditing() {
-	if (isEditing) {
-		var b = document.getElementById(lastCell.title + 'text' + ':' + 'submit_button');
+//	if (isEditing) {
+//		var b = document.getElementById(lastCell.title + 'text' + ':' + 'submit_button');
 		//b.click(); 
-	}
+//	}
+//	Richfaces.hideModalPanel('popup_editor');
+//	isEditing = false;
+}
+
+function stopEditing2() {
+//	if (isEditing) {
+//		var b = document.getElementById(lastCell.title + 'text' + ':' + 'submit_button');
+		//b.click(); 
+//	}
+	Richfaces.hideModalPanel('popup_editor');
+	isEditing = false;
 }
 
 function refreshSelectionAfter() {
@@ -80,6 +139,12 @@ function refreshSelectionAfter() {
 	document.getElementById('editor_form:column').value = pos[1];
 	document.getElementById('editor_form:elementID').value = '<%=elementID%>';
 	document.getElementById('editor_form:cell_title').value = lastCell.title;
+	
+	document.getElementById('popup_editor_form:row').value = pos[0];	
+	document.getElementById('popup_editor_form:column').value = pos[1];
+	document.getElementById('popup_editor_form:elementID').value = '<%=elementID%>';
+	document.getElementById('popup_editor_form:cell_title').value = lastCell.title;
+	
 }
 </script>
 
@@ -173,15 +238,33 @@ function refreshSelectionAfter() {
 </f:verbatim>
 </h:panelGroup>
 
+<a4j:form id="popup_editor_form">
+	<h:inputHidden id="elementID" value="#{popupEditorBean.elementID}" />
+	<h:inputHidden id="cell_title" value="#{popupEditorBean.cellTitle}" />	
+	<h:inputHidden id="row" value="#{popupEditorBean.row}" />
+	<h:inputHidden id="column" value="#{popupEditorBean.column}" />
+	<h:inputHidden id="x" value="#{popupEditorBean.x}" />
+	<h:inputHidden id="y" value="#{popupEditorBean.y}" />
+	<h:inputHidden id="width" value="#{popupEditorBean.width}" />
+	<h:inputHidden id="height" value="#{popupEditorBean.height}" />
+	
+	<a4j:commandButton id="button" 
+		style="visibility:hidden" 
+		oncomplete="javascript:activateInplaceEditor();" 
+		reRender="popup_editor" 
+		action="#{popupEditorBean.activatePopupEditor}" />
+		
+</a4j:form>
+
+<h:panelGroup id="popup_editor" />
+
 </f:view>
 <%--
 &nbsp;<%=studio.getModel().showTable(elementID, view)%>
 --%>
 </div>
 
-
 <%@include file="showRuns.jsp"%>
-
 
 </body>
 </html>

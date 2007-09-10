@@ -29,6 +29,12 @@
   	<managed-bean-class>org.openl.jsf.TopEditorBean</managed-bean-class>
   	<managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
+
+  <managed-bean>
+  	<managed-bean-name>popupEditorBean</managed-bean-name>
+  	<managed-bean-class>org.openl.jsf.PopupEditorBean</managed-bean-class>
+  	<managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
   
   <managed-bean>
   	<managed-bean-name>testBean</managed-bean-name>
