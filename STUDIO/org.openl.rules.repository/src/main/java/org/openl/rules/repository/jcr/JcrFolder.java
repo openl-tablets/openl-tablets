@@ -65,4 +65,22 @@ public interface JcrFolder extends JcrEntity, JcrVersionable {
 	 * @throws RepositoryException
 	 */
 	public JcrFile getFile(String name) throws RepositoryException;
+	
+	/**
+	 * Creates sub folder.
+	 * 
+	 * @param name name of sub folder
+	 * @return newly created sub folder
+	 * @throws RepositoryException if fails
+	 */
+	public JcrFolder createSubFolder(String name) throws RepositoryException;
+
+	/**
+	 * Creates file.
+	 * 
+	 * @param name name of file
+	 * @return newly created file
+	 * @throws RepositoryException if fails
+	 */
+	public JcrFile createFile(String name) throws RepositoryException;
 }

@@ -78,6 +78,16 @@ public class JcrFolderImpl extends JcrEntityImpl implements JcrFolder {
 		return new JcrFileImpl(n);
 	}
 
+    /** {@inheritDoc} */
+	public JcrFolder createSubFolder(String name) throws RepositoryException {
+		return JcrFolderImpl.createFolder(node(), name);
+	}
+
+    /** {@inheritDoc} */
+	public JcrFile createFile(String name) throws RepositoryException {
+		return JcrFileImpl.createFile(node(), name);
+	}
+	
 	// ------ private methods ------
 	
 	/**

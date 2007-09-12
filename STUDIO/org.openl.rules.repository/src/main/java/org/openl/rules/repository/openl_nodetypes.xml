@@ -47,6 +47,7 @@
         <supertypes>
             <supertype>nt:file</supertype>
         </supertypes>
+        <propertyDefinition name="modifiedTime" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
     </nodeType>
     <nodeType name="openl:folder">
         <supertypes>

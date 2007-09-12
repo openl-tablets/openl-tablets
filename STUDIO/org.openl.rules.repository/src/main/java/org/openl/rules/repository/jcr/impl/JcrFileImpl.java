@@ -88,6 +88,7 @@ public class JcrFileImpl extends JcrEntityImpl implements JcrFile {
         resNode.setProperty ("jcr:data", inputStream);
         resNode.setProperty ("jcr:lastModified", lastModified);
         
+        //FIXME: I don't think we really need this. It's good to use creation time of particular version
         n.setProperty (JcrNT.PROP_MODIFIED_TIME, lastModified);
         
         n.save();

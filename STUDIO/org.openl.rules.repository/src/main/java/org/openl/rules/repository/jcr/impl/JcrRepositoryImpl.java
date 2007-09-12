@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
@@ -28,9 +29,30 @@ public class JcrRepositoryImpl implements JcrRepository {
 
 	/** JCR Session */
 	private Session session;
+	private Node defNewProjectLocation;
 	
-	public JcrRepositoryImpl(Session session) {
+	public JcrRepositoryImpl(Session session, String defPath) throws RepositoryException {
 		this.session = session;
+		
+		Node node = session.getRootNode();
+		String[] paths = defPath.split("/");
+		for (String path : paths) {
+			if (path.length() == 0) continue; // first element (root folder) or illegal path
+
+			if (node.hasNode(path)) {
+				// go deeper
+				node = node.getNode(path);
+			} else {
+				// create new
+				node = node.addNode(path);
+			}
+		}
+		
+		if (node.isNew()) {
+			// save all at once
+			session.save();
+		}
+		defNewProjectLocation = node;
 	}
 	
     /** {@inheritDoc} */
@@ -45,15 +67,14 @@ public class JcrRepositoryImpl implements JcrRepository {
 	}
 
     /** {@inheritDoc} */
-	public JcrProject createProject(Node parentNode, String nodeName) throws RepositoryException {
-		return JcrProjectImpl.createProject(parentNode, nodeName);
-	}
-	
-    /** {@inheritDoc} */
 	public void release() {
 		session.logout();
 	}
 
+    /** {@inheritDoc} */
+	public JcrProject createProject(String nodeName) throws RepositoryException {
+		return JcrProjectImpl.createProject(defNewProjectLocation, nodeName);
+	}
 	// ------ protected methods ------
 	
 	/**
