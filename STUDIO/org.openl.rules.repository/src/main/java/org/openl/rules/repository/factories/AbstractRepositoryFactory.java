@@ -36,7 +36,7 @@ public abstract class AbstractRepositoryFactory implements JcrRepositoryFactory 
 		// FIXME: do not hardcode credential info
 		Session session = createSession("user", "pass");
 
-		JcrRepositoryImpl jri = new JcrRepositoryImpl(session);
+		JcrRepositoryImpl jri = new JcrRepositoryImpl(session, defPath);
 		return jri;
 	}
 

@@ -54,7 +54,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractRepositoryFactory 
 	private void init() throws RepositoryException {
 		try {
 			String repConf = "/repository.xml";
-			String repHome = "repository";
+			String repHome = "../local-repository";
 			
 			// obtain real path to repository configuration file
 			URL url = this.getClass().getResource(repConf);

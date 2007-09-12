@@ -36,4 +36,14 @@ public interface JcrRepository {
 	 */
 	// TODO: do we need it?
 	public void release();
+	
+	/**
+	 * Creates project in the repository.
+	 * <code>nodeName</code> must be unique in a scope of sibling nodes.
+	 * 
+	 * @param nodeName name of node
+	 * @return newly created project
+	 * @throws RepositoryException if fails
+	 */
+	public JcrProject createProject(String nodeName) throws RepositoryException;
 }
