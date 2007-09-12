@@ -1,0 +1,68 @@
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib xmlns="http://java.sun.com/JSP/TagLibraryDescriptor">
+	<tlib-version>0.01</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>openl</short-name>
+	<uri>http://exigenservices/openltablets/jsf</uri>
+
+	<tag>
+		<name>popupMenu</name>
+		<tag-class>org.openl.jsf.custom.popupmenu.HtmlPopupMenuTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>
+			Shows popup menu
+		</description>
+
+		<attribute>
+			<name>imageUrl</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>
+				Image that is displayed as hint for showing menu. If the menu is tooltip style
+				this attribute is not required and ignored.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>menuStyleClass</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>HTML: space separated list of extra CSS styling classes for DIV containing menu.</description>
+		</attribute>
+
+		<attribute>
+			<name>tooltip</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<description>
+				Boolean value indicating if menu will be shown as a tooltip with a delay,
+				or as a button that displays it on click.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>delay</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<type>java.lang.Integer</type>
+			<description>
+				Delay in milliseconds for tooltip style menu.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>binding</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<type>java.lang.String</type>
+			<description>
+				Identifies a backing bean property (of type UIComponent or appropriate
+				subclass) to bind to this component instance. This value must be an
+				EL expression.
+			</description>
+		</attribute>
+	</tag>
+
+</taglib>
