@@ -5,15 +5,15 @@
 		  "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config xmlns="http://java.sun.com/JSF/Configuration">
 	<component>
-		<component-type>org.openltablets.faces.PopupMenu</component-type>
+		<component-type>org.openl.rules.faces.PopupMenu</component-type>
 		<component-class>org.openl.jsf.custom.popupmenu.HtmlPopupMenu</component-class>
 	</component>
 
 	<render-kit>
 		<render-kit-id>HTML_BASIC</render-kit-id>
 		<renderer>
-			<component-family>org.openltablets.faces</component-family>
-			<renderer-type>org.exigenservices.faces.MenuPopup</renderer-type>
+			<component-family>org.openl.rules.faces</component-family>
+			<renderer-type>org.openl.rules.faces.render.PopupMenu</renderer-type>
 			<renderer-class>org.openl.jsf.custom.popupmenu.HtmlPopupMenuRenderer</renderer-class>
 		</renderer>
 	</render-kit>

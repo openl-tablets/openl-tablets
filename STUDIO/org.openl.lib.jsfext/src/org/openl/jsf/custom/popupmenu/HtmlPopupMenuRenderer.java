@@ -20,7 +20,7 @@ public class HtmlPopupMenuRenderer extends HeaderResourcesRendererBase {
 	/**
 	 * Identifier of this renderer type.
 	 */
-	public static final String RENDERER_TYPE = "org.exigenservices.faces.MenuPopup";
+	public static final String RENDERER_TYPE = "org.openl.rules.faces.render.PopupMenu";
 	/**
 	 * The javascript used by rendered content.
 	 */
