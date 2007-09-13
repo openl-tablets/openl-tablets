@@ -26,16 +26,7 @@
 </style>
 
 <f:view>
-	<h:dataTable cellpadding="0" cellspacing="10px" width="700" border="0" var="record" value="#{report.records}">
-		<f:facet name="header">
-			<h:column>
-				<h:outputText value="City"/>
-			</h:column>
-			<h:column>
-				<h:outputText value="Country"/>
-			</h:column>
-		</f:facet>
-
+	<h:dataTable cellpadding="0" cellspacing="0" width="200px" border="1" var="record" value="#{report.records}">
 		<h:column>
 			<openl:popupMenu imageUrl="images/show_menu.gif" menuStyleClass="#{record.name}">
 				<h:outputText value="#{record.name}"/>
