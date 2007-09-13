@@ -22,11 +22,11 @@ public class HtmlPopupMenu extends UIComponentBase {
 	/**
 	 * The identifier of the component family this component belongs to.
 	 */
-	private static final String COMPONENT_FAMILY = "org.openltablets.faces";
+	private static final String COMPONENT_FAMILY = "org.openl.rules.faces";
 	/**
 	 * Identifier of the component type for the component.
 	 */
-	public static final String COMPONENT_TYPE = "org.openltablets.faces.PopupMenu";
+	public static final String COMPONENT_TYPE = "org.openl.rules.faces.PopupMenu";
 	/**
 	 * Url of the image for help icon in non tooltip mode.
 	 */

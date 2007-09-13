@@ -4,7 +4,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://exigenservices/openltablets/jsf" prefix="openl" %>
+<%@ taglib uri="http://rules.openl.org/jsf" prefix="openl" %>
 
 <html>
 <head>
