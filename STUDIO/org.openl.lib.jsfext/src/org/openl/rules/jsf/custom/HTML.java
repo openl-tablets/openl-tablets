@@ -1,4 +1,4 @@
-package org.openl.jsf.custom;
+package org.openl.rules.jsf.custom;
 
 /**
  * This interface defines constants for HTML element tags.

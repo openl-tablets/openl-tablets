@@ -6,7 +6,7 @@
 <faces-config xmlns="http://java.sun.com/JSF/Configuration">
 	<component>
 		<component-type>org.openl.rules.faces.PopupMenu</component-type>
-		<component-class>org.openl.jsf.custom.popupmenu.HtmlPopupMenu</component-class>
+		<component-class>org.openl.rules.jsf.custom.popupmenu.HtmlPopupMenu</component-class>
 	</component>
 
 	<render-kit>
@@ -14,7 +14,7 @@
 		<renderer>
 			<component-family>org.openl.rules.faces</component-family>
 			<renderer-type>org.openl.rules.faces.render.PopupMenu</renderer-type>
-			<renderer-class>org.openl.jsf.custom.popupmenu.HtmlPopupMenuRenderer</renderer-class>
+			<renderer-class>org.openl.rules.jsf.custom.popupmenu.HtmlPopupMenuRenderer</renderer-class>
 		</renderer>
 	</render-kit>
 
