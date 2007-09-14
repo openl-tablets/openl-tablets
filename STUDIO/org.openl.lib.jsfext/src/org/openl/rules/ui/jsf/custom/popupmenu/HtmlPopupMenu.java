@@ -22,7 +22,7 @@ public class HtmlPopupMenu extends UIComponentBase {
 	/**
 	 * The identifier of the component family this component belongs to.
 	 */
-	private static final String COMPONENT_FAMILY = "org.openl.rules.faces";
+	public static final String COMPONENT_FAMILY = "org.openl.rules.faces";
 	/**
 	 * Identifier of the component type for the component.
 	 */
