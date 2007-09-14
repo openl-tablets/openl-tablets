@@ -9,6 +9,9 @@ var PopupMenu = {
 	menuON: false,
 	menuHolderDiv : undefined,
 	delayedFunction: undefined,
+	disappearFunction: undefined,
+	disappearInterval1: 5000,
+	disappearInterval2: 1000,
 	delayedState: {
 		extraClass: undefined,
 		evt: {},
@@ -16,6 +19,8 @@ var PopupMenu = {
 	},
 
 	_showPopupMenu: function (contentElement, event, extraClass) {
+		this.cancelDisappear();
+
 		if (this.menu_ns6)
 		{
 			this.menuHolderDiv.style.left = (event.clientX + document.body.scrollLeft + 5) + "px";
@@ -33,9 +38,16 @@ var PopupMenu = {
 		this.menuHolderDiv.style.display = "inline";
 
 		this.menuON = true;
+		this.disappearFunction = setTimeout("PopupMenu.closeMenu()", this.disappearInterval1);
+	},
+
+	cancelDisappear : function() {
+		if (this.disappearFunction) clearTimeout(this.disappearFunction);
+		this.disappearFunction = undefined;
 	},
 
 	closeMenu: function () {
+		this.cancelDisappear();
 		if (this.menuON) {
 			this.menuHolderDiv.style.display = "none";
 		}
@@ -48,15 +60,21 @@ var PopupMenu = {
 		return this.inMenuDiv(el.parentNode);
 	},
 
+	getTarget: function (e) {
+		var evt = this.menu_ie ? window.event : e;
+		var el = undefined;
+		if (evt.target) {
+			return evt.target;
+		} else if (evt.srcElement) {
+			return evt.srcElement;
+		}
+		;
+		return undefined;
+	},
+
 	_init: function (contentElement, event, extraClass) {
 		document.onclick = function(e) {
-			var evt = PopupMenu.menu_ie ? window.event : e;
-			var el = undefined;
-			if (evt.target) {
-				el = evt.target;
-			} else if (evt.srcElement) {
-				el = evt.srcElement;
-			}
+			var el = PopupMenu.getTarget(e);
 			if (el && (el.name != 'menurevealbutton') && !PopupMenu.inMenuDiv(el))
 				PopupMenu.closeMenu();
 			return true;
@@ -72,6 +90,16 @@ var PopupMenu = {
 			this.menuHolderDiv.style.cssFloat = "none";
 			this.menuHolderDiv.style.zIndex = "5";
 			this.menuHolderDiv.style.position = "absolute";
+		}
+
+		this.menuHolderDiv.onmouseout = function(e) {
+			if (PopupMenu.getTarget(e) == PopupMenu.menuHolderDiv) {
+				PopupMenu.cancelDisappear();
+				PopupMenu.disappearFunction = setTimeout("PopupMenu.closeMenu()", PopupMenu.disappearInterval2);
+			}
+		}
+		this.menuHolderDiv.onmouseover = function(e) {
+			PopupMenu.cancelDisappear();
 		}
 
 		document.body.appendChild(this.menuHolderDiv);
