@@ -1,9 +1,9 @@
-package org.openl.rules.jsf.custom.popupmenu;
+package org.openl.rules.ui.jsf.custom.popupmenu;
 
 import org.ajax4jsf.framework.renderer.HeaderResourcesRendererBase;
 import org.ajax4jsf.framework.resource.InternetResource;
-import static org.openl.rules.jsf.custom.HTML.DIV;
-import static org.openl.rules.jsf.custom.HTML.IMG;
+import static org.openl.rules.ui.jsf.custom.HTML.DIV;
+import static org.openl.rules.ui.jsf.custom.HTML.IMG;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;

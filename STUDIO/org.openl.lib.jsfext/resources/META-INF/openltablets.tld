@@ -7,7 +7,7 @@
 
 	<tag>
 		<name>popupMenu</name>
-		<tag-class>org.openl.rules.jsf.custom.popupmenu.HtmlPopupMenuTag</tag-class>
+		<tag-class>org.openl.rules.ui.jsf.custom.popupmenu.HtmlPopupMenuTag</tag-class>
 		<body-content>JSP</body-content>
 		<description>
 			Shows popup menu

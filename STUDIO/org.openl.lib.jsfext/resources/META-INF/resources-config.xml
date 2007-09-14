@@ -2,6 +2,6 @@
 <resource-config>
 	<resource>
 		<name>scripts/popupmenu.js</name>
-		<path>org/openl/rules/jsf/custom/scripts/popupmenu.js</path>
+		<path>org/openl/rules/ui/jsf/custom/scripts/popupmenu.js</path>
 	</resource>
 </resource-config>

@@ -1,4 +1,4 @@
-package org.openl.rules.jsf.custom.popupmenu;
+package org.openl.rules.ui.jsf.custom.popupmenu;
 
 import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIComponent;
