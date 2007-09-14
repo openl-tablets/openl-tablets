@@ -1,4 +1,4 @@
-package org.openl.rules.jsf.custom.popupmenu;
+package org.openl.rules.ui.jsf.custom.popupmenu;
 
 import org.ajax4jsf.framework.taglib.UIComponentTagBase;
 
