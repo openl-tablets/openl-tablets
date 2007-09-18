@@ -19,20 +19,44 @@
 			<artifactId>model</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.emf</groupId>
-			<artifactId>common</artifactId>
+			<groupId>com.exigen.common</groupId>
+			<artifactId>components</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.emf</groupId>
-			<artifactId>ecore</artifactId>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.emf</groupId>
-			<artifactId>ecore-xmi</artifactId>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.xsd</groupId>
-			<artifactId>xsd</artifactId>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl</groupId>
+			<artifactId>commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl</groupId>
+			<artifactId>j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl</groupId>
+			<artifactId>lib-apache-poi-modified</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl</groupId>
+			<artifactId>rules</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl</groupId>
+			<artifactId>rules-helpers</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
