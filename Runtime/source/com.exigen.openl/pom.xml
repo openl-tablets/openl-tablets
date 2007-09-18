@@ -9,7 +9,7 @@
 	<parent>
 		<artifactId>base</artifactId>
 		<groupId>com.exigen</groupId>
-		<version>7.0.002</version>
+		<version>7.0.005</version>
 		<relativePath>../com.exigen.base</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -73,6 +73,11 @@
 			<dependency>
 				<groupId>com.exigen.common</groupId>
 				<artifactId>model</artifactId>
+				<version>${com.exigen.common.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.exigen.common</groupId>
+				<artifactId>components</artifactId>
 				<version>${com.exigen.common.version}</version>
 			</dependency>
 		</dependencies>
