@@ -109,7 +109,8 @@ public class OpenLWebProjectInfo
 			
 		}
 		
-		ucl = new URLClassLoader(urls);
+		// adds parent class loader to reach context dependent jars/classes
+		ucl = new URLClassLoader(urls, parent);
 		return ucl;
 	}
 
