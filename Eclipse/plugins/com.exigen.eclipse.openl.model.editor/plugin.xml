@@ -38,5 +38,15 @@
         class = "com.exigen.eclipse.common.facet.emf.ui.editor.CommonModelEditor" 
         contributorClass="com.exigen.eclipse.common.facet.emf.ui.editor.ModelEditorActionBarContributor" >
     </editor>
+    <editor
+          default="false"
+          id="com.exigen.eclipse.openl.model.editor.excelFileOleEditor"
+          name="OpenL Tablets Excel Editor"/>
+  </extension>
+  <extension
+        point="com.exigen.eclipse.common.ui.propertyPageContributorFactories">
+     <propertyPageContributorFactory
+           class="com.exigen.eclipse.openl.model.editor.actions.OpenLPropertyPageContributorFactory"
+           targetPageId="com.exigen.eclipse.common.facet.emf.ui.modelPropertyPage"/>
   </extension>    
 </plugin>
