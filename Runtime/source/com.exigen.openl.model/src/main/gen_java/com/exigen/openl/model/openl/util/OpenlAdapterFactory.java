@@ -6,6 +6,7 @@
  */
 package com.exigen.openl.model.openl.util;
 
+import com.exigen.common.model.components.BaseNamedParameter;
 import com.exigen.common.model.components.BaseParameter;
 import com.exigen.common.model.components.ComponentDefinition;
 import com.exigen.common.model.components.OperationDefinition;
@@ -18,6 +19,7 @@ import com.exigen.common.model.components.java.JavaMethodParameter;
 import com.exigen.common.model.components.java.JavaMethodReturn;
 
 import com.exigen.common.model.primitives.BaseElement;
+import com.exigen.common.model.primitives.BaseInheritableElement;
 import com.exigen.common.model.primitives.BaseNamedElement;
 import com.exigen.common.model.primitives.BaseRootModelElement;
 import com.exigen.common.model.primitives.NamedElement;
@@ -132,6 +134,9 @@ public class OpenlAdapterFactory extends AdapterFactoryImpl {
 			}
 			public Object caseBaseParameter(BaseParameter object) {
 				return createBaseParameterAdapter();
+			}
+			public Object caseBaseNamedParameter(BaseNamedParameter object) {
+				return createBaseNamedParameterAdapter();
 			}
 			public Object caseJavaMethodParameter(JavaMethodParameter object) {
 				return createJavaMethodParameterAdapter();
@@ -364,6 +369,20 @@ public class OpenlAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createBaseParameterAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link com.exigen.common.model.components.BaseNamedParameter <em>Base Named Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see com.exigen.common.model.components.BaseNamedParameter
+	 * @generated
+	 */
+	public Adapter createBaseNamedParameterAdapter() {
 		return null;
 	}
 

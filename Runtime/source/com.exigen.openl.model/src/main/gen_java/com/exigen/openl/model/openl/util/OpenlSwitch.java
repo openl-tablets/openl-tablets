@@ -6,6 +6,7 @@
  */
 package com.exigen.openl.model.openl.util;
 
+import com.exigen.common.model.components.BaseNamedParameter;
 import com.exigen.common.model.components.BaseParameter;
 import com.exigen.common.model.components.ComponentDefinition;
 import com.exigen.common.model.components.OperationDefinition;
@@ -18,6 +19,7 @@ import com.exigen.common.model.components.java.JavaMethodParameter;
 import com.exigen.common.model.components.java.JavaMethodReturn;
 
 import com.exigen.common.model.primitives.BaseElement;
+import com.exigen.common.model.primitives.BaseInheritableElement;
 import com.exigen.common.model.primitives.BaseNamedElement;
 import com.exigen.common.model.primitives.BaseRootModelElement;
 import com.exigen.common.model.primitives.NamedElement;
@@ -132,6 +134,7 @@ public class OpenlSwitch {
 				RuleSetParameter ruleSetParameter = (RuleSetParameter)theEObject;
 				Object result = caseRuleSetParameter(ruleSetParameter);
 				if (result == null) result = caseJavaMethodParameter(ruleSetParameter);
+				if (result == null) result = caseBaseNamedParameter(ruleSetParameter);
 				if (result == null) result = caseBaseNamedElement(ruleSetParameter);
 				if (result == null) result = caseBaseParameter(ruleSetParameter);
 				if (result == null) result = caseBaseElement(ruleSetParameter);
@@ -378,6 +381,21 @@ public class OpenlSwitch {
 	 * @generated
 	 */
 	public Object caseBaseParameter(BaseParameter object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpretting the object as an instance of '<em>Base Named Parameter</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpretting the object as an instance of '<em>Base Named Parameter</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public Object caseBaseNamedParameter(BaseNamedParameter object) {
 		return null;
 	}
 

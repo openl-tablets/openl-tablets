@@ -465,7 +465,7 @@ public interface OpenlPackage extends EPackage {
 		 */
 		EClass RULE_SET = eINSTANCE.getRuleSet();
 
-			/**
+		/**
 		 * The meta object literal for the '{@link com.exigen.openl.model.openl.impl.RuleSetParameterImpl <em>Rule Set Parameter</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
