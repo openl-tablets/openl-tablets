@@ -32,7 +32,7 @@
 	<target name="compile" depends="init">
 		<javac destdir="${dir.dist}" debug="${compiler.debug}" srcdir="${dir.src}" classpathref="build.classpath"/>
 		<copy todir="${dir.dist}">
-			<fileset dir="resources" includes="**.*">
+			<fileset dir="resources" includes="**/*">
 				<exclude name="**/.DS_Store/**"/>
 				<exclude name="**/.svn/**"/>
 			</fileset>

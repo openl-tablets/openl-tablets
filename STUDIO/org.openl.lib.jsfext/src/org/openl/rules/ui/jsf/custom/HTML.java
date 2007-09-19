@@ -6,4 +6,7 @@ package org.openl.rules.ui.jsf.custom;
 public interface HTML {
 	String DIV = "div";
 	String IMG = "img"; 
+	String TABLE = "table"; 
+	String TABLE_ROW = "tr";
+	String TABLE_COLUMN = "td"; 
 }

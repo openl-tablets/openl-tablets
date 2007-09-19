@@ -9,12 +9,27 @@
 		<component-class>org.openl.rules.ui.jsf.custom.popupmenu.HtmlPopupMenu</component-class>
 	</component>
 
+	<component>
+		<component-type>org.openl.rules.faces.TableEditor</component-type>
+		<component-class>org.openl.rules.ui.jsf.custom.tableeditor.TableEditor</component-class>
+	</component>
+
+	<component>
+		<component-type>org.openl.rules.faces.Cell</component-type>
+		<component-class>org.openl.rules.ui.jsf.custom.tableeditor.UICell</component-class>
+	</component>
+
 	<render-kit>
 		<render-kit-id>HTML_BASIC</render-kit-id>
 		<renderer>
 			<component-family>org.openl.rules.faces</component-family>
 			<renderer-type>org.openl.rules.faces.render.PopupMenu</renderer-type>
 			<renderer-class>org.openl.rules.ui.jsf.custom.popupmenu.HtmlPopupMenuRenderer</renderer-class>
+		</renderer>
+		<renderer>
+			<component-family>org.openl.rules.faces</component-family>
+			<renderer-type>org.openl.rules.faces.render.TableEditor</renderer-type>
+			<renderer-class>org.openl.rules.ui.jsf.custom.tableeditor.TableEditorRenderer</renderer-class>
 		</renderer>
 	</render-kit>
 
