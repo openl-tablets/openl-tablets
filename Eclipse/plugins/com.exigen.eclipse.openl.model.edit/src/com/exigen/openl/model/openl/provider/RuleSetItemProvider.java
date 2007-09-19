@@ -7,36 +7,32 @@
 package com.exigen.openl.model.openl.provider;
 
 
-import com.exigen.common.model.components.java.JavaComponentsPackage;
-
-import com.exigen.common.model.components.java.provider.JavaMethodOperationDefinitionItemProvider;
-
-import com.exigen.eclipse.common.facet.emf.edit.provider.IItemCreateChildConstraintProvider;
-import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
-
-import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
-
-import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
-
-import com.exigen.openl.model.openl.OpenlFactory;
-import com.exigen.openl.model.openl.OpenlPackage;
-import com.exigen.openl.model.openl.RuleSet;
-
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.edit.command.CommandParameter;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
+
+import com.exigen.common.model.components.java.JavaComponentsPackage;
+import com.exigen.common.model.components.java.provider.JavaMethodOperationDefinitionItemProvider;
+import com.exigen.eclipse.common.facet.emf.edit.provider.IItemCreateChildConstraintProvider;
+import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
+import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
+import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
+import com.exigen.openl.model.openl.OpenlFactory;
+import com.exigen.openl.model.openl.OpenlPackage;
+import com.exigen.openl.model.openl.RuleSet;
 
 /**
  * This is the item provider adapter for a {@link com.exigen.openl.model.openl.RuleSet} object.
@@ -130,6 +126,16 @@ public class RuleSetItemProvider
 			(createChildParameter
 				(JavaComponentsPackage.Literals.JAVA_METHOD_OPERATION_DEFINITION__RETURN,
 				 OpenlFactory.eINSTANCE.createRuleSetReturn()));
+
+		Set<CommandParameter> childDescriptorToDelete = new HashSet<CommandParameter>();
+		for(CommandParameter childDescriptor : (List<CommandParameter>)newChildDescriptors) {
+			EObject child = (EObject) childDescriptor.value;
+			if (!OpenlPackage.eINSTANCE.equals(child.eClass().getEPackage())) {
+				childDescriptorToDelete.add(childDescriptor);
+			}
+		}
+
+		newChildDescriptors.removeAll(childDescriptorToDelete);
 	}
 
 	/**
