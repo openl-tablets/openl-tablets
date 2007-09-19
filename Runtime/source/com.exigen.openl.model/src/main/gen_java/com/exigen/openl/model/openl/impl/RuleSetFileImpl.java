@@ -106,9 +106,17 @@ public class RuleSetFileImpl extends BaseRootModelElementImpl implements RuleSet
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
 	 */
 	public String getExcelResourceReference() {
+		return eResource().getURI().trimFileExtension().appendFileExtension("xls").toString();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getExcelResourceReferenceGen() {
 		return excelResourceReference;
 	}
 
