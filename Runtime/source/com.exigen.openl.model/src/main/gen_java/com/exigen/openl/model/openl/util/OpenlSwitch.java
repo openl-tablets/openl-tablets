@@ -19,7 +19,6 @@ import com.exigen.common.model.components.java.JavaMethodParameter;
 import com.exigen.common.model.components.java.JavaMethodReturn;
 
 import com.exigen.common.model.primitives.BaseElement;
-import com.exigen.common.model.primitives.BaseInheritableElement;
 import com.exigen.common.model.primitives.BaseNamedElement;
 import com.exigen.common.model.primitives.BaseRootModelElement;
 import com.exigen.common.model.primitives.NamedElement;
