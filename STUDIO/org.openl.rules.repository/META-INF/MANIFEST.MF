@@ -5,4 +5,5 @@ Bundle-SymbolicName: org.openl.rules.repository
 Bundle-Version: 4.1.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.openl.lib.apache.jackrabbit
+Require-Bundle: org.openl.lib.apache.jackrabbit,
+ org.openl.lib.exigen.jcr
