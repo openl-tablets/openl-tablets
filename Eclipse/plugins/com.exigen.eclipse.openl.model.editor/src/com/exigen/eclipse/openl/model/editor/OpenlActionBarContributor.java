@@ -4,7 +4,7 @@
  *
  * $Id$
  */
-package com.exigen.openl.model.openl.presentation;
+package com.exigen.eclipse.openl.model.editor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -292,6 +292,7 @@ public class OpenlActionBarContributor
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	protected Collection generateCreateChildActions(Collection descriptors, ISelection selection) {
 		Collection actions = new ArrayList();
 		if (descriptors != null) {
@@ -309,6 +310,7 @@ public class OpenlActionBarContributor
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	protected Collection generateCreateSiblingActions(Collection descriptors, ISelection selection) {
 		Collection actions = new ArrayList();
 		if (descriptors != null) {

@@ -18,9 +18,9 @@ import com.exigen.eclipse.common.facet.emf.edit.provider.ProviderUtils;
 import com.exigen.eclipse.common.facet.emf.ui.property.sheet.ModelTabbedPropertyPage;
 import com.exigen.eclipse.common.ui.property.page.CommonTabbedPropertyPage;
 import com.exigen.eclipse.common.ui.property.page.ICommonPropertyPageContributor;
+import com.exigen.eclipse.openl.model.editor.OpenlEditorPlugin;
 import com.exigen.openl.model.openl.RuleSet;
 import com.exigen.openl.model.openl.RuleSetFile;
-import com.exigen.openl.model.openl.presentation.OpenlEditorPlugin;
 
 public class OpenLPropertyPageContributor implements
 		ICommonPropertyPageContributor {

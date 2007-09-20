@@ -4,7 +4,7 @@
  *
  * $Id$
  */
-package com.exigen.openl.model.openl.presentation;
+package com.exigen.eclipse.openl.model.editor;
 
 import org.eclipse.emf.common.EMFPlugin;
 import org.eclipse.emf.common.ui.EclipseUIPlugin;
