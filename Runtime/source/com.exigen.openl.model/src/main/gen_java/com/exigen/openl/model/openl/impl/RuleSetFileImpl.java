@@ -6,28 +6,20 @@
  */
 package com.exigen.openl.model.openl.impl;
 
-import com.exigen.common.model.components.InitParameter;
-
-import com.exigen.common.model.components.java.JavaMethodParameter;
-
-import com.exigen.common.model.primitives.impl.BaseRootModelElementImpl;
-
-import com.exigen.openl.model.openl.OpenlPackage;
-import com.exigen.openl.model.openl.RuleSet;
-import com.exigen.openl.model.openl.RuleSetFile;
-
 import java.util.Collection;
 
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
+
+import com.exigen.common.model.components.InitParameter;
+import com.exigen.common.model.primitives.impl.BaseRootModelElementImpl;
+import com.exigen.openl.model.openl.OpenlPackage;
+import com.exigen.openl.model.openl.RuleSet;
+import com.exigen.openl.model.openl.RuleSetFile;
 
 /**
  * <!-- begin-user-doc -->
@@ -190,6 +182,7 @@ public class RuleSetFileImpl extends BaseRootModelElementImpl implements RuleSet
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 			case OpenlPackage.RULE_SET_FILE__INIT_PARAMETERS:

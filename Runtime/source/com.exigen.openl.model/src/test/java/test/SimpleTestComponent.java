@@ -31,6 +31,7 @@ import com.exigen.openl.model.openl.RuleSet;
 import com.exigen.openl.model.openl.RuleSetFile;
 
 public class SimpleTestComponent {
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args)
 			throws ComponentInstantiationException, OperationExecutionException {
 		URI uri = URI.createFileURI("test/HelloCustomer.openl");

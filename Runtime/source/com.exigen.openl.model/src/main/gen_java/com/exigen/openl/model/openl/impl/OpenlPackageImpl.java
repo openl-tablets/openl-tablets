@@ -287,6 +287,7 @@ public class OpenlPackageImpl extends EPackageImpl implements OpenlPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	public void initializePackageContents() {
 		if (isInitialized) return;
 		isInitialized = true;
