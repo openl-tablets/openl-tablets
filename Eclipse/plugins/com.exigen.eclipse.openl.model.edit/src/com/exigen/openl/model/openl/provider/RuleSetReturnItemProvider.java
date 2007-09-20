@@ -7,33 +7,32 @@
 package com.exigen.openl.model.openl.provider;
 
 
-import com.exigen.common.model.components.java.provider.JavaMethodReturnItemProvider;
-
-import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
-
-import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
-
-import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
-
-import com.exigen.openl.model.openl.RuleSetReturn;
-
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 
+import com.exigen.common.model.components.java.provider.JavaMethodReturnItemProvider;
+import com.exigen.eclipse.common.facet.emf.edit.provider.IItemCreateChildConstraintProvider;
+import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
+import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
+import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
+import com.exigen.openl.model.openl.OpenlPackage;
+import com.exigen.openl.model.openl.RuleSetReturn;
+
 /**
  * This is the item provider adapter for a {@link com.exigen.openl.model.openl.RuleSetReturn} object.
  * <!-- begin-user-doc -->
+ * @implements IItemCreateChildConstraintProvider
  * <!-- end-user-doc -->
  * @generated
  */
@@ -47,7 +46,9 @@ public class RuleSetReturnItemProvider
 		IItemPropertySource,	
 		IItemValidator,	
 		IItemPropertyTabSource,	
-		IItemDependencyBuilder {
+		IItemDependencyBuilder,
+		IItemCreateChildConstraintProvider {
+
 	/**
 	 * This constructs an instance from a factory and a notifier.
 	 * <!-- begin-user-doc -->
@@ -126,6 +127,15 @@ public class RuleSetReturnItemProvider
 	 */
 	public ResourceLocator getResourceLocator() {
 		return OpenlEditPlugin.INSTANCE;
+	}
+
+	public int getMaxOccurs(EObject parent, EReference reference)
+	{
+		if (OpenlPackage.eINSTANCE.equals(parent.eClass().getEPackage())) {
+			return -1;
+		}
+
+		return 0;
 	}
 
 }

@@ -17,6 +17,7 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.ResourceLocator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.edit.command.CommandParameter;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -26,6 +27,7 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 
 import com.exigen.common.model.components.java.JavaComponentsPackage;
 import com.exigen.common.model.components.java.provider.JavaMethodOperationDefinitionItemProvider;
+import com.exigen.eclipse.common.facet.emf.edit.provider.FeatureObject;
 import com.exigen.eclipse.common.facet.emf.edit.provider.IItemCreateChildConstraintProvider;
 import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
 import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
@@ -117,25 +119,15 @@ public class RuleSetItemProvider
 	 * describing all of the children that can be created under this object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated not
 	 */
 	protected void collectNewChildDescriptors(Collection newChildDescriptors, Object object) {
-		super.collectNewChildDescriptors(newChildDescriptors, object);
+//		super.collectNewChildDescriptors(newChildDescriptors, object);
 
 		newChildDescriptors.add
 			(createChildParameter
 				(JavaComponentsPackage.Literals.JAVA_METHOD_OPERATION_DEFINITION__RETURN,
 				 OpenlFactory.eINSTANCE.createRuleSetReturn()));
-
-		Set<CommandParameter> childDescriptorToDelete = new HashSet<CommandParameter>();
-		for(CommandParameter childDescriptor : (List<CommandParameter>)newChildDescriptors) {
-			EObject child = (EObject) childDescriptor.value;
-			if (!OpenlPackage.eINSTANCE.equals(child.eClass().getEPackage())) {
-				childDescriptorToDelete.add(childDescriptor);
-			}
-		}
-
-		newChildDescriptors.removeAll(childDescriptorToDelete);
 	}
 
 	/**
@@ -146,6 +138,23 @@ public class RuleSetItemProvider
 	 */
 	public ResourceLocator getResourceLocator() {
 		return OpenlEditPlugin.INSTANCE;
+	}
+
+	@Override
+	protected FeatureObject createWrappingFeatureObject(EObject owner, EStructuralFeature feature)
+	{
+		if (JavaComponentsPackage.Literals.JAVA_METHOD_OPERATION_DEFINITION__METHOD_PARAMETERS.equals (feature)) {
+			return new FeatureObject (getAdapterFactory(), owner, feature) {
+				@Override
+				protected void collectNewChildDescriptors (Collection newChildDescriptors, Object object) {
+					newChildDescriptors.add	(createChildParameter
+						(JavaComponentsPackage.Literals.JAVA_METHOD_OPERATION_DEFINITION__METHOD_PARAMETERS,
+						 OpenlFactory.eINSTANCE.createRuleSetParameter()));
+				}
+			};
+		}
+
+		return super.createWrappingFeatureObject(owner, feature);
 	}
 
 	public int getMaxOccurs(EObject parent, EReference reference)
