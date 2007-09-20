@@ -105,6 +105,7 @@ function open_win(url)
 <a href="showTableEditor.jsp?elementID=<%=elementID%>">Edit Table</a>
 --%>
 <a href="showTableEditor2.jsf?elementID=<%=elementID%>">Edit Table</a>
+<a href="tableeditor/showTableEditor2.jsf?elementID=<%=elementID%>">Edit Table(for testing)</a>
 &nbsp;<a href="copyTable.jsp?elementID=<%=elementID%>">Copy Table</a>
 
 
