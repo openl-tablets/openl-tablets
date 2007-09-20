@@ -19,6 +19,8 @@ import com.exigen.eclipse.common.facet.emf.ui.property.sheet.ModelTabbedProperty
 import com.exigen.eclipse.common.ui.property.page.CommonTabbedPropertyPage;
 import com.exigen.eclipse.common.ui.property.page.ICommonPropertyPageContributor;
 import com.exigen.openl.model.openl.RuleSet;
+import com.exigen.openl.model.openl.RuleSetFile;
+import com.exigen.openl.model.openl.presentation.OpenlEditorPlugin;
 
 public class OpenLPropertyPageContributor implements
 		ICommonPropertyPageContributor {
@@ -68,12 +70,9 @@ public class OpenLPropertyPageContributor implements
 		}
 
 		this.gotoExcelRegionActionContributionItem = new ActionContributionItem(
-				new Action("Go to corresponding Excel region"/*
-																 * ,
-																 * OpenlEditorPlugin.getPlugin()
-																 * .getImageRegistry().getDescriptor(
-																 * OpenlEditorPlugin.Images.IMPORT_16)
-																 */) {
+				new Action("Go to Excel file", OpenlEditorPlugin.getPlugin()
+						.getImageRegistry().getDescriptor(
+								OpenlEditorPlugin.Images.LINK_16)) {
 					@Override
 					public void run() {
 						gotoExcelRegionActionDelegate.run(this);
@@ -110,7 +109,8 @@ public class OpenLPropertyPageContributor implements
 				Object selectedElement = structuredSelection.getFirstElement();
 				selectedElement = ProviderUtils
 						.unwrapContentObjectToEObject(selectedElement);
-				if (selectedElement instanceof RuleSet) {
+				if ((selectedElement instanceof RuleSet)
+						|| (selectedElement instanceof RuleSetFile)) {
 					shouldActionsBeVisible = true;
 				}
 			}

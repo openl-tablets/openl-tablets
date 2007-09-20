@@ -41,10 +41,17 @@ public class GotoExcelRegionActionDelegate implements IActionDelegate {
 	}
 
 	public void run(IAction action) {
-		if (!(selectedObject instanceof RuleSet))
+		RuleSet ruleSet = null;
+		RuleSetFile ruleSetFile = null;
+		if (selectedObject instanceof RuleSet) {
+			ruleSet = (RuleSet) selectedObject;
+			ruleSetFile = (RuleSetFile) ruleSet.eContainer();
+		} else if (selectedObject instanceof RuleSetFile) {
+			ruleSetFile = (RuleSetFile) selectedObject;
+		} else {
 			return;
-		RuleSet ruleSet = (RuleSet) selectedObject;
-		RuleSetFile ruleSetFile = (RuleSetFile) ruleSet.eContainer();
+		}
+
 		try {
 			ModelingFacet modelingFacet = domainModel.getProject().getFacet(
 					ModelingFacet.class);
@@ -63,36 +70,43 @@ public class GotoExcelRegionActionDelegate implements IActionDelegate {
 			IFile file = excelFileModel.getCorrespondingFile();
 			IEditorPart editor = IDE.openEditor(workbenchPage, file,
 					"org.eclipse.ui.systemInPlaceEditor");
-			if (editor.getClass().getName().equals(
-					"org.eclipse.ui.internal.editorsupport.win32.OleEditor")) {
-				Method method = editor.getClass().getMethod("getClientSite",
-						new Class[0]);
-				OleClientSite oleClientSite = (OleClientSite) method.invoke(
-						editor, new Object[0]);
-				if (oleClientSite == null) {
-					throw new CommonException("Cannot access Excell editor");
-				}
-
-				OleAutomation oleAutomation = new OleAutomation(oleClientSite);
-				try {
-					int[] dispIdArray = oleAutomation
-							.getIDsOfNames(new String[] { "Application" });
-					Variant application = oleAutomation
-							.getProperty(dispIdArray[0]);
-					try {
-						dispIdArray = application.getAutomation()
-								.getIDsOfNames(
-										new String[] { "Goto", "Reference",
-												"Scroll" });
-						application.getAutomation().invoke(
-								dispIdArray[0],
-								new Variant[] { new Variant(ruleSet.getName()),
-										new Variant(true) });
-					} finally {
-						application.dispose();
+			if (ruleSet != null) {
+				if (editor
+						.getClass()
+						.getName()
+						.equals(
+								"org.eclipse.ui.internal.editorsupport.win32.OleEditor")) {
+					Method method = editor.getClass().getMethod(
+							"getClientSite", new Class[0]);
+					OleClientSite oleClientSite = (OleClientSite) method
+							.invoke(editor, new Object[0]);
+					if (oleClientSite == null) {
+						throw new CommonException("Cannot access Excell editor");
 					}
-				} finally {
-					oleAutomation.dispose();
+
+					OleAutomation oleAutomation = new OleAutomation(
+							oleClientSite);
+					try {
+						int[] dispIdArray = oleAutomation
+								.getIDsOfNames(new String[] { "Application" });
+						Variant application = oleAutomation
+								.getProperty(dispIdArray[0]);
+						try {
+							dispIdArray = application.getAutomation()
+									.getIDsOfNames(
+											new String[] { "Goto", "Reference",
+													"Scroll" });
+							application.getAutomation().invoke(
+									dispIdArray[0],
+									new Variant[] {
+											new Variant(ruleSet.getName()),
+											new Variant(true) });
+						} finally {
+							application.dispose();
+						}
+					} finally {
+						oleAutomation.dispose();
+					}
 				}
 			}
 		} catch (CommonException e) {
