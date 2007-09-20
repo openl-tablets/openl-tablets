@@ -149,7 +149,7 @@ function refreshSelectionAfter() {
 
 </head>
 
-<body onkeydown='javascript:bodyOnKeyUp(event);' onmouseup='bodyOnMouseDown(event);'>
+<body onkeydown='javascript:bodyOnKeyUp(event);'>
 <table>
   <tr>
     <td><img src="../images/excel-workbook.png" /> <a class="left" href="showLinks.jsp?<%=url%>" target="show_app_hidden"
