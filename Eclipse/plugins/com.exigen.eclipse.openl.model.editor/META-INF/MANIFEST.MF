@@ -15,5 +15,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.edit.ui;visibility:=reexport,
  org.eclipse.ui.ide;visibility:=reexport,
  com.exigen.eclipse.common.model.edit;visibility:=reexport,
- com.exigen.eclipse.common.facet.emf.ui
+ com.exigen.eclipse.common.facet.emf.ui,
+ com.exigen.eclipse.common.model.editor
 Eclipse-LazyStart: true
