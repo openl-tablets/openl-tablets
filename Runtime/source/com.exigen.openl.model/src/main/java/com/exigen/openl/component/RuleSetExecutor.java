@@ -4,9 +4,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ClassUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
 
 import com.exigen.common.component.Executor;
 import com.exigen.common.component.OperationExecutionException;
@@ -40,7 +40,7 @@ public class RuleSetExecutor extends AbstractJava implements Executor {
 		OpenInstance openInstance = (OpenInstance) componentInstance;
 
 		ClassLoader classLoader = getClassLoader(context);
-		
+
 		Class[] paramClasses = new Class[ruleSet.getMethodParameters().size()];
 		Object[] paramValues = new Object[ruleSet.getMethodParameters().size()];
 		Class<?> returnClass = null;
@@ -71,17 +71,42 @@ public class RuleSetExecutor extends AbstractJava implements Executor {
 
 		}
 
-		IOpenClass[] openParamClasses  = new IOpenClass[paramClasses.length];
-		for (int j = 0; j < openParamClasses.length; j++) {
-			openParamClasses[j] =  JavaOpenClass.getOpenClass( paramClasses[j]);
+		IOpenMethod method = null;
+		nextMethod: for (Iterator methodIter = openInstance.getOpenClass()
+				.methods(); methodIter.hasNext();) {
+			IOpenMethod testMethod = (IOpenMethod) methodIter.next();
+
+			if (!methodName.equals(testMethod.getName()))
+				continue nextMethod;
+			if (testMethod.getSignature().getNumberOfArguments() != paramClasses.length)
+				continue nextMethod;
+
+			int index = 0;
+			for (IOpenClass paramType : testMethod.getSignature()
+					.getParameterTypes()) {
+				Class<?> openlClass = paramType.getOpenClass()
+						.getInstanceClass();
+				if (openlClass.isPrimitive()) {
+					openlClass = ClassUtils.primitiveToWrapper(paramType
+							.getOpenClass().getInstanceClass());
+				}
+				if (!openlClass.isAssignableFrom(paramClasses[index++]))
+					continue nextMethod;
+			}
+			method = testMethod;
+			break;
 		}
 
-		IOpenMethod method = openInstance.getOpenClass().getMatchingMethod(methodName, openParamClasses);
-		Object result = method.invoke(openInstance.getInstance(), paramValues, openInstance.getEnv());
+		if (method == null)
+			throw new OperationExecutionException("cannot find method \""
+					+ methodName + "\"");
+
+		Object result = method.invoke(openInstance.getInstance(), paramValues,
+				openInstance.getEnv());
 		if (result != null && returnClass != null) {
 			Assert.isTrue(returnClass.isAssignableFrom(result.getClass()));
 		}
-		
+
 		if (output.size() > 0) {
 			output.get(0).setValue(result);
 		}
