@@ -19,7 +19,7 @@
     </category>
     <wizard
           category="com.exigen.eclipse.common.ui.category"
-          class="com.exigen.openl.model.openl.presentation.OpenlModelWizard"
+          class="com.exigen.eclipse.openl.model.editor.OpenlModelWizard"
           finalPerspective="com.exigen.eclipse.common.ui.perspective"
           icon="icons/full/obj16/OpenlModelFile.gif"
           id="com.exigen.openl.model.openl.presentation.OpenlModelWizardID"
@@ -38,10 +38,6 @@
         class = "com.exigen.eclipse.common.facet.emf.ui.editor.CommonModelEditor" 
         contributorClass="com.exigen.eclipse.common.facet.emf.ui.editor.ModelEditorActionBarContributor" >
     </editor>
-    <editor
-          default="false"
-          id="com.exigen.eclipse.openl.model.editor.excelFileOleEditor"
-          name="OpenL Tablets Excel Editor"/>
   </extension>
   <extension
         point="com.exigen.eclipse.common.ui.propertyPageContributorFactories">
