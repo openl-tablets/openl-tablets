@@ -72,8 +72,12 @@ TableEditor.prototype = {
     }
 
       // Create and activate new editor
-    this.currentEditor = new TextEditor(targetElement.innerHTML);
-    this.currentElement = targetElement;
+	   // now Text and Dropdown editors are created in turn 
+	 this.currentEditor = this.currentEditor && this.currentEditor.initValue ?
+								 new TextEditor(targetElement.innerHTML) :						 
+								 new DropdownEditor(targetElement.innerHTML);
+	 this.currentEditor.setValue(targetElement.innerHTML); 
+	 this.currentElement = targetElement;
     targetElement.removeChild(targetElement.childNodes[0]);
     targetElement.appendChild(this.currentEditor.node);
     this.currentEditor.node.focus();
