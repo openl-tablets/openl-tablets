@@ -222,6 +222,7 @@ function refreshSelectionAfter() {
   <script type="text/javascript" src="<h:outputText value='#{facesContext.externalContext.request.contextPath}'/>/javascript/TableEditor.js"></script>
   <script type="text/javascript" src="<h:outputText value='#{facesContext.externalContext.request.contextPath}'/>/javascript/BaseEditor.js"></script>
   <script type="text/javascript" src="<h:outputText value='#{facesContext.externalContext.request.contextPath}'/>/javascript/TextEditor.js"></script>
+  <script type="text/javascript" src="<h:outputText value='#{facesContext.externalContext.request.contextPath}'/>/javascript/DropdownEditor.js"></script>
 
 
   <div id="tableEditor"/>

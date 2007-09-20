@@ -8,10 +8,9 @@ var TextEditor = Class.create();
 TextEditor.prototype = Object.extend(new BaseEditor(), {
 
     /** Constructor */
-    initialize : function(value) {
+    initialize : function() {
         this.node = document.createElement("input");
         this.node.setAttribute("type", "text");
-        this.node.value = value;
         this.node.style.border = "0px none";
         this.node.style.height = "100%";
         this.node.style.margin = "0px";
