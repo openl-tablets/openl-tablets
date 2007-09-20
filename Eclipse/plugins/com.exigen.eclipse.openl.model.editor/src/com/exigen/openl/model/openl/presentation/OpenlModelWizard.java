@@ -18,9 +18,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
@@ -36,10 +34,10 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.ISetSelectionTarget;
 
+import com.exigen.eclipse.common.model.editor.wizards.CommonModelWizardNewFileCreationPage;
 import com.exigen.openl.model.openl.OpenlFactory;
 import com.exigen.openl.model.openl.OpenlPackage;
 
@@ -206,49 +204,12 @@ public class OpenlModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public class OpenlModelWizardNewFileCreationPage extends WizardNewFileCreationPage {
-		/**
-		 * Pass in the selection.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		public OpenlModelWizardNewFileCreationPage(String pageId, IStructuredSelection selection) {
-			super(pageId, selection);
-		}
-
-		/**
-		 * The framework calls this to see if the file is correct.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		protected boolean validatePage() {
-			if (super.validatePage()) {
-				// Make sure the file ends in ".openl".
-				//
-				String requiredExt = OpenlEditorPlugin.INSTANCE.getString("_UI_OpenlEditorFilenameExtension");
-				String enteredExt = new Path(getFileName()).getFileExtension();
-				if (enteredExt == null || !enteredExt.equals(requiredExt)) {
-					setErrorMessage(OpenlEditorPlugin.INSTANCE.getString("_WARN_FilenameExtension", new Object [] { requiredExt }));
-					return false;
-				}
-				else {
-					return true;
-				}
-			}
-			else {
-				return false;
-			}
-		}
-
-		/**
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		public IFile getModelFile() {
-			return ResourcesPlugin.getWorkspace().getRoot().getFile(getContainerFullPath().append(getFileName()));
+	public class OpenlModelWizardNewFileCreationPage extends
+			CommonModelWizardNewFileCreationPage {
+		public OpenlModelWizardNewFileCreationPage(String pageId,
+				IStructuredSelection selection) {
+			super(pageId, selection, OpenlEditorPlugin.INSTANCE
+					.getString("_UI_OpenlEditorFilenameExtension"));
 		}
 	}
 
@@ -287,16 +248,7 @@ public class OpenlModelWizard extends Wizard implements INewWizard {
 					// Set this for the container.
 					//
 					newFileCreationPage.setContainerFullPath(selectedResource.getFullPath());
-
-					// Make up a unique new name here.
-					//
-					String defaultModelBaseFilename = OpenlEditorPlugin.INSTANCE.getString("_UI_OpenlEditorFilenameDefaultBase");
-					String defaultModelFilenameExtension = OpenlEditorPlugin.INSTANCE.getString("_UI_OpenlEditorFilenameExtension");
-					String modelFilename = defaultModelBaseFilename + "." + defaultModelFilenameExtension;
-					for (int i = 1; ((IContainer)selectedResource).findMember(modelFilename) != null; ++i) {
-						modelFilename = defaultModelBaseFilename + i + "." + defaultModelFilenameExtension;
-					}
-					newFileCreationPage.setFileName(modelFilename);
+					newFileCreationPage.setFileName("");
 				}
 			}
 		}
