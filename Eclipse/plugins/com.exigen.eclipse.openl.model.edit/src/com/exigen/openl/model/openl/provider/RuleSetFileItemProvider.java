@@ -28,6 +28,8 @@ import com.exigen.common.model.primitives.provider.BaseRootModelElementItemProvi
 import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
 import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
 import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
+import com.exigen.eclipse.openl.model.edit.OpenlEditPlugin;
+
 import com.exigen.openl.model.openl.OpenlFactory;
 import com.exigen.openl.model.openl.OpenlPackage;
 import com.exigen.openl.model.openl.RuleSetFile;
@@ -80,6 +82,7 @@ public class RuleSetFileItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	protected void addExcelResourceReferencePropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
@@ -104,6 +107,7 @@ public class RuleSetFileItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	public Collection getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
@@ -142,7 +146,7 @@ public class RuleSetFileItemProvider
 	 * @generated
 	 */
 	public String getText(Object object) {
-		String label = ((RuleSetFile)object).getExcelResourceReference();
+		String label = ((RuleSetFile)object).getName();
 		return label == null || label.length() == 0 ?
 			getString("_UI_RuleSetFile_type") :
 			getString("_UI_RuleSetFile_type") + " " + label;
@@ -177,6 +181,7 @@ public class RuleSetFileItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	protected void collectNewChildDescriptors(Collection newChildDescriptors, Object object) {
 		super.collectNewChildDescriptors(newChildDescriptors, object);
 

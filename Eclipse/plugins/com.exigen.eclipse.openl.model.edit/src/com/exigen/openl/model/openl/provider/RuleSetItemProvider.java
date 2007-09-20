@@ -8,9 +8,7 @@ package com.exigen.openl.model.openl.provider;
 
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
@@ -18,7 +16,6 @@ import org.eclipse.emf.common.util.ResourceLocator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.edit.command.CommandParameter;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
@@ -32,6 +29,7 @@ import com.exigen.eclipse.common.facet.emf.edit.provider.IItemCreateChildConstra
 import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
 import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
 import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
+import com.exigen.eclipse.openl.model.edit.OpenlEditPlugin;
 import com.exigen.openl.model.openl.OpenlFactory;
 import com.exigen.openl.model.openl.OpenlPackage;
 import com.exigen.openl.model.openl.RuleSet;
@@ -121,6 +119,7 @@ public class RuleSetItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated not
 	 */
+	@SuppressWarnings("unchecked")
 	protected void collectNewChildDescriptors(Collection newChildDescriptors, Object object) {
 //		super.collectNewChildDescriptors(newChildDescriptors, object);
 
@@ -141,6 +140,7 @@ public class RuleSetItemProvider
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected FeatureObject createWrappingFeatureObject(EObject owner, EStructuralFeature feature)
 	{
 		if (JavaComponentsPackage.Literals.JAVA_METHOD_OPERATION_DEFINITION__METHOD_PARAMETERS.equals (feature)) {
