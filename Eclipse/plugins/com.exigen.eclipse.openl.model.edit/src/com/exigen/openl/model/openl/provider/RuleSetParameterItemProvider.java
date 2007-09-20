@@ -26,6 +26,7 @@ import com.exigen.eclipse.common.facet.emf.edit.provider.IItemCreateChildConstra
 import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
 import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
 import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
+import com.exigen.eclipse.openl.model.edit.OpenlEditPlugin;
 import com.exigen.openl.model.openl.OpenlPackage;
 
 /**

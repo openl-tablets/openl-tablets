@@ -4,7 +4,7 @@
  *
  * $Id$
  */
-package com.exigen.openl.model.openl.provider;
+package com.exigen.eclipse.openl.model.edit;
 
 import com.exigen.eclipse.common.model.edit.CommonEditPlugin;
 

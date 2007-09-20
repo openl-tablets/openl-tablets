@@ -4,7 +4,7 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: com.exigen.eclipse.openl.model.edit; singleton:=true
 Bundle-Version: 1.0.0
 Bundle-ClassPath: .
-Bundle-Activator: com.exigen.openl.model.openl.provider.OpenlEditPlugin$Implementation
+Bundle-Activator: com.exigen.eclipse.openl.model.edit.OpenlEditPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: com.exigen.openl.model.openl.provider
