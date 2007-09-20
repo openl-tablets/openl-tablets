@@ -27,7 +27,6 @@ import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
 import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
 import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
 import com.exigen.openl.model.openl.OpenlPackage;
-import com.exigen.openl.model.openl.RuleSetParameter;
 
 /**
  * This is the item provider adapter for a {@link com.exigen.openl.model.openl.RuleSetParameter} object.
@@ -86,13 +85,14 @@ public class RuleSetParameterItemProvider
 	 * This returns the label text for the adapted class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated not
 	 */
 	public String getText(Object object) {
-		String label = ((RuleSetParameter)object).getName();
-		return label == null || label.length() == 0 ?
-			getString("_UI_RuleSetParameter_type") :
-			getString("_UI_RuleSetParameter_type") + " " + label;
+		return super.getText(object);
+//		String label = ((RuleSetParameter)object).getName();
+//		return label == null || label.length() == 0 ?
+//			getString("_UI_RuleSetParameter_type") :
+//			getString("_UI_RuleSetParameter_type") + " " + label;
 	}
 
 	/**

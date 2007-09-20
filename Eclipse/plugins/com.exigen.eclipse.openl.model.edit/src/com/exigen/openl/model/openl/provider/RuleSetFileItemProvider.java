@@ -142,7 +142,7 @@ public class RuleSetFileItemProvider
 	 * @generated
 	 */
 	public String getText(Object object) {
-		String label = ((RuleSetFile)object).getName();
+		String label = ((RuleSetFile)object).getExcelResourceReference();
 		return label == null || label.length() == 0 ?
 			getString("_UI_RuleSetFile_type") :
 			getString("_UI_RuleSetFile_type") + " " + label;
