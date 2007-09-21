@@ -2,38 +2,16 @@
 <!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN" "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config>
 
+	<application>
+		<locale-config>
+			<default-locale>en</default-locale>
 <!--
-  <application>
-    <view-handler>
-      com.sun.facelets.FaceletViewHandler
-    </view-handler>
-  </application>
+			<supported-locale>de</supported-locale>
 -->
- <managed-bean>
-    <managed-bean-name>tableEditorController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TableEditorController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
+		</locale-config>
 
-  <managed-bean>
-    <managed-bean-name>tableWriterBean</managed-bean-name>
-    <managed-bean-class>org.openl.jsf.TableWriterBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>editorBean</managed-bean-name>
-    <managed-bean-class>org.openl.jsf.EditorBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>topEditorBean</managed-bean-name>
-    <managed-bean-class>org.openl.jsf.TopEditorBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
+		<view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
 
-  <managed-bean>
-    <managed-bean-name>popupEditorBean</managed-bean-name>
-    <managed-bean-class>org.openl.jsf.PopupEditorBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
+	</application>
+
 </faces-config>

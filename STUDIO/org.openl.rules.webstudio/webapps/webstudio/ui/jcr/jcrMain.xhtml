@@ -1,0 +1,25 @@
+<ui:composition template="/WEB-INF/templates/default-jcr.xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<ui:define name="body">
+
+<div class="sample-container" >
+	<h:panelGrid columns="2" headerClass="outpanelHeader" cellspacing="10" columnClasses="columnTree, columnProps">
+	
+		<f:subview id="svTree">
+			<ui:include src="/ui/jcr/jcrTree.xhtml" />
+		</f:subview>
+
+		<f:subview id="svProps">
+			<ui:include src="/ui/jcr/jcrProps.xhtml" />
+		</f:subview>
+		
+	</h:panelGrid>
+</div>
+
+	</ui:define>
+
+</ui:composition>

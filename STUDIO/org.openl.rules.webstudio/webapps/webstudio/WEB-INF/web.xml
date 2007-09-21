@@ -1,57 +1,91 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+<web-app version="2.4"
+    xmlns="http://java.sun.com/xml/ns/j2ee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-    version="2.4">
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+    http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    >
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+  <!-- MyFaces -->
+  <listener>
+    <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
+  </listener>
 
 
-<listener>
-  <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
-</listener>
+  <context-param>
+    <param-name>javax.faces.DEFAULT_SUFFIX</param-name>
+    <param-value>.jsp</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>facelets.VIEW_MAPPINGS</param-name>
+    <param-value>*.xhtml</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>org.ajax4jsf.SKIN</param-name>
+    <param-value>default</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>javax.faces.CONFIG_FILES</param-name>
+    <param-value>/WEB-INF/faces-config.xml, /WEB-INF/managed-beans.xml, /WEB-INF/navigation.xml, /WEB-INF/managed-beans-jcr.xml, /WEB-INF/navigation-jcr.xml</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>facelets.DEVELOPMENT</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>facelets.PARAM_CACHE_URLS</param-name>
+    <param-value>false</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>facelets.SKIP_COMMENTS</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>org.ajax4jsf.VIEW_HANDLERS</param-name>
+    <param-value>com.sun.facelets.FaceletViewHandler</param-value>
+  </context-param>
 
 
-<!--    
-    <context-param>
-        <param-name>facelets.DEVELOPMENT</param-name>
-        <param-value>true</param-value>
-    </context-param>
-	
-	<context-param>
-		<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
-		<param-value>.xhtml</param-value>
-	</context-param>
--->
+  <filter>
+    <display-name>Ajax4jsf Filter</display-name>
+    <filter-name>ajax4jsf</filter-name>
+    <filter-class>org.ajax4jsf.Filter</filter-class>
+  </filter>
 
- <!--  
- <context-param>
-  <param-name>javax.faces.CONFIG_FILES</param-name>
-  <param-value>/WEB-INF/faces-config.xml</param-value>
- </context-param>
- -->
-
- <servlet>
-  <servlet-name>Faces Servlet</servlet-name>
-  <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-  <load-on-startup>1</load-on-startup>
- </servlet>
-
-	<servlet-mapping>
-  		<servlet-name>Faces Servlet</servlet-name>
-  		<url-pattern>*.jsf</url-pattern>
- 	</servlet-mapping>
+  <filter-mapping>
+    <filter-name>ajax4jsf</filter-name>
+    <servlet-name>Faces Servlet</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
 
 
- <filter>
-  <display-name>Ajax4jsf Filter</display-name>
-  <filter-name>ajax4jsf</filter-name>
-  <filter-class>org.ajax4jsf.Filter</filter-class>
- </filter>
- <filter-mapping>
-  <filter-name>ajax4jsf</filter-name>
-  <servlet-name>Faces Servlet</servlet-name>
-  <dispatcher>REQUEST</dispatcher>
-  <dispatcher>FORWARD</dispatcher>
-  <dispatcher>INCLUDE</dispatcher>
- </filter-mapping>
+  <servlet>
+    <servlet-name>Faces Servlet</servlet-name>
+    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.jsf</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>/faces/*</url-pattern>
+  </servlet-mapping>
 
 </web-app>
