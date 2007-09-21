@@ -4,10 +4,9 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:panel bodyClass="inpanelBody">
-		<f:facet name="header">
-			<h:outputText value="Properties of Elements" />
-		</f:facet>
+		<ui:include src="inlineSearch.xhtml"/>
+		
+		<p />
 
 		<rich:tabPanel>
 			<rich:tab label="Properties">
@@ -20,6 +19,5 @@
 				<ui:include src="/ui/jcr/jcrPropElements.xhtml" />
 			</rich:tab>
 		</rich:tabPanel>
-	</rich:panel>
 
 </ui:composition>

@@ -1,8 +1,13 @@
 package org.openl.rules.ui.repository;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.openl.rules.ui.repository.beans.Element;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
 import org.openl.rules.ui.repository.tree.TreeProject;
+import org.openl.rules.ui.repository.tree.TreeRepository;
 
 /**
  * Handler for Repository/Projects Tree
@@ -17,7 +22,7 @@ public class RepositoryHandler {
 	/**
 	 * Root node for RichFaces's tree.  It won't be displayed. 
 	 */
-	private TreeProject root;
+	private TreeRepository root;
 	
 	public RepositoryHandler() {
 //		jcrRepository = JcrRepositoryFactory.getRepositoryInstance();
@@ -31,12 +36,22 @@ public class RepositoryHandler {
 	
 	public Object getData() {
 		if (root == null) {
-			root = newProject("JCR Repository");
+			root = new TreeRepository(generateId(), "JCR Repository");
 //			refreshProjects();
 			initTestData();
 		}
 
 		return root;
+	}
+	
+	public List<Element> getProjects() {
+		List<Element> result = new LinkedList<Element>();
+		
+		result.add(new Element("prj1", "1.2", "09/08/2007 10:32am", "John S."));
+		result.add(new Element("prj2", "1.1", "09/05/2007  9:40am", "Alex T."));
+		result.add(new Element("prj3", "1.1", "09/05/2007  9:40am", "Jonh S."));
+		
+		return result;
 	}
 	
 //	protected void refreshProjects() throws RepositoryException {
@@ -115,6 +130,8 @@ public class RepositoryHandler {
 		prj3.add(newFolder("docs"));
 		prj3.add(newFolder("rules"));
 
-		root.add(prj1).add(prj2).add(prj3);
+		TreeRepository vis = new TreeRepository(generateId(), "Repository");
+		vis.add(prj1).add(prj2).add(prj3);
+		root.add(vis);
 	}
 }

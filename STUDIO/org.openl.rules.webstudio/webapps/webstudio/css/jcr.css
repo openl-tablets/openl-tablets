@@ -1,8 +1,9 @@
+.lblSearch {
+font-size: 13px;
+}
+
 .smlBackButton {
 font-size: 9px;
-position: absolute;
-top: 2px;
-left: 2px;
 }
 
 .gridContent {
@@ -21,8 +22,10 @@ background-color:#f1f1f1;
 */
 }
 .columnTree {
+vertical-align:top;
 }
 .columnProps {
+vertical-align:top;
 width: 100%;
 }
 .niceLabel {
@@ -48,6 +51,8 @@ right: 40px;
 
 BODY {
 background: #eceef8;
+font-family: verdana,helvetica,arial,sans-serif;
+font-size: 12px;
 }
   
 .dr-pnl-h, .dr-tbpnl-tb-act, .dr-tbpnl-tb-inact, .dr-table-headercell {
