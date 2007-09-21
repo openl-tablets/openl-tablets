@@ -1,5 +1,3 @@
-<script type="text/javascript">
-
 function jsCheck(id)
 {
  el=document.getElementById(id);
@@ -17,8 +15,7 @@ function jsCheckGroup(baseID, n)
 {
   for(i=0; i < n; ++i)
   {
-	jsCheck(baseID + i);
+  jsCheck(baseID + i);
   }
 
 }
-</script>
