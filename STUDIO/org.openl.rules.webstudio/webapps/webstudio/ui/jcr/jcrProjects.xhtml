@@ -1,0 +1,19 @@
+<ui:composition
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<div>
+		<ui:include src="inlineSearch.xhtml"/>
+		
+		<p />
+		
+		<rich:tabPanel>
+			<rich:tab label="Projects">
+				<ui:include src="/ui/jcr/ProjectsTable.xhtml" />
+			</rich:tab>
+		</rich:tabPanel>
+	</div>
+
+</ui:composition>
