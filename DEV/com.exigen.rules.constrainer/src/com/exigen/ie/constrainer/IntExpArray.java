@@ -113,6 +113,18 @@ public final class IntExpArray extends ConstrainerObjectImpl
     super(c);
     _data = new IntExp[size];
   }
+  
+  
+  /**
+   * Constructor for "size" unitialized expressions.
+   * Call set() to initialize all the expressions in this array.
+   */
+  public IntExpArray(Constrainer c, IntExp[] vars)
+  {
+    super(c);
+    _data = new IntExp[vars.length];
+    System.arraycopy(vars, 0, _data, 0, vars.length);
+  }  
 
   /**
    * Convenience constructor from one expression.
