@@ -1,0 +1,25 @@
+<ui:composition
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<rich:panel bodyClass="inpanelBody">
+		<f:facet name="header">
+			<h:outputText value="Properties of Elements" />
+		</f:facet>
+
+		<rich:tabPanel>
+			<rich:tab label="Properties">
+				<ui:include src="/ui/jcr/jcrPropProject.xhtml" />
+			</rich:tab>
+			<rich:tab label="Versions">
+				<ui:include src="/ui/jcr/jcrPropVersions.xhtml" />
+			</rich:tab>
+			<rich:tab label="Elements">
+				<ui:include src="/ui/jcr/jcrPropElements.xhtml" />
+			</rich:tab>
+		</rich:tabPanel>
+	</rich:panel>
+
+</ui:composition>
