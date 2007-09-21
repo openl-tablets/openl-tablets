@@ -13,11 +13,17 @@ TableEditor.prototype = {
   currentElement : null,
   editor : null,
   saveUrl : null,
+  selectedCell : null,
+  selectionPos : null,	
+  decorator : null,
+  rows : 0,
+  columns : 0,	
 
 /** Constructor */
   initialize : function(id, url) {
     this.tableContainer = document.getElementById(id);
     this.loadData(url);
+	 this.decorator = new Decorator(); 
   },
 
 /**
@@ -41,14 +47,36 @@ TableEditor.prototype = {
  * @type: private
  */
   renderTable : function(data) {
-    this.tableContainer.innerHTML = data.responseText;
-    var table = Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1];
-    var self = this;
+	  this.tableContainer.innerHTML = data.responseText;
+	  var table = $(Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1]);
+	  var self = this;
+	  $(document.body).observe("click", function(e) { self.editStop() }, false);
+	  Event.observe(Prototype.Browser.IE ? document.body : window, "keydown", function(e) { self.handleKeyDown(e) }, false);
+	  table.observe("click", function(e) { self.handleClick(e) });
+	  table.observe("dblclick", function(e) { self.handleDoubleClick(e); Event.stop(e)});
 
-    $(document.body).observe("click", function(e) { self.editStop() }, false)
-    $(table).observe("click", function(e) { Event.stop(e)})
-    $(table).observe("dblclick", function(e) { self.handleDoubleClick(e); Event.stop(e)})
+	  this.computeTableInfo(table);
   },
+
+	computeTableInfo: function(table) {
+		this.rows = 0;
+		this.columns = 0;
+		
+		var row = table.down("tr");
+		if (row) {
+			var tdElt = row.down("td");
+			while (tdElt) {
+				this.columns += tdElt.colSpan ? tdElt.colSpan : 1;
+				tdElt = tdElt.next("td");
+			}
+		}
+		
+		while (row) {
+			var tdElt = row.down("td")
+			this.rows += tdElt.rowSpan ? tdElt.rowSpan : 1;
+			row = row.next("tr");
+		}
+	},
 
 /**
  * @desc: handles mouse double click on table
@@ -85,5 +113,123 @@ TableEditor.prototype = {
 
       this.currentElement.innerHTML = this.editor.getValue();
     }
+  },
+
+	/**
+	 * @desc: handles mouse click on the table
+	 * @type: private
+	 */
+  handleClick: function(e) {
+	  var elt = Event.element(e);
+	  if (!this.editor && elt.tagName == "TD") {
+		  this.selectElement(elt);
+	  }
+	  Event.stop(e);
+  },
+
+  selectElement: function(elt) {
+	  if (elt) {
+		  this.selectionPos = this.elementPosition(elt);
+	  } else {
+		  elt = this.$cell(this.selectionPos);
+	  }
+	  this.decorator.undecorate(this.currentElement);
+	  this.decorator.decorate(this.currentElement = elt);
+  },
+
+ $cell: function(pos) {
+	 var cell = $("cell-"+pos[0]+":"+pos[1]);
+	 if (!cell) return cell;
+	 if (!cell.rowSpan) cell.rowSpan = 1;
+	 if (!cell.colSpan) cell.colSpan = 1;
+	 return cell
+ },
+
+	/**
+	 * @desc: handles mouse click on the table
+	 * @type: private
+	 */
+  handleKeyDown: function(event) {
+	  if (this.editor) return; // do nothing in editor mode
+
+	  if (!this.selectionPos || !this.currentElement) {
+		  this.selectionPos = [1, 1];
+		  this.selectElement();
+		  return;
+	  }
+
+	  var sp = this.selectionPos.clone();
+
+	  var scanUpLeft = function(index) {
+		  var tmp = sp[index];
+		  while (sp[index] >= 1 && !this.$cell(sp)) --sp[index];
+		  var res = this.$cell(sp);
+		  sp[index] = tmp;
+		  return res;
+	  }
+
+	  switch (event.keyCode) {
+	  case 37: // LEFT
+			while (--sp[1] >= 1) {
+				
+			}
+			break;
+	  case 38:  break;
+
+	 case 39: case 40:  //RIGHT, DOWN
+		  var theIndex = event.keyCode == 40 ? 0 : 1;
+
+		  sp[theIndex] += this.currentElement[["rowSpan", "colSpan"][theIndex]];
+		  if (sp[theIndex] > this[["rows", "columns"][theIndex]]) break;
+		  var newCell = scanUpLeft.call(this, 1 - theIndex);
+		  if (newCell) this.selectElement(newCell);
+		  break;
+	  }
+  },
+
+  /**
+   * @desc: inspect element id and extracts its position in table. Element is expected to be a TD
+   * @type: private
+   */
+  elementPosition: function(e) {
+	  var id = $(e).id;
+	  var pos = id.lastIndexOf("-");
+	  if (pos < 0) return null;
+	  var splitted = id.substr(pos+1).split(":", 2);
+	  splitted[0] = parseInt(splitted[0]);splitted[1] = parseInt(splitted[1]);
+	  return splitted;
   }
+}
+
+/**
+ *  Responsible for visual display of 'selected' element.
+ */
+var Decorator = Class.create();
+
+Decorator.prototype = {
+	/** Holds changed properties of last decorated  element */
+	previosState : {},
+
+  /** Empty constructor */
+  initialize : Prototype.K, 
+
+	/**
+	 * @desc changes elememnt style, so it looks 'selected'
+	 * @type: public
+	 */
+	decorate: function(/* Element */ elt) {
+		this.previosState.bgColor = elt.bgColor;
+
+		elt.bgColor = "red";
+	},
+
+	/**
+	 * @desc reverts 'selection' of last decorated element
+	 * @type: public
+	 */
+	undecorate: function(/* Element */ elt) {
+		if (elt) {
+			elt.bgColor = this.previosState.bgColor;
+		}
+	}
 }

@@ -28,15 +28,10 @@ public class TableRenderer {
                     ((CellModel) (cell)).atttributesToHtml(s, tableModel);
                 }
 
-                StringBuffer id = new StringBuffer();
-                for (int k = 0; k < cell.getRowspan(); k++) {
-                    for (int l = 0; l < cell.getColspan(); l++) {
-                        id.append("cell-" + String.valueOf(i + k + 1) + "-"
-                            + String.valueOf(j + l + 1) + "_");
-                    }
-                }
+					StringBuilder id = new StringBuilder();
+					id.append("cell-").append(String.valueOf(i + 1)).append(":").append(j + 1);
 
-                s.append(" title=\"" + id + "\">\n" + cell.getContent() + "</td>\n");
+					s.append(" id=\"").append(id).append("\">\n").append(cell.getContent()).append("</td>\n");
             }
             s.append("</tr>\n");
         }
