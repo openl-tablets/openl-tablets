@@ -6,9 +6,16 @@
 
 	<ui:define name="body">
 
-		<h:outputText>Go to Repository Screen >>></h:outputText>
-		<h:commandButton value="JCR-170" action="jcrMain"/>
+		<div>
+			1. Return to OpenL Web Studio
+			<button onclick="window.location='/webstudio/';">back</button>
+		</div>
 
+		<div>
+			2. Show Repository Screens
+			<h:commandButton value="JCR-170" action="jcrMain"/>
+		</div>
+		
 	</ui:define>
 
 </ui:composition>
