@@ -11,7 +11,7 @@ var TableEditor = Class.create();
 TableEditor.prototype = {
   tableContainer : null,
   currentElement : null,
-  currentEditor : null,
+  editor : null,
   saveUrl : null,
 
 /** Constructor */
@@ -42,12 +42,12 @@ TableEditor.prototype = {
  */
   renderTable : function(data) {
     this.tableContainer.innerHTML = data.responseText;
-    var table = this.isIE() ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1];
+    var table = Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1];
     var self = this;
 
-    table.ondblclick = function(e) {
-      self.handleDoubleClick(e);
-    }
+    $(document.body).observe("click", function(e) { self.editStop() }, false)
+    $(table).observe("click", function(e) { Event.stop(e)})
+    $(table).observe("dblclick", function(e) { self.handleDoubleClick(e); Event.stop(e)})
   },
 
 /**
@@ -55,11 +55,26 @@ TableEditor.prototype = {
  * @type: private
  */
   handleDoubleClick: function(e) {
-    var targetElement = this.isIE() ? window.event.srcElement : e.target;
+    var targetElement = Prototype.Browser.IE ? window.event.srcElement : e.target;
 
-      // Save value of current editor and close it
-    if (this.currentEditor != null) {
-      new Ajax.Request(this.saveUrl + '?id=' + this.currentElement.title + '&value=' + this.currentEditor.getValue(), {
+    // Save value of current editor and close it
+    this.editStop();
+
+   // Create and activate new editor
+   // now Text and Dropdown editors are created in turn
+   this.editor = this.editor && this.editor.initValue ?
+                 new TextEditor(targetElement.innerHTML) :
+                 new DropdownEditor(targetElement.innerHTML);
+   this.editor.setValue(targetElement.innerHTML);
+   this.currentElement = targetElement;
+    targetElement.removeChild(targetElement.childNodes[0]);
+    targetElement.appendChild(this.editor.node);
+    this.editor.node.focus();
+  },
+
+  editStop : function() {
+    if (this.editor!=null) {
+      new Ajax.Request(this.saveUrl + '?id=' + this.currentElement.title + '&value=' + this.editor.getValue(), {
         method      : "get",
         encoding    : "utf-8",
         contentType : "text/javascript",
@@ -68,22 +83,7 @@ TableEditor.prototype = {
         }
       });
 
-      this.currentElement.innerHTML = this.currentEditor.getValue();
+      this.currentElement.innerHTML = this.editor.getValue();
     }
-
-      // Create and activate new editor
-	   // now Text and Dropdown editors are created in turn 
-	 this.currentEditor = this.currentEditor && this.currentEditor.initValue ?
-								 new TextEditor(targetElement.innerHTML) :						 
-								 new DropdownEditor(targetElement.innerHTML);
-	 this.currentEditor.setValue(targetElement.innerHTML); 
-	 this.currentElement = targetElement;
-    targetElement.removeChild(targetElement.childNodes[0]);
-    targetElement.appendChild(this.currentEditor.node);
-    this.currentEditor.node.focus();
-  },
-
-  isIE : function() {
-    return (navigator.appName.indexOf("Microsoft") != -1);
   }
 }
