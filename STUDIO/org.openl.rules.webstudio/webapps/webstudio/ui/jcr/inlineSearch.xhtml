@@ -1,0 +1,15 @@
+<ui:composition
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<div>
+		<h:panelGrid columns="3">
+			<h:inputText id="searchText" size="40" required="false" value="Search query..." />
+			<h:commandButton value="Search" action="advancedSearch" />
+			<h:commandLink value="Advanced Search..." action="advancedSearch" />
+		</h:panelGrid>
+	</div>
+
+</ui:composition>
