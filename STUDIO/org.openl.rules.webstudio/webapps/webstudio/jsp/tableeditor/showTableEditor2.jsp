@@ -152,26 +152,26 @@ function refreshSelectionAfter() {
 <body onkeydown='javascript:bodyOnKeyUp(event);'>
 <table>
   <tr>
-    <td><img src="../images/excel-workbook.png" /> <a class="left" href="showLinks.jsp?<%=url%>" target="show_app_hidden"
+    <td><img src="../../images/excel-workbook.png" /> <a class="left" href="showLinks.jsp?<%=url%>" target="show_app_hidden"
       title="<%=uri%>"> &nbsp;<%=text + " : " + name%></a> <%
                  if (isRunnable && se.length == 0) {
                  String tgtUrl = "../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID="
                          + elementID + "&first=true";
- %> &nbsp;<a href="runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../images/test.gif" /></a> &nbsp;<a
-      onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#" title="Trace"><img border=0 src="../images/trace.gif" /></a> &nbsp;<a
-      href="benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../images/clock-icon.png" /></a> <%
+ %> &nbsp;<a href="runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../../images/test.gif" /></a> &nbsp;<a
+      onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#" title="Trace"><img border=0 src="../../images/trace.gif" /></a> &nbsp;<a
+      href="benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../../images/clock-icon.png" /></a> <%
              }
 
              if (isTestable && (se==null || se.length == 0)) {
                  String tgtUrl = "../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID="
                          + elementID + "&first=true";
- %> &nbsp;<a href="runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../images/test_ok.gif" /></a> <%
+ %> &nbsp;<a href="runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../../images/test_ok.gif" /></a> <%
  }
  %>
     </td>
-    <td>&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business"><img border=0 src="../images/business-view.png"
+    <td>&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business"><img border=0 src="../../images/business-view.png"
       title="Business View" /></a> &nbsp;<a class="image2" href="?<%=parsView%>&view=view.developer"><img border=0
-      src="../images/developer-view.png" title="Developer (Full) View" /></a></td>
+      src="../../images/developer-view.png" title="Developer (Full) View" /></a></td>
   </tr>
 </table>
 
@@ -185,16 +185,6 @@ function refreshSelectionAfter() {
 --%>
 
 <div><f:view>
-
-  <a4j:form id="editor_form">
-    <h:inputHidden id="elementID" value="#{editorBean.elementID}" />
-    <h:inputHidden id="cell_title" value="#{editorBean.cellTitle}" />
-    <h:inputHidden id="row" value="#{editorBean.row}" />
-    <h:inputHidden id="column" value="#{editorBean.column}" />
-    <a4j:commandButton reRender="spreadsheet" id="begin_editing" style="visibility:hidden" action="#{editorBean.beginEditing}"
-      value="click me" />
-  </a4j:form>
-
   <a4j:form id="top_editor_form">
     <h:inputHidden id="elementID" value="#{topEditorBean.elementID}" />
     <h:inputHidden id="cell_title" value="#{topEditorBean.cellTitle}" />
@@ -206,16 +196,33 @@ function refreshSelectionAfter() {
   --%>
     <br />
     <br />
-    <a4j:commandButton reRender="spreadsheet" id="add_row_before_button" value="Add row before" action="#{topEditorBean.addRowBefore}" />
-    <a4j:commandButton reRender="spreadsheet" id="add_row_after_button" value="Add row after" action="#{topEditorBean.addRowAfter}" />
-    <a4j:commandButton reRender="spreadsheet" id="remove_row_button" value="Remove row" action="#{topEditorBean.removeRow}" />
-    <br />
-    <a4j:commandButton reRender="spreadsheet" id="add_column_before_button" value="Add column before"
-      action="#{topEditorBean.addColumnBefore}" />
-    <a4j:commandButton reRender="spreadsheet" id="add_column_after_button" value="Add column after" action="#{topEditorBean.addColumnAfter}" />
-    <a4j:commandButton reRender="spreadsheet" id="remove_column_button" value="Remove column" action="#{topEditorBean.removeColumn}" />
+    <rich:toolBar itemSeparator="square"><rich:toolBarGroup style="padding: 2px;">
+		 <h:graphicImage value="/images/editor/b_row_ins.gif" />
+		 <rich:dropDownMenu value="Rows">
+			 <rich:menuItem reRender="spreadsheet" submitMode="ajax"  id="add_row_before_button" value="Add row before" action="#{topEditorBean.addRowBefore}">
+				 <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+			 </rich:menuItem>
+			 <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="add_row_after_button" value="Add row after" action="#{topEditorBean.addRowAfter}">
+				 <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins_after.gif" /></f:facet>
+			 </rich:menuItem>
+			 <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="remove_row_button" value="Remove row" action="#{topEditorBean.removeRow}">
+				 <f:facet name="icon"><h:graphicImage value="/images/editor/row_del.gif" /></f:facet>
+			 </rich:menuItem>
+		 </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+		 <h:graphicImage value="/images/editor/b_col_ins.gif" />
+		 <rich:dropDownMenu value="Columns"><f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
+			 <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="add_column_before_button" value="Add column before" action="#{topEditorBean.addColumnBefore}">
+				 <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
+			 </rich:menuItem>
+			 <rich:menuItem reRender="spreadsheet" submitMode="ajax"id="add_column_after_button" value="Add column after" action="#{topEditorBean.addColumnAfter}">
+				 <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins_after.gif" /></f:facet>
+			 </rich:menuItem>
+			 <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="remove_column_button" value="Remove column" action="#{topEditorBean.removeColumn}">
+				 <f:facet name="icon"><h:graphicImage value="/images/editor/col_del.gif" /></f:facet>
+			 </rich:menuItem></rich:dropDownMenu></rich:toolBarGroup>
+	 </rich:toolBar>
   </a4j:form>
-  <br />
+	<br />
 
 
   <script type="text/javascript" src="<h:outputText value='#{facesContext.externalContext.request.contextPath}'/>/javascript/prototype/prototype-1.5.1.js"></script>
