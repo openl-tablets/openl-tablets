@@ -279,9 +279,21 @@ Decorator.prototype = {
 	 * @type: public
 	 */
 	decorate: function(/* Element */ elt) {
-		this.previosState.bgColor = elt.bgColor;
+		this.previosState = {
+			padding: elt.style.padding,
+			borderWidth: elt.style.borderWidth,
+			borderStyle: elt.style.borderStyle,
+			borderColor: elt.style.borderColor,
+			color: elt.style.color,
+			backgroundColor: elt.style.backgroundColor
+		}
 
-		elt.bgColor = "red";
+		elt.style.padding='1px';
+		elt.style.borderWidth = '3px';
+		elt.style.borderStyle = 'solid';
+		elt.style.borderColor = 'green';
+		elt.style.color = "white"
+		elt.style.backgroundColor = "blue"
 	},
 
 	/**
@@ -290,7 +302,7 @@ Decorator.prototype = {
 	 */
 	undecorate: function(/* Element */ elt) {
 		if (elt) {
-			elt.bgColor = this.previosState.bgColor;
+			Object.extend(elt.style, this.previosState)
 		}
 	}
 }
