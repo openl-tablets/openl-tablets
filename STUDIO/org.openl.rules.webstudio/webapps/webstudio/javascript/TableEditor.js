@@ -92,17 +92,22 @@ TableEditor.prototype = {
 
     // Save value of current editor and close it
     this.editStop();
+	 this.editBegin(targetElement);
+  },
 
-   // Create and activate new editor
-   // now Text and Dropdown editors are created in turn
-   this.editor = this.editor && this.editor.initValue ?
-                 new TextEditor(targetElement.innerHTML) :
-                 new DropdownEditor(targetElement.innerHTML);
-   this.editor.setValue(targetElement.innerHTML);
-   this.currentElement = targetElement;
-    targetElement.removeChild(targetElement.childNodes[0]);
-    targetElement.appendChild(this.editor.node);
-    this.editor.node.focus();
+  /**
+   *  @desc: Create and activate new editor
+   */
+  editBegin : function(targetElement) {
+	  // now Text and Dropdown editors are created in turn
+	  this.editor = this.editor && this.editor.initValue ?
+						 new TextEditor(targetElement.innerHTML) :
+						 new DropdownEditor(targetElement.innerHTML);
+	  this.editor.setValue(targetElement.innerHTML);
+	  this.currentElement = targetElement;
+	  targetElement.removeChild(targetElement.childNodes[0]);
+	  targetElement.appendChild(this.editor.node);
+	  this.editor.node.focus();
   },
 
   editStop : function() {

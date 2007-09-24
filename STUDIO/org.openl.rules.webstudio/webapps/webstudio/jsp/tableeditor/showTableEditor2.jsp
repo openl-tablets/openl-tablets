@@ -239,9 +239,9 @@ function refreshSelectionAfter() {
 
   <div id="tableEditor"/>
 
-  <script>
-    var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/jsp/tableeditor/load.jsf?elementID=<%=elementID%>");
-    tableEditor.saveUrl = "${pageContext.request.contextPath}/jsp/tableeditor/save.jsf";
+  <script type="text/javascript">
+    var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/load?elementID=<%=elementID%>");
+    tableEditor.saveUrl = "${pageContext.request.contextPath}/faces/ajax/save";
   </script>
 
 
