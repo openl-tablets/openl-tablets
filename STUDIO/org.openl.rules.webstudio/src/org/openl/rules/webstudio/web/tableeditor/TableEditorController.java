@@ -12,10 +12,8 @@ import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.WebStudio;
 
-import java.util.Map;
-
 import javax.faces.context.FacesContext;
-
+import java.util.Map;
 
 /**
  * Table editor controller.
@@ -24,15 +22,15 @@ import javax.faces.context.FacesContext;
  */
 public class TableEditorController {
 	 private String response;
-	 public static final String OUTCOME_SUCCESS = "tableEditor_success"; 
+
+	 public static final String OUTCOME_SUCCESS = "tableEditor_success";
 	
 	 public String load() throws Exception {
         WebStudio webStudio = (WebStudio) (getSessionMap().get("studio"));
-        String view = webStudio.getModel().getTableView();
-        int elementId = Integer.parseInt((String) getRequestParameterMap().get("elementID"));
-        TableModel tableModel = initializeTableModel(elementId, view, webStudio);
-
-        //String result = converter.buildClientTableModel(tableModel);
+		  int elementId = Integer.parseInt((String) getRequestParameterMap().get("elementID"));
+        TableModel tableModel = initializeTableModel(elementId, webStudio);
+	
+		  //String result = converter.buildClientTableModel(tableModel);
         response = TableRenderer.render(tableModel);
 
         return OUTCOME_SUCCESS;
@@ -49,9 +47,17 @@ public class TableEditorController {
 
 	public String getCellType() {
 		Map paramMap = getRequestParameterMap();
-		int row = Integer.parseInt((String) paramMap.get("row"));
-		int col = Integer.parseInt((String) paramMap.get("col"));
-		response = (row + col) % 2 == 0 ? "inputbox" : "selectbox";
+		int row = Integer.parseInt((String) paramMap.get("row")) - 1;
+		int col = Integer.parseInt((String) paramMap.get("col")) - 1;
+		int elementId = Integer.parseInt((String) paramMap.get("elementID"));
+
+		IGridTable table = getGridTable(getWebStudio(), elementId);
+		response = "inputbox";
+		if (table != null) {
+			IGrid grid = table.getGrid();
+			int cellType = grid.getCellType(col, row);
+			if (cellType == IGrid.CELL_TYPE_STRING) response = "selectbox"; 
+		}
 		return OUTCOME_SUCCESS;
 	}
 
@@ -59,29 +65,11 @@ public class TableEditorController {
 		return response;
 	}
 
-	private TableModel initializeTableModel(int elementID, String view, WebStudio studio) {
-        //
-        //System.out.println("initializeTableModel");
-        //::studio.getModel().showTable(elementID, view)
-        TableSyntaxNode tsn = studio.getModel().getNode(elementID);
-        if (tsn == null) {
-            return null; // table is not selected yet
-        }
-        IGridTable gt = tsn.getTable().getGridTable();
-        if (view == null) {
-            view = studio.getMode().getTableMode();
-        }
-        boolean showGrid = studio.getMode().showTableGrid();
-        if (view != null) {
-            ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
-            if (gtx != null) {
-                gt = gtx.getGridTable();
-            }
-        }
+	private TableModel initializeTableModel(int elementID, WebStudio studio) {
+		  IGridTable gt = getGridTable(studio, elementID);
+		  if (gt == null) return null; 
 
-        //::return showTable(gt, showGrid);
-        //::return showTable(gt, (IGridFilter[]) null, showgrid);
-        IGrid htmlGrid = gt.getGrid();
+		  IGrid htmlGrid = gt.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
             int N = 2;
             IGridFilter[] f1 = new IGridFilter[N];
@@ -94,7 +82,26 @@ public class TableEditorController {
         return tv.buildModel();
     }
 
-    protected Map getRequestParameterMap() {
+	private IGridTable getGridTable(WebStudio studio, int elementID) {
+		String view = studio.getModel().getTableView();
+		TableSyntaxNode tsn = studio.getModel().getNode(elementID);
+		if (tsn == null) {
+            return null; // table is not selected yet
+		}
+		IGridTable gt = tsn.getTable().getGridTable();
+		if (view == null) {
+			 view = studio.getMode().getTableMode();
+		}
+		if (view != null) {
+			 ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
+			 if (gtx != null) {
+				  gt = gtx.getGridTable();
+			 }
+		}
+		return gt;
+	}
+
+	protected Map getRequestParameterMap() {
         return FacesContext.getCurrentInstance().getExternalContext()
             .getRequestParameterMap();
     }

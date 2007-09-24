@@ -24,7 +24,8 @@ TableEditor.prototype = {
 
 /** Constructor */
   initialize : function(id, url, tableid) {
-    this.tableContainer = document.getElementById(id);
+	 this.tableid = tableid; 
+	 this.tableContainer = document.getElementById(id);
 	 this.baseUrl = url;
 	 this.saveUrl = url + "save"; 
 	 this.loadData(url + "load?elementID=" + tableid);
@@ -103,13 +104,15 @@ TableEditor.prototype = {
 
   editBeginRequest : function(targetElement) {
 	  var self = this;
+	  this.selectElement(targetElement);
 	  new Ajax.Request(this.baseUrl + "getCellType", {
 		  onSuccess	: function(response) {
 			  self.editBegin(targetElement, response.responseText.strip())
 		  },
         parameters : {
 			  row : self.selectionPos[0],
-			  col : self.selectionPos[1] 
+			  col : self.selectionPos[1],
+			  elementID : self.tableid
 		  }
 	  });
   },
@@ -122,7 +125,9 @@ TableEditor.prototype = {
 	  this.editor.initialize();
 
 	  this.editor.setValue(targetElement.innerHTML);
-	  this.currentElement = targetElement;
+
+	  this.selectElement(targetElement);
+
 	  targetElement.removeChild(targetElement.childNodes[0]);
 	  targetElement.appendChild(this.editor.node);
 	  this.editor.node.focus();
@@ -157,6 +162,7 @@ TableEditor.prototype = {
   },
 
   selectElement: function(elt, dir) {
+	  if (elt && this.currentElement && elt.id == this.currentElement.id) return;
 	  if (elt && dir) { // save to selection history
 		  if (this.selectionPos) this.selectionHistory.push([dir, this.selectionPos[0], this.selectionPos[1]]);
 		  if (this.selectionHistory.length > 10) this.selectionHistory.shift();
@@ -187,7 +193,7 @@ TableEditor.prototype = {
  },
 
 	/**
-	 * @desc: handles key presses. Perform table navigation.
+	 * @desc: handles key presses. Performs table navigation.
 	 * @type: private
 	 */
   handleKeyDown: function(event) {
