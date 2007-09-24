@@ -275,9 +275,6 @@ public abstract class ASelector implements ISelector
 
 	protected int redefinedHashCode(){return System.identityHashCode(this);}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	public int hashCode()
 	{
 		return redefinedHashCode();

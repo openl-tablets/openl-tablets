@@ -43,7 +43,7 @@ public class IntSet implements IIntDomain
 		return bits.cardinality();
 	}
 
-	public IIntIterator iterator()
+	public IIntIterator intIterator()
 	{
 		return new BitSetIterator(bits, min);
 	}

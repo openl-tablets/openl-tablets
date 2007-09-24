@@ -11,29 +11,44 @@ import org.openl.base.NameSpacedThing;
 
 /**
  * @author snshor
+ * 
+ * This class is the base of all the type definitions. It should not be treated 
+ * as substitute for Java Class, even though in many instances it is. 
+ * <p>
+ * IType provides very generic functionality, 
+ * but allows to provide such non-java features as using non-java types, 
+ * using composite types(for example int, Integer, BigInteger) etc.  
  */
 public interface IType extends INameSpacedThing
 {
 	
 	/**
 	 * @param obj
-	 * @return true if obj belongs to this type
+	 * @return true if the object belongs to this type
 	 * 
 	 * Please note how it is similar to selector or domain methods
 	 * 
 	 */
 	
-	boolean isTypeFor(Object obj);
+	boolean isInstance(Object obj);
 	
 	/**
 	 * 
 	 * @param type 
-	 * @return true if this is specialization of more general type
-	 * if (T1.isKindOf(T2) AND T1.isTypeFor(x)) -> T2.isTypeFor(x) 
+	 * @return true if a type is specialization of more general this type
+	 * if (T1.isAssignableFrom(T2) AND T2.isInstance(x)) -> T1.isInstance(x) 
 	 */
 	
-	boolean isKindOf(IType type);
+	boolean isAssignableFrom(IType type);
+
+
 	
+	/**
+	 * Provides type validation(usually by constraining type)   
+	 * @return 
+	 */
+	
+	public IDomain getDomain();
 	
 	static public final AnyThing ANY = new AnyThing(); 
  	
@@ -45,15 +60,25 @@ public interface IType extends INameSpacedThing
 			super("Any", "http://domain.openl.org");
 		}
 		
-		public boolean isTypeFor(Object obj)
+		public boolean isInstance(Object obj)
 		{
 			return true;
 		}
 
-		public boolean isKindOf(IType type)
+		
+		
+		public boolean isAssignableFrom(IType type)
 		{
-			return type == this;
+			return true;
+		}
+
+		public IDomain getDomain() {
+			return null;
 		}
 	}
+	
+	
+//TODO	static public class JavaType implements IType
+	
 	
 }
