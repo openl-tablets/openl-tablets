@@ -23,27 +23,35 @@ import javax.faces.context.FacesContext;
  * @author Andrey Naumenko
  */
 public class TableEditorController {
-    public String getLoad() throws Exception {
+	 private String response;
+	 public static final String OUTCOME_SUCCESS = "tableEditor_success"; 
+	
+	 public String load() throws Exception {
         WebStudio webStudio = (WebStudio) (getSessionMap().get("studio"));
         String view = webStudio.getModel().getTableView();
         int elementId = Integer.parseInt((String) getRequestParameterMap().get("elementID"));
         TableModel tableModel = initializeTableModel(elementId, view, webStudio);
 
         //String result = converter.buildClientTableModel(tableModel);
-        String result = TableRenderer.render(tableModel);
+        response = TableRenderer.render(tableModel);
 
-        return result;
+        return OUTCOME_SUCCESS;
     }
 
-    public String getSave() throws Exception {
+    public String save() throws Exception {
         String id = (String) getRequestParameterMap().get("id");
         String value = (String) getRequestParameterMap().get("value");
         System.out.println(id);
         System.out.println(value);
-        return "";
+		  response = "";
+		  return OUTCOME_SUCCESS;
     }
 
-    private TableModel initializeTableModel(int elementID, String view, WebStudio studio) {
+	public String getResponse() {
+		return response;
+	}
+
+	private TableModel initializeTableModel(int elementID, String view, WebStudio studio) {
         //
         //System.out.println("initializeTableModel");
         //::studio.getModel().showTable(elementID, view)

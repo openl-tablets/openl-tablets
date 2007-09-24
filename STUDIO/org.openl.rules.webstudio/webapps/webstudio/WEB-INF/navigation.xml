@@ -2,6 +2,13 @@
 <!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
                               "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config>
+
+    <lifecycle>
+		<phase-listener>
+			org.openl.jsf.TableEditorAjaxDispatcher
+		</phase-listener>
+	</lifecycle>
+
 <!--
 	<navigation-rule>
 		<from-view-id>/index.jsp</from-view-id>
@@ -11,5 +18,12 @@
 		</navigation-case>
 	</navigation-rule>
 -->
+
+    <navigation-rule>
+        <navigation-case>
+            <from-outcome>tableEditor_success</from-outcome>
+            <to-view-id>/jsp/tableeditor/tableEditorResponse.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
 
 </faces-config>
