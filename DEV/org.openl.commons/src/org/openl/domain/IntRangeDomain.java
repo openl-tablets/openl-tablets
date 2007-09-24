@@ -5,16 +5,19 @@
  */
 package org.openl.domain;
 
+import java.util.Iterator;
+
 
 /**
  * @author snshor
  */
-public class IntRange implements IIntDomain
+public class IntRangeDomain  extends IFiniteDomain.FixedSizeDomain 
+	implements IFiniteDomain, IIntDomain
 {
-	int min, max;
+	protected int min, max;
 	
 
-	public IntRange(int min, int max)
+	public IntRangeDomain(int min, int max)
 	{
 		this.min = min;
 		this.max = max;
@@ -42,13 +45,19 @@ public class IntRange implements IIntDomain
 	}
 	
 	
+	public boolean containsNumber(Number n)
+	{
+		return min <= n.doubleValue() && n.doubleValue() <= max;
+	}	
+	
+	
 	
 
 	/**
 	 *
 	 */
 
-	public IIntIterator iterator()
+	public IIntIterator intIterator()
 	{
 		return new RangeIterator();
 	}
@@ -101,5 +110,35 @@ public class IntRange implements IIntDomain
 	{
 		return max - min + 1;
 	}
+
+	public Iterator iterator()
+	{
+	    return intIterator();
+	}
+
+	public IType getElementType()
+	{
+	    // TODO Auto-generated method stub
+	    return null;
+	}
+
+	public boolean selectObject(Object obj)
+	{
+	    Number n = (Number)obj; 
+	    return containsNumber(n);
+	}
+
+	public boolean selectType(IType type)
+	{
+	    //FIXME 
+	    return true;
+	}
+
+	public String toString()
+	{
+	    return "[" + min + ".." + max + "]";
+	}
+	
+	
 
 }

@@ -17,6 +17,6 @@ public interface IIntDomain
 	
 	public int size();
 	
-	IIntIterator iterator();
+	IIntIterator intIterator();
 	
 }

@@ -3,14 +3,47 @@
  */
 package org.openl.domain;
 
-import org.openl.util.ISelector;
 
 /**
  * @author snshor
  */
 
-public interface IDomain extends ISelector
+public interface IDomain
 {
-	boolean isFinite();
+	
+    	/**
+    	 * 
+    	 * @return true in case of ranges and enumerations
+    	 */
+    
+    	boolean isFinite();
+	
+	
+    	/**
+    	 * 
+    	 * @return type that can be used with this domain
+    	 */
 	IType getElementType();
+	
+	
+	
+	/**
+	 * 
+	 * @param obj 
+	 * @return true if object belongs to this domain
+	 */
+	public boolean selectObject(Object obj);
+	
+	/**
+	 * 
+	 * @param type
+	 * @return true if any object of the type belong to this domain; 
+	 * NOTE: this is strictly a type check, the method does not take into 
+	 * consideration the domain of the type
+	 */
+	public boolean selectType(IType type);
+	
+	
+	
+	
 }
