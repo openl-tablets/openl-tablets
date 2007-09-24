@@ -25,6 +25,7 @@ public interface IXlsTableNames
 		LANG_PROPERTY = "language",
 		INCLUDE_TABLE = "include",
 		IMPORT_PROPERTY = "import",
+		VOCABULARY_PROPERTY = "vocabulary",
 		
 		ENVIRONMENT_TABLE = "Environment",
 		

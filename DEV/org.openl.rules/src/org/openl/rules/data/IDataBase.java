@@ -6,6 +6,7 @@
  
 package org.openl.rules.data;
 
+import org.openl.OpenlToolAdaptor;
 import org.openl.rules.table.ILogicalTable;
 
 /**
@@ -15,9 +16,9 @@ import org.openl.rules.table.ILogicalTable;
 public interface IDataBase
 {
 	
-	ITable addTable(IDataTableModel dataModel, ILogicalTable data) throws Exception;
+	ITable addTable(IDataTableModel dataModel, ILogicalTable data, OpenlToolAdaptor ota) throws Exception;
 	
-	void validate() throws Exception;
+	//void validate() throws Exception;
 	
 	
 	ITable getTable(String name);

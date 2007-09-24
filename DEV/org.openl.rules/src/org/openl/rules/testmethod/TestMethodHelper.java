@@ -7,6 +7,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.testmethod.binding.TestMethodBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -88,7 +89,7 @@ public class TestMethodHelper
 		}
 	}
 
-	IOpenMethod getTestAll()
+	public IOpenMethod getTestAll()
 	{
 		return new TestMethodTestAll();
 	}

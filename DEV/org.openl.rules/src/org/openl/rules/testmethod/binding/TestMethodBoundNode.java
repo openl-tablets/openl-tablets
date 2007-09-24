@@ -1,12 +1,13 @@
 /**
  * Created Jan 3, 2007
  */
-package org.openl.rules.testmethod;
+package org.openl.rules.testmethod.binding;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.lang.xls.binding.DataTableBoundNode;
+import org.openl.rules.data.binding.DataTableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.testmethod.TestMethodHelper;
 
 /**
  * @author snshor

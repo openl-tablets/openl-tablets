@@ -37,6 +37,7 @@ import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.ParsedCode;
 import org.openl.syntax.impl.SyntaxError;
+import org.openl.syntax.impl.TerminalNode;
 import org.openl.syntax.impl.TokenizerParser;
 import org.openl.syntax.impl.URLSourceCodeModule;
 import org.openl.util.Log;
@@ -80,6 +81,17 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 		else
 			addError(new SyntaxError(openl, "Only one openl statement is allowed",
 					null));
+	}
+
+	IdentifierNode vocabulary;
+
+	void setVocabulary(IdentifierNode vocabulary)
+	{
+		if (this.vocabulary == null)
+			this.vocabulary = vocabulary;
+		else
+			addError(new SyntaxError(vocabulary,
+					"Only one vocabulary is allowed", null));
 	}
 
 	HashSet preprocessedWorkBooks = new HashSet();
@@ -155,7 +167,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 		TableSyntaxNode[] nodes = (TableSyntaxNode[]) nodesVector
 				.toArray(new TableSyntaxNode[nodesVector.size()]);
 		return new ParsedCode(new XlsModuleSyntaxNode(nodes, source, openl,
-				allImportString), source, (ISyntaxError[]) errors
+				vocabulary, allImportString), source, (ISyntaxError[]) errors
 				.toArray(new ISyntaxError[0]));
 	}
 
@@ -179,9 +191,11 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 	static final String[][] headerMapping = { { DECISION_TABLE, XLS_DT },
 			{ DECISION_TABLE2, XLS_DT }, { DATA_TABLE, XLS_DATA },
-			{ DATATYPE_TABLE, XLS_DATATYPE }, { METHOD_TABLE, XLS_METHOD },
-			{ METHOD_TABLE2, XLS_METHOD }, { ENVIRONMENT_TABLE, XLS_ENVIRONMENT },
-			{ TEST_METHOD_TABLE, XLS_TEST_METHOD }, {RUN_METHOD_TABLE, XLS_RUN_METHOD} };
+			{ DATATYPE_TABLE, XLS_DATATYPE }, 
+			{ METHOD_TABLE, XLS_METHOD }, { METHOD_TABLE2, XLS_METHOD },
+			{ ENVIRONMENT_TABLE, XLS_ENVIRONMENT },
+			{ TEST_METHOD_TABLE, XLS_TEST_METHOD },
+			{ RUN_METHOD_TABLE, XLS_RUN_METHOD } };
 
 	static public Map tableHeaders()
 	{
@@ -204,10 +218,11 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 		IdentifierNode[] parsedHeader = TokenizerParser.tokenize(src, " \n\r");
 
-//		if (parsedHeader.length == 0)
-//			return;
+		// if (parsedHeader.length == 0)
+		// return;
 
-		String header = parsedHeader.length == 0 ? "Undefined" : parsedHeader[0].getIdentifier();
+		String header = parsedHeader.length == 0 ? "Undefined" : parsedHeader[0]
+				.getIdentifier();
 
 		String xls_type = (String) tableHeaders().get(header);
 
@@ -219,7 +234,6 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 		if (header.equals(ENVIRONMENT_TABLE))
 			preprocessEnvironmentTable(tsn, source);
-
 
 		addNode(tsn);
 
@@ -240,31 +254,45 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 	}
 
-private void preprocessEnvironmentTable(TableSyntaxNode tsn,
-      XlsSheetSourceCodeModule source)
-  {
+	private void preprocessVocabularyTable(IGridTable table,
+			XlsSheetSourceCodeModule source)
+	{
 
-  	IGridTable table = tsn.getTable().getGridTable();
-    ILogicalTable lt = LogicalTable.logicalTable(table);
+		String vocabulary = table.getStringValue(1, 0);
 
-    int h = lt.getLogicalHeight();
+		setVocabulary(new IdentifierNode(VOCABULARY_PROPERTY, new GridLocation(table), vocabulary,
+				source));
 
-    for (int i = 1; i < h; i++)
-    {
-      ILogicalTable row = lt.getLogicalRow(i);
+	}
 
-      String name = row.getLogicalColumn(0).getGridTable().getStringValue(0, 0);
+	private void preprocessEnvironmentTable(TableSyntaxNode tsn,
+			XlsSheetSourceCodeModule source)
+	{
 
+		IGridTable table = tsn.getTable().getGridTable();
+		ILogicalTable lt = LogicalTable.logicalTable(table);
 
-      if (LANG_PROPERTY.equals(name))
-         preprocessOpenlTable(row.getGridTable(), source);
-      else if (INCLUDE_TABLE.equals(name))
-         preprocessIncludeTable(tsn, row.getGridTable(), source);
-      else if (IMPORT_PROPERTY.equals(name))
-        preprocessImportTable(row.getGridTable(), source);
-    }
+		int h = lt.getLogicalHeight();
 
-  }	private void preprocessImportTable(IGridTable table,
+		for (int i = 1; i < h; i++)
+		{
+			ILogicalTable row = lt.getLogicalRow(i);
+
+			String name = row.getLogicalColumn(0).getGridTable().getStringValue(0, 0);
+
+			if (LANG_PROPERTY.equals(name))
+				preprocessOpenlTable(row.getGridTable(), source);
+			else if (INCLUDE_TABLE.equals(name))
+				preprocessIncludeTable(tsn, row.getGridTable(), source);
+			else if (IMPORT_PROPERTY.equals(name))
+				preprocessImportTable(row.getGridTable(), source);
+			else if (VOCABULARY_PROPERTY.equals(name))
+				preprocessVocabularyTable(row.getGridTable(), source);
+		}
+
+	}
+
+	private void preprocessImportTable(IGridTable table,
 			XlsSheetSourceCodeModule sheetSource)
 	{
 
@@ -295,7 +323,7 @@ private void preprocessEnvironmentTable(TableSyntaxNode tsn,
 
 	}
 
-	private void preprocessIncludeTable(TableSyntaxNode tsn,  IGridTable table,
+	private void preprocessIncludeTable(TableSyntaxNode tsn, IGridTable table,
 			XlsSheetSourceCodeModule sheetSource)
 	{
 
@@ -316,9 +344,9 @@ private void preprocessEnvironmentTable(TableSyntaxNode tsn,
 
 				if (src == null)
 				{
-					ISyntaxError se = new SyntaxError(null, "Include " + include + " not found",
-							null, new GridCellSourceCodeModule(table.getLogicalRegion(1, i,
-									1, 1).getGridTable())); 
+					ISyntaxError se = new SyntaxError(null, "Include " + include
+							+ " not found", null, new GridCellSourceCodeModule(table
+							.getLogicalRegion(1, i, 1, 1).getGridTable()));
 					addError(se);
 					tsn.addError(se);
 					continue;
@@ -338,9 +366,9 @@ private void preprocessEnvironmentTable(TableSyntaxNode tsn,
 						src = new URLSourceCodeModule(new URL(newURL));
 					} catch (Throwable t)
 					{
-						ISyntaxError se = new SyntaxError(null, "Include " + include + " not found",
-								t, new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1,
-										1).getGridTable()));
+						ISyntaxError se = new SyntaxError(null, "Include " + include
+								+ " not found", t, new GridCellSourceCodeModule(table
+								.getLogicalRegion(1, i, 1, 1).getGridTable()));
 						addError(se);
 						tsn.addError(se);
 						continue;
@@ -353,9 +381,9 @@ private void preprocessEnvironmentTable(TableSyntaxNode tsn,
 				preprocessWorkbook(src);
 			} catch (Throwable t)
 			{
-				ISyntaxError se = new SyntaxError(null, "Include " + include + " not found", t,
-						new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1)
-								.getGridTable())); 
+				ISyntaxError se = new SyntaxError(null, "Include " + include
+						+ " not found", t, new GridCellSourceCodeModule(table
+						.getLogicalRegion(1, i, 1, 1).getGridTable()));
 				addError(se);
 				tsn.addError(se);
 				continue;

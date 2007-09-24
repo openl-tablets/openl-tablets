@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.rules.lang.xls.binding;
+package org.openl.rules.method.binding;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
@@ -17,6 +17,7 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;

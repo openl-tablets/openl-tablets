@@ -4,7 +4,7 @@
 package org.openl.rules.search;
 
 import org.openl.rules.data.ITable;
-import org.openl.rules.lang.xls.binding.DataTableBoundNode.DataOpenField;
+import org.openl.rules.data.binding.DataTableBoundNode.DataOpenField;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.types.IOpenClass;

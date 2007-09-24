@@ -6,6 +6,7 @@
  
 package org.openl.rules.data;
 
+import org.openl.binding.IBindingContext;
 import org.openl.rules.table.IGridTable;
 import org.openl.types.IOpenClass;
 
@@ -24,9 +25,9 @@ public interface ITable
 	IDataTableModel getDataModel();
 
 	int getColumnIndex(String columnName);
-	Object findObject(int columnIndex, String key);
+	Object findObject(int columnIndex, String key, IBindingContext cxt);
 
-	void populate(IDataBase db) throws Exception;
+	void populate(IDataBase db, IBindingContext cxt) throws Exception;
 	/**
 	 * @return
 	 */

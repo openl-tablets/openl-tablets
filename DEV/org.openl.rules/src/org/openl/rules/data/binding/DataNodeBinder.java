@@ -4,10 +4,11 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.rules.lang.xls.binding;
+package org.openl.rules.data.binding;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
+import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BoundError;
@@ -20,6 +21,8 @@ import org.openl.rules.data.impl.OpenlBasedColumnDescriptor;
 import org.openl.rules.data.impl.OpenlBasedDataTableModel;
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.binding.AXlsTableBinder;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
@@ -40,14 +43,33 @@ import org.openl.vm.IRuntimeEnv;
 public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 {
 
-	static final int TYPE_INDEX = 1, TABLE_NAME_INDEX = 2;
+	//indexes of names in header
+	static final int 
+		TYPE_INDEX = 1, 
+		TABLE_NAME_INDEX = 2,
+		DATABASE_NAME_INDEX = 3;
+	
+	/**
+	 * The pre-defined names of system and default databases 
+	 */
+	static final public String 
+	    //this database is used for user data, including tests
+	    DEFAULT_DATAgBASE = "org.openl.database.default",
+	    /**
+	     * This database is used for all system data, configurations etc.
+	     * This database is processed first, data there can not use domain types etc 
+	     */
+	    
+	      
+	    SYSTEM_DATABASE = "system";
+	
 	public static final String CONSTRUCTOR_FIELD = "this";
 
 	
 	
 	protected String getErrMsgFormat()
 	{
-		return "Data table format: Data <typename> <tablename>";
+		return "Data table format: Data <typename> <tablename> [database]";
 	}
 	
 	IdentifierNode[] parsedHeader;
@@ -94,6 +116,8 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 
 		String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
 
+		
+		
 		IOpenClass tableType = getTableType(typeName, cxt, module, dataNode, tableName);
 	
 
@@ -137,7 +161,9 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 
 		tsn.getSubTables().put(IDecisionTableConstants.VIEW_BUSINESS, dataWithHeader);
 		
-		ITable t = xlsOpenClass.getDataBase().addTable(dataModel, dataWithHeader);
+		OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, cxt);
+		
+		ITable t = xlsOpenClass.getDataBase().addTable(dataModel, dataWithHeader, ota);
 		
 
 

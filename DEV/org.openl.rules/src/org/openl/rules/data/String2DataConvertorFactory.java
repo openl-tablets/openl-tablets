@@ -15,6 +15,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.openl.binding.IBindingContext;
+import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.types.IOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -51,6 +54,9 @@ public class String2DataConvertorFactory
 
 
 
+	
+	
+	
 	public static class String2ConstructorConvertor implements IString2DataConvertor
 	{
 		
@@ -61,7 +67,7 @@ public class String2DataConvertorFactory
 			this.ctr = ctr;
 		}
 		
-		public Object parse(String data, String format)
+		public Object parse(String data, String format, IBindingContext cxt)
 		{
 			
 			try
@@ -109,12 +115,14 @@ public class String2DataConvertorFactory
 
 		convertors.put(String.class, new String2StringConvertor());
 		convertors.put(Date.class, new String2DateConvertor());
+		convertors.put(Class.class, new String2ClassConvertor());
+		convertors.put(IOpenClass.class, new String2OpenClassConvertor());
 	}
 
 	public static class String2LongConvertor implements IString2DataConvertor
 	{
 		
-		public Object parse(String data, String format)
+		public Object parse(String data, String format, IBindingContext cxt)
 		{
 			if (format == null)
 				return Long.valueOf(data);
@@ -152,7 +160,7 @@ public class String2DataConvertorFactory
 	public static class String2IntConvertor implements IString2DataConvertor
 	{
 		
-		public Object parse(String data, String format)
+		public Object parse(String data, String format, IBindingContext cxt)
 		{
 			if (format == null)
 				return Integer.valueOf(data);
@@ -187,7 +195,7 @@ public class String2DataConvertorFactory
 	public static class String2DoubleConvertor implements IString2DataConvertor
 	{
 		
-		public Object parse(String xdata, String format)
+		public Object parse(String xdata, String format, IBindingContext cxt)
 		{
 			
 			if (format != null)
@@ -254,7 +262,7 @@ public class String2DataConvertorFactory
 	public static class String2CharConvertor implements IString2DataConvertor
 	{
 		
-		public Object parse(String data, String format)
+		public Object parse(String data, String format, IBindingContext cxt)
 		{
 			if (data.length() != 1)
 			  throw new IndexOutOfBoundsException("Character field must have only one symbol");
@@ -278,7 +286,7 @@ public class String2DataConvertorFactory
 	public static class String2BooleanConvertor implements IString2DataConvertor
 	{
 		
-		public Object parse(String data, String format)
+		public Object parse(String data, String format, IBindingContext cxt)
 		{
 			if (data == null || data.length() == 0)
 			  return Boolean.FALSE;
@@ -298,10 +306,58 @@ public class String2DataConvertorFactory
 
 	}
 	
+	
+	public static class String2ClassConvertor implements IString2DataConvertor
+	{
+		
+		public Object parse(String data, String format, IBindingContext cxt)
+		{
+			IOpenClass c =  cxt.findType(ISyntaxConstants.THIS_NAMESPACE, data);
+			
+			if (c == null)
+				throw new RuntimeException("Type " + data + " is not found");
+
+			return c.getInstanceClass();
+		}
+		/**
+		 *
+		 */
+
+		public String format(Object data, String format)
+		{
+			return String.valueOf(data);
+		}
+
+	}
+	
+	public static class String2OpenClassConvertor implements IString2DataConvertor
+	{
+		
+		public Object parse(String data, String format, IBindingContext cxt)
+		{
+			IOpenClass c =  cxt.findType(ISyntaxConstants.THIS_NAMESPACE, data);
+			
+			if (c == null)
+				throw new RuntimeException("Type " + data + " is not found");
+
+			return c;
+		}
+
+		/**
+		 *
+		 */
+
+		public String format(Object data, String format)
+		{
+			return String.valueOf(data);
+		}
+
+	}	
+	
 	public static class String2StringConvertor implements IString2DataConvertor
 	{
 		
-		public Object parse(String data, String format)
+		public Object parse(String data, String format, IBindingContext cxt)
 		{
 			return data;
 		}
@@ -311,7 +367,6 @@ public class String2DataConvertorFactory
 			return String.valueOf(data);
 		}
 
-
 	}
 	
 
@@ -320,7 +375,7 @@ public class String2DataConvertorFactory
 		
 		
 		
-		public Object parse(String data, String format)
+		public Object parse(String data, String format,  IBindingContext cxt)
 		{
 			return parseDate(data, format);
 		}

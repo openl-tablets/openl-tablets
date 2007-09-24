@@ -6,6 +6,8 @@
  
 package org.openl.rules.data;
 
+import org.openl.OpenlToolAdaptor;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
 
@@ -23,16 +25,16 @@ public interface IColumnDescriptor
 	
 //	IOpenClass getType();
 	
-	void populateLiteral(Object target, ILogicalTable values)
+	void populateLiteral(Object target, ILogicalTable values, OpenlToolAdaptor ota)
 	  throws Exception;
 	
 	Object getLiteral(IOpenClass paramType, ILogicalTable values) throws Exception;
 	
 
-	void populateLink(Object target, ILogicalTable values, IDataBase db)
+	void populateLink(Object target, ILogicalTable values, IDataBase db, IBindingContext cxt)
 	  throws Exception;
 
-	Object getLink(IOpenClass fieldType, ILogicalTable values, IDataBase db) throws Exception;
+	Object getLink(IOpenClass fieldType, ILogicalTable values, IDataBase db, IBindingContext cxt) throws Exception;
 
 
 	Object getColumnValue(Object target);
