@@ -8,11 +8,14 @@
 
 var TableEditor = Class.create();
 
+TableEditor.Editors = $H();
+
 TableEditor.prototype = {
   tableContainer : null,
   currentElement : null,
   editor : null,
   saveUrl : null,
+  baseUrl : null,
   selectionPos : null,
   selectionHistory : [],	
   decorator : null,
@@ -20,10 +23,12 @@ TableEditor.prototype = {
   columns : 0,	
 
 /** Constructor */
-  initialize : function(id, url) {
+  initialize : function(id, url, tableid) {
     this.tableContainer = document.getElementById(id);
-    this.loadData(url);
-	 this.decorator = new Decorator(); 
+	 this.baseUrl = url;
+	 this.saveUrl = url + "save"; 
+	 this.loadData(url + "load?elementID=" + tableid);
+	 this.decorator = new Decorator();
   },
 
 /**
@@ -92,17 +97,30 @@ TableEditor.prototype = {
 
     // Save value of current editor and close it
     this.editStop();
-	 this.editBegin(targetElement);
+	 this.editBeginRequest(targetElement);
+  },
+
+
+  editBeginRequest : function(targetElement) {
+	  var self = this;
+	  new Ajax.Request(this.baseUrl + "getCellType", {
+		  onSuccess	: function(response) {
+			  self.editBegin(targetElement, response.responseText.strip())
+		  },
+        parameters : {
+			  row : self.selectionPos[0],
+			  col : self.selectionPos[1] 
+		  }
+	  });
   },
 
   /**
    *  @desc: Create and activate new editor
    */
-  editBegin : function(targetElement) {
-	  // now Text and Dropdown editors are created in turn
-	  this.editor = this.editor && this.editor.initValue ?
-						 new TextEditor(targetElement.innerHTML) :
-						 new DropdownEditor(targetElement.innerHTML);
+  editBegin : function(targetElement, editor) {
+	  this.editor = Object.extend(new Object(), TableEditor.Editors[editor]);
+	  this.editor.initialize();
+
 	  this.editor.setValue(targetElement.innerHTML);
 	  this.currentElement = targetElement;
 	  targetElement.removeChild(targetElement.childNodes[0]);
@@ -123,6 +141,7 @@ TableEditor.prototype = {
 
       this.currentElement.innerHTML = this.editor.getValue();
     }
+	 this.editor = null; 
   },
 
 	/**
@@ -203,7 +222,8 @@ TableEditor.prototype = {
 			while (--sp[theIndex] >= 1) {
 				cell = scanUpLeft.call(this, 1 - theIndex, true);
 				if (cell) {
-					if ( (sp[0] + cell.rowSpan >= this.selectionPos[0]) && (sp[1] + cell.colSpan >= this.selectionPos[1]))
+					if ( (sp[0] + cell.rowSpan >= this.selectionPos[0] + theIndex) &&
+						  (sp[1] + cell.colSpan >= this.selectionPos[1] + 1 - theIndex))
 						break;
 				}
 				sp[1 - theIndex] = this.selectionPos[1 - theIndex];

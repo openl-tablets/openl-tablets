@@ -47,6 +47,14 @@ public class TableEditorController {
 		  return OUTCOME_SUCCESS;
     }
 
+	public String getCellType() {
+		Map paramMap = getRequestParameterMap();
+		int row = Integer.parseInt((String) paramMap.get("row"));
+		int col = Integer.parseInt((String) paramMap.get("col"));
+		response = (row + col) % 2 == 0 ? "inputbox" : "selectbox";
+		return OUTCOME_SUCCESS;
+	}
+
 	public String getResponse() {
 		return response;
 	}

@@ -19,3 +19,5 @@ TextEditor.prototype = Object.extend(new BaseEditor(), {
     }
 
 });
+
+TableEditor.Editors["inputbox"] = TextEditor.prototype;
