@@ -34,6 +34,8 @@ public class OpenLProjectPropertiesLoader
 
 	public static final String DISPLAY_NAME_SUFFIX = ".display.name";
 
+	public static final String VOCABULARY_CLASS_SUFFIX = ".vocabulary.clazz";
+
 	static public String getOpenLPropertiesFolder(String projectHome)
 	{
 		return projectHome + "/build";

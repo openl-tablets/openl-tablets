@@ -7,6 +7,7 @@
 package org.openl.syntax.impl;
 
 import org.openl.IOpenSourceCodeModule;
+import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -17,7 +18,7 @@ public class IdentifierNode extends TerminalNode
 {
 	String identifier;
 	
-	public IdentifierNode(String type, TextInterval pos, String identifier, IOpenSourceCodeModule module)
+	public IdentifierNode(String type, ILocation pos, String identifier, IOpenSourceCodeModule module)
 	{
 		super(type, pos, module);
 		this.identifier = identifier;
