@@ -3,20 +3,19 @@
  */
 package org.openl.rules.helpers;
 
+import org.openl.domain.IntRangeDomain;
 import org.openl.util.StringTool;
 
 /**
  * @author snshor
  */
-public class IntRange implements INumberRange
+public class IntRange extends IntRangeDomain implements INumberRange
 {
-	static int CLOSE = 0, OPEN = 1;
-
-	public IntRange(String s)
-	{
-		parse(s);
-	}
-
+    
+    
+    class Parser
+    {
+	final int CLOSE = 0, OPEN = 1;
 	int lowerBound = Integer.MIN_VALUE;
 
 	int upperBound = Integer.MAX_VALUE;
@@ -24,28 +23,6 @@ public class IntRange implements INumberRange
 	int lowerType = CLOSE;
 
 	int upperType = CLOSE;
-
-	public boolean contains(int x)
-	{
-		return lowerBound + lowerType <= x && x <= upperBound - upperType;
-	}
-
-	public boolean containsNumber(Number num)
-	{
-		return lowerBound + lowerType <= num.doubleValue() && num.doubleValue() <= upperBound - upperType;
-	}
-
-	
-	public int getMin()
-	{
-		return lowerBound + lowerType;
-	}
-
-	public int getMax()
-	{
-		return upperBound - upperType;
-	}
-	
 	
 	void parse(String s)
 	{
@@ -87,121 +64,38 @@ public class IntRange implements INumberRange
 					"Range Format Error - no more than two numbers allowed");
 
 		}
+		
+		min = lowerBound + lowerType;
+		max = upperBound - upperType;
 	}
 
-	/**
-	 * @return Returns the cLOSE.
-	 */
-	public static int getCLOSE()
+    }
+    
+    
+
+	public IntRange(String s)
 	{
-		return CLOSE;
+	    super(0,0);
+	    new Parser().parse(s);
 	}
 
-	/**
-	 * @param close
-	 *          The cLOSE to set.
-	 */
-	public static void setCLOSE(int close)
-	{
-		CLOSE = close;
-	}
 
-	/**
-	 * @return Returns the oPEN.
-	 */
-	public static int getOPEN()
-	{
-		return OPEN;
-	}
 
-	/**
-	 * @param open
-	 *          The oPEN to set.
-	 */
-	public static void setOPEN(int open)
-	{
-		OPEN = open;
-	}
+	
+	
+	
 
-	/**
-	 * @return Returns the lowerBound.
-	 */
-	public int getLowerBound()
-	{
-		return lowerBound;
-	}
-
-	/**
-	 * @param lowerBound
-	 *          The lowerBound to set.
-	 */
-	public void setLowerBound(int lowerBound)
-	{
-		this.lowerBound = lowerBound;
-	}
-
-	/**
-	 * @return Returns the lowerType.
-	 */
-	public int getLowerType()
-	{
-		return lowerType;
-	}
-
-	/**
-	 * @param lowerType
-	 *          The lowerType to set.
-	 */
-	public void setLowerType(int lowerType)
-	{
-		this.lowerType = lowerType;
-	}
-
-	/**
-	 * @return Returns the upperBound.
-	 */
-	public int getUpperBound()
-	{
-		return upperBound;
-	}
-
-	/**
-	 * @param upperBound
-	 *          The upperBound to set.
-	 */
-	public void setUpperBound(int upperBound)
-	{
-		this.upperBound = upperBound;
-	}
-
-	/**
-	 * @return Returns the upperType.
-	 */
-	public int getUpperType()
-	{
-		return upperType;
-	}
-
-	/**
-	 * @param upperType
-	 *          The upperType to set.
-	 */
-	public void setUpperType(int upperType)
-	{
-		this.upperType = upperType;
-	}
-
-	public String toString()
-	{
-		if (lowerBound == upperBound)
-			return String.valueOf(lowerBound);
-		if (lowerBound == Integer.MIN_VALUE)
-			return "<" + upperBound;
-		if (upperBound == Integer.MAX_VALUE)
-			return "" + lowerBound + "+";
-
-		return "" + lowerBound + "-" + upperBound;
-	}
+//	public String toString()
+//	{
+//		if (lowerBound == upperBound)
+//			return String.valueOf(lowerBound);
+//		if (lowerBound == Integer.MIN_VALUE)
+//			return "<" + upperBound;
+//		if (upperBound == Integer.MAX_VALUE)
+//			return "" + lowerBound + "+";
+//
+//		return "" + lowerBound + "-" + upperBound;
+//	}
 
 	static public double parseNumber(String s)
 	{
