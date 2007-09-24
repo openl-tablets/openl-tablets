@@ -13,8 +13,8 @@ TableEditor.prototype = {
   currentElement : null,
   editor : null,
   saveUrl : null,
-  selectedCell : null,
-  selectionPos : null,	
+  selectionPos : null,
+  selectionHistory : [],	
   decorator : null,
   rows : 0,
   columns : 0,	
@@ -132,7 +132,19 @@ TableEditor.prototype = {
 	  Event.stop(e);
   },
 
-  selectElement: function(elt) {
+  selectElement: function(elt, dir) {
+	  if (elt && dir) { // save to selection history
+		  if (this.selectionPos) this.selectionHistory.push([dir, this.selectionPos[0], this.selectionPos[1]]);
+		  if (this.selectionHistory.length > 10) this.selectionHistory.shift();
+	  } else {
+		  if (dir == -1) {
+			  var lastEntry = this.selectionHistory.pop();
+			  this.selectionPos[0] = lastEntry[1];
+			  this.selectionPos[1] = lastEntry[2];
+		  } else
+		  		this.selectionHistory.clear();
+	  }
+
 	  if (elt) {
 		  this.selectionPos = this.elementPosition(elt);
 	  } else {
@@ -165,6 +177,12 @@ TableEditor.prototype = {
 
 	  var sp = this.selectionPos.clone();
 
+	  // check history
+	  if (this.selectionHistory.length > 0 && this.selectionHistory.last()[0] == event.keyCode) {
+		  this.selectElement(null, -1);
+		  return;
+	  }
+
 	  var scanUpLeft = function(index, noRestore) {
 		  var tmp = sp[index];
 		  while (sp[index] >= 1 && !this.$cell(sp)) --sp[index];
@@ -185,7 +203,7 @@ TableEditor.prototype = {
 				}
 				sp[1 - theIndex] = this.selectionPos[1 - theIndex];
 			}
-			if (cell) this.selectElement(cell);	 
+			if (cell) this.selectElement(cell, event.keyCode + 2);
 			break;
 
 	 case 39: case 40:  //RIGHT, DOWN
@@ -194,7 +212,7 @@ TableEditor.prototype = {
 		  sp[theIndex] += this.currentElement[["rowSpan", "colSpan"][theIndex]];
 		  if (sp[theIndex] > this[["rows", "columns"][theIndex]]) break;
 		  var newCell = scanUpLeft.call(this, 1 - theIndex);
-		  if (newCell) this.selectElement(newCell);
+		  if (newCell) this.selectElement(newCell, event.keyCode - 2);
 		  break;
 	  }
   },
