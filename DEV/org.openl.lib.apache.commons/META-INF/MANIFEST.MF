@@ -7,7 +7,6 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Export-Package: org.apache.commons.lang,
  org.apache.commons.lang.builder,
- org.apache.commons.lang.enum,
  org.apache.commons.lang.exception,
  org.apache.commons.logging,
  org.apache.commons.logging.impl
