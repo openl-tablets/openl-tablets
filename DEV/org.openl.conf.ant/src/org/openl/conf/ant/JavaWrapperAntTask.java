@@ -16,6 +16,7 @@ import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.main.OpenLWrapper;
+import org.openl.meta.IVocabulary;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -90,10 +91,13 @@ public class JavaWrapperAntTask extends Task
 		}
 	}
 
+	String vocabularyClass;
+	
 	/**
 	 * @throws IOException 
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	private void saveProjectProperties() throws IOException 
 	{
 		Properties p = new Properties();
@@ -102,6 +106,25 @@ public class JavaWrapperAntTask extends Task
 		
 		if (displayName != null)
 			p.put(targetClass + OpenLProjectPropertiesLoader.DISPLAY_NAME_SUFFIX, displayName);
+		
+		if (vocabularyClass != null)
+		{   
+		    try
+		    {
+			Class c = Class.forName(vocabularyClass);
+			Object instance  = c.newInstance();
+			@SuppressWarnings("unused")
+			IVocabulary vocabulary = (IVocabulary)instance;
+		    }
+		    catch(Throwable t)
+		    {
+			System.err.println("Error occured while trying instantiate vocabulary class:" + vocabularyClass);
+			t.printStackTrace();
+		    }
+		    
+		    p.put(targetClass + OpenLProjectPropertiesLoader.VOCABULARY_CLASS_SUFFIX, vocabularyClass);
+		}	
+
 		
 		new OpenLProjectPropertiesLoader().saveProperties(".", p, false);
 	}
@@ -158,9 +181,9 @@ public class JavaWrapperAntTask extends Task
 
 	String s_class;
 
-	String s_extends = null;
+	String extendsClass = null;
 
-	String s_implements = OpenLWrapper.class.getName();
+	String implementsInterfaces = OpenLWrapper.class.getName();
 
 	StringBuffer initBuf = new StringBuffer(1000);
 
@@ -184,10 +207,10 @@ public class JavaWrapperAntTask extends Task
 	protected void addClassDeclaration(StringBuffer buf)
 	{
 		buf.append("public class " + s_class);
-		if (s_extends != null)
-			buf.append(" extends ").append(s_extends);
-		if (s_implements != null)
-			buf.append(" implements ").append(s_implements);
+		if (extendsClass != null)
+			buf.append(" extends ").append(extendsClass);
+		if (implementsInterfaces != null)
+			buf.append(" implements ").append(implementsInterfaces);
 		buf.append("\n{\n");
 	}
 
@@ -827,26 +850,6 @@ public String returnMethodVar(IOpenMethod method, String resName)
 		this.s_class = s_class;
 	}
 
-	public String getS_extends()
-	{
-		return s_extends;
-	}
-
-	public void setS_extends(String s_extends)
-	{
-		this.s_extends = s_extends;
-	}
-
-	public String getS_implements()
-	{
-		return s_implements;
-	}
-
-	public void setS_implements(String s_implements)
-	{
-		this.s_implements = s_implements;
-	}
-
 	public String getS_package()
 	{
 		return s_package;
@@ -955,6 +958,36 @@ public String returnMethodVar(IOpenMethod method, String resName)
 	public void setClasspathExclude(String classpathExclude)
 	{
 		this.classpathExclude = classpathExclude;
+	}
+
+	public String getVocabularyClass()
+	{
+	    return vocabularyClass;
+	}
+
+	public void setVocabularyClass(String vocabularyClass)
+	{
+	    this.vocabularyClass = vocabularyClass;
+	}
+
+	public String getExtendsClass()
+	{
+	    return extendsClass;
+	}
+
+	public void setExtendsClass(String extendsClass)
+	{
+	    this.extendsClass = extendsClass;
+	}
+
+	public String getImplementsInterfaces()
+	{
+	    return implementsInterfaces;
+	}
+
+	public void setImplementsInterfaces(String implementsInterfaces)
+	{
+	    this.implementsInterfaces = this.implementsInterfaces + "," + implementsInterfaces;
 	}
 	
 	
