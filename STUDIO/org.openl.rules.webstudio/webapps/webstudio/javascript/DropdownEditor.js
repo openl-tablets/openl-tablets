@@ -58,3 +58,5 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
 	}
 
 });
+
+TableEditor.Editors["selectbox"] = DropdownEditor.prototype;
