@@ -65,7 +65,7 @@ public class XlsParser implements IOpenParser
   public IParsedCode parseAsType(IOpenSourceCodeModule src)
   {
     throw new UnsupportedOperationException(
-        ".xls files can not be parsed as a Method Header");
+        ".xls files can not be parsed as a Type");
   }
 
   String searchPath;

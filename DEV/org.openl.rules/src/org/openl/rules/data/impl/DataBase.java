@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.openl.OpenlToolAdaptor;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.rules.data.DuplicatedTableException;
 import org.openl.rules.data.IColumnDescriptor;
@@ -41,7 +43,7 @@ public class DataBase implements IDataBase
 
 	public synchronized ITable addTable(
 		IDataTableModel dataModel,
-		ILogicalTable data)
+		ILogicalTable data, OpenlToolAdaptor ota)
 		throws Exception
 	{
 		if (validationOccured)
@@ -51,7 +53,7 @@ public class DataBase implements IDataBase
 			throw new DuplicatedTableException(t.dataModel, dataModel);
 		t = new Table(dataModel, data);	
 		tables.put(dataModel.getName(), t);
-		t.preLoad();
+		t.preLoad(ota);
 		return t;
 	}
 
@@ -59,40 +61,40 @@ public class DataBase implements IDataBase
 	 *
 	 */
 
-	public synchronized void validate() throws Exception
-	{
-		if (validationOccured)
-			return;
+//	public synchronized void validate() throws Exception
+//	{
+//		if (validationOccured)
+//			return;
+//
+//		validateInternal();
+//	}
 
-		validateInternal();
-	}
-
-	protected void validateInternal() throws Exception
-	{
-		Vector errors = new Vector();
-		
-		for (Iterator iter = tables.values().iterator(); iter.hasNext();)
-		{
-			Table t = (Table) iter.next();
-			
-				try
-				{
-					t.populate(this);
-				}
-				catch (BoundError e)
-				{
-					errors.add(e);
-				}
-		}
-		
-		validationOccured = true;
-		if (errors.size() > 0)
-		{
-			BoundError[] ee = (BoundError[])errors.toArray(new BoundError[0]);
-			throw new SyntaxErrorException(null, ee);
-		}
-		
-	}
+//	protected void validateInternal() throws Exception
+//	{
+//		Vector errors = new Vector();
+//		
+//		for (Iterator iter = tables.values().iterator(); iter.hasNext();)
+//		{
+//			Table t = (Table) iter.next();
+//			
+//				try
+//				{
+//					t.populate(this);
+//				}
+//				catch (BoundError e)
+//				{
+//					errors.add(e);
+//				}
+//		}
+//		
+//		validationOccured = true;
+//		if (errors.size() > 0)
+//		{
+//			BoundError[] ee = (BoundError[])errors.toArray(new BoundError[0]);
+//			throw new SyntaxErrorException(null, ee);
+//		}
+//		
+//	}
 	
 
 
@@ -131,7 +133,7 @@ public class DataBase implements IDataBase
 		
 		
 		
-		void preLoad() throws Exception
+		void preLoad(OpenlToolAdaptor ota) throws Exception
 		{
 			int rows = data.getLogicalHeight();
 			int startRow = 1;
@@ -170,7 +172,7 @@ public class DataBase implements IDataBase
 						if (isConstructor)
 							target = cd.getLiteral(dataModel.getType(), data.getLogicalRegion(j, i , 1, 1));
 						else
-							cd.populateLiteral(target, data.getLogicalRegion(j, i , 1, 1));
+							cd.populateLiteral(target, data.getLogicalRegion(j, i , 1, 1), ota);
 					}  
 				}
 
@@ -184,7 +186,7 @@ public class DataBase implements IDataBase
 		}
 		
 		
-		public void populate(IDataBase db)  throws Exception
+		public void populate(IDataBase db, IBindingContext cxt)  throws Exception
 		{
 			int rows = data.getLogicalHeight();
 			int columns = data.getLogicalWidth();
@@ -202,10 +204,10 @@ public class DataBase implements IDataBase
 					{	
 						if (cd.isConstructor())
 						{
-							target = cd.getLink(dataModel.getType(), data.getLogicalRegion(j, i, 1, 1), db);
+							target = cd.getLink(dataModel.getType(), data.getLogicalRegion(j, i, 1, 1), db, cxt);
 						}	
 						else	
-							cd.populateLink(target, data.getLogicalRegion(j, i, 1, 1), db);
+							cd.populateLink(target, data.getLogicalRegion(j, i, 1, 1), db, cxt);
 					}
 					
 				}
@@ -265,7 +267,7 @@ public class DataBase implements IDataBase
 		 *
 		 */
 
-		public Object findObject(int columnIndex, String skey)
+		public Object findObject(int columnIndex, String skey, IBindingContext cxt)
 		{
 			int len = getSize();
 			IColumnDescriptor descr = dataModel.getDescriptor()[columnIndex];
@@ -275,7 +277,7 @@ public class DataBase implements IDataBase
 				if (descr.getConvertor() == null)
 					throw new Exception("Bad foreign key type");
 				
-				key = descr.getConvertor().parse(skey, null);
+				key = descr.getConvertor().parse(skey, null, cxt);
 			}
 			catch(Throwable t)
 			{

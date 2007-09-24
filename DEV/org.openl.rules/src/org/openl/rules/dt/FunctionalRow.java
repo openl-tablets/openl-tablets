@@ -14,9 +14,11 @@ import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.OpenlTool;
 import org.openl.OpenlToolAdaptor;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.domain.IDomain;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.data.IString2DataConvertor;
@@ -27,6 +29,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.SubTextSourceCodeModule;
 import org.openl.syntax.impl.TokenizerParser;
@@ -105,23 +108,23 @@ public abstract class FunctionalRow implements IDecisionRow,
 		int len = nValues();
 		Object[][] values = new Object[len][];
 
-		IParameterDeclaration[] params = getParams(ota.getOpenl());
+		IParameterDeclaration[] paramDecl = getParams(ota.getBindingContext());
 
 		for (int col = 0; col < len; col++)
 		{
 			ILogicalTable valueCell = getValueCell(col);
 			IGridTable paramGridColumn = valueCell.getGridTable();
 
-			Object[] valueAry = new Object[params.length];
+			Object[] valueAry = new Object[paramDecl.length];
 
 			int fromHeight = 0;
 			boolean notEmpty = false;
 			String ruleName = ruleRow == null ? "R" + (col + 1) : ruleRow
 					.getRuleName(col);
 
-			for (int j = 0; j < params.length; j++)
+			for (int j = 0; j < paramDecl.length; j++)
 			{
-				if (params[j] == null)
+				if (paramDecl[j] == null)
 					continue;
 
 				int gridHeight = paramsTable.getLogicalRow(j).getGridTable()
@@ -130,7 +133,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 						fromHeight, fromHeight + gridHeight - 1);
 
 				Object v = loadParam(LogicalTable.logicalTable(singleParamGridTable),
-						params[j].getType(), params[j].getName(), ruleName, ota);
+						paramDecl[j].getType(), paramDecl[j].getName(), ruleName, ota);
 
 				if (v != null)
 				{
@@ -244,7 +247,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 		if (src == null || (src = src.trim()).length() == 0)
 			return null;
 
-		if (ota != null)
+		if (ota != null && ota.getHeader() != null)
 		{
 			IOpenMethodHeader old_header = ota.getHeader();
 			OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(),
@@ -272,7 +275,8 @@ public abstract class FunctionalRow implements IDecisionRow,
 
 		try
 		{
-			Object res = conv.parse(src, null);
+			Object res = conv.parse(src, null, ota.getBindingContext());
+			validateValue(res, paramType);
 			if (res instanceof IMetaHolder)
 			{
 				setMetaInfo((IMetaHolder) res, cell, paramName, ruleName);
@@ -285,6 +289,18 @@ public abstract class FunctionalRow implements IDecisionRow,
 			throw new BoundError(null, null, t, new GridCellSourceCodeModule(cell
 					.getGridTable()));
 		}
+	}
+
+	private static void validateValue(Object res, IOpenClass paramType)
+	{
+		IDomain domain = paramType.getDomain();
+		if (domain == null || domain.selectObject(res))
+			return;
+		
+		String errorMsg = "The value " + res + " is outside of domain " + domain.toString(); 
+
+		throw new RuntimeException(errorMsg);
+		
 	}
 
 	/**
@@ -311,19 +327,20 @@ public abstract class FunctionalRow implements IDecisionRow,
 
 	IParameterDeclaration[] params;
 
-	static public IOpenClass getType(String typeCode, OpenL openl)
+	static public IOpenClass getType(String typeCode, IBindingContext cxt)
 			throws Exception
 	{
 		if (typeCode.endsWith("[]"))
 		{
 			String baseCode = typeCode.substring(0, typeCode.length() - 2);
-			IOpenClass baseType = OpenlTool.getType(baseCode, openl);
+//			IOpenClass baseType = OpenlTool.getType(baseCode, openl);
+			IOpenClass baseType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, baseCode);
 			if (baseType == null)
 				return null;
 			return baseType.getAggregateInfo().getIndexedAggregateType(baseType, 1);
 		}
 
-		IOpenClass type = OpenlTool.getType(typeCode, openl);
+		IOpenClass type = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);;
 		// if (type == null)
 		// throw new Exception("Type " + typeCode + " not found");
 
@@ -359,7 +376,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 		return res;
 	}
 
-	IParameterDeclaration[] getParams(OpenL openl) throws Exception
+	IParameterDeclaration[] getParams(IBindingContext cxt) throws Exception
 	{
 		if (params == null)
 		{
@@ -392,7 +409,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 				}
 
 				String typeCode = nodes[0].getIdentifier();
-				IOpenClass ptype = getType(typeCode, openl);
+				IOpenClass ptype = getType(typeCode, cxt);
 				if (ptype == null)
 					throw new BoundError(nodes[0], "Type not found: " + typeCode);
 
@@ -418,7 +435,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 		IOpenSourceCodeModule src = new GridCellSourceCodeModule(codeTable
 				.getGridTable());
 
-		IParameterDeclaration[] mparams = getParams(openl);
+		IParameterDeclaration[] mparams = getParams(cxt);
 
 		IMethodSignature newSignature = hasNoParams() ? signature
 				: ((MethodSignature) signature).merge(mparams);

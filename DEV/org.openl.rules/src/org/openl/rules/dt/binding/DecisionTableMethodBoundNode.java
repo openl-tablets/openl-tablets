@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.rules.lang.xls.binding;
+package org.openl.rules.dt.binding;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
@@ -16,6 +16,7 @@ import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.dt.DTLoader;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;

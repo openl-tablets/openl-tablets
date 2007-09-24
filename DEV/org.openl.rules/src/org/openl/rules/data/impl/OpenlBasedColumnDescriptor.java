@@ -10,6 +10,8 @@ import java.lang.reflect.Array;
 import java.util.Vector;
 
 import org.openl.OpenL;
+import org.openl.OpenlToolAdaptor;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.data.IColumnDescriptor;
@@ -65,7 +67,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 	}
 
 
-	public Object getLink(IOpenClass fieldType, ILogicalTable values, IDataBase db)
+	public Object getLink(IOpenClass fieldType, ILogicalTable values, IDataBase db, IBindingContext cxt)
 	throws Exception {
 
 
@@ -109,7 +111,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 
 			s = s.trim();
 			if (s.length() > 0) {
-				res = t.findObject(foreignKeyIndex, s);
+				res = t.findObject(foreignKeyIndex, s, cxt);
 				if (res == null)
 					throw new BoundError(
 						null,
@@ -135,7 +137,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 			if (s.length() == 0)
 				break;
 
-			Object res1 = t.findObject(foreignKeyIndex, s);
+			Object res1 = t.findObject(foreignKeyIndex, s, cxt);
 			if (res1 == null)
 				throw new BoundError(
 					null,
@@ -167,7 +169,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 	
 	
 	
-	public void populateLink(Object target, ILogicalTable values, IDataBase db)
+	public void populateLink(Object target, ILogicalTable values, IDataBase db, IBindingContext cxt)
 		throws Exception {
 
 		if (indexTable == null)
@@ -220,7 +222,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 					
 					try
 					{
-						res = t.findObject(foreignKeyIndex, s);
+						res = t.findObject(foreignKeyIndex, s, cxt);
 					}
 					catch(Throwable x)
 					{
@@ -255,7 +257,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 				
 				try
 				{
-					res = t.findObject(foreignKeyIndex, s);
+					res = t.findObject(foreignKeyIndex, s, cxt);
 				}
 				catch(Throwable x)
 				{
@@ -289,7 +291,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 
 	}
 
-	public void populateLiteral(Object target, ILogicalTable values)
+	public void populateLiteral(Object target, ILogicalTable values, OpenlToolAdaptor ota)
 		throws Exception {
 		if (indexTable != null) {
 			return;
@@ -309,7 +311,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 		values = ALogicalTable.make1ColumnTable(values);
 
 		if (!indexed) {
-			Object res = FunctionalRow.loadSingleParam(paramType, field.getName(),null, values, null);
+			Object res = FunctionalRow.loadSingleParam(paramType, field.getName(),null, values, ota);
 			if (res != null)
 				field.set(target, res, getRuntimeEnv());
 		} else {
@@ -392,45 +394,45 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 }
 	
 	
-	public void populateLiteral2(Object target, ILogicalTable values)
-		throws Exception {
-		if (indexTable != null) {
-			return;
-		}
-
-		Class c = field.getType().getInstanceClass();
-
-		Class cc = c.isArray() ? c.getComponentType() : c;
-
-		values = ALogicalTable.make1ColumnTable(values);
-
-		if (!c.isArray()) {
-			String s = values.getGridTable().getStringValue(0, 0);
-			if (s != null && s.trim().length() > 0) {
-				Object res = convertor.parse(s, null);
-				field.set(target, res, getRuntimeEnv());
-			}
-		} else {
-			Vector v = new Vector();
-			for (int i = 0; i < values.getLogicalHeight(); i++) {
-				String s = values.getGridTable().getStringValue(0, i);
-				if (s == null || s.trim().length() == 0)
-					break;
-
-				Object res = convertor.parse(s, null);
-				v.add(res);
-			}
-
-			Object ary = Array.newInstance(cc, v.size());
-
-			for (int i = 0; i < v.size(); i++) {
-				Array.set(ary, i, v.get(i));
-			}
-
-			field.set(target, ary, getRuntimeEnv());
-
-		}
-	}
+//	public void populateLiteral2(Object target, ILogicalTable values)
+//		throws Exception {
+//		if (indexTable != null) {
+//			return;
+//		}
+//
+//		Class c = field.getType().getInstanceClass();
+//
+//		Class cc = c.isArray() ? c.getComponentType() : c;
+//
+//		values = ALogicalTable.make1ColumnTable(values);
+//
+//		if (!c.isArray()) {
+//			String s = values.getGridTable().getStringValue(0, 0);
+//			if (s != null && s.trim().length() > 0) {
+//				Object res = convertor.parse(s, null);
+//				field.set(target, res, getRuntimeEnv());
+//			}
+//		} else {
+//			Vector v = new Vector();
+//			for (int i = 0; i < values.getLogicalHeight(); i++) {
+//				String s = values.getGridTable().getStringValue(0, i);
+//				if (s == null || s.trim().length() == 0)
+//					break;
+//
+//				Object res = convertor.parse(s, null);
+//				v.add(res);
+//			}
+//
+//			Object ary = Array.newInstance(cc, v.size());
+//
+//			for (int i = 0; i < v.size(); i++) {
+//				Array.set(ary, i, v.get(i));
+//			}
+//
+//			field.set(target, ary, getRuntimeEnv());
+//
+//		}
+//	}
 
 	IRuntimeEnv getRuntimeEnv() {
 		return openl.getVm().getRuntimeEnv();

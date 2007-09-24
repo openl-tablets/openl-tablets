@@ -35,23 +35,26 @@ import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLBuilderImpl;
+import org.openl.meta.IVocabulary;
+import org.openl.rules.data.binding.DataNodeBinder;
+import org.openl.rules.datatype.binding.DatatypeNodeBinder;
+import org.openl.rules.dt.binding.DTNodeBinder;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
-import org.openl.rules.lang.xls.binding.DTNodeBinder;
-import org.openl.rules.lang.xls.binding.DataNodeBinder;
-import org.openl.rules.lang.xls.binding.DatatypeNodeBinder;
-import org.openl.rules.lang.xls.binding.MethodTableNodeBinder;
 import org.openl.rules.lang.xls.binding.TableProperties;
-import org.openl.rules.lang.xls.binding.TestMethodNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.method.binding.MethodTableNodeBinder;
 import org.openl.rules.structure.StructureTableNodeBinder;
+import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
 import org.openl.syntax.IParsedCode;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.types.IOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.AStringConvertor;
 import org.openl.util.ISelector;
@@ -138,6 +141,29 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 	}
 
+	public IVocabulary makeVocabulary(XlsModuleSyntaxNode moduleNode)
+	{
+
+		if (moduleNode.getVocabularyNode() == null)
+			return null;
+
+		ClassLoader cl = ucxt.getUserClassLoader();
+
+		try
+		{
+			Class vClass = cl.loadClass(moduleNode.getVocabularyNode()
+					.getIdentifier());
+			IVocabulary voc = (IVocabulary) vClass.newInstance();
+			return voc;
+
+		} catch (Throwable t)
+		{
+			throw RuntimeExceptionWrapper.wrap("Error trying to create a vocabulary",
+					t);
+		}
+
+	}
+
 	public IBoundCode bind(IParsedCode parsedCode,
 			IBindingContextDelegator delegator)
 	{
@@ -176,89 +202,109 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 		return new BoundCode(parsedCode, topNode, cxt.getError(), 0);
 	}
 
-	
 	static public String getModuleName(XlsModuleSyntaxNode node)
 	{
 		String uri = node.getModule().getUri(0);
-		
+
 		try
 		{
 			URL url = new URL(uri);
 			String file = url.getFile();
 			int index = file.lastIndexOf('/');
-			
+
 			file = index < 0 ? file : file.substring(index + 1);
-			
+
 			index = file.lastIndexOf('.');
-			
+
 			if (index > 0)
 				file = file.substring(0, index);
-			
-			
-			
+
 			return StringTool.makeJavaIdentifier(file);
-			
+
 		} catch (MalformedURLException e)
 		{
-			Log.error("Error URI to name conversion",e);
+			Log.error("Error URI to name conversion", e);
 			return "UndefinedXlsType";
 		}
-		
+
 	}
-	
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
 	 */
-	public IBoundNode bind(ISyntaxNode moduleNode, OpenL openl,
+	public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl,
 			IBindingContext cxt)
 	{
 		// TODO fix schema, name
-		XlsModuleOpenClass module = new XlsModuleOpenClass(null, getModuleName((XlsModuleSyntaxNode)moduleNode)
-				, new XlsMetaInfo((XlsModuleSyntaxNode) moduleNode), openl);
+		XlsModuleOpenClass module = new XlsModuleOpenClass(null,
+				getModuleName(moduleNode), new XlsMetaInfo(moduleNode), openl);
 
 		// int nchildren = moduleNode.getNumberOfChildren();
 
 		// IMemberBoundNode[] children = new IMemberBoundNode[nchildren];
 		ModuleBindingContext moduleContext = new ModuleBindingContext(cxt, module);
 
+		IVocabulary vocabulary = makeVocabulary(moduleNode);
+		if (vocabulary != null)
+		{
+			IOpenClass[] types = null;
+			try
+			{
+				types = vocabulary.getVocabularyTypes();
+			} catch (BoundError e)
+			{
+				cxt.addError(e);
+			}
+			if (types != null)
+				for (int i = 0; i < types.length; i++)
+				{
+					try
+					{
+						moduleContext.addType(ISyntaxConstants.THIS_NAMESPACE, types[i]);
+					} catch (Throwable t)
+					{
+						IBoundError error = new BoundError(t, null);
+						cxt.addError(error);
+					}
+				}
+		}
+
 		ASelector dataTypeSelector = new ASelector.StringValueSelector(
 				ITableNodeTypes.XLS_DATATYPE, new SyntaxConvertor());
 
-//		ASelector testMethodSelector = new ASelector.StringValueSelector(
-//				ITableNodeTypes.XLS_TEST_METHOD, new SyntaxConvertor());
+		// ASelector testMethodSelector = new ASelector.StringValueSelector(
+		// ITableNodeTypes.XLS_TEST_METHOD, new SyntaxConvertor());
 
-		bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector, null);
+		bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector,
+				null);
 
-		
-		return bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector
-				.not(), tableComparator);
+		return bindInternal(moduleNode, openl, moduleContext, module,
+				dataTypeSelector.not(), tableComparator);
 
-//		return bindInternal(moduleNode, openl, moduleContext, module,
-//				testMethodSelector);
+		// return bindInternal(moduleNode, openl, moduleContext, module,
+		// testMethodSelector);
 	}
-	
-	
-  static 	Comparator tableComparator = new Comparator()
-  {
+
+	static Comparator tableComparator = new Comparator()
+	{
 
 		public int compare(Object o1, Object o2)
 		{
 			String s1 = ((ISyntaxNode) o1).getType();
-			
+
 			String s2 = ((ISyntaxNode) o2).getType();
-			
-			int i1 = ITableNodeTypes.XLS_TEST_METHOD.equals(s1) || ITableNodeTypes.XLS_RUN_METHOD.equals(s1) ? 1 : 0; 
-			int i2 = ITableNodeTypes.XLS_TEST_METHOD.equals(s2) || ITableNodeTypes.XLS_RUN_METHOD.equals(s2) ? 1 : 0; 
-			
-			
+
+			int i1 = ITableNodeTypes.XLS_TEST_METHOD.equals(s1)
+					|| ITableNodeTypes.XLS_RUN_METHOD.equals(s1) ? 1 : 0;
+			int i2 = ITableNodeTypes.XLS_TEST_METHOD.equals(s2)
+					|| ITableNodeTypes.XLS_RUN_METHOD.equals(s2) ? 1 : 0;
+
 			return i1 - i2;
 		}
-  	
-  };
-	
+
+	};
 
 	static class SyntaxConvertor extends AStringConvertor
 	{
@@ -281,21 +327,20 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 		int nchildren = moduleNode.getNumberOfChildren();
 		ArrayList list = new ArrayList(nchildren);
-		
+
 		for (int i = 0; i < nchildren; i++)
 		{
 			ISyntaxNode childNode = moduleNode.getChild(i);
 			if (childSelector == null || childSelector.select(childNode))
 				list.add(childNode);
-		}	
-		
-		
-		TableSyntaxNode[] chNodes = (TableSyntaxNode[])list.toArray(new TableSyntaxNode[0]);
-		
+		}
+
+		TableSyntaxNode[] chNodes = (TableSyntaxNode[]) list
+				.toArray(new TableSyntaxNode[0]);
+
 		if (cmp != null)
 			Arrays.sort(chNodes, cmp);
-		
-		
+
 		IMemberBoundNode[] children = new IMemberBoundNode[chNodes.length];
 
 		for (int i = 0; i < chNodes.length; i++)
@@ -304,9 +349,9 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 			try
 			{
 
-//				ISyntaxNode childNode = moduleNode.getChild(i);
-//				if (childSelector.select(childNode))
-					children[i] = preBindXlsNode(chNodes[i], openl, moduleContext, module);
+				// ISyntaxNode childNode = moduleNode.getChild(i);
+				// if (childSelector.select(childNode))
+				children[i] = preBindXlsNode(chNodes[i], openl, moduleContext, module);
 
 				if (children[i] != null)
 					children[i].addTo(module);
@@ -321,7 +366,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 				for (int j = 0; j < ee.length; j++)
 				{
-//					ee[j].setTopLevelSyntaxNode(chNodes[i]);
+					// ee[j].setTopLevelSyntaxNode(chNodes[i]);
 					chNodes[i].addError(ee[j]);
 					moduleContext.addError(ee[j]);
 				}
@@ -336,38 +381,38 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 			}
 		}
 
-//		if (moduleContext.getNumberOfErrors() == 0)
-			for (int i = 0; i < children.length; i++)
+		// if (moduleContext.getNumberOfErrors() == 0)
+		for (int i = 0; i < children.length; i++)
+		{
+			if (children[i] != null)
 			{
-				if (children[i] != null)
+				try
 				{
-					try
-					{
-						((IMemberBoundNode) children[i]).finalizeBind(moduleContext);
-					} catch (BoundError be)
-					{
-						be.setTopLevelSyntaxNode(chNodes[i]);
-						chNodes[i].addError(be);
-						moduleContext.addError(be);
-					} catch (SyntaxErrorException se)
-					{
-						ISyntaxError[] ee = se.getSyntaxErrors();
+					((IMemberBoundNode) children[i]).finalizeBind(moduleContext);
+				} catch (BoundError be)
+				{
+					be.setTopLevelSyntaxNode(chNodes[i]);
+					chNodes[i].addError(be);
+					moduleContext.addError(be);
+				} catch (SyntaxErrorException se)
+				{
+					ISyntaxError[] ee = se.getSyntaxErrors();
 
-						for (int j = 0; j < ee.length; j++)
-						{
-							ee[j].setTopLevelSyntaxNode(chNodes[i]);
-							chNodes[i].addError(ee[j]);
-							moduleContext.addError(ee[j]);
-						}
-
-					} catch (Throwable e)
+					for (int j = 0; j < ee.length; j++)
 					{
-						BoundError be = new BoundError(chNodes[i], null, e);
-						chNodes[i].addError(be);
-						moduleContext.addError(be);
+						ee[j].setTopLevelSyntaxNode(chNodes[i]);
+						chNodes[i].addError(ee[j]);
+						moduleContext.addError(ee[j]);
 					}
+
+				} catch (Throwable e)
+				{
+					BoundError be = new BoundError(chNodes[i], null, e);
+					chNodes[i].addError(be);
+					moduleContext.addError(be);
 				}
 			}
+		}
 
 		return new ModuleNode(moduleNode, moduleContext.getModule());
 

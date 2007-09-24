@@ -4,7 +4,7 @@
  * Developed by OpenRules Inc. 2003-2004
  */
 
-package org.openl.rules.lang.xls.binding;
+package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
 import org.openl.OpenlTool;

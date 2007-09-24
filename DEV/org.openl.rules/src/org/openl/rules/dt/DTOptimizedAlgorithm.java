@@ -9,7 +9,7 @@ import java.util.Iterator;
 import org.openl.binding.impl.BoundError;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
-import org.openl.domain.IntRange;
+import org.openl.domain.IntRangeDomain;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -363,7 +363,7 @@ public class DTOptimizedAlgorithm
 		
 		if (indexRoot == null)
 		{
-			rules = new IntRange(0, table.getNumberOfRules()-1).iterator();
+			rules = new IntRangeDomain(0, table.getNumberOfRules()-1).intIterator();
 		}	
 		else
 		{
@@ -444,7 +444,7 @@ public class DTOptimizedAlgorithm
 		if (nIndexedCond == 0)
 			return;
 		Object[][] params0 = (Object[][])params.get(0);
-		indexRoot = evaluators[0].makeIndex(params0, new IntRange(0, params0.length-1).iterator());
+		indexRoot = evaluators[0].makeIndex(params0, new IntRangeDomain(0, params0.length-1).intIterator());
 		
 		indexNodes(indexRoot, params, 1);
 		
