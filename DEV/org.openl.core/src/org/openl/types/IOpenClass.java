@@ -8,8 +8,8 @@ package org.openl.types;
 
 import java.util.Iterator;
 
-import org.openl.base.INamedThing;
 import org.openl.binding.IOpenLibrary;
+import org.openl.domain.IType;
 import org.openl.meta.IMetaHolder;
 import org.openl.vm.IRuntimeEnv;
 
@@ -24,7 +24,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 
-public interface IOpenClass extends INamedThing, IOpenLibrary, IOpenClassHolder, IMetaHolder
+public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMetaHolder
 {
 	
 	/**

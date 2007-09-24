@@ -5,6 +5,7 @@
  */
 package org.openl;
 
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
@@ -15,14 +16,14 @@ import org.openl.types.impl.CompositeMethod;
 public class OpenlToolAdaptor implements IOpenlAdaptor
 {
 	OpenL openl;
-	IBindingContextDelegator bindingContextDelegator;
+	IBindingContext bindingContext;
 	IOpenMethodHeader header;
 	
 	
-	public OpenlToolAdaptor(OpenL openl, IBindingContextDelegator bindingContextDelegator)
+	public OpenlToolAdaptor(OpenL openl, IBindingContext bindingContext)
 	{
 		this.openl = openl;
-		this.bindingContextDelegator = bindingContextDelegator;
+		this.bindingContext = bindingContext;
 	}
 	
 
@@ -38,9 +39,9 @@ public class OpenlToolAdaptor implements IOpenlAdaptor
 	/**
 	 * @return
 	 */
-	public IBindingContextDelegator getBindingContextDelegator()
+	public IBindingContext getBindingContext()
 	{
-		return bindingContextDelegator;
+		return bindingContext;
 	}
 
 	/**
@@ -65,12 +66,12 @@ public class OpenlToolAdaptor implements IOpenlAdaptor
 
 	public CompositeMethod makeMethod(IOpenSourceCodeModule src)
 	{
-		return OpenlTool.makeMethod(src, openl, header, bindingContextDelegator);
+		return OpenlTool.makeMethod(src, openl, header, bindingContext);
 	}
 
 	public CompositeMethod makeMethod(IOpenSourceCodeModule src, IOpenMethodHeader h2)
 	{
-		return OpenlTool.makeMethod(src, openl, h2, bindingContextDelegator);
+		return OpenlTool.makeMethod(src, openl, h2, bindingContext);
 	}
 
 

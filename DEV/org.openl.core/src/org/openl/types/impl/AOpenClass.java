@@ -15,7 +15,10 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.MethodNotFoundException;
+import org.openl.domain.IDomain;
+import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -30,6 +33,10 @@ import org.openl.util.OpenIterator;
  */
 public abstract class AOpenClass implements IOpenClass
 {
+	public IDomain getDomain() {
+		return null;
+	}
+
 	protected IOpenSchema schema;
 	
 	IOpenField indexField;
@@ -262,6 +269,16 @@ public abstract class AOpenClass implements IOpenClass
 			throw new AmbiguousMethodException(name, IOpenClass.EMPTY, list);
 		
 		return (IOpenMethod)list.get(0);
+	}
+
+	public String getNameSpace() {
+		return ISyntaxConstants.THIS_NAMESPACE;
+	}
+
+	public boolean isAssignableFrom(IType type) {
+		if (type instanceof IOpenClass)
+			return isAssignableFrom((IOpenClass)type);
+		return false;
 	}
 	
 	

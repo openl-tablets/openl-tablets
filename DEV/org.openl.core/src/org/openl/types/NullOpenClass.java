@@ -9,7 +9,10 @@ package org.openl.types;
 import java.util.Iterator;
 
 import org.openl.binding.AmbiguousMethodException;
+import org.openl.domain.IDomain;
+import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -24,36 +27,24 @@ public class NullOpenClass implements IOpenClass
 	
 	public static final NullOpenClass the = new NullOpenClass();
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#getSchema()
-   */
   public IOpenSchema getSchema()
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#getFactory()
-   */
   public IOpenFactory getFactory()
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#superClasses()
-   */
   public Iterator superClasses()
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#methods()
-   */
   public Iterator methods()
   {
     // TODO Auto-generated method stub
@@ -78,33 +69,21 @@ public class NullOpenClass implements IOpenClass
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#instanceOf(java.lang.Object)
-   */
   public boolean isInstance(Object instance)
   {
     return instance == null;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#classOf(java.lang.Class)
-   */
   public boolean isAssignableFrom(Class c)
   {
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#getInstanceClass()
-   */
   public Class getInstanceClass()
   {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#getMethod(java.lang.String, org.openl.types.IOpenClass[])
-   */
   public IOpenMethod getMethod(String name, IOpenClass[] classes)
   {
     return null;
@@ -204,9 +183,6 @@ public class NullOpenClass implements IOpenClass
     return null;
   }
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IOpenClass#getIndexField()
-	 */
 	public IOpenField getIndexField()
 	{
 		return null;
@@ -224,6 +200,18 @@ public class NullOpenClass implements IOpenClass
 	public String getDisplayName(int mode)
 	{
 		return getName();
+	}
+
+	public boolean isAssignableFrom(IType type) {
+		return false;
+	}
+
+	public String getNameSpace() {
+		return ISyntaxConstants.THIS_NAMESPACE;
+	}
+
+	public IDomain getDomain() {
+		return null;
 	}
 
 }
