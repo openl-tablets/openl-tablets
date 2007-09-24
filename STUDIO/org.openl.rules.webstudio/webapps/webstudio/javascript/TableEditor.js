@@ -58,6 +58,11 @@ TableEditor.prototype = {
 	  this.computeTableInfo(table);
   },
 
+	/**
+	 * @desc: computes table width in rows, and height in columns (that is sum of all rowSpans in a column
+	 * and sum of all colSpans in a row).
+	 * @type: private
+	 */
 	computeTableInfo: function(table) {
 		this.rows = 0;
 		this.columns = 0;
@@ -146,7 +151,7 @@ TableEditor.prototype = {
  },
 
 	/**
-	 * @desc: handles mouse click on the table
+	 * @desc: handles key presses. Perform table navigation.
 	 * @type: private
 	 */
   handleKeyDown: function(event) {
@@ -160,21 +165,28 @@ TableEditor.prototype = {
 
 	  var sp = this.selectionPos.clone();
 
-	  var scanUpLeft = function(index) {
+	  var scanUpLeft = function(index, noRestore) {
 		  var tmp = sp[index];
 		  while (sp[index] >= 1 && !this.$cell(sp)) --sp[index];
 		  var res = this.$cell(sp);
-		  sp[index] = tmp;
+		  if (!noRestore) sp[index] = tmp;
 		  return res;
 	  }
 
 	  switch (event.keyCode) {
-	  case 37: // LEFT
-			while (--sp[1] >= 1) {
-				
+	  case 37: case 38: // LEFT, UP
+			var cell = null;
+			var theIndex = event.keyCode == 38 ? 0 : 1;	 
+			while (--sp[theIndex] >= 1) {
+				cell = scanUpLeft.call(this, 1 - theIndex, true);
+				if (cell) {
+					if ( (sp[0] + cell.rowSpan >= this.selectionPos[0]) && (sp[1] + cell.colSpan >= this.selectionPos[1]))
+						break;
+				}
+				sp[1 - theIndex] = this.selectionPos[1 - theIndex];
 			}
+			if (cell) this.selectElement(cell);	 
 			break;
-	  case 38:  break;
 
 	 case 39: case 40:  //RIGHT, DOWN
 		  var theIndex = event.keyCode == 40 ? 0 : 1;
