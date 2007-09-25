@@ -52,11 +52,11 @@ public class TableEditorController {
 
 		IGridTable table = getGridTable(getWebStudio(), elementId);
 		response = "inputbox";
-		if (table != null) {
+		/*if (table != null) {
 			IGrid grid = table.getGrid();
 			int cellType = grid.getCellType(col, row);
 			if (cellType == IGrid.CELL_TYPE_STRING) response = "selectbox"; 
-		}
+		}   */
 		return OUTCOME_SUCCESS;
 	}
 
