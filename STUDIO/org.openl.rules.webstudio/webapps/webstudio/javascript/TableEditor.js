@@ -288,18 +288,10 @@ Decorator.prototype = {
 	 */
 	decorate: function(/* Element */ elt) {
 		this.previosState = {
-			padding: elt.style.padding,
-			borderWidth: elt.style.borderWidth,
-			borderStyle: elt.style.borderStyle,
-			borderColor: elt.style.borderColor,
 			color: elt.style.color,
 			backgroundColor: elt.style.backgroundColor
 		}
 
-		elt.style.padding='1px';
-		elt.style.borderWidth = '3px';
-		elt.style.borderStyle = 'solid';
-		elt.style.borderColor = 'green';
 		elt.style.color = "white"
 		elt.style.backgroundColor = "blue"
 	},
