@@ -106,27 +106,27 @@ public class TopEditorBean {
 	}
 
 	public void addRowBefore() {
-		getEditorHelper().getModel().insertRows(1, getRow()-1);
+//		getEditorHelper().getModel().insertRows(1, getRow()-1);
 	}
 	
 	public void addRowAfter() {
-		getEditorHelper().getModel().insertRows(1, getRow());
+//		getEditorHelper().getModel().insertRows(1, getRow());
 	}
 	
 	public void removeRow() {
-		getEditorHelper().getModel().removeRows(1, getRow()-1);
+//		getEditorHelper().getModel().removeRows(1, getRow()-1);
 	}
 
 	public void addColumnBefore() {
-		getEditorHelper().getModel().insertColumns(1, getColumn()-1);
+//		getEditorHelper().getModel().insertColumns(1, getColumn()-1);
 	}
 	
 	public void addColumnAfter() {
-		getEditorHelper().getModel().insertColumns(1, getColumn());
+//		getEditorHelper().getModel().insertColumns(1, getColumn());
 	}
 	
 	public void removeColumn() {
-		getEditorHelper().getModel().removeColumns(1, getColumn()-1);
+//		getEditorHelper().getModel().removeColumns(1, getColumn()-1);
 	}
 
 	public String getTest2() {
