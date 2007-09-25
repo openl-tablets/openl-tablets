@@ -174,6 +174,28 @@ public class OpenlItemProviderAdapterFactory extends OpenlAdapterFactory impleme
 	}
 
 	/**
+	 * This keeps track of the one adapter used for all {@link com.exigen.openl.model.openl.RuleSetCompositeParameter} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected RuleSetCompositeParameterItemProvider ruleSetCompositeParameterItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link com.exigen.openl.model.openl.RuleSetCompositeParameter}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Adapter createRuleSetCompositeParameterAdapter() {
+		if (ruleSetCompositeParameterItemProvider == null) {
+			ruleSetCompositeParameterItemProvider = new RuleSetCompositeParameterItemProvider(this);
+		}
+
+		return ruleSetCompositeParameterItemProvider;
+	}
+
+	/**
 	 * This returns the root adapter factory that contains this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -273,6 +295,7 @@ public class OpenlItemProviderAdapterFactory extends OpenlAdapterFactory impleme
 		if (ruleSetItemProvider != null) ruleSetItemProvider.dispose();
 		if (ruleSetParameterItemProvider != null) ruleSetParameterItemProvider.dispose();
 		if (ruleSetReturnItemProvider != null) ruleSetReturnItemProvider.dispose();
+		if (ruleSetCompositeParameterItemProvider != null) ruleSetCompositeParameterItemProvider.dispose();
 	}
 
 }

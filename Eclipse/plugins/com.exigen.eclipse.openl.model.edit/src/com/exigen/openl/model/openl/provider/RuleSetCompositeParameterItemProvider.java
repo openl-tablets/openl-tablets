@@ -7,12 +7,28 @@
 package com.exigen.openl.model.openl.provider;
 
 
+import com.exigen.common.model.components.java.provider.JavaCompositeMethodParameterItemProvider;
+
+import com.exigen.eclipse.common.facet.emf.edit.provider.IItemCreateChildConstraintProvider;
+import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
+
+import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
+
+import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
+
+import com.exigen.eclipse.openl.model.edit.OpenlEditPlugin;
+
+import com.exigen.openl.model.openl.OpenlPackage;
+import com.exigen.openl.model.openl.RuleSetCompositeParameter;
+
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
+
 import org.eclipse.emf.common.util.ResourceLocator;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
@@ -21,25 +37,14 @@ import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 
-import com.exigen.common.model.components.java.provider.JavaMethodReturnItemProvider;
-import com.exigen.eclipse.common.facet.emf.edit.provider.IItemCreateChildConstraintProvider;
-import com.exigen.eclipse.common.facet.emf.edit.provider.IItemPropertyTabSource;
-import com.exigen.eclipse.common.facet.emf.infrastructure.dependency.IItemDependencyBuilder;
-import com.exigen.eclipse.common.facet.emf.infrastructure.validation.IItemValidator;
-import com.exigen.eclipse.openl.model.edit.OpenlEditPlugin;
-import com.exigen.openl.model.openl.RuleSetReturn;
-
-import com.exigen.openl.model.openl.OpenlPackage;
-
 /**
- * This is the item provider adapter for a {@link com.exigen.openl.model.openl.RuleSetReturn} object.
+ * This is the item provider adapter for a {@link com.exigen.openl.model.openl.RuleSetCompositeParameter} object.
  * <!-- begin-user-doc -->
- * @implements IItemCreateChildConstraintProvider
  * <!-- end-user-doc -->
- * @generated
+ * @generated not
  */
-public class RuleSetReturnItemProvider
-	extends JavaMethodReturnItemProvider
+public class RuleSetCompositeParameterItemProvider
+	extends JavaCompositeMethodParameterItemProvider
 	implements	
 		IEditingDomainItemProvider,	
 		IStructuredItemContentProvider,	
@@ -49,15 +54,14 @@ public class RuleSetReturnItemProvider
 		IItemValidator,	
 		IItemPropertyTabSource,	
 		IItemDependencyBuilder,
-		IItemCreateChildConstraintProvider {
-
+		IItemCreateChildConstraintProvider{
 	/**
 	 * This constructs an instance from a factory and a notifier.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public RuleSetReturnItemProvider(AdapterFactory adapterFactory) {
+	public RuleSetCompositeParameterItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
 
@@ -76,27 +80,26 @@ public class RuleSetReturnItemProvider
 	}
 
 	/**
-	 * This returns RuleSetReturn.gif.
+	 * This returns RuleSetCompositeParameter.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/RuleSetReturn"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/RuleSetCompositeParameter"));
 	}
 
 	/**
 	 * This returns the label text for the adapted class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated not
+	 * @generated
 	 */
 	public String getText(Object object) {
-		return super.getText(object);
-//		String label = ((RuleSetReturn)object).getDescription();
-//		return label == null || label.length() == 0 ?
-//			getString("_UI_RuleSetReturn_type") :
-//			getString("_UI_RuleSetReturn_type") + " " + label;
+		String label = ((RuleSetCompositeParameter)object).getName();
+		return label == null || label.length() == 0 ?
+			getString("_UI_RuleSetCompositeParameter_type") :
+			getString("_UI_RuleSetCompositeParameter_type") + " " + label;
 	}
 
 	/**
@@ -131,7 +134,6 @@ public class RuleSetReturnItemProvider
 	public ResourceLocator getResourceLocator() {
 		return OpenlEditPlugin.INSTANCE;
 	}
-
 	public int getMaxOccurs(EObject parent, EReference reference)
 	{
 		if (OpenlPackage.eINSTANCE.equals(parent.eClass().getEPackage())) {
@@ -140,5 +142,4 @@ public class RuleSetReturnItemProvider
 
 		return 0;
 	}
-
 }
