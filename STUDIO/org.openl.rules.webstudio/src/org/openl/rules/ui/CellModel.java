@@ -182,7 +182,7 @@ public class CellModel implements ICellModel {
         buf.append(" bgcolor=" + WebTool.toHexString(color));
 
         if ((borderStyle != null) || (font != null)) {
-            buf.append(" style=\"padding:4px;");
+            buf.append(" style=\"padding:1px;");
             borderToHtml(buf, table);
             WebTool.fontToHtml(font, buf);
             buf.append('"');
