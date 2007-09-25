@@ -7,10 +7,6 @@
             descriptor-class="com.exigen.eclipse.openl.model.OpenLModelType"
             file-extension="openl"
             id="com.exigen.eclipse.openl.model"/>
-      <model-descriptor
-            descriptor-class="com.exigen.eclipse.openl.model.ExcelFileModelType"
-            file-extension="xls"
-            id="com.exigen.eclipse.openl.excelFile"/>
    </extension>
    <extension
          point="org.eclipse.emf.ecore.generated_package">

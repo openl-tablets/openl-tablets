@@ -18,5 +18,6 @@
     <genClasses ecoreClass="openl.ecore#//RuleSet"/>
     <genClasses ecoreClass="openl.ecore#//RuleSetParameter"/>
     <genClasses ecoreClass="openl.ecore#//RuleSetReturn"/>
+    <genClasses ecoreClass="openl.ecore#//RuleSetCompositeParameter"/>
   </genPackages>
 </genmodel:GenModel>
