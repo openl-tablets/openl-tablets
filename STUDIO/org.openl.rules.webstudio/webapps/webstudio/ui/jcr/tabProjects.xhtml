@@ -30,7 +30,7 @@
 				<h:commandLink action="duplicateProject">
 					<h:graphicImage border="0" value="/images/expandall.gif"/>
 				</h:commandLink>
-				<h:commandLink action="deleteProject">
+				<h:commandLink onclick="Richfaces.showModalPanel('modalPanel'); return false;">
 					<h:graphicImage border="0" value="/images/test_neq.gif"/>
 				</h:commandLink>
 			</rich:column>

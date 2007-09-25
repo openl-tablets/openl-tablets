@@ -4,6 +4,8 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
+    <ui:define name="title">Advanced Search</ui:define>
+
 	<ui:define name="body">
 
 		<table>
@@ -89,7 +91,7 @@
 			<td>
 				<h:commandButton value="Search" action="search" type="submit" />
 				<span />
-				<h:commandButton value="Cancel" action="cancel" type="submit" />
+				<h:commandButton value="Cancel" action="cancel" type="submit" immediate="true"/>
 			</td>
 		</tr>
 		</table>
@@ -97,7 +99,7 @@
 		<p/>
 		
 		<rich:panel>
-			<ui:include src="searchResults.xhtml" />
+			<ui:include src="results.xhtml" />
 		</rich:panel>
 
 	</ui:define>

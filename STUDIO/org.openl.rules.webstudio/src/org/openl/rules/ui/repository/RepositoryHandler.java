@@ -3,11 +3,17 @@ package org.openl.rules.ui.repository;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.faces.event.AbortProcessingException;
+
 import org.openl.rules.ui.repository.beans.Element;
+import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
 import org.openl.rules.ui.repository.tree.TreeProject;
 import org.openl.rules.ui.repository.tree.TreeRepository;
+import org.richfaces.component.UITree;
+import org.richfaces.component.events.NodeSelectedEvent;
+import org.richfaces.component.events.NodeSelectedListener;
 
 /**
  * Handler for Repository/Projects Tree
@@ -15,7 +21,7 @@ import org.openl.rules.ui.repository.tree.TreeRepository;
  * @author Aleh Bykhavets
  *
  */
-public class RepositoryHandler {
+public class RepositoryHandler implements NodeSelectedListener {
 
 //	private JcrRepository jcrRepository;
 	
@@ -23,6 +29,8 @@ public class RepositoryHandler {
 	 * Root node for RichFaces's tree.  It won't be displayed. 
 	 */
 	private TreeRepository root;
+	private AbstractTreeNode currentNode;
+	private TreeRepository repository;
 	
 	public RepositoryHandler() {
 //		jcrRepository = JcrRepositoryFactory.getRepositoryInstance();
@@ -130,8 +138,30 @@ public class RepositoryHandler {
 		prj3.add(newFolder("docs"));
 		prj3.add(newFolder("rules"));
 
-		TreeRepository vis = new TreeRepository(generateId(), "Repository");
-		vis.add(prj1).add(prj2).add(prj3);
-		root.add(vis);
+		repository = new TreeRepository(generateId(), "Repository");
+		repository.add(prj1).add(prj2).add(prj3);
+		root.add(repository);
+	}
+
+	public void processSelection(NodeSelectedEvent event) throws AbortProcessingException {
+		UITree tree = (UITree) event.getComponent();
+		AbstractTreeNode node =  (AbstractTreeNode) tree.getRowData();
+		
+		setSelected(node);
+	}
+	
+	public AbstractTreeNode getSelected() {
+		if (currentNode == null) {
+			// lazy loading
+			getData();
+			//
+			currentNode = repository;
+		}
+		
+		return currentNode;
+	}
+	
+	protected void setSelected(AbstractTreeNode node) {
+		currentNode = node;
 	}
 }

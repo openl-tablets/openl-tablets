@@ -5,15 +5,10 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
 	<rich:panel style="height:200px;">
-<!--
-		<h:selectOneMenu value="prj1" style="width:300px">
-			<f:selectItem itemValue="prj1" />
-			<f:selectItem itemValue="prj2" />
-			<f:selectItem itemValue="prj3" />
-		</h:selectOneMenu>
--->
 
-		<rich:tree style="width:300px" switchType="server"
+		<rich:tree style="width:300px" switchType="client" ajaxSubmitSelection="true"
+			nodeSelectListener="#{repositoryHandler.processSelection}"
+			reRender="nodeView"
 			value="#{repositoryHandler.data}" var="item" nodeFace="#{item.type}">
 			<rich:treeNode type="repository" icon="#{item.icon}"
 				iconLeaf="#{item.iconLeaf}">
