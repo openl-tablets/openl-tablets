@@ -123,7 +123,7 @@ TableEditor.prototype = {
    */
   editBegin : function(targetElement, editor) {
     this.editor = Object.extend(new Object(), TableEditor.Editors[editor]);
-    this.editor.editor_initialize(this);
+    this.editor.editor_initialize(this, targetElement);
 
     this.editor.setValue(targetElement.innerHTML);
 

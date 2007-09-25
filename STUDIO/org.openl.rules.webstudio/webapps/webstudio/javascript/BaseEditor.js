@@ -14,13 +14,13 @@ BaseEditor.T = function() {return true};
 BaseEditor.prototype = {
     // -------------------------------------------------------------- Object properties --
     node : null,
-	 tableEditor : null,
+   tableEditor : null,
 
-	 /** Common constructor for all editors */
-	 editor_initialize: function(tableEditor) {
-	    this.tableEditor = tableEditor;
-		 this.initialize();
-	 },
+   /** Common constructor for all editors */
+   editor_initialize: function(tableEditor, parent) {
+      this.tableEditor = tableEditor;
+      this.initialize(parent);
+   },
     // ----------------------------------------------------------------- Public methods --
 
     /**
@@ -43,12 +43,12 @@ BaseEditor.prototype = {
             this.node.value = value;
     },
 
-	/** Returns if edit operation was cancelled */ 
-	isCancelled : function() {
-		return false;
-	},
+  /** Returns if edit operation was cancelled */
+  isCancelled : function() {
+    return false;
+  },
 
-	 /** Editor specific actions for release of any resources(other actions) before removing
+   /** Editor specific actions for release of any resources(other actions) before removing
     * editor control from the document.
     */
     destroy : function() {
@@ -60,20 +60,20 @@ BaseEditor.prototype = {
         this.node.value = "";
     },
 
-	 // ----------------------------------------------------------------- Protected methods --
+   // ----------------------------------------------------------------- Protected methods --
 
-	 /** Notifies table editor that editing is finished */
-	 doneEdit: function() {
-		 this.tableEditor.editStop();
-	 },
+   /** Notifies table editor that editing is finished */
+   doneEdit: function() {
+     this.tableEditor.editStop();
+   },
 
-	/** Notifies table editor that editing is finished and cancelled */ 
-	cancelEdit: function() {
-		this.isCancelled = BaseEditor.T;
-		this.doneEdit();
-	},
+  /** Notifies table editor that editing is finished and cancelled */
+  cancelEdit: function() {
+    this.isCancelled = BaseEditor.T;
+    this.doneEdit();
+  },
 
-	 addOnChangeListener : function(editor, element) {
+   addOnChangeListener : function(editor, element) {
         /*if (element != null) {
             $(element).observe('change',
                 function(event){
