@@ -13,6 +13,10 @@ import com.exigen.common.model.components.OperationDefinition;
 
 import com.exigen.common.model.components.Parameter;
 
+import com.exigen.common.model.components.java.DataObject;
+import com.exigen.common.model.components.java.IJavaCompositeMethodParameter;
+import com.exigen.common.model.components.java.IJavaMethodParameter;
+import com.exigen.common.model.components.java.JavaCompositeMethodParameter;
 import com.exigen.common.model.components.java.JavaMethodOperationDefinition;
 
 import com.exigen.common.model.components.java.JavaMethodParameter;
@@ -101,6 +105,9 @@ public class OpenlAdapterFactory extends AdapterFactoryImpl {
 			public Object caseRuleSetReturn(RuleSetReturn object) {
 				return createRuleSetReturnAdapter();
 			}
+			public Object caseRuleSetCompositeParameter(RuleSetCompositeParameter object) {
+				return createRuleSetCompositeParameterAdapter();
+			}
 			public Object caseBaseElement(BaseElement object) {
 				return createBaseElementAdapter();
 			}
@@ -137,11 +144,23 @@ public class OpenlAdapterFactory extends AdapterFactoryImpl {
 			public Object caseBaseNamedParameter(BaseNamedParameter object) {
 				return createBaseNamedParameterAdapter();
 			}
+			public Object caseIJavaMethodParameter(IJavaMethodParameter object) {
+				return createIJavaMethodParameterAdapter();
+			}
 			public Object caseJavaMethodParameter(JavaMethodParameter object) {
 				return createJavaMethodParameterAdapter();
 			}
 			public Object caseJavaMethodReturn(JavaMethodReturn object) {
 				return createJavaMethodReturnAdapter();
+			}
+			public Object caseDataObject(DataObject object) {
+				return createDataObjectAdapter();
+			}
+			public Object caseIJavaCompositeMethodParameter(IJavaCompositeMethodParameter object) {
+				return createIJavaCompositeMethodParameterAdapter();
+			}
+			public Object caseJavaCompositeMethodParameter(JavaCompositeMethodParameter object) {
+				return createJavaCompositeMethodParameterAdapter();
 			}
 			public Object defaultCase(EObject object) {
 				return createEObjectAdapter();
@@ -214,6 +233,20 @@ public class OpenlAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createRuleSetReturnAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link com.exigen.openl.model.openl.RuleSetCompositeParameter <em>Rule Set Composite Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see com.exigen.openl.model.openl.RuleSetCompositeParameter
+	 * @generated
+	 */
+	public Adapter createRuleSetCompositeParameterAdapter() {
 		return null;
 	}
 
@@ -386,6 +419,20 @@ public class OpenlAdapterFactory extends AdapterFactoryImpl {
 	}
 
 	/**
+	 * Creates a new adapter for an object of class '{@link com.exigen.common.model.components.java.IJavaMethodParameter <em>IJava Method Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see com.exigen.common.model.components.java.IJavaMethodParameter
+	 * @generated
+	 */
+	public Adapter createIJavaMethodParameterAdapter() {
+		return null;
+	}
+
+	/**
 	 * Creates a new adapter for an object of class '{@link com.exigen.common.model.components.java.JavaMethodParameter <em>Java Method Parameter</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
@@ -410,6 +457,48 @@ public class OpenlAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createJavaMethodReturnAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link com.exigen.common.model.components.java.DataObject <em>Data Object</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see com.exigen.common.model.components.java.DataObject
+	 * @generated
+	 */
+	public Adapter createDataObjectAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link com.exigen.common.model.components.java.IJavaCompositeMethodParameter <em>IJava Composite Method Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see com.exigen.common.model.components.java.IJavaCompositeMethodParameter
+	 * @generated
+	 */
+	public Adapter createIJavaCompositeMethodParameterAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link com.exigen.common.model.components.java.JavaCompositeMethodParameter <em>Java Composite Method Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see com.exigen.common.model.components.java.JavaCompositeMethodParameter
+	 * @generated
+	 */
+	public Adapter createJavaCompositeMethodParameterAdapter() {
 		return null;
 	}
 

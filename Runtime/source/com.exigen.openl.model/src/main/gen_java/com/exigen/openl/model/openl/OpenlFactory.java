@@ -62,6 +62,15 @@ public interface OpenlFactory extends EFactory {
 	RuleSetReturn createRuleSetReturn();
 
 	/**
+	 * Returns a new object of class '<em>Rule Set Composite Parameter</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Rule Set Composite Parameter</em>'.
+	 * @generated
+	 */
+	RuleSetCompositeParameter createRuleSetCompositeParameter();
+
+	/**
 	 * Returns the package supported by this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

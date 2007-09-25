@@ -13,6 +13,10 @@ import com.exigen.common.model.components.OperationDefinition;
 
 import com.exigen.common.model.components.Parameter;
 
+import com.exigen.common.model.components.java.DataObject;
+import com.exigen.common.model.components.java.IJavaCompositeMethodParameter;
+import com.exigen.common.model.components.java.IJavaMethodParameter;
+import com.exigen.common.model.components.java.JavaCompositeMethodParameter;
 import com.exigen.common.model.components.java.JavaMethodOperationDefinition;
 
 import com.exigen.common.model.components.java.JavaMethodParameter;
@@ -134,11 +138,12 @@ public class OpenlSwitch {
 				Object result = caseRuleSetParameter(ruleSetParameter);
 				if (result == null) result = caseJavaMethodParameter(ruleSetParameter);
 				if (result == null) result = caseBaseNamedParameter(ruleSetParameter);
+				if (result == null) result = caseIJavaMethodParameter(ruleSetParameter);
 				if (result == null) result = caseBaseNamedElement(ruleSetParameter);
 				if (result == null) result = caseBaseParameter(ruleSetParameter);
+				if (result == null) result = caseParameter(ruleSetParameter);
 				if (result == null) result = caseBaseElement(ruleSetParameter);
 				if (result == null) result = caseNamedElement(ruleSetParameter);
-				if (result == null) result = caseParameter(ruleSetParameter);
 				if (result == null) result = caseReferencableElement(ruleSetParameter);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
@@ -151,6 +156,21 @@ public class OpenlSwitch {
 				if (result == null) result = caseBaseParameter(ruleSetReturn);
 				if (result == null) result = caseParameter(ruleSetReturn);
 				if (result == null) result = caseReferencableElement(ruleSetReturn);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case OpenlPackage.RULE_SET_COMPOSITE_PARAMETER: {
+				RuleSetCompositeParameter ruleSetCompositeParameter = (RuleSetCompositeParameter)theEObject;
+				Object result = caseRuleSetCompositeParameter(ruleSetCompositeParameter);
+				if (result == null) result = caseJavaCompositeMethodParameter(ruleSetCompositeParameter);
+				if (result == null) result = caseDataObject(ruleSetCompositeParameter);
+				if (result == null) result = caseIJavaCompositeMethodParameter(ruleSetCompositeParameter);
+				if (result == null) result = caseBaseNamedElement(ruleSetCompositeParameter);
+				if (result == null) result = caseIJavaMethodParameter(ruleSetCompositeParameter);
+				if (result == null) result = caseBaseElement(ruleSetCompositeParameter);
+				if (result == null) result = caseNamedElement(ruleSetCompositeParameter);
+				if (result == null) result = caseParameter(ruleSetCompositeParameter);
+				if (result == null) result = caseReferencableElement(ruleSetCompositeParameter);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -215,6 +235,21 @@ public class OpenlSwitch {
 	 * @generated
 	 */
 	public Object caseRuleSetReturn(RuleSetReturn object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpretting the object as an instance of '<em>Rule Set Composite Parameter</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpretting the object as an instance of '<em>Rule Set Composite Parameter</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public Object caseRuleSetCompositeParameter(RuleSetCompositeParameter object) {
 		return null;
 	}
 
@@ -399,6 +434,21 @@ public class OpenlSwitch {
 	}
 
 	/**
+	 * Returns the result of interpretting the object as an instance of '<em>IJava Method Parameter</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpretting the object as an instance of '<em>IJava Method Parameter</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public Object caseIJavaMethodParameter(IJavaMethodParameter object) {
+		return null;
+	}
+
+	/**
 	 * Returns the result of interpretting the object as an instance of '<em>Java Method Parameter</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
@@ -425,6 +475,51 @@ public class OpenlSwitch {
 	 * @generated
 	 */
 	public Object caseJavaMethodReturn(JavaMethodReturn object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpretting the object as an instance of '<em>Data Object</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpretting the object as an instance of '<em>Data Object</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public Object caseDataObject(DataObject object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpretting the object as an instance of '<em>IJava Composite Method Parameter</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpretting the object as an instance of '<em>IJava Composite Method Parameter</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public Object caseIJavaCompositeMethodParameter(IJavaCompositeMethodParameter object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpretting the object as an instance of '<em>Java Composite Method Parameter</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpretting the object as an instance of '<em>Java Composite Method Parameter</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public Object caseJavaCompositeMethodParameter(JavaCompositeMethodParameter object) {
 		return null;
 	}
 

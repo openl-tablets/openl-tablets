@@ -12,11 +12,8 @@ import com.exigen.common.component.Executor;
 import com.exigen.common.component.OperationExecutionException;
 import com.exigen.common.component.ParameterValue;
 import com.exigen.common.component.java.AbstractJava;
-import com.exigen.common.component.util.java.JavaException;
-import com.exigen.common.component.util.java.JavaUtils;
+import com.exigen.common.component.java.MethodExecutionInfo;
 import com.exigen.common.model.components.OperationDefinition;
-import com.exigen.common.model.components.java.JavaMethodParameter;
-import com.exigen.common.model.components.java.JavaMethodReturn;
 import com.exigen.common.util.runtime.Assert;
 import com.exigen.openl.model.openl.RuleSet;
 
@@ -40,37 +37,11 @@ public class RuleSetExecutor extends AbstractJava implements Executor {
 		OpenInstance openInstance = (OpenInstance) componentInstance;
 
 		ClassLoader classLoader = getClassLoader(context);
+		
+		MethodExecutionInfo info = new MethodExecutionInfo(ruleSet,input,output,classLoader);
+		info.intialize();
 
-		Class[] paramClasses = new Class[ruleSet.getMethodParameters().size()];
-		Object[] paramValues = new Object[ruleSet.getMethodParameters().size()];
-		Class<?> returnClass = null;
-		int i = 0;
-		for (Iterator iter = ruleSet.getMethodParameters().iterator(); iter
-				.hasNext();) {
-			JavaMethodParameter param = (JavaMethodParameter) iter.next();
-			Assert.isNotNull(param.getType());
-			try {
-				paramClasses[i] = JavaUtils.loadClass(param.getType(),
-						classLoader);
-			} catch (JavaException e) {
-				throw new OperationExecutionException(
-						"Unable to load parameter class " + param.getType(), e);
-			}
-			paramValues[i] = input.get(i).getValue();
-			i++;
-		}
-		if (ruleSet.getReturn() != null) {
-			JavaMethodReturn param = ruleSet.getReturn();
-			try {
-				Assert.isNotNull(param.getType());
-				returnClass = JavaUtils.loadClass(param.getType(), classLoader);
-			} catch (JavaException e) {
-				throw new OperationExecutionException(
-						"Unable to load return class " + param.getType(), e);
-			}
-
-		}
-
+		
 		IOpenMethod method = null;
 		nextMethod: for (Iterator methodIter = openInstance.getOpenClass()
 				.methods(); methodIter.hasNext();) {
@@ -78,7 +49,7 @@ public class RuleSetExecutor extends AbstractJava implements Executor {
 
 			if (!methodName.equals(testMethod.getName()))
 				continue nextMethod;
-			if (testMethod.getSignature().getNumberOfArguments() != paramClasses.length)
+			if (testMethod.getSignature().getNumberOfArguments() != info.paramClasses.length)
 				continue nextMethod;
 
 			int index = 0;
@@ -90,7 +61,7 @@ public class RuleSetExecutor extends AbstractJava implements Executor {
 					openlClass = ClassUtils.primitiveToWrapper(paramType
 							.getOpenClass().getInstanceClass());
 				}
-				if (!openlClass.isAssignableFrom(paramClasses[index++]))
+				if (!openlClass.isAssignableFrom(info.paramClasses[index++]))
 					continue nextMethod;
 			}
 			method = testMethod;
@@ -101,15 +72,9 @@ public class RuleSetExecutor extends AbstractJava implements Executor {
 			throw new OperationExecutionException("cannot find method \""
 					+ methodName + "\"");
 
-		Object result = method.invoke(openInstance.getInstance(), paramValues,
+		Object result = method.invoke(openInstance.getInstance(), info.paramValues,
 				openInstance.getEnv());
-		if (result != null && returnClass != null) {
-			Assert.isTrue(returnClass.isAssignableFrom(result.getClass()));
-		}
-
-		if (output.size() > 0) {
-			output.get(0).setValue(result);
-		}
+		info.saveResult(result);
 	}
 
 }

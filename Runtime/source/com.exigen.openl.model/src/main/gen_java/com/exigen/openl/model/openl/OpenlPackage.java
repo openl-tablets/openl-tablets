@@ -214,13 +214,13 @@ public interface OpenlPackage extends EPackage {
 	int RULE_SET_PARAMETER__NAME = JavaComponentsPackage.JAVA_METHOD_PARAMETER__NAME;
 
 	/**
-	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * The feature id for the '<em><b>Many</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RULE_SET_PARAMETER__TYPE = JavaComponentsPackage.JAVA_METHOD_PARAMETER__TYPE;
+	int RULE_SET_PARAMETER__MANY = JavaComponentsPackage.JAVA_METHOD_PARAMETER__MANY;
 
 	/**
 	 * The feature id for the '<em><b>Required</b></em>' attribute.
@@ -232,13 +232,13 @@ public interface OpenlPackage extends EPackage {
 	int RULE_SET_PARAMETER__REQUIRED = JavaComponentsPackage.JAVA_METHOD_PARAMETER__REQUIRED;
 
 	/**
-	 * The feature id for the '<em><b>Many</b></em>' attribute.
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RULE_SET_PARAMETER__MANY = JavaComponentsPackage.JAVA_METHOD_PARAMETER__MANY;
+	int RULE_SET_PARAMETER__TYPE = JavaComponentsPackage.JAVA_METHOD_PARAMETER__TYPE;
 
 	/**
 	 * The number of structural features of the '<em>Rule Set Parameter</em>' class.
@@ -269,13 +269,13 @@ public interface OpenlPackage extends EPackage {
 	int RULE_SET_RETURN__DESCRIPTION = JavaComponentsPackage.JAVA_METHOD_RETURN__DESCRIPTION;
 
 	/**
-	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * The feature id for the '<em><b>Many</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RULE_SET_RETURN__TYPE = JavaComponentsPackage.JAVA_METHOD_RETURN__TYPE;
+	int RULE_SET_RETURN__MANY = JavaComponentsPackage.JAVA_METHOD_RETURN__MANY;
 
 	/**
 	 * The feature id for the '<em><b>Required</b></em>' attribute.
@@ -287,13 +287,13 @@ public interface OpenlPackage extends EPackage {
 	int RULE_SET_RETURN__REQUIRED = JavaComponentsPackage.JAVA_METHOD_RETURN__REQUIRED;
 
 	/**
-	 * The feature id for the '<em><b>Many</b></em>' attribute.
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RULE_SET_RETURN__MANY = JavaComponentsPackage.JAVA_METHOD_RETURN__MANY;
+	int RULE_SET_RETURN__TYPE = JavaComponentsPackage.JAVA_METHOD_RETURN__TYPE;
 
 	/**
 	 * The number of structural features of the '<em>Rule Set Return</em>' class.
@@ -305,6 +305,70 @@ public interface OpenlPackage extends EPackage {
 	int RULE_SET_RETURN_FEATURE_COUNT = JavaComponentsPackage.JAVA_METHOD_RETURN_FEATURE_COUNT + 0;
 
 	/**
+	 * The meta object id for the '{@link com.exigen.openl.model.openl.impl.RuleSetCompositeParameterImpl <em>Rule Set Composite Parameter</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see com.exigen.openl.model.openl.impl.RuleSetCompositeParameterImpl
+	 * @see com.exigen.openl.model.openl.impl.OpenlPackageImpl#getRuleSetCompositeParameter()
+	 * @generated
+	 */
+	int RULE_SET_COMPOSITE_PARAMETER = 4;
+
+	/**
+	 * The feature id for the '<em><b>Description</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RULE_SET_COMPOSITE_PARAMETER__DESCRIPTION = JavaComponentsPackage.JAVA_COMPOSITE_METHOD_PARAMETER__DESCRIPTION;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RULE_SET_COMPOSITE_PARAMETER__NAME = JavaComponentsPackage.JAVA_COMPOSITE_METHOD_PARAMETER__NAME;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RULE_SET_COMPOSITE_PARAMETER__TYPE = JavaComponentsPackage.JAVA_COMPOSITE_METHOD_PARAMETER__TYPE;
+
+	/**
+	 * The feature id for the '<em><b>Attributes</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RULE_SET_COMPOSITE_PARAMETER__ATTRIBUTES = JavaComponentsPackage.JAVA_COMPOSITE_METHOD_PARAMETER__ATTRIBUTES;
+
+	/**
+	 * The feature id for the '<em><b>Access Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RULE_SET_COMPOSITE_PARAMETER__ACCESS_TYPE = JavaComponentsPackage.JAVA_COMPOSITE_METHOD_PARAMETER__ACCESS_TYPE;
+
+	/**
+	 * The number of structural features of the '<em>Rule Set Composite Parameter</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RULE_SET_COMPOSITE_PARAMETER_FEATURE_COUNT = JavaComponentsPackage.JAVA_COMPOSITE_METHOD_PARAMETER_FEATURE_COUNT + 0;
+
+	/**
 	 * The meta object id for the '<em>Excel Resource Reference</em>' data type.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -312,7 +376,7 @@ public interface OpenlPackage extends EPackage {
 	 * @see com.exigen.openl.model.openl.impl.OpenlPackageImpl#getExcelResourceReference()
 	 * @generated
 	 */
-	int EXCEL_RESOURCE_REFERENCE = 4;
+	int EXCEL_RESOURCE_REFERENCE = 5;
 
 
 	/**
@@ -387,6 +451,16 @@ public interface OpenlPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getRuleSetReturn();
+
+	/**
+	 * Returns the meta object for class '{@link com.exigen.openl.model.openl.RuleSetCompositeParameter <em>Rule Set Composite Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Rule Set Composite Parameter</em>'.
+	 * @see com.exigen.openl.model.openl.RuleSetCompositeParameter
+	 * @generated
+	 */
+	EClass getRuleSetCompositeParameter();
 
 	/**
 	 * Returns the meta object for data type '{@link java.lang.String <em>Excel Resource Reference</em>}'.
@@ -484,6 +558,16 @@ public interface OpenlPackage extends EPackage {
 		 * @generated
 		 */
 		EClass RULE_SET_RETURN = eINSTANCE.getRuleSetReturn();
+
+		/**
+		 * The meta object literal for the '{@link com.exigen.openl.model.openl.impl.RuleSetCompositeParameterImpl <em>Rule Set Composite Parameter</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see com.exigen.openl.model.openl.impl.RuleSetCompositeParameterImpl
+		 * @see com.exigen.openl.model.openl.impl.OpenlPackageImpl#getRuleSetCompositeParameter()
+		 * @generated
+		 */
+		EClass RULE_SET_COMPOSITE_PARAMETER = eINSTANCE.getRuleSetCompositeParameter();
 
 		/**
 		 * The meta object literal for the '<em>Excel Resource Reference</em>' data type.
