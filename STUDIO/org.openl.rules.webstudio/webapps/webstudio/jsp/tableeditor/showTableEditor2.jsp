@@ -153,7 +153,7 @@ function refreshSelectionAfter() {
 <body>
 <table>
   <tr>
-    <td><img src="../../images/excel-workbook.png" /> <a class="left" href="showLinks.jsp?<%=url%>" target="show_app_hidden"
+    <td><img src="../../images/excel-workbook.png" /> <a class="left" href="${pageContext.request.contextPath}/jsp/showLinks.jsp?<%=url%>" target="show_app_hidden"
       title="<%=uri%>"> &nbsp;<%=text + " : " + name%></a> <%
                  if (isRunnable && se.length == 0) {
                  String tgtUrl = "../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID="
@@ -245,7 +245,6 @@ function refreshSelectionAfter() {
   <script type="text/javascript">
     var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>");
   </script>
-
 
   <a4j:form id="popup_editor_form">
     <h:inputHidden id="elementID" value="#{popupEditorBean.elementID}" />
