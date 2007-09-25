@@ -4,9 +4,8 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:panel style="height:200px;">
-
-		<rich:tree style="width:300px" switchType="client" ajaxSubmitSelection="true"
+	<rich:panel style="width:300px; height:518px;" >
+		<rich:tree switchType="client" ajaxSubmitSelection="true"
 			nodeSelectListener="#{repositoryHandler.processSelection}"
 			reRender="nodeView"
 			value="#{repositoryHandler.data}" var="item" nodeFace="#{item.type}">
