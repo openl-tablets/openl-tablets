@@ -64,6 +64,7 @@ public class OpenlFactoryImpl extends EFactoryImpl implements OpenlFactory {
 			case OpenlPackage.RULE_SET: return createRuleSet();
 			case OpenlPackage.RULE_SET_PARAMETER: return createRuleSetParameter();
 			case OpenlPackage.RULE_SET_RETURN: return createRuleSetReturn();
+			case OpenlPackage.RULE_SET_COMPOSITE_PARAMETER: return createRuleSetCompositeParameter();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -135,6 +136,16 @@ public class OpenlFactoryImpl extends EFactoryImpl implements OpenlFactory {
 	public RuleSetReturn createRuleSetReturn() {
 		RuleSetReturnImpl ruleSetReturn = new RuleSetReturnImpl();
 		return ruleSetReturn;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public RuleSetCompositeParameter createRuleSetCompositeParameter() {
+		RuleSetCompositeParameterImpl ruleSetCompositeParameter = new RuleSetCompositeParameterImpl();
+		return ruleSetCompositeParameter;
 	}
 
 	/**

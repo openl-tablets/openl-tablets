@@ -25,6 +25,7 @@ import com.exigen.common.model.spring.SpringPackage;
 import com.exigen.openl.model.openl.OpenlFactory;
 import com.exigen.openl.model.openl.OpenlPackage;
 import com.exigen.openl.model.openl.RuleSet;
+import com.exigen.openl.model.openl.RuleSetCompositeParameter;
 import com.exigen.openl.model.openl.RuleSetFile;
 
 import com.exigen.openl.model.openl.RuleSetParameter;
@@ -73,6 +74,13 @@ public class OpenlPackageImpl extends EPackageImpl implements OpenlPackage {
 	 * @generated
 	 */
 	private EClass ruleSetReturnEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass ruleSetCompositeParameterEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -226,6 +234,15 @@ public class OpenlPackageImpl extends EPackageImpl implements OpenlPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getRuleSetCompositeParameter() {
+		return ruleSetCompositeParameterEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EDataType getExcelResourceReference() {
 		return excelResourceReferenceEDataType;
 	}
@@ -269,6 +286,8 @@ public class OpenlPackageImpl extends EPackageImpl implements OpenlPackage {
 
 		ruleSetReturnEClass = createEClass(RULE_SET_RETURN);
 
+		ruleSetCompositeParameterEClass = createEClass(RULE_SET_COMPOSITE_PARAMETER);
+
 		// Create data types
 		excelResourceReferenceEDataType = createEDataType(EXCEL_RESOURCE_REFERENCE);
 	}
@@ -308,6 +327,7 @@ public class OpenlPackageImpl extends EPackageImpl implements OpenlPackage {
 		ruleSetEClass.getESuperTypes().add(theJavaComponentsPackage.getJavaMethodOperationDefinition());
 		ruleSetParameterEClass.getESuperTypes().add(theJavaComponentsPackage.getJavaMethodParameter());
 		ruleSetReturnEClass.getESuperTypes().add(theJavaComponentsPackage.getJavaMethodReturn());
+		ruleSetCompositeParameterEClass.getESuperTypes().add(theJavaComponentsPackage.getJavaCompositeMethodParameter());
 
 		// Initialize classes and features; add operations and parameters
 		initEClass(ruleSetFileEClass, RuleSetFile.class, "RuleSetFile", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -320,6 +340,8 @@ public class OpenlPackageImpl extends EPackageImpl implements OpenlPackage {
 		initEClass(ruleSetParameterEClass, RuleSetParameter.class, "RuleSetParameter", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		initEClass(ruleSetReturnEClass, RuleSetReturn.class, "RuleSetReturn", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+
+		initEClass(ruleSetCompositeParameterEClass, RuleSetCompositeParameter.class, "RuleSetCompositeParameter", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		// Initialize data types
 		initEDataType(excelResourceReferenceEDataType, String.class, "ExcelResourceReference", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
