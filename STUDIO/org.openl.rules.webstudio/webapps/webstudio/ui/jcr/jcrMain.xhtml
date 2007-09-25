@@ -4,24 +4,33 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
+    <ui:define name="title">Repository Browser</ui:define>
+
 	<ui:define name="body">
 
-<div class="sample-container" >
 	<h:panelGrid columns="2" headerClass="outpanelHeader" cellspacing="10" columnClasses="columnTree, columnProps">
 	
-		<f:subview id="svTree">
-			<ui:include src="/ui/jcr/jcrTree.xhtml" />
-		</f:subview>
+		<h:panelGroup id="svTree">
+			<ui:include src="/ui/jcr/tree.xhtml" />
+		</h:panelGroup>
 
-		<f:subview id="svProps">
-			<ui:include src="/ui/jcr/jcrProps.xhtml" />
-		</f:subview>
+		<h:panelGroup  id="svBrowser">
+			<ui:include src="search/inline.xhtml"/>
+			
+			<p/>
+
+			<h:panelGroup id="nodeView">
+				<ui:include src="/ui/jcr/nodeView.xhtml" />
+			</h:panelGroup>
+		</h:panelGroup>
 		
 	</h:panelGrid>
-</div>
 
-	<h:commandButton styleClass="smlBackButton" value="index-jcr" action="index"/>
+	<h:commandButton styleClass="smlBackButton" value="index-jcr" action="index" immediate="true"/>
 
 	</ui:define>
 
+	<ui:define name="special">
+		<ui:include src="deleteProject.xhtml" />
+	</ui:define>
 </ui:composition>

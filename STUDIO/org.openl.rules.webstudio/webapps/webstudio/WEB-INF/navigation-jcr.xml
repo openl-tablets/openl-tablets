@@ -8,6 +8,7 @@
 		<navigation-case>
 			<from-outcome>jcrMain</from-outcome>
 			<to-view-id>/ui/jcr/jcrMain.xhtml</to-view-id>
+			<redirect/>
 		</navigation-case>
 	</navigation-rule>
 
@@ -16,22 +17,26 @@
 		<navigation-case>
 			<from-outcome>index</from-outcome>
 			<to-view-id>/index-jcr.xhtml</to-view-id>
+			<redirect/>
 		</navigation-case>
 		<navigation-case>
-			<from-outcome>advancedSearch</from-outcome>
-			<to-view-id>/ui/jcr/advancedSearch.xhtml</to-view-id>
+			<from-outcome>search.advanced</from-outcome>
+			<to-view-id>/ui/jcr/search/advanced.xhtml</to-view-id>
+			<redirect/>
 		</navigation-case>
 	</navigation-rule>
 
 	<navigation-rule>
-		<from-view-id>/ui/jcr/advancedSearch.xhtml</from-view-id>
+		<from-view-id>/ui/jcr/search/advanced.xhtml</from-view-id>
 		<navigation-case>
 			<from-outcome>index</from-outcome>
 			<to-view-id>/index-jcr.xhtml</to-view-id>
+			<redirect/>
 		</navigation-case>
 		<navigation-case>
 			<from-outcome>cancel</from-outcome>
 			<to-view-id>/ui/jcr/jcrMain.xhtml</to-view-id>
+			<redirect/>
 		</navigation-case>
 	</navigation-rule>
 

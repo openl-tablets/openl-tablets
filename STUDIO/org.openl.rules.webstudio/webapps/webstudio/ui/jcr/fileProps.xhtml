@@ -1,0 +1,14 @@
+<ui:composition
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<h:panelGrid columns="2">
+		<h:outputLabel for="p1a" styleClass="niceLabel">
+			<h:outputText value="File Name:" />
+		</h:outputLabel>
+		<h:outputText id="p1a" value="#{repositoryHandler.selected.name}" />
+	</h:panelGrid>
+
+</ui:composition>
