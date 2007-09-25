@@ -23,4 +23,5 @@
   <eClassifiers xsi:type="ecore:EDataType" name="ExcelResourceReference" instanceClassName="java.lang.String"/>
   <eClassifiers xsi:type="ecore:EClass" name="RuleSetParameter" eSuperTypes="../../../plugin/com.exigen.eclipse.common.model/models/common.ecore#//components/java/JavaMethodParameter"/>
   <eClassifiers xsi:type="ecore:EClass" name="RuleSetReturn" eSuperTypes="../../../plugin/com.exigen.eclipse.common.model/models/common.ecore#//components/java/JavaMethodReturn"/>
+  <eClassifiers xsi:type="ecore:EClass" name="RuleSetCompositeParameter" eSuperTypes="../../../plugin/com.exigen.eclipse.common.model/models/common.ecore#//components/java/JavaCompositeMethodParameter"/>
 </ecore:EPackage>
