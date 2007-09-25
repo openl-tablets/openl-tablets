@@ -150,6 +150,9 @@ public class RuleSetItemProvider
 					newChildDescriptors.add	(createChildParameter
 						(JavaComponentsPackage.Literals.JAVA_METHOD_OPERATION_DEFINITION__METHOD_PARAMETERS,
 						 OpenlFactory.eINSTANCE.createRuleSetParameter()));
+					newChildDescriptors.add	(createChildParameter
+							(JavaComponentsPackage.Literals.JAVA_METHOD_OPERATION_DEFINITION__METHOD_PARAMETERS,
+							 OpenlFactory.eINSTANCE.createRuleSetCompositeParameter()));
 				}
 			};
 		}
