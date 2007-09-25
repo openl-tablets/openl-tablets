@@ -7,19 +7,20 @@
  * @author Andrey Naumenko
  */
 
-var BaseEditor = Class.create();
+var BaseEditor = Prototype.emptyFunction;
+
+BaseEditor.T = function() {return true};
 
 BaseEditor.prototype = {
     // -------------------------------------------------------------- Object properties --
     node : null,
+	 tableEditor : null,
 
-    /** Standard constructor. */
-    initialize : function() {
-        this.node = document.createElement("input");
-        this.node.setAttribute("type", "text");
-        this.node.size = 40;
-    },
-
+	 /** Common constructor for all editors */
+	 editor_initialize: function(tableEditor) {
+	    this.tableEditor = tableEditor;
+		 this.initialize();
+	 },
     // ----------------------------------------------------------------- Public methods --
 
     /**
@@ -42,7 +43,12 @@ BaseEditor.prototype = {
             this.node.value = value;
     },
 
-    /** Editor specific actions for release of any resources(other actions) before removing
+	/** Returns if edit operation was cancelled */ 
+	isCancelled : function() {
+		return false;
+	},
+
+	 /** Editor specific actions for release of any resources(other actions) before removing
     * editor control from the document.
     */
     destroy : function() {
@@ -54,7 +60,20 @@ BaseEditor.prototype = {
         this.node.value = "";
     },
 
-    addOnChangeListener : function(editor, element) {
+	 // ----------------------------------------------------------------- Protected methods --
+
+	 /** Notifies table editor that editing is finished */
+	 doneEdit: function() {
+		 this.tableEditor.editStop();
+	 },
+
+	/** Notifies table editor that editing is finished and cancelled */ 
+	cancelEdit: function() {
+		this.isCancelled = BaseEditor.T;
+		this.doneEdit();
+	},
+
+	 addOnChangeListener : function(editor, element) {
         /*if (element != null) {
             $(element).observe('change',
                 function(event){

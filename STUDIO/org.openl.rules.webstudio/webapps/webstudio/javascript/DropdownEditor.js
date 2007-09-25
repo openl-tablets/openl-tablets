@@ -3,14 +3,9 @@
  *
  * @author Aliaksandr Antonik.
  */
-var DropdownEditor = Class.create();
-
-//todo: switch from storing initial value to isCancelled function support
+var DropdownEditor = Prototype.emptyFunction;
 
 DropdownEditor.prototype = Object.extend(new BaseEditor(), {
-	/** stores initial value to return when nothing is selected */
-	initValue : null,
-
 	/** Constructor */
 	initialize : function() {
 		this.node = document.createElement("select");
@@ -45,18 +40,9 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
 	/**
 	 * @desc overrides base class implementation to support situation when nothing is selected.
 	 */
-	getValue: function() {
-		return this.node.value == "" ? this.initValue : this.node.value;	
-	},
-
-	/**
-	 * @desc overrides base class implementation to remember the initial value
-	 */
-	setValue: function(value) {
-		this.initValue = value;
-		BaseEditor.prototype.setValue.call(this, value);
+	isCancelled: function() {
+		return this.node.value == "";	
 	}
-
 });
 
 TableEditor.Editors["selectbox"] = DropdownEditor.prototype;

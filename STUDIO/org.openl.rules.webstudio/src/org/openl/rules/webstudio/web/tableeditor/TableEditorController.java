@@ -6,7 +6,6 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
-import org.openl.rules.table.ui.SimpleHtmlFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
@@ -71,10 +70,10 @@ public class TableEditorController {
 
 		  IGrid htmlGrid = gt.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
-            int N = 2;
+            int N = 1;
             IGridFilter[] f1 = new IGridFilter[N];
             f1[0] = new SimpleXlsFormatter();
-            f1[1] = new SimpleHtmlFilter();
+//            f1[1] = new SimpleHtmlFilter();
             htmlGrid = new FilteredGrid(gt.getGrid(), f1);
         }
 

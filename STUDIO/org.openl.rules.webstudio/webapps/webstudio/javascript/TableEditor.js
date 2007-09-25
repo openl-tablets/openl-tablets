@@ -19,6 +19,7 @@ TableEditor.prototype = {
   selectionPos : null,
   selectionHistory : [],	
   decorator : null,
+  edittedCellValue: null,	
   rows : 0,
   columns : 0,	
 
@@ -122,12 +123,13 @@ TableEditor.prototype = {
    */
   editBegin : function(targetElement, editor) {
 	  this.editor = Object.extend(new Object(), TableEditor.Editors[editor]);
-	  this.editor.initialize();
+	  this.editor.editor_initialize(this);
 
 	  this.editor.setValue(targetElement.innerHTML);
 
 	  this.selectElement(targetElement);
 
+	  this.edittedCellValue = targetElement.innerHTML;
 	  targetElement.removeChild(targetElement.childNodes[0]);
 	  targetElement.appendChild(this.editor.node);
 	  this.editor.node.focus();
@@ -135,17 +137,23 @@ TableEditor.prototype = {
 
   editStop : function() {
     if (this.editor!=null) {
-      new Ajax.Request(this.saveUrl + '?id=' + this.currentElement.title + '&value=' + this.editor.getValue(), {
-        method      : "get",
-        encoding    : "utf-8",
-        contentType : "text/javascript",
-        onSuccess   : function(data) {
-          //alert('saved !');
-        }
-      });
+		 if (!this.editor.isCancelled()) {
+			 new Ajax.Request(this.saveUrl + '?id=' + this.currentElement.title + '&value=' + this.editor.getValue(), {
+				 method		: "get",
+				 encoding	 : "utf-8",
+				 contentType : "text/javascript",
+				 onSuccess	: function(data) {
+					 //alert('saved !');
+				 }
+			 });
+			 var value = this.editor.getValue();
+			 this.currentElement.innerHTML = value == "" ? "&nbsp;" : value;
+		 } else {
+			 this.currentElement.innerHTML = this.edittedCellValue;
+		 }
 
-      this.currentElement.innerHTML = this.editor.getValue();
-    }
+		this.editor.destroy(); 
+	 }
 	 this.editor = null; 
   },
 
