@@ -10,7 +10,7 @@
 		</td></tr></table>
 		<p/>
 
-		<rich:tabPanel switchType="client">
+		<rich:tabPanel switchType="client" style="height:400;">
 			<rich:tab label="Properties">
 				<ui:include src="/ui/jcr/fileProps.xhtml" />
 			</rich:tab>
@@ -30,7 +30,7 @@
 		</td></tr></table>
 		<p/>
 
-		<rich:tabPanel switchType="client">
+		<rich:tabPanel switchType="client" style="height:400;">
 			<rich:tab label="Properties">
 				<ui:include src="/ui/jcr/folderProps.xhtml" />
 			</rich:tab>
@@ -57,7 +57,7 @@
 		</td></tr></table>
 		<p/>
 		
-		<rich:tabPanel switchType="client">
+		<rich:tabPanel switchType="client" style="height:400;">
 			<rich:tab label="Properties">
 				<ui:include src="/ui/jcr/projectProps.xhtml" />
 			</rich:tab>
@@ -71,7 +71,12 @@
 	</h:panelGroup>
 
 	<h:panelGroup rendered="#{repositoryHandler.selected.type == 'repository'}">
-		<rich:tabPanel>
+		<table><tr><td>
+		<h:commandButton value="New Project" action="newProject" onclick="return false;"/>
+		</td></tr></table>
+		<p/>
+
+		<rich:tabPanel  style="height:400px;">
 			<rich:tab label="Projects">
 				<ui:include src="/ui/jcr/tabProjects.xhtml" />
 			</rich:tab>

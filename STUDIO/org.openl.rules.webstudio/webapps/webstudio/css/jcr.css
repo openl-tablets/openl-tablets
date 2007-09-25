@@ -1,25 +1,17 @@
 .lblSearch {
 font-size: 13px;
 }
+.niceLabel {
+font-size:12px;
+}
 
 .smlBackButton {
 font-size: 9px;
 }
 
-.gridContent {
-vertical-align:top;
-}
-
 .outpanelHeader {
 height:4px;
 border-width: 0;
-}
-.inpanelBody {
-height:300px;
-overflow:auto;
-/*
-background-color:#f1f1f1;
-*/
 }
 .columnTree {
 vertical-align:top;
@@ -27,9 +19,6 @@ vertical-align:top;
 .columnProps {
 vertical-align:top;
 width: 100%;
-}
-.niceLabel {
-font-size:12px;
 }
 
 .masthead {
