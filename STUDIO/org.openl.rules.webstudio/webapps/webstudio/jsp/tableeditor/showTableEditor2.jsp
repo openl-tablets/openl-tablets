@@ -37,6 +37,7 @@
 <title><%=text%></title>
 <link href="../css/style1.css" rel="stylesheet" type="text/css">
 <link href="../css/tableEditor.css" rel="stylesheet" type="text/css">
+<link href="${pageContext.request.contextPath}/css/suggest.css" rel="stylesheet" type="text/css">
 <script language="javascript" type="text/javascript" src="../js/spreadsheet_navigation.js"></script>
 <script type="text/javascript">
 initialRow = '<%=twb.getInitialRow()%>';
@@ -197,36 +198,36 @@ function refreshSelectionAfter() {
     <br />
     <br />
     <rich:toolBar itemSeparator="square"><rich:toolBarGroup>
-		 <h:graphicImage value="/images/editor/Save.gif" />
-		 <h:graphicImage value="/images/editor/Validation.gif" />
-	 </rich:toolBarGroup><rich:toolBarGroup>
-		 <h:graphicImage value="/images/editor/Undo.gif" />
-		 <h:graphicImage value="/images/editor/Redo.gif" />
-	 </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
-		 <h:graphicImage value="/images/editor/b_row_ins.gif" />
-		 <rich:dropDownMenu value="Rows">
-			 <rich:menuItem reRender="spreadsheet" submitMode="ajax"  id="add_row_before_button" value="Add row before" action="#{topEditorBean.addRowBefore}">
-				 <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
-			 </rich:menuItem>
-			 <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="add_row_after_button" value="Add row after" action="#{topEditorBean.addRowAfter}">
-				 <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins_after.gif" /></f:facet>
-			 </rich:menuItem>
-			 <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="remove_row_button" value="Remove row" action="#{topEditorBean.removeRow}">
-				 <f:facet name="icon"><h:graphicImage value="/images/editor/row_del.gif" /></f:facet>
-			 </rich:menuItem>
-		 </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
-		 <h:graphicImage value="/images/editor/b_col_ins.gif" />
-		 <rich:dropDownMenu value="Columns"><f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
-			 <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="add_column_before_button" value="Add column before" action="#{topEditorBean.addColumnBefore}">
-				 <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
-			 </rich:menuItem>
-			 <rich:menuItem reRender="spreadsheet" submitMode="ajax"id="add_column_after_button" value="Add column after" action="#{topEditorBean.addColumnAfter}">
-				 <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins_after.gif" /></f:facet>
-			 </rich:menuItem>
-			 <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="remove_column_button" value="Remove column" action="#{topEditorBean.removeColumn}">
-				 <f:facet name="icon"><h:graphicImage value="/images/editor/col_del.gif" /></f:facet>
-			 </rich:menuItem></rich:dropDownMenu></rich:toolBarGroup>
-	 </rich:toolBar>
+     <h:graphicImage value="/images/editor/Save.gif" />
+     <h:graphicImage value="/images/editor/Validation.gif" />
+   </rich:toolBarGroup><rich:toolBarGroup>
+     <h:graphicImage value="/images/editor/Undo.gif" />
+     <h:graphicImage value="/images/editor/Redo.gif" />
+   </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+     <h:graphicImage value="/images/editor/b_row_ins.gif" />
+     <rich:dropDownMenu value="Rows">
+       <rich:menuItem reRender="spreadsheet" submitMode="ajax"  id="add_row_before_button" value="Add row before" action="#{topEditorBean.addRowBefore}">
+         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="add_row_after_button" value="Add row after" action="#{topEditorBean.addRowAfter}">
+         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins_after.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="remove_row_button" value="Remove row" action="#{topEditorBean.removeRow}">
+         <f:facet name="icon"><h:graphicImage value="/images/editor/row_del.gif" /></f:facet>
+       </rich:menuItem>
+     </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+     <h:graphicImage value="/images/editor/b_col_ins.gif" />
+     <rich:dropDownMenu value="Columns"><f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
+       <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="add_column_before_button" value="Add column before" action="#{topEditorBean.addColumnBefore}">
+         <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem reRender="spreadsheet" submitMode="ajax"id="add_column_after_button" value="Add column after" action="#{topEditorBean.addColumnAfter}">
+         <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins_after.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="remove_column_button" value="Remove column" action="#{topEditorBean.removeColumn}">
+         <f:facet name="icon"><h:graphicImage value="/images/editor/col_del.gif" /></f:facet>
+       </rich:menuItem></rich:dropDownMenu></rich:toolBarGroup>
+   </rich:toolBar>
   </a4j:form>
   <br />
 
@@ -236,6 +237,8 @@ function refreshSelectionAfter() {
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/BaseEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TextEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/DropdownEditor.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/SuggestEditor.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/suggest.js"></script>
 
   <div id="tableEditor"/>
 
@@ -266,6 +269,8 @@ function refreshSelectionAfter() {
 --%></div>
 
 <%@include file="../showRuns.jsp"%>
+
+<div id="autosuggest"><ul></ul></div>
 
 </body>
 </html>
