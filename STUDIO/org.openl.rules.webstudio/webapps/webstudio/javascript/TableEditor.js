@@ -282,24 +282,23 @@ TableEditor.prototype = {
       return splitted;
    },
 
-   addRowBefore: function() {
+   doRowOperation: function(remove, after) {
       if (!this.selectionPos || !this.currentElement) {
          alert("Nothing is selected");
          return;
       }
 
       var self = this;
-      new Ajax.Request(this.baseUrl + "addRowBefore", {
+      new Ajax.Request(this.baseUrl + (remove ? "removeRow" : "addRowBefore"), {
          onSuccess : function(response) {
             self.renderTable(response);
             self.selectElement();
          },
          parameters : {
-            row : self.selectionPos[0],
+            row : (after ? 1 : 0) + self.selectionPos[0],
             elementID : self.tableid
-      }
-    });
-      
+         }
+      });
    }
 }
 
