@@ -51,7 +51,7 @@ public class TableEditorController {
 		int elementId = Integer.parseInt((String) paramMap.get("elementID"));
 
 		IGridTable table = getGridTable(elementId);
-		response = "inputbox";
+		response = col == 3 ? "selectbox": "inputbox";
 		/*if (table != null) {
 			IGrid grid = table.getGrid();
 			int cellType = grid.getCellType(col, row);
