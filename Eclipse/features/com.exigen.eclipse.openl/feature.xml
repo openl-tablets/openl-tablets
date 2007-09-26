@@ -32,7 +32,7 @@
       <import feature="org.eclipse.emf.transaction" version="1.0.2"/>
       <import feature="org.eclipse.jdt" version="3.2.2"/>
       <import feature="org.eclipse.wst" version="1.5.3"/>
-      <import feature="com.exigen.eclipse.common" version="7.0.0.224"/>
+      <import feature="com.exigen.eclipse.common" version="7.0.0.225"/>
    </requires>
 
    <plugin
