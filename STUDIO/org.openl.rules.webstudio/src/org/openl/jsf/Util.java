@@ -18,4 +18,12 @@ public abstract class Util {
 	public static WebStudio getWebStudio() {
 		return (WebStudio)(getSessionMap().get("studio"));
 	}
+
+   public static Map getRequestParameterMap() {
+      return FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+   }
+
+   public static String getRequestParameter(String paramKey) {
+      return (String)getRequestParameterMap().get(paramKey);
+   }
 }
