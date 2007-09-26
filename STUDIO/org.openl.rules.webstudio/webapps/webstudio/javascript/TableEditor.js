@@ -73,7 +73,7 @@ TableEditor.prototype = {
 
      this.table.observe("click", this.tableEventHandlers.click);
      this.table.observe("dblclick", this.tableEventHandlers.dblclick);
-     
+
      this.computeTableInfo(this.table);
   },
 
@@ -142,7 +142,7 @@ TableEditor.prototype = {
     this.selectElement(targetElement);
 
     this.edittedCellValue = targetElement.innerHTML;
-    targetElement.removeChild(targetElement.childNodes[0]);
+    targetElement.innerHTML = "";
     targetElement.appendChild(this.editor.node);
     this.editor.node.focus();
   },
@@ -319,7 +319,7 @@ Decorator.prototype = {
    * @type: public
    */
   decorate: function(/* Element */ elt) {
-    if (!elt) return; 
+    if (!elt) return;
     this.previosState = {
       color: elt.style.color,
       backgroundColor: elt.style.backgroundColor
