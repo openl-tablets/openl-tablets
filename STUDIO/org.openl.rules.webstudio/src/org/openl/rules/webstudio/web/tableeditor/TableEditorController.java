@@ -74,6 +74,16 @@ public class TableEditorController {
       return load();
    }
 
+   public String removeRow() throws Exception {
+      int row = Integer.parseInt(Util.getRequestParameter("row"));
+      int elementId = Integer.parseInt(Util.getRequestParameter("elementID"));
+
+      TableEditorModel editorModel = getHelper().getModel(elementId);
+      editorModel.removeRows(1, row-1);
+
+      return load();
+   }
+
    private TableModel initializeTableModel(int elementID) {
 		  IGridTable gt = getGridTable(elementID);
 		  if (gt == null) return null; 
