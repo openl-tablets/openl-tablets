@@ -22,15 +22,23 @@ TableEditor.prototype = {
   edittedCellValue: null,
   rows : 0,
   columns : 0,
+  table : null,
+  tableEventHandlers : {},
 
 /** Constructor */
   initialize : function(id, url, tableid) {
-   this.tableid = tableid;
-   this.tableContainer = document.getElementById(id);
-   this.baseUrl = url;
-   this.saveUrl = url + "save";
-   this.loadData(url + "load?elementID=" + tableid);
-   this.decorator = new Decorator();
+     this.tableid = tableid;
+     this.tableContainer = document.getElementById(id);
+     this.baseUrl = url;
+     this.saveUrl = url + "save";
+     this.loadData(url + "load?elementID=" + tableid);
+
+     var self = this;
+     $(document.body).observe("click", function(e) { self.editStop() }, false);
+     Event.observe(Prototype.Browser.IE ? document.body : window, "keydown", function(e) { self.handleKeyDown(e) }, false);
+
+     this.tableEventHandlers.click = function(e) { this.handleClick(e) }.bindAsEventListener(this);
+     this.tableEventHandlers.dblclick = function(e) { this.handleDoubleClick(e); Event.stop(e)}.bindAsEventListener(this);
   },
 
 /**
@@ -54,15 +62,19 @@ TableEditor.prototype = {
  * @type: private
  */
   renderTable : function(data) {
-    this.tableContainer.innerHTML = data.responseText;
-    var table = $(Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1]);
-    var self = this;
-    $(document.body).observe("click", function(e) { self.editStop() }, false);
-    Event.observe(Prototype.Browser.IE ? document.body : window, "keydown", function(e) { self.handleKeyDown(e) }, false);
-    table.observe("click", function(e) { self.handleClick(e) });
-    table.observe("dblclick", function(e) { self.handleDoubleClick(e); Event.stop(e)});
+     this.decorator = new Decorator();
+     if (this.table) {
+        Event.stopObserving(this.table, "click", this.tableEventHandlers.click);
+        Event.stopObserving(this.table, "dblclick", this.tableEventHandlers.dblclick);
+     }
 
-    this.computeTableInfo(table);
+     this.tableContainer.innerHTML = data.responseText;
+     this.table = $(Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1]);
+
+     this.table.observe("click", this.tableEventHandlers.click);
+     this.table.observe("dblclick", this.tableEventHandlers.dblclick);
+     
+     this.computeTableInfo(this.table);
   },
 
   /**
@@ -261,14 +273,34 @@ TableEditor.prototype = {
    * @desc: inspect element id and extracts its position in table. Element is expected to be a TD
    * @type: private
    */
-  elementPosition: function(e) {
-    var id = $(e).id;
-    var pos = id.lastIndexOf("-");
-    if (pos < 0) return null;
-    var splitted = id.substr(pos+1).split(":", 2);
-    splitted[0] = parseInt(splitted[0]);splitted[1] = parseInt(splitted[1]);
-    return splitted;
-  }
+   elementPosition: function(e) {
+      var id = $(e).id;
+      var pos = id.lastIndexOf("-");
+      if (pos < 0) return null;
+      var splitted = id.substr(pos+1).split(":", 2);
+      splitted[0] = parseInt(splitted[0]);splitted[1] = parseInt(splitted[1]);
+      return splitted;
+   },
+
+   addRowBefore: function() {
+      if (!this.selectionPos || !this.currentElement) {
+         alert("Nothing is selected");
+         return;
+      }
+
+      var self = this;
+      new Ajax.Request(this.baseUrl + "addRowBefore", {
+         onSuccess : function(response) {
+            self.renderTable(response);
+            self.selectElement();
+         },
+         parameters : {
+            row : self.selectionPos[0],
+            elementID : self.tableid
+      }
+    });
+      
+   }
 }
 
 /**
@@ -288,6 +320,7 @@ Decorator.prototype = {
    * @type: public
    */
   decorate: function(/* Element */ elt) {
+    if (!elt) return; 
     this.previosState = {
       color: elt.style.color,
       backgroundColor: elt.style.backgroundColor

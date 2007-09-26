@@ -1,3 +1,4 @@
+
 <%@ page import="org.openl.rules.webtools.*"%>
 <%@ page import="javax.faces.context.FacesContext"%>
 <%@ page import="org.openl.jsf.*"%>
@@ -206,7 +207,7 @@ function refreshSelectionAfter() {
    </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
      <h:graphicImage value="/images/editor/b_row_ins.gif" />
      <rich:dropDownMenu value="Rows">
-       <rich:menuItem reRender="spreadsheet" submitMode="ajax"  id="add_row_before_button" value="Add row before" action="#{topEditorBean.addRowBefore}">
+       <rich:menuItem submitMode="none"  id="add_row_before_button" value="Add row before" onclick="tableEditor.addRowBefore()" action="#{topEditorBean.addRowBefore}">
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
        <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="add_row_after_button" value="Add row after" action="#{topEditorBean.addRowAfter}">
@@ -244,6 +245,7 @@ function refreshSelectionAfter() {
 
   <script type="text/javascript">
     var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>");
+    document.getElementById('top_editor_form:elementID').value = '<%=elementID%>';  
   </script>
 
   <a4j:form id="popup_editor_form">
