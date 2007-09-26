@@ -18,6 +18,7 @@ TextEditor.prototype = Object.extend(new BaseEditor(), {
         this.node.style.fontSize = parent.style.fontSize;
         this.node.style.fontStyle = parent.style.fontStyle;
         this.node.style.fontWeight = parent.style.fontWeight;
+        this.node.style.textAlign = parent.align;
 
         this.node.style.margin = "0px";
         this.node.style.padding = "0px";
@@ -25,6 +26,11 @@ TextEditor.prototype = Object.extend(new BaseEditor(), {
 
      this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
      Event.observe(this.node, "keyup", this.eventHandler);
+
+     //Event.observe(this.node, "click", function(e) {(e || event).cancelBubble = true});
+     //Event.observe(this.node, "mousedown", function(e) {(e || event).cancelBubble = true});
+
+
    },
 
    handleKeyPress: function (event) {
