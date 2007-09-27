@@ -8,7 +8,7 @@ var SuggestEditor = Class.create();
 SuggestEditor.prototype = Object.extend(new BaseEditor(), {
 
 /** Constructor */
-  initialize : function(parent) {
+  initialize: function(tableEditor, cell) {
     this.node = document.createElement("input");
     this.node.setAttribute("type", "text");
     this.node.style.border = "0px none";
@@ -17,7 +17,7 @@ SuggestEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.style.padding = "0px";
     this.node.style.width = "100%";
     this.node.setAttribute("id", "statesautocomplete");
-    parent.appendChild(this.node);
+    cell.appendChild(this.node);
 
     var states = new Array("Alabama", "Alaska", "American Samoa", "Arizona", "Arkansas", "California",
       "Colorado", "Connecticut", "Delaware", "District of Columbia",
@@ -37,4 +37,4 @@ SuggestEditor.prototype = Object.extend(new BaseEditor(), {
   }
 });
 
-TableEditor.Editors["suggestbox"] = SuggestEditor.prototype;
+TableEditor.Editors["suggestbox"] = SuggestEditor;

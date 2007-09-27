@@ -7,19 +7,21 @@
  * @author Andrey Naumenko
  */
 
-var BaseEditor = Prototype.emptyFunction;
+var BaseEditor = Class.create();
 
 BaseEditor.T = function() {return true};
 
 BaseEditor.prototype = {
     // -------------------------------------------------------------- Object properties --
-    node : null,
+   node : null,
    tableEditor : null,
+   cell : null,
+   value : null,
 
-   /** Common constructor for all editors */
-   editor_initialize: function(tableEditor, parent) {
+   /** Constructor */
+   initialize: function(tableEditor, cell) {
       this.tableEditor = tableEditor;
-      this.initialize(parent);
+      this.cell = cell;
    },
     // ----------------------------------------------------------------- Public methods --
 
