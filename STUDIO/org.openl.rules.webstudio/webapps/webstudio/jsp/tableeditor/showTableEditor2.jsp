@@ -211,27 +211,34 @@ function refreshSelectionAfter() {
    </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
      <h:graphicImage value="/images/editor/b_row_ins.gif" />
      <rich:dropDownMenu value="Rows">
-       <rich:menuItem submitMode="none"  id="add_row_before_button" value="Add row before" onclick="tableEditor.doRowOperation()" action="#{topEditorBean.addRowBefore}">
+       <rich:menuItem submitMode="none"  id="add_row_before_button" value="Add row before" onclick="tableEditor.doRowOperation(TableEditor.Constants.ADD_BEFORE)" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
-       <rich:menuItem submitMode="none" id="add_row_after_button" value="Add row after" onclick="tableEditor.doRowOperation(false, true)" action="#{topEditorBean.addRowAfter}">
+       <rich:menuItem submitMode="none" id="add_row_after_button" value="Add row after" onclick="tableEditor.doRowOperation(TableEditor.Constants.ADD_AFTER)">
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins_after.gif" /></f:facet>
        </rich:menuItem>
-       <rich:menuItem submitMode="none" id="remove_row_button" onclick="tableEditor.doRowOperation(true)"  value="Remove row" action="#{topEditorBean.removeRow}">
+       <rich:menuItem submitMode="none" id="remove_row_button" onclick="tableEditor.doRowOperation(TableEditor.Constants.REMOVE)"  value="Remove row" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/row_del.gif" /></f:facet>
+       </rich:menuItem>
+        <rich:menuItem submitMode="none"  id="move_row_button" value="Move row" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE)" >
+         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
      </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
      <h:graphicImage value="/images/editor/b_col_ins.gif" />
      <rich:dropDownMenu value="Columns"><f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
-       <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="add_column_before_button" value="Add column before" action="#{topEditorBean.addColumnBefore}">
+       <rich:menuItem submitMode="none" id="add_column_before_button" value="Add column before" onclick="tableEditor.doColOperation(TableEditor.Constants.ADD_BEFORE)">
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
        </rich:menuItem>
-       <rich:menuItem reRender="spreadsheet" submitMode="ajax"id="add_column_after_button" value="Add column after" action="#{topEditorBean.addColumnAfter}">
+       <rich:menuItem submitMode="none"id="add_column_after_button" value="Add column after" onclick="tableEditor.doColOperation(TableEditor.Constants.ADD_AFTER)">
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins_after.gif" /></f:facet>
        </rich:menuItem>
-       <rich:menuItem reRender="spreadsheet" submitMode="ajax" id="remove_column_button" value="Remove column" action="#{topEditorBean.removeColumn}">
+       <rich:menuItem  submitMode="none" id="remove_column_button" value="Remove column" onclick="tableEditor.doColOperation(TableEditor.Constants.REMOVE)">
          <f:facet name="icon"><h:graphicImage value="/images/editor/col_del.gif" /></f:facet>
-       </rich:menuItem></rich:dropDownMenu></rich:toolBarGroup>
+       </rich:menuItem>
+        <rich:menuItem submitMode="none"  id="move_column_button" value="Move column" onclick="tableEditor.doColOperation(TableEditor.Constants.MOVE)" >
+         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+       </rich:dropDownMenu></rich:toolBarGroup>
    </rich:toolBar>
   </a4j:form>
   <br />

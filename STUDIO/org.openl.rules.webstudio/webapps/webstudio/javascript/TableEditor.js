@@ -10,6 +10,13 @@ var TableEditor = Class.create();
 
 TableEditor.Editors = $H();
 
+TableEditor.Constants = {
+   ADD_BEFORE : 1,
+   ADD_AFTER : 2,
+   MOVE : 3,
+   REMOVE : 4
+};
+
 TableEditor.prototype = {
   tableContainer : null,
   currentElement : null,
@@ -23,12 +30,11 @@ TableEditor.prototype = {
   rows : 0,
   columns : 0,
   table : null,
-  tableEventHandlers : {},
-
+  
 /** Constructor */
   initialize : function(id, url, tableid) {
      this.tableid = tableid;
-     this.tableContainer = document.getElementById(id);
+     this.tableContainer = $(document.getElementById(id));
      this.baseUrl = url;
      this.saveUrl = url + "save";
      this.loadData(url + "load?elementID=" + tableid);
@@ -37,8 +43,8 @@ TableEditor.prototype = {
      $(document.body).observe("click", function(e) { self.editStop() }, false);
      Event.observe(Prototype.Browser.IE ? document.body : window, "keydown", function(e) { self.handleKeyDown(e) }, false);
 
-     this.tableEventHandlers.click = function(e) { this.handleClick(e) }.bindAsEventListener(this);
-     this.tableEventHandlers.dblclick = function(e) { this.handleDoubleClick(e); Event.stop(e)}.bindAsEventListener(this);
+     this.tableContainer.observe("click", function(e) { self.handleClick(e) });
+     this.tableContainer.observe("dblclick", function(e) { self.handleDoubleClick(e); Event.stop(e)});
   },
 
 /**
@@ -70,9 +76,6 @@ TableEditor.prototype = {
 
      this.tableContainer.innerHTML = data.responseText;
      this.table = $(Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1]);
-
-     this.table.observe("click", this.tableEventHandlers.click);
-     this.table.observe("dblclick", this.tableEventHandlers.dblclick);
 
      this.computeTableInfo(this.table);
   },
@@ -282,22 +285,29 @@ TableEditor.prototype = {
       return splitted;
    },
 
-   doRowOperation: function(remove, after) {
+   doRowOperation: function(op) {this.doColRowOperation(0, op)},
+   doColOperation: function(op) {this.doColRowOperation(1, op)},
+
+   /**
+    *  @type: private
+    */
+   doColRowOperation: function(index, op) {
       if (!this.selectionPos || !this.currentElement) {
          alert("Nothing is selected");
          return;
       }
 
+      var params = {elementID : this.tableid}
+      params[["row", "col"][index]] = (op == TableEditor.Constants.ADD_AFTER ? 1 : 0) + this.selectionPos[index];
+      if (op == TableEditor.Constants.MOVE) params.move = true;
+
       var self = this;
-      new Ajax.Request(this.baseUrl + (remove ? "removeRow" : "addRowBefore"), {
+      new Ajax.Request(this.baseUrl + (op == TableEditor.Constants.REMOVE || op == TableEditor.Constants.MOVE ? "removeRowCol" : "addRowColBefore"), {
          onSuccess : function(response) {
             self.renderTable(response);
             self.selectElement();
          },
-         parameters : {
-            row : (after ? 1 : 0) + self.selectionPos[0],
-            elementID : self.tableid
-         }
+         parameters : params
       });
    }
 }
