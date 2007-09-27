@@ -150,8 +150,6 @@ TableEditor.prototype = {
     this.selectElement(cell);
 
     this.edittedCellValue = value;
-
-    this.editor.node.focus();
   },
 
   editStop : function() {

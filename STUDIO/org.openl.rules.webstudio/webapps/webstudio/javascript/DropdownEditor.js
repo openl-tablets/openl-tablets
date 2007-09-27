@@ -22,6 +22,7 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
 
     this.cell.innerHTML = "";
     this.cell.appendChild(this.node);
+    this.node.focus();
   },
 
 /**
