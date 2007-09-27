@@ -41,6 +41,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title><%=text%></title>
 <link href="../css/style1.css" rel="stylesheet" type="text/css">
+<link href="${pageContext.request.contextPath}/javascript/calendar/calendar.css" rel="stylesheet" type="text/css">
 <link href="../css/tableEditor.css" rel="stylesheet" type="text/css">
 <link href="${pageContext.request.contextPath}/css/suggest.css" rel="stylesheet" type="text/css">
 <script language="javascript" type="text/javascript" src="../js/spreadsheet_navigation.js"></script>
@@ -250,13 +251,21 @@ function refreshSelectionAfter() {
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TextEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/DropdownEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/SuggestEditor.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/MultiLineEditor.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/DateEditor.js"></script>
+
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/calendar/YAHOO.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/calendar/event.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/calendar/calendar.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/calendar/calendar_init.js"></script>
+
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/suggest.js"></script>
 
   <div id="tableEditor"/>
 
   <script type="text/javascript">
     var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>");
-    document.getElementById('top_editor_form:elementID').value = '<%=elementID%>';  
+    document.getElementById('top_editor_form:elementID').value = '<%=elementID%>';
   </script>
 
   <a4j:form id="popup_editor_form">
