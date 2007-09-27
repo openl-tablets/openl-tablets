@@ -22,5 +22,7 @@
 	<classpathentry kind="lib" path="lib/jsf-facelets.jar"/>
 	<classpathentry kind="lib" path="lib/el-api.jar"/>
 	<classpathentry kind="lib" path="lib/el-ri.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openl.lib.jsfext"/>
+	<classpathentry kind="lib" path="lib/jsontools-core-1.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
