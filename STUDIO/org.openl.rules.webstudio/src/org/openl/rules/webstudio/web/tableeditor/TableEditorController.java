@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+import com.sdicons.json.mapper.JSONMapper;
+import com.sdicons.json.mapper.MapperException;
 import org.openl.jsf.Util;
 import static org.openl.jsf.Util.getRequestParameter;
 import org.openl.rules.table.IGrid;
@@ -21,8 +23,8 @@ import java.util.Map;
  */
 public class TableEditorController {
 	 private String response;
-
-	 public static final String OUTCOME_SUCCESS = "tableEditor_success";
+    
+    public static final String OUTCOME_SUCCESS = "tableEditor_success";
 	
 	 public String load() throws Exception {
 		  int elementId = Integer.parseInt(getRequestParameter("elementID"));
@@ -48,14 +50,18 @@ public class TableEditorController {
 		int col = Integer.parseInt((String) paramMap.get("col")) - 1;
 		int elementId = Integer.parseInt((String) paramMap.get("elementID"));
 
-		IGridTable table = getGridTable(elementId);
-		response = col == 3 ? "selectbox": "inputbox";
-      /*if (table != null) {
-			IGrid grid = table.getGrid();
-			int cellType = grid.getCellType(col, row);
-			if (cellType == IGrid.CELL_TYPE_STRING) response = "selectbox"; 
-		}   */
-		return OUTCOME_SUCCESS;
+      EditorTypeResponse typeResponse = new EditorTypeResponse("inputbox");
+
+      TableEditorModel editorModel = getHelper(elementId).getModel();
+      TableEditorModel.CellType type = editorModel.getCellType(row, col);
+      if (type == TableEditorModel.CellType.CA_ENUMERATION_CELL_TYPE) {
+         String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
+         typeResponse.setEditor("selectbox");
+         typeResponse.setParams(metadata);
+      }
+
+      response = typeResponse.toJSON();
+      return OUTCOME_SUCCESS;
 	}
 
 	public String getResponse() {
@@ -105,7 +111,7 @@ public class TableEditorController {
 
    private TableModel initializeTableModel(int elementID) {
 		  IGridTable gt = getGridTable(elementID);
-		  if (gt == null) return null; 
+		  if (gt == null) return null;
 
 		  IGrid htmlGrid = gt.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
@@ -131,5 +137,44 @@ public class TableEditorController {
       editorHelper.setTableID(elementId, Util.getWebStudio().getModel());
       sessionMap.put("editorHelper", editorHelper);
       return editorHelper;
+   }
+
+
+   public static class EditorTypeResponse {
+      private String editor;
+      private Object params;
+
+      public EditorTypeResponse(String editor) {
+         this.editor = editor;
+      }
+
+      public EditorTypeResponse(String editor, Object params) {
+         this.editor = editor;
+         this.params = params;
+      }
+
+      public String getEditor() {
+         return editor;
+      }
+
+      public void setEditor(String editor) {
+         this.editor = editor;
+      }
+
+      public Object getParams() {
+         return params;
+      }
+
+      public void setParams(Object params) {
+         this.params = params;
+      }
+
+      String toJSON() {
+         try {
+            return new StringBuilder().append("(").append(JSONMapper.toJSON(this).render(true)).append(")").toString();
+         } catch (MapperException e) {
+            return null;
+         }
+      }
    }
 }

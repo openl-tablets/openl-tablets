@@ -64,7 +64,7 @@ public class EditorBean {
 		HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
 		int i = spr.getChildren().indexOf(hot);
 		//
-		String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
+		/*String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
 		if (null != cellType) {
 			ICellEditorActivator activator = (ICellEditorActivator)(getEditorHelper().getModel().getCellEditors().get(cellType));
 			this.value = String.valueOf(hot.getValue());
@@ -87,7 +87,7 @@ public class EditorBean {
 			//hit.setValue(hot.getValue());
 			//hit.setId(getCellTitle()+"text");
 			//hit.setSize(20);
-		}
+		}                */
 	}
 	
 	public void printComponent(UIComponent comp,String prefix) {

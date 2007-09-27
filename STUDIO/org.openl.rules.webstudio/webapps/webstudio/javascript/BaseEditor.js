@@ -19,7 +19,8 @@ BaseEditor.prototype = {
    value : null,
 
    /** Constructor */
-   initialize: function(tableEditor, cell) {
+   // todo: make this constructor be called
+   initialize: function(tableEditor, cell, param) {
       this.tableEditor = tableEditor;
       this.cell = cell;
    },

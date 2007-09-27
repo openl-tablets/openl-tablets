@@ -25,6 +25,8 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.UndoableActions;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
+import org.openl.domain.StringDomain;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 /**
  * @author snshor
@@ -32,9 +34,13 @@ import org.openl.rules.table.xls.XlsUndoGrid;
  */
 public class TableEditorModel
 {
-	
-	
-	/**
+   public static enum CellType {
+      TH_CELL_TYPE,
+      CA_HEADER_CELL_TYPE,
+      CA_ENUMERATION_CELL_TYPE
+   }
+
+   /**
 	 * Table Headers – syntax depends on first keyword
 	 */
 	public static final String TH_CELL_TYPE = "TH_CELL_TYPE";
@@ -356,11 +362,11 @@ public class TableEditorModel
 	 * @param column
 	 * @return cell type
 	 */
-	public String getCellType(int row,int column) {
+	public CellType getCellType(int row,int column) {
 		// TODO
-		switch(row) {
-			case 0:return TH_CELL_TYPE;
-			case 1:return CA_ENUMERATION_CELL_TYPE;
+		switch(column) {
+			case 0:return CellType.TH_CELL_TYPE;
+			case 3:return CellType.CA_ENUMERATION_CELL_TYPE;
 			default:return null;
 		}
 	}
@@ -373,12 +379,21 @@ public class TableEditorModel
 	 */
 	public Object getCellEditorMetadata(int row,int column) {
 		// TODO
-		switch(row) {
-			case 1:
-				HtmlSelectMetadata md = new HtmlSelectMetadata();
-				md.setList(Arrays.asList(new String[]{"alt1","alt2","alt3"}));
-				return md;
-			default:return null;
-		}
-	}
+      switch (column) {
+         case 3:
+            return new String[] {
+                    "ALABAMA", "ALASKA", "AMERICAN SAMOA", "ARIZONA", "ARKANSAS", "CALIFORNIA", "COLORADO",
+                    "CONNECTICUT", "DELAWARE", "DISTRICT OF COLUMBIA", "FEDERATED STATES OF MICRONESIA", "FLORIDA",
+                    "GEORGIA", "GUAM", "HAWAII", "IDAHO", "ILLINOIS", "INDIANA", "IOWA", "KANSAS", "KENTUCKY",
+                    "LOUISIANA", "MAINE", "MARSHALL ISLANDS", "MARYLAND", "MASSACHUSETTS", "MICHIGAN", "MINNESOTA",
+                    "MISSISSIPPI", "MISSOURI", "MONTANA", "NEBRASKA", "NEVADA", "NEW HAMPSHIRE", "NEW JERSEY",
+                    "NEW MEXICO", "NEW YORK", "NORTH CAROLINA", "NORTH DAKOTA", "NORTHERN MARIANA ISLANDS", "OHIO",
+                    "OKLAHOMA", "OREGON", "PALAU", "PENNSYLVANIA", "PUERTO RICO", "RHODE ISLAND", "SOUTH CAROLINA",
+                    "SOUTH DAKOTA", "TENNESSEE", "TEXAS", "UTAH", "VERMONT", "VIRGIN ISLANDS", "VIRGINIA", "WASHINGTON",
+                    "WEST VIRGINIA", "WISCONSIN", "WYOMING"
+            };
+         default:
+            return null;
+      }
+   }
 }
