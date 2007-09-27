@@ -1,19 +1,16 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import org.openl.jsf.Util;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import static org.openl.jsf.Util.getRequestParameter;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.ui.EditorHelper;
+import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.TableEditorModel;
-import org.openl.rules.ui.EditorHelper;
-import org.apache.commons.collections.map.HashedMap;
 
 import java.util.Map;
 
@@ -28,7 +25,7 @@ public class TableEditorController {
 	 public static final String OUTCOME_SUCCESS = "tableEditor_success";
 	
 	 public String load() throws Exception {
-		  int elementId = Integer.parseInt(Util.getRequestParameter("elementID"));
+		  int elementId = Integer.parseInt(getRequestParameter("elementID"));
         TableModel tableModel = initializeTableModel(elementId);
 
         response = TableRenderer.render(tableModel);
@@ -37,8 +34,8 @@ public class TableEditorController {
     }
 
     public String save() throws Exception {
-        String id = Util.getRequestParameter("id");
-        String value = Util.getRequestParameter("value");
+        String id = getRequestParameter("id");
+        String value = getRequestParameter("value");
         System.out.println(id);
         System.out.println(value);
 		  response = "";
@@ -53,7 +50,7 @@ public class TableEditorController {
 
 		IGridTable table = getGridTable(elementId);
 		response = col == 3 ? "selectbox": "inputbox";
-		/*if (table != null) {
+      /*if (table != null) {
 			IGrid grid = table.getGrid();
 			int cellType = grid.getCellType(col, row);
 			if (cellType == IGrid.CELL_TYPE_STRING) response = "selectbox"; 
@@ -65,23 +62,44 @@ public class TableEditorController {
 		return response;
 	}
 
-   public String addRowBefore() throws Exception {
-      int row = Integer.parseInt(Util.getRequestParameter("row"));
-      int elementId = Integer.parseInt(Util.getRequestParameter("elementID"));
+   public String addRowColBefore() throws Exception {
+      String rowStr = getRequestParameter("row");
+      int row = -1, col = -1;
+      if (rowStr == null) {
+         col = Integer.parseInt(getRequestParameter("col"));
+      } else {
+         row = Integer.parseInt(rowStr);
+      }
 
+      int elementId = Integer.parseInt(getRequestParameter("elementID"));
       TableEditorModel editorModel = getHelper(elementId).getModel();
-      editorModel.insertRows(1, row-1);
+
+      if (row > 0)
+         editorModel.insertRows(1, row-1);
+      else
+         editorModel.insertColumns(1, col-1);
 
       return load();
    }
 
-   public String removeRow() throws Exception {
-      int row = Integer.parseInt(Util.getRequestParameter("row"));
-      int elementId = Integer.parseInt(Util.getRequestParameter("elementID"));
+   public String removeRowCol() throws Exception {
+      String rowStr = getRequestParameter("row");
+      int row = -1, col = -1;
+      if (rowStr == null) {
+         col = Integer.parseInt(getRequestParameter("col"));
+      } else {
+         row = Integer.parseInt(rowStr);
+      }
 
+      int elementId = Integer.parseInt(getRequestParameter("elementID"));
       TableEditorModel editorModel = getHelper(elementId).getModel();
-      editorModel.removeRows(1, row-1);
+      boolean move = Boolean.valueOf(Util.getRequestParameter("move"));
 
+      if (row > 0) {
+         if (move); else editorModel.removeRows(1, row-1);
+      } else {
+         if (move); else editorModel.removeColumns(1, col-1);
+      }
       return load();
    }
 
