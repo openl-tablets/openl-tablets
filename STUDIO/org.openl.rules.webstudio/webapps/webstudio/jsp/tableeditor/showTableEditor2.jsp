@@ -10,6 +10,10 @@
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c"%>
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
+<jsp:useBean id='editorHelper' scope='session' class="org.openl.rules.ui.EditorHelper" />
+<%
+   editorHelper.setTableID(Integer.parseInt(request.getParameter("elementID")), studio.getModel(), request.getParameter("view"));
+%>
 
 <%@include file="../checkTimeout.jsp"%>
 

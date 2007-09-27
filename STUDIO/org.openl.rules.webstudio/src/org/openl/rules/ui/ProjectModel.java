@@ -330,27 +330,32 @@ public class ProjectModel
 		this.projectRoot = projectRoot;
 	}
 
-	public IGridTable getTableWithMode(int elementID)
-	{
+	public IGridTable getTableWithMode(int elementID) {
+      return getTableWithMode(elementID, null);
+   }
 
-		TableSyntaxNode tsn = getNode(elementID);
-		if (tsn == null)
-			return null;
+   public IGridTable getTableWithMode(int elementID, String mode)
+   {
 
-		IGridTable gt = tsn.getTable().getGridTable();
-		String type = studio.getMode().getTableMode();
+      TableSyntaxNode tsn = getNode(elementID);
+      if (tsn == null)
+         return null;
 
-		if (type != null)
-		{
-			ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(type);
-			if (gtx != null)
-				gt = gtx.getGridTable();
-		}
-		return gt;
+      IGridTable gt = tsn.getTable().getGridTable();
+      String type = mode == null ? studio.getMode().getTableMode() : mode;
 
-	}
+      if (type != null)
+      {
+         ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(type);
+         if (gtx != null)
+            gt = gtx.getGridTable();
+      }
+      return gt;
 
-	public IGridTable getTable(int elementID)
+   }
+
+
+   public IGridTable getTable(int elementID)
 	{
 
 		TableSyntaxNode tsn = getNode(elementID);

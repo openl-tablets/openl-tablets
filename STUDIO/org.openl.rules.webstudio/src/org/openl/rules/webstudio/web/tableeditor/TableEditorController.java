@@ -12,6 +12,7 @@ import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.TableEditorModel;
+import org.openl.rules.ui.EditorHelper;
 import org.apache.commons.collections.map.HashedMap;
 
 import java.util.Map;
@@ -29,7 +30,7 @@ public class TableEditorController {
 	 public String load() throws Exception {
 		  int elementId = Integer.parseInt(Util.getRequestParameter("elementID"));
         TableModel tableModel = initializeTableModel(elementId);
-	
+
         response = TableRenderer.render(tableModel);
 
         return OUTCOME_SUCCESS;
@@ -68,7 +69,7 @@ public class TableEditorController {
       int row = Integer.parseInt(Util.getRequestParameter("row"));
       int elementId = Integer.parseInt(Util.getRequestParameter("elementID"));
 
-      TableEditorModel editorModel = getHelper().getModel(elementId);
+      TableEditorModel editorModel = getHelper(elementId).getModel();
       editorModel.insertRows(1, row-1);
 
       return load();
@@ -78,7 +79,7 @@ public class TableEditorController {
       int row = Integer.parseInt(Util.getRequestParameter("row"));
       int elementId = Integer.parseInt(Util.getRequestParameter("elementID"));
 
-      TableEditorModel editorModel = getHelper().getModel(elementId);
+      TableEditorModel editorModel = getHelper(elementId).getModel();
       editorModel.removeRows(1, row-1);
 
       return load();
@@ -102,27 +103,15 @@ public class TableEditorController {
     }
 
 	private IGridTable getGridTable(int elementID) {
-      return getHelper().getModel(elementID).getUpdatedTable();
+      return getHelper(elementID).getModel().getUpdatedTable();
    }
 
-   private synchronized static EditorHelper getHelper() {
+   private synchronized static EditorHelper getHelper(int elementId) {
       Map sessionMap = Util.getSessionMap();
       if (sessionMap.containsKey("editorHelper")) return (EditorHelper) sessionMap.get("editorHelper");
       EditorHelper editorHelper = new EditorHelper();
+      editorHelper.setTableID(elementId, Util.getWebStudio().getModel());
       sessionMap.put("editorHelper", editorHelper);
       return editorHelper;
-   }
-
-   static class EditorHelper {
-      Map<Integer, TableEditorModel> models = new HashedMap();
-
-      synchronized TableEditorModel getModel(int elementId) {
-         TableEditorModel editorModel = models.get(elementId);
-         if (editorModel == null) {
-            models.put(elementId, editorModel = new TableEditorModel(Util.getWebStudio().getModel().getTableWithMode(elementId)));
-         }
-         return editorModel;
-      }
-      
    }
 }
