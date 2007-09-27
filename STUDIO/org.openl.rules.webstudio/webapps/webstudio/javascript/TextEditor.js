@@ -29,6 +29,9 @@ TextEditor.prototype = Object.extend(new BaseEditor(), {
     this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
     Event.observe(this.node, "keyup", this.eventHandler);
 
+    this.cell.innerHTML = "";
+    this.cell.appendChild(this.node);
+
     //Event.observe(this.node, "click", function(e) {(e || event).cancelBubble = true});
     //Event.observe(this.node, "mousedown", function(e) {(e || event).cancelBubble = true});
   },
