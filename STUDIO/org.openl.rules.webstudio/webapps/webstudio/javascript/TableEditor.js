@@ -11,10 +11,10 @@ var TableEditor = Class.create();
 TableEditor.Editors = $H();
 
 TableEditor.Constants = {
-   ADD_BEFORE : 1,
-   ADD_AFTER : 2,
-   MOVE : 3,
-   REMOVE : 4
+  ADD_BEFORE : 1,
+  ADD_AFTER : 2,
+  MOVE : 3,
+  REMOVE : 4
 };
 
 TableEditor.prototype = {
@@ -30,21 +30,30 @@ TableEditor.prototype = {
   rows : 0,
   columns : 0,
   table : null,
-  
+
 /** Constructor */
   initialize : function(id, url, tableid) {
-     this.tableid = tableid;
-     this.tableContainer = $(document.getElementById(id));
-     this.baseUrl = url;
-     this.saveUrl = url + "save";
-     this.loadData(url + "load?elementID=" + tableid);
+    this.tableid = tableid;
+    this.tableContainer = $(document.getElementById(id));
+    this.baseUrl = url;
+    this.saveUrl = url + "save";
+    this.loadData(url + "load?elementID=" + tableid);
 
-     var self = this;
-     $(document.body).observe("click", function(e) { self.editStop() }, false);
-     Event.observe(Prototype.Browser.IE ? document.body : window, "keydown", function(e) { self.handleKeyDown(e) }, false);
+    var self = this;
+    $(document.body).observe("click", function(e) {
+      self.editStop()
+    }, false);
+    Event.observe(Prototype.Browser.IE ? document.body : window, "keydown", function(e) {
+      self.handleKeyDown(e)
+    }, false);
 
-     this.tableContainer.observe("click", function(e) { self.handleClick(e) });
-     this.tableContainer.observe("dblclick", function(e) { self.handleDoubleClick(e); Event.stop(e)});
+    this.tableContainer.observe("click", function(e) {
+      self.handleClick(e)
+    });
+    this.tableContainer.observe("dblclick", function(e) {
+      self.handleDoubleClick(e);
+      Event.stop(e)
+    });
   },
 
 /**
@@ -68,23 +77,23 @@ TableEditor.prototype = {
  * @type: private
  */
   renderTable : function(data) {
-     this.decorator = new Decorator();
-     if (this.table) {
-        Event.stopObserving(this.table, "click", this.tableEventHandlers.click);
-        Event.stopObserving(this.table, "dblclick", this.tableEventHandlers.dblclick);
-     }
+    this.decorator = new Decorator();
+    if (this.table) {
+      Event.stopObserving(this.table, "click", this.tableEventHandlers.click);
+      Event.stopObserving(this.table, "dblclick", this.tableEventHandlers.dblclick);
+    }
 
-     this.tableContainer.innerHTML = data.responseText;
-     this.table = $(Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1]);
+    this.tableContainer.innerHTML = data.responseText;
+    this.table = $(Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1]);
 
-     this.computeTableInfo(this.table);
+    this.computeTableInfo(this.table);
   },
 
-  /**
-   * @desc: computes table width in rows, and height in columns (that is sum of all rowSpans in a column
-   * and sum of all colSpans in a row).
-   * @type: private
-   */
+/**
+ * @desc: computes table width in rows, and height in columns (that is sum of all rowSpans in a column
+ * and sum of all colSpans in a row).
+ * @type: private
+ */
   computeTableInfo: function(table) {
     this.rows = 0;
     this.columns = 0;
@@ -110,22 +119,22 @@ TableEditor.prototype = {
  * @type: private
  */
   handleDoubleClick: function(e) {
-    var targetElement = Prototype.Browser.IE ? window.event.srcElement : e.target;
+    var cell = Prototype.Browser.IE ? window.event.srcElement : e.target;
 
     // Save value of current editor and close it
     this.editStop();
-   this.editBeginRequest(targetElement);
+    this.editBeginRequest(cell);
   },
 
 
-  editBeginRequest : function(targetElement) {
+  editBeginRequest : function(cell) {
     var self = this;
-    this.selectElement(targetElement);
+    this.selectElement(cell);
     new Ajax.Request(this.baseUrl + "getCellType", {
-      onSuccess	: function(response) {
-        self.editBegin(targetElement, response.responseText.strip())
+      onSuccess  : function(response) {
+        self.editBegin(cell, response.responseText.strip())
       },
-        parameters : {
+      parameters : {
         row : self.selectionPos[0],
         col : self.selectionPos[1],
         elementID : self.tableid
@@ -133,49 +142,48 @@ TableEditor.prototype = {
     });
   },
 
-  /**
-   *  @desc: Create and activate new editor
-   */
-  editBegin : function(targetElement, editor) {
-    this.editor = Object.extend(new Object(), TableEditor.Editors[editor]);
-    this.editor.editor_initialize(this, targetElement);
+/**
+ *  @desc: Create and activate new editor
+ */
+  editBegin : function(cell, editor) {
+    this.editor = new TableEditor.Editors[editor](this, cell);
 
-    this.editor.setValue(targetElement.innerHTML);
+    this.editor.setValue(cell.innerHTML);
 
-    this.selectElement(targetElement);
+    this.selectElement(cell);
 
-    this.edittedCellValue = targetElement.innerHTML;
-    targetElement.innerHTML = "";
-    targetElement.appendChild(this.editor.node);
+    this.edittedCellValue = cell.innerHTML;
+    cell.innerHTML = "";
+    cell.appendChild(this.editor.node);
     this.editor.node.focus();
   },
 
   editStop : function() {
-    if (this.editor!=null) {
-     if (!this.editor.isCancelled()) {
-       new Ajax.Request(this.saveUrl + '?id=' + this.currentElement.title + '&value=' + this.editor.getValue(), {
-         method		: "get",
-         encoding	 : "utf-8",
-         contentType : "text/javascript",
-         onSuccess	: function(data) {
-           //alert('saved !');
-         }
-       });
-       var value = this.editor.getValue();
-       this.currentElement.innerHTML = value == "" ? "&nbsp;" : value;
-     } else {
-       this.currentElement.innerHTML = this.edittedCellValue;
-     }
+    if (this.editor != null) {
+      if (!this.editor.isCancelled()) {
+        new Ajax.Request(this.saveUrl + '?id=' + this.currentElement.title + '&value=' + this.editor.getValue(), {
+          method    : "get",
+          encoding   : "utf-8",
+          contentType : "text/javascript",
+          onSuccess  : function(data) {
+            //alert('saved !');
+          }
+        });
+        var value = this.editor.getValue();
+        this.currentElement.innerHTML = value == "" ? "&nbsp;" : value;
+      } else {
+        this.currentElement.innerHTML = this.edittedCellValue;
+      }
 
-    this.editor.destroy();
-   }
-   this.editor = null;
+      this.editor.destroy();
+    }
+    this.editor = null;
   },
 
-  /**
-   * @desc: handles mouse click on the table
-   * @type: private
-   */
+/**
+ * @desc: handles mouse click on the table
+ * @type: private
+ */
   handleClick: function(e) {
     var elt = Event.element(e);
     if (elt.tagName == "TD") {
@@ -196,7 +204,7 @@ TableEditor.prototype = {
         this.selectionPos[0] = lastEntry[1];
         this.selectionPos[1] = lastEntry[2];
       } else
-          this.selectionHistory.clear();
+        this.selectionHistory.clear();
     }
 
     if (elt) {
@@ -208,18 +216,18 @@ TableEditor.prototype = {
     this.decorator.decorate(this.currentElement = elt);
   },
 
- $cell: function(pos) {
-   var cell = $("cell-"+pos[0]+":"+pos[1]);
-   if (!cell) return cell;
-   if (!cell.rowSpan) cell.rowSpan = 1;
-   if (!cell.colSpan) cell.colSpan = 1;
-   return cell
- },
+  $cell: function(pos) {
+    var cell = $("cell-" + pos[0] + ":" + pos[1]);
+    if (!cell) return cell;
+    if (!cell.rowSpan) cell.rowSpan = 1;
+    if (!cell.colSpan) cell.colSpan = 1;
+    return cell
+  },
 
-  /**
-   * @desc: handles key presses. Performs table navigation.
-   * @type: private
-   */
+/**
+ * @desc: handles key presses. Performs table navigation.
+ * @type: private
+ */
   handleKeyDown: function(event) {
     if (this.editor) return; // do nothing in editor mode
 
@@ -246,13 +254,13 @@ TableEditor.prototype = {
     }
 
     switch (event.keyCode) {
-    case 37: case 38: // LEFT, UP
+      case 37: case 38: // LEFT, UP
       var cell = null;
       var theIndex = event.keyCode == 38 ? 0 : 1;
       while (--sp[theIndex] >= 1) {
         cell = scanUpLeft.call(this, 1 - theIndex, true);
         if (cell) {
-          if ( (sp[0] + cell.rowSpan >= this.selectionPos[0] + theIndex) &&
+          if ((sp[0] + cell.rowSpan >= this.selectionPos[0] + theIndex) &&
               (sp[1] + cell.colSpan >= this.selectionPos[1] + 1 - theIndex))
             break;
         }
@@ -261,7 +269,7 @@ TableEditor.prototype = {
       if (cell) this.selectElement(cell, event.keyCode + 2);
       break;
 
-   case 39: case 40:  //RIGHT, DOWN
+      case 39: case 40:  //RIGHT, DOWN
       var theIndex = event.keyCode == 40 ? 0 : 1;
 
       sp[theIndex] += this.currentElement[["rowSpan", "colSpan"][theIndex]];
@@ -272,44 +280,49 @@ TableEditor.prototype = {
     }
   },
 
-  /**
-   * @desc: inspect element id and extracts its position in table. Element is expected to be a TD
-   * @type: private
-   */
-   elementPosition: function(e) {
-      var id = $(e).id;
-      var pos = id.lastIndexOf("-");
-      if (pos < 0) return null;
-      var splitted = id.substr(pos+1).split(":", 2);
-      splitted[0] = parseInt(splitted[0]);splitted[1] = parseInt(splitted[1]);
-      return splitted;
-   },
+/**
+ * @desc: inspect element id and extracts its position in table. Element is expected to be a TD
+ * @type: private
+ */
+  elementPosition: function(e) {
+    var id = $(e).id;
+    var pos = id.lastIndexOf("-");
+    if (pos < 0) return null;
+    var splitted = id.substr(pos + 1).split(":", 2);
+    splitted[0] = parseInt(splitted[0]);
+    splitted[1] = parseInt(splitted[1]);
+    return splitted;
+  },
 
-   doRowOperation: function(op) {this.doColRowOperation(0, op)},
-   doColOperation: function(op) {this.doColRowOperation(1, op)},
+  doRowOperation: function(op) {
+    this.doColRowOperation(0, op)
+  },
+  doColOperation: function(op) {
+    this.doColRowOperation(1, op)
+  },
 
-   /**
-    *  @type: private
-    */
-   doColRowOperation: function(index, op) {
-      if (!this.selectionPos || !this.currentElement) {
-         alert("Nothing is selected");
-         return;
-      }
+/**
+ *  @type: private
+ */
+  doColRowOperation: function(index, op) {
+    if (!this.selectionPos || !this.currentElement) {
+      alert("Nothing is selected");
+      return;
+    }
 
-      var params = {elementID : this.tableid}
-      params[["row", "col"][index]] = (op == TableEditor.Constants.ADD_AFTER ? 1 : 0) + this.selectionPos[index];
-      if (op == TableEditor.Constants.MOVE) params.move = true;
+    var params = {elementID : this.tableid}
+    params[["row", "col"][index]] = (op == TableEditor.Constants.ADD_AFTER ? 1 : 0) + this.selectionPos[index];
+    if (op == TableEditor.Constants.MOVE) params.move = true;
 
-      var self = this;
-      new Ajax.Request(this.baseUrl + (op == TableEditor.Constants.REMOVE || op == TableEditor.Constants.MOVE ? "removeRowCol" : "addRowColBefore"), {
-         onSuccess : function(response) {
-            self.renderTable(response);
-            self.selectElement();
-         },
-         parameters : params
-      });
-   }
+    var self = this;
+    new Ajax.Request(this.baseUrl + (op == TableEditor.Constants.REMOVE || op == TableEditor.Constants.MOVE ? "removeRowCol" : "addRowColBefore"), {
+      onSuccess : function(response) {
+        self.renderTable(response);
+        self.selectElement();
+      },
+      parameters : params
+    });
+  }
 }
 
 /**
@@ -318,16 +331,16 @@ TableEditor.prototype = {
 var Decorator = Class.create();
 
 Decorator.prototype = {
-  /** Holds changed properties of last decorated  element */
+/** Holds changed properties of last decorated  element */
   previosState : {},
 
-  /** Empty constructor */
+/** Empty constructor */
   initialize : Prototype.K,
 
-  /**
-   * @desc changes elememnt style, so it looks 'selected'
-   * @type: public
-   */
+/**
+ * @desc changes elememnt style, so it looks 'selected'
+ * @type: public
+ */
   decorate: function(/* Element */ elt) {
     if (!elt) return;
     this.previosState = {
@@ -339,10 +352,10 @@ Decorator.prototype = {
     elt.style.backgroundColor = "blue"
   },
 
-  /**
-   * @desc reverts 'selection' of last decorated element
-   * @type: public
-   */
+/**
+ * @desc reverts 'selection' of last decorated element
+ * @type: public
+ */
   undecorate: function(/* Element */ elt) {
     if (elt) {
       Object.extend(elt.style, this.previosState)
