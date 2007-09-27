@@ -146,15 +146,15 @@ TableEditor.prototype = {
  *  @desc: Create and activate new editor
  */
   editBegin : function(cell, editor) {
+    var value = cell.innerHTML;
     this.editor = new TableEditor.Editors[editor](this, cell);
 
-    this.editor.setValue(cell.innerHTML);
+    this.editor.setValue(value);
 
     this.selectElement(cell);
 
-    this.edittedCellValue = cell.innerHTML;
-    cell.innerHTML = "";
-    cell.appendChild(this.editor.node);
+    this.edittedCellValue = value;
+
     this.editor.node.focus();
   },
 

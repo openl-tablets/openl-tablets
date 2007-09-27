@@ -81,6 +81,9 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
     }).each(function (pair) {
       self.addOption(pair.key, pair.value);
     });
+
+    this.cell.innerHTML = "";
+    this.cell.appendChild(this.node);
   },
 
 /**
