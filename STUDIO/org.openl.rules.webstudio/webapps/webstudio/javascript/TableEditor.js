@@ -78,10 +78,6 @@ TableEditor.prototype = {
  */
   renderTable : function(data) {
     this.decorator = new Decorator();
-    if (this.table) {
-      Event.stopObserving(this.table, "click", this.tableEventHandlers.click);
-      Event.stopObserving(this.table, "dblclick", this.tableEventHandlers.dblclick);
-    }
 
     this.tableContainer.innerHTML = data.responseText;
     this.table = $(Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1]);
@@ -132,7 +128,7 @@ TableEditor.prototype = {
     this.selectElement(cell);
     new Ajax.Request(this.baseUrl + "getCellType", {
       onSuccess  : function(response) {
-        self.editBegin(cell, response.responseText.strip())
+        self.editBegin(cell, eval(response.responseText))
       },
       parameters : {
         row : self.selectionPos[0],
@@ -145,9 +141,9 @@ TableEditor.prototype = {
 /**
  *  @desc: Create and activate new editor
  */
-  editBegin : function(cell, editor) {
+  editBegin : function(cell, response) {
     var value = cell.innerHTML;
-    this.editor = new TableEditor.Editors[editor](this, cell);
+    this.editor = new TableEditor.Editors[response.editor](this, cell, response.params);
 
     this.editor.setValue(value);
 

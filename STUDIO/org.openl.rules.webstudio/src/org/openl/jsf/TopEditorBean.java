@@ -106,7 +106,7 @@ public class TopEditorBean {
 	}
 
 	public void addRowBefore() {
-//		getEditorHelper().getModel().insertRows(1, getRow()-1);
+		getEditorHelper().getModel().insertRows(1, getRow()-1);
 	}
 	
 	public void addRowAfter() {

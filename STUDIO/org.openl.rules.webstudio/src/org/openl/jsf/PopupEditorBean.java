@@ -117,7 +117,7 @@ public class PopupEditorBean {
 		hmp.setMoveable(false);
 		hmp.setId("popup_editor");
 
-		String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
+		/*String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
 		if (null != cellType) {
 			ICellEditorActivator activator = (ICellEditorActivator)(getEditorHelper().getModel().getCellEditors().get(cellType));
 			//this.value = String.valueOf(hot.getValue());
@@ -134,7 +134,7 @@ public class PopupEditorBean {
 		}
 		
 
-		root.getChildren().set(i,hmp);
+		root.getChildren().set(i,hmp);      */
 		
 		System.out.println(pe);
 	}
