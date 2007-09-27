@@ -92,6 +92,7 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.appendChild(optionElement);
   },
 
+  destroy: Prototype.emptyFunction, 
   /**
    * @desc overrides base class implementation to support situation when nothing is selected.
    */
