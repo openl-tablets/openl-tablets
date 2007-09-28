@@ -73,7 +73,7 @@ TableEditor.prototype = {
       encoding    : "utf-8",
       contentType : "text/javascript",
       onSuccess   : function(data) {
-        self.renderTable(data);
+        self.renderTable(data.responseText.strip());
       }
     });
   },
@@ -85,8 +85,8 @@ TableEditor.prototype = {
   renderTable : function(data) {
     this.decorator = new Decorator();
 
-    this.tableContainer.innerHTML = data.responseText;
-    this.table = $(Prototype.Browser.IE ? this.tableContainer.childNodes[0] : this.tableContainer.childNodes[1]);
+    this.tableContainer.innerHTML = data;
+    this.table = $(this.tableContainer.childNodes[0]);
 
     this.computeTableInfo(this.table);
   },
@@ -194,8 +194,7 @@ TableEditor.prototype = {
               elementID : this.tableid
           }
         });
-        var value = this.editor.getValue();
-        this.currentElement.innerHTML = value == "" ? "&nbsp;" : value;
+        this.currentElement.innerHTML = editorValue == "" ? "&nbsp;" : editorValue;
       } else {
         this.currentElement.innerHTML = this.edittedCellValue;
       }
@@ -343,8 +342,12 @@ TableEditor.prototype = {
     var self = this;
     new Ajax.Request(this.baseUrl + ([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? "removeRowCol" : "addRowColBefore"), {
       onSuccess : function(response) {
-        self.renderTable(response);
-        self.selectElement();
+        response = eval(response.responseText);
+        if (response.status) alert(response.status);
+        else {
+            self.renderTable(response.response);
+            self.selectElement();
+        }
       },
       parameters : params
     });

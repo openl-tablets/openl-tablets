@@ -44,6 +44,7 @@ BaseEditor.prototype = {
 
     /** Set value into editor. */
     setValue : function(/* String */ value) {
+        if (value == "&nbsp;") value = "";
         if (this.node != null)
             this.node.value = value;
     },
