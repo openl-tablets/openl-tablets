@@ -3,9 +3,12 @@ YAHOO.widget.Calendar.prototype.render = function(x, y, obj, val) {
   if (obj)
   {
     this.onSelect = function() {
-      if (!obj._skip_detach)
-        obj.grid.editStop();//detach(this);
-      else obj._skip_detach = false;
+      if (!obj._skip_detach) {
+        obj.destroy();
+      }
+      else {
+        obj._skip_detach = false;
+      }
     }
   }
 
@@ -25,19 +28,17 @@ YAHOO.widget.Calendar.prototype.render = function(x, y, obj, val) {
     this._myCont.style.top = y + "px";
     this._myCont.style.left = x + "px";
   }
-
 }
+
 YAHOO.widget.Calendar.prototype.hide = function() {
   this._myCont.style.display = "none";
 }
-
 
 function _grid_calendar_init() {
   var z = document.createElement("DIV");
   z.style.display = "none";
   z.id = "_cal_" + ((new Date()).valueOf());
   document.body.appendChild(z);
-
 
   window._grid_calendar = new YAHOO.widget.Calendar("_grid_calendar", z.id);
   window._grid_calendar._myCont = z;

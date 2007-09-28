@@ -40,6 +40,9 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
     this.cell.appendChild(this.node);
     this.node.focus();*/
 
+    this.tableEditor = tableEditor;
+    this.cell = cell;
+
     if (!window._grid_calendar) _grid_calendar_init();
     window._grid_calendar.render(100, 100, this, "5/5/2000");
 
@@ -54,8 +57,24 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
     }
   },
 
+  _2dg : function(v) {
+    v = v.toString();
+    return (v.length == 1) ? "0" + v : v;
+  },
+
+  _date2str : function(z) {
+    return ("d/m/y").replace("m", this._2dg((z.getMonth() * 1 + 1))).replace("d", this._2dg(z.getDate())).replace("y", this._2dg((z.getFullYear() * 1)));
+  },
+
   destroy: function() {
-    Event.stopObserving(this.node, "keyup", this.eventHandler);
+    //if (this.cell._cediton) this.cell._cediton = false; else return;
+    var z = window._grid_calendar.getSelectedDates()[0];
+    window._grid_calendar.hide();
+    //if (!z.getFullYear()) return;
+    //this.cell.val = new Date(z.valueOf());
+    //this.setCValue(this._date2str(z), z);
+    //return (z.valueOf()) != (this.val.valueOf());
+    this.cell.innerHTML = this._date2str(z);
   },
 
   detach: function() {
