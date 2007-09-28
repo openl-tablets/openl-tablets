@@ -199,7 +199,7 @@ YAHOO.widget.Calendar_Core.prototype.setupConfig = function() {
   this.Style = this.Config.Style;
   this.Config.Locale = {MONTHS_SHORT:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],MONTHS_LONG:["January","February","March","April","May","June","July","August","September","October","November","December"],WEEKDAYS_1CHAR:["S","M","T","W","T","F","S"],WEEKDAYS_SHORT:["Su","Mo","Tu","We","Th","Fr","Sa"],WEEKDAYS_MEDIUM:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],WEEKDAYS_LONG:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],DATE_DELIMITER:",",DATE_FIELD_DELIMITER:"/",DATE_RANGE_DELIMITER:"-",MY_MONTH_POSITION:1,MY_YEAR_POSITION:2,MD_MONTH_POSITION:1,MD_DAY_POSITION:2,MDY_MONTH_POSITION:1,MDY_DAY_POSITION:2,MDY_YEAR_POSITION:3};
   this.Locale = this.Config.Locale;
-  this.Config.Options = {MULTI_SELECT:false,SHOW_WEEKDAYS:true,START_WEEKDAY:0,SHOW_WEEK_HEADER:false,SHOW_WEEK_FOOTER:false,HIDE_BLANK_WEEKS:false,NAV_ARROW_LEFT:(_js_prefix + "calendar/img/callt.gif"),NAV_ARROW_RIGHT:(_js_prefix + "calendar/img/calrt.gif")};
+  this.Config.Options = {MULTI_SELECT:false,SHOW_WEEKDAYS:true,START_WEEKDAY:0,SHOW_WEEK_HEADER:false,SHOW_WEEK_FOOTER:false,HIDE_BLANK_WEEKS:false,NAV_ARROW_LEFT:(jsPath + "calendar/img/callt.gif"),NAV_ARROW_RIGHT:(jsPath + "calendar/img/calrt.gif")};
   this.Options = this.Config.Options;
   this.customConfig();
   if (!this.Options.LOCALE_MONTHS) {
@@ -1279,7 +1279,7 @@ YAHOO.widget.Calendar2up.prototype.renderHeader = function() {
     linkClose.href = "javascript:void(null)";
     YAHOO.util.Event.addListener(linkClose, "click", this.hide, this);
     var imgClose = document.createElement("IMG");
-    imgClose.src = _js_prefix + "calendar/img/calx.gif";
+    imgClose.src = jsPath + "calendar/img/calx.gif";
     imgClose.className = "close-icon";
     linkClose.appendChild(imgClose);
     this.linkClose = linkClose;

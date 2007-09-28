@@ -31,8 +31,12 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.appendChild(ta);
 
     this.node.style.position = "absolute";
-    this.node.style.left = this.getPosition(cell)[0] + "px";
-    this.node.style.top = (this.getPosition(cell)[1] + 10) + "px";
+
+    var pos = Position.page(this.cell);
+    pos[1] += Element.Methods.getDimensions(this.cell).height;
+
+    this.node.style.left = pos[0] + "px";
+    this.node.style.top = pos[1] + "px";
     this.node.zIndex = "10";
     document.body.appendChild(this.node);
     ta.focus();
@@ -42,17 +46,6 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
 
     //Event.observe(this.node, "click", function(e) {(e || event).cancelBubble = true});
     //Event.observe(this.node, "mousedown", function(e) {(e || event).cancelBubble = true});
-  },
-
-  getPosition : function(node) {
-    var left = 0;
-    var top = 0;
-    while (node.tagName != "BODY") {
-      left += node.offsetLeft;
-      top += node.offsetTop;
-      node = node.offsetParent;
-    }
-    return new Array(left, top);
   },
 
   handleKeyPress: function (event) {
