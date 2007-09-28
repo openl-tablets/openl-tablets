@@ -7,9 +7,7 @@ var DropdownEditor = Class.create();
 
 DropdownEditor.prototype = Object.extend(new BaseEditor(), {
 /** Constructor */
-  initialize: function(tableEditor, cell, param) {
-      this.tableEditor = tableEditor;
-      this.cell = cell;
+  editor_initialize: function(param) {
       this.node = document.createElement("select");
       this.node.style.width = "100%";
       this.node.style.border = "0px none";

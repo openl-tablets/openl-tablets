@@ -12,7 +12,7 @@ var SuggestEditor = Class.create();
 SuggestEditor.prototype = Object.extend(new BaseEditor(), {
 
 /** Constructor */
-  initialize: function(tableEditor, cell) {
+  editor_initialize: function() {
     this.node = document.createElement("input");
     this.node.setAttribute("type", "text");
     this.node.style.border = "0px none";

@@ -8,9 +8,7 @@ var TextEditor = Class.create();
 TextEditor.prototype = Object.extend(new BaseEditor(), {
   eventHandler : null,
 
-  initialize: function(tableEditor, cell) {
-    this.tableEditor = tableEditor;
-    this.cell = cell;
+  editor_initialize: function() {
     this.node = $(document.createElement("input"));
     this.node.setAttribute("type", "text");
     this.node.style.border = "0px none";

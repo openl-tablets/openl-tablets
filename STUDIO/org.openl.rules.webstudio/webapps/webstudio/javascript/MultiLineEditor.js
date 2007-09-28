@@ -8,9 +8,7 @@ var MultiLineEditor = Class.create();
 MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
   eventHandler : null,
 
-  initialize: function(tableEditor, cell) {
-    this.tableEditor = tableEditor;
-    this.cell = cell;
+  editor_initialize: function() {
     this.node = document.createElement("div");
     //this.node.setAttribute("type", "text");
     //this.node.style.border = "0px none";
