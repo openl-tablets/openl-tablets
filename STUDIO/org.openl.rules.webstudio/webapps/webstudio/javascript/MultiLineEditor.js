@@ -30,8 +30,8 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
 
     this.node.style.position = "absolute";
 
-    var pos = Position.page(this.cell);
-    pos[1] += Element.Methods.getDimensions(this.cell).height;
+    var pos = Position.page(this.td);
+    pos[1] += Element.Methods.getDimensions(this.td).height;
 
     this.node.style.left = pos[0] + "px";
     this.node.style.top = pos[1] + "px";

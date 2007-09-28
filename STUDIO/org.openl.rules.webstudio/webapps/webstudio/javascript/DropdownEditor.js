@@ -18,8 +18,8 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
       var self = this;
       param.each(function (el) {self.addOption(el, el)});
 
-    this.cell.innerHTML = "";
-    this.cell.appendChild(this.node);
+    this.td.innerHTML = "";
+    this.td.appendChild(this.node);
     this.node.focus();
   },
 

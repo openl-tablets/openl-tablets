@@ -15,17 +15,17 @@ BaseEditor.prototype = {
     // -------------------------------------------------------------- Object properties --
    node : null,
    tableEditor : null,
-   cell : null,
+   td : null,
    value : null,
 
    /** Constructor */
-   initialize: function(tableEditor, cell, param) {
+   initialize: function(tableEditor, td, param) {
       this.tableEditor = tableEditor;
-      this.cell = cell;
-      this.editor_initialize(param); 
+      this.td = td;
+      this.editor_initialize(param);
    },
 
-   editor_initialize: Prototype.emptyFunction, 
+   editor_initialize: Prototype.emptyFunction,
     // ----------------------------------------------------------------- Public methods --
 
     /**
@@ -47,6 +47,10 @@ BaseEditor.prototype = {
         if (value == "&nbsp;") value = "";
         if (this.node != null)
             this.node.value = value;
+    },
+
+    setTDValue : function(/* String */ value) {
+      this.td.innerHTML = value;
     },
 
   /** Returns if edit operation was cancelled */

@@ -202,9 +202,9 @@ TableEditor.prototype = {
               elementID : this.tableid
           }
         });
-        this.currentElement.innerHTML = editorValue == "" ? "&nbsp;" : editorValue;
+        this.editor.setTDValue(editorValue == "" ? "&nbsp;" : editorValue);
       } else {
-        this.currentElement.innerHTML = this.edittedCellValue;
+        this.editor.setTDValue(this.edittedCellValue);
       }
 
       this.editor.destroy();
@@ -231,7 +231,7 @@ TableEditor.prototype = {
      * visual decoration to the cell.
      * If elt is null(undefined) than this.currentElement is set based on value of this.selectionPos array.
      * dir param is used to track selections history, if it is not given history is cleared, if it is set to -1 and
-     * elt param is not given the new selection is taken from history. 
+     * elt param is not given the new selection is taken from history.
      * @type: private
      */
     selectElement: function(elt, dir) {
