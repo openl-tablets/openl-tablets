@@ -221,7 +221,10 @@ function refreshSelectionAfter() {
        <rich:menuItem submitMode="none" id="remove_row_button" onclick="tableEditor.doRowOperation(TableEditor.Constants.REMOVE)"  value="Remove row" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/row_del.gif" /></f:facet>
        </rich:menuItem>
-        <rich:menuItem submitMode="none"  id="move_row_button" value="Move row" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE)" >
+        <rich:menuItem submitMode="none"  id="move_row_down_button" value="Move row down" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_DOWN)" >
+         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem submitMode="none"  id="move_row_up_button" value="Move row up" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_UP)" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
      </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
@@ -236,7 +239,10 @@ function refreshSelectionAfter() {
        <rich:menuItem  submitMode="none" id="remove_column_button" value="Remove column" onclick="tableEditor.doColOperation(TableEditor.Constants.REMOVE)">
          <f:facet name="icon"><h:graphicImage value="/images/editor/col_del.gif" /></f:facet>
        </rich:menuItem>
-        <rich:menuItem submitMode="none"  id="move_column_button" value="Move column" onclick="tableEditor.doColOperation(TableEditor.Constants.MOVE)" >
+        <rich:menuItem submitMode="none"  id="move_column_button_right" value="Move column right" onclick="tableEditor.doColOperation(TableEditor.Constants.MOVE_DOWN)" >
+         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem submitMode="none"  id="move_column_button_left" value="Move column left" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_UP)" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
        </rich:dropDownMenu></rich:toolBarGroup>
