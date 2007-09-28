@@ -111,6 +111,23 @@ TableEditor.prototype = {
     }
   },
 
+    /**
+     * @desc: makes all changes persistant. Sends corresponding request to the server.
+     * @type: public
+     */
+    save: function() {
+        var tableid = this.tableid;
+        new Ajax.Request(this.baseUrl + "saveTable", {
+            onSuccess  : function(response) {
+                alert("Your changes have been saved!");
+            },
+            onFailure : function() {
+                alert("Server failed to save your changes");
+            },
+            parameters : {elementID : tableid}
+        });
+    },
+
 /**
  * @desc: handles mouse double click on table
  * @type: private
@@ -156,12 +173,20 @@ TableEditor.prototype = {
   editStop : function() {
     if (this.editor != null) {
       if (!this.editor.isCancelled()) {
-        new Ajax.Request(this.saveUrl + '?id=' + this.currentElement.title + '&value=' + this.editor.getValue(), {
+        var self = this;
+        var editorValue = self.editor.getValue();
+        new Ajax.Request(this.saveUrl, {
           method    : "get",
           encoding   : "utf-8",
           contentType : "text/javascript",
           onSuccess  : function(data) {
             //alert('saved !');
+          },
+          parameters: {
+              row : self.selectionPos[0],
+              col : self.selectionPos[1],
+              value: editorValue,
+              elementID : this.tableid
           }
         });
         var value = this.editor.getValue();

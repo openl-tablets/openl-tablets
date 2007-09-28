@@ -204,7 +204,7 @@ function refreshSelectionAfter() {
     <br />
     <br />
     <rich:toolBar itemSeparator="square"><rich:toolBarGroup>
-     <h:graphicImage value="/images/editor/Save.gif" />
+     <h:graphicImage value="/images/editor/Save.gif" onclick="tableEditor.save()"/>
      <h:graphicImage value="/images/editor/Validation.gif" />
    </rich:toolBarGroup><rich:toolBarGroup>
      <h:graphicImage value="/images/editor/Undo.gif" />

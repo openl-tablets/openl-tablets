@@ -11,7 +11,7 @@ import org.openl.rules.ui.TableModel;
  * @author Andrey Naumenko
  */
 public class TableRenderer {
-    public static String render(TableModel tableModel) throws Exception {
+    public static String render(TableModel tableModel) {
         StringBuffer s = new StringBuffer();
         s.append("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
 
