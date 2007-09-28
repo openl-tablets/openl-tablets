@@ -41,8 +41,8 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.focus();*/
 
     if (!window._grid_calendar) _grid_calendar_init();
-    var pos = Position.page(this.cell)
-    pos[1] += Element.Methods.getDimensions(this.cell).height;
+    var pos = Position.page(this.td)
+    pos[1] += Element.Methods.getDimensions(this.td).height;
     window._grid_calendar.render(pos[0], pos[1], this, "5/5/2000");
 
     //Event.observe(this.node, "click", function(e) {(e || event).cancelBubble = true});
@@ -73,7 +73,7 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
     //this.cell.val = new Date(z.valueOf());
     //this.setCValue(this._date2str(z), z);
     //return (z.valueOf()) != (this.val.valueOf());
-    this.cell.innerHTML = this._date2str(z);
+    this.td.innerHTML = this._date2str(z);
   },
 
   detach: function() {
