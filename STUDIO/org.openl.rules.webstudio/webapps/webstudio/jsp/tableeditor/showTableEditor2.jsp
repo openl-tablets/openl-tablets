@@ -41,9 +41,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title><%=text%></title>
 <link href="../css/style1.css" rel="stylesheet" type="text/css">
-<link href="${pageContext.request.contextPath}/javascript/calendar/calendar.css" rel="stylesheet" type="text/css">
 <link href="../css/tableEditor.css" rel="stylesheet" type="text/css">
-<link href="${pageContext.request.contextPath}/css/suggest.css" rel="stylesheet" type="text/css">
 <script language="javascript" type="text/javascript" src="../js/spreadsheet_navigation.js"></script>
 <script type="text/javascript">
 initialRow = '<%=twb.getInitialRow()%>';
@@ -250,6 +248,11 @@ function refreshSelectionAfter() {
   </a4j:form>
   <br />
 
+  <script>
+    // Relative (to this page) path to javascript folder.
+    // Used by date and suggest editors.
+    var jsPath = '../../javascript/';
+  </script>
 
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/prototype/prototype-1.5.1.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TableEditor.js"></script>
@@ -259,13 +262,6 @@ function refreshSelectionAfter() {
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/SuggestEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/MultiLineEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/DateEditor.js"></script>
-
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/calendar/YAHOO.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/calendar/event.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/calendar/calendar.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/calendar/calendar_init.js"></script>
-
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/suggest.js"></script>
 
   <div id="tableEditor"/>
 

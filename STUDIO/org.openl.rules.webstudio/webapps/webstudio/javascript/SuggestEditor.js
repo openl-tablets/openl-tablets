@@ -3,6 +3,10 @@
  *
  * @author Andrey Naumenko
  */
+
+document.write("<script src='" + jsPath + "suggest/suggest.js'></script>");
+document.write("<link rel='stylesheet' type='text/css' href='" + jsPath + "suggest/suggest.css'></link>");
+
 var SuggestEditor = Class.create();
 
 SuggestEditor.prototype = Object.extend(new BaseEditor(), {

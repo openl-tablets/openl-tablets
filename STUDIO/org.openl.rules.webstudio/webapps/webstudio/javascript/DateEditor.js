@@ -1,14 +1,14 @@
 /**
- * Text editor.
+ * Date editor.
  *
  * @author Andrey Naumenko
  */
-_js_prefix = '../';
-document.write("<script src='" + _js_prefix + "calendar/YAHOO.js'></script>");
-document.write("<script src='" + _js_prefix + "calendar/event.js'></script>");
-document.write("<script src='" + _js_prefix + "calendar/calendar.js'></script>");
-document.write("<script src='" + _js_prefix + "calendar/calendar_init.js'></script>");
-document.write("<link rel='stylesheet' type='text/css' href='" + _js_prefix + "calendar/calendar.css'></link>");
+
+document.write("<script src='" + jsPath + "calendar/YAHOO.js'></script>");
+document.write("<script src='" + jsPath + "calendar/event.js'></script>");
+document.write("<script src='" + jsPath + "calendar/calendar.js'></script>");
+document.write("<script src='" + jsPath + "calendar/calendar_init.js'></script>");
+document.write("<link rel='stylesheet' type='text/css' href='" + jsPath + "calendar/calendar.css'></link>");
 
 var DateEditor = Class.create();
 
@@ -44,7 +44,9 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
     this.cell = cell;
 
     if (!window._grid_calendar) _grid_calendar_init();
-    window._grid_calendar.render(100, 100, this, "5/5/2000");
+    var pos = Position.page(this.cell)
+    pos[1] += Element.Methods.getDimensions(this.cell).height;
+    window._grid_calendar.render(pos[0], pos[1], this, "5/5/2000");
 
     //Event.observe(this.node, "click", function(e) {(e || event).cancelBubble = true});
     //Event.observe(this.node, "mousedown", function(e) {(e || event).cancelBubble = true});
