@@ -8,6 +8,9 @@
 
 var TableEditor = Class.create();
 
+/**
+ *  Here is editors registry. The editors would add themselves to this hash with the name as a key
+ */
 TableEditor.Editors = $H();
 
 TableEditor.Constants = {
@@ -146,20 +149,24 @@ TableEditor.prototype = {
   },
 
 
-  editBeginRequest : function(cell) {
-    var self = this;
-    this.selectElement(cell);
-    new Ajax.Request(this.baseUrl + "getCellType", {
-      onSuccess  : function(response) {
-        self.editBegin(cell, eval(response.responseText))
-      },
-      parameters : {
-        row : self.selectionPos[0],
-        col : self.selectionPos[1],
-        elementID : self.tableid
-      }
-    });
-  },
+    /**
+     * @desc: sends request to server to find out required editor for a cell. After getting response calls this.editBegin
+     * @type: private
+     */
+    editBeginRequest : function(cell) {
+        var self = this;
+        this.selectElement(cell);
+        new Ajax.Request(this.baseUrl + "getCellType", {
+            onSuccess  : function(response) {
+                self.editBegin(cell, eval(response.responseText))
+            },
+            parameters : {
+                row : self.selectionPos[0],
+                col : self.selectionPos[1],
+                elementID : self.tableid
+            }
+        });
+    },
 
 /**
  *  @desc: Create and activate new editor
@@ -217,28 +224,37 @@ TableEditor.prototype = {
     Event.stop(e);
   },
 
-  selectElement: function(elt, dir) {
-    if (elt && this.currentElement && elt.id == this.currentElement.id) return;
-    if (elt && dir) { // save to selection history
-      if (this.selectionPos) this.selectionHistory.push([dir, this.selectionPos[0], this.selectionPos[1]]);
-      if (this.selectionHistory.length > 10) this.selectionHistory.shift();
-    } else {
-      if (dir == -1) {
-        var lastEntry = this.selectionHistory.pop();
-        this.selectionPos[0] = lastEntry[1];
-        this.selectionPos[1] = lastEntry[2];
-      } else
-        this.selectionHistory.clear();
-    }
 
-    if (elt) {
-      this.selectionPos = this.elementPosition(elt);
-    } else {
-      elt = this.$cell(this.selectionPos);
-    }
-    this.decorator.undecorate(this.currentElement);
-    this.decorator.decorate(this.currentElement = elt);
-  },
+    /**
+     * @desc: makes a cell 'selected', that is sets up this.selectionPos and this.currentElement, and also applies
+     * visual decoration to the cell.
+     * If elt is null(undefined) than this.currentElement is set based on value of this.selectionPos array.
+     * dir param is used to track selections history, if it is not given history is cleared, if it is set to -1 and
+     * elt param is not given the new selection is taken from history. 
+     * @type: private
+     */
+    selectElement: function(elt, dir) {
+        if (elt && this.currentElement && elt.id == this.currentElement.id) return;
+        if (elt && dir) { // save to selection history
+            if (this.selectionPos) this.selectionHistory.push([dir, this.selectionPos[0], this.selectionPos[1]]);
+            if (this.selectionHistory.length > 10) this.selectionHistory.shift();
+        } else {
+            if (dir == -1) {
+                var lastEntry = this.selectionHistory.pop();
+                this.selectionPos[0] = lastEntry[1];
+                this.selectionPos[1] = lastEntry[2];
+            } else
+                this.selectionHistory.clear();
+        }
+
+        if (elt) {
+            this.selectionPos = this.elementPosition(elt);
+        } else {
+            elt = this.$cell(this.selectionPos);
+        }
+        this.decorator.undecorate(this.currentElement);
+        this.decorator.decorate(this.currentElement = elt);
+    },
 
   $cell: function(pos) {
     var cell = $("cell-" + pos[0] + ":" + pos[1]);
