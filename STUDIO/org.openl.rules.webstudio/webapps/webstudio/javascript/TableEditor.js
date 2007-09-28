@@ -41,6 +41,7 @@ TableEditor.prototype = {
 
     this.tableContainer = $(id);
     this.tableContainer.style.cursor = 'default';
+    // Suppress text selection
     this.tableContainer.onselectstart = function() { return false; }
     this.tableContainer.onmousedown = function() { return false; }
 
@@ -140,8 +141,8 @@ TableEditor.prototype = {
  * @desc: handles mouse double click on table
  * @type: private
  */
-  handleDoubleClick: function(e) {
-    var cell = Prototype.Browser.IE ? window.event.srcElement : e.target;
+  handleDoubleClick: function(event) {
+    var cell = Event.findElement(event, "TD");
 
     // Save value of current editor and close it
     this.editStop();

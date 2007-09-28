@@ -42,4 +42,4 @@ SuggestEditor.prototype = Object.extend(new BaseEditor(), {
   }
 });
 
-TableEditor.Editors["suggestbox"] = SuggestEditor;
+TableEditor.Editors["suggestText"] = SuggestEditor;
