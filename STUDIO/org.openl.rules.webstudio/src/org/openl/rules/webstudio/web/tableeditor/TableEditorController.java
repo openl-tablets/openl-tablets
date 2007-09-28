@@ -28,7 +28,7 @@ public class TableEditorController {
 
     public static final String OUTCOME_SUCCESS = "tableEditor_success";
 
-	 public String load() throws Exception {
+     public String load() throws Exception {
          int elementId = Integer.parseInt(getRequestParameter("elementID"));
          TableModel tableModel = initializeTableModel(elementId);
 
@@ -60,18 +60,18 @@ public class TableEditorController {
     public String getCellType() {
         readRequestParams();
 
-        EditorTypeResponse typeResponse = new EditorTypeResponse("inputbox");
+        EditorTypeResponse typeResponse = new EditorTypeResponse("text");
 
         TableEditorModel editorModel = getHelper(elementID).getModel();
         TableEditorModel.CellType type = editorModel.getCellType(row, col);
         if (type == TableEditorModel.CellType.CA_ENUMERATION_CELL_TYPE) {
             String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
-            typeResponse.setEditor("selectbox");
+            typeResponse.setEditor("combo");
             typeResponse.setParams(metadata);
         }
 
         if (col == 3 && row == 1) {
-            typeResponse = new EditorTypeResponse("multiline");
+            typeResponse = new EditorTypeResponse("multilineText");
         }
         if (col == 2 && row == 1) {
             typeResponse = new EditorTypeResponse("date");
@@ -81,9 +81,9 @@ public class TableEditorController {
         return OUTCOME_SUCCESS;
     }
 
-	public String getResponse() {
-		return response;
-	}
+    public String getResponse() {
+        return response;
+    }
 
    public String addRowColBefore() throws Exception {
        readRequestParams();
@@ -139,10 +139,10 @@ public class TableEditorController {
    }
 
    private TableModel initializeTableModel(int elementID) {
-		  IGridTable gt = getGridTable(elementID);
-		  if (gt == null) return null;
+          IGridTable gt = getGridTable(elementID);
+          if (gt == null) return null;
 
-		  IGrid htmlGrid = gt.getGrid();
+          IGrid htmlGrid = gt.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
             int N = 1;
             IGridFilter[] f1 = new IGridFilter[N];
@@ -155,7 +155,7 @@ public class TableEditorController {
         return tv.buildModel();
     }
 
-	private IGridTable getGridTable(int elementID) {
+    private IGridTable getGridTable(int elementID) {
       return getHelper(elementID).getModel().getUpdatedTable();
    }
 

@@ -73,4 +73,4 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
   }
 });
 
-TableEditor.Editors["multiline"] = MultiLineEditor;
+TableEditor.Editors["multilineText"] = MultiLineEditor;
