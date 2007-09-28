@@ -35,7 +35,12 @@ TableEditor.prototype = {
 /** Constructor */
   initialize : function(id, url, tableid) {
     this.tableid = tableid;
-    this.tableContainer = $(document.getElementById(id));
+
+    this.tableContainer = $(id);
+    this.tableContainer.style.cursor = 'default';
+    this.tableContainer.onselectstart = function() { return false; }
+    this.tableContainer.onmousedown = function() { return false; }
+
     this.baseUrl = url;
     this.saveUrl = url + "save";
     this.loadData(url + "load?elementID=" + tableid);
