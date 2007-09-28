@@ -22,12 +22,12 @@ import java.util.Map;
  * @author Andrey Naumenko
  */
 public class TableEditorController {
-	 private String response;
-    
+     private String response;
+
     public static final String OUTCOME_SUCCESS = "tableEditor_success";
-	
-	 public String load() throws Exception {
-		  int elementId = Integer.parseInt(getRequestParameter("elementID"));
+
+     public String load() throws Exception {
+          int elementId = Integer.parseInt(getRequestParameter("elementID"));
         TableModel tableModel = initializeTableModel(elementId);
 
         response = TableRenderer.render(tableModel);
@@ -40,15 +40,15 @@ public class TableEditorController {
         String value = getRequestParameter("value");
         System.out.println(id);
         System.out.println(value);
-		  response = "";
-		  return OUTCOME_SUCCESS;
+          response = "";
+          return OUTCOME_SUCCESS;
     }
 
-	public String getCellType() {
-		Map paramMap = Util.getRequestParameterMap();
-		int row = Integer.parseInt((String) paramMap.get("row")) - 1;
-		int col = Integer.parseInt((String) paramMap.get("col")) - 1;
-		int elementId = Integer.parseInt((String) paramMap.get("elementID"));
+    public String getCellType() {
+        Map paramMap = Util.getRequestParameterMap();
+        int row = Integer.parseInt((String) paramMap.get("row")) - 1;
+        int col = Integer.parseInt((String) paramMap.get("col")) - 1;
+        int elementId = Integer.parseInt((String) paramMap.get("elementID"));
 
       EditorTypeResponse typeResponse = new EditorTypeResponse("inputbox");
 
@@ -60,13 +60,20 @@ public class TableEditorController {
          typeResponse.setParams(metadata);
       }
 
+      if (col==3 && row==1) {
+          typeResponse = new EditorTypeResponse("multiline");
+      }
+      if (col==2 && row==1) {
+          typeResponse = new EditorTypeResponse("date");
+      }
+
       response = typeResponse.toJSON();
       return OUTCOME_SUCCESS;
-	}
+    }
 
-	public String getResponse() {
-		return response;
-	}
+    public String getResponse() {
+        return response;
+    }
 
    public String addRowColBefore() throws Exception {
       String rowStr = getRequestParameter("row");
@@ -110,10 +117,10 @@ public class TableEditorController {
    }
 
    private TableModel initializeTableModel(int elementID) {
-		  IGridTable gt = getGridTable(elementID);
-		  if (gt == null) return null;
+          IGridTable gt = getGridTable(elementID);
+          if (gt == null) return null;
 
-		  IGrid htmlGrid = gt.getGrid();
+          IGrid htmlGrid = gt.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
             int N = 1;
             IGridFilter[] f1 = new IGridFilter[N];
@@ -126,7 +133,7 @@ public class TableEditorController {
         return tv.buildModel();
     }
 
-	private IGridTable getGridTable(int elementID) {
+    private IGridTable getGridTable(int elementID) {
       return getHelper(elementID).getModel().getUpdatedTable();
    }
 
