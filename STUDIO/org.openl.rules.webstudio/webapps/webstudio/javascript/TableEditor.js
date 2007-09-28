@@ -13,8 +13,9 @@ TableEditor.Editors = $H();
 TableEditor.Constants = {
   ADD_BEFORE : 1,
   ADD_AFTER : 2,
-  MOVE : 3,
-  REMOVE : 4
+  MOVE_DOWN : 3,
+  MOVE_UP : 4,
+  REMOVE : 5
 };
 
 TableEditor.prototype = {
@@ -306,10 +307,11 @@ TableEditor.prototype = {
 
     var params = {elementID : this.tableid}
     params[["row", "col"][index]] = (op == TableEditor.Constants.ADD_AFTER ? 1 : 0) + this.selectionPos[index];
-    if (op == TableEditor.Constants.MOVE) params.move = true;
+    if (op == TableEditor.Constants.MOVE_DOWN) params.move = true;
+    if (op == TableEditor.Constants.MOVE_UP) {params.move = true; params.up = true}
 
     var self = this;
-    new Ajax.Request(this.baseUrl + (op == TableEditor.Constants.REMOVE || op == TableEditor.Constants.MOVE ? "removeRowCol" : "addRowColBefore"), {
+    new Ajax.Request(this.baseUrl + ([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? "removeRowCol" : "addRowColBefore"), {
       onSuccess : function(response) {
         self.renderTable(response);
         self.selectElement();
