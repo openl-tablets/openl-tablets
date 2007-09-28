@@ -15,7 +15,7 @@ var DateEditor = Class.create();
 DateEditor.prototype = Object.extend(new BaseEditor(), {
   eventHandler : null,
 
-  initialize: function(tableEditor, cell) {
+  editor_initialize: function() {
     /*this.tableEditor = tableEditor;
     this.cell = cell;
     this.node = $(document.createElement("input"));
@@ -39,9 +39,6 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
     this.cell.innerHTML = "";
     this.cell.appendChild(this.node);
     this.node.focus();*/
-
-    this.tableEditor = tableEditor;
-    this.cell = cell;
 
     if (!window._grid_calendar) _grid_calendar_init();
     var pos = Position.page(this.cell)

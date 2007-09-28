@@ -19,11 +19,13 @@ BaseEditor.prototype = {
    value : null,
 
    /** Constructor */
-   // todo: make this constructor be called
    initialize: function(tableEditor, cell, param) {
       this.tableEditor = tableEditor;
       this.cell = cell;
+      this.editor_initialize(param); 
    },
+
+   editor_initialize: Prototype.emptyFunction, 
     // ----------------------------------------------------------------- Public methods --
 
     /**
