@@ -29,20 +29,18 @@ public class TableEditorController {
     public static final String OUTCOME_SUCCESS = "tableEditor_success";
 
 	 public String load() throws Exception {
-		  int elementId = Integer.parseInt(getRequestParameter("elementID"));
-        TableModel tableModel = initializeTableModel(elementId);
-
-        response = TableRenderer.render(tableModel);
+         int elementId = Integer.parseInt(getRequestParameter("elementID"));
+         TableModel tableModel = initializeTableModel(elementId);
 
          response = TableRenderer.render(tableModel);
 
          return OUTCOME_SUCCESS;
-    }
+     }
 
     /**
      * Handles request saving new cell value.
      *
-     * @return {@link #OUTCOME_SUCCESS}
+     * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
      */
     public String save() {
         readRequestParams();
@@ -57,7 +55,7 @@ public class TableEditorController {
     /**
      * Generates JSON response for cell type: editor type and editor specific setup javascript object.
      *
-     * @return {@link #OUTCOME_SUCCESS}
+     * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
      */
     public String getCellType() {
         readRequestParams();
@@ -79,7 +77,7 @@ public class TableEditorController {
             typeResponse = new EditorTypeResponse("date");
         }
 
-        response = typeResponse.toJSON();
+        response = pojo2json(typeResponse);
         return OUTCOME_SUCCESS;
     }
 
@@ -91,12 +89,20 @@ public class TableEditorController {
        readRequestParams();
        TableEditorModel editorModel = getHelper(elementID).getModel();
 
-       if (row >= 0)
-           editorModel.insertRows(1, row);
-       else
-           editorModel.insertColumns(1, col);
+       TableModificationResponse tmResponse = new TableModificationResponse(null);
+       try {
+           if (row >= 0)
+               if (editorModel.canAddRows(1)) editorModel.insertRows(1, row); else tmResponse.setStatus("Can not add row");
+           else
+               if (editorModel.canAddCols(1)) editorModel.insertColumns(1, col); else tmResponse.setStatus("Can not add column");
+       } catch (Exception e) {
+           tmResponse.setStatus("Internal server error");
+       }
 
-      return load();
+       load();
+       tmResponse.setResponse(response);
+       response = pojo2json(tmResponse);
+       return OUTCOME_SUCCESS;
    }
 
     public String removeRowCol() throws Exception {
@@ -111,7 +117,9 @@ public class TableEditorController {
             if (move) ;
             else editorModel.removeColumns(1, col);
         }
-        return load();
+        load();
+        response = pojo2json(new TableModificationResponse(response));
+        return OUTCOME_SUCCESS;
     }
 
     public String saveTable() throws IOException {
@@ -160,42 +168,63 @@ public class TableEditorController {
       return editorHelper;
    }
 
-
-   public static class EditorTypeResponse {
-      private String editor;
-      private Object params;
-
-      public EditorTypeResponse(String editor) {
-         this.editor = editor;
-      }
-
-      public EditorTypeResponse(String editor, Object params) {
-         this.editor = editor;
-         this.params = params;
-      }
-
-      public String getEditor() {
-         return editor;
-      }
-
-      public void setEditor(String editor) {
-         this.editor = editor;
-      }
-
-      public Object getParams() {
-         return params;
-      }
-
-      public void setParams(Object params) {
-         this.params = params;
-      }
-
-      String toJSON() {
-         try {
-            return new StringBuilder().append("(").append(JSONMapper.toJSON(this).render(true)).append(")").toString();
-         } catch (MapperException e) {
-            return null;
-         }
-      }
+   private static String pojo2json(Object pojo) {
+       try {
+           return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")")
+                   .toString();
+       } catch (MapperException e) {
+           return null;
+       }
    }
+
+    public static class EditorTypeResponse {
+        private String editor;
+        private Object params;
+
+        public EditorTypeResponse(String editor) {
+            this.editor = editor;
+        }
+
+        public String getEditor() {
+            return editor;
+        }
+
+        public void setEditor(String editor) {
+            this.editor = editor;
+        }
+
+        public Object getParams() {
+            return params;
+        }
+
+        public void setParams(Object params) {
+            this.params = params;
+        }
+    }
+
+    public static class TableModificationResponse {
+        private String response;
+        private String status;
+
+        public TableModificationResponse(String response) {
+            this.response = response;
+        }
+
+        public String getResponse() {
+            return response;
+        }
+
+        public void setResponse(String response) {
+            this.response = response;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+    }
+
 }

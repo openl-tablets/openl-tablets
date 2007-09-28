@@ -31,7 +31,7 @@ public class TableRenderer {
 					StringBuilder id = new StringBuilder();
 					id.append("cell-").append(String.valueOf(i + 1)).append(":").append(j + 1);
 
-					s.append(" id=\"").append(id).append("\">\n").append(cell.getContent()).append("</td>\n");
+					s.append(" id=\"").append(id).append("\">").append(cell.getContent()).append("</td>\n");
             }
             s.append("</tr>\n");
         }
