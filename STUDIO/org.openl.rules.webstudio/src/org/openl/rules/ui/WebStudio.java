@@ -6,6 +6,8 @@ package org.openl.rules.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.List;
 
 import org.openl.util.benchmark.BenchmarkInfo;
 
@@ -15,11 +17,15 @@ import org.openl.util.benchmark.BenchmarkInfo;
  */
 public class WebStudio
 {
+    static interface StudioListener extends EventListener {
+        void studioReset();
+    }
 
-	
 	ArrayList benchmarks = new ArrayList();
-	
-	int tableID = -1;
+
+    List<StudioListener> listeners = new ArrayList<StudioListener>();
+
+    int tableID = -1;
 
 	ProjectModel model = new ProjectModel(this);
 
@@ -32,7 +38,8 @@ public class WebStudio
 	public void reset() throws Exception
 	{
 		model.reset();
-		// locator = new OpenLProjectLocator();
+        for (StudioListener listener : listeners) listener.studioReset();
+        // locator = new OpenLProjectLocator();
 		// wrappers = null;
 	}
 	
@@ -111,7 +118,7 @@ public class WebStudio
 	}
 
 	/**
-	 * @param currentWrapper
+	 * @param wrapper
 	 *          The currentWrapper to set.
 	 * @throws NoSuchFieldException
 	 * @throws ClassNotFoundException
@@ -127,7 +134,8 @@ public class WebStudio
 			model.setWrapperInfo(wrapper);
 		}
 		this.currentWrapper = wrapper;
-	}
+        for (StudioListener listener : listeners) listener.studioReset();
+    }
 
 	/**
 	 * @return Returns the tableID.
@@ -198,12 +206,12 @@ public class WebStudio
 		model.redraw();
 	}
 
-	/**
-	 * @param developerModes2
-	 * @param developerModeIdx2
-	 * @param sameType
-	 * @return
-	 */
+    /**
+     * @param modes
+     * @param modeIdx
+     * @param sameType
+     * @return
+     */
 	private int findMode(WebStudioMode[] modes, int modeIdx, boolean sameType)
 	{
 		if (sameType)
@@ -214,7 +222,15 @@ public class WebStudio
 
 	}
 
-	/**
+    public void addEventListener(StudioListener listener) {
+        listeners.add(listener);
+    }
+
+    public boolean removeListener(StudioListener listener) {
+        return listeners.remove(listener);
+    }
+
+    /**
 	 * @return
 	 */
 	public static String getWorkspace()
