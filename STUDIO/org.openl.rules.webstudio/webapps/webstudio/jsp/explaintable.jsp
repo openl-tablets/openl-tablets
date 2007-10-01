@@ -1,8 +1,9 @@
 <%@ page import = "org.openl.rules.webtools.*" %>
 <%@ page import = "org.openl.meta.*" %>
+<%@ page import="org.openl.rules.ui.Explanation" %>
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
-<jsp:useBean id="explanator" scope="session" class="org.openl.rules.webtools.Explanator"/>
+<jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
 
 <html>
