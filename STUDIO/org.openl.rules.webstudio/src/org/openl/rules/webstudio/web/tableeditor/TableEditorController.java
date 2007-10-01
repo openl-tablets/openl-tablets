@@ -62,28 +62,30 @@ public class TableEditorController {
     public String getCellType() {
         readRequestParams();
 
-        EditorTypeResponse typeResponse = new EditorTypeResponse("text");
-
+        response = "";
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
+            EditorTypeResponse typeResponse = new EditorTypeResponse("text");
             TableEditorModel editorModel = editorHelper.getModel();
-            TableEditorModel.CellType type = editorModel.getCellType(row, col);
-            if (type == TableEditorModel.CellType.CA_ENUMERATION_CELL_TYPE) {
-                String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
-                typeResponse.setEditor("combo");
-                typeResponse.setParams(metadata);
-            }
 
-            if (col == 3 && row == 1) {
-                typeResponse = new EditorTypeResponse("multilineText");
-            }
-            if (col == 2 && row == 1) {
-                typeResponse = new EditorTypeResponse("date");
-            }
+            if (editorModel.updatedTableCellInsideTableRegion(row, col)) {
 
-            response = pojo2json(typeResponse);
-        } else {
-            response = "";
+                TableEditorModel.CellType type = editorModel.getCellType(row, col);
+                if (type == TableEditorModel.CellType.CA_ENUMERATION_CELL_TYPE) {
+                    String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
+                    typeResponse.setEditor("combo");
+                    typeResponse.setParams(metadata);
+                }
+
+                if (col == 3 && row == 1) {
+                    typeResponse = new EditorTypeResponse("multilineText");
+                }
+                if (col == 2 && row == 1) {
+                    typeResponse = new EditorTypeResponse("date");
+                }
+
+                response = pojo2json(typeResponse);
+            }
         }
         return OUTCOME_SUCCESS;
     }
