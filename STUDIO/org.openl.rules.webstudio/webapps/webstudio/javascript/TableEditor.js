@@ -30,7 +30,6 @@ TableEditor.prototype = {
   selectionPos : null,
   selectionHistory : [],
   decorator : null,
-  edittedCellValue: null,
   rows : 0,
   columns : 0,
   table : null,
@@ -50,19 +49,18 @@ TableEditor.prototype = {
     this.loadData(url + "load?elementID=" + tableid);
 
     var self = this;
-    $(document.body).observe("click", function(e) {
-      self.editStop()
-    }, false);
-    Event.observe(Prototype.Browser.IE ? document.body : window, "keydown", function(e) {
+
+    Event.observe(/*Prototype.Browser.IE ? document.body : window */document, "keydown", function(e) {
       self.handleKeyDown(e)
     }, false);
 
-    this.tableContainer.observe("click", function(e) {
-      self.handleClick(e)
-    });
+    $(document.body).observe("click", function(e) {
+      self.handleClick(e);
+    }, false);
+
     this.tableContainer.observe("dblclick", function(e) {
       self.handleDoubleClick(e);
-      Event.stop(e)
+      Event.stop(e);
     });
   },
 
@@ -177,21 +175,14 @@ TableEditor.prototype = {
  *  @desc: Create and activate new editor
  */
   editBegin : function(cell, response) {
-    var value = cell.innerHTML;
     this.editor = new TableEditor.Editors[response.editor](this, cell, response.params);
-
-    this.editor.setValue(value);
-
     this.selectElement(cell);
-
-    this.edittedCellValue = value;
   },
 
   editStop : function() {
-    if (this.editor != null) {
-      if (!this.editor.isCancelled()) {
+    if (this.editor) {
+      if (!this.editor.isCancelled) {
         var self = this;
-        var editorValue = self.editor.getValue();
         new Ajax.Request(this.saveUrl, {
           method    : "get",
           encoding   : "utf-8",
@@ -202,15 +193,12 @@ TableEditor.prototype = {
           parameters: {
               row : self.selectionPos[0],
               col : self.selectionPos[1],
-              value: editorValue,
+              value: self.editor.getValue(),
               elementID : this.tableid
           }
         });
-        this.editor.setTDValue(editorValue == "" ? "&nbsp;" : editorValue);
-      } else {
-        this.editor.setTDValue(this.edittedCellValue);
       }
-
+      this.editor.detach();
       this.editor.destroy();
     }
     this.editor = null;
@@ -222,8 +210,8 @@ TableEditor.prototype = {
  */
   handleClick: function(e) {
     var elt = Event.element(e);
+    this.editStop();
     if (elt.tagName == "TD") {
-      this.editStop();
       this.selectElement(elt);
     }
     Event.stop(e);
@@ -274,6 +262,11 @@ TableEditor.prototype = {
  * @type: private
  */
   handleKeyDown: function(event) {
+    switch (event.keyCode) {
+      case 27: if (this.editor) this.editor.isCancelled = true; this.editStop(); break;
+      case 13: this.editStop(); break;
+    }
+
     if (this.editor) return; // do nothing in editor mode
 
     if (!this.selectionPos || !this.currentElement) {

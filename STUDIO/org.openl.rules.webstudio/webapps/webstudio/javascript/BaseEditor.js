@@ -9,6 +9,15 @@
 
 var BaseEditor = Class.create();
 
+BaseEditor.stopPropagationHandler = function(e) {
+      e = e || event;
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      } else {
+        e.cancelBubble = true;
+      }
+    }
+
 BaseEditor.prototype = {
 // -------------------------------------------------------------- Object properties --
     tableEditor : null,
@@ -45,6 +54,9 @@ BaseEditor.prototype = {
      * Destroys HTML editor control, writes value to cell.
      */
     setTDValue : function(/* String */ value) {
+        if (value.strip()=="") {
+          value = "&nbsp";
+        }
         this.td.innerHTML = value;
     },
 
