@@ -3,17 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/ajax4jsf-1.1.1.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/commons-beanutils-1.7.0.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/commons-codec-1.3.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/commons-collections-3.1.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/commons-digester-1.6.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/commons-lang-2.1.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/jstl-1.1.0.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/myfaces-api-1.1.5.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/myfaces-impl-1.1.5.jar"/>
-	<classpathentry kind="lib" path="/org.openl.rules.webstudio/lib/standard.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="/org.openl.lib.apache.tomcat/apache-tomcat-5.5.17/common/lib/jsp-api.jar"/>
 	<classpathentry kind="lib" path="/org.openl.lib.apache.tomcat/apache-tomcat-5.5.17/common/lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
