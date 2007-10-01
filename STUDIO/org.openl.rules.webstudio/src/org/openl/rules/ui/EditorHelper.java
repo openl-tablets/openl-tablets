@@ -3,16 +3,22 @@
  */
 package org.openl.rules.ui;
 
+import static org.openl.jsf.Util.getWebStudio;
 import org.openl.rules.table.IGridTable;
 
 /**
  * @author snshor
  *
  */
-public class EditorHelper
+public class EditorHelper implements WebStudio.StudioListener
 {
-	TableEditorModel model;
-    int elementID;
+	private TableEditorModel model;
+    private int elementID = -1;
+
+    public EditorHelper() {
+        WebStudio webStudio = getWebStudio();
+        if (webStudio != null) webStudio.addEventListener(this);
+    }
 
     public void setTableID(int elementID, ProjectModel prj, String mode)
 	{
@@ -47,10 +53,12 @@ public class EditorHelper
 	{
 		this.model = model;
 	}
-	
-	
-	
-	
-	
-	
+
+    public void studioReset() {
+        if (model != null) {
+            model.cancel();
+            model = null;
+        }
+        elementID = -1;
+    }
 }
