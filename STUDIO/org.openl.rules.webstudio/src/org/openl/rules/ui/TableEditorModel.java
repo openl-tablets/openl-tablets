@@ -269,7 +269,7 @@ public class TableEditorModel
 		IUndoableAction ua = actions.undo();
 		((RegionAction)ua).undoSome(region, wgrid(), undoGrid);
 	}
-	
+
 	public void redo()
 	{
 		IUndoableAction ua = actions.redo();
@@ -286,7 +286,8 @@ public class TableEditorModel
 	{
 		XlsSheetGridModel xlsgrid =  (XlsSheetGridModel)table.getGrid();
 		xlsgrid.getSheetSource().getWorkbookSource().save();
-	}
+        actions = new UndoableActions();
+    }
 	
 	public void saveAs(String fname) throws IOException
 	{
