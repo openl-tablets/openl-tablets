@@ -125,7 +125,7 @@ public class TableEditorController {
             TableEditorModel editorModel = editorHelper.getModel();
             boolean move = Boolean.valueOf(Util.getRequestParameter("move"));
 
-            if (row > 0) {
+            if (row >= 0) {
                 if (move) ;
                 else editorModel.removeRows(1, row);
             } else {
