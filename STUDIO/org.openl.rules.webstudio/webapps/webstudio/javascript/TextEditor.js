@@ -24,6 +24,8 @@ TextEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.style.padding = "0px";
     this.node.style.width = "100%";
 
+    this.node.value = this.td.innerHTML;
+
     this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
     Event.observe(this.node, "keyup", this.eventHandler);
 
@@ -44,10 +46,6 @@ TextEditor.prototype = Object.extend(new BaseEditor(), {
 
   destroy: function() {
     Event.stopObserving(this.node, "keyup", this.eventHandler);
-  },
-
-  detach: function() {
-    this.editorContainer.innerHTML = this.node.value;
   }
 });
 

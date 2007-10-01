@@ -18,6 +18,8 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
       var self = this;
       param.each(function (el) {self.addOption(el, el)});
 
+      this.node.value = this.td.innerHTML;
+
     this.td.innerHTML = "";
     this.td.appendChild(this.node);
     this.node.focus();
@@ -34,9 +36,6 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.appendChild(optionElement);
   },
 
-/**
- * @desc overrides base class implementation to support situation when nothing is selected.
- */
   isCancelled: function() {
     return this.node.value == "";
   }
