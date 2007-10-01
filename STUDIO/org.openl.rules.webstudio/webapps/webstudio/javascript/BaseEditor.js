@@ -24,7 +24,6 @@ BaseEditor.prototype = {
     node : null,
     td : null,
     initialValue : null,
-    isCancelled : false,
 
     /**
      * Constructor.
@@ -54,25 +53,22 @@ BaseEditor.prototype = {
      * Destroys HTML editor control, writes value to cell.
      */
     setTDValue : function(/* String */ value) {
-        if (value.strip()=="") {
+        if (!value.strip()) {
           value = "&nbsp";
         }
         this.td.innerHTML = value;
     },
 
-    /**
-     * Destroys HTML editor control, writes value to cell.
-     */
-    detach : function() {
-        var v = this.isCancelled ? this.initialValue : this.getValue();
-        this.setTDValue(v);
+    isCancelled : function() {
+        return (this.initialValue == this.getValue());
     },
 
     /**
-     * Releases editor resources.
+     * Destroys HTML editor control, writes value to cell, releases editor resources.
      */
-    destroy : function() {
-        // default: do nothing
+    detach : function() {
+        var v = this.isCancelled() ? this.initialValue : this.getValue();
+        this.setTDValue(v);
     },
 
 // ----------------------------------------------------------------- Protected methods --

@@ -262,6 +262,8 @@ function refreshSelectionAfter() {
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/SuggestEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/MultiLineEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/DateEditor.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/PriceEditor.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/NumericEditor.js"></script>
 
   <div id="tableEditor"/>
 
