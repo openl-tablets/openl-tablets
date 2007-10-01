@@ -199,7 +199,8 @@ public class TableEditorModel
 
 	public void setCellValue(int col, int row, String value)
 	{
-		IUndoableGridAction ua = IWritableGrid.Tool.setStringValue(col, row, region, value);
+        if (isExtendedView()) {row -= 3; col -= 3;}
+        IUndoableGridAction ua = IWritableGrid.Tool.setStringValue(col, row, region, value);
 		RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
 		ra.doSome(region, wgrid(), undoGrid);
 		actions.addNewAction(ra);
@@ -301,14 +302,29 @@ public class TableEditorModel
 	 */
 	public IGridTable getUpdatedTable()
 	{
-		if (canAddRows(1) && canAddCols(1) )
-			return new GridTable(region.getTop(), region.getLeft(), region.getBottom(), region.getRight(), table.getGrid());
-		
-		return new GridTable(region.getTop()-3, region.getLeft()-3, region.getBottom()+3, region.getRight()+3, table.getGrid());
-	}
-	
+        if (isExtendedView()) {
+            return new GridTable(region.getTop()-3, region.getLeft()-3, region.getBottom()+3, region.getRight()+3, table.getGrid());
+        }
+        return new GridTable(region.getTop(), region.getLeft(), region.getBottom(), region.getRight(), table.getGrid());
 
-	public boolean canAddRows(int nRows)
+    }
+
+    private boolean isExtendedView() {return !(canAddRows(1) && canAddCols(1));}
+
+    /**
+     * Checks if cell with row/col coordinates in system of the grid returned by <code>getUpdatedTable</code> methods
+     * is inside of table region. 
+     * @param row row number in coordinates of <code>getUpdatedTable</code> grid 
+     * @param col column number in coordinates of <code>getUpdatedTable</code> grid
+     * @return if cell belongs to the table
+     */
+    public boolean updatedTableCellInsideTableRegion(int row, int col) {
+        if (isExtendedView()) {row -= 3;col -= 3;}
+        return (row >= 0 && col >= 0 && row < IGridRegion.Tool.height(region) && col < IGridRegion.Tool.width(region));
+    }
+
+
+    public boolean canAddRows(int nRows)
 	{
 		GridRegion testRegion = new GridRegion(region.getBottom()+1, region.getLeft()-1, region.getBottom()+2, region.getRight()+1);
 		for (int i = 0; i < othertables.length; i++)
