@@ -4,7 +4,7 @@ YAHOO.widget.Calendar.prototype.render = function(x, y, obj, val) {
   {
     this.onSelect = function() {
       if (!obj._skip_detach) {
-        obj.destroy();
+        obj.detach();
       }
       else {
         obj._skip_detach = false;

@@ -84,6 +84,14 @@ public class TableEditorController {
                     typeResponse = new EditorTypeResponse("date");
                 }
 
+                if (col == 1 && row == 1) {
+                    typeResponse = new EditorTypeResponse("numeric");
+                }
+
+                if (col == 0 && row == 1) {
+                    typeResponse = new EditorTypeResponse("price");
+                }
+
                 response = pojo2json(typeResponse);
             }
         }
