@@ -128,7 +128,11 @@ TableEditor.prototype = {
         var tableid = this.tableid;
         new Ajax.Request(this.baseUrl + "saveTable", {
             onSuccess  : function(response) {
-                alert("Your changes have been saved!");
+                response = eval(response.responseText);
+                if(response.status)
+                    alert(response.status);
+                else
+                    alert("Your changes have been saved!");
             },
             onFailure : function() {
                 alert("Server failed to save your changes");

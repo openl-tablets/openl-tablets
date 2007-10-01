@@ -46,9 +46,11 @@ public class TableEditorController {
         readRequestParams();
         String value = Util.getRequestParameter("value");
 
-        getHelper(elementID).getModel().setCellValue(col, row, value);
-
-        response = "";
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            editorHelper.getModel().setCellValue(col, row, value);
+            response = pojo2json(new TableModificationResponse(null));
+        }
         return OUTCOME_SUCCESS;
     }
 
@@ -62,22 +64,27 @@ public class TableEditorController {
 
         EditorTypeResponse typeResponse = new EditorTypeResponse("text");
 
-        TableEditorModel editorModel = getHelper(elementID).getModel();
-        TableEditorModel.CellType type = editorModel.getCellType(row, col);
-        if (type == TableEditorModel.CellType.CA_ENUMERATION_CELL_TYPE) {
-            String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
-            typeResponse.setEditor("combo");
-            typeResponse.setParams(metadata);
-        }
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            TableEditorModel editorModel = editorHelper.getModel();
+            TableEditorModel.CellType type = editorModel.getCellType(row, col);
+            if (type == TableEditorModel.CellType.CA_ENUMERATION_CELL_TYPE) {
+                String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
+                typeResponse.setEditor("combo");
+                typeResponse.setParams(metadata);
+            }
 
-        if (col == 3 && row == 1) {
-            typeResponse = new EditorTypeResponse("multilineText");
-        }
-        if (col == 2 && row == 1) {
-            typeResponse = new EditorTypeResponse("date");
-        }
+            if (col == 3 && row == 1) {
+                typeResponse = new EditorTypeResponse("multilineText");
+            }
+            if (col == 2 && row == 1) {
+                typeResponse = new EditorTypeResponse("date");
+            }
 
-        response = pojo2json(typeResponse);
+            response = pojo2json(typeResponse);
+        } else {
+            response = "";
+        }
         return OUTCOME_SUCCESS;
     }
 
@@ -87,45 +94,55 @@ public class TableEditorController {
 
    public String addRowColBefore() throws Exception {
        readRequestParams();
-       TableEditorModel editorModel = getHelper(elementID).getModel();
 
-       TableModificationResponse tmResponse = new TableModificationResponse(null);
-       try {
-           if (row >= 0)
-               if (editorModel.canAddRows(1)) editorModel.insertRows(1, row); else tmResponse.setStatus("Can not add row");
-           else
-               if (editorModel.canAddCols(1)) editorModel.insertColumns(1, col); else tmResponse.setStatus("Can not add column");
-       } catch (Exception e) {
-           tmResponse.setStatus("Internal server error");
+       EditorHelper editorHelper = getHelper(elementID);
+       if (editorHelper != null) {
+           TableEditorModel editorModel = editorHelper.getModel();
+
+           TableModificationResponse tmResponse = new TableModificationResponse(null);
+           try {
+               if (row >= 0)
+                   if (editorModel.canAddRows(1)) editorModel.insertRows(1, row); else tmResponse.setStatus("Can not add row");
+               else
+                   if (editorModel.canAddCols(1)) editorModel.insertColumns(1, col); else tmResponse.setStatus("Can not add column");
+           } catch (Exception e) {
+               tmResponse.setStatus("Internal server error");
+           }
+
+           load();
+           tmResponse.setResponse(response);
+           response = pojo2json(tmResponse);
        }
-
-       load();
-       tmResponse.setResponse(response);
-       response = pojo2json(tmResponse);
        return OUTCOME_SUCCESS;
    }
 
     public String removeRowCol() throws Exception {
         readRequestParams();
-        TableEditorModel editorModel = getHelper(elementID).getModel();
-        boolean move = Boolean.valueOf(Util.getRequestParameter("move"));
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            TableEditorModel editorModel = editorHelper.getModel();
+            boolean move = Boolean.valueOf(Util.getRequestParameter("move"));
 
-        if (row > 0) {
-            if (move) ;
-            else editorModel.removeRows(1, row);
-        } else {
-            if (move) ;
-            else editorModel.removeColumns(1, col);
+            if (row > 0) {
+                if (move) ;
+                else editorModel.removeRows(1, row);
+            } else {
+                if (move) ;
+                else editorModel.removeColumns(1, col);
+            }
+            load();
+            response = pojo2json(new TableModificationResponse(response));
         }
-        load();
-        response = pojo2json(new TableModificationResponse(response));
         return OUTCOME_SUCCESS;
     }
 
     public String saveTable() throws IOException {
         readRequestParams();
-        getHelper(elementID).getModel().save();
-        response = "";
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            editorHelper.getModel().save();
+            response = pojo2json(new TableModificationResponse(""));
+        }
         return OUTCOME_SUCCESS;
     }
 
@@ -159,13 +176,23 @@ public class TableEditorController {
       return getHelper(elementID).getModel().getUpdatedTable();
    }
 
-   private synchronized static EditorHelper getHelper(int elementId) {
-      Map sessionMap = Util.getSessionMap();
-      if (sessionMap.containsKey("editorHelper")) return (EditorHelper) sessionMap.get("editorHelper");
-      EditorHelper editorHelper = new EditorHelper();
-      editorHelper.setTableID(elementId, Util.getWebStudio().getModel());
-      sessionMap.put("editorHelper", editorHelper);
-      return editorHelper;
+   private EditorHelper getHelper(int elementId) {
+       Map sessionMap = Util.getSessionMap();
+       synchronized (sessionMap) {
+           if (sessionMap.containsKey("editorHelper")) {
+               EditorHelper editorHelper = (EditorHelper) sessionMap.get("editorHelper");
+               if (editorHelper.getElementID() != elementId) {
+                   response = pojo2json(new TableModificationResponse(null,
+                           "You started editing another table, this table changes are lost "));
+                   return null;
+               }
+               return editorHelper;
+           }
+           EditorHelper editorHelper = new EditorHelper();
+           editorHelper.setTableID(elementId, Util.getWebStudio().getModel());
+           sessionMap.put("editorHelper", editorHelper);
+           return editorHelper;
+       }
    }
 
    private static String pojo2json(Object pojo) {
@@ -208,6 +235,11 @@ public class TableEditorController {
 
         public TableModificationResponse(String response) {
             this.response = response;
+        }
+
+        public TableModificationResponse(String response, String status) {
+            this.response = response;
+            this.status = status;
         }
 
         public String getResponse() {
