@@ -24,28 +24,18 @@ TextEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.style.padding = "0px";
     this.node.style.width = "100%";
 
-    this.node.value = this.td.innerHTML;
+    this.node.value = this.td.innerHTML.replace(/&nbsp;/g, " ");
 
-    this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
-    Event.observe(this.node, "keyup", this.eventHandler);
+    this.node.observe("click", BaseEditor.stopPropagationHandler, false);
+    this.node.observe("mousedown", BaseEditor.stopPropagationHandler, false);
+    this.node.observe("selectstart", BaseEditor.stopPropagationHandler, false);
 
     this.td.innerHTML = "";
     this.td.appendChild(this.node);
     this.node.focus();
-
-    //Event.observe(this.node, "click", function(e) {(e || event).cancelBubble = true});
-    //Event.observe(this.node, "mousedown", function(e) {(e || event).cancelBubble = true});
-  },
-
-  handleKeyPress: function (event) {
-    switch (event.keyCode) {
-      case 27: this.cancelEdit(); break;
-      case 13: this.doneEdit(); break;
-    }
   },
 
   destroy: function() {
-    Event.stopObserving(this.node, "keyup", this.eventHandler);
   }
 });
 

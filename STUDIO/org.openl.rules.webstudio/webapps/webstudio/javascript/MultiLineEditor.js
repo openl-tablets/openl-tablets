@@ -42,8 +42,8 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
     document.body.appendChild(this.node);
     ta.focus();
 
-    //this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
-    //Event.observe(this.node, "keyup", this.eventHandler);
+    this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
+    Event.observe(ta, "keydown", this.eventHandler);
 
     //Event.observe(this.node, "click", function(e) {(e || event).cancelBubble = true});
     //Event.observe(this.node, "mousedown", function(e) {(e || event).cancelBubble = true});
@@ -51,8 +51,7 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
 
   handleKeyPress: function (event) {
     switch (event.keyCode) {
-      case 27: this.cancelEdit(); break;
-      case 13: this.doneEdit(); break;
+      case 13: BaseEditor.stopPropagationHandler(event); break;
     }
   },
 
