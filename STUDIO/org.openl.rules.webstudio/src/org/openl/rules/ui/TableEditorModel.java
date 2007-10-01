@@ -4,15 +4,9 @@
  */
 package org.openl.rules.ui;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.openl.jsf.HtmlInputTextActivator;
 import org.openl.jsf.HtmlSelectActivator;
 import org.openl.jsf.ICellEditorActivator;
-import org.openl.jsf.editor.metadata.impl.HtmlSelectMetadata;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
@@ -25,8 +19,10 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.UndoableActions;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
-import org.openl.domain.StringDomain;
-import com.sun.org.apache.bcel.internal.generic.NEW;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author snshor
@@ -182,7 +178,10 @@ public class TableEditorModel
 
 	public void removeRows(int nRows, int beforeRow)
 	{
-		IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows, beforeRow, region);
+        if (isExtendedView()) beforeRow -= 3;
+        if (beforeRow < 0 || beforeRow >= IGridRegion.Tool.height(region)) return;
+        
+        IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows, beforeRow, region);
 		RegionAction ra = new RegionAction(ua, ROWS, REMOVE, nRows);
 		ra.doSome(region, wgrid(), undoGrid);
 		actions.addNewAction(ra);
@@ -191,7 +190,10 @@ public class TableEditorModel
 	
 	public void removeColumns(int nCols, int beforeCol)
 	{
-		IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, beforeCol, region);
+        if (isExtendedView()) beforeCol -= 3;
+        if (beforeCol < 0 || beforeCol >= IGridRegion.Tool.width(region)) return;
+
+        IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, beforeCol, region);
 		RegionAction ra = new RegionAction(ua, COLUMNS, REMOVE, nCols);
 		ra.doSome(region, wgrid(), undoGrid);
 		actions.addNewAction(ra);
