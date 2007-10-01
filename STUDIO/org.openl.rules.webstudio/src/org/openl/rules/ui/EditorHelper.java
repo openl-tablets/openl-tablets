@@ -12,21 +12,26 @@ import org.openl.rules.table.IGridTable;
 public class EditorHelper
 {
 	TableEditorModel model;
-	
-	public void setTableID(int elementID, ProjectModel prj, String mode)
+    int elementID;
+
+    public void setTableID(int elementID, ProjectModel prj, String mode)
 	{
-		IGridTable table = prj.getTableWithMode(elementID, mode);
-		
-      model = new TableEditorModel(table);
-	}
+        if (model != null) model.cancel();
+        IGridTable table = prj.getTableWithMode(elementID, mode);
+        model = new TableEditorModel(table);
+        this.elementID = elementID;
+    }
 
    public void setTableID(int elementID, ProjectModel prj)
 	{
 		setTableID(elementID, prj, null);
 	}
 
+    public int getElementID() {
+        return elementID;
+    }
 
-   public String showTable()
+    public String showTable()
 	{
 		return ProjectModel.showTable(model.getUpdatedTable(),  false);
 	}
