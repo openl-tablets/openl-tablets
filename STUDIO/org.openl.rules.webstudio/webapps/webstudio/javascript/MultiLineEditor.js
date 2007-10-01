@@ -36,6 +36,9 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.style.left = pos[0] + "px";
     this.node.style.top = pos[1] + "px";
     this.node.zIndex = "10";
+
+    ta.value = this.td.innerHTML.strip();
+
     document.body.appendChild(this.node);
     ta.focus();
 
@@ -57,19 +60,14 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
     return this.node.firstChild.value;
   },
 
-  setValue : function(/* String */ value) {
-    if (this.node != null) {
-      this.node.firstChild.value = value.strip();
-    }
+  detach: function() {
+    var v = this.isCancelled ? this.initialValue : this.getValue();
+    this.setTDValue(v);
+    document.body.removeChild(this.node);
   },
 
   destroy: function() {
-    document.body.removeChild(this.node);
     Event.stopObserving(this.node, "keyup", this.eventHandler);
-  },
-
-  detach: function() {
-    this.editorContainer.innerHTML = this.node.value;
   }
 });
 

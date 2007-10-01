@@ -1,94 +1,78 @@
 /**
- * Base class for Editors. If you need to create own layout just overload
+ * Base class for Editors. If you need to create own layout just override
  * methods of this class.
  *
- * @requires prototype JavaScript library
+ * @requires Prototype library
  *
  * @author Andrey Naumenko
  */
 
 var BaseEditor = Class.create();
 
-BaseEditor.T = function() {return true};
-
 BaseEditor.prototype = {
-    // -------------------------------------------------------------- Object properties --
-   node : null,
-   tableEditor : null,
-   td : null,
-   value : null,
-
-   /** Constructor */
-   initialize: function(tableEditor, td, param) {
-      this.tableEditor = tableEditor;
-      this.td = td;
-      this.editor_initialize(param);
-   },
-
-   editor_initialize: Prototype.emptyFunction,
-    // ----------------------------------------------------------------- Public methods --
+// -------------------------------------------------------------- Object properties --
+    tableEditor : null,
+    node : null,
+    td : null,
+    initialValue : null,
+    isCancelled : false,
 
     /**
-     * Append current instance of multivalued editor into element.
-     * element can be String - element id or DOM node.
+     * Constructor.
+     * Generally editor constructor performs the following steps:
+     *   1. saves initial cell value into initialValue variable
+     *   2. creates an HTML editor control (e.g. HTMLInputElement) and sets its value
      */
-    create : function(/* String|HTMLElement */ element) {
-        element = $(element);
-        return (element != null) ? element.appendChild(this.node) : this.node;
+    initialize: function(tableEditor, td, param) {
+        this.tableEditor = tableEditor;
+        this.td = td;
+        if (td) {
+            // save initial value
+            this.initialValue = this.td.innerHTML;
+        }
+        this.editor_initialize(param);
     },
 
-    /** Return actual value from editor */
+    editor_initialize: Prototype.emptyFunction,
+// ----------------------------------------------------------------- Public methods --
+
+    /** Obtains current value from HTML editor control */
     getValue : function() {
-        return (this.node != null) ? this.node.value : null;
+        return this.node ? this.node.value : null;
     },
 
-    /** Set value into editor. */
-    setValue : function(/* String */ value) {
-        if (value == "&nbsp;") value = "";
-        if (this.node != null)
-            this.node.value = value;
-    },
-
+    /**
+     * Destroys HTML editor control, writes value to cell.
+     */
     setTDValue : function(/* String */ value) {
-      this.td.innerHTML = value;
+        this.td.innerHTML = value;
     },
 
-  /** Returns if edit operation was cancelled */
-  isCancelled : function() {
-    return false;
-  },
+    /**
+     * Destroys HTML editor control, writes value to cell.
+     */
+    detach : function() {
+        var v = this.isCancelled ? this.initialValue : this.getValue();
+        this.setTDValue(v);
+    },
 
-   /** Editor specific actions for release of any resources(other actions) before removing
-    * editor control from the document.
-    */
+    /**
+     * Releases editor resources.
+     */
     destroy : function() {
         // default: do nothing
     },
 
-    /** Clears content in editor or reset his value to default. */
-    clear : function() {
-        this.node.value = "";
+// ----------------------------------------------------------------- Protected methods --
+
+    /** Notifies table editor that editing is finished */
+    doneEdit: function() {
+        this.tableEditor.editStop();
     },
 
-   // ----------------------------------------------------------------- Protected methods --
-
-   /** Notifies table editor that editing is finished */
-   doneEdit: function() {
-     this.tableEditor.editStop();
-   },
-
-  /** Notifies table editor that editing is finished and cancelled */
-  cancelEdit: function() {
-    this.isCancelled = BaseEditor.T;
-    this.doneEdit();
-  },
-
-   addOnChangeListener : function(editor, element) {
-        /*if (element != null) {
-            $(element).observe('change',
-                function(event){
-                     editor.hasChangesFlag = true;
-                });
-        }*/
+    /** Notifies table editor that editing is finished and cancelled */
+    cancelEdit: function() {
+        this.isCancelled = true;
+        this.doneEdit();
     }
 }

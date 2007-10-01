@@ -56,6 +56,11 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
     }
   },
 
+  getValue : function() {
+    var z = window._grid_calendar.getSelectedDates()[0];
+    return this._date2str(z);
+  },
+
   _2dg : function(v) {
     v = v.toString();
     return (v.length == 1) ? "0" + v : v;
@@ -65,19 +70,13 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
     return ("d/m/y").replace("m", this._2dg((z.getMonth() * 1 + 1))).replace("d", this._2dg(z.getDate())).replace("y", this._2dg((z.getFullYear() * 1)));
   },
 
-  destroy: function() {
-    //if (this.cell._cediton) this.cell._cediton = false; else return;
-    var z = window._grid_calendar.getSelectedDates()[0];
+  detach: function() {
+    var v = this.isCancelled ? this.initialValue : this.getValue();
+    this.setTDValue(v);
     window._grid_calendar.hide();
-    //if (!z.getFullYear()) return;
-    //this.cell.val = new Date(z.valueOf());
-    //this.setCValue(this._date2str(z), z);
-    //return (z.valueOf()) != (this.val.valueOf());
-    this.td.innerHTML = this._date2str(z);
   },
 
-  detach: function() {
-    this.editorContainer.innerHTML = this.node.value;
+  destroy: function() {
   }
 });
 
