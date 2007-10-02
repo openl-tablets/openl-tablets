@@ -21,9 +21,7 @@ SuggestEditor.prototype = Object.extend(new BaseEditor(), {
     this.node.style.padding = "0px";
     this.node.style.width = "100%";
     this.node.setAttribute("id", "statesautocomplete");
-    cell.appendChild(this.node);
-    this.node.focus();
-
+    
     var states = new Array("Alabama", "Alaska", "American Samoa", "Arizona", "Arkansas", "California",
       "Colorado", "Connecticut", "Delaware", "District of Columbia",
       "Federated States of Micronesia", "Florida", "Georgia", "Guam", "Hawaii", "Idaho", "Illinois",

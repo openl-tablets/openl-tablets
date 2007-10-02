@@ -269,7 +269,7 @@ TableEditor.prototype = {
      */
     handleKeyDown: function(event) {
         switch (event.keyCode) {
-            case 27: if (this.editor) this.editor.isCancelled = function() { return true }; this.editStop(); break;
+            case 27: if (this.editor) this.editor.cancelEdit(); break;
             case 13: this.editStop(); break;
         }
 

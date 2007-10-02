@@ -9,6 +9,14 @@
 
 var BaseEditor = Class.create();
 
+if (Prototype.Browser.WebKit || Prototype.Browser.IE) Object.extend(String.prototype, {
+  unescapeHTML: function() {
+    return this.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
+  }
+});
+
+BaseEditor.T = function() {return true}
+
 BaseEditor.stopPropagationHandler = function(e) {
       e = e || event;
       if (e.stopPropagation) {
@@ -36,12 +44,22 @@ BaseEditor.prototype = {
         this.td = td;
         if (td) {
             // save initial value
-            this.initialValue = this.td.innerHTML;
+            this.initialValue = this.td.innerHTML.unescapeHTML().strip();
         }
         this.editor_initialize(param);
+        this.show(this.initialValue);
     },
 
     editor_initialize: Prototype.emptyFunction,
+
+    show: function(value) {
+        if (this.node) {
+            this.node.value = value;
+            this.td.innerHTML = "";
+            this.td.appendChild(this.node);
+            this.node.focus();
+        }
+    },
 // ----------------------------------------------------------------- Public methods --
 
     /** Obtains current value from HTML editor control */
@@ -69,7 +87,13 @@ BaseEditor.prototype = {
     detach : function() {
         var v = this.isCancelled() ? this.initialValue : this.getValue();
         this.setTDValue(v);
+        this.destroy();
     },
+
+    /**
+     * Can be overridden in editors to clean up resources 
+     */
+    destroy: Prototype.emptyFunction,
 
 // ----------------------------------------------------------------- Protected methods --
 
@@ -80,7 +104,7 @@ BaseEditor.prototype = {
 
     /** Notifies table editor that editing is finished and cancelled */
     cancelEdit: function() {
-        this.isCancelled = true;
+        this.isCancelled = BaseEditor.T;
         this.doneEdit();
     }
 }
