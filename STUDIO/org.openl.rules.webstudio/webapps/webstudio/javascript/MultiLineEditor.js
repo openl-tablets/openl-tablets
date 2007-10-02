@@ -27,6 +27,8 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
 
         this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
         Event.observe(this.node, "keydown", this.eventHandler);
+
+        this.stopEventPropogation("click");
     },
 
     show: function(value) {
