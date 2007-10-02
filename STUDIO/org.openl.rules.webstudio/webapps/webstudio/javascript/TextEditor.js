@@ -22,9 +22,8 @@ TextEditor.prototype = Object.extend(new BaseEditor(), {
         this.node.style.padding = "0px";
         this.node.style.width = "100%";
 
-        this.node.observe("click", BaseEditor.stopPropagationHandler, false);
-        this.node.observe("mousedown", BaseEditor.stopPropagationHandler, false);
-        this.node.observe("selectstart", BaseEditor.stopPropagationHandler, false);
+        var self = this;
+        ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
     }
 });
 
