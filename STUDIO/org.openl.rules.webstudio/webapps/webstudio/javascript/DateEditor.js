@@ -42,6 +42,7 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
 
     destroy: function() {
         window._grid_calendar.hide();
+        Event.stopObserving(window._grid_calendar.table.parentNode.parentNode, "click", BaseEditor.stopPropagationHandler);
     }
 });
 

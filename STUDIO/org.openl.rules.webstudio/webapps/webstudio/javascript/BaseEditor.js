@@ -32,6 +32,7 @@ BaseEditor.prototype = {
     node : null,
     td : null,
     initialValue : null,
+    stoppedEvents : [],
 
     /**
      * Constructor.
@@ -50,8 +51,14 @@ BaseEditor.prototype = {
         this.show(this.initialValue);
     },
 
+    /**
+     *  Editor specific constructor. Typically HTML node is created and possible some events handlers are registered.
+     */
     editor_initialize: Prototype.emptyFunction,
 
+    /**
+     * Is responsible for making editor visible and active. In most cases it is not need to be overridden.
+     */
     show: function(value) {
         if (this.node) {
             this.node.value = value;
@@ -59,6 +66,12 @@ BaseEditor.prototype = {
             this.td.appendChild(this.node);
             this.node.focus();
         }
+    },
+
+    /** Stops given event propogation up to parent elements */
+    stopEventPropogation: function(name) {
+        this.stoppedEvents.push(name);
+        this.node.observe(name, BaseEditor.stopPropagationHandler, false);
     },
 // ----------------------------------------------------------------- Public methods --
 
@@ -87,6 +100,12 @@ BaseEditor.prototype = {
     detach : function() {
         var v = this.isCancelled() ? this.initialValue : this.getValue();
         this.setTDValue(v);
+        if (this.stoppedEvents) {
+            var node = this.node;
+            this.stoppedEvents.each(function(evt) {
+                Event.stopObserving(node, evt, BaseEditor.stopPropagationHandler)
+            })
+        }
         this.destroy();
     },
 

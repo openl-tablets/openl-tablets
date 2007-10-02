@@ -20,9 +20,7 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
             self.addOption(el, el)
         });
 
-        this.node.observe("click", BaseEditor.stopPropagationHandler, false);
-        this.node.observe("mousedown", BaseEditor.stopPropagationHandler, false);
-        this.node.observe("selectstart", BaseEditor.stopPropagationHandler, false);
+        ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
     },
 
     /**
