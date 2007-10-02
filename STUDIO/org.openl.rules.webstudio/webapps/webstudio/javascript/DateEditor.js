@@ -24,6 +24,8 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
         Event.observe(window._grid_calendar.table.parentNode.parentNode, "click", BaseEditor.stopPropagationHandler, false);
     },
 
+    show : Prototype.emptyFunction,
+
     getValue : function() {
         var z = window._grid_calendar.getSelectedDates()[0];
         return this._date2str(z);
@@ -38,8 +40,7 @@ DateEditor.prototype = Object.extend(new BaseEditor(), {
         return ("m/d/y").replace("m", this._2dg((z.getMonth() * 1 + 1))).replace("d", this._2dg(z.getDate())).replace("y", this._2dg((z.getFullYear() * 1)));
     },
 
-    detach: function() {
-        BaseEditor.prototype.detach.apply(this);
+    destroy: function() {
         window._grid_calendar.hide();
     }
 });

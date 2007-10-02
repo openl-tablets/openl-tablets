@@ -22,19 +22,14 @@ PriceEditor.prototype = Object.extend(new BaseEditor(), {
         this.node.style.padding = "0px";
         this.node.style.width = "100%";
 
-        var v = this.td.innerHTML;
-        if (v[0] == '$') {
-            v = v.substr(1)
-        }
-        this.node.value = v.replace(/&nbsp;/g, " ");
-
         this.node.observe("click", BaseEditor.stopPropagationHandler, false);
         this.node.observe("mousedown", BaseEditor.stopPropagationHandler, false);
         this.node.observe("selectstart", BaseEditor.stopPropagationHandler, false);
+    },
 
-        this.td.innerHTML = "";
-        this.td.appendChild(this.node);
-        this.node.focus();
+    show: function(v) {
+        if (v.startsWith('$')) {v = v.substr(1)}
+        BaseEditor.prototype.show.call(this, v);
     },
 
     isCancelled : function() {

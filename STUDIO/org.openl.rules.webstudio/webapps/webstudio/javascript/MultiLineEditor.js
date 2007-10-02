@@ -7,13 +7,14 @@ var MultiLineEditor = Class.create();
 
 MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
     eventHandler : null,
+    ta : null,
 
     editor_initialize: function() {
         this.node = document.createElement("div");
-        var ta = document.createElement("textarea");
-        ta.cols = 30;
-        ta.rows = 3;
-        this.node.appendChild(ta);
+        this.ta = document.createElement("textarea");
+        this.ta.cols = 30;
+        this.ta.rows = 3;
+        this.node.appendChild(this.ta);
 
         this.node.style.position = "absolute";
 
@@ -24,13 +25,14 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
         this.node.style.top = pos[1] + "px";
         this.node.zIndex = "10";
 
-        ta.value = this.td.innerHTML.strip();
-
-        document.body.appendChild(this.node);
-        ta.focus();
-
         this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
-        Event.observe(ta, "keydown", this.eventHandler);
+        Event.observe(this.node, "keydown", this.eventHandler);
+    },
+
+    show: function(value) {
+        this.ta.value = value;
+        document.body.appendChild(this.node);
+        this.ta.focus();
     },
 
     handleKeyPress: function (event) {
@@ -40,15 +42,11 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
     },
 
     getValue : function() {
-        return this.node.firstChild.value;
-    },
-
-    detach: function() {
-        BaseEditor.prototype.detach.apply(this);
-        document.body.removeChild(this.node);
+        return this.ta.value;
     },
 
     destroy: function() {
+        document.body.removeChild(this.node);
         Event.stopObserving(this.node, "keydown", this.eventHandler);
     }
 });

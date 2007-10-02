@@ -22,15 +22,9 @@ NumericEditor.prototype = Object.extend(new BaseEditor(), {
         this.node.style.padding = "0px";
         this.node.style.width = "100%";
 
-        this.node.value = this.td.innerHTML.replace(/&nbsp;/g, " ");
-
         this.node.observe("click", BaseEditor.stopPropagationHandler, false);
         this.node.observe("mousedown", BaseEditor.stopPropagationHandler, false);
         this.node.observe("selectstart", BaseEditor.stopPropagationHandler, false);
-
-        this.td.innerHTML = "";
-        this.td.appendChild(this.node);
-        this.node.focus();
     },
 
     isCancelled : function() {
