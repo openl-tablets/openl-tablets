@@ -5,7 +5,7 @@
  */
 var NumericEditor = Class.create();
 
-NumericEditor.prototype = Object.extend(new BaseEditor(), {
+NumericEditor.prototype = Object.extend(new BaseTextEditor(), {
     editor_initialize: function() {
         this.node = $(document.createElement("input"));
         this.node.setAttribute("type", "text");

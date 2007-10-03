@@ -114,6 +114,11 @@ BaseEditor.prototype = {
      */
     destroy: Prototype.emptyFunction,
 
+    /** Handles F2 press */
+    handleF2: Prototype.emptyFunction,
+    /** Handles F3 press */
+    handleF3: Prototype.emptyFunction,
+
 // ----------------------------------------------------------------- Protected methods --
 
     /** Notifies table editor that editing is finished */
