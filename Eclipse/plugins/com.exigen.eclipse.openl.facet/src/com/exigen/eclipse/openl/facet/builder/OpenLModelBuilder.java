@@ -241,7 +241,7 @@ public class OpenLModelBuilder extends AbstractBuilder {
 										public void bindingError(
 												String message,
 												Throwable cause, String location) {
-											String errorMessage = "BINGING ERROR: "
+											String errorMessage = "BINDING ERROR: "
 													+ message;
 											IMarker marker = addImporterProblemMarker(
 													file, errorMessage,
