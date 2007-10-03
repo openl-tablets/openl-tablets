@@ -4,10 +4,8 @@ import java.util.Map;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
-import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
-import org.apache.myfaces.el.ValueBindingImpl;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.WebStudio;
 import org.richfaces.component.html.HtmlModalPanel;

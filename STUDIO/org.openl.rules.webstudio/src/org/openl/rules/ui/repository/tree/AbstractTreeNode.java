@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.richfaces.component.TreeNode;
+import org.richfaces.model.TreeNode;
 
 /**
  * This abstract class implements basic functionality of {@link TreeNode} interface.
@@ -208,7 +208,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 	public long getId() {
 		return id;
 	}
-
+	
 	/**
 	 * Short for <code>addChild(child.getId(), child)</code>.
 	 * <p>

@@ -24,6 +24,12 @@
 			<to-view-id>/ui/jcr/search/advanced.xhtml</to-view-id>
 			<redirect/>
 		</navigation-case>
+		<navigation-case>
+			<from-action>#{prj.doIt}</from-action>
+			<from-outcome>index</from-outcome>
+			<to-view-id>/index-jcr.xhtml</to-view-id>
+			<redirect/>
+		</navigation-case>
 	</navigation-rule>
 
 	<navigation-rule>
