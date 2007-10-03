@@ -39,7 +39,9 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
 
     handleKeyPress: function (event) {
         switch (event.keyCode) {
-            case 13: BaseEditor.stopPropagationHandler(event); break;
+            case 13:
+                if (!event.ctrlKey) BaseEditor.stopPropagationHandler(event);
+            break;
         }
     },
 
