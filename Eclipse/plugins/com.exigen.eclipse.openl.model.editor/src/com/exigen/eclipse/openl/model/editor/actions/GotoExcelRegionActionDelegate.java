@@ -16,6 +16,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.ide.IDE;
 
+import com.exigen.common.model.components.ComponentInvocation;
 import com.exigen.eclipse.common.core.artefact.project.facet.JavaFacet;
 import com.exigen.eclipse.common.core.exception.CommonException;
 import com.exigen.eclipse.common.facet.emf.artefact.DomainModel;
@@ -46,6 +47,10 @@ public class GotoExcelRegionActionDelegate implements IActionDelegate {
 			ruleSetFile = (RuleSetFile) ruleSet.eContainer();
 		} else if (selectedObject instanceof RuleSetFile) {
 			ruleSetFile = (RuleSetFile) selectedObject;
+		} else if (selectedObject instanceof ComponentInvocation) {
+			ComponentInvocation componentDefinition = (ComponentInvocation) selectedObject;
+			ruleSet = (RuleSet) componentDefinition.getOperation();
+			ruleSetFile = (RuleSetFile) ruleSet.eContainer();
 		} else {
 			return;
 		}

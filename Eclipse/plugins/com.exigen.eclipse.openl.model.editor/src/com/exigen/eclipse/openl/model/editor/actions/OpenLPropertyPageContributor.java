@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 
+import com.exigen.common.model.components.ComponentInvocation;
 import com.exigen.eclipse.common.core.exception.CommonException;
 import com.exigen.eclipse.common.core.internal.ExceptionHandler;
 import com.exigen.eclipse.common.facet.emf.edit.provider.ProviderUtils;
@@ -112,6 +113,11 @@ public class OpenLPropertyPageContributor implements
 				if ((selectedElement instanceof RuleSet)
 						|| (selectedElement instanceof RuleSetFile)) {
 					shouldActionsBeVisible = true;
+				} else if (selectedElement instanceof ComponentInvocation) {
+					ComponentInvocation componentInvocation = (ComponentInvocation) selectedElement;
+					if (componentInvocation.getOperation() instanceof RuleSet) {
+						shouldActionsBeVisible = true;
+					}
 				}
 			}
 		}
@@ -142,6 +148,11 @@ public class OpenLPropertyPageContributor implements
 						.unwrapContentObjectToEObject(selectedElement);
 				if (selectedElement instanceof RuleSet) {
 					ruleSet = (RuleSet) selectedElement;
+				} else if (selectedElement instanceof ComponentInvocation) {
+					ComponentInvocation componentInvocation = (ComponentInvocation) selectedElement;
+					if (componentInvocation.getOperation() instanceof RuleSet) {
+						ruleSet = (RuleSet) componentInvocation.getOperation();
+					}
 				}
 			}
 		}
