@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry exported="true" kind="lib" path="ajax4jsf-1.1.1/ajax4jsf-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="commons-beanutils-1.7.0/commons-beanutils-1.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="commons-codec-1.3/commons-codec-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="commons-collections-3.1/commons-collections-3.1.jar"/>
@@ -17,7 +16,9 @@
 	<classpathentry exported="true" kind="lib" path="jstl-1.1.0/jstl-1.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="myfaces-api-1.1.5/myfaces-api-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="myfaces-impl-1.1.5/myfaces-impl-1.1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="richfaces-3.0.1/richfaces-3.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="richfaces-ui-3.1.0/richfaces-api-3.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="richfaces-ui-3.1.0/richfaces-impl-3.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="richfaces-ui-3.1.0/richfaces-ui-3.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="standard/standard.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
