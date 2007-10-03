@@ -7,8 +7,8 @@ Bundle-Activator: com.exigen.eclipse.openl.model.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
- com.exigen.eclipse.common.facet.emf,
- com.exigen.eclipse.common.model
+ com.exigen.eclipse.common.facet.emf;visibility:=reexport,
+ com.exigen.eclipse.common.model;visibility:=reexport
 Eclipse-LazyStart: true
 Bundle-ClassPath: lib/com.exigen.openl.model.jar,
  com.exigen.eclipse.openl.model.jar
