@@ -18,15 +18,15 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.DynamicObject;
 
 import com.exigen.common.model.components.BaseNamedParameter;
-import com.exigen.common.model.components.java.DataObject;
+import com.exigen.common.model.components.ParameterMode;
 import com.exigen.common.model.components.java.DataObjectAttribute;
 import com.exigen.common.model.components.java.JavaComponentsFactory;
 import com.exigen.openl.component.ErrorListener;
 import com.exigen.openl.model.openl.OpenlFactory;
 import com.exigen.openl.model.openl.RuleSet;
+import com.exigen.openl.model.openl.RuleSetCompositeParameter;
 import com.exigen.openl.model.openl.RuleSetFile;
 import com.exigen.openl.model.openl.RuleSetParameter;
 import com.exigen.openl.model.openl.RuleSetReturn;
@@ -83,11 +83,13 @@ public class OpenLImporter {
 					Class instanceClass = argumentOpenClass.getInstanceClass();
 					String parameterName = method.getSignature()
 							.getParameterName(index);
+					if ((parameterName==null) || "".equals(parameterName))
+						parameterName = generateParameterName(instanceClass);
 
-					if (DynamicObject.class.isAssignableFrom(instanceClass)) {
-						DataObject dataObject = JavaComponentsFactory.eINSTANCE
-								.createDataObject();
-
+					if (instanceClass.getName().endsWith("Result")) {
+						RuleSetCompositeParameter parameter = OpenlFactory.eINSTANCE.createRuleSetCompositeParameter();
+						parameter.setType(instanceClass.getName());
+						parameter.setName(parameterName);
 						for (Iterator fieldsIter = argumentOpenClass.fields(); fieldsIter
 								.hasNext();) {
 							IOpenField field = (IOpenField) fieldsIter.next();
@@ -97,11 +99,12 @@ public class OpenLImporter {
 
 							importParameter(attribute, field.getName(),
 									field.getType());
-
-							dataObject.getAttributes().add(attribute);
+							attribute.setMode(ParameterMode.OUT_LITERAL);
+							attribute.setRequired(false);
+							parameter.getAttributes().add(attribute);
 						}
 
-						ruleSet.getMethodParameters().add(dataObject);
+						ruleSet.getMethodParameters().add(parameter);
 					} else {
 						RuleSetParameter ruleSetParameter = OpenlFactory.eINSTANCE
 								.createRuleSetParameter();
@@ -132,11 +135,18 @@ public class OpenLImporter {
 		}
 	}
 
+	private String generateParameterName(Class instanceClass) {
+		return instanceClass.getSimpleName().toLowerCase();
+	}
+
 	private void importParameter(BaseNamedParameter parameter,
 			String parameterName, IOpenClass argumentOpenClass) {
 		Class instanceClass = argumentOpenClass.getInstanceClass();
 
-		parameter.setName(parameterName);
+		if ((parameterName==null ) || "" .equals(parameterName))
+			parameter.setName(generateParameterName(instanceClass));
+		else
+			parameter.setName(parameterName);
 		// argumentOpenClass.
 		parameter.setType(ClassUtils.primitiveToWrapper(instanceClass)
 				.getName());
