@@ -26,7 +26,7 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
         this.node.zIndex = "10";
 
         this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
-        Event.observe(this.node, "keydown", this.eventHandler);
+        Event.observe(this.node, "keypress", this.eventHandler);
 
         this.stopEventPropogation("click");
     },
@@ -51,7 +51,7 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
 
     destroy: function() {
         document.body.removeChild(this.node);
-        Event.stopObserving(this.node, "keydown", this.eventHandler);
+        Event.stopObserving(this.node, "keypress", this.eventHandler);
     },
 
     /**
