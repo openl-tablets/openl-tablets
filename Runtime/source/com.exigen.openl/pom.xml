@@ -59,6 +59,7 @@
 	</build>
 	<modules>
 		<module>../com.exigen.openl.model</module>
+		<module>../com.exigen.openl.importer</module>
 	</modules>
 	<dependencies>
 		<dependency>
