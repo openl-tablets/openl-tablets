@@ -286,7 +286,7 @@ TableEditor.prototype = {
             return;
         }
 
-        if (this.hasSelection) {
+        if (this.hasSelection()) {
             if ([event.ctrlKey, event.altKey, event.shiftKey, event.metaKey].any()) return;
             if (event.charCode) { // FF
                 if (event.charCode == 0) return;
