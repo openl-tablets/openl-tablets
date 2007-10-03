@@ -46,5 +46,11 @@
          </action>
       </project-facet-version>
    </extension>
-	
+	 <extension
+          id="OpenLModelBuilder"
+          name="OpenL Importer Problem"
+          point="org.eclipse.core.resources.markers">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <persistent value="true"/>
+    </extension> 	
 </plugin>

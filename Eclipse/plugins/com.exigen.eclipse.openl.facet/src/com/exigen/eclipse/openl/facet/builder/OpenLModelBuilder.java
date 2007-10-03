@@ -34,6 +34,8 @@ import com.exigen.openl.component.ErrorListener;
 import com.exigen.openl.model.openl.RuleSetFile;
 
 public class OpenLModelBuilder extends AbstractBuilder {
+	public static final String IMPORTER_PROBLEM_MARKER_ID = Activator.PLUGIN_ID
+			+ ".OpenLModelBuilder";
 
 	public static final String BUILDER_ID = Activator.PLUGIN_ID
 			+ ".OpenLModelBuilder";
@@ -64,6 +66,7 @@ public class OpenLModelBuilder extends AbstractBuilder {
 				buildDelta(delta, args, progressMonitor);
 			}
 		}
+		needRebuild();
 		return true;
 	}
 
@@ -184,8 +187,10 @@ public class OpenLModelBuilder extends AbstractBuilder {
 		progressMonitor.beginTask(
 				"Create OpenL Tablets model for Excel file \""
 						+ file.getFullPath() + "\"", 2);
+		
 		try {
 			try {
+				cleanProblemMarkers(file);
 				Artefact artefact = CommonCore.getWorkspace()
 						.getArtefactForResource(file.getParent());
 				if (artefact instanceof DomainFolder) {
@@ -200,6 +205,7 @@ public class OpenLModelBuilder extends AbstractBuilder {
 						domainModel.create(new SubProgressMonitor(
 								progressMonitor, 1));
 
+					
 					RuleSetFile ruleSetFile = EclipseOpenLImporter
 							.getInstance().importExcelFile(file,
 									new ErrorListener() {
@@ -208,7 +214,7 @@ public class OpenLModelBuilder extends AbstractBuilder {
 												Throwable cause, String location) {
 											String errorMessage = "BINGING ERROR: "
 													+ message;
-											IMarker marker = addProblemMarker(
+											IMarker marker = addImporterProblemMarker(
 													file, errorMessage,
 													IMarker.SEVERITY_ERROR);
 											try {
@@ -235,7 +241,7 @@ public class OpenLModelBuilder extends AbstractBuilder {
 												Throwable cause, String location) {
 											String errorMessage = "PARSING ERROR: "
 													+ message;
-											IMarker marker = addProblemMarker(
+											IMarker marker = addImporterProblemMarker(
 													file, errorMessage,
 													IMarker.SEVERITY_ERROR);
 											try {
@@ -279,5 +285,24 @@ public class OpenLModelBuilder extends AbstractBuilder {
 	@Override
 	protected void internalClean(IProgressMonitor monitor)
 			throws CommonException {
+	}
+
+	private IMarker addImporterProblemMarker(IResource resource, String errorMessage,
+			int severity_error) {
+		try {
+			IMarker marker = resource.createMarker(IMPORTER_PROBLEM_MARKER_ID);
+			marker.setAttribute(IMarker.MESSAGE, errorMessage);
+			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			return marker;
+		} catch (CoreException e) {
+			ExceptionHandler.handleCoreExceptionThatMustBeIgnored(e,
+					"Unable to add marker");
+		}
+		return null;
+	}
+	
+	private void cleanProblemMarkers(IResource resource) throws CoreException {
+		resource.deleteMarkers(IMPORTER_PROBLEM_MARKER_ID, true, IResource.DEPTH_INFINITE);
+
 	}
 }
