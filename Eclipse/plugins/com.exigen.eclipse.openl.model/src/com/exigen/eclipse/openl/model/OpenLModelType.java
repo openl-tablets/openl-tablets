@@ -9,6 +9,8 @@ import com.exigen.openl.model.openl.OpenlPackage;
 public class OpenLModelType extends DefaultModelType {
 	private static final long serialVersionUID = 1L;
 
+	public final static String FILE_EXTENSION = "openl";
+
 	public org.eclipse.emf.ecore.EObject createRootElement(Map arg0) {
 		return OpenlFactory.eINSTANCE.createRuleSetFile();
 	}
