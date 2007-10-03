@@ -12,8 +12,8 @@ import org.openl.rules.ui.repository.tree.TreeFolder;
 import org.openl.rules.ui.repository.tree.TreeProject;
 import org.openl.rules.ui.repository.tree.TreeRepository;
 import org.richfaces.component.UITree;
-import org.richfaces.component.events.NodeSelectedEvent;
-import org.richfaces.component.events.NodeSelectedListener;
+import org.richfaces.event.NodeSelectedEvent;
+import org.richfaces.event.NodeSelectedListener;
 
 /**
  * Handler for Repository/Projects Tree
@@ -163,5 +163,12 @@ public class RepositoryHandler implements NodeSelectedListener {
 	
 	protected void setSelected(AbstractTreeNode node) {
 		currentNode = node;
+	}
+	
+	public Boolean adviseNodeSelected(org.richfaces.component.UITree uiTree) {
+	    AbstractTreeNode node = (AbstractTreeNode) uiTree.getRowData();
+	    AbstractTreeNode selected = getSelected();
+
+	    return (node == selected) ? Boolean.TRUE : Boolean.FALSE;
 	}
 }

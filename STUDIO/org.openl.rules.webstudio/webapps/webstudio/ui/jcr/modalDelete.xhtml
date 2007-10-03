@@ -1,0 +1,112 @@
+<ui:composition
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<rich:modalPanel  id="modalPanel" minHeight="200" minWidth="450" 
+		height="200" width="500" zindex="2000">
+		<f:facet name="header">
+			<h:outputText value="Confirm Delete" />
+		</f:facet>
+
+		<f:facet name="controls">
+			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="closeModal(false);" />
+		</f:facet>
+
+		<table style="width:100%; height: 180px;"><tr><td align="center" height="60%">
+
+		<p id="modalPanel:message" style="font-size:14px;">
+		Are you sure you want to delete the project?
+		</p>
+
+		</td></tr><tr><td align="center">
+
+		<h:form id="modalForm">
+			<table width="50%" align="center"><tr><td>
+				<h:commandButton value="Delete" onclick="closeModal(true);return false;"/>
+			</td><td>
+				<h:commandButton value="Cancel" onclick="closeModal(false);return false;" />
+			</td></tr></table>
+		</h:form>
+		
+		</td></tr></table>
+
+	</rich:modalPanel>
+
+	<script>
+		var lastModalEval = null;
+		var lastModalName = null;
+
+		function showModal(modalName, from) {
+			var s = '' + from.getAttribute('onclick');
+			var start = 'oamSubmitForm';
+			
+			if (s.charAt(s.length - 1) == '}') {
+				// IE
+				s = s.substr(0, s.length - 1);
+			} else {
+				// FF
+			}
+
+			var i;
+			i = s.search(start);
+			if (i > 0) {
+				s = s.substr(i);
+			}
+//			alert(s);
+			
+			lastModalEval = s;
+			lastModalName = modalName;
+			Richfaces.showModalPanel(modalName);
+			return false;
+		}
+		
+		function closeModal(result) {
+			Richfaces.hideModalPanel(lastModalName);
+			
+			if (result) {
+				eval(lastModalEval);
+			}
+			return false;
+		}
+		
+		function format(s, param) {
+			var place = '{0}';
+			
+			var i = s.indexOf(place);
+			if (i > 0) {
+				s = s.substr(0, i) + param + s.substr(i + place.length);
+			} else {
+				s = s + ' ' + param;
+			}
+			
+			return s;
+		}
+		
+		function initMessage(from, msgFormat, param) {
+			var el = document.getElementById('modalPanel:message');
+			var s = (param) ? param : from.innerHTML;
+			el.innerHTML = format(msgFormat, s);
+		}
+		
+		function confirmDeleteProject(from, param) {
+			initMessage(from, "Are you sure you want to delete the project '{0}'?", param);
+		
+			return showModal('modalPanel', from);
+		}
+
+		function confirmDeleteFolder(from, param) {
+			initMessage(from, "Are you sure you want to delete the folder '{0}'?", param);
+		
+			return showModal('modalPanel', from);
+		}
+
+		function confirmDeleteFile(from, param) {
+			initMessage(from, "Are you sure you want to delete the file '{0}'?", param);
+		
+			return showModal('modalPanel', from);
+		}
+	</script>
+
+</ui:composition>

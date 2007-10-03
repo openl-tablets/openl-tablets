@@ -6,10 +6,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
-import org.ajax4jsf.ajax.html.AjaxForm;
-import org.ajax4jsf.ajax.html.HtmlAjaxCommandButton;
-import org.apache.myfaces.el.MethodBindingImpl;
-import org.apache.myfaces.el.ValueBindingImpl;
+import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.WebStudio;
 

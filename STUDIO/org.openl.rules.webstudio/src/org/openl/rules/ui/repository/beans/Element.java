@@ -28,5 +28,4 @@ public class Element {
 	public String getVersion() {
 		return version;
 	}
-
 }

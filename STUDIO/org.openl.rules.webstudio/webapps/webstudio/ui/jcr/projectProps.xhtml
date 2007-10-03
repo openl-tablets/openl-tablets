@@ -5,30 +5,20 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
 	<h:panelGrid columns="2">
-		<h:outputLabel for="p1" styleClass="niceLabel">
-			<h:outputText value="Project Name:" />
-		</h:outputLabel>
-		<h:outputText id="p1" value="#{repositoryHandler.selected.name}" />
+		<h:outputText styleClass="niceLabel" value="Project Name:" />
+		<h:outputText value="#{repositoryHandler.selected.name}" />
 
-		<h:outputLabel for="p2" styleClass="niceLabel">
-			<h:outputText value="Description:" />
-		</h:outputLabel>
-		<h:inputTextarea id="p2" value="" rows="3" cols="40"/>
+		<h:outputText styleClass="niceLabel" value="Description:" />
+		<h:inputTextarea value="" rows="3" cols="40"/>
 
-		<h:outputLabel for="p3" styleClass="niceLabel">
-			<h:outputText value="Effective Date:" />
-		</h:outputLabel>
-		<h:inputText id="p3" value="09/01/2007" />
+		<h:outputText styleClass="niceLabel" value="Effective Date:" />
+		<h:inputText value="09/01/2007" />
 
-		<h:outputLabel for="p4" styleClass="niceLabel">
-			<h:outputText value="Expiration Date:" />
-		</h:outputLabel>
-		<h:inputText id="p4" value="01/01/2008" />
+		<h:outputText styleClass="niceLabel" value="Expiration Date:" />
+		<h:inputText value="01/01/2008" />
 
-		<h:outputLabel for="p5" styleClass="niceLabel">
-			<h:outputText value="Status:" />
-		</h:outputLabel>
-		<h:selectOneMenu id="p5" value="DRAFT">
+		<h:outputText styleClass="niceLabel" value="Status:" />
+		<h:selectOneMenu value="DRAFT">
 			<f:selectItem itemValue="INITIAL" />
 			<f:selectItem itemValue="DRAFT" />
 			<f:selectItem itemValue="QA" />
@@ -36,30 +26,20 @@
 			<f:selectItem itemValue="OBSOLETE" />
 		</h:selectOneMenu>
 
-		<h:outputLabel for="p6" styleClass="niceLabel">
-			<h:outputText value="Creation Date:" />
-		</h:outputLabel>
-		<h:outputText id="p6" value="09/01/2007 9:22am" />
+		<h:outputText styleClass="niceLabel" value="Creation Date:" />
+		<h:outputText value="09/01/2007 9:22am" />
 
-		<h:outputLabel for="p7" styleClass="niceLabel">
-			<h:outputText value="Modified Date:" />
-		</h:outputLabel>
-		<h:outputText id="p7" value="09/20/2007 4:26pm" />
+		<h:outputText styleClass="niceLabel" value="Modified Date:" />
+		<h:outputText value="09/20/2007 4:26pm" />
 
-		<h:outputLabel for="p8" styleClass="niceLabel">
-			<h:outputText value="Access Level:" />
-		</h:outputLabel>
-		<h:outputText id="p8" value="Write" />
+		<h:outputText styleClass="niceLabel" value="Access Level:" />
+		<h:outputText value="Write" />
 
-		<h:outputLabel for="p9" styleClass="niceLabel">
-			<h:outputText value="LOB:" />
-		</h:outputLabel>
-		<h:inputText id="p9" value="" />
+		<h:outputText styleClass="niceLabel" value="LOB:" />
+		<h:inputText value="" />
 
-		<h:outputLabel for="p10" styleClass="niceLabel">
-			<h:outputText value="Region:" />
-		</h:outputLabel>
-		<h:inputText id="p10" value="" />
+		<h:outputText styleClass="niceLabel" value="Region:" />
+		<h:inputText value="" />
 	</h:panelGrid>
 
 </ui:composition>
