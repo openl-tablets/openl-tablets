@@ -7,11 +7,13 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
@@ -22,6 +24,7 @@ import com.exigen.eclipse.common.core.artefact.project.facet.JavaFacet;
 import com.exigen.eclipse.common.core.exception.CommonException;
 import com.exigen.eclipse.common.core.internal.ExceptionHandler;
 import com.exigen.eclipse.common.util.Assert;
+import com.exigen.eclipse.common.util.jdt.ClassPathResolver;
 import com.exigen.eclipse.openl.facet.Activator;
 import com.exigen.openl.component.ErrorListener;
 import com.exigen.openl.model.openl.RuleSetFile;
@@ -46,17 +49,21 @@ public class EclipseOpenLImporter {
 
 	protected ClassLoader getClassLoader(CommonProject commonProject)
 			throws CommonException {
-		if (cashedClassLoaders.containsKey(commonProject)) {
-			return cashedClassLoaders.get(commonProject);
-		}
+		/*
+		 * if (cashedClassLoaders.containsKey(commonProject)) { return
+		 * cashedClassLoaders.get(commonProject); }
+		 */
 
 		List<URL> urls = new ArrayList<URL>();
 		JavaFacet javaFacet = commonProject.getFacet(JavaFacet.class);
 		try {
-			IPackageFragmentRoot[] allPackageFragmentRoots = javaFacet
-					.getCorrespondingJavaProject().getAllPackageFragmentRoots();
-			for (IPackageFragmentRoot fragmentRoot : allPackageFragmentRoots) {
-				urls.add(fragmentRoot.getPath().toFile().toURL());
+			if (javaFacet != null) {
+				List<IPath> javaProjectLibs = ClassPathResolver
+						.getJavaProjectLibs(javaFacet
+								.getCorrespondingJavaProject(), false);
+				for (IPath path : javaProjectLibs) {
+					urls.add(path.toFile().toURL());
+				}
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler
