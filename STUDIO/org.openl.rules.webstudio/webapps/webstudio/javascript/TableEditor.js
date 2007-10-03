@@ -219,8 +219,8 @@ TableEditor.prototype = {
         this.editStop();
         if (elt.tagName == "TD") {
             this.selectElement(elt);
+            Event.stop(e);
         }
-        Event.stop(e);
     },
 
 
