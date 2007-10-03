@@ -1,5 +1,7 @@
 package com.exigen.eclipse.openl.facet.builder;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -70,8 +72,33 @@ public class OpenLModelBuilder extends AbstractBuilder {
 		return true;
 	}
 
+	private void buildAll(Map args, IProgressMonitor progressMonitor) throws CommonException {
+		Collection<IFile> files = new ArrayList<IFile>();
+		progressMonitor.beginTask(
+				getBuilderName()
+						+ " builder enumerates all all Excel files",
+				1);
+		try{
+			collectFiles(files);
+		}finally{
+			progressMonitor.done();
+		}
+		progressMonitor.beginTask(getBuilderName()+ " builder process files ",files.size());
+		try{
+			for (IFile file : files) {
+				processFile(file, new SubProgressMonitor(progressMonitor,1));
+				
+			}
+		}finally{
+			progressMonitor.done();
+		}
+		
+	}
+	
+
 	private void buildDelta(IResourceDelta delta, Map args,
 			final IProgressMonitor progressMonitor) {
+		
 		try {
 			delta.accept(new IResourceDeltaVisitor() {
 				public boolean visit(IResourceDelta delta) throws CoreException {
@@ -80,9 +107,13 @@ public class OpenLModelBuilder extends AbstractBuilder {
 						IJavaElement parentJavaElement = JavaCore
 								.create(nonJavaFile.getParent());
 						if ((parentJavaElement != null)
-								&& (parentJavaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT)) {
+								&& ((parentJavaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) || (parentJavaElement
+										.getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT))) {
 							try {
-								buildNonJavaFile(nonJavaFile, progressMonitor);
+								if (delta.getKind()==IResourceDelta.REMOVED)
+									cleanFile(nonJavaFile, progressMonitor);
+								else
+									processFile(nonJavaFile, progressMonitor);
 							} catch (CommonException e) {
 								ExceptionHandler.wrapIntoCoreException(e);
 							}
@@ -101,48 +132,33 @@ public class OpenLModelBuilder extends AbstractBuilder {
 		return "OpenL Tablets";
 	}
 
-	private void buildAll(Map args, IProgressMonitor progressMonitor) {
+	private boolean isFileProcessed(IFile file)  {
+		return "xls".equals(file.getFileExtension());
+	}
+
+	private void collectFiles(Collection<IFile> files) {
 		try {
 			JavaFacet javaFacet = currentCommonProject
 					.getFacet(JavaFacet.class);
 			IPackageFragmentRoot[] allPackageFragmentRoots = javaFacet
 					.getCorrespondingJavaProject().getAllPackageFragmentRoots();
-			progressMonitor
-					.beginTask(
-							getBuilderName()
-									+ " builder enumerates all Java source folders / libraries",
-							allPackageFragmentRoots.length * 2);
-			try {
-				for (IPackageFragmentRoot packageFragmentRoot : allPackageFragmentRoots) {
-					buildNonJavaResources(packageFragmentRoot
-							.getNonJavaResources(), new SubProgressMonitor(
-							progressMonitor, 1));
 
-					IJavaElement[] children = packageFragmentRoot.getChildren();
-					IProgressMonitor enumChildProgress = new SubProgressMonitor(
-							progressMonitor, 1);
-					enumChildProgress.beginTask(getBuilderName()
-							+ " builder enumerates Java packages",
-							children.length);
-					try {
-						for (IJavaElement child : children) {
-							if (child instanceof IPackageFragment) {
-								IPackageFragment packageFragment = (IPackageFragment) child;
-								buildNonJavaResources(packageFragment
-										.getNonJavaResources(),
-										new SubProgressMonitor(
-												enumChildProgress, 1));
-							} else {
-								enumChildProgress.worked(1);
-							}
-						}
-					} finally {
-						enumChildProgress.done();
+			for (IPackageFragmentRoot packageFragmentRoot : allPackageFragmentRoots) {
+
+				collectNonJavaResources(files, packageFragmentRoot.getNonJavaResources());
+				IJavaElement[] children = packageFragmentRoot.getChildren();
+
+				for (IJavaElement child : children) {
+					if (child instanceof IPackageFragment) {
+						IPackageFragment packageFragment = (IPackageFragment) child;
+						collectNonJavaResources(files, packageFragment
+								.getNonJavaResources());
 					}
+					
 				}
-			} finally {
-				progressMonitor.done();
+
 			}
+
 		} catch (CommonException e) {
 			ExceptionHandler.handleCommonDesignerExceptionThatMustBeIgnored(e,
 					getBuilderName() + " full build is failed");
@@ -152,60 +168,73 @@ public class OpenLModelBuilder extends AbstractBuilder {
 		}
 	}
 
-	private void buildNonJavaResources(Object[] nonJavaResources,
-			IProgressMonitor progressMonitor) throws CommonException {
-		progressMonitor.beginTask(getBuilderName()
-				+ " builder enumerates resources", nonJavaResources.length);
+
+	private void collectNonJavaResources(Collection<IFile> files, Object[] nonJavaResources) {
+		for (Object nonJavaResource : nonJavaResources) {
+			if (nonJavaResource instanceof IFile) {
+				collectNonJavaFile(files,(IFile) nonJavaResource);
+			}
+		}
+	}
+
+	private void collectNonJavaFile(Collection<IFile> files,IFile file) {
+		if (isFileProcessed(file)) 
+			files.add(file);
+		
+	}
+	@SuppressWarnings("unchecked")
+	private void cleanFile(final IFile file, IProgressMonitor progressMonitor)
+			throws CommonException {
+		progressMonitor.beginTask(
+				"Delete OpenL Tablets model for Excel file \""
+						+ file.getFullPath() + "\"", 2);
 		try {
-			for (Object nonJavaResource : nonJavaResources) {
-				if (nonJavaResource instanceof IFile) {
-					buildNonJavaFile((IFile) nonJavaResource,
-							new SubProgressMonitor(progressMonitor, 1));
-				} else {
-					progressMonitor.worked(1);
+			try {
+				if (file.exists())
+					cleanProblemMarkers(file);
+				DomainModel domainModel = getGeneratedDomainModel(file);
+				if (domainModel!=null){
+					if (domainModel.exists())
+						domainModel.getCorrespondingFile().delete(true,null);
 				}
+			} catch (Exception e) {
+				ExceptionHandler
+						.handleSystemExceptionThatMustBeIgnored(e,
+								"Cannot import clean import results for Excel file with OpenL Tablets");
 			}
 		} finally {
 			progressMonitor.done();
 		}
 	}
-
-	private void buildNonJavaFile(IFile file, IProgressMonitor progressMonitor)
-			throws CommonException {
-		if (isFileProcessed(file)) {
-			processFile(file, progressMonitor);
+	
+	protected DomainModel getGeneratedDomainModel(IFile file) throws CommonException {
+		Artefact artefact = CommonCore.getWorkspace().getArtefactForResource(
+				file.getParent());
+		if (artefact instanceof DomainFolder) {
+			DomainFolder domainFolder = (DomainFolder) artefact;
+			DomainModel domainModel = domainFolder.getDomainModel(file
+					.getFullPath().removeFileExtension().addFileExtension(
+							OpenLModelType.FILE_EXTENSION).lastSegment());
+			return domainModel;
 		}
+		return null;
 	}
-
-	private boolean isFileProcessed(IFile file) throws CommonException {
-		return "xls".equals(file.getFileExtension());
-	}
-
 	@SuppressWarnings("unchecked")
-	private void processFile(final IFile file, IProgressMonitor progressMonitor)
-			throws CommonException {
+	private void processFile(final IFile file, IProgressMonitor progressMonitor) throws CommonException 
+			{
 		progressMonitor.beginTask(
 				"Create OpenL Tablets model for Excel file \""
 						+ file.getFullPath() + "\"", 2);
-		
 		try {
 			try {
 				cleanProblemMarkers(file);
-				Artefact artefact = CommonCore.getWorkspace()
-						.getArtefactForResource(file.getParent());
-				if (artefact instanceof DomainFolder) {
-					DomainFolder domainFolder = (DomainFolder) artefact;
-					DomainModel domainModel = domainFolder.getDomainModel(file
-							.getFullPath().removeFileExtension()
-							.addFileExtension(OpenLModelType.FILE_EXTENSION)
-							.lastSegment());
-					// domainModel.delete(new SubProgressMonitor(
-					// progressMonitor, 1));
+				
+				DomainModel domainModel = getGeneratedDomainModel(file);
+				if (domainModel!=null){
 					if (!domainModel.exists())
 						domainModel.create(new SubProgressMonitor(
 								progressMonitor, 1));
 
-					
 					RuleSetFile ruleSetFile = EclipseOpenLImporter
 							.getInstance().importExcelFile(file,
 									new ErrorListener() {
@@ -283,12 +312,31 @@ public class OpenLModelBuilder extends AbstractBuilder {
 	}
 
 	@Override
-	protected void internalClean(IProgressMonitor monitor)
+	protected void internalClean(IProgressMonitor progressMonitor)
 			throws CommonException {
+		Collection<IFile> files = new ArrayList<IFile>();
+		progressMonitor.beginTask(
+				getBuilderName()
+						+ " builder enumerates all Excel files",
+				1);
+		try{
+			collectFiles(files);
+		}finally{
+			progressMonitor.done();
+		}
+		progressMonitor.beginTask(getBuilderName()+ " builder process files ",files.size());
+		try{
+			for (IFile file : files) {
+				cleanFile(file, new SubProgressMonitor(progressMonitor,1));
+				
+			}
+		}finally{
+			progressMonitor.done();
+		}
 	}
 
-	private IMarker addImporterProblemMarker(IResource resource, String errorMessage,
-			int severity_error) {
+	private IMarker addImporterProblemMarker(IResource resource,
+			String errorMessage, int severity_error) {
 		try {
 			IMarker marker = resource.createMarker(IMPORTER_PROBLEM_MARKER_ID);
 			marker.setAttribute(IMarker.MESSAGE, errorMessage);
@@ -300,9 +348,10 @@ public class OpenLModelBuilder extends AbstractBuilder {
 		}
 		return null;
 	}
-	
+
 	private void cleanProblemMarkers(IResource resource) throws CoreException {
-		resource.deleteMarkers(IMPORTER_PROBLEM_MARKER_ID, true, IResource.DEPTH_INFINITE);
+		resource.deleteMarkers(IMPORTER_PROBLEM_MARKER_ID, true,
+				IResource.DEPTH_INFINITE);
 
 	}
 }
