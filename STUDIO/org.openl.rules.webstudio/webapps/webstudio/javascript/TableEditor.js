@@ -58,6 +58,10 @@ TableEditor.prototype = {
             self.handleKeyDown(e)
         }, false);
 
+        Event.observe(/*Prototype.Browser.IE ? document.body : window */document, "keypress", function(e) {
+            self.handleKeyPress(e)
+        }, false);
+
         $(document.body).observe("click", function(e) {
             self.handleClick(e);
         }, false);
@@ -160,12 +164,13 @@ TableEditor.prototype = {
      * @desc: sends request to server to find out required editor for a cell. After getting response calls this.editBegin
      * @type: private
      */
-    editBeginRequest : function(cell) {
+    editBeginRequest : function(cell, showEmpty) {
+        if (Ajax.activeRequestCount > 0) return;
         var self = this;
         this.selectElement(cell);
         new Ajax.Request(this.baseUrl + "getCellType", {
             onSuccess  : function(response) {
-                self.editBegin(cell, eval(response.responseText))
+                self.editBegin(cell, eval(response.responseText), showEmpty)
             },
             parameters : {
                 row : self.selectionPos[0],
@@ -178,8 +183,8 @@ TableEditor.prototype = {
     /**
      *  @desc: Create and activate new editor
      */
-    editBegin : function(cell, response) {
-        this.editor = new TableEditor.Editors[response.editor](this, cell, response.params);
+    editBegin : function(cell, response, showEmpty) {
+        this.editor = new TableEditor.Editors[response.editor](this, cell, response.params, showEmpty);
         this.selectElement(cell);
     },
 
@@ -265,27 +270,37 @@ TableEditor.prototype = {
         return cell
     },
 
+    handleKeyPress:  function(event) {
+        if (this.editor) {
+            switch (event.keyCode) {
+                case 27: this.editor.cancelEdit(); break;
+                case 13: this.editStop(); break;
+                case 113: this.editor.handleF2(event); break;
+                case 114: this.editor.handleF3(event); break;
+            }
+            return
+        }
+
+        if (event.keyCode == 13) {
+            if (this.hasSelection()) this.editBeginRequest(this.currentElement);
+            return;
+        }
+
+        if (this.hasSelection) {
+            if ([event.ctrlKey, event.altKey, event.shiftKey, event.metaKey].any()) return;
+            if (event.charCode) { // FF
+                if (event.charCode == 0) return;
+            } else if (event.keyCode < 49 || event.keyCode >= 112) return;
+            this.editBeginRequest(this.currentElement, true);
+        }
+    },
+
     /**
      * @desc: handles key presses. Performs table navigation.
      * @type: private
      */
     handleKeyDown: function(event) {
-        switch (event.keyCode) {
-            case 27: if (this.editor) this.editor.cancelEdit();
-                return;
-            case 13:
-                    if (this.editor)
-                        this.editStop()
-                    else if (this.hasSelection())
-                        this.editBeginRequest(this.currentElement)
-                return ;
-            case 113: if (this.editor) this.editor.handleF2(event);
-                return;
-            case 114: if (this.editor) this.editor.handleF3(event);
-                return;
-        }
-
-        if (this.editor) return; // do nothing in editor mode
+        if (this.editor || event.keyCode < 37 || event.keyCode > 41) return;
 
         if (!this.hasSelection()) {
             this.selectionPos = [1, 1];
@@ -401,7 +416,7 @@ Decorator.prototype = {
     previosState : {},
 
     /** Empty constructor */
-    initialize : Prototype.K,
+    initialize : Prototype.emptyFunction,
 
     /**
      * @desc changes elememnt style, so it looks 'selected'

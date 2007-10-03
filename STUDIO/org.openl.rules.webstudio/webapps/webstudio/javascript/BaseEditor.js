@@ -40,7 +40,7 @@ BaseEditor.prototype = {
      *   1. saves initial cell value into initialValue variable
      *   2. creates an HTML editor control (e.g. HTMLInputElement) and sets its value
      */
-    initialize: function(tableEditor, td, param) {
+    initialize: function(tableEditor, td, param, showEmpty) {
         this.tableEditor = tableEditor;
         this.td = td;
         if (td) {
@@ -48,7 +48,7 @@ BaseEditor.prototype = {
             this.initialValue = this.td.innerHTML.unescapeHTML().strip();
         }
         this.editor_initialize(param);
-        this.show(this.initialValue);
+        this.show(showEmpty ? "" : this.initialValue);
     },
 
     /**
