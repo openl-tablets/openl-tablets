@@ -1,9 +1,9 @@
 package org.openl.rules.ui.jsf.custom.tableeditor;
 
-import org.ajax4jsf.framework.renderer.RendererBase;
 import static org.openl.rules.ui.jsf.custom.HTML.*;
 import org.openl.rules.ui.jsf.custom.tableeditor.model.TableModel;
 import org.openl.rules.ui.jsf.custom.tableeditor.model.CellModel;
+import org.ajax4jsf.renderkit.RendererBase;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
