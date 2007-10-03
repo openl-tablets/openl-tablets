@@ -5,7 +5,7 @@
  */
 var MultiLineEditor = Class.create();
 
-MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
+MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
     eventHandler : null,
     ta : null,
 
@@ -52,7 +52,12 @@ MultiLineEditor.prototype = Object.extend(new BaseEditor(), {
     destroy: function() {
         document.body.removeChild(this.node);
         Event.stopObserving(this.node, "keydown", this.eventHandler);
-    }
+    },
+
+    /**
+     *  Overrides BaseTextEditor.getInputElement
+     */
+    getInputElement : function() {return this.ta}
 });
 
 TableEditor.Editors["multilineText"] = MultiLineEditor;

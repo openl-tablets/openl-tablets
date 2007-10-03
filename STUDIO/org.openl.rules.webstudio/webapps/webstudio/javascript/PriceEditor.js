@@ -5,7 +5,7 @@
  */
 var PriceEditor = Class.create();
 
-PriceEditor.prototype = Object.extend(new BaseEditor(), {
+PriceEditor.prototype = Object.extend(new BaseTextEditor(), {
     editor_initialize: function() {
         this.node = $(document.createElement("input"));
         this.node.setAttribute("type", "text");

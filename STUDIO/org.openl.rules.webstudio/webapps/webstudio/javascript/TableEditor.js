@@ -271,13 +271,18 @@ TableEditor.prototype = {
      */
     handleKeyDown: function(event) {
         switch (event.keyCode) {
-            case 27: if (this.editor) this.editor.cancelEdit(); break;
+            case 27: if (this.editor) this.editor.cancelEdit();
+                return;
             case 13:
                     if (this.editor)
                         this.editStop()
                     else if (this.hasSelection())
                         this.editBeginRequest(this.currentElement)
-                break;
+                return ;
+            case 113: if (this.editor) this.editor.handleF2(event);
+                return;
+            case 114: if (this.editor) this.editor.handleF3(event);
+                return;
         }
 
         if (this.editor) return; // do nothing in editor mode
