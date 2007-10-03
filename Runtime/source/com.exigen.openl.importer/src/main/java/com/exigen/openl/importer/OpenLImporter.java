@@ -15,9 +15,15 @@ import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DynamicObject;
 
+import com.exigen.common.model.components.BaseNamedParameter;
+import com.exigen.common.model.components.java.DataObject;
+import com.exigen.common.model.components.java.DataObjectAttribute;
+import com.exigen.common.model.components.java.JavaComponentsFactory;
 import com.exigen.openl.component.ErrorListener;
 import com.exigen.openl.model.openl.OpenlFactory;
 import com.exigen.openl.model.openl.RuleSet;
@@ -73,18 +79,36 @@ public class OpenLImporter {
 				IOpenClass[] argumentTypes = method.getSignature()
 						.getParameterTypes();
 				for (int index = 0; index < numberOfArguments; index++) {
-					RuleSetParameter ruleSetParameter = OpenlFactory.eINSTANCE
-							.createRuleSetParameter();
-					ruleSet.getMethodParameters().add(ruleSetParameter);
-
-					ruleSetParameter.setName(method.getSignature()
-							.getParameterName(index));
 					IOpenClass argumentOpenClass = argumentTypes[index];
-					// argumentOpenClass.
-					ruleSetParameter.setType(ClassUtils.primitiveToWrapper(
-							argumentOpenClass.getInstanceClass()).getName());
-					// ruleSetParameter.setMany(argumentTypes[index].is)
-					ruleSetParameter.setRequired(true);
+					Class instanceClass = argumentOpenClass.getInstanceClass();
+					String parameterName = method.getSignature()
+							.getParameterName(index);
+
+					if (DynamicObject.class.isAssignableFrom(instanceClass)) {
+						DataObject dataObject = JavaComponentsFactory.eINSTANCE
+								.createDataObject();
+
+						for (Iterator fieldsIter = argumentOpenClass.fields(); fieldsIter
+								.hasNext();) {
+							IOpenField field = (IOpenField) fieldsIter.next();
+
+							DataObjectAttribute attribute = JavaComponentsFactory.eINSTANCE
+									.createDataObjectAttribute();
+
+							importParameter(attribute, field.getName(),
+									field.getType());
+
+							dataObject.getAttributes().add(attribute);
+						}
+
+						ruleSet.getMethodParameters().add(dataObject);
+					} else {
+						RuleSetParameter ruleSetParameter = OpenlFactory.eINSTANCE
+								.createRuleSetParameter();
+						importParameter(ruleSetParameter, parameterName,
+								argumentOpenClass);
+						ruleSet.getMethodParameters().add(ruleSetParameter);
+					}
 
 				}
 
@@ -106,6 +130,18 @@ public class OpenLImporter {
 		} else {
 			return null;
 		}
+	}
+
+	private void importParameter(BaseNamedParameter parameter,
+			String parameterName, IOpenClass argumentOpenClass) {
+		Class instanceClass = argumentOpenClass.getInstanceClass();
+
+		parameter.setName(parameterName);
+		// argumentOpenClass.
+		parameter.setType(ClassUtils.primitiveToWrapper(instanceClass)
+				.getName());
+		// ruleSetParameter.setMany(argumentTypes[index].is)
+		parameter.setRequired(true);
 	}
 
 	public String getCellRegionFor(String excelFileName,
