@@ -21,6 +21,7 @@ import com.exigen.eclipse.common.core.exception.CommonException;
 import com.exigen.eclipse.common.facet.emf.artefact.DomainModel;
 import com.exigen.eclipse.common.facet.emf.edit.provider.ProviderUtils;
 import com.exigen.eclipse.common.ui.util.exception.UiExceptionHandler;
+import com.exigen.eclipse.openl.facet.util.EclipseOpenLImporter;
 import com.exigen.openl.model.openl.RuleSet;
 import com.exigen.openl.model.openl.RuleSetFile;
 
@@ -53,7 +54,6 @@ public class GotoExcelRegionActionDelegate implements IActionDelegate {
 			JavaFacet facet = domainModel.getProject()
 					.getFacet(JavaFacet.class);
 
-			
 			Object excelResource = facet.findNonJavaResource(ruleSetFile
 					.getExcelResourceReference());
 			if (excelResource == null) {
@@ -67,10 +67,28 @@ public class GotoExcelRegionActionDelegate implements IActionDelegate {
 					throw new CommonException("File \""
 							+ ruleSetFile.getExcelResourceReference()
 							+ "\" is not found");
+
+				String locationInFile = EclipseOpenLImporter.getInstance()
+						.getCellRegionFor(file, ruleSet.getName());
+
 				IEditorPart editor = IDE.openEditor(workbenchPage, file,
 						"org.eclipse.ui.systemInPlaceEditor");
+				// IEditorPart editor = IDE.openEditor(workbenchPage, file,
+				// "org.eclipse.ui.systemExternalEditor");
 
 				if (ruleSet != null) {
+					String sheetName = null;
+					if (locationInFile == null) {
+						locationInFile = ruleSet.getName();
+					} else {
+						int delimiterPos = locationInFile.indexOf('!');
+						if (delimiterPos != -1) {
+							sheetName = locationInFile.substring(0,
+									delimiterPos);
+							locationInFile = locationInFile
+									.substring(delimiterPos + 1);
+						}
+					}
 					if (editor
 							.getClass()
 							.getName()
@@ -93,16 +111,65 @@ public class GotoExcelRegionActionDelegate implements IActionDelegate {
 							Variant application = oleAutomation
 									.getProperty(dispIdArray[0]);
 							try {
-								dispIdArray = application
-										.getAutomation()
-										.getIDsOfNames(
-												new String[] { "Goto",
-														"Reference", "Scroll" });
-								application.getAutomation().invoke(
-										dispIdArray[0],
-										new Variant[] {
-												new Variant(ruleSet.getName()),
-												new Variant(true) });
+								if (sheetName != null) {
+									dispIdArray = application
+											.getAutomation()
+											.getIDsOfNames(
+													new String[] { "Worksheets" });
+									Variant worksheet = application
+											.getAutomation()
+											.getProperty(
+													dispIdArray[0],
+													new Variant[] { new Variant(
+															sheetName) });
+									try {
+										dispIdArray = worksheet
+												.getAutomation()
+												.getIDsOfNames(
+														new String[] { "Range" });
+										Variant range = worksheet
+												.getAutomation()
+												.getProperty(
+														dispIdArray[0],
+														new Variant[] { new Variant(
+																locationInFile) });
+										try {
+											dispIdArray = application
+													.getAutomation()
+													.getIDsOfNames(
+															new String[] {
+																	"Goto",
+																	"Reference",
+																	"Scroll" });
+											application
+													.getAutomation()
+													.invoke(
+															dispIdArray[0],
+															new Variant[] {
+																	range,
+																	new Variant(
+																			true) });
+										} finally {
+											range.dispose();
+										}
+									} finally {
+										worksheet.dispose();
+									}
+								} else {
+									dispIdArray = application.getAutomation()
+											.getIDsOfNames(
+													new String[] { "Goto",
+															"Reference",
+															"Scroll" });
+									application
+											.getAutomation()
+											.invoke(
+													dispIdArray[0],
+													new Variant[] {
+															new Variant(
+																	locationInFile),
+															new Variant(true) });
+								}
 							} finally {
 								application.dispose();
 							}
