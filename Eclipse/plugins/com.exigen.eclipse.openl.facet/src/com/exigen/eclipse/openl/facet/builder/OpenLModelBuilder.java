@@ -194,11 +194,11 @@ public class OpenLModelBuilder extends AbstractBuilder {
 							.getFullPath().removeFileExtension()
 							.addFileExtension(OpenLModelType.FILE_EXTENSION)
 							.lastSegment());
-					if (domainModel.exists())
-						domainModel.delete(new SubProgressMonitor(
+					// domainModel.delete(new SubProgressMonitor(
+					// progressMonitor, 1));
+					if (!domainModel.exists())
+						domainModel.create(new SubProgressMonitor(
 								progressMonitor, 1));
-					domainModel.create(new SubProgressMonitor(progressMonitor,
-							1));
 
 					RuleSetFile ruleSetFile = EclipseOpenLImporter
 							.getInstance().importExcelFile(file,
@@ -209,8 +209,7 @@ public class OpenLModelBuilder extends AbstractBuilder {
 											String errorMessage = "BINGING ERROR: "
 													+ message;
 											IMarker marker = addProblemMarker(
-													file,
-													errorMessage,
+													file, errorMessage,
 													IMarker.SEVERITY_ERROR);
 											try {
 												marker.setAttribute(
@@ -237,8 +236,7 @@ public class OpenLModelBuilder extends AbstractBuilder {
 											String errorMessage = "PARSING ERROR: "
 													+ message;
 											IMarker marker = addProblemMarker(
-													file,
-													errorMessage,
+													file, errorMessage,
 													IMarker.SEVERITY_ERROR);
 											try {
 												marker.setAttribute(
