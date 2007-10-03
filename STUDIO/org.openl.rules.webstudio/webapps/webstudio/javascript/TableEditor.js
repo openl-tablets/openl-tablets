@@ -247,7 +247,9 @@ TableEditor.prototype = {
         }
 
         if (elt) {
-            this.selectionPos = this.elementPosition(elt);
+            var newSelectionPos = this.elementPosition(elt);
+            if (!newSelectionPos) return;
+            this.selectionPos = newSelectionPos;
         } else {
             elt = this.$cell(this.selectionPos);
         }
@@ -270,12 +272,17 @@ TableEditor.prototype = {
     handleKeyDown: function(event) {
         switch (event.keyCode) {
             case 27: if (this.editor) this.editor.cancelEdit(); break;
-            case 13: this.editStop(); break;
+            case 13:
+                    if (this.editor)
+                        this.editStop()
+                    else if (this.hasSelection())
+                        this.editBeginRequest(this.currentElement)
+                break;
         }
 
         if (this.editor) return; // do nothing in editor mode
 
-        if (!this.selectionPos || !this.currentElement) {
+        if (!this.hasSelection()) {
             this.selectionPos = [1, 1];
             this.selectElement();
             return;
@@ -349,7 +356,7 @@ TableEditor.prototype = {
      *  @type: private
      */
     doColRowOperation: function(index, op) {
-        if (!this.selectionPos || !this.currentElement) {
+        if (!this.hasSelection()) {
             alert("Nothing is selected");
             return;
         }
@@ -374,7 +381,9 @@ TableEditor.prototype = {
             },
             parameters : params
         });
-    }
+    },
+
+    hasSelection : function() {return this.selectionPos && this.currentElement}
 }
 
 /**
