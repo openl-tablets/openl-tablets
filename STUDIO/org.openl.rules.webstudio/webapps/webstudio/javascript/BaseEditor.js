@@ -32,7 +32,7 @@ BaseEditor.prototype = {
     node : null,
     td : null,
     initialValue : null,
-    stoppedEvents : [],
+    stoppedEvents : null,
 
     /**
      * Constructor.
@@ -70,6 +70,7 @@ BaseEditor.prototype = {
 
     /** Stops given event propogation up to parent elements */
     stopEventPropogation: function(name) {
+        if (!this.stoppedEvents) this.stoppedEvents = [];
         this.stoppedEvents.push(name);
         this.node.observe(name, BaseEditor.stopPropagationHandler, false);
     },
