@@ -61,7 +61,7 @@ BaseEditor.prototype = {
      */
     show: function(value) {
         if (this.node) {
-            this.node.value = value;
+            this.getInputElement().value = value;
             this.td.innerHTML = "";
             this.td.appendChild(this.node);
             this.node.focus();
@@ -77,7 +77,8 @@ BaseEditor.prototype = {
 
     /** Obtains current value from HTML editor control */
     getValue : function() {
-        return this.node ? this.node.value : null;
+        var node = this.getInputElement();
+        return node ? node.value : null;
     },
 
     /**
@@ -130,5 +131,10 @@ BaseEditor.prototype = {
     cancelEdit: function() {
         this.isCancelled = BaseEditor.T;
         this.doneEdit();
-    }
+    },
+
+    markInvalid: function() {this.getInputElement().addClassName('editor_invalid')},
+    markValid: function() {this.getInputElement().removeClassName('editor_invalid')},
+
+    getInputElement: function() {return this.node}
 }
