@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL JCR Integration
+Bundle-SymbolicName: org.openl.rules.repository.jcr
+Bundle-Version: 4.1.1
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Require-Bundle: org.openl.lib.apache.jackrabbit,
+ org.openl.lib.exigen.jcr,
+ org.openl.rules.repository
+Export-Package: org.openl.rules.repository.factories,
+ org.openl.rules.repository.jcr
