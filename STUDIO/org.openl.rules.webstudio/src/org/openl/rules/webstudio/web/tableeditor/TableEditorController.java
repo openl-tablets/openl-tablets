@@ -98,6 +98,40 @@ public class TableEditorController {
         return OUTCOME_SUCCESS;
     }
 
+    public String undo() throws Exception {
+        readRequestParams();
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null);
+            if (editorHelper.getModel().hasUndo()) {
+                editorHelper.getModel().undo();
+                load();
+                tmResponse.setResponse(response);
+            } else {
+                tmResponse.setStatus("No actions to undo");
+            }
+            response = pojo2json(tmResponse);
+        }
+        return OUTCOME_SUCCESS; 
+    }
+
+    public String redo() throws Exception {
+        readRequestParams();
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null);
+            if (editorHelper.getModel().hasRedo()) {
+                editorHelper.getModel().redo();
+                load();
+                tmResponse.setResponse(response);
+            } else {
+                tmResponse.setStatus("No actions to redo");
+            }
+            response = pojo2json(tmResponse);
+        }
+        return OUTCOME_SUCCESS;
+    }
+
     public String getResponse() {
         return response;
     }
@@ -186,14 +220,23 @@ public class TableEditorController {
       return getHelper(elementID).getModel().getUpdatedTable();
    }
 
-   private EditorHelper getHelper(int elementId) {
+    /**
+     * Returns <code>EditorHelper</code> instance from http session or creates new one if not present there. Checks
+     * that <code>elementId</code> matches id in this helper. If it does not the method prepares response which notifies
+     * a client of the mismatch and returns <code>null</code>. In the latter case calling method may just do nothing as
+     * corresponding response is already prepared.
+     * @param elementId table id
+     * @return <code>EditorHelper</code> instance or <code>null</code> if <code>elementId</code> does not match element
+     * id in an existing helper.
+     */
+    private EditorHelper getHelper(int elementId) {
        Map sessionMap = Util.getSessionMap();
        synchronized (sessionMap) {
            if (sessionMap.containsKey("editorHelper")) {
                EditorHelper editorHelper = (EditorHelper) sessionMap.get("editorHelper");
                if (editorHelper.getElementID() != elementId) {
                    response = pojo2json(new TableModificationResponse(null,
-                           "You started editing another table, this table changes are lost "));
+                           "You started editing another table, this table changes are lost"));
                    return null;
                }
                return editorHelper;

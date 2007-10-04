@@ -33,6 +33,7 @@ TableEditor.prototype = {
     rows : 0,
     columns : 0,
     table : null,
+    modFuncSuccess : null,
 
     /** Constructor */
     initialize : function(id, url, tableid) {
@@ -70,6 +71,15 @@ TableEditor.prototype = {
             self.handleDoubleClick(e);
             Event.stop(e);
         });
+
+        this.modFuncSuccess = function(response) {
+            response = eval(response.responseText);
+            if (response.status) alert(response.status);
+            else {
+                this.renderTable(response.response);
+                this.selectElement();
+            }
+        }.bindAsEventListener(this);
     },
 
     /**
@@ -351,6 +361,14 @@ TableEditor.prototype = {
         }
     },
 
+    undoredo: function(redo) {
+        if (Ajax.activeRequestCount > 0) return;
+        new Ajax.Request(this.baseUrl + (redo ? "redo" : "undo"), {
+            onSuccess: this.modFuncSuccess,
+            parameters: {elementID: this.tableid}
+        })
+    },
+
     /**
      * @desc: inspect element id and extracts its position in table. Element is expected to be a TD
      * @type: private
@@ -365,12 +383,8 @@ TableEditor.prototype = {
         return splitted;
     },
 
-    doRowOperation: function(op) {
-        this.doColRowOperation(0, op)
-    },
-    doColOperation: function(op) {
-        this.doColRowOperation(1, op)
-    },
+    doRowOperation: function(op) {this.doColRowOperation(0, op)},
+    doColOperation: function(op) {this.doColRowOperation(1, op)},
 
     /**
      *  @type: private
@@ -389,16 +403,8 @@ TableEditor.prototype = {
             params.up = true
         }
 
-        var self = this;
         new Ajax.Request(this.baseUrl + ([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? "removeRowCol" : "addRowColBefore"), {
-            onSuccess : function(response) {
-                response = eval(response.responseText);
-                if (response.status) alert(response.status);
-                else {
-                    self.renderTable(response.response);
-                    self.selectElement();
-                }
-            },
+            onSuccess : this.modFuncSuccess,
             parameters : params
         });
     },
