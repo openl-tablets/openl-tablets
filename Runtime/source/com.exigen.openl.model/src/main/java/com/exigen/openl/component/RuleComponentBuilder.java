@@ -15,7 +15,10 @@ import com.exigen.common.component.ComponentReference;
 import com.exigen.common.component.ParameterValue;
 import com.exigen.common.component.java.AbstractJava;
 import com.exigen.common.component.java.HolderComponentReference;
+import com.exigen.common.component.util.ComponentContextHelper;
 import com.exigen.common.model.components.ComponentDefinition;
+import com.exigen.common.repository.MFileManager;
+import com.exigen.common.repository.classloader.ClassLoaderUtil;
 import com.exigen.common.util.runtime.Assert;
 import com.exigen.openl.model.openl.RuleSetFile;
 
@@ -31,31 +34,42 @@ public class RuleComponentBuilder extends AbstractJava implements ComponentBuild
 		Assert.isTrue(componentDefinition instanceof RuleSetFile);
 		RuleSetFile ruleSetFile = (RuleSetFile) componentDefinition;
 		String fileName = ExcelUtil.getFileName( ruleSetFile);
-		ClassLoader classLoader = getClassLoader(context);
-		
-		
-		
+//		ClassLoader classLoader = getClassLoader(context);
+
+		MFileManager fileManager = ComponentContextHelper
+				.getFileManager(context);
+		fileManager.loadAll();
+		ClassLoader classLoader = ClassLoaderUtil
+				.getFileManagerClassLoader(fileManager);
+
 		OpenClassJavaWrapper wrapper = loadClass(classLoader,fileName);
 		IOpenClass clazz = wrapper.getOpenClassWithErrors();
 		Object instance = clazz.newInstance(wrapper.getEnv());
-		OpenInstance openInstance = new OpenInstance(clazz,instance,wrapper.getEnv());
+		OpenInstance openInstance = new OpenInstance(classLoader,clazz,instance,wrapper.getEnv());
 		return new HolderComponentReference(openInstance);
 	}
 	public OpenClassJavaWrapper loadClass(ClassLoader classLoader, String fileName){
-		UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), USER_HOME);
+		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(classLoader);
+		try {
+			UserContext ucxt = new UserContext(classLoader, USER_HOME);
+	
+			OpenL openl = OpenL.getInstance(OPENL_NAME, ucxt);
+	
+			
+			ResourceSourceCodeModule srcModule = new ResourceSourceCodeModule(
+					classLoader,
+					fileName, null);
+			
+			
+			CompiledOpenClass openClass = openl.compileModuleWithErrors(srcModule);
+			OpenClassJavaWrapper wrapper = new OpenClassJavaWrapper(openClass,
+					openl.getVm().getRuntimeEnv());
 
-		OpenL openl = OpenL.getInstance(OPENL_NAME, ucxt);
-
-		
-		ResourceSourceCodeModule srcModule = new ResourceSourceCodeModule(
-				classLoader,
-				fileName, null);
-		
-		
-		CompiledOpenClass openClass = openl.compileModuleWithErrors(srcModule);
-		OpenClassJavaWrapper wrapper = new OpenClassJavaWrapper(openClass,
-				openl.getVm().getRuntimeEnv());
-		return wrapper;
+			return wrapper;
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentClassLoader);
+		}
 	}
 
 }

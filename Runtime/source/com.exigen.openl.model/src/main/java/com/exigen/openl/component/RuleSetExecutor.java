@@ -36,7 +36,7 @@ public class RuleSetExecutor extends AbstractJava implements Executor {
 
 		OpenInstance openInstance = (OpenInstance) componentInstance;
 
-		ClassLoader classLoader = getClassLoader(context);
+		ClassLoader classLoader = openInstance.getClassLoader();
 		
 		MethodExecutionInfo info = new MethodExecutionInfo(ruleSet,input,output,classLoader);
 		info.intialize();
