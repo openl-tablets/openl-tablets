@@ -75,8 +75,8 @@
      <h:graphicImage value="/images/editor/Save.gif" onclick="tableEditor.save()"/>
      <h:graphicImage value="/images/editor/Validation.gif" />
    </rich:toolBarGroup><rich:toolBarGroup>
-     <h:graphicImage value="/images/editor/Undo.gif" />
-     <h:graphicImage value="/images/editor/Redo.gif" />
+     <h:graphicImage value="/images/editor/Undo.gif" onclick="tableEditor.undoredo()"/>
+     <h:graphicImage value="/images/editor/Redo.gif" onclick="tableEditor.undoredo(true)"/>
    </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
      <h:graphicImage value="/images/editor/b_row_ins.gif" />
      <rich:dropDownMenu value="Rows">
