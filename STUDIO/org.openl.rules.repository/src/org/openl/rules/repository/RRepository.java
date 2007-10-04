@@ -38,7 +38,15 @@ public interface RRepository {
     public RProject createProject(String name) throws RRepositoryException;
 
     /**
-     * Releases resources allocated by this JcrRepository instance.
+     * Releases resources allocated by this Rules Repository instance.
      */
     public void release();
+
+    /**
+     * Returns name of the repository.
+     * It can be type of repository plus location.
+     * 
+     * @return name of repository
+     */
+    public String getName();
 }

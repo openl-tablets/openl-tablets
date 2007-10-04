@@ -54,11 +54,10 @@ public interface REntity {
     public void setName(String name) throws RModifyException;
 
     /**
-     * Returns parent of the entity.
-     * It can be RFolder or RProject.
-     * For RProject {@link #getParent()} will return <code>null</code>.
+     * Returns path of entity.
      *
-     * @return parent of entity or <code>null</code>.
+     * @return path of entity
+     * @throws RRepositoryException if failed
      */
-    public REntity getParent();
+    public String getPath() throws RRepositoryException;
 }
