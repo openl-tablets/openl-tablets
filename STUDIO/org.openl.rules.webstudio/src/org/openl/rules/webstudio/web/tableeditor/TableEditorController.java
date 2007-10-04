@@ -86,6 +86,7 @@ public class TableEditorController {
 
                 if (col == 1 && row == 1) {
                     typeResponse = new EditorTypeResponse("numeric");
+                    typeResponse.setParams(new RangeParam(-1000L, 1000L));
                 }
 
                 if (col == 0 && row == 1) {
@@ -309,6 +310,31 @@ public class TableEditorController {
 
         public void setStatus(String status) {
             this.status = status;
+        }
+    }
+
+    public static class RangeParam {
+        private Long min, max;
+
+        public RangeParam(Long min, Long max) {
+            this.min = min;
+            this.max = max;
+        }
+
+        public Long getMax() {
+            return max;
+        }
+
+        public void setMax(Long max) {
+            this.max = max;
+        }
+
+        public Long getMin() {
+            return min;
+        }
+
+        public void setMin(Long min) {
+            this.min = min;
         }
     }
 
