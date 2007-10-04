@@ -41,10 +41,7 @@ BaseTextEditor.prototype = Object.extend(new  BaseEditor(), {
             input.focus()
         }
         Event.stop(event);
-    },
-
-    getInputElement: function() {return this.node}
-
+    }
 });
 
 TextEditor.prototype = Object.extend(new BaseTextEditor(), {

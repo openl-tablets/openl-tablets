@@ -40,6 +40,12 @@
 <link href="../../css/style1.css" rel="stylesheet" type="text/css">
 <link href="../../css/tableEditor.css" rel="stylesheet" type="text/css">
 
+ <style type="text/css">
+     .editor_invalid {
+         background-color: lightcoral;
+     }
+ </style>
+
 </head>
 
 <body>

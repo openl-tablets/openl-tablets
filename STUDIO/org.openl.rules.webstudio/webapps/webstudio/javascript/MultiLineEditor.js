@@ -45,10 +45,6 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
         }
     },
 
-    getValue : function() {
-        return this.ta.value;
-    },
-
     destroy: function() {
         document.body.removeChild(this.node);
         Event.stopObserving(this.node, "keypress", this.eventHandler);
