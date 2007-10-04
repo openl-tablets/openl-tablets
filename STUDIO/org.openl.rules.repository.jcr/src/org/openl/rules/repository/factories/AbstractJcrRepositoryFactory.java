@@ -29,6 +29,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     public static final String DEF_PATH = "/";
 
     private Repository repository;
+    private String repositoryName;
     /** Default path where new project should be created */
     private String defPath;
 
@@ -38,7 +39,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
 
-            JcrRepository jri = new JcrRepository(session, defPath);
+            JcrRepository jri = new JcrRepository(repositoryName, session, defPath);
             return jri;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Repository Instance", e);
@@ -50,7 +51,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         defPath = props.getStr(PROP_DEF_PATH, DEF_PATH);
         //TODO: add default path support
         // 1. check path -- create if absent
-        // 2. pass as parameter or property to JcrRepositoryImpl
+        // 2. pass as parameter or property to JcrRepository
     }
 
     // ------ protected methods ------
@@ -62,8 +63,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @param rep implementation specific repository
      * @throws RepositoryException if fails to check first start
      */
-    protected void setRepository(Repository rep) throws RepositoryException {
+    protected void setRepository(Repository rep, String name) throws RepositoryException {
         repository = rep;
+        repositoryName = name;
 
         checkOnStart();
     }

@@ -23,7 +23,8 @@ public class ExigenJcrRepository extends AbstractJcrRepositoryFactory {
 
         try {
             Repository repository = RepositoryProvider.getInstance().getRepository();
-            setRepository(repository);
+            // TODO: do not hardcode repository name
+            setRepository(repository, "Exigen JCR");
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize", e);
         }

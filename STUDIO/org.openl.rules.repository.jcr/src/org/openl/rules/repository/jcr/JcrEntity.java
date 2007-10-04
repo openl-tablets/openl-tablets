@@ -94,9 +94,15 @@ public class JcrEntity implements REntity {
         }        
     }
 
-    public REntity getParent() {
-        // TODO FIX ME!!!
-        return null;
+    public String getPath() throws RRepositoryException {
+        StringBuffer sb = new StringBuffer(128);
+        try {
+            buildRelPath(sb, node);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get relative path", e);
+        }
+
+        return sb.toString();
     }
 
     public void setName(String name) throws RModifyException {
@@ -112,4 +118,16 @@ public class JcrEntity implements REntity {
             throw new RDeleteException("Failed to Delete", e);
         }
     }
+
+    // ------ private ------
+
+    private void buildRelPath(StringBuffer sb, Node n) throws RepositoryException {
+        if (!n.isNodeType(JcrNT.NT_PROJECT)) {
+            buildRelPath(sb, n.getParent());
+        }
+
+        sb.append('/');
+        sb.append(n.getName());
+    }
+
 }
