@@ -26,11 +26,13 @@ public class JcrRepository implements RRepository {
     private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
     private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@" + JcrNT.PROP_PRJ_MARKED_4_DELETION + "]";
 
+    private String name;
     /** JCR Session */
     private Session session;
     private Node defNewProjectLocation;
 
-    public JcrRepository(Session session, String defPath) throws RepositoryException {
+    public JcrRepository(String name, Session session, String defPath) throws RepositoryException {
+        this.name = name;
         this.session = session;
 
         Node node = session.getRootNode();
@@ -68,6 +70,11 @@ public class JcrRepository implements RRepository {
     /** {@inheritDoc} */
     public void release() {
         session.logout();
+    }
+
+    /** {@inheritDoc} */
+    public String getName() {
+        return name;
     }
 
     /** {@inheritDoc} */

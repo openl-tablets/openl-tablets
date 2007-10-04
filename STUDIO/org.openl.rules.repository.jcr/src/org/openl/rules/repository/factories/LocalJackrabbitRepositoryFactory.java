@@ -29,7 +29,8 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
 
         try {
             init();
-            setRepository(repository);
+            // TODO: do not hardcode repository name
+            setRepository(repository, "Jackrabbit Local");
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize", e);
         }
