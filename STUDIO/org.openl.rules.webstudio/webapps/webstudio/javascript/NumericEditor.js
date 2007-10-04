@@ -6,7 +6,9 @@
 var NumericEditor = Class.create();
 
 NumericEditor.prototype = Object.extend(new BaseTextEditor(), {
-    editor_initialize: function() {
+    min: null,
+    max: null,
+    editor_initialize: function(param) {
         this.node = $(document.createElement("input"));
         this.node.setAttribute("type", "text");
         this.node.style.border = "0px none";
@@ -27,10 +29,17 @@ NumericEditor.prototype = Object.extend(new BaseTextEditor(), {
 
         this.node.onkeypress = function(event) {return self.keyPressed(event || window.event)}
         this.node.onkeyup = function(event) {self.keyPressed(event || window.event)}
+
+        if (param) {this.min = param.min; this.max = param.max}
     },
 
     isCancelled : function() {
-        return (this.initialValue == this.getValue() || isNaN(this.getValue()));
+        return (this.initialValue == this.getValue() || this.isInvalid(this.getValue()));
+    },
+
+    isInvalid: function(v) {
+        var n = Number(v);
+        return isNaN(n) || (this.min && n < this.min) || (this.max && n > this.max)
     },
 
     keyPressed: function(event) {
@@ -40,10 +49,11 @@ NumericEditor.prototype = Object.extend(new BaseTextEditor(), {
             var code = event.charCode == undefined ? event.keyCode : event.charCode;
 
             if (code == 46) return v.indexOf(".") < 0;
+            if (code == 45) return true;
             return code >= 48 && code <= 57
         }
 
-        if (isNaN(v)) this.markInvalid(); else this.markValid();
+        if ( this.isInvalid(v)) this.markInvalid(); else this.markValid();
     }
 });
 
