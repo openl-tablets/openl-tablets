@@ -201,9 +201,9 @@ TableEditor.prototype = {
     editStop : function() {
         if (this.editor) {
 
-            var val = this.editor.getValue();
 
             if (!this.editor.isCancelled()) {
+                var val = this.editor.getValue();
                 var self = this;
                 new Ajax.Request(this.saveUrl, {
                     method    : "get",
