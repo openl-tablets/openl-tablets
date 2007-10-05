@@ -5,3 +5,4 @@ Bundle-SymbolicName: org.openl.lib.javacc
 Bundle-Version: 1.0.0
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
+Require-Bundle: org.apache.ant
