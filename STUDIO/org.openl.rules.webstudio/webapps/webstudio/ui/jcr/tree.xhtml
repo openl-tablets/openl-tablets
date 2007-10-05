@@ -6,10 +6,10 @@
 
 	<rich:panel style="width:300px; height:518px;" >
 		<rich:tree switchType="client" ajaxSubmitSelection="true"
-			nodeSelectListener="#{repositoryHandler.processSelection}"
+			nodeSelectListener="#{userSession.repositoryTree.processSelection}"
 			reRender="nodeView"
-			value="#{repositoryHandler.data}" var="item" nodeFace="#{item.type}"
-			adviseNodeSelected="#{repositoryHandler.adviseNodeSelected}"
+			value="#{userSession.repositoryTree.data}" var="item" nodeFace="#{item.type}"
+			adviseNodeSelected="#{userSession.repositoryTree.adviseNodeSelected}"
 			>
 			<rich:treeNode type="repository" icon="#{item.icon}"
 				iconLeaf="#{item.iconLeaf}">

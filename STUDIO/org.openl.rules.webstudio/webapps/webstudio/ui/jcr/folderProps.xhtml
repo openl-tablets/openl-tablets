@@ -5,10 +5,14 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
 	<h:panelGrid columns="2">
-		<h:outputLabel for="p1b" styleClass="niceLabel">
-			<h:outputText value="Folder Name:" />
-		</h:outputLabel>
-		<h:outputText id="p1b" value="#{repositoryHandler.selected.name}" />
+		<h:outputText styleClass="niceLabel" value="Folder Name:" />
+		<h:outputText value="#{userSession.repositoryTree.selected.dataBean.name}" />
+
+		<h:outputText styleClass="niceLabel" value="Modified Date:" />
+		<h:outputText value="#{userSession.repositoryTree.selected.dataBean.lastModified}" />
+
+		<h:outputText styleClass="niceLabel" value="Modified By:" />
+		<h:outputText value="#{userSession.repositoryTree.selected.dataBean.lastModifiedBy}" />
 	</h:panelGrid>
 
 </ui:composition>

@@ -4,73 +4,7 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<h:panelGroup rendered="#{repositoryHandler.selected.type == 'file'}">
-		<table><tr><td>
-		<h:commandButton value="Delete" action="deleteFile" onclick="return false;"/>
-		</td></tr></table>
-		<p/>
-
-		<rich:tabPanel switchType="client" style="height:400;">
-			<rich:tab label="Properties">
-				<ui:include src="/ui/jcr/fileProps.xhtml" />
-			</rich:tab>
-			<rich:tab label="Versions">
-				<ui:include src="/ui/jcr/versions.xhtml" />
-			</rich:tab>
-		</rich:tabPanel>
-	</h:panelGroup>
-
-	<h:panelGroup rendered="#{repositoryHandler.selected.type == 'folder'}">
-		<table><tr><td>
-		<h:commandButton value="New Folder" action="newFolder" onclick="return false;"/>
-		</td><td>
-		<h:commandButton value="New File" action="newFile" onclick="return false;"/>
-		</td><td>
-		<h:commandButton value="Delete" action="deleteFolder" onclick="return false;"/>
-		</td></tr></table>
-		<p/>
-
-		<rich:tabPanel switchType="client" style="height:400;">
-			<rich:tab label="Properties">
-				<ui:include src="/ui/jcr/folderProps.xhtml" />
-			</rich:tab>
-			<rich:tab label="Versions">
-				<ui:include src="/ui/jcr/versions.xhtml" />
-			</rich:tab>
-			<rich:tab label="Elements">
-				<ui:include src="/ui/jcr/elements.xhtml" />
-			</rich:tab>
-		</rich:tabPanel>
-	</h:panelGroup>
-
-	<h:panelGroup rendered="#{repositoryHandler.selected.type == 'project'}">
-		<table><tr><td>
-		<h:commandButton value="Update" action="updateProject" onclick="return false;"/>
-		</td><td>
-		<h:commandButton value="Commit" action="commitProject" onclick="return false;"/>
-		</td><td>
-		<h:commandButton value="Override and Update" action="revertProject" onclick="return false;"/>
-		</td><td>
-		<h:commandButton value="Copy" action="copyProject" onclick="return false;"/>
-		</td><td>
-		<h:commandButton value="Delete" action="deleteProject" onclick="Richfaces.showModalPanel('modalPanel'); return false;"/>
-		</td></tr></table>
-		<p/>
-		
-		<rich:tabPanel switchType="client" style="height:400;">
-			<rich:tab label="Properties">
-				<ui:include src="/ui/jcr/projectProps.xhtml" />
-			</rich:tab>
-			<rich:tab label="Versions">
-				<ui:include src="/ui/jcr/versions.xhtml" />
-			</rich:tab>
-			<rich:tab label="Elements">
-				<ui:include src="/ui/jcr/elements.xhtml" />
-			</rich:tab>
-		</rich:tabPanel>
-	</h:panelGroup>
-
-	<h:panelGroup rendered="#{repositoryHandler.selected.type == 'repository'}">
+	<h:panelGroup rendered="#{userSession.selected.type == 'repository'}">
 		<table><tr><td>
 		<h:commandButton value="New Project" action="newProject" onclick="return false;"/>
 		</td></tr></table>
@@ -83,4 +17,67 @@
 		</rich:tabPanel>
 	</h:panelGroup>
 
+	<h:panelGroup rendered="#{userSession.selected.type == 'file'}">
+		<table><tr><td>
+		<h:commandButton value="Delete"
+		  action="#{userSession.repositoryTree.selected.dataBean.delete}"
+		  onclick="confirmDeleteFile(this, '#{userSession.repositoryTree.selected.dataBean.name}'); return false;"
+		/>
+		</td></tr></table>
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{userSession.selected.type == 'folder'}">
+		<table><tr><td>
+		<h:commandButton value="New Folder" action="newFolder" onclick="return false;"/>
+		</td><td>
+		<h:commandButton value="New File" action="newFile" onclick="return false;"/>
+		</td><td>
+		<h:commandButton value="Delete"
+		  action="#{userSession.repositoryTree.selected.dataBean.delete}"
+		  onclick="confirmDeleteFolder(this, '#{userSession.repositoryTree.selected.dataBean.name}'); return false;"
+		/>
+		</td></tr></table>
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{userSession.selected.type == 'project'}">
+		<table><tr><td>
+		<h:commandButton value="Update" action="updateProject" onclick="return false;"/>
+		</td><td>
+		<h:commandButton value="Commit" action="commitProject" onclick="return false;"/>
+		</td><td>
+		<h:commandButton value="Override and Update" action="revertProject" onclick="return false;"/>
+		</td><td>
+		<h:commandButton value="Copy" action="copyProject" onclick="return false;"/>
+		</td><td>
+		<h:commandButton value="Delete"
+		  action="#{userSession.repositoryTree.selected.dataBean.delete}"
+		  onclick="confirmDeleteProject(this, '#{userSession.repositoryTree.selected.dataBean.name}'); return false;"
+		/>
+		</td></tr></table>
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{userSession.selected.type != 'repository'}">
+		<p/>
+
+		<rich:tabPanel switchType="client" style="height:400;">
+			<rich:tab label="Properties">
+				<h:panelGroup rendered="#{userSession.selected.type == 'file'}">
+					<ui:include src="/ui/jcr/fileProps.xhtml" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{userSession.selected.type == 'folder'}">
+					<ui:include src="/ui/jcr/folderProps.xhtml" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{userSession.selected.type == 'project'}">
+					<ui:include src="/ui/jcr/projectProps.xhtml" />
+				</h:panelGroup>
+			</rich:tab>
+			<rich:tab label="Versions">
+				<ui:include src="/ui/jcr/versions.xhtml" />
+			</rich:tab>
+			<rich:tab label="Elements" rendered="#{userSession.selected.type != 'file'}">
+				<ui:include src="/ui/jcr/elements.xhtml" />
+			</rich:tab>
+		</rich:tabPanel>
+	</h:panelGroup>
+	
 </ui:composition>

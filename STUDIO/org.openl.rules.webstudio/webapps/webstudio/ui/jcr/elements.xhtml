@@ -4,7 +4,7 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:dataTable value="#{elementHandler.elements}" var="el">
+	<rich:dataTable value="#{userSession.selected.dataBean.elements}" var="el">
 		<f:facet name="header">
 			<rich:columnGroup>
 				<rich:column>
