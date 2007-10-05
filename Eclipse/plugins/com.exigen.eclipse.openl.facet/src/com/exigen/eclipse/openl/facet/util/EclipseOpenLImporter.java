@@ -7,7 +7,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 
 import com.exigen.eclipse.common.core.CommonCore;
@@ -91,8 +89,8 @@ public class EclipseOpenLImporter {
 		}
 
 		URLClassLoader classLoader = new URLClassLoader(urls
-				.toArray(new URL[urls.size()]), Thread.currentThread()
-				.getContextClassLoader());
+				.toArray(new URL[urls.size()]), this.getClass().getClassLoader() /*Thread.currentThread()
+				.getContextClassLoader()*/);
 
 		cashedClassLoaders.put(commonProject, classLoader);
 

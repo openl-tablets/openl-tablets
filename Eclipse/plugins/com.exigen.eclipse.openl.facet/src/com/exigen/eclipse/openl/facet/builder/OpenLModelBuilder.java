@@ -100,30 +100,38 @@ public class OpenLModelBuilder extends AbstractBuilder {
 			final IProgressMonitor progressMonitor) {
 		
 		try {
-			delta.accept(new IResourceDeltaVisitor() {
-				public boolean visit(IResourceDelta delta) throws CoreException {
-					if (delta.getResource().getType() == IResource.FILE) {
-						IFile nonJavaFile = (IFile) delta.getResource();
-						IJavaElement parentJavaElement = JavaCore
-								.create(nonJavaFile.getParent());
-						if ((parentJavaElement != null)
-								&& ((parentJavaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) || (parentJavaElement
-										.getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT))) {
-							try {
-								if (delta.getKind()==IResourceDelta.REMOVED)
-									cleanFile(nonJavaFile, progressMonitor);
-								else
-									processFile(nonJavaFile, progressMonitor);
-							} catch (CommonException e) {
-								ExceptionHandler.wrapIntoCoreException(e);
+			try {
+				delta.accept(new IResourceDeltaVisitor() {
+					public boolean visit(IResourceDelta delta) throws CoreException {
+						if (delta.getResource().getType() == IResource.FILE) {
+							IFile nonJavaFile = (IFile) delta.getResource();
+							IJavaElement parentJavaElement = JavaCore
+									.create(nonJavaFile.getParent());
+							if ((parentJavaElement != null)
+									&& ((parentJavaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) || (parentJavaElement
+											.getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT))) {
+								try {
+									if (isFileProcessed(nonJavaFile)) {
+										if (delta.getKind() == IResourceDelta.REMOVED)
+											cleanFile(nonJavaFile,
+													progressMonitor);
+										else
+											processFile(nonJavaFile,
+													progressMonitor);
+									}
+								} catch (CommonException e) {
+									ExceptionHandler.wrapIntoCoreException(e);
+								}
 							}
 						}
+						return true;
 					}
-					return true;
-				}
-			});
-		} catch (CoreException e) {
-			ExceptionHandler.handleCoreExceptionThatMustBeIgnored(e,
+				});
+			} catch (CoreException e) {
+				ExceptionHandler.unwrapCoreException(e);
+			}
+		} catch (CommonException e) {
+			ExceptionHandler.handleCommonDesignerExceptionThatMustBeIgnored(e,
 					getBuilderName() + " incremental build is failed");
 		}
 	}
