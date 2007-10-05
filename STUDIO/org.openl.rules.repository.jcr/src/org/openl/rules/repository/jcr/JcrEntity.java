@@ -126,8 +126,9 @@ public class JcrEntity implements REntity {
             buildRelPath(sb, n.getParent());
         }
 
-        sb.append('/');
-        sb.append(n.getName());
+        if (!n.isNodeType(JcrNT.NT_FILES)) {
+            sb.append('/');
+            sb.append(n.getName());
+        }
     }
-
 }
