@@ -11,15 +11,26 @@ YAHOO.widget.Calendar.prototype.render = function(x, y, obj, val) {
       }
     }
   }
-
+  var ok = false;
   if (val) {
     var z = val.split("/");
-    this.setYear(z[2]);
-    this.setMonth(z[0] - 1);
-
-    obj._skip_detach = true;
-    this.select((z[0]) + "/" + z[1] + "/" + z[2]);
+    if (z && Number(z[0]) && Number(z[1]) && Number(z[2])) {
+        this.setYear(z[2]);
+        this.setMonth(z[0] - 1);
+        obj._skip_detach = true;
+        this.select((z[0]) + "/" + z[1] + "/" + z[2]);
+        ok = true;
+    }
   }
+  if (!ok && x) {
+      var date = new Date();
+      var year=date.getYear();
+      this.setYear(year < 1000 ? 1900+year : year);
+      this.setMonth(date.getMonth());
+      obj._skip_detach = true;
+      this.select(date);
+  }
+
   this._arender();
   if (x) {
     this._myCont.style.display = "";
