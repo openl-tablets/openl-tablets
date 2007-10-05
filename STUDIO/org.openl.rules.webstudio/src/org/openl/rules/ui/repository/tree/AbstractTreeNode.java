@@ -35,251 +35,261 @@ import org.richfaces.model.TreeNode;
  */
 public abstract class AbstractTreeNode implements TreeNode {
 
-	private static final long serialVersionUID = 1238954077308840345L;
+    private static final long serialVersionUID = 1238954077308840345L;
 
-	/**
-	 * Empty collection.  It is used in LeafOnly mode to return empty iterator.
-	 * 
-	 * Must be the same type as {@link #elements} is.
-	 */
-	private static final transient Map EMPTY = new LinkedHashMap();
+    /**
+     * Empty collection.  It is used in LeafOnly mode to return empty iterator.
+     * 
+     * Must be the same type as {@link #elements} is.
+     */
+    private static final transient Map EMPTY = new LinkedHashMap();
 
-	/**
-	 * Identifier of the node.
-	 */
-	private long id;
-	/**
-	 * Display name
-	 */
-	private String name;
+    /**
+     * Identifier of the node.
+     */
+    private long id;
+    /**
+     * Display name
+     */
+    private String name;
 
-	/**
-	 * Reference on parent node.  For upper level node(s) it is <code>null</code>
-	 */
-	private TreeNode parent;
-	/**
-	 * Collection of children.  In LeafOnly mode it is left uninitialized.
-	 */
-	private Map <Object, AbstractTreeNode> elements;
+    /**
+     * Reference on parent node.  For upper level node(s) it is <code>null</code>
+     */
+    private TreeNode parent;
+    /**
+     * Collection of children.  In LeafOnly mode it is left uninitialized.
+     */
+    private Map <Object, AbstractTreeNode> elements;
 
-	/**
-	 * When <code>true</code> then the node cannot have children.
-	 * Any operation that implies adding/getting/removing children 
-	 * will lead to {@link UnsupportedOperationException}.
-	 */
-	private boolean isLeafOnly;
+    /**
+     * When <code>true</code> then the node cannot have children.
+     * Any operation that implies adding/getting/removing children 
+     * will lead to {@link UnsupportedOperationException}.
+     */
+    private boolean isLeafOnly;
 
-	/**
-	 * Creates tree node that can have children.
-	 *
-	 * @param id   id to distinguish the node among others
-	 * @param name display name of the node
-	 */
-	public AbstractTreeNode(long id, String name) {
-		this(id, name, false);
-	}
+    private Object dataBean;
 
-	/**
-	 * Creates tree node.  Can control whether the node is LeafOnly
-	 * (i.e. cannot have children) or usual one.
-	 * 
-	 * @param id   id to distinguish the node among others
-	 * @param name display name of the node
-	 * @param isLeafOnly whether the node is LeafOnly (true) or usual (false)
-	 */
-	public AbstractTreeNode(long id, String name, boolean isLeafOnly) {
-		this.id = id;
-		this.name = name;
-		this.isLeafOnly = isLeafOnly;
+    /**
+     * Creates tree node that can have children.
+     *
+     * @param id   id to distinguish the node among others
+     * @param name display name of the node
+     */
+    public AbstractTreeNode(long id, String name) {
+        this(id, name, false);
+    }
 
-		if (!isLeafOnly) {
-			elements = new LinkedHashMap<Object, AbstractTreeNode>();
-		}
-	}
+    /**
+     * Creates tree node.  Can control whether the node is LeafOnly
+     * (i.e. cannot have children) or usual one.
+     * 
+     * @param id   id to distinguish the node among others
+     * @param name display name of the node
+     * @param isLeafOnly whether the node is LeafOnly (true) or usual (false)
+     */
+    public AbstractTreeNode(long id, String name, boolean isLeafOnly) {
+        this.id = id;
+        this.name = name;
+        this.isLeafOnly = isLeafOnly;
 
-	/**
-	 * When the node is in LeafOnly mode, i.e. cannot have children,
-	 * this method will throw exception.
-	 * <p>
-	 * This method is used internally in {@link #addChild(Object, TreeNode)}, 
-	 * {@link #getChild(Object)}, and {@link #removeChild(Object)} methods.
-	 * <p>
-	 * Note, that method {@link #getChildren()} must work in any case.
-	 * 
-	 * @throws UnsupportedOperationException if the node is LeafOnly and current operation implies work with children
-	 */
-	private void checkLeafOnly() {
-		if (isLeafOnly) {
-			throw new UnsupportedOperationException("cannot have children");
-		}
-	}
+        if (!isLeafOnly) {
+            elements = new LinkedHashMap<Object, AbstractTreeNode>();
+        }
+    }
 
-	/**
-	 * @see TreeNode#addChild(Object, TreeNode)
-	 */
-	public void addChild(Object id, TreeNode child) {
-		checkLeafOnly();
+    /**
+     * When the node is in LeafOnly mode, i.e. cannot have children,
+     * this method will throw exception.
+     * <p>
+     * This method is used internally in {@link #addChild(Object, TreeNode)}, 
+     * {@link #getChild(Object)}, and {@link #removeChild(Object)} methods.
+     * <p>
+     * Note, that method {@link #getChildren()} must work in any case.
+     * 
+     * @throws UnsupportedOperationException if the node is LeafOnly and current operation implies work with children
+     */
+    private void checkLeafOnly() {
+        if (isLeafOnly) {
+            throw new UnsupportedOperationException("cannot have children");
+        }
+    }
 
-		elements.put(id, (AbstractTreeNode)child);
-		child.setParent(this);
-	}
+    /**
+     * @see TreeNode#addChild(Object, TreeNode)
+     */
+    public void addChild(Object id, TreeNode child) {
+        checkLeafOnly();
 
-	/**
-	 * @see TreeNode#getChild(Object)
-	 */
-	public TreeNode getChild(Object id) {
-		checkLeafOnly();
+        elements.put(id, (AbstractTreeNode)child);
+        child.setParent(this);
+    }
 
-		return elements.get(id);
-	}
+    /**
+     * @see TreeNode#getChild(Object)
+     */
+    public TreeNode getChild(Object id) {
+        checkLeafOnly();
 
-	/**
-	 * @see TreeNode#getChildren()
-	 */
-	public Iterator getChildren() {
-		Iterator result;
+        return elements.get(id);
+    }
 
-		if (isLeafOnly) {
-			checkLeafOnly();
-			// trick: return iterator for empty set
-			result = EMPTY.entrySet().iterator();
-			// work around limitation for TreeNode
-		} else {
-			result = elements.entrySet().iterator();
-		}
+    /**
+     * @see TreeNode#getChildren()
+     */
+    public Iterator getChildren() {
+        Iterator result;
 
-		return result;
-	}
+        if (isLeafOnly) {
+            checkLeafOnly();
+            // trick: return iterator for empty set
+            result = EMPTY.entrySet().iterator();
+            // work around limitation for TreeNode
+        } else {
+            result = elements.entrySet().iterator();
+        }
 
-	/**
-	 * @see TreeNode#getData()
-	 */
-	public Object getData() {
-		return this;
-	}
+        return result;
+    }
 
-	/**
-	 * @see TreeNode#getParent()
-	 */
-	public TreeNode getParent() {
-		return parent;
-	}
+    /**
+     * @see TreeNode#getData()
+     */
+    public Object getData() {
+        return this;
+    }
 
-	/**
-	 * @see TreeNode#isLeaf()
-	 */
-	public boolean isLeaf() {
-		boolean result;
+    /**
+     * @see TreeNode#getParent()
+     */
+    public TreeNode getParent() {
+        return parent;
+    }
 
-		if (isLeafOnly) {
-			result = true;
-		} else {
-			result = elements.isEmpty();
-		}
+    /**
+     * @see TreeNode#isLeaf()
+     */
+    public boolean isLeaf() {
+        boolean result;
 
-		return result;
-	}
+        if (isLeafOnly) {
+            result = true;
+        } else {
+            result = elements.isEmpty();
+        }
 
-	/**
-	 * @see TreeNode#removeChild(Object)
-	 */
-	public void removeChild(Object id) {
-		checkLeafOnly();
+        return result;
+    }
 
-		elements.remove(id);
-	}
+    /**
+     * @see TreeNode#removeChild(Object)
+     */
+    public void removeChild(Object id) {
+        checkLeafOnly();
 
-	/**
-	 * @see TreeNode#setData(Object)
-	 */
-	public void setData(Object data) {
-		// do nothing
-	}
+        elements.remove(id);
+    }
 
-	/**
-	 * @see TreeNode#setParent(TreeNode)
-	 */
-	public void setParent(TreeNode parent) {
-		this.parent = parent;
-	}
+    /**
+     * @see TreeNode#setData(Object)
+     */
+    public void setData(Object data) {
+        // do nothing
+    }
 
-	// ------ * ------
+    /**
+     * @see TreeNode#setParent(TreeNode)
+     */
+    public void setParent(TreeNode parent) {
+        this.parent = parent;
+    }
 
-	public long getId() {
-		return id;
-	}
-	
-	/**
-	 * Short for <code>addChild(child.getId(), child)</code>.
-	 * <p>
-	 * Can be use in a chain:
-	 * <pre>
-	 * add(child1).add(child2)...add(childN);
-	 * </pre>
-	 * 
-	 * @param child a node to be added as child
-	 * @return self-reference on the node
-	 */
-	public AbstractTreeNode add(AbstractTreeNode child) {
-		addChild(child.getId(), child);
-		return this;
-	}
-	
-	/**
-	 * Clears children.  Works recursively.
-	 */
-	protected void clear() {
-		if (elements != null) {
-			// recursion
-			for (AbstractTreeNode child : elements.values()) {
-				child.clear();
-			}
-			
-			elements.clear();
-		}
-	}
+    // ------ * ------
 
-	// ------ UI methods ------
+    public long getId() {
+        return id;
+    }
 
-	/**
-	 * Returns display name of the node.
-	 *
-	 * @return name of node in tree
-	 */
-	public String getName() {
-		return name;
-	}
+    public Object getDataBean() {
+        return dataBean;
+    }
 
-	/**
-	 * Returns type of the node in tree.
-	 * <pre>
-	 * &lt;rich:tree var="item" <b>nodeFace="#{item.type}"</b> ... >
-	 *     &lt;rich:treeNode <b>type="project"</b> ... >
+    public void setDataBean(Object dataBean) {
+        this.dataBean = dataBean;
+    }
+
+    /**
+     * Short for <code>addChild(child.getId(), child)</code>.
+     * <p>
+     * Can be use in a chain:
+     * <pre>
+     * add(child1).add(child2)...add(childN);
      * </pre>
-	 * 
-	 * @return type of node
-	 */
-	public abstract String getType();
+     * 
+     * @param child a node to be added as child
+     * @return self-reference on the node
+     */
+    public AbstractTreeNode add(AbstractTreeNode child) {
+        addChild(child.getId(), child);
+        return this;
+    }
 
-	/**
-	 * Returns URL of image that will be displayed with the node
-	 * when it has at least one child.
-	 * <pre>
-	 * &lt;rich:treeNode <b>icon="#{item.icon}"</b> ... >
-     * </pre>
-	 * 
-	 * @return URL of image
-	 */
-	public abstract String getIcon();
+    /**
+     * Clears children.  Works recursively.
+     */
+    protected void clear() {
+        if (elements != null) {
+            // recursion
+            for (AbstractTreeNode child : elements.values()) {
+                child.clear();
+            }
 
-	/**
-	 * Returns URL of image that will be displayed with the node
-	 * when {@link #isLeaf()} is true.
-	 * <pre>
-	 * &lt;rich:treeNode <b>iconLeaf="#{item.iconLeaf}"</b> ... >
+            elements.clear();
+        }
+    }
+
+    // ------ UI methods ------
+
+    /**
+     * Returns display name of the node.
+     *
+     * @return name of node in tree
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns type of the node in tree.
+     * <pre>
+     * &lt;rich:tree var="item" <b>nodeFace="#{item.type}"</b> ... >
+     *     &lt;rich:treeNode <b>type="project"</b> ... >
      * </pre>
-	 * 
-	 * @return URL of image
-	 */
-	public abstract String getIconLeaf();
+     * 
+     * @return type of node
+     */
+    public abstract String getType();
+
+    /**
+     * Returns URL of image that will be displayed with the node
+     * when it has at least one child.
+     * <pre>
+     * &lt;rich:treeNode <b>icon="#{item.icon}"</b> ... >
+     * </pre>
+     * 
+     * @return URL of image
+     */
+    public abstract String getIcon();
+
+    /**
+     * Returns URL of image that will be displayed with the node
+     * when {@link #isLeaf()} is true.
+     * <pre>
+     * &lt;rich:treeNode <b>iconLeaf="#{item.iconLeaf}"</b> ... >
+     * </pre>
+     * 
+     * @return URL of image
+     */
+    public abstract String getIconLeaf();
 }

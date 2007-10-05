@@ -8,7 +8,7 @@
 
 	<ui:define name="body">
 
-	<h:panelGrid columns="2" cellspacing="10"
+    <h:panelGrid columns="2" cellspacing="10"
 	style="height:600;"
 	headerClass="outpanelHeader" columnClasses="columnTree, columnProps">
 	
@@ -30,6 +30,27 @@
 
 	<h:commandButton styleClass="smlBackButton" value="index-jcr" action="index" immediate="true"/>
 
+	<rich:dataTable value="#{userSession.errors}" var="err">
+		<f:facet name="header">
+			<rich:columnGroup>
+				<rich:column>
+					<h:outputText value="Message" />
+				</rich:column>
+				<rich:column>
+					<h:outputText value="Details" />
+				</rich:column>
+			</rich:columnGroup>
+		</f:facet>
+
+		<rich:columnGroup>
+			<rich:column>
+				<h:outputText value="#{err.message}" />
+			</rich:column>
+			<rich:column>
+				<h:outputText value="---" />
+			</rich:column>
+		</rich:columnGroup>
+	</rich:dataTable>
 	</ui:define>
 
 	<ui:define name="special">
