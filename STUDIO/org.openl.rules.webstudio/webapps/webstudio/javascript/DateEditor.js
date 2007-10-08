@@ -1,6 +1,8 @@
 /**
  * Date editor.
  *
+ * Requires a part of some old version of YAHOO UI library.
+ *
  * @author Andrey Naumenko
  */
 

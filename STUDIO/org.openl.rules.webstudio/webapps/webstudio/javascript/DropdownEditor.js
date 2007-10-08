@@ -6,7 +6,10 @@
 var DropdownEditor = Class.create();
 
 DropdownEditor.prototype = Object.extend(new BaseEditor(), {
-    /** Constructor */
+    /**
+     * Constructor. Creates "select" HTML element and fills it with "option"s from param parameter.
+     * @param param an Enumeration with options for this dropdown. 
+     */
     editor_initialize: function(param) {
         this.node = $(document.createElement("select"));
         this.node.style.width = "100%";
@@ -34,6 +37,9 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
         this.node.appendChild(optionElement);
     },
 
+    /**
+     *  Overrides default implementation. When user chose "--Select value--" item we regard editor state as cancelled.   
+     */
     isCancelled : function() {
         return (this.initialValue == this.getValue() || this.node.value == "");
     }
