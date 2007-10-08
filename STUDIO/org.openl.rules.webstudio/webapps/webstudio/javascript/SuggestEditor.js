@@ -13,6 +13,9 @@ var SuggestEditor = Class.create();
 
 SuggestEditor.Elements = {};
 
+/**
+ * Suggest editor, based on Ajax.Autocompleter from scriptaculous JS library. 
+ */
 SuggestEditor.prototype = Object.extend(new BaseEditor(), {
 
     /** Constructor */

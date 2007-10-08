@@ -7,6 +7,10 @@ var TextEditor = Class.create();
 
 var BaseTextEditor = Class.create();
 
+/**
+ * Not an editor itself, it just introduces functions common for all text based editors - that is common reaction
+ * to F2 F3 keys.
+ */
 BaseTextEditor.prototype = Object.extend(new  BaseEditor(), {
     /**
      * Moves caret to beginning of the input

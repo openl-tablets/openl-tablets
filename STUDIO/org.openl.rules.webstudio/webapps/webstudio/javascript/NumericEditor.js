@@ -5,6 +5,9 @@
  */
 var NumericEditor = Class.create();
 
+/**
+ * Extends base text editor to restrict input values to numeric values only. Supports min/max constraints.  
+ */
 NumericEditor.prototype = Object.extend(new BaseTextEditor(), {
     min: null,
     max: null,
