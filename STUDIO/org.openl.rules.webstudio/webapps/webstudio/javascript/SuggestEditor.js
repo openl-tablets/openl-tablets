@@ -15,8 +15,8 @@ SuggestEditor.Elements = {};
 
 SuggestEditor.prototype = Object.extend(new BaseEditor(), {
 
-/** Constructor */
-    editor_initialize: function() {
+    /** Constructor */
+    editor_initialize: function(param) {
         if (!SuggestEditor.Elements.div) {
             var i = $(document.createElement("input"));
             i.setAttribute("type", "text");
@@ -36,7 +36,6 @@ SuggestEditor.prototype = Object.extend(new BaseEditor(), {
             Element.addClassName(d, "suggestion_list");
             SuggestEditor.Elements.div = d;
             SuggestEditor.completer = new Ajax.Autocompleter(i, d, "autocomplete.jsp");
-
         }
 
         var d = SuggestEditor.Elements.div;
@@ -46,6 +45,9 @@ SuggestEditor.prototype = Object.extend(new BaseEditor(), {
 
         var self = this;
         ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
+
+        SuggestEditor.completer.options.minChars = param.minChars || 1;
+        SuggestEditor.completer.options.frequency = param.delay ? param.delay/1000.0 : 0.4;
     },
 
 
