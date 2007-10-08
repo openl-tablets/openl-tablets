@@ -95,6 +95,7 @@ public class TableEditorController {
 
                 if (col == 2 && row == 2) {
                     typeResponse = new EditorTypeResponse("suggestText");
+                    typeResponse.setParams(new SuggestParam(3, 1000));
                 }
 
                 response = pojo2json(typeResponse);
@@ -339,6 +340,32 @@ public class TableEditorController {
 
         public void setMin(Long min) {
             this.min = min;
+        }
+    }
+
+    public static class SuggestParam {
+        private Integer minChars;
+        private Integer delay;
+
+        public SuggestParam(Integer minChars, Integer delay) {
+            this.minChars = minChars;
+            this.delay = delay;
+        }
+
+        public Integer getMinChars() {
+            return minChars;
+        }
+
+        public void setMinChars(Integer minChars) {
+            this.minChars = minChars;
+        }
+
+        public Integer getDelay() {
+            return delay;
+        }
+
+        public void setDelay(Integer delay) {
+            this.delay = delay;
         }
     }
 
