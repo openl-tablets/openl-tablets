@@ -1,29 +1,22 @@
 .suggestion_list {
-  background: white;
-  border: 1px solid;
-  padding: 4px;
+    padding: 0;
+    margin: 0;
 }
 
 .suggestion_list ul {
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
+    background: white;
+    border: 1px solid;
+    padding: 4px;
 }
 
-.suggestion_list a {
-  text-decoration: none;
-  color: navy;
+.suggestion_list  .selected {
+    background: blue;
+    color: white;
+    border: 0;
 }
 
-.suggestion_list .selected {
-  background: navy;
-  color: white;
-}
-
-.suggestion_list .selected a {
-  color: white;
-}
-
-#autosuggest {
-  display: none;
+.suggestion_list li {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
 }

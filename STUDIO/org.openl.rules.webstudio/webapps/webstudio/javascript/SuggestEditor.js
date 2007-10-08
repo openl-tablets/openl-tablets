@@ -1,43 +1,59 @@
 /**
  * Suggest input editor.
  *
- * @author Andrey Naumenko
+ * @author Aliaksandr Antonik
  */
 
-document.write("<script src='" + jsPath + "suggest/suggest.js'></script>");
+document.write("<script src='" + jsPath + "scriptaculous/scriptaculous.js'></script>");
+document.write("<script src='" + jsPath + "scriptaculous/effects.js'></script>");
+document.write("<script src='" + jsPath + "scriptaculous/controls.js'></script>");
 document.write("<link rel='stylesheet' type='text/css' href='" + jsPath + "suggest/suggest.css'></link>");
 
 var SuggestEditor = Class.create();
 
+SuggestEditor.Elements = {};
+
 SuggestEditor.prototype = Object.extend(new BaseEditor(), {
 
 /** Constructor */
-  editor_initialize: function() {
-    this.node = document.createElement("input");
-    this.node.setAttribute("type", "text");
-    this.node.style.border = "0px none";
-    this.node.style.height = "100%";
-    this.node.style.margin = "0px";
-    this.node.style.padding = "0px";
-    this.node.style.width = "100%";
-    this.node.setAttribute("id", "statesautocomplete");
-    
-    var states = new Array("Alabama", "Alaska", "American Samoa", "Arizona", "Arkansas", "California",
-      "Colorado", "Connecticut", "Delaware", "District of Columbia",
-      "Federated States of Micronesia", "Florida", "Georgia", "Guam", "Hawaii", "Idaho", "Illinois",
-      "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine",
-      "Marshall Islands", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
-      "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
-      "New York", "North Carolina", "North Dakota",
-      "Northern Mariana Islands", "Ohio", "Oklahoma", "Oregon", "Palau", "Pennsylvania", "Puerto Rico",
-      "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
-      "Virgin Islands", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming",
-      "Armed Forces Africa", "Armed Forces Americas", "Armed Forces Canada",
-      "Armed Forces Europe", "Armed Forces Middle East", "Armed Forces Pacific");
+    editor_initialize: function() {
+        if (!SuggestEditor.Elements.div) {
+            var i = $(document.createElement("input"));
+            i.setAttribute("type", "text");
+            i.style.border = "0px none";
+            i.style.height = "100%";
+            i.style.margin = "0px";
+            i.style.padding = "0px";
+            i.style.width = "100%";
+            i.setAttribute("id", "ac_input");
+            i.setAttribute("name", "ac_value");
 
-    new AutoSuggest(document.getElementById('statesautocomplete'), states);
+            SuggestEditor.Elements.input = i;
 
-  }
+            var d = $(document.createElement("div"));
+            d.setAttribute("id", "ac_container");
+            Element.hide(d);
+            Element.addClassName(d, "suggestion_list");
+            SuggestEditor.Elements.div = d;
+            SuggestEditor.completer = new Ajax.Autocompleter(i, d, "autocomplete.jsp");
+
+        }
+
+        var d = SuggestEditor.Elements.div;
+        Element.hide(d);
+        document.body.appendChild(d);
+        this.node = SuggestEditor.Elements.input;
+
+        var self = this;
+        ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
+    },
+
+
+    destroy: function() {
+        var ac = SuggestEditor.completer;
+        if(ac.observer) clearTimeout(ac.observer);
+        document.body.removeChild(SuggestEditor.Elements.div);
+    }
 });
 
 TableEditor.Editors["suggestText"] = SuggestEditor;

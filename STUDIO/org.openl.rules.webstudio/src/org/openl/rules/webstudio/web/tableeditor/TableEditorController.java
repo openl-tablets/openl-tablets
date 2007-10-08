@@ -93,6 +93,10 @@ public class TableEditorController {
                     typeResponse = new EditorTypeResponse("price");
                 }
 
+                if (col == 2 && row == 2) {
+                    typeResponse = new EditorTypeResponse("suggestText");
+                }
+
                 response = pojo2json(typeResponse);
             }
         }
