@@ -13,6 +13,7 @@ import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
+import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
 
 import java.util.Map;
 import java.io.IOException;
@@ -22,7 +23,7 @@ import java.io.IOException;
  *
  * @author Andrey Naumenko
  */
-public class TableEditorController {
+public class TableEditorController implements JSTableEditor {
     private String response;
     private int row, col, elementID;
 
