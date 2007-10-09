@@ -173,6 +173,12 @@ public class OpenClassDelegator implements IOpenClass
     {
         this.nameSpace = nameSpace;
     }
+
+    @Override
+    public String toString()
+    {
+	return (getNameSpace() == null ? "" : getNameSpace() + ":") +  getName();
+    }
     
     
     
