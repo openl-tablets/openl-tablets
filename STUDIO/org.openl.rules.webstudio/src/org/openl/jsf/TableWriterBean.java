@@ -96,7 +96,7 @@ public class TableWriterBean {
 	   this.name = studio.getModel().getDisplayNameFull(elementID);
 	   this.runnable  = studio.getModel().isRunnable(elementID);
 	   this.testable  = studio.getModel().isTestable(elementID);
-	   org.openl.syntax.ISyntaxError[] se = studio.getModel().getErrors(elementID);
+	   this.se = studio.getModel().getErrors(elementID);
 	   
 		String[] menuParamsView = {"transparency", "filterType", "view"}; 
 		this.parsView = WebTool.listParamsExcept2(menuParamsView, request);
