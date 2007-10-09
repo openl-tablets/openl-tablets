@@ -10,12 +10,24 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import java.util.List;
 
+/**
+ * Handler for Project UI Bean.
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class ProjectHandler extends BeanHandler {
 
     public ProjectHandler(Context context) {
         super(context);
     }
 
+    /**
+     * Gets list of elements in a root folder of a repository project.
+     * 
+     * @param bean a project bean
+     * @return list of elements
+     */
     public List<AbstractEntityBean> getElements(ProjectBean bean) {
         String id = bean.getId();
         REntity entity = getEntityById(id);
@@ -25,6 +37,12 @@ public class ProjectHandler extends BeanHandler {
         return folderHandler.listElements(project.getRootFolder());
     }
 
+    /**
+     * Creates UI Bean for a repository project.
+     * 
+     * @param project a repository project
+     * @return new Project UI Bean
+     */
     protected ProjectBean createBean(RProject project) {
         ProjectBean pb = new ProjectBean();
         initBean(pb, project);

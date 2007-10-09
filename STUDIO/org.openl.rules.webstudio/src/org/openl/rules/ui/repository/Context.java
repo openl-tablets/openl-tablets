@@ -7,6 +7,13 @@ import org.openl.rules.ui.repository.handlers.MessageQueue;
 import org.openl.rules.ui.repository.handlers.ProjectHandler;
 import org.openl.rules.ui.repository.handlers.RepositoryHandler;
 
+/**
+ * Handler Context.
+ * It gathers all referenced classes.
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class Context {
     private RRepository repository;
     private MessageQueue messageQueue;

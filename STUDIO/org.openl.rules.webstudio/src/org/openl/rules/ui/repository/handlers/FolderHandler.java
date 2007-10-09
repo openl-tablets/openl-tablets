@@ -12,12 +12,24 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import java.util.List;
 import java.util.LinkedList;
 
+/**
+ * Handler for Folder UI Bean.
+ *
+ * @author Aleh Bykhavets
+ *
+ */
 public class FolderHandler extends BeanHandler {
 
     public FolderHandler(Context context) {
         super(context);
     }
 
+    /**
+     * Gets list of elements (sub folders, files) for a Folder UI Bean.
+     * 
+     * @param bean folder UI Bean
+     * @return list of elements
+     */
     public List<AbstractEntityBean> getElements(FolderBean bean) {
         String id = bean.getId();
         REntity entity = getEntityById(id);
@@ -26,10 +38,17 @@ public class FolderHandler extends BeanHandler {
         return listElements(folder);
     }
 
+    /**
+     * Lists elements for a repository folder.
+     * 
+     * @param folder a repository folder
+     * @return list of elements
+     */
     protected List<AbstractEntityBean> listElements(RFolder folder) {
         List<AbstractEntityBean> result = new LinkedList<AbstractEntityBean>();
 
         try {
+            // list of sub folders
             for (RFolder subFolder : folder.getFolders()) {
                 FolderBean fb = createBean(subFolder);
                 result.add(fb);
@@ -42,6 +61,7 @@ public class FolderHandler extends BeanHandler {
         try {
             FileHandler fh = context.getFileHandler();
 
+            // list of files
             for (RFile file : folder.getFiles()) {
                 FileBean fb = fh.createBean(file);
                 result.add(fb);
@@ -54,6 +74,12 @@ public class FolderHandler extends BeanHandler {
         return result;
     }
 
+    /**
+     * Creates Folder UI Bean from a repository folder.
+     * 
+     * @param folder a repository folder
+     * @return new Folder UI Bean
+     */
     protected FolderBean createBean(RFolder folder) {
         FolderBean fb = new FolderBean();
         initBean(fb, folder);

@@ -5,6 +5,12 @@ import org.openl.rules.ui.repository.handlers.BeanHandler;
 import java.util.List;
 import java.util.Date;
 
+/**
+ * Abstract UI Bean for Entities (Project, Folder, File).
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public abstract class AbstractEntityBean implements Entity {
     private String id;
     private BeanHandler handler;
@@ -35,9 +41,7 @@ public abstract class AbstractEntityBean implements Entity {
 
     // ------ properties ------
 
-    /* (non-Javadoc)
-     * @see org.openl.rules.ui.repository.beans.Entity#getName()
-     */
+    /** {@inheritDoc} */
     public String getName() {
         return name;
     }
@@ -46,9 +50,7 @@ public abstract class AbstractEntityBean implements Entity {
         this.name = name;
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.rules.ui.repository.beans.Entity#getVersion()
-     */
+    /** {@inheritDoc} */
     public String getVersion() {
         return version;
     }
@@ -57,9 +59,7 @@ public abstract class AbstractEntityBean implements Entity {
         this.version = version;
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.rules.ui.repository.beans.Entity#getLastModified()
-     */
+    /** {@inheritDoc} */
     public Date getLastModified() {
         return lastModified;
     }
@@ -68,9 +68,7 @@ public abstract class AbstractEntityBean implements Entity {
         this.lastModified = lastModified;
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.rules.ui.repository.beans.Entity#getLastModifiedBy()
-     */
+    /** {@inheritDoc} */
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -79,16 +77,12 @@ public abstract class AbstractEntityBean implements Entity {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.rules.ui.repository.beans.Entity#getVersionHistory()
-     */
+    /** {@inheritDoc} */
     public List<VersionBean> getVersionHistory() {
         return handler.getVersions(this);
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.rules.ui.repository.beans.Entity#getCreated()
-     */
+    /** {@inheritDoc} */
     public Date getCreated() {
         return created;
     }
@@ -97,16 +91,12 @@ public abstract class AbstractEntityBean implements Entity {
         this.created = created;
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.rules.ui.repository.beans.Entity#getElements()
-     */
+    /** {@inheritDoc} */
     public abstract List<AbstractEntityBean> getElements();
     
     // ------ actions ------
 
-    /* (non-Javadoc)
-     * @see org.openl.rules.ui.repository.beans.Entity#delete()
-     */
+    /** {@inheritDoc} */
     public void delete() {
         System.out.println("? delete(): " + id);
         handler.delete(this);

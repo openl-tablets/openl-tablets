@@ -9,6 +9,8 @@
         <managed-bean-scope>session</managed-bean-scope>
     </managed-bean>
     
+    <!-- activeNode.* is short for userSession.selected.dataBean.* and userSession.selected.type -->
+    <!-- TODO: cannot use activeNode.* solely: it can lag 1 request in output -->
     <managed-bean>
     	<managed-bean-name>activeNode</managed-bean-name>
     	<managed-bean-class>org.openl.rules.ui.repository.ActiveNodeBean</managed-bean-class>

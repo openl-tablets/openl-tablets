@@ -9,6 +9,12 @@ import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 
 import java.util.List;
 
+/**
+ * User Session settings and handlers.
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class UserSessionBean {
     private RRepository repository;
     private Context context;
@@ -60,15 +66,5 @@ public class UserSessionBean {
     
     public AbstractTreeNode getSelected() {
         return repositoryTree.getSelected();
-    }
-    
-    private boolean openModal;
-    public boolean getOpenModal() {
-        boolean r = openModal;
-        openModal = false;
-        return r;
-    }
-    public void openDelModal() {
-        openModal = true;
     }
 }

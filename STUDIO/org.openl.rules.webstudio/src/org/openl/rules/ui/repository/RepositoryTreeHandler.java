@@ -5,6 +5,7 @@ import javax.faces.event.AbortProcessingException;
 import org.openl.rules.ui.repository.beans.Entity;
 import org.openl.rules.ui.repository.beans.FolderBean;
 import org.openl.rules.ui.repository.beans.ProjectBean;
+import org.openl.rules.ui.repository.beans.RepositoryBean;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
@@ -80,8 +81,12 @@ public class RepositoryTreeHandler {
     }
 
     protected void initData() {
-        root = new TreeRepository(generateId(), "JCR Repository");
-        repository = new TreeRepository(generateId(), context.getRepository().getName());
+        root = new TreeRepository(generateId(), "Rules Repository");
+        String repName = context.getRepository().getName();
+        repository = new TreeRepository(generateId(), repName);
+        RepositoryBean rb = new RepositoryBean();
+        rb.setName(repName);
+        repository.setDataBean(rb);
         root.add(repository);
         
         for (ProjectBean project : context.getRepositoryHandler().getProjects()) {

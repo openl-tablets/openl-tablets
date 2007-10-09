@@ -9,31 +9,34 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import java.util.List;
 import java.util.LinkedList;
 
-public class BeanHandler {
+/**
+ * Abstract UI Bean Handler.
+ * Handler is one who really does work.
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
+public abstract class BeanHandler {
     protected Context context;
 
     public BeanHandler(Context context) {
         this.context = context;
     }
 
-    public void updateName(AbstractEntityBean bean) {
-        REntity entity = getEntityById(bean.getId());
-        
-        System.out.println("* updateName: " + bean.getId());
-//        entity.setName(bean.getName());
-    }
-
-    public void delete(AbstractEntityBean bean) {
-        REntity entity = getEntityById(bean.getId());
-        
-        System.out.println("* delete: " + bean.getId());
-//        entity.delete();
-    }
-
+    /**
+     * Initializes UI Bean. The handler sets all data properties of the UI Bean
+     * from the repository entity.
+     * Also sets system properties: ID and Handler. 
+     * 
+     * @param bean UI bean to be initialized
+     * @param entity a repository entity
+     */
     protected void initBean(AbstractEntityBean bean, REntity entity) {
+        // set system properties
         bean.setId(generateId(entity));
         bean.setHandler(this);
 
+        // set data properties
         bean.setName(entity.getName());
         RVersion v = entity.getBaseVersion();
         bean.setVersion(v.getName());
@@ -41,6 +44,24 @@ public class BeanHandler {
         bean.setLastModifiedBy(v.getCreatedBy().getName());
     }
     
+    /**
+     * Deletes a repository entity
+     * 
+     * @param bean UI bean for a repository entity
+     */
+    public void delete(AbstractEntityBean bean) {
+        REntity entity = getEntityById(bean.getId());
+        
+        System.out.println("* delete: " + bean.getId());
+//        entity.delete();
+    }
+
+    /**
+     * Gets list of versions for a repository entity
+     * 
+     * @param bean UI bean for a repository entity
+     * @return list of versions (always not null).
+     */
     public List<VersionBean> getVersions(AbstractEntityBean bean) {
         List<VersionBean> result = new LinkedList<VersionBean>();
 
@@ -64,6 +85,15 @@ public class BeanHandler {
         return result;
     }
 
+    // ------ protected ------
+    
+    /**
+     * Generates id for a repository entity.
+     * Currently id is path of the entity. 
+     * 
+     * @param entity a repository entity
+     * @return id of the entity or <code>null</code> if cannot determine one.
+     */
     protected String generateId(REntity entity) {
         String id;
         try {
@@ -77,6 +107,13 @@ public class BeanHandler {
         return id;
     }
 
+    /**
+     * Reverse operation.
+     * Finds a repository entity by its id.
+     *  
+     * @param id id of a entity
+     * @return a repository entity or <code>null</code> if cannot find
+     */
     protected REntity getEntityById(String id) {
         REntity result = null;
 
@@ -105,6 +142,15 @@ public class BeanHandler {
         return result;
     }
 
+    // ------ private ------
+    
+    /**
+     * Splits id on elements.
+     * I.e. breaks path on entity names.
+     * 
+     * @param id id (path)
+     * @return splitted path as a list
+     */
     private LinkedList<String> splitId(String id) {
         LinkedList<String> names = new LinkedList<String>();
         String[] parts = id.split("/");
@@ -119,6 +165,15 @@ public class BeanHandler {
         return names;
     }
 
+    /**
+     * Finds a repository entity by path.
+     * Uses recursive method.
+     * 
+     * @param folder current repository folder
+     * @param names splitted path
+     * @return found entity or <code>null</code>
+     * @throws RRepositoryException if failed
+     */
     private REntity findEntityDeeper(RFolder folder, LinkedList<String> names) throws RRepositoryException {
         String name = names.removeFirst();
 

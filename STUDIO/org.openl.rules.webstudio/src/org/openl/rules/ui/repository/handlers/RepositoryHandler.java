@@ -8,6 +8,13 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import java.util.List;
 import java.util.LinkedList;
 
+/**
+ * Repository Handler.
+ * It works with repository projects.
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class RepositoryHandler {
     private Context context;
 
@@ -15,6 +22,11 @@ public class RepositoryHandler {
         this.context = context;
     }
 
+    /**
+     * Gets all projects from a rule repository.
+     * 
+     * @return list of projects
+     */
     public List<ProjectBean> getProjects() {
         List<ProjectBean> result = new LinkedList<ProjectBean>();
 
