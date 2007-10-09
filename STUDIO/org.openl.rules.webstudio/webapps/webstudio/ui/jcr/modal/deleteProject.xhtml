@@ -1,46 +1,67 @@
 <ui:composition
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:modalPanel  id="modalPanel" minHeight="200" minWidth="450" 
+	<rich:modalPanel  id="modalDeleteProject" minHeight="200" minWidth="450" 
 		height="200" width="500" zindex="2000">
 		<f:facet name="header">
 			<h:outputText value="Confirm Delete" />
 		</f:facet>
 
 		<f:facet name="controls">
-			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="closeModal(false);" />
+			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="closeMDP(false);" />
 		</f:facet>
 
 		<table style="width:100%; height: 180px;"><tr><td align="center" height="60%">
 
-		<p id="modalPanel:message" style="font-size:14px;">
-		Are you sure you want to delete the project?
+		<p id="modalDeleteProject:message" style="font-size:14px;">
+		Are you sure you want to delete it?
 		</p>
 
 		</td></tr><tr><td align="center">
 
-		<h:form id="modalForm">
+		<a4j:form id="modalDeleteProjectForm">
 			<table width="50%" align="center"><tr><td>
-				<h:commandButton value="Delete" onclick="closeModal(true);return false;"/>
+				<a4j:commandButton value="Delete" onclick="return closeMDP(true);" />
 			</td><td>
-				<h:commandButton value="Cancel" onclick="closeModal(false);return false;" />
+				<a4j:commandButton value="Cancel" onclick="return closeMDP(false);" />
 			</td></tr></table>
-		</h:form>
+		</a4j:form>
 		
 		</td></tr></table>
 
 	</rich:modalPanel>
 
 	<script>
-		var lastModalEval = null;
-		var lastModalName = null;
+		var lastMDPEval = null;
 
-		function showModal(modalName, from) {
+		function cutIfStarts(s, text, max) {
+			var i;
+			
+			i = s.indexOf(text);
+			if (i > 0 &amp;&amp; i &lt;= max) {
+				s = s.substr(i + text.length);
+			}
+			
+			return s;
+		}
+		
+		function cutIfEnds(s, text) {
+			var i;
+			
+			i = s.lastIndexOf(text);
+			if ((i + text.length) == s.length) {
+				s = s.substr(0, i);
+			}
+			
+			return s;
+		}
+
+		function initMDP(from) {
 			var s = '' + from.getAttribute('onclick');
-			var start = 'oamSubmitForm';
 			
 			if (s.charAt(s.length - 1) == '}') {
 				// IE
@@ -49,24 +70,17 @@
 				// FF
 			}
 
-			var i;
-			i = s.search(start);
-			if (i > 0) {
-				s = s.substr(i);
-			}
+			s = cutIfStarts(s, 'return false;', 100);
 //			alert(s);
 			
-			lastModalEval = s;
-			lastModalName = modalName;
-			Richfaces.showModalPanel(modalName);
-			return false;
+			lastMDPEval = s;
 		}
 		
-		function closeModal(result) {
-			Richfaces.hideModalPanel(lastModalName);
+		function closeMDP(result) {
+			Richfaces.hideModalPanel('modalDeleteProject');
 			
 			if (result) {
-				eval(lastModalEval);
+				eval("function exe(){" + lastMDPEval + "};exe();");
 			}
 			return false;
 		}
@@ -85,7 +99,7 @@
 		}
 		
 		function initMessage(from, msgFormat, param) {
-			var el = document.getElementById('modalPanel:message');
+			var el = document.getElementById('modalDeleteProject:message');
 			var s = (param) ? param : from.innerHTML;
 			el.innerHTML = format(msgFormat, s);
 		}
@@ -93,19 +107,9 @@
 		function confirmDeleteProject(from, param) {
 			initMessage(from, "Are you sure you want to delete the project '{0}'?", param);
 		
-			return showModal('modalPanel', from);
-		}
-
-		function confirmDeleteFolder(from, param) {
-			initMessage(from, "Are you sure you want to delete the folder '{0}'?", param);
-		
-			return showModal('modalPanel', from);
-		}
-
-		function confirmDeleteFile(from, param) {
-			initMessage(from, "Are you sure you want to delete the file '{0}'?", param);
-		
-			return showModal('modalPanel', from);
+			initMDP(from);
+			Richfaces.showModalPanel('modalDeleteProject');
+			return false;
 		}
 	</script>
 

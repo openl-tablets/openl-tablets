@@ -7,7 +7,7 @@
 	<rich:panel style="width:300px; height:518px;" >
 		<rich:tree switchType="client" ajaxSubmitSelection="true"
 			nodeSelectListener="#{userSession.repositoryTree.processSelection}"
-			reRender="nodeView"
+			reRender="modalDeleteNode, nodeView"
 			value="#{userSession.repositoryTree.data}" var="item" nodeFace="#{item.type}"
 			adviseNodeSelected="#{userSession.repositoryTree.adviseNodeSelected}"
 			>

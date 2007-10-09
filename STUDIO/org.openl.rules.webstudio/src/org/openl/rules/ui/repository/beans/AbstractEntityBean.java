@@ -5,7 +5,7 @@ import org.openl.rules.ui.repository.handlers.BeanHandler;
 import java.util.List;
 import java.util.Date;
 
-public abstract class AbstractEntityBean {
+public abstract class AbstractEntityBean implements Entity {
     private String id;
     private BeanHandler handler;
 
@@ -35,6 +35,9 @@ public abstract class AbstractEntityBean {
 
     // ------ properties ------
 
+    /* (non-Javadoc)
+     * @see org.openl.rules.ui.repository.beans.Entity#getName()
+     */
     public String getName() {
         return name;
     }
@@ -43,6 +46,9 @@ public abstract class AbstractEntityBean {
         this.name = name;
     }
 
+    /* (non-Javadoc)
+     * @see org.openl.rules.ui.repository.beans.Entity#getVersion()
+     */
     public String getVersion() {
         return version;
     }
@@ -51,6 +57,9 @@ public abstract class AbstractEntityBean {
         this.version = version;
     }
 
+    /* (non-Javadoc)
+     * @see org.openl.rules.ui.repository.beans.Entity#getLastModified()
+     */
     public Date getLastModified() {
         return lastModified;
     }
@@ -59,6 +68,9 @@ public abstract class AbstractEntityBean {
         this.lastModified = lastModified;
     }
 
+    /* (non-Javadoc)
+     * @see org.openl.rules.ui.repository.beans.Entity#getLastModifiedBy()
+     */
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
@@ -67,10 +79,16 @@ public abstract class AbstractEntityBean {
         this.lastModifiedBy = lastModifiedBy;
     }
 
+    /* (non-Javadoc)
+     * @see org.openl.rules.ui.repository.beans.Entity#getVersionHistory()
+     */
     public List<VersionBean> getVersionHistory() {
         return handler.getVersions(this);
     }
 
+    /* (non-Javadoc)
+     * @see org.openl.rules.ui.repository.beans.Entity#getCreated()
+     */
     public Date getCreated() {
         return created;
     }
@@ -79,10 +97,16 @@ public abstract class AbstractEntityBean {
         this.created = created;
     }
 
+    /* (non-Javadoc)
+     * @see org.openl.rules.ui.repository.beans.Entity#getElements()
+     */
     public abstract List<AbstractEntityBean> getElements();
     
     // ------ actions ------
 
+    /* (non-Javadoc)
+     * @see org.openl.rules.ui.repository.beans.Entity#delete()
+     */
     public void delete() {
         System.out.println("? delete(): " + id);
         handler.delete(this);

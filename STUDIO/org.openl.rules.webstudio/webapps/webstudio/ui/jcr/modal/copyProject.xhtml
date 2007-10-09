@@ -1,0 +1,46 @@
+<ui:composition
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<rich:modalPanel  id="modalCopyProject" minHeight="200" minWidth="450" 
+		height="200" width="500" zindex="2000">
+		<f:facet name="header">
+			<h:outputText value="Copy Project" />
+		</f:facet>
+
+		<f:facet name="controls">
+			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalCopyProject');" />
+		</f:facet>
+
+		<h:form id="modalCopyProjectForm">
+			<table style="width:100%; height: 180px;"><tr><td align="center" height="60%">
+
+				<div>
+				<h:outputText styleClass="niceLabel" value="Name of Copy Project:" />
+				<br/>
+				<h:inputText value="" />
+				</div>
+
+			</td></tr><tr><td align="center">
+
+				<table width="50%" align="center"><tr><td>
+					<h:commandButton value="Copy" action="copyProject"/>
+				</td><td>
+					<h:commandButton value="Cancel" onclick="Richfaces.hideModalPanel('modalCopyProject');return false;" />
+				</td></tr></table>
+			</td></tr></table>
+		</h:form>
+		
+		<script>
+			function confirmCopyProject() {
+				Richfaces.showModalPanel('modalCopyProject');
+				return false;
+			}
+		</script>
+
+	</rich:modalPanel>
+
+</ui:composition>
