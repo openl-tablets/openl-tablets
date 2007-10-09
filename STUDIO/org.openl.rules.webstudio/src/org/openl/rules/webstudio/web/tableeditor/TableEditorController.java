@@ -26,6 +26,8 @@ public class TableEditorController {
     private String response;
     private int row, col, elementID;
 
+    CellEditorSelector selector = new CellEditorSelector();
+
     public static final String OUTCOME_SUCCESS = "tableEditor_success";
 
      public String load() throws Exception {
@@ -53,13 +55,42 @@ public class TableEditorController {
         }
         return OUTCOME_SUCCESS;
     }
+    
+    /**
+     * Generates JSON response for cell type: editor type and editor specific
+     * setup javascript object.
+     * 
+     * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
+     * 
+     * Modified by snshor to reflect new Cell Editor creation/selection framework
+     */
+
+    public String getCellType()
+    {
+	readRequestParams();
+
+	response = "";
+
+	EditorHelper editorHelper = getHelper(elementID);
+	if (editorHelper != null)
+	{
+	    TableEditorModel model = editorHelper.getModel();
+	    ICellEditor editor = selector.selectEditor(row, col, model);
+	    EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
+	    response = pojo2json(typeResponse);
+	}
+
+	return OUTCOME_SUCCESS;
+
+    }
+    
 
     /**
      * Generates JSON response for cell type: editor type and editor specific setup javascript object.
      *
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
      */
-    public String getCellType() {
+    public String getCellTypeOld() {
         readRequestParams();
 
         response = "";
