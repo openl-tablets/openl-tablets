@@ -95,21 +95,38 @@ public abstract class BenchmarkUnit
 
 
 
-  public long millisecondsToRun() throws Exception
+  public long millisecondsToRun1() throws Exception
   {
     long start = System.currentTimeMillis();
     runNtimes(1);
     long end = System.currentTimeMillis();
     return end - start;
   }
+  
+  public long millisecondsToRun() throws Exception
+  {
+    long start = System.nanoTime();
+    runNtimes(1);
+    long end = System.nanoTime();
+    return ((end - start) + 500L*1000)/1000000;
+  }
 
-  public long millisecondsToRun(int times)throws Exception
+  public long millisecondsToRun1(int times)throws Exception
   {
     long start = System.currentTimeMillis();
     runNtimes(times);
     long end = System.currentTimeMillis();
     return end - start;
   }
+  
+  
+  public long millisecondsToRun(int times)throws Exception
+  {
+    long start = System.nanoTime();
+    runNtimes(times);
+    long end = System.nanoTime();
+    return (end - start + 500000)/1000000;
+  }  
   
   public void runNtimes(int times) throws Exception
   {
