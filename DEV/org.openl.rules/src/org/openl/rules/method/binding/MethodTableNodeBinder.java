@@ -43,7 +43,7 @@ public class MethodTableNodeBinder extends AXlsTableBinder implements IXlsTableN
     IOpenSourceCodeModule src = new GridCellSourceCodeModule(table);
 
 
-		OpenMethodHeader header = (OpenMethodHeader)OpenlTool.getMethodHeader(new SubTextSourceCodeModule(src, tsn.getHeader().length()), openl, (IBindingContextDelegator)cxt);
+		OpenMethodHeader header = (OpenMethodHeader)OpenlTool.getMethodHeader(new SubTextSourceCodeModule(src, tsn.getHeader().getHeaderToken(). getIdentifier().length()), openl, (IBindingContextDelegator)cxt);
 		
 		header.setDeclaringClass(module);
 

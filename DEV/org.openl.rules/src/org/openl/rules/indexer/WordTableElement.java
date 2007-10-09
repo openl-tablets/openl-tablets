@@ -29,10 +29,10 @@ public class WordTableElement implements IIndexElement
 	{
 		return null;
 	}
-	public IIndexElement getParent()
-	{
-		return document;
-	}
+//	public IIndexElement getParent()
+//	{
+//		return document;
+//	}
 
 	public String getType()
 	{

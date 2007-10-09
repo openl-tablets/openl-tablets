@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
 
@@ -38,12 +39,12 @@ public class XlsUndoGrid implements IUndoGrid
 	
 	
 	
-	public synchronized int saveCell(HSSFCell cell, Map map)
+	public synchronized int saveCell(HSSFCell cell, CellMetaInfo meta)
 	{
 		++cnt;
 		int colTo = getColumn(cnt);
 		int rowTo = getRow(cnt);
-		grid.copyFrom(cell, colTo, rowTo, map);
+		grid.copyFrom(cell, colTo, rowTo, meta);
 		return cnt;
 	}
 
@@ -54,11 +55,11 @@ public class XlsUndoGrid implements IUndoGrid
 		return grid.getCell(col, row);
 	}
 
-	public Map restoreMap(int id)
+	public CellMetaInfo restoreMeta(int id)
 	{
 		int col = getColumn(id);
 		int row = getRow(id);
-		return grid.getCellMetaInfoMap(col, row);
+		return grid.getCellMetaInfo(col, row);
 	}
 
 	
@@ -75,12 +76,12 @@ public class XlsUndoGrid implements IUndoGrid
 
 	public int saveCell(IWritableGrid fromGrid, int col, int row)
 	{
-		return saveCell(((XlsSheetGridModel)fromGrid).getCell(col, row), fromGrid.getCellMetaInfoMap(col, row));
+		return saveCell(((XlsSheetGridModel)fromGrid).getCell(col, row), fromGrid.getCellMetaInfo(col, row));
 	}
 
 	public void restoreCell(int cellID, IWritableGrid toGrid, int col, int row)
 	{
-		((XlsSheetGridModel)toGrid).copyFrom(restoreCell(cellID), col, row, restoreMap(cellID));
+		((XlsSheetGridModel)toGrid).copyFrom(restoreCell(cellID), col, row, restoreMeta(cellID));
 	}
 	
 	

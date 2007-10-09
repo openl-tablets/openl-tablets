@@ -20,6 +20,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.conf.IConfigurableResourceContext;
+import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -37,7 +38,6 @@ import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.ParsedCode;
 import org.openl.syntax.impl.SyntaxError;
-import org.openl.syntax.impl.TerminalNode;
 import org.openl.syntax.impl.TokenizerParser;
 import org.openl.syntax.impl.URLSourceCodeModule;
 import org.openl.util.Log;
@@ -214,15 +214,17 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 	{
 		// String header = table.getStringValue(0, 0);
 
-		IOpenSourceCodeModule src = new GridCellSourceCodeModule(table);
+		GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
 
-		IdentifierNode[] parsedHeader = TokenizerParser.tokenize(src, " \n\r");
+		IdentifierNode headerToken = TokenizerParser.firstToken(src, " \n\r");
 
 		// if (parsedHeader.length == 0)
 		// return;
 
-		String header = parsedHeader.length == 0 ? "Undefined" : parsedHeader[0]
+		String header = headerToken
 				.getIdentifier();
+		
+		HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, headerToken);
 
 		String xls_type = (String) tableHeaders().get(header);
 
@@ -230,7 +232,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 			xls_type = XLS_OTHER;
 
 		TableSyntaxNode tsn = new TableSyntaxNode(xls_type,
-				new GridLocation(table), source, table, header);
+				new GridLocation(table), source, table, headerNode);
 
 		if (header.equals(ENVIRONMENT_TABLE))
 			preprocessEnvironmentTable(tsn, source);

@@ -347,7 +347,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 	}
 
 	
-	public Object getLiteral(IOpenClass paramType, ILogicalTable values) throws Exception {
+	public Object getLiteral(IOpenClass paramType, ILogicalTable values, OpenlToolAdaptor ota) throws Exception {
 		
 
 
@@ -360,7 +360,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 	values = ALogicalTable.make1ColumnTable(values);
 
 	if (!indexed) {
-		Object res = FunctionalRow.loadSingleParam(paramType, field == null ? "constructor" : field.getName() , null, values, null);
+		Object res = FunctionalRow.loadSingleParam(paramType, field == null ? "constructor" : field.getName() , null, values, ota);
 		return res;
 	} else {
 		Vector v = new Vector();

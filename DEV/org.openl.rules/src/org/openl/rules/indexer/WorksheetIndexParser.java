@@ -1,8 +1,8 @@
 package org.openl.rules.indexer;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.lang.xls.XlsLoader;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
@@ -34,20 +34,26 @@ public class WorksheetIndexParser implements IIndexParser
 		{
     	IGridTable table = tables[i];
     	
-      IOpenSourceCodeModule src = new GridCellSourceCodeModule(table);
+      GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
+      
+      
 
-      IdentifierNode[] parsedHeader = TokenizerParser.tokenize(src, " \n\r");
+      IdentifierNode parsedHeader = TokenizerParser.firstToken(src, " \n\r");
+
+      
+      
 
 
+      String header = parsedHeader.getIdentifier();
 
-      String header = parsedHeader.length == 0 ? "N/A" : parsedHeader[0].getIdentifier();
-
+      HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, parsedHeader);
+      
       String xls_type = (String) XlsLoader.tableHeaders().get(header);
     	if (xls_type == null)
     		xls_type = "N/A";
       
       
-			nodes[i] = new TableSyntaxNode(xls_type, new GridLocation(table), sheetSrc, table, header);
+			nodes[i] = new TableSyntaxNode(xls_type, new GridLocation(table), sheetSrc, table, headerNode);
 		}
     
     return nodes;

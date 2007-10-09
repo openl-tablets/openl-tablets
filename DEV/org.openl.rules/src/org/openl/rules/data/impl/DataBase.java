@@ -170,7 +170,7 @@ public class DataBase implements IDataBase
 					if (cd != null && !cd.isReference())
 					{
 						if (isConstructor)
-							target = cd.getLiteral(dataModel.getType(), data.getLogicalRegion(j, i , 1, 1));
+							target = cd.getLiteral(dataModel.getType(), data.getLogicalRegion(j, i , 1, 1), ota);
 						else
 							cd.populateLiteral(target, data.getLogicalRegion(j, i , 1, 1), ota);
 					}  

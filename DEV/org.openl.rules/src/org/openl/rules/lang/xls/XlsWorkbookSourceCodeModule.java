@@ -89,10 +89,10 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 		return src.getUri(0);
 	}
 
-	public IIndexElement getParent()
-	{
-		return null;
-	}
+//	public IIndexElement getParent()
+//	{
+//		return null;
+//	}
 	public String getType()
 	{
 		return IDocumentType.WORKBOOK.getType();

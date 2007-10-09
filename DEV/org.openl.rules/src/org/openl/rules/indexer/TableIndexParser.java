@@ -36,7 +36,9 @@ public class TableIndexParser implements IIndexParser
 			for (int j = 0; j < w; j++)
 			{
 				if (table.getStringValue(j, i) != null)
-					v.add(new GridCellSourceCodeModule(table, j, i, tableSrc));
+					v.add(new GridCellSourceCodeModule(table, j, i
+							//, tableSrc
+							));
 			}
 		}
 		

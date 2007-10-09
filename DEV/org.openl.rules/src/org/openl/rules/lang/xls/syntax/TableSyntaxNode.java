@@ -19,6 +19,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.ISyntaxError;
+import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.syntax.impl.TerminalNode;
 import org.openl.types.IOpenMember;
 
@@ -27,11 +29,14 @@ import org.openl.types.IOpenMember;
  * @author snshor
  */
 
-public class TableSyntaxNode  extends TerminalNode implements IIndexElement
+public class TableSyntaxNode  extends ASyntaxNode implements IIndexElement
 {
 
 	ILogicalTable table;
-	String header;
+//	String header;
+	
+	HeaderSyntaxNode headerNode;
+//	PropertySyntaxNode propertyNode;
 	
 	TableProperties tableProperties;
 	
@@ -46,20 +51,20 @@ public class TableSyntaxNode  extends TerminalNode implements IIndexElement
 	  String type,
 	  GridLocation pos,
 	  XlsSheetSourceCodeModule module,
-	  IGridTable gridtable, String header)
+	  IGridTable gridtable, HeaderSyntaxNode header)
 	{
-	  super(type, pos, module);
+	  super(type, pos, null, module);
 	  this.table = LogicalTable.logicalTable(gridtable);
-	  this.header = header;
+	  this.headerNode = header;
 	}
 
 
 	/**
 	 * @return
 	 */
-	public String getHeader()
+	public HeaderSyntaxNode getHeader()
 	{
-		return header;
+		return headerNode;
 	}
 
 	public StringValue getHeaderLineValue()
@@ -99,10 +104,10 @@ public class TableSyntaxNode  extends TerminalNode implements IIndexElement
 	}
 
 
-	public IIndexElement getParent()
-	{
-		return (XlsSheetSourceCodeModule)getModule();
-	}
+//	public IIndexElement getParent()
+//	{
+//		return (XlsSheetSourceCodeModule)getModule();
+//	}
 
 
 	public String getCategory()
@@ -174,6 +179,20 @@ public class TableSyntaxNode  extends TerminalNode implements IIndexElement
 	public void setMember(IOpenMember member)
 	{
 		this.member = member;
+	}
+
+
+	public ISyntaxNode getChild(int i)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public int getNumberOfChildren()
+	{
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }

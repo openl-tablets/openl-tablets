@@ -23,6 +23,7 @@ import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -310,8 +311,8 @@ public abstract class FunctionalRow implements IDecisionRow,
 	 */
 	private static void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType)
 	{
-		IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, "paramName", paramName);
-		IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, "paramType", paramType);
+		CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramType);
+		IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
 	}
 
 	public static void setMetaInfo(IMetaHolder holder, ILogicalTable cell,

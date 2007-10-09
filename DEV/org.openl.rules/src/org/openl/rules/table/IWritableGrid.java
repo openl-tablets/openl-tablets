@@ -6,6 +6,8 @@ package org.openl.rules.table;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.openl.rules.lang.xls.types.CellMetaInfo;
+
 
 /**
  * @author snshor
@@ -24,11 +26,11 @@ public interface IWritableGrid extends IGrid
 	void setCellType(int col, int row, int type);
 
 
-	void putCellMetaInfo(int col, int row, Object key, Object value);
+	void setCellMetaInfo(int col, int row, CellMetaInfo meta);
 
-	Object getCellMetaInfo(int col, int row, Object key);
 
-	Map getCellMetaInfoMap(int col, int row);
+
+	CellMetaInfo getCellMetaInfo(int col, int row);
 
 	static public class Tool
 	{
@@ -39,9 +41,16 @@ public interface IWritableGrid extends IGrid
 				return (IWritableGrid) grid;
 			return null;
 		}
+		
+		public static IWritableGrid getWritableGrid(IGrid grid)
+		{
+			if (grid instanceof IWritableGrid)
+				return (IWritableGrid) grid;
+			return null;
+		}		
 
 		public static void putCellMetaInfo(IGridTable table, int col, int row,
-				Object key, Object value)
+				CellMetaInfo meta)
 		{
 			IWritableGrid wgrid = getWritableGrid(table);
 			if (wgrid == null)
@@ -49,11 +58,12 @@ public interface IWritableGrid extends IGrid
 			int gcol = table.getGridColumn(col, row);
 			int grow = table.getGridRow(col, row);
 
-			wgrid.putCellMetaInfo(gcol, grow, key, value);
+			wgrid.setCellMetaInfo(gcol, grow, meta);
 		}
 
-		public static Object getCellMetaInfo(IGridTable table, int col, int row,
-				Object key)
+
+
+		public static CellMetaInfo getCellMetaInfo(IGridTable table, int col, int row)
 		{
 			IWritableGrid wgrid = getWritableGrid(table);
 			if (wgrid == null)
@@ -61,19 +71,17 @@ public interface IWritableGrid extends IGrid
 			int gcol = table.getGridColumn(col, row);
 			int grow = table.getGridRow(col, row);
 
-			return wgrid.getCellMetaInfo(gcol, grow, key);
+			return wgrid.getCellMetaInfo(gcol, grow);
 		}
-
-		public static Object getCellMetaInfoMap(IGridTable table, int col, int row)
+		
+		public static CellMetaInfo getCellMetaInfo(IGrid grid, int col, int row)
 		{
-			IWritableGrid wgrid = getWritableGrid(table);
+			IWritableGrid wgrid = getWritableGrid(grid);
 			if (wgrid == null)
 				return null;
-			int gcol = table.getGridColumn(col, row);
-			int grow = table.getGridRow(col, row);
 
-			return wgrid.getCellMetaInfoMap(gcol, grow);
-		}
+			return wgrid.getCellMetaInfo(col, row);
+		}		
 
 		public static IUndoableGridAction removeColumns(int nCols, int startColumn, IGridRegion region)
 		{
