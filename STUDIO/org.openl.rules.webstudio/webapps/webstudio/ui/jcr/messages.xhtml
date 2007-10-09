@@ -1,0 +1,34 @@
+<ui:composition
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<rich:dataTable
+	  rendered="#{not empty userSession.errors}"
+	  value="#{userSession.errors}"
+	  var="err"
+	>
+		<f:facet name="header">
+			<rich:columnGroup>
+				<rich:column>
+					<h:outputText value="Message" />
+				</rich:column>
+				<rich:column>
+					<h:outputText value="Details" />
+				</rich:column>
+			</rich:columnGroup>
+		</f:facet>
+
+		<rich:columnGroup>
+			<rich:column>
+				<h:outputText value="#{err.message}" />
+			</rich:column>
+			<rich:column>
+				<h:outputText value="---" />
+			</rich:column>
+		</rich:columnGroup>
+	</rich:dataTable>
+
+</ui:composition>

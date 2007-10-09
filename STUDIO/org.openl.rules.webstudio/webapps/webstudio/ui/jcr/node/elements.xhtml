@@ -4,7 +4,11 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:dataTable value="#{userSession.repositoryTree.selected.dataBean.elements}" var="el">
+	<rich:dataTable
+	  rendered="#{not empty userSession.repositoryTree.selected.dataBean.elements}"
+	  value="#{userSession.repositoryTree.selected.dataBean.elements}"
+	  var="el"
+	>
 		<f:facet name="header">
 			<rich:columnGroup>
 				<rich:column>
@@ -42,6 +46,13 @@
 				<h:outputText value="#{el.lastModifiedBy}" />
 			</rich:column>
 		</rich:columnGroup>
+		
 	</rich:dataTable>
 
+	<h:outputText
+	  styleClass="niceLabel"
+	  rendered="#{empty userSession.repositoryTree.selected.dataBean.elements}"
+	  value="There are no elements (Folders, Files)."
+	/>
+	
 </ui:composition>

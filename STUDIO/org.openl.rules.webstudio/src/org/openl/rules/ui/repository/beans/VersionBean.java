@@ -2,6 +2,12 @@ package org.openl.rules.ui.repository.beans;
 
 import java.util.Date;
 
+/**
+ * UI Bean for Version.
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class VersionBean {
     private String name;
     private Date created;

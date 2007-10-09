@@ -18,14 +18,14 @@
 		<table style="width:100%; height: 180px;"><tr><td align="center" height="60%">
 			<p style="font-size:14px;">
 
-			<h:outputText rendered="#{userSession.repositoryTree.selected.type == 'project'}" 
-			value="Are you sure you want to delete the project '#{userSession.repositoryTree.selected.name}'?" />
+			<h:outputText rendered="#{userSession.selected.type == 'project'}" 
+			value="Are you sure you want to delete the project '#{activeNode.name}'?" />
 			
-			<h:outputText rendered="#{userSession.repositoryTree.selected.type == 'folder'}" 
-			value="Are you sure you want to delete the folder '#{userSession.repositoryTree.selected.name}'?" />
+			<h:outputText rendered="#{userSession.selected.type == 'folder'}" 
+			value="Are you sure you want to delete the folder '#{activeNode.name}'?" />
 			
-			<h:outputText rendered="#{userSession.repositoryTree.selected.type == 'file'}" 
-			value="Are you sure you want to delete the file '#{userSession.repositoryTree.selected.name}'?" />
+			<h:outputText rendered="#{userSession.selected.type == 'file'}" 
+			value="Are you sure you want to delete the file '#{activeNode.name}'?" />
 
 			</p>
 
@@ -33,7 +33,7 @@
 
 		<h:form id="modalDeleteNodeForm">
 			<table width="50%" align="center"><tr><td>
-				<h:commandButton value="Delete" action="#{userSession.repositoryTree.selected.dataBean.delete}"/>
+				<h:commandButton value="Delete" action="#{activeNode.delete}"/>
 			</td><td>
 				<h:commandButton value="Cancel" onclick="Richfaces.hideModalPanel('modalDeleteNode');return false;" />
 			</td></tr></table>
