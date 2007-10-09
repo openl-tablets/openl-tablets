@@ -1,13 +1,58 @@
 <ui:composition
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:tabPanel>
-		<rich:tab label="Projects">
-			<ui:include src="/ui/jcr/tabProjects.xhtml" />
-		</rich:tab>
-	</rich:tabPanel>
+	<rich:dataTable value="#{userSession.projects}" var="prj">
+		<f:facet name="header">
+			<rich:columnGroup>
+				<rich:column>
+					<h:outputText value="Actions" />
+				</rich:column>
+				<rich:column>
+					<h:outputText value="Project" />
+				</rich:column>
+				<rich:column>
+					<h:outputText value="Version" />
+				</rich:column>
+				<rich:column>
+					<h:outputText value="Last Modified" />
+				</rich:column>
+				<rich:column>
+					<h:outputText value="Modified By" />
+				</rich:column>
+			</rich:columnGroup>
+		</f:facet>
+
+		<rich:columnGroup>
+			<rich:column>
+				<h:commandLink
+				  onclick="return confirmCopyProject();"
+				>
+					<h:graphicImage border="0" value="/images/expandall.gif"/>
+				</h:commandLink>
+				<h:commandLink
+				  action="#{prj.delete}"
+				  onclick="confirmDeleteProject(this, '#{prj.name}'); return false;"
+				>
+					<h:graphicImage border="0" value="/images/test_neq.gif"/>
+				</h:commandLink>
+			</rich:column>
+			<rich:column>
+				<h:outputText value="#{prj.name}" />
+			</rich:column>
+			<rich:column>
+				<h:outputText value="#{prj.version}" />
+			</rich:column>
+			<rich:column>
+				<h:outputText value="#{prj.lastModified}" />
+			</rich:column>
+			<rich:column>
+				<h:outputText value="#{prj.lastModifiedBy}" />
+			</rich:column>
+		</rich:columnGroup>
+	</rich:dataTable>
 
 </ui:composition>

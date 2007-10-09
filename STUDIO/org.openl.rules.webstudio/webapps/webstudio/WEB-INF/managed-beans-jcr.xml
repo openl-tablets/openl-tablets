@@ -3,45 +3,24 @@
                               "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config>
 
-	<managed-bean>
-		<managed-bean-name>repositoryHandler</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.repository.RepositoryHandler</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>versionHandler</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.repository.VersionHandler</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>elementHandler</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.repository.ElementHandler</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>searchHandler</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.repository.SearchHandler</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-
-
-	<managed-bean>
-		<managed-bean-name>userSession</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.repository.beans.UserSession</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>repository</managed-bean-name>
-		<managed-bean-class>org.openl.rules.ui.repository.beans.RepositoryView</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-		<managed-property>
-			<property-name>userSession</property-name>
-			<value>#{sessionScope.userSession}</value>
-		</managed-property>
-	</managed-bean>
+    <managed-bean>
+        <managed-bean-name>userSession</managed-bean-name>
+        <managed-bean-class>org.openl.rules.ui.repository.UserSessionBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+    	<managed-bean-name>activeNode</managed-bean-name>
+    	<managed-bean-class>org.openl.rules.ui.repository.ActiveNodeBean</managed-bean-class>
+    	<managed-bean-scope>request</managed-bean-scope>
+    	<managed-property>
+    		<property-name>bean</property-name>
+    		<value>#{userSession.selected.dataBean}</value>
+    	</managed-property>
+    	<managed-property>
+    		<property-name>type</property-name>
+    		<value>#{userSession.selected.type}</value>
+    	</managed-property>
+    </managed-bean>
 
 </faces-config>

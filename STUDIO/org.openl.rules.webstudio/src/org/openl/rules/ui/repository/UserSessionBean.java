@@ -61,4 +61,14 @@ public class UserSessionBean {
     public AbstractTreeNode getSelected() {
         return repositoryTree.getSelected();
     }
+    
+    private boolean openModal;
+    public boolean getOpenModal() {
+        boolean r = openModal;
+        openModal = false;
+        return r;
+    }
+    public void openDelModal() {
+        openModal = true;
+    }
 }

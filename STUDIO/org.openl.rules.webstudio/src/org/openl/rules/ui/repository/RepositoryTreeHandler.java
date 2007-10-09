@@ -2,7 +2,7 @@ package org.openl.rules.ui.repository;
 
 import javax.faces.event.AbortProcessingException;
 
-import org.openl.rules.ui.repository.beans.AbstractEntityBean;
+import org.openl.rules.ui.repository.beans.Entity;
 import org.openl.rules.ui.repository.beans.FolderBean;
 import org.openl.rules.ui.repository.beans.ProjectBean;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
@@ -95,7 +95,7 @@ public class RepositoryTreeHandler {
     
     private void initProject(TreeProject prj, ProjectBean pb) {
         // not a best way..
-        for (AbstractEntityBean eb : pb.getElements()) {
+        for (Entity eb : pb.getElements()) {
             if (eb instanceof FolderBean) {
                 TreeFolder tf = new TreeFolder(generateId(), eb.getName());
                 tf.setDataBean(eb);
@@ -112,7 +112,7 @@ public class RepositoryTreeHandler {
 
     private void initFolder(TreeFolder folder, FolderBean fb) {
         // not a best way..
-        for (AbstractEntityBean eb : fb.getElements()) {
+        for (Entity eb : fb.getElements()) {
             if (eb instanceof FolderBean) {
                 TreeFolder tf = new TreeFolder(generateId(), eb.getName());
                 tf.setDataBean(eb);

@@ -1,57 +1,91 @@
 <ui:composition
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
 	<h:panelGroup rendered="#{userSession.selected.type == 'repository'}">
 		<table><tr><td>
-		<h:commandButton value="New Project" action="newProject" onclick="return false;"/>
+		<a4j:commandButton
+		  value="New Project" 
+		  onclick="return confirmNewProject();"
+		/>
 		</td></tr></table>
 		<p/>
 
 		<rich:tabPanel  style="height:400px;">
 			<rich:tab label="Projects">
-				<ui:include src="/ui/jcr/tabProjects.xhtml" />
+				<ui:include src="/ui/jcr/projects.xhtml" />
 			</rich:tab>
 		</rich:tabPanel>
 	</h:panelGroup>
 
 	<h:panelGroup rendered="#{userSession.selected.type == 'file'}">
 		<table><tr><td>
-		<h:commandButton value="Delete"
-		  action="#{userSession.repositoryTree.selected.dataBean.delete}"
-		  onclick="confirmDeleteFile(this, '#{userSession.repositoryTree.selected.dataBean.name}'); return false;"
+		<a4j:commandButton
+		  value="Delete"
+		  onclick="return confirmDeleteNode();"
 		/>
 		</td></tr></table>
 	</h:panelGroup>
 
 	<h:panelGroup rendered="#{userSession.selected.type == 'folder'}">
 		<table><tr><td>
-		<h:commandButton value="New Folder" action="newFolder" onclick="return false;"/>
+		<a4j:commandButton
+		  value="New Folder"
+		  onclick="return confirmNewFolder();"
+		/>
 		</td><td>
-		<h:commandButton value="New File" action="newFile" onclick="return false;"/>
+		<a4j:commandButton
+		  value="New File"
+		  onclick="return confirmNewFile();"/>
 		</td><td>
-		<h:commandButton value="Delete"
-		  action="#{userSession.repositoryTree.selected.dataBean.delete}"
-		  onclick="confirmDeleteFolder(this, '#{userSession.repositoryTree.selected.dataBean.name}'); return false;"
+		<a4j:commandButton
+		  value="Delete"
+		  onclick="return confirmDeleteNode();"
 		/>
 		</td></tr></table>
 	</h:panelGroup>
 
 	<h:panelGroup rendered="#{userSession.selected.type == 'project'}">
 		<table><tr><td>
-		<h:commandButton value="Update" action="updateProject" onclick="return false;"/>
+		<a4j:commandButton
+		  value="Update"
+		  action="updateProject"
+		  onclick="return false;"
+		/>
 		</td><td>
-		<h:commandButton value="Commit" action="commitProject" onclick="return false;"/>
+		<a4j:commandButton
+		  value="Commit"
+		  action="commitProject"
+		  onclick="return false;"
+		/>
 		</td><td>
-		<h:commandButton value="Override and Update" action="revertProject" onclick="return false;"/>
+		<a4j:commandButton 
+		  value="Override and Update" 
+		  action="revertProject" 
+		  onclick="return false;"
+		/>
 		</td><td>
-		<h:commandButton value="Copy" action="copyProject" onclick="return false;"/>
+		<a4j:commandButton
+		  value="Copy"
+		  onclick="return confirmCopyProject();"
+		/>
+		</td></tr></table>
+		<table><tr><td>
+		<a4j:commandButton
+		  value="New Folder"
+		  onclick="return confirmNewFolder();"
+		/>
 		</td><td>
-		<h:commandButton value="Delete"
-		  action="#{userSession.repositoryTree.selected.dataBean.delete}"
-		  onclick="confirmDeleteProject(this, '#{userSession.repositoryTree.selected.dataBean.name}'); return false;"
+		<a4j:commandButton
+		  value="New File"
+		  onclick="return confirmNewFile();"/>
+		</td><td>
+		<a4j:commandButton
+		  value="Delete"
+		  onclick="return confirmDeleteNode();"
 		/>
 		</td></tr></table>
 	</h:panelGroup>
@@ -62,22 +96,23 @@
 		<rich:tabPanel switchType="client" style="height:400;">
 			<rich:tab label="Properties">
 				<h:panelGroup rendered="#{userSession.selected.type == 'file'}">
-					<ui:include src="/ui/jcr/fileProps.xhtml" />
+					<ui:include src="/ui/jcr/node/fileProps.xhtml" />
 				</h:panelGroup>
 				<h:panelGroup rendered="#{userSession.selected.type == 'folder'}">
-					<ui:include src="/ui/jcr/folderProps.xhtml" />
+					<ui:include src="/ui/jcr/node/folderProps.xhtml" />
 				</h:panelGroup>
 				<h:panelGroup rendered="#{userSession.selected.type == 'project'}">
-					<ui:include src="/ui/jcr/projectProps.xhtml" />
+					<ui:include src="/ui/jcr/node/projectProps.xhtml" />
 				</h:panelGroup>
 			</rich:tab>
 			<rich:tab label="Versions">
-				<ui:include src="/ui/jcr/versions.xhtml" />
+				<ui:include src="/ui/jcr/node/versions.xhtml" />
 			</rich:tab>
 			<rich:tab label="Elements" rendered="#{userSession.selected.type != 'file'}">
-				<ui:include src="/ui/jcr/elements.xhtml" />
+				<ui:include src="/ui/jcr/node/elements.xhtml" />
 			</rich:tab>
 		</rich:tabPanel>
+		
 	</h:panelGroup>
 	
 </ui:composition>
