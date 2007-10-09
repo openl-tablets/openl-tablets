@@ -15,13 +15,15 @@ import java.util.Iterator;
 public class Enum
 {
 
-	Object[] objs;
+	Object[] allObjects;
+	
+	public 
 
 	HashMap indexMap;
 
 	public Enum(Object[] objs)
 	{
-		this.objs = objs;
+		this.allObjects = objs;
 		indexMap = new HashMap(objs.length);
 
 		for (int i = 0; i < objs.length; i++)
@@ -36,11 +38,12 @@ public class Enum
 		return indexMap.containsKey(obj);
 	}
 	
+	
 	public Enum(Collection objc)
 	{
 		int size = objc.size();
 
-		this.objs = new Object[size];
+		this.allObjects = new Object[size];
 		this.indexMap = new HashMap(size);
 
 		int i = 0;
@@ -65,7 +68,13 @@ public class Enum
 	 */
 	public int size()
 	{
-		return objs.length;
+		return allObjects.length;
+	}
+
+
+	public Object[] getAllObjects()
+	{
+	    return allObjects;
 	}
 
 }

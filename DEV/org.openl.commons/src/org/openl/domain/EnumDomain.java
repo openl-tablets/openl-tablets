@@ -8,12 +8,13 @@ package org.openl.domain;
 import java.util.BitSet;
 import java.util.Iterator;
 
+import org.openl.domain.IFiniteDomain.FixedSizeDomain;
 import org.openl.util.AOpenIterator;
 
 /**
  * @author snshor
  */
-public class EnumDomain // implements ISetDomain
+public class EnumDomain extends FixedSizeDomain
 {
 
 	BitSet bits;
@@ -171,7 +172,7 @@ public class EnumDomain // implements ISetDomain
 		public Object next()
 		{
 			int idx = bsi.nextInt();
-			return enumeration.objs[idx];
+			return enumeration.allObjects[idx];
 		}
 
 	}
@@ -205,6 +206,25 @@ public class EnumDomain // implements ISetDomain
 	public int hashCode()
 	{
 		return enumeration.hashCode() * 37 + bits.hashCode();
+	}
+
+
+	public IType getElementType()
+	{
+	    return null;
+	}
+
+
+	public boolean selectObject(Object obj)
+	{
+	    return contains(obj);
+	}
+
+
+	public boolean selectType(IType type)
+	{
+	    // TODO Auto-generated method stub
+	    return false;
 	}
 
 }
