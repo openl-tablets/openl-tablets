@@ -3,7 +3,7 @@ package org.openl.rules.indexer;
 public interface IIndexElement
 {
 	String getUri();
-	IIndexElement getParent();
+//	IIndexElement getParent();
 	String getType();
 	String getCategory();
 	String getIndexedText();

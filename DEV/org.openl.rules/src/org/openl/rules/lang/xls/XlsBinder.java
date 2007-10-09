@@ -141,7 +141,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 	}
 
-	public IVocabulary makeVocabulary(XlsModuleSyntaxNode moduleNode)
+	public IVocabulary makeVocabulary(XlsModuleSyntaxNode moduleNode) throws BoundError
 	{
 
 		if (moduleNode.getVocabularyNode() == null)
@@ -158,8 +158,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 		} catch (Throwable t)
 		{
-			throw RuntimeExceptionWrapper.wrap("Error trying to create a vocabulary",
-					t);
+			throw new BoundError(t,null);
 		}
 
 	}
@@ -245,13 +244,20 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 		// IMemberBoundNode[] children = new IMemberBoundNode[nchildren];
 		ModuleBindingContext moduleContext = new ModuleBindingContext(cxt, module);
-
-		IVocabulary vocabulary = makeVocabulary(moduleNode);
+		IVocabulary vocabulary = null;
+		try
+		{
+			vocabulary = makeVocabulary(moduleNode);
+		}
+		catch(BoundError b)
+		{
+			cxt.addError(b);
+		}
+		
 		if (vocabulary != null)
 		{
 			IOpenClass[] types = null;
-			try
-			{
+			try{
 				types = vocabulary.getVocabularyTypes();
 			} catch (BoundError e)
 			{

@@ -48,10 +48,10 @@ public class WordParagraphElement implements IIndexElement
 		return indexedText;
 	}
 
-	public IIndexElement getParent()
-	{
-		return document;
-	}
+//	public IIndexElement getParent()
+//	{
+//		return document;
+//	}
 
 	public String getType()
 	{

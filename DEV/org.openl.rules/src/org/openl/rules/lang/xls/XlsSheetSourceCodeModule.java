@@ -74,10 +74,10 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
 	
 	
-	public IIndexElement getParent()
-	{
-		return workbookSource;
-	}
+//	public IIndexElement getParent()
+//	{
+//		return workbookSource;
+//	}
 
 	public String getType()
 	{

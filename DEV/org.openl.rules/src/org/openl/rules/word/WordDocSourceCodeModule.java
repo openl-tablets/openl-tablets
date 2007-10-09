@@ -60,10 +60,10 @@ public class WordDocSourceCodeModule extends SourceCodeModuleDelegator implement
 		return src.getUri(0);
 	}
 
-	public IIndexElement getParent()
-	{
-		return null;
-	}
+//	public IIndexElement getParent()
+//	{
+//		return null;
+//	}
 
 
 	public String getIndexedText()

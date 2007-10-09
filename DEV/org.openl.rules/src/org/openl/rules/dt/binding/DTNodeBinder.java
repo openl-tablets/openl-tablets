@@ -60,7 +60,7 @@ public class DTNodeBinder extends AXlsTableBinder implements IXlsTableNames
 
 		OpenMethodHeader header = (OpenMethodHeader)
 			OpenlTool.getMethodHeader(
-				new SubTextSourceCodeModule(src, tsn.getHeader().length()),
+				new SubTextSourceCodeModule(src, tsn.getHeader().getHeaderToken(). getIdentifier().length()),
 				openl, (IBindingContextDelegator)cxt);
 		
 		header.setDeclaringClass(module);

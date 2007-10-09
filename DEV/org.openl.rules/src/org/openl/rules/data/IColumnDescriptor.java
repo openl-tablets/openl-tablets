@@ -28,7 +28,7 @@ public interface IColumnDescriptor
 	void populateLiteral(Object target, ILogicalTable values, OpenlToolAdaptor ota)
 	  throws Exception;
 	
-	Object getLiteral(IOpenClass paramType, ILogicalTable values) throws Exception;
+	Object getLiteral(IOpenClass paramType, ILogicalTable values, OpenlToolAdaptor ota) throws Exception;
 	
 
 	void populateLink(Object target, ILogicalTable values, IDataBase db, IBindingContext cxt)

@@ -17,6 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.util.Region;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridModel;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
@@ -476,7 +477,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 		return new GridRegion(row1, col1, row2, col2);
 	}
 
-	public void copyFrom(HSSFCell cellFrom, int colTo, int rowTo, Map map)
+	public void copyFrom(HSSFCell cellFrom, int colTo, int rowTo, CellMetaInfo meta)
 	{
 		HSSFCell cellTo = getCell(colTo, rowTo);
 
@@ -515,14 +516,14 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 		}
 
 		cellTo.setCellStyle(cellFrom.getCellStyle());
-		setCellMetaInfoMap(colTo, rowTo, map);
+		setCellMetaInfo(colTo, rowTo, meta);
 	}
 
 	public void copyCell(int colFrom, int rowFrom, int colTo, int rowTo)
 	{
 		HSSFCell cellFrom = getCell(colFrom, rowFrom);
 
-		copyFrom(cellFrom, colTo, rowTo, getCellMetaInfoMap(colFrom, rowFrom));
+		copyFrom(cellFrom, colTo, rowTo, getCellMetaInfo(colFrom, rowFrom));
 	}
 
 	/**
@@ -545,7 +546,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 	public void clearCell(int col, int row)
 	{
 
-		setCellMetaInfoMap(col, row, null);
+		setCellMetaInfo(col, row, null);
 		HSSFCell cell = getCell(col, row);
 		if (cell == null)
 			return;
@@ -576,22 +577,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 
 	}
 
-	Map metaInfoMap = new HashMap();
+	Map<CellKey,CellMetaInfo> metaInfoMap = new HashMap<CellKey, CellMetaInfo>();
 
 
-	synchronized public void putCellMetaInfo(int col, int row, Object key,
-			Object value)
-	{
-		CellKey ck = new CellKey(col, row);
-		Map map = (Map) metaInfoMap.get(ck);
-		if (map == null)
-		{
-			map = new HashMap();
-			metaInfoMap.put(ck, map);
-		}
-		map.put(key, value);
 
-	}
 
 	public Object getCellMetaInfo(int col, int row, Object key)
 	{
@@ -600,10 +589,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 		return map == null ? null : map.get(key);
 	}
 
-	public Map getCellMetaInfoMap(int col, int row)
+	public CellMetaInfo getCellMetaInfo(int col, int row)
 	{
 		CellKey ck = new CellKey(col, row);
-		return (Map) metaInfoMap.get(ck);
+		return metaInfoMap.get(ck);
 	}
 
 	public XlsSheetSourceCodeModule getSheetSource()
@@ -616,13 +605,13 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 	 * @param rowTo
 	 * @param map
 	 */
-	public void setCellMetaInfoMap(int col, int row, Map map)
+	public void setCellMetaInfo(int col, int row, CellMetaInfo meta)
 	{
 		CellKey ck = new CellKey(col, row);
-		if (map == null)
+		if (meta == null)
 			metaInfoMap.remove(ck);
 		else
-			metaInfoMap.put(ck, map);
+			metaInfoMap.put(ck, meta);
 	}
 
 

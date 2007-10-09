@@ -27,7 +27,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 	IGridTable table;
 	String code;
 	
-	TableSyntaxNode parent;
+//	TableSyntaxNode parent;
 	
 	int row = 0; 
 	int column = 0;
@@ -37,12 +37,14 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 		this.table = table;
 	}
 
-	public GridCellSourceCodeModule(IGridTable table, int column, int row, TableSyntaxNode parent)
+	public GridCellSourceCodeModule(IGridTable table, int column, int row
+			//, TableSyntaxNode parent			
+	)
 	{
 		this.table = table;
 		this.column = column;
 		this.row = row;
-		this.parent = parent;
+//		this.parent = parent;
 	}
 	
 	
@@ -117,10 +119,10 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 		return table.getStringValue(column, row);
 	}
 
-	public IIndexElement getParent()
-	{
-		return parent;
-	}
+//	public IIndexElement getParent()
+//	{
+//		return parent;
+//	}
 
 	public String getType()
 	{
