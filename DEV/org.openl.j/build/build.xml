@@ -12,7 +12,7 @@ basedir is eclipse.project.dir
 
 <target name="build.all" depends="javacc_all" />
 
-<taskdef name="javacc_2" classname="org.apache.tools.ant.taskdefs.optional.javacc.JavaCC_2"/>
+<taskdef name="javacc_2" classpath="${lib.root.dir}/bin" classname="org.apache.tools.ant.taskdefs.optional.javacc.JavaCC_2"/>
 
 <target name="javacc_all">
 	<antcall target="javacc_one">
