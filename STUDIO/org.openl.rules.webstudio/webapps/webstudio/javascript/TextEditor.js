@@ -34,6 +34,7 @@ BaseTextEditor.prototype = Object.extend(new  BaseEditor(), {
      */
     handleF3: function(event) {
         var input = this.getInputElement();
+        if (!input) return;
         if (input.createTextRange) {
             var r = input.createTextRange();
             r.collapse(false);
@@ -44,7 +45,13 @@ BaseTextEditor.prototype = Object.extend(new  BaseEditor(), {
             input.setSelectionRange(len, len);
             input.focus()
         }
-        Event.stop(event);
+
+        if (event) Event.stop(event);
+    },
+
+    show: function(value) {
+        BaseEditor.prototype.show.call(this, value);
+        this.handleF3();
     }
 });
 
