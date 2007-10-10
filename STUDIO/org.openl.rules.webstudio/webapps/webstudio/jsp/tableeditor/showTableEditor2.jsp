@@ -119,7 +119,11 @@
        <rich:menuItem submitMode="none"  id="move_column_button_left" value="Move column left" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_UP)" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
-       </rich:dropDownMenu></rich:toolBarGroup>
+       </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup>
+          <h:graphicImage value="/images/editor/alLeft.gif"/>
+          <h:graphicImage value="/images/editor/alCenter.gif"/>
+          <h:graphicImage value="/images/editor/alRight.gif"/>
+       </rich:toolBarGroup>
    </rich:toolBar>
   </a4j:form>
   <br />
