@@ -123,14 +123,14 @@ public class TableEditorModel
     static final boolean COLUMNS = true, ROWS = false, INSERT = true,
 	    REMOVE = false;
 
-    IGridTable table;
+    private IGridTable table;
 
-    GridRegion region;
-    GridTable[] othertables;
+    private GridRegion region;
+    private GridTable[] othertables;
 
-    UndoableActions actions = new UndoableActions();
+    private UndoableActions actions = new UndoableActions();
 
-    XlsUndoGrid undoGrid = new XlsUndoGrid();
+    private XlsUndoGrid undoGrid = new XlsUndoGrid();
 
     public TableEditorModel(IGridTable table)
     {
@@ -144,7 +144,7 @@ public class TableEditorModel
      * @param othertables
      * 
      */
-    private void removeThisTable(GridTable[] othertables)
+    private synchronized void removeThisTable(GridTable[] othertables)
     {
 	Vector v = new Vector();
 	for (int i = 0; i < othertables.length; i++)
@@ -163,7 +163,7 @@ public class TableEditorModel
 	return (IWritableGrid) table.getGrid();
     }
 
-    public void insertRows(int nRows, int beforeRow)
+    public synchronized void insertRows(int nRows, int beforeRow)
     {
 	IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows,
 		beforeRow, region, wgrid());
@@ -172,7 +172,7 @@ public class TableEditorModel
 	actions.addNewAction(ra);
     }
 
-    public void insertColumns(int nCols, int beforeCol)
+    public synchronized void insertColumns(int nCols, int beforeCol)
     {
 	IUndoableGridAction ua = IWritableGrid.Tool.insertColumns(nCols,
 		beforeCol, region, wgrid());
@@ -181,7 +181,7 @@ public class TableEditorModel
 	actions.addNewAction(ra);
     }
 
-    public void removeRows(int nRows, int beforeRow)
+    public synchronized void removeRows(int nRows, int beforeRow)
     {
 	if (isExtendedView())
 	    beforeRow -= 3;
@@ -195,7 +195,7 @@ public class TableEditorModel
 	actions.addNewAction(ra);
     }
 
-    public void removeColumns(int nCols, int beforeCol)
+    public synchronized void removeColumns(int nCols, int beforeCol)
     {
 	if (isExtendedView())
 	    beforeCol -= 3;
@@ -209,7 +209,7 @@ public class TableEditorModel
 	actions.addNewAction(ra);
     }
 
-    public void setCellValue(int col, int row, String value)
+    public synchronized void setCellValue(int col, int row, String value)
     {
 	if (isExtendedView())
 	{
@@ -269,42 +269,42 @@ public class TableEditorModel
 	}
     }
 
-    public boolean hasUndo()
+    public synchronized boolean hasUndo()
     {
 	return actions.hasUndo();
     }
 
-    public boolean hasRedo()
+    public synchronized boolean hasRedo()
     {
 	return actions.hasRedo();
     }
 
-    public void undo()
+    public synchronized void undo()
     {
 	IUndoableAction ua = actions.undo();
 	((RegionAction) ua).undoSome(region, wgrid(), undoGrid);
     }
 
-    public void redo()
+    public synchronized void redo()
     {
 	IUndoableAction ua = actions.redo();
 	((RegionAction) ua).doSome(region, wgrid(), undoGrid);
     }
 
-    public void cancel()
+    public synchronized void cancel()
     {
 	while (actions.hasUndo())
 	    undo();
     }
 
-    public void save() throws IOException
+    public synchronized void save() throws IOException
     {
 	XlsSheetGridModel xlsgrid = (XlsSheetGridModel) table.getGrid();
 	xlsgrid.getSheetSource().getWorkbookSource().save();
 	actions = new UndoableActions();
     }
 
-    public void saveAs(String fname) throws IOException
+    public synchronized void saveAs(String fname) throws IOException
     {
 	XlsSheetGridModel xlsgrid = (XlsSheetGridModel) table.getGrid();
 	xlsgrid.getSheetSource().getWorkbookSource().saveAs(fname);
@@ -313,7 +313,7 @@ public class TableEditorModel
     /**
      * @return
      */
-    public IGridTable getUpdatedTable()
+    public synchronized IGridTable getUpdatedTable()
     {
 	if (isExtendedView())
 	{
