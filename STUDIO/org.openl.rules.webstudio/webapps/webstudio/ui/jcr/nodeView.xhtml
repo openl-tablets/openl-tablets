@@ -7,7 +7,7 @@
 
 	<h:panelGroup rendered="#{userSession.selected.type == 'repository'}">
 		<table><tr><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="New Project" 
 		  onclick="return confirmNewProject();"
 		/>
@@ -23,11 +23,11 @@
 
 	<h:panelGroup rendered="#{userSession.selected.type == 'file'}">
 		<table><tr><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="Update"
 		  onclick="return confirmUpdateFile();"/>
 		</td><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="Delete"
 		  onclick="return confirmDeleteNode();"
 		/>
@@ -36,16 +36,16 @@
 
 	<h:panelGroup rendered="#{userSession.selected.type == 'folder'}">
 		<table><tr><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="New Folder"
 		  onclick="return confirmNewFolder();"
 		/>
 		</td><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="New File"
 		  onclick="return confirmNewFile();"/>
 		</td><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="Delete"
 		  onclick="return confirmDeleteNode();"
 		/>
@@ -54,40 +54,40 @@
 
 	<h:panelGroup rendered="#{userSession.selected.type == 'project'}">
 		<table><tr><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="Update"
 		  action="updateProject"
 		  onclick="return false;"
 		/>
 		</td><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="Commit"
 		  action="commitProject"
 		  onclick="return false;"
 		/>
 		</td><td>
-		<a4j:commandButton 
+		<h:commandButton 
 		  value="Override and Update" 
 		  action="revertProject" 
 		  onclick="return false;"
 		/>
 		</td><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="Copy"
-		  onclick="return confirmCopyProject();"
+		  onclick="return confirmCopyProject('#{activeNode.name}');"
 		/>
 		</td></tr></table>
 		<table><tr><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="New Folder"
 		  onclick="return confirmNewFolder();"
 		/>
 		</td><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="New File"
 		  onclick="return confirmNewFile();"/>
 		</td><td>
-		<a4j:commandButton
+		<h:commandButton
 		  value="Delete"
 		  onclick="return confirmDeleteNode();"
 		/>

@@ -38,13 +38,13 @@ public class UserSessionBean {
         FolderHandler folderHandler = new FolderHandler(context);
         ProjectHandler projectHandler = new ProjectHandler(context);
         repositoryHandler = new RepositoryHandler(context);
+        repositoryTree = new RepositoryTreeHandler(context);
 
         context.setFileHandler(fileHandler);
         context.setFolderHandler(folderHandler);
         context.setProjectHandler(projectHandler);
         context.setRepositoryHandler(repositoryHandler);
-        
-        repositoryTree = new RepositoryTreeHandler(context);
+        context.setRepositoryTreeHandler(repositoryTree);
     }
 
     public List<ProjectBean> getProjects() {
@@ -66,5 +66,10 @@ public class UserSessionBean {
     
     public AbstractTreeNode getSelected() {
         return repositoryTree.getSelected();
+    }
+    
+    // TODO refactor it: do not reveal it to UI
+    public Context getContext() {
+        return context;
     }
 }

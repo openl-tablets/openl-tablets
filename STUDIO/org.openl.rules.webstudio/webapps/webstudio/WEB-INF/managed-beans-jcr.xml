@@ -25,4 +25,14 @@
     	</managed-property>
     </managed-bean>
 
+    <managed-bean>
+        <managed-bean-name>modalHandler</managed-bean-name>
+        <managed-bean-class>org.openl.rules.ui.repository.ModalHandler</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    	<managed-property>
+    		<property-name>context</property-name>
+    		<value>#{userSession.context}</value>
+    	</managed-property>
+    </managed-bean>
+
 </faces-config>

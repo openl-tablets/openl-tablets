@@ -29,7 +29,7 @@
 		<rich:columnGroup>
 			<rich:column>
 				<h:commandLink
-				  onclick="return confirmCopyProject();"
+				  onclick="return confirmCopyProject('#{prj.name}');"
 				>
 					<h:graphicImage border="0" value="/images/expandall.gif"/>
 				</h:commandLink>

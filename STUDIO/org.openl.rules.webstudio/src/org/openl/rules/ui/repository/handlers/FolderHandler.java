@@ -7,6 +7,7 @@ import org.openl.rules.ui.repository.beans.AbstractEntityBean;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.REntity;
+import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import java.util.List;
@@ -31,11 +32,22 @@ public class FolderHandler extends BeanHandler {
      * @return list of elements
      */
     public List<AbstractEntityBean> getElements(FolderBean bean) {
-        String id = bean.getId();
-        REntity entity = getEntityById(id);
-        RFolder folder = (RFolder) entity;
+        RFolder folder = findRFolder(bean);
 
         return listElements(folder);
+    }
+
+    /**
+     * Adds new sub folder to existing folder.
+     * 
+     * @param bean Folder UI Bean
+     * @param newFolderName name of new sub folder
+     * @return whether adding was successful
+     */
+    public boolean addFolder(FolderBean bean, String newFolderName) {
+        RFolder folder = findRFolder(bean);
+        
+        return addFolder(folder, newFolderName); 
     }
 
     /**
@@ -73,7 +85,22 @@ public class FolderHandler extends BeanHandler {
 
         return result;
     }
-
+    
+    protected boolean addFolder(RFolder folder, String newFolderName) {
+        boolean result;
+        
+        try {
+            folder.createFolder(newFolderName);
+            result = true;
+        } catch (RModifyException e) {
+            // TODO: log exception
+            context.getMessageQueue().addMessage(e);
+            result = false;
+        }
+        
+        return result;
+    }
+    
     /**
      * Creates Folder UI Bean from a repository folder.
      * 
@@ -84,5 +111,15 @@ public class FolderHandler extends BeanHandler {
         FolderBean fb = new FolderBean();
         initBean(fb, folder);
         return fb;
+    }
+    
+    private RFolder findRFolder(FolderBean bean) {
+        String id = bean.getId();
+        REntity entity = getEntityById(id);
+//        if (entity == null) ...
+        RFolder folder = (RFolder) entity;
+        // check class cast exception
+        
+        return folder;
     }
 }
