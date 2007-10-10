@@ -21,6 +21,10 @@ TableEditor.Constants = {
     REMOVE : 5
 };
 
+// standalone functions
+
+TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
+
 TableEditor.prototype = {
     tableContainer : null,
     currentElement : null,
@@ -59,9 +63,12 @@ TableEditor.prototype = {
             self.handleKeyDown(e)
         }, false);
 
-        Event.observe(/*Prototype.Browser.IE ? document.body : window */document, "keypress", function(e) {
-            self.handleKeyPress(e)
-        }, false);
+        if (Prototype.Browser.IE || Prototype.Browser.Opera) {
+            document.onkeypress = function(e) {self.handleKeyPress(e || window.event)}
+        } else
+             Event.observe(/*Prototype.Browser.IE ? document.body : window */document, "keypress", function(e) {
+                self.handleKeyPress(e)
+            }, false);
 
         $(document.body).observe("click", function(e) {
             self.handleClick(e);
@@ -174,13 +181,17 @@ TableEditor.prototype = {
      * @desc: sends request to server to find out required editor for a cell. After getting response calls this.editBegin
      * @type: private
      */
-    editBeginRequest : function(cell, showEmpty) {
+    editBeginRequest : function(cell, keyCode) {
         if (Ajax.activeRequestCount > 0) return;
         var self = this;
         this.selectElement(cell);
+
+        var typedText = undefined;
+        if (keyCode) typedText = String.fromCharCode(keyCode);
+
         new Ajax.Request(this.baseUrl + "getCellType", {
             onSuccess  : function(response) {
-                self.editBegin(cell, eval(response.responseText), showEmpty)
+                self.editBegin(cell, eval(response.responseText), typedText)
             },
             parameters : {
                 row : self.selectionPos[0],
@@ -193,15 +204,13 @@ TableEditor.prototype = {
     /**
      *  @desc: Create and activate new editor
      */
-    editBegin : function(cell, response, showEmpty) {
-        this.editor = new TableEditor.Editors[response.editor](this, cell, response.params, showEmpty);
+    editBegin : function(cell, response, typedText) {
+        this.editor = new TableEditor.Editors[response.editor](this, cell, response.params, typedText);
         this.selectElement(cell);
     },
 
     editStop : function() {
         if (this.editor) {
-
-
             if (!this.editor.isCancelled()) {
                 var val = this.editor.getValue();
                 var self = this;
@@ -285,9 +294,8 @@ TableEditor.prototype = {
             switch (event.keyCode) {
                 case 27: this.editor.cancelEdit(); break;
                 case 13: this.editStop(); break;
-                case 113: this.editor.handleF2(event); break;
-                case 114: this.editor.handleF3(event); break;
             }
+            if (event.keyCode == 13 && Prototype.Browser.Opera) event.preventDefault();
             return
         }
 
@@ -298,10 +306,16 @@ TableEditor.prototype = {
 
         if (this.hasSelection()) {
             if ([event.ctrlKey, event.altKey, event.shiftKey, event.metaKey].any()) return;
-            if (event.charCode) { // FF
-                if (event.charCode == 0) return;
-            } else if (event.keyCode < 49 || event.keyCode >= 112) return;
-            this.editBeginRequest(this.currentElement, true);
+            if (event.charCode != undefined) { // FF
+                if (event.charCode == 0) return true;
+            } else if (event.keyCode < 32 || TableEditor.isNavigationKey(event.keyCode)) return true;
+
+            if (Prototype.Browser.Opera) {
+                if (event.which == 0) return;
+                event.preventDefault();
+            }
+
+            this.editBeginRequest(this.currentElement, event.charCode || event.keyCode);
         }
     },
 
@@ -310,7 +324,14 @@ TableEditor.prototype = {
      * @type: private
      */
     handleKeyDown: function(event) {
-        if (this.editor || event.keyCode < 37 || event.keyCode > 41) return;
+        if (this.editor) {
+            switch (event.keyCode) {
+                case 113: this.editor.handleF2(event); break;
+                case 114: this.editor.handleF3(event); break;
+            }
+            return;
+        }
+        if (!TableEditor.isNavigationKey(event.keyCode)) return;
 
         if (!this.hasSelection()) {
             this.selectionPos = [1, 1];
