@@ -43,4 +43,45 @@ public class RepositoryHandler {
 
         return result;
     }
+    
+    public boolean addProject(String newProjectName) {
+        boolean result;
+        
+        try {
+            context.getRepository().createProject(newProjectName);
+            result = true;
+        } catch (RRepositoryException e) {
+            // TODO log exception
+            // failed to create new project
+            context.getMessageQueue().addMessage(e);
+            result = false;
+        }
+        
+        // TODO !!! Refresh tree !!!
+        // context.refresh();
+        
+        return result;
+    }
+    
+    public boolean copyProject(String existingProject, String newProject) {
+        boolean result;
+        
+        try {
+            context.getRepository().createProject(newProject);
+            // TODO copy content ... somehow... or let RAL do that
+            // context.getRepository().copyProject(RProject, String);
+            result = true;
+        } catch (RRepositoryException e) {
+            // TODO log exception
+            // failed to create new copy project
+            // failed to copy content of project
+            context.getMessageQueue().addMessage(e);
+            result = false;
+        }
+        
+        // TODO !!! Refresh tree !!!
+        // context.refresh();
+
+        return result;
+    }
 }

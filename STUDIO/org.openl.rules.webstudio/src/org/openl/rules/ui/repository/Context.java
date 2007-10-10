@@ -21,6 +21,7 @@ public class Context {
     private FolderHandler folderHandler;
     private ProjectHandler projectHandler;
     private RepositoryHandler repositoryHandler;
+    private RepositoryTreeHandler repositoryTreeHandler;
 
     public Context(RRepository repository, MessageQueue messageQueue) {
         this.repository = repository;
@@ -65,5 +66,13 @@ public class Context {
 
     public void setRepositoryHandler(RepositoryHandler repositoryHandler) {
         this.repositoryHandler = repositoryHandler;
+    }
+
+    public RepositoryTreeHandler getRepositoryTreeHandler() {
+        return repositoryTreeHandler;
+    }
+
+    public void setRepositoryTreeHandler(RepositoryTreeHandler repositoryTreeHandler) {
+        this.repositoryTreeHandler = repositoryTreeHandler;
     }
 }

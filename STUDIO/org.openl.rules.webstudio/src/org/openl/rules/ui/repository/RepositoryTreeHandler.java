@@ -68,6 +68,10 @@ public class RepositoryTreeHandler {
     
     // ------ protected ------
     
+    protected void reInit() {
+        root = null;
+    }
+    
     protected void setSelected(AbstractTreeNode node) {
         currentNode = node;
     }

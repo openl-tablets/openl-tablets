@@ -29,14 +29,26 @@ public class ProjectHandler extends BeanHandler {
      * @return list of elements
      */
     public List<AbstractEntityBean> getElements(ProjectBean bean) {
-        String id = bean.getId();
-        REntity entity = getEntityById(id);
-        RProject project = (RProject) entity;
+        RProject project = findRProject(bean);
 
         FolderHandler folderHandler = context.getFolderHandler();
         return folderHandler.listElements(project.getRootFolder());
     }
 
+    /**
+     * Adds new sub folder to existing folder.
+     * 
+     * @param bean Project UI Bean
+     * @param newFolderName name of new sub folder
+     * @return whether adding was successful
+     */
+    public boolean addFolder(ProjectBean bean, String newFolderName) {
+        RProject project = findRProject(bean);
+        
+        FolderHandler folderHandler = context.getFolderHandler();
+        return folderHandler.addFolder(project.getRootFolder(), newFolderName);
+    }
+    
     /**
      * Creates UI Bean for a repository project.
      * 
@@ -59,5 +71,15 @@ public class ProjectHandler extends BeanHandler {
         }
         
         return pb;
+    }
+    
+    private RProject findRProject(ProjectBean bean) {
+        String id = bean.getId();
+        REntity entity = getEntityById(id);
+//        if (entity == null) ...
+        RProject project = (RProject) entity;
+        // check class cast exception
+        
+        return project;
     }
 }

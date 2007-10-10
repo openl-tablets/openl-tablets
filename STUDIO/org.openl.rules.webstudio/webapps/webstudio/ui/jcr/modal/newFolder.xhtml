@@ -27,7 +27,7 @@
 				  columns="1"
 				>
 					<h:outputText styleClass="niceLabel" value="Name of New Folder:" />
-					<h:inputText value="" />
+					<h:inputText value="#{modalHandler.newFolderName}" />
 				</h:panelGrid>
 			</h:panelGroup>
 			
@@ -38,7 +38,7 @@
 			  cellpadding="0" cellspacing="0" border="0"
 			  columns="2" columnClasses="modalButtonCol,modalButtonCol"
 			>
-				<h:commandButton value="Create" action="addFolder"/>
+				<h:commandButton value="Create" action="#{modalHandler.addFolder}"/>
 				<h:commandButton value="Cancel" onclick="Richfaces.hideModalPanel('modalNewFolder');return false;" />
 			</h:panelGrid>
 		</h:panelGrid>
