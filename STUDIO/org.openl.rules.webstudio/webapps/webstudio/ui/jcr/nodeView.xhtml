@@ -24,6 +24,10 @@
 	<h:panelGroup rendered="#{userSession.selected.type == 'file'}">
 		<table><tr><td>
 		<a4j:commandButton
+		  value="Update"
+		  onclick="return confirmUpdateFile();"/>
+		</td><td>
+		<a4j:commandButton
 		  value="Delete"
 		  onclick="return confirmDeleteNode();"
 		/>

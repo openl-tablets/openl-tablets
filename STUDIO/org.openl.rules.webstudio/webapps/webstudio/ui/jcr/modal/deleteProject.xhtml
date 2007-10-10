@@ -15,24 +15,32 @@
 			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="closeMDP(false);" />
 		</f:facet>
 
-		<table style="width:100%; height: 180px;"><tr><td align="center" height="60%">
-
-		<p id="modalDeleteProject:message" style="font-size:14px;">
-		Are you sure you want to delete it?
-		</p>
-
-		</td></tr><tr><td align="center">
-
 		<a4j:form id="modalDeleteProjectForm">
-			<table width="50%" align="center"><tr><td>
+		<h:panelGrid
+		  styleClass="modalBody"
+		  cellpadding="0" cellspacing="0" border="0" 
+		  columns="1" columnClasses="modalCol"
+		  rowClasses="modalRow1,modalRow2,modalRow3"
+		>
+			<h:panelGroup>
+				<p id="modalDeleteProject:message" style="font-size:14px;">
+				Are you sure you want to delete it?
+				</p>
+			</h:panelGroup>
+			
+			<rich:separator height="1" />
+			
+			<h:panelGrid
+			  styleClass="modalButtonPanel"
+			  cellpadding="0" cellspacing="0" border="0"
+			  columns="2" columnClasses="modalButtonCol,modalButtonCol"
+			>
 				<a4j:commandButton value="Delete" onclick="return closeMDP(true);" />
-			</td><td>
 				<a4j:commandButton value="Cancel" onclick="return closeMDP(false);" />
-			</td></tr></table>
+			</h:panelGrid>
+		</h:panelGrid>
 		</a4j:form>
 		
-		</td></tr></table>
-
 	</rich:modalPanel>
 
 	<script>
