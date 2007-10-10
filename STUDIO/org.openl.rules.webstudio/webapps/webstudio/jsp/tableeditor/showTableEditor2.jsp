@@ -84,8 +84,14 @@
      <h:graphicImage value="/images/editor/Undo.gif" onclick="tableEditor.undoredo()"/>
      <h:graphicImage value="/images/editor/Redo.gif" onclick="tableEditor.undoredo(true)"/>
    </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
-     <h:graphicImage value="/images/editor/b_row_ins.gif" />
-     <rich:dropDownMenu value="Rows">
+     <rich:dropDownMenu>
+     <f:facet name="label">
+         <h:panelGrid cellpadding="0" cellspacing="0" columns="3" style="vertical-align:middle">
+             <h:graphicImage value="/images/editor/b_row_ins.gif" />
+             <rich:spacer width="5" height="5" title=""/>
+             <h:outputText value="Rows" style="font-weight:bold;"/>
+         </h:panelGrid>
+     </f:facet>
        <rich:menuItem submitMode="none"  id="add_row_before_button" value="Add row before" onclick="tableEditor.doRowOperation(TableEditor.Constants.ADD_BEFORE)" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
@@ -102,8 +108,14 @@
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
      </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
-     <h:graphicImage value="/images/editor/b_col_ins.gif" />
-     <rich:dropDownMenu value="Columns"><f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
+     <rich:dropDownMenu>
+     <f:facet name="label">
+         <h:panelGrid cellpadding="0" cellspacing="0" columns="3" style="vertical-align:middle">
+             <h:graphicImage value="/images/editor/b_col_ins.gif"/>
+             <rich:spacer width="5" height="5" title=""/>
+             <h:outputText value="Columns" style="font-weight:bold;"/>
+         </h:panelGrid>
+     </f:facet>
        <rich:menuItem submitMode="none" id="add_column_before_button" value="Add column before" onclick="tableEditor.doColOperation(TableEditor.Constants.ADD_BEFORE)">
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
        </rich:menuItem>
