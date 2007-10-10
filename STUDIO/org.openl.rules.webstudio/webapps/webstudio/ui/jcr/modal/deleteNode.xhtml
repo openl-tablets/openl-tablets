@@ -15,39 +15,44 @@
 			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalDeleteNode');" />
 		</f:facet>
 
-		<table style="width:100%; height: 180px;"><tr><td align="center" height="60%">
-			<p style="font-size:14px;">
-
-			<h:outputText rendered="#{userSession.selected.type == 'project'}" 
-			value="Are you sure you want to delete the project '#{activeNode.name}'?" />
-			
-			<h:outputText rendered="#{userSession.selected.type == 'folder'}" 
-			value="Are you sure you want to delete the folder '#{activeNode.name}'?" />
-			
-			<h:outputText rendered="#{userSession.selected.type == 'file'}" 
-			value="Are you sure you want to delete the file '#{activeNode.name}'?" />
-
-			</p>
-
-		</td></tr><tr><td align="center">
-
 		<h:form id="modalDeleteNodeForm">
-			<table width="50%" align="center"><tr><td>
+		<h:panelGrid
+		  styleClass="modalBody"
+		  cellpadding="0" cellspacing="0" border="0" 
+		  columns="1" columnClasses="modalCol"
+		  rowClasses="modalRow1,modalRow2,modalRow3"
+		>
+			<h:panelGroup>
+				<h:outputText rendered="#{userSession.selected.type == 'project'}" 
+				value="Are you sure you want to delete the project '#{activeNode.name}'?" />
+				
+				<h:outputText rendered="#{userSession.selected.type == 'folder'}" 
+				value="Are you sure you want to delete the folder '#{activeNode.name}'?" />
+				
+				<h:outputText rendered="#{userSession.selected.type == 'file'}" 
+				value="Are you sure you want to delete the file '#{activeNode.name}'?" />
+			</h:panelGroup>
+			
+			<rich:separator height="1" />
+			
+			<h:panelGrid
+			  styleClass="modalButtonPanel"
+			  cellpadding="0" cellspacing="0" border="0"
+			  columns="2" columnClasses="modalButtonCol,modalButtonCol"
+			>
 				<h:commandButton value="Delete" action="#{activeNode.delete}"/>
-			</td><td>
 				<h:commandButton value="Cancel" onclick="Richfaces.hideModalPanel('modalDeleteNode');return false;" />
-			</td></tr></table>
+			</h:panelGrid>
+		</h:panelGrid>
 		</h:form>
 		
-		</td></tr></table>
-		
-		<script>
-			function confirmDeleteNode() {
-				Richfaces.showModalPanel('modalDeleteNode');
-				return false;
-			}
-		</script>
-
 	</rich:modalPanel>
+
+	<script>
+		function confirmDeleteNode() {
+			Richfaces.showModalPanel('modalDeleteNode');
+			return false;
+		}
+	</script>
 
 </ui:composition>
