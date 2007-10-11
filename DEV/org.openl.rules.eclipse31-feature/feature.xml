@@ -519,7 +519,7 @@ That&apos;s all there is to it!
    </license>
 
    <requires>
-      <import feature="org.openl.eclipse.feature" version="4.0.1"/>
+      <import feature="org.openl.eclipse.feature" version="4.1.1"/>
       <import plugin="org.openl.core"/>
       <import plugin="org.openl.lib.apache.poi.modified"/>
       <import plugin="org.eclipse.ui"/>
