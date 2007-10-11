@@ -15,8 +15,10 @@ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.Region;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridModel;
 import org.openl.rules.table.CellKey;
@@ -32,8 +34,7 @@ import org.openl.util.StringTool;
  * @author snshor
  * 
  */
-public class XlsSheetGridModel extends AGridModel implements IWritableGrid
-{
+public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsWorkbookSourceCodeModule.WorkbookListener {
 	public static final String RANGE_SEPARATOR = ":";
 
 	XlsSheetSourceCodeModule sheetSource;
@@ -44,6 +45,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 	{
 		this.sheetSource = sheetSource;
 		this.sheet = sheetSource.getSheet();
+
+		sheetSource.getWorkbookSource().addListener(this);
 	}
 
 	public XlsSheetGridModel(HSSFSheet sheet)
@@ -206,6 +209,37 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 		}
 
 		return regions[i];
+	}
+
+	public void beforeSave(XlsWorkbookSourceCodeModule xwscm) {
+		HSSFWorkbook hssfWorkbook = xwscm.getWorkbook();
+		for (CellKey ck : styleMap.keySet()) {
+			HSSFCell cell = getCell(ck.getColumn(), ck.getRow());
+			if (cell != null) {
+				HSSFCellStyle cellStyle = hssfWorkbook.createCellStyle();
+				copyStyle(styleMap.get(ck), cellStyle);
+				cell.setCellStyle(cellStyle);
+			}
+		}
+		styleMap.clear();
+	}
+
+	/**
+	 * Copies properties of <code>ICellStyle</code> object to POI xls styling object.
+	 * <br/> <b>Note:</b> for now ignores font and some properties.
+	 *
+	 * @param source style source
+	 * @param dest xls cell style object to fill
+	 */
+	private void copyStyle(ICellStyle source, HSSFCellStyle dest) {
+		dest.setAlignment((short) source.getHorizontalAlignment());
+		dest.setVerticalAlignment((short) source.getVerticalAlignment());
+
+		short[] bs = source.getBorderStyle();
+		dest.setBorderTop(bs[0]);
+		dest.setBorderRight(bs[1]);
+		dest.setBorderBottom(bs[2]);
+		dest.setBorderLeft(bs[3]);
 	}
 
 	static class XlsGridRegion implements IGridRegion
@@ -398,12 +432,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 			return row;
 		}
 
-		public ICellStyle getCellStyle()
-		{
-			if (cell == null)
-				return null;
-			return new XlsCellStyle(cell.getCellStyle(),
-					XlsSheetGridModel.this.sheetSource.getWorkbookSource().getWorkbook());
+		public ICellStyle getCellStyle() {
+			return getCellStyle0(column, row, cell);
 		}
 
 		public ICellFont getFont()
@@ -431,16 +461,34 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 	}
 
 	/**
-	 * 
+	 * Returns cell style.
+	 *
+	 * @param column cell column number
+	 * @param row cell row number
+	 * @return cell style object, maybe <code>null</code>
 	 */
+	public ICellStyle getCellStyle(int column, int row) {
+		return getCellStyle0(column, row, getCell(column, row));
+	}
 
-	public ICellStyle getCellStyle(int column, int row)
-	{
-		HSSFCell cell = getCell(column, row);
+	private ICellStyle getCellStyle0(int column, int row, HSSFCell cell) {
+		if (cell == null) {
+			return null;
+		}
 
-		HSSFCellStyle style = cell == null ? null : cell.getCellStyle();
+		ICellStyle newStyle = getModifiedStyle(column, row);
+		if (newStyle != null) {
+			return newStyle;
+		}
+
+		HSSFCellStyle style = cell.getCellStyle();
+
 		return style == null ? null : new XlsCellStyle(style, sheetSource
-				.getWorkbookSource().getWorkbook());
+				  .getWorkbookSource().getWorkbook());
+	}
+
+	ICellStyle getModifiedStyle(int column, int row) {
+		return styleMap.get(new CellKey(column, row));
 	}
 
 	public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd)
@@ -560,6 +608,16 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 		cell.setCellValue(value);
 	}
 
+	public void setCellStyle(int col, int row, ICellStyle style) {
+		CellKey key = new CellKey(col, row);
+		if (style == null) {
+			styleMap.remove(key);
+		} else {
+			createNewCell(col, row);
+			styleMap.put(key, style);
+		}
+	}
+
 	public void setCellValue(int col, int row, Object value)
 	{
 		// TODO Auto-generated method stub
@@ -578,8 +636,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid
 	}
 
 	Map<CellKey,CellMetaInfo> metaInfoMap = new HashMap<CellKey, CellMetaInfo>();
-
-
+	/**
+	 * Not saved styles for cells.
+	 */
+	private Map<CellKey, ICellStyle> styleMap = new HashMap<CellKey, ICellStyle>();
 
 
 	public Object getCellMetaInfo(int col, int row, Object key)
