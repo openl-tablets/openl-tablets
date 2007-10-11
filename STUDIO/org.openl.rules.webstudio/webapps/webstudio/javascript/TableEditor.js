@@ -411,15 +411,22 @@ TableEditor.prototype = {
             return;
         }
 
-        this.currentElement.align = _align; 
-
-        var selectionPos = this.selectionPos;
+        var cell = this.currentElement;
+        var params = {
+            elementID : this.tableid,
+            row : this.selectionPos[0],
+            col : this.selectionPos[1],
+            align: _align
+        }
         new Ajax.Request(this.baseUrl + "setAlign", {
-            parameters : {
-                row : selectionPos[0],
-                col : selectionPos[1],
-                align: _align
-            }
+            onSuccess: function(response) {
+                response = eval(response.responseText);
+                if (response.status)
+                    alert(response.status)
+                else
+                    cell.align = _align;
+            },
+            parameters : params
         });
         
     },
