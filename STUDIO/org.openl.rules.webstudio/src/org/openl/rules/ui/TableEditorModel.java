@@ -18,6 +18,7 @@ import org.openl.rules.table.IUndoableAction;
 import org.openl.rules.table.IUndoableGridAction;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.UndoableActions;
+import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
 
@@ -209,7 +210,7 @@ public class TableEditorModel
 	actions.addNewAction(ra);
     }
 
-    public synchronized void setCellValue(int col, int row, String value)
+    public synchronized void setCellValue(int row, int col, String value)
     {
 	if (isExtendedView())
 	{
@@ -222,6 +223,22 @@ public class TableEditorModel
 	ra.doSome(region, wgrid(), undoGrid);
 	actions.addNewAction(ra);
     }
+
+    public synchronized void setStyle(int row, int col, ICellStyle style) {
+        if (isExtendedView()) {
+            row -= 3;
+            col -= 3;
+        }
+        IUndoableGridAction ua = IWritableGrid.Tool.setStyle(col, row, region, style);
+        RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
+        ra.doSome(region, wgrid(), undoGrid);
+        actions.addNewAction(ra);
+    }
+
+    public synchronized ICellStyle getCellStyle(int row, int column) {
+        return IWritableGrid.Tool.getCellStyle(table.getGrid(), tX(column), tY(row));
+    }
+
 
     static class RegionAction implements IUndoableAction
     {
@@ -446,7 +463,7 @@ public class TableEditorModel
     }
 
 
-    
+
     public CellMetaInfo getCellMetaInfo(int row, int column)
     {
 

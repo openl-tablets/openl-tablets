@@ -21,7 +21,7 @@
 	else if (request.getParameter("redo") != null)
 		editor.getModel().redo();
 	else if (request.getParameter("edit") != null)
-		editor.getModel().setCellValue(col, row, cell);
+		editor.getModel().setCellValue(row, col, cell);
 	else if (request.getParameter("save") != null)
 		editor.getModel().save();
 	else if (request.getParameter("cancel") != null)

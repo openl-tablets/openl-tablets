@@ -8,6 +8,8 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
@@ -51,7 +53,7 @@ public class TableEditorController implements JSTableEditor {
 
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
-            editorHelper.getModel().setCellValue(col, row, value);
+            editorHelper.getModel().setCellValue(row, col, value);
             response = pojo2json(new TableModificationResponse(null));
         }
         return OUTCOME_SUCCESS;
@@ -91,7 +93,7 @@ public class TableEditorController implements JSTableEditor {
      *
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
      *
-     * @todo: remove
+     * todo: remove
      */
     public String getCellTypeOld() {
         readRequestParams();
@@ -235,8 +237,27 @@ public class TableEditorController implements JSTableEditor {
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
             String align = Util.getRequestParameter("align");
+            int halign = -1;
+            if ("left".equalsIgnoreCase(align)) {
+                halign = ICellStyle.ALIGN_LEFT;
+            } else if ("center".equalsIgnoreCase(align)) {
+                halign = ICellStyle.ALIGN_CENTER;
+            } else if ("right".equalsIgnoreCase(align)) {
+                halign = ICellStyle.ALIGN_RIGHT;
+            } else if ("justify".equalsIgnoreCase(align)) {
+                halign = ICellStyle.ALIGN_JUSTIFY;
+            }
+
+            if (halign != -1) {
+                ICellStyle style = editorHelper.getModel().getCellStyle(row, col);
+                if (style.getHorizontalAlignment() != halign) {
+                    CellStyle newStyle = new CellStyle(style);
+                    newStyle.setHorizontalAlignment(halign);
+                    editorHelper.getModel().setStyle(row, col, newStyle);
+                }
+            }
+            response = pojo2json(new TableModificationResponse(null));
         }
-        response = "";
         return OUTCOME_SUCCESS;
     }
 

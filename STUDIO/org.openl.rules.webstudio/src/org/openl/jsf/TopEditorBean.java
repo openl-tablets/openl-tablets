@@ -102,7 +102,7 @@ public class TopEditorBean {
 		button.setReRender(getCellTitle() + "text");
 		HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
 		hot.setValue(getText());
-		getEditorHelper().getModel().setCellValue(getColumn()-1, getRow()-1, text);
+		getEditorHelper().getModel().setCellValue(getRow()-1, getColumn()-1, text);
 	}
 
 	public void addRowBefore() {
