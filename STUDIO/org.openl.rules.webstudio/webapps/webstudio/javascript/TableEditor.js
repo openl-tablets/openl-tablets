@@ -404,6 +404,26 @@ TableEditor.prototype = {
         return splitted;
     },
 
+
+    setAlignment: function(_align) {
+        if (!this.hasSelection()) {
+            alert("Nothing is selected");
+            return;
+        }
+
+        this.currentElement.align = _align; 
+
+        var selectionPos = this.selectionPos;
+        new Ajax.Request(this.baseUrl + "setAlign", {
+            parameters : {
+                row : selectionPos[0],
+                col : selectionPos[1],
+                align: _align
+            }
+        });
+        
+    },
+
     doRowOperation: function(op) {this.doColRowOperation(0, op)},
     doColOperation: function(op) {this.doColRowOperation(1, op)},
 
