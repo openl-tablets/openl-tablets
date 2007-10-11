@@ -9,7 +9,7 @@ package org.openl.rules.table;
  */
 public class CellKey
 {
-		int col, row;
+		private int col, row;
 
 		public CellKey(int col, int row)
 		{
@@ -28,5 +28,13 @@ public class CellKey
 			return col * 37 + row;
 		}
 
+		public int getColumn()
+		{
+			return col;
+		}
 
+		public int getRow()
+		{
+			return row;
+		}
 }

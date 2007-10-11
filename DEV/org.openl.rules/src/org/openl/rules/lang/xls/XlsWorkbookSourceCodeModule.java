@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.EventListener;
+import java.util.Collection;
+import java.util.ArrayList;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -21,7 +24,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 	
 	HSSFWorkbook workbook;
 
-	
+	private Collection<WorkbookListener> listeners = new ArrayList<WorkbookListener>();
+
 	XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, HSSFWorkbook workbook)
 	{
 		super(src);
@@ -64,6 +68,10 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 		}
 	}
 
+	public void addListener(WorkbookListener listener) {
+		listeners.add(listener);
+	}
+
 	public void save() throws IOException
 	{
 		if (src instanceof FileSourceCodeModule)
@@ -79,7 +87,10 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 	
 	public void saveAs(String fileName) throws IOException
 	{
-    FileOutputStream fileOut = new FileOutputStream(fileName);
+	 for (WorkbookListener wl : listeners) {
+		 wl.beforeSave(this); 
+	 }
+	 FileOutputStream fileOut = new FileOutputStream(fileName);
     workbook.write(fileOut);
     fileOut.close();
 	}
@@ -134,6 +145,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 	}
 
 
-
+   public static interface WorkbookListener extends EventListener {
+		void beforeSave(XlsWorkbookSourceCodeModule xwscm);
+	}
 
 }

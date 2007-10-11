@@ -4,10 +4,9 @@
 package org.openl.rules.table;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-
+import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor
@@ -28,7 +27,7 @@ public interface IWritableGrid extends IGrid
 
 	void setCellMetaInfo(int col, int row, CellMetaInfo meta);
 
-
+	void setCellStyle(int col, int row, ICellStyle style);
 
 	CellMetaInfo getCellMetaInfo(int col, int row);
 
@@ -181,9 +180,30 @@ public interface IWritableGrid extends IGrid
 			return new UndoableSetValueAction(gcol, grow , value); 
 		}
 	
-		
-		
-		public static IUndoableGridAction insertColumns(int nColumns, int beforeColumns, IGridRegion region,
+		public static IUndoableGridAction setStyle(int col, int row, IGridTable table, ICellStyle style)
+		{
+			int gcol = table.getGridColumn(col, row);
+			int grow = table.getGridRow(col, row);
+			return new UndoableSetStyleAction(gcol, grow , style); 
+		}
+
+		public static IUndoableGridAction setStyle(int col, int row, IGridRegion region, ICellStyle style)
+		{
+			int gcol = region.getLeft()  + col;
+			int grow = region.getTop() + row;
+			return new UndoableSetStyleAction(gcol, grow , style);
+		}
+
+        public static ICellStyle getCellStyle(IGrid grid, int col, int row)
+		{
+			IWritableGrid wgrid = getWritableGrid(grid);
+			if (wgrid == null)
+				return null;
+
+			return wgrid.getCellStyle(col, row);
+		}
+
+        public static IUndoableGridAction insertColumns(int nColumns, int beforeColumns, IGridRegion region,
 				IWritableGrid wgrid)
 		{
 			int h = IGridRegion.Tool.height(region);
@@ -214,7 +234,7 @@ public interface IWritableGrid extends IGrid
 	void removeMergedRegion(IGridRegion to);
 
 	/**
-	 * @param copyFrom
+	 * @param reg
 	 */
 	void addMergedRegion(IGridRegion reg);
 
