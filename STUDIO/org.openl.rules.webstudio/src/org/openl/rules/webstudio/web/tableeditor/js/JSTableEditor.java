@@ -23,4 +23,6 @@ public interface JSTableEditor {
     String removeRowCol() throws Exception;
 
     String saveTable() throws Exception;
+
+    String setAlign() throws Exception;
 }

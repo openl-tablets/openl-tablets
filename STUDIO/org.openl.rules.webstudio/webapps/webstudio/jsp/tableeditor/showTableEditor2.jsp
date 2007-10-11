@@ -132,9 +132,9 @@
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
        </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup>
-          <h:graphicImage value="/images/editor/alLeft.gif"/>
-          <h:graphicImage value="/images/editor/alCenter.gif"/>
-          <h:graphicImage value="/images/editor/alRight.gif"/>
+          <h:graphicImage value="/images/editor/alLeft.gif" onclick="tableEditor.setAlignment('left')"/>
+          <h:graphicImage value="/images/editor/alCenter.gif" onclick="tableEditor.setAlignment('center')"/>
+          <h:graphicImage value="/images/editor/alRight.gif" onclick="tableEditor.setAlignment('right')"/>
        </rich:toolBarGroup>
    </rich:toolBar>
   </a4j:form>

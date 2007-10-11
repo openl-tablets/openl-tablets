@@ -90,6 +90,8 @@ public class TableEditorController implements JSTableEditor {
      * Generates JSON response for cell type: editor type and editor specific setup javascript object.
      *
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
+     *
+     * @todo: remove
      */
     public String getCellTypeOld() {
         readRequestParams();
@@ -228,7 +230,17 @@ public class TableEditorController implements JSTableEditor {
         return OUTCOME_SUCCESS;
     }
 
-   private void readRequestParams() {
+    public String setAlign() throws Exception {
+        readRequestParams();
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            String align = Util.getRequestParameter("align");
+        }
+        response = "";
+        return OUTCOME_SUCCESS;
+    }
+
+    private void readRequestParams() {
        Map<String, String> paramMap = Util.getRequestParameterMap();
        row = col = elementID = -1;
 
