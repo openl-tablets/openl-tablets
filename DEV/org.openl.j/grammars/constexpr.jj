@@ -881,7 +881,7 @@ void RangeLiteralBinary() :
 	{stb.bop("literal.range.binary", pos(x));}
 	|
 	x="<" | x = "<=" | x = ">" | x =">="
-	Literal
+	Literal()
 }
 
 
