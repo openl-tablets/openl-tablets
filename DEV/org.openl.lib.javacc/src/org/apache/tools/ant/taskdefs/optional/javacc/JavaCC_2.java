@@ -276,7 +276,9 @@ public class JavaCC_2 extends Task {
     public JavaCC_2() {
         cmdl.setVm(JavaEnvUtils.getJreExecutable("java"));
 //       cmdl.setClassname("COM.sun.labs.javacc.Main");
-		cmdl.setClassname("org.netbeans.javacc.parser.Main");
+        // szyrianov Changed namespace
+		//cmdl.setClassname("org.netbeans.javacc.parser.Main");
+		cmdl.setClassname("org.javacc.parser.Main");
     }
 
     public void execute() throws BuildException {
