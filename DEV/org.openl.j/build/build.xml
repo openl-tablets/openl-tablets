@@ -33,7 +33,7 @@ basedir is eclipse.project.dir
 <javacc_2 
     target="${grammar.dir}/${grammar.name}.jj" 
     outputdirectory="${grammar.src.output.dir}/org/openl/grammars/${grammar.name}"
-    javacchome="${lib.root.dir}/javacc-3.0/bin/lib" 
+    javacchome="${lib.root.dir}/javacc-4.0/bin/lib" 
     static="false"
 />
 
