@@ -11,7 +11,8 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id='editorHelper' scope='session' class="org.openl.rules.ui.EditorHelper" />
 <%
-   editorHelper.setTableID(Integer.parseInt(request.getParameter("elementID")), studio.getModel(), request.getParameter("view"));
+   editorHelper.setTableID(Integer.parseInt(request.getParameter("elementID")), studio.getModel(),
+           request.getParameter("view"), !Boolean.valueOf(request.getParameter("switch")));
 %>
 
 <%@include file="../checkTimeout.jsp"%>
@@ -64,8 +65,8 @@
                   %> &nbsp;<a href="runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../../images/test_ok.gif" /></a>
         <%}%>
     </td>
-    <td>&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business"><img border=0 src="../../images/business-view.png"
-      title="Business View" /></a> &nbsp;<a class="image2" href="?<%=parsView%>&view=view.developer"><img border=0
+    <td>&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business&switch=true"><img border=0 src="../../images/business-view.png"
+      title="Business View" /></a> &nbsp;<a class="image2" href="?<%=parsView%>&view=view.developer&switch=true"><img border=0
       src="../../images/developer-view.png" title="Developer (Full) View" /></a></td>
   </tr>
 </table>

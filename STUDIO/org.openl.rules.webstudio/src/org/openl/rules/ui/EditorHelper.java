@@ -20,9 +20,9 @@ public class EditorHelper implements WebStudio.StudioListener
         if (webStudio != null) webStudio.addEventListener(this);
     }
 
-    public void setTableID(int elementID, ProjectModel prj, String mode)
+    public void setTableID(int elementID, ProjectModel prj, String mode, boolean cancel)
 	{
-        if (model != null) model.cancel();
+        if (model != null && cancel) model.cancel();
         IGridTable table = prj.getTableWithMode(elementID, mode);
         model = new TableEditorModel(table);
         this.elementID = elementID;
@@ -30,7 +30,7 @@ public class EditorHelper implements WebStudio.StudioListener
 
    public void setTableID(int elementID, ProjectModel prj)
 	{
-		setTableID(elementID, prj, null);
+		setTableID(elementID, prj, null, true);
 	}
 
     public int getElementID() {
