@@ -187,6 +187,7 @@ public class TableEditorController extends TableViewController implements JSTabl
                    if (editorModel.canAddCols(1)) editorModel.insertColumns(1, col); else tmResponse.setStatus("Can not add column");
            } catch (Exception e) {
                tmResponse.setStatus("Internal server error");
+               e.printStackTrace();
            }
 
            render();
