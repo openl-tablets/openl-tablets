@@ -75,4 +75,23 @@ public class NodeUtil {
 			parentNode.checkin();
 		}
 	}
+
+        /**
+         * Checkout node and parent (if needed).
+         * 
+         * @param node reference on node to be checked in
+         * @param openParent whether parent should be checked out
+         * @throws RepositoryException if operation failed
+         */
+        protected static void smartCheckout(Node node, boolean openParent) throws RepositoryException {
+                Node parentNode = node.getParent();
+                
+                if (!node.isCheckedOut()) {
+                        node.checkout();
+                }
+                
+                if (!parentNode.isCheckedOut()) {
+                        parentNode.checkout();
+                }
+        }
 }

@@ -113,7 +113,13 @@ public class JcrEntity implements REntity {
     public void delete() throws RDeleteException {
         try {
             Node n = node();
+            
+            Node parent = n.getParent();
+            NodeUtil.smartCheckout(node, true);
+            
             n.remove();
+            
+            NodeUtil.smartCheckin(parent);
         } catch (RepositoryException e) {
             throw new RDeleteException("Failed to Delete", e);
         }
