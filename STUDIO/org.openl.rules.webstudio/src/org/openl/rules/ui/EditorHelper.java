@@ -22,9 +22,11 @@ public class EditorHelper implements WebStudio.StudioListener
 
     public void setTableID(int elementID, ProjectModel prj, String mode, boolean cancel)
 	{
-        if (model != null && cancel) model.cancel();
+        if (model != null && (cancel || elementID != this.elementID)) model.cancel();
         IGridTable table = prj.getTableWithMode(elementID, mode);
-        model = new TableEditorModel(table);
+        TableEditorModel newModel = new TableEditorModel(table);
+        if (model != null && elementID == this.elementID) newModel.getUndoableActions(model);
+        model = newModel;
         this.elementID = elementID;
     }
 

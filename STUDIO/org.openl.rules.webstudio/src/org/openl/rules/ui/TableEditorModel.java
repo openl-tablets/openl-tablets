@@ -159,6 +159,11 @@ public class TableEditorModel
 	this.othertables = (GridTable[]) v.toArray(new GridTable[0]);
     }
 
+    public void getUndoableActions(TableEditorModel other) {
+        actions = other.actions;
+        undoGrid = other.undoGrid;
+    }
+
     IWritableGrid wgrid()
     {
 	return (IWritableGrid) table.getGrid();

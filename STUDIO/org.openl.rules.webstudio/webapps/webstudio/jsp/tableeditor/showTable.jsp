@@ -25,6 +25,12 @@
 
 %>
 
+<jsp:useBean id='editorHelper' scope='session' class="org.openl.rules.ui.EditorHelper" />
+<%
+   editorHelper.setTableID(Integer.parseInt(request.getParameter("elementID")), studio.getModel(),
+           request.getParameter("view"), true);
+%>
+
 
 <html>
 
@@ -48,7 +54,6 @@
 </style>
 <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/popup/popupmenu.js"></script>
 <script type="text/javascript">
-function clickCell(x,y,event) {}
 function open_win(url)
 {
    window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
