@@ -36,6 +36,7 @@ public interface IDecisionTableConstants
 
 
 	static public final String VIEW_BUSINESS = "view.business";
-	
+	static public final String VIEW_DEVELOPER = "view.developer";
+
 
 }
