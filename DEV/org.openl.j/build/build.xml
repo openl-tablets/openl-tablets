@@ -12,17 +12,15 @@ basedir is eclipse.project.dir
 
 <target name="build.all" depends="javacc_all" />
 
-<taskdef name="javacc_2" classpath="${lib.root.dir}/bin" classname="org.apache.tools.ant.taskdefs.optional.javacc.JavaCC_2"/>
-
 <target name="javacc_all">
 	<antcall target="javacc_one">
 		<param name="grammar.name" value="jgrammar"/>
 	</antcall>
-<!--	
+	
 	<antcall target="javacc_one">
 		<param name="grammar.name" value="constexpr"/>
 	</antcall>
--->	
+
 </target>
 
 
@@ -30,7 +28,7 @@ basedir is eclipse.project.dir
 
 <mkdir dir="${grammar.src.output.dir}/org/openl/grammars/${grammar.name}"/>
 
-<javacc_2 
+<javacc 
     target="${grammar.dir}/${grammar.name}.jj" 
     outputdirectory="${grammar.src.output.dir}/org/openl/grammars/${grammar.name}"
     javacchome="${lib.root.dir}/javacc-4.0/bin/lib" 

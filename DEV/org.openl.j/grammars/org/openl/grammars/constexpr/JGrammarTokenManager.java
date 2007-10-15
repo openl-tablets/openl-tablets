@@ -1498,14 +1498,12 @@ StringBuffer image;
 int jjimageLen;
 int lengthOfMatch;
 protected char curChar;
-public JGrammarTokenManager(SimpleCharStream stream)
-{
+public JGrammarTokenManager(SimpleCharStream stream){
    if (SimpleCharStream.staticFlag)
       throw new Error("ERROR: Cannot use a static CharStream class with a non-static lexical analyzer.");
    input_stream = stream;
 }
-public JGrammarTokenManager(SimpleCharStream stream, int lexState)
-{
+public JGrammarTokenManager(SimpleCharStream stream, int lexState){
    this(stream);
    SwitchTo(lexState);
 }
@@ -1697,9 +1695,8 @@ void MoreLexicalActions()
    {
       case 106 :
          if (image == null)
-              image = new StringBuffer(new String(input_stream.GetSuffix(jjimageLen)));
-         else
-            image.append(new String(input_stream.GetSuffix(jjimageLen)));
+            image = new StringBuffer();
+         image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
                    input_stream.backup(1);
          break;
