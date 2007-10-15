@@ -75,4 +75,8 @@ public class Context {
     public void setRepositoryTreeHandler(RepositoryTreeHandler repositoryTreeHandler) {
         this.repositoryTreeHandler = repositoryTreeHandler;
     }
+    
+    public void refresh() {
+        repositoryTreeHandler.reInit();
+    }
 }

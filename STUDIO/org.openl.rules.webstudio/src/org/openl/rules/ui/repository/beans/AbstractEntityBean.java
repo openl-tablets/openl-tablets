@@ -98,7 +98,6 @@ public abstract class AbstractEntityBean implements Entity {
 
     /** {@inheritDoc} */
     public void delete() {
-        System.out.println("? delete(): " + id);
         handler.delete(this);
     }
 }

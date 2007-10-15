@@ -24,12 +24,10 @@ public class ActiveNodeBean implements Entity {
     private String type;
     
     public void setBean(Entity bean) {
-        System.out.println("ANB-bean=" + bean);
         this.bean = bean;
     }
     
     public void setType(String type) {
-        System.out.println("ANB-type=" + type);
         this.type = type;
     }
     
@@ -41,7 +39,6 @@ public class ActiveNodeBean implements Entity {
     
     /** {@inheritDoc} */
     public void delete() {
-        System.out.println("ANB-delete...");
         bean.delete();
     }
     

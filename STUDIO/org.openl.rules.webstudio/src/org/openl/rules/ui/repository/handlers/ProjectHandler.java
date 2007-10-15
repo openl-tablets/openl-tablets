@@ -49,6 +49,34 @@ public class ProjectHandler extends BeanHandler {
         return folderHandler.addFolder(project.getRootFolder(), newFolderName);
     }
     
+    public void undelete(ProjectBean bean) {
+        RProject project = findRProject(bean);
+        try {
+            project.undelete();
+        } catch (RRepositoryException e) {
+            // TODO add 2 log
+            context.getMessageQueue().addMessage(e);
+        } finally {
+            context.refresh();
+        }
+    }
+    
+    public void erase(ProjectBean bean) {
+        RProject project = findRProject(bean);
+        try {
+            if (project.isMarked4Deletion()) {
+                project.erase();
+            } else {
+                // TODO cannot erase the project, it must be marked 4 deletion first
+            }
+        } catch (RRepositoryException e) {
+            // TODO add 2 log
+            context.getMessageQueue().addMessage(e);
+        } finally {
+            context.refresh();
+        }
+    }
+
     /**
      * Creates UI Bean for a repository project.
      * 
@@ -62,6 +90,8 @@ public class ProjectHandler extends BeanHandler {
         try {
             RVersion first = project.getVersionHistory().get(0);
             pb.setCreated(first.getCreated());
+
+            pb.setMarked4Deletion(project.isMarked4Deletion());
         } catch (RRepositoryException e) {
             context.getMessageQueue().addMessage(e);
         } catch (IndexOutOfBoundsException e) {

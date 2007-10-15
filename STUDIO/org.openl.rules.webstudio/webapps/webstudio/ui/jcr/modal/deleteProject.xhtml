@@ -114,14 +114,15 @@
 			return s;
 		}
 		
-		function initMessage(from, msgFormat, param) {
-			var el = document.getElementById('modalDeleteProject:message');
+		function initMessage(from, elId, msgFormat, param) {
+			var el = document.getElementById(elId);
 			var s = (param) ? param : from.innerHTML;
 			el.innerHTML = format(msgFormat, s);
 		}
 		
 		function confirmDeleteProject(from, param) {
-			initMessage(from, "Are you sure you want to delete the project '{0}'?", param);
+			initMessage(from, 'modalDeleteProject:message',
+			"Are you sure you want to delete the project '{0}'?", param);
 		
 			initMDP(from);
 			Richfaces.showModalPanel('modalDeleteProject');
