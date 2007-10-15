@@ -4,6 +4,7 @@ import org.openl.rules.ui.repository.Context;
 import org.openl.rules.ui.repository.beans.AbstractEntityBean;
 import org.openl.rules.ui.repository.beans.VersionBean;
 import org.openl.rules.repository.*;
+import org.openl.rules.repository.exceptions.RDeleteException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import java.util.List;
@@ -51,9 +52,14 @@ public abstract class BeanHandler {
      */
     public void delete(AbstractEntityBean bean) {
         REntity entity = getEntityById(bean.getId());
-        
-        System.out.println("* delete: " + bean.getId());
-//        entity.delete();
+        try {
+            entity.delete();
+        } catch (RDeleteException e) {
+            // TODO add 2 log
+            context.getMessageQueue().addMessage(e);
+        } finally {
+            context.refresh();
+        }
     }
 
     /**

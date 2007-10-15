@@ -111,6 +111,16 @@ public class ModalHandler {
         return newFolderName;
     }
 
+    /**
+     * Modifies project (active node).
+     * Commit/Update/Override and Update.
+     * 
+     * @return outcome: "success" or "fail"
+     */
+    public String modifyProject() {
+        return outcome(false);
+    }
+    
     // ------ private ------
     
     private String outcome(boolean success) {
@@ -118,6 +128,6 @@ public class ModalHandler {
     }
     
     private void refresh() {
-        context.getRepositoryTreeHandler().reInit();
+        context.refresh();
     }
 }

@@ -4,6 +4,8 @@ import org.openl.rules.ui.repository.handlers.ProjectHandler;
 
 import java.util.List;
 
+import javax.naming.Context;
+
 /**
  * UI Bean for Project.
  * 
@@ -12,6 +14,7 @@ import java.util.List;
  */
 public class ProjectBean extends AbstractEntityBean {
     private List<AbstractEntityBean> elements;
+    private boolean isMarked4Deletion;
     
     /** {@inheritDoc} */
     public List<AbstractEntityBean> getElements() {
@@ -21,5 +24,23 @@ public class ProjectBean extends AbstractEntityBean {
         }
         
         return elements;
+    }
+    
+    public boolean getMarked4Deletion() {
+        return isMarked4Deletion;
+    }
+    
+    public void setMarked4Deletion(boolean marked) {
+        isMarked4Deletion = marked;
+    }
+    
+    public void undelete() {
+        ProjectHandler projectHandler = (ProjectHandler) getHandler();
+        projectHandler.undelete(this);
+    }
+    
+    public void erase() {
+        ProjectHandler projectHandler = (ProjectHandler) getHandler();
+        projectHandler.erase(this);
     }
 }
