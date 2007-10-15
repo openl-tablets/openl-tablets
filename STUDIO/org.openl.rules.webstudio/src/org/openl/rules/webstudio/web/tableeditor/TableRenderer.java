@@ -11,7 +11,13 @@ import org.openl.rules.ui.TableModel;
  * @author Andrey Naumenko
  */
 public class TableRenderer {
-    public static String render(TableModel tableModel) {
+    public static String render(TableModel tableModel, String extraTDText) {
+        String tdPrefix = "<td";
+        if (extraTDText != null) {
+            tdPrefix += " ";
+            tdPrefix += extraTDText;
+        }
+
         StringBuffer s = new StringBuffer();
         s.append("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
 
@@ -23,7 +29,7 @@ public class TableRenderer {
                     continue;
                 }
 
-                s.append("<td");
+                s.append(tdPrefix);
                 if (cell instanceof CellModel) {
                     ((CellModel) (cell)).atttributesToHtml(s, tableModel);
                 }
@@ -38,4 +44,9 @@ public class TableRenderer {
         s.append("</table>");
         return s.toString();
     }
+
+    public static String render(TableModel tableModel) {
+        return render(tableModel, null);
+    }
 }
+
