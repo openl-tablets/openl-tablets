@@ -151,7 +151,7 @@
   <div id="tableEditor"/>
 
   <script type="text/javascript">
-    var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>");
+    var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>", "<%=request.getParameter("cell")%>");
   </script>
 </f:view>
 </div>

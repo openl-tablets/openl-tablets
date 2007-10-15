@@ -3,44 +3,42 @@ package org.openl.rules.webstudio.web.tableeditor;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 import org.openl.jsf.Util;
-import static org.openl.jsf.Util.getRequestParameter;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.IGridFilter;
-import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.CellStyle;
-import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
-import org.openl.rules.ui.TableViewer;
 import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
 
-import java.util.Map;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Table editor controller. It should be a managed bean with <b>request</b> scope.
  *
  * @author Andrey Naumenko
  */
-public class TableEditorController implements JSTableEditor {
-    private String response;
-    private int row, col, elementID;
+public class TableEditorController extends TableViewController implements JSTableEditor {
+    private int row, col;
 
-    CellEditorSelector selector = new CellEditorSelector();
+    private CellEditorSelector selector = new CellEditorSelector();
 
     public static final String OUTCOME_SUCCESS = "tableEditor_success";
 
-     public String load() throws Exception {
-         int elementId = Integer.parseInt(getRequestParameter("elementID"));
-         TableModel tableModel = initializeTableModel(elementId);
+    public String load() throws Exception {
+        readRequestParams();
+        render();
+        return OUTCOME_SUCCESS;
+    }
 
-         response = TableRenderer.render(tableModel);
-
-         return OUTCOME_SUCCESS;
-     }
+    private void render() {
+        if (elementID != -1) {
+            TableModel tableModel = initializeTableModel(elementID);
+            response = TableRenderer.render(tableModel);
+        } else {
+            response = "";
+        }
+    }
 
     /**
      * Handles request saving new cell value.
@@ -147,7 +145,7 @@ public class TableEditorController implements JSTableEditor {
             TableModificationResponse tmResponse = new TableModificationResponse(null);
             if (editorHelper.getModel().hasUndo()) {
                 editorHelper.getModel().undo();
-                load();
+                render();
                 tmResponse.setResponse(response);
             } else {
                 tmResponse.setStatus("No actions to undo");
@@ -164,7 +162,7 @@ public class TableEditorController implements JSTableEditor {
             TableModificationResponse tmResponse = new TableModificationResponse(null);
             if (editorHelper.getModel().hasRedo()) {
                 editorHelper.getModel().redo();
-                load();
+                render();
                 tmResponse.setResponse(response);
             } else {
                 tmResponse.setStatus("No actions to redo");
@@ -174,11 +172,7 @@ public class TableEditorController implements JSTableEditor {
         return OUTCOME_SUCCESS;
     }
 
-    public String getResponse() {
-        return response;
-    }
-
-   public String addRowColBefore() throws Exception {
+    public String addRowColBefore() throws Exception {
        readRequestParams();
 
        EditorHelper editorHelper = getHelper(elementID);
@@ -195,7 +189,7 @@ public class TableEditorController implements JSTableEditor {
                tmResponse.setStatus("Internal server error");
            }
 
-           load();
+           render();
            tmResponse.setResponse(response);
            response = pojo2json(tmResponse);
        }
@@ -216,7 +210,7 @@ public class TableEditorController implements JSTableEditor {
                 if (move) ;
                 else editorModel.removeColumns(1, col);
             }
-            load();
+            render();
             response = pojo2json(new TableModificationResponse(response));
         }
         return OUTCOME_SUCCESS;
@@ -270,27 +264,6 @@ public class TableEditorController implements JSTableEditor {
        try {elementID = Integer.parseInt(paramMap.get("elementID"));} catch (NumberFormatException e) {}
    }
 
-   private TableModel initializeTableModel(int elementID) {
-          IGridTable gt = getGridTable(elementID);
-          if (gt == null) return null;
-
-          IGrid htmlGrid = gt.getGrid();
-        if (!(htmlGrid instanceof FilteredGrid)) {
-            int N = 1;
-            IGridFilter[] f1 = new IGridFilter[N];
-            f1[0] = new SimpleXlsFormatter();
-//            f1[1] = new SimpleHtmlFilter();
-            htmlGrid = new FilteredGrid(gt.getGrid(), f1);
-        }
-
-        TableViewer tv = new TableViewer(htmlGrid, gt.getRegion());
-        return tv.buildModel();
-    }
-
-    private IGridTable getGridTable(int elementID) {
-      return getHelper(elementID).getModel().getUpdatedTable();
-   }
-
     /**
      * Returns <code>EditorHelper</code> instance from http session or creates new one if not present there. Checks
      * that <code>elementId</code> matches id in this helper. If it does not the method prepares response which notifies
@@ -300,26 +273,26 @@ public class TableEditorController implements JSTableEditor {
      * @return <code>EditorHelper</code> instance or <code>null</code> if <code>elementId</code> does not match element
      * id in an existing helper.
      */
-    private EditorHelper getHelper(int elementId) {
-       Map sessionMap = Util.getSessionMap();
-       synchronized (sessionMap) {
-           if (sessionMap.containsKey("editorHelper")) {
-               EditorHelper editorHelper = (EditorHelper) sessionMap.get("editorHelper");
-               if (editorHelper.getElementID() != elementId) {
-                   response = pojo2json(new TableModificationResponse(null,
-                           "You started editing another table, this table changes are lost"));
-                   return null;
-               }
-               return editorHelper;
-           }
-           EditorHelper editorHelper = new EditorHelper();
-           editorHelper.setTableID(elementId, Util.getWebStudio().getModel());
-           sessionMap.put("editorHelper", editorHelper);
-           return editorHelper;
-       }
-   }
+    protected EditorHelper getHelper(int elementId) {
+        Map sessionMap = Util.getSessionMap();
+        synchronized (sessionMap) {
+            if (sessionMap.containsKey("editorHelper")) {
+                EditorHelper editorHelper = (EditorHelper) sessionMap.get("editorHelper");
+                if (editorHelper.getElementID() != elementId) {
+                    response = TableEditorController.pojo2json(new TableEditorController.TableModificationResponse(null,
+                            "You started editing another table, this table changes are lost"));
+                    return null;
+                }
+                return editorHelper;
+            }
+            EditorHelper editorHelper = new EditorHelper();
+            editorHelper.setTableID(elementId, Util.getWebStudio().getModel());
+            sessionMap.put("editorHelper", editorHelper);
+            return editorHelper;
+        }
+    }
 
-   private static String pojo2json(Object pojo) {
+    private static String pojo2json(Object pojo) {
        try {
            return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")")
                    .toString();

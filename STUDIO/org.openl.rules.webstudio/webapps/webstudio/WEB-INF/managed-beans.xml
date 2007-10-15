@@ -10,6 +10,16 @@
   </managed-bean>
 
   <managed-bean>
+      <managed-bean-name>tableViewController</managed-bean-name>
+      <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TableViewController</managed-bean-class>
+      <managed-bean-scope>request</managed-bean-scope>
+      <managed-property>
+          <property-name>elementID</property-name>
+          <value>#{param.elementID}</value>
+      </managed-property>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>tableWriterBean</managed-bean-name>
     <managed-bean-class>org.openl.jsf.TableWriterBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>

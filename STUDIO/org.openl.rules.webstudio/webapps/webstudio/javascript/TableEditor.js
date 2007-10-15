@@ -38,10 +38,12 @@ TableEditor.prototype = {
     columns : 0,
     table : null,
     modFuncSuccess : null,
+    editCell : null,
 
     /** Constructor */
-    initialize : function(id, url, tableid) {
+    initialize : function(id, url, tableid, editCell) {
         this.tableid = tableid;
+        if (editCell) this.editCell = editCell;
 
         this.tableContainer = $(id);
         this.tableContainer.style.cursor = 'default';
@@ -101,6 +103,7 @@ TableEditor.prototype = {
             contentType : "text/javascript",
             onSuccess   : function(data) {
                 self.renderTable(data.responseText.strip());
+                if (self.editCell) self.editBeginRequest($(self.editCell), null, true);
             }
         });
     },
@@ -181,8 +184,8 @@ TableEditor.prototype = {
      * @desc: sends request to server to find out required editor for a cell. After getting response calls this.editBegin
      * @type: private
      */
-    editBeginRequest : function(cell, keyCode) {
-        if (Ajax.activeRequestCount > 0) return;
+    editBeginRequest : function(cell, keyCode, ignoreAjaxRequestCount) {
+        if (!ignoreAjaxRequestCount && Ajax.activeRequestCount > 0) return;
         var self = this;
         this.selectElement(cell);
 

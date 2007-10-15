@@ -74,7 +74,7 @@ BODY {
 <script language="JavaScript" defer="defer">
 d = new dTree('d');
 
-<%=studio.getModel().renderTree("jsp/showTable.jsp")%>
+<%=studio.getModel().renderTree("jsp/tableeditor/showTable.jsf")%>
 
 
 document.getElementById('tree').innerHTML = d;
