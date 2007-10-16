@@ -1,6 +1,7 @@
 package org.openl.rules.ui.repository.handlers;
 
 import org.openl.rules.ui.repository.Context;
+import org.openl.rules.ui.repository.beans.CannotFindEntityException;
 import org.openl.rules.ui.repository.beans.ProjectBean;
 import org.openl.rules.ui.repository.beans.AbstractEntityBean;
 import org.openl.rules.repository.REntity;
@@ -8,6 +9,7 @@ import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -29,10 +31,14 @@ public class ProjectHandler extends BeanHandler {
      * @return list of elements
      */
     public List<AbstractEntityBean> getElements(ProjectBean bean) {
-        RProject project = findRProject(bean);
-
-        FolderHandler folderHandler = context.getFolderHandler();
-        return folderHandler.listElements(project.getRootFolder());
+        try {
+            RProject project = getRProject(bean);
+            FolderHandler folderHandler = context.getFolderHandler();
+            return folderHandler.listElements(project.getRootFolder());
+        } catch (CannotFindEntityException e) {
+            context.getMessageQueue().addMessage(e);
+            return new LinkedList<AbstractEntityBean>();
+        }        
     }
 
     /**
@@ -43,17 +49,22 @@ public class ProjectHandler extends BeanHandler {
      * @return whether adding was successful
      */
     public boolean addFolder(ProjectBean bean, String newFolderName) {
-        RProject project = findRProject(bean);
-        
-        FolderHandler folderHandler = context.getFolderHandler();
-        return folderHandler.addFolder(project.getRootFolder(), newFolderName);
+        try {
+            RProject project = getRProject(bean);
+            FolderHandler folderHandler = context.getFolderHandler();
+            return folderHandler.addFolder(project.getRootFolder(),
+                    newFolderName);
+        } catch (CannotFindEntityException e) {
+            context.getMessageQueue().addMessage(e);
+            return false;
+        }        
     }
     
     public void undelete(ProjectBean bean) {
-        RProject project = findRProject(bean);
         try {
+            RProject project = getRProject(bean);
             project.undelete();
-        } catch (RRepositoryException e) {
+        } catch (Exception e) {
             // TODO add 2 log
             context.getMessageQueue().addMessage(e);
         } finally {
@@ -62,14 +73,14 @@ public class ProjectHandler extends BeanHandler {
     }
     
     public void erase(ProjectBean bean) {
-        RProject project = findRProject(bean);
         try {
+            RProject project = getRProject(bean);
             if (project.isMarked4Deletion()) {
                 project.erase();
             } else {
                 // TODO cannot erase the project, it must be marked 4 deletion first
             }
-        } catch (RRepositoryException e) {
+        } catch (Exception e) {
             // TODO add 2 log
             context.getMessageQueue().addMessage(e);
         } finally {
@@ -103,12 +114,10 @@ public class ProjectHandler extends BeanHandler {
         return pb;
     }
     
-    private RProject findRProject(ProjectBean bean) {
+    private RProject getRProject(ProjectBean bean) throws CannotFindEntityException {
         String id = bean.getId();
         REntity entity = getEntityById(id);
-//        if (entity == null) ...
         RProject project = (RProject) entity;
-        // check class cast exception
         
         return project;
     }

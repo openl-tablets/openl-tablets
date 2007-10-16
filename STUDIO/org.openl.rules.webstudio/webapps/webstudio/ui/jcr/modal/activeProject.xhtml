@@ -42,18 +42,24 @@
 				  action="#{modalHandler.modifyProject}"
 				/>
 				<h:commandButton 
+				  id="cancelButton"
 				  styleClass="modalButton" 
 				  value="Cancel" 
 				  onclick="Richfaces.hideModalPanel('modalActiveProject');return false;"
 				/>
 			</h:panelGrid>
+			
+			<h:inputHidden
+			  id="type"
+			  value="#{modalHandler.modifyType}"
+			/>
 		</h:panelGrid>
 		</h:form>
 		
 	</rich:modalPanel>
 	
 	<script>
-		function initDialog(from, dialogTitle, btnName, msgFormat, param) {
+		function initDialog(from, dialogTitle, btnName, cmdName, msgFormat, param) {
 			var el;
 			el = document.getElementById('modalActiveProjectHeader');
 			el.innerHTML = dialogTitle;
@@ -61,48 +67,57 @@
 			el = document.getElementById('modalActiveProjectForm:actionButton');
 			el.value=btnName;
 
+			el = document.getElementById('modalActiveProjectForm:type');
+			el.value=cmdName;
+
 			el = document.getElementById('modalActiveProject:message');
 			var s = (param) ? param : from.innerHTML;
 			el.innerHTML = format(msgFormat, s);
 		}
+		
+		function showActiveModal() {
+			Richfaces.showModalPanel('modalActiveProject');
+			el = document.getElementById('modalActiveProjectForm:cancelButton');
+			el.focus();
+		}
 
 		function confirmCommitProject(from, param) {
-			initDialog(from, 'Commit Project', 'Commit',
+			initDialog(from, 'Commit Project', 'Commit', 'commit',
 			"Are you sure you want to Commit the project '{0}'?", param);
 		
-			Richfaces.showModalPanel('modalActiveProject');
+			showActiveModal();
 			return false;
 		}
 
 		function confirmUpdateProject(from, param) {
-			initDialog(from, 'Update Project', 'Update',
+			initDialog(from, 'Update Project', 'Update', 'update',
 			"Are you sure you want to Update the project '{0}'?", param);
 		
-			Richfaces.showModalPanel('modalActiveProject');
+			showActiveModal();
 			return false;
 		}
 		
 		function confirmOvrAndUpdProject(from, param) {
-			initDialog(from, 'Override and Update Project', 'Override',
+			initDialog(from, 'Override and Update Project', 'Override', 'overrideAndUpdate',
 			"Are you sure you want to Override and Update the project '{0}'?", param);
 
-			Richfaces.showModalPanel('modalActiveProject');
+			showActiveModal();
 			return false;
 		}
 
 		function confirmUndeleteProject(from, param) {
-			initDialog(from, 'Undelete Project', 'Undelete',
+			initDialog(from, 'Undelete Project', 'Undelete', 'undelete',
 			"Are you sure you want to Undelete the project '{0}'?", param);
 
-			Richfaces.showModalPanel('modalActiveProject');
+			showActiveModal();
 			return false;
 		}
 
 		function confirmEraseProject(from, param) {
-			initDialog(from, 'Erase Project', 'ERASE',
+			initDialog(from, 'Erase Project', 'ERASE', 'erase',
 			"Are you sure you want to Erase the project '{0}'?&lt;br/&gt;All data will be lots and cannot be restored after erasing.", param);
 
-			Richfaces.showModalPanel('modalActiveProject');
+			showActiveModal();
 			return false;
 		}
 	</script>

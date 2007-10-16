@@ -16,12 +16,8 @@
     	<managed-bean-class>org.openl.rules.ui.repository.ActiveNodeBean</managed-bean-class>
     	<managed-bean-scope>request</managed-bean-scope>
     	<managed-property>
-    		<property-name>bean</property-name>
-    		<value>#{userSession.selected.dataBean}</value>
-    	</managed-property>
-    	<managed-property>
-    		<property-name>type</property-name>
-    		<value>#{userSession.selected.type}</value>
+    		<property-name>userSession</property-name>
+    		<value>#{userSession}</value>
     	</managed-property>
     </managed-bean>
 
@@ -34,5 +30,9 @@
     		<value>#{userSession.context}</value>
     	</managed-property>
     </managed-bean>
+
+	<lifecycle>
+		<phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>
+	</lifecycle>
 
 </faces-config>

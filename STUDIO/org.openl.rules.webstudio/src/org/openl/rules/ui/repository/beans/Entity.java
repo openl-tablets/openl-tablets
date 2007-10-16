@@ -59,7 +59,7 @@ public interface Entity {
      * 
      * @return list of elements
      */
-    public List<AbstractEntityBean> getElements();
+    public List<? extends Entity> getElements();
 
     /**
      * Deletes entity.

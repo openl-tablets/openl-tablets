@@ -13,6 +13,26 @@ public class ModalHandler {
     private String copyProjectTo;
     // Add new Folder
     private String newFolderName;
+    // Modify (any other)
+    private MTYPE modifyType;
+    
+    private static enum MTYPE {
+        COMMIT("commit"),
+        UPDATE("update"),
+        OVERRIDE_AND_UPDATE("overrideAndUpdate"),
+        UNDELETE("undelete"),
+        ERASE("erase");
+        
+        private String name;
+        
+        private MTYPE(String name) {
+            this.name = name;
+        }
+        
+        private String getName() {
+            return name;
+        }
+    }
 
     public void setContext(Context context) {
         this.context = context;
@@ -113,12 +133,59 @@ public class ModalHandler {
 
     /**
      * Modifies project (active node).
-     * Commit/Update/Override and Update.
+     * Commit/Update/Override and Update/Undelete/Erase.
      * 
      * @return outcome: "success" or "fail"
      */
     public String modifyProject() {
-        return outcome(false);
+        if (modifyType == null) {
+            return outcome(false);
+        }
+        
+        Object dataBean = context.getRepositoryTreeHandler().getSelected().getDataBean();
+        ProjectBean pb = (ProjectBean) dataBean;
+
+        switch (modifyType) {
+        case COMMIT:
+            break;
+        case UPDATE:
+            break;
+        case OVERRIDE_AND_UPDATE:
+            break;
+        case UNDELETE:
+            context.getProjectHandler().undelete(pb);
+            break;
+        case ERASE:
+            context.getProjectHandler().erase(pb);
+            break;
+
+        default:
+            // error !!!
+            // must not be here
+            break;
+        }
+        
+        // FIXME true/false
+        return outcome(true);
+    }
+    
+    public String getModifyType() {
+        return "Modify";
+    }
+    
+    public void setModifyType(String modifyType) {
+        this.modifyType = null;
+        
+        for (MTYPE type : MTYPE.values()) {
+            if (type.getName().equals(modifyType)) {
+                this.modifyType = type;
+                break;
+            }
+        }
+        
+        if (this.modifyType == null) {
+            context.getMessageQueue().addMessage(new IllegalArgumentException("Illegal modifyType '" + modifyType + "'"));
+        }
     }
     
     // ------ private ------

@@ -70,6 +70,7 @@ public class RepositoryTreeHandler {
     
     protected void reInit() {
         root = null;
+        currentNode = null;
     }
     
     protected void setSelected(AbstractTreeNode node) {
