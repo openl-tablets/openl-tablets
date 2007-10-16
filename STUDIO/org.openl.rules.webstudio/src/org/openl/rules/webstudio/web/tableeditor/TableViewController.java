@@ -38,7 +38,7 @@ public class TableViewController {
         }
 
         TableViewer tv = new TableViewer(htmlGrid, gt.getRegion());
-        return tv.buildModel();
+        return tv.buildModel(gt);
     }
 
     protected IGridTable getGridTable(int elementID) {
@@ -82,7 +82,7 @@ public class TableViewController {
     private String render() throws Exception {
         if (elementID != -1) {
             TableModel tableModel = initializeTableModel(elementID);
-            response = TableRenderer.render(tableModel, "onmouseover=\"try {cellMouseOver(this,event)} catch (e){}\" onmouseout='try {cellMouseOut(this)} catch(e){}'");
+            response = TableRenderer.render(tableModel, "onmouseover=\"try {cellMouseOver(this,event)} catch (e){}\" onmouseout='try {cellMouseOut(this)} catch(e){}'", true);
         } else {
             response = "";
         }

@@ -38,6 +38,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title><%=text%></title>
 <link href="../../css/style1.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../../javascript/prototype/prototype-1.5.1.js"></script>
 <style type="text/css">
     .menuholderdiv {
         background-color: white;
@@ -67,10 +68,14 @@ function open_win(url)
         PopupMenu.cancelShowMenu();
     }
     function triggerEdit(f) {
-        f.cell.value = PopupMenu.lastTarget.id;
+        var uri = $(PopupMenu.lastTarget).down('input').value;
+        f.cell.value = uri.toQueryParams().cell;
         f.submit();
     }
-
+    function triggerEditXls(f) {
+        f.uri.value = $(PopupMenu.lastTarget).down('input').value;
+        f.submit();
+    }
 </script>
 </head>
 
@@ -130,11 +135,14 @@ function open_win(url)
     <input type="hidden" name="elementID" value="<%=elementID%>">
     <input type="hidden" name="cell" value="">
 </form>
+<form name="editFormXls" action="../showLinks.jsp" target="show_app_hidden">
+    <input type="hidden" name="uri" value="">
+</form>
 
 <div id="contextMenu" style="display:none;">
     <table cellpadding="1px">
         <tr><td><a href="#" onclick="triggerEdit(document.forms.editForm)">Edit</a></td></tr>
-        <tr><td><a href="#">Edit in Excel</a></td></tr>
+        <tr><td><a href="#" onclick="triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
         <tr><td><a href="#" onclick="alert('Nothing found')">Search</a></td></tr>
     </table>
 </div>

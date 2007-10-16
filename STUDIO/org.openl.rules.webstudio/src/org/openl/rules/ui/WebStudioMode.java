@@ -85,7 +85,7 @@ public abstract class WebStudioMode extends NamedThing
 
 		public String getTableMode()
 		{
-			return null;
+			return IDecisionTableConstants.VIEW_DEVELOPER;
 		}
 
 		public boolean showTableGrid()
@@ -246,7 +246,7 @@ public abstract class WebStudioMode extends NamedThing
 	static final public WebStudioMode BUSINESS3 = new BusinessMode3();
 	
 	/**
-	 * @return
+	 * @return mode type
 	 */
 	public abstract Object getType();
 

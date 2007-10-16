@@ -301,7 +301,7 @@ public class TableWriterBean {
 		}
 
 		TableViewer tv = new TableViewer(htmlGrid, gt.getRegion());
-		tableModel = tv.buildModel();
+		tableModel = tv.buildModel(gt);
 		
 		// return new TableViewer().showTable(gt, new ICellFilter[]{cellFilter});
 	}

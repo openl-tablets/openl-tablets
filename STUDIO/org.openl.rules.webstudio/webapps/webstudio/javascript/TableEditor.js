@@ -25,6 +25,20 @@ TableEditor.Constants = {
 
 TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
 
+/**
+ * returns array [row, column] from string like 'B20' - excel style cell coordinates   
+ */
+TableEditor.parseXlsCell = function (s) {
+    var m = s.match(/^([A-Z]+)(\d+)$/)
+    if (m) {
+        var h = m[1];
+        var col = 0;
+        var Acode = "A".charCodeAt(0) - 1;
+        for (var i = 0; i < h.length; ++i) col = 26 * col + h.charCodeAt(i) - Acode;
+        return [Number(m[2]), col]
+    }
+    return null
+}
 TableEditor.prototype = {
     tableContainer : null,
     currentElement : null,
@@ -102,8 +116,18 @@ TableEditor.prototype = {
             encoding    : "utf-8",
             contentType : "text/javascript",
             onSuccess   : function(data) {
-                self.renderTable(data.responseText.strip());
-                if (self.editCell) self.editBeginRequest($(self.editCell), null, true);
+                data = eval(data.responseText);
+                self.renderTable(data.tableHTML.strip());
+
+                if (self.editCell) {
+                    var s = TableEditor.parseXlsCell(self.editCell);
+                    var t = TableEditor.parseXlsCell(data.topLeftCell);
+                    if (s && t) {
+                        s[0] -= t[0]-1; s[1] -= t[1]-1;
+                        var cell = self.$cell(s)
+                        if (cell) self.editBeginRequest(cell, null, true);
+                    }
+                }
             }
         });
     },
