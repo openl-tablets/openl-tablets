@@ -20,60 +20,60 @@ import org.openl.rules.ui.repository.beans.VersionBean;
  *
  */
 public class ActiveNodeBean implements Entity {
-    private Entity bean;
-    private String type;
+    private UserSessionBean userSession;
     
-    public void setBean(Entity bean) {
-        this.bean = bean;
-    }
-    
-    public void setType(String type) {
-        this.type = type;
+    public void setUserSession(UserSessionBean userSession) {
+        this.userSession = userSession;
     }
     
     public String getType() {
-        return type;
+        return userSession.getSelected().getType();
     }
 
+    private Entity getBean() {
+        Entity entity = (Entity) userSession.getSelected().getDataBean();
+        return entity;
+    }
+    
     // ------ entity properties ------
     
     /** {@inheritDoc} */
     public void delete() {
-        bean.delete();
+        getBean().delete();
     }
     
     /** {@inheritDoc} */
     public Date getCreated() {
-        return bean.getCreated();
+        return getBean().getCreated();
     }
 
     /** {@inheritDoc} */
-    public List<AbstractEntityBean> getElements() {
-        return bean.getElements();
+    public List<? extends Entity> getElements() {
+        return getBean().getElements();
     }
 
     /** {@inheritDoc} */
     public Date getLastModified() {
-        return bean.getLastModified();
+        return getBean().getLastModified();
     }
 
     /** {@inheritDoc} */
     public String getLastModifiedBy() {
-        return bean.getLastModifiedBy();
+        return getBean().getLastModifiedBy();
     }
 
     /** {@inheritDoc} */
     public String getName() {
-        return bean.getName();
+        return getBean().getName();
     }
 
     /** {@inheritDoc} */
     public String getVersion() {
-        return bean.getVersion();
+        return getBean().getVersion();
     }
 
     /** {@inheritDoc} */
     public List<VersionBean> getVersionHistory() {
-        return bean.getVersionHistory();
+        return getBean().getVersionHistory();
     }
 }

@@ -1,6 +1,7 @@
 package org.openl.rules.ui.repository.handlers;
 
 import org.openl.rules.ui.repository.Context;
+import org.openl.rules.ui.repository.beans.CannotFindEntityException;
 import org.openl.rules.ui.repository.beans.FolderBean;
 import org.openl.rules.ui.repository.beans.FileBean;
 import org.openl.rules.ui.repository.beans.AbstractEntityBean;
@@ -32,9 +33,13 @@ public class FolderHandler extends BeanHandler {
      * @return list of elements
      */
     public List<AbstractEntityBean> getElements(FolderBean bean) {
-        RFolder folder = findRFolder(bean);
-
-        return listElements(folder);
+        try {
+            RFolder folder = getRFolder(bean);
+            return listElements(folder);
+        } catch (CannotFindEntityException e) {
+            context.getMessageQueue().addMessage(e);
+            return new LinkedList<AbstractEntityBean>();
+        }        
     }
 
     /**
@@ -45,9 +50,13 @@ public class FolderHandler extends BeanHandler {
      * @return whether adding was successful
      */
     public boolean addFolder(FolderBean bean, String newFolderName) {
-        RFolder folder = findRFolder(bean);
-        
-        return addFolder(folder, newFolderName); 
+        try {
+            RFolder folder = getRFolder(bean);
+            return addFolder(folder, newFolderName); 
+        } catch (CannotFindEntityException e) {
+            context.getMessageQueue().addMessage(e);
+            return false;
+        }        
     }
 
     /**
@@ -113,12 +122,10 @@ public class FolderHandler extends BeanHandler {
         return fb;
     }
     
-    private RFolder findRFolder(FolderBean bean) {
+    private RFolder getRFolder(FolderBean bean) throws CannotFindEntityException {
         String id = bean.getId();
         REntity entity = getEntityById(id);
-//        if (entity == null) ...
         RFolder folder = (RFolder) entity;
-        // check class cast exception
         
         return folder;
     }

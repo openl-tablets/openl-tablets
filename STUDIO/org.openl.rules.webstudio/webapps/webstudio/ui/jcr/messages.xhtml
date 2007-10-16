@@ -16,7 +16,7 @@
 					<h:outputText value="Message" />
 				</rich:column>
 				<rich:column>
-					<h:outputText value="Details" />
+					<h:outputText value="Cause" />
 				</rich:column>
 			</rich:columnGroup>
 		</f:facet>
@@ -26,7 +26,7 @@
 				<h:outputText value="#{err.message}" />
 			</rich:column>
 			<rich:column>
-				<h:outputText value="---" />
+				<h:outputText value="#{err.cause}"/>
 			</rich:column>
 		</rich:columnGroup>
 	</rich:dataTable>

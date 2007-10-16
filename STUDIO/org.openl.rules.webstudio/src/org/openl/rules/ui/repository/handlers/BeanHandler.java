@@ -2,6 +2,7 @@ package org.openl.rules.ui.repository.handlers;
 
 import org.openl.rules.ui.repository.Context;
 import org.openl.rules.ui.repository.beans.AbstractEntityBean;
+import org.openl.rules.ui.repository.beans.CannotFindEntityException;
 import org.openl.rules.ui.repository.beans.VersionBean;
 import org.openl.rules.repository.*;
 import org.openl.rules.repository.exceptions.RDeleteException;
@@ -51,10 +52,13 @@ public abstract class BeanHandler {
      * @param bean UI bean for a repository entity
      */
     public void delete(AbstractEntityBean bean) {
-        REntity entity = getEntityById(bean.getId());
         try {
+            REntity entity = getEntityById(bean.getId());
             entity.delete();
         } catch (RDeleteException e) {
+            // TODO add 2 log
+            context.getMessageQueue().addMessage(e);
+        } catch (CannotFindEntityException e) {
             // TODO add 2 log
             context.getMessageQueue().addMessage(e);
         } finally {
@@ -71,9 +75,9 @@ public abstract class BeanHandler {
     public List<VersionBean> getVersions(AbstractEntityBean bean) {
         List<VersionBean> result = new LinkedList<VersionBean>();
 
-        REntity entity = getEntityById(bean.getId());
-
         try {
+            REntity entity = getEntityById(bean.getId());
+
             for (RVersion version : entity.getVersionHistory()) {
                 VersionBean vb = new VersionBean();
 
@@ -84,6 +88,9 @@ public abstract class BeanHandler {
                 result.add(vb);
             }
         } catch (RRepositoryException e) {
+            // TODO: log exception
+            context.getMessageQueue().addMessage(e);
+        } catch (CannotFindEntityException e) {
             // TODO: log exception
             context.getMessageQueue().addMessage(e);
         }
@@ -120,7 +127,7 @@ public abstract class BeanHandler {
      * @param id id of a entity
      * @return a repository entity or <code>null</code> if cannot find
      */
-    protected REntity getEntityById(String id) {
+    protected REntity getEntityById(String id) throws CannotFindEntityException {
         REntity result = null;
 
         LinkedList<String> names = splitId(id);
@@ -140,11 +147,14 @@ public abstract class BeanHandler {
                     }
                 }
             } catch (RRepositoryException e) {
-                // TODO: log exception
-                context.getMessageQueue().addMessage(e);
+                throw new CannotFindEntityException("Failed to find entity due repository exception", e);
             }
         }
 
+        if (result == null) {
+            throw new CannotFindEntityException("Cannot Find entity by ID");
+        }
+        
         return result;
     }
 
