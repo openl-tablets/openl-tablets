@@ -3,6 +3,7 @@ package org.openl.rules.ui;
 import org.openl.rules.table.ICellInfo;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.Log;
 
@@ -12,7 +13,7 @@ public class TableViewer
 
 	IGridRegion reg;
 
-	public TableModel buildModel()
+	public TableModel buildModel(IGridTable gt)
 	{
 
 		// IGridTable table = new GridTable(g.getTop(), g.getLeft(), g.getBottom(),
@@ -21,7 +22,7 @@ public class TableViewer
 		int h = IGridRegion.Tool.height(reg);
 		int w = IGridRegion.Tool.width(reg);
 
-		TableModel tm = new TableModel(w, h);
+		TableModel tm = new TableModel(w, h, gt);
 
 		for (int row = reg.getTop(); row <= reg.getBottom(); row++)
 		{
@@ -69,7 +70,7 @@ public class TableViewer
 		StringBuffer buf = new StringBuffer(1000);
 		this.grid = grid;
 		this.reg = region;
-		TableModel tm = buildModel();
+		TableModel tm = buildModel(null);
 		tm.toHtmlString(buf, showGrid);
 
 		return buf.toString();

@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.IGridTable;
 
 public class TableModel
 {
@@ -8,16 +9,24 @@ public class TableModel
 
 	String attributes = "cellspacing=0 cellpadding=1";
 
-	public TableModel(int width, int height)
+    private IGridTable gridTable;
+
+    public TableModel(int width, int height, IGridTable gridTable)
 	{
 		cells = new ICellModel[height][];
 		for (int i = 0; i < cells.length; i++)
 		{
 			cells[i] = new ICellModel[width];
 		}
-	}
 
-	public void addCell(ICellModel cm, int row, int column)
+        this.gridTable = gridTable;
+    }
+
+    public IGridTable getGridTable() {
+        return gridTable;
+    }
+
+    public void addCell(ICellModel cm, int row, int column)
 	{
 		if (row < cells.length && column < cells[row].length)
 			cells[row][column] = cm;

@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.tableeditor;
 import org.openl.rules.ui.CellModel;
 import org.openl.rules.ui.ICellModel;
 import org.openl.rules.ui.TableModel;
-
+import org.openl.rules.table.IGridTable;
 
 /**
  * Render HTML table by table model.
@@ -11,13 +11,14 @@ import org.openl.rules.ui.TableModel;
  * @author Andrey Naumenko
  */
 public class TableRenderer {
-    public static String render(TableModel tableModel, String extraTDText) {
+    public static String render(TableModel tableModel, String extraTDText, boolean embedCellURI) {
         String tdPrefix = "<td";
         if (extraTDText != null) {
             tdPrefix += " ";
             tdPrefix += extraTDText;
         }
 
+        IGridTable table = tableModel.getGridTable();
         StringBuffer s = new StringBuffer();
         s.append("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
 
@@ -34,10 +35,14 @@ public class TableRenderer {
                     ((CellModel) (cell)).atttributesToHtml(s, tableModel);
                 }
 
-					StringBuilder id = new StringBuilder();
-					id.append("cell-").append(String.valueOf(i + 1)).append(":").append(j + 1);
+                StringBuilder id = new StringBuilder();
+                id.append("cell-").append(String.valueOf(i + 1)).append(":").append(j + 1);
 
-					s.append(" id=\"").append(id).append("\">").append(cell.getContent()).append("</td>\n");
+                s.append(" id=\"").append(id).append("\">");
+                if (embedCellURI) {
+                    s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(table.getUri(j, i)).append("\">");
+                }
+                s.append(cell.getContent()).append("</td>\n");
             }
             s.append("</tr>\n");
         }
@@ -46,7 +51,7 @@ public class TableRenderer {
     }
 
     public static String render(TableModel tableModel) {
-        return render(tableModel, null);
+        return render(tableModel, null, false);
     }
 }
 

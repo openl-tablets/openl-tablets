@@ -5,6 +5,7 @@ import com.sdicons.json.mapper.MapperException;
 import org.openl.jsf.Util;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
@@ -28,6 +29,9 @@ public class TableEditorController extends TableViewController implements JSTabl
     public String load() throws Exception {
         readRequestParams();
         render();
+        IGridTable gridTable = getGridTable(elementID);
+        response = pojo2json(new LoadResponse(response, gridTable.getGrid()
+                .getCellUri(gridTable.getGridColumn(0, 0), gridTable.getGridRow(0, 0))));
         return OUTCOME_SUCCESS;
     }
 
@@ -405,6 +409,32 @@ public class TableEditorController extends TableViewController implements JSTabl
 
         public void setDelay(Integer delay) {
             this.delay = delay;
+        }
+    }
+
+    public static class LoadResponse {
+        private String tableHTML;
+        private String topLeftCell;
+
+        public LoadResponse(String tableHTML, String topLeftCell) {
+            this.tableHTML = tableHTML;
+            this.topLeftCell = topLeftCell;
+        }
+
+        public String getTableHTML() {
+            return tableHTML;
+        }
+
+        public void setTableHTML(String tableHTML) {
+            this.tableHTML = tableHTML;
+        }
+
+        public String getTopLeftCell() {
+            return topLeftCell;
+        }
+
+        public void setTopLeftCell(String topLeftCell) {
+            this.topLeftCell = topLeftCell;
         }
     }
 
