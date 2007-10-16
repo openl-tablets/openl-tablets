@@ -45,6 +45,12 @@
      .editor_invalid {
          background-color: lightcoral;
      }
+
+     .bt_disabled {
+         filter: gray() alpha(opacity=30); /* IE */
+         opacity: 0.15; /* Safari, Opera and Mozilla */
+     }
+
  </style>
 
 </head>
@@ -78,12 +84,12 @@
   <a4j:form id="menu_form">
     <br />
     <br />
-    <rich:toolBar itemSeparator="square"><rich:toolBarGroup>
-     <h:graphicImage value="/images/editor/Save.gif" onclick="tableEditor.save()"/>
-     <h:graphicImage value="/images/editor/Validation.gif" />
-   </rich:toolBarGroup><rich:toolBarGroup>
-     <h:graphicImage value="/images/editor/Undo.gif" onclick="tableEditor.undoredo()"/>
-     <h:graphicImage value="/images/editor/Redo.gif" onclick="tableEditor.undoredo(true)"/>
+    <rich:toolBar itemSeparator="square"><rich:toolBarGroup style="padding: 2px;">
+      <h:panelGroup style="display:block;"><h:graphicImage id="save_all" style="vertical-align:bottom;" value="/images/editor/Save.gif" onclick="tableEditor.save()"/></h:panelGroup>
+      <h:panelGroup style="display:block;"><h:graphicImage id="validate" value="/images/editor/Validation.gif" /></h:panelGroup>
+   </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+     <h:panelGroup style="display:block;"><h:graphicImage id="undo" value="/images/editor/Undo.gif" onclick="tableEditor.undoredo()"/></h:panelGroup>
+     <h:panelGroup style="display:block;"><h:graphicImage id="redo" value="/images/editor/Redo.gif" onclick="tableEditor.undoredo(true)"/></h:panelGroup>
    </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
      <rich:dropDownMenu>
      <f:facet name="label">
@@ -96,7 +102,7 @@
        <rich:menuItem submitMode="none"  id="add_row_before_button" value="Add row" onclick="tableEditor.doRowOperation(TableEditor.Constants.ADD_BEFORE)" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
-       <rich:menuItem submitMode="none" id="remove_row_button" onclick="tableEditor.doRowOperation(TableEditor.Constants.REMOVE)"  value="Remove row" >
+       <rich:menuItem  submitMode="none" id="remove_row_button" onclick="tableEditor.doRowOperation(TableEditor.Constants.REMOVE)"  value="Remove row" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/row_del.gif" /></f:facet>
        </rich:menuItem>
         <rich:menuItem submitMode="none"  id="move_row_down_button" value="Move row down" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_DOWN)" >
@@ -126,18 +132,29 @@
        <rich:menuItem submitMode="none"  id="move_column_button_left" value="Move column left" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_UP)" >
          <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
-       </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup>
-          <h:graphicImage value="/images/editor/alLeft.gif" onclick="tableEditor.setAlignment('left')"/>
-          <h:graphicImage value="/images/editor/alCenter.gif" onclick="tableEditor.setAlignment('center')"/>
-          <h:graphicImage value="/images/editor/alRight.gif" onclick="tableEditor.setAlignment('right')"/>
+       </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_left" value="/images/editor/alLeft.gif" onclick="tableEditor.setAlignment('left')"/></h:panelGroup>
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_center" value="/images/editor/alCenter.gif" onclick="tableEditor.setAlignment('center')"/></h:panelGroup>
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_right" value="/images/editor/alRight.gif" onclick="tableEditor.setAlignment('right')"/></h:panelGroup>
        </rich:toolBarGroup>
    </rich:toolBar>
   </a4j:form>
   <br />
 
-  <script type="text/javascript">var jsPath = '../../javascript/';</script>
 
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/prototype/prototype-1.5.1.js"></script>
+  <script type="text/javascript">var jsPath = '../../javascript/';</script>
+  <script type="text/javascript" src="../../javascript/studio.js"></script>
+  <script type="text/javascript">
+      var im = new IconManager('dr-menu-label dr-menu-label-unselect rich-ddmenu-label rich-ddmenu-label-unselect',
+              'dr-menu-label dr-menu-label-select rich-ddmenu-label rich-ddmenu-label-select', 'bt_disabled');
+      ["save_all", "validate", "undo", "redo", "align_left", "align_center", "align_right"].each(function(s) {
+          im.enable("menu_form:" + s)
+      });
+
+      im.disable("menu_form:validate");
+  </script>
+
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TableEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/BaseEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TextEditor.js"></script>
