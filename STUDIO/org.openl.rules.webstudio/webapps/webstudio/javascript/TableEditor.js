@@ -101,6 +101,7 @@ TableEditor.prototype = {
             else {
                 this.renderTable(response.response);
                 this.selectElement();
+                this.processCallbacks(response);
             }
         }.bindAsEventListener(this);
     },
@@ -175,19 +176,21 @@ TableEditor.prototype = {
      * @type: public
      */
     save: function() {
-        var tableid = this.tableid;
+        var self = this;
         new Ajax.Request(this.baseUrl + "saveTable", {
             onSuccess  : function(response) {
                 response = eval(response.responseText);
                 if (response.status)
                     alert(response.status);
-                else
+                else {
+                    self.processCallbacks(response);
                     alert("Your changes have been saved!");
+                }
             },
             onFailure : function() {
                 alert("Server failed to save your changes");
             },
-            parameters : {elementID : tableid}
+            parameters : {elementID : self.tableid}
         });
     },
 
@@ -246,7 +249,8 @@ TableEditor.prototype = {
                     encoding   : "utf-8",
                     contentType : "text/javascript",
                     onSuccess  : function(data) {
-                        //alert('saved !');
+                        data = eval(data.responseText);
+                        self.processCallbacks(data);
                     },
                     parameters: {
                         row : self.selectionPos[0],
@@ -439,6 +443,7 @@ TableEditor.prototype = {
         }
 
         var cell = this.currentElement;
+        var self = this;
         var params = {
             elementID : this.tableid,
             row : this.selectionPos[0],
@@ -450,8 +455,10 @@ TableEditor.prototype = {
                 response = eval(response.responseText);
                 if (response.status)
                     alert(response.status)
-                else
+                else {
+                    self.processCallbacks(response);
                     cell.align = _align;
+                }
             },
             parameters : params
         });
@@ -484,7 +491,16 @@ TableEditor.prototype = {
         });
     },
 
-    hasSelection : function() {return this.selectionPos && this.currentElement}
+    hasSelection : function() {return this.selectionPos && this.currentElement},
+
+    processCallbacks: function(obj) {
+        if (!obj) return;
+        if (obj.hasUndo === true || obj.hasUndo === false) try {this.undoStateUpdated(obj.hasUndo) } catch (e) {alert(e)}
+        if (obj.hasRedo === true || obj.hasRedo === false) try {this.redoStateUpdated(obj.hasRedo) } catch (e) {alert(e)}
+    },
+    // ----------------------------------------------------------------- Callback functions --
+    undoStateUpdated : Prototype.emptyFunction,
+    redoStateUpdated : Prototype.emptyFunction
 }
 
 /**
