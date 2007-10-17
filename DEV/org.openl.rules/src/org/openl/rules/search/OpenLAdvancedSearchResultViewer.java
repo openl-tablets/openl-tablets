@@ -4,7 +4,9 @@
 package org.openl.rules.search;
 
 import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.TransposedGridTable;
 
 /**
  * @author snshor
@@ -32,17 +34,36 @@ public class OpenLAdvancedSearchResultViewer
 		
 		tables[0] = rows[0].getTableSearchInfo().headerDisplayTable();
 		
-		boolean isVertical = rows[0].getRowTable().isNormalOrientation();
+//		boolean isVertical = rows[0].getRowTable().isNormalOrientation();
+		
+		boolean isVertical = isVertical(rows[0].getRowTable());
+
 		
 		for (int i = 0; i < rows.length; i++)
 		{
-			tables[1+i] = rows[i].getRowTable();
+			tables[1+i] = align(rows[i].getRowTable(), isVertical);
 		}
 		
 		
 		return new CompositeGrid(tables, isVertical);
 		
 	}
+	
+	
+	
+	private IGridTable align(IGridTable rowTable, boolean isVertical)
+	{
+		return isVertical == isVertical(rowTable) ? rowTable : new TransposedGridTable(rowTable);
+	}
+
+
+	boolean isVertical(IGridTable t)
+	{
+		 return IGridRegion.Tool.width(t.getRegion()) >= IGridRegion.Tool.height(t.getRegion());
+	}
+	
+	
+
 	
 	
 	
