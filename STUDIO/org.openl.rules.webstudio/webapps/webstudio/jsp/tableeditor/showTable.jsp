@@ -92,9 +92,9 @@ function open_win(url)
     String tgtUrl = "../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID=" +elementID + "&first=true";
 %>
 
-&nbsp;<a href="runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../../images/test.gif"/></a>
-&nbsp;<a onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#"  title="Trace"><img border=0 src="../../images/trace.gif"/></a>
-&nbsp;<a href="benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../../images/clock-icon.png"/></a>
+&nbsp;<a href="runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../../images/test.gif" alt="test"/></a>
+&nbsp;<a onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#"  title="Trace"><img border=0 src="../../images/trace.gif" alt="trace"/></a>
+&nbsp;<a href="benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../../images/clock-icon.png" alt="benchmark"/></a>
 <% }
   if (isTestable && se.length == 0) {%>
 &nbsp;<a href="runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../../images/test_ok.gif"/></a>
@@ -105,17 +105,10 @@ function open_win(url)
 <%
   String[] menuParamsView = {"transparency", "filterType", "view"};
   String parsView = WebTool.listParamsExcept(menuParamsView, request);
-
-
-  String view = request.getParameter("view");
-  if (view == null)
-  {
-    view = studio.getModel().getTableView();
-  }
 %>
 
-&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business"><img border=0 src="../../images/business-view.png" title="Business View"/></a>
-&nbsp;<a class="image2" href="?<%=parsView%>&view=view.developer"><img border=0 src="../../images/developer-view.png" title="Developer (Full) View"/></a>
+&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business"><img border=0 src="../../images/business-view.png" title="Business View" alt="Business View"/></a>
+&nbsp;<a class="image2" href="?<%=parsView%>&view=view.developer"><img border=0 src="../../images/developer-view.png" title="Developer (Full) View" alt="Full View"/></a>
 </td>
 </tr></table>
 
@@ -125,16 +118,17 @@ function open_win(url)
 &nbsp;<a href="${pageContext.request.contextPath}/jsp/copyTable.jsp?elementID=<%=elementID%>">Copy Table</a>
 
 
-<div>&nbsp;
 <f:view>
+<div>&nbsp;
    <h:outputText value="#{tableViewController.tableView}" escape="false"/>
-</f:view>
 </div>
 
 <form name="editForm" action="showTableEditor2.jsf">
     <input type="hidden" name="elementID" value="<%=elementID%>">
     <input type="hidden" name="cell" value="">
+    <h:inputHidden id="view" value="#{tableViewController.mode}" />
 </form>
+</f:view>    
 <form name="editFormXls" action="../showLinks.jsp" target="show_app_hidden">
     <input type="hidden" name="uri" value="">
 </form>
