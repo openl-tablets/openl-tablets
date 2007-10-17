@@ -28,4 +28,6 @@ public interface ITableSearchInfo
 	IGridTable rowTable(int row);
 	IGridTable headerDisplayTable();
 	
+	
+	
 }
