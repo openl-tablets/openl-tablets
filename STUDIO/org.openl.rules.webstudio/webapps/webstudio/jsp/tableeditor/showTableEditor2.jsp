@@ -148,11 +148,13 @@
   <script type="text/javascript">
       var im = new IconManager('dr-menu-label dr-menu-label-unselect rich-ddmenu-label rich-ddmenu-label-unselect',
               'dr-menu-label dr-menu-label-select rich-ddmenu-label rich-ddmenu-label-select', 'bt_disabled');
-      ["save_all", "validate", "undo", "redo", "align_left", "align_center", "align_right"].each(function(s) {
-          im.enable("menu_form:" + s)
-      });
 
-      im.disable("menu_form:validate");
+      function setEnabled(who) {im.enable("menu_form:"+who);}
+      function setDisabled(who) {im.disable("menu_form:"+who);}
+      function initEnabled(who) {setDisabled(who); setEnabled(who)}
+
+      ["align_left", "align_center", "align_right"].each(initEnabled);
+      ["save_all", "validate", "undo", "redo"].each(setDisabled);
   </script>
 
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TableEditor.js"></script>
@@ -168,7 +170,9 @@
   <div id="tableEditor"/>
 
   <script type="text/javascript">
-    var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>", "<%=request.getParameter("cell")%>");
+      var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>", "<%=request.getParameter("cell")%>");
+      tableEditor.undoStateUpdated = function(hasItems) {["save_all","undo"].each(hasItems?setEnabled:setDisabled)}
+      tableEditor.redoStateUpdated = function(hasItems) {(hasItems?setEnabled:setDisabled)("redo")}
   </script>
 </f:view>
 </div>

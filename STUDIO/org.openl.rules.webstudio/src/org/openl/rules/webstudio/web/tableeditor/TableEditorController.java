@@ -56,7 +56,7 @@ public class TableEditorController extends TableViewController implements JSTabl
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
             editorHelper.getModel().setCellValue(row, col, value);
-            response = pojo2json(new TableModificationResponse(null));
+            response = pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
         }
         return OUTCOME_SUCCESS;
     }
@@ -146,7 +146,7 @@ public class TableEditorController extends TableViewController implements JSTabl
         readRequestParams();
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null);
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
             if (editorHelper.getModel().hasUndo()) {
                 editorHelper.getModel().undo();
                 render();
@@ -163,7 +163,7 @@ public class TableEditorController extends TableViewController implements JSTabl
         readRequestParams();
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null);
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
             if (editorHelper.getModel().hasRedo()) {
                 editorHelper.getModel().redo();
                 render();
@@ -183,7 +183,7 @@ public class TableEditorController extends TableViewController implements JSTabl
        if (editorHelper != null) {
            TableEditorModel editorModel = editorHelper.getModel();
 
-           TableModificationResponse tmResponse = new TableModificationResponse(null);
+           TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
            try {
                if (row >= 0)
                    if (editorModel.canAddRows(1)) editorModel.insertRows(1, row); else tmResponse.setStatus("Can not add row");
@@ -216,7 +216,7 @@ public class TableEditorController extends TableViewController implements JSTabl
                 else editorModel.removeColumns(1, col);
             }
             render();
-            response = pojo2json(new TableModificationResponse(response));
+            response = pojo2json(new TableModificationResponse(response, editorHelper.getModel()));
         }
         return OUTCOME_SUCCESS;
     }
@@ -226,7 +226,7 @@ public class TableEditorController extends TableViewController implements JSTabl
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
             editorHelper.getModel().save();
-            response = pojo2json(new TableModificationResponse(""));
+            response = pojo2json(new TableModificationResponse("", editorHelper.getModel()));
         }
         return OUTCOME_SUCCESS;
     }
@@ -255,7 +255,7 @@ public class TableEditorController extends TableViewController implements JSTabl
                     editorHelper.getModel().setStyle(row, col, newStyle);
                 }
             }
-            response = pojo2json(new TableModificationResponse(null));
+            response = pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
         }
         return OUTCOME_SUCCESS;
     }
@@ -284,8 +284,8 @@ public class TableEditorController extends TableViewController implements JSTabl
             if (sessionMap.containsKey("editorHelper")) {
                 EditorHelper editorHelper = (EditorHelper) sessionMap.get("editorHelper");
                 if (editorHelper.getElementID() != elementId) {
-                    response = TableEditorController.pojo2json(new TableEditorController.TableModificationResponse(null,
-                            "You started editing another table, this table changes are lost"));
+                    response = TableEditorController.pojo2json(new TableModificationResponse(null,
+                            "You started editing another table, this table changes are lost", null));
                     return null;
                 }
                 return editorHelper;
@@ -334,14 +334,17 @@ public class TableEditorController extends TableViewController implements JSTabl
     public static class TableModificationResponse {
         private String response;
         private String status;
+        private TableEditorModel model;
 
-        public TableModificationResponse(String response) {
+        public TableModificationResponse(String response, TableEditorModel model) {
             this.response = response;
+            this.model = model;
         }
 
-        public TableModificationResponse(String response, String status) {
+        public TableModificationResponse(String response, String status, TableEditorModel model) {
             this.response = response;
             this.status = status;
+            this.model = model;
         }
 
         public String getResponse() {
@@ -359,6 +362,20 @@ public class TableEditorController extends TableViewController implements JSTabl
         public void setStatus(String status) {
             this.status = status;
         }
+
+        public boolean isHasUndo() {
+            return model != null && model.hasUndo();
+        }
+
+        @SuppressWarnings({"UnusedDeclaration"})
+        public void setHasUndo(boolean hasUndo) {}
+
+        public boolean isHasRedo() {
+            return model != null && model.hasRedo();
+        }
+
+        @SuppressWarnings({"UnusedDeclaration"})
+        public void setHasRedo(boolean hasRedo) {}
     }
 
     public static class RangeParam {
