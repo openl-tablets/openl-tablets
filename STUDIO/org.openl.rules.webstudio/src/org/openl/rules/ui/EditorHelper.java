@@ -4,7 +4,6 @@
 package org.openl.rules.ui;
 
 import static org.openl.jsf.Util.getWebStudio;
-import org.openl.rules.table.IGridTable;
 
 /**
  * @author snshor
@@ -23,9 +22,12 @@ public class EditorHelper implements WebStudio.StudioListener
     public void setTableID(int elementID, ProjectModel prj, String mode, boolean cancel)
 	{
         if (model != null && (cancel || elementID != this.elementID)) model.cancel();
-        IGridTable table = prj.getTableWithMode(elementID, mode);
-        TableEditorModel newModel = new TableEditorModel(table);
+
+        if (mode == null) mode = prj.getStudio().getMode().getTableMode();
+        TableEditorModel newModel = new TableEditorModel(prj.getTableWithMode(elementID, mode), mode);
+
         if (model != null && elementID == this.elementID) newModel.getUndoableActions(model);
+
         model = newModel;
         this.elementID = elementID;
     }

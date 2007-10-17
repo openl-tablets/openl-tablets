@@ -24,7 +24,6 @@ import org.openl.rules.table.xls.XlsUndoGrid;
 
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -128,14 +127,16 @@ public class TableEditorModel
 
     private GridRegion region;
     private GridTable[] othertables;
+    private String mode;
 
     private UndoableActions actions = new UndoableActions();
 
     private XlsUndoGrid undoGrid = new XlsUndoGrid();
 
-    public TableEditorModel(IGridTable table)
+    public TableEditorModel(IGridTable table, String mode)
     {
-	this.table = table;
+    this.mode = mode;    
+    this.table = table;
 	this.region = new GridRegion(table.getRegion());
 	othertables = new GridSplitter(table.getGrid()).split();
 	removeThisTable(othertables);
@@ -167,6 +168,11 @@ public class TableEditorModel
     IWritableGrid wgrid()
     {
 	return (IWritableGrid) table.getGrid();
+    }
+
+    public String getMode()
+    {
+    return mode;
     }
 
     public synchronized void insertRows(int nRows, int beforeRow)

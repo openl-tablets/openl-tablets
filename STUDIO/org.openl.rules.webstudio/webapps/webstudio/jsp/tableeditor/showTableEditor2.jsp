@@ -11,8 +11,9 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id='editorHelper' scope='session' class="org.openl.rules.ui.EditorHelper" />
 <%
-   editorHelper.setTableID(Integer.parseInt(request.getParameter("elementID")), studio.getModel(),
-           request.getParameter("view"), !Boolean.valueOf(request.getParameter("switch")));
+    boolean switchParam = Boolean.valueOf(request.getParameter("switch"));
+    editorHelper.setTableID(Integer.parseInt(request.getParameter("elementID")), studio.getModel(),
+           request.getParameter("view"), !switchParam);
 %>
 
 <%@include file="../checkTimeout.jsp"%>
@@ -170,7 +171,7 @@
   <div id="tableEditor"/>
 
   <script type="text/javascript">
-      var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>", "<%=request.getParameter("cell")%>");
+      var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>", "<%=switchParam ? "" : request.getParameter("cell")%>");
       tableEditor.undoStateUpdated = function(hasItems) {["save_all","undo"].each(hasItems?setEnabled:setDisabled)}
       tableEditor.redoStateUpdated = function(hasItems) {(hasItems?setEnabled:setDisabled)("redo")}
   </script>

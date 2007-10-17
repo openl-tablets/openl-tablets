@@ -988,7 +988,11 @@ public class ProjectModel
 		}
 	}
 
-	/**
+    public WebStudio getStudio() {
+        return studio;
+    }
+
+    /**
 	 * @return Returns the indexer.
 	 */
 	public ProjectIndexer getIndexer()

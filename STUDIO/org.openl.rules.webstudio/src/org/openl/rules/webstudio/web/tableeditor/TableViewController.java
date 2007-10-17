@@ -67,6 +67,11 @@ public class TableViewController {
         return response;
     }
 
+    public String getMode() {
+        EditorHelper helper = getHelper(elementID);
+        return helper == null ? null : helper.getModel().getMode();
+    }
+
     /**
      * Returns html view of current table as a string.
      * It is just a sequence of calls to <code>render()</code> and <code>getResponse()</code> methdods.
