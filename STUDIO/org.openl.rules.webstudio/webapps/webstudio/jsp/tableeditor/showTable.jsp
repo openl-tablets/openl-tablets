@@ -76,6 +76,12 @@ function open_win(url)
         f.uri.value = $(PopupMenu.lastTarget).down('input').value;
         f.submit();
     }
+    function triggerSearch(f) {
+        f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {return s.nodeName == "#text"})
+                .nodeValue.sub(/^[.;,! \t\n()^&*%=?\-'"+<>]+/, "").split(/[.;,! \t\n()^&*%=?\-'"+<>]+/, 3)
+                .reject(function(s) {return !s}).join(" ");
+        f.submit();
+    }
 </script>
 </head>
 
@@ -132,12 +138,15 @@ function open_win(url)
 <form name="editFormXls" action="../showLinks.jsp" target="show_app_hidden">
     <input type="hidden" name="uri" value="">
 </form>
+<form name="searchForm" action="../search/search.jsp">
+    <input type="hidden" name="searchQuery" value="">
+</form>
 
 <div id="contextMenu" style="display:none;">
     <table cellpadding="1px">
         <tr><td><a href="#" onclick="triggerEdit(document.forms.editForm)">Edit</a></td></tr>
         <tr><td><a href="#" onclick="triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
-        <tr><td><a href="#" onclick="alert('Nothing found')">Search</a></td></tr>
+        <tr><td><a href="#" onclick="triggerSearch(document.forms.searchForm)">Search</a></td></tr>
     </table>
 </div>
 
