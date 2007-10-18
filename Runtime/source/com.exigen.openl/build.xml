@@ -4,12 +4,14 @@
 	    This script is designed to build runtime projects.
 	</description>
 
-	<property name="projectDirectory" value="./" />
+	<property name="projectDirectory" value="../" />
 	<property name="buildId" value="7.0.0-SNAPSHOT" />
 	<property name="versionReplace" value="false" />
 	<property name="versionReplaceList" value="com.exigen.openl=${buildId}" />
 
 	<target name="build-run-time">
+		<copy file="pom.xml" todir="${projectDirectory}" overwrite="true"/>
+
 		<antcall target="create-snapshot-build" />
 		<antcall target="create-release-build" />
 	</target>
