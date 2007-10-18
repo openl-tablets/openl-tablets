@@ -26,7 +26,19 @@ IconManager.prototype = {
         this.parentStyleClasses = parentStyleClasses;
 
         this.onMouseOver = function() {this.className = parentStyleClassesMouseOver}
-        this.onMouseOut = function() {this.className = parentStyleClasses}
+        this.onMouseOut = function() {
+            this.className = parentStyleClasses
+            this.down().offset(0);
+        }
+        this.onMouseDown = function() {this.offset(1)};
+        this.onMouseUp = function() {this.offset(0)}; 
+    },
+
+    init: function(img) {
+        img = $(img);
+        img.style.position = "relative";
+        img.offset = function(delta) {this.style.top = this.style.left = delta};
+        this.disable(img);
     },
 
     enabled: function(img) {
@@ -42,6 +54,9 @@ IconManager.prototype = {
         parent.className = this.parentStyleClasses;
         parent.onmouseover = this.onMouseOver;
         parent.onmouseout = this.onMouseOut;
+
+        img.onmousedown = this.onMouseDown;
+        img.onmouseup = this.onMouseUp;
     },
 
     disable: function(img) {
@@ -53,5 +68,6 @@ IconManager.prototype = {
         parent.onmouseover = Prototype.emptyFunction;
         parent.onmouseout = Prototype.emptyFunction;
         parent.className = this.parentStyleClasses;
+        img.offset(0);
     }
 }

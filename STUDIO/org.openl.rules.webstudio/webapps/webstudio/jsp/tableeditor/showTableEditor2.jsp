@@ -147,20 +147,20 @@ window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, me
   <br />
 
 
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/prototype/prototype-1.5.1.js"></script>
-  <script type="text/javascript">var jsPath = '../../javascript/';</script>
-  <script type="text/javascript" src="../../javascript/studio.js"></script>
-  <script type="text/javascript">
-      var im = new IconManager('dr-menu-label dr-menu-label-unselect rich-ddmenu-label rich-ddmenu-label-unselect',
-              'dr-menu-label dr-menu-label-select rich-ddmenu-label rich-ddmenu-label-select', 'bt_disabled');
+<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/prototype/prototype-1.5.1.js"></script>
+<script type="text/javascript">var jsPath = '../../javascript/';</script>
+<script type="text/javascript" src="../../javascript/studio.js"></script>
+<script type="text/javascript">
+    var im = new IconManager('dr-menu-label dr-menu-label-unselect rich-ddmenu-label rich-ddmenu-label-unselect',
+          'dr-menu-label dr-menu-label-select rich-ddmenu-label rich-ddmenu-label-select', 'bt_disabled');
 
-      function setEnabled(who) {im.enable("menu_form:"+who);}
-      function setDisabled(who) {im.disable("menu_form:"+who);}
-      function initEnabled(who) {setDisabled(who); setEnabled(who)}
+function setEnabled(who) {im.enable("menu_form:" + who)}
+function setDisabled(who) {im.disable("menu_form:" + who)}
 
-      ["align_left", "align_center", "align_right"].each(initEnabled);
-      ["save_all", "validate", "undo", "redo"].each(setDisabled);
-  </script>
+    var align_buttons = ["align_left", "align_center", "align_right"];
+
+    ["save_all", "validate", "undo", "redo", align_buttons].flatten().each(function(who) {im.init("menu_form:" + who)});
+</script>
 
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TableEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/BaseEditor.js"></script>
@@ -178,6 +178,7 @@ window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, me
       var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>", "<%=switchParam ? "" : request.getParameter("cell")%>");
       tableEditor.undoStateUpdated = function(hasItems) {["save_all","undo"].each(hasItems?setEnabled:setDisabled)}
       tableEditor.redoStateUpdated = function(hasItems) {(hasItems?setEnabled:setDisabled)("redo")}
+      tableEditor.isSelectedUpdated = function(selected) {align_buttons.each(selected?setEnabled:setDisabled)}
   </script>
 </f:view>
 </div>
