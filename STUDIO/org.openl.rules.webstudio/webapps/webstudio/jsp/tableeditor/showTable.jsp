@@ -95,15 +95,15 @@ function open_win(url)
 <%
   if (isRunnable && se.length == 0)
   {
-    String tgtUrl = "../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID=" +elementID + "&first=true";
+    String tgtUrl = "../../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID=" +elementID + "&first=true";
 %>
 
-&nbsp;<a href="runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../../images/test.gif" alt="test"/></a>
+&nbsp;<a href="../runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../../images/test.gif" alt="test"/></a>
 &nbsp;<a onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#"  title="Trace"><img border=0 src="../../images/trace.gif" alt="trace"/></a>
-&nbsp;<a href="benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../../images/clock-icon.png" alt="benchmark"/></a>
+&nbsp;<a href="../benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../../images/clock-icon.png" alt="benchmark"/></a>
 <% }
   if (isTestable && se.length == 0) {%>
-&nbsp;<a href="runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../../images/test_ok.gif"/></a>
+&nbsp;<a href="../runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../../images/test_ok.gif"/></a>
 <%}%>
 
 </td>
