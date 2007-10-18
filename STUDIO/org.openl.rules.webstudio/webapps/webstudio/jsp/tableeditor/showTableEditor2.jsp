@@ -46,13 +46,17 @@
      .editor_invalid {
          background-color: lightcoral;
      }
-
      .bt_disabled {
          filter: gray() alpha(opacity=30); /* IE */
          opacity: 0.15; /* Safari, Opera and Mozilla */
      }
-
  </style>
+
+<script type="text/javascript">
+function open_win(url) {
+window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+}
+</script>
 
 </head>
 
@@ -62,14 +66,14 @@
     <td><img src="../../images/excel-workbook.png" alt=""/> <a class="left" href="${pageContext.request.contextPath}/jsp/showLinks.jsp?<%=url%>" target="show_app_hidden"
       title="<%=uri%>"> &nbsp;<%=text + " : " + name%></a> <%
                  if (isRunnable && se.length == 0) {
-                 String tgtUrl = "../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID="
+                 String tgtUrl = "../../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID="
                          + elementID + "&first=true";
- %> &nbsp;<a href="runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../../images/test.gif" /></a> &nbsp;<a
+ %> &nbsp;<a href="../runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../../images/test.gif" /></a> &nbsp;<a
       onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#" title="Trace"><img border=0 src="../../images/trace.gif" /></a> &nbsp;<a
-      href="benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../../images/clock-icon.png" /></a> <%
+      href="../benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../../images/clock-icon.png" /></a> <%
              }
           if (isTestable && (se==null || se.length == 0)) {
-                  %> &nbsp;<a href="runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../../images/test_ok.gif" /></a>
+                  %> &nbsp;<a href="../runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../../images/test_ok.gif" /></a>
         <%}%>
     </td>
     <td>&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business&switch=true"><img border=0 src="../../images/business-view.png"
