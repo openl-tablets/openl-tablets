@@ -132,7 +132,7 @@
   		</antcall>  
 	</target>
 	<target name="copySiteXmlFromCvs" unless="isNightlyBuild">
-  		<copy todir="${UpdateSiteStagingLocation}" file="${targets}/site/com.exigen.eclipse.bpm.ipb.site/site.xml"/>
+  		<copy todir="${UpdateSiteStagingLocation}" file="${targets}/site/com.exigen.eclipse.openl.site/site.xml"/>
 	</target>
 
 	<!-- ===================================================================== -->
