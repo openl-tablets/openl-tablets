@@ -101,7 +101,7 @@ TableEditor.prototype = {
             else {
                 this.renderTable(response.response);
                 this.selectElement();
-                this.processCallbacks(response);
+                this.processCallbacks(response, "do");
             }
         }.bindAsEventListener(this);
     },
@@ -183,7 +183,7 @@ TableEditor.prototype = {
                 if (response.status)
                     alert(response.status);
                 else {
-                    self.processCallbacks(response);
+                    self.processCallbacks(response, "do");
                     alert("Your changes have been saved!");
                 }
             },
@@ -250,7 +250,7 @@ TableEditor.prototype = {
                     contentType : "text/javascript",
                     onSuccess  : function(data) {
                         data = eval(data.responseText);
-                        self.processCallbacks(data);
+                        self.processCallbacks(data, "do");
                     },
                     parameters: {
                         row : self.selectionPos[0],
@@ -289,6 +289,9 @@ TableEditor.prototype = {
      */
     selectElement: function(elt, dir) {
         if (elt && this.currentElement && elt.id == this.currentElement.id) return;
+
+        var wasSelected = this.hasSelection();
+
         if (elt && dir) { // save to selection history
             if (this.selectionPos) this.selectionHistory.push([dir, this.selectionPos[0], this.selectionPos[1]]);
             if (this.selectionHistory.length > 10) this.selectionHistory.shift();
@@ -310,6 +313,8 @@ TableEditor.prototype = {
         }
         this.decorator.undecorate(this.currentElement);
         this.decorator.decorate(this.currentElement = elt);
+
+        if (!wasSelected != !this.hasSelection()) this.isSelectedUpdated(!wasSelected);
     },
 
     $cell: function(pos) {
@@ -456,7 +461,7 @@ TableEditor.prototype = {
                 if (response.status)
                     alert(response.status)
                 else {
-                    self.processCallbacks(response);
+                    self.processCallbacks(response, "do");
                     cell.align = _align;
                 }
             },
@@ -493,14 +498,27 @@ TableEditor.prototype = {
 
     hasSelection : function() {return this.selectionPos && this.currentElement},
 
-    processCallbacks: function(obj) {
-        if (!obj) return;
-        if (obj.hasUndo === true || obj.hasUndo === false) try {this.undoStateUpdated(obj.hasUndo) } catch (e) {alert(e)}
-        if (obj.hasRedo === true || obj.hasRedo === false) try {this.redoStateUpdated(obj.hasRedo) } catch (e) {alert(e)}
+    processCallbacks: function(obj, action) {
+        function isBoolean(t) {return obj.hasUndo === true || obj.hasUndo === false}
+        try {
+            switch (action) {
+                case "do":
+                    if (obj) {
+                        if (isBoolean(obj.hasUndo)) try {this.undoStateUpdated(obj.hasUndo)} catch (e) {}
+                        this.redoStateUpdated(obj.hasRedo)
+                    }
+                    break;
+                case "selection":
+                    if (isBoolean(obj)) this.isSelectedUpdated(obj);
+                    break;
+
+            }
+        } catch(ex) {}
     },
     // ----------------------------------------------------------------- Callback functions --
     undoStateUpdated : Prototype.emptyFunction,
-    redoStateUpdated : Prototype.emptyFunction
+    redoStateUpdated : Prototype.emptyFunction,
+    isSelectedUpdated : Prototype.emptyFunction
 }
 
 /**
