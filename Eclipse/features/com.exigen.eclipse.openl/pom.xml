@@ -17,8 +17,8 @@
 		packages them into Exigen OpenL Rules plug-ins.
 	</description>
     <modules>
-        <module>../com.exigen.eclipse.openl.model</module>
-        <module>../com.exigen.eclipse.openl.facet</module>
+        <module>com.exigen.eclipse.openl.model</module>
+        <module>com.exigen.eclipse.openl.facet</module>
     </modules>
     <pluginRepositories>
         <pluginRepository>
