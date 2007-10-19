@@ -31,6 +31,10 @@
 	</h:panelGrid>
 
 	<h:commandButton styleClass="smlBackButton" value="index-jcr" action="index" immediate="true"/>
+	<rich:panel>
+		<h:selectOneRadio binding="#{skinBean.component}" />
+		<h:commandLink action="#{skinBean.change}" value="set skin" />
+	</rich:panel>
 
 	</ui:define>
 
