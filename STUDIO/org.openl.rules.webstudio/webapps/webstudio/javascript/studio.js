@@ -65,8 +65,7 @@ IconManager.prototype = {
         IconManager.renameProperty(img, "_onclick", "onclick")
         
         var parent = img.up();
-        parent.onmouseover = Prototype.emptyFunction;
-        parent.onmouseout = Prototype.emptyFunction;
+        parent.onmouseover = parent.onmouseout = img.onmousedown = img.onmouseup = Prototype.emptyFunction;
         parent.className = this.parentStyleClasses;
         img.offset(0);
     }
