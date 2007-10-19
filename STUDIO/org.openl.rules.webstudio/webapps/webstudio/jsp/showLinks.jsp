@@ -1,10 +1,13 @@
+<%@ page import="org.openl.rules.webtools.WebTool" %>
 <%@ page import="org.openl.rules.webtools.XlsUrlParser" %>
+<%@ page import="java.io.File" %>
 
 <%
     String remote = request.getRemoteAddr();
     boolean local = "127.0.0.1".equals(remote) || request.getLocalAddr().equals(remote);
+    boolean wantURI = request.getParameter("uri") != null;
     if (local) {
-        if (request.getParameter("uri") != null) {
+        if (wantURI) {
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(request.getParameter("uri"));
             org.openl.rules.webtools.ExcelLauncher.launch("LaunchExcel.vbs",
@@ -33,7 +36,17 @@
                     request.getParameter("wdParEnd")
 
             );
-    } else {
+    } else if (wantURI) {
 %>
 <script type="text/javascript">alert("This action is available only from the machine server runs at.")</script>
+<% } else {
+    String filename = request.getParameter("wbName");
+    String path = request.getParameter("wbPath");
+    if (filename == null) {
+        filename = request.getParameter("wdName");
+        path = request.getParameter("wdPath"); 
+    }
+    pageContext.setAttribute("filename", new File(path, filename).getAbsolutePath());
+%>
+<jsp:forward page="/action/download"><jsp:param name="filename" value="${filename}" /></jsp:forward>
 <%}%>
