@@ -6,10 +6,6 @@
 
 package org.openl.rules.table.xls;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -29,6 +25,10 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.StringTool;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author snshor
@@ -217,7 +217,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 			HSSFCell cell = getCell(ck.getColumn(), ck.getRow());
 			if (cell != null) {
 				HSSFCellStyle cellStyle = hssfWorkbook.createCellStyle();
-				copyStyle(styleMap.get(ck), cellStyle);
+				copyStyle(styleMap.get(ck), cellStyle, cell.getCellStyle());
 				cell.setCellStyle(cellStyle);
 			}
 		}
@@ -226,12 +226,15 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 
 	/**
 	 * Copies properties of <code>ICellStyle</code> object to POI xls styling object.
-	 * <br/> <b>Note:</b> for now ignores font and some properties.
+	 * <br/> <b>Note:</b> for now ignores font and some properties, to set those ones another POI xls styling
+	 * object is used.  
 	 *
 	 * @param source style source
 	 * @param dest xls cell style object to fill
+	 * @param oldStyle xls style object - another style source for properties that ignored in
+	 * <code>ICellStyle source</code> parameter
 	 */
-	private void copyStyle(ICellStyle source, HSSFCellStyle dest) {
+	private void copyStyle(ICellStyle source, HSSFCellStyle dest, HSSFCellStyle oldStyle) {
 		dest.setAlignment((short) source.getHorizontalAlignment());
 		dest.setVerticalAlignment((short) source.getVerticalAlignment());
 
@@ -240,6 +243,23 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 		dest.setBorderRight(bs[1]);
 		dest.setBorderBottom(bs[2]);
 		dest.setBorderLeft(bs[3]);
+
+		if (oldStyle != null) {
+			dest.setBottomBorderColor(oldStyle.getBottomBorderColor());
+			dest.setTopBorderColor(oldStyle.getTopBorderColor());
+			dest.setRightBorderColor(oldStyle.getRightBorderColor());
+			dest.setLeftBorderColor(oldStyle.getLeftBorderColor());
+			dest.setDataFormat(oldStyle.getDataFormat());
+			dest.setFillBackgroundColor(oldStyle.getFillBackgroundColor());
+			dest.setFillForegroundColor(oldStyle.getFillForegroundColor());
+			dest.setFillPattern(oldStyle.getFillPattern());
+			dest.setFont(getHSSFont(oldStyle));
+			dest.setHidden(oldStyle.getHidden());
+			dest.setIndention(oldStyle.getIndention());
+			dest.setLocked(oldStyle.getLocked());
+			dest.setRotation(oldStyle.getRotation());
+			dest.setWrapText(oldStyle.getWrapText());
+		}
 	}
 
 	static class XlsGridRegion implements IGridRegion
@@ -404,6 +424,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 	: new XlsGridRegion(region), getCell(column, row));
 	}
 
+	private HSSFFont getHSSFont(HSSFCellStyle style) {
+		return sheetSource.getWorkbookSource().getWorkbook().getFontAt(style.getFontIndex());
+	}
+
+
 	class XlsCellInfo implements ICellInfo
 	{
 		int column;
@@ -440,9 +465,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 		{
 			if (cell == null)
 				return null;
-			short fIndex = cell.getCellStyle().getFontIndex();
-			HSSFFont font = XlsSheetGridModel.this.sheetSource.getWorkbookSource()
-					.getWorkbook().getFontAt(fIndex);
+			HSSFFont font = getHSSFont(cell.getCellStyle());
 			return new XlsCellFont(font, XlsSheetGridModel.this.sheetSource
 					.getWorkbookSource().getWorkbook());
 		}
