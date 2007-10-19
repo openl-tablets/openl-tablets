@@ -4,8 +4,8 @@ import org.openl.rules.ui.repository.beans.FolderBean;
 import org.openl.rules.ui.repository.beans.ProjectBean;
 
 // it is BEAN!!!
-public class ModalHandler {
-    private Context context;
+public class ModalHandler extends AbstractDialog {
+
     // Add new Project
     private String newProjectName;
     // Copy existing Project
@@ -34,10 +34,6 @@ public class ModalHandler {
         }
     }
 
-    public void setContext(Context context) {
-        this.context = context;
-    }
-    
     /**
      * Adds new project to a repository.
      * <p>
@@ -47,7 +43,7 @@ public class ModalHandler {
      * @return outcome: "success" or "fail"
      */
     public String addProject() {
-        boolean success = context.getRepositoryHandler().addProject(newProjectName);
+        boolean success = getContext().getRepositoryHandler().addProject(newProjectName);
 
         refresh();
         
@@ -72,7 +68,7 @@ public class ModalHandler {
      * @return outcome: "success" or "fail"
      */
     public String copyProject() {
-        boolean success = context.getRepositoryHandler().copyProject(copyProjectFrom, copyProjectTo);
+        boolean success = getContext().getRepositoryHandler().copyProject(copyProjectFrom, copyProjectTo);
 
         refresh();
         
@@ -105,13 +101,13 @@ public class ModalHandler {
     public String addFolder() {
         boolean success;
         
-        Object dataBean = context.getRepositoryTreeHandler().getSelected().getDataBean();
+        Object dataBean = getContext().getRepositoryTreeHandler().getSelected().getDataBean();
         if (dataBean instanceof FolderBean) {
             FolderBean fb = (FolderBean) dataBean;
-            success = context.getFolderHandler().addFolder(fb, newFolderName);
+            success = getContext().getFolderHandler().addFolder(fb, newFolderName);
         } else if (dataBean instanceof ProjectBean) {
             ProjectBean pb = (ProjectBean) dataBean;
-            success = context.getProjectHandler().addFolder(pb, newFolderName);
+            success = getContext().getProjectHandler().addFolder(pb, newFolderName);
         } else {
             // error?
             success = false;
@@ -142,7 +138,7 @@ public class ModalHandler {
             return outcome(false);
         }
         
-        Object dataBean = context.getRepositoryTreeHandler().getSelected().getDataBean();
+        Object dataBean = getContext().getRepositoryTreeHandler().getSelected().getDataBean();
         ProjectBean pb = (ProjectBean) dataBean;
 
         switch (modifyType) {
@@ -153,10 +149,10 @@ public class ModalHandler {
         case OVERRIDE_AND_UPDATE:
             break;
         case UNDELETE:
-            context.getProjectHandler().undelete(pb);
+            getContext().getProjectHandler().undelete(pb);
             break;
         case ERASE:
-            context.getProjectHandler().erase(pb);
+            getContext().getProjectHandler().erase(pb);
             break;
 
         default:
@@ -184,17 +180,7 @@ public class ModalHandler {
         }
         
         if (this.modifyType == null) {
-            context.getMessageQueue().addMessage(new IllegalArgumentException("Illegal modifyType '" + modifyType + "'"));
+            getContext().getMessageQueue().addMessage(new IllegalArgumentException("Illegal modifyType '" + modifyType + "'"));
         }
-    }
-    
-    // ------ private ------
-    
-    private String outcome(boolean success) {
-        return (success ? "success" : "fail");
-    }
-    
-    private void refresh() {
-        context.refresh();
     }
 }

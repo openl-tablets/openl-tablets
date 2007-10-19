@@ -27,9 +27,9 @@
 			  columns="1"
 			>
 				<h:outputText styleClass="niceLabel" value="Physical File:" />
-				<h:inputText styleClass="modalInput" value="" type="file" />
+				<h:inputText styleClass="modalInput" value="#{fileDialog.uploadFrom}" />
 				<h:outputText styleClass="niceLabel" value="Name of New File:" />
-				<h:inputText styleClass="modalInput" value="" />
+				<h:inputText styleClass="modalInput" value="#{fileDialog.fileName}" />
 			</h:panelGrid>
 			
 			<rich:separator height="1" />
@@ -42,7 +42,7 @@
 				<h:commandButton 
 				  styleClass="modalButton" 
 				  value="Create" 
-				  action="addFile"
+				  action="#{fileDialog.addFile}"
 				/>
 				<h:commandButton 
 				  styleClass="modalButton" 

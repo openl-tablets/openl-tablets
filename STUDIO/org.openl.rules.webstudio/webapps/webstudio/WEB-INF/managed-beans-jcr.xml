@@ -30,6 +30,16 @@
     		<value>#{userSession.context}</value>
     	</managed-property>
     </managed-bean>
+    
+    <managed-bean>
+    	<managed-bean-name>fileDialog</managed-bean-name>
+    	<managed-bean-class>org.openl.rules.ui.repository.FileDialog</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    	<managed-property>
+    		<property-name>context</property-name>
+    		<value>#{userSession.context}</value>
+    	</managed-property>
+    </managed-bean>
 
 	<lifecycle>
 		<phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>

@@ -11,6 +11,8 @@ import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -57,6 +59,29 @@ public class FolderHandler extends BeanHandler {
             context.getMessageQueue().addMessage(e);
             return false;
         }        
+    }
+    
+    public boolean addFile(FolderBean bean, String fileName, String fileContent) {
+        boolean result = false;
+
+        try {
+            RFolder folder = getRFolder(bean);
+            RFile file = folder.createFile(fileName);
+            InputStream is = null;
+            try {
+                is = new ByteArrayInputStream(fileContent.getBytes());
+                file.setContent(is);
+                result = true;
+            } finally {
+                if (is != null) {
+                    is.close();
+                }
+            }
+        } catch (Exception e) {
+            context.getMessageQueue().addMessage(e);
+        }                
+        
+        return result;
     }
 
     /**

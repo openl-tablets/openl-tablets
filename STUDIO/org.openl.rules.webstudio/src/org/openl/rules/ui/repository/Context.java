@@ -1,6 +1,7 @@
 package org.openl.rules.ui.repository;
 
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.ui.repository.beans.Entity;
 import org.openl.rules.ui.repository.handlers.FileHandler;
 import org.openl.rules.ui.repository.handlers.FolderHandler;
 import org.openl.rules.ui.repository.handlers.MessageQueue;
@@ -78,5 +79,9 @@ public class Context {
     
     public void refresh() {
         repositoryTreeHandler.reInit();
+    }
+    
+    public Entity getActiveNodeBean() {
+        return (Entity) repositoryTreeHandler.getSelected().getDataBean();
     }
 }
