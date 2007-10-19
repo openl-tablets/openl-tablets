@@ -194,21 +194,23 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 		return sheet.getLastRowNum();
 	}
 
-	XlsGridRegion[] regions = null;
+//	XlsGridRegion[] regions = null;
 
 	public synchronized IGridRegion getMergedRegion(int i)
 	{
-		if (regions == null)
-		{
-			int n = getNumberOfMergedRegions();
-			regions = new XlsGridRegion[n];
-			for (int j = 0; j < n; j++)
-			{
-				regions[j] = new XlsGridRegion(sheet.getMergedRegionAt(j));
-			}
-		}
-
-		return regions[i];
+//		if (regions == null)
+//		{
+//			int n = getNumberOfMergedRegions();
+//			regions = new XlsGridRegion[n];
+//			for (int j = 0; j < n; j++)
+//			{
+//				regions[j] = new XlsGridRegion(sheet.getMergedRegionAt(j));
+//			}
+//		}
+//
+//		return regions[i];
+		
+		return new XlsGridRegion(sheet.getMergedRegionAt(i));
 	}
 
 	public void beforeSave(XlsWorkbookSourceCodeModule xwscm) {
