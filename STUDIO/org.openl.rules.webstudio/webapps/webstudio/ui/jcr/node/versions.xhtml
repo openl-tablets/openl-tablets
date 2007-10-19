@@ -27,7 +27,14 @@
 
 		<rich:columnGroup>
 			<rich:column>
-				<f:verbatim>---</f:verbatim>
+				<h:panelGroup rendered="#{activeNode.type == 'file'}">
+					<h:commandLink
+					  action="compareWithVersion"
+					  onclick="return false;"
+					>
+						<h:graphicImage border="0" value="/images/trace.gif"/>
+					</h:commandLink>
+				</h:panelGroup>
 			</rich:column>
 			<rich:column>
 				<h:outputText value="#{ver.name}" />

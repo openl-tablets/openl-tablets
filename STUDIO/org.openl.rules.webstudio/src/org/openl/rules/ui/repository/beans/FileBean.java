@@ -15,4 +15,9 @@ public class FileBean extends AbstractEntityBean {
         // not supported
         return null;
     }
+
+    /** {@inheritDoc} */
+    public String getType() {
+        return "file";
+    }
 }

@@ -43,4 +43,9 @@ public class ProjectBean extends AbstractEntityBean {
         ProjectHandler projectHandler = (ProjectHandler) getHandler();
         projectHandler.erase(this);
     }
+
+    /** {@inheritDoc} */
+    public String getType() {
+        return "project";
+    }
 }

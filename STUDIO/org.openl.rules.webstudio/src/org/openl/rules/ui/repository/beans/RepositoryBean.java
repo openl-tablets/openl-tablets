@@ -58,4 +58,9 @@ public class RepositoryBean implements Entity {
         // not supported
         return null;
     }
+
+    /** {@inheritDoc} */
+    public String getType() {
+        return "repository";
+    }
 }
