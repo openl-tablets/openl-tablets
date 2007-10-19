@@ -73,7 +73,7 @@ public abstract class BeanHandler {
      * @return list of versions (always not null).
      */
     public List<VersionBean> getVersions(AbstractEntityBean bean) {
-        List<VersionBean> result = new LinkedList<VersionBean>();
+        LinkedList<VersionBean> result = new LinkedList<VersionBean>();
 
         try {
             REntity entity = getEntityById(bean.getId());
@@ -85,7 +85,8 @@ public abstract class BeanHandler {
                 vb.setCreated(version.getCreated());
                 vb.setCreatedBy(version.getCreatedBy().getName());
 
-                result.add(vb);
+                // newest at top -- 1.4, 1.3, 1.2 ...
+                result.addFirst(vb);
             }
         } catch (RRepositoryException e) {
             // TODO: log exception
