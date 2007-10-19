@@ -15,7 +15,7 @@
 			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalUpdateFile');" />
 		</f:facet>
 
-		<h:form id="modalUpdateFileForm" enctype="multipart/form-data">
+		<h:form id="modalUpdateFileForm">
 		<h:panelGrid
 		  styleClass="modalBody"
 		  cellpadding="0" cellspacing="0" border="0" 
@@ -27,7 +27,10 @@
 			  columns="1"
 			>
 				<h:outputText styleClass="niceLabel" value="Physical File:"/>
-				<h:commandButton styleClass="modalInput" value="" type="file" />
+				<h:inputText styleClass="modalInput" value="#{fileDialog.uploadFrom}" />
+<!--
+				<h:commandButton styleClass="modalInput" value="" type="file" /> 
+ -->
 			</h:panelGrid>
 			
 			<rich:separator height="1" />
@@ -40,7 +43,7 @@
 				<h:commandButton 
 				  styleClass="modalButton" 
 				  value="Update" 
-				  action="updateFile"
+				  action="#{fileDialog.updateFile}"
 				/>
 				<h:commandButton 
 				  styleClass="modalButton" 
