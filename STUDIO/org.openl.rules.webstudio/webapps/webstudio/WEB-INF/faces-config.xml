@@ -14,4 +14,9 @@
 
 	</application>
 
+	<managed-bean>
+		<managed-bean-name>skinBean</managed-bean-name>
+		<managed-bean-class>org.openl.rules.webstudio.web.Skins</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
 </faces-config>
