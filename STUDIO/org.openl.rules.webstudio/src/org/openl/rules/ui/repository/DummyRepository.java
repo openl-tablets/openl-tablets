@@ -4,19 +4,18 @@ import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class DummyRepository implements RRepository {
+    private static final List<RProject> EMPTY_LIST = new LinkedList<RProject>();
+
     public List<RProject> getProjects() throws RRepositoryException {
-        fail();
-        // will never reach
-        return null;
+        return EMPTY_LIST;
     }
 
     public List<RProject> getProjects4Deletion() throws RRepositoryException {
-        fail();
-        // will never reach
-        return null;
+        return EMPTY_LIST;
     }
 
     public RProject createProject(String name) throws RRepositoryException {
