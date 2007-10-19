@@ -119,7 +119,7 @@ public class JcrEntity implements REntity {
             
             n.remove();
             
-            NodeUtil.smartCheckin(parent);
+            NodeUtil.smartCheckinParent(parent);
         } catch (RepositoryException e) {
             throw new RDeleteException("Failed to Delete", e);
         }
