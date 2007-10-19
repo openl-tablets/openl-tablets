@@ -22,4 +22,9 @@ public class FolderBean extends AbstractEntityBean {
         
         return elements;
     }
+
+    /** {@inheritDoc} */
+    public String getType() {
+        return "folder";
+    }
 }

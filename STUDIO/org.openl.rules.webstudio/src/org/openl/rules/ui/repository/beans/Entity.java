@@ -67,5 +67,7 @@ public interface Entity {
      * Instead it delegates it to own handler.
      */
     public void delete();
-
+    
+    // TODO: it is the same as in tree -- join or reuse
+    public String getType();
 }

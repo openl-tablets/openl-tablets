@@ -61,6 +61,11 @@
 			Richfaces.showModalPanel('modalDeleteNode');
 			return false;
 		}
+		
+		function confirmDelete(from, type, name) {
+			alert("Delete " + type + " '" + name + "'?");
+			return false;
+		}
 	</script>
 
 </ui:composition>
