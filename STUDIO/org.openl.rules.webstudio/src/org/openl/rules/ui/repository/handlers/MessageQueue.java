@@ -11,6 +11,7 @@ public class MessageQueue {
     }
 
     public void addMessage(Exception e) {
+        e.printStackTrace();
         messages.add(e);
     }
 
