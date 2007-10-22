@@ -787,7 +787,15 @@ public class ProjectModel
 					protected void run() throws Exception
 					{
 						m.invoke(target, params, env);
-					}};
+					}
+					
+					public String getName()
+					{
+					    return m.getName();
+					}
+				
+				};
+					
 					
 			}
 			
