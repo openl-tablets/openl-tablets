@@ -21,10 +21,12 @@
 
 	     			
 	%>
-					<p>&nbsp;<a href="runMethod.jsp?elementID=<%=s_id%>&testName=<%=tname%>&testID=<%=j%>&testDescr=<%=tdescrURL%>"><%=tdescrBody%></a>
-					<a href="runMethod.jsp?elementID=<%=s_id%>&testName=<%=tname%>&testID=<%=j%>&testDescr=<%=tdescrURL%>" title="Run"><img border=0 src="../images/test.gif" /></a>
+					<p>&nbsp;<a href="../runMethod.jsp?elementID=<%=s_id%>&testName=<%=tname%>&testID=<%=j%>&testDescr=<%=tdescrURL%>"><%=tdescrBody%></a>
+					<a href="../runMethod.jsp?elementID=<%=s_id%>&testName=<%=tname%>&testID=<%=j%>&testDescr=<%=tdescrURL%>" title="Run">
+					<img border=0 src="../../images/test.gif" /></a>
 					         
-					&nbsp;<a href="benchmarkMethod.jsp?elementID=<%=s_id%>&testName=<%=tname%>&testID=<%=j%>&testDescr=<%=tdescrURL%>"><img src="../images/clock-icon.png" border="0" title="Benchmark"/></a>
+					&nbsp;<a href="../benchmarkMethod.jsp?elementID=<%=s_id%>&testName=<%=tname%>&testID=<%=j%>&testDescr=<%=tdescrURL%>">
+					<img src="../../images/clock-icon.png" border="0" title="Benchmark"/></a>
 					     
 	<%     	
 				}
