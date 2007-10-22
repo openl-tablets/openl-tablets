@@ -6,6 +6,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.ui.repository.beans.ProjectBean;
 import org.openl.rules.ui.repository.handlers.*;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
+import org.openl.util.Log;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class UserSessionBean {
             // TODO: log failure
             repository = new DummyRepository();
             messages.addMessage(e);
+            Log.error("FACTORY", e);
         }
 
         context = new Context(repository, messages);
