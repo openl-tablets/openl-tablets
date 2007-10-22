@@ -136,6 +136,11 @@ public class TableEditorController extends TableViewController implements JSTabl
                     typeResponse.setParams(new SuggestParam(3, 1000));
                 }
 
+                if (col == 3 && row == 2) {
+                    String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
+                    typeResponse = new MultiChoiceCellEditor(metadata).getEditorTypeAndMetadata();
+                }
+
                 response = pojo2json(typeResponse);
             }
         }
