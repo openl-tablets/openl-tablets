@@ -202,6 +202,7 @@ function enableMenu(which){
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/DateEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/PriceEditor.js"></script>
   <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/NumericEditor.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/MultipleChoiceEditor.js"></script>
 
   <div id="tableEditor"/>
 
