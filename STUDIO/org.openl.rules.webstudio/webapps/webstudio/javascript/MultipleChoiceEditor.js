@@ -65,10 +65,8 @@ MultiChoiceEditor.prototype = Object.extend(new BaseEditor(), {
     show: function(value) {
         document.body.appendChild(this.node);
         var entries = this.entries;
-        value.split(this.separator).reject(function (s) {return !s}).each(function (key) {
-            if (entries[key]) {
-                entries[key].checked = true;
-            }
+        value.split(this.separator).each(function (key) {
+            if (key && entries[key]) entries[key].checked = true;
         });
     },
 
