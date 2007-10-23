@@ -86,12 +86,7 @@ function open_win(url)
   String[] menuParamsView = {"transparency", "filterType", "view"};
   String parsView = WebTool.listParamsExcept(menuParamsView, request);
 
-
-  String view = request.getParameter("view");
-  if (view == null)
-  {
-    view = studio.getModel().getTableView();
-  }
+    String view = studio.getModel().getTableView(request.getParameter("view"));
 %>
 
 &nbsp;<a class="image2" href="?<%=parsView%>&view=view.business"><img border=0 src="../images/business-view.png" title="Business View"/></a>

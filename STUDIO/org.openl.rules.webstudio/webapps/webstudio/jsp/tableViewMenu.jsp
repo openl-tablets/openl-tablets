@@ -24,20 +24,12 @@
 	String parsView = WebTool.listParamsExcept(menuParamsView, request);
 
 	
-	view = request.getParameter("view");
-	if (view == null)
-	{
-		view = studio.getModel().getTableView();
-	}
-	
-	
-	
-
+	view = studio.getModel().getTableView(request.getParameter("view"));
 %>
 
 
-<td width="120">
 <div class="menudiv">
+    <td width="120">
 <table class="top">
  <tr bgcolor="#FF8080">
  <td onmouseover="showmenu('blends')" onmouseout="hidemenu('blends')" title="<%=fh.getFilterName()%>">
@@ -64,4 +56,4 @@
    	
    </tr>
    </table>
- </td>
+ </td></tr></table></td></div>

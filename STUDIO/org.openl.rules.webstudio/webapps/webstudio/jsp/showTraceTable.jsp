@@ -93,8 +93,6 @@ document.getElementById(elmnt).style.visibility="hidden"
 <%@include file="tableViewMenu.jsp"%>
  </tr>
 </table>
-</div>
-</td></tr></table>
 
 
 <%}%>
@@ -103,3 +101,4 @@ document.getElementById(elmnt).style.visibility="hidden"
 	<%=tracer.showTrace(elementID, studio.getModel(), view)%>
 
 </body>
+</html>

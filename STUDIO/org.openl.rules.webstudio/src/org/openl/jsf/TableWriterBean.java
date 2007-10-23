@@ -100,11 +100,7 @@ public class TableWriterBean {
 	   
 		String[] menuParamsView = {"transparency", "filterType", "view"}; 
 		this.parsView = WebTool.listParamsExcept2(menuParamsView, request);
-		this.view = (String)(request.get("view"));
-		if (view == null)
-		{
-			view = studio.getModel().getTableView();
-		}
+        this.view = studio.getModel().getTableView((String) request.get("view"));
 	   //FacesContext fc = FacesContext.getCurrentInstance();
 	   //TableWriter tw = new TableWriter(elementID,view,studio);
 		
@@ -282,7 +278,7 @@ public class TableWriterBean {
 		TableSyntaxNode tsn = studio.getModel().getNode(elementID);
 		if (tsn == null) return; // table is not selected yet
 		IGridTable gt = tsn.getTable().getGridTable();
-		if (view == null) {view = studio.getMode().getTableMode();}
+        view = studio.getModel().getTableView(view);
 		boolean showGrid = studio.getMode().showTableGrid();
 		if (view != null) {
 			ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
