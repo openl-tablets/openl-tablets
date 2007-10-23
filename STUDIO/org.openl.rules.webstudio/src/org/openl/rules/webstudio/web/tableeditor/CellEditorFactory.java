@@ -5,7 +5,7 @@ public class CellEditorFactory implements ICellEditorFactory
 
     public ICellEditor makeComboboxEditor(String[] choices)
     {
-	return new ComboBoxCellEditor(choices);
+	return new ComboBoxCellEditor(choices, choices);
     }
 
     public ICellEditor makeIntEditor(int min, int max)

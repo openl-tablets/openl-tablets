@@ -5,23 +5,50 @@ import org.openl.rules.webstudio.web.tableeditor.TableEditorController.EditorTyp
 public class ComboBoxCellEditor implements ICellEditor
 {
 
-    String[] choices;
+    protected String[] choices, displayValues;
     
-    public ComboBoxCellEditor(String[] choices)
+    public ComboBoxCellEditor(String[] choices, String[] displayValues)
     {
 	this.choices = choices;
+    this.displayValues = displayValues;    
     }
 
     public EditorTypeResponse getEditorTypeAndMetadata()
     {
         EditorTypeResponse typeResponse = new EditorTypeResponse(CE_COMBO);
-        typeResponse.setParams(choices);
-	return typeResponse;
+        typeResponse.setParams(new ComboBoxParam(choices, displayValues));
+        return typeResponse;
     }
 
     public ICellEditorServerPart getServerPart()
     {
 	return null;
+    }
+
+    public static class ComboBoxParam {
+        private String[] choices;
+        private String[] displayValues;
+
+        public ComboBoxParam(String[] choices, String[] displayValues) {
+            this.choices = choices;
+            this.displayValues = displayValues;
+        }
+
+        public String[] getChoices() {
+            return choices;
+        }
+
+        public void setChoices(String[] choices) {
+            this.choices = choices;
+        }
+
+        public String[] getDisplayValues() {
+            return displayValues;
+        }
+
+        public void setDisplayValues(String[] displayValues) {
+            this.displayValues = displayValues;
+        }
     }
 
 }

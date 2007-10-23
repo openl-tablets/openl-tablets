@@ -18,11 +18,10 @@ DropdownEditor.prototype = Object.extend(new BaseEditor(), {
         this.node.style.padding = "0px";
 
         this.addOption("", "--Select value--");
-        var self = this;
-        param.each(function (el) {
-            self.addOption(el, el)
-        });
+        var pc = param.choices, pd = param.displayValues, len = Math.min(pc.length, pd.length);
+        for (var ind = 0; ind < len; ++ind) this.addOption(pc[ind], pd[ind]);
 
+        var self = this;                       
         ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
     },
 
