@@ -54,7 +54,7 @@ BaseEditor.prototype = {
         this.td = td;
         if (td) {
             // save initial value
-            this.initialValue = this.td.innerHTML.unescapeHTML().strip();
+            this.initialValue = this.td.innerHTML.replace(/<br>/ig, "\n").unescapeHTML().strip();
         }
         this.editor_initialize(param);
         this.show(typedText ? typedText : this.initialValue);
@@ -74,7 +74,7 @@ BaseEditor.prototype = {
         if (!value.strip()) {
           value = "&nbsp";
         }
-        this.td.innerHTML = value;
+        this.td.innerHTML = value.replace(/\n/g, "<br>");
     },
 
     /** Returns if the editing was cancelled */

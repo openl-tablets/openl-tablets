@@ -13,7 +13,12 @@ public class CellEditorSelector {
 
     public ICellEditor selectEditor(int row, int col, TableEditorModel model) {
         ICellEditor editor = selectEditor(model.getCellMetaInfo(row, col));
-        return editor == null ? factory.makeTextEditor() : editor;
+        return editor == null ? defaultEditor(row, col, model) : editor;
+    }
+
+    private ICellEditor defaultEditor(int row, int col, TableEditorModel model) {
+        final String s = model.getCellValue(row, col);
+        return s != null && s.indexOf('\n') >= 0 ? factory.makeMultilineEditor() : factory.makeTextEditor();
     }
 
     private ICellEditor selectEditor(CellMetaInfo meta) {

@@ -246,10 +246,13 @@ public class TableEditorModel
         actions.addNewAction(ra);
     }
 
-    public synchronized ICellStyle getCellStyle(int row, int column) {
+    public ICellStyle getCellStyle(int row, int column) {
         return IWritableGrid.Tool.getCellStyle(table.getGrid(), tX(column), tY(row));
     }
 
+    public String getCellValue(int row, int column) {
+        return table.getGrid().getStringCellValue(tX(column), tY(row));
+    }
 
     static class RegionAction implements IUndoableAction
     {

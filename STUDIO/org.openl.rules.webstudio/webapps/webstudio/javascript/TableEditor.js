@@ -329,9 +329,13 @@ TableEditor.prototype = {
         if (this.editor) {
             switch (event.keyCode) {
                 case 27: this.editor.cancelEdit(); break;
-                case 13: this.editStop(); break;
+                case 13: if ( this.editor.__do_nothing_on_enter !== true ) {
+                    this.editStop();
+                    if (Prototype.Browser.Opera) event.preventDefault();
+                }
+                break;
             }
-            if (event.keyCode == 13 && Prototype.Browser.Opera) event.preventDefault();
+
             return
         }
 

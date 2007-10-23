@@ -6,7 +6,8 @@
 var MultiLineEditor = Class.create();
 
 MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
-    eventHandler : null,
+    // special flag, prevents closing on pressing enter
+    __do_nothing_on_enter: true,
     ta : null,
 
     editor_initialize: function() {
@@ -35,12 +36,13 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
         this.ta.value = value;
         document.body.appendChild(this.node);
         this.ta.focus();
+        this.handleF3();
     },
 
     handleKeyPress: function (event) {
         switch (event.keyCode) {
             case 13:
-                if (!event.ctrlKey) BaseEditor.stopPropagationHandler(event);
+                if (event.ctrlKey) this.doneEdit();
             break;
         }
     },
