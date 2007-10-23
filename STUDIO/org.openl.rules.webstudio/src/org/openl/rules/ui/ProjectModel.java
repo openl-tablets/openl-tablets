@@ -342,7 +342,7 @@ public class ProjectModel
          return null;
 
       IGridTable gt = tsn.getTable().getGridTable();
-      String type = mode == null ? studio.getMode().getTableMode() : mode;
+      String type = getTableView(mode);
 
       if (type != null)
       {
@@ -424,12 +424,11 @@ public class ProjectModel
 		return displayName;
 	}
 
-	public String getTableView()
-	{
-		return studio.getMode().getTableMode();
+    public String getTableView(String view) {
+        return view == null ? studio.getMode().getTableMode() : view;
 	}
 
-	public String showTable(int elementID, String view)
+    public String showTable(int elementID, String view)
 	{
 		TableSyntaxNode tsn = getNode(elementID);
 		if (tsn == null)
