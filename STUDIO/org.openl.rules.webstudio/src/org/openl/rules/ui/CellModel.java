@@ -78,7 +78,7 @@ public class CellModel implements ICellModel {
     }
 
     String convertContent(String content) {
-        StringBuffer buf = new StringBuffer(content.length() + 100);
+        StringBuilder buf = new StringBuilder(content.length() + 100);
 
         // if (content.charAt(0) == '<')
         // {
@@ -110,7 +110,7 @@ public class CellModel implements ICellModel {
             if (ch == '\n') {
                 startLine = true;
                 needIdent = true;
-                buf.append("<p>");
+                buf.append("<br>");
                 continue;
             }
 

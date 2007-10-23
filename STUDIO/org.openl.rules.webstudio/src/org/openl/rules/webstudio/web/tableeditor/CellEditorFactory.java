@@ -17,6 +17,11 @@ public class CellEditorFactory implements ICellEditorFactory
     {
 	return new TextCellEditor();
     }
+
+    public ICellEditor makeMultilineEditor()
+    {
+    return new MultilineEditor(); 
+    }
     
 
 }

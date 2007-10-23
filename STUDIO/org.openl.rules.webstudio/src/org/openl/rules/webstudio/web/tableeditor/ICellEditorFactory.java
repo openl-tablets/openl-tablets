@@ -29,4 +29,6 @@ public interface ICellEditorFactory
 
 
     ICellEditor makeTextEditor();
+
+    ICellEditor makeMultilineEditor();
 }
