@@ -50,14 +50,16 @@ BaseEditor.prototype = {
      *   2. creates an HTML editor control (e.g. HTMLInputElement) and sets its value
      */
     initialize: function(tableEditor, td, param, typedText) {
-        this.tableEditor = tableEditor;
-        this.td = td;
-        if (td) {
+        if (tableEditor) {
+            this.tableEditor = tableEditor;
+            this.td = td;
+
             // save initial value
             this.initialValue = this.td.innerHTML.replace(/<br>/ig, "\n").unescapeHTML().strip();
+
+            this.editor_initialize(param);
+            this.show(typedText ? typedText : this.initialValue);
         }
-        this.editor_initialize(param);
-        this.show(typedText ? typedText : this.initialValue);
     },
 // ----------------------------------------------------------------- Public methods --
 
@@ -95,6 +97,19 @@ BaseEditor.prototype = {
             })
         }
         this.destroy();
+    },
+
+    doSwitching: function(newEditor) {
+        var value = this.isCancelled() ? this.initialValue : this.getValue();
+        newEditor.tableEditor = this.tableEditor;
+        newEditor.td = this.td;
+        newEditor.initialValue = this.initialValue;
+
+        this.isCancelled = BaseEditor.T;
+        this.detach();
+
+        newEditor.editor_initialize();
+        newEditor.show(value);
     },
 
     /**
@@ -145,6 +160,10 @@ BaseEditor.prototype = {
     cancelEdit: function() {
         this.isCancelled = BaseEditor.T;
         this.doneEdit();
+    },
+
+    switchTo: function(editorName) {
+        this.tableEditor.switchEditor(editorName);
     },
 
     /**
