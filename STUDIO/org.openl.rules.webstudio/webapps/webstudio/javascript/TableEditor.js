@@ -239,6 +239,12 @@ TableEditor.prototype = {
         this.selectElement(cell);
     },
 
+    switchEditor: function(editorName) {
+        var prevEditor = this.editor;
+        this.editor = new TableEditor.Editors[editorName];
+        prevEditor.doSwitching(this.editor);
+    },
+
     editStop : function() {
         if (this.editor) {
             if (!this.editor.isCancelled()) {

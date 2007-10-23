@@ -56,6 +56,9 @@ BaseTextEditor.prototype = Object.extend(new  BaseEditor(), {
 });
 
 TextEditor.prototype = Object.extend(new BaseTextEditor(), {
+    // special flag, prevents closing on pressing enter
+    __do_nothing_on_enter: true,
+
     editor_initialize: function() {
         this.node = $(document.createElement("input"));
         this.node.setAttribute("type", "text");
@@ -74,6 +77,24 @@ TextEditor.prototype = Object.extend(new BaseTextEditor(), {
 
         var self = this;
         ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
+
+        this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
+        Event.observe(this.node, "keypress", this.eventHandler);
+    },
+
+    destroy: function() {
+        Event.stopObserving(this.node, "keypress", this.eventHandler);
+    },
+
+    handleKeyPress: function (event) {
+        switch (event.keyCode) {
+            case 13:
+                if (Prototype.Browser.Opera ? event.ctrlKey : event.altKey)
+                    this.switchTo("multilineText");
+                else
+                    this.doneEdit();
+            break;
+        }
     }
 });
 
