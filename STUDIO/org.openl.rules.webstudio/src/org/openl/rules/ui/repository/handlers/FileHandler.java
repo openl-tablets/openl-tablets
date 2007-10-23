@@ -11,6 +11,8 @@ import org.openl.rules.ui.repository.beans.FolderBean;
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
+import org.openl.rules.repository.RVersion;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import sun.awt.image.ByteInterleavedRaster;
 import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
@@ -61,7 +63,44 @@ public class FileHandler extends BeanHandler {
         
         return result;
     }
+    
+    public InputStream getContent(FileBean bean) {
+        try {
+            RFile file = getRFile(bean);
+            return file.getContent();
+        } catch (Exception e) {
+            // TODO: log exception
+            context.getMessageQueue().addMessage(e);
+        }
+        
+        return null;
+    }
+    
+    public InputStream getContent4Version(FileBean bean, String versionName) {
+        try {
+            RFile file = getRFile(bean);
+            return file.getContent4Version(versionName);
+        } catch (Exception e) {
+            // TODO: log exception
+            context.getMessageQueue().addMessage(e);
+        }
+        
+        return null;
+    }
 
+    public boolean revertToVersion(FileBean bean, String versionName) {
+        try {
+            RFile file = getRFile(bean);
+            file.revertToVersion(versionName);
+            return true;
+        } catch (Exception e) {
+            // TODO: log exception
+            context.getMessageQueue().addMessage(e);
+        }
+        
+        return false;
+    }
+    
     private RFile getRFile(FileBean bean) throws CannotFindEntityException {
         String id = bean.getId();
         REntity entity = getEntityById(id);
