@@ -43,11 +43,13 @@ background: #eceef8;
 font-family: verdana,helvetica,arial,sans-serif;
 font-size: 12px;
 }
-  
+
+/*  
 .dr-pnl-h, .dr-tbpnl-tb-act, .dr-tbpnl-tb-inact, .dr-table-headercell {
 background-image: none;
 }
-  
+*/
+
 <!--
 scrollbar-base-color: #BED6F8;
 scrollbar-shadow-color: #F2F7FF;

@@ -24,6 +24,11 @@
 			<to-view-id>/ui/jcr/search/advanced.xhtml</to-view-id>
 			<redirect/>
 		</navigation-case>
+		<navigation-case>
+			<from-action>#{diff.compare}</from-action>
+			<to-view-id>/ui/jcr/diff.xhtml</to-view-id>
+			<redirect/>
+		</navigation-case>
 	</navigation-rule>
 
 	<navigation-rule>
@@ -35,6 +40,20 @@
 		</navigation-case>
 		<navigation-case>
 			<from-outcome>cancel</from-outcome>
+			<to-view-id>/ui/jcr/jcrMain.xhtml</to-view-id>
+			<redirect/>
+		</navigation-case>
+	</navigation-rule>
+
+	<navigation-rule>
+		<from-view-id>/ui/jcr/diff.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>jcrMain</from-outcome>
+			<to-view-id>/ui/jcr/jcrMain.xhtml</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-action>#{diff.revertTo}</from-action>
 			<to-view-id>/ui/jcr/jcrMain.xhtml</to-view-id>
 			<redirect/>
 		</navigation-case>

@@ -28,12 +28,17 @@
 		<rich:columnGroup>
 			<rich:column>
 				<h:panelGroup rendered="#{activeNode.type == 'file'}">
-					<h:commandLink
-					  action="compareWithVersion"
-					  onclick="return false;"
-					>
-						<h:graphicImage border="0" value="/images/trace.gif"/>
-					</h:commandLink>
+					<h:panelGroup rendered="#{activeNode.version != ver.name}">
+						<h:commandLink
+						  action="#{diff.compare}"
+						>
+							<f:param name="compareWithVersion" value="#{ver.name}"/>
+							<h:graphicImage border="0" value="/images/test.gif"/>
+						</h:commandLink>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{activeNode.version == ver.name}">
+						<h:graphicImage border="0" value="/images/test_ok1.gif"/>
+					</h:panelGroup>
 				</h:panelGroup>
 			</rich:column>
 			<rich:column>
