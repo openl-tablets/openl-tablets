@@ -17,6 +17,10 @@
           <property-name>elementID</property-name>
           <value>#{param.elementID}</value>
       </managed-property>
+      <managed-property>
+          <property-name>view</property-name>
+          <value>#{param.view}</value>
+      </managed-property>
   </managed-bean>
 
   <managed-bean>

@@ -31,7 +31,8 @@ public class TableEditorController extends TableViewController implements JSTabl
         render();
         IGridTable gridTable = getGridTable(elementID);
         response = pojo2json(new LoadResponse(response, gridTable.getGrid()
-                .getCellUri(gridTable.getGridColumn(0, 0), gridTable.getGridRow(0, 0))));
+                .getCellUri(gridTable.getGridColumn(0, 0), gridTable.getGridRow(0, 0)),
+                getHelper(elementID).getModel()));
         return OUTCOME_SUCCESS;
     }
 
@@ -301,6 +302,11 @@ public class TableEditorController extends TableViewController implements JSTabl
         }
     }
 
+    @Override
+    protected IGridTable getGridTable(int elementID) {
+        return getHelper(elementID).getModel().getUpdatedTable();
+    }
+
     private static String pojo2json(Object pojo) {
        try {
            return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")")
@@ -436,10 +442,12 @@ public class TableEditorController extends TableViewController implements JSTabl
     public static class LoadResponse {
         private String tableHTML;
         private String topLeftCell;
+        private TableEditorModel model;
 
-        public LoadResponse(String tableHTML, String topLeftCell) {
+        public LoadResponse(String tableHTML, String topLeftCell, TableEditorModel model) {
             this.tableHTML = tableHTML;
             this.topLeftCell = topLeftCell;
+            this.model = model;
         }
 
         public String getTableHTML() {
@@ -457,6 +465,20 @@ public class TableEditorController extends TableViewController implements JSTabl
         public void setTopLeftCell(String topLeftCell) {
             this.topLeftCell = topLeftCell;
         }
+
+        public boolean isHasUndo() {
+            return model != null && model.hasUndo();
+        }
+
+        @SuppressWarnings({"UnusedDeclaration"})
+        public void setHasUndo(boolean hasUndo) {}
+
+        public boolean isHasRedo() {
+            return model != null && model.hasRedo();
+        }
+
+        @SuppressWarnings({"UnusedDeclaration"})
+        public void setHasRedo(boolean hasRedo) {}
     }
 
 }

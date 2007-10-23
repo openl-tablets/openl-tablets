@@ -119,6 +119,7 @@ TableEditor.prototype = {
             onSuccess   : function(data) {
                 data = eval(data.responseText);
                 self.renderTable(data.tableHTML.strip());
+                self.processCallbacks(data, "do");
 
                 if (self.editCell) {
                     var s = TableEditor.parseXlsCell(self.editCell);
@@ -314,7 +315,7 @@ TableEditor.prototype = {
             var newSelectionPos = this.elementPosition(elt);
             if (!newSelectionPos) return;
             this.selectionPos = newSelectionPos;
-        } else {
+        } else if (this.selectionPos) {
             elt = this.$cell(this.selectionPos);
         }
         this.decorator.undecorate(this.currentElement);
