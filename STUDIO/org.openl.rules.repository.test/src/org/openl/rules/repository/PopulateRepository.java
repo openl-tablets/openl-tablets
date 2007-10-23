@@ -1,5 +1,6 @@
 package org.openl.rules.repository;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -59,6 +60,12 @@ public class PopulateRepository {
             for (RVersion v : f1vs) {
                 System.out.println("  " + v.getName() + " " + v.getCreated());
             }
+            
+            RVersion last = f1vs.get(f1vs.size() - 2);
+            System.out.println("> checking content of version " + last.getName());
+            InputStream is = f1.getContent4Version(last.getName());
+            is.close();
+            System.out.println("> checked");
         } catch (Exception e) {
             System.err.println("*** Error: " + e.getMessage());
             e.printStackTrace();
