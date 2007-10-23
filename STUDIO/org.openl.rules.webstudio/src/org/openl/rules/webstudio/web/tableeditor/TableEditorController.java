@@ -111,8 +111,7 @@ public class TableEditorController extends TableViewController implements JSTabl
                 TableEditorModel.CellType type = editorModel.getCellType(row, col);
                 if (type == TableEditorModel.CellType.CA_ENUMERATION_CELL_TYPE) {
                     String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
-                    typeResponse.setEditor("combo");
-                    typeResponse.setParams(metadata);
+                    typeResponse = new ComboBoxCellEditor(metadata, metadata).getEditorTypeAndMetadata();
                 }
 
                 if (col == 3 && row == 1) {
@@ -138,7 +137,7 @@ public class TableEditorController extends TableViewController implements JSTabl
 
                 if (col == 3 && row == 2) {
                     String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
-                    typeResponse = new MultiChoiceCellEditor(metadata).getEditorTypeAndMetadata();
+                    typeResponse = new MultiChoiceCellEditor(metadata, metadata).getEditorTypeAndMetadata();
                 }
 
                 response = pojo2json(typeResponse);

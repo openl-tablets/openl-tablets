@@ -49,12 +49,13 @@ MultiChoiceEditor.prototype = Object.extend(new BaseEditor(), {
         container.appendChild(this.ulElement);
 
         // creating entries
-        for (var ind = 0; ind < this.sortedKeys.length; ++ind) {
+        var pc = param.choices, pd = param.displayValues;
+        for (var ind = 0, len = pc.length; ind < len; ++ind) {
             var li = $(document.createElement("li"));
             this.ulElement.appendChild(li);
 
-            li.innerHTML = '<input type="checkbox" name="multi_choice_cb">' + this.sortedKeys[ind].escapeHTML();
-            this.entries[this.sortedKeys[ind]] = li.down();
+            li.innerHTML = '<input type="checkbox" name="multi_choice_cb">' + pd[ind].escapeHTML();
+            this.entries[pc[ind]] = li.down();
         }
 
         ["click", "dblclick"].each(function (s) {self.stopEventPropogation(s)});

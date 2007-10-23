@@ -1,32 +1,23 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 public class MultiChoiceCellEditor extends ComboBoxCellEditor {
-    public MultiChoiceCellEditor(String[] choices) {
-        super(choices);
+    public MultiChoiceCellEditor(String[] choices, String[] displayValues) {
+        super(choices, displayValues);
     }
 
     @Override
     public TableEditorController.EditorTypeResponse getEditorTypeAndMetadata() {
         TableEditorController.EditorTypeResponse typeResponse = new TableEditorController.EditorTypeResponse(CE_MULTICHOICE);
-        typeResponse.setParams(new MultiChoiceParam(choices, ","));
+        typeResponse.setParams(new MultiChoiceParam(choices, displayValues, ","));
         return typeResponse;
     }
 
-    public static class MultiChoiceParam {
-        private String[] choices;
+    public static class MultiChoiceParam extends ComboBoxParam {
         private String separator;
-
-        public MultiChoiceParam(String[] choices, String separator) {
-            this.choices = choices;
+        
+        public MultiChoiceParam(String[] choices, String[] displayValues, String separator) {
+            super(choices, displayValues);
             this.separator = separator;
-        }
-
-        public String[] getChoices() {
-            return choices;
-        }
-
-        public void setChoices(String[] choices) {
-            this.choices = choices;
         }
 
         public String getSeparator() {
