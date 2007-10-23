@@ -23,10 +23,9 @@ public class EditorHelper implements WebStudio.StudioListener
 	{
         if (model != null && (cancel || elementID != this.elementID)) model.cancel();
 
-        if (mode == null) mode = prj.getStudio().getMode().getTableMode();
-        TableEditorModel newModel = new TableEditorModel(prj.getTableWithMode(elementID, mode), mode);
+        TableEditorModel newModel = new TableEditorModel(prj.getTableWithMode(elementID, prj.getTableView(mode)));
 
-        if (model != null && elementID == this.elementID) newModel.getUndoableActions(model);
+        if (!cancel && model != null && elementID == this.elementID) newModel.getUndoableActions(model);
 
         model = newModel;
         this.elementID = elementID;

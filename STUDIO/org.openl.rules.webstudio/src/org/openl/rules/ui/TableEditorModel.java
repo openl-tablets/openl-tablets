@@ -127,15 +127,13 @@ public class TableEditorModel
 
     private GridRegion region;
     private GridTable[] othertables;
-    private String mode;
-
+    
     private UndoableActions actions = new UndoableActions();
 
     private XlsUndoGrid undoGrid = new XlsUndoGrid();
 
-    public TableEditorModel(IGridTable table, String mode)
+    public TableEditorModel(IGridTable table)
     {
-    this.mode = mode;    
     this.table = table;
 	this.region = new GridRegion(table.getRegion());
 	othertables = new GridSplitter(table.getGrid()).split();
@@ -170,11 +168,7 @@ public class TableEditorModel
 	return (IWritableGrid) table.getGrid();
     }
 
-    public String getMode()
-    {
-    return mode;
-    }
-
+    
     public synchronized void insertRows(int nRows, int beforeRow)
     {
 	IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows,

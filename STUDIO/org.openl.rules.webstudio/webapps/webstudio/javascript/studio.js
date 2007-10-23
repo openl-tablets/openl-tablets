@@ -27,8 +27,10 @@ IconManager.prototype = {
 
         this.onMouseOver = function() {this.className = parentStyleClassesMouseOver}
         this.onMouseOut = function() {
-            this.className = parentStyleClasses
-            this.down().offset(0);
+            try {
+                this.className = parentStyleClasses
+                this.down().offset(0);
+            } catch(ex) {}
         }
         this.onMouseDown = function() {this.offset(1)};
         this.onMouseUp = function() {this.offset(0)}; 
