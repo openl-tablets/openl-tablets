@@ -7,7 +7,6 @@ import java.util.Iterator;
 
 import org.openl.base.INamedThing;
 import org.openl.util.ITreeElement;
-import org.openl.util.IdObjectMap;
 import org.openl.util.StringTool;
 
 /**
@@ -153,7 +152,6 @@ public abstract class DTreeRenderer
 	/**
 	 * @param element
 	 * @param type
-	 * @param open
 	 * @return
 	 */
 	private String[] guessIcon(ITreeElement element, String type)
@@ -209,7 +207,7 @@ public abstract class DTreeRenderer
 	}
 
 
-	IdObjectMap map = new IdObjectMap();
+	ObjectMap map = new ObjectMap();
 
 
 }

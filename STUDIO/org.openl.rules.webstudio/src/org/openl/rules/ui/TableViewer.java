@@ -60,19 +60,10 @@ public class TableViewer
 		return tm;
 	}
 
-	public String showTable(IGrid grid, IGridRegion region)
+	public static String showTable(TableModel tm, boolean showGrid)
 	{
-		return showTable(grid, region, true);
-	}
-
-	public String showTable(IGrid grid, IGridRegion region, boolean showGrid)
-	{
-		StringBuffer buf = new StringBuffer(1000);
-		this.grid = grid;
-		this.reg = region;
-		TableModel tm = buildModel(null);
+        StringBuffer buf = new StringBuffer(1000);
 		tm.toHtmlString(buf, showGrid);
-
 		return buf.toString();
 	}
 

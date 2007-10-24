@@ -6,7 +6,6 @@ package org.openl.rules.ui;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject;
 import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject.RuleTracer;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -16,6 +15,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.RegionGridSelector;
+import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.ITracerObject;
 
@@ -115,19 +115,40 @@ public class TraceHelper
 		TableSyntaxNode tsn = dt.getTableSyntaxNode();
 
 		IGridTable gt = tsn.getTable().getGridTable();
-		if (view == null) 
-			view = IDecisionTableConstants.VIEW_BUSINESS;
+        view = model.getTableView(view);
 		ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
 		if (gtx != null)
-				gt = gtx.getGridTable();
-		
-		
-		return ProjectModel.showTable(gt, makeFilter(rtt, model), false);
-		
+				gt = new TableEditorModel(gtx.getGridTable()).getUpdatedTable();
+
+        TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[]{makeFilter(rtt, model)});
+        return TableRenderer.renderWithMenu(tableModel);
 	}
 
-	
-	IGridFilter makeFilter(ITracerObject[] rtt, ProjectModel model)
+    public int getProjectNodeIndex(int id, ProjectModel model) {
+        ITracerObject tt = (ITracerObject)traceRenderer.map.getObject(id);
+
+
+		if (tt == null)
+			return -1;
+
+		DecisionTableTraceObject dtt = null;
+
+		if (tt instanceof DecisionTableTraceObject)
+		{
+			dtt = (DecisionTableTraceObject)tt;
+		}
+		else if (tt instanceof RuleTracer)
+		{
+
+			dtt = ((RuleTracer)tt).getParentTraceObject();
+		} else
+            return -1;
+
+        return model.indexForNode(dtt.getDT().getTableSyntaxNode());
+    }
+
+
+    IGridFilter makeFilter(ITracerObject[] rtt, ProjectModel model)
 	{
 		IGridRegion[] regions = new IGridRegion[rtt.length];
 		

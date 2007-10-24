@@ -426,3 +426,14 @@ font-style: italic;
 }
 
 
+.menuholderdiv {
+    background-color: white;
+    border: 1px dotted black;
+    padding:4px;
+}
+
+.menuholderdiv a {
+    text-decoration: underline;
+    color: green;
+    font-size:larger;
+}

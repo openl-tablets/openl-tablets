@@ -21,15 +21,15 @@
  
 	String s_id = request.getParameter("elementID"); 
    	 	
-   	int elementID = -100;	
+   	int traceElementID = -100;	
    	if (s_id != null)
    	{
-     	elementID = Integer.parseInt(s_id);
+     	traceElementID = Integer.parseInt(s_id);
     }
     
-	TableInfo ti = tracer.getTableInfo(elementID);   
-   
-	   
+	TableInfo ti = tracer.getTableInfo(traceElementID);
+
+    int elementID = tracer.getProjectNodeIndex(traceElementID, studio.getModel());   
 %>
 
 
@@ -39,8 +39,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title>OpenL Tracing</title>
 <link href="../css/style1.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="../javascript/prototype/prototype-1.5.1.js"></script>
 
-<style>
+<style type="text/css">
 
 table.top{font-size:80%;background:black}
 
@@ -98,7 +99,9 @@ document.getElementById(elmnt).style.visibility="hidden"
 <%}%>
 
 <p/>
-	<%=tracer.showTrace(elementID, studio.getModel(), view)%>
+
+<%@include file="/WEB-INF/include/contextMenu.inc"%>
+<%=tracer.showTrace(traceElementID, studio.getModel(), view)%>
 
 </body>
 </html>

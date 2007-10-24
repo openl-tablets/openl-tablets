@@ -71,7 +71,7 @@ public class TableViewController {
     private String render() throws Exception {
         if (elementID != -1) {
             TableModel tableModel = initializeTableModel(elementID);
-            response = TableRenderer.render(tableModel, "onmouseover=\"try {cellMouseOver(this,event)} catch (e){}\" onmouseout='try {cellMouseOut(this)} catch(e){}'", true);
+            response = TableRenderer.renderWithMenu(tableModel);
         } else {
             response = "";
         }
