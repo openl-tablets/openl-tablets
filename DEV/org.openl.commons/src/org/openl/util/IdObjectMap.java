@@ -12,10 +12,10 @@ import java.util.HashMap;
  */
 public class IdObjectMap
 {
-	HashMap idObjMap = null;
-	HashMap objIdMap = null;
+	protected HashMap idObjMap = null;
+	protected HashMap objIdMap = null;
 	
-	int id = 0;
+	protected int id = 0;
 	
 	final int newID()
 	{
