@@ -39,49 +39,12 @@
 <title><%=text%></title>
 <link href="../../css/style1.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="../../javascript/prototype/prototype-1.5.1.js"></script>
-<style type="text/css">
-    .menuholderdiv {
-        background-color: white;
-        border: 1px dotted black;
-        padding:4px;
-    }
-
-    .menuholderdiv a {
-        text-decoration: underline;
-        color: green;
-        font-size:larger;
-    }
-
-</style>
-<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/popup/popupmenu.js"></script>
 <script type="text/javascript">
 function open_win(url)
 {
    window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
 }
 
-    function cellMouseOver(td, event) {
-        PopupMenu.sheduleShowMenu('contextMenu', event, 700);
-    }
-
-    function cellMouseOut(td) {
-        PopupMenu.cancelShowMenu();
-    }
-    function triggerEdit(f) {
-        var uri = $(PopupMenu.lastTarget).down('input').value;
-        f.cell.value = uri.toQueryParams().cell;
-        f.submit();
-    }
-    function triggerEditXls(f) {
-        f.uri.value = $(PopupMenu.lastTarget).down('input').value;
-        f.submit();
-    }
-    function triggerSearch(f) {
-        f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {return s.nodeName == "#text"})
-                .nodeValue.sub(/^[.;,! \t\n()^&*%=?\-'"+<>]+/, "").split(/[.;,! \t\n()^&*%=?\-'"+<>]+/, 3)
-                .reject(function(s) {return !s}).join(" ");
-        f.submit();
-    }
 </script>
 </head>
 
@@ -123,32 +86,13 @@ function open_win(url)
 <a href="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf?elementID=<%=elementID%>">Edit Table</a>
 &nbsp;<a href="${pageContext.request.contextPath}/jsp/copyTable.jsp?elementID=<%=elementID%>">Copy Table</a>
 
+<%@include file="/WEB-INF/include/contextMenu.inc"%>
 
 <f:view>
-<div>&nbsp;
+    <div>&nbsp;
    <h:outputText value="#{tableViewController.tableView}" escape="false"/>
 </div>
-
-<form name="editForm" action="showTableEditor2.jsf">
-    <input type="hidden" name="elementID" value="<%=elementID%>">
-    <input type="hidden" name="cell" value="">
-    <h:inputHidden id="view" value="#{tableViewController.mode}" />
-</form>
-</f:view>    
-<form name="editFormXls" action="../showLinks.jsp" target="show_app_hidden">
-    <input type="hidden" name="uri" value="">
-</form>
-<form name="searchForm" action="../search/search.jsp">
-    <input type="hidden" name="searchQuery" value="">
-</form>
-
-<div id="contextMenu" style="display:none;">
-    <table cellpadding="1px">
-        <tr><td><a href="#" onclick="triggerEdit(document.forms.editForm)">Edit</a></td></tr>
-        <tr><td><a href="#" onclick="triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
-        <tr><td><a href="#" onclick="triggerSearch(document.forms.searchForm)">Search</a></td></tr>
-    </table>
-</div>
+</f:view>
 
 <%@include file="../showRuns.jsp"%>
 </body>

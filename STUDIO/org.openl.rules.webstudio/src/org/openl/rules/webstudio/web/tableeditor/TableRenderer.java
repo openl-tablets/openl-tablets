@@ -53,5 +53,9 @@ public class TableRenderer {
     public static String render(TableModel tableModel) {
         return render(tableModel, null, false);
     }
+
+    public static String renderWithMenu(TableModel tableModel) {
+        return render(tableModel, "onmouseover=\"try {cellMouseOver(this,event)} catch (e){}\" onmouseout='try {cellMouseOut(this)} catch(e){}'", true);
+    }
 }
 

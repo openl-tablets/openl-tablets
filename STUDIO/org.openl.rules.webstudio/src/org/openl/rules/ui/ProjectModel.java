@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.Collection;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.base.INamedThing;
@@ -138,27 +139,32 @@ public class ProjectModel
 	public static String showTable(IGridTable gt, IGridFilter[] filters,
 			boolean showgrid)
 	{
-		IGrid htmlGrid = gt.getGrid();
-		if (!(htmlGrid instanceof FilteredGrid))
-		{
-			int N = 2;
-			IGridFilter[] f1 = new IGridFilter[filters == null ? N : filters.length
-					+ N];
-			f1[0] = new SimpleXlsFormatter();
-			f1[1] = new SimpleHtmlFilter();
-			for (int i = N; i < f1.length; i++)
-			{
-				f1[i] = filters[i - N];
-			}
-
-			htmlGrid = new FilteredGrid(gt.getGrid(), f1);
-
-		}
-
-		return new TableViewer().showTable(htmlGrid, gt.getRegion(), showgrid);
+        TableModel model = buildModel(gt, filters);
+        return TableViewer.showTable(model, showgrid);
 	}
 
-	static public boolean intersects(XlsUrlParser p1, String url2)
+    public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
+        IGrid htmlGrid = gt.getGrid();
+        if (!(htmlGrid instanceof FilteredGrid))
+        {
+            int N = 1;
+            IGridFilter[] f1 = new IGridFilter[filters == null ? N : filters.length
+                    + N];
+            f1[0] = new SimpleXlsFormatter();
+            //f1[1] = new SimpleHtmlFilter();
+            for (int i = N; i < f1.length; i++)
+            {
+                f1[i] = filters[i - N];
+            }
+
+            htmlGrid = new FilteredGrid(gt.getGrid(), f1);
+
+        }
+
+        return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
+    }
+
+    static public boolean intersects(XlsUrlParser p1, String url2)
 	{
 		XlsUrlParser p2 = new XlsUrlParser();
 		p2.parse(url2);
@@ -375,7 +381,18 @@ public class ProjectModel
 		return tsn;
 	}
 
-	public ISyntaxError[] getErrors(int elementID)
+    public int indexForNode(TableSyntaxNode tsn) {
+        for (Object obj: ptr.map.getValues()) {
+            ProjectTreeElement pte = (ProjectTreeElement) obj;
+            if (pte.getObject() == tsn) {
+                return ptr.map.getID(obj);
+            }
+        }
+
+        return -1;
+    }
+
+    public ISyntaxError[] getErrors(int elementID)
 	{
 		TableSyntaxNode tsn = getNode(elementID);
 		ISyntaxError[] se = tsn.getErrors();
