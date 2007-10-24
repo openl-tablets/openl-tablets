@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Vector;
-import java.util.Collection;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.base.INamedThing;
@@ -24,13 +23,13 @@ import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.RegionGridSelector;
-import org.openl.rules.table.ui.SimpleHtmlFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
+import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
@@ -121,8 +120,9 @@ public class ProjectModel
 		if (gtx != null)
 			gt = gtx.getGridTable();
 
-		return showTable(gt, new ColorGridFilter(new RegionGridSelector(region,
-				true), filterHolder.makeFilter()), false);
+        TableModel tableModel = buildModel(gt,
+                new IGridFilter[]{new ColorGridFilter(new RegionGridSelector(region, true), filterHolder.makeFilter())});
+        return TableRenderer.renderWithMenu(tableModel);
 	}
 
 	public static String showTable(IGridTable gt, IGridFilter filter,

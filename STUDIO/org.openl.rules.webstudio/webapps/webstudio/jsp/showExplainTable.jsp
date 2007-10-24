@@ -1,6 +1,7 @@
 <%@ page import = "org.openl.rules.ui.*" %>
 <%@ page import = "org.openl.util.*" %>
 <%@ page import = "org.openl.rules.webtools.*" %>
+<%@ page import="org.openl.rules.lang.xls.syntax.TableSyntaxNode" %>
 
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
@@ -15,7 +16,7 @@
 	String text = request.getParameter("text");
 	
  
-	   
+	int elementID = 1;   
 %>
 
 
@@ -25,8 +26,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title>OpenL Tracing</title>
 <link href="../css/style1.css" rel="stylesheet" type="text/css"/>
-
-<style>
+<script type="text/javascript" src="../javascript/prototype/prototype-1.5.1.js"></script>
+<style type="text/css">
 
 table.top{font-size:80%;background:black}
 
@@ -85,7 +86,7 @@ document.getElementById(elmnt).style.visibility="hidden"
  	
 if (ti != null)
 {
-
+    elementID = studio.getModel().indexForNode(studio.getModel().findNode(uri));
 %>
 
 <table>
@@ -99,14 +100,12 @@ if (ti != null)
  
  </tr>
 </table>
-</div>
-</td></tr></table>
 
-
-
+<%@include file="/WEB-INF/include/contextMenu.inc"%>
 <%}%>
 
 <p/>
-	<%=studio.getModel().showTableWithSelection(uri, view)%>
+<%=studio.getModel().showTableWithSelection(uri, view)%>
 
 </body>
+</html>
