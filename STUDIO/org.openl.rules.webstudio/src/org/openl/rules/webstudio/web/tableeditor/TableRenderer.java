@@ -11,12 +11,24 @@ import org.openl.rules.table.IGridTable;
  * @author Andrey Naumenko
  */
 public class TableRenderer {
-    public static String render(TableModel tableModel, String extraTDText, boolean embedCellURI) {
+    private final TableModel tableModel;
+    private String cellIdPrefix;
+
+    public TableRenderer(TableModel tableModel) {
+        this.tableModel = tableModel;
+    }
+
+    public void setCellIdPrefix(String prefix) {
+        cellIdPrefix = prefix;
+    }
+
+    public String render(String extraTDText, boolean embedCellURI) {
         String tdPrefix = "<td";
         if (extraTDText != null) {
             tdPrefix += " ";
             tdPrefix += extraTDText;
         }
+        final String prefix = cellIdPrefix != null ? cellIdPrefix : "cell-";
 
         IGridTable table = tableModel.getGridTable();
         StringBuffer s = new StringBuffer();
@@ -36,7 +48,7 @@ public class TableRenderer {
                 }
 
                 StringBuilder id = new StringBuilder();
-                id.append("cell-").append(String.valueOf(i + 1)).append(":").append(j + 1);
+                id.append(prefix).append(String.valueOf(i + 1)).append(":").append(j + 1);
 
                 s.append(" id=\"").append(id).append("\">");
                 if (embedCellURI) {
@@ -50,12 +62,12 @@ public class TableRenderer {
         return s.toString();
     }
 
-    public static String render(TableModel tableModel) {
-        return render(tableModel, null, false);
+    public String render() {
+        return render(null, false);
     }
 
-    public static String renderWithMenu(TableModel tableModel) {
-        return render(tableModel, "onmouseover=\"try {cellMouseOver(this,event)} catch (e){}\" onmouseout='try {cellMouseOut(this)} catch(e){}'", true);
+    public String renderWithMenu() {
+        return render("onmouseover=\"try {cellMouseOver(this,event)} catch (e){}\" onmouseout='try {cellMouseOut(this)} catch(e){}'", true);
     }
 }
 

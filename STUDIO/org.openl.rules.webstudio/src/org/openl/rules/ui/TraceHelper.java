@@ -121,7 +121,7 @@ public class TraceHelper
 				gt = new TableEditorModel(gtx.getGridTable()).getUpdatedTable();
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[]{makeFilter(rtt, model)});
-        return TableRenderer.renderWithMenu(tableModel);
+        return new TableRenderer(tableModel).renderWithMenu();
 	}
 
     public int getProjectNodeIndex(int id, ProjectModel model) {
