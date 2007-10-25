@@ -22,6 +22,7 @@ import org.openl.rules.dt.DTOverlapping;
 import org.openl.rules.dt.DTRule;
 import org.openl.rules.dt.DTUncovered;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.search.ISearchTableRow;
@@ -39,6 +40,7 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.webtools.WebTool;
+import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
@@ -56,8 +58,15 @@ import org.openl.util.text.TextInfo;
  */
 public class ObjectViewer
 {
+    private ProjectModel projectModel;
 
-	/**
+    public ObjectViewer(ProjectModel projectModel) {
+        this.projectModel = projectModel;
+    }
+
+    public ObjectViewer() {}
+
+    /**
 	 * @param res
 	 * @param expl
 	 * @return
@@ -202,8 +211,22 @@ public class ObjectViewer
 
 			return ProjectModel.showTable(tt, false);
 		}
-		
-		if (res instanceof OpenLAdvancedSearchResult)
+
+        if (res instanceof GridWithNode) {
+            if (projectModel != null) {
+                int index = projectModel.indexForNode(((GridWithNode) res).tableSyntaxNode);
+                if (index >= 0) {
+                    TableModel tableModel = ProjectModel.buildModel(((GridWithNode) res).gridTable, null);
+                    TableRenderer renderer = new TableRenderer(tableModel);
+                    renderer.setCellIdPrefix("cell-" + index + "-");
+                    return renderer.renderWithMenu();
+                }
+            }
+
+            return ProjectModel.showTable(((GridWithNode) res).gridTable, false);
+        }
+
+        if (res instanceof OpenLAdvancedSearchResult)
 		{
 			OpenLAdvancedSearchResult srch = (OpenLAdvancedSearchResult) res;
 			return displaySearch(srch);
@@ -264,7 +287,7 @@ public class ObjectViewer
 			
 			CompositeGrid cg = sviewer.makeGrid(trows);
 				
-			res[2*i+1] = cg != null ? (Object)cg.asGridTable() : "No rows selected";
+			res[2*i+1] = cg != null ? new GridWithNode(cg.asGridTable(), tsn): "No rows selected";
 			
 				
 		}
@@ -368,7 +391,7 @@ public class ObjectViewer
 
 			IGridFilter cf = makeFilter(ov.getRules(), res.getDT());
 
-			String type = "view.business";
+			String type = IDecisionTableConstants.VIEW_BUSINESS;
 			ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(type);
 			if (gtx != null)
 				gt = gtx.getGridTable();
@@ -725,5 +748,15 @@ public class ObjectViewer
 		return buf;
 
 	}
+
+    private static class GridWithNode {
+        IGridTable gridTable;
+        TableSyntaxNode tableSyntaxNode;
+
+        private GridWithNode(IGridTable gridTable, TableSyntaxNode tableSyntaxNode) {
+            this.gridTable = gridTable;
+            this.tableSyntaxNode = tableSyntaxNode;
+        }
+    }
 
 }

@@ -71,7 +71,7 @@ public class TableViewController {
     private String render() throws Exception {
         if (elementID != -1) {
             TableModel tableModel = initializeTableModel(elementID);
-            response = TableRenderer.renderWithMenu(tableModel);
+            response = new TableRenderer(tableModel).renderWithMenu();
         } else {
             response = "";
         }

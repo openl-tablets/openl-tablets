@@ -38,8 +38,8 @@
 
 <div id="contextMenu" style="display:none;">
     <table cellpadding="1px">
-        <tr><td><a href="#" onclick="triggerEdit(document.forms.editForm)">Edit</a></td></tr>
-        <tr><td><a href="#" onclick="triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
-        <tr><td><a href="#" onclick="triggerSearch(document.forms.searchForm)">Search</a></td></tr>
+        <tr><td><a href="javascript:void(0)" onclick="triggerEdit(document.forms.editForm)">Edit</a></td></tr>
+        <tr><td><a href="javascript:void(0)" onclick="triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
+        <tr><td><a href="javascript:void(0)" onclick="triggerSearch(document.forms.searchForm)">Search</a></td></tr>
     </table>
 </div>

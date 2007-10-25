@@ -78,6 +78,7 @@
 <%@include file="advSearch.css"%>
 
 <%@include file="advSearch.js"%>
+<script type="text/javascript" src="../../javascript/prototype/prototype-1.5.1.js"></script>
 
 </head>
 
@@ -286,7 +287,53 @@ for(int i= 0; i < tableElements.length; ++i)
 	
 %>
   		<%=studio.getModel().displayResult(res)%>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/popup/popupmenu.js"></script>
+<script type="text/javascript">
+    function cellMouseOver(td, event) {
+        PopupMenu.sheduleShowMenu('contextMenu', event, 700);
+    }
 
+    function cellMouseOut(td) {
+        PopupMenu.cancelShowMenu();
+    }
+    function triggerEdit(f) {
+        var lastTarget = $(PopupMenu.lastTarget)
+        var uri = lastTarget.down('input').value;
+        f.elementID.value = lastTarget.id.split("-")[1];
+        f.cell.value = uri.toQueryParams().cell;
+        f.submit();
+    }
+    function triggerEditXls(f) {
+        f.uri.value = $(PopupMenu.lastTarget).down('input').value;
+        f.submit();
+    }
+    function triggerSearch(f) {
+        f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {return s.nodeName == "#text"})
+                .nodeValue.sub(/^[.;,! \t\n()^&*%=?\-'"+<>]+/, "").split(/[.;,! \t\n()^&*%=?\-'"+<>]+/, 3)
+                .reject(function(s) {return !s}).join(" ");
+       f.submit();
+    }
+</script>
+
+<form name="editForm" action="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf">
+<input type="hidden" name="elementID" value="">
+<input type="hidden" name="cell" value="">
+<input type="hidden" name="view" value="<%=studio.getModel().getTableView(request.getParameter("view"))%>" />
+</form>
+<form name="editFormXls" action="${pageContext.request.contextPath}/jsp/showLinks.jsp" target="show_app_hidden">
+    <input type="hidden" name="uri" value="">
+</form>
+<form name="searchForm" action="${pageContext.request.contextPath}/jsp/search/search.jsp">
+    <input type="hidden" name="searchQuery" value="">
+</form>
+
+<div id="contextMenu" style="display:none;">
+    <table cellpadding="1px">
+        <tr><td><a href="javascript:void(0)" onclick="triggerEdit(document.forms.editForm)">Edit</a></td></tr>
+        <tr><td><a href="javascript:void(0)" onclick="triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
+        <tr><td><a href="javascript:void(0)" onclick="triggerSearch(document.forms.searchForm)">Search</a></td></tr>
+    </table>
+</div>
 <%	
 	}
 %>

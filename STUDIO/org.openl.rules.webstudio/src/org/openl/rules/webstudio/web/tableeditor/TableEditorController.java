@@ -39,7 +39,7 @@ public class TableEditorController extends TableViewController implements JSTabl
     private void render() {
         if (elementID != -1) {
             TableModel tableModel = initializeTableModel(elementID);
-            response = TableRenderer.render(tableModel);
+            response = new TableRenderer(tableModel).render();
         } else {
             response = "";
         }

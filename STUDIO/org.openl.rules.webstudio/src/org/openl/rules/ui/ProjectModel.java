@@ -122,7 +122,7 @@ public class ProjectModel
 
         TableModel tableModel = buildModel(gt,
                 new IGridFilter[]{new ColorGridFilter(new RegionGridSelector(region, true), filterHolder.makeFilter())});
-        return TableRenderer.renderWithMenu(tableModel);
+        return new TableRenderer(tableModel).renderWithMenu();
 	}
 
 	public static String showTable(IGridTable gt, IGridFilter filter,
@@ -916,7 +916,7 @@ public class ProjectModel
 
 	public String displayResult(Object res)
 	{
-		return new ObjectViewer().displayResult(res);
+		return new ObjectViewer(this).displayResult(res);
 	}
 
 	// /**
