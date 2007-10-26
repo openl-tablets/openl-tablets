@@ -329,9 +329,9 @@ for(int i= 0; i < tableElements.length; ++i)
 
 <div id="contextMenu" style="display:none;">
     <table cellpadding="1px">
-        <tr><td><a href="javascript:void(0)" onclick="triggerEdit(document.forms.editForm)">Edit</a></td></tr>
-        <tr><td><a href="javascript:void(0)" onclick="triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
-        <tr><td><a href="javascript:void(0)" onclick="triggerSearch(document.forms.searchForm)">Search</a></td></tr>
+        <tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr>
+        <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
+        <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
     </table>
 </div>
 <%	
