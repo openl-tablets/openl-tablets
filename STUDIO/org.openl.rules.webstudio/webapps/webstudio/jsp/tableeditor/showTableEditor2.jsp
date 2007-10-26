@@ -82,6 +82,7 @@ window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, me
   </tr>
 </table>
 
+<%@include file="/WEB-INF/include/errorDisplay.inc"%>
 <%=studio.getModel().showErrors(elementID)%>
 
 
