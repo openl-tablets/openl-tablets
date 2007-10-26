@@ -81,6 +81,7 @@ function open_win(url)
 </td>
 </tr></table>
 
+<%@include file="/WEB-INF/include/errorDisplay.inc"%>
 <%=studio.getModel().showErrors(elementID)%>
 
 <a href="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf?elementID=<%=elementID%>">Edit Table</a>

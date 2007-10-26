@@ -68,7 +68,6 @@ public class ObjectViewer
 
     /**
 	 * @param res
-	 * @param expl
 	 * @return
 	 */
 	private String displayArray(Object res)
@@ -99,7 +98,6 @@ public class ObjectViewer
 
 	/**
 	 * @param res
-	 * @param expl
 	 * @return
 	 */
 	private String displayMatrix(Object res)
@@ -334,7 +332,7 @@ public class ObjectViewer
 	}
 
 	/**
-	 * @param result
+	 * @param res
 	 * @return
 	 */
 	private String displayDTValidationResult(DTValidationResult res)
@@ -456,7 +454,6 @@ public class ObjectViewer
 
 	/**
 	 * @param tt
-	 * @param expl
 	 * @return
 	 */
 	private String displayTestResult(TestResult tt)
@@ -536,8 +533,8 @@ public class ObjectViewer
 	}
 
 	/**
-	 * @param object
-	 * @param expl
+	 * @param t
+	 * @param buf
 	 * @return
 	 */
 	private StringBuffer displayException(Throwable t, StringBuffer buf)
@@ -694,14 +691,17 @@ public class ObjectViewer
 
 		buf.append("\n" + "<table><tr><td class='javacode'>");
 
-		buf.append("<a class='left' href='showLinks.jsp?" + url
-				+ "' target='show_app_hidden' title='" + uri + "'>");
+        buf.append("<a class='left' href='javascript:errorClicked(\"").append(url)
+                .append("\")' title='Edit cell containing error'>");
 
 		printCodeAndErrorToHtml(srcLocation, module, buf);
-		buf.append("</a>" + "" + "" + "</td></tr></table>");
+		buf.append("</a>");
 
-		buf.append("</td></tr></table>");
-
+        buf.append("<a href='../showLinks.jsp?").append(url)
+                .append("' target='show_app_hidden' title='")
+                .append(uri).append("'> Edit in Excel </a>");
+        buf.append("</td></tr></table>");
+        buf.append("</td></tr></table>");
 	}
 
 	public String displayShortParamValue(Object x)
