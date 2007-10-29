@@ -6,6 +6,9 @@ import org.openl.rules.commons.props.PropertyTypeException;
 
 import java.util.Date;
 
+/**
+ * Implementation of Property
+ */
 public class PropertyImpl implements Property {
     private String name;
     private ValueType type;
@@ -25,36 +28,45 @@ public class PropertyImpl implements Property {
         this(name, ValueType.STRING, value);
     }
 
+    /** {@inheritDoc} */
     public String getName() {
         return name;
     }
 
+    /** {@inheritDoc} */
     public ValueType getType() {
         return type;
     }
 
+    /** {@inheritDoc} */
     public Object getValue() {
         return value;
     }
 
+    /** {@inheritDoc} */
     public String getString() {
         return value.toString();
     }
 
+    /** {@inheritDoc} */
     public Date getDate() throws PropertyTypeException {
         checkType(ValueType.DATE);
         return (Date)value;
     }
 
+    /** {@inheritDoc} */
     public void setValue(String value) throws PropertyTypeException {
         checkType(ValueType.STRING);
         this.value = value;
     }
 
+    /** {@inheritDoc} */
     public void setValue(Date value) throws PropertyTypeException {
         checkType(ValueType.DATE);
         this.value = value;
     }
+
+    // --- protected
 
     protected void checkType(ValueType type) throws PropertyTypeException {
         if (this.type != type) {
