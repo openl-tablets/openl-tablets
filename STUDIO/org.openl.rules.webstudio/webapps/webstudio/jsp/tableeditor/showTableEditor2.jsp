@@ -6,9 +6,14 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich"%>
 <%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
-<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
+
+<c:if test="${studio.model.readOnly}">
+    <jsp:forward page="showTable.jsp" />
+</c:if>
+
 <jsp:useBean id='editorHelper' scope='session' class="org.openl.rules.ui.EditorHelper" />
 <%
     boolean switchParam = Boolean.valueOf(request.getParameter("switch"));
