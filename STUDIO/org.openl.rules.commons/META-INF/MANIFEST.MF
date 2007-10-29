@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Interfaces
+Bundle-SymbolicName: org.openl.rules.commons
+Bundle-Version: 4.1.1
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Export-Package: org.openl.rules.commons,
+ org.openl.rules.commons.props,
+ org.openl.rules.commons.props.impl
