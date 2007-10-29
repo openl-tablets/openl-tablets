@@ -69,7 +69,9 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
 				<a href="index.jsp?reload=true&select_wrapper=<%=selected%>" title="Refresh Project(s)" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
 				&nbsp;
 				<a target="mainFrame" href="<%= request.getContextPath()%>/html/ws-intro.html" title="Help"><img border=0 src="<%= request.getContextPath()%>/images/help.gif"></a>
-			</td>
+                &nbsp;
+				<a target="_top" href="<%= request.getContextPath()%>/faces/ui/jcr/jcrMain.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/jcr/tree_folder.gif" alt="repository"></a>
+            </td>
 			</table>
 			
 			</tr>

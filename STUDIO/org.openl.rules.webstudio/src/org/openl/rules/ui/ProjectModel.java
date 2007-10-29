@@ -546,7 +546,16 @@ public class ProjectModel
 		return null;
 	}
 
-	public AllTestsRunResult getRunMethods(int elementID)
+    /**
+     * Returns if current project is read only.
+     *
+     * @return <code>true</code> if project is read only.
+     */
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    public AllTestsRunResult getRunMethods(int elementID)
 	{
 		IOpenMethod m = getMethod(elementID);
 		
