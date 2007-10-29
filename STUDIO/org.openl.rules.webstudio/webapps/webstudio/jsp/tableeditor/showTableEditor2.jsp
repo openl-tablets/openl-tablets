@@ -147,7 +147,9 @@ window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, me
         <h:panelGroup style="display:block;"><h:graphicImage id="align_left" value="/images/editor/alLeft.gif" onclick="tableEditor.setAlignment('left')"/></h:panelGroup>
         <h:panelGroup style="display:block;"><h:graphicImage id="align_center" value="/images/editor/alCenter.gif" onclick="tableEditor.setAlignment('center')"/></h:panelGroup>
         <h:panelGroup style="display:block;"><h:graphicImage id="align_right" value="/images/editor/alRight.gif" onclick="tableEditor.setAlignment('right')"/></h:panelGroup>
-       </rich:toolBarGroup>
+       </rich:toolBarGroup><rich:toolBarGroup location="right"><h:panelGroup>
+        <f:verbatim><a href="../../docs/editor.html" title="editor help"><img style="border:0;" src="../../images/help.gif" alt="help"></a></f:verbatim>
+    </h:panelGroup></rich:toolBarGroup>
    </rich:toolBar>
   </a4j:form>
   <br />
