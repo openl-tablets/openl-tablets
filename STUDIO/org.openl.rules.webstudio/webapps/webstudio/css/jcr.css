@@ -38,6 +38,10 @@ top: 10px;
 right: 40px;
 }
 
+img.actionImage{
+    border:0;
+}
+
 BODY {
 background: #eceef8;
 font-family: verdana,helvetica,arial,sans-serif;

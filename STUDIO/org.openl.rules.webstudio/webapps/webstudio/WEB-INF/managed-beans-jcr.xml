@@ -50,7 +50,23 @@
     	</managed-property>
     </managed-bean>
 
-	<lifecycle>
+    <managed-bean>
+        <managed-bean-name>deployDescriptor</managed-bean-name>
+        <managed-bean-class>org.openl.rules.ui.repository.deploy.bean.DeploymentDescriptorBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>addDeploymentEntry</managed-bean-name>
+        <managed-bean-class>org.openl.rules.ui.repository.deploy.bean.AddDeploymentEntryBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>deploymentDescriptor</property-name>
+            <value>#{deployDescriptor}</value>
+        </managed-property>
+    </managed-bean>
+
+    <lifecycle>
 		<phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>
 	</lifecycle>
 

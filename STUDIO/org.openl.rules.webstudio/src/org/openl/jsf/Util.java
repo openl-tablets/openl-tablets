@@ -11,7 +11,7 @@ import java.util.Map;
  * @author Aliaksandr Antonik
  */
 public abstract class Util {
-	public static Map getSessionMap() {
+    public static Map getSessionMap() {
 		return FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
 	}
 

@@ -1,0 +1,61 @@
+<ui:composition template="/WEB-INF/templates/default-jcr.xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <ui:define name="title">Deployment Descriptor</ui:define>
+
+    <ui:define name="body">
+        <h:panelGrid columns="1">
+            <h:messages />
+
+            <rich:toolBar><rich:toolBarGroup style="padding:5px;">
+                <h:commandLink action="#{deployDescriptor.deploy}">
+                    <h:graphicImage styleClass="actionImage" value="/images/jcr/op_deploy.gif" title="Deploy"/>
+                </h:commandLink>
+                <h:commandLink action="#{deployDescriptor.checkIn}" rendered="#{deployDescriptor.checkinable}">
+                    <h:graphicImage styleClass="actionImage" value="/images/jcr/op_checkin.gif" title="Check in"/>
+                </h:commandLink>
+                <h:commandLink action="#{deployDescriptor.checkOut}" rendered="#{deployDescriptor.checkoutable}">
+                    <h:graphicImage styleClass="actionImage" value="/images/jcr/op_checkout.gif" title="Check out"/>
+                </h:commandLink>
+            </rich:toolBarGroup></rich:toolBar>
+
+            <rich:dataTable var="e" value="#{deployDescriptor.entries}" width="500"
+                            onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+                            onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'">
+                <f:facet name="header">
+                    <rich:columnGroup>
+                        <rich:column><h:outputText value="Selected"/></rich:column>
+                        <rich:column><h:outputText value="Name"/></rich:column>
+                        <rich:column><h:outputText value="Version"/></rich:column>
+                        <rich:column><h:outputText value="Message"/></rich:column>
+                    </rich:columnGroup>
+                </f:facet>
+
+                <rich:column style="text-align:center"> <h:selectBooleanCheckbox value="#{e.selected}"/> </rich:column>
+                <rich:column style="text-align:center">
+                    <h:outputText value="#{e.name}"/>
+                    <h:commandLink action="#{e.delete}">
+                        <h:graphicImage styleClass="actionImage" style="vertical-align:bottom;" value="/images/test_neq.gif" title="Remove"
+                                onclick="NAMESPACE_deleteDeployEntry.showModalPanel(this); Event.stop(event || window.event);"/>
+					</h:commandLink>
+                </rich:column>
+                <rich:column style="text-align:center"> <h:outputText value="#{e.version}" /> </rich:column>
+                <rich:column style="text-align:center"> <h:outputText value="#{e.messages}" /> </rich:column>
+            </rich:dataTable>
+
+            <h:panelGroup >
+                <h:commandButton value="Add Project" type="button" onclick="Richfaces.showModalPanel('addDeployEntry')"/> <rich:spacer width="15"/>
+                <h:commandButton value="Open Selected Projects in Web Studio" />
+            </h:panelGroup>
+        </h:panelGrid>
+    </ui:define>
+
+    <ui:define name="special">
+		<ui:include src="/ui/deploy/modal/deleteDeployEntry.xhtml" />
+		<ui:include src="/ui/deploy/modal/addDeployEntry.xhtml" />
+	</ui:define>
+
+</ui:composition>
