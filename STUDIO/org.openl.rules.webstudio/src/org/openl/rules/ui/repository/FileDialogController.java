@@ -5,7 +5,7 @@ import org.openl.rules.ui.repository.beans.FolderBean;
 import org.openl.rules.ui.repository.handlers.FileHandler;
 import org.openl.rules.ui.repository.handlers.FolderHandler;
 
-public class FileDialog extends AbstractDialog {
+public class FileDialogController extends AbstractDialogController {
     private String uploadFrom;
     private String fileName;
     

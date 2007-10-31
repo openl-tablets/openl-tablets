@@ -1,6 +1,6 @@
 package org.openl.rules.ui.repository;
 
-public abstract class AbstractDialog {
+public abstract class AbstractDialogController {
     private Context context;
     
     public void setContext(Context context) {

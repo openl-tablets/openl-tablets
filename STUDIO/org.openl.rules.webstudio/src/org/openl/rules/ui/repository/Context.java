@@ -4,7 +4,6 @@ import org.openl.rules.repository.RRepository;
 import org.openl.rules.ui.repository.beans.Entity;
 import org.openl.rules.ui.repository.handlers.FileHandler;
 import org.openl.rules.ui.repository.handlers.FolderHandler;
-import org.openl.rules.ui.repository.handlers.MessageQueue;
 import org.openl.rules.ui.repository.handlers.ProjectHandler;
 import org.openl.rules.ui.repository.handlers.RepositoryHandler;
 
