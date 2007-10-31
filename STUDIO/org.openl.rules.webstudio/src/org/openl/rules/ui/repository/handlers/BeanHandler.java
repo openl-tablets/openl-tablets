@@ -30,7 +30,7 @@ public abstract class BeanHandler {
      * from the repository entity.
      * Also sets system properties: ID and Handler. 
      * 
-     * @param bean UI bean to be initialized
+     * @param bean UI controllers to be initialized
      * @param entity a repository entity
      */
     protected void initBean(AbstractEntityBean bean, REntity entity) {
@@ -49,7 +49,7 @@ public abstract class BeanHandler {
     /**
      * Deletes a repository entity
      * 
-     * @param bean UI bean for a repository entity
+     * @param bean UI controllers for a repository entity
      */
     public void delete(AbstractEntityBean bean) {
         try {
@@ -69,7 +69,7 @@ public abstract class BeanHandler {
     /**
      * Gets list of versions for a repository entity
      * 
-     * @param bean UI bean for a repository entity
+     * @param bean UI controllers for a repository entity
      * @return list of versions (always not null).
      */
     public List<VersionBean> getVersions(AbstractEntityBean bean) {

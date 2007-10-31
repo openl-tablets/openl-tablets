@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository.deploy;
+package org.openl.rules.ui.deploy;
 
 /**
  * Abstraction of deployment descriptor.

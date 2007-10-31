@@ -52,13 +52,13 @@
 
     <managed-bean>
         <managed-bean-name>deployDescriptor</managed-bean-name>
-        <managed-bean-class>org.openl.rules.ui.repository.deploy.bean.DeploymentDescriptorBean</managed-bean-class>
+        <managed-bean-class>org.openl.rules.ui.deploy.controllers.DeploymentDescriptorController</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
     </managed-bean>
 
     <managed-bean>
         <managed-bean-name>addDeploymentEntry</managed-bean-name>
-        <managed-bean-class>org.openl.rules.ui.repository.deploy.bean.AddDeploymentEntryBean</managed-bean-class>
+        <managed-bean-class>org.openl.rules.ui.deploy.controllers.AddDeploymentEntryController</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
         <managed-property>
             <property-name>deploymentDescriptor</property-name>
