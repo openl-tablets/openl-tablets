@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository.deploy;
+package org.openl.rules.ui.deploy;
 
 /**
  * Represents a project in a deployment descriptor.

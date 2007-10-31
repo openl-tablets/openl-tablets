@@ -1,21 +1,21 @@
-package org.openl.rules.ui.repository.deploy.bean;
+package org.openl.rules.ui.deploy.controllers;
 
 import static org.openl.rules.ui.repository.UiConst.OUTCOME_SUCCESS;
-import org.openl.rules.ui.repository.deploy.DeploymentDescriptor;
-import org.openl.rules.ui.repository.deploy.DeploymentDescriptorEntry;
+import org.openl.rules.ui.deploy.DeploymentDescriptor;
+import org.openl.rules.ui.deploy.DeploymentDescriptorEntry;
 
 import java.util.List;
 import java.util.ArrayList;
 
-public class DeploymentDescriptorBean implements DeploymentDescriptor {
+public class DeploymentDescriptorController implements DeploymentDescriptor {
     private List<DeploymentDescriptorEntry> entries;
     {
         entries = new ArrayList<DeploymentDescriptorEntry>();
-        entries.add(new EntryBean("Project 1", "1.2.1"));
-        entries.add(new EntryBean("Project 2", "1.2.2", "Conflicts with project 5 v1.0.4"));
-        entries.add(new EntryBean("Project 5", "1.0.4"));
+        entries.add(new EntryController("Project 1", "1.2.1"));
+        entries.add(new EntryController("Project 2", "1.2.2", "Conflicts with project 5 v1.0.4"));
+        entries.add(new EntryController("Project 5", "1.0.4"));
         for (DeploymentDescriptorEntry eb : entries) {
-            ((EntryBean) eb).setParent(this);
+            ((EntryController) eb).setParent(this);
         }
     }
 
@@ -65,10 +65,10 @@ public class DeploymentDescriptorBean implements DeploymentDescriptor {
             throw new NullPointerException("entry is null");
         }
 
-        if (! (entry instanceof EntryBean)) {
-            entry = new EntryBean(entry.getName(), entry.getVersion(), entry.getMessages());
+        if (! (entry instanceof EntryController)) {
+            entry = new EntryController(entry.getName(), entry.getVersion(), entry.getMessages());
         }
-        ((EntryBean) entry).setParent(this);
+        ((EntryController) entry).setParent(this);
 
         return !containsEntry(entry) && entries.add(entry);
     }

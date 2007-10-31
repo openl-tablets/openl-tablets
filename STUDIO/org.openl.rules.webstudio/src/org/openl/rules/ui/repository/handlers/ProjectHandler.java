@@ -27,7 +27,7 @@ public class ProjectHandler extends BeanHandler {
     /**
      * Gets list of elements in a root folder of a repository project.
      * 
-     * @param bean a project bean
+     * @param bean a project controllers
      * @return list of elements
      */
     public List<AbstractEntityBean> getElements(ProjectBean bean) {
