@@ -27,7 +27,7 @@
 			  columns="1"
 			>
 				<h:outputText styleClass="niceLabel" value="Name of New Project:" />
-				<h:inputText styleClass="modalInput" value="#{modalHandler.newProjectName}" />
+				<h:inputText styleClass="modalInput" value="#{modalProject.newProjectName}" />
 			</h:panelGrid>
 			
 			<rich:separator height="1" />
@@ -40,7 +40,7 @@
 				<h:commandButton 
 				  styleClass="modalButton" 
 				  value="Create" 
-				  action="#{modalHandler.addProject}"
+				  action="#{modalProject.addProject}"
 				  type="submit"
 				/>
 				<h:commandButton 
