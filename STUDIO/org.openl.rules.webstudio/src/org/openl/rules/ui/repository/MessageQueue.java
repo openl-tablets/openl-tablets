@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository.handlers;
+package org.openl.rules.ui.repository;
 
 import java.util.LinkedList;
 import java.util.List;

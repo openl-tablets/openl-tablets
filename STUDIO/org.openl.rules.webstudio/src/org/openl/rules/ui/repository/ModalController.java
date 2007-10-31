@@ -4,7 +4,7 @@ import org.openl.rules.ui.repository.beans.FolderBean;
 import org.openl.rules.ui.repository.beans.ProjectBean;
 
 // it is BEAN!!!
-public class ModalHandler extends AbstractDialog {
+public class ModalController extends AbstractDialogController {
 
     // Add new Project
     private String newProjectName;

@@ -10,7 +10,7 @@ import javax.faces.context.FacesContext;
 import org.openl.rules.ui.repository.beans.FileBean;
 import org.openl.rules.ui.repository.handlers.FileHandler;
 
-public class DiffForm extends AbstractDialog {
+public class DiffFormController extends AbstractDialogController {
     private String compareWithVersion;
     
     public String revertTo() {
