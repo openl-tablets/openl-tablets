@@ -8,46 +8,46 @@
         <managed-bean-class>org.openl.rules.ui.repository.UserSessionBean</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
     </managed-bean>
-    
+
     <!-- activeNode.* is short for userSession.selected.dataBean.* and userSession.selected.type -->
     <managed-bean>
-    	<managed-bean-name>activeNode</managed-bean-name>
-    	<managed-bean-class>org.openl.rules.ui.repository.ActiveNodeBean</managed-bean-class>
-    	<managed-bean-scope>request</managed-bean-scope>
-    	<managed-property>
-    		<property-name>userSession</property-name>
-    		<value>#{userSession}</value>
-    	</managed-property>
+      <managed-bean-name>activeNode</managed-bean-name>
+      <managed-bean-class>org.openl.rules.ui.repository.ActiveNodeBean</managed-bean-class>
+      <managed-bean-scope>request</managed-bean-scope>
+      <managed-property>
+        <property-name>userSession</property-name>
+        <value>#{userSession}</value>
+      </managed-property>
     </managed-bean>
 
     <managed-bean>
         <managed-bean-name>modalProject</managed-bean-name>
         <managed-bean-class>org.openl.rules.ui.repository.ModalController</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
-    	<managed-property>
-    		<property-name>context</property-name>
-    		<value>#{userSession.context}</value>
-    	</managed-property>
-    </managed-bean>
-    
-    <managed-bean>
-    	<managed-bean-name>fileDialog</managed-bean-name>
-    	<managed-bean-class>org.openl.rules.ui.repository.FileDialogController</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    	<managed-property>
-    		<property-name>context</property-name>
-    		<value>#{userSession.context}</value>
-    	</managed-property>
+      <managed-property>
+        <property-name>context</property-name>
+        <value>#{userSession.context}</value>
+      </managed-property>
     </managed-bean>
 
     <managed-bean>
-    	<managed-bean-name>diff</managed-bean-name>
-    	<managed-bean-class>org.openl.rules.ui.repository.DiffFormController</managed-bean-class>
+      <managed-bean-name>fileDialog</managed-bean-name>
+      <managed-bean-class>org.openl.rules.ui.repository.FileDialogController</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+      <managed-property>
+        <property-name>context</property-name>
+        <value>#{userSession.context}</value>
+      </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+      <managed-bean-name>diff</managed-bean-name>
+      <managed-bean-class>org.openl.rules.ui.repository.DiffFormController</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
-    	<managed-property>
-    		<property-name>context</property-name>
-    		<value>#{userSession.context}</value>
-    	</managed-property>
+      <managed-property>
+        <property-name>context</property-name>
+        <value>#{userSession.context}</value>
+      </managed-property>
     </managed-bean>
 
     <managed-bean>
@@ -66,8 +66,14 @@
         </managed-property>
     </managed-bean>
 
-	<lifecycle>
-		<phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>
-	</lifecycle>
+    <managed-bean>
+      <managed-bean-name>propertiesEditorController</managed-bean-name>
+      <managed-bean-class>org.openl.rules.ui.repository.PropertiesEditorController</managed-bean-class>
+      <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+  <lifecycle>
+    <phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>
+  </lifecycle>
 
 </faces-config>

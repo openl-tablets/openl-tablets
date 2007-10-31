@@ -2,6 +2,8 @@ package org.openl.rules.webstudio.web.tableeditor;
 
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
+
+import org.openl.jsf.FacesUtils;
 import org.openl.jsf.Util;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
@@ -52,7 +54,7 @@ public class TableEditorController extends TableViewController implements JSTabl
      */
     public String save() {
         readRequestParams();
-        String value = Util.getRequestParameter("value");
+        String value = FacesUtils.getRequestParameter("value");
 
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
@@ -211,7 +213,7 @@ public class TableEditorController extends TableViewController implements JSTabl
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
             TableEditorModel editorModel = editorHelper.getModel();
-            boolean move = Boolean.valueOf(Util.getRequestParameter("move"));
+            boolean move = Boolean.valueOf(FacesUtils.getRequestParameter("move"));
 
             if (row >= 0) {
                 if (move) ;
@@ -240,7 +242,7 @@ public class TableEditorController extends TableViewController implements JSTabl
         readRequestParams();
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
-            String align = Util.getRequestParameter("align");
+            String align = FacesUtils.getRequestParameter("align");
             int halign = -1;
             if ("left".equalsIgnoreCase(align)) {
                 halign = ICellStyle.ALIGN_LEFT;
@@ -266,7 +268,7 @@ public class TableEditorController extends TableViewController implements JSTabl
     }
 
     private void readRequestParams() {
-       Map<String, String> paramMap = Util.getRequestParameterMap();
+       Map<String, String> paramMap = FacesUtils.getRequestParameterMap();
        row = col = elementID = -1;
 
        try {row = Integer.parseInt(paramMap.get("row")) - 1;} catch (NumberFormatException e) {}
@@ -284,7 +286,7 @@ public class TableEditorController extends TableViewController implements JSTabl
      * id in an existing helper.
      */
     protected EditorHelper getHelper(int elementId) {
-        Map sessionMap = Util.getSessionMap();
+        Map sessionMap = FacesUtils.getSessionMap();
         synchronized (sessionMap) {
             if (sessionMap.containsKey("editorHelper")) {
                 EditorHelper editorHelper = (EditorHelper) sessionMap.get("editorHelper");

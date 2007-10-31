@@ -3,7 +3,8 @@
  */
 package org.openl.rules.ui;
 
-import static org.openl.jsf.Util.getWebStudio;
+import org.openl.jsf.FacesUtils;
+import org.openl.jsf.Util;
 
 /**
  * @author snshor
@@ -11,16 +12,16 @@ import static org.openl.jsf.Util.getWebStudio;
  */
 public class EditorHelper implements WebStudio.StudioListener
 {
-	private TableEditorModel model;
+    private TableEditorModel model;
     private int elementID = -1;
 
     public EditorHelper() {
-        WebStudio webStudio = getWebStudio();
+        WebStudio webStudio = Util.getWebStudio();
         if (webStudio != null) webStudio.addEventListener(this);
     }
 
     public void setTableID(int elementID, ProjectModel prj, String mode, boolean cancel)
-	{
+    {
         if (model != null && (cancel || elementID != this.elementID)) model.cancel();
 
         TableEditorModel newModel = new TableEditorModel(prj.getTableWithMode(elementID, prj.getTableView(mode)));
@@ -32,30 +33,30 @@ public class EditorHelper implements WebStudio.StudioListener
     }
 
    public void setTableID(int elementID, ProjectModel prj)
-	{
-		setTableID(elementID, prj, null, true);
-	}
+    {
+        setTableID(elementID, prj, null, true);
+    }
 
     public int getElementID() {
         return elementID;
     }
 
     public String showTable()
-	{
-		return ProjectModel.showTable(model.getUpdatedTable(),  false);
-	}
+    {
+        return ProjectModel.showTable(model.getUpdatedTable(),  false);
+    }
 
 
-	public TableEditorModel getModel()
-	{
-		return this.model;
-	}
+    public TableEditorModel getModel()
+    {
+        return this.model;
+    }
 
 
-	public void setModel(TableEditorModel model)
-	{
-		this.model = model;
-	}
+    public void setModel(TableEditorModel model)
+    {
+        this.model = model;
+    }
 
     public void studioReset() {
         if (model != null) {

@@ -1,64 +1,79 @@
 .lblSearch {
-font-size: 13px;
+  font-size: 13px;
 }
+
 .niceLabel {
-font-size:12px;
+  font-size: 12px;
 }
 
 .smlBackButton {
-font-size: 9px;
+  font-size: 9px;
 }
 
 .outpanelHeader {
-height:4px;
-border-width: 0;
+  height: 4px;
+  border-width: 0;
 }
+
 .columnTree {
-vertical-align:top;
+  vertical-align: top;
 }
+
 .columnProps {
-vertical-align:top;
-width: 100%;
+  vertical-align: top;
+  width: 100%;
 }
 
 .masthead {
-width: 100%;
-height: 70px;
-background-image: url(/webstudio/images/header_logo.jpg);
-background-repeat: no-repeat;
-border-bottom: 1px solid #CCCCCC;
-min-width: 800px;
-max-width: 1400px;
-position: relative;
+  width: 100%;
+  height: 70px;
+  background-image: url(/webstudio/images/header_logo.jpg);
+  background-repeat: no-repeat;
+  border-bottom: 1px solid #CCCCCC;
+  min-width: 800px;
+  max-width: 1400px;
+  position: relative;
 }
 
 .logo {
-position: absolute;
-top: 10px;
-right: 40px;
+  position: absolute;
+  top: 10px;
+  right: 40px;
 }
 
-img.actionImage{
-    border:0;
+img.actionImage {
+  border: 0;
 }
 
-BODY {
-background: #eceef8;
-font-family: verdana,helvetica,arial,sans-serif;
-font-size: 12px;
+body {
+  background: #eceef8;
+  font-family: verdana, helvetica, arial, sans-serif;
+  font-size: 12px;
 }
 
-/*  
-.dr-pnl-h, .dr-tbpnl-tb-act, .dr-tbpnl-tb-inact, .dr-table-headercell {
-background-image: none;
-}
-*/
+/* form elements styles */
 
-<!--
-scrollbar-base-color: #BED6F8;
-scrollbar-shadow-color: #F2F7FF;
-scrollbar-highlight-color: #F2F7FF;
-scrollbar-arrow-color: #000000;
-scrollbar-darkshadow-color: #C6DEFF;
-scrollbar-3dlight-color: #C6DEFF;
--->
+.label {
+  color: #002276;
+  padding-right: 5px;
+  width: 150px;
+  vertical-align: top;
+}
+
+input {
+  font-family : Verdana, Arial;
+  font-weight : normal;
+  font-size : 11px;
+}
+
+select {
+  font-family : Verdana, Arial;
+  font-weight : normal;
+  font-size : 11px;
+}
+
+textarea {
+  font-family : Verdana, Arial;
+  font-weight : normal;
+  font-size : 11px;
+}
