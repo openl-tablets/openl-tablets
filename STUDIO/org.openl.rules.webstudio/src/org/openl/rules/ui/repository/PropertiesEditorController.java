@@ -27,8 +27,10 @@ public class PropertiesEditorController {
         if (dataBean instanceof FileBean) {}
         else if (dataBean instanceof FolderBean) {}
         else if (dataBean instanceof ProjectBean) {
-            properties.add(new PropertyImpl("Property1", "1"));
-            properties.add(new PropertyImpl("Property2", "2"));
+            properties.add(new PropertyImpl("Effective Date", "09/01/2007"));
+            properties.add(new PropertyImpl("Expiration Date", "01/01/2008"));
+            properties.add(new PropertyImpl("LOB", ""));
+            properties.add(new PropertyImpl("Region", ""));
         }
 
         return properties;
