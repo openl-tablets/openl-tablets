@@ -1,48 +1,50 @@
 <ui:composition
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<h:panelGrid columns="2">
-		<h:outputText styleClass="niceLabel" value="Project Name:" />
-		<h:outputText value="#{userSession.repositoryTree.selected.dataBean.name}" />
+  <h:panelGrid columns="2" columnClasses="label,">
+    <h:outputText styleClass="niceLabel" value="Project Name:" />
+    <h:outputText value="#{userSession.repositoryTree.selected.dataBean.name}" />
 
-		<h:outputText styleClass="niceLabel" value="Description:" />
-		<h:inputTextarea value="" rows="3" cols="40"/>
+    <h:outputText styleClass="niceLabel" value="Description:" />
+    <h:inputTextarea value="" rows="3" cols="40"/>
 
-		<h:outputText styleClass="niceLabel" value="Effective Date:" />
-		<h:inputText value="09/01/2007" />
+    <h:outputText styleClass="niceLabel" value="Effective Date:" />
+    <h:inputText value="09/01/2007" />
 
-		<h:outputText styleClass="niceLabel" value="Expiration Date:" />
-		<h:inputText value="01/01/2008" />
+    <h:outputText styleClass="niceLabel" value="Expiration Date:" />
+    <h:inputText value="01/01/2008" />
 
-		<h:outputText styleClass="niceLabel" value="Status:" />
-		<h:selectOneMenu value="DRAFT">
-			<f:selectItem itemValue="INITIAL" />
-			<f:selectItem itemValue="DRAFT" />
-			<f:selectItem itemValue="QA" />
-			<f:selectItem itemValue="PRODUCTION" />
-			<f:selectItem itemValue="OBSOLETE" />
-		</h:selectOneMenu>
+    <h:outputText styleClass="niceLabel" value="Status:" />
+    <h:selectOneMenu value="DRAFT">
+      <f:selectItem itemValue="INITIAL" />
+      <f:selectItem itemValue="DRAFT" />
+      <f:selectItem itemValue="QA" />
+      <f:selectItem itemValue="PRODUCTION" />
+      <f:selectItem itemValue="OBSOLETE" />
+    </h:selectOneMenu>
 
-		<h:outputText styleClass="niceLabel" value="Creation Date:" />
-		<h:outputText value="#{userSession.repositoryTree.selected.dataBean.created}" />
+    <h:outputText styleClass="niceLabel" value="Creation Date:" />
+    <h:outputText value="#{userSession.repositoryTree.selected.dataBean.created}" />
 
-		<h:outputText styleClass="niceLabel" value="Modified Date:" />
-		<h:outputText value="#{userSession.repositoryTree.selected.dataBean.lastModified}" />
+    <h:outputText styleClass="niceLabel" value="Modified Date:" />
+    <h:outputText value="#{userSession.repositoryTree.selected.dataBean.lastModified}" />
 
-		<h:outputText styleClass="niceLabel" value="Modified By:" />
-		<h:outputText value="#{userSession.repositoryTree.selected.dataBean.lastModifiedBy}" />
+    <h:outputText styleClass="niceLabel" value="Modified By:" />
+    <h:outputText value="#{userSession.repositoryTree.selected.dataBean.lastModifiedBy}" />
 
-		<h:outputText styleClass="niceLabel" value="Access Level:" />
-		<h:outputText value="Write" />
+    <h:outputText styleClass="niceLabel" value="Access Level:" />
+    <h:outputText value="Write" />
 
-		<h:outputText styleClass="niceLabel" value="LOB:" />
-		<h:inputText value="" />
+    <h:outputText styleClass="niceLabel" value="LOB:" />
+    <h:inputText value="" />
 
-		<h:outputText styleClass="niceLabel" value="Region:" />
-		<h:inputText value="" />
-	</h:panelGrid>
+    <h:outputText styleClass="niceLabel" value="Region:" />
+    <h:inputText value="" />
+  </h:panelGrid>
+
+  <ui:include src="/ui/jcr/node/properties.xhtml"/>
 
 </ui:composition>

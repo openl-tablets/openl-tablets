@@ -5,7 +5,7 @@ import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.ui.TableEditorModel;
-import org.openl.rules.helpers.IntRange;
+//import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 
 public class CellEditorSelector {
@@ -28,7 +28,7 @@ public class CellEditorSelector {
             return null;
         }
 
-        if (dataType.getInstanceClass() == int.class || dataType.getInstanceClass() == IntRange.class) {
+        if (dataType.getInstanceClass() == int.class /*|| dataType.getInstanceClass() == IntRange.class*/) {
             IDomain domain = dataType.getDomain();
 
             if (domain == null) {

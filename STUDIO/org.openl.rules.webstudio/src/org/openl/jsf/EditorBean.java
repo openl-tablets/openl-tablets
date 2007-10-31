@@ -13,132 +13,124 @@ import org.openl.rules.ui.WebStudio;
 
 public class EditorBean {
 
-	protected Integer row;
-	protected Integer column;
-	protected String value;
-	protected Integer elementID;
-	
-	public String getValue() {
-		return value;
-	}
+    protected Integer row;
+    protected Integer column;
+    protected String value;
+    protected Integer elementID;
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	protected HtmlOutputText createText(String text,String id,boolean escape) {
-		//
-		HtmlOutputText result = new HtmlOutputText();
-		result.setId(id);
-		result.setValue(text);
-		result.setEscape(escape);
-		return result;
-	}
-	
-	
-	protected String cellTitle;
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-	public String getCellTitle() {
-		return cellTitle;
-	}
+    protected HtmlOutputText createText(String text,String id,boolean escape) {
+        //
+        HtmlOutputText result = new HtmlOutputText();
+        result.setId(id);
+        result.setValue(text);
+        result.setEscape(escape);
+        return result;
+    }
 
-	public void setCellTitle(String cellTitle) {
-		this.cellTitle = cellTitle;
-	}
-	
-	public void beginEditing() {
-		TableWriterBean twb = (TableWriterBean)(FacesContext.getCurrentInstance().
-				getApplication().getVariableResolver().resolveVariable(
-						FacesContext.getCurrentInstance(),"tableWriterBean"));
-		twb.ajaxrequest = true;
 
-		FacesContext fc = FacesContext.getCurrentInstance();
-		UIComponent spr = fc.getViewRoot().findComponent("spreadsheet");
-		//
-		HtmlAjaxCommandButton button = (HtmlAjaxCommandButton)(fc.getViewRoot().findComponent("editor_form").findComponent("begin_editing"));
-		button.setReRender(getCellTitle() + "text");
-		//	
-		HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
-		int i = spr.getChildren().indexOf(hot);
-		//
-		/*String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
-		if (null != cellType) {
-			ICellEditorActivator activator = (ICellEditorActivator)(getEditorHelper().getModel().getCellEditors().get(cellType));
-			this.value = String.valueOf(hot.getValue());
-			UIComponent editor = activator.createInstance(value, getEditorHelper().getModel().getCellEditorMetadata(row-1, column-1));
-			editor.setValueBinding("value", new ValueBindingImpl(fc.getApplication(),"#{editorBean.value}"));
-			editor.setId(fc.getViewRoot().createUniqueId());
-			spr.getChildren().remove(i);
-			
-			AjaxForm af = new AjaxForm();
-			af.setId(getCellTitle()+"text");
-			HtmlAjaxCommandButton submit_button = new HtmlAjaxCommandButton();
-			submit_button.setStyle("visibility:hidden");
-			submit_button.setId("submit_button");
-			submit_button.setAction(new MethodBindingImpl(fc.getApplication(),"#{editorBean.stopEditing}",new Class[]{}));
-			af.getChildren().add(submit_button);
-			af.getChildren().add(editor);
-			
-			spr.getChildren().add(i, af);
-			//HtmlInputText hit = new HtmlInputText();
-			//hit.setValue(hot.getValue());
-			//hit.setId(getCellTitle()+"text");
-			//hit.setSize(20);
-		}                */
-	}
-	
-	public void printComponent(UIComponent comp,String prefix) {
-		if (null != comp) {
-			System.out.println(prefix + comp.getClass() + ";id=" + comp.getId());
-			for (int i=0; i < comp.getChildren().size(); i++) {
-				printComponent((UIComponent)(comp.getChildren().get(i)), prefix + prefix);
-			}
-		}
-	}
-	
-	public Map getSessionMap() {
-		return FacesContext.getCurrentInstance().getExternalContext().getSessionMap();	
-	}
+    protected String cellTitle;
 
-	public WebStudio getWebStudio() {
-		return (WebStudio)(getSessionMap().get("studio"));
-	}
-	
-	public EditorHelper getEditorHelper() {
-		if (!getSessionMap().containsKey("editor")) {
-			EditorHelper result = new EditorHelper();
-			result.setTableID(elementID, getWebStudio().getModel());
-			getSessionMap().put("editor",result);
-		}
-		return (EditorHelper)(getSessionMap().get("editor"));
-	}
+    public String getCellTitle() {
+        return cellTitle;
+    }
 
-	public Integer getElementID() {
-		return elementID;
-	}
+    public void setCellTitle(String cellTitle) {
+        this.cellTitle = cellTitle;
+    }
 
-	public void setElementID(Integer elementID) {
-		this.elementID = elementID;
-	}
+    public void beginEditing() {
+        TableWriterBean twb = (TableWriterBean)(FacesContext.getCurrentInstance().
+                getApplication().getVariableResolver().resolveVariable(
+                        FacesContext.getCurrentInstance(),"tableWriterBean"));
+        twb.ajaxrequest = true;
 
-	public Integer getRow() {
-		return row;
-	}
+        FacesContext fc = FacesContext.getCurrentInstance();
+        UIComponent spr = fc.getViewRoot().findComponent("spreadsheet");
+        //
+        HtmlAjaxCommandButton button = (HtmlAjaxCommandButton)(fc.getViewRoot().findComponent("editor_form").findComponent("begin_editing"));
+        button.setReRender(getCellTitle() + "text");
+        //
+        HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
+        int i = spr.getChildren().indexOf(hot);
+        //
+        /*String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
+        if (null != cellType) {
+            ICellEditorActivator activator = (ICellEditorActivator)(getEditorHelper().getModel().getCellEditors().get(cellType));
+            this.value = String.valueOf(hot.getValue());
+            UIComponent editor = activator.createInstance(value, getEditorHelper().getModel().getCellEditorMetadata(row-1, column-1));
+            editor.setValueBinding("value", new ValueBindingImpl(fc.getApplication(),"#{editorBean.value}"));
+            editor.setId(fc.getViewRoot().createUniqueId());
+            spr.getChildren().remove(i);
 
-	public void setRow(Integer row) {
-		this.row = row;
-	}
+            AjaxForm af = new AjaxForm();
+            af.setId(getCellTitle()+"text");
+            HtmlAjaxCommandButton submit_button = new HtmlAjaxCommandButton();
+            submit_button.setStyle("visibility:hidden");
+            submit_button.setId("submit_button");
+            submit_button.setAction(new MethodBindingImpl(fc.getApplication(),"#{editorBean.stopEditing}",new Class[]{}));
+            af.getChildren().add(submit_button);
+            af.getChildren().add(editor);
 
-	public Integer getColumn() {
-		return column;
-	}
+            spr.getChildren().add(i, af);
+            //HtmlInputText hit = new HtmlInputText();
+            //hit.setValue(hot.getValue());
+            //hit.setId(getCellTitle()+"text");
+            //hit.setSize(20);
+        }                */
+    }
 
-	public void setColumn(Integer column) {
-		this.column = column;
-	}
-	
-	public void stopEditing() {
-		//
-		System.out.println("stopEditing");
-	}
+    public void printComponent(UIComponent comp,String prefix) {
+        if (null != comp) {
+            System.out.println(prefix + comp.getClass() + ";id=" + comp.getId());
+            for (int i=0; i < comp.getChildren().size(); i++) {
+                printComponent((UIComponent)(comp.getChildren().get(i)), prefix + prefix);
+            }
+        }
+    }
+
+    public EditorHelper getEditorHelper() {
+        if (!FacesUtils.getSessionMap().containsKey("editor")) {
+            EditorHelper result = new EditorHelper();
+            result.setTableID(elementID, Util.getWebStudio().getModel());
+            FacesUtils.getSessionMap().put("editor",result);
+        }
+        return (EditorHelper)(FacesUtils.getSessionMap().get("editor"));
+    }
+
+    public Integer getElementID() {
+        return elementID;
+    }
+
+    public void setElementID(Integer elementID) {
+        this.elementID = elementID;
+    }
+
+    public Integer getRow() {
+        return row;
+    }
+
+    public void setRow(Integer row) {
+        this.row = row;
+    }
+
+    public Integer getColumn() {
+        return column;
+    }
+
+    public void setColumn(Integer column) {
+        this.column = column;
+    }
+
+    public void stopEditing() {
+        //
+        System.out.println("stopEditing");
+    }
 }
