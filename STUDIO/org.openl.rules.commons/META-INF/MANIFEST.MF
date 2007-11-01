@@ -5,6 +5,19 @@ Bundle-SymbolicName: org.openl.rules.commons
 Bundle-Version: 4.1.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Export-Package: org.openl.rules.commons,
+Export-Package: org.openl.rules,
+ org.openl.rules.commons,
+ org.openl.rules.commons.artefacts,
+ org.openl.rules.commons.artefacts.impl,
+ org.openl.rules.commons.logs,
+ org.openl.rules.commons.projects,
  org.openl.rules.commons.props,
- org.openl.rules.commons.props.impl
+ org.openl.rules.commons.props.impl,
+ org.openl.rules.commons.util,
+ org.openl.rules.dtr,
+ org.openl.rules.dtr.impl,
+ org.openl.rules.lw,
+ org.openl.rules.lw.impl,
+ org.openl.rules.uw,
+ org.openl.rules.uw.impl
+Require-Bundle: org.apache.commons_logging
