@@ -91,6 +91,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         workspaceManager.notifyReleased(this);
     }
 
+    public File getLocation() {
+        return location;
+    }
+
 // --- protected
 
     protected void notifyRemoved(LocalProject project) {

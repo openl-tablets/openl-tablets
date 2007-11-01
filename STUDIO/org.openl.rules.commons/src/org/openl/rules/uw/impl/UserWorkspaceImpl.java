@@ -15,6 +15,7 @@ import org.openl.rules.uw.UserWorkspaceProject;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.io.File;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private WorkspaceUser user;
@@ -109,7 +110,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    // --- protected
+    public File getLocalWorkspaceLocation() {
+        return localWorkspace.getLocation();
+    }
+
+// --- protected
 
     protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
         return localWorkspace.addProject(repositoryProject);
