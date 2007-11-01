@@ -18,15 +18,14 @@ import org.openl.util.FileTreeIterator;
  */
 public class OpenLProjectLocator {
 
-	String workspace = WebStudio.getWorkspace();
-	
-	
+	private final String workspace;
+
 	/**
 	 * @param args
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		OpenLProjectLocator op = new OpenLProjectLocator();
+		OpenLProjectLocator op = new OpenLProjectLocator("..");
 		File[] f = op.listProjects();
 		for (int i = 0; i < f.length; i++) {
 			System.out.println(f[i].getCanonicalPath() + " - " + op.isRulesProject(f[i]));
@@ -39,10 +38,10 @@ public class OpenLProjectLocator {
 	
 	
 	
-	public OpenLProjectLocator()
+	public OpenLProjectLocator(String workspace)
 	{
-		
-	}
+        this.workspace = workspace;
+    }
 	
 	
 	public OpenLWrapperInfo[] listOpenLProjects() throws IOException 
@@ -66,7 +65,7 @@ public class OpenLProjectLocator {
 	
 	
 	/**
-	 * @param file
+	 * @param project
 	 * @return
 	 * @throws IOException 
 	 */
@@ -185,20 +184,4 @@ public class OpenLProjectLocator {
 	public String getWorkspace() {
 		return workspace;
 	}
-
-
-
-	/**
-	 * @param workspace The workspace to set.
-	 */
-	public void setWorkspace(String workspace) {
-		this.workspace = workspace;
-	}
-	
-	
-	
-	
-	
-	
-
 }
