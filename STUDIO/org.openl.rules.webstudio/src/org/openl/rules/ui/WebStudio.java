@@ -17,6 +17,8 @@ import org.openl.util.benchmark.BenchmarkInfo;
  */
 public class WebStudio
 {
+    private final String workspacePath;
+
     static interface StudioListener extends EventListener {
         void studioReset();
     }
@@ -29,18 +31,25 @@ public class WebStudio
 
 	ProjectModel model = new ProjectModel(this);
 
-	OpenLProjectLocator locator = new OpenLProjectLocator();
+	final OpenLProjectLocator locator;
 
 	OpenLWrapperInfo[] wrappers = null;
 
 	WebStudioMode mode = WebStudioMode.BUSINESS1;
 
-	public void reset() throws Exception
+    public WebStudio() {
+        this("..");
+    }
+
+    public WebStudio(String workspacePath) {
+        this.workspacePath = workspacePath;
+        locator = new OpenLProjectLocator(workspacePath);
+    }
+
+    public void reset() throws Exception
 	{
 		model.reset();
         for (StudioListener listener : listeners) listener.studioReset();
-        // locator = new OpenLProjectLocator();
-		// wrappers = null;
 	}
 	
 	
@@ -231,11 +240,13 @@ public class WebStudio
     }
 
     /**
-	 * @return
+     * Returns path on local file system to openL workspace this instance of web studio works with.   
+     *
+	 * @return path to openL projects workspace, i.e. folder containing openL projects.
 	 */
-	public static String getWorkspace()
+	public String getWorkspacePath()
 	{
-		return "..";
+        return workspacePath;
 	}
 
 

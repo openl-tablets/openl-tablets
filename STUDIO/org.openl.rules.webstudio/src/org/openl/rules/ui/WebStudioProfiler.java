@@ -49,17 +49,17 @@ public class WebStudioProfiler extends Profiler.Unit
 		String project = args[0];
 		String wrapperClass = args[1];
 		String methodName = args[2];
-		
-	
-		String workspace = WebStudio.getWorkspace();	
-		
-		OpenLWebProjectInfo pi = new OpenLWebProjectInfo(workspace, project);
-		
-		OpenLWrapperInfo wrapper = new OpenLWrapperInfo(wrapperClass, pi);
-		
-		
-		WebStudio studio = new WebStudio();
-		
+
+
+        WebStudio studio = new WebStudio();
+        String workspace = studio.getWorkspacePath();
+
+        OpenLWebProjectInfo pi = new OpenLWebProjectInfo(workspace, project);
+
+        OpenLWrapperInfo wrapper = new OpenLWrapperInfo(wrapperClass, pi);
+
+
+
 		ProjectModel model = new ProjectModel(studio);
 		
 		model.setWrapperInfo(wrapper, false);
