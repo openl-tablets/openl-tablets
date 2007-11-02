@@ -9,20 +9,17 @@
 		</phase-listener>
 	</lifecycle>
 
-<!--
-	<navigation-rule>
-		<from-view-id>/index.jsp</from-view-id>
-		<navigation-case>
-			<from-outcome>jcrMain</from-outcome>
-			<to-view-id>/jcrMain.jsp</to-view-id>
-		</navigation-case>
-	</navigation-rule>
--->
-
     <navigation-rule>
         <navigation-case>
             <from-outcome>tableEditor_success</from-outcome>
             <to-view-id>/jsp/tableeditor/tableEditorResponse.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+        <navigation-case>
+            <from-action>#{studioOpener.openStudio}</from-action>
+            <to-view-id>/jsp/index_jsf.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
 

@@ -36,7 +36,7 @@ public class SessionFilter implements Filter {
                 RulesUserSession rulesUserSession = new RulesUserSession(user, workspaceManager);
 
                 session = httpRequest.getSession(true);
-                session.setAttribute("rulesUserSession", rulesUserSession);
+                session.setAttribute(Const.RULES_USER_SESSION_ATTR, rulesUserSession);
 //                session.setMaxInactiveInterval(15);
             }
         }
