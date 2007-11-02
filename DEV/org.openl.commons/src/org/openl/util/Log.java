@@ -6,11 +6,22 @@
  
 package org.openl.util;
 
+import java.text.MessageFormat;
+
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * In case of methods with format pattern you must follow conventions/restrictions 
+ * of undeground formatter.  For example, you need to double single quote (') character
+ * if you wish to see it in output.
+ * 
+ * <pre>
+ * Log.error("File ''{0}'' is absent!", fileName);
+ * </pre>
+ * 
  * @author snshor
- *
+ * @author abykhavets
+ * 
  */
 public class Log
 {
@@ -50,9 +61,24 @@ public class Log
 		logger.debug(message);
 	}
 	
-	
 	public static void debug(Object message, Throwable t)
 	{
+		logger.debug(message, t);
+	}
+
+	public static void debug(String pattern, Object... params)
+	{
+		if (!isDebugEnabled()) return;
+		
+		String message = format(pattern, params);
+		logger.debug(message);
+	}
+
+	public static void debug(String pattern, Throwable t, Object... params)
+	{
+		if (!isDebugEnabled()) return;
+		
+		String message = format(pattern, params);
 		logger.debug(message, t);
 	}
 
@@ -66,6 +92,22 @@ public class Log
 		logger.info(message, t);
 	}
 	
+	public static void info(String pattern, Object... params)
+	{
+		if (!isInfoEnabled()) return;
+		
+		String message = format(pattern, params);
+		logger.info(message);
+	}
+
+	public static void info(String pattern, Throwable t, Object... params)
+	{
+		if (!isInfoEnabled()) return;
+
+		String message = format(pattern, params);
+		logger.info(message, t);
+	}
+
 	public static void trace(Object message)
 	{
 		logger.trace(message);
@@ -76,6 +118,21 @@ public class Log
 		logger.trace(message, t);
 	}
 
+	public static void trace(String pattern, Object... params)
+	{
+		if (!isTraceEnabled()) return;
+		
+		String message = format(pattern, params);
+		logger.trace(message);
+	}
+
+	public static void trace(String pattern, Throwable t, Object... params)
+	{
+		if (!isTraceEnabled()) return;
+		
+		String message = format(pattern, params);
+		logger.trace(message, t);
+	}
 
 	public static void warn(Object message)
 	{
@@ -84,6 +141,22 @@ public class Log
 
 	public static void warn(Object message, Throwable t)
 	{
+		logger.warn(message, t);
+	}
+
+	public static void warn(String pattern, Object... params)
+	{
+		if (!isWarnEnabled()) return;
+		
+		String message = format(pattern, params);
+		logger.warn(message);
+	}
+
+	public static void warn(String pattern, Throwable t, Object... params)
+	{
+		if (!isWarnEnabled()) return;
+		
+		String message = format(pattern, params);
 		logger.warn(message, t);
 	}
 
@@ -96,9 +169,24 @@ public class Log
 	{
 		logger.error(message, t);
 	}
+	
+	public static void error(String pattern, Object... params)
+	{
+		if (!isErrorEnabled()) return;
+		
+		String message = format(pattern, params);
+		logger.error(message);
+	}
 
+	public static void error(String pattern, Throwable t, Object... params)
+	{
+		if (!isErrorEnabled()) return;
 
+		String message = format(pattern, params);
+		logger.error(message, t);
+	}
 
-
-
+	private static String format(String pattern, Object... params) {
+		return MessageFormat.format(pattern, params);
+	}
 }
