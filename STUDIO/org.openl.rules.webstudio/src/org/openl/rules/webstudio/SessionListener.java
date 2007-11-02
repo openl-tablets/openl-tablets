@@ -48,7 +48,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         System.out.println("sessionCreated: " + session);
         printSession(session);
 
-        Object obj = session.getAttribute("rulesUserSession");
+        Object obj = session.getAttribute(Const.RULES_USER_SESSION_ATTR);
         if (obj == null) {
             System.out.println("no rulesUserSession");
         } else {
@@ -61,7 +61,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         System.out.println("sessionDestroyed: " + session);
         printSession(session);
 
-        Object obj = session.getAttribute("rulesUserSession");
+        Object obj = session.getAttribute(Const.RULES_USER_SESSION_ATTR);
         if (obj == null) {
             System.out.println("!!! no rulesUserSession");
         } else {
@@ -81,7 +81,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         System.out.println("  accessed time: " + session.getLastAccessedTime());
         System.out.println("  max inactive : " + session.getMaxInactiveInterval());
 
-        Object obj = session.getAttribute("rulesUserSession");
+        Object obj = session.getAttribute(Const.RULES_USER_SESSION_ATTR);
         System.out.println("  has rulesUserSession? " + (obj != null));
     }
 }

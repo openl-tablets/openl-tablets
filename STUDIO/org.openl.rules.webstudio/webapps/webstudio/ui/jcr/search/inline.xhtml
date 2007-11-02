@@ -5,7 +5,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
 	<div>
-		<h:panelGrid columns="3">
+		<h:panelGrid columns="4">
 			<h:inputText id="searchText" size="40" required="false" value="openl tablets" />
 			<h:commandButton 
 			  styleClass="mainButton"
@@ -13,6 +13,7 @@
 			  action="search.advanced"
 			/>
 			<h:commandLink value="Advanced Search..." action="search.advanced" />
+			<h:commandLink value="Open LWS in WebStudio" action="#{studioOpener.openStudio}" />
 		</h:panelGrid>
 	</div>
 
