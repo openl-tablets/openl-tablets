@@ -1,25 +1,47 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+
 <web-app version="2.4"
     xmlns="http://java.sun.com/xml/ns/j2ee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
-    http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-    >
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-  <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
-  </welcome-file-list>
+  <display-name>Exigen WebStudio</display-name>
+  <description>Exigen WebStudio</description>
 
-  <!-- MyFaces -->
-  <listener>
-    <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
-  </listener>
-
+  <context-param>
+    <description>
+      Comma separated list of URIs of (additional) faces config files.
+    </description>
+    <param-name>javax.faces.CONFIG_FILES</param-name>
+    <param-value>
+      /WEB-INF/faces-config.xml,
+      /WEB-INF/managed-beans.xml,
+      /WEB-INF/navigation.xml,
+      /WEB-INF/managed-beans-jcr.xml,
+      /WEB-INF/navigation-jcr.xml
+    </param-value>
+  </context-param>
 
   <context-param>
     <param-name>javax.faces.DEFAULT_SUFFIX</param-name>
     <param-value>.jsp</param-value>
   </context-param>
+
+  <!--
+  <context-param>
+    <description>
+      State saving method: "client" or "server" (= default)
+    </description>
+    <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+    <param-value>client</param-value>
+  </context-param>
+
+  <context-param>
+    <description>Enabling compression in MyFaces version 1.1.4 and later.</description>
+    <param-name>org.apache.myfaces.COMPRESS_STATE_IN_CLIENT</param-name>
+    <param-value>true</param-value>
+  </context-param>
+   -->
 
   <context-param>
     <param-name>facelets.VIEW_MAPPINGS</param-name>
@@ -27,20 +49,11 @@
   </context-param>
 
   <context-param>
-    <param-name>org.ajax4jsf.SKIN</param-name>
-    <param-value>#{skinBean.skin}</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>javax.faces.CONFIG_FILES</param-name>
-    <param-value>/WEB-INF/faces-config.xml, /WEB-INF/managed-beans.xml, /WEB-INF/navigation.xml, /WEB-INF/managed-beans-jcr.xml, /WEB-INF/navigation-jcr.xml</param-value>
-  </context-param>
-
-  <context-param>
     <param-name>facelets.DEVELOPMENT</param-name>
     <param-value>true</param-value>
   </context-param>
 
+  <!--
   <context-param>
     <param-name>facelets.PARAM_CACHE_URLS</param-name>
     <param-value>false</param-value>
@@ -50,12 +63,17 @@
     <param-name>facelets.SKIP_COMMENTS</param-name>
     <param-value>true</param-value>
   </context-param>
+  -->
+
+  <context-param>
+    <param-name>org.ajax4jsf.SKIN</param-name>
+    <param-value>#{skinBean.skin}</param-value>
+  </context-param>
 
   <context-param>
     <param-name>org.ajax4jsf.VIEW_HANDLERS</param-name>
     <param-value>com.sun.facelets.FaceletViewHandler</param-value>
   </context-param>
-
 
   <filter>
     <display-name>Ajax4jsf Filter</display-name>
@@ -71,6 +89,24 @@
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
 
+  <filter>
+    <filter-name>SessionFilter</filter-name>
+    <filter-class>org.openl.rules.webstudio.SessionFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>SessionFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!-- Listeners, that does all the startup work (configuration, init). -->
+  <listener>
+    <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.openl.rules.webstudio.SessionListener</listener-class>
+  </listener>
 
   <servlet>
     <servlet-name>Faces Servlet</servlet-name>
@@ -78,37 +114,27 @@
     <load-on-startup>1</load-on-startup>
   </servlet>
 
-    <servlet>
-        <servlet-name>DownloadServlet</servlet-name>
-        <servlet-class>org.openl.rules.webstudio.web.servlet.DownloadServlet</servlet-class>
-    </servlet>
-
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>DownloadServlet</servlet-name>
-        <url-pattern>/action/download</url-pattern>
-    </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>/faces/*</url-pattern>
   </servlet-mapping>
 
-    <listener>
-        <listener-class>org.openl.rules.webstudio.SessionListener</listener-class>
-    </listener>
+  <servlet>
+    <servlet-name>DownloadServlet</servlet-name>
+    <servlet-class>org.openl.rules.webstudio.web.servlet.DownloadServlet</servlet-class>
+  </servlet>
 
-    <filter>
-        <filter-name>SessionFilter</filter-name>
-        <filter-class>org.openl.rules.webstudio.SessionFilter</filter-class>
-    </filter>
+  <servlet-mapping>
+    <servlet-name>DownloadServlet</servlet-name>
+    <url-pattern>/action/download</url-pattern>
+  </servlet-mapping>
 
-    <filter-mapping>
-        <filter-name>SessionFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
 </web-app>
