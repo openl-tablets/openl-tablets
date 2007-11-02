@@ -21,18 +21,14 @@ import org.openl.rules.ui.repository.beans.VersionBean;
  */
 public class ActiveNodeBean implements Entity {
     private UserSessionBean userSession;
-    
+
     public void setUserSession(UserSessionBean userSession) {
         this.userSession = userSession;
     }
     
-    public String getType() {
-        return userSession.getSelected().getType();
-    }
 
     private Entity getBean() {
-        Entity entity = (Entity) userSession.getSelected().getDataBean();
-        return entity;
+        return null;
     }
     
     // ------ entity properties ------
@@ -41,7 +37,12 @@ public class ActiveNodeBean implements Entity {
     public void delete() {
         getBean().delete();
     }
-    
+
+    // TODO: it is the same as in tree -- join or reuse
+    public String getType() {
+        return null;
+    }
+
     /** {@inheritDoc} */
     public Date getCreated() {
         return getBean().getCreated();

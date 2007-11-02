@@ -1,18 +1,19 @@
 package org.openl.rules.ui.repository;
 
-import javax.faces.event.AbortProcessingException;
-
-import org.openl.rules.ui.repository.beans.Entity;
-import org.openl.rules.ui.repository.beans.FolderBean;
-import org.openl.rules.ui.repository.beans.ProjectBean;
-import org.openl.rules.ui.repository.beans.RepositoryBean;
+import org.openl.rules.commons.projects.Project;
+import org.openl.rules.commons.projects.ProjectArtefact;
+import org.openl.rules.commons.projects.ProjectFolder;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
 import org.openl.rules.ui.repository.tree.TreeProject;
 import org.openl.rules.ui.repository.tree.TreeRepository;
+import org.openl.rules.uw.UserWorkspace;
 import org.richfaces.component.UITree;
 import org.richfaces.event.NodeSelectedEvent;
+
+import javax.faces.event.AbortProcessingException;
+import java.util.Collection;
 
 /**
  * Handler for Repository Tree.
@@ -20,7 +21,7 @@ import org.richfaces.event.NodeSelectedEvent;
  * @author Aleh Bykhavets
  *
  */
-public class RepositoryTreeHandler {
+public class RepositoryTreeController {
     private Context context;
     /**
      * Root node for RichFaces's tree.  It won't be displayed. 
@@ -29,11 +30,17 @@ public class RepositoryTreeHandler {
     private AbstractTreeNode currentNode;
     private TreeRepository repository;
 
-    public RepositoryTreeHandler(Context context) {
+    private UserWorkspace userWorkspace;
+
+    public void setContext(Context context) {
         this.context = context;
     }
 
-    public Object getData() {
+    public void setUserWorkspace(UserWorkspace userWorkspace) {
+        this.userWorkspace = userWorkspace;
+    }
+
+    public synchronized Object getData() {
         if (root == null) {
             initData();
         }
@@ -77,63 +84,41 @@ public class RepositoryTreeHandler {
         currentNode = node;
     }
 
-    @Deprecated
     private static long lastId;
 
-    @Deprecated
     private static synchronized long generateId() {
         return lastId++;
     }
 
     protected void initData() {
-        root = new TreeRepository(generateId(), "Rules Repository");
-        String repName = context.getRepository().getName();
-        repository = new TreeRepository(generateId(), repName);
-        RepositoryBean rb = new RepositoryBean();
-        rb.setName(repName);
-        repository.setDataBean(rb);
+        root = new TreeRepository(generateId(), "");
+        repository = new TreeRepository(generateId(), "Rules Repository");
+        repository.setDataBean(null);
         root.add(repository);
         
-        for (ProjectBean project : context.getRepositoryHandler().getProjects()) {
+        for (Project project : userWorkspace.getProjects()) {
             TreeProject prj = new TreeProject(generateId(), project.getName());
             prj.setDataBean(project);
             repository.add(prj);
             // redo that
-            initProject(prj, project);
+            initFolder(prj, project.getArtefacts());
         }
     }
     
-    private void initProject(TreeProject prj, ProjectBean pb) {
-        // not a best way..
-        for (Entity eb : pb.getElements()) {
-            if (eb instanceof FolderBean) {
-                TreeFolder tf = new TreeFolder(generateId(), eb.getName());
-                tf.setDataBean(eb);
-                prj.add(tf);
+    private void initFolder(TreeFolder folder, Collection<? extends ProjectArtefact> artefacts) {
+        for (ProjectArtefact artefact : artefacts) {
+            if (artefact instanceof ProjectFolder) {
+                TreeFolder tf = new TreeFolder(generateId(), artefact.getName());
+                tf.setDataBean(artefact);
+                folder.add(tf);
                 
-                initFolder(tf, (FolderBean)eb);
+                initFolder(tf, ((ProjectFolder) artefact).getArtefacts());
             } else {
-                TreeFile tf = new TreeFile(generateId(), eb.getName());
-                tf.setDataBean(eb);
-                prj.add(tf);
+                TreeFile tf = new TreeFile(generateId(), artefact.getName());
+                tf.setDataBean(artefact);
+                folder.add(tf);
             }
         }
     }
 
-    private void initFolder(TreeFolder folder, FolderBean fb) {
-        // not a best way..
-        for (Entity eb : fb.getElements()) {
-            if (eb instanceof FolderBean) {
-                TreeFolder tf = new TreeFolder(generateId(), eb.getName());
-                tf.setDataBean(eb);
-                folder.add(tf);
-                
-                initFolder(tf, (FolderBean)eb);
-            } else {
-                TreeFile tf = new TreeFile(generateId(), eb.getName());
-                tf.setDataBean(eb);
-                folder.add(tf);
-            }
-        }
-    }
 }

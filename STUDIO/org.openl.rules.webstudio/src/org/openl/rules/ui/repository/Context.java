@@ -21,8 +21,7 @@ public class Context {
     private FolderHandler folderHandler;
     private ProjectHandler projectHandler;
     private RepositoryHandler repositoryHandler;
-    private RepositoryTreeHandler repositoryTreeHandler;
-
+    
     public Context(RRepository repository, MessageQueue messageQueue) {
         this.repository = repository;
         this.messageQueue = messageQueue;
@@ -68,19 +67,13 @@ public class Context {
         this.repositoryHandler = repositoryHandler;
     }
 
-    public RepositoryTreeHandler getRepositoryTreeHandler() {
-        return repositoryTreeHandler;
+
+    public void refresh() {
+     //   repositoryTreeController.reInit();
     }
 
-    public void setRepositoryTreeHandler(RepositoryTreeHandler repositoryTreeHandler) {
-        this.repositoryTreeHandler = repositoryTreeHandler;
-    }
-    
-    public void refresh() {
-        repositoryTreeHandler.reInit();
-    }
-    
     public Entity getActiveNodeBean() {
-        return (Entity) repositoryTreeHandler.getSelected().getDataBean();
+//        return (Entity) repositoryTreeController.getSelected().getDataBean();
+        return null;
     }
 }

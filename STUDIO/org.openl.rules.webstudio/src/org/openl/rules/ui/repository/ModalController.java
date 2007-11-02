@@ -101,7 +101,7 @@ public class ModalController extends AbstractDialogController {
     public String addFolder() {
         boolean success;
         
-        Object dataBean = getContext().getRepositoryTreeHandler().getSelected().getDataBean();
+        Object dataBean = null;//getContext().getRepositoryTreeHandler().getSelected().getDataBean();
         if (dataBean instanceof FolderBean) {
             FolderBean fb = (FolderBean) dataBean;
             success = getContext().getFolderHandler().addFolder(fb, newFolderName);
@@ -138,7 +138,7 @@ public class ModalController extends AbstractDialogController {
             return outcome(false);
         }
         
-        Object dataBean = getContext().getRepositoryTreeHandler().getSelected().getDataBean();
+        Object dataBean = null;//getContext().getRepositoryTreeHandler().getSelected().getDataBean();
         ProjectBean pb = (ProjectBean) dataBean;
 
         switch (modifyType) {

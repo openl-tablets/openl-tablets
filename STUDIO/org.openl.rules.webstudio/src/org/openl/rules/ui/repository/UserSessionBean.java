@@ -6,6 +6,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.ui.repository.beans.ProjectBean;
 import org.openl.rules.ui.repository.handlers.*;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
+import org.openl.rules.ui.repository.tree.TreeRepository;
 import org.openl.util.Log;
 
 import java.util.List;
@@ -20,7 +21,6 @@ public class UserSessionBean {
     private RRepository repository;
     private Context context;
     private RepositoryHandler repositoryHandler;
-    private RepositoryTreeHandler repositoryTree;
 
     public UserSessionBean() {
         MessageQueue messages = new MessageQueue();
@@ -40,13 +40,11 @@ public class UserSessionBean {
         FolderHandler folderHandler = new FolderHandler(context);
         ProjectHandler projectHandler = new ProjectHandler(context);
         repositoryHandler = new RepositoryHandler(context);
-        repositoryTree = new RepositoryTreeHandler(context);
 
         context.setFileHandler(fileHandler);
         context.setFolderHandler(folderHandler);
         context.setProjectHandler(projectHandler);
         context.setRepositoryHandler(repositoryHandler);
-        context.setRepositoryTreeHandler(repositoryTree);
     }
 
     public List<ProjectBean> getProjects() {
@@ -62,14 +60,11 @@ public class UserSessionBean {
         return true;
     }
 
-    public RepositoryTreeHandler getRepositoryTree() {
-        return repositoryTree;
-    }
-    
+
     public AbstractTreeNode getSelected() {
-        return repositoryTree.getSelected();
+        return new TreeRepository(1, "rep");
     }
-    
+
     // TODO refactor it: do not reveal it to UI
     public Context getContext() {
         return context;

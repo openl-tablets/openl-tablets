@@ -7,11 +7,7 @@ import org.openl.rules.commons.logs.CLog;
 import org.openl.rules.commons.projects.ProjectException;
 import org.openl.rules.uw.UserWorkspace;
 
-import javax.servlet.http.HttpSessionActivationListener;
-import javax.servlet.http.HttpSessionEvent;
-import java.io.File;
-
-public class RulesUserSession implements HttpSessionActivationListener {
+public class RulesUserSession {
     private WorkspaceUser user;
     private UserWorkspace userWorkspace;
     private MultiUserWorkspaceManager workspaceManager;
@@ -25,19 +21,20 @@ public class RulesUserSession implements HttpSessionActivationListener {
         return user.getUserId();
     }
 
-    public UserWorkspace getUserWorkspace() throws WorkspaceException {
+    public UserWorkspace getUserWorkspace() throws WorkspaceException, ProjectException {
         if (userWorkspace == null) {
             userWorkspace = workspaceManager.getUserWorkspace(user);
+            userWorkspace.activate();
         }
         
         return userWorkspace;
     }
 
-    public void sessionWillPassivate(HttpSessionEvent event) {
+    public void sessionWillPassivate() {
         userWorkspace.passivate();
     }
 
-    public void sessionDidActivate(HttpSessionEvent event) {
+    public void sessionDidActivate() {
         try {
             userWorkspace.activate();
         } catch (ProjectException e) {

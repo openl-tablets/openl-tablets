@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio;
 
-import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.commons.logs.CLog;
 
 import javax.servlet.http.*;
@@ -13,12 +12,22 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         HttpSession session = event.getSession();
         System.out.println("sessionWillPassivate: " + session);
         printSession(session);
+
+        RulesUserSession rulesUserSession = getUserRules(session);
+        if (rulesUserSession != null) {
+            rulesUserSession.sessionWillPassivate();
+        }
     }
 
     public void sessionDidActivate(HttpSessionEvent event) {
         HttpSession session = event.getSession();
         System.out.println("sessionDidActivate: " + session);
         printSession(session);
+
+        RulesUserSession rulesUserSession = getUserRules(session);
+        if (rulesUserSession != null) {
+            rulesUserSession.sessionDidActivate();
+        }
     }
 
     // Session Attribute
@@ -48,7 +57,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         System.out.println("sessionCreated: " + session);
         printSession(session);
 
-        Object obj = session.getAttribute(Const.RULES_USER_SESSION_ATTR);
+        Object obj = getUserRules(session);
         if (obj == null) {
             System.out.println("no rulesUserSession");
         } else {
@@ -61,19 +70,20 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         System.out.println("sessionDestroyed: " + session);
         printSession(session);
 
-        Object obj = session.getAttribute(Const.RULES_USER_SESSION_ATTR);
+        RulesUserSession obj = getUserRules(session);
         if (obj == null) {
             System.out.println("!!! no rulesUserSession");
         } else {
             CLog.log(CLog.INFO, "removing rulesUserSession");
 
-            RulesUserSession rulesUserSession = (RulesUserSession) obj;
-            rulesUserSession.sessionDestroyed();
+            obj.sessionDestroyed();
             CLog.log(CLog.INFO, "session was destroyed");
         }
     }
 
-
+    private RulesUserSession getUserRules(HttpSession session) {
+        return (RulesUserSession) session.getAttribute(Const.RULES_USER_SESSION_ATTR);
+    }
 
     protected void printSession(HttpSession session) {
         System.out.println("  id           : " + session.getId());
@@ -81,7 +91,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         System.out.println("  accessed time: " + session.getLastAccessedTime());
         System.out.println("  max inactive : " + session.getMaxInactiveInterval());
 
-        Object obj = session.getAttribute(Const.RULES_USER_SESSION_ATTR);
+        Object obj = getUserRules(session);
         System.out.println("  has rulesUserSession? " + (obj != null));
     }
 }
