@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio;
 
-import org.openl.rules.WorkspaceException;
-import org.openl.rules.commons.projects.ProjectException;
+import org.openl.rules.workspace.WorkspaceException;
+import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.util.Log;
 

@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio;
 
-import org.openl.rules.MultiUserWorkspaceManager;
-import org.openl.rules.WorkspaceException;
-import org.openl.rules.WorkspaceUser;
-import org.openl.rules.WorkspaceUserImpl;
-import org.openl.rules.commons.logs.CLog;
+import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.WorkspaceException;
+import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.util.Log;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +18,7 @@ public class SessionFilter implements Filter {
         try {
             workspaceManager = new MultiUserWorkspaceManager();
         } catch (WorkspaceException e) {
-            CLog.log(CLog.FATAL, "Failed to init Workspace manager!", e);
+            Log.error("Failed to init Workspace manager!", e);
         }
     }
 
