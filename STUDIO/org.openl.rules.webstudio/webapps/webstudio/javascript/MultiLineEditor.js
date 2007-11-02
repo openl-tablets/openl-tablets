@@ -13,8 +13,8 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
     editor_initialize: function() {
         this.node = document.createElement("div");
         this.ta = document.createElement("textarea");
-        this.ta.cols = 30;
-        this.ta.rows = 3;
+        this.ta.cols = 50;
+        this.ta.rows = 6;
         this.node.appendChild(this.ta);
 
         this.node.style.position = "absolute";
@@ -33,6 +33,13 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
     },
 
     show: function(value) {
+        var len = value.length;
+        if (len > 600)
+            this.ta.cols += 20;
+        var rows = len / (this.ta.cols - 3);
+        if (rows > this.ta.rows)
+            this.ta.rows = Math.min(rows, 20);
+
         this.ta.value = value;
         document.body.appendChild(this.node);
         this.ta.focus();
