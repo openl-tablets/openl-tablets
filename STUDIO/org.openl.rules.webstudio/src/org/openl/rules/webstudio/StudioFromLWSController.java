@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio;
 
 import org.openl.rules.WorkspaceException;
+import org.openl.rules.commons.projects.ProjectException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.util.Log;
 
@@ -17,6 +18,8 @@ public class StudioFromLWSController {
                 String path = rulesUserSession.getUserWorkspace().getLocalWorkspaceLocation().getAbsolutePath();
                 session.setAttribute("studio", new WebStudio(path));
             } catch (WorkspaceException e) {
+                Log.error("Failed to get user workspace", e);
+            } catch (ProjectException e) {
                 Log.error("Failed to get user workspace", e);
             }
         }
