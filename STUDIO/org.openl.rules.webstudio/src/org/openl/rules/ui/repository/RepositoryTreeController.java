@@ -1,14 +1,14 @@
 package org.openl.rules.ui.repository;
 
-import org.openl.rules.commons.projects.Project;
-import org.openl.rules.commons.projects.ProjectArtefact;
-import org.openl.rules.commons.projects.ProjectFolder;
+import org.openl.rules.workspace.abstracts.Project;
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
 import org.openl.rules.ui.repository.tree.TreeProject;
 import org.openl.rules.ui.repository.tree.TreeRepository;
-import org.openl.rules.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.richfaces.component.UITree;
 import org.richfaces.event.NodeSelectedEvent;
 

@@ -12,5 +12,5 @@ Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.lib.jsf;visibility:=reexport,
  org.openl.rules.repository,
  org.openl.rules.repository.jcr,
- org.openl.rules.commons
+ org.openl.rules.workspace
 Export-Package: org.openl.rules.ui

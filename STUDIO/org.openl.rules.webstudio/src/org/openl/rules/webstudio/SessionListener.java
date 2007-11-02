@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio;
 
-import org.openl.rules.commons.logs.CLog;
+import org.openl.util.Log;
 
 import javax.servlet.http.*;
 
@@ -74,10 +74,10 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         if (obj == null) {
             System.out.println("!!! no rulesUserSession");
         } else {
-            CLog.log(CLog.INFO, "removing rulesUserSession");
+            Log.info("removing rulesUserSession");
 
             obj.sessionDestroyed();
-            CLog.log(CLog.INFO, "session was destroyed");
+            Log.info("session was destroyed");
         }
     }
 

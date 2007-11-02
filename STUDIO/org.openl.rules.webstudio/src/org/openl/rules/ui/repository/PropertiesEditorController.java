@@ -2,8 +2,8 @@ package org.openl.rules.ui.repository;
 
 import org.openl.jsf.FacesUtils;
 
-import org.openl.rules.commons.props.Property;
-import org.openl.rules.commons.props.impl.PropertyImpl;
+import org.openl.rules.workspace.props.Property;
+import org.openl.rules.workspace.props.impl.PropertyImpl;
 import org.openl.rules.ui.repository.beans.FileBean;
 import org.openl.rules.ui.repository.beans.FolderBean;
 import org.openl.rules.ui.repository.beans.ProjectBean;

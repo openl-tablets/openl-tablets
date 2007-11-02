@@ -1,11 +1,11 @@
 package org.openl.rules.webstudio;
 
-import org.openl.rules.MultiUserWorkspaceManager;
-import org.openl.rules.WorkspaceException;
-import org.openl.rules.WorkspaceUser;
-import org.openl.rules.commons.logs.CLog;
-import org.openl.rules.commons.projects.ProjectException;
-import org.openl.rules.uw.UserWorkspace;
+import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.WorkspaceException;
+import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.Log;
 
 public class RulesUserSession {
     private WorkspaceUser user;
@@ -38,7 +38,7 @@ public class RulesUserSession {
         try {
             userWorkspace.activate();
         } catch (ProjectException e) {
-            CLog.log(CLog.ERROR, "Error at activation", e);
+            Log.error("Error at activation", e);
         }
     }
 
