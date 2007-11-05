@@ -5,6 +5,8 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
+    <h:messages />
+
 	<rich:dataTable
 	  rendered="#{not empty userSession.errors}"
 	  value="#{userSession.errors}"
