@@ -37,7 +37,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public LocalProject getProject(String name) throws ProjectException {
         LocalProject lp = localProjects.get(name);
         if (lp == null) {
-            throw new ProjectException("Cannot find project ''{0}''", name);
+            throw new ProjectException("Cannot find project ''{0}''", null, name);
         }
 
         return lp;

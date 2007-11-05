@@ -36,7 +36,7 @@ public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implement
     }
 
     public LocalProjectArtefact getArtefact(String name) throws ProjectException {
-        throw new ProjectException("Cannot find project artefact ''{0}''", name);
+        throw new ProjectException("Cannot find project artefact ''{0}''", null, name);
     }
 
     public void refresh() {
@@ -47,11 +47,26 @@ public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implement
         }
     }
 
+    public void setContent(InputStream inputStream) throws ProjectException {
+        setLocalContent(inputStream);
+        
+        setChanged(true);
+    }
+
     // --- protected
 
     protected void downloadArtefact(ProjectResource resource) throws ProjectException {
         InputStream is = resource.getContent();
 
+        setLocalContent(is);
+
+        refresh();
+
+        setNew(false);
+        setChanged(false);
+    }
+    
+    protected void setLocalContent(InputStream is) throws ProjectException {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(getLocation());
@@ -81,10 +96,5 @@ public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implement
                 }
             }
         }
-
-        refresh();
-
-        setNew(false);
-        setChanged(false);
     }
 }

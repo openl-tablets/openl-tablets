@@ -7,6 +7,7 @@ import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
+import org.openl.rules.workspace.lw.LocalProjectResource;
 
 import java.util.Collection;
 import java.util.Map;
@@ -30,10 +31,42 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
     public LocalProjectArtefact getArtefact(String name) throws ProjectException {
         LocalProjectArtefact lpa = artefacts.get(name);
         if (lpa == null) {
-            throw new ProjectException("Cannot find project artefact ''{0}''", name);
+            throw new ProjectException("Cannot find project artefact ''{0}''", null, name);
         }
 
         return lpa;
+    }
+
+    public LocalProjectFolder addFolder(String name) throws ProjectException {
+        if (artefacts.get(name) != null) {
+            throw new ProjectException("Artefact with name ''{0}'' already exists!", null, name);
+        }
+        
+        File f = FolderHelper.generateSubLocation(getLocation(), name);
+        if (!FolderHelper.checkOrCreateFolder(f)) {
+            new ProjectException("Failed to create folder ''{0}''!", null, f.getAbsolutePath());
+        }
+
+        ArtefactPath ap = getArtefactPath().add(name);
+        LocalProjectFolderImpl newFolder = new LocalProjectFolderImpl(name, ap, f);
+
+        addArtefact(newFolder);
+        return newFolder;
+    }
+    
+    public LocalProjectResource addResource(String name, ProjectResource resource) throws ProjectException {
+        if (artefacts.get(name) != null) {
+            throw new ProjectException("Artefact with name ''{0}'' already exists!", null, name);
+        }
+
+        File f = FolderHelper.generateSubLocation(getLocation(), name);
+
+        ArtefactPath ap = getArtefactPath().add(name);
+        LocalProjectResourceImpl newResource = new LocalProjectResourceImpl(name, ap, f);
+        newResource.downloadArtefact(resource);
+
+        addArtefact(newResource);
+        return newResource;
     }
 
     public void refresh() {
@@ -110,11 +143,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
 
         newArtefact.refresh();
 
-        newArtefact.setChanged(false);
-        newArtefact.setNew(true);
-
-        artefacts.put(name, newArtefact);
-        setChanged(true);
+        addArtefact(newArtefact);
     }
 
     protected void downloadArtefact(ProjectFolder folder) throws ProjectException {
@@ -149,5 +178,15 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
 
         setNew(false);
         setChanged(false);
+    }
+    
+    // --- private
+
+    private void addArtefact(LocalProjectArtefactImpl newArtefact) {
+        newArtefact.setChanged(false);
+        newArtefact.setNew(true);
+
+        artefacts.put(newArtefact.getName(), newArtefact);
+        setChanged(true);
     }
 }

@@ -7,7 +7,7 @@ public class LocalWorkspaceException extends ProjectException {
         super(msg, cause);
     }
 
-    public LocalWorkspaceException(String msg, Object... params) {
-        super(msg, params);
+    public LocalWorkspaceException(String pattern, Throwable cause, Object... params) {
+        super(pattern, cause, params);
     }
 }

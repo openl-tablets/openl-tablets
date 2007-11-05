@@ -6,6 +6,8 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import java.io.File;
 
 public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
+    void createProject(String name) throws ProjectException;
+    
     void activate() throws ProjectException;
     void passivate();
     void release();

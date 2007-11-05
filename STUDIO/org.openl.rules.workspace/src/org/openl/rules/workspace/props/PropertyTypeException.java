@@ -5,7 +5,7 @@ public class PropertyTypeException extends PropertyException {
         super(msg, cause);
     }
 
-    public PropertyTypeException(String msg, Object... params) {
-        super(msg, params);
+    public PropertyTypeException(String pattern, Throwable cause, Object... params) {
+        super(pattern, cause, params);
     }
 }
