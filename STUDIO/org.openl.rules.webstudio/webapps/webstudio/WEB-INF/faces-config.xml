@@ -2,21 +2,40 @@
 <!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN" "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config>
 
-	<application>
-		<locale-config>
-			<default-locale>en</default-locale>
+  <application>
+    <locale-config>
+      <default-locale>en</default-locale>
 <!--
-			<supported-locale>de</supported-locale>
+      <supported-locale>de</supported-locale>
 -->
-		</locale-config>
+    </locale-config>
 
-		<view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
+    <view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
 
-	</application>
+  </application>
 
-	<managed-bean>
-		<managed-bean-name>skinBean</managed-bean-name>
-		<managed-bean-class>org.openl.rules.webstudio.web.Skins</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
+  <managed-bean>
+    <managed-bean-name>skinBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.Skins</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <!-- ====================================================================
+    This two rederers were added because of migrating to Tomahawk 1.1.3.
+    See http://wiki.apache.org/myfaces/Upgrading_to_Tomahawk_1.1.3
+  ===================================================================== -->
+  <render-kit>
+    <renderer>
+        <component-family>javax.faces.Command</component-family>
+        <renderer-type>javax.faces.Button</renderer-type>
+        <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlButtonRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+        <component-family>javax.faces.Command</component-family>
+        <renderer-type>javax.faces.Link</renderer-type>
+        <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlLinkRenderer</renderer-class>
+    </renderer>
+  </render-kit>
+
 </faces-config>
