@@ -1,16 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
-	 xmlns:f="http://java.sun.com/jsf/core"
-	 xmlns:h="http://java.sun.com/jsf/html"
-	 xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-	 xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	 xmlns:ui="http://java.sun.com/jsf/facelets"
-	 >
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   >
 <head>
-	<title><ui:insert name="title">OpenL Web Studio</ui:insert></title>
-	<a4j:loadStyle src="/css/default.css"/>
-	<a4j:loadStyle src="/css/jcr.css"/>
+  <title><ui:insert name="title">OpenL Web Studio</ui:insert></title>
+  <a4j:loadStyle src="/css/default.css"/>
+  <a4j:loadStyle src="/css/jcr.css"/>
 <style>
 /* move it into jcr.css later */
 .modalBody {height:165px;width:100%;}
@@ -30,7 +30,7 @@
 .modalMessage {width:100%;text-align:center;font-size:12px;}
 
 .mainButtonPanel{padding:10px;}
-.mainButton {width:80px;margin:0 10px 10px 0;}
+.mainButton {margin:0 10px 10px 0;}
 .mainButton2x {width:170px;margin:0 10px 10px 0;}
 
 .colDiff {
@@ -47,10 +47,10 @@ height:100%;
 </head>
 <body>
 <h:form>
-	<ui:include src="/ui/mastHead.xhtml" />
+  <ui:include src="/ui/mastHead.xhtml" />
 
-	<ui:insert name="body" />
+  <ui:insert name="body" />
 </h:form>
-	<ui:insert name="special" />
+  <ui:insert name="special" />
 </body>
 </html>
