@@ -39,7 +39,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public UserWorkspaceProject getProject(String name) throws ProjectException {
         UserWorkspaceProject uwp = userProjects.get(name);
         if (uwp == null) {
-            throw new ProjectException("Cannot find project ''{0}''", name);
+            throw new ProjectException("Cannot find project ''{0}''", null, name);
         }
 
         return uwp;
@@ -114,7 +114,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace.getLocation();
     }
 
-// --- protected
+    public void createProject(String name) throws ProjectException {
+        designTimeRepository.createProject(name);
+        
+        refresh();
+    }
+
+    // --- protected
 
     protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
         return localWorkspace.addProject(repositoryProject);

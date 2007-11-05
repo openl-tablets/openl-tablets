@@ -2,6 +2,7 @@ package org.openl.rules.workspace;
 
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
@@ -21,7 +22,11 @@ public class MultiUserWorkspaceManager {
         userWorkspaces = new HashMap<String, UserWorkspace>();
 
         localManager = new LocalWorkspaceManagerImpl();
-        designTimeRepository = new DesignTimeRepositoryImpl();
+        try {
+            designTimeRepository = new DesignTimeRepositoryImpl();
+        } catch (RepositoryException e) {
+            throw new WorkspaceException("Cannot init Design Time Repository", e);
+        }        
     }
 
     public UserWorkspace getUserWorkspace(WorkspaceUser user) throws WorkspaceException {

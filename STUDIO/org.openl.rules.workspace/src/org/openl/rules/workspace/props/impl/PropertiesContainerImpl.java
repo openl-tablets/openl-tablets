@@ -24,7 +24,7 @@ public class PropertiesContainerImpl implements PropertiesContainer {
     public Property getProperty(String name) throws PropertyException {
         Property property = properties.get(name);
         if (property == null) {
-            throw new PropertyException("No such property ''{0}''", name);
+            throw new PropertyException("No such property ''{0}''", null, name);
         }
 
         return property;

@@ -7,7 +7,7 @@ public class ProjectException extends CommonException {
         super(msg, cause);
     }
 
-    public ProjectException(String pattern, Object... params) {
-        super(pattern, params);
+    public ProjectException(String pattern, Throwable cause, Object... params) {
+        super(pattern, cause, params);
     }
 }

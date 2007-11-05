@@ -1,5 +1,7 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
@@ -8,22 +10,32 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
+import org.openl.util.Log;
 
 import java.util.Collection;
 import java.util.LinkedList;
 
 public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implements RepositoryProject {
+    private RProject rulesProject;
     private ProjectVersion version;
-    private boolean isMarkedForDeletion;
+    
+//    private boolean isMarkedForDeletion;
     private LockInfo lock;
 
+    protected RepositoryProjectImpl(RProject rulesProject, ArtefactPath path, ProjectVersion version) {
+        super(rulesProject, rulesProject.getRootFolder(), path);
+        
+        this.rulesProject = rulesProject;
+    }
+    
+    /** @deprecated */
     public RepositoryProjectImpl(String name, ArtefactPath path) {
         super(name, path);
     }
 
     public RepositoryProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         // TODO implement
-        throw new ProjectException("Failed to resolve ''{0}''", artefactPath.getStringValue());
+        throw new ProjectException("Failed to resolve ''{0}''", null, artefactPath.getStringValue());
     }
 
     public ProjectVersion getVersion() {
@@ -37,7 +49,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
 
     public void lock(WorkspaceUser user) throws ProjectException {
         if (isLocked()) {
-            throw new ProjectException("Project ''{0}'' is already locked", getName());
+            throw new ProjectException("Project ''{0}'' is already locked", null, getName());
         }
 
         lock = new LockInfoImpl(new java.util.Date(System.currentTimeMillis()), user.getUserId());
@@ -45,12 +57,12 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
 
     public void unlock(WorkspaceUser user) throws ProjectException {
         if (!isLocked()) {
-            throw new ProjectException("Cannot unlock non-locked project ''{0}''", getName());
+            throw new ProjectException("Cannot unlock non-locked project ''{0}''", null, getName());
         }
 
         String lockedBy = lock.getLockedBy();
         if (!lockedBy.equals(user.getUserId())) {
-            throw new ProjectException("Project ''{0}'' is already locked by ''{0}''", getName(), lockedBy);
+            throw new ProjectException("Project ''{0}'' is already locked by ''{0}''", null, getName(), lockedBy);
         }
 
         // TODO -- add code
@@ -58,31 +70,48 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
     }
 
     public void delete() throws ProjectException {
-        if (isMarkedForDeletion) {
-            throw new ProjectException("Project ''{0}'' is already marked for deletion", getName());
+        if (isMarkedForDeletion()) {
+            throw new ProjectException("Project ''{0}'' is already marked for deletion", null, getName());
         }
 
-        //TODO
-        isMarkedForDeletion = true;
+//        isMarkedForDeletion = true;
+        
+        try {
+            rulesProject.delete();
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Failed to delete project ''{0}''", e, getName());
+        }        
     }
 
     public void undelete() throws ProjectException {
         if (!isMarkedForDeletion()) {
-            throw new ProjectException("Cannot undelete non-marked project ''{0}''", getName());
+            throw new ProjectException("Cannot undelete non-marked project ''{0}''", null, getName());
         }
 
-        // TODO
-        isMarkedForDeletion = false;
+//        isMarkedForDeletion = false;
+
+        try {
+            rulesProject.undelete();
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Failed to undelete project ''{0}''", e, getName());
+        }        
     }
 
     public void erase() throws ProjectException {
-        throw new ProjectException("Not enough rights to erase project ''{0}''", getName());
-
-        // TODO
+        try {
+            rulesProject.erase();
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Failed to erase project ''{0}''", e, getName());
+        }        
     }
 
     public boolean isMarkedForDeletion() {
-        return isMarkedForDeletion;
+        try {
+            return rulesProject.isMarked4Deletion();
+        } catch (RRepositoryException e) {
+            Log.error("isMarkedForDeletion", e);
+            return false;
+        }
     }
 
     public boolean isLocked() {

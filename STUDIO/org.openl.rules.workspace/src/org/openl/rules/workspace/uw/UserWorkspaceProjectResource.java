@@ -1,10 +1,10 @@
-package org.openl.rules.workspace.lw;
+package org.openl.rules.workspace.uw;
 
 import java.io.InputStream;
 
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 
-public interface LocalProjectResource extends ProjectResource, LocalProjectArtefact {
+public interface UserWorkspaceProjectResource extends ProjectResource, UserWorkspaceProjectArtefact {
     void setContent(InputStream inputStream) throws ProjectException;
 }

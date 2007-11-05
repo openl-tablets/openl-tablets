@@ -31,7 +31,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager {
 
         workspacesLocation = new File(wsLocation);
         if (!FolderHelper.checkOrCreateFolder(workspacesLocation)) {
-            throw new WorkspaceException("Cannot create workspace location ''{0}''", wsLocation);
+            throw new WorkspaceException("Cannot create workspace location ''{0}''", null, wsLocation);
         }
 
         localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
@@ -58,7 +58,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager {
         String userId = user.getUserId();
         File f = FolderHelper.generateSubLocation(workspacesLocation, userId);
         if (!FolderHelper.checkOrCreateFolder(f)) {
-            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace", f.getAbsolutePath());
+            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace", null, f.getAbsolutePath());
         }
 
         return new LocalWorkspaceImpl(this, user, f);

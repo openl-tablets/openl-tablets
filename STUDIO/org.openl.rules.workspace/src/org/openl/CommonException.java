@@ -13,10 +13,6 @@ public class CommonException extends Exception {
         super(format(pattern, params), cause);
     }
 
-    public CommonException(String pattern, Object... params) {
-        super(format(pattern, params));
-    }
-
     // --- private
     
     private static String format(String pattern, Object... params) {

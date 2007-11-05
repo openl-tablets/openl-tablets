@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import org.openl.rules.repository.REntity;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
@@ -17,6 +18,14 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     private ArtefactPath path;
     private PropertiesContainer properties;
 
+    protected RepositoryProjectArtefactImpl(REntity rulesEntity, ArtefactPath path) {
+        this.name = rulesEntity.getName();
+        this.path = path;
+        
+        properties = new PropertiesContainerImpl();
+    }
+    
+    /** @deprecated */
     protected RepositoryProjectArtefactImpl(String name, ArtefactPath path) {
         this.name = name;
         this.path = path;
@@ -44,11 +53,11 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     }
 
     public void addProperty(Property property) throws PropertyTypeException {
-        throw new PropertyTypeException("Not supported");
+        throw new PropertyTypeException("Not supported", null);
     }
 
     public Property removeProperty(String name) throws PropertyException {
-        throw new PropertyException("Not supported");
+        throw new PropertyException("Not supported", null);
     }
 
     // all for project, main for content

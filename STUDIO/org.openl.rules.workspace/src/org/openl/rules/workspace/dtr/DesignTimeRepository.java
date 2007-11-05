@@ -41,4 +41,6 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @throws RepositoryException
      */
     void copyProject(Project project, String name) throws RepositoryException;
+    
+    void createProject(String name) throws RepositoryException;
 }

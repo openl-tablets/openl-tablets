@@ -70,7 +70,7 @@ public class PropertyImpl implements Property {
 
     protected void checkType(ValueType type) throws PropertyTypeException {
         if (this.type != type) {
-            throw new PropertyTypeException("Property has {0} type", this.type);
+            throw new PropertyTypeException("Property has {0} type", null, this.type);
         }
     }
 }

@@ -6,7 +6,7 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 
 import java.util.Collection;
 
-public interface UserWorkspaceProject extends Project {
+public interface UserWorkspaceProject extends Project, UserWorkspaceProjectFolder {
     void close() throws ProjectException;
     void open() throws ProjectException;
     void openVersion(ProjectVersion version) throws ProjectException;

@@ -7,7 +7,7 @@ public class PropertyException extends CommonException {
         super(msg, cause);
     }
 
-    public PropertyException(String pattern, Object... params) {
-        super(pattern, params);
+    public PropertyException(String pattern, Throwable cause, Object... params) {
+        super(pattern, cause, params);
     }
 }

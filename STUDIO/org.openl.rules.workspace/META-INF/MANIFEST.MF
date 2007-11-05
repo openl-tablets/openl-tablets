@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.openl.rules.workspace
 Bundle-Version: 5.0.1
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.openl.commons
+Require-Bundle: org.openl.commons,
+ org.openl.rules.repository
 Export-Package: org.openl,
  org.openl.rules.workspace,
  org.openl.rules.workspace.abstracts,

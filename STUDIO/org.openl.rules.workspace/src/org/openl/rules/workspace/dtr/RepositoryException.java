@@ -7,7 +7,7 @@ public class RepositoryException extends ProjectException {
         super(msg, cause);
     }
 
-    public RepositoryException(String msg, Object... params) {
-        super(msg, params);
+    public RepositoryException(String pattern, Throwable cause, Object... params) {
+        super(pattern, cause, params);
     }
 }

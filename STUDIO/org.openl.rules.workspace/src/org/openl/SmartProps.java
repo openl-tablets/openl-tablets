@@ -26,7 +26,6 @@ public class SmartProps {
      * Create wrapper for Properties.
      *
      * @param fullName full name or path in class paths to a properties file
-     * @throws CommonException 
      */
     public SmartProps(String fullName) {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream(fullName);
