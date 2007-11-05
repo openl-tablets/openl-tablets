@@ -35,6 +35,10 @@ public class RepositoryTreeController {
         this.userWorkspace = userWorkspace;
     }
 
+    public UserWorkspace getUserWorkspace() {
+        return userWorkspace;
+    }
+
     public synchronized Object getData() {
         if (root == null) {
             initData();
@@ -75,12 +79,12 @@ public class RepositoryTreeController {
         return (node == selected) ? Boolean.TRUE : Boolean.FALSE;
     }
     
-    // ------ protected ------
-    
-    protected void reInit() {
+    public void reInit() {
         root = null;
         currentNode = null;
     }
+
+    // ------ protected ------
     
     protected void setSelected(AbstractTreeNode node) {
         currentNode = node;
