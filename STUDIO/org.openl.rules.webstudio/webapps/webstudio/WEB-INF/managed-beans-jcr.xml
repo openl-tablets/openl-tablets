@@ -83,6 +83,12 @@
     </managed-bean>
 
     <managed-bean>
+      <managed-bean-name>projectUploadController</managed-bean-name>
+      <managed-bean-class>org.openl.rules.ui.repository.ProjectUploadController</managed-bean-class>
+      <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
         <managed-bean-name>repository</managed-bean-name>
         <managed-bean-class>org.openl.rules.ui.repository.handlers.RepositoryContoller</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
