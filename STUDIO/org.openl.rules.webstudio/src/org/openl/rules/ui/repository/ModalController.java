@@ -43,12 +43,13 @@ public class ModalController extends AbstractDialogController {
      * @return outcome: "success" or "fail"
      */
     public String addProject() {
-        boolean success = getContext().getRepositoryHandler().addProject(newProjectName);
+        //todo: fix
+        //boolean success = getContext().getRepositoryHandler().addProject(newProjectName);
 
         refresh();
         
         // not real use, but still...
-        return outcome(success);
+        return outcome(false);
     }
     
     public void setNewProjectName(String newProjectName) {
@@ -68,11 +69,12 @@ public class ModalController extends AbstractDialogController {
      * @return outcome: "success" or "fail"
      */
     public String copyProject() {
-        boolean success = getContext().getRepositoryHandler().copyProject(copyProjectFrom, copyProjectTo);
+        //todo: fix
+        //boolean success = getContext().getRepositoryHandler().copyProject(copyProjectFrom, copyProjectTo);
 
         refresh();
         
-        return outcome(success);
+        return outcome(false);
     }
     
     public void setCopyProjectFrom(String copyProjectFrom) {

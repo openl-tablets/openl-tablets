@@ -2,6 +2,7 @@ package org.openl.rules.ui.repository.tree;
 
 import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.workspace.abstracts.Project;
+import org.openl.rules.workspace.abstracts.ProjectVersion;
 
 import java.util.Date;
 
@@ -13,7 +14,9 @@ import java.util.Date;
  */
 public class TreeProject extends TreeFolder {
 
-	private static final long serialVersionUID = -326805891782640894L;
+    private boolean isMarked4Deletion;
+
+    private static final long serialVersionUID = -326805891782640894L;
 
 	public TreeProject(long id, String name) {
 		super(id, name);
@@ -44,5 +47,21 @@ public class TreeProject extends TreeFolder {
         // todo: uncomment when it is implemented
         //return ((Project)getDataBean()).getVersion().getVersionInfo().getCreatedBy();
         return "god";
+    }
+
+    public String getVersion() {
+        ProjectVersion projectVersion = ((Project) getDataBean()).getVersion();
+        if (projectVersion == null) {
+            return "unversioned";
+        }
+        return projectVersion.getVersionName();
+    }
+
+    public boolean isMarked4Deletion() {
+        return isMarked4Deletion;
+    }
+
+    public void setMarked4Deletion(boolean marked4Deletion) {
+        isMarked4Deletion = marked4Deletion;
     }
 }

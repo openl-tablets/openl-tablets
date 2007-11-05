@@ -82,6 +82,16 @@
         </managed-property>
     </managed-bean>
 
+    <managed-bean>
+        <managed-bean-name>repository</managed-bean-name>
+        <managed-bean-class>org.openl.rules.ui.repository.handlers.RepositoryContoller</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>repositoryTree</property-name>
+            <value>#{repositoryTree}</value>
+        </managed-property>
+    </managed-bean>
+
   <lifecycle>
     <phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>
   </lifecycle>
