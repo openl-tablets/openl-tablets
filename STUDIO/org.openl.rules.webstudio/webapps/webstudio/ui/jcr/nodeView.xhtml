@@ -5,7 +5,7 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<h:panelGroup rendered="#{userSession.selected.type == 'repository'}">
+	<h:panelGroup rendered="#{repositoryTree.selected.type == 'repository'}">
 		<h:commandButton
 		  styleClass="mainButton"
 		  value="New Project" 
@@ -21,7 +21,7 @@
 		</rich:tabPanel>
 	</h:panelGroup>
 
-	<h:panelGroup rendered="#{userSession.selected.type == 'file'}">
+	<h:panelGroup rendered="#{repositoryTree.selected.type == 'file'}">
 		<h:commandButton
 		  styleClass="mainButton"
 		  value="Update"
@@ -34,7 +34,7 @@
 		/>
 	</h:panelGroup>
 
-	<h:panelGroup rendered="#{userSession.selected.type == 'folder'}">
+	<h:panelGroup rendered="#{repositoryTree.selected.type == 'folder'}">
 		<h:commandButton
 		  styleClass="mainButton"
 		  value="New Folder"
@@ -52,19 +52,19 @@
 		/>
 	</h:panelGroup>
 
-	<h:panelGroup rendered="#{userSession.selected.type == 'project'}">
+	<h:panelGroup rendered="#{repositoryTree.selected.type == 'project'}">
 		<h:panelGroup rendered="#{userSession.selected.dataBean.marked4Deletion}">
 			<h:commandButton
 			  styleClass="mainButton"
 			  value="Undelete"
 			  action="undeleteProject"
-			  onclick="return confirmUndeleteProject(this, '#{activeNode.name}');"
+			  onclick="return confirmUndeleteProject(this, '#{repositoryTree.selected.dataBean.name}');"
 			/>
 			<h:commandButton
 			  styleClass="mainButton"
 			  value="ERASE"
 			  action="eraseProject"
-			  onclick="return confirmEraseProject(this, '#{activeNode.name}');"
+			  onclick="return confirmEraseProject(this, '#{repositoryTree.selected.dataBean.name}');"
 			/>
 		</h:panelGroup>
 
@@ -73,24 +73,24 @@
 			  styleClass="mainButton"
 			  value="Update"
 			  action="updateProject"
-			  onclick="return confirmUpdateProject(this, '#{activeNode.name}');"
+			  onclick="return confirmUpdateProject(this, '#{repositoryTree.selected.dataBean.name}');"
 			/>
 			<h:commandButton
 			  styleClass="mainButton"
 			  value="Commit"
 			  action="commitProject"
-			  onclick="return confirmCommitProject(this, '#{activeNode.name}');"
+			  onclick="return confirmCommitProject(this, '#{repositoryTree.selected.dataBean.name}');"
 			/>
 			<h:commandButton 
 			styleClass="mainButton2x"
 			  value="Override and Update" 
 			  action="revertProject" 
-			  onclick="return confirmOvrAndUpdProject(this, '#{activeNode.name}');"
+			  onclick="return confirmOvrAndUpdProject(this, '#{repositoryTree.selected.dataBean.name}');"
 			/>
 			<h:commandButton
 			  styleClass="mainButton"
 			  value="Copy"
-			  onclick="return confirmCopyProject('#{activeNode.name}');"
+			  onclick="return confirmCopyProject('#{repositoryTree.selected.dataBean.name}');"
 			/>
 
 			<br/>
@@ -113,24 +113,24 @@
 		</h:panelGroup>
 	</h:panelGroup>
 
-	<h:panelGroup rendered="#{userSession.selected.type != 'repository'}">
+	<h:panelGroup rendered="#{repositoryTree.selected.type != 'repository'}">
 
 		<rich:tabPanel switchType="client" style="height:400;">
 			<rich:tab label="Properties">
-				<h:panelGroup rendered="#{userSession.selected.type == 'file'}">
+				<h:panelGroup rendered="#{repositoryTree.selected.type == 'file'}">
 					<ui:include src="/ui/jcr/node/fileProps.xhtml" />
 				</h:panelGroup>
-				<h:panelGroup rendered="#{userSession.selected.type == 'folder'}">
+				<h:panelGroup rendered="#{repositoryTree.selected.type == 'folder'}">
 					<ui:include src="/ui/jcr/node/folderProps.xhtml" />
 				</h:panelGroup>
-				<h:panelGroup rendered="#{userSession.selected.type == 'project'}">
+				<h:panelGroup rendered="#{repositoryTree.selected.type == 'project'}">
 					<ui:include src="/ui/jcr/node/projectProps.xhtml" />
 				</h:panelGroup>
 			</rich:tab>
 			<rich:tab label="Versions">
 				<ui:include src="/ui/jcr/node/versions.xhtml" />
 			</rich:tab>
-			<rich:tab label="Elements" rendered="#{userSession.selected.type != 'file'}">
+			<rich:tab label="Elements" rendered="#{repositoryTree.selected.type != 'file'}">
 				<ui:include src="/ui/jcr/node/elements.xhtml" />
 			</rich:tab>
 		</rich:tabPanel>

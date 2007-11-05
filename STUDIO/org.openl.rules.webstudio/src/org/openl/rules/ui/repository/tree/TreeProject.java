@@ -1,6 +1,9 @@
 package org.openl.rules.ui.repository.tree;
 
 import org.openl.rules.ui.repository.UiConst;
+import org.openl.rules.workspace.abstracts.Project;
+
+import java.util.Date;
 
 /**
  * Represents OpenL project in a tree.  
@@ -30,4 +33,16 @@ public class TreeProject extends TreeFolder {
 		
 		return UiConst.ICON_PROJECT;
 	}
+
+    public Date getCreatedAt() {
+        // todo: uncomment when it is implemented
+        // return ((Project)getDataBean()).getVersion().getVersionInfo().getCreatedAt();
+
+        return new Date();
+    }
+    public String getCreatedBy() {
+        // todo: uncomment when it is implemented
+        //return ((Project)getDataBean()).getVersion().getVersionInfo().getCreatedBy();
+        return "god";
+    }
 }

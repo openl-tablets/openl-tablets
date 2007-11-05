@@ -4,9 +4,9 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:dataTable
-	  rendered="#{not empty userSession.repositoryTree.selected.dataBean.elements}"
-	  value="#{userSession.repositoryTree.selected.dataBean.elements}"
+    <rich:dataTable
+	  rendered="#{not empty repositoryTree.selected.childNodes}"
+	  value="#{repositoryTree.selected.childNodes}"
 	  var="el"
 	>
 		<f:facet name="header">
@@ -17,16 +17,7 @@
 				<rich:column>
 					<h:outputText value="Folder/File" />
 				</rich:column>
-				<rich:column>
-					<h:outputText value="Version" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Last Modified" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Modified By" />
-				</rich:column>
-			</rich:columnGroup>
+            </rich:columnGroup>
 		</f:facet>
 
 		<rich:columnGroup>
@@ -41,22 +32,13 @@
 			<rich:column>
 				<h:outputText value="#{el.name}" />
 			</rich:column>
-			<rich:column>
-				<h:outputText value="#{el.version}" />
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{el.lastModified}" />
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{el.lastModifiedBy}" />
-			</rich:column>
-		</rich:columnGroup>
-		
+        </rich:columnGroup>
+
 	</rich:dataTable>
 
 	<h:outputText
 	  styleClass="niceLabel"
-	  rendered="#{empty userSession.repositoryTree.selected.dataBean.elements}"
+	  rendered="#{empty repositoryTree.selected.children}"
 	  value="There are no elements (Folders, Files)."
 	/>
 	

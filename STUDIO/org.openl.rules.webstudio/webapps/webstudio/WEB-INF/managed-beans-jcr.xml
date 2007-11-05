@@ -77,10 +77,6 @@
         <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeController</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
         <managed-property>
-            <property-name>context</property-name>
-            <value>#{userSession.context}</value>
-        </managed-property>
-        <managed-property>
             <property-name>userWorkspace</property-name>
             <value>#{sessionScope.rulesUserSession.userWorkspace}</value>
         </managed-property>

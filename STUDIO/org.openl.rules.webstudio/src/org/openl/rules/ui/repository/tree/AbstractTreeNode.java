@@ -1,10 +1,13 @@
 package org.openl.rules.ui.repository.tree;
 
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.richfaces.model.TreeNode;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-
-import org.richfaces.model.TreeNode;
 
 /**
  * This abstract class implements basic functionality of {@link TreeNode} interface.
@@ -69,7 +72,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      */
     private boolean isLeafOnly;
 
-    private Object dataBean;
+    private ProjectArtefact dataBean;
 
     /**
      * Creates tree node that can have children.
@@ -153,6 +156,10 @@ public abstract class AbstractTreeNode implements TreeNode {
         return result;
     }
 
+    public List<AbstractTreeNode> getChildNodes() {
+        return new ArrayList<AbstractTreeNode>(elements.values());
+    }
+
     /**
      * @see TreeNode#getData()
      */
@@ -211,11 +218,11 @@ public abstract class AbstractTreeNode implements TreeNode {
         return id;
     }
 
-    public Object getDataBean() {
+    public ProjectArtefact getDataBean() {
         return dataBean;
     }
 
-    public void setDataBean(Object dataBean) {
+    public void setDataBean(ProjectArtefact dataBean) {
         this.dataBean = dataBean;
     }
 

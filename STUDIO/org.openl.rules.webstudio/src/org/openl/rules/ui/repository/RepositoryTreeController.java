@@ -22,7 +22,6 @@ import java.util.Collection;
  *
  */
 public class RepositoryTreeController {
-    private Context context;
     /**
      * Root node for RichFaces's tree.  It won't be displayed. 
      */
@@ -31,10 +30,6 @@ public class RepositoryTreeController {
     private TreeRepository repository;
 
     private UserWorkspace userWorkspace;
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {
         this.userWorkspace = userWorkspace;
