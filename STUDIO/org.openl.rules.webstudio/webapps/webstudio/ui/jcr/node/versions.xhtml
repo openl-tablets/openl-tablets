@@ -4,56 +4,5 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:dataTable value="#{activeNode.versionHistory}" var="ver">
-		<f:facet name="header">
-			<rich:columnGroup>
-				<rich:column>
-					<h:outputText value="Actions" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Version" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Date Time" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="User" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Comments" />
-				</rich:column>
-			</rich:columnGroup>
-		</f:facet>
-
-		<rich:columnGroup>
-			<rich:column>
-				<h:panelGroup rendered="#{activeNode.type == 'file'}">
-					<h:panelGroup rendered="#{activeNode.version != ver.name}">
-						<h:commandLink
-						  action="#{diff.compare}"
-						>
-							<f:param name="compareWithVersion" value="#{ver.name}"/>
-							<h:graphicImage border="0" value="/images/test.gif"/>
-						</h:commandLink>
-					</h:panelGroup>
-					<h:panelGroup rendered="#{activeNode.version == ver.name}">
-						<h:graphicImage border="0" value="/images/test_ok1.gif"/>
-					</h:panelGroup>
-				</h:panelGroup>
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{ver.name}" />
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{ver.created}" />
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{ver.createdBy}" />
-			</rich:column>
-			<rich:column>
-				<h:outputText value="ver.comments" />
-			</rich:column>
-		</rich:columnGroup>
-	</rich:dataTable>
-
+	<h:outputText value="NOT IMPLEMENTED" />
 </ui:composition>
