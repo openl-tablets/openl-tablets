@@ -4,6 +4,7 @@ import java.util.Map;
 import com.exigen.ie.constrainer.impl.ConstraintExpEqualsValue;
 import com.exigen.ie.constrainer.impl.ConstraintExpLessValue;
 import com.exigen.ie.constrainer.impl.ConstraintExpMoreValue;
+import com.exigen.ie.constrainer.impl.IntExpBitAndExp;
 import com.exigen.ie.constrainer.impl.IntExpImpl;
 //
 //: IntExpConst.java
@@ -190,6 +191,11 @@ public class IntExpConst extends IntExpImpl
   final public Constraint moreOrEqual(IntExp exp)
   {
     return new ConstraintExpLessValue(exp,_const+1);
+  }
+  
+  public IntExp bitAnd(IntExp exp)
+  {
+      return getIntExp(IntExpBitAndExp.class, this, exp);
   }
   /**
    *

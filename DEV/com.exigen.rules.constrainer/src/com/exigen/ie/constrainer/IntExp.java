@@ -165,6 +165,13 @@ public interface IntExp extends Expression
    * @see #bound
    */
   public int value() throws Failure;
+  
+  
+  /**
+   * 
+   * @return value without checking bound(); should be called only after the caller checked the bounds already
+   */
+  public int valueUnsafe();
 
   /**
    * Returns the constraint: <code>(this == value)</code>.
@@ -458,6 +465,9 @@ public interface IntExp extends Expression
    */
   public IntExp pow(int value);
 
+  
+  public IntExp bitAnd(IntExp exp);
+  
   /**
    * Returns the expression: <code>pow(this,pow_exp)</code>.
    * The constraint "pow_exp >= 0" is added to Costrainer.

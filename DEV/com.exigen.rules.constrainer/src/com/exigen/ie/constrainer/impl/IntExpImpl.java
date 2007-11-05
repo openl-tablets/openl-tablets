@@ -101,8 +101,15 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp
 
     return min;
   }
+  
+  
 
-  public boolean contains(int value) // better to be redefined in subclasses
+  public int valueUnsafe()
+{
+    return min();
+}
+
+public boolean contains(int value) // better to be redefined in subclasses
   {
     return (value >= min() && value <= max());
   }
@@ -657,4 +664,9 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp
   public boolean isLinear(){
     return false;
   }
+
+public IntExp bitAnd(IntExp exp)
+{
+    return getIntExp(IntExpBitAndExp.class, this, exp);
+}
 } // ~IntExpImpl

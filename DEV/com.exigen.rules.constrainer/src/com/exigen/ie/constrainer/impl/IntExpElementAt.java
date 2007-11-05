@@ -232,6 +232,13 @@ public final class IntExpElementAt extends IntExpImpl
     }
     public void setValueFromElement(int value) throws Failure
     {
+      if (_index.bound())
+      {
+	  if (_ary.elementAt(_index.valueUnsafe()) != value)
+	      throw new Failure("Value in ElementAt");
+	  return;
+      }	  
+	
       SetValueFromElementIterator it =
         SetValueFromElementIterator.getIterator(_index, _ary, value);
       _index.iterateDomain(it);
@@ -367,7 +374,7 @@ public final class IntExpElementAt extends IntExpImpl
 
     public int subscriberMask()
     {
-      return IntEvent.ALL;
+      return IntEvent.VALUE;
     }
 
     public Object master()
@@ -417,7 +424,7 @@ public final class IntExpElementAt extends IntExpImpl
 
     public int subscriberMask()
     {
-      return IntEvent.ALL;
+      return IntEvent.VALUE;
     }
 
     public Object master()
