@@ -2,6 +2,9 @@ package org.openl.rules.ui.repository.tree;
 
 import org.openl.rules.ui.repository.UiConst;
 
+import java.util.List;
+import java.util.Collections;
+
 /**
  * Represents OpenL file in a tree.
  * 
@@ -35,4 +38,9 @@ public class TreeFile extends AbstractTreeNode {
 		// TODO: different types of files should have own icons
 		return UiConst.ICON_FILE;
 	}
+
+    @Override
+    public List<AbstractTreeNode> getChildNodes() {
+        return Collections.EMPTY_LIST;
+    }
 }
