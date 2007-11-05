@@ -6,13 +6,7 @@
 
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputText styleClass="niceLabel" value="Folder Name:" />
-    <h:outputText value="#{userSession.repositoryTree.selected.dataBean.name}" />
-
-    <h:outputText styleClass="niceLabel" value="Modified Date:" />
-    <h:outputText value="#{userSession.repositoryTree.selected.dataBean.lastModified}" />
-
-    <h:outputText styleClass="niceLabel" value="Modified By:" />
-    <h:outputText value="#{userSession.repositoryTree.selected.dataBean.lastModifiedBy}" />
+    <h:outputText value="#{repositoryTree.selected.name}" />
   </h:panelGrid>
 
   <ui:include src="/ui/jcr/node/properties.xhtml"/>
