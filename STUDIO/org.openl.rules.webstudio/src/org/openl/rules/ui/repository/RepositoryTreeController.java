@@ -43,6 +43,13 @@ public class RepositoryTreeController {
         return root;
     }
 
+    public synchronized TreeRepository getRepositoryNode() {
+        if (root == null) {
+            initData();
+        }
+        return repository;
+    }
+
     public void processSelection(NodeSelectedEvent event) throws AbortProcessingException {
         UITree tree = (UITree) event.getComponent();
         AbstractTreeNode node =  (AbstractTreeNode) tree.getRowData();

@@ -5,7 +5,7 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:dataTable value="#{userSession.projects}" var="prj">
+	<rich:dataTable value="#{repository.projects}" var="prj">
 		<f:facet name="header">
 			<rich:columnGroup>
 				<rich:column>
@@ -18,10 +18,10 @@
 					<h:outputText value="Version" />
 				</rich:column>
 				<rich:column>
-					<h:outputText value="Last Modified" />
+					<h:outputText value="Created At" />
 				</rich:column>
 				<rich:column>
-					<h:outputText value="Modified By" />
+					<h:outputText value="Created By" />
 				</rich:column>
 			</rich:columnGroup>
 		</f:facet>
@@ -54,10 +54,10 @@
 				<h:outputText value="#{prj.version}" />
 			</rich:column>
 			<rich:column>
-				<h:outputText value="#{prj.lastModified}" />
+				<h:outputText value="#{prj.createdAt}" />
 			</rich:column>
 			<rich:column>
-				<h:outputText value="#{prj.lastModifiedBy}" />
+				<h:outputText value="#{prj.createdBy}" />
 			</rich:column>
 		</rich:columnGroup>
 	</rich:dataTable>

@@ -20,8 +20,7 @@ import java.util.List;
 public class UserSessionBean {
     private RRepository repository;
     private Context context;
-    private RepositoryHandler repositoryHandler;
-
+    
     public UserSessionBean() {
         MessageQueue messages = new MessageQueue();
 
@@ -39,16 +38,10 @@ public class UserSessionBean {
         FileHandler fileHandler = new FileHandler(context);
         FolderHandler folderHandler = new FolderHandler(context);
         ProjectHandler projectHandler = new ProjectHandler(context);
-        repositoryHandler = new RepositoryHandler(context);
 
         context.setFileHandler(fileHandler);
         context.setFolderHandler(folderHandler);
         context.setProjectHandler(projectHandler);
-        context.setRepositoryHandler(repositoryHandler);
-    }
-
-    public List<ProjectBean> getProjects() {
-        return repositoryHandler.getProjects();
     }
 
     public List<Error> getErrors() {

@@ -5,7 +5,6 @@ import org.openl.rules.ui.repository.beans.Entity;
 import org.openl.rules.ui.repository.handlers.FileHandler;
 import org.openl.rules.ui.repository.handlers.FolderHandler;
 import org.openl.rules.ui.repository.handlers.ProjectHandler;
-import org.openl.rules.ui.repository.handlers.RepositoryHandler;
 
 /**
  * Handler Context.
@@ -20,8 +19,7 @@ public class Context {
     private FileHandler fileHandler;
     private FolderHandler folderHandler;
     private ProjectHandler projectHandler;
-    private RepositoryHandler repositoryHandler;
-    
+
     public Context(RRepository repository, MessageQueue messageQueue) {
         this.repository = repository;
         this.messageQueue = messageQueue;
@@ -47,10 +45,6 @@ public class Context {
         return projectHandler;
     }
 
-    public RepositoryHandler getRepositoryHandler() {
-        return repositoryHandler;
-    }
-
     public void setFileHandler(FileHandler fileHandler) {
         this.fileHandler = fileHandler;
     }
@@ -62,11 +56,6 @@ public class Context {
     public void setProjectHandler(ProjectHandler projectHandler) {
         this.projectHandler = projectHandler;
     }
-
-    public void setRepositoryHandler(RepositoryHandler repositoryHandler) {
-        this.repositoryHandler = repositoryHandler;
-    }
-
 
     public void refresh() {
      //   repositoryTreeController.reInit();
