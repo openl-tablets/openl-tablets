@@ -24,10 +24,10 @@ public final class IntExpAddExp extends IntExpImpl
 
   private IntVar _sum;
 
-  static final private int[] event_map = { MIN, MIN,
-                                           MAX, MAX,
-                                           MIN | MAX | VALUE, VALUE
-                                         };
+//  static final private int[] event_map = { MIN, MIN,
+//                                           MAX, MAX,
+//                                           MIN | MAX | VALUE, VALUE
+//                                         };
 
   class ExpAddExpObserver extends Observer
   {

@@ -1,8 +1,9 @@
 package com.exigen.ie.constrainer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Vector;
+import java.util.List;
 
 import com.exigen.ie.constrainer.impl.IntExpAddArray1;
 import com.exigen.ie.constrainer.impl.IntExpArrayElement1;
@@ -36,7 +37,7 @@ public final class IntExpArray extends ConstrainerObjectImpl
   /**
    * Sorts the internal array of the expressions using given comparator.
    */
-  public void sort(Comparator c)
+  public void sort(Comparator<IntExp> c)
   {
     Arrays.sort(_data, c);
   }
@@ -47,11 +48,11 @@ public final class IntExpArray extends ConstrainerObjectImpl
   public void sortByDependents() // not optimized
   {
     sort(
-      new Comparator()
+      new Comparator<IntExp>()
       {
-        public int compare(Object o1, Object o2)
+        public int compare(IntExp o1, IntExp o2)
         {
-          return ((Subject) o2).allDependents().size() - ((Subject) o1).allDependents().size();
+          return  o2.allDependents().size() - o1.allDependents().size();
         }
       }
     );
@@ -72,6 +73,17 @@ public final class IntExpArray extends ConstrainerObjectImpl
    * @param min minimal value of each constrained variable
    * @param max maximal value of each constrained variable
    */
+  public IntExpArray(Constrainer c, int size, int min, int max, String array_name, int int_domain)
+  {
+    this(c, size);
+
+    name(array_name);
+
+    for(int i = 0; i < _data.length; ++i)
+      _data[i] = c.addIntVar(min,max,array_name+"("+i+")", int_domain);
+  }
+  
+  
   public IntExpArray(Constrainer c, int size, int min, int max, String array_name)
   {
     this(c, size);
@@ -85,12 +97,12 @@ public final class IntExpArray extends ConstrainerObjectImpl
   /**
    * Constructor from the Vector.
    */
-  public IntExpArray(Constrainer c, Vector v)
+  public IntExpArray(Constrainer c, List<IntExp> v)
   {
     this(c, v.size());
 
     for(int i = 0; i < _data.length; ++i)
-      _data[i] = (IntExp) v.elementAt(i);
+      _data[i] =  v.get(i);
   }
 
   /**
@@ -414,10 +426,10 @@ public final class IntExpArray extends ConstrainerObjectImpl
       return new IntExpArray (constrainer (), 0);
     }
 
-    Vector  sub_data = new Vector (max_index - min_index + 1);
+    List<IntExp>  sub_data = new ArrayList<IntExp> (max_index - min_index + 1);
 
     for (int i = min_index; i <= max_index; i++) {
-      sub_data.addElement (_data [i]);
+      sub_data.add(_data [i]);
     }
 
     return new IntExpArray (constrainer (), sub_data);
@@ -433,10 +445,10 @@ public final class IntExpArray extends ConstrainerObjectImpl
   public IntExpArray subarrayByMask (boolean [] mask) {
     int size = Math.min (_data.length, mask.length);
 
-    Vector sub_data = new Vector ();
+    List<IntExp> sub_data = new ArrayList<IntExp> ();
     for (int i = 0; i < size; i++) {
       if (mask [i]) {
-        sub_data.addElement (_data [i]);
+        sub_data.add(_data [i]);
       }
     }
 
@@ -452,14 +464,14 @@ public final class IntExpArray extends ConstrainerObjectImpl
    */
   public IntExpArray merge (IntExpArray array) {
     int     i;
-    Vector  new_data = new Vector (this._data.length + array._data.length);
+    List<IntExp>  new_data = new ArrayList<IntExp> (this._data.length + array._data.length);
 
     for (i = 0; i < _data.length; i++) {
-      new_data.addElement (_data [i]);
+      new_data.add (_data [i]);
     }
 
     for (i = 0; i < array._data.length; i++) {
-      new_data.addElement (array._data [i]);
+      new_data.add(array._data [i]);
     }
 
     return new IntExpArray (constrainer (), new_data);
