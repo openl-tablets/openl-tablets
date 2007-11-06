@@ -1,9 +1,15 @@
 package org.openl.rules.ui.repository.tree;
 
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.abstracts.VersionInfo;
+import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
+import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.richfaces.model.TreeNode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -224,6 +230,16 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     public void setDataBean(ProjectArtefact dataBean) {
         this.dataBean = dataBean;
+    }
+
+    public List<ProjectVersion> getVersions() {
+        VersionInfo info = new RepositoryVersionInfoImpl(new Date(), "budda");
+        
+        return Arrays.asList(
+                (ProjectVersion)new RepositoryProjectVersionImpl(1, 0, 1, info),
+                new RepositoryProjectVersionImpl(1, 0, 2, info),
+                new RepositoryProjectVersionImpl(1, 0, 3, info),
+                new RepositoryProjectVersionImpl(1, 0, 4, info));
     }
 
     /**
