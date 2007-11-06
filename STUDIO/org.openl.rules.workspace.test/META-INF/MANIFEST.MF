@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test Plug-in for Workspace
+Bundle-SymbolicName: org.openl.rules.workspace.test
+Bundle-Version: 5.0.1
+Bundle-Localization: plugin
+Require-Bundle: org.openl.rules.workspace,
+ org.openl.rules.repository.jcr
