@@ -8,9 +8,6 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.lw.LocalProject;
-import org.openl.rules.workspace.props.Property;
-import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import java.util.Collection;
@@ -113,7 +110,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
     public boolean isCheckedOut() {
         String lockedBy = dtrProject.getlLockInfo().getLockedBy();
-        if (lockedBy.equals(null)) {
+        if (lockedBy.equals("127.0.0.1")) {
             return true;
         }
 

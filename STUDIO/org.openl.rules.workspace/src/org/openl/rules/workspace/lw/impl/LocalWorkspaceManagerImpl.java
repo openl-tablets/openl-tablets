@@ -1,6 +1,5 @@
 package org.openl.rules.workspace.lw.impl;
 
-import org.openl.CommonException;
 import org.openl.SmartProps;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
