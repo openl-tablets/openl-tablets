@@ -3,6 +3,7 @@ package org.openl.rules.ui.repository.tree;
 import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import java.util.Date;
 
@@ -31,10 +32,21 @@ public class TreeProject extends TreeFolder {
 	
 	@Override
 	public String getIcon() {
-		// FIXME: for mockup
+		// todo: FIXME: for mockup
 		if ("prj1".equals(getName())) return UiConst.ICON_PROJECT_MOD;
-		
-		return UiConst.ICON_PROJECT;
+
+        UserWorkspaceProject project = (UserWorkspaceProject) getDataBean();
+        if (project.isDeleted()) {
+            return UiConst.ICON_PROJECT_DELETED;
+        }
+        if (project.isCheckedOut()) {
+            return UiConst.ICON_PROJECT_CHECKED_OUT;
+        }
+        if (project.isOpened()) {
+            return UiConst.ICON_PROJECT_OPEN;
+        }
+
+        return UiConst.ICON_PROJECT;
 	}
 
     public Date getCreatedAt() {
