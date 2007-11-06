@@ -1,6 +1,5 @@
 package org.openl.rules.workspace;
 
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
@@ -43,19 +42,5 @@ public class MultiUserWorkspaceManager {
         LocalWorkspace lw = localManager.getWorkspace(user);
         UserWorkspace uw = new UserWorkspaceImpl(user, lw, designTimeRepository);
         return uw;
-    }
-
-    public static void main(String[] args) throws WorkspaceException, ProjectException {
-        MultiUserWorkspaceManager muwm = new MultiUserWorkspaceManager();
-
-        WorkspaceUser wu = new WorkspaceUserImpl("127.0.0.1");
-        UserWorkspace uw = muwm.getUserWorkspace(wu);
-        uw.activate();
-
-        System.out.println(uw.getProjects().size());
-
-//        pseudo-publish project in DTR
-//        Project p = uw.getProject("prj1");
-//        muwm.designTimeRepository.copyProject(p, "prj1");
     }
 }

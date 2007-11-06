@@ -79,7 +79,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void checkOut() throws ProjectException {
-        if (!isCheckedOut()) {
+        if (isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' is already checked-out", null, getName());
         }
 
