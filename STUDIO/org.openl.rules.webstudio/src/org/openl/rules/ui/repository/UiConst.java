@@ -21,6 +21,9 @@ public class UiConst {
 
     public static final String ICON_FOLDER_MOD  = "/images/jcr/tree_folder_major.gif";
     public static final String ICON_PROJECT_MOD = "/images/jcr/tree_server_major.gif";
+    public static final String ICON_PROJECT_CHECKED_OUT = "/images/jcr/tree_pr_checkedout.gif";
+    public static final String ICON_PROJECT_DELETED = "/images/jcr/tree_pr_deleted.gif";
+    public static final String ICON_PROJECT_OPEN = "/images/jcr/tree_pr_open.gif";
 
     public static final String OUTCOME_SUCCESS = "success";
     public static final String OUTCOME_FAILED = "failed";
