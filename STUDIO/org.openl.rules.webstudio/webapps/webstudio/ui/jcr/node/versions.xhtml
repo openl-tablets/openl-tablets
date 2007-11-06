@@ -4,5 +4,18 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<h:outputText value="NOT IMPLEMENTED" />
+	<rich:dataTable value="#{repositoryTree.selected.versions}" var="version">
+        <f:facet name="header">
+			<rich:columnGroup>
+				<rich:column><h:outputText value="Version" /></rich:column>
+				<rich:column><h:outputText value="Created At" /></rich:column>
+				<rich:column><h:outputText value="Created By" /></rich:column>
+			</rich:columnGroup>
+         </f:facet>
+        <rich:columnGroup>
+            <rich:column><h:outputText value="#{version.versionName}" /></rich:column>
+            <rich:column><h:outputText value="#{version.versionInfo.createdAt}" /></rich:column>
+            <rich:column><h:outputText value="#{version.versionInfo.createdBy}" /></rich:column>
+        </rich:columnGroup>
+    </rich:dataTable>
 </ui:composition>

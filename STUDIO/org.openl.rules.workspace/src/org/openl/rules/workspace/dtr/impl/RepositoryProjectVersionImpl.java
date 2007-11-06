@@ -31,12 +31,11 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     public String getVersionName() {
         if (versionName == null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(major);
-            sb.append(".");
-            sb.append(minor);
-            sb.append(".");
-            sb.append(revision);
+            versionName = new StringBuilder().append(major)
+                    .append(".")
+                    .append(minor)
+                    .append(".")
+                    .append(revision).toString();
         }
 
         return versionName;
