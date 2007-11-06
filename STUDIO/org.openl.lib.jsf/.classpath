@@ -17,6 +17,7 @@
 	<classpathentry exported="true" kind="lib" path="myfaces-api-1.1.5/myfaces-api-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="myfaces-impl-1.1.5/myfaces-impl-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="tomahawk-1.1.6/tomahawk-1.1.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-fileupload-1.1.1/commons-fileupload-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="richfaces-ui-3.1.0/richfaces-api-3.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="richfaces-ui-3.1.0/richfaces-impl-3.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="richfaces-ui-3.1.0/richfaces-ui-3.1.0.jar"/>
