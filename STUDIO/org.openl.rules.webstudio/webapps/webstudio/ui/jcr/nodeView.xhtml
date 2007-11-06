@@ -1,140 +1,146 @@
 <ui:composition
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<h:panelGroup rendered="#{repositoryTree.selected.type == 'repository'}">
-		<h:commandButton
-		  styleClass="mainButton"
-		  value="New Project" 
-		  onclick="return confirmNewProject();"
-		/>
+  <h:panelGroup rendered="#{repositoryTree.selected.type == 'repository'}">
+    <h:commandButton
+      styleClass="mainButton"
+      value="New Project"
+      onclick="return confirmNewProject();"
+    />
 
-		<p/>
+    <h:commandButton
+      styleClass="mainButton"
+      value="Upload Project"
+      onclick="return uploadProject();"
+    />
 
-		<rich:tabPanel  style="height:400px;">
-			<rich:tab label="Projects">
-				<ui:include src="/ui/jcr/projects.xhtml" />
-			</rich:tab>
-		</rich:tabPanel>
-	</h:panelGroup>
+    <p/>
 
-	<h:panelGroup rendered="#{repositoryTree.selected.type == 'file'}">
-		<h:commandButton
-		  styleClass="mainButton"
-		  value="Update"
-		  onclick="return confirmUpdateFile();"
-		/>
-		<h:commandButton
-		  styleClass="mainButton"
-		  value="Delete"
-		  onclick="return confirmDeleteNode();"
-		/>
-	</h:panelGroup>
+    <rich:tabPanel  style="height:400px;">
+      <rich:tab label="Projects">
+        <ui:include src="/ui/jcr/projects.xhtml" />
+      </rich:tab>
+    </rich:tabPanel>
+  </h:panelGroup>
 
-	<h:panelGroup rendered="#{repositoryTree.selected.type == 'folder'}">
-		<h:commandButton
-		  styleClass="mainButton"
-		  value="New Folder"
-		  onclick="return confirmNewFolder();"
-		/>
-		<h:commandButton
-		  styleClass="mainButton"
-		  value="New File"
-		  onclick="return confirmNewFile();"
-		/>
-		<h:commandButton
-		  styleClass="mainButton"
-		  value="Delete"
-		  onclick="return confirmDeleteNode();"
-		/>
-	</h:panelGroup>
+  <h:panelGroup rendered="#{repositoryTree.selected.type == 'file'}">
+    <h:commandButton
+      styleClass="mainButton"
+      value="Update"
+      onclick="return confirmUpdateFile();"
+    />
+    <h:commandButton
+      styleClass="mainButton"
+      value="Delete"
+      onclick="return confirmDeleteNode();"
+    />
+  </h:panelGroup>
 
-	<h:panelGroup rendered="#{repositoryTree.selected.type == 'project'}">
-		<h:panelGroup rendered="#{userSession.selected.dataBean.marked4Deletion}">
-			<h:commandButton
-			  styleClass="mainButton"
-			  value="Undelete"
-			  action="undeleteProject"
-			  onclick="return confirmUndeleteProject(this, '#{repositoryTree.selected.dataBean.name}');"
-			/>
-			<h:commandButton
-			  styleClass="mainButton"
-			  value="ERASE"
-			  action="eraseProject"
-			  onclick="return confirmEraseProject(this, '#{repositoryTree.selected.dataBean.name}');"
-			/>
-		</h:panelGroup>
+  <h:panelGroup rendered="#{repositoryTree.selected.type == 'folder'}">
+    <h:commandButton
+      styleClass="mainButton"
+      value="New Folder"
+      onclick="return confirmNewFolder();"
+    />
+    <h:commandButton
+      styleClass="mainButton"
+      value="New File"
+      onclick="return confirmNewFile();"
+    />
+    <h:commandButton
+      styleClass="mainButton"
+      value="Delete"
+      onclick="return confirmDeleteNode();"
+    />
+  </h:panelGroup>
 
-		<h:panelGroup rendered="#{not userSession.selected.dataBean.marked4Deletion}">
-			<h:commandButton
-			  styleClass="mainButton"
-			  value="Update"
-			  action="updateProject"
-			  onclick="return confirmUpdateProject(this, '#{repositoryTree.selected.dataBean.name}');"
-			/>
-			<h:commandButton
-			  styleClass="mainButton"
-			  value="Commit"
-			  action="commitProject"
-			  onclick="return confirmCommitProject(this, '#{repositoryTree.selected.dataBean.name}');"
-			/>
-			<h:commandButton 
-			styleClass="mainButton2x"
-			  value="Override and Update" 
-			  action="revertProject" 
-			  onclick="return confirmOvrAndUpdProject(this, '#{repositoryTree.selected.dataBean.name}');"
-			/>
-			<h:commandButton
-			  styleClass="mainButton"
-			  value="Copy"
-			  onclick="return confirmCopyProject('#{repositoryTree.selected.dataBean.name}');"
-			/>
+  <h:panelGroup rendered="#{repositoryTree.selected.type == 'project'}">
+    <h:panelGroup rendered="#{userSession.selected.dataBean.marked4Deletion}">
+      <h:commandButton
+        styleClass="mainButton"
+        value="Undelete"
+        action="undeleteProject"
+        onclick="return confirmUndeleteProject(this, '#{repositoryTree.selected.dataBean.name}');"
+      />
+      <h:commandButton
+        styleClass="mainButton"
+        value="ERASE"
+        action="eraseProject"
+        onclick="return confirmEraseProject(this, '#{repositoryTree.selected.dataBean.name}');"
+      />
+    </h:panelGroup>
 
-			<br/>
+    <h:panelGroup rendered="#{not userSession.selected.dataBean.marked4Deletion}">
+      <h:commandButton
+        styleClass="mainButton"
+        value="Update"
+        action="updateProject"
+        onclick="return confirmUpdateProject(this, '#{repositoryTree.selected.dataBean.name}');"
+      />
+      <h:commandButton
+        styleClass="mainButton"
+        value="Commit"
+        action="commitProject"
+        onclick="return confirmCommitProject(this, '#{repositoryTree.selected.dataBean.name}');"
+      />
+      <h:commandButton
+      styleClass="mainButton2x"
+        value="Override and Update"
+        action="revertProject"
+        onclick="return confirmOvrAndUpdProject(this, '#{repositoryTree.selected.dataBean.name}');"
+      />
+      <h:commandButton
+        styleClass="mainButton"
+        value="Copy"
+        onclick="return confirmCopyProject('#{repositoryTree.selected.dataBean.name}');"
+      />
 
-			<h:commandButton
-			  styleClass="mainButton"
-			  value="New Folder"
-			  onclick="return confirmNewFolder();"
-			/>
-			<h:commandButton
-			  styleClass="mainButton"
-			  value="New File"
-			  onclick="return confirmNewFile();"
-			/>
-			<h:commandButton
-			  styleClass="mainButton"
-			  value="Delete"
-			  onclick="return confirmDeleteNode();"
-			/>
-		</h:panelGroup>
-	</h:panelGroup>
+      <br/>
 
-	<h:panelGroup rendered="#{repositoryTree.selected.type != 'repository'}">
+      <h:commandButton
+        styleClass="mainButton"
+        value="New Folder"
+        onclick="return confirmNewFolder();"
+      />
+      <h:commandButton
+        styleClass="mainButton"
+        value="New File"
+        onclick="return confirmNewFile();"
+      />
+      <h:commandButton
+        styleClass="mainButton"
+        value="Delete"
+        onclick="return confirmDeleteNode();"
+      />
+    </h:panelGroup>
+  </h:panelGroup>
 
-		<rich:tabPanel switchType="client" style="height:400;">
-			<rich:tab label="Properties">
-				<h:panelGroup rendered="#{repositoryTree.selected.type == 'file'}">
-					<ui:include src="/ui/jcr/node/fileProps.xhtml" />
-				</h:panelGroup>
-				<h:panelGroup rendered="#{repositoryTree.selected.type == 'folder'}">
-					<ui:include src="/ui/jcr/node/folderProps.xhtml" />
-				</h:panelGroup>
-				<h:panelGroup rendered="#{repositoryTree.selected.type == 'project'}">
-					<ui:include src="/ui/jcr/node/projectProps.xhtml" />
-				</h:panelGroup>
-			</rich:tab>
-			<rich:tab label="Versions">
-				<ui:include src="/ui/jcr/node/versions.xhtml" />
-			</rich:tab>
-			<rich:tab label="Elements" rendered="#{repositoryTree.selected.type != 'file'}">
-				<ui:include src="/ui/jcr/node/elements.xhtml" />
-			</rich:tab>
-		</rich:tabPanel>
-		
-	</h:panelGroup>
-	
+  <h:panelGroup rendered="#{repositoryTree.selected.type != 'repository'}">
+
+    <rich:tabPanel switchType="client" style="height:400;">
+      <rich:tab label="Properties">
+        <h:panelGroup rendered="#{repositoryTree.selected.type == 'file'}">
+          <ui:include src="/ui/jcr/node/fileProps.xhtml" />
+        </h:panelGroup>
+        <h:panelGroup rendered="#{repositoryTree.selected.type == 'folder'}">
+          <ui:include src="/ui/jcr/node/folderProps.xhtml" />
+        </h:panelGroup>
+        <h:panelGroup rendered="#{repositoryTree.selected.type == 'project'}">
+          <ui:include src="/ui/jcr/node/projectProps.xhtml" />
+        </h:panelGroup>
+      </rich:tab>
+      <rich:tab label="Versions">
+        <ui:include src="/ui/jcr/node/versions.xhtml" />
+      </rich:tab>
+      <rich:tab label="Elements" rendered="#{repositoryTree.selected.type != 'file'}">
+        <ui:include src="/ui/jcr/node/elements.xhtml" />
+      </rich:tab>
+    </rich:tabPanel>
+
+  </h:panelGroup>
+
 </ui:composition>
