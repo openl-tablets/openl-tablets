@@ -20,12 +20,12 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager {
     private File workspacesLocation;
 
     /**
-     * User name -> User Workspace
+     * User name -> User Workspace.
      */
     private HashMap<String, LocalWorkspaceImpl> localWorkspaces;
 
-    public LocalWorkspaceManagerImpl() throws WorkspaceException {
-        SmartProps props = new SmartProps(WS_PROPS);
+
+    public LocalWorkspaceManagerImpl(SmartProps props) throws WorkspaceException {
         String wsLocation = props.getStr(PROP_WS_LOCATION, DEF_WS_LOCATION);
 
         workspacesLocation = new File(wsLocation);
@@ -34,6 +34,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager {
         }
 
         localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
+    }
+
+    public LocalWorkspaceManagerImpl() throws WorkspaceException {
+        this(new SmartProps(WS_PROPS));
     }
 
     public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {

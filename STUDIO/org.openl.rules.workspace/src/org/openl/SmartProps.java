@@ -20,7 +20,7 @@ import java.util.Properties;
  */
 //TODO: find 'ready solution'. It's better to 'reuse' instead of 'reinvent'.
 public class SmartProps {
-    private Properties props;
+    private final Properties props;
 
     /**
      * Create wrapper for Properties.
@@ -46,6 +46,15 @@ public class SmartProps {
                 Log.error("Failed to close InputStream!", e);
             }
         }
+    }
+
+    /**
+     * Create wrapper for <code>Properties</code>.
+     *
+     * @param properties properties to initialize this instance from
+     */
+    public SmartProps(Properties properties) {
+        props = (Properties) properties.clone();
     }
 
     /**
