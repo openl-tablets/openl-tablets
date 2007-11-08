@@ -23,8 +23,7 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
     protected UserWorkspaceProjectFolderImpl(UserWorkspaceProjectImpl project, LocalProjectFolder localFolder, RepositoryProjectFolder dtrFolder) {
         super(project, localFolder, dtrFolder);
 
-        this.localFolder = localFolder;
-        this.dtrFolder = dtrFolder;
+        updateArtefact(localFolder, dtrFolder);
     }
 
     public UserWorkspaceProjectFolder addFolder(String name) throws ProjectException {
@@ -73,6 +72,13 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
     
     // --- protected
     
+    protected void updateArtefact(LocalProjectFolder localFolder, RepositoryProjectFolder dtrFolder) {
+        super.updateArtefact(localFolder, dtrFolder);
+
+        this.localFolder = localFolder;
+        this.dtrFolder = dtrFolder;
+    }
+    
     protected UserWorkspaceProjectFolder wrapFolder(LocalProjectFolder local, RepositoryProjectFolder remote) {
         return new UserWorkspaceProjectFolderImpl(getProject(), local, remote);
     }
@@ -82,10 +88,18 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
     }
     
     protected UserWorkspaceProjectArtefact wrapLocalArtefact(LocalProjectArtefact lpa) {
+        RepositoryProjectArtefact rpa = null;
+        try {
+            rpa = dtrFolder.getArtefact(lpa.getName());
+        } catch (ProjectException e) {
+            // ignore
+        }        
         if (lpa instanceof ProjectFolder) {
-            return wrapFolder((LocalProjectFolder)lpa, null);
+            if (!(rpa instanceof ProjectFolder)) rpa = null;
+            return wrapFolder((LocalProjectFolder)lpa, (RepositoryProjectFolder)rpa);
         } else {
-            return wrapFile((LocalProjectResource)lpa, null);
+            if (rpa instanceof ProjectFolder) rpa = null;
+            return wrapFile((LocalProjectResource)lpa, (RepositoryProjectResource)rpa);
         }
     }
     

@@ -41,7 +41,7 @@ public interface RepositoryProject extends Project, RepositoryProjectFolder {
      * @throws ProjectException
      */
     void erase() throws ProjectException;
-
+    
     /**
      * Checks whether the project is marked for deletion.
      * @return

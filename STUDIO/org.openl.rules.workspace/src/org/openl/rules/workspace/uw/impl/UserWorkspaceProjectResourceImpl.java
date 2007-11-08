@@ -16,8 +16,7 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
     protected UserWorkspaceProjectResourceImpl(UserWorkspaceProjectImpl project, LocalProjectResource localResource, RepositoryProjectResource dtrResource) {
         super(project, localResource, dtrResource);
         
-        this.localResource = localResource;
-        this.dtrResource = dtrResource;
+        updateArtefact(localResource, dtrResource);
     }
 
     public void setContent(InputStream inputStream) throws ProjectException {
@@ -43,6 +42,13 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
     }
     
     // --- protected
+    
+    protected void updateArtefact(LocalProjectResource localResource, RepositoryProjectResource dtrResource) {
+        super.updateArtefact(localResource, dtrResource);
+
+        this.localResource = localResource;
+        this.dtrResource = dtrResource;
+    }
     
     protected ProjectResource getResource() {
         return (isLocal() ? localResource : dtrResource);

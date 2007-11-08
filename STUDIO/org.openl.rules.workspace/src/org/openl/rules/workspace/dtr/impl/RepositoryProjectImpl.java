@@ -4,12 +4,15 @@ import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
+import org.openl.rules.workspace.abstracts.Project;
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
+import org.openl.rules.workspace.props.Property;
 import org.openl.util.Log;
 
 import java.util.Collection;
@@ -28,11 +31,6 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         this.rulesProject = rulesProject;
     }
     
-    /** @deprecated */
-    public RepositoryProjectImpl(String name, ArtefactPath path) {
-        super(name, path);
-    }
-
     public RepositoryProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         // TODO implement
         throw new ProjectException("Failed to resolve ''{0}''", null, artefactPath.getStringValue());
@@ -103,6 +101,13 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to erase project ''{0}''", e, getName());
         }        
+    }
+
+    public void update(ProjectArtefact srcArtefact) throws ProjectException {
+        Project srcProject = (Project) srcArtefact;
+        super.update(srcArtefact);
+        
+        // TODO update dependencies???
     }
 
     public boolean isMarkedForDeletion() {

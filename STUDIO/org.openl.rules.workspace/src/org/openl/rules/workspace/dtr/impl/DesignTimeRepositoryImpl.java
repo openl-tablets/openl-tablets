@@ -17,27 +17,42 @@ import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.util.Log;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
+    /** Rules Repository */
     private RRepository rulesRepository;
+    /** Project Cache */
+    private HashMap<String, RepositoryProjectImpl> projects;
 
     public DesignTimeRepositoryImpl() throws RepositoryException {
         try {
             rulesRepository = RulesRepositoryFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot get Repository", e);
-        }        
+        }
+        
+        projects = new HashMap<String, RepositoryProjectImpl>();
     }
 
     public Collection<RepositoryProject> getProjects() {
         List<RepositoryProject> result = new LinkedList<RepositoryProject>();
-        
+
         try {
             for (RProject rp : rulesRepository.getProjects()) {
-                RepositoryProject project = wrapProject(rp);
-                result.add(project);
+                String name = rp.getName();
+                RepositoryProject cached = projects.get(name);
+                
+                if (cached != null) {
+                    // use cached
+                    result.add(cached);
+                } else {
+                    // get from the repository
+                    RepositoryProject project = wrapProject(rp);
+                    result.add(project);
+                }
             }
         } catch (RRepositoryException e) {
             // TODO: re throw exception ?
@@ -47,33 +62,41 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public RepositoryProject getProject(String name) throws RepositoryException {
+        if (!hasProject(name)) {
+            throw new RepositoryException("Cannot find project ''{0}''", null, name);
+        }
+        
+        RepositoryProject cached = projects.get(name);
+        if (cached != null) {
+            return cached;
+        }
+            
         try {
-            for (RProject rp : rulesRepository.getProjects()) {
-                String s = rp.getName();
-                if (name.equals(s)) {
-                    return wrapProject(rp);
-                }
-            }
+            RProject rp = rulesRepository.getProject(name);
+            return wrapProject(rp);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}''", e, name);
         }
-        
-        throw new RepositoryException("Cannot find project ''{0}''", null, name);
     }
 
     public boolean hasProject(String name) {
+        RepositoryProject cached = projects.get(name);
+        boolean inCache = (cached != null);
+        
         try {
-            for (RProject rp : rulesRepository.getProjects()) {
-                String s = rp.getName();
-                if (name.equals(s)) {
-                    return true;
+            boolean repHas = rulesRepository.hasProject(name);
+            if (repHas != inCache) {
+                if (!repHas) {
+                    // ???
+                    projects.remove(name);
                 }
             }
+            return repHas;
         } catch (RRepositoryException e) {
-            Log.error("Failed to check whether project ''{0}'' exists", e, name);
+            Log.error("Failed to check project ''{0}'' in the repository", e, name);
         }
         
-        return false;
+        return inCache;
     }
 
     public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -89,6 +112,23 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public void updateProject(Project project, WorkspaceUser user) throws RepositoryException {
+        String name = project.getName();
+        RepositoryProject dest = getProject(name);
+        
+        if (!dest.isLocked()) {
+            throw new RepositoryException("Cannot update project ''{0}'' while it is not locked!", null, name);
+        }
+        
+        String lockedBy = dest.getlLockInfo().getLockedBy();
+        if (!lockedBy.equals(user.getUserId())) {
+            throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, lockedBy);
+        }
+
+        try {
+            dest.update(project);
+        } catch (ProjectException e) {
+            throw new RepositoryException("Failed to update project ''{0}''", e, name);
+        }        
     }
 
     public void copyProject(Project project, String name) throws RepositoryException {
@@ -105,11 +145,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     // --- private
     
     private RepositoryProjectImpl wrapProject(RProject rp) {
-        ArtefactPath ap = new ArtefactPathImpl(new String[]{rp.getName()});
+        String name = rp.getName();
+        ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
         // FIXME
         RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rp.getBaseVersion().getCreated(), "user");
         RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(0, 0, 0, info);
         
-        return new RepositoryProjectImpl(rp, ap, version);
+        RepositoryProjectImpl p = new RepositoryProjectImpl(rp, ap, version);
+        projects.put(name, p);
+        return p;
     }
 }
