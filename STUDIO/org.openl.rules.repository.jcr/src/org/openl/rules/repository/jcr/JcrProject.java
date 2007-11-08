@@ -52,18 +52,7 @@ public class JcrProject extends JcrEntity implements RProject {
 
         parentNode.save();
         n.checkin();
-        files.checkout();
-
-        // TODO should we add default folders?
-        JcrFolder.createFolder(files, "bin");
-        JcrFolder.createFolder(files, "build");
-        JcrFolder.createFolder(files, "docs");
-        JcrFolder.createFolder(files, "rules");
-
         n.save();
-        files.checkin();
-
-        // TODO set Changed and ActiveProject
 
         return new JcrProject(n);
     }

@@ -57,6 +57,30 @@ public class JcrRepository implements RRepository {
     }
 
     /** {@inheritDoc} */
+    public RProject getProject(String name) throws RRepositoryException {
+        try {
+            if (!defNewProjectLocation.hasNode(name)) {
+                throw new RRepositoryException("Cannot find project '" + name + "'", null);
+            }
+
+            Node n = defNewProjectLocation.getNode(name);
+            JcrProject p = new JcrProject(n);
+            return p;
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get project " + name, e);
+        }        
+    }
+    
+    /** {@inheritDoc} */
+    public boolean hasProject(String name) throws RRepositoryException {
+        try {
+            return defNewProjectLocation.hasNode(name);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to check project " + name, e);
+        }        
+    }
+
+    /** {@inheritDoc} */
     public List<RProject> getProjects() throws RRepositoryException {
         // TODO list all or only that are active (not marked4deletion)?
         return runQuery(QUERY_PROJECTS);
