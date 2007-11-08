@@ -10,6 +10,14 @@ import java.util.List;
 public class DummyRepository implements RRepository {
     private static final List<RProject> EMPTY_LIST = new LinkedList<RProject>();
 
+    public RProject getProject(String name) throws RRepositoryException {
+        throw new RRepositoryException("Cannot find project '" + name + "'", null);
+    }
+
+    public boolean hasProject(String name) throws RRepositoryException {
+        return false;
+    }
+
     public List<RProject> getProjects() throws RRepositoryException {
         return EMPTY_LIST;
     }
