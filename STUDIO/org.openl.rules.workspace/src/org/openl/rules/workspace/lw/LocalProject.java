@@ -10,10 +10,10 @@ public interface LocalProject extends Project, LocalProjectFolder{
     /**
      * Loads previously saved project and its state.
      */
-    void load();
+    void load() throws ProjectException;
 
     /**
      * Saves project and its state.
      */
-    void save();
+    void save() throws ProjectException;
 }

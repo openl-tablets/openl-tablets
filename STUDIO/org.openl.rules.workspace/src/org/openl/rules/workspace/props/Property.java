@@ -1,8 +1,9 @@
 package org.openl.rules.workspace.props;
 
 import java.util.Date;
+import java.io.Serializable;
 
-public interface Property {
+public interface Property extends Serializable {
     /**
      * Gets name of the property.
      *
