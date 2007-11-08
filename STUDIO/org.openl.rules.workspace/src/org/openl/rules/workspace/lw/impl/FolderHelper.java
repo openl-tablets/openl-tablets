@@ -47,14 +47,14 @@ public class FolderHelper {
             File[] files = folder.listFiles();
 
             // delete one by one
-            for (File file : files) {
-                if (file.isDirectory()) {
+            for (File f : files) {
+                if (f.isDirectory()) {
                     // recursive
-                    deleteFolder(folder);
+                    deleteFolder(f);
                 } else {
                     // delete file
-                    if (!file.delete()) {
-                        Log.debug("Failed to delete file ''{0}''", file.getAbsolutePath());
+                    if (!f.delete()) {
+                        Log.debug("Failed to delete file ''{0}''", f.getAbsolutePath());
                     }
                 }
             }
