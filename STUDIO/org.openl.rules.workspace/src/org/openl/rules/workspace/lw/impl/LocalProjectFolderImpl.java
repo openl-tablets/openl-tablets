@@ -13,9 +13,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.File;
+import java.io.FilenameFilter;
 
 public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements LocalProjectFolder {
     private Map<String, LocalProjectArtefact> artefacts;
+    public static final String PROPERTIES_FOLDER = ".studioProps";
+    public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
+    public static final String FOLDER_PROPERTIES_FILE = "folder.properties";
 
     public LocalProjectFolderImpl(String name, ArtefactPath path, File location) {
         super(name, path, location);
@@ -70,7 +74,11 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
     }
 
     public void refresh() {
-        File[] files = getLocation().listFiles();
+        File[] files = getLocation().listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return !PROPERTIES_FOLDER.equals(name);
+            }
+        });
 
         HashMap<String, File> fileMap = new HashMap<String, File>();
         for (File f : files) {
