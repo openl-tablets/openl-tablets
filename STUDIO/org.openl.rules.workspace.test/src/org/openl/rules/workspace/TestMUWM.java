@@ -1,9 +1,23 @@
 package org.openl.rules.workspace;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.LinkedList;
+
+import org.openl.rules.workspace.abstracts.ArtefactPath;
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.ProjectResource;
+import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
+import org.openl.rules.workspace.props.Property;
+import org.openl.rules.workspace.props.PropertyException;
+import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 
 public class TestMUWM {
     public static void main(String[] args) throws WorkspaceException, ProjectException {
@@ -17,12 +31,81 @@ public class TestMUWM {
 
         String name = "p1";
 //        uw.createProject(name);
-        UserWorkspaceProject uwp = uw.getProject(name);
-        uwp.checkOut();
+        UserWorkspaceProject p = uw.getProject(name);
+        p.checkOut();
         
-        UserWorkspaceProjectFolder uwpf = uwp.addFolder("F1");
-        uwpf.addFolder("F1-1");
+        UserWorkspaceProjectFolder uwpf;
+        try {
+            uwpf = (UserWorkspaceProjectFolder) p.getArtefact("F1");
+            UserWorkspaceProjectResource uwpr = (UserWorkspaceProjectResource) uwpf.getArtefact("some-file");
+
+            String s = "Updated at " + System.currentTimeMillis();
+            uwpr.setContent(new ByteArrayInputStream(s.getBytes()));
+            Collection<ProjectVersion> vers = uwpr.getVersions();
+            for (ProjectVersion ver : vers) {
+                System.out.println("  " + ver.getVersionName());
+            }
+        } catch (ProjectException e) {
+            uwpf = p.addFolder("F1");
+            uwpf.addFolder("F1-1");
+            PR resource = new PR();
+            uwpf.addResource("some-file", resource);
+        }
         
-        uwp.checkIn();
+        p.checkIn();
+        
+        for (UserWorkspaceProject uwp : uw.getProjects()) {
+            System.out.println("-> opening " + uwp.getName());
+            uwp.open();
+        }
+        
+        uw.passivate();
+        
+        System.out.println("Done.");
+    }
+    
+    private static class PR implements ProjectResource {
+
+        public InputStream getContent() throws ProjectException {
+            String s = "Generated at " + System.currentTimeMillis();
+            
+            return new ByteArrayInputStream(s.getBytes());
+        }
+
+        public String getResourceType() {
+            return "file";
+        }
+
+        public ProjectArtefact getArtefact(String name) throws ProjectException {
+            throw new ProjectException("Not supported", null);
+        }
+
+        public ArtefactPath getArtefactPath() {
+            return new ArtefactPathImpl("/noname");
+        }
+
+        public String getName() {
+            return "noname";
+        }
+
+        public void addProperty(Property property) throws PropertyTypeException {
+            throw new PropertyTypeException("Not supported", null);
+        }
+
+        public Collection<Property> getProperties() {
+            return new LinkedList<Property>();
+        }
+
+        public Property getProperty(String name) throws PropertyException {
+            throw new PropertyException("Not supported", null);
+        }
+
+        public boolean hasProperty(String name) {
+            return false;
+        }
+
+        public Property removeProperty(String name) throws PropertyException {
+            throw new PropertyException("Not supported", null);
+        }
     }
 }
