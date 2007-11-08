@@ -1,6 +1,7 @@
 package org.openl.jsf;
 
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.util.FacesUtils;
 
 /**
  * Contains utility methods, which can be used from any class.

@@ -5,11 +5,11 @@ Bundle-SymbolicName: org.openl.rules.webstudio
 Bundle-Version: 3.1.0.7
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
-Require-Bundle: org.openl.core;visibility:=reexport,
+Require-Bundle: org.openl.lib.jsf;visibility:=reexport,
+ org.openl.core;visibility:=reexport,
  org.openl.rules;visibility:=reexport,
  org.openl.rules.webtools;visibility:=reexport,
  org.openl.rules.validator;visibility:=reexport,
- org.openl.lib.jsf;visibility:=reexport,
  org.openl.rules.repository,
  org.openl.rules.repository.jcr,
  org.openl.rules.workspace

@@ -1,6 +1,6 @@
 package org.openl.rules.ui.repository;
 
-import org.openl.jsf.FacesUtils;
+import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectResource;

@@ -9,6 +9,7 @@ import javax.faces.context.FacesContext;
 import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.util.FacesUtils;
 public class TopEditorBean {
 
     protected String test2 = "IT IS TEST2";
