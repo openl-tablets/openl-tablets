@@ -1,12 +1,17 @@
 package org.openl.rules.webstudio.services.upload;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.util.FileUtils;
-
+import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.ProjectResource;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
 import org.springframework.util.FileCopyUtils;
 
@@ -16,10 +21,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -52,6 +57,7 @@ public class UploadService extends BaseUploadService {
             }
             file = new File("uploadedProjects/" + fileName);
         }
+
         //FileUtils.createParentDirs(file);
         return file;
     }
@@ -118,26 +124,78 @@ public class UploadService extends BaseUploadService {
     private void uploadManyFiles(UploadServiceParams params, UploadServiceResult result,
         ZipFile zipFile) throws IOException, ZipException, FileNotFoundException
     {
+        UserWorkspace workspace = params.getWorkspace();
+        UserWorkspaceProject project = null;
+        try {
+            workspace.createProject(params.getProjectName());
+            project = workspace.getProject(params.getProjectName());
+            project.checkOut();
+        } catch (ProjectException e) {
+            log.error("Error creating project", e);
+            return;
+        }
+
         Enumeration<?extends ZipEntry> files = zipFile.entries();
 
-        List<File> rememberFiles = new ArrayList<File>();
         String fileNameWithoutExt = FilenameUtils.getBaseName(params.getFile().getName());
 
         File uploadDir = getFile(params, fileNameWithoutExt);
+        String prevItemName = null;
+        UserWorkspaceProjectFolder prevFolder = project;
 
+        Set<String> entries = new TreeSet<String>();
         for (Enumeration<?extends ZipEntry> items = files; items.hasMoreElements();) {
             ZipEntry item = items.nextElement();
+            entries.add(item.getName());
+        }
 
+        for (String name : entries) {
+            ZipEntry item = zipFile.getEntry(name);
             File targetFile = new File(uploadDir, item.getName()); // Determine file to save uploaded file
+
+            StringBuilder itemName = new StringBuilder(item.getName());
+            System.out.println(itemName);
+
+            int pos = StringUtils.indexOf(itemName.toString(), prevItemName);
+
+            StringBuilder shortItemName;
+            if (pos == -1) {
+                shortItemName = new StringBuilder(itemName.toString());
+            } else {
+                shortItemName = new StringBuilder(itemName.toString()
+                            .substring(pos + prevItemName.length() + 1));
+            }
+
             if (item.isDirectory()) {
+                itemName.deleteCharAt(itemName.length() - 1);
+                shortItemName.deleteCharAt(shortItemName.length() - 1);
+                try {
+                    UserWorkspaceProjectFolder folder;
+                    if (pos != -1) {
+                        folder = prevFolder.addFolder(shortItemName.toString());
+                    } else {
+                        folder = project.addFolder(itemName.toString());
+                    }
+                    prevItemName = itemName.toString();
+                    prevFolder = folder;
+                } catch (ProjectException e) {
+                    log.error("Error adding folder to user workspace", e);
+                    return;
+                }
                 targetFile.mkdirs();
             } else {
                 FileUtils.createParentDirs(targetFile);
-                rememberFiles.add(targetFile);
                 InputStream zipInputStream = zipFile.getInputStream(item);
 
+                ProjectResource projectResource = new FileProjectResource(zipInputStream);
                 try {
-                    // copy file to <supplier workarea>/uploads
+                    prevFolder.addResource(shortItemName.toString(), projectResource);
+                } catch (ProjectException e) {
+                    log.error("Error adding file to user workspace", e);
+                    return;
+                }
+
+                try {
                     FileCopyUtils.copy(zipInputStream, new FileOutputStream(targetFile));
                 } finally {
                     if (zipInputStream != null) {
@@ -146,6 +204,14 @@ public class UploadService extends BaseUploadService {
                 }
             }
         }
+
+        try {
+            project.checkIn();
+        } catch (ProjectException e) {
+            log.error("Error during project checkIn", e);
+            return;
+        }
+
         result.setResultFile(uploadDir);
     }
 
