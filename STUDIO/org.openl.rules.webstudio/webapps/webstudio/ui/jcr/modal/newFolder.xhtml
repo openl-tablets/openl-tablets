@@ -27,7 +27,7 @@
 			  columns="1"
 			>
 				<h:outputText styleClass="niceLabel" value="Name of New Folder:" />
-				<h:inputText styleClass="modalInput" value="#{modalProject.newFolderName}" />
+				<h:inputText styleClass="modalInput" value="#{repository.newFolderName}" />
 			</h:panelGrid>
 			
 			<rich:separator height="1" />
@@ -40,7 +40,7 @@
 				<h:commandButton 
 				  styleClass="modalButton" 
 				  value="Create" 
-				  action="#{modalProject.addFolder}"
+				  action="#{repository.addFolder}"
 				/>
 				<h:commandButton 
 				  styleClass="modalButton" 
