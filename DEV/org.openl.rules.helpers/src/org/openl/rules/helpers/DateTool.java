@@ -11,6 +11,8 @@ public class DateTool
 	public static final int MONTHS_IN_QUARTER = 3;
 	public static final int SECONDS_IN_DAY = 60 * 60 * 24;
 	
+	public static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+	
 
 	public static int year(Date d)
 	{
@@ -29,7 +31,7 @@ public class DateTool
 	
 	public static int dayDiff(Date d1, Date d2)
 	{
-		return (int)((d1.getTime() - d2.getTime())/(SECONDS_IN_DAY*1000));
+		return (int)(d1.getTime() / MILLISECONDS_IN_DAY  - d2.getTime()/MILLISECONDS_IN_DAY) ;
 	}
 	
 	
