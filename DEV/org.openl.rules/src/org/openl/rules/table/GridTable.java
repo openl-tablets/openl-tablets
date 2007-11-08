@@ -26,6 +26,18 @@ public class GridTable extends AGridTable implements IGridRegion
 		this.grid = grid;
 	}
 
+	
+
+	public GridTable(IGridRegion reg, IGrid grid)
+	{	
+		this.top = reg.getTop();
+		this.left = reg.getLeft();
+		this.bottom = reg.getBottom();
+		this.right = reg.getRight();
+		this.grid = grid;
+	}
+	
+	
 	/**
 	 *
 	 */

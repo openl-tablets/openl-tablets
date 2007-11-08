@@ -7,6 +7,7 @@
 package org.openl.rules.dt;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import org.openl.OpenlTool;
 import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBoundError;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IDomain;
@@ -30,6 +32,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.SubTextSourceCodeModule;
@@ -111,6 +114,8 @@ public abstract class FunctionalRow implements IDecisionRow,
 
 		IParameterDeclaration[] paramDecl = getParams(ota.getBindingContext());
 
+		ArrayList<IBoundError> errors = new ArrayList<IBoundError>();
+		
 		for (int col = 0; col < len; col++)
 		{
 			ILogicalTable valueCell = getValueCell(col);
@@ -133,9 +138,17 @@ public abstract class FunctionalRow implements IDecisionRow,
 				IGridTable singleParamGridTable = (IGridTable) paramGridColumn.rows(
 						fromHeight, fromHeight + gridHeight - 1);
 
-				Object v = loadParam(LogicalTable.logicalTable(singleParamGridTable),
+				Object v = null;
+				try
+				{
+				 v = loadParam(LogicalTable.logicalTable(singleParamGridTable),
 						paramDecl[j].getType(), paramDecl[j].getName(), ruleName, ota);
-
+				}
+				catch(BoundError error)
+				{
+					errors.add(error);
+				}
+				
 				if (v != null)
 				{
 					notEmpty = true;
@@ -149,6 +162,11 @@ public abstract class FunctionalRow implements IDecisionRow,
 				values[col] = valueAry;
 		}
 
+		if (errors.size() > 0)
+		{
+			throw new SyntaxErrorException("Error:", errors.toArray(new IBoundError[0]));
+		}	
+		
 		return values;
 	}
 
@@ -277,13 +295,13 @@ public abstract class FunctionalRow implements IDecisionRow,
 		try
 		{
 			Object res = conv.parse(src, null, ota.getBindingContext());
-			validateValue(res, paramType);
 			if (res instanceof IMetaHolder)
 			{
 				setMetaInfo((IMetaHolder) res, cell, paramName, ruleName);
 			}
 			
 			setCellMetaInfo(cell, paramName, paramType);
+			validateValue(res, paramType);
 			return res;
 		} catch (Throwable t)
 		{
