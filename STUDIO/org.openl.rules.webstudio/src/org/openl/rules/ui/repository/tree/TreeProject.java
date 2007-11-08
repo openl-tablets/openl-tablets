@@ -36,14 +36,15 @@ public class TreeProject extends TreeFolder {
 		if ("prj1".equals(getName())) return UiConst.ICON_PROJECT_MOD;
 
         UserWorkspaceProject project = (UserWorkspaceProject) getDataBean();
+        if (project.isOpened()) {
+            return UiConst.ICON_PROJECT_OPEN;
+        }
+        
         if (project.isDeleted()) {
             return UiConst.ICON_PROJECT_DELETED;
         }
         if (project.isCheckedOut()) {
             return UiConst.ICON_PROJECT_CHECKED_OUT;
-        }
-        if (project.isOpened()) {
-            return UiConst.ICON_PROJECT_OPEN;
         }
 
         return UiConst.ICON_PROJECT;
