@@ -29,4 +29,8 @@ public interface RVersion {
      * @return user who created it
      */
     public RUser getCreatedBy();
+    
+    public int getMajor();
+    public int getMinor();
+    public int getRevision();
 }
