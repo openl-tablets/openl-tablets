@@ -1,12 +1,12 @@
 package org.openl.rules.workspace.uw.impl;
 
+import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
@@ -26,10 +26,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         setProject(this);
         
         this.userWorkspace = userWorkspace;
-        this.localProject = localProject;
-        this.dtrProject = dtrProject;
-
-        updateActiveProject();
+        updateArtefact(localProject, dtrProject);
     }
 
     public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -50,11 +47,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         localProject.remove();
-        localProject = null;
-        updateActiveProject();
+        updateArtefact(null, dtrProject);
     }
 
     public void open() throws ProjectException {
+        if (isLocalOnly()) {
+            throw new ProjectException("Project ''{0}'' cannot be opened since it is local only!", null, getName());
+        }
+
         if (isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' is checked-out", null, getName());
         }
@@ -64,8 +64,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         localProject = userWorkspace.openLocalProjectFor(dtrProject);
-
-        updateActiveProject();
+        updateArtefact(localProject, dtrProject);
     }
 
     public void openVersion(ProjectVersion version) throws ProjectException {
@@ -74,11 +73,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         localProject = userWorkspace.openLocalProjectFor(dtrProject, version);
-
-        updateActiveProject();
+        updateArtefact(localProject, dtrProject);
     }
 
     public void checkOut() throws ProjectException {
+        if (isLocalOnly()) {
+            throw new ProjectException("Project ''{0}'' cannot be checked out since it is local only!", null, getName());
+        }
+        
         if (isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' is already checked-out", null, getName());
         }
@@ -94,8 +96,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
         localProject = userWorkspace.openLocalProjectFor(dtrProject);
         dtrProject.lock(userWorkspace.getUser());
-
-        updateActiveProject();
+        updateArtefact(localProject, dtrProject);
     }
 
     public void checkIn() throws ProjectException {
@@ -104,12 +105,16 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         userWorkspace.checkInProject(localProject);
+        // dtrProject != null
         dtrProject.unlock(userWorkspace.getUser());
-
-        updateActiveProject();
+        updateArtefact(localProject, dtrProject);
     }
 
     public boolean isCheckedOut() {
+        if (isLocalOnly()) {
+            return false;
+        }
+
         if (dtrProject.isLocked()) {
             String lockedBy = dtrProject.getlLockInfo().getLockedBy();
             
@@ -126,15 +131,40 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public boolean isDeleted() {
+        if (isLocalOnly()) {
+            return false;
+        }
+        
         return dtrProject.isMarkedForDeletion();
     }
 
     public boolean isLocked() {
+        if (dtrProject == null) {
+            return false;
+        }
+
         return dtrProject.isLocked();
+    }
+    
+    public boolean isLocalOnly() {
+        return (dtrProject == null);
     }
 
     // --- protected
 
+    protected void updateArtefact(LocalProject localProject, RepositoryProject dtrProject) {
+        super.updateArtefact(localProject, dtrProject);
+
+        this.localProject = localProject;
+        this.dtrProject = dtrProject;
+
+        if (localProject == null) {
+            project = dtrProject;
+        } else {
+            project = localProject;
+        }
+    }
+    
     @Override
     protected boolean isLocal() {
         return (project == localProject);
@@ -143,12 +173,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     protected boolean isReadOnly() {
         return !isCheckedOut();
     }
-
-    protected void updateActiveProject() {
-        if (localProject == null) {
-            project = dtrProject;
-        } else {
-            project = localProject;
-        }
+    
+    protected WorkspaceUser getUser() {
+        return userWorkspace.getUser();
     }
 }

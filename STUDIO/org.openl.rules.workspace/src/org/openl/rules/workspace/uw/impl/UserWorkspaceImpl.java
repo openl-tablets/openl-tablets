@@ -12,6 +12,7 @@ import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.util.Log;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,11 +34,19 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public Collection<UserWorkspaceProject> getProjects() {
+        try {
+            refresh();
+        } catch (ProjectException e) {
+            // ignore
+            Log.error("Failed to resfresh projects", e);
+        }        
         return userProjects.values();
     }
 
     public UserWorkspaceProject getProject(String name) throws ProjectException {
+        refresh();
         UserWorkspaceProject uwp = userProjects.get(name);
+
         if (uwp == null) {
             throw new ProjectException("Cannot find project ''{0}''", null, name);
         }
@@ -46,7 +55,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public boolean hasProject(String name) {
-        return (userProjects.get(name) != null);
+        if (userProjects.get(name) != null) return true;
+        if (localWorkspace.hasProject(name)) return true;
+        if (designTimeRepository.hasProject(name)) return true;
+        
+        return false;
     }
 
     public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -88,10 +101,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
             }
 
-            UserWorkspaceProject uwp = userProjects.get(name);
+            UserWorkspaceProjectImpl uwp = (UserWorkspaceProjectImpl) userProjects.get(name);
             if (uwp == null) {
                 uwp = new UserWorkspaceProjectImpl(this, lp, rp);
                 userProjects.put(name, uwp);
+            } else if (uwp.isLocalOnly()) {
+                uwp.updateArtefact(lp, rp);
             }
         }
 
@@ -101,10 +116,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             if (!designTimeRepository.hasProject(name)) {
 
-                UserWorkspaceProject uwp = userProjects.get(name);
+                UserWorkspaceProjectImpl uwp = (UserWorkspaceProjectImpl) userProjects.get(name);
                 if (uwp == null) {
                     uwp = new UserWorkspaceProjectImpl(this, lp, null);
                     userProjects.put(name, uwp);
+                } else {
+                    uwp.updateArtefact(lp, null);
                 }
             }
         }

@@ -11,4 +11,8 @@ public interface RepositoryProjectArtefact extends ProjectArtefact {
 
     // all for project, main for content
     Collection<ProjectVersion> getVersions();
+
+    void update(ProjectArtefact srcArtefact) throws ProjectException;
+    
+    void delete() throws ProjectException;
 }

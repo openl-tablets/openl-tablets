@@ -1,11 +1,15 @@
 package org.openl.rules.workspace.uw.impl;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.abstracts.VersionInfo;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
+import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
@@ -20,8 +24,8 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
     
     protected UserWorkspaceProjectArtefactImpl(UserWorkspaceProjectImpl project, LocalProjectArtefact localArtefact, RepositoryProjectArtefact dtrArtefact) {
         this.project = project;
-        this.localArtefact = localArtefact;
-        this.dtrArtefact = dtrArtefact;
+
+        updateArtefact(localArtefact, dtrArtefact);
     }
     
     public ArtefactPath getArtefactPath() {
@@ -58,12 +62,22 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         if (dtrArtefact != null) {
             return dtrArtefact.getVersions();
         } else {
-            // FIXME return {0.0.0}
-            return null;
+            VersionInfo vi = new RepositoryVersionInfoImpl(null, getProject().getUser().getUserId());
+            ProjectVersion pv = new RepositoryProjectVersionImpl(0, 0, 0, vi);
+            
+            Collection<ProjectVersion> result = new LinkedList<ProjectVersion>();
+            result.add(pv);
+            
+            return result;
         }
     }
 
     // --- protected
+    
+    protected void updateArtefact(LocalProjectArtefact localArtefact, RepositoryProjectArtefact dtrArtefact) {
+        this.localArtefact = localArtefact;
+        this.dtrArtefact = dtrArtefact;
+    }
     
     protected ProjectArtefact getArtefact() {
         return (project.isLocal()) ? localArtefact : dtrArtefact;
