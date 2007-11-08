@@ -3,8 +3,8 @@
  */
 package org.openl.rules.ui;
 
-import org.openl.jsf.FacesUtils;
 import org.openl.jsf.Util;
+import org.openl.rules.webstudio.util.FacesUtils;
 
 /**
  * @author snshor

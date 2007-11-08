@@ -1,4 +1,4 @@
-package org.openl.jsf;
+package org.openl.rules.webstudio.util;
 
 import java.util.Map;
 
@@ -31,10 +31,12 @@ public abstract class FacesUtils {
         return "#{" + name + "}";
     }
 
+    @SuppressWarnings("unchecked")
     public static Map getSessionMap() {
         return FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
     }
 
+    @SuppressWarnings("unchecked")
     public static Map getRequestParameterMap() {
         return FacesContext.getCurrentInstance().getExternalContext()
             .getRequestParameterMap();
