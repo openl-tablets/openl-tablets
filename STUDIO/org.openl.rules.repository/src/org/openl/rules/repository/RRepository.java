@@ -13,6 +13,24 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public interface RRepository {
     /**
+     * Gets project by name.
+     * 
+     * @param name
+     * @return project
+     * @throws RRepositoryException if failed or no project with specified name
+     */
+    public RProject getProject(String name) throws RRepositoryException;
+
+    /**
+     * Checks whether project with given name exists in the repository.
+     * 
+     * @param name
+     * @return <code>true</code> if project with such name exists
+     * @throws RRepositoryException
+     */
+    public boolean hasProject(String name) throws RRepositoryException;
+    
+    /**
      * Gets list of projects from the repository.
      *
      * @return list of projects
