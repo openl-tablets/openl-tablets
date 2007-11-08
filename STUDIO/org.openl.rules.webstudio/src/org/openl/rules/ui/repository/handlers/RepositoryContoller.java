@@ -3,13 +3,14 @@ package org.openl.rules.ui.repository.handlers;
 import org.openl.rules.ui.repository.RepositoryTreeController;
 import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.util.Log;
-
-import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import java.util.List;
 
 /**
  * Repository Handler.
@@ -27,6 +28,8 @@ public class RepositoryContoller {
     // Add new Project
     private String newProjectName;
 
+    private String newFolderName;
+
     /**
      * Gets all projects from a rule repository.
      * 
@@ -43,6 +46,31 @@ public class RepositoryContoller {
     public String getNewProjectName() {
         // expect null here
         return newProjectName;
+    }
+
+    public String getNewFolderName() {
+        return newFolderName;
+    }
+
+    public void setNewFolderName(String newFolderName) {
+        this.newFolderName = newFolderName;
+    }
+
+    public String addFolder() {
+        ProjectArtefact projectArtefact = repositoryTree.getSelected().getDataBean();
+        boolean result = false;
+        if (projectArtefact instanceof UserWorkspaceProjectFolder) {
+            UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
+            try {
+                folder.addFolder(newFolderName);
+                repositoryTree.reInit();
+                result = true;
+            } catch (ProjectException e) {
+                Log.error("Failed to add new folder {0}", e, newFolderName);
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("error adding folder", e.getMessage()));
+            }
+        }
+        return result ? UiConst.OUTCOME_SUCCESS : UiConst.OUTCOME_FAILED;
     }
 
     public String addProject() {
