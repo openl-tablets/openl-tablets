@@ -54,4 +54,16 @@ public class JcrVersion implements RVersion {
     public RUser getCreatedBy() {
         return new JcrUser(modifiedBy);
     }
+
+    public int getMajor() {
+        return 0;
+    }
+
+    public int getMinor() {
+        return 0;
+    }
+
+    public int getRevision() {
+        return 0;
+    }
 }

@@ -37,14 +37,13 @@ public class JcrFile extends JcrEntity implements RFile {
         Calendar lastModified = Calendar.getInstance ();
         lastModified.setTimeInMillis(lastModifiedTime);
 
-        String content = "Dummy text file... lastModified=" + lastModified;
-
         //create the file node - see section 6.7.22.6 of the spec
         //create the mandatory child node - jcr:content
         Node resNode = n.addNode (JcrNT.PROP_RES_CONTENT, JcrNT.NT_RESOURCE);
         resNode.setProperty (JcrNT.PROP_RES_MIMETYPE, mimeType);
         resNode.setProperty (JcrNT.PROP_RES_ENCODING, encoding);
-        resNode.setProperty (JcrNT.PROP_RES_DATA, new ByteArrayInputStream (content.getBytes()));
+        // TODO add real init-content
+        resNode.setProperty (JcrNT.PROP_RES_DATA, new ByteArrayInputStream (new byte[0]));
         resNode.setProperty (JcrNT.PROP_RES_LASTMODIFIED, lastModified);
 
         NodeUtil.smartCheckin(n);
