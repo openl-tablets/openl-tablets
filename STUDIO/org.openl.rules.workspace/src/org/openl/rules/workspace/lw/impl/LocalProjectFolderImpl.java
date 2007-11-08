@@ -48,7 +48,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
         
         File f = FolderHelper.generateSubLocation(getLocation(), name);
         if (!FolderHelper.checkOrCreateFolder(f)) {
-            new ProjectException("Failed to create folder ''{0}''!", null, f.getAbsolutePath());
+            throw new ProjectException("Failed to create folder ''{0}''!", null, f.getAbsolutePath());
         }
 
         ArtefactPath ap = getArtefactPath().add(name);
