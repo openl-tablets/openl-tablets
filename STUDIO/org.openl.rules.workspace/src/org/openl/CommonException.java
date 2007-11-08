@@ -25,6 +25,18 @@ public class CommonException extends Exception {
         super(format(pattern, params), cause);
     }
 
+    /**
+     * Constructs a new exception with the specified detail message.  The
+     * cause is not initialized, and may subsequently be initialized by
+     * a call to {@link #initCause}.
+     *
+     * @param message the detail message. The detail message is saved for
+     *                later retrieval by the {@link #getMessage()} method.
+     */
+    public CommonException(String message) {
+        super(message);
+    }
+
     // --- private
     
     private static String format(String pattern, Object... params) {

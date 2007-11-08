@@ -1,6 +1,7 @@
 package org.openl.rules.workspace;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class TestHelper {
@@ -45,4 +46,10 @@ public class TestHelper {
         return file.delete();
     }
 
+    public static File createEmptyFile(File folder, String filename) throws IOException {
+        File file = new File(folder, filename);
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.close();
+        return file;
+    }
 }

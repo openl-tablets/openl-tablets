@@ -9,6 +9,7 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.util.Log;
 
 import java.io.File;
 import java.util.Collection;
@@ -79,7 +80,11 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     public void saveAll() {
         for (LocalProject lp : localProjects.values()) {
-            lp.save();
+            try {
+                lp.save();
+            } catch (ProjectException e) {
+                Log.error("error saving local project {0}", e, lp.getName());
+            }
         }
     }
 
@@ -125,8 +130,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
 
             LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, null, this);
-            lpi.load();
-            
+            try {
+                lpi.load();
+            } catch (ProjectException e) {
+                Log.error("error loading local project {0}", e, lpi.getName());
+            }
+
             localProjects.put(name, lpi);
         }
     }
