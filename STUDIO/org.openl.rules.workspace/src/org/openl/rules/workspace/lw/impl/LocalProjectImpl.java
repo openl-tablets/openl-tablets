@@ -25,10 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalProject {
-    public static final String PROPERTIES_FOLDER = ".studioProps";
-    public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
-    public static final String FOLDER_PROPERTIES_FILE = "folder.properties";
-
     private ProjectVersion version;
 
     private LocalWorkspaceImpl localWorkspace;
