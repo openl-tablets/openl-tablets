@@ -3,100 +3,118 @@
                               "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config>
 
-    <managed-bean>
-        <managed-bean-name>userSession</managed-bean-name>
-        <managed-bean-class>org.openl.rules.ui.repository.UserSessionBean</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>userSession</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.UserSessionBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
 
-    <!-- activeNode.* is short for userSession.selected.dataBean.* and userSession.selected.type -->
-    <managed-bean>
-      <managed-bean-name>activeNode</managed-bean-name>
-      <managed-bean-class>org.openl.rules.ui.repository.ActiveNodeBean</managed-bean-class>
-      <managed-bean-scope>request</managed-bean-scope>
-      <managed-property>
-        <property-name>userSession</property-name>
-        <value>#{userSession}</value>
-      </managed-property>
-    </managed-bean>
+  <!-- activeNode.* is short for userSession.selected.dataBean.* and userSession.selected.type -->
+  <managed-bean>
+    <managed-bean-name>activeNode</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.ActiveNodeBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>userSession</property-name>
+      <value>#{userSession}</value>
+    </managed-property>
+  </managed-bean>
 
-    <managed-bean>
-        <managed-bean-name>modalProject</managed-bean-name>
-        <managed-bean-class>org.openl.rules.ui.repository.ModalController</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-      <managed-property>
-        <property-name>context</property-name>
-        <value>#{userSession.context}</value>
-      </managed-property>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>modalProject</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.ModalController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>context</property-name>
+      <value>#{userSession.context}</value>
+    </managed-property>
+  </managed-bean>
 
-    <managed-bean>
-      <managed-bean-name>fileDialog</managed-bean-name>
-      <managed-bean-class>org.openl.rules.ui.repository.FileDialogController</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-      <managed-property>
-        <property-name>context</property-name>
-        <value>#{userSession.context}</value>
-      </managed-property>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>fileDialog</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.FileDialogController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>context</property-name>
+      <value>#{userSession.context}</value>
+    </managed-property>
+  </managed-bean>
 
-    <managed-bean>
-      <managed-bean-name>diff</managed-bean-name>
-      <managed-bean-class>org.openl.rules.ui.repository.DiffFormController</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-      <managed-property>
-        <property-name>context</property-name>
-        <value>#{userSession.context}</value>
-      </managed-property>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>diff</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.DiffFormController</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>context</property-name>
+      <value>#{userSession.context}</value>
+    </managed-property>
+  </managed-bean>
 
-    <managed-bean>
-        <managed-bean-name>deployDescriptor</managed-bean-name>
-        <managed-bean-class>org.openl.rules.ui.deploy.controllers.DeploymentDescriptorController</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>deployDescriptor</managed-bean-name>
+    <managed-bean-class>
+      org.openl.rules.ui.deploy.controllers.DeploymentDescriptorController
+    </managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
 
-    <managed-bean>
-        <managed-bean-name>addDeploymentEntry</managed-bean-name>
-        <managed-bean-class>org.openl.rules.ui.deploy.controllers.AddDeploymentEntryController</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-        <managed-property>
-            <property-name>deploymentDescriptor</property-name>
-            <value>#{deployDescriptor}</value>
-        </managed-property>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>addDeploymentEntry</managed-bean-name>
+    <managed-bean-class>
+      org.openl.rules.ui.deploy.controllers.AddDeploymentEntryController
+    </managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>deploymentDescriptor</property-name>
+      <value>#{deployDescriptor}</value>
+    </managed-property>
+  </managed-bean>
 
-    <managed-bean>
-      <managed-bean-name>propertiesEditorController</managed-bean-name>
-      <managed-bean-class>org.openl.rules.ui.repository.PropertiesEditorController</managed-bean-class>
-      <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>propertiesEditorController</managed-bean-name>
+    <managed-bean-class>
+      org.openl.rules.ui.repository.PropertiesEditorController
+    </managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
 
-    <managed-bean>
-        <managed-bean-name>repositoryTree</managed-bean-name>
-        <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeController</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-        <managed-property>
-            <property-name>userWorkspace</property-name>
-            <value>#{sessionScope.rulesUserSession.userWorkspace}</value>
-        </managed-property>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>repositoryTree</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeController</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>userWorkspace</property-name>
+      <value>#{sessionScope.rulesUserSession.userWorkspace}</value>
+    </managed-property>
+  </managed-bean>
 
-    <managed-bean>
-      <managed-bean-name>projectUploadController</managed-bean-name>
-      <managed-bean-class>org.openl.rules.ui.repository.ProjectUploadController</managed-bean-class>
-      <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>uploadService</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.services.upload.UploadService</managed-bean-class>
+    <managed-bean-scope>application</managed-bean-scope>
+  </managed-bean>
 
-    <managed-bean>
-        <managed-bean-name>repository</managed-bean-name>
-        <managed-bean-class>org.openl.rules.ui.repository.handlers.RepositoryContoller</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-        <managed-property>
-            <property-name>repositoryTree</property-name>
-            <value>#{repositoryTree}</value>
-        </managed-property>
-    </managed-bean>
+  <managed-bean>
+    <managed-bean-name>projectUploadController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.ProjectUploadController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>uploadService</property-name>
+      <value>#{uploadService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>repository</managed-bean-name>
+    <managed-bean-class>
+      org.openl.rules.ui.repository.handlers.RepositoryContoller
+    </managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTree</property-name>
+      <value>#{repositoryTree}</value>
+    </managed-property>
+  </managed-bean>
 
   <lifecycle>
     <phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>

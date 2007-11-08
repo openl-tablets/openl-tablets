@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.tableeditor;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 
-import org.openl.jsf.FacesUtils;
 import org.openl.jsf.Util;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
@@ -11,6 +10,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
+import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
 
 import java.io.IOException;
