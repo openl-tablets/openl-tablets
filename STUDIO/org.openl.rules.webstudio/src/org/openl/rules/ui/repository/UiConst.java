@@ -20,11 +20,15 @@ public class UiConst {
     public static final String ICON_REPOSITORY = "/images/jcr/tree_storage.gif";
 
     public static final String ICON_FOLDER_MOD  = "/images/jcr/tree_folder_major.gif";
-    public static final String ICON_PROJECT_MOD = "/images/jcr/tree_server_major.gif";
-    public static final String ICON_PROJECT_CHECKED_OUT = "/images/jcr/tree_pr_checkedout.gif";
-    public static final String ICON_PROJECT_DELETED = "/images/jcr/tree_pr_deleted.gif";
-    public static final String ICON_PROJECT_OPEN = "/images/jcr/tree_pr_open.gif";
 
+    public static final String ICON_PROJECT_CHECKED_OUT = "/images/jcr/tree-prj-checkedout.png";
+    public static final String ICON_PROJECT_CLOSED = "/images/jcr/tree-prj-closed.png";
+    public static final String ICON_PROJECT_CLOSED_LOCKED = "/images/jcr/tree-prj-closed-locked.png";
+    public static final String ICON_PROJECT_DELETED = "/images/jcr/tree-prj-deleted.png";
+    public static final String ICON_PROJECT_LOCAL = "/images/jcr/tree-prj-local.png";
+    public static final String ICON_PROJECT_OPENED = "/images/jcr/tree-prj-opened.png";
+    public static final String ICON_PROJECT_OPENED_LOCKED = "/images/jcr/tree-prj-opened-locked.png";
+    
     public static final String OUTCOME_SUCCESS = "success";
     public static final String OUTCOME_FAILED = "failed";
 }
