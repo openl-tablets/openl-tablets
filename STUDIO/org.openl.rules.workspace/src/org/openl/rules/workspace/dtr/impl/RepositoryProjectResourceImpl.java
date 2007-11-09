@@ -76,4 +76,12 @@ public class RepositoryProjectResourceImpl extends RepositoryProjectArtefactImpl
             throw new ProjectException("Failed to delete project resource ''{0}''", e, getArtefactPath().getStringValue());
         }        
     }
+
+    public boolean isFolder() {
+        return false;
+    }
+
+    public boolean hasArtefact(String name) {
+        return false;
+    }
 }

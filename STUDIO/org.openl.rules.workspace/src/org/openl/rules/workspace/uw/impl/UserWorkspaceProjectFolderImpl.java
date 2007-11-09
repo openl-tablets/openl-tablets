@@ -78,6 +78,18 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         localFolder.remove();
     }
 
+    public boolean isFolder() {
+        return true;
+    }
+
+    public boolean hasArtefact(String name) {
+        if (isLocal()) {
+            return localFolder.hasArtefact(name);
+        } else {
+            return dtrFolder.hasArtefact(name);
+        }
+    }
+
     // --- protected
     
     protected void updateArtefact(LocalProjectFolder localFolder, RepositoryProjectFolder dtrFolder) {
@@ -97,24 +109,26 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
     
     protected UserWorkspaceProjectArtefact wrapLocalArtefact(LocalProjectArtefact lpa) {
         RepositoryProjectArtefact rpa = null;
+        boolean isRemoteFolder = false;
         try {
             if (dtrFolder != null) {
                 rpa = dtrFolder.getArtefact(lpa.getName());
+                isRemoteFolder = rpa.isFolder();
             }
         } catch (ProjectException e) {
             // ignore
         }        
-        if (lpa instanceof ProjectFolder) {
-            if (!(rpa instanceof ProjectFolder)) rpa = null;
+        if (lpa.isFolder()) {
+            if (!isRemoteFolder) rpa = null;
             return wrapFolder((LocalProjectFolder)lpa, (RepositoryProjectFolder)rpa);
         } else {
-            if (rpa instanceof ProjectFolder) rpa = null;
+            if (isRemoteFolder) rpa = null;
             return wrapFile((LocalProjectResource)lpa, (RepositoryProjectResource)rpa);
         }
     }
     
     protected UserWorkspaceProjectArtefact wrapRepositoryArtefact(RepositoryProjectArtefact rpa) {
-        if (rpa instanceof ProjectFolder) {
+        if (rpa.isFolder()) {
             return wrapFolder(null, (RepositoryProjectFolder)rpa);
         } else {
             return wrapFile(null, (RepositoryProjectResource)rpa);

@@ -88,14 +88,13 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
         // remove absent
         for (RepositoryProjectArtefact rpa : getArtefacts()) {
             String name = rpa.getName();
-            boolean isFolder = (rpa instanceof ProjectFolder);
-            boolean isAFolder = isFolder;
-            
+
+            boolean isAFolder = false;
             try {
                 ProjectArtefact artefact = srcFolder.getArtefact(name);
-                isAFolder = (artefact instanceof ProjectFolder);
+                isAFolder = artefact.isFolder();
 
-                if (isFolder == isAFolder) {
+                if (rpa.isFolder() == isAFolder) {
                     // update existing
                     rpa.update(artefact);
                 }
@@ -104,7 +103,7 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
                 rpa.delete();
             }
 
-            if (isFolder != isAFolder) {
+            if (rpa.isFolder() != isAFolder) {
                 // the same name but other type
                 rpa.delete();
             }
@@ -132,6 +131,19 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
         }        
     }
 
+    public boolean hasArtefact(String name) {
+        try {
+            getArtefact(name);
+            return true;
+        } catch (ProjectException e) {
+            return false;
+        }        
+    }
+
+    public boolean isFolder() {
+        return true;
+    }
+
     // --- private
     
     private RepositoryProjectFolder wrapFolder(RFolder folder) {
@@ -150,7 +162,7 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
     
     private void addArtefact(ProjectArtefact artefact) throws ProjectException {
         try {
-            if (artefact instanceof ProjectFolder) {
+            if (artefact.isFolder()) {
                 // folder
                 ProjectFolder folder = (ProjectFolder) artefact;
                 RFolder rf = rulesFolder.createFolder(folder.getName());

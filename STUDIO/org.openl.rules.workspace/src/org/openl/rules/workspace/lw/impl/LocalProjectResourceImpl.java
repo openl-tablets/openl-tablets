@@ -53,6 +53,14 @@ public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implement
         setChanged(true);
     }
 
+    public boolean isFolder() {
+        return false;
+    }
+
+    public boolean hasArtefact(String name) {
+        return false;
+    }
+
     // --- protected
 
     protected void downloadArtefact(ProjectResource resource) throws ProjectException {

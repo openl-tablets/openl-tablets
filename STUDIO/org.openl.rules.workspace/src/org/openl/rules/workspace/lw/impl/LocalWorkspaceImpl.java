@@ -26,6 +26,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         this.workspaceManager = workspaceManager;
         this.user = user;
         this.location = location;
+        
         localProjects = new HashMap<String, LocalProject>();
 
         loadProjects();
@@ -119,6 +120,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, pv, this);
         lpi.downloadArtefact(project);
 
+        // add project
         localProjects.put(name, lpi);
         return lpi;
     }
