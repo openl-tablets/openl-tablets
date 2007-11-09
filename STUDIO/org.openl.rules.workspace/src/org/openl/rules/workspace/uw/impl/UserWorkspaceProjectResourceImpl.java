@@ -41,6 +41,14 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
         throw new ProjectException("Cannot find project artefact ''{0}''", null, name);
     }
     
+    public void delete() throws ProjectException {
+        if (!isLocal()) {
+            throw new ProjectException("Can modify local resource only!", null);
+        }
+
+        localResource.remove();
+    }
+    
     // --- protected
     
     protected void updateArtefact(LocalProjectResource localResource, RepositoryProjectResource dtrResource) {

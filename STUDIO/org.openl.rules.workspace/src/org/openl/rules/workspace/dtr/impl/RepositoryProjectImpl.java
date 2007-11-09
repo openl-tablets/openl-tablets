@@ -108,6 +108,12 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         super.update(srcArtefact);
         
         // TODO update dependencies???
+        
+        try {
+            rulesProject.commit();
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Failed to commit changes", e);
+        }        
     }
 
     public boolean isMarkedForDeletion() {

@@ -70,6 +70,14 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         }
     }
     
+    public void delete() throws ProjectException {
+        if (!isLocal()) {
+            throw new ProjectException("Can modify local resource only!", null);
+        }
+
+        localFolder.remove();
+    }
+
     // --- protected
     
     protected void updateArtefact(LocalProjectFolder localFolder, RepositoryProjectFolder dtrFolder) {
