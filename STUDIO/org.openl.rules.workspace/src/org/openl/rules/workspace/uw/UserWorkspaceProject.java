@@ -23,4 +23,6 @@ public interface UserWorkspaceProject extends Project, UserWorkspaceProjectFolde
     boolean isDeleted();
     // is locked in DTR
     boolean isLocked();
+    // no such project in DTR
+    boolean isLocalOnly();
 }
