@@ -124,5 +124,13 @@ public class TestMUWM {
         public Property removeProperty(String name) throws PropertyException {
             throw new PropertyException("Not supported", null);
         }
+
+        public boolean isFolder() {
+            return false;
+        }
+
+        public boolean hasArtefact(String name) {
+            return false;
+        }
     }
 }
