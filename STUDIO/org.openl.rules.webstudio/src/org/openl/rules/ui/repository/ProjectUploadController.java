@@ -78,6 +78,7 @@ public class ProjectUploadController {
 
             //importFile = result.getResultFile().getName();
         } catch (ServiceException e) {
+            log.error("Error while uploading project", e);
             String message = "Error occured during uploading file";
             FacesMessage facesMessage = null;
             facesMessage = new FacesMessage(FacesMessage.SEVERITY_ERROR, message, message);
