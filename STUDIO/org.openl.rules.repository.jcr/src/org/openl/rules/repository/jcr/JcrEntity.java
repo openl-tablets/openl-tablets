@@ -1,15 +1,23 @@
 package org.openl.rules.repository.jcr;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 
 import org.openl.rules.repository.REntity;
+import org.openl.rules.repository.RProperty;
+import org.openl.rules.repository.RPropertyType;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -23,14 +31,17 @@ import org.openl.rules.repository.exceptions.RDeleteException;
  *
  */
 public class JcrEntity implements REntity {
-
     /** node in JCR that corresponds to this entity */
     private Node node;
     private String name;
-
+    private HashMap<String, RProperty> properties;
+    
     public JcrEntity(Node node) throws RepositoryException {
         this.node = node;
         name = node.getName();
+        
+        properties = new HashMap<String, RProperty>();
+        initProperties();
     }
 
     /** {@inheritDoc} */
@@ -105,24 +116,72 @@ public class JcrEntity implements REntity {
         return sb.toString();
     }
 
-    public void setName(String name) throws RModifyException {
-        // TODO: FIX ME!!!
-    }
-
     /** {@inheritDoc} */
     public void delete() throws RDeleteException {
         try {
             Node n = node();
             
-            Node parent = n.getParent();
-            NodeUtil.smartCheckout(node, true);
+            NodeUtil.smartCheckout(n, true);
             
             n.remove();
-            
-            NodeUtil.smartCheckinParent(parent);
         } catch (RepositoryException e) {
             throw new RDeleteException("Failed to Delete", e);
         }
+    }
+
+    public Collection<RProperty> getProperties() {
+        return properties.values();
+    }
+    
+    public void addProperty(String name, RPropertyType type, Object value) throws RRepositoryException {
+        try {
+            NodeUtil.smartCheckout(node(), false);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Internal error", e);
+        }        
+
+        if (hasProperty(name)) {
+            removeProperty(name);
+        }
+        
+        JcrProperty jp = new JcrProperty(this, name, type, value);
+        properties.put(name, jp);
+    }
+    
+    public void removeProperty(String name) throws RDeleteException {
+        RProperty rp = properties.get(name);
+
+        if (rp == null) {
+            throw new RDeleteException("No such property {0}", null, name);
+        }
+        
+        Node n = node();
+        try {
+            NodeUtil.smartCheckout(n, false);
+        } catch (RepositoryException e) {
+            throw new RDeleteException("Internal error", e);
+        }        
+
+        try {
+            n.getProperty(name).remove();
+        } catch (RepositoryException e) {
+            throw new RDeleteException("Cannot remove property {0}", e, name);
+        }        
+        properties.remove(name);
+    }
+    
+    public boolean hasProperty(String name) {
+        return (properties.get(name) != null);
+    }
+    
+    public RProperty getProperty(String name) throws RRepositoryException {
+        RProperty rp = properties.get(name);
+        
+        if (rp == null) {
+            throw new RRepositoryException("No such property {0}", null, name);
+        }
+        
+        return rp;
     }
 
     // ------ private ------
@@ -135,6 +194,21 @@ public class JcrEntity implements REntity {
         if (!n.isNodeType(JcrNT.NT_FILES)) {
             sb.append('/');
             sb.append(n.getName());
+        }
+    }
+    
+    private static final String[] ALLOWED_PROPS = {"effectiveDate", "expirationDate", "LOB"};
+    private void initProperties() throws RepositoryException {
+        properties.clear();
+        
+        Node n = node();
+        for (String s : ALLOWED_PROPS) {
+            if (n.hasProperty(s)) {
+                Property p = n.getProperty(s);
+
+                JcrProperty prop = new JcrProperty(this, p);
+                properties.put(prop.getName(), prop);
+            }
         }
     }
 }

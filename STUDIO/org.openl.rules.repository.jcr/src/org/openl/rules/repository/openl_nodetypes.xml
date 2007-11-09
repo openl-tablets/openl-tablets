@@ -5,7 +5,7 @@
  *
  *      http://www.openl.org/
  *
- * TODO: place something similar there...
+ * TODO: place something similar here...
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,32 +31,50 @@
                 <requiredPrimaryType>nt:base</requiredPrimaryType>
             </requiredPrimaryTypes>
         </childNodeDefinition>
+        
         <propertyDefinition name="openl:marked4Deletion" requiredType="Boolean" autoCreated="false" mandatory="false" onParentVersion="ABORT" protected="false" multiple="false"/>
         <propertyDefinition name="name" requiredType="String" autoCreated="false" mandatory="true" onParentVersion="COPY" protected="false" multiple="false"/>
         <propertyDefinition name="description" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
-        <propertyDefinition name="openl:status" requiredType="String" autoCreated="false" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
-            <valueConstraints>
-                <valueConstraint>INITIAL</valueConstraint>
-                <valueConstraint>DRAFT</valueConstraint>
-                <valueConstraint>PRODUCTION</valueConstraint>
-                <valueConstraint>OBSOLETE</valueConstraint>
-            </valueConstraints>
-        </propertyDefinition>
+
+        <propertyDefinition name="rVersion" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
     </nodeType>
+    
     <nodeType name="openl:file">
         <supertypes>
             <supertype>nt:file</supertype>
         </supertypes>
+
         <propertyDefinition name="modifiedTime" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+
+        <propertyDefinition name="rVersion" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+
+        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
     </nodeType>
+    
     <nodeType name="openl:folder">
         <supertypes>
             <supertype>nt:folder</supertype>
         </supertypes>
+
+        <propertyDefinition name="rVersion" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+
+        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
     </nodeType>
+    
     <nodeType name="openl:files" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
         <supertypes>
             <supertype>openl:folder</supertype>
         </supertypes>
     </nodeType>
+
 </nodeTypes>

@@ -60,14 +60,14 @@ public class JcrRepository implements RRepository {
     public RProject getProject(String name) throws RRepositoryException {
         try {
             if (!defNewProjectLocation.hasNode(name)) {
-                throw new RRepositoryException("Cannot find project '" + name + "'", null);
+                throw new RRepositoryException("Cannot find project ''{0}''", null, name);
             }
 
             Node n = defNewProjectLocation.getNode(name);
             JcrProject p = new JcrProject(n);
             return p;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get project " + name, e);
+            throw new RRepositoryException("Failed to get project {0}", e, name);
         }        
     }
     
@@ -76,7 +76,7 @@ public class JcrRepository implements RRepository {
         try {
             return defNewProjectLocation.hasNode(name);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to check project " + name, e);
+            throw new RRepositoryException("Failed to check project {0}", e, name);
         }        
     }
 
@@ -106,7 +106,7 @@ public class JcrRepository implements RRepository {
         try {
             return JcrProject.createProject(defNewProjectLocation, nodeName);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Create Project", e);
+            throw new RRepositoryException("Failed to Create Project {0}", e, nodeName);
         }
     }
 

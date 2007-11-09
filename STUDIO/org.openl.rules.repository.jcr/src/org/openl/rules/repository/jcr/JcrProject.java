@@ -3,6 +3,9 @@ package org.openl.rules.repository.jcr;
 import java.util.Date;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -25,6 +28,10 @@ public class JcrProject extends JcrEntity implements RProject {
 
     /** Project's root folder or project->files. */
     private JcrFolder rootFolder;
+    
+    private int vMajor;
+    private int vMinor;
+    private long vRevision;
 
     /**
      * Creates new project instance.
@@ -44,8 +51,9 @@ public class JcrProject extends JcrEntity implements RProject {
         n.setProperty(JcrNT.PROP_PRJ_NAME, nodeName);
         // TODO what should be in default description?
         n.setProperty(JcrNT.PROP_PRJ_DESCR, "created " + new Date() + " by UNKNOWN");
-        // TODO what should be in status?
-        n.setProperty(JcrNT.PROP_PRJ_STATUS, "DRAFT");
+        
+        n.setProperty(JcrNT.PROP_VERSION, 0);
+        n.setProperty(JcrNT.PROP_REVISION, 0);
 
         Node files = n.addNode(NODE_FILES, JcrNT.NT_FILES);
         files.addMixin(JcrNT.MIX_VERSIONABLE);
@@ -64,6 +72,13 @@ public class JcrProject extends JcrEntity implements RProject {
 
         Node files = node.getNode(NODE_FILES);
         rootFolder = new JcrFolder(files);
+        
+        long l = node.getProperty(JcrNT.PROP_VERSION).getLong();
+        int i = (int)l;
+        vMajor = i >> 16;
+        vMinor = i & (0xFFFF);
+        
+        vRevision = node.getProperty(JcrNT.PROP_REVISION).getLong();
     }
 
     /** {@inheritDoc} */
@@ -119,5 +134,58 @@ public class JcrProject extends JcrEntity implements RProject {
         // ALL IS LOST
         // TODO: add logging here
         super.delete();
+    }
+    
+    public void commit() throws RRepositoryException {
+        try {
+            Node n = node();
+            NodeUtil.smartCheckout(n, true);
+            vRevision++;
+            long l = (vMajor << 16) | (vMinor & 0xFFFF);
+            n.setProperty(JcrNT.PROP_VERSION, l);
+
+            checkInAll(n);
+            Node parent = n.getParent();
+            if (parent.isModified()) {
+                parent.save();
+            }
+            if (parent.isCheckedOut()) {
+                if (parent.isNodeType(JcrNT.MIX_VERSIONABLE)) {
+                    parent.checkin();
+                }
+            }
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to checkin project {0}", e, getName());
+        }        
+    }
+    
+    protected void checkInAll(Node n) throws RepositoryException {
+        NodeIterator ni = n.getNodes();
+        
+        while (ni.hasNext()) {
+            Node child = ni.nextNode();
+            checkInAll(child);
+        }
+        
+        boolean saveProps = false;
+        PropertyIterator pi = n.getProperties();
+        while (pi.hasNext()) {
+            Property p = pi.nextProperty();
+            if (p.isModified() || p.isNew()) {
+                saveProps = true;
+                break;
+            }
+        }
+        
+        if (saveProps || n.isModified() || n.isNew()) {
+            System.out.println("Saving... " + n.getPath());
+            n.setProperty(JcrNT.PROP_REVISION, vRevision);
+            n.save();
+        }
+        
+        if (n.isNodeType(JcrNT.MIX_VERSIONABLE) && n.isCheckedOut()) {
+            System.out.println("Checking in... " + n.getPath());
+            n.checkin();
+        }
     }
 }

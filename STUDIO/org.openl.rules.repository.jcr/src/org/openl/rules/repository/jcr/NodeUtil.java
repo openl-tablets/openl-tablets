@@ -59,6 +59,7 @@ public class NodeUtil {
      * @param node reference on node to be checked in
      * @throws RepositoryException if operation failed
      */
+    @Deprecated
     protected static void smartCheckin(Node node) throws RepositoryException {
         //TODO: add better handling for ancestors
         Node parentNode = node.getParent();
@@ -80,6 +81,7 @@ public class NodeUtil {
      * @param parent reference on parent node to be checked in
      * @throws RepositoryException if operation failed
      */
+    @Deprecated
     protected static void smartCheckinParent(Node parent) throws RepositoryException {
         //TODO: add better handling for ancestors
         if (parent.isModified()) {
@@ -101,14 +103,16 @@ public class NodeUtil {
      * @throws RepositoryException if operation failed
      */
     protected static void smartCheckout(Node node, boolean openParent) throws RepositoryException {
-        Node parentNode = node.getParent();
-
         if (!node.isCheckedOut()) {
             node.checkout();
         }
 
-        if (!parentNode.isCheckedOut()) {
-            parentNode.checkout();
+        if (openParent) {
+            Node parentNode = node.getParent();
+            
+            if (!parentNode.isCheckedOut()) {
+                parentNode.checkout();
+            }
         }
     }
 }

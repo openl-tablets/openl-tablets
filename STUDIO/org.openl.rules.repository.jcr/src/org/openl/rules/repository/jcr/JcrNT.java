@@ -30,6 +30,8 @@ public interface JcrNT {
 	// Properties for Project
 	public static final String PROP_PRJ_NAME = "name";
 	public static final String PROP_PRJ_DESCR = "description";
-	public static final String PROP_PRJ_STATUS = "openl:status";
 	public static final String PROP_PRJ_MARKED_4_DELETION = "marked4deletion";
+
+        public static final String PROP_VERSION = "rVersion";
+        public static final String PROP_REVISION = "rRevision";
 }
