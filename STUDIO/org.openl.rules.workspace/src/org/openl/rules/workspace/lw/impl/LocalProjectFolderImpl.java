@@ -91,6 +91,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
             if (!fileMap.containsKey(name)) {
                 // was deleted
                 lpa.remove();
+                artefacts.remove(name);
 
                 setChanged(true);
             }

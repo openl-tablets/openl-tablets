@@ -11,4 +11,6 @@ public interface UserWorkspaceProjectArtefact extends ProjectArtefact {
 
     // all for project, main for content
     Collection<ProjectVersion> getVersions();
+    
+    void delete() throws ProjectException;
 }

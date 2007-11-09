@@ -26,6 +26,8 @@ public class FolderHelper {
         Log.debug("Clearing folder ''{0}''", folder);
 
         File[] files = folder.listFiles();
+        
+        if (files == null) return;
 
         // delete sub elements one by one
         for (File file : files) {

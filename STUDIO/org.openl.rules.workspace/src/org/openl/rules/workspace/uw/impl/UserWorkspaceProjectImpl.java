@@ -150,6 +150,16 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return (dtrProject == null);
     }
 
+    public void delete() throws ProjectException {
+        if (isCheckedOut()) {
+            throw new ProjectException("Cannot delete project ''{0}'' while it is checked out", null, getName());
+        }
+        
+        if (isOpened()) {
+            close();
+        }
+    }
+
     // --- protected
 
     protected void updateArtefact(LocalProject localProject, RepositoryProject dtrProject) {
