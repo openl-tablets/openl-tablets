@@ -72,13 +72,24 @@ public class JcrProject extends JcrEntity implements RProject {
 
         Node files = node.getNode(NODE_FILES);
         rootFolder = new JcrFolder(files);
-        
-        long l = node.getProperty(JcrNT.PROP_VERSION).getLong();
-        int i = (int)l;
-        vMajor = i >> 16;
-        vMinor = i & (0xFFFF);
-        
-        vRevision = node.getProperty(JcrNT.PROP_REVISION).getLong();
+
+        try {
+            long l = node.getProperty(JcrNT.PROP_VERSION).getLong();
+            int i = (int)l;
+            vMajor = i >> 16;
+            vMinor = i & (0xFFFF);
+        } catch (RepositoryException e) {
+            // TODO: add logging
+            vMajor = 1;
+            vMinor = 0;
+        }
+
+        try {
+            vRevision = node.getProperty(JcrNT.PROP_REVISION).getLong();
+        } catch (RepositoryException e) {
+            // TODO: add logging
+            vRevision = 0;
+        }
     }
 
     /** {@inheritDoc} */
