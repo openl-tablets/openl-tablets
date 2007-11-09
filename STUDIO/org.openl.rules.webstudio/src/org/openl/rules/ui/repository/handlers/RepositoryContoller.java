@@ -6,6 +6,7 @@ import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.util.Log;
 
 import javax.faces.application.FacesMessage;
@@ -71,6 +72,18 @@ public class RepositoryContoller {
             }
         }
         return result ? UiConst.OUTCOME_SUCCESS : UiConst.OUTCOME_FAILED;
+    }
+
+    public String delete() {
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) repositoryTree.getSelected().getDataBean();
+        try {
+            projectArtefact.delete();
+            repositoryTree.reInit();
+        } catch (ProjectException e) {
+            Log.error("error deleting", e);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("error deleting", e.getMessage()));
+        }
+        return UiConst.OUTCOME_SUCCESS;
     }
 
     public String addProject() {
