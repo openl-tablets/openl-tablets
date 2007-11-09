@@ -51,4 +51,6 @@ public interface RProject extends REntity {
      * @throws RDeleteException if failed
      */
     public void erase() throws RDeleteException;
+    
+    public void commit() throws RRepositoryException;
 }

@@ -4,6 +4,7 @@ import org.openl.rules.repository.exceptions.RDeleteException;
 import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -46,18 +47,16 @@ public interface REntity {
     public void delete() throws RDeleteException;
 
     /**
-     * Sets/Updates name of the entity.
-     *
-     * @param name new name
-     * @throws RModifyException if failed
-     */
-    public void setName(String name) throws RModifyException;
-
-    /**
      * Returns path of entity.
      *
      * @return path of entity
      * @throws RRepositoryException if failed
      */
     public String getPath() throws RRepositoryException;
+    
+    public Collection<RProperty> getProperties();
+    public void addProperty(String name, RPropertyType type, Object value) throws RRepositoryException;
+    public void removeProperty(String name) throws RDeleteException;
+    public boolean hasProperty(String name);
+    public RProperty getProperty(String name) throws RRepositoryException;
 }
