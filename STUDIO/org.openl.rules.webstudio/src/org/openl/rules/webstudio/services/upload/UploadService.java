@@ -98,9 +98,6 @@ public class UploadService extends BaseUploadService {
 
         String fileNameWithoutExt = FilenameUtils.getBaseName(params.getFile().getName());
         File uploadDir = getFile(params, fileNameWithoutExt);
-        String prevItemName = null;
-
-        UserWorkspaceProjectFolder prevFolder = project;
 
         // Sort zip entries names alphabetically
         Set<String> sortedNames = new TreeSet<String>();
@@ -110,36 +107,31 @@ public class UploadService extends BaseUploadService {
             sortedNames.add(item.getName());
         }
 
+        UserWorkspaceProjectFolder prevFolder = null;
+        String prevItemName = null;
+
         for (String name : sortedNames) {
             ZipEntry item = zipFile.getEntry(name);
 
             //File targetFile = new File(uploadDir, item.getName()); // Determine file to save uploaded file
-            StringBuilder itemName = new StringBuilder(item.getName());
-            System.out.println(itemName);
+            String fullName = item.getName();
 
-            int pos = StringUtils.indexOf(itemName.toString(), prevItemName);
+            int pos = StringUtils.indexOf(fullName, prevItemName);
 
-            StringBuilder shortItemName;
-            if (pos == -1) {
-                shortItemName = new StringBuilder(itemName.toString());
-                prevFolder = project;
+            String shortName;
+            if (pos != -1) {
+                shortName = fullName.substring(pos + prevItemName.length() + 1);
             } else {
-                shortItemName = new StringBuilder(itemName.toString()
-                            .substring(pos + prevItemName.length() + 1));
+                shortName = fullName;
+                prevFolder = project;
             }
 
             if (item.isDirectory()) {
-                itemName.deleteCharAt(itemName.length() - 1);
-                shortItemName.deleteCharAt(shortItemName.length() - 1);
+                fullName = fullName.substring(0, fullName.length() - 1);
+                shortName = shortName.substring(0, shortName.length() - 1);
                 try {
-                    UserWorkspaceProjectFolder folder;
-                    if (pos != -1) {
-                        folder = prevFolder.addFolder(shortItemName.toString());
-                    } else {
-                        folder = project.addFolder(itemName.toString());
-                    }
-                    prevItemName = itemName.toString();
-                    prevFolder = folder;
+                    prevFolder = prevFolder.addFolder(shortName);
+                    prevItemName = fullName;
                 } catch (ProjectException e) {
                     throw new ServiceException("Error adding folder to user workspace", e);
                 }
@@ -151,7 +143,7 @@ public class UploadService extends BaseUploadService {
 
                 ProjectResource projectResource = new FileProjectResource(zipInputStream);
                 try {
-                    prevFolder.addResource(shortItemName.toString(), projectResource);
+                    prevFolder.addResource(shortName.toString(), projectResource);
                 } catch (ProjectException e) {
                     throw new ServiceException("Error adding file to user workspace", e);
                 }
