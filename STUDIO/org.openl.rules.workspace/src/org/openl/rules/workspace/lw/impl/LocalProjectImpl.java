@@ -84,9 +84,9 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         loadProperties(folder, getFolderPropertiesFile(propFolder));
 
         for (LocalProjectArtefact artefact : folder.getArtefacts()) {
-            if (artefact instanceof LocalProjectFolder) {
+            if (artefact.isFolder()) {
                 load((LocalProjectFolderImpl) artefact);
-            } else if (artefact instanceof LocalProjectResource) {
+            } else {
                 loadProperties(artefact, new File(propFolder, artefact.getName()));
             }
         }
@@ -101,9 +101,9 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         }
 
         for (LocalProjectArtefact artefact  : folder.getArtefacts()) {
-            if (artefact instanceof LocalProjectFolder) {
+            if (artefact.isFolder()) {
                 save((LocalProjectFolderImpl) artefact);
-            } else if (artefact instanceof LocalProjectResource) {
+            } else {
                 try {
                     saveProperties(artefact, new File(propFolder, artefact.getName()));
                 } catch (IOException e) {

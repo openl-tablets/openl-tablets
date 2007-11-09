@@ -49,6 +49,14 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
         localResource.remove();
     }
     
+    public boolean isFolder() {
+        return false;
+    }
+
+    public boolean hasArtefact(String name) {
+        return false;
+    }
+
     // --- protected
     
     protected void updateArtefact(LocalProjectResource localResource, RepositoryProjectResource dtrResource) {

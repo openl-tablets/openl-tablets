@@ -16,10 +16,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements LocalProjectFolder {
-    private Map<String, LocalProjectArtefact> artefacts;
     public static final String PROPERTIES_FOLDER = ".studioProps";
     public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
     public static final String FOLDER_PROPERTIES_FILE = "folder.properties";
+
+    private Map<String, LocalProjectArtefact> artefacts;
 
     public LocalProjectFolderImpl(String name, ArtefactPath path, File location) {
         super(name, path, location);
@@ -106,8 +107,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
                 // was added
                 addAsNew(f);
             } else {
-                boolean isFolder = lpa instanceof LocalProjectFolder;
-                if (f.isDirectory() != isFolder) {
+                if (f.isDirectory() != lpa.isFolder()) {
                     // folder->file or file->folder
                     lpa.remove();
 
@@ -133,6 +133,14 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
 
         // remove itself
         super.remove();
+    }
+
+    public boolean isFolder() {
+        return true;
+    }
+    
+    public boolean hasArtefact(String name) {
+        return (artefacts.get(name) != null);
     }
 
     // --- protected
@@ -168,7 +176,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
             ArtefactPath ap = getArtefactPath().add(name);
             File f = new File(location, name);
 
-            if (pa instanceof ProjectFolder) {
+            if (pa.isFolder()) {
                 ProjectFolder pf = (ProjectFolder) pa;
 
                 LocalProjectFolderImpl lpfi = new LocalProjectFolderImpl(name, ap, f);

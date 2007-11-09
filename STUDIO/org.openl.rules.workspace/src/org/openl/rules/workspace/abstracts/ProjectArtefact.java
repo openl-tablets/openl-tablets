@@ -7,4 +7,7 @@ public interface ProjectArtefact extends PropertiesContainer {
     ArtefactPath getArtefactPath();
 
     ProjectArtefact getArtefact(String name) throws ProjectException;
+    boolean hasArtefact(String name);
+    
+    boolean isFolder();
 }
