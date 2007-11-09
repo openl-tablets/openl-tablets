@@ -12,6 +12,7 @@ import org.openl.rules.workspace.lw.LocalProjectResource;
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -87,12 +88,14 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
         }
 
         // check deleted
-        for (LocalProjectArtefact lpa : artefacts.values()) {
+        for (Iterator<Map.Entry<String,LocalProjectArtefact>> it = artefacts.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<String,LocalProjectArtefact> entry = it.next();
+            LocalProjectArtefact lpa = entry.getValue();
             String name = lpa.getName();
             if (!fileMap.containsKey(name)) {
                 // was deleted
                 lpa.remove();
-                artefacts.remove(name);
+                it.remove();
 
                 setChanged(true);
             }
