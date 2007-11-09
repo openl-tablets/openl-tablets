@@ -46,6 +46,11 @@ public class ProjectUploadController {
     private UploadedFile file;
     private String projectName;
     private UploadService uploadService;
+    private RepositoryTreeController repositoryTree;
+
+    public void setRepositoryTree(RepositoryTreeController repositoryTree) {
+        this.repositoryTree = repositoryTree;
+    }
 
     public String execute() {
         if (upload()) {
@@ -86,6 +91,7 @@ public class ProjectUploadController {
             return false;
         }
 
+        repositoryTree.reInit();
         return true;
     }
 
