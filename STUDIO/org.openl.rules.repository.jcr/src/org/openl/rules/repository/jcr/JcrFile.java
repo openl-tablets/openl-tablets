@@ -47,6 +47,7 @@ public class JcrFile extends JcrEntity implements RFile {
         resNode.setProperty (JcrNT.PROP_RES_LASTMODIFIED, lastModified);
 
         parentNode.save();
+        n.save();
 
         return new JcrFile(n);
     }
