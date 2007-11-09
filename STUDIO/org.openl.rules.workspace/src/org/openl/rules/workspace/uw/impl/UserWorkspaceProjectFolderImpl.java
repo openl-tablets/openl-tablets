@@ -90,7 +90,9 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
     protected UserWorkspaceProjectArtefact wrapLocalArtefact(LocalProjectArtefact lpa) {
         RepositoryProjectArtefact rpa = null;
         try {
-            rpa = dtrFolder.getArtefact(lpa.getName());
+            if (dtrFolder != null) {
+                rpa = dtrFolder.getArtefact(lpa.getName());
+            }
         } catch (ProjectException e) {
             // ignore
         }        
