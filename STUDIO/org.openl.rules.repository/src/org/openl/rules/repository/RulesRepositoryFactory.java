@@ -30,8 +30,8 @@ public class RulesRepositoryFactory {
 
         String className = props.getStr(PROP_JCR_TYPE);
         try {
-            Class klass = Class.forName(className);
-            Object obj = klass.newInstance();
+            Class c = Class.forName(className);
+            Object obj = c.newInstance();
             repFactory = (RRepositoryFactory) obj;
             // initialize
             repFactory.initialize(props);

@@ -12,4 +12,8 @@ public class RModifyException extends RRepositoryException {
     public RModifyException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public RModifyException(String pattern, Throwable cause, Object... params) {
+        super(pattern, cause, params);
+    }
 }
