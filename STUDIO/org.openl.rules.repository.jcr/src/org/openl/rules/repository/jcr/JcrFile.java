@@ -46,7 +46,7 @@ public class JcrFile extends JcrEntity implements RFile {
         resNode.setProperty (JcrNT.PROP_RES_DATA, new ByteArrayInputStream (new byte[0]));
         resNode.setProperty (JcrNT.PROP_RES_LASTMODIFIED, lastModified);
 
-        NodeUtil.smartCheckin(n);
+        parentNode.save();
 
         return new JcrFile(n);
     }
@@ -83,7 +83,7 @@ public class JcrFile extends JcrEntity implements RFile {
     public void setContent(InputStream inputStream) throws RModifyException {
         try {
             Node n = node();
-            n.checkout();
+            NodeUtil.smartCheckout(n, false);
 
             Node resNode = n.getNode ("jcr:content");
 
@@ -98,7 +98,6 @@ public class JcrFile extends JcrEntity implements RFile {
             n.setProperty (JcrNT.PROP_MODIFIED_TIME, lastModified);
 
             n.save();
-            n.checkin();
         } catch (RepositoryException e) {
             throw new RModifyException("Failed to set Content", e);
         }

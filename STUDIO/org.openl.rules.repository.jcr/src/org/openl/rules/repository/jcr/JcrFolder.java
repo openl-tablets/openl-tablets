@@ -30,8 +30,7 @@ public class JcrFolder extends JcrEntity implements RFolder {
      */
     protected static JcrFolder createFolder(Node parentNode, String nodeName) throws RepositoryException {
         Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_FOLDER, true);
-
-        NodeUtil.smartCheckin(n);
+        parentNode.save();
 
         return new JcrFolder(n);
     }
