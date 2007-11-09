@@ -9,6 +9,7 @@ import org.openl.rules.ui.repository.tree.TreeFolder;
 import org.openl.rules.ui.repository.tree.TreeProject;
 import org.openl.rules.ui.repository.tree.TreeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.webstudio.util.FacesUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.NodeSelectedEvent;
 
@@ -124,6 +125,13 @@ public class RepositoryTreeController {
                 tf.setDataBean(artefact);
                 folder.add(tf);
             }
+        }
+    }
+
+    public static void refreshSessionTree() {
+        RepositoryTreeController self = (RepositoryTreeController) FacesUtils.getFacesVariable("#{repositoryTree}");
+        if (self != null) {
+            self.reInit();
         }
     }
 
