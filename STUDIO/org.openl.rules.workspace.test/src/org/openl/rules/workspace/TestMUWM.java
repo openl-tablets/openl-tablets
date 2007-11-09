@@ -14,6 +14,7 @@ import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.PropertyTypeException;
+import org.openl.rules.workspace.props.impl.PropertyImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
@@ -30,7 +31,10 @@ public class TestMUWM {
         System.out.println(uw.getProjects().size());
 
         String name = "p1";
-//        uw.createProject(name);
+        if (!uw.hasProject(name)) {
+            uw.createProject(name);
+        }
+        
         UserWorkspaceProject p = uw.getProject(name);
         p.checkOut();
         
@@ -39,11 +43,24 @@ public class TestMUWM {
             uwpf = (UserWorkspaceProjectFolder) p.getArtefact("F1");
             UserWorkspaceProjectResource uwpr = (UserWorkspaceProjectResource) uwpf.getArtefact("some-file");
 
-            String s = "Updated at " + System.currentTimeMillis();
-            uwpr.setContent(new ByteArrayInputStream(s.getBytes()));
+//            String s = "Updated at " + System.currentTimeMillis();
+//            uwpr.setContent(new ByteArrayInputStream(s.getBytes()));
+            
             Collection<ProjectVersion> vers = uwpr.getVersions();
+            System.out.println("- listing versions: " + vers.size());
             for (ProjectVersion ver : vers) {
                 System.out.println("  " + ver.getVersionName());
+            }
+            try {
+                uwpr.addProperty(new PropertyImpl("LOB", "line of business"));
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+            
+            Collection<Property> props = uwpr.getProperties();
+            System.out.println("- listing properties: " + props.size());
+            for (Property pr : props) {
+                System.out.println("  " + pr.getName() + " = " + pr.getString());
             }
         } catch (ProjectException e) {
             uwpf = p.addFolder("F1");
