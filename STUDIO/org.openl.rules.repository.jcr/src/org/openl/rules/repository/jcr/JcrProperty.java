@@ -19,15 +19,15 @@ public class JcrProperty implements RProperty {
     private String name;
     private RPropertyType type;
     private Object value;
-    
+
     protected JcrProperty(JcrEntity entity, Property p) throws RepositoryException {
         this.entity = entity;
         name = p.getName();
-        
+
         Value v = p.getValue();
         switch (v.getType()) {
         case PropertyType.DATE:
-            value = v.getDate();
+            value = v.getDate().getTime();
             type = RPropertyType.DATE;
             break;
         default:
@@ -41,7 +41,7 @@ public class JcrProperty implements RProperty {
         this.name = name;
         this.type = type;
         this.value = value;
-        
+
         try {
             Node n = entity.node();
             switch (type) {
@@ -55,7 +55,7 @@ public class JcrProperty implements RProperty {
             }
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot create property {0}", e, name);
-        }        
+        }
     }
 
     public String getName() {
@@ -79,11 +79,11 @@ public class JcrProperty implements RProperty {
         try {
             Node n = entity.node();
             Property p = n.getProperty(name);
-            
+
             switch (type) {
             case DATE:
                 Calendar c = date2Calendar((Date)value);
-                
+
                 p.setValue(c);
                 break;
             default:
@@ -93,11 +93,11 @@ public class JcrProperty implements RProperty {
             this.value = value;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set value for {0}", e, name);
-        }        
+        }
     }
-    
+
     // --- private
-    
+
     private Calendar date2Calendar(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);
