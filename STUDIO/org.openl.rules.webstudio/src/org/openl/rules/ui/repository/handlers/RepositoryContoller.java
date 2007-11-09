@@ -5,6 +5,7 @@ import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.util.Log;
@@ -117,5 +118,85 @@ public class RepositoryContoller {
      */
     public void setRepositoryTree(RepositoryTreeController treeController) {
         repositoryTree = treeController;
+    }
+    
+    public String openProject() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) return UiConst.OUTCOME_FAILED;
+        
+        try {
+            project.open();
+            repositoryTree.reInit();
+            return UiConst.OUTCOME_SUCCESS;
+        } catch (ProjectException e) {
+            Log.error("Failed to open project", e);
+            
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage("Failed to open project", e.getMessage()));
+            return UiConst.OUTCOME_FAILED;
+        }        
+    }
+
+    public String closeProject() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) return UiConst.OUTCOME_FAILED;
+
+        try {
+            project.close();
+            repositoryTree.reInit();
+            return UiConst.OUTCOME_SUCCESS;
+        } catch (ProjectException e) {
+            Log.error("Failed to close project", e);
+            
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage("Failed to close project", e.getMessage()));
+            return UiConst.OUTCOME_FAILED;
+        }        
+    }
+
+    public String checkOutProject() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) return UiConst.OUTCOME_FAILED;
+        
+        try {
+            project.checkOut();
+            repositoryTree.reInit();
+            return UiConst.OUTCOME_SUCCESS;
+        } catch (ProjectException e) {
+            Log.error("Failed to check out project", e);
+            
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage("Failed to check out project", e.getMessage()));
+            return UiConst.OUTCOME_FAILED;
+        }        
+    }
+
+    public String checkInProject() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) return UiConst.OUTCOME_FAILED;
+        
+        try {
+            project.checkIn();
+            repositoryTree.reInit();
+            return UiConst.OUTCOME_SUCCESS;
+        } catch (ProjectException e) {
+            Log.error("Failed to check in project", e);
+            
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage("Failed to check in project", e.getMessage()));
+            return UiConst.OUTCOME_FAILED;
+        }        
+    }
+    
+    private UserWorkspaceProject getActiveProject() {
+        ProjectArtefact projectArtefact = repositoryTree.getSelected().getDataBean();
+        if (projectArtefact instanceof UserWorkspaceProject) {
+            return (UserWorkspaceProject) projectArtefact;
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage("Active tree element is not a project!", null));
+
+            return null;
+        }
     }
 }
