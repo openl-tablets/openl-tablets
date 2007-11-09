@@ -1,13 +1,13 @@
 package org.openl.rules.webstudio.services.upload;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
+import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
@@ -107,43 +107,39 @@ public class UploadService extends BaseUploadService {
             sortedNames.add(item.getName());
         }
 
-        UserWorkspaceProjectFolder prevFolder = null;
-        String prevItemName = null;
-
         for (String name : sortedNames) {
             ZipEntry item = zipFile.getEntry(name);
 
             //File targetFile = new File(uploadDir, item.getName()); // Determine file to save uploaded file
             String fullName = item.getName();
 
-            int pos = StringUtils.indexOf(fullName, prevItemName);
-
-            String shortName;
-            if (pos != -1) {
-                shortName = fullName.substring(pos + prevItemName.length() + 1);
-            } else {
-                shortName = fullName;
-                prevFolder = project;
-            }
-
             if (item.isDirectory()) {
                 fullName = fullName.substring(0, fullName.length() - 1);
-                shortName = shortName.substring(0, shortName.length() - 1);
-                try {
-                    prevFolder = prevFolder.addFolder(shortName);
-                    prevItemName = fullName;
-                } catch (ProjectException e) {
-                    throw new ServiceException("Error adding folder to user workspace", e);
-                }
+                
+                checkPath(project, fullName);
 
                 //targetFile.mkdirs();
             } else {
                 //FileUtils.createParentDirs(targetFile);
                 InputStream zipInputStream = zipFile.getInputStream(item);
 
+                UserWorkspaceProjectFolder folder = project;
+                String resName = null;
+                
+                int pos = fullName.lastIndexOf('/');
+                if (pos >=0) {
+                    String path = fullName.substring(0, pos);
+                    resName = fullName.substring(pos + 1);
+                    
+                    folder = checkPath(project, path);
+                } else {
+                    resName = fullName;
+                }
+                
+                
                 ProjectResource projectResource = new FileProjectResource(zipInputStream);
                 try {
-                    prevFolder.addResource(shortName.toString(), projectResource);
+                    folder.addResource(resName, projectResource);
                 } catch (ProjectException e) {
                     throw new ServiceException("Error adding file to user workspace", e);
                 }
@@ -161,11 +157,34 @@ public class UploadService extends BaseUploadService {
         }
 
         try {
+            workspace.refresh();
             project.checkIn();
         } catch (ProjectException e) {
             throw new ServiceException("Error during project checkIn", e);
         }
 
         result.setResultFile(uploadDir);
+    }
+    
+    private UserWorkspaceProjectFolder checkPath(UserWorkspaceProject project, String fullName) throws ServiceException {
+        ArtefactPathImpl ap = new ArtefactPathImpl(fullName);
+        UserWorkspaceProjectFolder current = project;
+        for (String segment : ap.getSegments()) {
+            if (current.hasArtefact(segment)) {
+                try {
+                    current = (UserWorkspaceProjectFolder) current.getArtefact(segment);
+                } catch (ProjectException e) {
+                    throw new ServiceException("Cannot get user workspace folder " + segment, e);
+                }                        
+            } else {
+                try {
+                    current = current.addFolder(segment);
+                } catch (ProjectException e) {
+                    throw new ServiceException("Error adding folder " + segment + " to user workspace", e);
+                }
+            }
+        }
+        
+        return current;
     }
 }

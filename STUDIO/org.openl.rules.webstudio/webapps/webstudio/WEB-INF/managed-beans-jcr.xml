@@ -102,6 +102,10 @@
       <property-name>uploadService</property-name>
       <value>#{uploadService}</value>
     </managed-property>
+    <managed-property>
+      <property-name>repositoryTree</property-name>
+      <value>#{repositoryTree}</value>
+    </managed-property>
   </managed-bean>
 
   <managed-bean>
