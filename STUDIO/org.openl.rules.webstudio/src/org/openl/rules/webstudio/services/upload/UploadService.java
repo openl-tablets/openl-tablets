@@ -6,18 +6,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.webstudio.services.ServiceException;
-import org.openl.rules.webstudio.util.FileUtils;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
-import org.springframework.util.FileCopyUtils;
-
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -26,7 +21,6 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 
@@ -37,7 +31,6 @@ import java.util.zip.ZipFile;
  */
 public class UploadService extends BaseUploadService {
     private final static Log log = LogFactory.getLog(UploadService.class);
-    private static final int LISTING_SIZE = 5;
 
     /**
      * {@inheritDoc}
@@ -82,38 +75,7 @@ public class UploadService extends BaseUploadService {
                     + "' is not a zip or it is corrupt.");
             }
 
-            Enumeration<?extends ZipEntry> files = zipFile.entries();
-
-            int fileCount = 0;
-            int dirCount = 0;
-
-            for (Enumeration<?extends ZipEntry> items = files; items.hasMoreElements();) {
-                ZipEntry item = items.nextElement();
-                if (item.isDirectory()) {
-                    dirCount++;
-                    continue;
-                } else {
-                    fileCount++;
-                }
-            }
-
-            if ((fileCount == 0) && (dirCount == 0)) {
-                WrongNumberOfZipEntriesException e = new WrongNumberOfZipEntriesException("Zip file not contain any file",
-                        "none");
-                e.setFileCount(0);
-                e.setListing(generateListing(zipFile.entries()));
-                throw e;
-            }
-
-            if (fileCount == 0) {
-                WrongNumberOfZipEntriesException e = new WrongNumberOfZipEntriesException("Zip file contains only directories",
-                        "directory");
-                e.setFileCount(0);
-                e.setListing(generateListing(zipFile.entries()));
-                throw e;
-            }
-
-            uploadManyFiles(params, result, zipFile);
+            uploadFiles(params, result, zipFile);
         } finally {
             if (zipFile != null) {
                 zipFile.close();
@@ -121,8 +83,8 @@ public class UploadService extends BaseUploadService {
         }
     }
 
-    private void uploadManyFiles(UploadServiceParams params, UploadServiceResult result,
-        ZipFile zipFile) throws IOException, ZipException, FileNotFoundException
+    private void uploadFiles(UploadServiceParams params, UploadServiceResult result,
+        ZipFile zipFile) throws ServiceException, IOException
     {
         UserWorkspace workspace = params.getWorkspace();
         UserWorkspaceProject project = null;
@@ -131,28 +93,27 @@ public class UploadService extends BaseUploadService {
             project = workspace.getProject(params.getProjectName());
             project.checkOut();
         } catch (ProjectException e) {
-            log.error("Error creating project", e);
-            return;
+            throw new ServiceException("Error creating project", e);
         }
-
-        Enumeration<?extends ZipEntry> files = zipFile.entries();
 
         String fileNameWithoutExt = FilenameUtils.getBaseName(params.getFile().getName());
-
         File uploadDir = getFile(params, fileNameWithoutExt);
         String prevItemName = null;
+
         UserWorkspaceProjectFolder prevFolder = project;
 
-        Set<String> entries = new TreeSet<String>();
-        for (Enumeration<?extends ZipEntry> items = files; items.hasMoreElements();) {
+        // Sort zip entries names alphabetically
+        Set<String> sortedNames = new TreeSet<String>();
+        for (Enumeration<?extends ZipEntry> items = zipFile.entries();
+                items.hasMoreElements();) {
             ZipEntry item = items.nextElement();
-            entries.add(item.getName());
+            sortedNames.add(item.getName());
         }
 
-        for (String name : entries) {
+        for (String name : sortedNames) {
             ZipEntry item = zipFile.getEntry(name);
-            File targetFile = new File(uploadDir, item.getName()); // Determine file to save uploaded file
 
+            //File targetFile = new File(uploadDir, item.getName()); // Determine file to save uploaded file
             StringBuilder itemName = new StringBuilder(item.getName());
             System.out.println(itemName);
 
@@ -161,6 +122,7 @@ public class UploadService extends BaseUploadService {
             StringBuilder shortItemName;
             if (pos == -1) {
                 shortItemName = new StringBuilder(itemName.toString());
+                prevFolder = project;
             } else {
                 shortItemName = new StringBuilder(itemName.toString()
                             .substring(pos + prevItemName.length() + 1));
@@ -179,64 +141,39 @@ public class UploadService extends BaseUploadService {
                     prevItemName = itemName.toString();
                     prevFolder = folder;
                 } catch (ProjectException e) {
-                    log.error("Error adding folder to user workspace", e);
-                    return;
+                    throw new ServiceException("Error adding folder to user workspace", e);
                 }
-                targetFile.mkdirs();
+
+                //targetFile.mkdirs();
             } else {
-                FileUtils.createParentDirs(targetFile);
+                //FileUtils.createParentDirs(targetFile);
                 InputStream zipInputStream = zipFile.getInputStream(item);
 
                 ProjectResource projectResource = new FileProjectResource(zipInputStream);
                 try {
                     prevFolder.addResource(shortItemName.toString(), projectResource);
                 } catch (ProjectException e) {
-                    log.error("Error adding file to user workspace", e);
-                    return;
+                    throw new ServiceException("Error adding file to user workspace", e);
                 }
 
-                try {
-                    FileCopyUtils.copy(zipInputStream, new FileOutputStream(targetFile));
-                } finally {
-                    if (zipInputStream != null) {
-                        zipInputStream.close();
-                    }
-                }
+                /*
+                   try {
+                       FileCopyUtils.copy(zipInputStream, new FileOutputStream(targetFile));
+                   } finally {
+                       if (zipInputStream != null) {
+                           zipInputStream.close();
+                       }
+                   }
+                 */
             }
         }
 
         try {
             project.checkIn();
         } catch (ProjectException e) {
-            log.error("Error during project checkIn", e);
-            return;
+            throw new ServiceException("Error during project checkIn", e);
         }
 
         result.setResultFile(uploadDir);
-    }
-
-    private String generateListing(Enumeration<?extends ZipEntry> entries) {
-        StringBuffer s = new StringBuffer("");
-        int count = 0;
-        for (; entries.hasMoreElements();) {
-            ZipEntry element = (ZipEntry) entries.nextElement();
-            if (!element.isDirectory()) {
-                if (s.length() != 0) {
-                    s.append(", ");
-                }
-                if (count == LISTING_SIZE) {
-                    s.append("...");
-                } else {
-                    s.append(element.getName());
-                }
-                count++;
-            }
-
-            if (count > LISTING_SIZE) {
-                break;
-            }
-        }
-
-        return s.toString();
     }
 }
