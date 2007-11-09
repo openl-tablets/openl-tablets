@@ -19,36 +19,48 @@ public class TreeProject extends TreeFolder {
 
     private static final long serialVersionUID = -326805891782640894L;
 
-	public TreeProject(long id, String name) {
-		super(id, name);
-	}
-	
-	// ------ UI methods ------
-	
-	@Override
-	public String getType() {
-		return UiConst.TYPE_PROJECT;
-	}
-	
-	@Override
-	public String getIcon() {
-		// todo: FIXME: for mockup
-		if ("prj1".equals(getName())) return UiConst.ICON_PROJECT_MOD;
+    public TreeProject(long id, String name) {
+        super(id, name);
+    }
 
+    // ------ UI methods ------
+
+    @Override
+    public String getType() {
+        return UiConst.TYPE_PROJECT;
+    }
+
+    @Override
+    public String getIcon() {
         UserWorkspaceProject project = (UserWorkspaceProject) getDataBean();
-        if (project.isOpened()) {
-            return UiConst.ICON_PROJECT_OPEN;
+
+        if (project.isLocalOnly()) {
+            return UiConst.ICON_PROJECT_LOCAL;
         }
         
         if (project.isDeleted()) {
             return UiConst.ICON_PROJECT_DELETED;
         }
+        
         if (project.isCheckedOut()) {
             return UiConst.ICON_PROJECT_CHECKED_OUT;
         }
-
-        return UiConst.ICON_PROJECT;
-	}
+        
+        boolean isLocked = project.isLocked();
+        if (project.isOpened()) {
+            if (isLocked) {
+                return UiConst.ICON_PROJECT_OPENED_LOCKED;
+            } else {
+                return UiConst.ICON_PROJECT_OPENED;
+            }
+        } else {
+            if (isLocked) {
+                return UiConst.ICON_PROJECT_CLOSED_LOCKED;
+            } else {
+                return UiConst.ICON_PROJECT_CLOSED;
+            }
+        }
+    }
 
     public Date getCreatedAt() {
         // todo: uncomment when it is implemented
