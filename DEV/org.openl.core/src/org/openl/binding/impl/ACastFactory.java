@@ -85,10 +85,16 @@ public class ACastFactory implements ICastFactory
    * @param to
    * @return
    */
-  static public boolean allowJavaUpcast(Class from, Class to)
+  static public boolean allowJavaUpcast(Class<?> from, Class<?> to)
   {
     if (from.isAssignableFrom(to))
       return true;
+    
+    if (!from.isPrimitive() && to.isInterface())
+	return true;
+    
+    if (!to.isPrimitive() && from.isInterface())
+	return true;
 
     return false;
   }
