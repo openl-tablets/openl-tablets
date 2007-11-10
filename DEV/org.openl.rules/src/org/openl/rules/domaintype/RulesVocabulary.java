@@ -2,6 +2,7 @@ package org.openl.rules.domaintype;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openl.binding.FieldNotFoundException;
@@ -20,6 +21,13 @@ public class RulesVocabulary implements IVocabulary
 	{
 		ArrayList<IOpenClass> list = makeBaseTypes();
 		makeDomains(list);
+		
+		for (Iterator iterator = list.iterator(); iterator.hasNext();)
+		{
+			IOpenClass ioc = (IOpenClass) iterator.next();
+			newTypes.put(ioc.getName(), ioc);
+			
+		}
 
 		makeDomainAttributes(list);
 		
@@ -36,7 +44,6 @@ public class RulesVocabulary implements IVocabulary
 		{
 			IOpenClass newType = dc[i].makeDomain();
 			list.add(dc[i].makeDomain());
-			newTypes.put(newType.getName(), newType);
 		}
 		
 		return list;
