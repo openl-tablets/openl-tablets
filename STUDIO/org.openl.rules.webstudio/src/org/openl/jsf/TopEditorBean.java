@@ -1,14 +1,11 @@
 package org.openl.jsf;
 
-import java.util.Map;
-
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
 import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.FacesUtils;
 public class TopEditorBean {
 
@@ -20,6 +17,7 @@ public class TopEditorBean {
     protected Integer column;
     protected String cellTitle;
 
+    @SuppressWarnings("unchecked")
     public EditorHelper getEditorHelper() {
         if (!FacesUtils.getSessionMap().containsKey("editor")) {
             EditorHelper result = new EditorHelper();

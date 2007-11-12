@@ -4,9 +4,6 @@
  */
 package org.openl.rules.ui;
 
-import org.openl.jsf.HtmlInputTextActivator;
-import org.openl.jsf.HtmlSelectActivator;
-import org.openl.jsf.ICellEditorActivator;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
@@ -23,7 +20,6 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
 
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -110,16 +106,7 @@ public class TableEditorModel
      */
     public static final String SPECIAL_CELL_TYPE = "SPECIAL_CELL_TYPE";
 
-    /**
-     * Stores all the registered editors
-     */
-    protected Hashtable<String, ICellEditorActivator> cellEditors = new Hashtable<String, ICellEditorActivator>();
-    {
-	// TODO:add all the editors
-	cellEditors.put(TH_CELL_TYPE, new HtmlInputTextActivator());
-	cellEditors.put(CA_ENUMERATION_CELL_TYPE, new HtmlSelectActivator());
-    }
-
+ 
     static final boolean COLUMNS = true, ROWS = false, INSERT = true,
 	    REMOVE = false;
 
@@ -428,28 +415,7 @@ public class TableEditorModel
 	return IGridRegion.Tool.width(region) > nCols;
     }
 
-    /**
-     * cellEditors getter
-     * 
-     * @return cellEditors
-     */
-    public Hashtable<String, ICellEditorActivator> getCellEditors()
-    {
-	return cellEditors;
-    }
-
-    /**
-     * cellEditors setter
-     * 
-     * @param cellEditors
-     */
-    public void setCellEditors(
-	    Hashtable<String, ICellEditorActivator> cellEditors)
-    {
-	this.cellEditors = cellEditors;
-    }
-
-    /**
+      /**
      * Gets type of a specified cell
      * 
      * @param row
