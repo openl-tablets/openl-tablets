@@ -50,4 +50,10 @@
     <managed-bean-class>org.openl.rules.webstudio.StudioFromLWSController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>formatPatterns</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.util.FormatPatterns</managed-bean-class>
+    <managed-bean-scope>application</managed-bean-scope>
+  </managed-bean>
 </faces-config>
