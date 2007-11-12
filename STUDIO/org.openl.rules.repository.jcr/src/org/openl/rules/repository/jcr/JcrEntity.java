@@ -1,5 +1,6 @@
 package org.openl.rules.repository.jcr;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,9 +37,23 @@ public class JcrEntity implements REntity {
     private String name;
     private HashMap<String, RProperty> properties;
     
+    private Date effectiveDate;
+    private Date expirationDate;
+    private String lineOfBusiness;
+    
     public JcrEntity(Node node) throws RepositoryException {
         this.node = node;
         name = node.getName();
+        
+        if (node.hasProperty(JcrNT.PROP_EFFECTIVE_DATE)) {
+            effectiveDate = node.getProperty(JcrNT.PROP_EFFECTIVE_DATE).getDate().getTime();
+        }
+        if (node.hasProperty(JcrNT.PROP_EXPIRATION_DATE)) {
+            expirationDate = node.getProperty(JcrNT.PROP_EXPIRATION_DATE).getDate().getTime();
+        }
+        if (node.hasProperty(JcrNT.PROP_LINE_OF_BUSINESS)) {
+            lineOfBusiness = node.getProperty(JcrNT.PROP_LINE_OF_BUSINESS).getString();
+        }
         
         properties = new HashMap<String, RProperty>();
         initProperties();
@@ -184,6 +199,56 @@ public class JcrEntity implements REntity {
         return rp;
     }
 
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public String getLineOfBusiness() {
+        return lineOfBusiness;
+    }
+
+    public void setEffectiveDate(Date date) throws RModifyException {
+        Node n = node();
+        Calendar c = convertDate2Calendar(date);
+
+        try {
+            NodeUtil.smartCheckout(n, false);
+            n.setProperty(JcrNT.PROP_EFFECTIVE_DATE, c);
+            effectiveDate = date;
+        } catch (RepositoryException e) {
+            throw new RModifyException("Cannot set effectiveDate", e);
+        }        
+    }
+
+    public void setExpirationDate(Date date) throws RModifyException {
+        Node n = node();
+        Calendar c = convertDate2Calendar(date);
+
+        try {
+            NodeUtil.smartCheckout(n, false);
+            n.setProperty(JcrNT.PROP_EXPIRATION_DATE, c);
+            expirationDate = date;
+        } catch (RepositoryException e) {
+            throw new RModifyException("Cannot set expirationDate", e);
+        }        
+    }
+
+    public void setLineOfBusiness(String lineOfBusiness) throws RModifyException {
+        Node n = node();
+
+        try {
+            NodeUtil.smartCheckout(n, false);
+            n.setProperty(JcrNT.PROP_LINE_OF_BUSINESS, lineOfBusiness);
+            this.lineOfBusiness = lineOfBusiness;
+        } catch (RepositoryException e) {
+            throw new RModifyException("Cannot set LOB", e);
+        }        
+    }
+
     // ------ private ------
 
     private void buildRelPath(StringBuffer sb, Node n) throws RepositoryException {
@@ -197,7 +262,13 @@ public class JcrEntity implements REntity {
         }
     }
     
-    private static final String[] ALLOWED_PROPS = {"effectiveDate", "expirationDate", "LOB"};
+    private Calendar convertDate2Calendar(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c;
+    }
+    
+    private static final String[] ALLOWED_PROPS = {};
     private void initProperties() throws RepositoryException {
         properties.clear();
         
