@@ -8,6 +8,8 @@ import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 
@@ -25,11 +27,18 @@ public class PropertiesEditorController {
 
         if (dataBean instanceof ProjectResource) {}
         else if (dataBean instanceof Project) {
-            properties.add(new PropertyImpl("Effective Date", "09/01/2007"));
-            properties.add(new PropertyImpl("Expiration Date", "01/01/2008"));
+            properties.add(new PropertyImpl("Effective Date", new Date()));
+            properties.add(new PropertyImpl("Expiration Date", new Date()));
             properties.add(new PropertyImpl("LOB", ""));
-            properties.add(new PropertyImpl("Region", ""));
-        } else if (dataBean instanceof ProjectFolder) {}
+            properties.add(new PropertyImpl("Region", "region1"));
+        } else if (dataBean instanceof ProjectFolder) {
+            ProjectFolder projectFolder =(ProjectFolder) dataBean;
+            Collection<Property> ps =  projectFolder.getProperties();
+            for (Property property : ps) {
+                properties.add(property);
+            }
+
+        }
 
         return properties;
     }
