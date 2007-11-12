@@ -263,13 +263,13 @@ public class JcrEntity implements REntity {
     }
 
     private Calendar convertDate2Calendar(Date date) {
-        Calendar c = Calendar.getInstance();
         if (date != null) {
-          c.setTime(date);
+            Calendar c = Calendar.getInstance();
+            c.setTime(date);
+            return c;
         } else {
             return null;
         }
-        return c;
     }
 
     private static final String[] ALLOWED_PROPS = {};
