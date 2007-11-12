@@ -9,8 +9,6 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
@@ -212,6 +210,9 @@ public class JcrEntity implements REntity {
     }
 
     public void setEffectiveDate(Date date) throws RModifyException {
+        // do not update JCR if property wasn't changed
+        if (isSame(effectiveDate, date)) return;
+        
         Node n = node();
         Calendar c = convertDate2Calendar(date);
 
@@ -225,6 +226,9 @@ public class JcrEntity implements REntity {
     }
 
     public void setExpirationDate(Date date) throws RModifyException {
+        // do not update JCR if property wasn't changed
+        if (isSame(expirationDate, date)) return;
+
         Node n = node();
         Calendar c = convertDate2Calendar(date);
 
@@ -238,6 +242,9 @@ public class JcrEntity implements REntity {
     }
 
     public void setLineOfBusiness(String lineOfBusiness) throws RModifyException {
+        // do not update JCR if property wasn't changed
+        if (isSame(this.lineOfBusiness, lineOfBusiness)) return;
+
         Node n = node();
 
         try {
@@ -263,12 +270,11 @@ public class JcrEntity implements REntity {
     }
 
     private Calendar convertDate2Calendar(Date date) {
-        if (date != null) {
-            Calendar c = Calendar.getInstance();
-            c.setTime(date);
-            return c;
-        }
-        return null;
+        if (date == null) return null;
+        
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c;
     }
 
     private static final String[] ALLOWED_PROPS = {};
@@ -284,5 +290,14 @@ public class JcrEntity implements REntity {
                 properties.put(prop.getName(), prop);
             }
         }
+    }
+    
+    private boolean isSame(Object o1, Object o2) {
+        // both are null (the same)
+        if (o1 == null && o2 == null) return true;
+        // at least one is null (other is not)
+        if (o1 == null || o2 == null) return false;
+        // equals or not?
+        return o1.equals(o2);
     }
 }
