@@ -4,7 +4,7 @@ import org.openl.rules.webstudio.services.ServiceException;
 
 
 /**
- * Thrown during uploading catalog file if provided file is corrupted zip archive.
+ * Thrown during uploading if provided file is corrupted zip archive.
  *
  * @author Andrey Naumenko
  */
