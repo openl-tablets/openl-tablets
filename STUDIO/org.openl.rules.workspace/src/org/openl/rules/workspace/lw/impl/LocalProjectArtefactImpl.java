@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.lw.impl;
 
 import org.openl.rules.workspace.abstracts.ArtefactPath;
+import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
@@ -8,12 +9,17 @@ import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 
 import java.util.Collection;
+import java.util.Date;
 import java.io.File;
 
 public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
     private String name;
     private ArtefactPath path;
     private File location;
+
+    private Date effectiveDate;
+    private Date expirationDate;
+    private String lineOfBusiness;
 
     private PropertiesContainerImpl properties;
 
@@ -75,6 +81,30 @@ public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
         }
     }
 
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+    
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+    
+    public String getLineOfBusiness() {
+        return lineOfBusiness;
+    }
+    
+    public void setEffectiveDate(Date date) throws ProjectException {
+        effectiveDate = date;
+    }
+    
+    public void setExpirationDate(Date date) throws ProjectException {
+        expirationDate = date;
+    }
+
+    public void setLineOfBusiness(String lineOfBusiness) throws ProjectException {
+        this.lineOfBusiness = lineOfBusiness;
+    }
+    
     // --- protected
 
     protected void setNew(boolean aNew) {

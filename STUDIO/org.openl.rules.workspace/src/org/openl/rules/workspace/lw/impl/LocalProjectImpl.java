@@ -7,8 +7,6 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
-import org.openl.rules.workspace.lw.LocalProjectFolder;
-import org.openl.rules.workspace.lw.LocalProjectResource;
 import org.openl.rules.workspace.props.PropertiesContainer;
 import org.openl.rules.workspace.props.Property;
 import org.openl.util.Log;
