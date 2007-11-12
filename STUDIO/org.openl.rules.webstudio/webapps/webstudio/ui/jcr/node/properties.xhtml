@@ -5,21 +5,24 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk">
 
-  <h:dataTable value="#{propertiesEditorController.properties}" var="p" columnClasses="label,">
-    <h:column>
-      <h:outputText styleClass="niceLabel" value="#{p.name}:" />
-    </h:column>
-    <h:column>
-      <h:inputText value="#{p.value}" rendered="#{p.type == 'STRING'}"/>
+  <h:panelGrid columns="2" columnClasses="label,">
+    <h:outputText styleClass="niceLabel" value="Effective date:" />
 
-      <t:inputCalendar id="minimalProductChangedOn" size="10" value="#{p.date}"
-        renderAsPopup="true" popupTodayString="Today " popupWeekString="Week"
-        popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true"
-        popupButtonStyle="" popupButtonStyleClass="datepicker" rendered="#{p.type == 'DATE'}">
-        <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
-      </t:inputCalendar>
+    <t:inputCalendar size="10" value="#{repositoryTree.selected.dataBean.effectiveDate}" renderAsPopup="true" popupTodayString="Today "
+      popupWeekString="Week" popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true" popupButtonStyle=""
+      popupButtonStyleClass="datepicker">
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+    </t:inputCalendar>
 
-    </h:column>
-  </h:dataTable>
+    <h:outputText styleClass="niceLabel" value="Expiration date:" />
+    <t:inputCalendar size="10" value="#{repositoryTree.selected.dataBean.expirationDate}" renderAsPopup="true" popupTodayString="Today "
+      popupWeekString="Week" popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true" popupButtonStyle=""
+      popupButtonStyleClass="datepicker">
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+    </t:inputCalendar>
+
+    <h:outputText styleClass="niceLabel" value="Line of business:" />
+    <h:inputText value="#{repositoryTree.selected.dataBean.lineOfBusiness}" />
+  </h:panelGrid>
 
 </ui:composition>
