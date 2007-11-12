@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * This abstract class implements basic functionality of {@link TreeNode} interface.
@@ -163,7 +165,14 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public List<AbstractTreeNode> getChildNodes() {
-        return new ArrayList<AbstractTreeNode>(elements.values());
+        List<AbstractTreeNode> list = new ArrayList<AbstractTreeNode>(elements.values());
+        Collections.sort(list, new Comparator<AbstractTreeNode>() {
+            public int compare(AbstractTreeNode o1, AbstractTreeNode o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+
+        return list;
     }
 
     /**
