@@ -20,6 +20,11 @@ public interface JcrNT {
 	public static final String PROP_MODIFIED_TIME = "modifiedTime";
 	public static final String PROP_MODIFIED_BY = "modifiedBy";
 	
+        // Common Rules properties
+        public static final String PROP_EFFECTIVE_DATE = "effectiveDate";
+        public static final String PROP_EXPIRATION_DATE = "expirationDate";
+        public static final String PROP_LINE_OF_BUSINESS = "LOB";
+        
 	// Properties for File->Resource
 	public static final String PROP_RES_CONTENT = "jcr:content";
 	public static final String PROP_RES_MIMETYPE = "jcr:mimeType";
