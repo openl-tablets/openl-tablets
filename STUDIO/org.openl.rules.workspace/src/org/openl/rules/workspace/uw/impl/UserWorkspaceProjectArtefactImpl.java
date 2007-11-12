@@ -1,10 +1,12 @@
 package org.openl.rules.workspace.uw.impl;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.VersionInfo;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
@@ -14,6 +16,7 @@ import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.PropertyTypeException;
+import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 
 public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceProjectArtefact {
@@ -72,6 +75,45 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         }
     }
 
+    public Date getEffectiveDate() {
+        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
+        return rra.getEffectiveDate();
+    }
+    
+    public Date getExpirationDate() {
+        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
+        return rra.getExpirationDate();
+    }
+    
+    public String getLineOfBusiness() {
+        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
+        return rra.getLineOfBusiness();
+    }
+    
+    public void setEffectiveDate(Date date) throws ProjectException {
+        if (isLocal()) {
+            localArtefact.setEffectiveDate(date);
+        } else {
+            throw new ProjectException("Cannot set effectiveDate in read mode");
+        }
+    }
+    
+    public void setExpirationDate(Date date) throws ProjectException {
+        if (isLocal()) {
+            localArtefact.setExpirationDate(date);
+        } else {
+            throw new ProjectException("Cannot set expirationDate in read mode");
+        }
+    }
+
+    public void setLineOfBusiness(String lineOfBusiness) throws ProjectException {
+        if (isLocal()) {
+            localArtefact.setLineOfBusiness(lineOfBusiness);
+        } else {
+            throw new ProjectException("Cannot set LOB in read mode");
+        }
+    }
+    
     // --- protected
     
     protected void updateArtefact(LocalProjectArtefact localArtefact, RepositoryProjectArtefact dtrArtefact) {

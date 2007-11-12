@@ -10,6 +10,8 @@ import java.util.Date;
  * Implementation of Property
  */
 public class PropertyImpl implements Property {
+    private static final long serialVersionUID = 3446381998422819894L;
+
     private String name;
     private ValueType type;
     private Object value;

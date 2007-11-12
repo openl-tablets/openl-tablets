@@ -12,7 +12,6 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
-import org.openl.rules.workspace.props.Property;
 import org.openl.util.Log;
 
 import java.util.Collection;

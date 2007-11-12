@@ -4,8 +4,8 @@ import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProperty;
 import org.openl.rules.repository.RPropertyType;
 import org.openl.rules.repository.RVersion;
-import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RDeleteException;
+import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -18,6 +18,7 @@ import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
+import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.util.Log;
 
 import java.util.Collection;
@@ -78,6 +79,18 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     }
 
     public void update(ProjectArtefact srcArtefact) throws ProjectException {
+        if (srcArtefact instanceof RulesRepositoryArtefact) {
+            RulesRepositoryArtefact rra = (RulesRepositoryArtefact) srcArtefact;
+            
+            try {
+                rulesEntity.setEffectiveDate(rra.getEffectiveDate());
+                rulesEntity.setExpirationDate(rra.getExpirationDate());
+                rulesEntity.setLineOfBusiness(rra.getLineOfBusiness());
+            } catch (RModifyException e) {
+                throw new ProjectException("Failed to update rules properties", e);
+            }            
+        }
+        
         HashMap<String, Property> srcProps = new HashMap<String, Property>();
         for (Property p : srcArtefact.getProperties()) {
             srcProps.put(p.getName(), p);
@@ -139,6 +152,42 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
                 }                
             }
         }
+    }
+
+    public Date getEffectiveDate() {
+        return rulesEntity.getEffectiveDate();
+    }
+    
+    public Date getExpirationDate() {
+        return rulesEntity.getExpirationDate();
+    }
+    
+    public String getLineOfBusiness() {
+        return rulesEntity.getLineOfBusiness();
+    }
+    
+    public void setEffectiveDate(Date date) throws ProjectException {
+        try {
+            rulesEntity.setEffectiveDate(date);
+        } catch (RModifyException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+    
+    public void setExpirationDate(Date date) throws ProjectException {
+        try {
+            rulesEntity.setExpirationDate(date);
+        } catch (RModifyException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setLineOfBusiness(String lineOfBusiness) throws ProjectException {
+        try {
+            rulesEntity.setLineOfBusiness(lineOfBusiness);
+        } catch (RModifyException e) {
+            throw new ProjectException(null, e);
+        }        
     }
 
     // --- protected

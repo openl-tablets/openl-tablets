@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
 import org.openl.rules.workspace.dtr.RepositoryProjectFolder;
