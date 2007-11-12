@@ -267,9 +267,8 @@ public class JcrEntity implements REntity {
             Calendar c = Calendar.getInstance();
             c.setTime(date);
             return c;
-        } else {
-            return null;
         }
+        return null;
     }
 
     private static final String[] ALLOWED_PROPS = {};
