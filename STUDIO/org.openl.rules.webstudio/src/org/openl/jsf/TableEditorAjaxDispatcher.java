@@ -9,6 +9,8 @@ import javax.faces.event.PhaseListener;
 import javax.servlet.http.HttpServletRequest;
 
 public class TableEditorAjaxDispatcher implements PhaseListener {
+	private static final long serialVersionUID = 3584912417430412375L;
+	
 	private static String PREFIX = null;
 
 	public void afterPhase(PhaseEvent event) {

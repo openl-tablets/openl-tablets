@@ -1,13 +1,10 @@
 package org.openl.jsf;
 
-import java.util.Map;
-
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import org.openl.rules.ui.EditorHelper;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.richfaces.component.html.HtmlModalPanel;
 
@@ -80,6 +77,7 @@ public class PopupEditorBean {
         this.height = height;
     }
 
+    @SuppressWarnings("unchecked")
     public EditorHelper getEditorHelper() {
         if (!FacesUtils.getSessionMap().containsKey("editor")) {
             EditorHelper result = new EditorHelper();
@@ -94,7 +92,9 @@ public class PopupEditorBean {
         FacesContext fc = FacesContext.getCurrentInstance();
         UIViewRoot root = fc.getViewRoot();
         UIComponent pe = root.findComponent("popup_editor");
-        int i = root.getChildren().indexOf(pe);
+
+        @SuppressWarnings("unused")
+	int i = root.getChildren().indexOf(pe);
 
         HtmlModalPanel hmp = new HtmlModalPanel();
         hmp.setLeft(String.valueOf(getX()));

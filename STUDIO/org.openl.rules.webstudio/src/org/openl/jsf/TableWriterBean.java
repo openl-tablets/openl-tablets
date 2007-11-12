@@ -64,6 +64,7 @@ public class TableWriterBean {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     protected void initialize() {
         //
         WebStudio studio = Util.getWebStudio();
@@ -99,6 +100,7 @@ public class TableWriterBean {
         initializeTableModel(elementID, view, studio);
     }
 
+    @SuppressWarnings("unchecked")
     protected void modifyView2(UIViewRoot root) {
         //
         UIComponent spr = root.findComponent("spreadsheet");
@@ -245,13 +247,14 @@ public class TableWriterBean {
         return sid;
     }
 
+    
     protected void renderResponse(FacesContext context,UIComponent component) throws IOException {
         //
         component.encodeBegin(context);
         if (component.getRendersChildren()) {
             component.encodeChildren(context);
         } else {
-            Iterator kids = component.getChildren().iterator();
+            Iterator<?> kids = component.getChildren().iterator();
             while(kids.hasNext()) {
                 renderResponse(context, (UIComponent)(kids.next()));
             }
@@ -268,7 +271,10 @@ public class TableWriterBean {
         if (tsn == null) return; // table is not selected yet
         IGridTable gt = tsn.getTable().getGridTable();
         view = studio.getModel().getTableView(view);
-        boolean showGrid = studio.getMode().showTableGrid();
+        
+        @SuppressWarnings("unused")
+	boolean showGrid = studio.getMode().showTableGrid();
+
         if (view != null) {
             ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
             if (gtx != null) gt = gtx.getGridTable();

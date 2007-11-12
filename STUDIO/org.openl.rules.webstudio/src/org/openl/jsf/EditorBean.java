@@ -1,14 +1,11 @@
 package org.openl.jsf;
 
-import java.util.Map;
-
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
 import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.FacesUtils;
 
 
@@ -60,7 +57,9 @@ public class EditorBean {
         button.setReRender(getCellTitle() + "text");
         //
         HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
-        int i = spr.getChildren().indexOf(hot);
+        
+        @SuppressWarnings("unused")
+	int i = spr.getChildren().indexOf(hot);
         //
         /*String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
         if (null != cellType) {
@@ -97,6 +96,7 @@ public class EditorBean {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public EditorHelper getEditorHelper() {
         if (!FacesUtils.getSessionMap().containsKey("editor")) {
             EditorHelper result = new EditorHelper();
