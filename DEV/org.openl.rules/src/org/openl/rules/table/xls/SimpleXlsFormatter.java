@@ -89,7 +89,7 @@ public class SimpleXlsFormatter implements IGridFilter
 		if (fmt==null)
 			return false;
 		
-		if (GENERAL_XLS_FORMAT.equals(fmt))
+		if (GENERAL_XLS_FORMAT.equalsIgnoreCase(fmt))
 			return false;
 		
 		if (containsAny(fmt, "#0?"))
