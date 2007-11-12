@@ -59,6 +59,11 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
         Event.stopObserving(this.node, "keypress", this.eventHandler);
     },
 
+    getValue : function() {
+        var res = this.ta.value;
+        return res.gsub("\r\n", "\n").replace(/\n$/, "");
+    },
+
     /**
      *  Overrides BaseTextEditor.getInputElement
      */
