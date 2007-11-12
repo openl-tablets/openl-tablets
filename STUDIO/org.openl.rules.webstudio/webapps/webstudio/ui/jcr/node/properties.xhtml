@@ -2,14 +2,23 @@
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
 
   <h:dataTable value="#{propertiesEditorController.properties}" var="p" columnClasses="label,">
     <h:column>
       <h:outputText styleClass="niceLabel" value="#{p.name}:" />
     </h:column>
     <h:column>
-      <h:outputText value="#{p.value}" />
+      <h:inputText value="#{p.value}" rendered="#{p.type == 'STRING'}"/>
+
+      <t:inputCalendar id="minimalProductChangedOn" size="10" value="#{p.date}"
+        renderAsPopup="true" popupTodayString="Today " popupWeekString="Week"
+        popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true"
+        popupButtonStyle="" popupButtonStyleClass="datepicker" rendered="#{p.type == 'DATE'}">
+        <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+      </t:inputCalendar>
+
     </h:column>
   </h:dataTable>
 
