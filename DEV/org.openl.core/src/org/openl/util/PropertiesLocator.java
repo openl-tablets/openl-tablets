@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Properties;
 
 import org.openl.conf.ConfigurableResourceContext;
@@ -131,6 +133,19 @@ public class PropertiesLocator
     {
       return url.toExternalForm(); 
     } 
+    
+    
+    try
+    {
+	url = new URL(fileName);
+	return fileName;
+	
+    } catch (MalformedURLException e)
+    {
+    }
+    
+    
+    
 
 
     return null;
