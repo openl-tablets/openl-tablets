@@ -27,7 +27,7 @@ import org.openl.rules.repository.exceptions.RDeleteException;
 /**
  * Implementation of JCR Entity.
  * It is linked with node in JCR implementation, always.
- * 
+ *
  * @author Aleh Bykhavets
  *
  */
@@ -36,15 +36,15 @@ public class JcrEntity implements REntity {
     private Node node;
     private String name;
     private HashMap<String, RProperty> properties;
-    
+
     private Date effectiveDate;
     private Date expirationDate;
     private String lineOfBusiness;
-    
+
     public JcrEntity(Node node) throws RepositoryException {
         this.node = node;
         name = node.getName();
-        
+
         if (node.hasProperty(JcrNT.PROP_EFFECTIVE_DATE)) {
             effectiveDate = node.getProperty(JcrNT.PROP_EFFECTIVE_DATE).getDate().getTime();
         }
@@ -54,7 +54,7 @@ public class JcrEntity implements REntity {
         if (node.hasProperty(JcrNT.PROP_LINE_OF_BUSINESS)) {
             lineOfBusiness = node.getProperty(JcrNT.PROP_LINE_OF_BUSINESS).getString();
         }
-        
+
         properties = new HashMap<String, RProperty>();
         initProperties();
     }
@@ -83,14 +83,14 @@ public class JcrEntity implements REntity {
             return result;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Version History", e);
-        }        
+        }
     }
 
     // ------ protected methods ------
 
     /**
-     * Returns node in JCR that this entity is mapped on. 
-     * 
+     * Returns node in JCR that this entity is mapped on.
+     *
      * @return corresponding JCR node
      */
     protected Node node() {
@@ -99,7 +99,7 @@ public class JcrEntity implements REntity {
 
     /**
      * Checks whether type of the JCR node is correct.
-     * 
+     *
      * @param nodeType expected node type
      * @throws RepositoryException if failed
      */
@@ -117,7 +117,7 @@ public class JcrEntity implements REntity {
         } catch (RepositoryException e) {
             e.printStackTrace();
             return null;
-        }        
+        }
     }
 
     public String getPath() throws RRepositoryException {
@@ -135,9 +135,9 @@ public class JcrEntity implements REntity {
     public void delete() throws RDeleteException {
         try {
             Node n = node();
-            
+
             NodeUtil.smartCheckout(n, true);
-            
+
             n.remove();
         } catch (RepositoryException e) {
             throw new RDeleteException("Failed to Delete", e);
@@ -147,55 +147,55 @@ public class JcrEntity implements REntity {
     public Collection<RProperty> getProperties() {
         return properties.values();
     }
-    
+
     public void addProperty(String name, RPropertyType type, Object value) throws RRepositoryException {
         try {
             NodeUtil.smartCheckout(node(), false);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Internal error", e);
-        }        
+        }
 
         if (hasProperty(name)) {
             removeProperty(name);
         }
-        
+
         JcrProperty jp = new JcrProperty(this, name, type, value);
         properties.put(name, jp);
     }
-    
+
     public void removeProperty(String name) throws RDeleteException {
         RProperty rp = properties.get(name);
 
         if (rp == null) {
             throw new RDeleteException("No such property {0}", null, name);
         }
-        
+
         Node n = node();
         try {
             NodeUtil.smartCheckout(n, false);
         } catch (RepositoryException e) {
             throw new RDeleteException("Internal error", e);
-        }        
+        }
 
         try {
             n.getProperty(name).remove();
         } catch (RepositoryException e) {
             throw new RDeleteException("Cannot remove property {0}", e, name);
-        }        
+        }
         properties.remove(name);
     }
-    
+
     public boolean hasProperty(String name) {
         return (properties.get(name) != null);
     }
-    
+
     public RProperty getProperty(String name) throws RRepositoryException {
         RProperty rp = properties.get(name);
-        
+
         if (rp == null) {
             throw new RRepositoryException("No such property {0}", null, name);
         }
-        
+
         return rp;
     }
 
@@ -221,7 +221,7 @@ public class JcrEntity implements REntity {
             effectiveDate = date;
         } catch (RepositoryException e) {
             throw new RModifyException("Cannot set effectiveDate", e);
-        }        
+        }
     }
 
     public void setExpirationDate(Date date) throws RModifyException {
@@ -234,7 +234,7 @@ public class JcrEntity implements REntity {
             expirationDate = date;
         } catch (RepositoryException e) {
             throw new RModifyException("Cannot set expirationDate", e);
-        }        
+        }
     }
 
     public void setLineOfBusiness(String lineOfBusiness) throws RModifyException {
@@ -246,7 +246,7 @@ public class JcrEntity implements REntity {
             this.lineOfBusiness = lineOfBusiness;
         } catch (RepositoryException e) {
             throw new RModifyException("Cannot set LOB", e);
-        }        
+        }
     }
 
     // ------ private ------
@@ -261,17 +261,21 @@ public class JcrEntity implements REntity {
             sb.append(n.getName());
         }
     }
-    
+
     private Calendar convertDate2Calendar(Date date) {
         Calendar c = Calendar.getInstance();
-        c.setTime(date);
+        if (date != null) {
+          c.setTime(date);
+        } else {
+            return null;
+        }
         return c;
     }
-    
+
     private static final String[] ALLOWED_PROPS = {};
     private void initProperties() throws RepositoryException {
         properties.clear();
-        
+
         Node n = node();
         for (String s : ALLOWED_PROPS) {
             if (n.hasProperty(s)) {
