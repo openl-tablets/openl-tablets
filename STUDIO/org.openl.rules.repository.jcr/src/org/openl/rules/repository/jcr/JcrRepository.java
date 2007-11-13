@@ -11,6 +11,7 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
+import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -25,6 +26,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public class JcrRepository implements RRepository {
     private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
     private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@" + JcrNT.PROP_PRJ_MARKED_4_DELETION + "]";
+    private static final String QUERY_DDPROJECTS = "//element(*, " + JcrNT.NT_DEPLOYMENT_PROJECT + ")";
 
     private String name;
     /** JCR Session */
@@ -106,8 +108,35 @@ public class JcrRepository implements RRepository {
         try {
             return JcrProject.createProject(defNewProjectLocation, nodeName);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Create Project {0}", e, nodeName);
+            throw new RRepositoryException("Failed to create Project {0}", e, nodeName);
         }
+    }
+
+    public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
+        try {
+            if (!defNewProjectLocation.hasNode(name)) {
+                throw new RRepositoryException("Cannot find Project ''{0}''", null, name);
+            }
+
+            Node n = defNewProjectLocation.getNode(name);
+            JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
+            return ddp;
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get DDProject {0}", e, name);
+        }        
+    }
+
+    public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {
+        return runQueryDDP();
+    }
+
+    public RDeploymentDescriptorProject createDDProject(String nodeName) throws RRepositoryException {
+        try {
+            return JcrDeploymentDescriptorProject.createProject(
+                    defNewProjectLocation, nodeName);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to create DDProject {0}", e, nodeName);
+        }        
     }
 
     // ------ protected methods ------
@@ -141,6 +170,27 @@ public class JcrRepository implements RRepository {
 
                 JcrProject p = new JcrProject(n);
                 result.add(p);
+            }
+
+            return result;
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to run query", e);
+        }
+    }
+
+    protected List<RDeploymentDescriptorProject> runQueryDDP() throws RRepositoryException {
+        try {
+            QueryManager qm = session.getWorkspace().getQueryManager();
+            Query query = qm.createQuery(QUERY_DDPROJECTS, Query.XPATH);
+
+            QueryResult qr = query.execute();
+
+            LinkedList<RDeploymentDescriptorProject> result = new LinkedList<RDeploymentDescriptorProject>();
+            for (NodeIterator ni = qr.getNodes(); ni.hasNext(); ) {
+                Node n = ni.nextNode();
+
+                JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
+                result.add(ddp);
             }
 
             return result;
