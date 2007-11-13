@@ -13,6 +13,9 @@ public interface JcrNT {
 	public static final String NT_FOLDER = "openl:folder";
 	public static final String NT_FILE = "openl:file";
 	public static final String NT_RESOURCE = "nt:resource";
+        
+        public static final String NT_DEPLOYMENT_PROJECT = "openl:deploymentProject";
+        public static final String NT_PROJECT_DESCRIPTOR = "openl:projectDescriptor";
 
 	public static final String MIX_VERSIONABLE = "mix:versionable";
 
@@ -33,10 +36,12 @@ public interface JcrNT {
 	public static final String PROP_RES_LASTMODIFIED = "jcr:lastModified";
 
 	// Properties for Project
-	public static final String PROP_PRJ_NAME = "name";
 	public static final String PROP_PRJ_DESCR = "description";
 	public static final String PROP_PRJ_MARKED_4_DELETION = "marked4deletion";
 
         public static final String PROP_VERSION = "rVersion";
         public static final String PROP_REVISION = "rRevision";
+        
+        // Deployment Descriptor
+        public static final String PROP_PROJECT_NAME = "projectName";
 }
