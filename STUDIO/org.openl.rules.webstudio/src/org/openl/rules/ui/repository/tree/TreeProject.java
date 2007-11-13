@@ -1,11 +1,16 @@
 package org.openl.rules.ui.repository.tree;
 
+import org.openl.rules.ui.repository.dependency.DependencyBean;
 import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  * Represents OpenL project in a tree.  
@@ -18,6 +23,8 @@ public class TreeProject extends TreeFolder {
     private boolean isMarked4Deletion;
 
     private static final long serialVersionUID = -326805891782640894L;
+
+    private List<DependencyBean> dependencies;
 
     public TreeProject(long id, String name) {
         super(id, name);
@@ -75,11 +82,34 @@ public class TreeProject extends TreeFolder {
     }
 
     public String getVersion() {
-        ProjectVersion projectVersion = ((Project) getDataBean()).getVersion();
+        ProjectVersion projectVersion = (getProject()).getVersion();
         if (projectVersion == null) {
             return "unversioned";
         }
         return projectVersion.getVersionName();
+    }
+
+
+    @Override
+    public synchronized List<DependencyBean> getDependencies() {
+        if (dependencies == null) {
+            Collection<ProjectDependency> deps = getProject().getDependencies();
+            dependencies = new ArrayList<DependencyBean>(deps.size());
+            for (ProjectDependency pd : deps) {
+                DependencyBean depBean = new DependencyBean();
+                depBean.setProjectName(pd.getProjectName());
+                depBean.setLowerVersion(pd.getLowerLimit().getVersionName());
+                if (pd.hasUpperLimit()) {
+                    depBean.setUpperVersion(pd.getUpperLimit().getVersionName());
+                }
+            }
+        }
+
+        return dependencies;
+    }
+
+    private Project getProject() {
+        return (Project) getDataBean();
     }
 
     public boolean isMarked4Deletion() {

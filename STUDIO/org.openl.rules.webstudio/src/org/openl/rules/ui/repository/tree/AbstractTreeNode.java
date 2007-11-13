@@ -5,6 +5,7 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.VersionInfo;
 import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.ui.repository.dependency.DependencyBean;
 import org.richfaces.model.TreeNode;
 
 import java.util.ArrayList;
@@ -173,6 +174,10 @@ public abstract class AbstractTreeNode implements TreeNode {
         });
 
         return list;
+    }
+
+    public List<DependencyBean> getDependencies() {
+        return null;
     }
 
     /**

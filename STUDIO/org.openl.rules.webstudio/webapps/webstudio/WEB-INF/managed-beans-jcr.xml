@@ -116,6 +116,18 @@
     </managed-property>
   </managed-bean>
 
+  <managed-bean>
+    <managed-bean-name>addDependency</managed-bean-name>
+    <managed-bean-class>
+        org.openl.rules.ui.repository.dependency.AddDependencyController
+    </managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTree</property-name>
+      <value>#{repositoryTree}</value>
+    </managed-property>
+  </managed-bean>
+
   <lifecycle>
     <phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>
   </lifecycle>

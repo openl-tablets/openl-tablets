@@ -1,0 +1,56 @@
+<ui:composition
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<rich:modalPanel id="modalNewDependency" minHeight="200" minWidth="300" height="200" width="300" zindex="2000">
+    <f:facet name="header">
+        <h:outputText value="Add dependency" />
+    </f:facet>
+
+    <f:facet name="controls">
+        <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalNewDependency');" />
+    </f:facet>
+
+
+    <h:form id="modaNewDependencyForm">
+    <h:panelGrid
+            styleClass="modalBody"
+            cellpadding="0" cellspacing="0" border="0"
+            columns="1" columnClasses="modalCol"
+            rowClasses="modalRow1,modalRow2,modalRow3">
+
+     <a4j:outputPanel id="newDependencyPanel">
+     <h:panelGrid columns="2">
+         <h:outputText value="Project:" />
+         <h:selectOneMenu styleClass="modalInputShort" value="#{addDependency.project}">
+             <f:selectItems value="#{addDependency.availableProjects}" />
+         </h:selectOneMenu>
+         <h:outputText value="Lower version:" />
+         <h:inputText styleClass="modalInputShort" value="#{addDependency.lowerVersion}" />
+         <h:outputText value="Upper version:" />
+         <h:inputText styleClass="modalInputShort" value="#{addDependency.upperVersion}" />
+     </h:panelGrid>
+     </a4j:outputPanel>
+
+
+    <rich:separator height="1"/>
+
+    <h:panelGrid styleClass="modalButtonPanel"
+                 cellpadding="0" cellspacing="0" border="0"
+                 columns="2" columnClasses="modalButtonCol,modalButtonCol">
+        <h:commandButton styleClass="modalButton"
+                         value="Create"
+                         action="#{addDependency.add}" />
+        <h:commandButton styleClass="modalButton"
+                value="Cancel" onclick="Richfaces.hideModalPanel('modalNewDependency');return false;" />
+    </h:panelGrid>
+    </h:panelGrid>
+    </h:form>
+
+
+</rich:modalPanel>
+
+</ui:composition>

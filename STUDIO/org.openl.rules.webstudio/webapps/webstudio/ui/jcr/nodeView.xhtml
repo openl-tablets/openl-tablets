@@ -142,6 +142,9 @@
       <rich:tab label="Elements" rendered="#{repositoryTree.selected.type != 'file'}">
         <ui:include src="/ui/jcr/node/elements.xhtml" />
       </rich:tab>
+      <rich:tab label="Dependencies" rendered="#{repositoryTree.selected.type == 'project'}">
+          <ui:include src="/ui/jcr/node/dependency.xhtml" />
+      </rich:tab>
     </rich:tabPanel>
 
   </h:panelGroup>
