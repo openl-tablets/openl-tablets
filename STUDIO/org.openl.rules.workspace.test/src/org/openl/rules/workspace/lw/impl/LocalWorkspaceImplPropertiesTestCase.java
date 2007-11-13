@@ -5,8 +5,10 @@ import org.openl.SmartProps;
 import org.openl.rules.workspace.TestHelper;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
+import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.workspace.lw.LWTestHelper;
@@ -20,11 +22,14 @@ import org.openl.rules.workspace.props.impl.PropertyImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 /**
- * Tests correct working of <code>LocalProjectImpl</code> with properties. 
+ * Tests correct working of <code>LocalProjectImpl</code> with properties.
  */
 public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
     private LocalProjectImpl localProject;
@@ -32,7 +37,6 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
     private LocalProjectResource folder1File1;
     private LocalProjectResource folder1File2;
     private LocalProjectFolder folder2;
-
     private final String PROJECT_NAME = "sample";
 
     @Override
@@ -43,8 +47,8 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
 
         localProject = (LocalProjectImpl) workspace.addProject(
                 new LocalProjectImpl(PROJECT_NAME, new ArtefactPathImpl("sample"),
-                new File(TestHelper.FOLDER_TEST),
-                new RepositoryProjectVersionImpl(1, 0, 0, new RepositoryVersionInfoImpl(new Date(), "test")),
+                        new File(TestHelper.FOLDER_TEST),
+                        new RepositoryProjectVersionImpl(1, 0, 0, new RepositoryVersionInfoImpl(new Date(), "test")),
                         workspace));
 
         folder1 = localProject.addFolder("folder1");
@@ -78,7 +82,6 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         assertTrue(folderPropFolder + " directory was not created in folder2",
                 new File(((LocalProjectFolderImpl) folder2).getLocation(), folderPropFolder).isDirectory());
 
-        
         LocalProject project = getFreshWorkspace().getProject(PROJECT_NAME);
         ProjectArtefact folder1New = project.getArtefact("folder1");
         ProjectArtefact folder2New = project.getArtefact("folder2");
@@ -114,11 +117,11 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
 
     public void testFixedDateProperties() throws ProjectException, WorkspaceException {
         Date date1 = new Date(System.currentTimeMillis());
-        Date date2 = new Date(date1.getTime()+1);
-        Date date3 = new Date(date2.getTime()+1);
-        Date date4 = new Date(date3.getTime()+1);
-        Date date5 = new Date(date4.getTime()+1);
-        Date date6 = new Date(date5.getTime()+1);
+        Date date2 = new Date(date1.getTime() + 1);
+        Date date3 = new Date(date2.getTime() + 1);
+        Date date4 = new Date(date3.getTime() + 1);
+        Date date5 = new Date(date4.getTime() + 1);
+        Date date6 = new Date(date5.getTime() + 1);
 
         localProject.setEffectiveDate(date1);
         localProject.setExpirationDate(date2);
@@ -138,6 +141,31 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         assertEquals("expiration date for folder was not persisted corectly", date4, folder1.getExpirationDate());
         assertEquals("effective date for file was not persisted corectly", date5, folder1File2.getEffectiveDate());
         assertEquals("expiration date for file was not persisted corectly", date6, folder1File2.getExpirationDate());
+    }
+
+    public void testProjectDependency() throws WorkspaceException, ProjectException {
+        ProjectDependency[] dependencies = {
+                new ProjectDependencyImpl("project1", new RepositoryProjectVersionImpl(1, 0, 0, null)),
+                new ProjectDependencyImpl("project2", new RepositoryProjectVersionImpl(2, 1, 0, null), new RepositoryProjectVersionImpl(2, 2, 0, null))
+        };
+
+        localProject.setDependencies(Arrays.asList(dependencies));
+        localProject.save();
+
+        LocalProject project = getFreshWorkspace().getProject(PROJECT_NAME);
+        List<ProjectDependency> deps = new ArrayList<ProjectDependency>(project.getDependencies());
+        assertEquals("dependency collection size changed", dependencies.length, deps.size());
+        for (int i = 0; i < dependencies.length; i++) {
+            assertEquals("dependency is incorrect in position " + i, dependencies[i], deps.get(i));
+        }
+    }
+
+    public void testProjectDependencyNotNull() throws ProjectException, WorkspaceException {
+        localProject.save();
+
+        LocalProject project = getFreshWorkspace().getProject(PROJECT_NAME);
+        assertNotNull("dependencies are null", project.getDependencies());
+        assertEquals("dependencies are not empty", 0, project.getDependencies().size());
     }
 
     private static LocalWorkspaceImpl getFreshWorkspace() throws WorkspaceException {
