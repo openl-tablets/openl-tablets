@@ -67,4 +67,8 @@ public interface RRepository {
      * @return name of repository
      */
     public String getName();
+    
+    public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException;
+    public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException;
+    public RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException;
 }
