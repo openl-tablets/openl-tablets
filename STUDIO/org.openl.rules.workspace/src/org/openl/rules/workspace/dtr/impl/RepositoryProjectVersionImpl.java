@@ -44,4 +44,24 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     public VersionInfo getVersionInfo() {
         return versionInfo;
     }
+
+    public int compareTo(ProjectVersion o) {
+        if (major != o.getMajor()) return major < o.getMajor() ? -1 : 1;
+        if (minor != o.getMinor()) return minor < o.getMinor() ? -1 : 1;
+        if (revision != o.getRevision()) return revision < o.getRevision() ? -1 : 1;
+
+        return 0;
+    }
+
+    public boolean equals(Object o) {
+        return this == o || o instanceof ProjectVersion && compareTo((ProjectVersion) o) == 0;
+    }
+
+    public int hashCode() {
+        int result;
+        result = major;
+        result = 31 * result + minor;
+        result = 31 * result + revision;
+        return result;
+    }
 }

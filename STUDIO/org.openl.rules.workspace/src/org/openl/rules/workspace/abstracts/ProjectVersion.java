@@ -1,6 +1,8 @@
 package org.openl.rules.workspace.abstracts;
 
-public interface ProjectVersion {
+import java.io.Serializable;
+
+public interface ProjectVersion extends Serializable, Comparable<ProjectVersion> {
     int getMajor();
     int getMinor();
     int getRevision();

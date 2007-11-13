@@ -19,14 +19,16 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalProject {
     private ProjectVersion version;
 
     private LocalWorkspaceImpl localWorkspace;
+
+    private Collection<ProjectDependency> dependencies;
 
     public LocalProjectImpl(String name, ArtefactPath path, File location, ProjectVersion version, LocalWorkspaceImpl localWorkspace) {
         super(name, path, location);
@@ -50,21 +52,20 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     }
 
     public Collection<ProjectDependency> getDependencies() {
-        // TODO return valid data
-        return new LinkedList<ProjectDependency>();
+        return dependencies == null ? Collections.EMPTY_LIST : Collections.unmodifiableCollection(dependencies);
     }
 
     public void setDependencies(Collection<ProjectDependency> dependencies) {
-        throw new UnsupportedOperationException();
+        this.dependencies = new ArrayList<ProjectDependency>(dependencies);
     }
 
     public void load() throws ProjectException {
         refresh();
-        load(this);
+        load(this, true);
     }
 
     public synchronized void save() throws  ProjectException {
-        save(this);
+        save(this, true);
     }
 
     public void remove() {
@@ -82,30 +83,38 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         setChanged(false);
     }
 
-    private static void load(LocalProjectFolderImpl folder) throws ProjectException {
+    private static void load(LocalProjectFolderImpl folder, boolean project) throws ProjectException {
         File propFolder = getPropertiesFolder(folder);
-        loadProperties(folder, getFolderPropertiesFile(propFolder));
+        if (project) {
+            loadProperties((LocalProjectImpl)folder, getFolderPropertiesFile(propFolder));
+        } else {
+            loadProperties(folder, getFolderPropertiesFile(propFolder));
+        }
 
         for (LocalProjectArtefact artefact : folder.getArtefacts()) {
             if (artefact.isFolder()) {
-                load((LocalProjectFolderImpl) artefact);
+                load((LocalProjectFolderImpl) artefact, false);
             } else {
                 loadProperties(artefact, new File(propFolder, artefact.getName()));
             }
         }
     }
 
-    private static void save(LocalProjectFolderImpl folder) throws ProjectException {
+    private static void save(LocalProjectFolderImpl folder, boolean project) throws ProjectException {
         File propFolder = createPropertiesFolder(folder);
         try {
-            saveProperties(folder, getFolderPropertiesFile(propFolder));
+            if (project) {
+                saveProperties((LocalProjectImpl)folder, getFolderPropertiesFile(propFolder));
+            } else {
+                saveProperties(folder, getFolderPropertiesFile(propFolder));
+            }
         } catch (IOException e) {
             throw new ProjectException("could not save properties for folder {0}", e, folder.getName());
         }
 
         for (LocalProjectArtefact artefact  : folder.getArtefacts()) {
             if (artefact.isFolder()) {
-                save((LocalProjectFolderImpl) artefact);
+                save((LocalProjectFolderImpl) artefact, false);
             } else {
                 try {
                     saveProperties(artefact, new File(propFolder, artefact.getName()));
@@ -136,6 +145,19 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         oos.close();
     }
 
+    private static void saveProperties(LocalProjectImpl lpa, File destFile) throws IOException {
+        ProjectStateHolder stateHolder = new ProjectStateHolder(new ArrayList<Property>(lpa.getProperties()),
+                lpa.getEffectiveDate(),
+                lpa.getExpirationDate(),
+                lpa.getLineOfBusiness(),
+                lpa.getDependencies());
+
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(destFile));
+        oos.writeObject(stateHolder);
+        oos.flush();
+        oos.close();
+    }
+
     private static void loadProperties(LocalProjectArtefact lpa, File sourceFile) {
         if (sourceFile.isFile()) {
             ObjectInputStream ois = null;
@@ -148,6 +170,31 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
                 lpa.setEffectiveDate(stateHolder.effectiveDate);
                 lpa.setExpirationDate(stateHolder.expirationDate);
                 lpa.setLineOfBusiness(stateHolder.LOB);
+            } catch (Exception e) {
+                Log.error("could not read properties from file {0}", e, sourceFile.getAbsolutePath());
+            } finally {
+                if (ois != null) {
+                    try {
+                        ois.close();
+                    } catch (IOException ignore) {}
+                }
+            }
+        }
+    }
+
+    private static void loadProperties(LocalProjectImpl lpa, File sourceFile) {
+        if (sourceFile.isFile()) {
+            ObjectInputStream ois = null;
+            try {
+                ois = new ObjectInputStream(new FileInputStream(sourceFile));
+                ProjectStateHolder stateHolder = (ProjectStateHolder) ois.readObject();
+                for (Property p : stateHolder.properties) {
+                    lpa.addProperty(p);
+                }
+                lpa.setEffectiveDate(stateHolder.effectiveDate);
+                lpa.setExpirationDate(stateHolder.expirationDate);
+                lpa.setLineOfBusiness(stateHolder.LOB);
+                lpa.setDependencies(stateHolder.dependencies);
             } catch (Exception e) {
                 Log.error("could not read properties from file {0}", e, sourceFile.getAbsolutePath());
             } finally {
@@ -196,6 +243,15 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
             this.effectiveDate = effectiveDate;
             this.expirationDate = expirationDate;
             this.LOB = LOB;
+        }
+    }
+
+    private static class ProjectStateHolder  extends ArtefactStateHolder {
+        Collection<ProjectDependency> dependencies;
+        ProjectStateHolder(List<Property> properties, Date effectiveDate, Date expirationDate,
+                String LOB, Collection<ProjectDependency> dependencies) {
+            super(properties, effectiveDate, expirationDate, LOB);
+            this.dependencies = dependencies;
         }
     }
 }
