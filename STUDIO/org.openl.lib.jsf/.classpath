@@ -11,7 +11,7 @@
 	<classpathentry exported="true" kind="lib" path="commons-logging-1.0.4/commons-logging-1.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="el-api/el-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="el-ri/el-ri.jar"/>
-	<classpathentry exported="true" kind="lib" path="jsf-facelets/jsf-facelets.jar"/>
+	<classpathentry exported="true" kind="lib" path="jsf-facelets/jsf-facelets-1.1.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="jsontools-core-1.5/jsontools-core-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="jstl-1.1.0/jstl-1.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="myfaces-api-1.1.5/myfaces-api-1.1.5.jar"/>
