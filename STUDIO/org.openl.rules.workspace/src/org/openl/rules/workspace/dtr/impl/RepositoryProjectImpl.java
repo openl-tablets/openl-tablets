@@ -44,6 +44,10 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         return new LinkedList<ProjectDependency>();
     }
 
+    public void setDependencies(Collection<ProjectDependency> dependencies) {
+        throw new UnsupportedOperationException();
+    }
+
     public void lock(WorkspaceUser user) throws ProjectException {
         if (isLocked()) {
             throw new ProjectException("Project ''{0}'' is already locked", null, getName());

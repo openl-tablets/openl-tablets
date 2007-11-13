@@ -41,6 +41,10 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return project.getDependencies();
     }
 
+    public void setDependencies(Collection<ProjectDependency> dependencies) {
+        project.setDependencies(dependencies);
+    }
+
     public void close() throws ProjectException {
         if (!isOpened()) {
             throw new ProjectException("Project ''{0}'' is already closed", null, getName());

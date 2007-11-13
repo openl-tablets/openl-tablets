@@ -11,6 +11,7 @@ import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.workspace.lw.LWTestHelper;
 import org.openl.rules.workspace.lw.LocalProject;
+import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
 import org.openl.rules.workspace.lw.LocalProjectResource;
 import org.openl.rules.workspace.props.PropertyException;
@@ -109,6 +110,34 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         } catch (ProjectException e) {
             // ok
         }
+    }
+
+    public void testFixedDateProperties() throws ProjectException, WorkspaceException {
+        Date date1 = new Date(System.currentTimeMillis());
+        Date date2 = new Date(date1.getTime()+1);
+        Date date3 = new Date(date2.getTime()+1);
+        Date date4 = new Date(date3.getTime()+1);
+        Date date5 = new Date(date4.getTime()+1);
+        Date date6 = new Date(date5.getTime()+1);
+
+        localProject.setEffectiveDate(date1);
+        localProject.setExpirationDate(date2);
+        folder1.setEffectiveDate(date3);
+        folder1.setExpirationDate(date4);
+        folder1File2.setEffectiveDate(date5);
+        folder1File2.setExpirationDate(date6);
+        localProject.save();
+
+        LocalProject project = getFreshWorkspace().getProject(PROJECT_NAME);
+        LocalProjectArtefact folder1 = (LocalProjectArtefact) project.getArtefact("folder1");
+        LocalProjectArtefact folder1File2 = folder1.getArtefact("file2");
+
+        assertEquals("effective date for project was not persisted corectly", date1, project.getEffectiveDate());
+        assertEquals("expiration date for project was not persisted corectly", date2, project.getExpirationDate());
+        assertEquals("effective date for folder was not persisted corectly", date3, folder1.getEffectiveDate());
+        assertEquals("expiration date for folder was not persisted corectly", date4, folder1.getExpirationDate());
+        assertEquals("effective date for file was not persisted corectly", date5, folder1File2.getEffectiveDate());
+        assertEquals("expiration date for file was not persisted corectly", date6, folder1File2.getExpirationDate());
     }
 
     private static LocalWorkspaceImpl getFreshWorkspace() throws WorkspaceException {
