@@ -25,11 +25,11 @@
      <a4j:outputPanel id="newDependencyPanel">
      <h:panelGrid columns="2">
          <h:outputText value="Project:" />
-         <h:selectOneMenu styleClass="modalInputShort" value="#{addDependency.project}">
+         <h:selectOneMenu required="true" styleClass="modalInputShort" value="#{addDependency.projectName}">
              <f:selectItems value="#{addDependency.availableProjects}" />
          </h:selectOneMenu>
          <h:outputText value="Lower version:" />
-         <h:inputText styleClass="modalInputShort" value="#{addDependency.lowerVersion}" />
+         <h:inputText required="true" styleClass="modalInputShort" value="#{addDependency.lowerVersion}" />
          <h:outputText value="Upper version:" />
          <h:inputText styleClass="modalInputShort" value="#{addDependency.upperVersion}" />
      </h:panelGrid>

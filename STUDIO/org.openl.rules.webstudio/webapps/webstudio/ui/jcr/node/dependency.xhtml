@@ -7,15 +7,20 @@
 
 
 
-<a4j:commandButton reRender="newDependencyPanel"
-                   oncomplete="Richfaces.showModalPanel('modalNewDependency')"
-                   ajaxSingle="true"            
-                   value="Add Dependency" />
+<div style="padding-bottom:10px;">
+    <a4j:commandButton reRender="newDependencyPanel"
+               oncomplete="Richfaces.showModalPanel('modalNewDependency')"
+               ajaxSingle="true"
+               value="Add Dependency" />
+</div>
     
 <rich:dataTable rendered="#{not empty repositoryTree.selected.dependencies}"
-        value="#{repositoryTree.selected.dependencies}" var="prj">
+        value="#{repositoryTree.selected.dependencies}" var="dep">
     <f:facet name="header">
     <rich:columnGroup>
+        <rich:column>
+            <h:outputText value="Action" />
+        </rich:column>
         <rich:column>
             <h:outputText value="Project"/>
         </rich:column>
@@ -27,10 +32,15 @@
 
     <rich:columnGroup>
         <rich:column>
-            <h:outputText value="#{prj.projectName}" />
+            <h:commandLink action="#{dep.delete}" onclick="return false;">
+                <h:graphicImage border="0" value="/images/test_neq.gif"/>
+            </h:commandLink>
         </rich:column>
         <rich:column>
-            <h:outputText value="#{prj.versionString}" /> 
+            <h:outputText value="#{dep.projectName}" />
+        </rich:column>
+        <rich:column>
+            <h:outputText value="#{dep.versionString}" />
         </rich:column>
     </rich:columnGroup>
 </rich:dataTable>
