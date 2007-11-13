@@ -1,5 +1,6 @@
 package org.openl.rules.ui.repository;
 
+import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -11,7 +12,7 @@ public class DummyRepository implements RRepository {
     private static final List<RProject> EMPTY_LIST = new LinkedList<RProject>();
 
     public RProject getProject(String name) throws RRepositoryException {
-        throw new RRepositoryException("Cannot find project '" + name + "'", null);
+        throw new RRepositoryException("Cannot find project {0}", null, name);
     }
 
     public boolean hasProject(String name) throws RRepositoryException {
@@ -43,5 +44,19 @@ public class DummyRepository implements RRepository {
 
     protected void fail() throws RRepositoryException {
         throw new RRepositoryException("Failed to initialize repository", null);
+    }
+
+    public RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
+        throw new RRepositoryException("Cannot find project {0}", null, name);
+    }
+
+    public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {
+        // empty list
+        return new LinkedList<RDeploymentDescriptorProject>();
     }
 }
