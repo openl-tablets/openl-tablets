@@ -1,0 +1,39 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+        xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+
+<a4j:commandButton reRender="newDependencyPanel"
+                   oncomplete="Richfaces.showModalPanel('modalNewDependency')"
+                   ajaxSingle="true"            
+                   value="Add Dependency" />
+    
+<rich:dataTable rendered="#{not empty repositoryTree.selected.dependencies}"
+        value="#{repositoryTree.selected.dependencies}" var="prj">
+    <f:facet name="header">
+    <rich:columnGroup>
+        <rich:column>
+            <h:outputText value="Project"/>
+        </rich:column>
+        <rich:column>
+            <h:outputText value="Versions"/>
+        </rich:column>
+    </rich:columnGroup>
+    </f:facet>
+
+    <rich:columnGroup>
+        <rich:column>
+            <h:outputText value="#{prj.projectName}" />
+        </rich:column>
+        <rich:column>
+            <h:outputText value="#{prj.versionString}" /> 
+        </rich:column>
+    </rich:columnGroup>
+</rich:dataTable>
+
+
+</ui:composition>

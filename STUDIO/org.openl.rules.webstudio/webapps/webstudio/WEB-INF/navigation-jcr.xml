@@ -29,7 +29,11 @@
 			<to-view-id>/ui/jcr/diff.xhtml</to-view-id>
 			<redirect/>
 		</navigation-case>
-	</navigation-rule>
+        <navigation-case>
+            <from-outcome>success</from-outcome>
+            <to-view-id>/ui/jcr/jcrMain.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>
 
 	<navigation-rule>
 		<from-view-id>/ui/jcr/search/advanced.xhtml</from-view-id>
@@ -45,7 +49,7 @@
 		</navigation-case>
 	</navigation-rule>
 
-	<navigation-rule>
+    <navigation-rule>
 		<from-view-id>/ui/jcr/diff.xhtml</from-view-id>
 		<navigation-case>
 			<from-outcome>jcrMain</from-outcome>
