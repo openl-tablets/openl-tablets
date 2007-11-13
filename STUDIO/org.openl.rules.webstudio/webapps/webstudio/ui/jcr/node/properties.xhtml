@@ -8,9 +8,7 @@
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputText styleClass="niceLabel" value="Effective date:" />
     <rich:calendar value="#{repositoryTree.selected.dataBean.effectiveDate}" popup="true" enableManualInput="true"
-      jointPoint="top-right" datePattern="#{formatPatterns.datePattern}">
-      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
-    </rich:calendar>
+      jointPoint="top-right" datePattern="#{formatPatterns.datePattern}"/>
 
     <h:outputText styleClass="niceLabel" value="Expiration date:" />
     <rich:calendar value="#{repositoryTree.selected.dataBean.expirationDate}" popup="true" enableManualInput="true"
