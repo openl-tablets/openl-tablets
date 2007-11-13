@@ -1,9 +1,11 @@
 package org.openl.rules.ui.deploy;
 
+import java.io.Serializable;
+
 /**
  * Represents a project in a deployment descriptor.
  */
-public class DeploymentDescriptorEntry {
+public class DeploymentDescriptorEntry implements Serializable{
     /**
      * Project name.
      */

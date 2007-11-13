@@ -23,14 +23,14 @@
 		  rowClasses="modalRow1,modalRow2,modalRow3"
 		>
 			<h:panelGroup styleClass="modalMessage">
-				<h:outputText rendered="#{userSession.selected.type == 'project'}" 
-				value="Are you sure you want to Delete the project '#{activeNode.name}'?" />
+				<h:outputText rendered="#{repositoryTree.selected.type == 'project'}"
+				value="Are you sure you want to Delete the project '#{repositoryTree.selected.name}'?" />
 				
-				<h:outputText rendered="#{userSession.selected.type == 'folder'}" 
-				value="Are you sure you want to Delete the folder '#{activeNode.name}'?" />
+				<h:outputText rendered="#{repositoryTree.selected.type == 'folder'}"
+				value="Are you sure you want to Delete the folder '#{repositoryTree.selected.name}'?" />
 				
-				<h:outputText rendered="#{userSession.selected.type == 'file'}" 
-				value="Are you sure you want to Delete the file '#{activeNode.name}'?" />
+				<h:outputText rendered="#{repositoryTree.selected.type == 'file'}"
+				value="Are you sure you want to Delete the file '#{repositoryTree.selected.name}'?" />
 			</h:panelGroup>
 			
 			<rich:separator height="1" />

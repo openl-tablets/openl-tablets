@@ -30,7 +30,7 @@ public class DependencyBean {
     }
 
     public String getVersionString() {
-        StringBuilder sb = new StringBuilder(lowerVersion).append("-");
+        StringBuilder sb = new StringBuilder(lowerVersion).append(" - ");
         if (upperVersion != null) {
             sb.append(upperVersion);
         } else {

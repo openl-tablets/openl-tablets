@@ -102,6 +102,7 @@ public class TreeProject extends TreeFolder {
                 if (pd.hasUpperLimit()) {
                     depBean.setUpperVersion(pd.getUpperLimit().getVersionName());
                 }
+                dependencies.add(depBean);
             }
         }
 
@@ -118,5 +119,18 @@ public class TreeProject extends TreeFolder {
 
     public void setMarked4Deletion(boolean marked4Deletion) {
         isMarked4Deletion = marked4Deletion;
+    }
+
+    public synchronized boolean addDependency(ProjectDependency dep) {
+        Collection<ProjectDependency> dependencies = getProject().getDependencies();
+        if (dependencies.contains(dep)) {
+            return false;
+        }
+
+        Collection<ProjectDependency> newDeps = new ArrayList<ProjectDependency>(dependencies);
+        newDeps.add(dep);
+        ((Project) getDataBean()).setDependencies(newDeps);
+        this.dependencies = null;
+        return true;
     }
 }
