@@ -10,4 +10,6 @@ public interface Project extends ProjectFolder {
     ProjectVersion getVersion();
 
     Collection<ProjectDependency> getDependencies();
+
+    void setDependencies(Collection<ProjectDependency> dependencies);
 }

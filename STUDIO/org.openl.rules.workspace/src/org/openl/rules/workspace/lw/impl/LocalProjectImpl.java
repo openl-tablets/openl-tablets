@@ -7,7 +7,6 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
-import org.openl.rules.workspace.props.PropertiesContainer;
 import org.openl.rules.workspace.props.Property;
 import org.openl.util.Log;
 
@@ -17,8 +16,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,6 +52,10 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     public Collection<ProjectDependency> getDependencies() {
         // TODO return valid data
         return new LinkedList<ProjectDependency>();
+    }
+
+    public void setDependencies(Collection<ProjectDependency> dependencies) {
+        throw new UnsupportedOperationException();
     }
 
     public void load() throws ProjectException {
@@ -112,30 +117,37 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     }
 
     private static File getFolderPropertiesFile(File propFolder) {
-        return new File(propFolder, FOLDER_PROPERTIES_FOLDER+ File.separator + FOLDER_PROPERTIES_FILE);
+        return new File(propFolder, FOLDER_PROPERTIES_FOLDER + File.separator + FOLDER_PROPERTIES_FILE);
     }
 
     private static File getPropertiesFolder(LocalProjectFolderImpl folder) {
         return new File(folder.getLocation(), PROPERTIES_FOLDER);
     }
 
-    private static void saveProperties(PropertiesContainer propertiesContainer, File destFile) throws IOException {
-        List<Property> properties = new ArrayList<Property>(propertiesContainer.getProperties());
+    private static void saveProperties(LocalProjectArtefact lpa, File destFile) throws IOException {
+        ArtefactStateHolder stateHolder = new ArtefactStateHolder(new ArrayList<Property>(lpa.getProperties()),
+                lpa.getEffectiveDate(),
+                lpa.getExpirationDate(),
+                lpa.getLineOfBusiness());
+
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(destFile));
-        oos.writeObject(properties);
+        oos.writeObject(stateHolder);
         oos.flush();
         oos.close();
     }
 
-    private static void loadProperties(PropertiesContainer propertiesContainer, File sourceFile) {
+    private static void loadProperties(LocalProjectArtefact lpa, File sourceFile) {
         if (sourceFile.isFile()) {
             ObjectInputStream ois = null;
             try {
                 ois = new ObjectInputStream(new FileInputStream(sourceFile));
-                List<Property> properties = (List<Property>) ois.readObject();
-                for (Property p : properties) {
-                    propertiesContainer.addProperty(p);
+                ArtefactStateHolder stateHolder = (ArtefactStateHolder) ois.readObject();
+                for (Property p : stateHolder.properties) {
+                    lpa.addProperty(p);
                 }
+                lpa.setEffectiveDate(stateHolder.effectiveDate);
+                lpa.setExpirationDate(stateHolder.expirationDate);
+                lpa.setLineOfBusiness(stateHolder.LOB);
             } catch (Exception e) {
                 Log.error("could not read properties from file {0}", e, sourceFile.getAbsolutePath());
             } finally {
@@ -171,5 +183,19 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         }
 
         return propFolder;
+    }
+
+    private static class ArtefactStateHolder implements Serializable {
+        List<Property> properties;
+        Date effectiveDate;
+        Date expirationDate;
+        String LOB;
+
+        ArtefactStateHolder(List<Property> properties, Date effectiveDate, Date expirationDate, String LOB) {
+            this.properties = properties;
+            this.effectiveDate = effectiveDate;
+            this.expirationDate = expirationDate;
+            this.LOB = LOB;
+        }
     }
 }
