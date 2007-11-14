@@ -1,11 +1,15 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
+import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -142,6 +146,37 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }        
     }
 
+    public void createDDProject(String name) throws RepositoryException {
+        try {
+            rulesRepository.createDDProject(name);
+        } catch (RRepositoryException e) {
+            throw new RepositoryException("Failed to create deployment project ''{0}''", e, name);
+        }        
+    }
+
+    public DeploymentDescriptorProject getDDProject(String name) throws RepositoryException {
+        try {
+            return wrapDDProject(rulesRepository.getDDProject(name));
+        } catch (RRepositoryException e) {
+            throw new RepositoryException("Cannot find project ''{0}''", e, name);
+        }        
+    }
+
+    public List<DeploymentDescriptorProject> getDDProjects() throws RepositoryException {
+        LinkedList<DeploymentDescriptorProject> result = new LinkedList<DeploymentDescriptorProject>();
+        
+        try {
+            for (RDeploymentDescriptorProject rddp : rulesRepository.getDDProjects()) {
+                DeploymentDescriptorProject ddp = wrapDDProject(rddp);
+                result.add(ddp);
+            }
+        } catch (RRepositoryException e) {
+            // TODO: re throw exception ?
+            Log.error("Cannot list deployments projects", e);
+        }        
+        return result;
+    }
+
     // --- private
     
     private RepositoryProjectImpl wrapProject(RProject rp) {
@@ -154,5 +189,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         RepositoryProjectImpl p = new RepositoryProjectImpl(rp, ap, version);
         projects.put(name, p);
         return p;
+    }
+    
+    private RepositoryDeploymentDescriptorProjectImpl wrapDDProject(RDeploymentDescriptorProject rddp) {
+        RepositoryDeploymentDescriptorProjectImpl dp = new RepositoryDeploymentDescriptorProjectImpl(rddp);
+        return dp;
     }
 }
