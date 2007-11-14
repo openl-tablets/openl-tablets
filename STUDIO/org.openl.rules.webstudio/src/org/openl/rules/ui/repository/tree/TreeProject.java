@@ -133,4 +133,21 @@ public class TreeProject extends TreeFolder {
         this.dependencies = null;
         return true;
     }
+
+    public synchronized void removeDependency(String dependency) {
+        Collection<ProjectDependency> dependencies = getProject().getDependencies();
+        Collection<ProjectDependency> newDeps = new ArrayList<ProjectDependency>();
+        boolean changed = false;
+        for (ProjectDependency d : dependencies) {
+            if (d.getProjectName().equals(dependency)) {
+                changed = true;
+            } else {
+                newDeps.add(d);
+            }
+        }
+        if (changed) {
+            this.dependencies = null;
+            getProject().setDependencies(newDeps);
+        }
+    }
 }
