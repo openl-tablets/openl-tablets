@@ -8,11 +8,11 @@
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputText styleClass="niceLabel" value="Effective date:" />
     <rich:calendar value="#{repositoryTree.selected.dataBean.effectiveDate}" popup="true" enableManualInput="true"
-      jointPoint="top-right" datePattern="#{formatPatterns.datePattern}"/>
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"/>
 
     <h:outputText styleClass="niceLabel" value="Expiration date:" />
     <rich:calendar value="#{repositoryTree.selected.dataBean.expirationDate}" popup="true" enableManualInput="true"
-      jointPoint="top-right" datePattern="#{formatPatterns.datePattern}"/>
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"/>
 
     <h:outputText styleClass="niceLabel" value="Line of business:" />
     <h:inputText value="#{repositoryTree.selected.dataBean.lineOfBusiness}" />
