@@ -51,23 +51,9 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>deployDescriptor</managed-bean-name>
-    <managed-bean-class>
-      org.openl.rules.ui.deploy.controllers.DeploymentDescriptorController
-    </managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>addDeploymentEntry</managed-bean-name>
-    <managed-bean-class>
-      org.openl.rules.ui.deploy.controllers.AddDeploymentEntryController
-    </managed-bean-class>
+    <managed-bean-name>deploymentController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.deployment.DeploymentController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
-    <managed-property>
-      <property-name>deploymentDescriptor</property-name>
-      <value>#{deployDescriptor}</value>
-    </managed-property>
   </managed-bean>
 
   <managed-bean>
