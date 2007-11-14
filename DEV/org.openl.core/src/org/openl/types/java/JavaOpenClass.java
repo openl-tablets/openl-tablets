@@ -19,6 +19,7 @@ import java.util.Vector;
 import org.openl.base.INamedThing;
 import org.openl.binding.AmbiguousMethodException;
 import org.openl.types.IAggregateInfo;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -99,6 +100,73 @@ public class JavaOpenClass extends AOpenClass
 		return Modifier.isPublic(declaringClass.getModifiers());
 	}
 
+	
+	static class JavaClassClassField implements IOpenField
+	{
+	    Class<?> instanceClass;
+	    
+	    public JavaClassClassField(Class<?> instanceClass)
+	    {
+		this.instanceClass = instanceClass;
+	    }
+
+	    public Object get(Object target, IRuntimeEnv env)
+	    {
+		return instanceClass;
+	    }
+
+	    public boolean isConst()
+	    {
+		return true;
+	    }
+
+	    public boolean isReadable()
+	    {
+		return true;
+	    }
+
+	    public boolean isWritable()
+	    {
+		return false;
+	    }
+
+	    public void set(Object target, Object value, IRuntimeEnv env)
+	    {
+		throw new UnsupportedOperationException();
+	    }
+
+	    public IOpenClass getDeclaringClass()
+	    {
+		return null;
+	    }
+
+	    public IMemberMetaInfo getInfo()
+	    {
+		return null;
+	    }
+
+	    public IOpenClass getType()
+	    {
+		return JavaOpenClass.CLASS;
+	    }
+
+	    public boolean isStatic()
+	    {
+		return true;
+	    }
+
+	    public String getDisplayName(int mode)
+	    {
+		return "class";
+	    }
+
+	    public String getName()
+	    {
+		return "class";
+	    }
+	    
+	}
+	
 	synchronized protected Map fieldMap()
 	{
 		if (fields == null)
@@ -113,6 +181,8 @@ public class JavaOpenClass extends AOpenClass
 			}
 			if (instanceClass.isArray())
 				fields.put("length", new JavaArrayLengthField());
+			
+			fields.put("class", new JavaClassClassField(instanceClass));
 
 			BeanOpenField.collectFields(fields, instanceClass);
 		}
@@ -258,7 +328,8 @@ public class JavaOpenClass extends AOpenClass
 			new JavaPrimitiveClass(boolean.class, Boolean.class, Boolean.FALSE),
 		VOID = new JavaPrimitiveClass(void.class, Void.class, null),
 		STRING = new JavaOpenClass(String.class, null),
-	   OBJECT = new JavaOpenClass(Object.class, null);
+	   OBJECT = new JavaOpenClass(Object.class, null),
+	   CLASS = new JavaOpenClass(Class.class, null);
 
 	static synchronized Map getJavaClassCache()
 	{
@@ -276,6 +347,7 @@ public class JavaOpenClass extends AOpenClass
 			javaClassCache.put(void.class, VOID);
 			javaClassCache.put(String.class, STRING);
 			javaClassCache.put(Object.class, OBJECT);
+			javaClassCache.put(Class.class, CLASS);
 		}
 		return javaClassCache;
 
