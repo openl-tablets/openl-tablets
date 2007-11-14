@@ -1,10 +1,10 @@
-<%@ page import="org.openl.rules.webtools.WebTool" %>
+<%@ page import="org.openl.jsf.Util" %>
 <%@ page import="org.openl.rules.webtools.XlsUrlParser" %>
 <%@ page import="java.io.File" %>
 
 <%
     String remote = request.getRemoteAddr();
-    boolean local = "127.0.0.1".equals(remote) || request.getLocalAddr().equals(remote);
+    boolean local = Util.isLoopbackAddress(remote) || request.getLocalAddr().equals(remote);
     boolean wantURI = request.getParameter("uri") != null;
     if (local) {
         if (wantURI) {
