@@ -52,7 +52,7 @@
 
   <managed-bean>
     <managed-bean-name>deploymentController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.deployment.DeploymentController</managed-bean-class>
+    <managed-bean-class>org.openl.rules.ui.repository.DeploymentController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 

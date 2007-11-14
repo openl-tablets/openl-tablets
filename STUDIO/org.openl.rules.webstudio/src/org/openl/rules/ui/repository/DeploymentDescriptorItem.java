@@ -1,26 +1,22 @@
-package org.openl.rules.webstudio.web.deployment;
+package org.openl.rules.ui.repository;
 
 import java.io.Serializable;
+
 
 /**
  * Represents a project in a deployment descriptor.
  */
 public class DeploymentDescriptorItem implements Serializable {
-    /**
-     * Project name.
-     */
+    /** Project name. */
     private String name;
-    /**
-     * Project version.
-     */
+
+    /** Project version. */
     private String version;
-    /**
-     * Messages associated with this entry.
-     */
+
+    /** Messages associated with this entry. */
     private String messages;
-    /**
-     * Boolean flag. If this entry is currently 'selected'.
-     */
+
+    /** Boolean flag. If this entry is currently 'selected'. */
     private boolean selected;
 
     public DeploymentDescriptorItem() {}
@@ -68,19 +64,22 @@ public class DeploymentDescriptorItem implements Serializable {
     }
 
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DeploymentDescriptorItem)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DeploymentDescriptorItem)) {
+            return false;
+        }
 
         DeploymentDescriptorItem that = (DeploymentDescriptorItem) o;
 
         return name.equals(that.name) && version.equals(that.version);
-
     }
 
     public int hashCode() {
         int result;
         result = name.hashCode();
-        result = 31 * result + version.hashCode();
+        result = (31 * result) + version.hashCode();
         return result;
     }
 }

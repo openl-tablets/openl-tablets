@@ -22,13 +22,13 @@
         <h:panelGrid columns="1" align="left" styleClass="modalRow1Grid">
           <h:outputText styleClass="niceLabel" value="Project name:" />
           <h:selectOneMenu value="#{deploymentController.projectName}" required="true">
-            <f:selectItems value="#{deploymentController.availableProjects}" />
-            <a4j:support event="onchange" reRender="deployEntryVersions" ajaxSingle="true" />
+            <f:selectItems value="#{deploymentController.projects}" />
+            <a4j:support event="onchange" reRender="projectVersions" ajaxSingle="true" />
           </h:selectOneMenu>
 
           <h:outputText styleClass="niceLabel" value="Project version:" />
-          <h:selectOneMenu id="deployEntryVersions" value="#{deploymentController.version}" required="true">
-            <f:selectItems value="#{deploymentController.availableVersions}" />
+          <h:selectOneMenu id="projectVersions" value="#{deploymentController.version}" required="true">
+            <f:selectItems value="#{deploymentController.projectVersions}" />
           </h:selectOneMenu>
         </h:panelGrid>
 
@@ -37,7 +37,7 @@
         <h:panelGrid styleClass="modalButtonPanel" cellpadding="0" cellspacing="0" border="0" columns="2"
           columnClasses="modalButtonCol,modalButtonCol">
 
-          <h:commandButton styleClass="modalButton" value="Add" action="#{deploymentController.add}" />
+          <h:commandButton styleClass="modalButton" value="Add" action="#{deploymentController.addItem}" />
           <h:commandButton styleClass="modalButton" type="button" value="Cancel" onclick="Richfaces.hideModalPanel('addDeployEntry')" />
         </h:panelGrid>
 
