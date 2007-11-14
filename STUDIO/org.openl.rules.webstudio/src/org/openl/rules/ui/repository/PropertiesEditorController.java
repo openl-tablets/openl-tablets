@@ -1,16 +1,9 @@
 package org.openl.rules.ui.repository;
 
 import org.openl.rules.webstudio.util.FacesUtils;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectFolder;
-import org.openl.rules.workspace.abstracts.ProjectResource;
-import org.openl.rules.workspace.props.Property;
-import org.openl.rules.workspace.props.impl.PropertyImpl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -19,26 +12,11 @@ import java.util.List;
  * @author Andrey Naumenko
  */
 public class PropertiesEditorController {
-    public List<Property> getProperties() {
-        List<Property> properties = new ArrayList<Property>();
+    public Map<String, Object> getProperties() {
+        Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
         Object dataBean = FacesUtils.getFacesVariable(
                 "#{repositoryTree.selected.dataBean}");
-
-        if (dataBean instanceof ProjectResource) {}
-        else if (dataBean instanceof Project) {
-            properties.add(new PropertyImpl("Effective Date", new Date()));
-            properties.add(new PropertyImpl("Expiration Date", new Date()));
-            properties.add(new PropertyImpl("LOB", ""));
-            properties.add(new PropertyImpl("Region", "region1"));
-        } else if (dataBean instanceof ProjectFolder) {
-            ProjectFolder projectFolder =(ProjectFolder) dataBean;
-            Collection<Property> ps =  projectFolder.getProperties();
-            for (Property property : ps) {
-                properties.add(property);
-            }
-
-        }
 
         return properties;
     }
