@@ -2,6 +2,7 @@ package org.openl.rules.workspace.uw.impl;
 
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
+import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
@@ -16,6 +17,7 @@ import org.openl.util.Log;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.io.File;
 
 public class UserWorkspaceImpl implements UserWorkspace {
@@ -154,5 +156,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     protected WorkspaceUser getUser() {
         return user;
+    }
+
+    
+    
+    
+    
+    public void createDDProject(String name) throws RepositoryException {
+        designTimeRepository.createDDProject(name);
+    }
+
+    public DeploymentDescriptorProject getDDProject(String name) throws RepositoryException {
+        return designTimeRepository.getDDProject(name);
+    }
+
+    public List<DeploymentDescriptorProject> getDDProjects() throws RepositoryException {
+        return designTimeRepository.getDDProjects();
     }
 }
