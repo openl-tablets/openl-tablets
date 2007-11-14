@@ -2,6 +2,7 @@ package org.openl.rules.ui;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -988,8 +989,10 @@ public class ProjectModel
 		}
 
 		Field f = c.getField("__userHome");
-
-		f.set(null, wrapperInfo.getProjectInfo().projectHome());
+		
+		if (Modifier.isStatic(f.getModifiers()))
+		    f.set(null, wrapperInfo.getProjectInfo().projectHome());
+		else throw new RuntimeException("Field " + f.getName() + " is not static in " + c.getName());
 
 		Thread.currentThread().setContextClassLoader(cl);
 

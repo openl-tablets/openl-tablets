@@ -30,9 +30,9 @@ public class WebStudioProfiler extends Profiler.Unit
 	 * @param args
 	 * @throws Exception 
 	 */
-	private void run(String[] args) throws Exception
+	private void run(String[] arg) throws Exception
 	{
-		this.args = args;
+		this.args = arg;
 
 		int N = 10;
 		if (args.length > 3)
@@ -77,10 +77,7 @@ public class WebStudioProfiler extends Profiler.Unit
 			IBenchmarkableMethod bm = (IBenchmarkableMethod) m;
 			return new BMMethodBenchmarkUnit(bm, instance, env);
 		}
-		else
-		{
-			return new MethodBenchmarkUnit(m, instance, env);
-		}	
+		return new MethodBenchmarkUnit(m, instance, env);	
 		
 	}
 	

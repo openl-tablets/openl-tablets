@@ -8,7 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.openl.util.FileTreeIterator;
 
@@ -46,7 +46,7 @@ public class OpenLProjectLocator {
 	
 	public OpenLWrapperInfo[] listOpenLProjects() throws IOException 
 	{
-		Vector v = new Vector();
+		ArrayList<OpenLWrapperInfo> v = new ArrayList<OpenLWrapperInfo>();
 		File[] f = listProjects();
 		for (int i = 0; i < f.length; i++) {
 //			System.out.println(f[i].getCanonicalPath() + " - " + isRulesProject(f[i]));
@@ -60,7 +60,7 @@ public class OpenLProjectLocator {
 			}
 		}
 		
-		return (OpenLWrapperInfo[]) v.toArray(new OpenLWrapperInfo[0]);
+		return  v.toArray(new OpenLWrapperInfo[0]);
 	}
 	
 	
@@ -74,17 +74,17 @@ public class OpenLProjectLocator {
 		String srcroot = "gen";
 		File searchDir = new File(project.getCanonicalPath(), srcroot);
 		FileTreeIterator fti = new FileTreeIterator(searchDir, 0);
-		Vector v = new Vector();
+		ArrayList<String> v = new ArrayList<String>();
 		for (; fti.hasNext();) {
 			File f = (File) fti.next();
-			if (f.getName().endsWith(".java"))
+			if (f.getName().endsWith("Wrapper.java"))
 				v.add(javaClassName(f, searchDir.getCanonicalPath()));
 		}
 		
 		
 		
 		
-		return (String[])v.toArray(new String[0]);
+		return v.toArray(new String[0]);
 	}
 
 
