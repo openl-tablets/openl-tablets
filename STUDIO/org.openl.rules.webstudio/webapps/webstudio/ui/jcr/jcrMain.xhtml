@@ -1,40 +1,38 @@
-<ui:composition template="/WEB-INF/templates/default-jcr.xhtml"
+<ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  template="/WEB-INF/templates/default-jcr.xhtml">
 
-    <ui:define name="title">Repository Browser</ui:define>
+  <ui:define name="title">Repository Browser</ui:define>
 
   <ui:define name="body">
+    <ui:include src="/ui/jcr/messages.xhtml" />
 
-  <ui:include src="/ui/jcr/messages.xhtml" />
+    <h:panelGrid columns="2" cellspacing="10" style="height:600px;" headerClass="outpanelHeader" columnClasses="columnTree, columnProps">
 
-    <h:panelGrid columns="2" cellspacing="10"
-  style="height:600px;"
-  headerClass="outpanelHeader" columnClasses="columnTree, columnProps">
-
-    <h:panelGroup id="svTree">
-      <ui:include src="/ui/jcr/tree.xhtml" />
-    </h:panelGroup>
-
-    <h:panelGroup  id="svBrowser">
-      <ui:include src="search/inline.xhtml"/>
-
-      <p/>
-
-      <h:panelGroup id="nodeView">
-        <ui:include src="/ui/jcr/nodeView.xhtml" />
+      <h:panelGroup id="svTree">
+        <ui:include src="/ui/jcr/tree.xhtml" />
       </h:panelGroup>
-    </h:panelGroup>
 
-  </h:panelGrid>
+      <h:panelGroup id="svBrowser">
+        <ui:include src="search/inline.xhtml" />
 
-  <h:commandButton styleClass="smlBackButton" value="index-jcr" action="index" immediate="true"/>
-  <rich:panel>
-    <h:selectOneRadio binding="#{skinBean.component}" />
-    <h:commandLink action="#{skinBean.change}" value="set skin" />
-  </rich:panel>
+        <p />
+
+        <h:panelGroup id="nodeView">
+          <ui:include src="/ui/jcr/nodeView.xhtml" />
+        </h:panelGroup>
+      </h:panelGroup>
+
+    </h:panelGrid>
+
+    <h:commandButton styleClass="smlBackButton" value="index-jcr" action="index" immediate="true" />
+    <rich:panel>
+      <h:selectOneRadio binding="#{skinBean.component}" />
+      <h:commandLink action="#{skinBean.change}" value="set skin" />
+    </rich:panel>
 
   </ui:define>
 

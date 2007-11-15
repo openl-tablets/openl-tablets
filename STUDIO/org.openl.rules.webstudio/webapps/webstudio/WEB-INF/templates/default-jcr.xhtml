@@ -5,54 +5,20 @@
    xmlns:h="http://java.sun.com/jsf/html"
    xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
    xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-   xmlns:ui="http://java.sun.com/jsf/facelets"
-   >
-<head>
-  <title><ui:insert name="title">OpenL Web Studio</ui:insert></title>
-  <a4j:loadStyle src="/css/default.css"/>
-  <a4j:loadStyle src="/css/jcr.css"/>
-<style>
-/* move it into jcr.css later */
-.modalBody {height:165px;width:100%;}
-.modalRow1 {height:100px;}
-.modalRow2 {height:2px;}
-.modalRow3 {height:40px;}
-.modalCol {text-align:center;}
+   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-.modalButtonPanel {}
-.modalButtonCol {padding: 0 10px;}
-.modalButton {width:80px;}
-.modalRow1Grid {width:100%;text-align:left;}
+  <head>
+    <title><ui:insert name="title">OpenL Web Studio</ui:insert></title>
+    <a4j:loadStyle src="/css/default.css" />
+    <a4j:loadStyle src="/css/jcr.css" />
 
-.modalInput, .modalInputRO {width:370px;}
-.modalInputRO {background:#EEE;}
+  </head>
 
-.modalInputShort {width:150px;}
-
-.modalMessage {width:100%;text-align:center;font-size:12px;}
-
-.mainButtonPanel{padding:10px;}
-.mainButton {margin:0 10px 10px 0;}
-.mainButton2x {width:170px;margin:0 10px 10px 0;}
-
-.colDiff {
-width:50%;
-height:100%;
-padding:10px;
-}
-.panelDiff {
-width:100%;
-height:100%;
-}
-</style>
-
-</head>
-<body>
-<h:form>
-  <ui:include src="/ui/mastHead.xhtml" />
-
-  <ui:insert name="body" />
-</h:form>
-  <ui:insert name="special" />
-</body>
+  <body>
+    <h:form>
+      <ui:include src="/ui/mastHead.xhtml" />
+      <ui:insert name="body" />
+    </h:form>
+    <ui:insert name="special" />
+  </body>
 </html>

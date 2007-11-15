@@ -8,7 +8,7 @@
   <h:panelGroup rendered="#{repositoryTree.selected.type == 'repository'}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
       <h:commandButton styleClass="button" value="Create New Project" onclick="return confirmNewProject();" />
-      <h:commandButton styleClass="button" value="Upload Project" onclick="return uploadProject();" />
+      <h:commandButton styleClass="button" value="Upload Project" onclick="Richfaces.showModalPanel('modalUploadProject'); return false;" />
     </h:panelGrid>
 
     <p />
