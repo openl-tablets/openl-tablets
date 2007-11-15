@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="confirmRemoveDeployEntry" minHeight="200" minWidth="200" height="200" width="300" zindex="2000">
+  <rich:modalPanel id="confirmRemoveDeployItem" minHeight="200" minWidth="200" height="200" width="300" zindex="2000">
     <f:facet name="header">
       <h:outputText value="Confirm Removal" />
     </f:facet>
@@ -40,11 +40,11 @@
         Object.extend(NAMESPACE_deleteDeployEntry, {
             actionElement : null,
 
-            cancel: function() {Richfaces.hideModalPanel('confirmRemoveDeployEntry')},
+            cancel: function() {Richfaces.hideModalPanel('confirmRemoveDeployItem')},
             apply: function() {this.actionElement.onclick()},
             showModalPanel: function(actionElement) {
                 this.actionElement = actionElement.parentNode;
-                Richfaces.showModalPanel('confirmRemoveDeployEntry')
+                Richfaces.showModalPanel('confirmRemoveDeployItem')
             }
         });
   </script>
