@@ -6,8 +6,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk">
 
-  <rich:modalPanel  id="modalUploadProject" minHeight="200" minWidth="400"
-    height="200" width="400" zindex="2000">
+  <rich:modalPanel id="modalUploadProject" minHeight="200" minWidth="400" height="200" width="400" zindex="2000">
     <f:facet name="header">
       <h:outputText value="Upload Project" />
     </f:facet>
@@ -17,54 +16,25 @@
     </f:facet>
 
     <h:form id="modalUploadProjectForm" enctype="multipart/form-data">
-    <h:panelGrid
-      styleClass="modalBody"
-      cellpadding="0" cellspacing="0" border="0"
-      columns="1" columnClasses="modalCol"
-      rowClasses="modalRow1,modalRow2,modalRow3"
-    >
-      <h:panelGrid
-        styleClass="modalRow1Grid"
-        columns="1"
-      >
-        <h:outputText styleClass="niceLabel" value="Project name:" />
-        <t:inputText styleClass="modalInput" value="#{projectUploadController.projectName}" />
-        <h:outputText styleClass="niceLabel" value="Upload file:" />
-        <t:inputFileUpload required="true" size="50" storage="file" value="#{projectUploadController.file}"/>
+      <h:panelGrid styleClass="modalBody" cellpadding="0" cellspacing="0" border="0" columns="1" columnClasses="modalCol"
+        rowClasses="modalRow1,modalRow2,modalRow3">
+        <h:panelGrid styleClass="modalRow1Grid" columns="1">
+          <h:outputText styleClass="niceLabel" value="Project name:" />
+          <t:inputText styleClass="modalInput" value="#{projectUploadController.projectName}" />
+          <h:outputText styleClass="niceLabel" value="Upload file:" />
+          <t:inputFileUpload required="true" size="50" storage="file" value="#{projectUploadController.file}" />
+        </h:panelGrid>
+
+        <rich:separator height="1" />
+
+        <h:panelGrid styleClass="modalButtonPanel" cellpadding="0" cellspacing="0" border="0" columns="2"
+          columnClasses="modalButtonCol,modalButtonCol">
+
+          <h:commandButton styleClass="modalButton" value="Upload" action="#{projectUploadController.execute}" type="submit" />
+          <h:commandButton styleClass="modalButton" value="Cancel" onclick="Richfaces.hideModalPanel('modalUploadProject');return false;" />
+        </h:panelGrid>
       </h:panelGrid>
-
-      <rich:separator height="1" />
-
-      <h:panelGrid
-        styleClass="modalButtonPanel"
-        cellpadding="0" cellspacing="0" border="0"
-        columns="2" columnClasses="modalButtonCol,modalButtonCol"
-      >
-
-        <h:commandButton
-          styleClass="modalButton"
-          value="Upload"
-          action="#{projectUploadController.execute}"
-          type="submit"
-        />
-        <h:commandButton
-          styleClass="modalButton"
-          value="Cancel"
-          onclick="Richfaces.hideModalPanel('modalUploadProject');return false;"
-        />
-      </h:panelGrid>
-    </h:panelGrid>
-
-
     </h:form>
-
   </rich:modalPanel>
-
-  <script>
-    function uploadProject() {
-      Richfaces.showModalPanel('modalUploadProject');
-      return false;
-    }
-  </script>
 
 </ui:composition>

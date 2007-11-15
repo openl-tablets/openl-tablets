@@ -14,6 +14,7 @@ import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +27,7 @@ import javax.faces.model.SelectItem;
  *
  * @author Andrey Naumenko
  */
-public class DeploymentController {
+public class DeploymentController implements Serializable {
     private final static Log log = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectName;
