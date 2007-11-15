@@ -4,7 +4,7 @@
 	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:panel style="width:300px; height:518px;" >
+	<rich:panel style="width:300px; height:518px; overflow:auto" >
 		<rich:tree switchType="client" ajaxSubmitSelection="true"
 			nodeSelectListener="#{repositoryTree.processSelection}"
 			reRender="modalDeleteNode, nodeView"
