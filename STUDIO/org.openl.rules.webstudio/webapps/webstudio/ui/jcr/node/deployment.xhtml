@@ -7,73 +7,79 @@
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax">
 
   <t:saveState value="#{deploymentController}" />
-    <h:panelGrid columns="1">
-      <h:messages />
+  <h:panelGrid columns="1">
+    <h:messages />
 
-      <rich:toolBar itemSeparator="line">
-        <rich:toolBarGroup style="padding:5px;">
-          <h:commandLink action="#{deploymentController.deploy}">
-            <h:graphicImage styleClass="actionImage" value="/images/jcr/op_deploy.gif" title="Deploy" />
-          </h:commandLink>
-        </rich:toolBarGroup>
-        <rich:toolBarGroup style="padding:5px;">
-          <h:commandLink action="#{deploymentController.save}" rendered="#{deploymentController.checkinable}">
-            <h:graphicImage styleClass="actionImage" value="/images/jcr/op_checkin.gif" title="Check in" />
-          </h:commandLink>
-          <h:commandLink action="#{deploymentController.checkOut}" rendered="#{deploymentController.checkoutable}">
-            <h:graphicImage styleClass="actionImage" value="/images/jcr/op_checkout.gif" title="Check out" />
-          </h:commandLink>
-        </rich:toolBarGroup>
-      </rich:toolBar>
+    <rich:toolBar itemSeparator="line">
+      <rich:toolBarGroup style="padding:5px;">
+        <h:commandLink action="#{deploymentController.deploy}">
+          <h:graphicImage styleClass="actionImage" value="/images/jcr/op_deploy.gif" title="Deploy" />
+        </h:commandLink>
+      </rich:toolBarGroup>
+      <rich:toolBarGroup style="padding:5px;">
+        <h:commandLink action="#{deploymentController.save}" rendered="#{deploymentController.checkinable}">
+          <h:graphicImage styleClass="actionImage" value="/images/jcr/op_checkin.gif" title="Check in" />
+        </h:commandLink>
+        <h:commandLink action="#{deploymentController.checkOut}" rendered="#{deploymentController.checkoutable}">
+          <h:graphicImage styleClass="actionImage" value="/images/jcr/op_checkout.gif" title="Check out" />
+        </h:commandLink>
+      </rich:toolBarGroup>
+    </rich:toolBar>
 
-      <rich:dataTable value="#{deploymentController.items}" var="item"  width="500" onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
-        onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'" rowKeyVar="index">
-        <f:facet name="header">
-          <rich:columnGroup>
-            <rich:column>
-              <h:outputText value="Selected" />
-            </rich:column>
-            <rich:column>
-              <h:outputText value="Name" />
-            </rich:column>
-            <rich:column>
-              <h:outputText value="Version" />
-            </rich:column>
-            <rich:column>
-              <h:outputText value="Message" />
-            </rich:column>
-            <rich:column>
-              <h:outputText value="Operations" />
-            </rich:column>
-          </rich:columnGroup>
-        </f:facet>
+    <rich:dataTable value="#{deploymentController.items}" var="item" width="500" onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
+      onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'" rowKeyVar="index">
+      <f:facet name="header">
+        <rich:columnGroup>
+          <rich:column>
+            <h:outputText value="Selected" />
+          </rich:column>
+          <rich:column>
+            <h:outputText value="Name" />
+          </rich:column>
+          <rich:column>
+            <h:outputText value="Version" />
+          </rich:column>
+          <rich:column>
+            <h:outputText value="Message" />
+          </rich:column>
+          <rich:column>
+            <h:outputText value="Actions" />
+          </rich:column>
+        </rich:columnGroup>
+      </f:facet>
 
-        <rich:column style="text-align:center">
-          <h:selectBooleanCheckbox value="#{item.selected}" />
-        </rich:column>
-        <rich:column style="text-align:center">
-          <h:outputText value="#{item.name}" />
-        </rich:column>
-        <rich:column style="text-align:center">
-          <h:outputText value="#{item.version}" />
-        </rich:column>
-        <rich:column style="text-align:center">
-          <h:outputText value="#{item.messages}" />
-        </rich:column>
-        <rich:column style="text-align:center">
-          <h:commandLink action="#{deploymentController.deleteItem}">
-            <f:param name="key" value="#{index}" />
-            <h:graphicImage styleClass="actionImage" style="vertical-align:bottom;" value="/images/test_neq.gif" title="Remove"
-              onclick="NAMESPACE_deleteDeployEntry.showModalPanel(this); Event.stop(event || window.event);" />
-          </h:commandLink>
-        </rich:column>
-      </rich:dataTable>
+      <rich:column style="text-align:center">
+        <h:selectBooleanCheckbox value="#{item.selected}" />
+      </rich:column>
+      <rich:column style="text-align:center">
+        <h:outputText value="#{item.name}" />
+      </rich:column>
+      <rich:column style="text-align:center">
+        <h:outputText value="#{item.version}" />
+      </rich:column>
+      <rich:column style="text-align:center">
+        <h:outputText value="#{item.messages}" />
+      </rich:column>
+      <rich:column style="text-align:center">
+        <h:commandLink styleClass="actionButton" action="#{deploymentController.deleteItem}" immediate="true"
+          onclick="if(!window.confirm('Really delete project?')) {return false;}">
+          <f:param name="key" value="#{index}" />
+          <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Remove" title="Remove" />
+        </h:commandLink>
+        <h:commandLink styleClass="actionLabel" action="#{deploymentController.deleteItem}" immediate="true"
+          onclick="if(!window.confirm('Really delete project?')) {return false;}">
+          <f:param name="key" value="#{index}" />
+          <h:outputText value="Delete" />
+        </h:commandLink>
+      </rich:column>
+    </rich:dataTable>
 
-      <h:panelGroup>
-        <h:commandButton value="Add Project" type="button" onclick="Richfaces.showModalPanel('addDeployEntry')" />
-        <rich:spacer width="15" />
-        <h:commandButton value="Open Selected Projects in Web Studio" />
-      </h:panelGroup>
-    </h:panelGrid>
+    <h:panelGroup>
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton value="Add" styleClass="button" onclick="Richfaces.showModalPanel('addDeployEntry')" type="button"/>
+        <h:commandButton value="Open Selected Projects" styleClass="button" type="button" onclick="return false;"/>
+      </h:panelGrid>
+    </h:panelGroup>
+  </h:panelGrid>
 
 </ui:composition>
