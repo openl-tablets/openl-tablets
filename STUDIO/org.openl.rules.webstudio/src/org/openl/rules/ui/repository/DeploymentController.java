@@ -1,10 +1,10 @@
 package org.openl.rules.ui.repository;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import static org.openl.rules.ui.repository.UiConst.OUTCOME_SUCCESS;
 import org.openl.rules.webstudio.RulesUserSession;
-import org.openl.rules.webstudio.services.upload.UploadService;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
@@ -42,10 +42,6 @@ public class DeploymentController {
 
     public List<DeploymentDescriptorItem> getItems() {
         return items;
-    }
-
-    public void setItems(List<DeploymentDescriptorItem> items) {
-        this.items = items;
     }
 
     public String getProjectName() {
@@ -91,7 +87,20 @@ public class DeploymentController {
 
             for (DeploymentDescriptorItem item : items) {
                 ProjectDescriptor pd = ddp.createProjectDescriptor(item.getName());
-                pd.setProjectVersion(new RepositoryProjectVersionImpl(1, 10, 100, null));
+                String[] version = StringUtils.split(item.getVersion(), '.');
+                int major=0;
+                int minor=0;
+                int revision=0;
+                if (version.length>0) {
+                    major = Integer.parseInt(version[0]);
+                }
+                if (version.length>1) {
+                    minor = Integer.parseInt(version[1]);
+                }
+                if (version.length>2) {
+                    revision = Integer.parseInt(version[2]);
+                }
+                pd.setProjectVersion(new RepositoryProjectVersionImpl(major, minor, revision, null));
             }
 
             ddp.update();
@@ -124,7 +133,11 @@ public class DeploymentController {
         List<SelectItem> selectItems = new ArrayList<SelectItem>();
         for (UserWorkspaceProject project : projects) {
             selectItems.add(new SelectItem(project.getName()));
+            if (projectName==null) {
+                projectName = project.getName();
+            }
         }
+
         return selectItems.toArray(new SelectItem[0]);
     }
 

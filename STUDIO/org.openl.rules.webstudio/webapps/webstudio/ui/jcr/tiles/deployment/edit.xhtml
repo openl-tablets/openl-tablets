@@ -1,13 +1,14 @@
-<ui:composition template="/WEB-INF/templates/default-jcr.xhtml"
+<ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:t="http://myfaces.apache.org/tomahawk">
+  xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax">
 
-  <ui:define name="title">Deployment Descriptor</ui:define>
+  <t:saveState value="#{deploymentController}" />
+  <h:form>
 
-  <ui:define name="body">
     <h:panelGrid columns="1">
       <h:messages />
 
@@ -43,6 +44,9 @@
             <rich:column>
               <h:outputText value="Message" />
             </rich:column>
+            <rich:column>
+              <h:outputText value="Operations" />
+            </rich:column>
           </rich:columnGroup>
         </f:facet>
 
@@ -51,17 +55,19 @@
         </rich:column>
         <rich:column style="text-align:center">
           <h:outputText value="#{item.name}" />
-          <h:commandLink action="#{deploymentController.deleteItem}">
-            <f:param name="key" value="#{index}" />
-            <h:graphicImage styleClass="actionImage" style="vertical-align:bottom;" value="/images/test_neq.gif" title="Remove"
-              onclick="NAMESPACE_deleteDeployEntry.showModalPanel(this); Event.stop(event || window.event);" />
-          </h:commandLink>
         </rich:column>
         <rich:column style="text-align:center">
           <h:outputText value="#{item.version}" />
         </rich:column>
         <rich:column style="text-align:center">
           <h:outputText value="#{item.messages}" />
+        </rich:column>
+        <rich:column style="text-align:center">
+          <h:commandLink action="#{deploymentController.deleteItem}">
+            <f:param name="key" value="#{index}" />
+            <h:graphicImage styleClass="actionImage" style="vertical-align:bottom;" value="/images/test_neq.gif" title="Remove"
+              onclick="NAMESPACE_deleteDeployEntry.showModalPanel(this); Event.stop(event || window.event);" />
+          </h:commandLink>
         </rich:column>
       </rich:dataTable>
 
@@ -71,11 +77,6 @@
         <h:commandButton value="Open Selected Projects in Web Studio" />
       </h:panelGroup>
     </h:panelGrid>
-  </ui:define>
-
-  <ui:define name="special">
-    <ui:include src="modal/addItem.xhtml" />
-    <ui:include src="modal/deleteItem.xhtml" />
-  </ui:define>
+  </h:form>
 
 </ui:composition>
