@@ -98,3 +98,14 @@ form.standard table.buttonPanel {
   margin-top: 10px;
   margin-left: -4px;
 }
+
+.actionButton {
+  display: ;
+}
+
+.actionLabel {
+  vertical-align: top;
+  text-align: center;
+  display: screen;
+  font-size: 8pt;
+}
