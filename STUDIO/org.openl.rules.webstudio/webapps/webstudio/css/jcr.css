@@ -76,3 +76,25 @@ textarea {
   font-weight : normal;
   font-size : 11px;
 }
+
+input.button {
+  border: 0px;
+  font-weight: bold;
+  color: #FFFFFF;
+  text-align: center;
+  height: 18px;
+  background: url(../images/button.gif) repeat-x center;
+  margin: 0;
+  padding: 0px 5px 0px 5px;
+  width: 0;
+  overflow: visible;
+}
+
+input.button[class] {
+  width: auto;
+}
+
+form.standard table.buttonPanel {
+  margin-top: 10px;
+  margin-left: -4px;
+}
