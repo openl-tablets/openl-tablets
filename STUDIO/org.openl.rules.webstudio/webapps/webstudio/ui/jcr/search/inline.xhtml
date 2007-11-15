@@ -1,20 +1,16 @@
 <ui:composition
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<div>
-		<h:panelGrid columns="4">
-			<h:inputText id="searchText" size="40" required="false" value="openl tablets" />
-			<h:commandButton 
-			  styleClass="mainButton"
-			  value="Search" 
-			  action="search.advanced"
-			/>
-			<h:commandLink value="Advanced Search..." action="search.advanced" />
-			<h:commandLink value="Open LWS in WebStudio" action="#{studioOpener.openStudio}" />
-		</h:panelGrid>
-	</div>
+  <div>
+    <h:panelGrid columns="4">
+      <h:inputText id="searchText" size="40" required="false" value="openl tablets" />
+      <h:commandButton styleClass="button" value="Search" action="search.advanced" />
+      <h:commandLink value="Advanced Search..." action="search.advanced" />
+      <h:commandLink value="Open LWS in WebStudio" action="#{studioOpener.openStudio}" />
+    </h:panelGrid>
+  </div>
 
 </ui:composition>
