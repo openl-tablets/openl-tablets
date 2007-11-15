@@ -1,65 +1,80 @@
 <ui:composition
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:dataTable value="#{repository.projects}" var="prj">
-		<f:facet name="header">
-			<rich:columnGroup>
-				<rich:column>
-					<h:outputText value="Actions" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Project" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Version" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Created At" />
-				</rich:column>
-				<rich:column>
-					<h:outputText value="Created By" />
-				</rich:column>
-			</rich:columnGroup>
-		</f:facet>
+  <rich:dataTable value="#{repository.projects}" var="prj">
+    <f:facet name="header">
+      <rich:columnGroup>
+        <rich:column>
+          <h:outputText value="Project" />
+        </rich:column>
+        <rich:column>
+          <h:outputText value="Version" />
+        </rich:column>
+        <rich:column>
+          <h:outputText value="Created At" />
+        </rich:column>
+        <rich:column>
+          <h:outputText value="Created By" />
+        </rich:column>
+        <rich:column>
+          <h:outputText value="Actions" />
+        </rich:column>
+      </rich:columnGroup>
+    </f:facet>
 
-		<rich:columnGroup>
-			<rich:column>
-				<h:panelGroup rendered="#{prj.marked4Deletion}">
-				    <rich:spacer width="16" height="16"/>
-					<h:graphicImage border="0" value="/images/close.gif"/>
-				</h:panelGroup>
+    <rich:columnGroup>
+      <rich:column>
+        <h:outputText value="#{prj.name}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{prj.version}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{prj.createdAt}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{prj.createdBy}" />
+      </rich:column>
+      <rich:column style="text-align:center">
+        <h:commandLink styleClass="actionButton" action="#{deploymentController.deleteItem}" immediate="true"
+          onclick="if(!window.confirm('Really delete project?')) {return false;}" rendered="#{prj.marked4Deletion}">
+          <f:param name="key" value="#{index}" />
+          <h:graphicImage url="/images/close.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Close" title="Close" />
+        </h:commandLink>
+        <h:commandLink styleClass="actionLabel" action="#{deploymentController.deleteItem}" immediate="true"
+          onclick="if(!window.confirm('Really delete project?')) {return false;}" rendered="#{prj.marked4Deletion}">
+          <f:param name="key" value="#{index}" />
+          <h:outputText value="Close" />
+        </h:commandLink>
+        &#160;
+        <h:commandLink styleClass="actionButton" immediate="true"
+          onclick="return confirmCopyProject('#{prj.name}');" rendered="#{!prj.marked4Deletion}">
+          <f:param name="key" value="#{index}" />
+          <h:graphicImage url="/images/expandall.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Expand" title="Expand" />
+        </h:commandLink>
+        <h:commandLink styleClass="actionLabel" immediate="true"
+          onclick="return confirmCopyProject('#{prj.name}');" rendered="#{!prj.marked4Deletion}">
+          <f:param name="key" value="#{index}" />
+          <h:outputText value="Expand" />
+        </h:commandLink>
+        &#160;
+        <h:commandLink styleClass="actionButton" action="#{prj.delete}" immediate="true"
+          onclick="if(!window.confirm('Really delete project?')) {return false;}">
+          <f:param name="key" value="#{index}" />
+          <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
+        </h:commandLink>
+        <h:commandLink styleClass="actionLabel" action="#{prj.delete}" immediate="true"
+          onclick="if(!window.confirm('Really delete project?')) {return false;}">
+          <f:param name="key" value="#{index}" />
+          <h:outputText value="Delete" />
+        </h:commandLink>
+      </rich:column>
 
-				<h:panelGroup rendered="#{not prj.marked4Deletion}">
-					<h:commandLink
-					  onclick="return confirmCopyProject('#{prj.name}');"
-					>
-						<h:graphicImage border="0" value="/images/expandall.gif"/>
-					</h:commandLink>
-					<h:commandLink
-					  action="#{prj.delete}"
-					  onclick="confirmDeleteProject(this, '#{prj.name}'); return false;"
-					>
-						<h:graphicImage border="0" value="/images/test_neq.gif"/>
-					</h:commandLink>
-				</h:panelGroup>
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{prj.name}" />
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{prj.version}" />
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{prj.createdAt}" />
-			</rich:column>
-			<rich:column>
-				<h:outputText value="#{prj.createdBy}" />
-			</rich:column>
-		</rich:columnGroup>
-	</rich:dataTable>
+    </rich:columnGroup>
+  </rich:dataTable>
 
 </ui:composition>
