@@ -88,19 +88,20 @@ public class DeploymentController {
             for (DeploymentDescriptorItem item : items) {
                 ProjectDescriptor pd = ddp.createProjectDescriptor(item.getName());
                 String[] version = StringUtils.split(item.getVersion(), '.');
-                int major=0;
-                int minor=0;
-                int revision=0;
-                if (version.length>0) {
+                int major = 0;
+                int minor = 0;
+                int revision = 0;
+                if (version.length > 0) {
                     major = Integer.parseInt(version[0]);
                 }
-                if (version.length>1) {
+                if (version.length > 1) {
                     minor = Integer.parseInt(version[1]);
                 }
-                if (version.length>2) {
+                if (version.length > 2) {
                     revision = Integer.parseInt(version[2]);
                 }
-                pd.setProjectVersion(new RepositoryProjectVersionImpl(major, minor, revision, null));
+                pd.setProjectVersion(new RepositoryProjectVersionImpl(major, minor,
+                        revision, null));
             }
 
             ddp.update();
@@ -133,7 +134,7 @@ public class DeploymentController {
         List<SelectItem> selectItems = new ArrayList<SelectItem>();
         for (UserWorkspaceProject project : projects) {
             selectItems.add(new SelectItem(project.getName()));
-            if (projectName==null) {
+            if (projectName == null) {
                 projectName = project.getName();
             }
         }

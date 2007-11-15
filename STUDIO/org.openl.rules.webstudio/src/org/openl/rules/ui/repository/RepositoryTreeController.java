@@ -25,12 +25,6 @@ import javax.faces.event.AbortProcessingException;
  *
  * @author Aleh Bykhavets
  */
-/**
- *
-DOCUMENT ME!
- *
- * @author "Andrey Naumenko"
- */
 public class RepositoryTreeController {
     private static long lastId;
 
