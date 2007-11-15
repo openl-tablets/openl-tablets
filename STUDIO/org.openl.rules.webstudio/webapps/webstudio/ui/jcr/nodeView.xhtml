@@ -30,7 +30,7 @@
   </h:panelGroup>
 
   <h:panelGroup
-    rendered="#{repositoryTree.selected.type == 'project'} &amp;&amp; repositoryTree.selected.name != repositoryTree.secondProjectName}">
+    rendered="#{repositoryTree.selected.type == 'project' &amp;&amp; repositoryTree.selected.name != repositoryTree.secondProjectName}">
     <h:panelGroup rendered="#{userSession.selected.dataBean.marked4Deletion}">
       <h:commandButton styleClass="mainButton" value="Undelete" action="undeleteProject"
         onclick="return confirmUndeleteProject(this, '#{repositoryTree.selected.dataBean.name}');" />
