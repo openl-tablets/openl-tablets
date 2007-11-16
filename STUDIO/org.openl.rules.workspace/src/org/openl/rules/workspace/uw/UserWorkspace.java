@@ -5,6 +5,7 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.deploy.DeploymentException;
+import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 
 import java.io.File;
 import java.util.List;
@@ -24,4 +25,7 @@ public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
     DeploymentDescriptorProject getDDProject(String name) throws RepositoryException;
     List<DeploymentDescriptorProject> getDDProjects() throws RepositoryException;
     void createDDProject(String name) throws RepositoryException;
+
+    void addWorkspaceListener(UserWorkspaceListener listener);
+    boolean removeWorkspaceListener(UserWorkspaceListener listener);
 }

@@ -17,6 +17,7 @@ import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.util.Log;
 
 import java.io.File;
@@ -32,6 +33,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final ProductionDeployer deployer;
 
     private HashMap<String, UserWorkspaceProject> userProjects;
+
+    private List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
 
     public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace,
             DesignTimeRepository designTimeRepository, ProductionDeployer deployer) {
@@ -93,6 +96,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public void release() {
         localWorkspace.release();
         userProjects.clear();
+
+        for (UserWorkspaceListener listener : listeners)
+            listener.workspaceReleased(this);
     }
 
     public void refresh() throws ProjectException {
@@ -172,12 +178,20 @@ public class UserWorkspaceImpl implements UserWorkspace {
         designTimeRepository.updateProject(localProject, user);
     }
 
-    protected WorkspaceUser getUser() {
+    public WorkspaceUser getUser() {
         return user;
     }
     
     public void createDDProject(String name) throws RepositoryException {
         designTimeRepository.createDDProject(name);
+    }
+
+    public void addWorkspaceListener(UserWorkspaceListener listener) {
+        listeners.add(listener);
+    }
+
+    public boolean removeWorkspaceListener(UserWorkspaceListener listener) {
+        return listeners.remove(listener);
     }
 
     public DeploymentDescriptorProject getDDProject(String name) throws RepositoryException {
