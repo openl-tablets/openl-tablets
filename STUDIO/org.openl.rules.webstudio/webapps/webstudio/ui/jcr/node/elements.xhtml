@@ -26,11 +26,6 @@
           <f:param name="key" value="#{index}" />
           <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
         </h:commandLink>
-        <h:commandLink styleClass="actionLabel" action="#{el.delete}" immediate="true"
-          onclick="if(!window.confirm('Really delete file/folder?')) {return false;}">
-          <f:param name="key" value="#{index}" />
-          <h:outputText value="Delete" />
-        </h:commandLink>
       </rich:column>
     </rich:columnGroup>
 
