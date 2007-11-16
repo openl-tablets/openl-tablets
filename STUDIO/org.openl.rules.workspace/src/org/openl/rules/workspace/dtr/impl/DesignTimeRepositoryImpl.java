@@ -111,7 +111,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return rp.getArtefactByPath(pathInProject);
     }
 
-    public RepositoryProject getProjectVersion(String name, ProjectVersion version) throws RepositoryException {
+    public RepositoryProject getProject(String name, ProjectVersion version) throws RepositoryException {
         return getProject(name);
     }
 

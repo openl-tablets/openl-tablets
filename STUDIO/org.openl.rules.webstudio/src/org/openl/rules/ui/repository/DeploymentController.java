@@ -77,7 +77,7 @@ public class DeploymentController implements Serializable {
     }
 
     public String save() {
-        UserWorkspace workspace = getWorkSpace();
+        UserWorkspace workspace = getWorkspace();
 
         String name = "123";
 
@@ -114,7 +114,7 @@ public class DeploymentController implements Serializable {
         return null;
     }
 
-    private UserWorkspace getWorkSpace() {
+    private UserWorkspace getWorkspace() {
         RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
                 .get("rulesUserSession");
 
@@ -130,7 +130,7 @@ public class DeploymentController implements Serializable {
     }
 
     public SelectItem[] getProjects() {
-        UserWorkspace workspace = getWorkSpace();
+        UserWorkspace workspace = getWorkspace();
         Collection<UserWorkspaceProject> projects = workspace.getProjects();
         List<SelectItem> selectItems = new ArrayList<SelectItem>();
         for (UserWorkspaceProject project : projects) {
@@ -144,7 +144,7 @@ public class DeploymentController implements Serializable {
     }
 
     public SelectItem[] getProjectVersions() {
-        UserWorkspace workspace = getWorkSpace();
+        UserWorkspace workspace = getWorkspace();
         if (projectName == null) {
             return new SelectItem[0];
         }
@@ -165,6 +165,7 @@ public class DeploymentController implements Serializable {
     }
 
     public String deploy() {
+        
         return OUTCOME_SUCCESS;
     }
 

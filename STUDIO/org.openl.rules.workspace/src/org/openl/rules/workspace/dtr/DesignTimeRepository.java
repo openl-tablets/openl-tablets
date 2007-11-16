@@ -17,7 +17,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return specified version of project
      * @throws RepositoryException
      */
-    RepositoryProject getProjectVersion(String name, ProjectVersion version) throws RepositoryException;
+    RepositoryProject getProject(String name, ProjectVersion version) throws RepositoryException;
 
     /**
      * Updates project in Design Time Repository.

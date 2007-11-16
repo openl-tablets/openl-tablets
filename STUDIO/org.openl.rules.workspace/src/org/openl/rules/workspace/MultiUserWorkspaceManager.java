@@ -8,6 +8,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
+import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class MultiUserWorkspaceManager {
 
     protected UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
         LocalWorkspace lw = localManager.getWorkspace(user);
-        UserWorkspace uw = new UserWorkspaceImpl(user, lw, designTimeRepository);
+        UserWorkspace uw = new UserWorkspaceImpl(user, lw, designTimeRepository, new JcrProductionDeployer());
         return uw;
     }
 }

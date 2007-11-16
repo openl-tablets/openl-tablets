@@ -3,9 +3,13 @@ package org.openl.rules.workspace.uw.impl;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
+import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.deploy.DeploymentException;
+import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.RepositoryProject;
@@ -15,22 +19,26 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.util.Log;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.io.File;
+import java.util.ArrayList;
 
 public class UserWorkspaceImpl implements UserWorkspace {
-    private WorkspaceUser user;
-    private LocalWorkspace localWorkspace;
-    private DesignTimeRepository designTimeRepository;
+    private final WorkspaceUser user;
+    private final LocalWorkspace localWorkspace;
+    private final DesignTimeRepository designTimeRepository;
+    private final ProductionDeployer deployer;
 
     private HashMap<String, UserWorkspaceProject> userProjects;
 
-    public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace, DesignTimeRepository designTimeRepository) {
+    public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace,
+            DesignTimeRepository designTimeRepository, ProductionDeployer deployer) {
         this.user = user;
         this.localWorkspace = localWorkspace;
         this.designTimeRepository = designTimeRepository;
+        this.deployer = deployer;
 
         userProjects = new HashMap<String, UserWorkspaceProject>();
     }
@@ -133,6 +141,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace.getLocation();
     }
 
+    public void deploy(DeploymentDescriptorProject deployProject) throws DeploymentException, RepositoryException {
+        Collection<ProjectDescriptor> projectDescriptors = deployProject.getProjectDescriptors();
+        Collection<Project> projects = new ArrayList<Project>();
+        for (ProjectDescriptor descriptor : projectDescriptors) {
+            projects.add(designTimeRepository.getProject(descriptor.getProjectName(), descriptor.getProjectVersion()));
+        }
+
+        deployer.deploy(projects);
+    }
+
     public void createProject(String name) throws ProjectException {
         designTimeRepository.createProject(name);
         
@@ -146,7 +164,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject, ProjectVersion version) throws ProjectException {
-        RepositoryProject oldRP = designTimeRepository.getProjectVersion(repositoryProject.getName(), version);
+        RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
         return localWorkspace.addProject(oldRP);
     }
 
