@@ -4,6 +4,7 @@ import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.deploy.DeploymentException;
 
 import java.io.File;
 import java.util.List;
@@ -19,9 +20,8 @@ public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
 
     File getLocalWorkspaceLocation();
 
-
-
-    public DeploymentDescriptorProject getDDProject(String name) throws RepositoryException;
-    public List<DeploymentDescriptorProject> getDDProjects() throws RepositoryException;
-    public void createDDProject(String name) throws RepositoryException;
+    void deploy(DeploymentDescriptorProject deployProject) throws ProjectException;
+    DeploymentDescriptorProject getDDProject(String name) throws RepositoryException;
+    List<DeploymentDescriptorProject> getDDProjects() throws RepositoryException;
+    void createDDProject(String name) throws RepositoryException;
 }
