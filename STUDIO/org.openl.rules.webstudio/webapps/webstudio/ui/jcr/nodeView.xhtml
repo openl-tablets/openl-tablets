@@ -44,8 +44,8 @@
 
     <h:panelGroup rendered="#{not userSession.selected.dataBean.marked4Deletion}">
       <h:panelGrid columns="8" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Open" action="#{repository.openProject}" />
-        <h:commandButton styleClass="button" value="Close" action="#{repository.closeProject}" />
+        <h:commandButton styleClass="#{!repositoryTree.selected.dataBean.opened ? 'button':'disabledButton'}" value="Open" action="#{repository.openProject}" onclick="return #{!repositoryTree.selected.dataBean.opened};"/>
+        <h:commandButton styleClass="#{repositoryTree.selected.dataBean.opened ? 'button':'disabledButton'}" value="Close" action="#{repository.closeProject}" onclick="return #{repositoryTree.selected.dataBean.opened};"/>
         <h:commandButton styleClass="button" value="Check Out" action="#{repository.checkOutProject}" />
         <h:commandButton styleClass="button" value="Check In" action="#{repository.checkInProject}" />
         <h:commandButton styleClass="button" value="Copy" onclick="return confirmCopyProject('#{repositoryTree.selected.dataBean.name}');" />
