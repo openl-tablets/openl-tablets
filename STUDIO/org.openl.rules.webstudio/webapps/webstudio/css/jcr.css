@@ -177,3 +177,8 @@ form.standard table.buttonPanel {
   display: screen;
   font-size: 8pt;
 }
+
+.readonly {
+  color: #555555;
+  background-color: #E9F0FA
+}
