@@ -22,28 +22,35 @@ public class FolderHelper {
         return foldersOnly;
     }
 
-    public static void clearFolder(File folder) {
+    public static boolean clearFolder(File folder) {
         Log.debug("Clearing folder ''{0}''", folder);
 
         File[] files = folder.listFiles();
         
-        if (files == null) return;
+        if (files == null) return true;
 
+        boolean failures = false;
         // delete sub elements one by one
         for (File file : files) {
             if (file.isFile()) {
                 if (!file.delete()) {
+                    failures = true;
                     Log.debug("Failed to delete file ''{0}''", file.getAbsolutePath());
                 }
             } else {
-                deleteFolder(file);
+                if (!deleteFolder(file)) {
+                    failures = true;
+                }
             }
         }
+
+        return !failures;
     }
 
-    public static void deleteFolder(File folder) {
+    public static boolean deleteFolder(File folder) {
         Log.debug("Deleting folder ''{0}''", folder);
 
+        boolean failures = false;
         if (folder.isDirectory()) {
             // list sub elements
             File[] files = folder.listFiles();
@@ -52,10 +59,13 @@ public class FolderHelper {
             for (File f : files) {
                 if (f.isDirectory()) {
                     // recursive
-                    deleteFolder(f);
+                    if (!deleteFolder(f)) {
+                        failures = true;
+                    }
                 } else {
                     // delete file
                     if (!f.delete()) {
+                        failures = true;
                         Log.debug("Failed to delete file ''{0}''", f.getAbsolutePath());
                     }
                 }
@@ -65,7 +75,8 @@ public class FolderHelper {
                 Log.debug("Failed to delete folder ''{0}''", folder.getAbsolutePath());
             }
         }
-        // do nothing if folder is file
+
+        return !failures;
     }
 
     public static File generateSubLocation(File location, String name) {
@@ -79,6 +90,10 @@ public class FolderHelper {
         } else {
             return location.mkdirs();
         }
+    }
+
+    public static boolean isParent(File parent, File child) {
+        return child != null && (child.equals(parent) || isParent(parent, child.getParentFile()));
     }
 
     /**
