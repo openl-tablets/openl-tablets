@@ -21,16 +21,16 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 
 public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceProjectArtefact {
     private UserWorkspaceProjectImpl project;
-    
+
     private LocalProjectArtefact localArtefact;
     private RepositoryProjectArtefact dtrArtefact;
-    
+
     protected UserWorkspaceProjectArtefactImpl(UserWorkspaceProjectImpl project, LocalProjectArtefact localArtefact, RepositoryProjectArtefact dtrArtefact) {
         this.project = project;
 
         updateArtefact(localArtefact, dtrArtefact);
     }
-    
+
     public ArtefactPath getArtefactPath() {
         return getArtefact().getArtefactPath();
     }
@@ -67,10 +67,10 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         } else {
             VersionInfo vi = new RepositoryVersionInfoImpl(null, getProject().getUser().getUserId());
             ProjectVersion pv = new RepositoryProjectVersionImpl(0, 0, 0, vi);
-            
+
             Collection<ProjectVersion> result = new LinkedList<ProjectVersion>();
             result.add(pv);
-            
+
             return result;
         }
     }
@@ -79,17 +79,17 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
         return rra.getEffectiveDate();
     }
-    
+
     public Date getExpirationDate() {
         RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
         return rra.getExpirationDate();
     }
-    
+
     public String getLineOfBusiness() {
         RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
         return rra.getLineOfBusiness();
     }
-    
+
     public void setEffectiveDate(Date date) throws ProjectException {
         if (isLocal()) {
             localArtefact.setEffectiveDate(date);
@@ -97,7 +97,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
             throw new ProjectException("Cannot set effectiveDate in read mode");
         }
     }
-    
+
     public void setExpirationDate(Date date) throws ProjectException {
         if (isLocal()) {
             localArtefact.setExpirationDate(date);
@@ -113,23 +113,23 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
             throw new ProjectException("Cannot set LOB in read mode");
         }
     }
-    
+
     // --- protected
-    
+
     protected void updateArtefact(LocalProjectArtefact localArtefact, RepositoryProjectArtefact dtrArtefact) {
         this.localArtefact = localArtefact;
         this.dtrArtefact = dtrArtefact;
     }
-    
+
     protected ProjectArtefact getArtefact() {
         return (project.isLocal()) ? localArtefact : dtrArtefact;
     }
-    
+
     protected boolean isLocal() {
         return project.isLocal();
     }
 
-    protected UserWorkspaceProjectImpl getProject() {
+    public UserWorkspaceProjectImpl getProject() {
         return project;
     }
 
