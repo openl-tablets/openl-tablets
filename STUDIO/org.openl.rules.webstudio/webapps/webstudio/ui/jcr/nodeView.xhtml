@@ -27,9 +27,9 @@
 
   <h:panelGroup rendered="#{repositoryTree.selected.type == 'folder'}">
     <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton styleClass="button" value="Create New Folder" onclick="return confirmNewFolder();" />
-      <h:commandButton styleClass="button" value="Create New File" onclick="return confirmNewFile();" />
       <h:commandButton styleClass="button" value="Delete" onclick="return confirmDeleteNode();" />
+      <h:commandButton styleClass="button" value="Add Folder" onclick="return confirmNewFolder();" />
+      <h:commandButton styleClass="button" value="Add File" onclick="return confirmNewFile();" />
     </h:panelGrid>
   </h:panelGroup>
 
@@ -49,9 +49,9 @@
         <h:commandButton styleClass="button" value="Check Out" action="#{repository.checkOutProject}" />
         <h:commandButton styleClass="button" value="Check In" action="#{repository.checkInProject}" />
         <h:commandButton styleClass="button" value="Copy" onclick="return confirmCopyProject('#{repositoryTree.selected.dataBean.name}');" />
-        <h:commandButton styleClass="button" value="Create New Folder" onclick="return confirmNewFolder();" />
-        <h:commandButton styleClass="button" value="Create New File" onclick="return confirmNewFile();" />
         <h:commandButton styleClass="button" value="Delete" onclick="return confirmDeleteNode();" />
+        <h:commandButton styleClass="button" value="Add Folder" onclick="return confirmNewFolder();" />
+        <h:commandButton styleClass="button" value="Add File" onclick="return confirmNewFile();" />
       </h:panelGrid>
     </h:panelGroup>
   </h:panelGroup>

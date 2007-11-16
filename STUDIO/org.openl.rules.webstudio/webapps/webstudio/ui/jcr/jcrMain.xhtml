@@ -28,11 +28,12 @@
 
     </h:panelGrid>
 
-    <h:commandButton styleClass="smlBackButton" value="index-jcr" action="index" immediate="true" />
-    <rich:panel>
-      <h:selectOneRadio binding="#{skinBean.component}" />
-      <h:commandLink action="#{skinBean.change}" value="set skin" />
-    </rich:panel>
+    <h:panelGrid columns="2" cellpadding="4" cellspacing="0">
+      <h:selectOneMenu value="#{skinBean.skin}" required="false">
+        <f:selectItems value="#{skinBean.skins}"/>
+      </h:selectOneMenu>
+      <h:commandButton value="Set Skin" styleClass="button" />
+    </h:panelGrid>
 
   </ui:define>
 
