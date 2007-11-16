@@ -152,13 +152,32 @@ input.button {
   text-align: center;
   height: 18px;
   background: url(../images/button.gif) repeat-x center;
+  background-color: #7c99b6;
   margin: 0;
-  padding: 0px 5px 0px 5px;
+  /*padding: 0px 5px 0px 5px;*/
   width: 0;
   overflow: visible;
 }
 
 input.button[class] {
+  width: auto;
+}
+
+input.disabledButton {
+  border : 0px;
+  font-weight : bold;
+  color : #FFFFFF;
+  text-align : center;
+  height : 18px;
+  background: url(../images/buttonDisabled.gif) repeat-x center;
+  background-color: #7c99b6;
+  margin: 0;
+  /*padding: 0px 5px 0px 5px;*/
+  width: 0;
+  overflow: visible;
+}
+
+input.disabledButton[class] {
   width: auto;
 }
 
