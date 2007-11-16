@@ -12,12 +12,13 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MultiUserWorkspaceManager {
+public class MultiUserWorkspaceManager implements UserWorkspaceListener{
     private ProductionDeployerManager deployerManager;
     private LocalWorkspaceManager localManager;
     private DesignTimeRepository designTimeRepository;
@@ -54,5 +55,9 @@ public class MultiUserWorkspaceManager {
             throw new WorkspaceException("can not get production deployer", e);
         }
         return new UserWorkspaceImpl(user, lw, designTimeRepository, deployer);
+    }
+
+    public void workspaceReleased(UserWorkspace workspace) {
+        userWorkspaces.remove(((UserWorkspaceImpl) workspace).getUser().getUserId());
     }
 }
