@@ -54,23 +54,13 @@
         <h:commandLink styleClass="actionButton" immediate="true"
           onclick="return confirmCopyProject('#{prj.name}');" rendered="#{!prj.marked4Deletion}">
           <f:param name="key" value="#{index}" />
-          <h:graphicImage url="/images/expandall.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Expand" title="Expand" />
-        </h:commandLink>
-        <h:commandLink styleClass="actionLabel" immediate="true"
-          onclick="return confirmCopyProject('#{prj.name}');" rendered="#{!prj.marked4Deletion}">
-          <f:param name="key" value="#{index}" />
-          <h:outputText value="Expand" />
+          <h:graphicImage url="/images/copy.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Copy" title="Copy" />
         </h:commandLink>
         &#160;
         <h:commandLink styleClass="actionButton" action="#{prj.delete}" immediate="true"
           onclick="if(!window.confirm('Really delete project?')) {return false;}">
           <f:param name="key" value="#{index}" />
           <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
-        </h:commandLink>
-        <h:commandLink styleClass="actionLabel" action="#{prj.delete}" immediate="true"
-          onclick="if(!window.confirm('Really delete project?')) {return false;}">
-          <f:param name="key" value="#{index}" />
-          <h:outputText value="Delete" />
         </h:commandLink>
       </rich:column>
 

@@ -4,7 +4,7 @@ import javax.faces.model.SelectItem;
 
 
 /**
- * JSF session bean, that is responsible for storage of current skin.
+ * The container of current skin.
  *
  * @author "Andrey Naumenko"
  */
