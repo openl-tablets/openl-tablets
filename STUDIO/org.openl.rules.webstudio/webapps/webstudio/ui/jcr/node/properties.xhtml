@@ -8,14 +8,17 @@
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputText styleClass="niceLabel" value="Effective date:" />
     <rich:calendar value="#{repositoryTree.selected.dataBean.effectiveDate}" popup="true" enableManualInput="true"
-      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"/>
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}" rendered="#{repositoryTree.selected.dataBean.project.checkedOut}"/>
+    <h:outputText styleClass="niceLabel" value="#{repositoryTree.selected.dataBean.effectiveDate}" rendered="#{!repositoryTree.selected.dataBean.project.checkedOut}"/>
 
     <h:outputText styleClass="niceLabel" value="Expiration date:" />
     <rich:calendar value="#{repositoryTree.selected.dataBean.expirationDate}" popup="true" enableManualInput="true"
-      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"/>
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}" rendered="#{repositoryTree.selected.dataBean.project.checkedOut}"/>
+    <h:outputText styleClass="niceLabel" value="#{repositoryTree.selected.dataBean.expirationDate}" rendered="#{!repositoryTree.selected.dataBean.project.checkedOut}"/>
 
     <h:outputText styleClass="niceLabel" value="Line of business:" />
-    <h:inputText value="#{repositoryTree.selected.dataBean.lineOfBusiness}" />
+    <h:inputText value="#{repositoryTree.selected.dataBean.lineOfBusiness}" rendered="#{repositoryTree.selected.dataBean.project.checkedOut}"/>
+    <h:outputText styleClass="niceLabel" value="#{repositoryTree.selected.dataBean.lineOfBusiness}" rendered="#{!repositoryTree.selected.dataBean.project.checkedOut}"/>
 
   </h:panelGrid>
 </ui:composition>
