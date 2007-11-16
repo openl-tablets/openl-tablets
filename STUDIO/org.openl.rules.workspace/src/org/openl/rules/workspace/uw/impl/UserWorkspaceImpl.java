@@ -68,7 +68,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         if (userProjects.get(name) != null) return true;
         if (localWorkspace.hasProject(name)) return true;
         if (designTimeRepository.hasProject(name)) return true;
-        
+
         return false;
     }
 
@@ -175,10 +175,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     protected WorkspaceUser getUser() {
         return user;
     }
-
-    
-    
-    
     
     public void createDDProject(String name) throws RepositoryException {
         designTimeRepository.createDDProject(name);

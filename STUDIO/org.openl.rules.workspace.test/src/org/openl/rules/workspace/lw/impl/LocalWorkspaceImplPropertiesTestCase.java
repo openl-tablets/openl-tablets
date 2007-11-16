@@ -11,7 +11,6 @@ import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
-import org.openl.rules.workspace.lw.LWTestHelper;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
@@ -172,6 +171,6 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         Properties properties = new Properties();
         properties.put(LocalWorkspaceManagerImpl.PROP_WS_LOCATION, TestHelper.FOLDER_TEST);
 
-        return new LocalWorkspaceManagerImpl(new SmartProps(properties)).createWorkspace(LWTestHelper.getTestUser());
+        return new LocalWorkspaceManagerImpl(new SmartProps(properties)).createWorkspace(TestHelper.getWorkspaceUser());
     }
 }

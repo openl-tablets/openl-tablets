@@ -9,21 +9,23 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.util.Log;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
-    private LocalWorkspaceManagerImpl workspaceManager;
     private WorkspaceUser user;
     private File location;
     private Map<String, LocalProject> localProjects;
+    private List<LocalWorkspaceListener> listeners = new ArrayList<LocalWorkspaceListener>();
 
-    public LocalWorkspaceImpl(LocalWorkspaceManagerImpl workspaceManager, WorkspaceUser user, File location) {
-        this.workspaceManager = workspaceManager;
+    public LocalWorkspaceImpl(WorkspaceUser user, File location) {
         this.user = user;
         this.location = location;
         
@@ -93,11 +95,20 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         saveAll();
         localProjects.clear();
 
-        workspaceManager.notifyReleased(this);
+        for (LocalWorkspaceListener lwl : listeners)
+            lwl.workspaceReleased(this);
     }
 
     public File getLocation() {
         return location;
+    }
+
+    public void addWorkspaceListener(LocalWorkspaceListener listener) {
+        listeners.add(listener);
+    }
+
+    public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {
+        return listeners.remove(listener);
     }
 
 // --- protected

@@ -15,4 +15,7 @@ public interface LocalWorkspace extends ProjectsContainer<LocalProject> {
     void release();
 
     File getLocation();
+
+    void addWorkspaceListener(LocalWorkspaceListener listener);
+    boolean removeWorkspaceListener(LocalWorkspaceListener listener);
 }
