@@ -8,17 +8,19 @@
     <h:outputText styleClass="niceLabel" value="Project Name:" />
     <h:outputText value="#{repositoryTree.selected.name}" />
 
-    <h:outputText styleClass="niceLabel" value="Description:" />
-    <h:inputTextarea value="" rows="3" cols="40"/>
+    <ui:remove>
+      <h:outputText styleClass="niceLabel" value="Description:" />
+      <h:inputTextarea value="" rows="3" cols="40" />
 
-    <h:outputText styleClass="niceLabel" value="Status:" />
-    <h:selectOneMenu value="DRAFT">
-      <f:selectItem itemValue="INITIAL" />
-      <f:selectItem itemValue="DRAFT" />
-      <f:selectItem itemValue="QA" />
-      <f:selectItem itemValue="PRODUCTION" />
-      <f:selectItem itemValue="OBSOLETE" />
-    </h:selectOneMenu>
+      <h:outputText styleClass="niceLabel" value="Status:" />
+      <h:selectOneMenu value="DRAFT">
+        <f:selectItem itemValue="INITIAL" />
+        <f:selectItem itemValue="DRAFT" />
+        <f:selectItem itemValue="QA" />
+        <f:selectItem itemValue="PRODUCTION" />
+        <f:selectItem itemValue="OBSOLETE" />
+      </h:selectOneMenu>
+    </ui:remove>
 
     <h:outputText styleClass="niceLabel" value="Creation Date:" />
     <h:outputText value="#{repositoryTree.selected.createdAt}" />
@@ -28,6 +30,7 @@
 
   </h:panelGrid>
 
-  <ui:include src="/ui/jcr/node/properties.xhtml"/>
+  <ui:include src="/ui/jcr/node/properties.xhtml">
+  </ui:include>
 
 </ui:composition>
