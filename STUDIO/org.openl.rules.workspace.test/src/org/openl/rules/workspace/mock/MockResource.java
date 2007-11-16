@@ -1,0 +1,34 @@
+package org.openl.rules.workspace.mock;
+
+import org.openl.rules.workspace.abstracts.ProjectResource;
+import org.openl.rules.workspace.abstracts.ProjectException;
+
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+
+public class MockResource extends MockArtefact implements ProjectResource{
+    private static final InputStream NULL_STREAM = new ByteArrayInputStream(new byte[0]);
+
+    private String resourceType = "unknown";
+    private InputStream inputStream = NULL_STREAM;
+
+    public MockResource(String name, MockFolder parent) {
+        super(name, parent);
+    }
+
+    public InputStream getContent() throws ProjectException {
+        return inputStream;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public String getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
+    }
+}
