@@ -4,12 +4,13 @@ import org.openl.SmartProps;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 
 import java.io.File;
 import java.util.HashMap;
 
-public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager {
+public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener {
     public static final String WS_PROPS = "workspace.properties";
     public static final String PROP_WS_LOCATION = "workspaces.location";
     public static final String DEF_WS_LOCATION = "/tmp/rules-workspaces/";
@@ -51,11 +52,11 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager {
         return lwi;
     }
 
-// --- protected
-
-    protected void notifyReleased(LocalWorkspaceImpl localWorkspace) {
-        localWorkspaces.remove(localWorkspace.getUser().getUserId());
+    public void workspaceReleased(LocalWorkspace workspace) {
+        localWorkspaces.remove(((LocalWorkspaceImpl)workspace).getUser().getUserId());
     }
+
+// --- protected
 
     protected LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
@@ -64,6 +65,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager {
             throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace", null, f.getAbsolutePath());
         }
 
-        return new LocalWorkspaceImpl(this, user, f);
+        return new LocalWorkspaceImpl(user, f);
     }
 }
