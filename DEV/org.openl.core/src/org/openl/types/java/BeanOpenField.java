@@ -9,6 +9,7 @@ package org.openl.types.java;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.openl.types.IMemberMetaInfo;
@@ -26,7 +27,7 @@ public class BeanOpenField implements IOpenField
 {
 	
 	
-	static public void collectFields(Map map, Class c)
+	static public void collectFields(Map<String, IOpenField> map, Class<?> c, Map<Method, BeanOpenField> getters, Map<Method, BeanOpenField> setters)
 	{
 		
 		try
@@ -41,6 +42,16 @@ public class BeanOpenField implements IOpenField
 				continue;
 			  BeanOpenField bf = new BeanOpenField(pd[i]);
 			  map.put(pd[i].getName(), bf);
+			  if (getters != null)
+			  {
+			      if (pd[i].getReadMethod() != null)
+				  getters.put(pd[i].getReadMethod(), bf);
+			  }    
+			  if (setters != null)
+			  {
+			      if (pd[i].getWriteMethod() != null)
+				  setters.put(pd[i].getWriteMethod(), bf);
+			  }    
 			}
 		}
 		catch (Throwable t)
