@@ -247,15 +247,17 @@ public abstract class FunctionalRow implements IDecisionRow,
 	{
 		int h = table.getLogicalHeight();
 
+		int last = -1;
+		
 		for (int i = 0; i < h; i++)
 		{
 			String src = table.getLogicalRow(i).getGridTable().getStringValue(0, 0);
-			if (src == null || src.trim().length() == 0)
-				return i;
+			if (src != null && src.trim().length() != 0)
+				last = i;
 
 		}
 
-		return h;
+		return last + 1;
 	}
 
 	static public Object loadSingleParam(IOpenClass paramType, String paramName,
