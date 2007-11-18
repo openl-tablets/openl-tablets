@@ -7,6 +7,7 @@
 package org.openl.rules.data.impl;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import org.openl.OpenL;
@@ -239,18 +240,22 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 				}
 			}
 		} else {
-			Vector v = new Vector();
-			for (int i = 0; i < values.getLogicalHeight(); i++) {
+			int h = values.getLogicalHeight();
+			ArrayList<Object> v = new ArrayList<Object>(h);
+			int lastIndex = -1;
+			for (int i = 0; i < h ; i++) {
 				String s = values.getGridTable().getStringValue(0, i);
 				
 				if (s != null)
 				{
 					s = s.trim();
 				}
-				else break;
 				  
-				if (s.length() == 0)
-					break;
+				if (s == null || s.length() == 0)
+				{
+					v.add(null);
+					continue;
+				}	
 				
 				Object res = null;
 				Throwable tt = null;
@@ -270,18 +275,20 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 						tt,
 						new GridCellSourceCodeModule(
 							values.getLogicalRow(i).getGridTable()));
+				lastIndex = i;
 				v.add(res);
 			}
 
 			//			Object ary = Array.newInstance(cc, v.size());
+			int size = lastIndex + 1;
 			IOpenClass componentType =
 				fieldType.getAggregateInfo().getComponentType(fieldType);
 			Object ary =
 				fieldType.getAggregateInfo().makeIndexedAggregate(
 					componentType,
-					new int[] { v.size()});
+					new int[] { size});
 
-			for (int i = 0; i < v.size(); i++) {
+			for (int i = 0; i < size; i++) {
 				Array.set(ary, i, v.get(i));
 			}
 
@@ -315,29 +322,37 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 			if (res != null)
 				field.set(target, res, getRuntimeEnv());
 		} else {
-			Vector v = new Vector();
 			int h = values.getLogicalHeight();
+			
+			ArrayList<Object> v = new ArrayList<Object>(h);
+			int lastIndex = -1;
 			for (int i = 0; i < h; i++) {
 				Object res =
 					FunctionalRow.loadSingleParam(
 						paramType,
 						field.getName(), null,
 						values.getLogicalRow(i),
-						null);
+						ota);
 				if (res == null)
-					break;
+				{
+					res = paramType.nullObject();
+				}
+				
+				if (res != null)
+					lastIndex = i;
 
 				v.add(res);
 			}
 
+			int size = lastIndex + 1;
 			Object ary =
 				paramType.getAggregateInfo().makeIndexedAggregate(
 					paramType,
-					new int[] { v.size()});
+					new int[] { size});
 
 			//Array.newInstance(cc, v.size());
 
-			for (int i = 0; i < v.size(); i++) {
+			for (int i = 0; i < size; i++) {
 				Array.set(ary, i, v.get(i));
 			}
 
