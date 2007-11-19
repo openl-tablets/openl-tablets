@@ -24,6 +24,6 @@ public class StudioFromLWSController {
             }
         }
 
-        return Const.OUTCOME_SUCCESS;
+        return "webstudio";
     }
 }
