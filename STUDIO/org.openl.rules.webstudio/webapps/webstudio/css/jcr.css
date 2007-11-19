@@ -154,7 +154,7 @@ input.button {
   background: url(../images/button.gif) repeat-x center;
   background-color: #7c99b6;
   margin: 0;
-  /*padding: 0px 5px 0px 5px;*/
+  padding: 0px 5px 0px 5px;
   width: 0;
   overflow: visible;
 }
@@ -172,7 +172,7 @@ input.disabledButton {
   background: url(../images/buttonDisabled.gif) repeat-x center;
   background-color: #7c99b6;
   margin: 0;
-  /*padding: 0px 5px 0px 5px;*/
+  padding: 0px 5px 0px 5px;
   width: 0;
   overflow: visible;
 }
