@@ -53,7 +53,7 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>repositoryTree</managed-bean-name>
+    <managed-bean-name>repositoryTreeController</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeController</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
     <managed-property>
@@ -79,26 +79,12 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>repository</managed-bean-name>
-    <managed-bean-class>
-      org.openl.rules.ui.repository.RepositoryContoller
-    </managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-    <managed-property>
-      <property-name>repositoryTree</property-name>
-      <value>#{repositoryTree}</value>
-    </managed-property>
-  </managed-bean>
-
-  <managed-bean>
     <managed-bean-name>addDependency</managed-bean-name>
-    <managed-bean-class>
-        org.openl.rules.ui.repository.dependency.AddDependencyController
-    </managed-bean-class>
+    <managed-bean-class>org.openl.rules.ui.repository.dependency.AddDependencyController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>repositoryTree</property-name>
-      <value>#{repositoryTree}</value>
+      <value>#{repositoryTreeController}</value>
     </managed-property>
   </managed-bean>
 

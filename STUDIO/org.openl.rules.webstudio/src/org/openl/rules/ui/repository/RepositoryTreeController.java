@@ -8,22 +8,33 @@ import org.openl.rules.ui.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
+
+import org.openl.util.Log;
 
 import org.richfaces.component.UITree;
 
 import org.richfaces.event.NodeSelectedEvent;
 
 import java.util.Collection;
+import java.util.List;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 
 
 /**
- * Handler for Repository Tree.
+ * Repository tree controller. Used for retrieving data for repository tree and
+ * perform repository actions.
  *
  * @author Aleh Bykhavets
+ * @author Andrey Naumenko
  */
 public class RepositoryTreeController {
     /** Root node for RichFaces's tree.  It is not displayed. */
@@ -31,6 +42,10 @@ public class RepositoryTreeController {
     private AbstractTreeNode currentNode;
     private TreeRepository repository;
     private UserWorkspace userWorkspace;
+
+    // Add new Project
+    private String newProjectName;
+    private String newFolderName;
 
     /**
      * TODO: reimplement properly when AbstractTreeNode.id becomes Object.
@@ -149,5 +164,181 @@ public class RepositoryTreeController {
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {
         this.userWorkspace = userWorkspace;
+    }
+
+    /**
+     * Gets all projects from a rule repository.
+     *
+     * @return list of projects
+     */
+    public List<AbstractTreeNode> getProjects() {
+        return getRepositoryNode().getChildNodes();
+    }
+
+    public void setNewProjectName(String newProjectName) {
+        this.newProjectName = newProjectName;
+    }
+
+    public String getNewProjectName() {
+        // expect null here
+        return newProjectName;
+    }
+
+    public String getNewFolderName() {
+        return newFolderName;
+    }
+
+    public void setNewFolderName(String newFolderName) {
+        this.newFolderName = newFolderName;
+    }
+
+    public String addFolder() {
+        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        boolean result = false;
+        if (projectArtefact instanceof UserWorkspaceProjectFolder) {
+            UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
+            try {
+                folder.addFolder(newFolderName);
+                reInit();
+                result = true;
+            } catch (ProjectException e) {
+                Log.error("Failed to add new folder {0}", e, newFolderName);
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage("error adding folder", e.getMessage()));
+            }
+        }
+        return result ? null : UiConst.OUTCOME_FAILED;
+    }
+
+    public String delete() {
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) getSelected()
+                .getDataBean();
+        try {
+            projectArtefact.delete();
+            reInit();
+        } catch (ProjectException e) {
+            Log.error("error deleting", e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("error deleting", e.getMessage()));
+        }
+        return null;
+    }
+
+    public String addProject() {
+        boolean result = false;
+
+        try {
+            getUserWorkspace().createProject(newProjectName);
+            reInit();
+            result = true;
+        } catch (ProjectException e) {
+            Log.error("Failed to create new project", e);
+
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage("Failed to create new project", e.getMessage()));
+        }
+        return (result) ? null : UiConst.OUTCOME_FAILED;
+    }
+
+    // TODO implement
+    public boolean copyProject(String existingProject, String newProject) {
+        boolean result = true;
+
+        return result;
+    }
+
+    public String openProject() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) {
+            return UiConst.OUTCOME_FAILED;
+        }
+
+        try {
+            project.open();
+            reInit();
+            return null;
+        } catch (ProjectException e) {
+            Log.error("Failed to open project", e);
+
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage("Failed to open project", e.getMessage()));
+            return UiConst.OUTCOME_FAILED;
+        }
+    }
+
+    public String closeProject() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) {
+            return UiConst.OUTCOME_FAILED;
+        }
+
+        try {
+            project.close();
+            reInit();
+            return null;
+        } catch (ProjectException e) {
+            Log.error("Failed to close project", e);
+
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage("Failed to close project", e.getMessage()));
+            return UiConst.OUTCOME_FAILED;
+        }
+    }
+
+    public String checkOutProject() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) {
+            return UiConst.OUTCOME_FAILED;
+        }
+
+        try {
+            project.checkOut();
+            reInit();
+            return null;
+        } catch (ProjectException e) {
+            Log.error("Failed to check out project", e);
+
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage("Failed to check out project", e.getMessage()));
+            return UiConst.OUTCOME_FAILED;
+        }
+    }
+
+    public String checkInProject() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) {
+            return UiConst.OUTCOME_FAILED;
+        }
+
+        try {
+            project.checkIn();
+            reInit();
+            return null;
+        } catch (ProjectException e) {
+            Log.error("Failed to check in project", e);
+
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage("Failed to check in project", e.getMessage()));
+            return UiConst.OUTCOME_FAILED;
+        }
+    }
+
+    private UserWorkspaceProject getActiveProject() {
+        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        if (projectArtefact instanceof UserWorkspaceProject) {
+            return (UserWorkspaceProject) projectArtefact;
+        } else {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage("Active tree element is not a project!", null));
+
+            return null;
+        }
     }
 }

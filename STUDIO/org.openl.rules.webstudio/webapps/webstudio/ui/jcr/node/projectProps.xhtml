@@ -6,7 +6,7 @@
 
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputText styleClass="niceLabel" value="Project Name:" />
-    <h:outputText value="#{repositoryTree.selected.name}" />
+    <h:outputText value="#{repositoryTreeController.selected.name}" />
 
     <ui:remove>
       <h:outputText styleClass="niceLabel" value="Description:" />
@@ -23,10 +23,10 @@
     </ui:remove>
 
     <h:outputText styleClass="niceLabel" value="Creation Date:" />
-    <h:outputText value="#{repositoryTree.selected.createdAt}" />
+    <h:outputText value="#{repositoryTreeController.selected.createdAt}" />
 
     <h:outputText styleClass="niceLabel" value="Created By:" />
-    <h:outputText value="#{repositoryTree.selected.createdBy}" />
+    <h:outputText value="#{repositoryTreeController.selected.createdBy}" />
 
   </h:panelGrid>
 

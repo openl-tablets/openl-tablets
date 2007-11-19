@@ -22,14 +22,13 @@ public class UserSessionBean {
     private List<String> messages = new LinkedList<String>();
 
     public UserSessionBean() {
-        MessageQueue messages = new MessageQueue();
 
         try {
             repository = RulesRepositoryFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
             // TODO: log failure
             repository = new DummyRepository();
-            messages.addMessage(e);
+            //messages.addMessage(e);
             Log.error("FACTORY", e);
         }
     }

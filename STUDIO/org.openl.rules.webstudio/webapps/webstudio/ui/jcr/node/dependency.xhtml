@@ -13,9 +13,9 @@
                ajaxSingle="true"
                value="Add Dependency" />
 </div>
-    
-<rich:dataTable rendered="#{not empty repositoryTree.selected.dependencies}"
-        value="#{repositoryTree.selected.dependencies}" var="dep">
+
+<rich:dataTable rendered="#{not empty repositoryTreeController.selected.dependencies}"
+        value="#{repositoryTreeController.selected.dependencies}" var="dep">
     <f:facet name="header">
     <rich:columnGroup>
         <rich:column>

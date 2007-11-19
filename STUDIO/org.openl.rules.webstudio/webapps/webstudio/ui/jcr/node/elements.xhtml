@@ -4,7 +4,7 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:dataTable rendered="#{not empty repositoryTree.selected.childNodes}" value="#{repositoryTree.selected.childNodes}" var="el">
+  <rich:dataTable rendered="#{not empty repositoryTreeController.selected.childNodes}" value="#{repositoryTreeController.selected.childNodes}" var="el">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -31,6 +31,6 @@
 
   </rich:dataTable>
 
-  <h:outputText styleClass="niceLabel" rendered="#{empty repositoryTree.selected.children}" value="There are no elements (Folders, Files)." />
+  <h:outputText styleClass="niceLabel" rendered="#{empty repositoryTreeController.selected.children}" value="There are no elements (Folders, Files)." />
 
 </ui:composition>
