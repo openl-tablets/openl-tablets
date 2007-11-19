@@ -4,13 +4,14 @@
  */
 package org.openl.rules.ui;
 
+import org.openl.rules.webstudio.util.WebstudioTreeIterator;
+import org.openl.util.TreeIterator;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import org.openl.util.FileTreeIterator;
 
 /**
  * @author snshor
@@ -73,7 +74,7 @@ public class OpenLProjectLocator {
 		
 		String srcroot = "gen";
 		File searchDir = new File(project.getCanonicalPath(), srcroot);
-		FileTreeIterator fti = new FileTreeIterator(searchDir, 0);
+		TreeIterator fti = new WebstudioTreeIterator(searchDir, 0);
 		ArrayList<String> v = new ArrayList<String>();
 		for (; fti.hasNext();) {
 			File f = (File) fti.next();
