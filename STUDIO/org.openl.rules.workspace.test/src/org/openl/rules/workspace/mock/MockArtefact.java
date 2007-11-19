@@ -5,7 +5,6 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.PropertyTypeException;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -84,10 +83,10 @@ public class MockArtefact implements ProjectArtefact{
      * Adds property into the container.
      *
      * @param property adding property
-     * @throws org.openl.rules.workspace.props.PropertyTypeException
+     * @throws org.openl.rules.workspace.props.PropertyException
      *          if property with the same name exists already and value cannot be updated.
      */
-    public void addProperty(Property property) throws PropertyTypeException {
+    public void addProperty(Property property) throws PropertyException {
     
     }
 

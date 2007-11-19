@@ -1,10 +1,11 @@
 package org.openl.rules.workspace;
 
+import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 
 public class TestDDP {
     public static void main(String[] args) throws WorkspaceException, ProjectException {
@@ -20,18 +21,18 @@ public class TestDDP {
         try {
             uw.createDDProject(name);
 
-            DeploymentDescriptorProject ddp = uw.getDDProject(name);
-            ProjectDescriptor pd1 = ddp.createProjectDescriptor("prj1");
-            pd1.setProjectVersion(new RepositoryProjectVersionImpl(1, 10, 100, null));
+            UserWorkspaceDeploymentProject ddp = uw.getDDProject(name);
+            ddp.checkOut();
             
-            ProjectDescriptor pd2 = ddp.createProjectDescriptor("prj2");
-            pd2.setProjectVersion(new RepositoryProjectVersionImpl(2, 20, 200, null));
+            ProjectDescriptor pd1 = ddp.addProjectDescriptor("prj1", new CommonVersionImpl(1, 10, 100));
+            ProjectDescriptor pd2 = ddp.addProjectDescriptor("prj2", new CommonVersionImpl(2, 20, 200));
 
-            ddp.update();
+            ddp.checkIn();
         } catch (Exception e) {
             System.out.println("Cannot create new DDP " + name);
         }        
 
+        System.out.println("Listing DDProject");
         DeploymentDescriptorProject ddp = uw.getDDProject(name);
         System.out.println("  " + ddp.getName());
         
