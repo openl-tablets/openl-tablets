@@ -1,29 +1,27 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import org.openl.rules.repository.RDeploymentDescriptorProject;
-import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.RProjectDescriptor;
-import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RVersion;
-import org.openl.rules.repository.RulesRepositoryFactory;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryException;
-import org.openl.rules.workspace.dtr.RepositoryProject;
-import org.openl.util.Log;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.repository.RDeploymentDescriptorProject;
+import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RulesRepositoryFactory;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.abstracts.ArtefactPath;
+import org.openl.rules.workspace.abstracts.Project;
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryDDProject;
+import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.dtr.RepositoryProject;
+import org.openl.util.Log;
 
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /** Rules Repository */
@@ -111,7 +109,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return rp.getArtefactByPath(pathInProject);
     }
 
-    public RepositoryProject getProject(String name, ProjectVersion version) throws RepositoryException {
+    public RepositoryProject getProject(String name, CommonVersion version) throws RepositoryException {
         return getProject(name);
     }
 
@@ -154,7 +152,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }        
     }
 
-    public DeploymentDescriptorProject getDDProject(String name) throws RepositoryException {
+    public RepositoryDDProject getDDProject(String name) throws RepositoryException {
         try {
             return wrapDDProject(rulesRepository.getDDProject(name));
         } catch (RRepositoryException e) {
@@ -162,12 +160,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }        
     }
 
-    public List<DeploymentDescriptorProject> getDDProjects() throws RepositoryException {
-        LinkedList<DeploymentDescriptorProject> result = new LinkedList<DeploymentDescriptorProject>();
+    public List<RepositoryDDProject> getDDProjects() throws RepositoryException {
+        LinkedList<RepositoryDDProject> result = new LinkedList<RepositoryDDProject>();
         
         try {
             for (RDeploymentDescriptorProject rddp : rulesRepository.getDDProjects()) {
-                DeploymentDescriptorProject ddp = wrapDDProject(rddp);
+                RepositoryDDProject ddp = wrapDDProject(rddp);
                 result.add(ddp);
             }
         } catch (RRepositoryException e) {
@@ -191,7 +189,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return p;
     }
     
-    private RepositoryDeploymentDescriptorProjectImpl wrapDDProject(RDeploymentDescriptorProject rddp) {
+    private RepositoryDDProject wrapDDProject(RDeploymentDescriptorProject rddp) {
         RepositoryDeploymentDescriptorProjectImpl dp = new RepositoryDeploymentDescriptorProjectImpl(rddp);
         return dp;
     }

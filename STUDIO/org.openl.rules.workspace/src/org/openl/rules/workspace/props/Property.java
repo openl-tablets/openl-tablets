@@ -36,23 +36,23 @@ public interface Property extends Serializable {
      * Gets value as Date.
      *
      * @return date value
-     * @throws PropertyTypeException if property cannot be transformed into Date
+     * @throws PropertyException if property cannot be transformed into Date
      */
-    Date getDate() throws PropertyTypeException;
+    Date getDate() throws PropertyException;
 
     /**
      * Sets value of the property.
      *
      * @param value string value
-     * @throws PropertyTypeException if failed to set new value
+     * @throws PropertyException if failed to set new value
      */
-    void setValue(String value) throws PropertyTypeException;
+    void setValue(String value) throws PropertyException;
 
     /**
      * Sets value of the property.
      *
      * @param value date value
-     * @throws PropertyTypeException if failed to set new value
+     * @throws PropertyException if failed to set new value
      */
-    void setValue(Date value) throws PropertyTypeException;
+    void setValue(Date value) throws PropertyException;
 }

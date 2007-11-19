@@ -5,7 +5,6 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 
 import java.util.Collection;
@@ -54,7 +53,7 @@ public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
         return properties.getProperties();
     }
 
-    public void addProperty(Property property) throws PropertyTypeException {
+    public void addProperty(Property property) throws PropertyException {
         properties.addProperty(property);
     }
 

@@ -11,11 +11,13 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryDDProject;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.util.Log;
@@ -23,6 +25,7 @@ import org.openl.util.Log;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -141,6 +144,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
             }
         }
+        
+        // Add Deploy Projects
+        for (RepositoryDDProject ddp : designTimeRepository.getDDProjects()) {
+            String name = ddp.getName();
+            if (userProjects.get(name) == null) {
+                UserWorkspaceDeploymentProject uwdp = new UserWorkspaceDeploymentProjectImpl(this, ddp);
+                userProjects.put(name, uwdp);
+            }
+        }
     }
 
     public File getLocalWorkspaceLocation() {
@@ -194,11 +206,18 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return listeners.remove(listener);
     }
 
-    public DeploymentDescriptorProject getDDProject(String name) throws RepositoryException {
-        return designTimeRepository.getDDProject(name);
+    public UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException {
+        RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
+        return new UserWorkspaceDeploymentProjectImpl(this, ddp);
     }
 
-    public List<DeploymentDescriptorProject> getDDProjects() throws RepositoryException {
-        return designTimeRepository.getDDProjects();
+    public List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException {
+        LinkedList<UserWorkspaceDeploymentProject> result = new LinkedList<UserWorkspaceDeploymentProject>();
+        
+        for (RepositoryDDProject ddp : designTimeRepository.getDDProjects()) {
+            result.add(new UserWorkspaceDeploymentProjectImpl(this, ddp));
+        }
+        
+        return result;
     }
 }

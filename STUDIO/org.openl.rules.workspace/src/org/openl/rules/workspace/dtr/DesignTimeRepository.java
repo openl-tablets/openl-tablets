@@ -2,10 +2,10 @@ package org.openl.rules.workspace.dtr;
 
 import java.util.List;
 
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
 public interface DesignTimeRepository extends ProjectsContainer<RepositoryProject> {
@@ -17,7 +17,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return specified version of project
      * @throws RepositoryException
      */
-    RepositoryProject getProject(String name, ProjectVersion version) throws RepositoryException;
+    RepositoryProject getProject(String name, CommonVersion version) throws RepositoryException;
 
     /**
      * Updates project in Design Time Repository.
@@ -47,7 +47,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
     
     void createProject(String name) throws RepositoryException;
     
-    public DeploymentDescriptorProject getDDProject(String name) throws RepositoryException;
-    public List<DeploymentDescriptorProject> getDDProjects() throws RepositoryException;
+    public RepositoryDDProject getDDProject(String name) throws RepositoryException;
+    public List<RepositoryDDProject> getDDProjects() throws RepositoryException;
     public void createDDProject(String name) throws RepositoryException;
 }

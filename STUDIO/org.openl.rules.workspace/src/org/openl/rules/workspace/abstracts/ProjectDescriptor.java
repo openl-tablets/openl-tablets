@@ -1,10 +1,12 @@
 package org.openl.rules.workspace.abstracts;
 
+import org.openl.rules.repository.CommonVersion;
+
 public interface ProjectDescriptor {
     String getProjectName();
     
-    ProjectVersion getProjectVersion();
+    CommonVersion getProjectVersion();
     
-    void setProjectVersion(ProjectVersion version) throws ProjectException;
+    void setProjectVersion(CommonVersion version) throws ProjectException;
     void delete();
 }

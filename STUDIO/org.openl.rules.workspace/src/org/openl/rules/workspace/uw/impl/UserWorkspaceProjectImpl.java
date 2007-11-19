@@ -50,6 +50,10 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
             throw new ProjectException("Project ''{0}'' is already closed", null, getName());
         }
 
+        if (isLocked()) {
+            dtrProject.unlock(userWorkspace.getUser());
+        }
+        
         localProject.remove();
         updateArtefact(null, dtrProject);
     }
@@ -162,6 +166,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isOpened()) {
             close();
         }
+    }
+
+    public boolean isDeploymentProject() {
+        return false;
+    }
+
+    public boolean isRulesProject() {
+        return true;
     }
 
     // --- protected
