@@ -134,36 +134,12 @@ public class RepositoryTreeController {
 //        currentNode = null;
     }
 
-    /**
-     * Used for testing DDP. Must be removed in the future.
-     *
-     * @return
-     */
-    public String getSecondProjectName() {
-        int c = 0;
-        for (Project project : userWorkspace.getProjects()) {
-            if (c > 0) {
-                return project.getName();
-            }
-            c++;
-        }
-        return null;
-    }
-
     public static void refreshSessionTree() {
         RepositoryTreeController self = (RepositoryTreeController) FacesUtils
                 .getFacesVariable("#{repositoryTree}");
         if (self != null) {
             self.reInit();
         }
-    }
-
-    public UserWorkspace getUserWorkspace() {
-        return userWorkspace;
-    }
-
-    public void setUserWorkspace(UserWorkspace userWorkspace) {
-        this.userWorkspace = userWorkspace;
     }
 
     /**
@@ -208,7 +184,7 @@ public class RepositoryTreeController {
                         new FacesMessage("error adding folder", e.getMessage()));
             }
         }
-        return result ? null : UiConst.OUTCOME_FAILED;
+        return result ? null : UiConst.OUTCOME_FAILURE;
     }
 
     public String delete() {
@@ -229,7 +205,7 @@ public class RepositoryTreeController {
         boolean result = false;
 
         try {
-            getUserWorkspace().createProject(newProjectName);
+            userWorkspace.createProject(newProjectName);
             reInit();
             result = true;
         } catch (ProjectException e) {
@@ -239,7 +215,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage("Failed to create new project", e.getMessage()));
         }
-        return (result) ? null : UiConst.OUTCOME_FAILED;
+        return (result) ? null : UiConst.OUTCOME_FAILURE;
     }
 
     // TODO implement
@@ -252,7 +228,7 @@ public class RepositoryTreeController {
     public String openProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) {
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
 
         try {
@@ -265,14 +241,14 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage("Failed to open project", e.getMessage()));
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
     }
 
     public String closeProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) {
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
 
         try {
@@ -285,14 +261,14 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage("Failed to close project", e.getMessage()));
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
     }
 
     public String checkOutProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) {
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
 
         try {
@@ -305,14 +281,14 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage("Failed to check out project", e.getMessage()));
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
     }
 
     public String checkInProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) {
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
 
         try {
@@ -325,7 +301,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage("Failed to check in project", e.getMessage()));
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
     }
 
@@ -340,5 +316,27 @@ public class RepositoryTreeController {
 
             return null;
         }
+    }
+
+    /**
+     * Used for testing DDP. Must be removed in the future.
+     *
+     * @return
+     *
+     * @deprecated
+     */
+    public String getSecondProjectName() {
+        int c = 0;
+        for (Project project : userWorkspace.getProjects()) {
+            if (c > 0) {
+                return project.getName();
+            }
+            c++;
+        }
+        return null;
+    }
+
+    public void setUserWorkspace(UserWorkspace userWorkspace) {
+        this.userWorkspace = userWorkspace;
     }
 }

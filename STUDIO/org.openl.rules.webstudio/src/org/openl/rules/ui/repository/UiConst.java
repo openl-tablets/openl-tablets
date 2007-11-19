@@ -2,7 +2,7 @@ package org.openl.rules.ui.repository;
 
 /**
  * UI / RichFaces related constants
- * 
+ *
  * @author Aleh Bykhavets
  *
  */
@@ -28,7 +28,7 @@ public class UiConst {
     public static final String ICON_PROJECT_LOCAL = "/images/jcr/tree-prj-local.png";
     public static final String ICON_PROJECT_OPENED = "/images/jcr/tree-prj-opened.png";
     public static final String ICON_PROJECT_OPENED_LOCKED = "/images/jcr/tree-prj-opened-locked.png";
-    
+
     public static final String OUTCOME_SUCCESS = "success";
-    public static final String OUTCOME_FAILED = "failed";
+    public static final String OUTCOME_FAILURE = "failure";
 }

@@ -85,19 +85,19 @@ public class AddDependencyController {
     public String add() {
         AbstractTreeNode selected = repositoryTree.getSelected();
         if (!(selected instanceof TreeProject)) {
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
         TreeProject project = (TreeProject) selected;
 
         ProjectDependencyImpl dependency = buildDependencyObject();
         if(dependency == null) {
-            return UiConst.OUTCOME_FAILED; 
+            return UiConst.OUTCOME_FAILURE; 
         }
 
         if (!project.addDependency(dependency)) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage("duplicate dependency"));
-            return UiConst.OUTCOME_FAILED;
+            return UiConst.OUTCOME_FAILURE;
         }
 
         return UiConst.OUTCOME_SUCCESS;
