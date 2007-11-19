@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Repository Handler.
  * It works with repository projects.
- * 
+ *
  * @author Aleh Bykhavets
  *
  */
@@ -34,7 +34,7 @@ public class RepositoryContoller {
 
     /**
      * Gets all projects from a rule repository.
-     * 
+     *
      * @return list of projects
      */
     public List<AbstractTreeNode> getProjects() {
@@ -44,7 +44,7 @@ public class RepositoryContoller {
     public void setNewProjectName(String newProjectName) {
         this.newProjectName = newProjectName;
     }
-    
+
     public String getNewProjectName() {
         // expect null here
         return newProjectName;
@@ -89,24 +89,23 @@ public class RepositoryContoller {
 
     public String addProject() {
         boolean result = false;
-        
+
         try {
             repositoryTree.getUserWorkspace().createProject(newProjectName);
             repositoryTree.reInit();
             result = true;
         } catch (ProjectException e) {
             Log.error("Failed to create new project", e);
-            
+
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage("Failed to create new project", e.getMessage()));
-        }        
+        }
         return (result) ? UiConst.OUTCOME_SUCCESS : UiConst.OUTCOME_FAILED;
     }
 
-    // todo: implement
+    // TODO implement
     public boolean copyProject(String existingProject, String newProject) {
         boolean result = true;
-        
 
         return result;
     }
@@ -119,22 +118,22 @@ public class RepositoryContoller {
     public void setRepositoryTree(RepositoryTreeController treeController) {
         repositoryTree = treeController;
     }
-    
+
     public String openProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) return UiConst.OUTCOME_FAILED;
-        
+
         try {
             project.open();
             repositoryTree.reInit();
             return UiConst.OUTCOME_SUCCESS;
         } catch (ProjectException e) {
             Log.error("Failed to open project", e);
-            
+
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage("Failed to open project", e.getMessage()));
             return UiConst.OUTCOME_FAILED;
-        }        
+        }
     }
 
     public String closeProject() {
@@ -147,47 +146,47 @@ public class RepositoryContoller {
             return UiConst.OUTCOME_SUCCESS;
         } catch (ProjectException e) {
             Log.error("Failed to close project", e);
-            
+
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage("Failed to close project", e.getMessage()));
             return UiConst.OUTCOME_FAILED;
-        }        
+        }
     }
 
     public String checkOutProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) return UiConst.OUTCOME_FAILED;
-        
+
         try {
             project.checkOut();
             repositoryTree.reInit();
-            return UiConst.OUTCOME_SUCCESS;
+            return null;
         } catch (ProjectException e) {
             Log.error("Failed to check out project", e);
-            
+
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage("Failed to check out project", e.getMessage()));
             return UiConst.OUTCOME_FAILED;
-        }        
+        }
     }
 
     public String checkInProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) return UiConst.OUTCOME_FAILED;
-        
+
         try {
             project.checkIn();
             repositoryTree.reInit();
-            return UiConst.OUTCOME_SUCCESS;
+            return null;
         } catch (ProjectException e) {
             Log.error("Failed to check in project", e);
-            
+
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage("Failed to check in project", e.getMessage()));
             return UiConst.OUTCOME_FAILED;
-        }        
+        }
     }
-    
+
     private UserWorkspaceProject getActiveProject() {
         ProjectArtefact projectArtefact = repositoryTree.getSelected().getDataBean();
         if (projectArtefact instanceof UserWorkspaceProject) {

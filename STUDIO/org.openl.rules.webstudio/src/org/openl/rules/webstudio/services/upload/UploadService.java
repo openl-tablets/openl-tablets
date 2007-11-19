@@ -1,9 +1,18 @@
 package org.openl.rules.webstudio.services.upload;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
@@ -11,17 +20,6 @@ import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 
 /**
@@ -115,7 +113,7 @@ public class UploadService extends BaseUploadService {
 
             if (item.isDirectory()) {
                 fullName = fullName.substring(0, fullName.length() - 1);
-                
+
                 checkPath(project, fullName);
 
                 //targetFile.mkdirs();
@@ -125,18 +123,18 @@ public class UploadService extends BaseUploadService {
 
                 UserWorkspaceProjectFolder folder = project;
                 String resName = null;
-                
+
                 int pos = fullName.lastIndexOf('/');
                 if (pos >=0) {
                     String path = fullName.substring(0, pos);
                     resName = fullName.substring(pos + 1);
-                    
+
                     folder = checkPath(project, path);
                 } else {
                     resName = fullName;
                 }
-                
-                
+
+
                 ProjectResource projectResource = new FileProjectResource(zipInputStream);
                 try {
                     folder.addResource(resName, projectResource);
@@ -157,7 +155,6 @@ public class UploadService extends BaseUploadService {
         }
 
         try {
-            workspace.refresh();
             project.checkIn();
         } catch (ProjectException e) {
             throw new ServiceException("Error during project checkIn", e);
@@ -165,7 +162,7 @@ public class UploadService extends BaseUploadService {
 
         result.setResultFile(uploadDir);
     }
-    
+
     private UserWorkspaceProjectFolder checkPath(UserWorkspaceProject project, String fullName) throws ServiceException {
         ArtefactPathImpl ap = new ArtefactPathImpl(fullName);
         UserWorkspaceProjectFolder current = project;
@@ -175,7 +172,7 @@ public class UploadService extends BaseUploadService {
                     current = (UserWorkspaceProjectFolder) current.getArtefact(segment);
                 } catch (ProjectException e) {
                     throw new ServiceException("Cannot get user workspace folder " + segment, e);
-                }                        
+                }
             } else {
                 try {
                     current = current.addFolder(segment);
@@ -184,7 +181,7 @@ public class UploadService extends BaseUploadService {
                 }
             }
         }
-        
+
         return current;
     }
 }
