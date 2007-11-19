@@ -32,17 +32,53 @@ public class RepositoryTreeController {
     private TreeRepository repository;
     private UserWorkspace userWorkspace;
 
-    public UserWorkspace getUserWorkspace() {
-        return userWorkspace;
+    /**
+     * TODO: reimplement properly when AbstractTreeNode.id becomes Object.
+     *
+     * @param nodeName
+     *
+     * @return
+     */
+    private static long generateId(String nodeName) {
+        return nodeName.hashCode();
     }
 
-    public void setUserWorkspace(UserWorkspace userWorkspace) {
-        this.userWorkspace = userWorkspace;
+    private void traverseFolder(TreeFolder folder,
+        Collection<?extends ProjectArtefact> artefacts) {
+        for (ProjectArtefact artefact : artefacts) {
+            String path = artefact.getArtefactPath().getStringValue();
+            if (artefact instanceof ProjectFolder) {
+                TreeFolder tf = new TreeFolder(generateId(path), artefact.getName());
+                tf.setDataBean(artefact);
+                folder.add(tf);
+                traverseFolder(tf, ((ProjectFolder) artefact).getArtefacts());
+            } else {
+                TreeFile tf = new TreeFile(generateId(path), artefact.getName());
+                tf.setDataBean(artefact);
+                folder.add(tf);
+            }
+        }
+    }
+
+    private void buildTree() {
+        root = new TreeRepository(generateId(""), "");
+        repository = new TreeRepository(generateId("Rules Repository"), "Rules Repository");
+        repository.setDataBean(null);
+        root.add(repository);
+
+        for (Project project : userWorkspace.getProjects()) {
+            TreeProject prj = new TreeProject(generateId(project.getName()),
+                    project.getName());
+            prj.setDataBean(project);
+            repository.add(prj);
+            // redo that
+            traverseFolder(prj, project.getArtefacts());
+        }
     }
 
     public synchronized Object getData() {
         if (root == null) {
-            initData();
+            buildTree();
         }
 
         return root;
@@ -50,16 +86,9 @@ public class RepositoryTreeController {
 
     public synchronized TreeRepository getRepositoryNode() {
         if (root == null) {
-            initData();
+            buildTree();
         }
         return repository;
-    }
-
-    public void processSelection(NodeSelectedEvent event) throws AbortProcessingException {
-        UITree tree = (UITree) event.getComponent();
-        AbstractTreeNode node = (AbstractTreeNode) tree.getRowData();
-
-        setSelected(node);
     }
 
     public AbstractTreeNode getSelected() {
@@ -69,20 +98,25 @@ public class RepositoryTreeController {
             //
             currentNode = repository;
         }
-
         return currentNode;
     }
 
-    public Boolean adviseNodeSelected(org.richfaces.component.UITree uiTree) {
+    public void processSelection(NodeSelectedEvent event) throws AbortProcessingException {
+        UITree tree = (UITree) event.getComponent();
+        AbstractTreeNode node = (AbstractTreeNode) tree.getRowData();
+        currentNode = node;
+    }
+
+    public Boolean adviseNodeSelected(UITree uiTree) {
         AbstractTreeNode node = (AbstractTreeNode) uiTree.getRowData();
         AbstractTreeNode selected = getSelected();
-
-        return (node == selected) ? Boolean.TRUE : Boolean.FALSE;
+        return (node.getId() == selected.getId());
     }
 
     public void reInit() {
         root = null;
-        currentNode = null;
+
+//        currentNode = null;
     }
 
     /**
@@ -101,54 +135,19 @@ public class RepositoryTreeController {
         return null;
     }
 
-    protected void setSelected(AbstractTreeNode node) {
-        currentNode = node;
-    }
-
-    /**
-     * TODO: reimplement properly when AbstractTreeNode.id becomes Object.
-     */
-    private static long generateId(String nodeName) {
-        return nodeName.hashCode();
-    }
-
-    protected void initData() {
-        root = new TreeRepository(generateId(""), "");
-        repository = new TreeRepository(generateId("Rules Repository"), "Rules Repository");
-        repository.setDataBean(null);
-        root.add(repository);
-
-        for (Project project : userWorkspace.getProjects()) {
-            TreeProject prj = new TreeProject(generateId(project.getName()), project.getName());
-            prj.setDataBean(project);
-            repository.add(prj);
-            // redo that
-            initFolder(prj, project.getArtefacts());
-        }
-    }
-
-    private void initFolder(TreeFolder folder,
-        Collection<?extends ProjectArtefact> artefacts) {
-        for (ProjectArtefact artefact : artefacts) {
-            String path = artefact.getArtefactPath().getStringValue();
-            if (artefact instanceof ProjectFolder) {
-                TreeFolder tf = new TreeFolder(generateId(path), artefact.getName());
-                tf.setDataBean(artefact);
-                folder.add(tf);
-                initFolder(tf, ((ProjectFolder) artefact).getArtefacts());
-            } else {
-                TreeFile tf = new TreeFile(generateId(path), artefact.getName());
-                tf.setDataBean(artefact);
-                folder.add(tf);
-            }
-        }
-    }
-
     public static void refreshSessionTree() {
         RepositoryTreeController self = (RepositoryTreeController) FacesUtils
                 .getFacesVariable("#{repositoryTree}");
         if (self != null) {
             self.reInit();
         }
+    }
+
+    public UserWorkspace getUserWorkspace() {
+        return userWorkspace;
+    }
+
+    public void setUserWorkspace(UserWorkspace userWorkspace) {
+        this.userWorkspace = userWorkspace;
     }
 }
