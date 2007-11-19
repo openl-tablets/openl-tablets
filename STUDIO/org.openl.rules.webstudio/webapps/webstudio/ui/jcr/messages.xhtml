@@ -7,26 +7,4 @@
 
   <h:messages globalOnly="true" showDetail="true" showSummary="false" tooltip="true" />
 
-  <rich:dataTable rendered="#{not empty userSession.messages}" value="#{userSession.messages}" var="err">
-    <f:facet name="header">
-      <rich:columnGroup>
-        <rich:column>
-          <h:outputText value="Message" />
-        </rich:column>
-        <rich:column>
-          <h:outputText value="Cause" />
-        </rich:column>
-      </rich:columnGroup>
-    </f:facet>
-
-    <rich:columnGroup>
-      <rich:column>
-        <h:outputText value="#{err.message}" />
-      </rich:column>
-      <rich:column>
-        <h:outputText value="#{err.cause}" />
-      </rich:column>
-    </rich:columnGroup>
-  </rich:dataTable>
-
 </ui:composition>

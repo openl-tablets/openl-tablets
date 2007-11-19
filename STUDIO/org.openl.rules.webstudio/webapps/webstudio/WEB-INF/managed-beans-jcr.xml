@@ -3,12 +3,6 @@
                               "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config>
 
-  <managed-bean>
-    <managed-bean-name>userSession</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.UserSessionBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-
   <!-- activeNode.* is short for userSession.selected.dataBean.* and userSession.selected.type -->
   <managed-bean>
     <managed-bean-name>modalProject</managed-bean-name>
@@ -77,9 +71,5 @@
       <value>#{repositoryTreeController}</value>
     </managed-property>
   </managed-bean>
-
-  <lifecycle>
-    <phase-listener>org.openl.rules.ui.repository.JsfPhaseListener</phase-listener>
-  </lifecycle>
 
 </faces-config>
