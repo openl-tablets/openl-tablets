@@ -1,9 +1,11 @@
 package org.openl.rules.workspace.props.impl;
 
-import org.openl.rules.workspace.props.*;
-
 import java.util.Collection;
 import java.util.HashMap;
+
+import org.openl.rules.workspace.props.PropertiesContainer;
+import org.openl.rules.workspace.props.Property;
+import org.openl.rules.workspace.props.PropertyException;
 
 /**
  * Implementation of Properties Container
@@ -36,7 +38,7 @@ public class PropertiesContainerImpl implements PropertiesContainer {
     }
 
     /** {@inheritDoc} */
-    public void addProperty(Property property) throws PropertyTypeException {
+    public void addProperty(Property property) throws PropertyException {
         String name = property.getName();
         Property existing = properties.get(name);
 

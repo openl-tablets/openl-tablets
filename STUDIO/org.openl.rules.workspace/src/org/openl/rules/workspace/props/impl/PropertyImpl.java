@@ -1,10 +1,10 @@
 package org.openl.rules.workspace.props.impl;
 
-import org.openl.rules.workspace.props.Property;
-import org.openl.rules.workspace.props.PropertyTypeException;
-import org.openl.rules.workspace.props.ValueType;
-
 import java.util.Date;
+
+import org.openl.rules.workspace.props.Property;
+import org.openl.rules.workspace.props.PropertyException;
+import org.openl.rules.workspace.props.ValueType;
 
 /**
  * Implementation of Property
@@ -51,28 +51,28 @@ public class PropertyImpl implements Property {
     }
 
     /** {@inheritDoc} */
-    public Date getDate() throws PropertyTypeException {
+    public Date getDate() throws PropertyException {
         checkType(ValueType.DATE);
         return (Date)value;
     }
 
     /** {@inheritDoc} */
-    public void setValue(String value) throws PropertyTypeException {
+    public void setValue(String value) throws PropertyException {
         checkType(ValueType.STRING);
         this.value = value;
     }
 
     /** {@inheritDoc} */
-    public void setValue(Date value) throws PropertyTypeException {
+    public void setValue(Date value) throws PropertyException {
         checkType(ValueType.DATE);
         this.value = value;
     }
 
     // --- protected
 
-    protected void checkType(ValueType type) throws PropertyTypeException {
+    protected void checkType(ValueType type) throws PropertyException {
         if (this.type != type) {
-            throw new PropertyTypeException("Property has {0} type", null, this.type);
+            throw new PropertyException("Property has {0} type", null, this.type);
         }
     }
 }

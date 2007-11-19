@@ -1,26 +1,27 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
 
 public class RepositoryProjectDescriptorImpl implements ProjectDescriptor {
     private RepositoryDeploymentDescriptorProjectImpl deploymentProject;
 
     private String projectName;
-    private RepositoryProjectVersionImpl projectVersion;
+    private CommonVersion projectVersion;
     
     protected RepositoryProjectDescriptorImpl(RepositoryDeploymentDescriptorProjectImpl deploymentProject, RProjectDescriptor rulesProjectDescr) {
         this.deploymentProject = deploymentProject;
         
         projectName = rulesProjectDescr.getProjectName();
         RVersion rv = rulesProjectDescr.getProjectVersion();
-        projectVersion = new RepositoryProjectVersionImpl(rv.getMajor(), rv.getMinor(), rv.getRevision(), null);
+        projectVersion = new CommonVersionImpl(rv.getMajor(), rv.getMinor(), rv.getRevision());
     }
     
-    protected RepositoryProjectDescriptorImpl(RepositoryDeploymentDescriptorProjectImpl deploymentProject, String projectName, RepositoryProjectVersionImpl projectVersion) {
+    protected RepositoryProjectDescriptorImpl(RepositoryDeploymentDescriptorProjectImpl deploymentProject, String projectName, CommonVersion projectVersion) {
         this.deploymentProject = deploymentProject;
         this.projectName = projectName;
         this.projectVersion = projectVersion;
@@ -30,12 +31,12 @@ public class RepositoryProjectDescriptorImpl implements ProjectDescriptor {
         return projectName;
     }
 
-    public ProjectVersion getProjectVersion() {
+    public CommonVersion getProjectVersion() {
         return projectVersion;
     }
 
-    public void setProjectVersion(ProjectVersion version) throws ProjectException {
-        projectVersion = new RepositoryProjectVersionImpl(version.getMajor(), version.getMinor(), version.getRevision(), null);
+    public void setProjectVersion(CommonVersion version) throws ProjectException {
+        projectVersion = new CommonVersionImpl(version);
     }
 
     public void delete() {

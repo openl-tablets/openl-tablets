@@ -15,7 +15,6 @@ import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 
@@ -39,7 +38,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         return getArtefact().getName();
     }
 
-    public void addProperty(Property property) throws PropertyTypeException {
+    public void addProperty(Property property) throws PropertyException {
         // TODO check whether it can edit
         getArtefact().addProperty(property);
     }

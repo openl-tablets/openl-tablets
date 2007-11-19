@@ -15,7 +15,6 @@ import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
 import org.openl.rules.workspace.props.PropertiesContainer;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
@@ -64,8 +63,8 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
         return properties.getProperties();
     }
 
-    public void addProperty(Property property) throws PropertyTypeException {
-        throw new PropertyTypeException("Not supported", null);
+    public void addProperty(Property property) throws PropertyException {
+        throw new PropertyException("Not supported", null);
     }
 
     public Property removeProperty(String name) throws PropertyException {
@@ -223,7 +222,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
             
             try {
                 props.addProperty(prop);
-            } catch (PropertyTypeException e) {
+            } catch (PropertyException e) {
                 // ignore -- must never happen
             }            
         }
