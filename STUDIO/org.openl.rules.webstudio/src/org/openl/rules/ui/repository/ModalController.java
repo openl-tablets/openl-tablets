@@ -25,7 +25,7 @@ public class ModalController {
         //refresh();
 
         // not real use, but still...
-        return UiConst.OUTCOME_FAILED;
+        return UiConst.OUTCOME_FAILURE;
     }
 
     public void setNewProjectName(String newProjectName) {
@@ -48,7 +48,7 @@ public class ModalController {
         //boolean success = getContext().getRepositoryHandler().copyProject(copyProjectFrom, copyProjectTo);
 //        refresh();
 
-        return UiConst.OUTCOME_FAILED;
+        return UiConst.OUTCOME_FAILURE;
     }
 
     public void setCopyProjectFrom(String copyProjectFrom) {
