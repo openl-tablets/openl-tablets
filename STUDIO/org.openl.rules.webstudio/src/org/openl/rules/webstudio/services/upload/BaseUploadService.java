@@ -140,26 +140,6 @@ public abstract class BaseUploadService implements Service {
         return result;
     }
 
-    private UploadServiceResult uploadNonZipFile(UploadServiceParams params)
-        throws ServiceException
-    {
-        File targetFile;
-        UploadServiceResult result = new UploadServiceResult();
-
-        // determine file to save uploaded file
-        try {
-            targetFile = getFile(params, params.getFile().getName());
-            saveFile(params, targetFile);
-
-            result.setResultFile(targetFile);
-            result.setUploadCount(1);
-            return result;
-        } catch (IOException e) {
-            String msg = "Unable to upload file '" + params.getFile().getName() + "'";
-            throw new ServiceException(msg + ": " + e.getMessage(), e);
-        }
-    }
-
     /**
      * Unpack uploaded archive file.
      *

@@ -28,7 +28,6 @@ import javax.faces.event.AbortProcessingException;
 public class RepositoryTreeController {
     /** Root node for RichFaces's tree.  It is not displayed. */
     private TreeRepository root;
-    private static long lastId;
     private AbstractTreeNode currentNode;
     private TreeRepository repository;
     private UserWorkspace userWorkspace;
@@ -102,24 +101,25 @@ public class RepositoryTreeController {
         return null;
     }
 
-    // ------ protected ------
     protected void setSelected(AbstractTreeNode node) {
         currentNode = node;
     }
 
-    private static synchronized long generateId() {
-        return lastId++;
+    /**
+     * TODO: reimplement properly when AbstractTreeNode.id becomes Object.
+     */
+    private static long generateId(String nodeName) {
+        return nodeName.hashCode();
     }
 
     protected void initData() {
-        lastId=0;
-        root = new TreeRepository(generateId(), "");
-        repository = new TreeRepository(generateId(), "Rules Repository");
+        root = new TreeRepository(generateId(""), "");
+        repository = new TreeRepository(generateId("Rules Repository"), "Rules Repository");
         repository.setDataBean(null);
         root.add(repository);
 
         for (Project project : userWorkspace.getProjects()) {
-            TreeProject prj = new TreeProject(generateId(), project.getName());
+            TreeProject prj = new TreeProject(generateId(project.getName()), project.getName());
             prj.setDataBean(project);
             repository.add(prj);
             // redo that
@@ -130,14 +130,14 @@ public class RepositoryTreeController {
     private void initFolder(TreeFolder folder,
         Collection<?extends ProjectArtefact> artefacts) {
         for (ProjectArtefact artefact : artefacts) {
+            String path = artefact.getArtefactPath().getStringValue();
             if (artefact instanceof ProjectFolder) {
-                TreeFolder tf = new TreeFolder(generateId(), artefact.getName());
+                TreeFolder tf = new TreeFolder(generateId(path), artefact.getName());
                 tf.setDataBean(artefact);
                 folder.add(tf);
-
                 initFolder(tf, ((ProjectFolder) artefact).getArtefacts());
             } else {
-                TreeFile tf = new TreeFile(generateId(), artefact.getName());
+                TreeFile tf = new TreeFile(generateId(path), artefact.getName());
                 tf.setDataBean(artefact);
                 folder.add(tf);
             }

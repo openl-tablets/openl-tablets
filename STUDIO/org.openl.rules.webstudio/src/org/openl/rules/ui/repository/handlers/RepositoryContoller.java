@@ -72,7 +72,7 @@ public class RepositoryContoller {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("error adding folder", e.getMessage()));
             }
         }
-        return result ? UiConst.OUTCOME_SUCCESS : UiConst.OUTCOME_FAILED;
+        return result ? null : UiConst.OUTCOME_FAILED;
     }
 
     public String delete() {
@@ -84,7 +84,7 @@ public class RepositoryContoller {
             Log.error("error deleting", e);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("error deleting", e.getMessage()));
         }
-        return UiConst.OUTCOME_SUCCESS;
+        return null;
     }
 
     public String addProject() {
@@ -100,7 +100,7 @@ public class RepositoryContoller {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage("Failed to create new project", e.getMessage()));
         }
-        return (result) ? UiConst.OUTCOME_SUCCESS : UiConst.OUTCOME_FAILED;
+        return (result) ? null : UiConst.OUTCOME_FAILED;
     }
 
     // TODO implement
@@ -126,7 +126,7 @@ public class RepositoryContoller {
         try {
             project.open();
             repositoryTree.reInit();
-            return UiConst.OUTCOME_SUCCESS;
+            return null;
         } catch (ProjectException e) {
             Log.error("Failed to open project", e);
 
@@ -143,7 +143,7 @@ public class RepositoryContoller {
         try {
             project.close();
             repositoryTree.reInit();
-            return UiConst.OUTCOME_SUCCESS;
+            return null;
         } catch (ProjectException e) {
             Log.error("Failed to close project", e);
 
@@ -176,7 +176,7 @@ public class RepositoryContoller {
 
         try {
             project.checkIn();
-            repositoryTree.reInit();
+//            repositoryTree.reInit();
             return null;
         } catch (ProjectException e) {
             Log.error("Failed to check in project", e);
