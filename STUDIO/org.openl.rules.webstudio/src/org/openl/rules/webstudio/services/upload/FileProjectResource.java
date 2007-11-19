@@ -1,5 +1,9 @@
 package org.openl.rules.webstudio.services.upload;
 
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -7,12 +11,6 @@ import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.PropertyTypeException;
-
-import java.io.InputStream;
-
-import java.util.Collection;
-import java.util.LinkedList;
 
 
 /**
@@ -47,8 +45,8 @@ public class FileProjectResource implements ProjectResource {
         return "noname";
     }
 
-    public void addProperty(Property property) throws PropertyTypeException {
-        throw new PropertyTypeException("Not supported", null);
+    public void addProperty(Property property) throws PropertyException {
+        throw new PropertyException("Not supported", null);
     }
 
     public Collection<Property> getProperties() {

@@ -1,18 +1,6 @@
 package org.openl.rules.ui.repository;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import static org.openl.rules.ui.repository.UiConst.OUTCOME_SUCCESS;
-import org.openl.rules.webstudio.RulesUserSession;
-import org.openl.rules.webstudio.util.FacesUtils;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
-import org.openl.rules.workspace.abstracts.ProjectDescriptor;
-import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,6 +8,18 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.faces.model.SelectItem;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.webstudio.RulesUserSession;
+import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 
 /**
@@ -84,10 +84,10 @@ public class DeploymentController implements Serializable {
         try {
             workspace.createDDProject(name);
 
-            DeploymentDescriptorProject ddp = workspace.getDDProject(name);
+            UserWorkspaceDeploymentProject ddp = workspace.getDDProject(name);
+            ddp.checkOut();
 
             for (DeploymentDescriptorItem item : items) {
-                ProjectDescriptor pd = ddp.createProjectDescriptor(item.getName());
                 String[] version = StringUtils.split(item.getVersion(), '.');
                 int major = 0;
                 int minor = 0;
@@ -101,11 +101,11 @@ public class DeploymentController implements Serializable {
                 if (version.length > 2) {
                     revision = Integer.parseInt(version[2]);
                 }
-                pd.setProjectVersion(new RepositoryProjectVersionImpl(major, minor,
-                        revision, null));
+                
+                ddp.addProjectDescriptor(item.getName(), new CommonVersionImpl(major, minor, revision));
             }
 
-            ddp.update();
+            ddp.checkIn();
         } catch (Exception e) {
             log.error("Cannot create new DDP " + name);
             return null;
