@@ -176,7 +176,7 @@ public class RepositoryContoller {
 
         try {
             project.checkIn();
-//            repositoryTree.reInit();
+            repositoryTree.reInit();
             return null;
         } catch (ProjectException e) {
             Log.error("Failed to check in project", e);
