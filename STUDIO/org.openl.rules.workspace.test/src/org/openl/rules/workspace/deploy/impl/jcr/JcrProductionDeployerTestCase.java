@@ -74,7 +74,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         instance.deploy(Collections.singletonList(project));
 
         File zipFile = new File(new File(TestHelper.FOLDER_TEST, TestHelper.getWorkspaceUser().getUserId()),
-                JcrProductionDeployer.ZIP_NAME);
+                JcrProductionDeployer.ZIP_FILE_NAME);
         assertTrue("zip archive was not created", zipFile.exists());
     }
 
