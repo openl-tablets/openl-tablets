@@ -26,20 +26,19 @@ import javax.faces.event.AbortProcessingException;
  * @author Aleh Bykhavets
  */
 public class RepositoryTreeController {
-    private static long lastId;
-
-    /** Root node for RichFaces's tree.  It won't be displayed. */
+    /** Root node for RichFaces's tree.  It is not displayed. */
     private TreeRepository root;
+    private static long lastId;
     private AbstractTreeNode currentNode;
     private TreeRepository repository;
     private UserWorkspace userWorkspace;
 
-    public void setUserWorkspace(UserWorkspace userWorkspace) {
-        this.userWorkspace = userWorkspace;
-    }
-
     public UserWorkspace getUserWorkspace() {
         return userWorkspace;
+    }
+
+    public void setUserWorkspace(UserWorkspace userWorkspace) {
+        this.userWorkspace = userWorkspace;
     }
 
     public synchronized Object getData() {
@@ -113,6 +112,7 @@ public class RepositoryTreeController {
     }
 
     protected void initData() {
+        lastId=0;
         root = new TreeRepository(generateId(), "");
         repository = new TreeRepository(generateId(), "Rules Repository");
         repository.setDataBean(null);
