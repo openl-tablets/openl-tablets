@@ -2,6 +2,7 @@ package org.openl.rules.workspace.deploy.impl.jcr;
 
 import org.openl.SmartProps;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.util.ZipUtil;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -12,12 +13,14 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.lw.impl.LocalProjectImpl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 
 public class JcrProductionDeployer implements ProductionDeployer {
     public static final String PROPNAME_ZIPFOLDER = "temp.zip.location";
     public static final String DEFAULT_ZIPFOLDER = "/tmp/rules-deployment/";
     public static final String WORKING_FOLDER = "work";
+    static final String ZIP_NAME = "project.zip";
 
     private final File workingFolder;
     private final File userFolder;
@@ -51,6 +54,12 @@ public class JcrProductionDeployer implements ProductionDeployer {
         ensureWorkingFolderExists();
 
         downloadProjects(projects);
+
+        try {
+            ZipUtil.zipFolder(getWorkingFolder(), new File(userFolder, ZIP_NAME));
+        } catch (IOException e) {
+            throw new DeploymentException("could not make projects zip archive", e);
+        }
 
         return id;
     }
