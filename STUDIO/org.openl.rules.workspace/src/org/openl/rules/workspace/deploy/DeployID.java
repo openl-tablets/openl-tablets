@@ -18,4 +18,8 @@ public class DeployID {
     public int hashCode() {
         return key.hashCode();
     }
+
+    public String getName() {
+        return key;
+    }
 }

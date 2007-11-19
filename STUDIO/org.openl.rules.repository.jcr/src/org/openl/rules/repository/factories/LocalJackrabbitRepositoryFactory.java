@@ -20,17 +20,25 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
+    public static final String PROP_REPOSITORY_HOME = "JCR.local.home";
+    public static final String DEFAULT_REPOSITORY_HOME = "../local-repository";
+    public static final String PROP_REPOSITORY_NAME = "JCR.name";
+    public static final String DEFAULT_REPOSITORY_NAME = "Jackrabbit Local";
+
     /** Jackrabbit local repository */
     private TransientRepository repository;
+    private String repHome;
 
     /** {@inheritDoc} */
     public void initialize(SmartProps props) throws RRepositoryException {
         super.initialize(props);
 
+        String repName = props.getStr(PROP_REPOSITORY_NAME, DEFAULT_REPOSITORY_NAME);
+        repHome = props.getStr(PROP_REPOSITORY_HOME, DEFAULT_REPOSITORY_HOME);
+
         try {
             init();
-            // TODO: do not hardcode repository name
-            setRepository(repository, "Jackrabbit Local");
+            setRepository(repository, repName);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize", e);
         }
@@ -61,8 +69,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     private void init() throws RepositoryException {
         try {
             String repConf = "/jackrabbit-repository.xml";
-            String repHome = "../local-repository";
-
+            
             // obtain real path to repository configuration file
             URL url = this.getClass().getResource(repConf);
             String fullPath = url.getFile();
