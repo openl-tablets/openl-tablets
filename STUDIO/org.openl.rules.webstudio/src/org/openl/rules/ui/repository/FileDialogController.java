@@ -1,26 +1,16 @@
 package org.openl.rules.ui.repository;
 
-import org.openl.rules.ui.repository.beans.FileBean;
-import org.openl.rules.ui.repository.beans.FolderBean;
-import org.openl.rules.ui.repository.handlers.FileHandler;
-import org.openl.rules.ui.repository.handlers.FolderHandler;
-
-public class FileDialogController extends AbstractDialogController {
+public class FileDialogController{
     private String uploadFrom;
     private String fileName;
-    
+
     /**
      * Adds new file to active node (Project or Folder)
-     * 
+     *
      * @return outcome: "success" or "fail"
      */
     public String addFile() {
-        FolderHandler fh = getContext().getFolderHandler();
-        FolderBean bean = (FolderBean) getContext().getActiveNodeBean();
-
-        boolean success = fh.addFile(bean, fileName, uploadFrom);
-        refresh();
-        return outcome(success);
+        return null;
     }
 
     public String getFileName() {
@@ -42,13 +32,10 @@ public class FileDialogController extends AbstractDialogController {
 
     /**
      * Updates file (active node)
-     * 
+     *
      * @return
      */
     public String updateFile() {
-        FileHandler fh = getContext().getFileHandler();
-        FileBean bean = (FileBean) getContext().getActiveNodeBean();
-        
-        return outcome(fh.updateFile(bean, uploadFrom));
+        return null;
     }
 }

@@ -7,7 +7,7 @@
 
   <h:messages globalOnly="true" showDetail="true" showSummary="false" tooltip="true" />
 
-  <rich:dataTable rendered="#{not empty userSession.errors}" value="#{userSession.errors}" var="err">
+  <rich:dataTable rendered="#{not empty userSession.messages}" value="#{userSession.messages}" var="err">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>

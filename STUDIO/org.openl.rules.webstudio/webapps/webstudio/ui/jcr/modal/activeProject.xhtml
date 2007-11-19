@@ -1,125 +1,121 @@
 <ui:composition
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:modalPanel  id="modalActiveProject" minHeight="200" minWidth="400" 
-		height="200" width="400" zindex="2000">
-		<f:facet name="header">
-			<h:outputText value="Modify Project" />
-		</f:facet>
+  <rich:modalPanel  id="modalActiveProject" minHeight="200" minWidth="400"
+    height="200" width="400" zindex="2000">
+    <f:facet name="header">
+      <h:outputText value="Modify Project" />
+    </f:facet>
 
-		<f:facet name="controls">
-			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalActiveProject');" />
-		</f:facet>
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalActiveProject');" />
+    </f:facet>
 
-		<h:form id="modalActiveProjectForm">
-		<h:panelGrid
-		  styleClass="modalBody"
-		  cellpadding="0" cellspacing="0" border="0" 
-		  columns="1" columnClasses="modalCol"
-		  rowClasses="modalRow1,modalRow2,modalRow3"
-		>
-			<h:panelGroup styleClass="modalMessage">
-				<p id="modalActiveProject:message">
-				Are you sure you want to modify it?
-				</p>
-			</h:panelGroup>
-			
-			<rich:separator height="1" />
-			
-			<h:panelGrid
-			  styleClass="modalButtonPanel"
-			  cellpadding="0" cellspacing="0" border="0"
-			  columns="2" columnClasses="modalButtonCol,modalButtonCol"
-			>
-				<h:commandButton
-				  id="actionButton" 
-				  styleClass="modalButton" 
-				  value="Modify" 
-				  action="#{modalProject.modifyProject}"
-				/>
-				<h:commandButton 
-				  id="cancelButton"
-				  styleClass="modalButton" 
-				  value="Cancel" 
-				  onclick="Richfaces.hideModalPanel('modalActiveProject');return false;"
-				/>
-			</h:panelGrid>
-			
-			<h:inputHidden
-			  id="type"
-			  value="#{modalProject.modifyType}"
-			/>
-		</h:panelGrid>
-		</h:form>
-		
-	</rich:modalPanel>
-	
-	<script>
-		function initDialog(from, dialogTitle, btnName, cmdName, msgFormat, param) {
-			var el;
-			el = document.getElementById('modalActiveProjectHeader');
-			el.innerHTML = dialogTitle;
-			
-			el = document.getElementById('modalActiveProjectForm:actionButton');
-			el.value=btnName;
+    <h:form id="modalActiveProjectForm">
+    <h:panelGrid
+      styleClass="modalBody"
+      cellpadding="0" cellspacing="0" border="0"
+      columns="1" columnClasses="modalCol"
+      rowClasses="modalRow1,modalRow2,modalRow3"
+    >
+      <h:panelGroup styleClass="modalMessage">
+        <p id="modalActiveProject:message">
+        Are you sure you want to modify it?
+        </p>
+      </h:panelGroup>
 
-			el = document.getElementById('modalActiveProjectForm:type');
-			el.value=cmdName;
+      <rich:separator height="1" />
 
-			el = document.getElementById('modalActiveProject:message');
-			var s = (param) ? param : from.innerHTML;
-			el.innerHTML = format(msgFormat, s);
-		}
-		
-		function showActiveModal() {
-			Richfaces.showModalPanel('modalActiveProject');
-			el = document.getElementById('modalActiveProjectForm:cancelButton');
-			el.focus();
-		}
+      <h:panelGrid
+        styleClass="modalButtonPanel"
+        cellpadding="0" cellspacing="0" border="0"
+        columns="2" columnClasses="modalButtonCol,modalButtonCol"
+      >
+        <h:commandButton
+          id="actionButton"
+          styleClass="modalButton"
+          value="Modify"
+          action="#{modalProject.modifyProject}"
+        />
+        <h:commandButton
+          id="cancelButton"
+          styleClass="modalButton"
+          value="Cancel"
+          onclick="Richfaces.hideModalPanel('modalActiveProject');return false;"
+        />
+      </h:panelGrid>
 
-		function confirmCommitProject(from, param) {
-			initDialog(from, 'Commit Project', 'Commit', 'commit',
-			"Are you sure you want to Commit the project '{0}'?", param);
-		
-			showActiveModal();
-			return false;
-		}
+    </h:panelGrid>
+    </h:form>
 
-		function confirmUpdateProject(from, param) {
-			initDialog(from, 'Update Project', 'Update', 'update',
-			"Are you sure you want to Update the project '{0}'?", param);
-		
-			showActiveModal();
-			return false;
-		}
-		
-		function confirmOvrAndUpdProject(from, param) {
-			initDialog(from, 'Override and Update Project', 'Override', 'overrideAndUpdate',
-			"Are you sure you want to Override and Update the project '{0}'?", param);
+  </rich:modalPanel>
 
-			showActiveModal();
-			return false;
-		}
+  <script>
+    function initDialog(from, dialogTitle, btnName, cmdName, msgFormat, param) {
+      var el;
+      el = document.getElementById('modalActiveProjectHeader');
+      el.innerHTML = dialogTitle;
 
-		function confirmUndeleteProject(from, param) {
-			initDialog(from, 'Undelete Project', 'Undelete', 'undelete',
-			"Are you sure you want to Undelete the project '{0}'?", param);
+      el = document.getElementById('modalActiveProjectForm:actionButton');
+      el.value=btnName;
 
-			showActiveModal();
-			return false;
-		}
+      el = document.getElementById('modalActiveProjectForm:type');
+      el.value=cmdName;
 
-		function confirmEraseProject(from, param) {
-			initDialog(from, 'Erase Project', 'ERASE', 'erase',
-			"Are you sure you want to Erase the project '{0}'?&lt;br/&gt;All data will be lots and cannot be restored after erasing.", param);
+      el = document.getElementById('modalActiveProject:message');
+      var s = (param) ? param : from.innerHTML;
+      el.innerHTML = format(msgFormat, s);
+    }
 
-			showActiveModal();
-			return false;
-		}
-	</script>
+    function showActiveModal() {
+      Richfaces.showModalPanel('modalActiveProject');
+      el = document.getElementById('modalActiveProjectForm:cancelButton');
+      el.focus();
+    }
+
+    function confirmCommitProject(from, param) {
+      initDialog(from, 'Commit Project', 'Commit', 'commit',
+      "Are you sure you want to Commit the project '{0}'?", param);
+
+      showActiveModal();
+      return false;
+    }
+
+    function confirmUpdateProject(from, param) {
+      initDialog(from, 'Update Project', 'Update', 'update',
+      "Are you sure you want to Update the project '{0}'?", param);
+
+      showActiveModal();
+      return false;
+    }
+
+    function confirmOvrAndUpdProject(from, param) {
+      initDialog(from, 'Override and Update Project', 'Override', 'overrideAndUpdate',
+      "Are you sure you want to Override and Update the project '{0}'?", param);
+
+      showActiveModal();
+      return false;
+    }
+
+    function confirmUndeleteProject(from, param) {
+      initDialog(from, 'Undelete Project', 'Undelete', 'undelete',
+      "Are you sure you want to Undelete the project '{0}'?", param);
+
+      showActiveModal();
+      return false;
+    }
+
+    function confirmEraseProject(from, param) {
+      initDialog(from, 'Erase Project', 'ERASE', 'erase',
+      "Are you sure you want to Erase the project '{0}'?&lt;br/&gt;All data will be lots and cannot be restored after erasing.", param);
+
+      showActiveModal();
+      return false;
+    }
+  </script>
 
 </ui:composition>

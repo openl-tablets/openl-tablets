@@ -7,67 +7,74 @@ import java.util.Map;
 
 import javax.faces.context.FacesContext;
 
-import org.openl.rules.ui.repository.beans.FileBean;
-import org.openl.rules.ui.repository.handlers.FileHandler;
-
-public class DiffFormController extends AbstractDialogController {
+public class DiffFormController {
     private String compareWithVersion;
-    
+
     public String revertTo() {
+        /*
         FileBean activeFile = (FileBean) getContext().getActiveNodeBean();
         FileHandler fh = getContext().getFileHandler();
         boolean success = fh.revertToVersion(activeFile, compareWithVersion);
-        
+
         refresh();
         return outcome(success);
+        */
+        return null;
     }
 
     public String compare() {
         FacesContext context = FacesContext.getCurrentInstance();
         compareWithVersion = getParamValue(context, "compareWithVersion");
 
-        return outcome(true);
+        return UiConst.OUTCOME_SUCCESS;
     }
-    
+
     public String getBaseVersionContent() {
+        /*
         FileBean activeFile = (FileBean) getContext().getActiveNodeBean();
         FileHandler fh = getContext().getFileHandler();
 
         InputStream is = fh.getContent(activeFile);
         return getContentAsString(is);
+        */
+        return null;
     }
-    
+
     public String getComparingVersionContent() {
+        /*
         FileBean activeFile = (FileBean) getContext().getActiveNodeBean();
         FileHandler fh = getContext().getFileHandler();
 
         InputStream is = fh.getContent4Version(activeFile, compareWithVersion);
         return getContentAsString(is);
+        */
+        return null;
     }
-    
+
     public String getBaseVersionName() {
-        return getContext().getActiveNodeBean().getVersion();
+       // return getContext().getActiveNodeBean().getVersion();
+        return null;
     }
-    
+
     public String getComparingVersionName() {
         return compareWithVersion;
     }
-    
+
     // --- private
-    
+
     private String getParamValue(FacesContext context, String name) {
         Map<String, String> params = context.getExternalContext().getRequestParameterMap();
         return params.get(name);
     }
-    
+
     private String getContentAsString(InputStream is) {
         if (is == null) {
             return "";
         }
-        
+
         InputStreamReader isr = null;
         StringBuffer sb = new StringBuffer(1024);
-        
+
         try {
             isr = new InputStreamReader(is);
             int i = isr.read();
@@ -76,7 +83,7 @@ public class DiffFormController extends AbstractDialogController {
                 i = isr.read();
             }
         } catch (IOException e) {
-            getContext().getMessageQueue().addMessage(e);
+            //getContext().getMessageQueue().addMessage(e);
         } finally {
             try {
                 if (is != null) {
@@ -86,10 +93,10 @@ public class DiffFormController extends AbstractDialogController {
                     isr.close();
                 }
             } catch (IOException e) {
-                getContext().getMessageQueue().addMessage(e);
-            }            
+                //getContext().getMessageQueue().addMessage(e);
+            }
         }
-        
+
         return sb.toString();
     }
 }

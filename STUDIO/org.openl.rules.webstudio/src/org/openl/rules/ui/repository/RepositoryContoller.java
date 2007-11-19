@@ -1,7 +1,5 @@
-package org.openl.rules.ui.repository.handlers;
+package org.openl.rules.ui.repository;
 
-import org.openl.rules.ui.repository.RepositoryTreeController;
-import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
