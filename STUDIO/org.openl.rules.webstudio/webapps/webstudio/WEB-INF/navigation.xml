@@ -17,8 +17,9 @@
     </navigation-rule>
 
     <navigation-rule>
+        <from-view-id>/ui/jcr/jcrMain.xhtml</from-view-id>
         <navigation-case>
-            <from-action>#{studioOpener.openStudio}</from-action>
+            <from-outcome>webstudio</from-outcome>
             <to-view-id>/jsp/index_jsf.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
