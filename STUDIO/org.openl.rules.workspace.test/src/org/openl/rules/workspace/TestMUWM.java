@@ -13,7 +13,6 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
@@ -105,8 +104,8 @@ public class TestMUWM {
             return "noname";
         }
 
-        public void addProperty(Property property) throws PropertyTypeException {
-            throw new PropertyTypeException("Not supported", null);
+        public void addProperty(Property property) throws PropertyException {
+            throw new PropertyException("Not supported", null);
         }
 
         public Collection<Property> getProperties() {

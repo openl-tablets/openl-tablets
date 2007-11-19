@@ -1,6 +1,15 @@
 package org.openl.rules.workspace.lw.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
 import junit.framework.TestCase;
+
 import org.openl.SmartProps;
 import org.openl.rules.workspace.TestHelper;
 import org.openl.rules.workspace.WorkspaceException;
@@ -16,16 +25,7 @@ import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
 import org.openl.rules.workspace.lw.LocalProjectResource;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.rules.workspace.props.PropertyTypeException;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * Tests correct working of <code>LocalProjectImpl</code> with properties.
@@ -93,7 +93,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         assertEquals("property not restored", now, folder1New.getArtefact("file2").getProperty("p6").getValue());
     }
 
-    public void testDoubleSave() throws ProjectException, PropertyTypeException {
+    public void testDoubleSave() throws ProjectException, PropertyException {
         Date now = new Date();
         folder1.addProperty(new PropertyImpl("p1", "paranoia"));
         folder1.addProperty(new PropertyImpl("p2", now));

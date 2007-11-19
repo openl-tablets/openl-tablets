@@ -5,4 +5,5 @@ Bundle-SymbolicName: org.openl.rules.workspace.test
 Bundle-Version: 5.0.1
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.workspace,
- org.openl.rules.repository.jcr
+ org.openl.rules.repository.jcr,
+ org.openl.rules.repository
