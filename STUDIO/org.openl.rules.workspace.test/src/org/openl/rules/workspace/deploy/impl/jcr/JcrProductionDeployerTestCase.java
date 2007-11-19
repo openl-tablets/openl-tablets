@@ -7,6 +7,7 @@ import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.mock.MockProject;
+import org.openl.rules.workspace.TestHelper;
 
 import java.io.File;
 import java.util.Collections;
@@ -20,7 +21,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
     private Project project;
     private static final String FOLDER1 = "folder1";
     private static final String FILE1_1 = "file1_1";
-    private static final String FILE1_2 = "file1_1";
+    private static final String FILE1_2 = "file1_2";
     private static final String FOLDER2 = "folder2";
 
 
@@ -67,6 +68,14 @@ public class JcrProductionDeployerTestCase extends TestCase {
     public void testDownloadProjects_TWICE() throws DeploymentException {
         testDownloadProjects();
         testDownloadProjects();
+    }
+
+    public void testDeployProjects() throws DeploymentException {
+        instance.deploy(Collections.singletonList(project));
+
+        File zipFile = new File(new File(TestHelper.FOLDER_TEST, TestHelper.getWorkspaceUser().getUserId()),
+                JcrProductionDeployer.ZIP_NAME);
+        assertTrue("zip archive was not created", zipFile.exists());
     }
 
     
