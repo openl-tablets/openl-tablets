@@ -1,16 +1,16 @@
 <ui:composition
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:dataTable value="#{repositoryTree.selected.versions}" var="version">
+  <rich:dataTable value="#{repositoryTreeController.selected.versions}" var="version">
         <f:facet name="header">
-			<rich:columnGroup>
-				<rich:column><h:outputText value="Version" /></rich:column>
-				<rich:column><h:outputText value="Created At" /></rich:column>
-				<rich:column><h:outputText value="Created By" /></rich:column>
-			</rich:columnGroup>
+      <rich:columnGroup>
+        <rich:column><h:outputText value="Version" /></rich:column>
+        <rich:column><h:outputText value="Created At" /></rich:column>
+        <rich:column><h:outputText value="Created By" /></rich:column>
+      </rich:columnGroup>
          </f:facet>
         <rich:columnGroup>
             <rich:column><h:outputText value="#{version.versionName}" /></rich:column>
