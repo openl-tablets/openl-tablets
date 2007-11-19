@@ -7,7 +7,7 @@ import javax.faces.event.PhaseListener;
 
 public class JsfPhaseListener implements PhaseListener {
     private static final long serialVersionUID = 8884716766558552223L;
-    
+
     private static final PhaseId RESET_MESSAGES_ON = PhaseId.RESTORE_VIEW;
 
     public void afterPhase(PhaseEvent phaseEvent) {
@@ -27,7 +27,7 @@ public class JsfPhaseListener implements PhaseListener {
     private boolean canReset(PhaseId phaseId) {
         return RESET_MESSAGES_ON.equals(phaseId);
     }
-    
+
     private void resetMessages() {
         System.out.println("-clear-");
         FacesContext context = FacesContext.getCurrentInstance();
@@ -35,7 +35,7 @@ public class JsfPhaseListener implements PhaseListener {
 
         UserSessionBean userSession = (UserSessionBean) obj;
         if (userSession != null) {
-            userSession.clearMessages();
+            userSession.getMessages().clear();
         }
     }
 }
