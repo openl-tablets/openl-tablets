@@ -1,9 +1,8 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.repository.exceptions.RModifyException;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-
 import java.io.InputStream;
+
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * OpenL Rules File.
@@ -43,7 +42,7 @@ public interface RFile extends REntity {
      * @param inputStream stream with new content of the file
      * @throws RModifyException if failed
      */
-    public void setContent(InputStream inputStream) throws RModifyException;
+    public void setContent(InputStream inputStream) throws RRepositoryException;
     
     /**
      * Returns content of specified version of the file.

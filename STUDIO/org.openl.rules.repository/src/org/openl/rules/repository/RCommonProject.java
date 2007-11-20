@@ -1,7 +1,5 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RCommonProject {
@@ -26,14 +24,14 @@ public interface RCommonProject {
      *
      * @throws RDeleteException if failed
      */
-    public void delete() throws RDeleteException;
+    public void delete() throws RRepositoryException;
 
     /**
      * Unmarks the project from deletion.
      *
      * @throws RModifyException if failed
      */
-    public void undelete() throws RModifyException;
+    public void undelete() throws RRepositoryException;
 
     /**
      * Erases the project from the repository completely.
@@ -43,7 +41,7 @@ public interface RCommonProject {
      *
      * @throws RDeleteException if failed
      */
-    public void erase() throws RDeleteException;
+    public void erase() throws RRepositoryException;
     
     /**
      * Commits changes in background versioned storage.

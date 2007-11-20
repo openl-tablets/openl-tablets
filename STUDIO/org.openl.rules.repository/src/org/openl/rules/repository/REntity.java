@@ -1,12 +1,10 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * Abstract Entity.
@@ -45,7 +43,7 @@ public interface REntity {
      *
      * @throws RDeleteException if failed
      */
-    public void delete() throws RDeleteException;
+    public void delete() throws RRepositoryException;
 
     /**
      * Returns path of entity.
@@ -86,7 +84,7 @@ public interface REntity {
      * @param date new effective date or <code>null</code>
      * @throws RModifyException if failed
      */
-    public void setEffectiveDate(Date date) throws RModifyException;
+    public void setEffectiveDate(Date date) throws RRepositoryException;
 
     /**
      * Sets expiration date for rules entity.
@@ -95,7 +93,7 @@ public interface REntity {
      * @param date new expiration date or <code>null</code>
      * @throws RModifyException if failed
      */
-    public void setExpirationDate(Date date) throws RModifyException;
+    public void setExpirationDate(Date date) throws RRepositoryException;
 
     /**
      * Sets line of business for rules entity.
@@ -104,11 +102,11 @@ public interface REntity {
      * @param date new line of business or <code>null</code>
      * @throws RModifyException if failed
      */
-    public void setLineOfBusiness(String lineOfBusiness) throws RModifyException;
+    public void setLineOfBusiness(String lineOfBusiness) throws RRepositoryException;
     
     public Collection<RProperty> getProperties();
     public void addProperty(String name, RPropertyType type, Object value) throws RRepositoryException;
-    public void removeProperty(String name) throws RDeleteException;
+    public void removeProperty(String name) throws RRepositoryException;
     public boolean hasProperty(String name);
     public RProperty getProperty(String name) throws RRepositoryException;
 }

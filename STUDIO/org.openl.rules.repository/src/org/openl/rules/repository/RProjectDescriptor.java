@@ -1,6 +1,6 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.repository.exceptions.RModifyException;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RProjectDescriptor {
     /**
@@ -17,5 +17,5 @@ public interface RProjectDescriptor {
      */
     RVersion getProjectVersion();
     
-    void setProjectVersion(RVersion version) throws RModifyException;
+    void setProjectVersion(RVersion version) throws RRepositoryException;
 }

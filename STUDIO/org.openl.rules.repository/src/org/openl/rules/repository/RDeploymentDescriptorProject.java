@@ -2,7 +2,6 @@ package org.openl.rules.repository;
 
 import java.util.Collection;
 
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RDeploymentDescriptorProject extends RCommonProject {
@@ -13,7 +12,7 @@ public interface RDeploymentDescriptorProject extends RCommonProject {
      * @return project descriptors
      */
     Collection<RProjectDescriptor> getProjectDescriptors();
-    void setProjectDescriptors(Collection<RProjectDescriptor> projectDescriptors) throws RModifyException;
+    void setProjectDescriptors(Collection<RProjectDescriptor> projectDescriptors) throws RRepositoryException;
     
     RProjectDescriptor createProjectDescriptor(String name) throws RRepositoryException;
 }
