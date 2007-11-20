@@ -1,5 +1,7 @@
 package org.openl.rules.workspace;
 
-public interface WorkspaceUser {
+import org.openl.rules.repository.CommonUser;
+
+public interface WorkspaceUser extends CommonUser {
     String getUserId();
 }

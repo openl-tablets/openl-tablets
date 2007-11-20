@@ -34,6 +34,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
     private final File userFolder;
 
     private final DeployerLocalWorkspace localWorkspace;
+    private final WorkspaceUser user;
 
     public JcrProductionDeployer(WorkspaceUser user, SmartProps props) throws DeploymentException {
         String location = props.getStr(PROPNAME_ZIPFOLDER, DEFAULT_ZIPFOLDER);
@@ -43,6 +44,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         ensureWorkingFolderExists();
 
         localWorkspace = new DeployerLocalWorkspace(user, workingFolder);
+        this.user = user;
     }
 
     private void ensureWorkingFolderExists() throws DeploymentException {
@@ -104,7 +106,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
             } catch (FileNotFoundException e) {
                 throw new DeploymentException("IO exception", e);
             }
-            rProject.commit();
+            rProject.commit(user);
 
         } catch (RRepositoryException e) {
             throw new DeploymentException("failed to get repository", e);

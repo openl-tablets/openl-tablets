@@ -1,9 +1,11 @@
 package org.openl.rules.workspace;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.rules.workspace.deploy.DeploymentException;
-import org.openl.rules.workspace.deploy.ProductionDeployerManager;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
-import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
+import org.openl.rules.workspace.deploy.ProductionDeployerManager;
 import org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
@@ -14,9 +16,6 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MultiUserWorkspaceManager implements UserWorkspaceListener{
     private ProductionDeployerManager deployerManager;

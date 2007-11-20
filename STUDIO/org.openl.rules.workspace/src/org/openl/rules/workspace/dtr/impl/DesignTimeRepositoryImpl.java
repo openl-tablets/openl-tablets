@@ -9,6 +9,7 @@ import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -127,7 +128,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         try {
-            dest.update(project);
+            dest.commit(project, user);
         } catch (ProjectException e) {
             throw new RepositoryException("Failed to update project ''{0}''", e, name);
         }        
@@ -181,8 +182,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         String name = rp.getName();
         ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
         // FIXME
-        RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rp.getBaseVersion().getCreated(), "user");
-        RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(0, 0, 0, info);
+        
+        RVersion rv = rp.getBaseVersion();
+        RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
+        RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(rv.getMajor(), rv.getMinor(), rv.getRevision(), info);
         
         RepositoryProjectImpl p = new RepositoryProjectImpl(rp, ap, version);
         projects.put(name, p);

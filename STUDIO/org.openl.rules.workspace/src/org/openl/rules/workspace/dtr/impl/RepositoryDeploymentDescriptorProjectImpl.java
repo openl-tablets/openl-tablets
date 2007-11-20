@@ -5,10 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProjectDescriptor;
-import org.openl.rules.repository.RUser;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RDeleteException;
 import org.openl.rules.repository.exceptions.RModifyException;
@@ -16,6 +16,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
+import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
@@ -119,7 +120,16 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
         try {
             rulesDescrProject.setProjectDescriptors(projectDescriptors);
-            rulesDescrProject.commit();
+        } catch (RModifyException e) {
+            throw new ProjectException("Cannot update descriptors for {0}", e, name);
+        }        
+    }
+
+    public void commit(Project source, CommonUser user) throws ProjectException {
+        update(source);
+
+        try {
+            rulesDescrProject.commit(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to commit changes", e);
         }        
@@ -227,7 +237,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
             return null;
         }
 
-        public RUser getCreatedBy() {
+        public CommonUser getCreatedBy() {
             return null;
         }
 
@@ -239,7 +249,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
             return version.getMinor();
         }
 
-        public String getName() {
+        public String getVersionName() {
             return version.getVersionName();
         }
 
