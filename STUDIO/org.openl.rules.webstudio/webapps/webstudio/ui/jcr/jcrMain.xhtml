@@ -8,8 +8,6 @@
   <ui:define name="title">Repository Browser</ui:define>
 
   <ui:define name="body">
-    <ui:include src="/ui/jcr/messages.xhtml" />
-
     <h:panelGrid columns="2" cellspacing="10" headerClass="outpanelHeader" columnClasses="columnTree, columnProps">
 
       <h:panelGroup id="svTree">
@@ -24,6 +22,8 @@
         <h:panelGroup id="nodeView">
           <ui:include src="/ui/jcr/nodeView.xhtml" />
         </h:panelGroup>
+
+        <ui:include src="/ui/jcr/messages.xhtml" />
       </h:panelGroup>
 
     </h:panelGrid>

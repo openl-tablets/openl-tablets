@@ -48,7 +48,7 @@ public class RepositoryTreeController {
     private String newFolderName;
 
     /**
-     * TODO: reimplement properly when AbstractTreeNode.id becomes Object.
+     * TODO: re-implement properly when AbstractTreeNode.id becomes Object.
      *
      * @param nodeName
      *

@@ -54,13 +54,6 @@ public abstract class BaseUploadService implements Service {
                 }
             } else {
                 throw new NotUnzippedFileException();
-                /*
-                result = uploadNonZipFile(params);
-                if (log.isDebugEnabled()) {
-                    log.debug("File uploaded to '" + result.getResultFile().getName()
-                        + "'");
-                }
-                */
             }
         } finally {
             //uploadFile.cleanup();
