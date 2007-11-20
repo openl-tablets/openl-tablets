@@ -5,6 +5,7 @@ import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
+import org.openl.rules.workspace.abstracts.VersionInfo;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import java.util.Date;
@@ -68,15 +69,18 @@ public class TreeProject extends TreeFolder {
     }
 
     public Date getCreatedAt() {
-        // todo: uncomment when it is implemented
-        // return ((Project)getDataBean()).getVersion().getVersionInfo().getCreatedAt();
-
-        return new Date();
+        ProjectVersion projectVersion = getProject().getVersion();
+        if (projectVersion == null) return null;
+        
+        VersionInfo vi = projectVersion.getVersionInfo();
+        return (vi != null) ? vi.getCreatedAt() : null;
     }
     public String getCreatedBy() {
-        // todo: uncomment when it is implemented
-        //return ((Project)getDataBean()).getVersion().getVersionInfo().getCreatedBy();
-        return "god";
+        ProjectVersion projectVersion = (getProject()).getVersion();
+        if (projectVersion == null) return null;
+
+        VersionInfo vi = projectVersion.getVersionInfo();
+        return (vi != null) ? vi.getCreatedBy() : null;
     }
 
     public String getVersion() {
