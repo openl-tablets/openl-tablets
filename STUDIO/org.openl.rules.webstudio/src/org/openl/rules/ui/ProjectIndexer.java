@@ -4,15 +4,15 @@
  */
 package org.openl.rules.ui;
 
+import org.openl.rules.webtools.indexer.FileIndexer;
+import org.openl.rules.webstudio.util.WebstudioTreeIterator;
+import org.openl.util.Log;
+import org.openl.util.TreeIterator;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-
-import org.openl.rules.webtools.indexer.FileIndexer;
-import org.openl.util.FileTreeIterator;
-import org.openl.util.Log;
-
 
 /**
  * @author snshor
@@ -32,7 +32,7 @@ public class ProjectIndexer extends FileIndexer
 	
 	synchronized void  loadFiles()
 	{
-		FileTreeIterator fti = new FileTreeIterator(new File(projectRoot), 0);
+		TreeIterator fti = new WebstudioTreeIterator(new File(projectRoot), 0);
 		
 		HashMap m = new HashMap();
 	    for (; fti.hasNext();) {
