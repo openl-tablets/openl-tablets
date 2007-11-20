@@ -22,6 +22,6 @@ public interface RVersion extends CommonVersion {
      *
      * @return user who created it
      */
-    public RUser getCreatedBy();
+    public CommonUser getCreatedBy();
     
 }

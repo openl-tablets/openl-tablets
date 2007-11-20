@@ -50,5 +50,5 @@ public interface RCommonProject {
      * 
      * @throws RRepositoryException if failed
      */
-    public void commit() throws RRepositoryException;
+    public void commit(CommonUser user) throws RRepositoryException;
 }
