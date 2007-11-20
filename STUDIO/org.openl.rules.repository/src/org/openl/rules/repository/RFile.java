@@ -48,11 +48,11 @@ public interface RFile extends REntity {
     /**
      * Returns content of specified version of the file.
      * 
-     * @param versionName name of version
+     * @param version specified version
      * @return content of specified version
      * @throws RRepositoryException if failed
      */
-    public InputStream getContent4Version(String versionName) throws RRepositoryException;
+    public InputStream getContent4Version(CommonVersion version) throws RRepositoryException;
     
     /**
      * Reverts the file to specified version.
