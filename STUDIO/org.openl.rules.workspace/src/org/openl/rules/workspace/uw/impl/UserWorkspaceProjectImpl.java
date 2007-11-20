@@ -172,6 +172,18 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
     }
 
+    public void undelete() throws ProjectException {
+        if (dtrProject != null) {
+            dtrProject.undelete();
+        }
+    }
+
+    public void erase() throws ProjectException {
+        if (dtrProject != null) {
+            dtrProject.erase();
+        }
+    }
+
     public boolean isDeploymentProject() {
         return false;
     }

@@ -37,10 +37,8 @@
     rendered="#{repositoryTreeController.selected.type == 'project' &amp;&amp; repositoryTreeController.selected.name != repositoryTreeController.secondProjectName}">
     <h:panelGroup rendered="#{repositoryTreeController.selected.dataBean.deleted}">
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Undelete" action="undeleteProject"
-          onclick="return confirmUndeleteProject(this, '#{repositoryTreeController.selected.dataBean.name}');" />
-        <h:commandButton styleClass="button" value="ERASE" action="eraseProject"
-          onclick="return confirmEraseProject(this, '#{repositoryTreeController.selected.dataBean.name}');" />
+        <h:commandButton styleClass="button" value="Undelete" onclick="return confirmUndeleteProject();" />
+        <h:commandButton styleClass="button" value="ERASE" action="eraseProject" onclick="return confirmEraseProject();" />
       </h:panelGrid>
     </h:panelGroup>
 

@@ -127,6 +127,14 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         return true;
     }
 
+    public void undelete() throws ProjectException {
+        throw new ProjectException("can not undelete deployment project");
+    }
+
+    public void erase() throws ProjectException {
+        throw new ProjectException("can not undelete deployment project");
+    }
+
     public boolean isLocalOnly() {
         return false;
     }
