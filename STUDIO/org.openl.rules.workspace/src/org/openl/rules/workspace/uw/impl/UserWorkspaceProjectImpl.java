@@ -166,6 +166,10 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isOpened()) {
             close();
         }
+        
+        if (dtrProject != null) {
+            dtrProject.delete();
+        }
     }
 
     public boolean isDeploymentProject() {
