@@ -18,9 +18,7 @@ import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProperty;
 import org.openl.rules.repository.RPropertyType;
 import org.openl.rules.repository.RVersion;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.repository.exceptions.RDeleteException;
 
 /**
  * Implementation of JCR Entity.
@@ -130,7 +128,7 @@ public class JcrEntity implements REntity {
     }
 
     /** {@inheritDoc} */
-    public void delete() throws RDeleteException {
+    public void delete() throws RRepositoryException {
         try {
             Node n = node();
 
@@ -138,7 +136,7 @@ public class JcrEntity implements REntity {
 
             n.remove();
         } catch (RepositoryException e) {
-            throw new RDeleteException("Failed to Delete", e);
+            throw new RRepositoryException("Failed to Delete", e);
         }
     }
 
@@ -161,24 +159,24 @@ public class JcrEntity implements REntity {
         properties.put(name, jp);
     }
 
-    public void removeProperty(String name) throws RDeleteException {
+    public void removeProperty(String name) throws RRepositoryException {
         RProperty rp = properties.get(name);
 
         if (rp == null) {
-            throw new RDeleteException("No such property {0}", null, name);
+            throw new RRepositoryException("No such property {0}", null, name);
         }
 
         Node n = node();
         try {
             NodeUtil.smartCheckout(n, false);
         } catch (RepositoryException e) {
-            throw new RDeleteException("Internal error", e);
+            throw new RRepositoryException("Internal error", e);
         }
 
         try {
             n.getProperty(name).remove();
         } catch (RepositoryException e) {
-            throw new RDeleteException("Cannot remove property {0}", e, name);
+            throw new RRepositoryException("Cannot remove property {0}", e, name);
         }
         properties.remove(name);
     }
@@ -209,7 +207,7 @@ public class JcrEntity implements REntity {
         return lineOfBusiness;
     }
 
-    public void setEffectiveDate(Date date) throws RModifyException {
+    public void setEffectiveDate(Date date) throws RRepositoryException {
         // do not update JCR if property wasn't changed
         if (isSame(effectiveDate, date)) return;
         
@@ -221,11 +219,11 @@ public class JcrEntity implements REntity {
             n.setProperty(JcrNT.PROP_EFFECTIVE_DATE, c);
             effectiveDate = date;
         } catch (RepositoryException e) {
-            throw new RModifyException("Cannot set effectiveDate", e);
+            throw new RRepositoryException("Cannot set effectiveDate", e);
         }
     }
 
-    public void setExpirationDate(Date date) throws RModifyException {
+    public void setExpirationDate(Date date) throws RRepositoryException {
         // do not update JCR if property wasn't changed
         if (isSame(expirationDate, date)) return;
 
@@ -237,11 +235,11 @@ public class JcrEntity implements REntity {
             n.setProperty(JcrNT.PROP_EXPIRATION_DATE, c);
             expirationDate = date;
         } catch (RepositoryException e) {
-            throw new RModifyException("Cannot set expirationDate", e);
+            throw new RRepositoryException("Cannot set expirationDate", e);
         }
     }
 
-    public void setLineOfBusiness(String lineOfBusiness) throws RModifyException {
+    public void setLineOfBusiness(String lineOfBusiness) throws RRepositoryException {
         // do not update JCR if property wasn't changed
         if (isSame(this.lineOfBusiness, lineOfBusiness)) return;
 
@@ -252,7 +250,7 @@ public class JcrEntity implements REntity {
             n.setProperty(JcrNT.PROP_LINE_OF_BUSINESS, lineOfBusiness);
             this.lineOfBusiness = lineOfBusiness;
         } catch (RepositoryException e) {
-            throw new RModifyException("Cannot set LOB", e);
+            throw new RRepositoryException("Cannot set LOB", e);
         }
     }
 

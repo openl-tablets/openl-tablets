@@ -3,7 +3,7 @@ package org.openl.rules.repository.jcr;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.exceptions.RDeleteException;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrCommonArtefact {
     private String name;
@@ -37,7 +37,7 @@ public class JcrCommonArtefact {
         }
     }
 
-    protected void delete() throws RDeleteException {
+    protected void delete() throws RRepositoryException {
         try {
             Node n = node();
 
@@ -45,7 +45,7 @@ public class JcrCommonArtefact {
 
             n.remove();
         } catch (RepositoryException e) {
-            throw new RDeleteException("Failed to Delete", e);
+            throw new RRepositoryException("Failed to Delete", e);
         }
     }
 }

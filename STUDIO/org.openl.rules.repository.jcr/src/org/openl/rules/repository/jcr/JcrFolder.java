@@ -7,10 +7,9 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RFile;
+import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.repository.exceptions.RModifyException;
 
 /**
  * Implementation for JCR Folder.
@@ -57,20 +56,20 @@ public class JcrFolder extends JcrEntity implements RFolder {
     }
 
     /** {@inheritDoc} */
-    public RFolder createFolder(String name) throws RModifyException {
+    public RFolder createFolder(String name) throws RRepositoryException {
         try {
             return JcrFolder.createFolder(node(), name);
         } catch (RepositoryException e) {
-            throw new RModifyException("Failed to Create Sub Folder", e);
+            throw new RRepositoryException("Failed to Create Sub Folder", e);
         }
     }
 
     /** {@inheritDoc} */
-    public RFile createFile(String name) throws RModifyException {
+    public RFile createFile(String name) throws RRepositoryException {
         try {
             return JcrFile.createFile(node(), name);
         } catch (RepositoryException e) {
-            throw new RModifyException("Failed to Create File", e);
+            throw new RRepositoryException("Failed to Create File", e);
         }
     }
 
