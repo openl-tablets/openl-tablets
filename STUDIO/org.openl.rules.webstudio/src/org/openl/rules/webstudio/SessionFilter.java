@@ -33,7 +33,7 @@ public class SessionFilter implements Filter {
 
             if (session == null) {
                 String fakeUserId = generateUserId(remoteAddr);
-                WorkspaceUser user = new WorkspaceUserImpl(fakeUserId);
+                WorkspaceUser user = new WorkspaceUserImpl(fakeUserId, remoteAddr);
                 RulesUserSession rulesUserSession = new RulesUserSession(user, workspaceManager);
 
                 session = httpRequest.getSession(true);

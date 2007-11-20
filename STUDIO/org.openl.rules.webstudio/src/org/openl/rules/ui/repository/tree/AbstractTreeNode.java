@@ -5,14 +5,18 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.VersionInfo;
 import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.ui.repository.dependency.DependencyBean;
 import org.richfaces.model.TreeNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Collections;
@@ -246,14 +250,13 @@ public abstract class AbstractTreeNode implements TreeNode {
         this.dataBean = dataBean;
     }
 
-    public List<ProjectVersion> getVersions() {
-        VersionInfo info = new RepositoryVersionInfoImpl(new Date(), "budda");
-        
-        return Arrays.asList(
-                (ProjectVersion)new RepositoryProjectVersionImpl(1, 0, 1, info),
-                new RepositoryProjectVersionImpl(1, 0, 2, info),
-                new RepositoryProjectVersionImpl(1, 0, 3, info),
-                new RepositoryProjectVersionImpl(1, 0, 4, info));
+    public Collection<ProjectVersion> getVersions() {
+        if (dataBean instanceof UserWorkspaceProjectArtefact) {
+            UserWorkspaceProjectArtefact uwpa = (UserWorkspaceProjectArtefact) dataBean;
+            return uwpa.getVersions();
+        } else {
+            return new LinkedList<ProjectVersion>();
+        }
     }
 
     /**
