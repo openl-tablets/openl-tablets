@@ -20,8 +20,6 @@ import java.util.ArrayList;
  */
 public class TreeProject extends TreeFolder {
 
-    private boolean isMarked4Deletion;
-
     private static final long serialVersionUID = -326805891782640894L;
 
     private List<DependencyBean> dependencies;
@@ -111,14 +109,6 @@ public class TreeProject extends TreeFolder {
 
     private Project getProject() {
         return (Project) getDataBean();
-    }
-
-    public boolean isMarked4Deletion() {
-        return isMarked4Deletion;
-    }
-
-    public void setMarked4Deletion(boolean marked4Deletion) {
-        isMarked4Deletion = marked4Deletion;
     }
 
     public synchronized boolean addDependency(ProjectDependency dep) {
