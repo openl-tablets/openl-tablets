@@ -8,13 +8,7 @@ import java.util.Date;
  * @author Aleh Bykhavets
  *
  */
-public interface RVersion {
-    /**
-     * Gets version's name.
-     *
-     * @return name of version
-     */
-    public String getName();
+public interface RVersion extends CommonVersion {
 
     /**
      * Gets date when the version was created.
@@ -30,7 +24,4 @@ public interface RVersion {
      */
     public RUser getCreatedBy();
     
-    public int getMajor();
-    public int getMinor();
-    public int getRevision();
 }
