@@ -1,12 +1,20 @@
 package org.openl.rules.repository.jcr;
 
+import javax.jcr.AccessDeniedException;
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
+import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.version.VersionException;
 
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.RCommonProject;
@@ -65,9 +73,15 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
     }
 
     public void erase() throws RDeleteException {
-        // ALL IS LOST
-        // TODO: add logging here
-        super.delete();
+        try {
+            Node parent = node().getParent();
+            // ALL IS LOST
+            // TODO: add logging here
+            super.delete();
+            commitParent(parent);
+        } catch (RepositoryException e) {
+            throw new RDeleteException("Failed to delete project {0}", e, getName());
+        }        
     }
     
     public void commit(CommonUser user) throws RRepositoryException {
@@ -78,15 +92,7 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             version.updateVersion(n);
 
             checkInAll(n, user);
-            Node parent = n.getParent();
-            if (parent.isModified()) {
-                parent.save();
-            }
-            if (parent.isCheckedOut()) {
-                if (parent.isNodeType(JcrNT.MIX_VERSIONABLE)) {
-                    parent.checkin();
-                }
-            }
+            commitParent(n.getParent());
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to checkin project {0}", e, getName());
         }        
@@ -94,6 +100,16 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
     
     // --- protected
     
+    protected void commitParent(Node parent) throws RepositoryException {
+        if (parent.isModified()) {
+            parent.save();
+        }
+        if (parent.isCheckedOut()) {
+            if (parent.isNodeType(JcrNT.MIX_VERSIONABLE)) {
+                parent.checkin();
+            }
+        }
+    }
     protected void checkInAll(Node n, CommonUser user) throws RepositoryException {
         NodeIterator ni = n.getNodes();
         
