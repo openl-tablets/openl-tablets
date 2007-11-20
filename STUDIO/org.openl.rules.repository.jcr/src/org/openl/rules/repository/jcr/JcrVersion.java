@@ -6,9 +6,10 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 
+import org.openl.rules.repository.CommonUser;
+import org.openl.rules.repository.CommonUserImpl;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.repository.RUser;
 import org.openl.rules.repository.RVersion;
 
 /**
@@ -56,8 +57,12 @@ public class JcrVersion implements RVersion {
         return lastModified;
     }
 
-    public RUser getCreatedBy() {
-        return new JcrUser(modifiedBy);
+    public CommonUser getCreatedBy() {
+        if (modifiedBy == null) {
+            return new CommonUserImpl("system");
+        } else {
+            return new CommonUserImpl(modifiedBy);
+        }
     }
 
     public String getVersionName() {

@@ -5,11 +5,12 @@ import java.util.Date;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.RFolder;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RDeleteException;
 import org.openl.rules.repository.exceptions.RModifyException;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * Implementation for JCR Project.
@@ -85,7 +86,7 @@ public class JcrProject extends JcrEntity implements RProject {
         project.erase();
     }
     
-    public void commit() throws RRepositoryException {
-        project.commit();  
+    public void commit(CommonUser user) throws RRepositoryException {
+        project.commit(user);  
     }
 }

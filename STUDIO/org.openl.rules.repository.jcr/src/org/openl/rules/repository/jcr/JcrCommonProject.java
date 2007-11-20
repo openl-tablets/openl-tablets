@@ -8,6 +8,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.RCommonProject;
 import org.openl.rules.repository.exceptions.RDeleteException;
 import org.openl.rules.repository.exceptions.RModifyException;
@@ -69,14 +70,14 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
         super.delete();
     }
     
-    public void commit() throws RRepositoryException {
+    public void commit(CommonUser user) throws RRepositoryException {
         try {
             Node n = node();
             NodeUtil.smartCheckout(n, true);
             version.nextRevision();
             version.updateVersion(n);
 
-            checkInAll(n);
+            checkInAll(n, user);
             Node parent = n.getParent();
             if (parent.isModified()) {
                 parent.save();
@@ -93,12 +94,12 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
     
     // --- protected
     
-    protected void checkInAll(Node n) throws RepositoryException {
+    protected void checkInAll(Node n, CommonUser user) throws RepositoryException {
         NodeIterator ni = n.getNodes();
         
         while (ni.hasNext()) {
             Node child = ni.nextNode();
-            checkInAll(child);
+            checkInAll(child, user);
         }
         
         boolean saveProps = false;
@@ -116,6 +117,7 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
 
         if (mustBeCheckedIn) {
             version.updateRevision(n);
+            n.setProperty(JcrNT.PROP_MODIFIED_BY, user.getUserName());
             n.save();
             System.out.println("Checking in... " + n.getPath());
             n.checkin();
