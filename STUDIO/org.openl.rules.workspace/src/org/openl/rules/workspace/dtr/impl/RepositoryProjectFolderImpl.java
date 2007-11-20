@@ -1,10 +1,12 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -16,10 +18,6 @@ import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
 import org.openl.rules.workspace.dtr.RepositoryProjectFolder;
 import org.openl.rules.workspace.dtr.RepositoryProjectResource;
 import org.openl.util.Log;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl implements RepositoryProjectFolder {
     private RFolder rulesFolder;
@@ -126,7 +124,7 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
     public void delete() throws ProjectException {
         try {
             rulesFolder.delete();
-        } catch (RDeleteException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException("Failed to delete project folder ''{0}''", e, getArtefactPath().getStringValue());
         }        
     }
@@ -173,7 +171,7 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
                 RFile rf = rulesFolder.createFile(res.getName());
                 wrapFile(rf).update(res);
             }
-        } catch (RModifyException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException("Failed to update artefact ''{0}''", e, getArtefactPath().getStringValue());
         }        
     }

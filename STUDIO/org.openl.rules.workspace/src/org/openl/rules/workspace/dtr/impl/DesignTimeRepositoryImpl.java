@@ -181,13 +181,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private RepositoryProjectImpl wrapProject(RProject rp) {
         String name = rp.getName();
         ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
-        // FIXME
         
-        RVersion rv = rp.getBaseVersion();
-        RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
-        RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(rv.getMajor(), rv.getMinor(), rv.getRevision(), info);
-        
-        RepositoryProjectImpl p = new RepositoryProjectImpl(rp, ap, version);
+        RepositoryProjectImpl p = new RepositoryProjectImpl(rp, ap);
         projects.put(name, p);
         return p;
     }

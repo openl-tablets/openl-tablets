@@ -10,8 +10,6 @@ import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
@@ -120,7 +118,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
         try {
             rulesDescrProject.setProjectDescriptors(projectDescriptors);
-        } catch (RModifyException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException("Cannot update descriptors for {0}", e, name);
         }        
     }
@@ -142,7 +140,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
         try {
             rulesDescrProject.delete();
-        } catch (RDeleteException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException("Cannot delete project {0}", e, name);
         }        
     }
@@ -150,7 +148,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     public void erase() throws ProjectException {
         try {
             rulesDescrProject.erase();
-        } catch (RDeleteException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException("Cannot erase project {0}", e, name);
         }        
     }
@@ -187,7 +185,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
         try {
             rulesDescrProject.undelete();
-        } catch (RModifyException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException("Cannot undelete project {0}", e, name);
         }        
     }
@@ -221,7 +219,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
             return new RV2(pd.getProjectVersion());
         }
 
-        public void setProjectVersion(RVersion version) throws RModifyException {
+        public void setProjectVersion(RVersion version) throws RRepositoryException {
             // do nothing
         }
     }

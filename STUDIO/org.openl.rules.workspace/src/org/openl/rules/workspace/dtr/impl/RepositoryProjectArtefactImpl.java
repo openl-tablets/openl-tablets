@@ -1,11 +1,14 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProperty;
 import org.openl.rules.repository.RPropertyType;
 import org.openl.rules.repository.RVersion;
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -19,11 +22,6 @@ import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.util.Log;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
 
 public abstract class RepositoryProjectArtefactImpl implements RepositoryProjectArtefact {
     private String name;
@@ -84,7 +82,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
                 rulesEntity.setEffectiveDate(rra.getEffectiveDate());
                 rulesEntity.setExpirationDate(rra.getExpirationDate());
                 rulesEntity.setLineOfBusiness(rra.getLineOfBusiness());
-            } catch (RModifyException e) {
+            } catch (RRepositoryException e) {
                 throw new ProjectException("Failed to update rules properties", e);
             }            
         }
@@ -109,7 +107,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
                     // remove
                     rulesEntity.removeProperty(name);
                     rulesProps.remove(name);
-                } catch (RDeleteException e) {
+                } catch (RRepositoryException e) {
                     throw new ProjectException("Cannot remove property {0}", e, name);
                 }                
             } else {
@@ -167,7 +165,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     public void setEffectiveDate(Date date) throws ProjectException {
         try {
             rulesEntity.setEffectiveDate(date);
-        } catch (RModifyException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException(null, e);
         }        
     }
@@ -175,7 +173,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     public void setExpirationDate(Date date) throws ProjectException {
         try {
             rulesEntity.setExpirationDate(date);
-        } catch (RModifyException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException(null, e);
         }        
     }
@@ -183,7 +181,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     public void setLineOfBusiness(String lineOfBusiness) throws ProjectException {
         try {
             rulesEntity.setLineOfBusiness(lineOfBusiness);
-        } catch (RModifyException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException(null, e);
         }        
     }
