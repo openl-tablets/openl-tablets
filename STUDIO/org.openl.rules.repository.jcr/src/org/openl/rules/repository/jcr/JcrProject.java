@@ -8,8 +8,6 @@ import javax.jcr.RepositoryException;
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -74,15 +72,15 @@ public class JcrProject extends JcrEntity implements RProject {
         return project.isMarked4Deletion();
     }
 
-    public void delete() throws RDeleteException {
+    public void delete() throws RRepositoryException {
         project.delete();
     }
 
-    public void undelete() throws RModifyException {
+    public void undelete() throws RRepositoryException {
         project.undelete();
     }
 
-    public void erase() throws RDeleteException {
+    public void erase() throws RRepositoryException {
         project.erase();
     }
     

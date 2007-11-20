@@ -1,25 +1,16 @@
 package org.openl.rules.repository.jcr;
 
-import javax.jcr.AccessDeniedException;
-import javax.jcr.InvalidItemStateException;
-import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
-import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import javax.jcr.lock.LockException;
-import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-import javax.jcr.version.VersionException;
 
 import org.openl.rules.repository.CommonUser;
+import org.openl.rules.repository.CommonUserImpl;
 import org.openl.rules.repository.RCommonProject;
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrCommonProject extends JcrCommonArtefact implements RCommonProject {
@@ -46,33 +37,39 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
         }
     }
 
-    public void delete() throws RDeleteException {
+    public void delete() throws RRepositoryException {
+        if (isMarked4Deletion()) {
+            throw new RRepositoryException("Project is already marked for deletion", null);
+        }
+        
         try {
             Node n = node();
 
             n.checkout();
             n.setProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION, true);
-            n.save();
-            n.checkin();
+            commit(new CommonUserImpl("system"));
         } catch (RepositoryException e) {
-            throw new RDeleteException("Failed to Mark project for Deletion", e);
+            throw new RRepositoryException("Failed to Mark project for Deletion", e);
         }
     }
 
-    public void undelete() throws RModifyException {
+    public void undelete() throws RRepositoryException {
+        if (!isMarked4Deletion()) {
+            throw new RRepositoryException("Project is not marked for deletion", null);
+        }
+
         try {
             Node n = node();
 
             n.checkout();
             n.setProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION, (Value)null, PropertyType.BOOLEAN);
-            n.save();
-            n.checkin();
+            commit(new CommonUserImpl("system"));
         } catch (RepositoryException e) {
-            throw new RModifyException("Failed to Unmark project from Deletion", e);
+            throw new RRepositoryException("Failed to Unmark project from Deletion", e);
         }
     }
 
-    public void erase() throws RDeleteException {
+    public void erase() throws RRepositoryException {
         try {
             Node parent = node().getParent();
             // ALL IS LOST
@@ -80,7 +77,7 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             super.delete();
             commitParent(parent);
         } catch (RepositoryException e) {
-            throw new RDeleteException("Failed to delete project {0}", e, getName());
+            throw new RRepositoryException("Failed to delete project {0}", e, getName());
         }        
     }
     

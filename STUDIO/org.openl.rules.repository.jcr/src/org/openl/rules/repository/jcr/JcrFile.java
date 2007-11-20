@@ -9,7 +9,6 @@ import javax.jcr.RepositoryException;
 
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RFile;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -81,7 +80,7 @@ public class JcrFile extends JcrEntity implements RFile {
     }
 
     /** {@inheritDoc} */ 
-    public void setContent(InputStream inputStream) throws RModifyException {
+    public void setContent(InputStream inputStream) throws RRepositoryException {
         try {
             Node n = node();
             NodeUtil.smartCheckout(n, false);
@@ -97,7 +96,7 @@ public class JcrFile extends JcrEntity implements RFile {
 
             n.save();
         } catch (RepositoryException e) {
-            throw new RModifyException("Failed to set Content", e);
+            throw new RRepositoryException("Failed to set Content", e);
         }
     }
 

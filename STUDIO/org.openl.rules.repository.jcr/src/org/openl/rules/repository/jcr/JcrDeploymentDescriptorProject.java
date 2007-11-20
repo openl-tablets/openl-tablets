@@ -9,7 +9,6 @@ import javax.jcr.RepositoryException;
 
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProjectDescriptor;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrDeploymentDescriptorProject extends JcrCommonProject implements RDeploymentDescriptorProject {
@@ -43,7 +42,7 @@ public class JcrDeploymentDescriptorProject extends JcrCommonProject implements 
         return projects.values();
     }
     
-    public void setProjectDescriptors(Collection<RProjectDescriptor> projectDescriptors) throws RModifyException {
+    public void setProjectDescriptors(Collection<RProjectDescriptor> projectDescriptors) throws RRepositoryException {
         try {
             Node node = node();
             NodeUtil.smartCheckout(node, false);
@@ -64,7 +63,7 @@ public class JcrDeploymentDescriptorProject extends JcrCommonProject implements 
             projects.clear();
             projects = newProjects;
         } catch (RepositoryException e) {
-            throw new RModifyException("Cannot set project descriptors for {0}", e, getName());
+            throw new RRepositoryException("Cannot set project descriptors for {0}", e, getName());
         }        
     }
     

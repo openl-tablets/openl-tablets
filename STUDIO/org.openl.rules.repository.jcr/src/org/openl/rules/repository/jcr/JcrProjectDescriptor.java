@@ -5,7 +5,7 @@ import javax.jcr.RepositoryException;
 
 import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
-import org.openl.rules.repository.exceptions.RModifyException;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrProjectDescriptor implements RProjectDescriptor {
     private Node node;
@@ -37,7 +37,7 @@ public class JcrProjectDescriptor implements RProjectDescriptor {
         return version;
     }
     
-    public void setProjectVersion(RVersion version) throws RModifyException {
+    public void setProjectVersion(RVersion version) throws RRepositoryException {
         Node n = node();
         
         this.version = new JcrVersion(version);
@@ -45,7 +45,7 @@ public class JcrProjectDescriptor implements RProjectDescriptor {
             this.version.updateVersion(n);
             this.version.updateRevision(n);
         } catch (RepositoryException e) {
-            throw new RModifyException("Cannot set project version", e);
+            throw new RRepositoryException("Cannot set project version", e);
         }        
     }
     
