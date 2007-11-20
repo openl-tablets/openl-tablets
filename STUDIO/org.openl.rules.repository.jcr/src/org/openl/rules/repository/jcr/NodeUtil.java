@@ -3,6 +3,11 @@ package org.openl.rules.repository.jcr;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
+
+import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.repository.CommonVersionImpl;
 
 
 /**
@@ -54,48 +59,6 @@ public class NodeUtil {
     }
 
     /**
-     * Saves changes and does checking if node is checked out.
-     * 
-     * @param node reference on node to be checked in
-     * @throws RepositoryException if operation failed
-     */
-    @Deprecated
-    protected static void smartCheckin(Node node) throws RepositoryException {
-        //TODO: add better handling for ancestors
-        Node parentNode = node.getParent();
-
-        if (parentNode.isModified() || node.isModified()) {
-            parentNode.save();
-        }
-
-        if (node.isCheckedOut()) {
-            node.checkin();
-        }
-
-        smartCheckinParent(parentNode);
-    }
-    
-    /**
-     * Saves changes and does checking if parent node is checked out.
-     * 
-     * @param parent reference on parent node to be checked in
-     * @throws RepositoryException if operation failed
-     */
-    @Deprecated
-    protected static void smartCheckinParent(Node parent) throws RepositoryException {
-        //TODO: add better handling for ancestors
-        if (parent.isModified()) {
-            parent.save();
-        }
-        
-        if (parent.isCheckedOut()) {
-            if (parent.isNodeType(JcrNT.MIX_VERSIONABLE)) {
-                parent.checkin();
-            }
-        }
-    }
-
-    /**
      * Checkout node and parent (if needed).
      * 
      * @param node reference on node to be checked in
@@ -114,5 +77,34 @@ public class NodeUtil {
                 parentNode.checkout();
             }
         }
+    }
+    
+    protected static Node getNode4Version(Node node, CommonVersion version) throws RepositoryException {
+        Node result = null;
+
+        VersionHistory vh = node.getVersionHistory();
+        VersionIterator vi = vh.getAllVersions();
+        
+        while (vi.hasNext()) {
+            Version jcrVersion = vi.nextVersion();
+
+            if (NodeUtil.isRootVersion(jcrVersion)) {
+                //TODO Shall we add first (0) version? (It is marker like, no real values)
+            } else {
+                JcrVersion jvi = new JcrVersion(jcrVersion);
+                CommonVersionImpl cv = new CommonVersionImpl(jvi.getMajor(), jvi.getMinor(), jvi.getRevision());
+                
+                if (cv.compareTo(version) == 0) {
+                    result = jcrVersion.getNode("jcr:frozenNode");
+                    break;
+                }
+            }
+        }
+        
+        if (result == null) {
+            throw new RepositoryException("Cannot find version " + version.getVersionName());
+        }
+        
+        return result;
     }
 }
