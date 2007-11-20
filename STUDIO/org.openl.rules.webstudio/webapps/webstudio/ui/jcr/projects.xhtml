@@ -40,26 +40,17 @@
         <h:outputText value="#{prj.createdBy}" />
       </rich:column>
       <rich:column style="text-align:center">
-        <h:commandLink styleClass="actionButton" action="#{deploymentController.deleteItem}" immediate="true"
-          onclick="if(!window.confirm('Really delete project?')) {return false;}" rendered="#{prj.marked4Deletion}">
-          <f:param name="key" value="#{index}" />
-          <h:graphicImage url="/images/close.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Close" title="Close" />
-        </h:commandLink>
-        <h:commandLink styleClass="actionLabel" action="#{deploymentController.deleteItem}" immediate="true"
-          onclick="if(!window.confirm('Really delete project?')) {return false;}" rendered="#{prj.marked4Deletion}">
-          <f:param name="key" value="#{index}" />
-          <h:outputText value="Close" />
-        </h:commandLink>
+        <h:graphicImage url="/images/close.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Project is Deleted" title="Project is Deleted" rendered="#{prj.dataBean.deleted}" />
         &#160;
-        <h:commandLink styleClass="actionButton" immediate="true"
-          onclick="return confirmCopyProject('#{prj.name}');" rendered="#{!prj.marked4Deletion}">
-          <f:param name="key" value="#{index}" />
+        <h:commandLink styleClass="actionButton" immediate="true" rendered="#{!prj.dataBean.deleted}"
+          onclick="return confirmCopyProject('#{prj.name}');">
           <h:graphicImage url="/images/copy.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Copy" title="Copy" />
         </h:commandLink>
         &#160;
-        <h:commandLink styleClass="actionButton" action="#{prj.delete}" immediate="true"
+        <h:commandLink styleClass="actionButton" immediate="true" rendered="#{!prj.dataBean.deleted}"
+          action="#{repositoryTreeController.deleteProject}" 
           onclick="if(!window.confirm('Really delete project?')) {return false;}">
-          <f:param name="key" value="#{index}" />
+          <f:param name="projectName" value="#{prj.name}" />
           <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
         </h:commandLink>
       </rich:column>

@@ -201,6 +201,21 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String deleteProject() {
+        String projectName = FacesUtils.getRequestParameter("projectName");
+        
+        try {
+            UserWorkspaceProject project = userWorkspace.getProject(projectName);
+            project.delete();
+            reInit();
+        } catch (ProjectException e) {
+            Log.error("Cannot delete project {0}", e, projectName);
+            FacesContext.getCurrentInstance()
+            .addMessage(null, new FacesMessage("Failed to delete project", e.getMessage()));
+        }
+        return null;
+    }
+    
     public String addProject() {
         boolean result = false;
 
