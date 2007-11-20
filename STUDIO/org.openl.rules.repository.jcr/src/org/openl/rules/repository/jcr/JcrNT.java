@@ -20,7 +20,8 @@ public interface JcrNT {
 	public static final String MIX_VERSIONABLE = "mix:versionable";
 
 	// Global Properties to track security issues
-	public static final String PROP_MODIFIED_TIME = "modifiedTime";
+// take time from version
+//	public static final String PROP_MODIFIED_TIME = "modifiedTime";
 	public static final String PROP_MODIFIED_BY = "modifiedBy";
 	
         // Common Rules properties
