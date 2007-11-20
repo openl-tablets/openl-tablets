@@ -6,8 +6,8 @@ import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import javax.jcr.version.Version;
 
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -118,12 +118,9 @@ public class JcrFile extends JcrEntity implements RFile {
     }
 
     /** {@inheritDoc} */
-    public InputStream getContent4Version(String versionName) throws RRepositoryException {
+    public InputStream getContent4Version(CommonVersion version) throws RRepositoryException {
         try {
-            Node n = node();
-            Version v = n.getVersionHistory().getVersion(versionName);
-            
-            Node frozen = v.getNode("jcr:frozenNode");
+            Node frozen = NodeUtil.getNode4Version(node(), version);
 
             Node resNode = frozen.getNode("jcr:content");
             InputStream result = resNode.getProperty("jcr:data").getStream();

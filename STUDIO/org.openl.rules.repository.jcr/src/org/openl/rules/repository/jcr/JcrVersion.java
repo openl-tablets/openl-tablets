@@ -6,6 +6,8 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 
+import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.RUser;
 import org.openl.rules.repository.RVersion;
 
@@ -17,15 +19,10 @@ import org.openl.rules.repository.RVersion;
  */
 public class JcrVersion implements RVersion {
 
-    // temporary variables, just to reduce 'throws' for getters
-    private String versionName;
-    
     private Date lastModified;
     private String modifiedBy;
 
-    private int major;
-    private int minor;
-    private long revision;
+    private CommonVersionImpl version;
 
     protected static void create(Node node) throws RepositoryException {
         node.setProperty(JcrNT.PROP_VERSION, 0);
@@ -38,7 +35,6 @@ public class JcrVersion implements RVersion {
     
     public JcrVersion(Version version) throws RepositoryException {
         // storing node's properties into variables to reduce 'throws' for getters
-        versionName = version.getName();
         Node frozen = version.getNode("jcr:frozenNode");
         
         initVersion(frozen);
@@ -53,24 +49,7 @@ public class JcrVersion implements RVersion {
     }
     
     public JcrVersion(RVersion version) {
-        major = version.getMajor();
-        minor = version.getMinor();
-        revision = version.getRevision();
-    }
-
-    public String getName() {
-        if (versionName == null) {
-            StringBuilder sb = new StringBuilder(8);
-            sb.append(major);
-            sb.append('.');
-            sb.append(minor);
-            sb.append('.');
-            sb.append(revision);
-            
-            versionName = sb.toString();
-        }
-        
-        return versionName;
+        this.version = new CommonVersionImpl(version);
     }
 
     public Date getCreated() {
@@ -81,21 +60,29 @@ public class JcrVersion implements RVersion {
         return new JcrUser(modifiedBy);
     }
 
+    public String getVersionName() {
+        return version.getVersionName();
+    }
+
     public int getMajor() {
-        return major;
+        return version.getMajor();
     }
 
     public int getMinor() {
-        return minor;
+        return version.getMinor();
     }
 
     public int getRevision() {
-        return (int)revision;
+        return version.getRevision();
     }
     
     // --- protected
     
     protected void initVersion(Node node) {
+        int major = 0;
+        int minor = 0;
+        long revision = 0;
+        
         try {
             long l = node.getProperty(JcrNT.PROP_VERSION).getLong();
             int i = (int)l;
@@ -103,30 +90,40 @@ public class JcrVersion implements RVersion {
             minor = i & (0xFFFF);
         } catch (RepositoryException e) {
             // TODO: add logging
-            major = 0;
-            minor = 0;
         }
 
         try {
             revision = node.getProperty(JcrNT.PROP_REVISION).getLong();
         } catch (RepositoryException e) {
             // TODO: add logging
-            revision = 0;
         }
+        
+        version = new CommonVersionImpl(major, minor, (int)revision);
     }
     
     protected void nextRevision() {
         // only project can call this method
-        revision++;
+        int newRevision = version.getRevision();
+        newRevision++;
+
+        version = new CommonVersionImpl(version.getMajor(), version.getMinor(), newRevision);
     }
     
     protected void updateVersion(Node node) throws RepositoryException {
-        long l = (major << 16) | (minor & 0xFFFF);
+        long l = (version.getMajor() << 16) | (version.getMinor() & 0xFFFF);
         node.setProperty(JcrNT.PROP_VERSION, l);
-        node.setProperty(JcrNT.PROP_REVISION, revision);
+        node.setProperty(JcrNT.PROP_REVISION, version.getRevision());
     }
     
     protected void updateRevision(Node node) throws RepositoryException {
-        node.setProperty(JcrNT.PROP_REVISION, revision);
+        node.setProperty(JcrNT.PROP_REVISION, version.getRevision());
+    }
+    
+    protected void set(int major, int minor, int revision) {
+        version = new CommonVersionImpl(major, minor, revision);
+    }
+
+    public int compareTo(CommonVersion o) {
+        return version.compareTo(o);
     }
 }
