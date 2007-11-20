@@ -2,6 +2,7 @@ package org.openl.rules.workspace.dtr.impl;
 
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
@@ -20,16 +21,14 @@ import java.util.LinkedList;
 
 public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implements RepositoryProject {
     private RProject rulesProject;
-    private ProjectVersion version;
     
 //    private boolean isMarkedForDeletion;
     private LockInfo lock;
 
-    protected RepositoryProjectImpl(RProject rulesProject, ArtefactPath path, ProjectVersion version) {
+    protected RepositoryProjectImpl(RProject rulesProject, ArtefactPath path) {
         super(rulesProject, rulesProject.getRootFolder(), path);
         
         this.rulesProject = rulesProject;
-        this.version = version;
     }
     
     public RepositoryProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -38,6 +37,10 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
     }
 
     public ProjectVersion getVersion() {
+        RVersion rv = rulesProject.getBaseVersion();
+        RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
+        RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(rv.getMajor(), rv.getMinor(), rv.getRevision(), info);
+
         return version;
     }
 

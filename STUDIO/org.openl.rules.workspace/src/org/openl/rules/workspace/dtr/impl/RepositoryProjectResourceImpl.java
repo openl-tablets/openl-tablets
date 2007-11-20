@@ -1,8 +1,9 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.openl.rules.repository.RFile;
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -11,9 +12,6 @@ import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
 import org.openl.rules.workspace.dtr.RepositoryProjectResource;
 import org.openl.util.Log;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class RepositoryProjectResourceImpl extends RepositoryProjectArtefactImpl implements RepositoryProjectResource {
     private RFile rulesFile;
@@ -55,7 +53,7 @@ public class RepositoryProjectResourceImpl extends RepositoryProjectArtefactImpl
             is = srcResource.getContent();
             
             rulesFile.setContent(is);
-        } catch (RModifyException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException("Failed to update project resource ", e, getArtefactPath().getStringValue());
         } finally {
             if (is != null) {
@@ -72,7 +70,7 @@ public class RepositoryProjectResourceImpl extends RepositoryProjectArtefactImpl
     public void delete() throws ProjectException {
         try {
             rulesFile.delete();
-        } catch (RDeleteException e) {
+        } catch (RRepositoryException e) {
             throw new ProjectException("Failed to delete project resource ''{0}''", e, getArtefactPath().getStringValue());
         }        
     }
