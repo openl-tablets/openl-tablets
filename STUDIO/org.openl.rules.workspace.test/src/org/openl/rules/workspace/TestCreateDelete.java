@@ -9,7 +9,7 @@ public class TestCreateDelete {
     public static void main(String[] args) throws WorkspaceException, ProjectException {
         MultiUserWorkspaceManager muwm = new MultiUserWorkspaceManager();
 
-        WorkspaceUser wu = new WorkspaceUserImpl("127.0.0.1");
+        WorkspaceUser wu = new WorkspaceUserImpl("127.0.0.1", "127.0.0.1");
         UserWorkspace uw = muwm.getUserWorkspace(wu);
         uw.activate();
 

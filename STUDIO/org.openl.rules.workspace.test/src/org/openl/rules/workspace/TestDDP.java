@@ -11,7 +11,7 @@ public class TestDDP {
     public static void main(String[] args) throws WorkspaceException, ProjectException {
         MultiUserWorkspaceManager muwm = new MultiUserWorkspaceManager();
 
-        WorkspaceUser wu = new WorkspaceUserImpl("127.0.0.1");
+        WorkspaceUser wu = new WorkspaceUserImpl("127.0.0.1", "127.0.0.1");
         UserWorkspace uw = muwm.getUserWorkspace(wu);
         uw.activate();
 
@@ -24,8 +24,8 @@ public class TestDDP {
             UserWorkspaceDeploymentProject ddp = uw.getDDProject(name);
             ddp.checkOut();
             
-            ProjectDescriptor pd1 = ddp.addProjectDescriptor("prj1", new CommonVersionImpl(1, 10, 100));
-            ProjectDescriptor pd2 = ddp.addProjectDescriptor("prj2", new CommonVersionImpl(2, 20, 200));
+            ddp.addProjectDescriptor("prj1", new CommonVersionImpl(1, 10, 100));
+            ddp.addProjectDescriptor("prj2", new CommonVersionImpl(2, 20, 200));
 
             ddp.checkIn();
         } catch (Exception e) {

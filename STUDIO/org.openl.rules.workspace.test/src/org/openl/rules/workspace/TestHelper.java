@@ -10,7 +10,7 @@ public class TestHelper {
      */
     public static String FOLDER_TEST = "test_work";
 
-    private static final WorkspaceUser USER_TEST = new WorkspaceUserImpl("test");
+    private static final WorkspaceUser USER_TEST = new WorkspaceUserImpl("test", "test");
 
     /**
      * After running this method {@link #FOLDER_TEST} exists inside of <i>current directory</i> and is empty. 
