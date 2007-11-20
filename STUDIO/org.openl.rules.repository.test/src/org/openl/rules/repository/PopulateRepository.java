@@ -23,6 +23,8 @@ public class PopulateRepository {
     public static void main(String[] args) {
         RRepository repository = null;
         try {
+            CommonUser user = new CommonUserImpl("unknown");
+            
             repository = RulesRepositoryFactory.getRepositoryInstance();
             if (repository.getProjects().size() == 0) {
                 System.out.println("> No projects detected. Trying to create test set...");
@@ -35,7 +37,7 @@ public class PopulateRepository {
                 
                 r1.createFile("test1.txt");
                 r1.createFile("test2.txt");
-                prj1.commit();
+                prj1.commit(user);
             } else {
                 System.out.println("> Has some projects");
             }
@@ -63,19 +65,19 @@ public class PopulateRepository {
                     f1.setContent(new java.io.ByteArrayInputStream(s.getBytes()));
                 }
             }
-            p1.commit();
+            p1.commit(user);
 
             List<RVersion> p1vs = p1.getVersionHistory();
             System.out.println("> versions for /prj1 -- " + p1vs.size());
             for (RVersion v : p1vs) {
-                System.out.println("  " + v.getVersionName() + " " + v.getCreated());
+                System.out.println("  " + v.getVersionName() + " " + v.getCreated() + " by " + v.getCreatedBy().getUserName());
             }
             
             
             List<RVersion> f1vs = f1.getVersionHistory();
             System.out.println("> versions for /prj1/rules/test1.txt -- " + f1vs.size());
             for (RVersion v : f1vs) {
-                System.out.println("  " + v.getVersionName() + " " + v.getCreated());
+                System.out.println("  " + v.getVersionName() + " " + v.getCreated() + " by " + v.getCreatedBy().getUserName());
             }
             
             RVersion last = f1vs.get(f1vs.size() - 1);
