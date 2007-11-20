@@ -52,8 +52,8 @@
         <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{repositoryTreeController.checkInProject}" onclick="return #{repositoryTreeController.selected.dataBean.checkedOut};"/>
         <h:commandButton styleClass="button" value="Copy" onclick="return confirmCopyProject('#{repositoryTreeController.selected.dataBean.name}');" />
         <h:commandButton styleClass="button" value="Delete" onclick="return confirmDeleteNode();" />
-        <h:commandButton styleClass="button" value="Add Folder" onclick="return confirmNewFolder();" />
-        <h:commandButton styleClass="button" value="Add File" onclick="return confirmNewFile();" />
+        <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Add Folder" onclick="return confirmNewFolder();" />
+        <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Add File" onclick="return confirmNewFile();" />
       </h:panelGrid>
     </h:panelGroup>
   </h:panelGroup>
