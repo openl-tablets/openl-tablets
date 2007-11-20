@@ -29,7 +29,7 @@
   <context-param>
     <description>State saving method: "client" or "server" (= default)</description>
     <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-    <param-value>server</param-value>
+    <param-value>client</param-value>
   </context-param>
 
   <context-param>
