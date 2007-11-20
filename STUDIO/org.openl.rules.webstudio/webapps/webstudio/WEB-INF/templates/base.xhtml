@@ -5,13 +5,14 @@
    xmlns:h="http://java.sun.com/jsf/html"
    xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
    xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+   xmlns:c="http://java.sun.com/jstl/core"
    xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <head>
-    <title><ui:insert name="title">OpenL Web Studio</ui:insert></title>
-    <a4j:loadStyle src="/css/default.css" />
-    <a4j:loadStyle src="/css/jcr.css" />
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
+  <head>
+    <a4j:loadStyle src="/css/default.css" />
+    <title><ui:insert name="title">OpenL Web Studio</ui:insert></title>
   </head>
 
   <body>
