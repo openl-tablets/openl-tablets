@@ -215,7 +215,51 @@ public class RepositoryTreeController {
         }
         return null;
     }
-    
+
+    public String undeleteProject() {
+        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        if (projectArtefact instanceof UserWorkspaceProject) {
+            UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
+            if (!project.isDeleted()) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage("Can not undelete project " + project.getName(), "project is not deleted"));
+                return null;
+            }
+
+            try {
+                project.undelete();
+                reInit();
+            } catch (ProjectException e) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage("Can not undelete project " + project.getName(), e.getMessage()));
+            }
+        }
+
+        return null;
+    }
+
+    public String eraseProject() {
+        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        if (projectArtefact instanceof UserWorkspaceProject) {
+            UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
+            if (!project.isDeleted()) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage("Can not erase project " + project.getName(), "project is not deleted"));
+                return null;
+            }
+
+            try {
+                project.erase();
+                reInit();
+            } catch (ProjectException e) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage("Can not erase project " + project.getName(), e.getMessage()));
+            }
+        }
+
+        return null;
+    }
+
     public String addProject() {
         boolean result = false;
 

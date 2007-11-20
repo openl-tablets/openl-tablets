@@ -28,4 +28,7 @@ public interface UserWorkspaceProject extends Project, UserWorkspaceProjectFolde
     
     boolean isRulesProject();
     boolean isDeploymentProject();
+
+    void undelete() throws ProjectException;
+    void erase() throws ProjectException;
 }
