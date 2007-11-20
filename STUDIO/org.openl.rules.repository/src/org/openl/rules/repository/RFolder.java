@@ -1,10 +1,8 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.repository.exceptions.RDeleteException;
-import org.openl.rules.repository.exceptions.RModifyException;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-
 import java.util.List;
+
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * OpenL Rules Folder.
@@ -38,7 +36,7 @@ public interface RFolder extends REntity {
      * 
      * @throws RDeleteException
      */
-    public void delete() throws RDeleteException;
+    public void delete() throws RRepositoryException;
 
     /**
      * Creates sub folder to the folder.
@@ -47,7 +45,7 @@ public interface RFolder extends REntity {
      * @return newly created folder
      * @throws RModifyException if failed
      */
-    public RFolder createFolder(String name) throws RModifyException;
+    public RFolder createFolder(String name) throws RRepositoryException;
 
     /**
      * Creates file to the folder.
@@ -56,5 +54,5 @@ public interface RFolder extends REntity {
      * @return newly created file
      * @throws RModifyException if failed
      */
-    public RFile createFile(String name) throws RModifyException;
+    public RFile createFile(String name) throws RRepositoryException;
 }
