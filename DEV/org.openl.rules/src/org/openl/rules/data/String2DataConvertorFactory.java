@@ -27,11 +27,11 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class String2DataConvertorFactory
 {
 
-	static HashMap convertors;
+	static HashMap<Class<?>,IString2DataConvertor> convertors;
 
-	public static IString2DataConvertor getConvertor(Class c) //throws Exception
+	public static IString2DataConvertor getConvertor(Class<?> c) //throws Exception
 	{
-		IString2DataConvertor conv = (IString2DataConvertor) convertors.get(c);
+		IString2DataConvertor conv = convertors.get(c);
 
 		if (conv != null)
 			return conv;
@@ -40,7 +40,7 @@ public class String2DataConvertorFactory
 
 		try
 		{
-			Constructor ctr = c.getDeclaredConstructor(new Class[]{String.class});
+			Constructor<?> ctr = c.getDeclaredConstructor(new Class[]{String.class});
 			return new String2ConstructorConvertor(ctr);
 		}
 		catch (Throwable t)
@@ -60,9 +60,9 @@ public class String2DataConvertorFactory
 	public static class String2ConstructorConvertor implements IString2DataConvertor
 	{
 		
-		Constructor ctr;
+		Constructor<?> ctr;
 		
-		String2ConstructorConvertor(Constructor ctr)
+		String2ConstructorConvertor(Constructor<?> ctr)
 		{
 			this.ctr = ctr;
 		}
@@ -96,7 +96,7 @@ public class String2DataConvertorFactory
 	//Initialize 
 
 	static {
-		convertors = new HashMap();
+		convertors = new HashMap<Class<?>, IString2DataConvertor>();
 
 		convertors.put(int.class, new String2IntConvertor());
 		convertors.put(double.class, new String2DoubleConvertor());
@@ -293,7 +293,13 @@ public class String2DataConvertorFactory
 			
 			String lcase = data.toLowerCase().intern();
 			
-			return lcase == "true" || lcase == "yes" || lcase == "t" || lcase == "y" ? Boolean.TRUE : Boolean.FALSE;
+			if (lcase == "true" || lcase == "yes" || lcase == "t" || lcase == "y") 
+				return Boolean.TRUE;
+			
+			if (lcase == "false" || lcase == "no" || lcase == "f" || lcase == "n") 
+					return Boolean.FALSE;
+			
+			throw new RuntimeException("Invalid boolean value: " + data);
 		}
 		/**
 		 *
