@@ -41,18 +41,19 @@
       </rich:column>
       <rich:column style="text-align:center">
         <h:graphicImage url="/images/close.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Project is Deleted" title="Project is Deleted" rendered="#{prj.dataBean.deleted}" />
-        &#160;
-        <h:commandLink styleClass="actionButton" immediate="true" rendered="#{!prj.dataBean.deleted}"
-          onclick="return confirmCopyProject('#{prj.name}');">
-          <h:graphicImage url="/images/copy.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Copy" title="Copy" />
-        </h:commandLink>
-        &#160;
-        <h:commandLink styleClass="actionButton" immediate="true" rendered="#{!prj.dataBean.deleted}"
-          action="#{repositoryTreeController.deleteProject}" 
-          onclick="if(!window.confirm('Really delete project?')) {return false;}">
-          <f:param name="projectName" value="#{prj.name}" />
-          <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
-        </h:commandLink>
+
+        <h:panelGroup rendered="#{!prj.dataBean.deleted}">
+          &#160;
+          <h:commandLink styleClass="actionButton" immediate="true" onclick="return confirmCopyProject('#{prj.name}');">
+            <h:graphicImage url="/images/copy.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Copy" title="Copy" />
+          </h:commandLink>
+          &#160;
+          <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteProject}"
+            onclick="if(!window.confirm('Really delete project?')) {return false;}">
+            <f:param name="projectName" value="#{prj.name}" />
+            <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
+          </h:commandLink>
+        </h:panelGroup>
       </rich:column>
 
     </rich:columnGroup>
