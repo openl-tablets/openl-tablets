@@ -3,10 +3,35 @@ package org.openl.meta;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.impl.StringSourceCodeModule;
 
-public class StringValue implements IMetaHolder
+public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue>
 {
 	ValueMetaInfo metaInfo;
 	String value;
+
+	@Override
+	public boolean equals(Object obj)
+	{
+	    
+	    
+	    if (obj instanceof StringValue)
+	    {
+		StringValue v = (StringValue) obj;
+		return value.equals(v.value);
+	    }
+	    if (obj instanceof String)
+	    {
+		String s = (String) obj;
+		return value.equals(s);
+	    }
+	    
+	    return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+	    return value.hashCode();
+	}
 
 	public IMetaInfo getMetaInfo()
 	{
@@ -49,6 +74,26 @@ public class StringValue implements IMetaHolder
 	public String toString()
 	{
 		return value;
+	}
+
+	public char charAt(int index)
+	{
+	    return value.charAt(index);
+	}
+
+	public int length()
+	{
+	    return value.length();
+	}
+
+	public CharSequence subSequence(int start, int end)
+	{
+	    return value.subSequence(start, end);
+	}
+
+	public int compareTo(StringValue v)
+	{
+	    return value.compareTo(v.value);
 	}
 	
 	
