@@ -144,15 +144,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
             }
         }
-        
-        // Add Deploy Projects
-        for (RepositoryDDProject ddp : designTimeRepository.getDDProjects()) {
-            String name = ddp.getName();
-            if (userProjects.get(name) == null) {
-                UserWorkspaceDeploymentProject uwdp = new UserWorkspaceDeploymentProjectImpl(this, ddp);
-                userProjects.put(name, uwdp);
-            }
-        }
     }
 
     public File getLocalWorkspaceLocation() {
