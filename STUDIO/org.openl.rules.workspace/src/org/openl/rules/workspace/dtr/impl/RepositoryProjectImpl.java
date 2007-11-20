@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -28,6 +29,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         super(rulesProject, rulesProject.getRootFolder(), path);
         
         this.rulesProject = rulesProject;
+        this.version = version;
     }
     
     public RepositoryProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -112,8 +114,13 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         
         // TODO update dependencies???
         
+    }
+
+    public void commit(Project source, CommonUser user) throws ProjectException {
+        update(source);
+
         try {
-            rulesProject.commit();
+            rulesProject.commit(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to commit changes", e);
         }        

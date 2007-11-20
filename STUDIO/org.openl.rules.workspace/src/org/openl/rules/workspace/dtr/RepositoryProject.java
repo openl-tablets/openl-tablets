@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.dtr;
 
+import org.openl.rules.repository.CommonUser;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -60,4 +61,6 @@ public interface RepositoryProject extends Project, RepositoryProjectFolder {
      * @return
      */
     LockInfo getlLockInfo();
+    
+    void commit(Project source, CommonUser user) throws ProjectException;
 }

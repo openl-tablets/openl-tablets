@@ -37,10 +37,8 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
         this.name = rulesEntity.getName();
         this.path = path;
 
-        versions = new LinkedList<ProjectVersion>();
-        properties = new PropertiesContainerImpl();
-
-        reLoad();
+        reLoadVersions();
+        reLoadProps();
     }
 
     public String getName() {
@@ -60,6 +58,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     }
 
     public Collection<Property> getProperties() {
+        reLoadProps();
         return properties.getProperties();
     }
 
@@ -73,7 +72,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
 
     // all for project, main for content
     public Collection<ProjectVersion> getVersions() {
-        // TODO use updated each time
+        reLoadVersions();
         return versions;
     }
 
@@ -191,12 +190,12 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
 
     // --- protected
 
-    protected void reLoad() {
+    protected void reLoadVersions() {
         LinkedList<ProjectVersion> vers = new LinkedList<ProjectVersion>();
         
         try {
             for (RVersion rv : rulesEntity.getVersionHistory()) {
-                RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getName());
+                RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
                 vers.add(new RepositoryProjectVersionImpl(rv.getMajor(), rv.getMinor(), rv.getRevision(), rvii));
             }
             
@@ -204,7 +203,9 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
         } catch (RRepositoryException e) {
             Log.error("Failed to get version history", e);
         }
-
+    }
+    
+    protected void reLoadProps() {
         PropertiesContainer props = new PropertiesContainerImpl();
         
         for (RProperty rp : rulesEntity.getProperties()) {
