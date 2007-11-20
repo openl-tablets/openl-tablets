@@ -28,7 +28,12 @@ public class CreateDeleteProject {
                 System.out.println("> Has some projects");
             }
 
-            repository.getProject("prj2").delete();
+            RProject p2 = repository.getProject("prj2");
+            if (p2.isMarked4Deletion()) {
+                p2.undelete();
+            } else {
+                p2.delete();
+            }
 //            repository.getProject("prj3").erase();
             
             List<RProject> projects = repository.getProjects();
