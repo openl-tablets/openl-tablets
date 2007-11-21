@@ -16,7 +16,7 @@ public class PropertiesEditorController {
         Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
         Object dataBean = FacesUtils.getFacesVariable(
-                "#{repositoryTree.selected.dataBean}");
+                "#{repositoryTreeController.selected.dataBean}");
 
         return properties;
     }

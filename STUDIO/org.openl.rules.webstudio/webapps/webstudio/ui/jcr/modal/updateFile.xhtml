@@ -1,66 +1,66 @@
 <ui:composition
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:modalPanel  id="modalUpdateFile" minHeight="200" minWidth="400" 
-		height="200" width="400" zindex="2000">
-		<f:facet name="header">
-			<h:outputText value="Update File" />
-		</f:facet>
+  <rich:modalPanel  id="modalUpdateFile" minHeight="200" minWidth="400"
+    height="200" width="400" zindex="2000">
+    <f:facet name="header">
+      <h:outputText value="Update File" />
+    </f:facet>
 
-		<f:facet name="controls">
-			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalUpdateFile');" />
-		</f:facet>
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalUpdateFile');" />
+    </f:facet>
 
-		<h:form id="modalUpdateFileForm">
-		<h:panelGrid
-		  styleClass="modalBody"
-		  cellpadding="0" cellspacing="0" border="0" 
-		  columns="1" columnClasses="modalCol"
-		  rowClasses="modalRow1,modalRow2,modalRow3"
-		>
-			<h:panelGrid
-			  styleClass="modalRow1Grid"
-			  columns="1"
-			>
-				<h:outputText styleClass="niceLabel" value="Physical File:"/>
-				<h:inputText styleClass="modalInput" value="#{fileDialog.uploadFrom}" />
+    <h:form id="modalUpdateFileForm">
+    <h:panelGrid
+      styleClass="modalBody"
+      cellpadding="0" cellspacing="0" border="0"
+      columns="1" columnClasses="modalCol"
+      rowClasses="modalRow1,modalRow2,modalRow3"
+    >
+      <h:panelGrid
+        styleClass="modalRow1Grid"
+        columns="1"
+      >
+        <h:outputText styleClass="niceLabel" value="Physical File:"/>
+        <h:inputText styleClass="modalInput" value="#{repositoryTreeController.uploadFrom}" />
 <!--
-				<h:commandButton styleClass="modalInput" value="" type="file" /> 
+        <h:commandButton styleClass="modalInput" value="" type="file" />
  -->
-			</h:panelGrid>
-			
-			<rich:separator height="1" />
-			
-			<h:panelGrid
-			  styleClass="modalButtonPanel"
-			  cellpadding="0" cellspacing="0" border="0"
-			  columns="2" columnClasses="modalButtonCol,modalButtonCol"
-			>
-				<h:commandButton 
-				  styleClass="modalButton" 
-				  value="Update" 
-				  action="#{fileDialog.updateFile}"
-				/>
-				<h:commandButton 
-				  styleClass="modalButton" 
-				  value="Cancel" 
-				  onclick="Richfaces.hideModalPanel('modalUpdateFile');return false;" 
-				/>
-			</h:panelGrid>
-		</h:panelGrid>
-		</h:form>
-		
-	</rich:modalPanel>
+      </h:panelGrid>
 
-	<script>
-		function confirmUpdateFile() {
-			Richfaces.showModalPanel('modalUpdateFile');
-			return false;
-		}
-	</script>
+      <rich:separator height="1" />
+
+      <h:panelGrid
+        styleClass="modalButtonPanel"
+        cellpadding="0" cellspacing="0" border="0"
+        columns="2" columnClasses="modalButtonCol,modalButtonCol"
+      >
+        <h:commandButton
+          styleClass="modalButton"
+          value="Update"
+          action="#{repositoryTreeController.updateFile}"
+        />
+        <h:commandButton
+          styleClass="modalButton"
+          value="Cancel"
+          onclick="Richfaces.hideModalPanel('modalUpdateFile');return false;"
+        />
+      </h:panelGrid>
+    </h:panelGrid>
+    </h:form>
+
+  </rich:modalPanel>
+
+  <script>
+    function confirmUpdateFile() {
+      Richfaces.showModalPanel('modalUpdateFile');
+      return false;
+    }
+  </script>
 
 </ui:composition>

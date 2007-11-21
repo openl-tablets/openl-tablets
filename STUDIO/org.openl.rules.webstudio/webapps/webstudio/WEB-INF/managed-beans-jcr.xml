@@ -11,12 +11,6 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>fileDialog</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.FileDialogController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
     <managed-bean-name>diff</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.repository.DiffFormController</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
@@ -37,6 +31,12 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>uploadService</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.services.upload.UploadService</managed-bean-class>
+    <managed-bean-scope>application</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>repositoryTreeController</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeController</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
@@ -44,18 +44,6 @@
       <property-name>userWorkspace</property-name>
       <value>#{sessionScope.rulesUserSession.userWorkspace}</value>
     </managed-property>
-  </managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>uploadService</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.services.upload.UploadService</managed-bean-class>
-    <managed-bean-scope>application</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>projectUploadController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.ProjectUploadController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>uploadService</property-name>
       <value>#{uploadService}</value>
