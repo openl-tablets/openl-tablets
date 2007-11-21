@@ -1,10 +1,20 @@
 package org.openl.rules.ui.repository;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.apache.myfaces.custom.fileupload.UploadedFile;
+
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
 import org.openl.rules.ui.repository.tree.TreeProject;
 import org.openl.rules.ui.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.RulesUserSession;
+import org.openl.rules.webstudio.services.ServiceException;
+import org.openl.rules.webstudio.services.upload.UploadService;
+import org.openl.rules.webstudio.services.upload.UploadServiceParams;
+import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -15,8 +25,6 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
-import org.openl.util.Log;
-
 import org.richfaces.component.UITree;
 
 import org.richfaces.event.NodeSelectedEvent;
@@ -26,26 +34,30 @@ import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
 
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
- * perform repository actions.
+ * performing repository actions.
  *
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
  */
 public class RepositoryTreeController {
+    private final static Log log = LogFactory.getLog(RepositoryTreeController.class);
+
     /** Root node for RichFaces's tree.  It is not displayed. */
     private TreeRepository root;
     private AbstractTreeNode currentNode;
     private TreeRepository repository;
     private UserWorkspace userWorkspace;
+    private UploadService uploadService;
+    private String projectName;
+    private String folderName;
+    private UploadedFile file;
+    private String fileName;
+    private String uploadFrom;
 
-    // Add new Project
-    private String newProjectName;
-    private String newFolderName;
 
     /**
      * TODO: re-implement properly when AbstractTreeNode.id becomes Object.
@@ -116,7 +128,7 @@ public class RepositoryTreeController {
         return currentNode;
     }
 
-    public void processSelection(NodeSelectedEvent event) throws AbortProcessingException {
+    public void processSelection(NodeSelectedEvent event) {
         UITree tree = (UITree) event.getComponent();
         AbstractTreeNode node = (AbstractTreeNode) tree.getRowData();
         currentNode = node;
@@ -128,18 +140,10 @@ public class RepositoryTreeController {
         return (node.getId() == selected.getId());
     }
 
-    public void reInit() {
+    public void invalidateTree() {
         root = null;
 
 //        currentNode = null;
-    }
-
-    public static void refreshSessionTree() {
-        RepositoryTreeController self = (RepositoryTreeController) FacesUtils
-                .getFacesVariable("#{repositoryTree}");
-        if (self != null) {
-            self.reInit();
-        }
     }
 
     /**
@@ -151,34 +155,17 @@ public class RepositoryTreeController {
         return getRepositoryNode().getChildNodes();
     }
 
-    public void setNewProjectName(String newProjectName) {
-        this.newProjectName = newProjectName;
-    }
-
-    public String getNewProjectName() {
-        // expect null here
-        return newProjectName;
-    }
-
-    public String getNewFolderName() {
-        return newFolderName;
-    }
-
-    public void setNewFolderName(String newFolderName) {
-        this.newFolderName = newFolderName;
-    }
-
     public String addFolder() {
         ProjectArtefact projectArtefact = getSelected().getDataBean();
         boolean result = false;
         if (projectArtefact instanceof UserWorkspaceProjectFolder) {
             UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
             try {
-                folder.addFolder(newFolderName);
-                reInit();
+                folder.addFolder(folderName);
+                invalidateTree();
                 result = true;
             } catch (ProjectException e) {
-                Log.error("Failed to add new folder {0}", e, newFolderName);
+                log.error("Failed to add new folder " + folderName, e);
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage("error adding folder", e.getMessage()));
@@ -192,9 +179,9 @@ public class RepositoryTreeController {
                 .getDataBean();
         try {
             projectArtefact.delete();
-            reInit();
+            invalidateTree();
         } catch (ProjectException e) {
-            Log.error("error deleting", e);
+            log.error("error deleting", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("error deleting", e.getMessage()));
         }
@@ -203,15 +190,16 @@ public class RepositoryTreeController {
 
     public String deleteProject() {
         String projectName = FacesUtils.getRequestParameter("projectName");
-        
+
         try {
             UserWorkspaceProject project = userWorkspace.getProject(projectName);
             project.delete();
-            reInit();
+            invalidateTree();
         } catch (ProjectException e) {
-            Log.error("Cannot delete project {0}", e, projectName);
+            log.error("Cannot delete project " + projectName, e);
             FacesContext.getCurrentInstance()
-            .addMessage(null, new FacesMessage("Failed to delete project", e.getMessage()));
+                .addMessage(null,
+                    new FacesMessage("Failed to delete project", e.getMessage()));
         }
         return null;
     }
@@ -221,17 +209,21 @@ public class RepositoryTreeController {
         if (projectArtefact instanceof UserWorkspaceProject) {
             UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
             if (!project.isDeleted()) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage("Can not undelete project " + project.getName(), "project is not deleted"));
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage("Can not undelete project " + project.getName(),
+                            "project is not deleted"));
                 return null;
             }
 
             try {
                 project.undelete();
-                reInit();
+                invalidateTree();
             } catch (ProjectException e) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage("Can not undelete project " + project.getName(), e.getMessage()));
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage("Can not undelete project " + project.getName(),
+                            e.getMessage()));
             }
         }
 
@@ -243,38 +235,40 @@ public class RepositoryTreeController {
         if (projectArtefact instanceof UserWorkspaceProject) {
             UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
             if (!project.isDeleted()) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage("Can not erase project " + project.getName(), "project is not deleted"));
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage("Can not erase project " + project.getName(),
+                            "project is not deleted"));
                 return null;
             }
 
             try {
                 project.erase();
-                reInit();
+                invalidateTree();
             } catch (ProjectException e) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage("Can not erase project " + project.getName(), e.getMessage()));
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage("Can not erase project " + project.getName(),
+                            e.getMessage()));
             }
         }
 
         return null;
     }
 
-    public String addProject() {
-        boolean result = false;
-
+    public String createProject() {
         try {
-            userWorkspace.createProject(newProjectName);
-            reInit();
-            result = true;
+            userWorkspace.createProject(projectName);
+            invalidateTree();
+            return null;
         } catch (ProjectException e) {
-            Log.error("Failed to create new project", e);
+            log.error("Failed to create new project", e);
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage("Failed to create new project", e.getMessage()));
+            return UiConst.OUTCOME_FAILURE;
         }
-        return (result) ? null : UiConst.OUTCOME_FAILURE;
     }
 
     // TODO implement
@@ -292,10 +286,10 @@ public class RepositoryTreeController {
 
         try {
             project.open();
-            reInit();
+            invalidateTree();
             return null;
         } catch (ProjectException e) {
-            Log.error("Failed to open project", e);
+            log.error("Failed to open project", e);
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
@@ -312,10 +306,10 @@ public class RepositoryTreeController {
 
         try {
             project.close();
-            reInit();
+            invalidateTree();
             return null;
         } catch (ProjectException e) {
-            Log.error("Failed to close project", e);
+            log.error("Failed to close project", e);
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
@@ -332,10 +326,10 @@ public class RepositoryTreeController {
 
         try {
             project.checkOut();
-            reInit();
+            invalidateTree();
             return null;
         } catch (ProjectException e) {
-            Log.error("Failed to check out project", e);
+            log.error("Failed to check out project", e);
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
@@ -352,10 +346,10 @@ public class RepositoryTreeController {
 
         try {
             project.checkIn();
-            reInit();
+            invalidateTree();
             return null;
         } catch (ProjectException e) {
-            Log.error("Failed to check in project", e);
+            log.error("Failed to check in project", e);
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
@@ -377,6 +371,64 @@ public class RepositoryTreeController {
         }
     }
 
+    public String upload() {
+        if (runUpload()) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("Project was successfully uploaded"));
+            invalidateTree();
+        } else {
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("Error occured during uploading file"));
+        }
+        return null;
+    }
+
+    private boolean runUpload() {
+        UploadServiceParams params = new UploadServiceParams();
+        params.setFile(file);
+        params.setProjectName(projectName);
+
+        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
+                .get("rulesUserSession");
+
+        try {
+            UserWorkspace workspace = rulesUserSession.getUserWorkspace();
+            params.setWorkspace(workspace);
+        } catch (Exception e) {
+            log.error("Error obtaining user workspace", e);
+            return false;
+        }
+
+        try {
+            UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
+
+            //importFile = result.getResultFile().getName();
+        } catch (ServiceException e) {
+            log.error("Error while uploading project", e);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Adds new file to active node (Project or Folder)
+     *
+     * @return outcome: "success" or "fail"
+     */
+    public String addFile() {
+        return null;
+    }
+
+    /**
+     * Updates file (active node)
+     *
+     * @return
+     */
+    public String updateFile() {
+        return null;
+    }
+
     /**
      * Used for testing DDP. Must be removed in the future.
      *
@@ -393,6 +445,50 @@ public class RepositoryTreeController {
             c++;
         }
         return null;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String newProjectName) {
+        this.projectName = newProjectName;
+    }
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public void setFolderName(String newFolderName) {
+        this.folderName = newFolderName;
+    }
+
+    public UploadedFile getFile() {
+        return file;
+    }
+
+    public void setFile(UploadedFile file) {
+        this.file = file;
+    }
+
+    public String getUploadFrom() {
+        return uploadFrom;
+    }
+
+    public void setUploadFrom(String uploadFrom) {
+        this.uploadFrom = uploadFrom;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setUploadService(UploadService uploadService) {
+        this.uploadService = uploadService;
     }
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {
