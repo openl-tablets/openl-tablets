@@ -199,6 +199,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
         designTimeRepository.createDDProject(name);
     }
 
+    public void copyProject(UserWorkspaceProject project, String name) throws ProjectException {
+        designTimeRepository.copyProject(project, name, user);
+        refresh();
+    }
+
     public void addWorkspaceListener(UserWorkspaceListener listener) {
         listeners.add(listener);
     }

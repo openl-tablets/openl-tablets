@@ -133,7 +133,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }        
     }
 
-    public void copyProject(Project project, String name) throws RepositoryException {
+    public void copyProject(Project project, String name, WorkspaceUser user) throws ProjectException {
+        createProject(name);
+        RepositoryProject newProject = getProject(name);
+        newProject.commit(project, user);
     }
     
     public void createProject(String name) throws RepositoryException {
@@ -187,7 +190,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
     
     private RepositoryDDProject wrapDDProject(RDeploymentDescriptorProject rddp) {
-        RepositoryDeploymentDescriptorProjectImpl dp = new RepositoryDeploymentDescriptorProjectImpl(rddp);
-        return dp;
+        return new RepositoryDeploymentDescriptorProjectImpl(rddp);
     }
 }
