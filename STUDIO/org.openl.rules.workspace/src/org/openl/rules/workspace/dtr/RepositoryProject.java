@@ -26,14 +26,14 @@ public interface RepositoryProject extends Project, RepositoryProjectFolder {
      * 
      * @throws ProjectException
      */
-    void delete() throws ProjectException;
+    void delete(CommonUser user) throws ProjectException;
     
     /**
      * Unmark the project from deletion.
      * 
      * @throws ProjectException
      */
-    void undelete() throws ProjectException;
+    void undelete(CommonUser user) throws ProjectException;
     
     /**
      * Erase the project from DTR. All data will be lost.
@@ -41,7 +41,7 @@ public interface RepositoryProject extends Project, RepositoryProjectFolder {
      * 
      * @throws ProjectException
      */
-    void erase() throws ProjectException;
+    void erase(CommonUser user) throws ProjectException;
     
     /**
      * Checks whether the project is marked for deletion.

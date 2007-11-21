@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -88,7 +89,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
 
         if (isLocked()) {
             throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''", null, getName(),
-                    dtrDProject.getlLockInfo().getLockedBy(), dtrDProject.getlLockInfo().getLockedAt());
+                    dtrDProject.getlLockInfo().getLockedBy().getUserName(), dtrDProject.getlLockInfo().getLockedAt());
         }
 
         if (isOpened()) {
@@ -109,9 +110,9 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
 
     public boolean isCheckedOut() {
         if (dtrDProject.isLocked()) {
-            String lockedBy = dtrDProject.getlLockInfo().getLockedBy();
+            WorkspaceUser lockedBy = dtrDProject.getlLockInfo().getLockedBy();
             
-            if (lockedBy.equals(userWorkspace.getUser().getUserId())) {
+            if (lockedBy.equals(userWorkspace.getUser())) {
                 return true;
             }
         }

@@ -20,11 +20,9 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
     }
 
     public void setContent(InputStream inputStream) throws ProjectException {
-        if (!isLocal()) {
-            throw new ProjectException("Can modify local resource only!", null);
+        if (isReadOnly()) {
+            throw new ProjectException("Cannot update content in read only mode!", null);
         }
-        
-        //TODO -- check that project is in RW mode
         
         localResource.setContent(inputStream);
     }
@@ -42,8 +40,8 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
     }
     
     public void delete() throws ProjectException {
-        if (!isLocal()) {
-            throw new ProjectException("Can modify local resource only!", null);
+        if (isReadOnly()) {
+            throw new ProjectException("Cannot delete in read only mode!", null);
         }
 
         localResource.remove();
