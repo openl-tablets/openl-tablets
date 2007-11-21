@@ -168,7 +168,7 @@ public class DeploymentController implements Serializable {
             log.error(e);
         }
 
-        return null;
+        return new SelectItem[0];
     }
 
     public String deploy() {

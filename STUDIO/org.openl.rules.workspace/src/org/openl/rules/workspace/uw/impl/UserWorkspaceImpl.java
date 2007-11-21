@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Iterator;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private final WorkspaceUser user;
@@ -142,6 +144,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 } else {
                     uwp.updateArtefact(lp, null);
                 }
+            }
+        }
+
+        Iterator<Map.Entry<String,UserWorkspaceProject>> entryIterator = userProjects.entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            Map.Entry<String, UserWorkspaceProject> entry = entryIterator.next();
+            if (!designTimeRepository.hasProject(entry.getKey()) && !localWorkspace.hasProject(entry.getKey())) {
+                entryIterator.remove();
             }
         }
     }
