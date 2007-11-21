@@ -54,6 +54,7 @@ public class RepositoryTreeController {
     private UploadedFile file;
     private String fileName;
     private String uploadFrom;
+    private Collection<UserWorkspaceProject> projects;
 
     /**
      * TODO: re-implement properly when AbstractTreeNode.id becomes Object.
@@ -90,7 +91,11 @@ public class RepositoryTreeController {
         repositoryTreeState.getRepository().setDataBean(null);
         repositoryTreeState.getRoot().add(repositoryTreeState.getRepository());
 
-        for (Project project : userWorkspace.getProjects()) {
+        if (projects == null) {
+            projects = userWorkspace.getProjects();
+        }
+
+        for (Project project : projects) {
             TreeProject prj = new TreeProject(generateId(project.getName()),
                     project.getName());
             prj.setDataBean(project);
@@ -444,7 +449,10 @@ public class RepositoryTreeController {
      */
     public String getSecondProjectName() {
         int c = 0;
-        for (Project project : userWorkspace.getProjects()) {
+        if (projects == null) {
+            projects = userWorkspace.getProjects();
+        }
+        for (Project project : projects) {
             if (c > 0) {
                 return project.getName();
             }
