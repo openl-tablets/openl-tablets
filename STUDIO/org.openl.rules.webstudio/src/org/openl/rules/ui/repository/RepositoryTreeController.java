@@ -46,11 +46,7 @@ import javax.faces.context.FacesContext;
  */
 public class RepositoryTreeController {
     private final static Log log = LogFactory.getLog(RepositoryTreeController.class);
-
-    /** Root node for RichFaces's tree.  It is not displayed. */
-    private TreeRepository root;
-    private AbstractTreeNode currentNode;
-    private TreeRepository repository;
+    private RepositoryTreeState repositoryTreeState;
     private UserWorkspace userWorkspace;
     private UploadService uploadService;
     private String projectName;
@@ -58,7 +54,6 @@ public class RepositoryTreeController {
     private UploadedFile file;
     private String fileName;
     private String uploadFrom;
-
 
     /**
      * TODO: re-implement properly when AbstractTreeNode.id becomes Object.
@@ -89,50 +84,51 @@ public class RepositoryTreeController {
     }
 
     private void buildTree() {
-        root = new TreeRepository(generateId(""), "");
-        repository = new TreeRepository(generateId("Rules Repository"), "Rules Repository");
-        repository.setDataBean(null);
-        root.add(repository);
+        repositoryTreeState.setRoot(new TreeRepository(generateId(""), ""));
+        repositoryTreeState.setRepository(new TreeRepository(generateId(
+                    "Rules Repository"), "Rules Repository"));
+        repositoryTreeState.getRepository().setDataBean(null);
+        repositoryTreeState.getRoot().add(repositoryTreeState.getRepository());
 
         for (Project project : userWorkspace.getProjects()) {
             TreeProject prj = new TreeProject(generateId(project.getName()),
                     project.getName());
             prj.setDataBean(project);
-            repository.add(prj);
+            repositoryTreeState.getRepository().add(prj);
             // redo that
             traverseFolder(prj, project.getArtefacts());
         }
     }
 
     public synchronized Object getData() {
-        if (root == null) {
+        if (repositoryTreeState.getRoot() == null) {
             buildTree();
         }
 
-        return root;
+        return repositoryTreeState.getRoot();
     }
 
     public synchronized TreeRepository getRepositoryNode() {
-        if (root == null) {
+        if (repositoryTreeState.getRoot() == null) {
             buildTree();
         }
-        return repository;
+        return repositoryTreeState.getRepository();
     }
 
     public AbstractTreeNode getSelected() {
-        if (currentNode == null) {
+        if (repositoryTreeState.getCurrentNode() == null) {
             // lazy loading
             getData();
             //
-            currentNode = repository;
+            repositoryTreeState.setCurrentNode(repositoryTreeState.getRepository());
         }
-        return currentNode;
+        return repositoryTreeState.getCurrentNode();
     }
 
     public void processSelection(NodeSelectedEvent event) {
         UITree tree = (UITree) event.getComponent();
         AbstractTreeNode node = (AbstractTreeNode) tree.getRowData();
-        currentNode = node;
+        repositoryTreeState.setCurrentNode(node);
     }
 
     public Boolean adviseNodeSelected(UITree uiTree) {
@@ -142,7 +138,7 @@ public class RepositoryTreeController {
     }
 
     public void invalidateTree() {
-        root = null;
+        repositoryTreeState.setRoot(null);
 
 //        currentNode = null;
     }
@@ -503,5 +499,9 @@ public class RepositoryTreeController {
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {
         this.userWorkspace = userWorkspace;
+    }
+
+    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
+        this.repositoryTreeState = repositoryTreeState;
     }
 }
