@@ -25,13 +25,17 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory {
-    public static final String PROP_DEF_PATH = "JCR.default.path";
-    public static final String DEF_PATH = "/";
+    public static final String PROP_DEF_RULES_PATH = "JCR.rules.path";
+    public static final String PROP_DEF_DEPLOYMENTS_PATH = "JCR.deployments.path";
+
+    public static final String DEF_RULES_PATH = "/rules";
+    public static final String DEF_DEPLOYMENTS_PATH = "/deployments";
 
     private Repository repository;
     private String repositoryName;
     /** Default path where new project should be created */
-    private String defPath;
+    private String defRulesPath;
+    private String defDeploymentsPath;
 
     /** {@inheritDoc} */
     public RRepository getRepositoryInstance() throws RRepositoryException {
@@ -39,7 +43,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
 
-            JcrRepository jri = new JcrRepository(repositoryName, session, defPath);
+            JcrRepository jri = new JcrRepository(repositoryName, session, defRulesPath, defDeploymentsPath);
             return jri;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Repository Instance", e);
@@ -48,7 +52,8 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /** {@inheritDoc} */
     public void initialize(SmartProps props) throws RRepositoryException {
-        defPath = props.getStr(PROP_DEF_PATH, DEF_PATH);
+        defRulesPath = props.getStr(PROP_DEF_RULES_PATH, DEF_RULES_PATH);
+        defDeploymentsPath = props.getStr(PROP_DEF_DEPLOYMENTS_PATH, DEF_DEPLOYMENTS_PATH);
         //TODO: add default path support
         // 1. check path -- create if absent
         // 2. pass as parameter or property to JcrRepository

@@ -23,6 +23,8 @@ public interface JcrNT {
 // take time from version
 //	public static final String PROP_MODIFIED_TIME = "modifiedTime";
 	public static final String PROP_MODIFIED_BY = "modifiedBy";
+        public static final String PROP_LOCKED_AT = "lockedAt";
+        public static final String PROP_LOCKED_BY = "lockedBy";
 	
         // Common Rules properties
         public static final String PROP_EFFECTIVE_DATE = "effectiveDate";
