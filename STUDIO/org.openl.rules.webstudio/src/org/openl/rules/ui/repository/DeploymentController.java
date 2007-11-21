@@ -28,6 +28,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
  * @author Andrey Naumenko
  */
 public class DeploymentController implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final static Log log = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectName;
@@ -101,7 +102,7 @@ public class DeploymentController implements Serializable {
                 if (version.length > 2) {
                     revision = Integer.parseInt(version[2]);
                 }
-                
+
                 ddp.addProjectDescriptor(item.getName(), new CommonVersionImpl(major, minor, revision));
             }
 
@@ -165,7 +166,7 @@ public class DeploymentController implements Serializable {
     }
 
     public String deploy() {
-        
+
         return OUTCOME_SUCCESS;
     }
 

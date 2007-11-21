@@ -14,7 +14,6 @@ import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.services.upload.UploadService;
 import org.openl.rules.webstudio.services.upload.UploadServiceParams;
-import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -30,7 +29,9 @@ import org.richfaces.component.UITree;
 import org.richfaces.event.NodeSelectedEvent;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -400,7 +401,8 @@ public class RepositoryTreeController {
         }
 
         try {
-            UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
+            //UploadServiceResult result = (UploadServiceResult)
+            uploadService.execute(params);
 
             //importFile = result.getResultFile().getName();
         } catch (ServiceException e) {
@@ -427,6 +429,14 @@ public class RepositoryTreeController {
      */
     public String updateFile() {
         return null;
+    }
+
+    public Map<String, Object> getProperties() {
+        Map<String, Object> properties = new LinkedHashMap<String, Object>();
+
+        /*Object dataBean = FacesUtils.getFacesVariable(
+           "#{repositoryTreeController.selected.dataBean}");*/
+        return properties;
     }
 
     /**
