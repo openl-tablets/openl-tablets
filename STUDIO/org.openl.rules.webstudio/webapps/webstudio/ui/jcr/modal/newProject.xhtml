@@ -19,7 +19,7 @@
         rowClasses="modalRow1,modalRow2,modalRow3">
         <h:panelGrid styleClass="modalRow1Grid" columns="1">
           <h:outputText styleClass="niceLabel" value="Project Name:" />
-          <h:inputText id="projectName" size="50" value="#{repositoryTreeController.projectName}"/>
+          <h:inputText styleClass="modalInput" id="projectName" maxlength="50" value="#{repositoryTreeController.projectName}"/>
         </h:panelGrid>
 
         <rich:separator height="1" />

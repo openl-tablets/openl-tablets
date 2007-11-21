@@ -494,7 +494,9 @@ public class RepositoryTreeController {
     }
 
     public String getProjectName() {
-        return projectName;
+        //EPBDS-92 - clear newProject dialog every time
+        //return projectName;
+        return null;
     }
 
     public void setProjectName(String newProjectName) {
