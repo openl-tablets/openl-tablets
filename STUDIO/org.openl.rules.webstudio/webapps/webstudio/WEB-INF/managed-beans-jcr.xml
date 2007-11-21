@@ -3,13 +3,6 @@
                               "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 <faces-config>
 
-  <!-- activeNode.* is short for userSession.selected.dataBean.* and userSession.selected.type -->
-  <managed-bean>
-    <managed-bean-name>modalProject</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.ModalController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-
   <managed-bean>
     <managed-bean-name>diff</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.repository.DiffFormController</managed-bean-class>
