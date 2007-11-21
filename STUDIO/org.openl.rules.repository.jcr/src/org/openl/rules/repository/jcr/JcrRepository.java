@@ -31,41 +31,31 @@ public class JcrRepository implements RRepository {
     private String name;
     /** JCR Session */
     private Session session;
-    private Node defNewProjectLocation;
 
-    public JcrRepository(String name, Session session, String defPath) throws RepositoryException {
+    private Node defRulesLocation;
+    private Node defDeploymentsLocation;
+
+    public JcrRepository(String name, Session session, String defRulesPath, String defDeploymentsPath) throws RepositoryException {
         this.name = name;
         this.session = session;
 
-        Node node = session.getRootNode();
-        String[] paths = defPath.split("/");
-        for (String path : paths) {
-            if (path.length() == 0) continue; // first element (root folder) or illegal path
+        defRulesLocation = checkPath(defRulesPath);
+        defDeploymentsLocation = checkPath(defDeploymentsPath);
 
-            if (node.hasNode(path)) {
-                // go deeper
-                node = node.getNode(path);
-            } else {
-                // create new
-                node = node.addNode(path);
-            }
-        }
-
-        if (node.isNew()) {
+        if (defRulesLocation.isNew() || defDeploymentsLocation.isNew()) {
             // save all at once
             session.save();
         }
-        defNewProjectLocation = node;
     }
 
     /** {@inheritDoc} */
     public RProject getProject(String name) throws RRepositoryException {
         try {
-            if (!defNewProjectLocation.hasNode(name)) {
+            if (!defRulesLocation.hasNode(name)) {
                 throw new RRepositoryException("Cannot find project ''{0}''", null, name);
             }
 
-            Node n = defNewProjectLocation.getNode(name);
+            Node n = defRulesLocation.getNode(name);
             JcrProject p = new JcrProject(n);
             return p;
         } catch (RepositoryException e) {
@@ -76,7 +66,7 @@ public class JcrRepository implements RRepository {
     /** {@inheritDoc} */
     public boolean hasProject(String name) throws RRepositoryException {
         try {
-            return defNewProjectLocation.hasNode(name);
+            return defRulesLocation.hasNode(name);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to check project {0}", e, name);
         }        
@@ -106,7 +96,7 @@ public class JcrRepository implements RRepository {
     /** {@inheritDoc} */
     public RProject createProject(String nodeName) throws RRepositoryException {
         try {
-            return JcrProject.createProject(defNewProjectLocation, nodeName);
+            return JcrProject.createProject(defRulesLocation, nodeName);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create Project {0}", e, nodeName);
         }
@@ -114,11 +104,11 @@ public class JcrRepository implements RRepository {
 
     public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
         try {
-            if (!defNewProjectLocation.hasNode(name)) {
+            if (!defDeploymentsLocation.hasNode(name)) {
                 throw new RRepositoryException("Cannot find Project ''{0}''", null, name);
             }
 
-            Node n = defNewProjectLocation.getNode(name);
+            Node n = defDeploymentsLocation.getNode(name);
             JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
             return ddp;
         } catch (RepositoryException e) {
@@ -132,8 +122,7 @@ public class JcrRepository implements RRepository {
 
     public RDeploymentDescriptorProject createDDProject(String nodeName) throws RRepositoryException {
         try {
-            return JcrDeploymentDescriptorProject.createProject(
-                    defNewProjectLocation, nodeName);
+            return JcrDeploymentDescriptorProject.createProject(defDeploymentsLocation, nodeName);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create DDProject {0}", e, nodeName);
         }        
@@ -197,5 +186,23 @@ public class JcrRepository implements RRepository {
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to run query", e);
         }
+    }
+    
+    protected Node checkPath(String aPath) throws RepositoryException {
+        Node node = session.getRootNode();
+        String[] paths = aPath.split("/");
+        for (String path : paths) {
+            if (path.length() == 0) continue; // first element (root folder) or illegal path
+
+            if (node.hasNode(path)) {
+                // go deeper
+                node = node.getNode(path);
+            } else {
+                // create new
+                node = node.addNode(path);
+            }
+        }
+        
+        return node;
     }
 }

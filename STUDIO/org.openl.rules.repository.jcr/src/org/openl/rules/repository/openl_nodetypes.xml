@@ -115,4 +115,15 @@
         <propertyDefinition name="rRevision" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
         <propertyDefinition name="modifiedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
     </nodeType>
+
+	<!-- Locks -->
+
+    <nodeType name="openl:lock" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+        <propertyDefinition name="lockedAt" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="IGNORE" protected="false" multiple="false"/>
+        <propertyDefinition name="lockedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="IGNORE" protected="false" multiple="false"/>
+    </nodeType>
+
 </nodeTypes>

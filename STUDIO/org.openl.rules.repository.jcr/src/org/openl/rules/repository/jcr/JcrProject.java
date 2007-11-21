@@ -7,6 +7,7 @@ import javax.jcr.RepositoryException;
 
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.RFolder;
+import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -24,6 +25,8 @@ public class JcrProject extends JcrEntity implements RProject {
     private JcrFolder rootFolder;
     
     private JcrCommonProject project;
+    
+    private JcrLock lock;
     
     /**
      * Creates new project instance.
@@ -61,6 +64,7 @@ public class JcrProject extends JcrEntity implements RProject {
         rootFolder = new JcrFolder(files);
 
         project = new JcrCommonProject(node);
+        lock = new JcrLock(node);
     }
 
     /** {@inheritDoc} */
@@ -73,18 +77,38 @@ public class JcrProject extends JcrEntity implements RProject {
     }
 
     public void delete() throws RRepositoryException {
-        project.delete();
+        throw new RRepositoryException("Use delete(CommonUser) instead", null);
     }
 
-    public void undelete() throws RRepositoryException {
-        project.undelete();
+    public void delete(CommonUser user) throws RRepositoryException {
+        project.delete(user);
     }
 
-    public void erase() throws RRepositoryException {
-        project.erase();
+    public void undelete(CommonUser user) throws RRepositoryException {
+        project.undelete(user);
+    }
+
+    public void erase(CommonUser user) throws RRepositoryException {
+        project.erase(user);
     }
     
     public void commit(CommonUser user) throws RRepositoryException {
         project.commit(user);  
+    }
+
+    public RLock getLock() throws RRepositoryException {
+        return lock;
+    }
+
+    public boolean isLocked() throws RRepositoryException {
+        return lock.isLocked();
+    }
+
+    public void lock(CommonUser user) throws RRepositoryException {
+        lock.lock(user);
+    }
+
+    public void unlock(CommonUser user) throws RRepositoryException {
+        lock.unlock(user);
     }
 }
