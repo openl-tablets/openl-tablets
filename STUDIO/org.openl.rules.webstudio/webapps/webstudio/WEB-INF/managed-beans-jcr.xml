@@ -37,9 +37,21 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>uploadService</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.services.upload.UploadService</managed-bean-class>
+    <managed-bean-scope>application</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>repositoryTreeState</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeState</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>repositoryTreeController</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeController</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
+    <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>userWorkspace</property-name>
       <value>#{sessionScope.rulesUserSession.userWorkspace}</value>
@@ -48,6 +60,10 @@
       <property-name>uploadService</property-name>
       <value>#{uploadService}</value>
     </managed-property>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
   </managed-bean>
 
   <managed-bean>
@@ -55,8 +71,8 @@
     <managed-bean-class>org.openl.rules.ui.repository.dependency.AddDependencyController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
-      <property-name>repositoryTree</property-name>
-      <value>#{repositoryTreeController}</value>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
     </managed-property>
   </managed-bean>
 
