@@ -1,18 +1,11 @@
 package org.openl.rules.ui.repository;
 
-import static org.openl.rules.ui.repository.UiConst.OUTCOME_SUCCESS;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.faces.model.SelectItem;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.openl.rules.repository.CommonVersionImpl;
+import static org.openl.rules.ui.repository.UiConst.OUTCOME_SUCCESS;
 import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -20,6 +13,14 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
+
+import java.io.Serializable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.faces.model.SelectItem;
 
 
 /**
@@ -33,6 +34,7 @@ public class DeploymentController implements Serializable {
     private List<DeploymentDescriptorItem> items;
     private String projectName;
     private String version;
+    private SelectItem[] projects;
 
     public DeploymentController() {
         items = new ArrayList<DeploymentDescriptorItem>();
@@ -103,7 +105,8 @@ public class DeploymentController implements Serializable {
                     revision = Integer.parseInt(version[2]);
                 }
 
-                ddp.addProjectDescriptor(item.getName(), new CommonVersionImpl(major, minor, revision));
+                ddp.addProjectDescriptor(item.getName(),
+                    new CommonVersionImpl(major, minor, revision));
             }
 
             ddp.checkIn();
@@ -131,17 +134,20 @@ public class DeploymentController implements Serializable {
     }
 
     public SelectItem[] getProjects() {
-        UserWorkspace workspace = getWorkspace();
-        Collection<UserWorkspaceProject> projects = workspace.getProjects();
-        List<SelectItem> selectItems = new ArrayList<SelectItem>();
-        for (UserWorkspaceProject project : projects) {
-            selectItems.add(new SelectItem(project.getName()));
-            if (projectName == null) {
-                projectName = project.getName();
+        if (projects == null) {
+            UserWorkspace workspace = getWorkspace();
+            Collection<UserWorkspaceProject> workspaceProjects = workspace.getProjects();
+            List<SelectItem> selectItems = new ArrayList<SelectItem>();
+            for (UserWorkspaceProject project : workspaceProjects) {
+                selectItems.add(new SelectItem(project.getName()));
+                if (projectName == null) {
+                    projectName = project.getName();
+                }
             }
+            projects = selectItems.toArray(new SelectItem[0]);
         }
 
-        return selectItems.toArray(new SelectItem[0]);
+        return projects;
     }
 
     public SelectItem[] getProjectVersions() {
@@ -166,7 +172,6 @@ public class DeploymentController implements Serializable {
     }
 
     public String deploy() {
-
         return OUTCOME_SUCCESS;
     }
 
