@@ -30,9 +30,9 @@ public class CreateDeleteProject {
 
             RProject p2 = repository.getProject("prj2");
             if (p2.isMarked4Deletion()) {
-                p2.undelete();
+                p2.undelete(user);
             } else {
-                p2.delete();
+                p2.delete(user);
             }
 //            repository.getProject("prj3").erase();
             
