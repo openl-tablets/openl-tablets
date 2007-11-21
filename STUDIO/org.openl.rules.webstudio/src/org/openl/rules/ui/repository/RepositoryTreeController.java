@@ -247,6 +247,7 @@ public class RepositoryTreeController {
             try {
                 project.erase();
                 invalidateTree();
+                repositoryTreeState.setCurrentNode(null);
             } catch (ProjectException e) {
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
