@@ -2,7 +2,6 @@ package org.openl.rules.ui.repository.dependency;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.openl.rules.ui.repository.RepositoryTreeController;
 import org.openl.rules.ui.repository.RepositoryTreeState;
 import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
