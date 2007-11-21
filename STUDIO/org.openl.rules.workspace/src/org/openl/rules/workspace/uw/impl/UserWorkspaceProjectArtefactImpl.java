@@ -90,26 +90,26 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
     }
 
     public void setEffectiveDate(Date date) throws ProjectException {
-        if (isLocal()) {
-            localArtefact.setEffectiveDate(date);
-        } else {
+        if (isReadOnly()) {
             throw new ProjectException("Cannot set effectiveDate in read mode");
+        } else {
+            localArtefact.setEffectiveDate(date);
         }
     }
 
     public void setExpirationDate(Date date) throws ProjectException {
-        if (isLocal()) {
-            localArtefact.setExpirationDate(date);
-        } else {
+        if (isReadOnly()) {
             throw new ProjectException("Cannot set expirationDate in read mode");
+        } else {
+            localArtefact.setExpirationDate(date);
         }
     }
 
     public void setLineOfBusiness(String lineOfBusiness) throws ProjectException {
-        if (isLocal()) {
-            localArtefact.setLineOfBusiness(lineOfBusiness);
-        } else {
+        if (isReadOnly()) {
             throw new ProjectException("Cannot set LOB in read mode");
+        } else {
+            localArtefact.setLineOfBusiness(lineOfBusiness);
         }
     }
 
@@ -121,11 +121,15 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
     }
 
     protected ProjectArtefact getArtefact() {
-        return (project.isLocal()) ? localArtefact : dtrArtefact;
+        return (isLocal()) ? localArtefact : dtrArtefact;
     }
 
     protected boolean isLocal() {
         return project.isLocal();
+    }
+
+    protected boolean isReadOnly() {
+        return project.isReadOnly();
     }
 
     public UserWorkspaceProjectImpl getProject() {

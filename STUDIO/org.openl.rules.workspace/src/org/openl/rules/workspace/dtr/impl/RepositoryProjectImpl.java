@@ -1,5 +1,8 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RVersion;
@@ -16,15 +19,9 @@ import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
 import org.openl.util.Log;
 
-import java.util.Collection;
-import java.util.LinkedList;
-
 public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implements RepositoryProject {
     private RProject rulesProject;
     
-//    private boolean isMarkedForDeletion;
-    private LockInfo lock;
-
     protected RepositoryProjectImpl(RProject rulesProject, ArtefactPath path) {
         super(rulesProject, rulesProject.getRootFolder(), path);
         
@@ -58,7 +55,11 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             throw new ProjectException("Project ''{0}'' is already locked", null, getName());
         }
 
-        lock = new LockInfoImpl(new java.util.Date(System.currentTimeMillis()), user.getUserId());
+        try {
+            rulesProject.lock(user);
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Cannot lock project: " + e.getMessage(), e);
+        }        
     }
 
     public void unlock(WorkspaceUser user) throws ProjectException {
@@ -66,16 +67,14 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             throw new ProjectException("Cannot unlock non-locked project ''{0}''", null, getName());
         }
 
-        String lockedBy = lock.getLockedBy();
-        if (!lockedBy.equals(user.getUserId())) {
-            throw new ProjectException("Project ''{0}'' is already locked by ''{0}''", null, getName(), lockedBy);
-        }
-
-        // TODO -- add code
-        lock = null;
+        try {
+            rulesProject.unlock(user);
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Cannot unlock project: " + e.getMessage(), e);
+        }        
     }
 
-    public void delete() throws ProjectException {
+    public void delete(CommonUser user) throws ProjectException {
         if (isMarkedForDeletion()) {
             throw new ProjectException("Project ''{0}'' is already marked for deletion", null, getName());
         }
@@ -83,13 +82,13 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
 //        isMarkedForDeletion = true;
         
         try {
-            rulesProject.delete();
+            rulesProject.delete(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to delete project ''{0}''", e, getName());
         }        
     }
 
-    public void undelete() throws ProjectException {
+    public void undelete(CommonUser user) throws ProjectException {
         if (!isMarkedForDeletion()) {
             throw new ProjectException("Cannot undelete non-marked project ''{0}''", null, getName());
         }
@@ -97,15 +96,15 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
 //        isMarkedForDeletion = false;
 
         try {
-            rulesProject.undelete();
+            rulesProject.undelete(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to undelete project ''{0}''", e, getName());
         }        
     }
 
-    public void erase() throws ProjectException {
+    public void erase(CommonUser user) throws ProjectException {
         try {
-            rulesProject.erase();
+            rulesProject.erase(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to erase project ''{0}''", e, getName());
         }        
@@ -139,13 +138,27 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
     }
 
     public boolean isLocked() {
-        return (lock != null);
+        try {
+            return rulesProject.isLocked();
+        } catch (RRepositoryException e) {
+            Log.error(e);
+            return false;
+        }        
     }
 
     public LockInfo getlLockInfo() {
-        return lock;
+        try {
+            return new LockInfoImpl(rulesProject.getLock());
+        } catch (RRepositoryException e) {
+            Log.error(e);
+            return LockInfoImpl.NO_LOCK;
+        }        
     }
 
-    // --- protected
+    public void delete() throws ProjectException {
+        throw new ProjectException("Use delete(CommonUser) instead");
+    }
+
+        // --- protected
 
 }

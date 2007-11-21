@@ -1,5 +1,7 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.util.Collection;
+
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.Project;
@@ -10,8 +12,6 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-
-import java.util.Collection;
 
 public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl implements UserWorkspaceProject {
     private Project project;
@@ -50,7 +50,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
             throw new ProjectException("Project ''{0}'' is already closed", null, getName());
         }
 
-        if (isLocked()) {
+        if (isLockedByMe()) {
             dtrProject.unlock(userWorkspace.getUser());
         }
         
@@ -95,7 +95,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
         if (isLocked()) {
             throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''", null, getName(),
-                    dtrProject.getlLockInfo().getLockedBy(), dtrProject.getlLockInfo().getLockedAt());
+                    dtrProject.getlLockInfo().getLockedBy().getUserName(), dtrProject.getlLockInfo().getLockedAt());
         }
 
         if (isOpened()) {
@@ -124,9 +124,9 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         if (dtrProject.isLocked()) {
-            String lockedBy = dtrProject.getlLockInfo().getLockedBy();
+            WorkspaceUser lockedBy = dtrProject.getlLockInfo().getLockedBy();
             
-            if (lockedBy.equals(userWorkspace.getUser().getUserId())) {
+            if (lockedBy.equals(userWorkspace.getUser())) {
                 return true;
             }
         }
@@ -154,6 +154,13 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return dtrProject.isLocked();
     }
     
+    public boolean isLockedByMe() {
+        if (!isLocked()) return false;
+        
+        WorkspaceUser lockedBy = dtrProject.getlLockInfo().getLockedBy();
+        return lockedBy.equals(userWorkspace.getUser());
+    }
+    
     public boolean isLocalOnly() {
         return (dtrProject == null);
     }
@@ -168,19 +175,19 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
         
         if (dtrProject != null) {
-            dtrProject.delete();
+            dtrProject.delete(userWorkspace.getUser());
         }
     }
 
     public void undelete() throws ProjectException {
         if (dtrProject != null) {
-            dtrProject.undelete();
+            dtrProject.undelete(userWorkspace.getUser());
         }
     }
 
     public void erase() throws ProjectException {
         if (dtrProject != null) {
-            dtrProject.erase();
+            dtrProject.erase(userWorkspace.getUser());
         }
     }
 
@@ -212,6 +219,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return (project == localProject);
     }
     
+    @Override
     protected boolean isReadOnly() {
         return !isCheckedOut();
     }

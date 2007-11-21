@@ -1,11 +1,13 @@
 package org.openl.rules.workspace;
 
 public class WorkspaceUserImpl implements WorkspaceUser {
+
     private String userId;
     private String userName;
 
-    public WorkspaceUserImpl(String userId, String userName) {
-        this.userId = userId;
+    public WorkspaceUserImpl(String userName) {
+        userId = generateUserId(userName);
+        
         this.userName = userName;
     }
 
@@ -15,6 +17,42 @@ public class WorkspaceUserImpl implements WorkspaceUser {
 
     public String getUserName() {
         return userName;
+    }
+
+
+    public int compareTo(WorkspaceUser o) {
+        return userName.compareTo(o.getUserName());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        
+        if (obj instanceof WorkspaceUser) {
+            return (0 == compareTo((WorkspaceUser)obj));
+        } else {
+            return false;
+        }
+    }
+
+    // --- protected
+    
+    protected String generateUserId(String s) {
+        StringBuilder sb = new StringBuilder(32);
+        
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            
+            if (Character.isLetterOrDigit(c)) {
+                sb.append(c);
+            } else {
+                sb.append('(');
+                sb.append(Integer.toHexString(c));
+                sb.append(')');
+            }
+        }
+        
+        return sb.toString();
     }
 
 }

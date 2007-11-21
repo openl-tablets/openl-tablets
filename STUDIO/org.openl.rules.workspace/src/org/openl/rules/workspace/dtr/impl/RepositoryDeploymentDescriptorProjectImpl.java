@@ -36,8 +36,6 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     
     private HashMap<String, ProjectDescriptor> descriptors;
     
-    private LockInfo lock;
-
     public RepositoryDeploymentDescriptorProjectImpl(RDeploymentDescriptorProject rulesDescrProject) {
         this.rulesDescrProject = rulesDescrProject;
     
@@ -133,32 +131,42 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         }        
     }
 
-    public void delete() throws ProjectException {
+    public void delete(CommonUser user) throws ProjectException {
         if (isMarkedForDeletion()) {
             throw new ProjectException("Project ''{0}'' is already marked for deletion", null, getName());
         }
 
         try {
-            rulesDescrProject.delete();
+            rulesDescrProject.delete(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Cannot delete project {0}", e, name);
         }        
     }
 
-    public void erase() throws ProjectException {
+    public void erase(CommonUser user) throws ProjectException {
         try {
-            rulesDescrProject.erase();
+            rulesDescrProject.erase(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Cannot erase project {0}", e, name);
         }        
     }
 
-    public LockInfo getlLockInfo() {
-        return lock;
+    public boolean isLocked() {
+        try {
+            return rulesDescrProject.isLocked();
+        } catch (RRepositoryException e) {
+            Log.error(e);
+            return false;
+        }        
     }
 
-    public boolean isLocked() {
-        return (lock != null);
+    public LockInfo getlLockInfo() {
+        try {
+            return new LockInfoImpl(rulesDescrProject.getLock());
+        } catch (RRepositoryException e) {
+            Log.error(e);
+            return LockInfoImpl.NO_LOCK;
+        }        
     }
 
     public boolean isMarkedForDeletion() {
@@ -175,16 +183,20 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
             throw new ProjectException("Project ''{0}'' is already locked", null, getName());
         }
 
-        lock = new LockInfoImpl(new java.util.Date(System.currentTimeMillis()), user.getUserId());
+        try {
+            rulesDescrProject.lock(user);
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Cannot lock project: " + e.getMessage(), e);
+        }        
     }
 
-    public void undelete() throws ProjectException {
+    public void undelete(CommonUser user) throws ProjectException {
         if (!isMarkedForDeletion()) {
             throw new ProjectException("Cannot undelete non-marked project ''{0}''", null, getName());
         }
 
         try {
-            rulesDescrProject.undelete();
+            rulesDescrProject.undelete(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Cannot undelete project {0}", e, name);
         }        
@@ -195,13 +207,11 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
             throw new ProjectException("Cannot unlock non-locked project ''{0}''", null, getName());
         }
 
-        String lockedBy = lock.getLockedBy();
-        if (!lockedBy.equals(user.getUserId())) {
-            throw new ProjectException("Project ''{0}'' is already locked by ''{0}''", null, getName(), lockedBy);
-        }
-
-        // TODO -- add code
-        lock = null;
+        try {
+            rulesDescrProject.unlock(user);
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Cannot unlock project: " + e.getMessage(), e);
+        }        
     }
     
     private class RPD2 implements RProjectDescriptor {
@@ -352,5 +362,9 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
     public void update(ProjectArtefact srcArtefact) throws ProjectException {
         notSupported();
+    }
+
+    public void delete() throws ProjectException {
+        throw new ProjectException("Use delete(CommonUser) instead");
     }
 }

@@ -9,6 +9,7 @@ import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -121,9 +122,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             throw new RepositoryException("Cannot update project ''{0}'' while it is not locked!", null, name);
         }
         
-        String lockedBy = dest.getlLockInfo().getLockedBy();
-        if (!lockedBy.equals(user.getUserId())) {
-            throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, lockedBy);
+        WorkspaceUser lockedBy = dest.getlLockInfo().getLockedBy();
+        if (!lockedBy.equals(user)) {
+            throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, lockedBy.getUserName());
         }
 
         try {
