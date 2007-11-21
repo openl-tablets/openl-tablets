@@ -32,8 +32,7 @@ public class SessionFilter implements Filter {
             HttpSession session = httpRequest.getSession(false);
 
             if (session == null) {
-                String fakeUserId = generateUserId(remoteAddr);
-                WorkspaceUser user = new WorkspaceUserImpl(fakeUserId, remoteAddr);
+                WorkspaceUser user = new WorkspaceUserImpl(remoteAddr);
                 RulesUserSession rulesUserSession = new RulesUserSession(user, workspaceManager);
 
                 session = httpRequest.getSession(true);
@@ -51,21 +50,4 @@ public class SessionFilter implements Filter {
     
     // --- protected
     
-    protected String generateUserId(String s) {
-        StringBuilder sb = new StringBuilder(32);
-        
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            
-            if (Character.isLetterOrDigit(c)) {
-                sb.append(c);
-            } else {
-                sb.append('(');
-                sb.append(Integer.toHexString(c));
-                sb.append(')');
-            }
-        }
-        
-        return sb.toString();
-    }
 }
