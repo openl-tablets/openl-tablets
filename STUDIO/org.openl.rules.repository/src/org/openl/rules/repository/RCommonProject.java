@@ -24,14 +24,14 @@ public interface RCommonProject {
      *
      * @throws RDeleteException if failed
      */
-    public void delete() throws RRepositoryException;
+    public void delete(CommonUser user) throws RRepositoryException;
 
     /**
      * Unmarks the project from deletion.
      *
      * @throws RModifyException if failed
      */
-    public void undelete() throws RRepositoryException;
+    public void undelete(CommonUser user) throws RRepositoryException;
 
     /**
      * Erases the project from the repository completely.
@@ -41,7 +41,7 @@ public interface RCommonProject {
      *
      * @throws RDeleteException if failed
      */
-    public void erase() throws RRepositoryException;
+    public void erase(CommonUser user) throws RRepositoryException;
     
     /**
      * Commits changes in background versioned storage.
@@ -49,4 +49,9 @@ public interface RCommonProject {
      * @throws RRepositoryException if failed
      */
     public void commit(CommonUser user) throws RRepositoryException;
+    
+    public void lock(CommonUser user) throws RRepositoryException;
+    public void unlock(CommonUser user) throws RRepositoryException;
+    public boolean isLocked() throws RRepositoryException;
+    public RLock getLock() throws RRepositoryException;
 }
