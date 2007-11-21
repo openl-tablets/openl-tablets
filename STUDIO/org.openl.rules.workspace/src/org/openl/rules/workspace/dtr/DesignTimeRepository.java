@@ -7,6 +7,7 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
+import org.openl.rules.workspace.abstracts.ProjectException;
 
 public interface DesignTimeRepository extends ProjectsContainer<RepositoryProject> {
     /**
@@ -43,7 +44,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param name name of new project, must be unique
      * @throws RepositoryException
      */
-    void copyProject(Project project, String name) throws RepositoryException;
+    void copyProject(Project project, String name, WorkspaceUser user) throws ProjectException;
     
     void createProject(String name) throws RepositoryException;
     

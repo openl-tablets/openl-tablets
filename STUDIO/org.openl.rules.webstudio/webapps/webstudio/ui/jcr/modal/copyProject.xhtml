@@ -27,9 +27,9 @@
 			  columns="1"
 			>
 				<h:outputText styleClass="niceLabel" value="Name of Existing Project:" />
-				<h:inputText styleClass="modalInputRO" id="from" value="#{modalProject.copyProjectFrom}" readonly="true" />
+				<h:inputText styleClass="modalInputRO" id="from" value="#{repositoryTreeController.projectName}" readonly="true" />
 				<h:outputText styleClass="niceLabel" value="Name of Copy Project:" />
-				<h:inputText styleClass="modalInput" id="to" value="#{modalProject.copyProjectTo}" />
+				<h:inputText styleClass="modalInput" id="to" value="#{repositoryTreeController.copyTo}" />
 			</h:panelGrid>
 			
 			<rich:separator height="1" />
@@ -42,7 +42,7 @@
 				<h:commandButton 
 				  styleClass="modalButton" 
 				  value="Copy" 
-				  action="#{modalProject.copyProject}"
+				  action="#{repositoryTreeController.copyProject}"
 				/>
 				<h:commandButton 
 				  styleClass="modalButton" 

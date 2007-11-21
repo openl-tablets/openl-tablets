@@ -1,10 +1,9 @@
 package org.openl.rules.ui.repository;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
@@ -23,19 +22,16 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
-
 import org.richfaces.component.UITree;
-
 import org.richfaces.event.NodeSelectedEvent;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
+import java.util.regex.Pattern;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -54,6 +50,7 @@ public class RepositoryTreeController {
     private UploadedFile file;
     private String fileName;
     private String uploadFrom;
+    private String copyTo;
     private Collection<UserWorkspaceProject> projects;
 
     /**
@@ -321,6 +318,40 @@ public class RepositoryTreeController {
         }
     }
 
+    private static final String PROJECTNAME_REGEXP = "[a-zA-Z0-9.\\-_]+";
+    private static final Pattern PROJECTNAME_PATTERN = Pattern.compile(PROJECTNAME_REGEXP);
+    public String copyProject() {
+        String errorMessage = null;
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) {
+            return UiConst.OUTCOME_FAILURE;
+        }
+        if (StringUtils.isBlank(copyTo)) {
+            errorMessage = "Project name is empty";
+        } else if (!PROJECTNAME_PATTERN.matcher(copyTo).matches()) {
+                errorMessage = "Project name does not match " + PROJECTNAME_REGEXP;
+        } else if (userWorkspace.hasProject(copyTo)) {
+            errorMessage = "Project " + copyTo + " already exists";
+        } else if (project.isLocalOnly()) {
+            errorMessage = "Project is local only";
+        }
+        if (errorMessage != null) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("Can not copy project", errorMessage));
+            return UiConst.OUTCOME_FAILURE;
+        }
+
+        try {
+            userWorkspace.copyProject(project, copyTo);
+            invalidateTree();
+        } catch (ProjectException e) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Failed to copy project", e.getMessage()));
+            return UiConst.OUTCOME_FAILURE;
+        }
+
+        return null;
+    }
+
     public String checkOutProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) {
@@ -476,6 +507,14 @@ public class RepositoryTreeController {
 
     public void setFolderName(String newFolderName) {
         this.folderName = newFolderName;
+    }
+
+    public String getCopyTo() {
+        return copyTo;
+    }
+
+    public void setCopyTo(String copyTo) {
+        this.copyTo = copyTo;
     }
 
     public UploadedFile getFile() {
