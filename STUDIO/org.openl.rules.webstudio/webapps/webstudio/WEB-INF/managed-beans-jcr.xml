@@ -23,20 +23,6 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>propertiesEditorController</managed-bean-name>
-    <managed-bean-class>
-      org.openl.rules.ui.repository.PropertiesEditorController
-    </managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>uploadService</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.services.upload.UploadService</managed-bean-class>
-    <managed-bean-scope>application</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
     <managed-bean-name>uploadService</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.services.upload.UploadService</managed-bean-class>
     <managed-bean-scope>application</managed-bean-scope>
