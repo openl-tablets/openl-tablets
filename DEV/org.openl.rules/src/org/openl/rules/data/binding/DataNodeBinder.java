@@ -356,6 +356,8 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 			
 			String value = headerCell.getGridTable().getStringValue(0,0);
 			String uri = headerCell.getGridTable().getUri(0,0);
+			if (value == null)
+				value = "";
 			StringValue header = new StringValue(value, value, value, uri);
 
 			dd[i] = new OpenlBasedColumnDescriptor(field, indexTable, indexKey, header,

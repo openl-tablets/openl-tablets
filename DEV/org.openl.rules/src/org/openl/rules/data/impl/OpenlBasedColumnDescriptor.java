@@ -8,6 +8,8 @@ package org.openl.rules.data.impl;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 import org.openl.OpenL;
@@ -26,6 +28,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 
@@ -210,9 +213,10 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 
 		IOpenClass fieldType = field.getType();
 
-		boolean isArray = fieldType.getAggregateInfo().isAggregate(fieldType);
-
-		if (!isArray) {
+		boolean isArray = fieldType.getAggregateInfo().isAggregate(fieldType) ;
+		boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
+		
+		if (!isArray && !isList) {
 			String s = values.getGridTable().getStringValue(0, 0);
 			if (s != null) {
 
@@ -281,8 +285,9 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 
 			//			Object ary = Array.newInstance(cc, v.size());
 			int size = lastIndex + 1;
-			IOpenClass componentType =
-				fieldType.getAggregateInfo().getComponentType(fieldType);
+			IOpenClass componentType = isArray ?
+				fieldType.getAggregateInfo().getComponentType(fieldType) :
+					JavaOpenClass.OBJECT;
 			Object ary =
 				fieldType.getAggregateInfo().makeIndexedAggregate(
 					componentType,
@@ -292,7 +297,20 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 				Array.set(ary, i, v.get(i));
 			}
 
-			field.set(target, ary, getRuntimeEnv());
+			
+			if (isList)
+			{
+				int len = Array.getLength(ary);
+				List<Object> list = new ArrayList<Object>(len);
+				for (int i = 0; i < len; i++)
+				{
+					list.add(Array.get(ary, i));
+				}
+				
+				field.set(target, list, getRuntimeEnv());
+				
+			}	
+			else field.set(target, ary, getRuntimeEnv());
 
 		}
 
