@@ -12,6 +12,7 @@ public class UiConst {
     public static final String TYPE_PROJECT = "project";
     public static final String TYPE_DEPLOYMENT_PROJECT = "deployment";
     public static final String TYPE_REPOSITORY = "repository";
+    public static final String TYPE_DEPLOYMENT_REPOSITORY = "drepository";
 
     // <rich:treeNode icon="..." iconLeaf="..."
     public static final String ICON_FILE = "/images/jcr/tree_document.gif";
