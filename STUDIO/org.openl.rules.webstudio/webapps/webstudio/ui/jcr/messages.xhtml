@@ -5,6 +5,8 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <h:messages globalOnly="true" showDetail="true" showSummary="false" tooltip="true" />
+  <h:panelGroup styleClass="messages">
+    <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
+  </h:panelGroup>
 
 </ui:composition>

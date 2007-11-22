@@ -1,20 +1,11 @@
 package org.openl.rules.ui.repository;
 
-import java.io.FileInputStream;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeDProject;
 import org.openl.rules.ui.repository.tree.TreeFile;
@@ -28,6 +19,7 @@ import org.openl.rules.webstudio.services.upload.UploadService;
 import org.openl.rules.webstudio.services.upload.UploadServiceParams;
 import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -40,8 +32,22 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
+
 import org.richfaces.component.UITree;
+
 import org.richfaces.event.NodeSelectedEvent;
+
+import java.io.FileInputStream;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 
 
 /**
@@ -97,10 +103,12 @@ public class RepositoryTreeController {
 
     private void buildTree() {
         repositoryTreeState.setRoot(new TreeRepository(generateId(""), ""));
-        
-        TreeRepository rulesRep = new TreeRepository(generateId("Rules Projects"), "Rules Projects");
+
+        TreeRepository rulesRep = new TreeRepository(generateId("Rules Projects"),
+                "Rules Projects");
         rulesRep.setDataBean(null);
-        TreeRepository deploymentRep = new TreeRepository(generateId("Deployment Projects"), "Deployment Projects");
+        TreeRepository deploymentRep = new TreeRepository(generateId(
+                    "Deployment Projects"), "Deployment Projects");
         deploymentRep.setDataBean(null);
 
         repositoryTreeState.setRulesRepository(rulesRep);
@@ -113,27 +121,29 @@ public class RepositoryTreeController {
         }
 
         for (Project project : rulesProjects) {
-            TreeProject prj = new TreeProject(generateId(project.getName()), project.getName());
+            TreeProject prj = new TreeProject(generateId(project.getName()),
+                    project.getName());
             prj.setDataBean(project);
             rulesRep.add(prj);
             // redo that
             traverseFolder(prj, project.getArtefacts());
         }
-        
+
         if (deploymentsProjects == null) {
             try {
                 deploymentsProjects = userWorkspace.getDDProjects();
             } catch (RepositoryException e) {
                 log.error("Cannot list deployments projects", e);
                 deploymentsProjects = new LinkedList<UserWorkspaceDeploymentProject>();
-            }            
+            }
         }
-        
+
         for (UserWorkspaceDeploymentProject deplProject : deploymentsProjects) {
             String name = deplProject.getName();
             TreeDProject prj = new TreeDProject(generateId(name), name);
             prj.setDataBean(deplProject);
             deploymentRep.add(prj);
+
             // deployments projects haven't child nodes
         }
     }
@@ -442,18 +452,21 @@ public class RepositoryTreeController {
     }
 
     public String upload() {
-        if (uploadProject()) {
+        String errorMessage = uploadProject();
+        if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("Project was successfully uploaded"));
             invalidateTree();
         } else {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("Error occured during uploading file"));
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Error occured during uploading file", errorMessage));
         }
         return null;
     }
 
-    private boolean uploadProject() {
+    private String uploadProject() {
         UploadServiceParams params = new UploadServiceParams();
         params.setFile(file);
         params.setProjectName(projectName);
@@ -466,7 +479,7 @@ public class RepositoryTreeController {
             params.setWorkspace(workspace);
         } catch (Exception e) {
             log.error("Error obtaining user workspace", e);
-            return false;
+            return e.getMessage();
         }
 
         try {
@@ -476,10 +489,10 @@ public class RepositoryTreeController {
             //importFile = result.getResultFile().getName();
         } catch (ServiceException e) {
             log.error("Error while uploading project", e);
-            return false;
+            return e.getMessage();
         }
 
-        return true;
+        return null;
     }
 
     /**
@@ -488,31 +501,30 @@ public class RepositoryTreeController {
      * @return
      */
     public String addFile() {
-        if (uploadAndAddFile()) {
+        String errorMessage = uploadAndAddFile();
+        if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was successfully uploaded"));
             invalidateTree();
         } else {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("Error occured during uploading file"));
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Error occured during uploading file", errorMessage));
         }
         return null;
     }
 
-    private boolean uploadAndAddFile() {
+    private String uploadAndAddFile() {
         UploadServiceParams params = new UploadServiceParams();
         params.setFile(file);
         params.setUnpackZipFile(false);
 
-        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
-                .get("rulesUserSession");
-
         try {
-            UserWorkspace workspace = rulesUserSession.getUserWorkspace();
-            params.setWorkspace(workspace);
+            params.setWorkspace(getUserWorkSpace());
         } catch (Exception e) {
             log.error("Error obtaining user workspace", e);
-            return false;
+            return e.getMessage();
         }
 
         try {
@@ -528,11 +540,10 @@ public class RepositoryTreeController {
             result.getResultFile().delete();
         } catch (Exception e) {
             log.error("Error adding file to user workspace", e);
-            return false;
+            return e.getMessage();
         }
 
-        invalidateTree();
-        return true;
+        return null;
     }
 
     /**
@@ -541,31 +552,30 @@ public class RepositoryTreeController {
      * @return
      */
     public String updateFile() {
-        if (uploadAndUpdateFile()) {
+        String errorMessage = uploadAndUpdateFile();
+        if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was successfully uploaded"));
             invalidateTree();
         } else {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("Error occured during uploading file"));
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Error occured during uploading file", errorMessage));
         }
         return null;
     }
 
-    private boolean uploadAndUpdateFile() {
+    private String uploadAndUpdateFile() {
         UploadServiceParams params = new UploadServiceParams();
         params.setFile(file);
         params.setUnpackZipFile(false);
 
-        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
-                .get("rulesUserSession");
-
         try {
-            UserWorkspace workspace = rulesUserSession.getUserWorkspace();
-            params.setWorkspace(workspace);
+            params.setWorkspace(getUserWorkSpace());
         } catch (Exception e) {
             log.error("Error obtaining user workspace", e);
-            return false;
+            return e.getMessage();
         }
 
         try {
@@ -577,11 +587,18 @@ public class RepositoryTreeController {
             result.getResultFile().delete();
         } catch (Exception e) {
             log.error("Error updating file in user workspace", e);
-            return false;
+            return e.getMessage();
         }
 
-        invalidateTree();
-        return true;
+        return null;
+    }
+
+    private UserWorkspace getUserWorkSpace() throws WorkspaceException, ProjectException {
+        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
+                .get("rulesUserSession");
+
+        UserWorkspace workspace = rulesUserSession.getUserWorkspace();
+        return workspace;
     }
 
     public Map<String, Object> getProperties() {
@@ -599,7 +616,7 @@ public class RepositoryTreeController {
     }
 
     public void setInit(boolean init) {
-        invalidateTree();
+//        invalidateTree();
     }
 
     public void setProjectName(String newProjectName) {
