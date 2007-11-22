@@ -26,7 +26,7 @@ public class PopulateDProjects {
             List<RDeploymentDescriptorProject> projects = repository.getDDProjects();
             System.out.println("> OpenL Rules Projects: " + projects.size());
             for (RDeploymentDescriptorProject prj : projects) {
-                System.out.println("  " + prj.getName() + " marked=" + prj.isMarked4Deletion());
+                System.out.println("  " + prj.getName() + " marked=" + prj.isMarked4Deletion() + " ver=" + prj.getBaseVersion().getVersionName());
                 
                 for (RProjectDescriptor descr : prj.getProjectDescriptors()) {
                     System.out.println("    " + descr.getProjectName() + " " + descr.getProjectVersion().getVersionName());
