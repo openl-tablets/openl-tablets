@@ -51,7 +51,8 @@
 				/>
 			</h:panelGrid>
 		</h:panelGrid>
-		</h:form>
+            <h:inputHidden id="hiddenfrom" value="#{repositoryTreeController.projectName}"/>
+        </h:form>
 		
 	</rich:modalPanel>
 	
@@ -59,8 +60,10 @@
 		function confirmCopyProject(copyFrom) {
 			var el = document.getElementById('modalCopyProjectForm:from');
 			el.value = copyFrom;
-			
-			Richfaces.showModalPanel('modalCopyProject');
+            el = document.getElementById('modalCopyProjectForm:hiddenfrom');
+            el.value = copyFrom;
+
+            Richfaces.showModalPanel('modalCopyProject');
 
 			el = document.getElementById('modalCopyProjectForm:to');
 			el.focus();
