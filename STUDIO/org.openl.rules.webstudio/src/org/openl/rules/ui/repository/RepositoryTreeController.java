@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
+import org.openl.rules.ui.repository.tree.TreeDProject;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
 import org.openl.rules.ui.repository.tree.TreeProject;
@@ -130,7 +131,7 @@ public class RepositoryTreeController {
         
         for (UserWorkspaceDeploymentProject deplProject : deploymentsProjects) {
             String name = deplProject.getName();
-            TreeProject prj = new TreeProject(generateId(name), name);
+            TreeDProject prj = new TreeDProject(generateId(name), name);
             prj.setDataBean(deplProject);
             deploymentRep.add(prj);
             // deployments projects haven't child nodes
@@ -589,27 +590,6 @@ public class RepositoryTreeController {
         /*Object dataBean = FacesUtils.getFacesVariable(
            "#{repositoryTreeController.selected.dataBean}");*/
         return properties;
-    }
-
-    /**
-     * Used for testing DDP. Must be removed in the future.
-     *
-     * @return
-     *
-     * @deprecated
-     */
-    public String getSecondProjectName() {
-        int c = 0;
-        if (rulesProjects == null) {
-            rulesProjects = userWorkspace.getProjects();
-        }
-        for (Project project : rulesProjects) {
-            if (c > 0) {
-                return project.getName();
-            }
-            c++;
-        }
-        return null;
     }
 
     public String getProjectName() {
