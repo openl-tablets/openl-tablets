@@ -54,8 +54,8 @@ import org.richfaces.event.NodeSelectedEvent;
  */
 public class RepositoryTreeController {
     private final static Log log = LogFactory.getLog(RepositoryTreeController.class);
-    private static final String PROJECTNAME_REGEXP = "[a-zA-Z0-9.\\-_]+";
-    private static final Pattern PROJECTNAME_PATTERN = Pattern.compile(PROJECTNAME_REGEXP);
+    private static final String PROJECTNAME_FORBIDDEN_REGEXP = "[\\\\/:;<>\\?\\*\t\n$%]";
+    private static final Pattern PROJECTNAME_FORBIDDEN_PATTERN = Pattern.compile(PROJECTNAME_FORBIDDEN_REGEXP);
     private RepositoryTreeState repositoryTreeState;
     private UserWorkspace userWorkspace;
     private UploadService uploadService;
@@ -214,21 +214,29 @@ public class RepositoryTreeController {
 
     public String addFolder() {
         ProjectArtefact projectArtefact = getSelected().getDataBean();
-        boolean result = false;
+        String errorMessage = null;
         if (projectArtefact instanceof UserWorkspaceProjectFolder) {
-            UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
-            try {
-                folder.addFolder(folderName);
-                invalidateTree();
-                result = true;
-            } catch (ProjectException e) {
-                log.error("Failed to add new folder " + folderName, e);
-                FacesContext.getCurrentInstance()
-                    .addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error adding folder", e.getMessage()));
+            if (checkName(folderName)) {
+                UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
+                try {
+                    folder.addFolder(folderName);
+                    invalidateTree();
+
+                } catch (ProjectException e) {
+                    log.error("Failed to add new folder " + folderName, e);
+                    errorMessage = e.getMessage();
+                }
+            } else {
+                errorMessage = "Folder name is invalid";
             }
         }
-        return result ? null : UiConst.OUTCOME_FAILURE;
+
+        if (errorMessage != null) {
+            FacesContext.getCurrentInstance()
+                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error adding folder", errorMessage));
+            return UiConst.OUTCOME_FAILURE;
+        }
+        return null;
     }
 
     public String delete() {
@@ -331,18 +339,26 @@ public class RepositoryTreeController {
     }
 
     public String createProject() {
+        String errorMessage = null;
         try {
-            userWorkspace.createProject(projectName);
-            invalidateTree();
-            return null;
+            if (checkName(projectName)) {
+                userWorkspace.createProject(projectName);
+                invalidateTree();
+            } else {
+                errorMessage = "project name is invalid";
+            }
         } catch (ProjectException e) {
             log.error("Failed to create new project", e);
+            errorMessage = e.getMessage();
+        }
 
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to create new project", e.getMessage()));
+        if (errorMessage != null) {
+            FacesContext.getCurrentInstance() .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Failed to create new project", errorMessage));
             return UiConst.OUTCOME_FAILURE;
         }
+
+        return null;
     }
 
     public String createDeploymentProject() {
@@ -424,8 +440,8 @@ public class RepositoryTreeController {
             errorMessage = "No project is selected";
         } else if (StringUtils.isBlank(copyTo)) {
             errorMessage = "Project name is empty";
-        } else if (!PROJECTNAME_PATTERN.matcher(copyTo).matches()) {
-            errorMessage = "Project name does not match " + PROJECTNAME_REGEXP;
+        } else if (!checkName(copyTo)) {
+            errorMessage = "Project contains forbidden symbols";
         } else if (userWorkspace.hasProject(copyTo)) {
             errorMessage = "Project " + copyTo + " already exists";
         }
@@ -447,6 +463,10 @@ public class RepositoryTreeController {
         }
 
         return null;
+    }
+
+    protected boolean checkName(String projectName) {
+        return !PROJECTNAME_FORBIDDEN_PATTERN.matcher(projectName).find();
     }
 
     public String checkOutProject() {
@@ -567,6 +587,10 @@ public class RepositoryTreeController {
     }
 
     private String uploadAndAddFile() {
+        if (!checkName(fileName)) {
+            return "incorrect file name";
+        }
+        
         UploadServiceParams params = new UploadServiceParams();
         params.setFile(file);
         params.setUnpackZipFile(false);
