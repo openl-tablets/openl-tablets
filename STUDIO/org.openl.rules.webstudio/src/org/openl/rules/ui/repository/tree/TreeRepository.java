@@ -10,22 +10,25 @@ import org.openl.rules.ui.repository.UiConst;
  *
  */
 public class TreeRepository extends TreeFolder {
-	
-	private static final long serialVersionUID = -4465731820834289469L;
 
-	public TreeRepository(long id, String name) {
-		super(id, name);
-	}
+    private static final long serialVersionUID = -4465731820834289469L;
+    
+    private String type;
 
-	// ------ UI methods ------
+    public TreeRepository(long id, String name, String type) {
+        super(id, name);
+        this.type = type;
+    }
 
-	@Override
-	public String getType() {
-		return UiConst.TYPE_REPOSITORY;
-	}
-	
-	@Override
-	public String getIcon() {
-		return UiConst.ICON_REPOSITORY;
-	}
+    // ------ UI methods ------
+
+    @Override
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public String getIcon() {
+        return UiConst.ICON_REPOSITORY;
+    }
 }

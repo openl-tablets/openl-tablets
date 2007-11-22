@@ -33,8 +33,7 @@
     </h:panelGrid>
   </h:panelGroup>
 
-  <h:panelGroup
-    rendered="#{repositoryTreeController.selected.type == 'project'}">
+  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'project'}">
     <h:panelGroup rendered="#{repositoryTreeController.selected.dataBean.deleted}">
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Undelete" onclick="return confirmUndeleteProject();" />
@@ -56,8 +55,10 @@
     </h:panelGroup>
   </h:panelGroup>
 
-  <h:panelGroup
-    rendered="#{repositoryTreeController.selected.type != 'repository' &amp;&amp; repositoryTreeController.selected.type != 'deployment'}">
+  <h:panelGroup 
+  rendered="#{repositoryTreeController.selected.type != 'repository' 
+  &amp;&amp; repositoryTreeController.selected.type != 'drepository'
+  &amp;&amp; repositoryTreeController.selected.type != 'deployment'}">
     <rich:tabPanel switchType="client" style="height:425px;">
       <rich:tab label="Properties">
         <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'file'}">
@@ -78,6 +79,18 @@
       </rich:tab>
       <rich:tab label="Dependencies" rendered="#{repositoryTreeController.selected.type == 'project'}">
         <ui:include src="/ui/jcr/node/dependency.xhtml" />
+      </rich:tab>
+    </rich:tabPanel>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'drepository'}">
+    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:commandButton styleClass="button" value="Create New Deployment Project" onclick="return openNewDeploymentProjectDialog();" />
+    </h:panelGrid>
+
+    <rich:tabPanel style="height:400px;">
+      <rich:tab label="Projects">
+        <ui:include src="/ui/jcr/projectsD.xhtml" />
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>

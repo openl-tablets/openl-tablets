@@ -1,11 +1,20 @@
 package org.openl.rules.ui.repository;
 
+import java.io.FileInputStream;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeDProject;
 import org.openl.rules.ui.repository.tree.TreeFile;
@@ -32,22 +41,8 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
-
 import org.richfaces.component.UITree;
-
 import org.richfaces.event.NodeSelectedEvent;
-
-import java.io.FileInputStream;
-
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 
 
 /**
@@ -65,6 +60,7 @@ public class RepositoryTreeController {
     private UserWorkspace userWorkspace;
     private UploadService uploadService;
     private String projectName;
+    private String deploymentProjectName;
     private String folderName;
     private UploadedFile file;
     private String fileName;
@@ -102,13 +98,13 @@ public class RepositoryTreeController {
     }
 
     private void buildTree() {
-        repositoryTreeState.setRoot(new TreeRepository(generateId(""), ""));
+        repositoryTreeState.setRoot(new TreeRepository(generateId(""), "", "root"));
 
-        TreeRepository rulesRep = new TreeRepository(generateId("Rules Projects"),
-                "Rules Projects");
+        TreeRepository rulesRep = new TreeRepository(generateId("Rules Projects"), 
+                "Rules Projects", UiConst.TYPE_REPOSITORY);
         rulesRep.setDataBean(null);
-        TreeRepository deploymentRep = new TreeRepository(generateId(
-                    "Deployment Projects"), "Deployment Projects");
+        TreeRepository deploymentRep = new TreeRepository(generateId("Deployment Projects"), 
+                "Deployment Projects", UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRep.setDataBean(null);
 
         repositoryTreeState.setRulesRepository(rulesRep);
@@ -156,11 +152,18 @@ public class RepositoryTreeController {
         return repositoryTreeState.getRoot();
     }
 
-    public synchronized TreeRepository getRepositoryNode() {
+    public synchronized TreeRepository getRulesNode() {
         if (repositoryTreeState.getRoot() == null) {
             buildTree();
         }
         return repositoryTreeState.getRulesRepository();
+    }
+
+    public synchronized TreeRepository getDeploymentNode() {
+        if (repositoryTreeState.getRoot() == null) {
+            buildTree();
+        }
+        return repositoryTreeState.getDeploymentRepository();
     }
 
     public AbstractTreeNode getSelected() {
@@ -192,12 +195,21 @@ public class RepositoryTreeController {
     }
 
     /**
-     * Gets all rulesProjects from a rule repository.
+     * Gets all rules projects from a rule repository.
      *
-     * @return list of rulesProjects
+     * @return list of rules projects
      */
     public List<AbstractTreeNode> getProjects() {
-        return getRepositoryNode().getChildNodes();
+        return getRulesNode().getChildNodes();
+    }
+
+    /**
+     * Gets all deployments projects from a repository.
+     *
+     * @return list of deployments projects
+     */
+    public List<AbstractTreeNode> getDeploymentProjects() {
+        return getDeploymentNode().getChildNodes();
     }
 
     public String addFolder() {
@@ -313,6 +325,21 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to create new project", e.getMessage()));
+            return UiConst.OUTCOME_FAILURE;
+        }
+    }
+
+    public String createDeploymentProject() {
+        try {
+            userWorkspace.createDDProject(deploymentProjectName);
+            invalidateTree();
+            return null;
+        } catch (ProjectException e) {
+            log.error("Failed to create new deployment project", e);
+
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to create new deployment project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
     }
@@ -623,12 +650,21 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String getDeploymentProjectName() {
+        //EPBDS-92 - clear newDProject dialog every time
+        return null;
+    }
+
     public void setInit(boolean init) {
 //        invalidateTree();
     }
 
     public void setProjectName(String newProjectName) {
         this.projectName = newProjectName;
+    }
+
+    public void setDeploymentProjectName(String newDeploymentProjectName) {
+        this.deploymentProjectName = newDeploymentProjectName;
     }
 
     public String getFolderName() {
