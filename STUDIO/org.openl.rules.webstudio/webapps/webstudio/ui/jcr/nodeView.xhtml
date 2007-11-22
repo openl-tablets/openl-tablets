@@ -34,7 +34,7 @@
   </h:panelGroup>
 
   <h:panelGroup
-    rendered="#{repositoryTreeController.selected.type == 'project' &amp;&amp; repositoryTreeController.selected.name != repositoryTreeController.secondProjectName}">
+    rendered="#{repositoryTreeController.selected.type == 'project'}">
     <h:panelGroup rendered="#{repositoryTreeController.selected.dataBean.deleted}">
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Undelete" onclick="return confirmUndeleteProject();" />
@@ -57,7 +57,7 @@
   </h:panelGroup>
 
   <h:panelGroup
-    rendered="#{repositoryTreeController.selected.type != 'repository' &amp;&amp; repositoryTreeController.selected.name != repositoryTreeController.secondProjectName}">
+    rendered="#{repositoryTreeController.selected.type != 'repository' &amp;&amp; repositoryTreeController.selected.type != 'deployment'}">
     <rich:tabPanel switchType="client" style="height:425px;">
       <rich:tab label="Properties">
         <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'file'}">
@@ -82,7 +82,7 @@
     </rich:tabPanel>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{repositoryTreeController.selected.name == repositoryTreeController.secondProjectName}">
+  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'deployment'}">
     <ui:include src="node/deployment.xhtml" />
   </h:panelGroup>
 
