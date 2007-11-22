@@ -4,20 +4,14 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
-import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
-import javax.jcr.version.VersionIterator;
 
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProperty;
 import org.openl.rules.repository.RPropertyType;
-import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -27,10 +21,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public class JcrEntity implements REntity {
-    /** node in JCR that corresponds to this entity */
-    private Node node;
-    private String name;
+public class JcrEntity extends JcrCommonArtefact implements REntity {
     private HashMap<String, RProperty> properties;
 
     private Date effectiveDate;
@@ -38,8 +29,7 @@ public class JcrEntity implements REntity {
     private String lineOfBusiness;
 
     public JcrEntity(Node node) throws RepositoryException {
-        this.node = node;
-        name = node.getName();
+        super(node);
 
         if (node.hasProperty(JcrNT.PROP_EFFECTIVE_DATE)) {
             effectiveDate = node.getProperty(JcrNT.PROP_EFFECTIVE_DATE).getDate().getTime();
@@ -55,89 +45,17 @@ public class JcrEntity implements REntity {
         initProperties();
     }
 
-    /** {@inheritDoc} */
-    public String getName() {
-        return name;
-    }
-
-    /** {@inheritDoc} */
-    public List<RVersion> getVersionHistory() throws RRepositoryException {
-        try {
-            VersionHistory vh = node().getVersionHistory();
-            VersionIterator vi = vh.getAllVersions();
-            LinkedList<RVersion> result = new LinkedList<RVersion>();
-            while (vi.hasNext()) {
-                Version v = vi.nextVersion();
-
-                if (NodeUtil.isRootVersion(v)) {
-                    //TODO Shall we add first (0) version? (It is marker like, no real values)
-                } else {
-                    JcrVersion jvi = new JcrVersion(v);
-                    result.add(jvi);
-                }
-            }
-            return result;
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Version History", e);
-        }
-    }
-
     // ------ protected methods ------
 
-    /**
-     * Returns node in JCR that this entity is mapped on.
-     *
-     * @return corresponding JCR node
-     */
-    protected Node node() {
-        return node;
-    }
-
-    /**
-     * Checks whether type of the JCR node is correct.
-     *
-     * @param nodeType expected node type
-     * @throws RepositoryException if failed
-     */
-    protected void checkNodeType(String nodeType) throws RepositoryException {
-        if (!node.isNodeType(nodeType)) {
-            throw new RepositoryException("Invalid NodeType. Expects " + nodeType);
-        }
-    }
-
-    public RVersion getBaseVersion() {
-        try {
-            Version v = node().getBaseVersion();
-            RVersion result = new JcrVersion(v);
-            return result;
-        } catch (RepositoryException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public String getPath() throws RRepositoryException {
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
         try {
-            buildRelPath(sb, node);
+            buildRelPath(sb, node());
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get relative path", e);
         }
 
         return sb.toString();
-    }
-
-    /** {@inheritDoc} */
-    public void delete() throws RRepositoryException {
-        try {
-            Node n = node();
-
-            NodeUtil.smartCheckout(n, true);
-
-            n.remove();
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Delete", e);
-        }
     }
 
     public Collection<RProperty> getProperties() {
@@ -256,7 +174,7 @@ public class JcrEntity implements REntity {
 
     // ------ private ------
 
-    private void buildRelPath(StringBuffer sb, Node n) throws RepositoryException {
+    private void buildRelPath(StringBuilder sb, Node n) throws RepositoryException {
         if (!n.isNodeType(JcrNT.NT_PROJECT)) {
             buildRelPath(sb, n.getParent());
         }
