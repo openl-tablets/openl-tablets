@@ -69,7 +69,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         
         for (ProjectDescriptor pd : projectDescriptors) {
             CommonVersion pv = pd.getProjectVersion();
-            RepositoryProjectVersionImpl rpv = new RepositoryProjectVersionImpl(pv.getMajor(), pv.getMinor(), pv.getRevision(), null);
+            RepositoryProjectVersionImpl rpv = new RepositoryProjectVersionImpl(pv, null);
             RepositoryProjectDescriptorImpl rpd = new RepositoryProjectDescriptorImpl(this, pd.getProjectName(), rpv);
             
             newDescr.put(rpd.getProjectName(), rpd);
@@ -88,8 +88,11 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     }
     
     public ProjectVersion getVersion() {
-        // FIXME
-        return null;
+        RVersion rv = rulesDescrProject.getBaseVersion();
+        RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
+        RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(rv, info);
+
+        return version;
     }
 
     public ArtefactPath getArtefactPath() {
@@ -97,8 +100,17 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     }
 
     public Collection<ProjectVersion> getVersions() {
-        // FIXME
-        return null;
+        LinkedList<ProjectVersion> vers = new LinkedList<ProjectVersion>();
+        
+        try {
+            for (RVersion rv : rulesDescrProject.getVersionHistory()) {
+                RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
+                vers.add(new RepositoryProjectVersionImpl(rv, rvii));
+            }
+        } catch (RRepositoryException e) {
+            Log.error("Failed to get version history", e);
+        }
+        return vers;
     }
 
     public void update(DeploymentDescriptorProject ddp) throws ProjectException {
@@ -119,6 +131,13 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         } catch (RRepositoryException e) {
             throw new ProjectException("Cannot update descriptors for {0}", e, name);
         }        
+    }
+
+    public void update(ProjectArtefact srcArtefact) throws ProjectException {
+        if (srcArtefact instanceof DeploymentDescriptorProject) {
+            DeploymentDescriptorProject ddp = (DeploymentDescriptorProject) srcArtefact;
+            update(ddp);
+        }
     }
 
     public void commit(Project source, CommonUser user) throws ProjectException {
@@ -358,10 +377,6 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
     protected void notSupportedProps() throws PropertyException {
         throw new PropertyException("Not supported for deployment project", null);
-    }
-
-    public void update(ProjectArtefact srcArtefact) throws ProjectException {
-        notSupported();
     }
 
     public void delete() throws ProjectException {

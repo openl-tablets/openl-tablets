@@ -9,7 +9,6 @@ import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;

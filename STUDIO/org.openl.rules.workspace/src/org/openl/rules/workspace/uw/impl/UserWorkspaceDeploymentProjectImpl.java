@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
@@ -78,7 +77,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
             throw new ProjectException("Project ''{0}'' must be checked-out before checking-in", null, getName());
         }
 
-        dtrDProject.update((DeploymentDescriptorProject)this);
+        dtrDProject.commit(this, userWorkspace.getUser());
         dtrDProject.unlock(userWorkspace.getUser());
     }
 
@@ -104,8 +103,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public Collection<ProjectVersion> getVersions() {
-        // TODO Auto-generated method stub
-        return null;
+        return dtrDProject.getVersions();
     }
 
     public boolean isCheckedOut() {
@@ -175,8 +173,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public ProjectVersion getVersion() {
-        // TODO
-        return null;
+        return dtrDProject.getVersion();
     }
 
     public ArtefactPath getArtefactPath() {
