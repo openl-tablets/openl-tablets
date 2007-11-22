@@ -366,11 +366,20 @@ public class RepositoryTreeController {
 
     public String copyProject() {
         String errorMessage = null;
-        UserWorkspaceProject project = getActiveProject();
-        if (project == null) {
-            return UiConst.OUTCOME_FAILURE;
+        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        UserWorkspaceProject project = null;
+
+        if (projectArtefact instanceof UserWorkspaceProject) {
+            project = (UserWorkspaceProject) projectArtefact;
+        } else if (projectName != null) {
+            try {
+                project = userWorkspace.getProject(projectName);
+            } catch (ProjectException e) {}
         }
-        if (StringUtils.isBlank(copyTo)) {
+
+        if (project == null) {
+            errorMessage = "No project is selected";
+        } else if (StringUtils.isBlank(copyTo)) {
             errorMessage = "Project name is empty";
         } else if (!PROJECTNAME_PATTERN.matcher(copyTo).matches()) {
             errorMessage = "Project name does not match " + PROJECTNAME_REGEXP;
