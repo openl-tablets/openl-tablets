@@ -261,6 +261,22 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String deleteDeploymentProject() {
+        String projectName = FacesUtils.getRequestParameter("deploymentProjectName");
+
+        try {
+            UserWorkspaceDeploymentProject project = userWorkspace.getDDProject(projectName);
+            project.delete();
+            invalidateTree();
+        } catch (ProjectException e) {
+            log.error("Cannot delete deployment project " + projectName, e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to delete deployment project", e.getMessage()));
+        }
+        return null;
+    }
+
     public String undeleteProject() {
         ProjectArtefact projectArtefact = getSelected().getDataBean();
         if (projectArtefact instanceof UserWorkspaceProject) {

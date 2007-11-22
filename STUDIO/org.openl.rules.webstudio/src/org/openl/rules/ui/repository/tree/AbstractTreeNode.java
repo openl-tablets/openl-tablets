@@ -1,26 +1,20 @@
 package org.openl.rules.ui.repository.tree;
 
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.abstracts.VersionInfo;
-import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
-import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
-import org.openl.rules.ui.repository.dependency.DependencyBean;
-import org.richfaces.model.TreeNode;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
-import java.util.Comparator;
+
+import org.openl.rules.ui.repository.dependency.DependencyBean;
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
+import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
+import org.richfaces.model.TreeNode;
 
 /**
  * This abstract class implements basic functionality of {@link TreeNode} interface.
