@@ -106,7 +106,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         String projectName = artefactPath.segment(0);
         RepositoryProject rp = getProject(projectName);
 
-        ArtefactPath pathInProject = artefactPath.getRelativePath(1);
+        ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
         return rp.getArtefactByPath(pathInProject);
     }
 

@@ -37,7 +37,7 @@ public interface ArtefactPath {
      */
     public String getStringValue();
 
-    public ArtefactPath getRelativePath(int startSegment);
-
-    public ArtefactPath add(String segment);
+    public ArtefactPath withoutFirstSegment();
+    
+    public ArtefactPath withSegment(String segment);
 }

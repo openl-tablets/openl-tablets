@@ -145,15 +145,13 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
     // --- private
     
     private RepositoryProjectFolder wrapFolder(RFolder folder) {
-        ArtefactPath ap = new ArtefactPathImpl(getArtefactPath());
-        ap.add(folder.getName());
+        ArtefactPath ap = getArtefactPath().withSegment(folder.getName());
         
         return new RepositoryProjectFolderImpl(folder, ap);
     }
 
     private RepositoryProjectResource wrapFile(RFile file) {
-        ArtefactPath ap = new ArtefactPathImpl(getArtefactPath());
-        ap.add(file.getName());
+        ArtefactPath ap = getArtefactPath().withSegment(file.getName());
         
         return new RepositoryProjectResourceImpl(file, ap);
     }

@@ -53,7 +53,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
             throw new ProjectException("Failed to create folder ''{0}''!", null, f.getAbsolutePath());
         }
 
-        ArtefactPath ap = getArtefactPath().add(name);
+        ArtefactPath ap = getArtefactPath().withSegment(name);
         LocalProjectFolderImpl newFolder = new LocalProjectFolderImpl(name, ap, f);
 
         addArtefact(newFolder);
@@ -67,7 +67,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
 
         File f = FolderHelper.generateSubLocation(getLocation(), name);
 
-        ArtefactPath ap = getArtefactPath().add(name);
+        ArtefactPath ap = getArtefactPath().withSegment(name);
         LocalProjectResourceImpl newResource = new LocalProjectResourceImpl(name, ap, f);
         newResource.downloadArtefact(resource);
 
@@ -150,7 +150,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
 
     protected void addAsNew(File f) {
         String name = f.getName();
-        ArtefactPath ap = getArtefactPath().add(name);
+        ArtefactPath ap = getArtefactPath().withSegment(name);
 
         LocalProjectArtefactImpl newArtefact;
         if (f.isDirectory()) {
@@ -176,7 +176,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
 
         for(ProjectArtefact pa : folder.getArtefacts()) {
             String name = pa.getName();
-            ArtefactPath ap = getArtefactPath().add(name);
+            ArtefactPath ap = getArtefactPath().withSegment(name);
             File f = new File(location, name);
 
             if (pa.isFolder()) {
