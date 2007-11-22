@@ -58,7 +58,7 @@
 
   <h:panelGroup
     rendered="#{repositoryTreeController.selected.type != 'repository' &amp;&amp; repositoryTreeController.selected.name != repositoryTreeController.secondProjectName}">
-    <rich:tabPanel switchType="client" style="height:400;">
+    <rich:tabPanel switchType="client" style="height:425px;">
       <rich:tab label="Properties">
         <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'file'}">
           <ui:include src="/ui/jcr/node/fileProps.xhtml" />
