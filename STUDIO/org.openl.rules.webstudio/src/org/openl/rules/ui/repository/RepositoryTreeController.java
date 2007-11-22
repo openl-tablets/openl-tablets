@@ -385,9 +385,8 @@ public class RepositoryTreeController {
             errorMessage = "Project name does not match " + PROJECTNAME_REGEXP;
         } else if (userWorkspace.hasProject(copyTo)) {
             errorMessage = "Project " + copyTo + " already exists";
-        } else if (project.isLocalOnly()) {
-            errorMessage = "Project is local only";
         }
+        
         if (errorMessage != null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not copy project", errorMessage));
