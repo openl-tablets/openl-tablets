@@ -213,7 +213,7 @@ public class RepositoryTreeController {
                 log.error("Failed to add new folder " + folderName, e);
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
-                        new FacesMessage("error adding folder", e.getMessage()));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error adding folder", e.getMessage()));
             }
         }
         return result ? null : UiConst.OUTCOME_FAILURE;
@@ -228,7 +228,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             log.error("error deleting", e);
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("error deleting", e.getMessage()));
+                .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting", e.getMessage()));
         }
         return null;
     }
@@ -244,7 +244,7 @@ public class RepositoryTreeController {
             log.error("Cannot delete project " + projectName, e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("Failed to delete project", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to delete project", e.getMessage()));
         }
         return null;
     }
@@ -256,7 +256,7 @@ public class RepositoryTreeController {
             if (!project.isDeleted()) {
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
-                        new FacesMessage("Can not undelete project " + project.getName(),
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not undelete project " + project.getName(),
                             "project is not deleted"));
                 return null;
             }
@@ -267,7 +267,7 @@ public class RepositoryTreeController {
             } catch (ProjectException e) {
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
-                        new FacesMessage("Can not undelete project " + project.getName(),
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not undelete project " + project.getName(),
                             e.getMessage()));
             }
         }
@@ -282,7 +282,7 @@ public class RepositoryTreeController {
             if (!project.isDeleted()) {
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
-                        new FacesMessage("Can not erase project " + project.getName(),
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not erase project " + project.getName(),
                             "project is not deleted"));
                 return null;
             }
@@ -294,7 +294,7 @@ public class RepositoryTreeController {
             } catch (ProjectException e) {
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
-                        new FacesMessage("Can not erase project " + project.getName(),
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not erase project " + project.getName(),
                             e.getMessage()));
             }
         }
@@ -312,7 +312,7 @@ public class RepositoryTreeController {
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("Failed to create new project", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to create new project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
     }
@@ -339,7 +339,7 @@ public class RepositoryTreeController {
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("Failed to open project", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to open project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
     }
@@ -359,7 +359,7 @@ public class RepositoryTreeController {
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("Failed to close project", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to close project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
     }
@@ -390,7 +390,7 @@ public class RepositoryTreeController {
         }
         if (errorMessage != null) {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("Can not copy project", errorMessage));
+                .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not copy project", errorMessage));
             return UiConst.OUTCOME_FAILURE;
         }
 
@@ -400,7 +400,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("Failed to copy project", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to copy project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
 
@@ -422,7 +422,7 @@ public class RepositoryTreeController {
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("Failed to check out project", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to check out project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
     }
@@ -442,7 +442,7 @@ public class RepositoryTreeController {
 
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("Failed to check in project", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to check in project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
     }
@@ -454,7 +454,7 @@ public class RepositoryTreeController {
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("Active tree element is not a project!", null));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Active tree element is not a project!", null));
 
             return null;
         }
