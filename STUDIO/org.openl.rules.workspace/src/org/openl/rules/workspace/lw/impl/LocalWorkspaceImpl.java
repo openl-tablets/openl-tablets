@@ -55,7 +55,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         String projectName = artefactPath.segment(0);
         LocalProject lp = getProject(projectName);
 
-        ArtefactPath pathInProject = artefactPath.getRelativePath(1);
+        ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
         return lp.getArtefactByPath(pathInProject);
     }
 

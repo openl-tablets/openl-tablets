@@ -84,7 +84,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         String projectName = artefactPath.segment(0);
         UserWorkspaceProject uwp = getProject(projectName);
 
-        ArtefactPath pathInProject = artefactPath.getRelativePath(1);
+        ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
         return uwp.getArtefactByPath(pathInProject);
     }
 

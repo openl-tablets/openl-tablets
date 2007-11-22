@@ -45,27 +45,6 @@ public class ArtefactPathImpl implements ArtefactPath {
         segments.addAll(artefactPath.getSegments());
     }
 
-    public ArtefactPath getRelativePath(int startSegment) {
-        LinkedList<String> relativeSegments = new LinkedList<String>();
-        int i = 0;
-        for (String s : segments) {
-            if (startSegment >= i) {
-                relativeSegments.add(s);
-            }
-
-            i++;
-        }
-        
-        return new ArtefactPathImpl(relativeSegments);
-    }
-
-    public ArtefactPath add(String segment) {
-        ArtefactPathImpl api = new ArtefactPathImpl(this);
-        api.addSegment(segment);
-
-        return api;
-    }
-
     /** {@inheritDoc} */
     public String segment(int index) {
         return segments.get(index);
@@ -145,5 +124,27 @@ public class ArtefactPathImpl implements ArtefactPath {
     @Override
     protected Object clone() {
         return new ArtefactPathImpl(this);
+    }
+
+    public ArtefactPath withoutFirstSegment() {
+        LinkedList<String> relativeSegments = new LinkedList<String>();
+        boolean isFisrt = true;
+        for (String s : segments) {
+            if (isFisrt) {
+                isFisrt = false;
+                continue;
+            }
+
+            relativeSegments.add(s);
+        }
+        
+        return new ArtefactPathImpl(relativeSegments);
+    }
+
+    public ArtefactPath withSegment(String segment) {
+        ArtefactPathImpl api = new ArtefactPathImpl(this);
+        api.addSegment(segment);
+
+        return api;
     }
 }
