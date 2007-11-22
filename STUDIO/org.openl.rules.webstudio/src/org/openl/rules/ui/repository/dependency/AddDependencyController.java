@@ -40,7 +40,7 @@ public class AddDependencyController {
         existing.add(selected.getName());
 
         List<String> matching = new ArrayList<String>();
-        for (AbstractTreeNode node : repositoryTreeState.getRepository().getChildNodes()) {
+        for (AbstractTreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
             if (!existing.contains(node.getName())
                     && !((UserWorkspaceProject) node.getDataBean()).isLocalOnly()) {
                 matching.add(node.getName());
