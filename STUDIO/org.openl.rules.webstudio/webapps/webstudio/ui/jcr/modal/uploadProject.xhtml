@@ -19,10 +19,10 @@
       <h:panelGrid columns="1" styleClass="modalBody" cellpadding="0" cellspacing="0" border="0" columnClasses="modalCol"
         rowClasses="modalRow1,modalRow2,modalRow3">
         <h:panelGrid columns="1" styleClass="modalRow1Grid">
-          <h:outputText styleClass="niceLabel" value="Project name:" />
-          <h:inputText id="projectName" size="50" value="#{repositoryTreeController.projectName}" />
           <h:outputText styleClass="niceLabel" value="Upload file:" />
-          <t:inputFileUpload required="true" size="50" storage="file" value="#{repositoryTreeController.file}" />
+          <t:inputFileUpload id="file" size="50" storage="file" value="#{repositoryTreeController.file}" required="true" />
+          <h:outputText styleClass="niceLabel" value="Project name:" />
+          <h:inputText size="50" value="#{repositoryTreeController.projectName}" required="true" />
         </h:panelGrid>
 
         <rich:separator height="1" />
@@ -39,7 +39,7 @@
   <script>
     function openUploadProjectDialog() {
       Richfaces.showModalPanel('modalUploadProject');
-      focusElement("uploadProjectForm:projectName");
+      focusElement("uploadProjectForm:file");
       return false;
     }
   </script>

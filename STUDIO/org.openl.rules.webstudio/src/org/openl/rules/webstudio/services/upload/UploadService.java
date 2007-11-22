@@ -156,7 +156,6 @@ public class UploadService extends BaseUploadService {
 
         try {
             project.checkIn();
-            workspace.refresh();
         } catch (ProjectException e) {
             throw new ServiceException("Error during project checkIn", e);
         }

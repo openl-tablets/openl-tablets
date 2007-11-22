@@ -20,7 +20,7 @@
 
   <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'file'}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton styleClass="button" value="Update" onclick="return confirmUpdateFile();" />
+      <h:commandButton styleClass="button" value="Update" onclick="return openUpdateFileDialog();" />
       <h:commandButton styleClass="button" value="Delete" onclick="return confirmDeleteNode();" />
     </h:panelGrid>
   </h:panelGroup>

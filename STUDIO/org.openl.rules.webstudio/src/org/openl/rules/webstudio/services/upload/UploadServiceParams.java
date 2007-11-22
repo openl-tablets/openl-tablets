@@ -16,6 +16,7 @@ public class UploadServiceParams extends ServiceParams {
     private UploadedFile file;
     private String projectName;
     private UserWorkspace workspace;
+    private boolean unpackZipFile = true;
 
     /**
      * File to upload.
@@ -44,5 +45,19 @@ public class UploadServiceParams extends ServiceParams {
 
     public void setWorkspace(UserWorkspace workspace) {
         this.workspace = workspace;
+    }
+
+    /**
+     * Flag attribute for upload service
+     *
+     * @return <code>true</code> then service will unpack uploaded zip files
+     *         <code>false</code> then service will not unpack uploaded zip files
+     */
+    public boolean isUnpackZipFile() {
+        return unpackZipFile;
+    }
+
+    public void setUnpackZipFile(boolean unpackZipFile) {
+        this.unpackZipFile = unpackZipFile;
     }
 }

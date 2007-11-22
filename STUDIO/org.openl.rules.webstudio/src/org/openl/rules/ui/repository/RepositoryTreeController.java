@@ -3,7 +3,9 @@ package org.openl.rules.ui.repository;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
@@ -11,27 +13,37 @@ import org.openl.rules.ui.repository.tree.TreeProject;
 import org.openl.rules.ui.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.webstudio.services.ServiceException;
+import org.openl.rules.webstudio.services.upload.FileProjectResource;
 import org.openl.rules.webstudio.services.upload.UploadService;
 import org.openl.rules.webstudio.services.upload.UploadServiceParams;
+import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectFolder;
+import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
+
 import org.richfaces.component.UITree;
+
 import org.richfaces.event.NodeSelectedEvent;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
+import java.io.FileInputStream;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -42,6 +54,8 @@ import java.util.regex.Pattern;
  */
 public class RepositoryTreeController {
     private final static Log log = LogFactory.getLog(RepositoryTreeController.class);
+    private static final String PROJECTNAME_REGEXP = "[a-zA-Z0-9.\\-_]+";
+    private static final Pattern PROJECTNAME_PATTERN = Pattern.compile(PROJECTNAME_REGEXP);
     private RepositoryTreeState repositoryTreeState;
     private UserWorkspace userWorkspace;
     private UploadService uploadService;
@@ -318,8 +332,6 @@ public class RepositoryTreeController {
         }
     }
 
-    private static final String PROJECTNAME_REGEXP = "[a-zA-Z0-9.\\-_]+";
-    private static final Pattern PROJECTNAME_PATTERN = Pattern.compile(PROJECTNAME_REGEXP);
     public String copyProject() {
         String errorMessage = null;
         UserWorkspaceProject project = getActiveProject();
@@ -329,7 +341,7 @@ public class RepositoryTreeController {
         if (StringUtils.isBlank(copyTo)) {
             errorMessage = "Project name is empty";
         } else if (!PROJECTNAME_PATTERN.matcher(copyTo).matches()) {
-                errorMessage = "Project name does not match " + PROJECTNAME_REGEXP;
+            errorMessage = "Project name does not match " + PROJECTNAME_REGEXP;
         } else if (userWorkspace.hasProject(copyTo)) {
             errorMessage = "Project " + copyTo + " already exists";
         } else if (project.isLocalOnly()) {
@@ -345,7 +357,9 @@ public class RepositoryTreeController {
             userWorkspace.copyProject(project, copyTo);
             invalidateTree();
         } catch (ProjectException e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Failed to copy project", e.getMessage()));
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage("Failed to copy project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
 
@@ -406,7 +420,7 @@ public class RepositoryTreeController {
     }
 
     public String upload() {
-        if (runUpload()) {
+        if (uploadProject()) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("Project was successfully uploaded"));
             invalidateTree();
@@ -417,7 +431,7 @@ public class RepositoryTreeController {
         return null;
     }
 
-    private boolean runUpload() {
+    private boolean uploadProject() {
         UploadServiceParams params = new UploadServiceParams();
         params.setFile(file);
         params.setProjectName(projectName);
@@ -447,12 +461,56 @@ public class RepositoryTreeController {
     }
 
     /**
-     * Adds new file to active node (Project or Folder)
+     * Adds new file to active node (project or folder).
      *
-     * @return outcome: "success" or "fail"
+     * @return
      */
     public String addFile() {
+        if (uploadAndAddFile()) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("File was successfully uploaded"));
+            invalidateTree();
+        } else {
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("Error occured during uploading file"));
+        }
         return null;
+    }
+
+    private boolean uploadAndAddFile() {
+        UploadServiceParams params = new UploadServiceParams();
+        params.setFile(file);
+        params.setUnpackZipFile(false);
+
+        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
+                .get("rulesUserSession");
+
+        try {
+            UserWorkspace workspace = rulesUserSession.getUserWorkspace();
+            params.setWorkspace(workspace);
+        } catch (Exception e) {
+            log.error("Error obtaining user workspace", e);
+            return false;
+        }
+
+        try {
+            UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
+
+            UserWorkspaceProjectFolder node = (UserWorkspaceProjectFolder) getSelected()
+                    .getDataBean();
+
+            ProjectResource projectResource = new FileProjectResource(new FileInputStream(
+                        result.getResultFile()));
+            node.addResource(fileName, projectResource);
+
+            result.getResultFile().delete();
+        } catch (Exception e) {
+            log.error("Error adding file to user workspace", e);
+            return false;
+        }
+
+        invalidateTree();
+        return true;
     }
 
     /**
@@ -461,7 +519,47 @@ public class RepositoryTreeController {
      * @return
      */
     public String updateFile() {
+        if (uploadAndUpdateFile()) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("File was successfully uploaded"));
+            invalidateTree();
+        } else {
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("Error occured during uploading file"));
+        }
         return null;
+    }
+
+    private boolean uploadAndUpdateFile() {
+        UploadServiceParams params = new UploadServiceParams();
+        params.setFile(file);
+        params.setUnpackZipFile(false);
+
+        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
+                .get("rulesUserSession");
+
+        try {
+            UserWorkspace workspace = rulesUserSession.getUserWorkspace();
+            params.setWorkspace(workspace);
+        } catch (Exception e) {
+            log.error("Error obtaining user workspace", e);
+            return false;
+        }
+
+        try {
+            UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
+
+            UserWorkspaceProjectResource node = (UserWorkspaceProjectResource) getSelected()
+                    .getDataBean();
+            node.setContent(new FileInputStream(result.getResultFile()));
+            result.getResultFile().delete();
+        } catch (Exception e) {
+            log.error("Error updating file in user workspace", e);
+            return false;
+        }
+
+        invalidateTree();
+        return true;
     }
 
     public Map<String, Object> getProperties() {
@@ -497,6 +595,10 @@ public class RepositoryTreeController {
         //EPBDS-92 - clear newProject dialog every time
         //return projectName;
         return null;
+    }
+
+    public void setInit(boolean init) {
+        invalidateTree();
     }
 
     public void setProjectName(String newProjectName) {
