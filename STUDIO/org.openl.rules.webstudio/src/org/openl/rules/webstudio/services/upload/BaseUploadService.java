@@ -11,7 +11,6 @@ import org.openl.rules.webstudio.services.ServiceParams;
 import org.openl.rules.webstudio.services.ServiceResult;
 import org.openl.rules.webstudio.util.IOUtils;
 
-
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
@@ -46,14 +45,18 @@ public abstract class BaseUploadService implements Service {
                 throw new EmptyFileException(uploadFile.getName(), "file-empty");
             }
 
-            if (isZipFile(params)) {
+            if (isZipFile(params) && params.isUnpackZipFile()) {
                 result = uploadZipFile(params);
                 if (log.isDebugEnabled()) {
                     log.debug("Zip file uploaded and unpacked: "
                         + result.getResultFiles());
                 }
             } else {
-                throw new NotUnzippedFileException();
+                result = uploadNonZipFile(params);
+                if (log.isDebugEnabled()) {
+                    log.debug("File uploaded to '" + result.getResultFile().getName()
+                        + "'");
+                }
             }
         } finally {
             //uploadFile.cleanup();
@@ -131,6 +134,27 @@ public abstract class BaseUploadService implements Service {
             throw new ServiceException(e);
         }
         return result;
+    }
+
+    private UploadServiceResult uploadNonZipFile(UploadServiceParams params)
+        throws ServiceException
+    {
+        File targetFile;
+        UploadServiceResult result = new UploadServiceResult();
+
+        // determine file to save uploaded file
+        try {
+            //targetFile = getFile(params, params.getFile().getName());
+            targetFile = File.createTempFile("upload", "file");
+            saveFile(params, targetFile);
+
+            result.setResultFile(targetFile);
+            result.setUploadCount(1);
+            return result;
+        } catch (IOException e) {
+            String msg = "Unable to upload file '" + params.getFile().getName() + "'";
+            throw new ServiceException(msg + ": " + e.getMessage(), e);
+        }
     }
 
     /**

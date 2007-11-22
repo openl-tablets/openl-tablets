@@ -43,7 +43,11 @@
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
     </managed-property>
-  </managed-bean>
+    <managed-property>
+      <property-name>init</property-name>
+      <value>true</value>
+    </managed-property>
+</managed-bean>
 
   <managed-bean>
     <managed-bean-name>addDependency</managed-bean-name>
