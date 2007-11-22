@@ -200,3 +200,18 @@ form.standard table.buttonPanel {
   color: #555555;
   background-color: #bbbbbb;
 }
+
+/* message styles */
+.messages ul {
+  margin: 0px 0px 10px 5px;
+  padding: 0px;
+  list-style-type: none;
+}
+
+.error {
+  color: red;
+}
+
+.success {
+  color: green;
+}
