@@ -1,11 +1,20 @@
 package org.openl.rules.ui.repository;
 
+import java.io.FileInputStream;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeFile;
 import org.openl.rules.ui.repository.tree.TreeFolder;
@@ -23,26 +32,15 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectResource;
+import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
-
 import org.richfaces.component.UITree;
-
 import org.richfaces.event.NodeSelectedEvent;
-
-import java.io.FileInputStream;
-
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 
 
 /**
@@ -65,7 +63,8 @@ public class RepositoryTreeController {
     private String fileName;
     private String uploadFrom;
     private String copyTo;
-    private Collection<UserWorkspaceProject> projects;
+    private Collection<UserWorkspaceProject> rulesProjects;
+    private Collection<UserWorkspaceDeploymentProject> deploymentsProjects;
 
     /**
      * TODO: re-implement properly when AbstractTreeNode.id becomes Object.
@@ -97,22 +96,44 @@ public class RepositoryTreeController {
 
     private void buildTree() {
         repositoryTreeState.setRoot(new TreeRepository(generateId(""), ""));
-        repositoryTreeState.setRepository(new TreeRepository(generateId(
-                    "Rules Repository"), "Rules Repository"));
-        repositoryTreeState.getRepository().setDataBean(null);
-        repositoryTreeState.getRoot().add(repositoryTreeState.getRepository());
+        
+        TreeRepository rulesRep = new TreeRepository(generateId("Rules Projects"), "Rules Projects");
+        rulesRep.setDataBean(null);
+        TreeRepository deploymentRep = new TreeRepository(generateId("Deployment Projects"), "Deployment Projects");
+        deploymentRep.setDataBean(null);
 
-        if (projects == null) {
-            projects = userWorkspace.getProjects();
+        repositoryTreeState.setRulesRepository(rulesRep);
+        repositoryTreeState.setDeploymentRepository(deploymentRep);
+        repositoryTreeState.getRoot().add(rulesRep);
+        repositoryTreeState.getRoot().add(deploymentRep);
+
+        if (rulesProjects == null) {
+            rulesProjects = userWorkspace.getProjects();
         }
 
-        for (Project project : projects) {
-            TreeProject prj = new TreeProject(generateId(project.getName()),
-                    project.getName());
+        for (Project project : rulesProjects) {
+            TreeProject prj = new TreeProject(generateId(project.getName()), project.getName());
             prj.setDataBean(project);
-            repositoryTreeState.getRepository().add(prj);
+            rulesRep.add(prj);
             // redo that
             traverseFolder(prj, project.getArtefacts());
+        }
+        
+        if (deploymentsProjects == null) {
+            try {
+                deploymentsProjects = userWorkspace.getDDProjects();
+            } catch (RepositoryException e) {
+                log.error("Cannot list deployments projects", e);
+                deploymentsProjects = new LinkedList<UserWorkspaceDeploymentProject>();
+            }            
+        }
+        
+        for (UserWorkspaceDeploymentProject deplProject : deploymentsProjects) {
+            String name = deplProject.getName();
+            TreeProject prj = new TreeProject(generateId(name), name);
+            prj.setDataBean(deplProject);
+            deploymentRep.add(prj);
+            // deployments projects haven't child nodes
         }
     }
 
@@ -128,7 +149,7 @@ public class RepositoryTreeController {
         if (repositoryTreeState.getRoot() == null) {
             buildTree();
         }
-        return repositoryTreeState.getRepository();
+        return repositoryTreeState.getRulesRepository();
     }
 
     public AbstractTreeNode getSelected() {
@@ -136,7 +157,7 @@ public class RepositoryTreeController {
             // lazy loading
             getData();
             //
-            repositoryTreeState.setCurrentNode(repositoryTreeState.getRepository());
+            repositoryTreeState.setCurrentNode(repositoryTreeState.getRulesRepository());
         }
         return repositoryTreeState.getCurrentNode();
     }
@@ -160,9 +181,9 @@ public class RepositoryTreeController {
     }
 
     /**
-     * Gets all projects from a rule repository.
+     * Gets all rulesProjects from a rule repository.
      *
-     * @return list of projects
+     * @return list of rulesProjects
      */
     public List<AbstractTreeNode> getProjects() {
         return getRepositoryNode().getChildNodes();
@@ -579,10 +600,10 @@ public class RepositoryTreeController {
      */
     public String getSecondProjectName() {
         int c = 0;
-        if (projects == null) {
-            projects = userWorkspace.getProjects();
+        if (rulesProjects == null) {
+            rulesProjects = userWorkspace.getProjects();
         }
-        for (Project project : projects) {
+        for (Project project : rulesProjects) {
             if (c > 0) {
                 return project.getName();
             }
