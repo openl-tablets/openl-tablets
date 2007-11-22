@@ -39,11 +39,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         path = new ArtefactPathImpl(new String[]{name});
         
         descriptors = new HashMap<String, ProjectDescriptor>();
-        for (ProjectDescriptor pd : dtrDProject.getProjectDescriptors()) {
-            String name = pd.getProjectName();
-            UserWorkspaceProjectDescriptorImpl uwpd = new UserWorkspaceProjectDescriptorImpl(this, name, pd.getProjectVersion());
-            descriptors.put(name, uwpd);
-        }
+        updateDescriptors(dtrDProject.getProjectDescriptors());
     }
     
     public ProjectDescriptor addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
@@ -68,8 +64,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void setProjectDescriptors(Collection<ProjectDescriptor> projectDescriptors) throws ProjectException {
-        // TODO Auto-generated method stub
-        
+        updateDescriptors(projectDescriptors);
     }
 
     public void checkIn() throws ProjectException {
@@ -123,7 +118,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public boolean isDeleted() {
-        return false;
+        return dtrDProject.isMarkedForDeletion();
     }
 
     public boolean isDeploymentProject() {
@@ -131,11 +126,11 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void undelete() throws ProjectException {
-        throw new ProjectException("can not undelete deployment project");
+        dtrDProject.undelete(userWorkspace.getUser());
     }
 
     public void erase() throws ProjectException {
-        throw new ProjectException("can not undelete deployment project");
+        dtrDProject.erase(userWorkspace.getUser());
     }
 
     public boolean isLocalOnly() {
@@ -170,6 +165,8 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         if (isOpened()) {
             close();
         }
+        
+        dtrDProject.delete(userWorkspace.getUser());
     }
 
     public ProjectVersion getVersion() {
@@ -288,5 +285,18 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     
     protected void removeProjectDescriptor(UserWorkspaceProjectDescriptorImpl pd) {
         descriptors.remove(pd.getProjectName());
+    }
+    
+    protected void updateDescriptors(Collection<ProjectDescriptor> projectDescriptors) {
+        HashMap<String, ProjectDescriptor> descrs = new HashMap<String, ProjectDescriptor>();
+        
+        for (ProjectDescriptor pd : projectDescriptors) {
+            String name = pd.getProjectName();
+            UserWorkspaceProjectDescriptorImpl uwpd = new UserWorkspaceProjectDescriptorImpl(this, name, pd.getProjectVersion());
+            descrs.put(name, uwpd);
+        }
+        
+        descriptors.clear();
+        descriptors = descrs;
     }
 }
