@@ -220,7 +220,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
     
     @Override
-    protected boolean isReadOnly() {
+    public boolean isReadOnly() {
         return !isCheckedOut();
     }
     

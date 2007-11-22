@@ -14,4 +14,6 @@ public interface UserWorkspaceProjectArtefact extends ProjectArtefact, RulesRepo
     Collection<ProjectVersion> getVersions();
     
     void delete() throws ProjectException;
+    
+    boolean isReadOnly();
 }
