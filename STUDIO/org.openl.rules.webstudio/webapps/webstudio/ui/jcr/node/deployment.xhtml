@@ -77,7 +77,7 @@
     <h:panelGroup>
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton value="Add" styleClass="button" onclick="Richfaces.showModalPanel('addDeployEntry')" type="button"/>
-        <h:commandButton value="Open Selected Projects" styleClass="button" type="button" onclick="return false;"/>
+        <h:commandButton value="Open Selected Projects" styleClass="button" action="#{deploymentController.openSelectedProjects}"/>
       </h:panelGrid>
     </h:panelGroup>
   </h:panelGrid>
