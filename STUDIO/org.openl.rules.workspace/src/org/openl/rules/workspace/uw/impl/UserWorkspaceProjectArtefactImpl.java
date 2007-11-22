@@ -128,7 +128,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         return project.isLocal();
     }
 
-    protected boolean isReadOnly() {
+    public boolean isReadOnly() {
         return project.isReadOnly();
     }
 

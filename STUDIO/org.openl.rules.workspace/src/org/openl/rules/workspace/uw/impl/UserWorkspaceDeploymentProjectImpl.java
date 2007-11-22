@@ -120,6 +120,10 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         return false;
     }
 
+    public boolean isReadOnly() {
+        return !isCheckedOut();
+    }
+
     public boolean isDeleted() {
         return false;
     }
