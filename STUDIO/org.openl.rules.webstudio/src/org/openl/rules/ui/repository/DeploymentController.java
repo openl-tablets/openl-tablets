@@ -5,7 +5,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.repository.CommonVersionImpl;
-import static org.openl.rules.ui.repository.UiConst.OUTCOME_SUCCESS;
 import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -70,13 +69,13 @@ public class DeploymentController implements Serializable {
         if (!items.contains(newItem)) {
             items.add(newItem);
         }
-        return OUTCOME_SUCCESS;
+        return null;
     }
 
     public String deleteItem() {
         Integer key = Integer.valueOf(FacesUtils.getRequestParameter("key"));
         items.remove(key.intValue());
-        return OUTCOME_SUCCESS;
+        return null;
     }
 
     public String save() {
@@ -119,18 +118,17 @@ public class DeploymentController implements Serializable {
     }
 
     private UserWorkspace getWorkspace() {
-        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
-                .get("rulesUserSession");
-
-        UserWorkspace workspace = null;
-
         try {
+            RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
+                    .get("rulesUserSession");
+
+            UserWorkspace workspace = null;
             workspace = rulesUserSession.getUserWorkspace();
+            return workspace;
         } catch (Exception e) {
             log.error("Error obtaining user workspace", e);
-            return null;
         }
-        return workspace;
+        return null;
     }
 
     public SelectItem[] getProjects() {
@@ -171,16 +169,36 @@ public class DeploymentController implements Serializable {
         return new SelectItem[0];
     }
 
+    public String openSelectedProjects() {
+        UserWorkspace workspace = getWorkspace();
+        for (DeploymentDescriptorItem item : items) {
+            if (item.isSelected()) {
+                String projectName = item.getName();
+                UserWorkspaceProject project;
+                try {
+                    project = workspace.getProject(projectName);
+                    if (!project.isOpened()) {
+                        project.open();
+                    }
+                } catch (ProjectException e) {
+                    log.error("Error obtaining project " + projectName, e);
+                }
+            }
+        }
+
+        return null;
+    }
+
     public String deploy() {
-        return OUTCOME_SUCCESS;
+        return null;
     }
 
     public String checkIn() {
-        return OUTCOME_SUCCESS;
+        return null;
     }
 
     public String checkOut() {
-        return OUTCOME_SUCCESS;
+        return null;
     }
 
     public boolean isCheckinable() {
