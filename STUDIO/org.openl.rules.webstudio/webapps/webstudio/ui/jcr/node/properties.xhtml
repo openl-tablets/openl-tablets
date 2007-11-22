@@ -10,17 +10,17 @@
 
     <rich:calendar popup="true" enableManualInput="true"
       jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      disabled="#{!repositoryTreeController.selected.dataBean.project.checkedOut}"/>
+      disabled="#{repositoryTreeController.selected.dataBean.readOnly}"/>
 
     <h:outputText styleClass="niceLabel" value="Expiration date:" />
     <rich:calendar popup="true" enableManualInput="true"
       jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      disabled="#{!repositoryTreeController.selected.dataBean.project.checkedOut}"/>
+      disabled="#{repositoryTreeController.selected.dataBean.readOnly}"/>
 
     <h:outputText styleClass="niceLabel" value="Line of business:" />
     <h:inputText
-       readonly="#{!repositoryTreeController.selected.dataBean.project.checkedOut}"
-       styleClass="#{!repositoryTreeController.selected.dataBean.project.checkedOut ? 'readonly' : ''}"/>
+       readonly="#{repositoryTreeController.selected.dataBean.readOnly}"
+       styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}"/>
 
   </h:panelGrid>
 </ui:composition>
