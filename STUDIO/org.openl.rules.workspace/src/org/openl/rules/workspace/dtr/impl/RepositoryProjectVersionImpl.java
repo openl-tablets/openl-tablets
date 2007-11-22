@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.VersionInfo;
 
@@ -10,6 +11,13 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private String versionName;
     private VersionInfo versionInfo;
 
+    public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo) {
+        major = version.getMajor();
+        minor = version.getMinor();
+        revision = version.getRevision();
+        this.versionInfo = versionInfo;
+    }
+    
     public RepositoryProjectVersionImpl(int major, int minor, int revision, VersionInfo versionInfo) {
         this.major = major;
         this.minor = minor;

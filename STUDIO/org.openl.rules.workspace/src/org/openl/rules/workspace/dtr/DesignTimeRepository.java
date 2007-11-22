@@ -4,10 +4,9 @@ import java.util.List;
 
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
 public interface DesignTimeRepository extends ProjectsContainer<RepositoryProject> {
     /**

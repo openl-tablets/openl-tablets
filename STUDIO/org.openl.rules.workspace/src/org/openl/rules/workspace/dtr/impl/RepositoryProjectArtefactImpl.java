@@ -194,7 +194,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
         try {
             for (RVersion rv : rulesEntity.getVersionHistory()) {
                 RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
-                vers.add(new RepositoryProjectVersionImpl(rv.getMajor(), rv.getMinor(), rv.getRevision(), rvii));
+                vers.add(new RepositoryProjectVersionImpl(rv, rvii));
             }
             
             versions = vers;
