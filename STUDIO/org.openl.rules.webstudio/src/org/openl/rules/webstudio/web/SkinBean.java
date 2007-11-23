@@ -9,7 +9,7 @@ import javax.faces.model.SelectItem;
  * @author "Andrey Naumenko"
  */
 public class SkinBean {
-    private static final String[] skinsArray = new String[] {
+    private static final String[] skinsArray = {
             "DEFAULT", "blueSky", "classic", "deepMarine", "emeraldTown", "japanCherry",
             "ruby", "wine", "plain"
         };

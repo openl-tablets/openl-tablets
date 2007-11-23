@@ -6,7 +6,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk">
 
-  <rich:modalPanel id="modalUploadProject" minHeight="200" minWidth="400" height="200" width="400" zindex="2000">
+  <rich:modalPanel id="modalUploadProject" width="400" minWidth="400" height="145" minHeight="145">
     <f:facet name="header">
       <h:outputText value="Upload Project" />
     </f:facet>
@@ -16,22 +16,20 @@
     </f:facet>
 
     <h:form id="uploadProjectForm" enctype="multipart/form-data">
-      <h:panelGrid columns="1" styleClass="modalBody" cellpadding="0" cellspacing="0" border="0" columnClasses="modalCol"
-        rowClasses="modalRow1,modalRow2,modalRow3">
-        <h:panelGrid columns="1" styleClass="modalRow1Grid">
-          <h:outputText styleClass="niceLabel" value="Upload file:" />
-          <t:inputFileUpload id="file" size="50" storage="file" value="#{repositoryTreeController.file}" required="true" />
-          <h:outputText styleClass="niceLabel" value="Project name:" />
-          <h:inputText size="50" value="#{repositoryTreeController.projectName}" required="true" />
-        </h:panelGrid>
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:outputLabel for="file" styleClass="required" value="File" />
+        <t:inputFileUpload id="file" size="35" storage="file" value="#{repositoryTreeController.file}" required="true" />
+        <h:outputLabel for="projectName" styleClass="required" value="Project name" />
+        <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" required="true" />
+      </h:panelGrid>
 
-        <rich:separator height="1" />
+      <br />
+      <rich:separator height="1" />
+      <br/>
 
-        <h:panelGrid columns="2" styleClass="modalButtonPanel" cellpadding="0" cellspacing="0" border="0"
-          columnClasses="modalButtonCol,modalButtonCol">
-          <h:commandButton styleClass="modalButton" value="Upload" action="#{repositoryTreeController.upload}" />
-          <h:commandButton styleClass="modalButton" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalUploadProject');" />
-        </h:panelGrid>
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Upload" action="#{repositoryTreeController.upload}" />
+        <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalUploadProject');" />
       </h:panelGrid>
     </h:form>
   </rich:modalPanel>
@@ -43,5 +41,4 @@
       return false;
     }
   </script>
-
 </ui:composition>
