@@ -8,22 +8,24 @@
   <h:messages />
 
   <h:panelGrid columns="2" columnClasses="label,">
-    <h:outputText styleClass="niceLabel" value="Effective date:" />
-    <t:inputCalendar size="10" value="#{repositoryTreeController.selected.dataBean.effectiveDate}" renderAsPopup="true"
+    <h:outputLabel for="#{prefix}effectiveDate" value="Effective date" />
+    <t:inputCalendar id="#{prefix}effectiveDate" size="10" value="#{repositoryTreeController.selected.dataBean.effectiveDate}" renderAsPopup="true"
       popupTodayString="Today " popupWeekString="Week" popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true"
-      popupButtonStyle="" popupButtonStyleClass="datepicker" readonly="#{repositoryTreeController.selected.dataBean.readOnly}">
+      popupButtonStyle="" popupButtonStyleClass="datepicker" readonly="#{repositoryTreeController.selected.dataBean.readOnly}"
+      styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}">
       <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
     </t:inputCalendar>
 
-    <h:outputText styleClass="niceLabel" value="Expiration date:" />
-    <t:inputCalendar size="10" value="#{repositoryTreeController.selected.dataBean.expirationDate}" renderAsPopup="true"
+    <h:outputLabel for="#{prefix}expirationDate1" value="Expiration date" />
+    <t:inputCalendar id="#{prefix}expirationDate1" size="10" value="#{repositoryTreeController.selected.dataBean.expirationDate}" renderAsPopup="true"
       popupTodayString="Today " popupWeekString="Week" popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true"
-      popupButtonStyle="" popupButtonStyleClass="datepicker" readonly="#{repositoryTreeController.selected.dataBean.readOnly}">
+      popupButtonStyle="" popupButtonStyleClass="datepicker" readonly="#{repositoryTreeController.selected.dataBean.readOnly}"
+      styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}">
       <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
     </t:inputCalendar>
 
-    <h:outputText styleClass="niceLabel" value="Line of business:" />
-    <h:inputText readonly="#{repositoryTreeController.selected.dataBean.readOnly}"
+    <h:outputLabel for="#{prefix}lineOfBusiness1" value="Line of business" />
+    <h:inputText id="#{prefix}lineOfBusiness1" readonly="#{repositoryTreeController.selected.dataBean.readOnly}"
       styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}"
       value="#{repositoryTreeController.selected.dataBean.lineOfBusiness}" />
 
