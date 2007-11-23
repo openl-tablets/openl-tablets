@@ -9,13 +9,13 @@ public class UserWorkspaceProjectDescriptorImpl implements ProjectDescriptor {
     private String projectName;
     private CommonVersion projectVersion;
     private UserWorkspaceDeploymentProjectImpl project;
-    
-    protected UserWorkspaceProjectDescriptorImpl(UserWorkspaceDeploymentProjectImpl project, String projectName, CommonVersion projectVersion) {
+
+    public UserWorkspaceProjectDescriptorImpl(UserWorkspaceDeploymentProjectImpl project, String projectName, CommonVersion projectVersion) {
         this.project = project;
         this.projectName = projectName;
         this.projectVersion = projectVersion;
     }
-    
+
     public void delete() {
         project.removeProjectDescriptor(this);
     }
