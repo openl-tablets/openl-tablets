@@ -247,8 +247,7 @@ public class RepositoryTreeController {
     }
 
     public String delete() {
-        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) getSelected()
-                .getDataBean();
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) getSelected().getDataBean();
         try {
             projectArtefact.delete();
             invalidateTree();
@@ -258,6 +257,23 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting",
                         e.getMessage()));
+        }
+        return null;
+    }
+
+    public String deleteElement() {
+        AbstractTreeNode selected = getSelected();
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) selected.getDataBean();
+        String childName = FacesUtils.getRequestParameter("element");
+
+        try {
+            projectArtefact.getArtefact(childName).delete();
+            selected.deleteChildByName(childName);
+            invalidateTree();
+        } catch (ProjectException e) {
+            log.error("error deleting", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting", e.getMessage()));
         }
         return null;
     }

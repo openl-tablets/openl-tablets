@@ -21,9 +21,9 @@
         <h:outputText value="#{el.name}" />
       </rich:column>
       <rich:column>
-        <h:commandLink styleClass="actionButton" action="#{el.delete}" immediate="true"
-          onclick="if(!window.confirm('Really delete file/folder?')) {return false;}">
-          <f:param name="key" value="#{index}" />
+        <h:commandLink styleClass="actionButton" action="#{repositoryTreeController.deleteElement}"
+                       onclick="if(!window.confirm('Really delete file/folder?')) {return false;}">
+          <f:param name="element" value="#{el.name}" />
           <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
         </h:commandLink>
       </rich:column>
