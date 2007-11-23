@@ -74,13 +74,6 @@ public class RepositoryTreeController {
     private Collection<UserWorkspaceProject> rulesProjects;
     private Collection<UserWorkspaceDeploymentProject> deploymentsProjects;
 
-    /**
-     * TODO: re-implement properly when AbstractTreeNode.id becomes Object.
-     *
-     * @param nodeName
-     *
-     * @return
-     */
     private static String generateId(String nodeName) {
         return nodeName;
     }
@@ -88,14 +81,14 @@ public class RepositoryTreeController {
     private void traverseFolder(TreeFolder folder,
         Collection<?extends ProjectArtefact> artefacts) {
         for (ProjectArtefact artefact : artefacts) {
-            String path = artefact.getArtefactPath().getStringValue();
+            String name = artefact.getName();
             if (artefact instanceof ProjectFolder) {
-                TreeFolder tf = new TreeFolder(generateId(path), artefact.getName());
+                TreeFolder tf = new TreeFolder(generateId(name), name);
                 tf.setDataBean(artefact);
                 folder.add(tf);
                 traverseFolder(tf, ((ProjectFolder) artefact).getArtefacts());
             } else {
-                TreeFile tf = new TreeFile(generateId(path), artefact.getName());
+                TreeFile tf = new TreeFile(generateId(name), name);
                 tf.setDataBean(artefact);
                 folder.add(tf);
             }

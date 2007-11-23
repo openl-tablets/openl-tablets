@@ -223,14 +223,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public void deleteChildByName(String name) {
-        Iterator<Map.Entry<Object, AbstractTreeNode>> entryIterator = elements.entrySet().iterator();
-        while (entryIterator.hasNext()) {
-            Map.Entry<Object, AbstractTreeNode> objectAbstractTreeNodeEntry = entryIterator.next();
-            if (objectAbstractTreeNodeEntry.getValue().getName().equals(name)) {
-                entryIterator.remove();
-                return;
-            }
-        }
+        elements.remove(name);
     }
 
     /**
