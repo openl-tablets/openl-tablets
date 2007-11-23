@@ -47,7 +47,7 @@
         <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.opened ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{repositoryTreeController.selected.dataBean.opened};"/>
         <h:commandButton styleClass="#{!repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!repositoryTreeController.selected.dataBean.checkedOut};"/>
         <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{repositoryTreeController.checkInProject}" onclick="return #{repositoryTreeController.selected.dataBean.checkedOut};"/>
-        <h:commandButton styleClass="button" value="Copy" onclick="return confirmCopyProject('#{repositoryTreeController.selected.dataBean.name}');" />
+        <h:commandButton styleClass="button" value="Copy" onclick="return openCopyProjectDialog('#{repositoryTreeController.selected.dataBean.name}');" />
         <h:commandButton styleClass="button" value="Delete" onclick="return confirmDeleteNode();" />
         <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Add Folder" onclick="return openNewFolderDialog();" />
         <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Add File" onclick="return openNewFileDialog();" />
@@ -55,8 +55,8 @@
     </h:panelGroup>
   </h:panelGroup>
 
-  <h:panelGroup 
-  rendered="#{repositoryTreeController.selected.type != 'repository' 
+  <h:panelGroup
+  rendered="#{repositoryTreeController.selected.type != 'repository'
   &amp;&amp; repositoryTreeController.selected.type != 'drepository'
   &amp;&amp; repositoryTreeController.selected.type != 'deployment'}">
     <rich:tabPanel switchType="client" style="height:425px;">

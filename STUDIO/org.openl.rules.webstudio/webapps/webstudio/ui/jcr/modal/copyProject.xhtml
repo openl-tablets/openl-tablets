@@ -1,74 +1,47 @@
 <ui:composition
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-	xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
-	<rich:modalPanel  id="modalCopyProject" minHeight="200" minWidth="400" 
-		height="200" width="400" zindex="2000">
-		<f:facet name="header">
-			<h:outputText value="Copy Project" />
-		</f:facet>
+  <rich:modalPanel id="modalCopyProject" width="400" minWidth="400" height="145" minHeight="145">
+    <f:facet name="header">
+      <h:outputText value="Copy Project" />
+    </f:facet>
 
-		<f:facet name="controls">
-			<h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalCopyProject');" />
-		</f:facet>
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalCopyProject');" />
+    </f:facet>
 
-		<h:form id="modalCopyProjectForm">
-		<h:panelGrid
-		  styleClass="modalBody"
-		  cellpadding="0" cellspacing="0" border="0" 
-		  columns="1" columnClasses="modalCol"
-		  rowClasses="modalRow1,modalRow2,modalRow3"
-		>
-			<h:panelGrid
-			  styleClass="modalRow1Grid"
-			  columns="1"
-			>
-				<h:outputText styleClass="niceLabel" value="Name of Existing Project:" />
-				<h:inputText styleClass="modalInputRO" id="from" value="#{repositoryTreeController.projectName}" readonly="true" />
-				<h:outputText styleClass="niceLabel" value="Name of Copy Project:" />
-				<h:inputText styleClass="modalInput" id="to" maxlength="50" value="#{repositoryTreeController.copyTo}" />
-			</h:panelGrid>
-			
-			<rich:separator height="1" />
-			
-			<h:panelGrid
-			  styleClass="modalButtonPanel"
-			  cellpadding="0" cellspacing="0" border="0"
-			  columns="2" columnClasses="modalButtonCol,modalButtonCol"
-			>
-				<h:commandButton 
-				  styleClass="modalButton" 
-				  value="Copy" 
-				  action="#{repositoryTreeController.copyProject}"
-				/>
-				<h:commandButton 
-				  styleClass="modalButton" 
-				  value="Cancel" 
-				  onclick="Richfaces.hideModalPanel('modalCopyProject');return false;"
-				/>
-			</h:panelGrid>
-		</h:panelGrid>
-            <h:inputHidden id="hiddenfrom" value="#{repositoryTreeController.projectName}"/>
-        </h:form>
-		
-	</rich:modalPanel>
-	
-	<script>
-		function confirmCopyProject(copyFrom) {
-			var el = document.getElementById('modalCopyProjectForm:from');
-			el.value = copyFrom;
-            el = document.getElementById('modalCopyProjectForm:hiddenfrom');
-            el.value = copyFrom;
+    <h:form id="copyProjectForm">
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:outputLabel for="projectName" value="Project Name" />
+        <h:inputText id="projectName" size="40" value="#{repositoryTreeController.projectName}" readonly="true" />
+        <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
+        <h:inputText id="newProjectName" size="40" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
+      </h:panelGrid>
 
-            Richfaces.showModalPanel('modalCopyProject');
+      <br />
+      <rich:separator height="1" />
+      <br />
 
-			el = document.getElementById('modalCopyProjectForm:to');
-			el.focus();
-			return false;
-		}
-	</script>
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Copy" action="#{repositoryTreeController.copyProject}" />
+        <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalCopyProject');" />
+      </h:panelGrid>
+      <h:inputHidden id="hiddenfrom" value="#{repositoryTreeController.projectName}" />
+    </h:form>
 
+  </rich:modalPanel>
+
+  <script>
+    function openCopyProjectDialog(projectName) {
+      document.getElementById('copyProjectForm:projectName').value = projectName
+      document.getElementById('copyProjectForm:hiddenfrom').value = projectName
+      Richfaces.showModalPanel('modalCopyProject');
+      focusElement('copyProjectForm:newProjectName');
+      return false;
+    }
+  </script>
 </ui:composition>
