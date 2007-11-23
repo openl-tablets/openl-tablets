@@ -15,7 +15,7 @@ public class TreeFile extends AbstractTreeNode {
 
 	private static final long serialVersionUID = -4563895481021883236L;
 
-	public TreeFile(long id, String name) {
+	public TreeFile(String id, String name) {
 		// File cannot have children !!!
 		super(id, name, true);
 	}

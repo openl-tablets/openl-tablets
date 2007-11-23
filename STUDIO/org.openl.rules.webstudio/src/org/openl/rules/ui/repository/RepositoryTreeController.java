@@ -81,8 +81,8 @@ public class RepositoryTreeController {
      *
      * @return
      */
-    private static long generateId(String nodeName) {
-        return nodeName.hashCode();
+    private static String generateId(String nodeName) {
+        return nodeName;
     }
 
     private void traverseFolder(TreeFolder folder,

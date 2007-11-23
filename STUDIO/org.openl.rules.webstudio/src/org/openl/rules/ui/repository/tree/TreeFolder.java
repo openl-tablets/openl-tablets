@@ -12,7 +12,7 @@ public class TreeFolder extends AbstractTreeNode {
 
 	private static final long serialVersionUID = -8236498990436429491L;
 	
-	public TreeFolder (long id, String name) {
+	public TreeFolder (String id, String name) {
 		super(id, name);
 	}
 	

@@ -11,7 +11,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 public class TreeDProject extends TreeFile {
     private static final long serialVersionUID = -1058464776132912419L;
 
-    public TreeDProject(long id, String name) {
+    public TreeDProject(String id, String name) {
         super(id, name);
     }
 
