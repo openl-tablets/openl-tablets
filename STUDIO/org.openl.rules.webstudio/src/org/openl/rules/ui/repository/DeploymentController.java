@@ -181,7 +181,8 @@ public class DeploymentController implements Serializable {
                         project.open();
                     }
                 } catch (ProjectException e) {
-                    log.error("Error obtaining project " + projectName, e);
+                    log.error("Error obtaining project " + projectName + " "
+                        + e.getMessage());
                 }
             }
         }

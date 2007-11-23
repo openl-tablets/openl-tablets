@@ -119,11 +119,23 @@ body {
 /* ------------------------------------------- */
 
 /* form elements styles */
+form .formfields {
+  vertical-align: top;
+  border: none;
+  width: 99%;
+}
+
 .label {
   color: #002276;
   padding-right: 5px;
   width: 150px;
   vertical-align: top;
+}
+
+.required {
+  color: #002276;
+  background: url(../images/required.gif) top right no-repeat;
+  padding-right: 5px;
 }
 
 input {
