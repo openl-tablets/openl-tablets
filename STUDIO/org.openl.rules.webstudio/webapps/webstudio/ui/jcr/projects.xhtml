@@ -34,10 +34,10 @@
         <h:outputText value="#{prj.version}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{prj.createdAt}" />
+        <h:outputText value="#{prj.createdAt}"/>&#160;
       </rich:column>
       <rich:column>
-        <h:outputText value="#{prj.createdBy}" />
+        <h:outputText value="#{prj.createdBy}" />&#160;
       </rich:column>
       <rich:column style="text-align:center">
         <h:panelGroup rendered="#{!prj.dataBean.deleted}">
@@ -52,6 +52,7 @@
             <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
           </h:commandLink>
         </h:panelGroup>
+        &#160;
       </rich:column>
 
     </rich:columnGroup>

@@ -1,12 +1,11 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel  id="modalDeleteNode" minHeight="200" minWidth="400"
-    height="200" width="400" zindex="2000">
+  <rich:modalPanel id="modalDeleteNode" width="400" minWidth="400" height="110" minHeight="110">
     <f:facet name="header">
       <h:outputText value="Confirm Delete" />
     </f:facet>
@@ -16,42 +15,24 @@
     </f:facet>
 
     <h:form id="modalDeleteNodeForm">
-    <h:panelGrid
-      styleClass="modalBody"
-      cellpadding="0" cellspacing="0" border="0"
-      columns="1" columnClasses="modalCol"
-      rowClasses="modalRow1,modalRow2,modalRow3"
-    >
-      <h:panelGroup styleClass="modalMessage">
-        <h:outputText rendered="#{repositoryTreeController.selected.type == 'project'}"
-        value="Are you sure you want to Delete the project '#{repositoryTreeController.selected.name}'?" />
+      <h:outputText rendered="#{repositoryTreeController.selected.type == 'project'}"
+        value="Are you sure you want to delete the project '#{repositoryTreeController.selected.name}'?" />
 
-        <h:outputText rendered="#{repositoryTreeController.selected.type == 'folder'}"
-        value="Are you sure you want to Delete the folder '#{repositoryTreeController.selected.name}'?" />
+      <h:outputText rendered="#{repositoryTreeController.selected.type == 'folder'}"
+        value="Are you sure you want to delete the folder '#{repositoryTreeController.selected.name}'?" />
 
-        <h:outputText rendered="#{repositoryTreeController.selected.type == 'file'}"
-        value="Are you sure you want to Delete the file '#{repositoryTreeController.selected.name}'?" />
-      </h:panelGroup>
+      <h:outputText rendered="#{repositoryTreeController.selected.type == 'file'}"
+        value="Are you sure you want to delete the file '#{repositoryTreeController.selected.name}'?" />
 
+      <br />
+      <br />
       <rich:separator height="1" />
+      <br />
 
-      <h:panelGrid
-        styleClass="modalButtonPanel"
-        cellpadding="0" cellspacing="0" border="0"
-        columns="2" columnClasses="modalButtonCol,modalButtonCol"
-      >
-        <h:commandButton
-          styleClass="modalButton"
-          value="Delete"
-          action="#{repositoryTreeController.delete}"
-        />
-        <h:commandButton
-          styleClass="modalButton"
-          value="Cancel"
-          onclick="Richfaces.hideModalPanel('modalDeleteNode');return false;"
-        />
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Delete" onclick="Richfaces.hideModalPanel('modalDeleteNode');return true;" />
+        <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalDeleteNode');" />
       </h:panelGrid>
-    </h:panelGrid>
     </h:form>
 
   </rich:modalPanel>
@@ -59,11 +40,6 @@
   <script>
     function confirmDeleteNode() {
       Richfaces.showModalPanel('modalDeleteNode');
-      return false;
-    }
-
-    function confirmDelete(from, type, name) {
-      alert("Delete " + type + " '" + name + "'?");
       return false;
     }
   </script>
