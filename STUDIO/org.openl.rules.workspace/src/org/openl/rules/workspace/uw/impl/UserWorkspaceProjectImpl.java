@@ -167,13 +167,9 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
     public void delete() throws ProjectException {
         if (isLocked() && !isLockedByMe()) {
-            throw new ProjectException("Cannot delete project ''{0}'' while it is locked", null, getName());
+            throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user", null, getName());
         }
 
-        if (isCheckedOut()) {
-            throw new ProjectException("Cannot delete project ''{0}'' while it is checked out", null, getName());
-        }
-        
         if (isOpened()) {
             close();
         }
