@@ -1,11 +1,13 @@
 package org.openl.rules.repository.jcr;
 
+import java.util.Collection;
 import java.util.Date;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.openl.rules.repository.CommonUser;
+import org.openl.rules.repository.RDependency;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.RProject;
@@ -20,9 +22,11 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public class JcrProject extends JcrEntity implements RProject {
     //TODO: candidate to move into JcrNT
     private static final String NODE_FILES = "files";
+    private static final String NODE_DEPENDENCIES = "dependencies";
 
     /** Project's root folder or project->files. */
     private JcrFolder rootFolder;
+    private JcrDependencies dependencies;
     
     private JcrCommonProject project;
     
@@ -45,8 +49,8 @@ public class JcrProject extends JcrEntity implements RProject {
         // TODO what should be in default description?
         n.setProperty(JcrNT.PROP_PRJ_DESCR, "created " + new Date() + " by UNKNOWN");
 
-        Node files = n.addNode(NODE_FILES, JcrNT.NT_FILES);
-        files.addMixin(JcrNT.MIX_VERSIONABLE);
+        NodeUtil.createNode(n, NODE_FILES, JcrNT.NT_FILES, true);
+        NodeUtil.createNode(n, NODE_DEPENDENCIES, JcrNT.NT_DEPENDENCIES, false);
 
         parentNode.save();
         n.checkin();
@@ -62,6 +66,8 @@ public class JcrProject extends JcrEntity implements RProject {
 
         Node files = node.getNode(NODE_FILES);
         rootFolder = new JcrFolder(files);
+        Node deps = node.getNode(NODE_DEPENDENCIES);
+        dependencies = new JcrDependencies(deps);
 
         project = new JcrCommonProject(node);
         lock = new JcrLock(node);
@@ -110,5 +116,13 @@ public class JcrProject extends JcrEntity implements RProject {
 
     public void unlock(CommonUser user) throws RRepositoryException {
         lock.unlock(user);
+    }
+
+    public Collection<RDependency> getDependencies() throws RRepositoryException {
+        return dependencies.getDependencies();
+    }
+
+    public void setDependencies(Collection<RDependency> dependencies) throws RRepositoryException {
+        this.dependencies.updateDependencies(dependencies);
     }
 }

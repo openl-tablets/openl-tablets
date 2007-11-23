@@ -24,7 +24,7 @@ public class JcrLock implements RLock {
         if (parent.hasNode(lockNode)) {
             node = parent.getNode(lockNode);
         } else {
-            node = parent.addNode(lockNode);
+            node = NodeUtil.createNode(parent, lockNode, JcrNT.NT_LOCK, false);
             parent.save();
         }
     }

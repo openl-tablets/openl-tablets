@@ -126,4 +126,25 @@
         <propertyDefinition name="lockedBy" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="IGNORE" protected="false" multiple="false"/>
     </nodeType>
 
+	<!-- Dependencies -->
+
+	<nodeType name="openl:dependencies" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>nt:unstructured</supertype>
+		</supertypes>
+		<childNodeDefinition name="*" defaultPrimaryType="openl:dependency" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" sameNameSiblings="false">
+			<requiredPrimaryTypes>
+				<requiredPrimaryType>openl:dependency</requiredPrimaryType>
+			</requiredPrimaryTypes>
+		</childNodeDefinition>
+	</nodeType>
+
+	<nodeType name="openl:dependency" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+        <propertyDefinition name="lowVersion" requiredType="String" autoCreated="false" mandatory="true" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="highVersion" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+    </nodeType>
+
 </nodeTypes>
