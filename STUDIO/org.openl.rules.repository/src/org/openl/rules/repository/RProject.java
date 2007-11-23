@@ -20,5 +20,5 @@ public interface RProject extends REntity, RCommonProject {
     public RFolder getRootFolder();
     
     public Collection<RDependency> getDependencies() throws RRepositoryException;
-    public void setDependencies(Collection<RDependency> dependencies) throws RRepositoryException;
+    public void setDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException;
 }
