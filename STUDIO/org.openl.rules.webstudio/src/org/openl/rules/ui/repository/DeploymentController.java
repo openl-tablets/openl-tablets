@@ -5,13 +5,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
+import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
 
 import java.io.Serializable;
 
@@ -34,17 +38,29 @@ public class DeploymentController implements Serializable {
     private String projectName;
     private String version;
     private SelectItem[] projects;
-
-    public DeploymentController() {
-        items = new ArrayList<DeploymentDescriptorItem>();
-        items.add(new DeploymentDescriptorItem("Project 1", "1.2.1"));
-        items.add(new DeploymentDescriptorItem("Project 2", "1.2.2",
-                "Conflicts with project 5 v1.0.4"));
-        items.add(new DeploymentDescriptorItem("Project 5", "1.0.4"));
-    }
+    private RepositoryTreeState repositoryTreeState;
 
     public List<DeploymentDescriptorItem> getItems() {
-        return items;
+        if (repositoryTreeState.getCurrentNode().getDataBean() instanceof UserWorkspaceDeploymentProject) {
+            UserWorkspaceDeploymentProject project = (UserWorkspaceDeploymentProject) repositoryTreeState.getCurrentNode()
+                    .getDataBean();
+
+            if ((items == null) || !project.getName().equals(projectName)) {
+                projectName = project.getName();
+                items = new ArrayList<DeploymentDescriptorItem>();
+
+                Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
+
+                for (ProjectDescriptor descriptor : descriptors) {
+                    DeploymentDescriptorItem ddi = new DeploymentDescriptorItem(descriptor
+                                .getProjectName(),
+                            descriptor.getProjectVersion().getVersionName());
+                    items.add(ddi);
+                }
+            }
+            return items;
+        }
+        return null;
     }
 
     public String getProjectName() {
@@ -79,15 +95,12 @@ public class DeploymentController implements Serializable {
     }
 
     public String save() {
-        UserWorkspace workspace = getWorkspace();
-
-        String name = "123";
+        UserWorkspaceDeploymentProject project = (UserWorkspaceDeploymentProject) repositoryTreeState.getCurrentNode()
+                .getDataBean();
 
         try {
-            workspace.createDDProject(name);
-
-            UserWorkspaceDeploymentProject ddp = workspace.getDDProject(name);
-            ddp.checkOut();
+            project.checkOut();
+            List<ProjectDescriptor> list = new ArrayList<ProjectDescriptor>(0);
 
             for (DeploymentDescriptorItem item : items) {
                 String[] version = StringUtils.split(item.getVersion(), '.');
@@ -104,13 +117,16 @@ public class DeploymentController implements Serializable {
                     revision = Integer.parseInt(version[2]);
                 }
 
-                ddp.addProjectDescriptor(item.getName(),
-                    new CommonVersionImpl(major, minor, revision));
+                list.add(new UserWorkspaceProjectDescriptorImpl(
+                        (UserWorkspaceDeploymentProjectImpl) project, item.getName(),
+                        new CommonVersionImpl(major, minor, revision)));
             }
 
-            ddp.checkIn();
+            project.setProjectDescriptors(list);
+
+            project.checkIn();
         } catch (Exception e) {
-            log.error("Cannot create new DDP " + name);
+            log.error("Cannot update DDP " + project.getName(), e);
             return null;
         }
 
@@ -208,5 +224,9 @@ public class DeploymentController implements Serializable {
 
     public boolean isCheckoutable() {
         return true;
+    }
+
+    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
+        this.repositoryTreeState = repositoryTreeState;
     }
 }
