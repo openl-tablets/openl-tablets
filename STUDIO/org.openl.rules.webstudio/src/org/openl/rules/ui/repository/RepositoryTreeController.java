@@ -3,9 +3,7 @@ package org.openl.rules.ui.repository;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeDProject;
 import org.openl.rules.ui.repository.tree.TreeFile;
@@ -32,22 +30,20 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
-
 import org.richfaces.component.UITree;
-
 import org.richfaces.event.NodeSelectedEvent;
+import org.richfaces.model.TreeNode;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import java.io.FileInputStream;
-
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 
 
 /**
@@ -187,10 +183,29 @@ public class RepositoryTreeController {
         return (node.getId() == selected.getId());
     }
 
-    public void invalidateTree() {
+    public final void invalidateTree() {
         repositoryTreeState.setRoot(null);
+    }
 
-//        currentNode = null;
+    public void invalidateTreeUpdateSelection() {
+        invalidateTree();
+
+        AbstractTreeNode selected = getSelected();
+        if (selected == null) {
+            return;
+        }
+
+        getData();
+
+        Iterator<String> iterator = selected.getDataBean().getArtefactPath().getSegments().iterator();
+        TreeNode currentNode = repositoryTreeState.getRulesRepository();
+        while (currentNode != null && iterator.hasNext()) {
+            currentNode = currentNode.getChild(iterator.next());
+        }
+
+        if (currentNode != null) {
+            repositoryTreeState.setCurrentNode((AbstractTreeNode) currentNode);
+        }
     }
 
     /**
@@ -219,7 +234,7 @@ public class RepositoryTreeController {
                 UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
                 try {
                     folder.addFolder(folderName);
-                    invalidateTree();
+                    invalidateTreeUpdateSelection();
                 } catch (ProjectException e) {
                     log.error("Failed to add new folder " + folderName, e);
                     errorMessage = e.getMessage();
@@ -261,8 +276,7 @@ public class RepositoryTreeController {
 
         try {
             projectArtefact.getArtefact(childName).delete();
-            selected.deleteChildByName(childName);
-            invalidateTree();
+            invalidateTreeUpdateSelection();
         } catch (ProjectException e) {
             log.error("error deleting", e);
             FacesContext.getCurrentInstance().addMessage(null,
@@ -603,7 +617,7 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was successfully uploaded"));
-            invalidateTree();
+            invalidateTreeUpdateSelection();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,

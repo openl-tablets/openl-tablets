@@ -222,10 +222,6 @@ public abstract class AbstractTreeNode implements TreeNode {
         elements.remove(id);
     }
 
-    public void deleteChildByName(String name) {
-        elements.remove(name);
-    }
-
     /**
      * @see TreeNode#setData(Object)
      */
