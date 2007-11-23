@@ -5,24 +5,27 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk">
 
+  <h:messages />
+
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputText styleClass="niceLabel" value="Effective date:" />
     <t:inputCalendar size="10" value="#{repositoryTreeController.selected.dataBean.effectiveDate}" renderAsPopup="true"
       popupTodayString="Today " popupWeekString="Week" popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true"
-      popupButtonStyle="" popupButtonStyleClass="datepicker">
+      popupButtonStyle="" popupButtonStyleClass="datepicker" readonly="#{repositoryTreeController.selected.dataBean.readOnly}">
       <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
     </t:inputCalendar>
 
     <h:outputText styleClass="niceLabel" value="Expiration date:" />
     <t:inputCalendar size="10" value="#{repositoryTreeController.selected.dataBean.expirationDate}" renderAsPopup="true"
       popupTodayString="Today " popupWeekString="Week" popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true"
-      popupButtonStyle="" popupButtonStyleClass="datepicker">
+      popupButtonStyle="" popupButtonStyleClass="datepicker" readonly="#{repositoryTreeController.selected.dataBean.readOnly}">
       <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
     </t:inputCalendar>
 
     <h:outputText styleClass="niceLabel" value="Line of business:" />
     <h:inputText readonly="#{repositoryTreeController.selected.dataBean.readOnly}"
-      styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}" />
+      styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}"
+      value="#{repositoryTreeController.selected.dataBean.lineOfBusiness}" />
 
   </h:panelGrid>
 </ui:composition>
