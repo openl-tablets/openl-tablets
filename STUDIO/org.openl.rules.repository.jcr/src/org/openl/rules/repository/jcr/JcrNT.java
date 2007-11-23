@@ -13,9 +13,14 @@ public interface JcrNT {
 	public static final String NT_FOLDER = "openl:folder";
 	public static final String NT_FILE = "openl:file";
 	public static final String NT_RESOURCE = "nt:resource";
+
+        public static final String NT_DEPENDENCIES = "openl:dependencies";
+        public static final String NT_DEPENDENCY = "openl:dependency";
         
         public static final String NT_DEPLOYMENT_PROJECT = "openl:deploymentProject";
         public static final String NT_PROJECT_DESCRIPTOR = "openl:projectDescriptor";
+        
+        public static final String NT_LOCK = "openl:lock";
 
 	public static final String MIX_VERSIONABLE = "mix:versionable";
 
