@@ -41,7 +41,7 @@ public class MockFolder extends MockArtefact implements ProjectFolder{
         return folder;
     }
 
-    public MockArtefact addFile(String artefactName) {
-        return add(new MockResource(artefactName, this));
+    public MockResource addFile(String artefactName) {
+        return (MockResource) add(new MockResource(artefactName, this));
     }
 }
