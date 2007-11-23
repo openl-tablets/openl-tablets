@@ -6,8 +6,8 @@ import org.openl.rules.ui.repository.RepositoryTreeState;
 import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeProject;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
@@ -31,17 +31,18 @@ public class AddDependencyController {
 
     public SelectItem[] getAvailableProjects() {
         AbstractTreeNode selected = repositoryTreeState.getCurrentNode();
-        if (!(selected instanceof TreeProject)) {
-            return new SelectItem[0];
-        }
         Set<String> existing = new HashSet<String>();
-        for (DependencyBean dep : selected.getDependencies()) {
-            existing.add(dep.getProjectName());
+
+        if (selected instanceof TreeProject) {
+            for (DependencyBean dep : selected.getDependencies()) {
+                existing.add(dep.getProjectName());
+            }
+            existing.add(selected.getName());
         }
-        existing.add(selected.getName());
 
         List<String> matching = new ArrayList<String>();
-        for (AbstractTreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
+        for (AbstractTreeNode node : repositoryTreeState.getRulesRepository()
+                .getChildNodes()) {
             if (!existing.contains(node.getName())
                     && !((UserWorkspaceProject) node.getDataBean()).isLocalOnly()) {
                 matching.add(node.getName());
@@ -59,26 +60,28 @@ public class AddDependencyController {
     public String add() {
         AbstractTreeNode selected = repositoryTreeState.getCurrentNode();
         if (!(selected instanceof TreeProject)) {
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
         TreeProject project = (TreeProject) selected;
 
         ProjectDependencyImpl dependency = buildDependencyObject();
         if (dependency == null) {
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
 
         try {
             if (!project.addDependency(dependency)) {
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("duplicate dependency"));
-                return UiConst.OUTCOME_FAILURE;
+                FacesContext.getCurrentInstance()
+                    .addMessage(null, new FacesMessage("duplicate dependency"));
+                return null;
             }
         } catch (ProjectException e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
-            return UiConst.OUTCOME_FAILURE;
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage(e.getMessage()));
+            return null;
         }
 
-        return UiConst.OUTCOME_SUCCESS;
+        return null;
     }
 
     private ProjectDependencyImpl buildDependencyObject() {
@@ -86,7 +89,9 @@ public class AddDependencyController {
         ProjectVersion projectVersion2 = null;
         if (projectVersion1 == null) {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("lower version format error", "expected format - X[.Y[.Z]]"));
+                .addMessage(null,
+                    new FacesMessage("lower version format error",
+                        "expected format - X[.Y[.Z]]"));
             return null;
         }
         if (!StringUtils.isEmpty(upperVersion)) {
@@ -94,14 +99,17 @@ public class AddDependencyController {
 
             if (projectVersion2 == null) {
                 FacesContext.getCurrentInstance()
-                    .addMessage(null, new FacesMessage("upper version format error", "expected format - X[.Y[.Z]]"));
+                    .addMessage(null,
+                        new FacesMessage("upper version format error",
+                            "expected format - X[.Y[.Z]]"));
                 return null;
             }
         }
 
         if ((projectVersion2 != null) && (projectVersion1.compareTo(projectVersion2) > 0)) {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("lower version is greater than upper one"));
+                .addMessage(null,
+                    new FacesMessage("lower version is greater than upper one"));
             return null;
         }
 
