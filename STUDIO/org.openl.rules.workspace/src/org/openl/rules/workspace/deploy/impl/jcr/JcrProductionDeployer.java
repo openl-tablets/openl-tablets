@@ -53,7 +53,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         }
     }
 
-    public DeployID deploy(Collection<Project> projects) throws DeploymentException {
+    public DeployID deploy(Collection<? extends Project> projects) throws DeploymentException {
         StringBuilder name = new StringBuilder();
         for (Project p : projects) {
             name.append(p.getName());
@@ -65,7 +65,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return deploy(new DeployID(name.toString()), projects);
     }
 
-    public synchronized DeployID deploy(DeployID id, Collection<Project> projects) throws DeploymentException {
+    public synchronized DeployID deploy(DeployID id, Collection<? extends Project> projects) throws DeploymentException {
         if (!FolderHelper.clearFolder(userFolder)) {
             throw new DeploymentException("could not delete folder; {0}", null, userFolder);
         }
@@ -113,7 +113,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         }
     }
 
-    protected void downloadProjects(Collection<Project> projects) throws DeploymentException {
+    protected void downloadProjects(Collection<? extends Project> projects) throws DeploymentException {
         for (Project project : projects) {
             try {
                 localWorkspace.downloadProject(project);

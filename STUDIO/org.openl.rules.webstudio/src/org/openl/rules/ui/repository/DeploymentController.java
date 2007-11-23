@@ -15,6 +15,8 @@ import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
+import org.openl.rules.workspace.deploy.ProductionDeployer;
+import org.openl.rules.workspace.deploy.DeploymentException;
 
 import java.io.Serializable;
 
@@ -23,7 +25,8 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.faces.model.SelectItem;
-
+import javax.faces.context.FacesContext;
+import javax.faces.application.FacesMessage;
 
 /**
  * Deployment controller.
@@ -139,17 +142,14 @@ public class DeploymentController implements Serializable {
 
     private UserWorkspace getWorkspace() {
         try {
-            RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
-                    .get("rulesUserSession");
-
-            UserWorkspace workspace = null;
-            workspace = rulesUserSession.getUserWorkspace();
-            return workspace;
+            return getRulesUserSession().getUserWorkspace();
         } catch (Exception e) {
             log.error("Error obtaining user workspace", e);
         }
         return null;
     }
+
+    private RulesUserSession getRulesUserSession() {return (RulesUserSession) FacesUtils.getSessionMap().get("rulesUserSession");}
 
     public SelectItem[] getProjects() {
         UserWorkspace workspace = getWorkspace();
@@ -178,7 +178,7 @@ public class DeploymentController implements Serializable {
             for (ProjectVersion version : project.getVersions()) {
                 selectItems.add(new SelectItem(version.getVersionName()));
             }
-            return selectItems.toArray(new SelectItem[0]);
+            return selectItems.toArray(new SelectItem[selectItems.size()]);
         } catch (ProjectException e) {
             log.error(e);
         }
@@ -208,6 +208,13 @@ public class DeploymentController implements Serializable {
     }
 
     public String deploy() {
+        try {
+            ProductionDeployer deployer = getRulesUserSession().getDeployer();
+            deployer.deploy(getWorkspace().getProjects());
+        } catch (DeploymentException e) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("failed to deploy", e.getMessage()));
+            log.error(e);
+        }
         return null;
     }
 
