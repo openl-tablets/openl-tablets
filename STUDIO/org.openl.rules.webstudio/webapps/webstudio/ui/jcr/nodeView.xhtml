@@ -3,12 +3,15 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:c="http://java.sun.com/jstl/core">
+
+  <c:set var="node" value="#{repositoryTreeController.selected.dataBean}"/>
 
   <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'repository'}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton styleClass="button" value="Create New Project" onclick="return openNewProjectDialog();" />
-      <h:commandButton styleClass="button" value="Upload Project" onclick="return openUploadProjectDialog();" />
+      <h:commandButton styleClass="button" value="Create New Project" type="button" onclick="openNewProjectDialog();" />
+      <h:commandButton styleClass="button" value="Upload Project"  type="button" onclick="openUploadProjectDialog();" />
     </h:panelGrid>
 
     <rich:tabPanel style="height:400px;">
@@ -20,37 +23,37 @@
 
   <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'file'}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton styleClass="button" value="Update" onclick="return openUpdateFileDialog();" />
-      <h:commandButton styleClass="button" value="Delete" onclick="return confirmDeleteNode();" />
+      <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Update" type="button" onclick="#{node.project.checkedOut} &amp;&amp; openUpdateFileDialog();" />
+      <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{node.project.checkedOut} &amp;&amp; confirmDeleteNode();" />
     </h:panelGrid>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'folder'}">
     <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton styleClass="button" value="Delete" onclick="return confirmDeleteNode();" />
-      <h:commandButton styleClass="button" value="Add Folder" onclick="return openNewFolderDialog();" />
-      <h:commandButton styleClass="button" value="Add File" onclick="return openNewFileDialog();" />
+      <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{node.project.checkedOut} &amp;&amp; confirmDeleteNode();" />
+      <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{node.project.checkedOut} &amp;&amp; openNewFolderDialog();" />
+      <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Add File" type="button" onclick="#{node.project.checkedOut} &amp;&amp; openNewFileDialog();" />
     </h:panelGrid>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'project'}">
-    <h:panelGroup rendered="#{repositoryTreeController.selected.dataBean.deleted}">
+    <h:panelGroup rendered="#{node.deleted}">
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Undelete" onclick="return confirmUndeleteProject();" />
         <h:commandButton styleClass="button" value="ERASE" action="eraseProject" onclick="return confirmEraseProject();" />
       </h:panelGrid>
     </h:panelGroup>
 
-    <h:panelGroup rendered="#{not repositoryTreeController.selected.dataBean.deleted}">
+    <h:panelGroup rendered="#{!node.deleted}">
       <h:panelGrid columns="8" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="#{!repositoryTreeController.selected.dataBean.opened ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{!repositoryTreeController.selected.dataBean.opened};"/>
-        <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.opened ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{repositoryTreeController.selected.dataBean.opened};"/>
-        <h:commandButton styleClass="#{!repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!repositoryTreeController.selected.dataBean.checkedOut};"/>
-        <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{repositoryTreeController.checkInProject}" onclick="return #{repositoryTreeController.selected.dataBean.checkedOut};"/>
-        <h:commandButton styleClass="button" value="Copy" onclick="return openCopyProjectDialog('#{repositoryTreeController.selected.dataBean.name}');" />
-        <h:commandButton styleClass="button" value="Delete" onclick="return confirmDeleteNode();" />
-        <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Add Folder" onclick="return openNewFolderDialog();" />
-        <h:commandButton styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}" value="Add File" onclick="return openNewFileDialog();" />
+        <h:commandButton styleClass="#{!node.opened ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{!node.opened};"/>
+        <h:commandButton styleClass="#{node.opened ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{node.opened};"/>
+        <h:commandButton styleClass="#{!node.checkedOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!node.checkedOut};"/>
+        <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{repositoryTreeController.checkInProject}" onclick="return #{node.checkedOut};"/>
+        <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog('#{node.name}');" />
+        <h:commandButton styleClass="button" value="Delete" type="button" onclick="confirmDeleteNode();" />
+        <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{node.checkedOut} &amp;&amp; openNewFolderDialog();" />
+        <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Add File" type="button" onclick="#{node.checkedOut} &amp;&amp; openNewFileDialog();" />
       </h:panelGrid>
     </h:panelGroup>
   </h:panelGroup>
