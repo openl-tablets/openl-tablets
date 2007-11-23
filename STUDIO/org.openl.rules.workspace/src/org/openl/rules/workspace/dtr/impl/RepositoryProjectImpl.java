@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.openl.rules.repository.CommonUser;
+import org.openl.rules.repository.RDependency;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -14,6 +15,7 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
@@ -42,12 +44,40 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
     }
 
     public Collection<ProjectDependency> getDependencies() {
-        // TODO -- add dependencies
-        return new LinkedList<ProjectDependency>();
+        LinkedList<ProjectDependency> result = new LinkedList<ProjectDependency>();
+        
+        try {
+            for (RDependency rDep : rulesProject.getDependencies()) {
+                String projectName = rDep.getProjectName();
+
+                ProjectVersion lowVer = new RepositoryProjectVersionImpl(rDep
+                        .getLowerLimit(), null);
+                ProjectVersion upVer = new RepositoryProjectVersionImpl(rDep
+                        .getUpperLimit(), null);
+
+                ProjectDependency pd = new ProjectDependencyImpl(projectName,
+                        lowVer, upVer);
+                
+                result.add(pd);
+            }
+        } catch (RRepositoryException e) {
+            Log.error("Cannot get dependencies", e);
+        }
+        
+        return result;
     }
 
-    public void setDependencies(Collection<ProjectDependency> dependencies) {
-        throw new UnsupportedOperationException();
+    public void setDependencies(Collection<ProjectDependency> dependencies) throws ProjectException {
+        try {
+            LinkedList<RDependency> newDeps = new LinkedList<RDependency>();
+            for (ProjectDependency pd : dependencies) {
+                newDeps.add(pd);
+            }
+            
+            rulesProject.setDependencies(newDeps);
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Cannot update dependencies", e);
+        }
     }
 
     public void lock(WorkspaceUser user) throws ProjectException {

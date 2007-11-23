@@ -2,11 +2,7 @@ package org.openl.rules.workspace.abstracts;
 
 import java.io.Serializable;
 
-public interface ProjectDependency extends Serializable {
-    String getProjectName();
+import org.openl.rules.repository.RDependency;
 
-    boolean hasUpperLimit();
-
-    ProjectVersion getLowerLimit();
-    ProjectVersion getUpperLimit();
+public interface ProjectDependency extends Serializable, RDependency {
 }
