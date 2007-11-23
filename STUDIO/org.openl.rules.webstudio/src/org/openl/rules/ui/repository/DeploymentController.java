@@ -152,19 +152,16 @@ public class DeploymentController implements Serializable {
     }
 
     public SelectItem[] getProjects() {
-        if (projects == null) {
-            UserWorkspace workspace = getWorkspace();
-            Collection<UserWorkspaceProject> workspaceProjects = workspace.getProjects();
-            List<SelectItem> selectItems = new ArrayList<SelectItem>();
-            for (UserWorkspaceProject project : workspaceProjects) {
-                selectItems.add(new SelectItem(project.getName()));
-                if (projectName == null) {
-                    projectName = project.getName();
-                }
+        UserWorkspace workspace = getWorkspace();
+        Collection<UserWorkspaceProject> workspaceProjects = workspace.getProjects();
+        List<SelectItem> selectItems = new ArrayList<SelectItem>();
+        for (UserWorkspaceProject project : workspaceProjects) {
+            selectItems.add(new SelectItem(project.getName()));
+            if (projectName == null) {
+                projectName = project.getName();
             }
-            projects = selectItems.toArray(new SelectItem[0]);
         }
-
+        projects = selectItems.toArray(new SelectItem[selectItems.size()]);
         return projects;
     }
 
