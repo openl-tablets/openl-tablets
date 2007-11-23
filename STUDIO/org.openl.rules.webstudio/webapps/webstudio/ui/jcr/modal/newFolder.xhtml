@@ -7,7 +7,7 @@
 
   <rich:modalPanel id="modalNewFolder" width="400" minWidth="400" height="120" minHeight="120">
     <f:facet name="header">
-      <h:outputText value="New Folder" />
+      <h:outputText value="Add Folder" />
     </f:facet>
 
     <f:facet name="controls">
@@ -25,7 +25,7 @@
       <br/>
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Create" action="#{repositoryTreeController.addFolder}" />
+        <h:commandButton styleClass="button" value="Add" action="#{repositoryTreeController.addFolder}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalNewFolder');" />
       </h:panelGrid>
     </h:form>
