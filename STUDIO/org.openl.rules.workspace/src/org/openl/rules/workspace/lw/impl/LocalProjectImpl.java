@@ -79,6 +79,8 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     protected void downloadArtefact(Project project) throws ProjectException {
         super.downloadArtefact(project);
 
+        dependencies = project.getDependencies();
+        
         setNew(false);
         setChanged(false);
     }

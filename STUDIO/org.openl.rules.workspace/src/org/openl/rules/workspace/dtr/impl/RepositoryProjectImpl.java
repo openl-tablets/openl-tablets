@@ -144,8 +144,11 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         Project srcProject = (Project) srcArtefact;
         super.update(srcArtefact);
         
-        // TODO update dependencies???
-        
+        try {
+            rulesProject.setDependencies(srcProject.getDependencies());
+        } catch (RRepositoryException e) {
+            throw new ProjectException("Cannot update dependencies", e);
+        }        
     }
 
     public void commit(Project source, CommonUser user) throws ProjectException {
