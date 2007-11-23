@@ -43,6 +43,8 @@ BaseEditor.prototype = {
     initialValue : null,
     stoppedEvents : null,
 
+    MAX_FIELD_SIZE : 1500,
+
     /**
      * Constructor.
      * Generally editor constructor performs the following steps:

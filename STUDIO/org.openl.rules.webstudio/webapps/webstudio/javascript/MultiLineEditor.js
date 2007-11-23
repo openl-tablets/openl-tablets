@@ -15,6 +15,7 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
         this.ta = document.createElement("textarea");
         this.ta.cols = 50;
         this.ta.rows = 6;
+        this.ta.maxLength = this.MAX_FIELD_SIZE;
         this.node.appendChild(this.ta);
 
         this.node.style.position = "absolute";
@@ -46,11 +47,24 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
         this.handleF3();
     },
 
+    checkLength : function() {
+        if (this.ta.value.length > this.MAX_FIELD_SIZE)
+            this.ta.value = this.ta.value.substr(0, this.MAX_FIELD_SIZE);
+    },
+
     handleKeyPress: function (event) {
+        this.checkLength();
         switch (event.keyCode) {
             case 13:
                 if (event.ctrlKey) this.doneEdit();
             break;
+
+            default:
+                if (this.ta.value.length >= this.MAX_FIELD_SIZE) {
+                    if (event.charCode != undefined && event.charCode != 0)
+                        Event.stop(event);
+                }
+                break;
         }
     },
 
@@ -60,6 +74,7 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
     },
 
     getValue : function() {
+        this.checkLength();
         var res = this.ta.value;
         return res.gsub("\r\n", "\n").replace(/\n$/, "");
     },
