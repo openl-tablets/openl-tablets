@@ -48,8 +48,10 @@ public class JcrDependencies extends JcrCommonArtefact {
         return result;
     }
     
-    public void updateDependencies(Collection<RDependency> dependencies) throws RRepositoryException {
+    public void updateDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException {
         try {
+            NodeUtil.smartCheckout(node(), true);
+            
             // 1. clear
             NodeIterator ni = node().getNodes();
             while (ni.hasNext()) {
