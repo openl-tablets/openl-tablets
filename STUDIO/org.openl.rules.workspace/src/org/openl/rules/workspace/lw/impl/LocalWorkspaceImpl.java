@@ -130,6 +130,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
         LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, pv, this);
         lpi.downloadArtefact(project);
+        
+        lpi.save();
 
         // add project
         localProjects.put(name, lpi);
