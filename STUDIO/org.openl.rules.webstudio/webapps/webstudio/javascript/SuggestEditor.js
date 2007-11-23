@@ -30,6 +30,7 @@ SuggestEditor.prototype = Object.extend(new BaseEditor(), {
             i.style.width = "100%";
             i.setAttribute("id", "ac_input");
             i.setAttribute("name", "ac_value");
+            i.maxLength = this.MAX_FIELD_SIZE;
 
             SuggestEditor.Elements.input = i;
 

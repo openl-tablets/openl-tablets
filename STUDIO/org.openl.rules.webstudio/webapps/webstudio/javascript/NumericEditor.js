@@ -26,6 +26,7 @@ NumericEditor.prototype = Object.extend(new BaseTextEditor(), {
         this.node.style.margin = "0px";
         this.node.style.padding = "0px";
         this.node.style.width = "100%";
+        this.node.maxLength = this.MAX_FIELD_SIZE;
 
         var self = this;
         ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
