@@ -30,15 +30,15 @@
         <h:commandButton styleClass="button" value="Copy" action="#{repositoryTreeController.copyProject}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalCopyProject');" />
       </h:panelGrid>
-      <h:inputHidden id="hiddenfrom" value="#{repositoryTreeController.projectName}" />
+      <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
     </h:form>
 
   </rich:modalPanel>
 
   <script>
     function openCopyProjectDialog(projectName) {
-      document.getElementById('copyProjectForm:projectName').value = projectName
-      document.getElementById('copyProjectForm:hiddenfrom').value = projectName
+      document.getElementById('copyProjectForm:projectName').value = projectName;
+      document.getElementById('copyProjectForm:hiddenProjectName').value = projectName;
       Richfaces.showModalPanel('modalCopyProject');
       focusElement('copyProjectForm:newProjectName');
       return false;
