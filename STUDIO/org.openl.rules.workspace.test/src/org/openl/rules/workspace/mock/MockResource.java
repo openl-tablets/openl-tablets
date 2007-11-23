@@ -20,8 +20,9 @@ public class MockResource extends MockArtefact implements ProjectResource{
         return inputStream;
     }
 
-    public void setInputStream(InputStream inputStream) {
+    public MockResource setInputStream(InputStream inputStream) {
         this.inputStream = inputStream;
+        return this;
     }
 
     public String getResourceType() {

@@ -4,9 +4,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
+import java.io.BufferedOutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.util.zip.ZipInputStream;
 
 public class ZipUtil {
     private ZipUtil() {}
@@ -18,6 +25,23 @@ public class ZipUtil {
         new ZipUtil().zipFolder(folder, new File(""), out);
 
         out.close();
+    }
+
+    public static void unzip(File zipFilename, File destFolder) throws IOException {
+        ZipInputStream in = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFilename)));
+        try {
+            ZipEntry entry;
+            final int BUFFER = 1 << 16;
+            byte[] buffer = new byte[BUFFER];
+            while ((entry = in.getNextEntry()) != null) {
+                File destFile = new File(destFolder, entry.getName());
+                destFile.getParentFile().mkdirs();
+                OutputStream dest = new BufferedOutputStream(new FileOutputStream(destFile), BUFFER);
+                IOUtil.copy(in, dest, buffer);
+            }
+        } finally {
+            in.close();
+        }
     }
 
 
@@ -32,7 +56,7 @@ public class ZipUtil {
             if (f.isDirectory()) {
                 zipFolder(f, entryFile, out);
             } else {
-                FileInputStream in = new FileInputStream(f);
+                InputStream in = new BufferedInputStream(new FileInputStream(f));
                 try {
                     ZipEntry entry = new ZipEntry(entryFile.getPath());
                     out.putNextEntry(entry);
