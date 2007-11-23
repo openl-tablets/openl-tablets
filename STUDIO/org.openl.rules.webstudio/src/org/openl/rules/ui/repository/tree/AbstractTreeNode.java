@@ -53,6 +53,12 @@ public abstract class AbstractTreeNode implements TreeNode {
      * Must be the same type as {@link #elements} is.
      */
     private static final transient Map EMPTY = new LinkedHashMap();
+    private static final Comparator<ProjectVersion> VERSIONS_REVERSE_COMPARATOR 
+    = new Comparator<ProjectVersion>() {
+        public int compare(ProjectVersion o1, ProjectVersion o2) {
+            return o2.compareTo(o1);
+        }
+    };
 
     /**
      * Identifier of the node.
@@ -247,7 +253,13 @@ public abstract class AbstractTreeNode implements TreeNode {
     public Collection<ProjectVersion> getVersions() {
         if (dataBean instanceof UserWorkspaceProjectArtefact) {
             UserWorkspaceProjectArtefact uwpa = (UserWorkspaceProjectArtefact) dataBean;
-            return uwpa.getVersions();
+            
+            
+            LinkedList<ProjectVersion> result = new LinkedList<ProjectVersion>(uwpa.getVersions());
+
+            Collections.sort(result, VERSIONS_REVERSE_COMPARATOR);
+
+            return result;
         } else {
             return new LinkedList<ProjectVersion>();
         }
