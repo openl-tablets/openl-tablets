@@ -46,8 +46,18 @@ public class NodeUtil {
             throw new RepositoryException("Node '" + name + "' exists at '" + parentNode.getPath() + "' already.");
         }
 
-        if (!parentNode.isCheckedOut()) {
-            parentNode.checkout();
+        Node p = parentNode;
+        while (p != null) {
+            if (p.isCheckedOut()) {
+                break;
+            } else {
+                if (p.isNodeType(JcrNT.MIX_VERSIONABLE)) {
+                    p.checkout();
+                    break;
+                }
+            }
+            
+            p = p.getParent();
         }
 
         Node n = parentNode.addNode(name, type);
@@ -67,7 +77,9 @@ public class NodeUtil {
      */
     protected static void smartCheckout(Node node, boolean openParent) throws RepositoryException {
         if (!node.isCheckedOut()) {
-            node.checkout();
+            if (node.isNodeType(JcrNT.MIX_VERSIONABLE)) { 
+                node.checkout();
+            }
         }
 
         if (openParent) {

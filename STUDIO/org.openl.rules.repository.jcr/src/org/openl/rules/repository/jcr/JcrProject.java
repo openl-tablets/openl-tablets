@@ -122,7 +122,7 @@ public class JcrProject extends JcrEntity implements RProject {
         return dependencies.getDependencies();
     }
 
-    public void setDependencies(Collection<RDependency> dependencies) throws RRepositoryException {
+    public void setDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException {
         this.dependencies.updateDependencies(dependencies);
     }
 }
