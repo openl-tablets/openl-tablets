@@ -7,20 +7,22 @@
 
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputText styleClass="niceLabel" value="Effective date:" />
-
-    <rich:calendar popup="true" enableManualInput="true"
-      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      disabled="#{repositoryTreeController.selected.dataBean.readOnly}"/>
+    <t:inputCalendar size="10" value="#{repositoryTreeController.selected.dataBean.effectiveDate}" renderAsPopup="true"
+      popupTodayString="Today " popupWeekString="Week" popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true"
+      popupButtonStyle="" popupButtonStyleClass="datepicker">
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+    </t:inputCalendar>
 
     <h:outputText styleClass="niceLabel" value="Expiration date:" />
-    <rich:calendar popup="true" enableManualInput="true"
-      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      disabled="#{repositoryTreeController.selected.dataBean.readOnly}"/>
+    <t:inputCalendar size="10" value="#{repositoryTreeController.selected.dataBean.expirationDate}" renderAsPopup="true"
+      popupTodayString="Today " popupWeekString="Week" popupDateFormat="#{formatPatterns.datePattern}" renderPopupButtonAsImage="true"
+      popupButtonStyle="" popupButtonStyleClass="datepicker">
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+    </t:inputCalendar>
 
     <h:outputText styleClass="niceLabel" value="Line of business:" />
-    <h:inputText
-       readonly="#{repositoryTreeController.selected.dataBean.readOnly}"
-       styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}"/>
+    <h:inputText readonly="#{repositoryTreeController.selected.dataBean.readOnly}"
+      styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}" />
 
   </h:panelGrid>
 </ui:composition>
