@@ -1,11 +1,14 @@
 package org.openl.rules.workspace.lw.impl;
 
 import org.openl.rules.workspace.abstracts.ArtefactPath;
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
+import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 
 import java.util.Collection;
 import java.util.Date;
@@ -116,5 +119,15 @@ public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
 
     protected File getLocation() {
         return location;
+    }
+    
+    protected void downloadArtefact(ProjectArtefact artefact) throws ProjectException {
+        if (artefact instanceof RulesRepositoryArtefact) {
+            RulesRepositoryArtefact rulesArtefact = (RulesRepositoryArtefact) artefact;
+            
+            effectiveDate = rulesArtefact.getEffectiveDate();
+            expirationDate = rulesArtefact.getExpirationDate();
+            lineOfBusiness = rulesArtefact.getLineOfBusiness();
+        }
     }
 }
