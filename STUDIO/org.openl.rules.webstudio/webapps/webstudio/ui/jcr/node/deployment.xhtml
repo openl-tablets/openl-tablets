@@ -6,25 +6,19 @@
   xmlns:t="http://myfaces.apache.org/tomahawk"
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax">
 
-  <t:saveState value="#{deploymentController}" />
-  <h:panelGrid columns="1">
-    <h:messages />
+  <t:saveState value="#{deploymentController.items}" />
+  <t:saveState value="#{deploymentController.projectName}" />
 
-    <rich:toolBar itemSeparator="line">
-      <rich:toolBarGroup style="padding:5px;">
-        <h:commandLink action="#{deploymentController.deploy}">
-          <h:graphicImage styleClass="actionImage" value="/images/jcr/op_deploy.gif" title="Deploy" />
-        </h:commandLink>
-      </rich:toolBarGroup>
-      <rich:toolBarGroup style="padding:5px;">
-        <h:commandLink action="#{deploymentController.save}" rendered="#{deploymentController.checkinable}">
-          <h:graphicImage styleClass="actionImage" value="/images/jcr/op_checkin.gif" title="Check in" />
-        </h:commandLink>
-        <h:commandLink action="#{deploymentController.checkOut}" rendered="#{deploymentController.checkoutable}">
-          <h:graphicImage styleClass="actionImage" value="/images/jcr/op_checkout.gif" title="Check out" />
-        </h:commandLink>
-      </rich:toolBarGroup>
-    </rich:toolBar>
+  <h:panelGrid columns="1">
+    <h:panelGrid columns="5" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:commandButton styleClass="button" value="Deploy" action="#{deploymentController.deploy}"/>
+      <h:commandButton styleClass="button" value="Checkin" action="#{deploymentController.save}" rendered="#{deploymentController.checkinable}" />
+      <h:commandButton styleClass="button" value="Checkout" action="#{deploymentController.checkOut}" rendered="#{deploymentController.checkoutable}" />
+      <h:commandButton value="Add Descriptor" styleClass="button" onclick="Richfaces.showModalPanel('addDeployEntry')" type="button"/>
+      <h:commandButton value="Open Selected Projects" styleClass="button" action="#{deploymentController.openSelectedProjects}"/>
+    </h:panelGrid>
+
+    <ui:include src="/ui/jcr/messages.xhtml" />
 
     <rich:dataTable value="#{deploymentController.items}" var="item" width="500" onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
       onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'" rowKeyVar="index">
@@ -66,20 +60,9 @@
           <f:param name="key" value="#{index}" />
           <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
         </h:commandLink>
-        <h:commandLink styleClass="actionLabel" action="#{deploymentController.deleteItem}" immediate="true"
-          onclick="if(!window.confirm('Really delete project?')) {return false;}">
-          <f:param name="key" value="#{index}" />
-          <h:outputText value="Delete" />
-        </h:commandLink>
       </rich:column>
     </rich:dataTable>
 
-    <h:panelGroup>
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton value="Add" styleClass="button" onclick="Richfaces.showModalPanel('addDeployEntry')" type="button"/>
-        <h:commandButton value="Open Selected Projects" styleClass="button" action="#{deploymentController.openSelectedProjects}"/>
-      </h:panelGrid>
-    </h:panelGroup>
   </h:panelGrid>
 
 </ui:composition>

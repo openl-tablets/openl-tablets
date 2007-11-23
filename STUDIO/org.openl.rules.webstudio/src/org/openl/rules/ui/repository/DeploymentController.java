@@ -5,7 +5,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
@@ -36,6 +35,7 @@ public class DeploymentController implements Serializable {
     private final static Log log = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectName;
+    private String name;
     private String version;
     private SelectItem[] projects;
     private RepositoryTreeState repositoryTreeState;
@@ -45,8 +45,8 @@ public class DeploymentController implements Serializable {
             UserWorkspaceDeploymentProject project = (UserWorkspaceDeploymentProject) repositoryTreeState.getCurrentNode()
                     .getDataBean();
 
-            if ((items == null) || !project.getName().equals(projectName)) {
-                projectName = project.getName();
+            if ((items == null) || !project.getName().equals(name)) {
+                name = project.getName();
                 items = new ArrayList<DeploymentDescriptorItem>();
 
                 Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
@@ -61,6 +61,10 @@ public class DeploymentController implements Serializable {
             return items;
         }
         return null;
+    }
+
+    public void setItems(List<DeploymentDescriptorItem> items) {
+        this.items = items;
     }
 
     public String getProjectName() {
