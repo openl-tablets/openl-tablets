@@ -7,8 +7,9 @@
   xmlns:c="http://java.sun.com/jstl/core">
 
   <c:set var="node" value="#{repositoryTreeController.selected.dataBean}"/>
+  <c:set var="nodeType" value="#{repositoryTreeController.selected.type}"/>
 
-  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'repository'}">
+  <h:panelGroup rendered="#{nodeType == 'repository'}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
       <h:commandButton styleClass="button" value="Create New Project" type="button" onclick="openNewProjectDialog();" />
       <h:commandButton styleClass="button" value="Upload Project"  type="button" onclick="openUploadProjectDialog();" />
@@ -21,14 +22,14 @@
     </rich:tabPanel>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'file'}">
+  <h:panelGroup rendered="#{nodeType == 'file'}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
       <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Update" type="button" onclick="#{node.project.checkedOut} &amp;&amp; openUpdateFileDialog();" />
       <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{node.project.checkedOut} &amp;&amp; confirmDeleteNode();" />
     </h:panelGrid>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'folder'}">
+  <h:panelGroup rendered="#{nodeType == 'folder'}">
     <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
       <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{node.project.checkedOut} &amp;&amp; confirmDeleteNode();" />
       <h:commandButton styleClass="#{node.project.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{node.project.checkedOut} &amp;&amp; openNewFolderDialog();" />
@@ -36,7 +37,7 @@
     </h:panelGrid>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'project'}">
+  <h:panelGroup rendered="#{nodeType == 'project'}">
     <h:panelGroup rendered="#{node.deleted}">
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Undelete" onclick="return confirmUndeleteProject();" />
@@ -48,10 +49,10 @@
       <h:panelGrid columns="8" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="#{!node.opened ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{!node.opened};"/>
         <h:commandButton styleClass="#{node.opened ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{node.opened};"/>
-        <h:commandButton styleClass="#{!node.checkedOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!node.checkedOut};"/>
+        <h:commandButton styleClass="#{!(node.checkedOut || node.locked) ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!(node.checkedOut || node.locked)};"/>
         <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{repositoryTreeController.checkInProject}" onclick="return #{node.checkedOut};"/>
         <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog('#{node.name}');" />
-        <h:commandButton styleClass="button" value="Delete" type="button" onclick="confirmDeleteNode();" />
+        <h:commandButton styleClass="#{!node.locked ? 'button':'disabledButton'}" value="Delete" type="button" onclick="confirmDeleteNode();" />
         <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{node.checkedOut} &amp;&amp; openNewFolderDialog();" />
         <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Add File" type="button" onclick="#{node.checkedOut} &amp;&amp; openNewFileDialog();" />
       </h:panelGrid>
@@ -59,34 +60,34 @@
   </h:panelGroup>
 
   <h:panelGroup
-  rendered="#{repositoryTreeController.selected.type != 'repository'
-  &amp;&amp; repositoryTreeController.selected.type != 'drepository'
-  &amp;&amp; repositoryTreeController.selected.type != 'deployment'}">
+  rendered="#{nodeType != 'repository'
+  &amp;&amp; nodeType != 'drepository'
+  &amp;&amp; nodeType != 'deployment'}">
     <rich:tabPanel switchType="client" style="height:425px;">
       <rich:tab label="Properties">
-        <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'file'}">
+        <h:panelGroup rendered="#{nodeType == 'file'}">
           <ui:include src="/ui/jcr/node/fileProps.xhtml" />
         </h:panelGroup>
-        <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'folder'}">
+        <h:panelGroup rendered="#{nodeType == 'folder'}">
           <ui:include src="/ui/jcr/node/folderProps.xhtml" />
         </h:panelGroup>
-        <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'project'}">
+        <h:panelGroup rendered="#{nodeType == 'project'}">
           <ui:include src="/ui/jcr/node/projectProps.xhtml" />
         </h:panelGroup>
       </rich:tab>
       <rich:tab label="Versions">
         <ui:include src="/ui/jcr/node/versions.xhtml" />
       </rich:tab>
-      <rich:tab label="Elements" rendered="#{repositoryTreeController.selected.type != 'file'}">
+      <rich:tab label="Elements" rendered="#{nodeType != 'file'}">
         <ui:include src="/ui/jcr/node/elements.xhtml" />
       </rich:tab>
-      <rich:tab label="Dependencies" rendered="#{repositoryTreeController.selected.type == 'project'}">
+      <rich:tab label="Dependencies" rendered="#{nodeType == 'project'}">
         <ui:include src="/ui/jcr/node/dependency.xhtml" />
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'drepository'}">
+  <h:panelGroup rendered="#{nodeType == 'drepository'}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
       <h:commandButton styleClass="button" value="Create New Deployment Project" onclick="return openNewDeploymentProjectDialog();" />
     </h:panelGrid>
@@ -98,7 +99,7 @@
     </rich:tabPanel>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{repositoryTreeController.selected.type == 'deployment'}">
+  <h:panelGroup rendered="#{nodeType == 'deployment'}">
     <ui:include src="node/deployment.xhtml" />
   </h:panelGroup>
 
