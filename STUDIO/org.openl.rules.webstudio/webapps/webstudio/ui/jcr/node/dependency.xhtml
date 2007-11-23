@@ -10,7 +10,9 @@
 <div style="padding-bottom:10px;">
     <a4j:commandButton reRender="newDependencyPanel"
                oncomplete="Richfaces.showModalPanel('modalNewDependency')"
-               ajaxSingle="true" styleClass="button"
+               ajaxSingle="true"
+               styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}"
+               disabled="#{!repositoryTreeController.selected.dataBean.checkedOut}" 
                value="Add Dependency" />
 </div>
 
@@ -32,7 +34,7 @@
 
     <rich:columnGroup>
         <rich:column>
-            <h:commandLink action="#{dep.delete}">
+            <h:commandLink action="#{dep.delete}" rendered="#{repositoryTreeController.selected.dataBean.checkedOut}">
             <h:graphicImage styleClass="actionImage" style="vertical-align:bottom;" value="/images/test_neq.gif" title="Remove"
               onclick="NAMESPACE_deleteDepItem.showModalPanel(this); Event.stop(event || window.event);" />
           </h:commandLink>

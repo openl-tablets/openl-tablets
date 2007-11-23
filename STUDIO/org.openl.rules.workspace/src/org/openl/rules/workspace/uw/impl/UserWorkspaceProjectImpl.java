@@ -41,7 +41,10 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return project.getDependencies();
     }
 
-    public void setDependencies(Collection<ProjectDependency> dependencies) {
+    public void setDependencies(Collection<ProjectDependency> dependencies) throws ProjectException {
+        if (isReadOnly()) {
+            throw new ProjectException("Cannot change dependencies in read only mode", null);
+        }
         project.setDependencies(dependencies);
     }
 

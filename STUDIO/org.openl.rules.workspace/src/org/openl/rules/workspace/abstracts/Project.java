@@ -11,5 +11,5 @@ public interface Project extends ProjectFolder {
 
     Collection<ProjectDependency> getDependencies();
 
-    void setDependencies(Collection<ProjectDependency> dependencies);
+    void setDependencies(Collection<ProjectDependency> dependencies) throws ProjectException;
 }

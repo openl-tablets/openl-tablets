@@ -6,6 +6,7 @@ import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.VersionInfo;
+import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import java.util.Date;
@@ -115,7 +116,7 @@ public class TreeProject extends TreeFolder {
         return (Project) getDataBean();
     }
 
-    public synchronized boolean addDependency(ProjectDependency dep) {
+    public synchronized boolean addDependency(ProjectDependency dep) throws ProjectException {
         Collection<ProjectDependency> dependencies = getProject().getDependencies();
         if (dependencies.contains(dep)) {
             return false;
@@ -128,7 +129,7 @@ public class TreeProject extends TreeFolder {
         return true;
     }
 
-    public synchronized void removeDependency(String dependency) {
+    public synchronized void removeDependency(String dependency) throws ProjectException {
         Collection<ProjectDependency> dependencies = getProject().getDependencies();
         Collection<ProjectDependency> newDeps = new ArrayList<ProjectDependency>();
         boolean changed = false;

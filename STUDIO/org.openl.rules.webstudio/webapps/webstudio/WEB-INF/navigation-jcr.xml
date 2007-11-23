@@ -33,6 +33,10 @@
             <from-outcome>success</from-outcome>
             <to-view-id>/ui/jcr/jcrMain.xhtml</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>failure</from-outcome>
+            <to-view-id>/ui/jcr/jcrMain.xhtml</to-view-id>
+        </navigation-case>
     </navigation-rule>
 
 	<navigation-rule>
