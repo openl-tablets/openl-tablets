@@ -13,6 +13,10 @@
     <managed-bean-name>deploymentController</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.repository.DeploymentController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
   </managed-bean>
 
   <managed-bean>
