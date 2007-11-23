@@ -78,7 +78,7 @@ public class AddDependencyController {
             return UiConst.OUTCOME_FAILURE;
         }
 
-        return null;
+        return UiConst.OUTCOME_SUCCESS;
     }
 
     private ProjectDependencyImpl buildDependencyObject() {
