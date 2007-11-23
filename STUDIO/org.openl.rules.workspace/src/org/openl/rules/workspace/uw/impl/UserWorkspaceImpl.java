@@ -24,6 +24,8 @@ import org.openl.util.Log;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +34,14 @@ import java.util.Map;
 import java.util.Iterator;
 
 public class UserWorkspaceImpl implements UserWorkspace {
+    
+    private static final Comparator<UserWorkspaceProject> PROJECTS_COMPARATOR
+    = new Comparator<UserWorkspaceProject>(){
+        public int compare(UserWorkspaceProject o1, UserWorkspaceProject o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
+    
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
     private final DesignTimeRepository designTimeRepository;
@@ -57,8 +67,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
         } catch (ProjectException e) {
             // ignore
             Log.error("Failed to resfresh projects", e);
-        }        
-        return userProjects.values();
+        }
+        
+        LinkedList<UserWorkspaceProject> result = new LinkedList<UserWorkspaceProject>(userProjects.values());
+        
+        Collections.sort(result, PROJECTS_COMPARATOR);
+        
+        return result;
     }
 
     public UserWorkspaceProject getProject(String name) throws ProjectException {
@@ -223,6 +238,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         for (RepositoryDDProject ddp : designTimeRepository.getDDProjects()) {
             result.add(new UserWorkspaceDeploymentProjectImpl(this, ddp));
         }
+        
+        Collections.sort(result, PROJECTS_COMPARATOR);
         
         return result;
     }

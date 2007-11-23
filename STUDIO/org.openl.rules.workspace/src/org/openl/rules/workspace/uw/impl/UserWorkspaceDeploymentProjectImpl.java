@@ -141,6 +141,13 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         return dtrDProject.isLocked();
     }
 
+    public boolean isLockedByMe() {
+        if (!isLocked()) return false;
+        
+        WorkspaceUser lockedBy = dtrDProject.getlLockInfo().getLockedBy();
+        return lockedBy.equals(userWorkspace.getUser());
+    }
+
     public boolean isOpened() {
         return false;
     }
@@ -158,10 +165,10 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void delete() throws ProjectException {
-        if (isCheckedOut()) {
-            throw new ProjectException("Cannot delete project ''{0}'' while it is checked out", null, getName());
+        if (isLocked() && !isLockedByMe()) {
+            throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user", null, getName());
         }
-        
+
         if (isOpened()) {
             close();
         }
