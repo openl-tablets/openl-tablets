@@ -1,5 +1,9 @@
 package org.openl.rules.repository;
 
+import java.util.Collection;
+
+import org.openl.rules.repository.exceptions.RRepositoryException;
+
 /**
  * OpenL Rules Project.
  * Use root folder to access all folders and files of the project.
@@ -14,4 +18,7 @@ public interface RProject extends REntity, RCommonProject {
      * @return root folder
      */
     public RFolder getRootFolder();
+    
+    public Collection<RDependency> getDependencies() throws RRepositoryException;
+    public void setDependencies(Collection<RDependency> dependencies) throws RRepositoryException;
 }

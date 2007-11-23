@@ -8,6 +8,20 @@ public class CommonVersionImpl implements CommonVersion {
     
     private transient String versionName;
 
+    public CommonVersionImpl(String s) {
+        String[] version = s.split("\\.");
+        
+        if (version.length > 0) {
+            major = Integer.parseInt(version[0], 10);
+        }
+        if (version.length > 1) {
+            minor = Integer.parseInt(version[1], 10);
+        }
+        if (version.length > 2) {
+            revision = Integer.parseInt(version[2], 10);
+        }
+    }
+    
     public CommonVersionImpl(int major, int minor, int revision) {
         this.major = major;
         this.minor = minor;
