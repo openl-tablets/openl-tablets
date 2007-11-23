@@ -1,5 +1,12 @@
 package org.openl.rules.workspace.lw.impl;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -8,13 +15,6 @@ import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
 import org.openl.rules.workspace.lw.LocalProjectResource;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.io.File;
-import java.io.FilenameFilter;
 
 public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements LocalProjectFolder {
     public static final String PROPERTIES_FOLDER = ".studioProps";
@@ -167,6 +167,8 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
     }
 
     protected void downloadArtefact(ProjectFolder folder) throws ProjectException {
+        super.downloadArtefact(folder);
+        
         File location = getLocation();
         if (!location.exists()) {
             if (!location.mkdirs()) {

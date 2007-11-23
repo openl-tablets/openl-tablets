@@ -64,6 +64,8 @@ public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implement
     // --- protected
 
     protected void downloadArtefact(ProjectResource resource) throws ProjectException {
+        super.downloadArtefact(resource);
+        
         InputStream is = resource.getContent();
 
         setLocalContent(is);
