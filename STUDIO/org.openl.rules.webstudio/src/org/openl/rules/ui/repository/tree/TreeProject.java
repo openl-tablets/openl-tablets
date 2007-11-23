@@ -26,7 +26,7 @@ public class TreeProject extends TreeFolder {
 
     private List<DependencyBean> dependencies;
 
-    public TreeProject(long id, String name) {
+    public TreeProject(String id, String name) {
         super(id, name);
     }
 

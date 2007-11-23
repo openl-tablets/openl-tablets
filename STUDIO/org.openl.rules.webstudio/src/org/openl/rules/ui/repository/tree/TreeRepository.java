@@ -15,7 +15,7 @@ public class TreeRepository extends TreeFolder {
     
     private String type;
 
-    public TreeRepository(long id, String name, String type) {
+    public TreeRepository(String id, String name, String type) {
         super(id, name);
         this.type = type;
     }

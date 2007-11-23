@@ -63,7 +63,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * Identifier of the node.
      */
-    private long id;
+    private String id;
     /**
      * Display name
      */
@@ -93,7 +93,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      * @param id   id to distinguish the node among others
      * @param name display name of the node
      */
-    public AbstractTreeNode(long id, String name) {
+    public AbstractTreeNode(String id, String name) {
         this(id, name, false);
     }
 
@@ -105,7 +105,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      * @param name display name of the node
      * @param isLeafOnly whether the node is LeafOnly (true) or usual (false)
      */
-    public AbstractTreeNode(long id, String name, boolean isLeafOnly) {
+    public AbstractTreeNode(String id, String name, boolean isLeafOnly) {
         this.id = id;
         this.name = name;
         this.isLeafOnly = isLeafOnly;
@@ -249,7 +249,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     // ------ * ------
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
