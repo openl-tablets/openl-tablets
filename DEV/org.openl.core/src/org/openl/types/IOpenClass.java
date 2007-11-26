@@ -35,19 +35,20 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	
 	
 	/**
-	 * We do not have a limitation on number of superclasses
+	 * We do not have a limitation on number of superclasses.
+	 * This feature is not fully supported yet
 	 */
-	public Iterator superClasses();
+	public Iterator<IOpenClass> superClasses();
 	
 	/**
 	 * @return
 	 */
-	public Iterator methods();
+	public Iterator<IOpenMethod> methods();
 
 	/**
 	 * @return
 	 */
-	public Iterator fields(); 
+	public Iterator<IOpenField> fields(); 
 	
 	public Object nullObject();
 
@@ -85,13 +86,13 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	 * @param c  Class to check
 	 * @return true if the instance of corresponding Class class belongs to the open class. 
 	 */
-	public boolean isAssignableFrom(Class c);
+	public boolean isAssignableFrom(Class<?> c);
 
 	/**
 	 * @return the actual Java implementation of the instance, should return primitive classes in case of int, char etc. 
 	 */
 	
-	public Class getInstanceClass();
+	public Class<?> getInstanceClass();
 	
 	
 	public IOpenMethod getMethod(String name, IOpenClass[] classes);
@@ -102,5 +103,23 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	public static final IOpenClass[] EMPTY = {};
 	
 	IOpenField getIndexField();
+
+	/**
+	 * This is analog of Java Class.isPrimitive(). We have a little bit different perspective on the things,
+	 * and consider classes as java.util.Date, java.lang.String and java.lang.Class also primitive. In general,
+	 * a class is considered primitive if  
+	 * a) it can be easily serialized/deserialized to string 
+	 * b) does not have read/write fields in java.beans sense
+	 * 
+	 * One of the use of the simple classes is that they provide "terminal" points
+	 * in object graph discovery. 
+	 * 
+	 * 
+	 *  We do not provide (yet) an automatic discovery mechanism for "simple" classes, so it is developer's
+	 *  responsibility to extends OpenL set of simple classes with his own
+	 * @return
+	 */
+
+	public boolean isSimple();
 	
 }

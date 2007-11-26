@@ -30,6 +30,16 @@ public class BeanOpenField implements IOpenField
 	static public void collectFields(Map<String, IOpenField> map, Class<?> c, Map<Method, BeanOpenField> getters, Map<Method, BeanOpenField> setters)
 	{
 		
+	    
+	    	if (c.isInterface())
+	    	{
+	    	    Class<?>[] interfaces = c.getInterfaces();
+	    	    for (int i = 0; i < interfaces.length; i++)
+		    {
+			collectFields(map, interfaces[i], getters, setters);
+		    }
+	    	}    
+	    
 		try
 		{
 			BeanInfo info = Introspector.getBeanInfo(c);
