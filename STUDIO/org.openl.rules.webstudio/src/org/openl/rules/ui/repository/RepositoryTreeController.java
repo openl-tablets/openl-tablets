@@ -180,7 +180,7 @@ public class RepositoryTreeController {
     public Boolean adviseNodeSelected(UITree uiTree) {
         AbstractTreeNode node = (AbstractTreeNode) uiTree.getRowData();
         AbstractTreeNode selected = getSelected();
-        return (node.getId() == selected.getId());
+        return (node.getId().equals(selected.getId()));
     }
 
     public final void invalidateTree() {
@@ -458,6 +458,12 @@ public class RepositoryTreeController {
         }
     }
 
+    public String refresh() {
+        invalidateTree();
+        repositoryTreeState.setCurrentNode(null);
+        return null;
+    }
+
     public String copyProject() {
         String errorMessage = null;
         ProjectArtefact projectArtefact = getSelected().getDataBean();
@@ -713,8 +719,7 @@ public class RepositoryTreeController {
         RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
                 .get("rulesUserSession");
 
-        UserWorkspace workspace = rulesUserSession.getUserWorkspace();
-        return workspace;
+        return rulesUserSession.getUserWorkspace();
     }
 
     public Map<String, Object> getProperties() {
