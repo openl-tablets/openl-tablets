@@ -109,13 +109,11 @@ public class AllTestsRunResult
 	public Test[] getTests()
 	{
 		
-		Comparator c = new Comparator()
+		Comparator<Test> c = new Comparator<Test>()
 		{
 
-			public int compare(Object o1, Object o2)
+			public int compare(Test t1, Test t2)
 			{
-				Test t1 = (Test)o1;
-				Test t2 = (Test)o2;
 				if (t2.result != null && t1.result != null)
 				{	
 					int cmp = t2.result.getNumberOfFailures() - t1.result.getNumberOfFailures();

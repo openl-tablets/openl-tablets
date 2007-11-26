@@ -7,6 +7,8 @@ import java.io.Serializable;
  * Represents a project in a deployment descriptor.
  */
 public class DeploymentDescriptorItem implements Serializable {
+    private static final long serialVersionUID = -3870494832804679843L;
+
     /** Project name. */
     private String name;
 

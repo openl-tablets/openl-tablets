@@ -1,9 +1,9 @@
 package org.openl.rules.ui.repository.tree;
 
-import org.openl.rules.ui.repository.UiConst;
-
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Collections;
+
+import org.openl.rules.ui.repository.UiConst;
 
 /**
  * Represents OpenL file in a tree.
@@ -12,8 +12,8 @@ import java.util.Collections;
  *
  */
 public class TreeFile extends AbstractTreeNode {
-
 	private static final long serialVersionUID = -4563895481021883236L;
+        private static final List<AbstractTreeNode> EMPTY_LIST = new LinkedList<AbstractTreeNode>();
 
 	public TreeFile(String id, String name) {
 		// File cannot have children !!!
@@ -41,6 +41,6 @@ public class TreeFile extends AbstractTreeNode {
 
     @Override
     public List<AbstractTreeNode> getChildNodes() {
-        return Collections.EMPTY_LIST;
+        return EMPTY_LIST;
     }
 }

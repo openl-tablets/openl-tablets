@@ -3,9 +3,8 @@ package org.openl.rules.ui.repository;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
 
-import javax.faces.context.FacesContext;
+import org.openl.rules.webstudio.util.FacesUtils;
 
 public class DiffFormController {
     private String compareWithVersion;
@@ -23,8 +22,7 @@ public class DiffFormController {
     }
 
     public String compare() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        compareWithVersion = getParamValue(context, "compareWithVersion");
+        compareWithVersion = FacesUtils.getRequestParameter("compareWithVersion");
 
         return UiConst.OUTCOME_SUCCESS;
     }
@@ -61,11 +59,6 @@ public class DiffFormController {
     }
 
     // --- private
-
-    private String getParamValue(FacesContext context, String name) {
-        Map<String, String> params = context.getExternalContext().getRequestParameterMap();
-        return params.get(name);
-    }
 
     private String getContentAsString(InputStream is) {
         if (is == null) {
