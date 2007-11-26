@@ -17,9 +17,7 @@
       <h:commandButton styleClass="button" value="Check In" action="#{deploymentController.save}" rendered="#{deploymentController.checkinable}" />
     </h:panelGrid>
 
-<!--
     <ui:include src="/ui/jcr/messages.xhtml" />
-     -->
 
     <rich:dataTable value="#{deploymentController.items}" var="item" width="500" onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
       onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'" rowKeyVar="index">

@@ -34,8 +34,7 @@ import javax.faces.model.SelectItem;
  *
  * @author Andrey Naumenko
  */
-public class DeploymentController implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class DeploymentController {
     private final static Log log = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectName;
