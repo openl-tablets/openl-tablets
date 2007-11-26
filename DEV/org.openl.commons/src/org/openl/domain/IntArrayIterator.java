@@ -32,9 +32,9 @@ public class IntArrayIterator extends AIntIterator
 			return ary[current++];
 		}
 
-		public Object next()
+		public Integer next()
 		{
-			return new Integer(ary[current++]);
+			return ary[current++];
 		}
 
 

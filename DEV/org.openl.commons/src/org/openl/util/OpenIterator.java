@@ -15,31 +15,31 @@ import java.util.Iterator;
  * @author snshor
  *
  */
-public class OpenIterator extends AOpenIterator.IteratorWrapper
+public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T>
 {
 
-	public static IOpenIterator fromEnumeration(Enumeration enumeration)
+	public static <T> IOpenIterator<T> fromEnumeration(Enumeration<T> enumeration)
 	{
 		if (enumeration == null)
-			return EMPTY;
+			return empty();
 		
-		return new EnumerationIterator(enumeration);  
+		return new EnumerationIterator<T>(enumeration);  
 	}
 
 
 	
-	public static IOpenIterator fromArray(Object[] ary)
+	public static <T> IOpenIterator<T> fromArray(T[] ary)
 	{
 		if (ary == null || ary.length == 0)
-			return EMPTY;
+			return empty();
 		
-		return new AIndexedIterator.ArrayIterator(ary);  
+		return new AIndexedIterator.ArrayIterator<T>(ary);  
 	}
 	
-	public static IOpenIterator fromArray(Object ary)
+	public static IOpenIterator<Object> fromArray(Object ary)
 	{
 		if (ary == null)
-			return EMPTY;
+			return empty();
 		
 		return new AIndexedIterator.AnyArrayIterator(ary);  
 	}
@@ -47,32 +47,26 @@ public class OpenIterator extends AOpenIterator.IteratorWrapper
 
 
 
-	public OpenIterator(Iterator it)
+	public OpenIterator(Iterator<T> it)
 	{
 		super(it);
 	}
 
 
-	static class EnumerationIterator extends AOpenIterator
+	static class EnumerationIterator<T> extends AOpenIterator<T>
 	{
-		Enumeration enumeration;
-		EnumerationIterator(Enumeration enumeration)
+		Enumeration<T> enumeration;
+		EnumerationIterator(Enumeration<T> enumeration)
 		{
 			this.enumeration = enumeration;
 		}
 		
-	    /* (non-Javadoc)
-     * @see java.util.Iterator#hasNext()
-     */
     public boolean hasNext()
     {
       return enumeration.hasMoreElements();
     }
 
-    /* (non-Javadoc)
-     * @see java.util.Iterator#next()
-     */
-    public Object next()
+    public T next()
     {
       return enumeration.nextElement();
     }

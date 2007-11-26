@@ -5,76 +5,70 @@
  */
 package org.openl.domain;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * @author snshor
  */
-public class Enum
+public class Enum<T>
 {
 
-	Object[] allObjects;
-	
-	public 
+    T[] allObjects;
 
-	HashMap indexMap;
+    public HashMap<T, Integer> indexMap;
 
-	public Enum(Object[] objs)
+    public Enum(T[] objs)
+    {
+	this.allObjects = objs;
+	indexMap = new HashMap<T, Integer>(objs.length);
+
+	for (int i = 0; i < objs.length; i++)
 	{
-		this.allObjects = objs;
-		indexMap = new HashMap(objs.length);
-
-		for (int i = 0; i < objs.length; i++)
-		{
-			indexMap.put(objs[i], new Integer(i));
-		}
+	    indexMap.put(objs[i], new Integer(i));
 	}
+    }
 
-	
-	public boolean contains(Object obj)
-	{
-		return indexMap.containsKey(obj);
-	}
-	
-	
-	public Enum(Collection objc)
-	{
-		int size = objc.size();
+    public boolean contains(Object obj)
+    {
+	return indexMap.containsKey(obj);
+    }
 
-		this.allObjects = new Object[size];
-		this.indexMap = new HashMap(size);
+//    public Enum(Collection<T> objc)
+//    {
+//	int size = objc.size();
+//
+//	this.allObjects = new Object[size];
+//	this.indexMap = new HashMap(size);
+//
+//	int i = 0;
+//
+//	for (Iterator iter = objc.iterator(); iter.hasNext(); ++i)
+//	{
+//	    Object element = (Object) iter.next();
+//	    indexMap.put(element, new Integer(i));
+//	}
+//    }
 
-		int i = 0;
+    public int getIndex(T obj)
+    {
+	Integer idx = indexMap.get(obj);
+	if (idx == null)
+	    throw new RuntimeException("Object " + obj
+		    + " is outside of the domain");
+	return idx.intValue();
+    }
 
-		for (Iterator iter = objc.iterator(); iter.hasNext(); ++i)
-		{
-			Object element = (Object) iter.next();
-			indexMap.put(element, new Integer(i));
-		}
-	}
+    /**
+     * 
+     */
+    public int size()
+    {
+	return allObjects.length;
+    }
 
-	public int getIndex(Object obj)
-	{
-		Integer idx = (Integer) indexMap.get(obj);
-		if (idx == null)
-			throw new RuntimeException("Object " + obj + " is outside of the domain");
-		return idx.intValue();
-	}
-
-	/**
-	 * 
-	 */
-	public int size()
-	{
-		return allObjects.length;
-	}
-
-
-	public Object[] getAllObjects()
-	{
-	    return allObjects;
-	}
+    public T[] getAllObjects()
+    {
+	return allObjects;
+    }
 
 }

@@ -10,7 +10,7 @@ import org.openl.util.IOpenIterator;
 /**
  * @author snshor
  */
-public interface IIntIterator extends IOpenIterator
+public interface IIntIterator extends IOpenIterator<Integer>
 {
 	int nextInt();
 	IIntIterator select(IIntSelector selector);

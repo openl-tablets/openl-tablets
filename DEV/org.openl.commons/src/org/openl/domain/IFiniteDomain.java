@@ -10,7 +10,7 @@ import java.util.Iterator;
  *
  * 
  */
-public interface IFiniteDomain extends IDomain
+public interface IFiniteDomain<T> extends IDomain<T>
 {
 	static final public int UNKNOWN_SIZE = -1;
 	static final public int REALLY_BIG = Integer.MAX_VALUE;
@@ -41,10 +41,10 @@ public interface IFiniteDomain extends IDomain
 	/**
 	 * @return iterator over domain
 	 */
-	public Iterator iterator();
+	public Iterator<T> iterator();
 	
 	
-	public static abstract class FixedSizeDomain implements IFiniteDomain
+	public static abstract class FixedSizeDomain<T> implements IFiniteDomain<T>
 	{
 
 	    final public boolean isFinite()

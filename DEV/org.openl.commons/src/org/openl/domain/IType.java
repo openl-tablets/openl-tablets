@@ -72,7 +72,7 @@ public interface IType extends INameSpacedThing
 			return true;
 		}
 
-		public IDomain getDomain() {
+		public IDomain<Object> getDomain() {
 			return null;
 		}
 	}

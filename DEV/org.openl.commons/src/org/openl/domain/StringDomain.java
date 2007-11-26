@@ -9,7 +9,7 @@ import org.openl.util.StringTool;
  * @author snshor
  *
  */
-public class StringDomain extends EnumDomain
+public class StringDomain extends EnumDomain<String>
 {
 	
 	public StringDomain(String[] elements)
@@ -29,12 +29,9 @@ public class StringDomain extends EnumDomain
 	}
 
 
-	public StringDomain(Enum enumeration, String[] objs)
+	public StringDomain(Enum<String> enumeration, String[] objs)
 	{
 		super(enumeration, objs);
 	}
-	
-	
-	
 	
 }

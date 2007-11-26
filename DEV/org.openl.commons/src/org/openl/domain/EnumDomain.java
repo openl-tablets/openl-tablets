@@ -14,13 +14,13 @@ import org.openl.util.AOpenIterator;
 /**
  * @author snshor
  */
-public class EnumDomain extends FixedSizeDomain
+public class EnumDomain<T> extends FixedSizeDomain<T>
 {
 
 	BitSet bits;
-	Enum enumeration;
+	Enum<T> enumeration;
 
-	public EnumDomain(Enum enumeration, Object[] objs)
+	public EnumDomain(Enum<T> enumeration, T[] objs)
 	{
 		bits = new BitSet(enumeration.size());
 		this.enumeration = enumeration;
@@ -33,15 +33,15 @@ public class EnumDomain extends FixedSizeDomain
 	}
 	
 	
-	public EnumDomain(Object[] elements)
+	public EnumDomain(T[] elements)
 	{
-		this(new Enum(elements), elements);
+		this(new Enum<T>(elements), elements);
 	}
 
 	
 	
 
-	public EnumDomain(Enum enumeration, BitSet bits)
+	public EnumDomain(Enum<T> enumeration, BitSet bits)
 	{
 		this.bits = bits;
 		this.enumeration = enumeration;
@@ -51,7 +51,7 @@ public class EnumDomain extends FixedSizeDomain
 	 *
 	 */
 
-	public EnumDomain and(EnumDomain sd)
+	public EnumDomain<T> and(EnumDomain<T> sd)
 	{
 		checkOperand(sd);
 
@@ -65,11 +65,11 @@ public class EnumDomain extends FixedSizeDomain
 
 		BitSet copy = (BitSet) bits.clone();
 		copy.and(sd.bits);
-		return new EnumDomain(enumeration, copy);
+		return new EnumDomain<T>(enumeration, copy);
 
 	}
 
-	void checkOperand(EnumDomain sd)
+	void checkOperand(EnumDomain<T> sd)
 	{
 
 		if (sd.getEnum() != enumeration)
@@ -81,7 +81,7 @@ public class EnumDomain extends FixedSizeDomain
 	 *
 	 */
 
-	public boolean contains(Object obj)
+	public boolean contains(T obj)
 	{
 		int idx = enumeration.getIndex(obj);
 		return bits.get(idx);
@@ -91,7 +91,7 @@ public class EnumDomain extends FixedSizeDomain
 	 *
 	 */
 
-	public Iterator iterator()
+	public Iterator<T> iterator()
 	{
 		return new EnumDomainIterator();
 	}
@@ -100,7 +100,7 @@ public class EnumDomain extends FixedSizeDomain
 	 *
 	 */
 
-	public EnumDomain not()
+	public EnumDomain<T> not()
 	{
 		int size = enumeration.size();
 
@@ -108,14 +108,14 @@ public class EnumDomain extends FixedSizeDomain
 
 		bs.flip(0, size);
 
-		return new EnumDomain(enumeration, bs);
+		return new EnumDomain<T>(enumeration, bs);
 	}
 
 	/**
 	 *
 	 */
 
-	public EnumDomain or(EnumDomain sd)
+	public EnumDomain<T> or(EnumDomain<T> sd)
 	{
 		checkOperand(sd);
 
@@ -124,14 +124,14 @@ public class EnumDomain extends FixedSizeDomain
 
 		BitSet copy = (BitSet) bits.clone();
 		copy.or(sd.bits);
-		return new EnumDomain(enumeration, copy);
+		return new EnumDomain<T>(enumeration, copy);
 	}
 
 	/**
 	 *
 	 */
 
-	public EnumDomain sub(EnumDomain sd)
+	public EnumDomain<T> sub(EnumDomain<T> sd)
 	{
 		checkOperand(sd);
 
@@ -140,18 +140,18 @@ public class EnumDomain extends FixedSizeDomain
 
 		BitSet copy = (BitSet) bits.clone();
 		copy.andNot(sd.bits);
-		return new EnumDomain(enumeration, copy);
+		return new EnumDomain<T>(enumeration, copy);
 	}
 
 	/**
 	 * @return
 	 */
-	public Enum getEnum()
+	public Enum<T> getEnum()
 	{
 		return enumeration;
 	}
 
-	class EnumDomainIterator extends AOpenIterator
+	class EnumDomainIterator extends AOpenIterator<T>
 	{
 
 		BitSetIterator bsi = new BitSetIterator(bits);
@@ -169,7 +169,7 @@ public class EnumDomain extends FixedSizeDomain
 		 *
 		 */
 
-		public Object next()
+		public T next()
 		{
 			int idx = bsi.nextInt();
 			return enumeration.allObjects[idx];
@@ -188,12 +188,13 @@ public class EnumDomain extends FixedSizeDomain
 	 *
 	 */
 
+	@SuppressWarnings("unchecked")
 	public boolean equals(Object obj)
 	{
 		if (obj == null || !(obj instanceof EnumDomain))
 		  return false;
 		  
-		EnumDomain ed = (EnumDomain)obj;
+		EnumDomain<T> ed = (EnumDomain<T>)obj;
 		
 		return enumeration.equals(ed.enumeration) && bits.equals(ed.bits);  
 		
@@ -215,7 +216,7 @@ public class EnumDomain extends FixedSizeDomain
 	}
 
 
-	public boolean selectObject(Object obj)
+	public boolean selectObject(T obj)
 	{
 	    return contains(obj);
 	}

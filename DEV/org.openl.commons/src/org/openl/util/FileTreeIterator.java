@@ -3,52 +3,44 @@
  *
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
- 
+
 package org.openl.util;
 
 import java.io.File;
 import java.util.Iterator;
 
-
 /**
  * @author snshor
- *
+ * 
  */
-public class FileTreeIterator extends TreeIterator
+public class FileTreeIterator extends TreeIterator<File>
 {
 
-
-  /**
-   * @param treeRoot
-   * @param adaptor
-   * @param mode
-   */
-  public FileTreeIterator(File root, int mode)
-  {
-    super(root, new FileTreeAdaptor(), mode);
-  }
-  
-  
-  static class FileTreeAdaptor implements TreeIterator.TreeAdaptor
-  {
-  	
-      /* (non-Javadoc)
-     * @see org.openl.util.TreeIterator.TreeAdaptor#children(java.lang.Object)
+    /**
+     * @param treeRoot
+     * @param adaptor
+     * @param mode
      */
-    public Iterator children(Object node)
+    public FileTreeIterator(File root, int mode)
     {
-    	File f = (File) node;
-    	if (!f.isDirectory())
-    	  return null;
-      return   OpenIterator.fromArray(f.listFiles());
+	super(root, new FileTreeAdaptor(), mode);
     }
 
-}
+    static class FileTreeAdaptor implements TreeIterator.TreeAdaptor<File>
+    {
 
-
-	public File nextFile()
+	public Iterator<File> children(File f)
 	{
-		return (File)next();
+	    if (!f.isDirectory())
+		return null;
+	    return OpenIterator.fromArray(f.listFiles());
 	}
- 
+
+    }
+
+    public File nextFile()
+    {
+	return next();
+    }
+
 }

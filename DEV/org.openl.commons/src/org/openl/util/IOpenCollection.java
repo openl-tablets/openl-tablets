@@ -10,9 +10,9 @@ import java.util.Collection;
 /**
  * @author snshor
  */
-public interface IOpenCollection extends Collection
+public interface IOpenCollection<T> extends Collection<T>
 {
-	public IOpenIterator openIterator();
+	public IOpenIterator<T> openIterator();
 	
 
 }

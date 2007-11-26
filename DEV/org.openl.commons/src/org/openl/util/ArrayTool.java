@@ -7,7 +7,7 @@ import java.util.*;
 public class ArrayTool
 {
   static public final Object[] ZERO_OBJECT = {};
-  static public final Class[] ZERO_CLASS = {};
+  static public final Class<?>[] ZERO_CLASS = {};
   static public final String[] ZERO_STRING = {};
   static public final int[] ZERO_int = {};
   static public final char[] ZERO_char = {};
@@ -358,13 +358,14 @@ public class ArrayTool
 //  }
 //
 
-  public static Object collect(Object srcAry, Class dstType, IConvertor c)
+  @SuppressWarnings("unchecked")
+public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor<SRC, DST> c)
   {
-    int size = size(srcAry);
-    Object dstArray = Array.newInstance(dstType, size);
+    int size = src.length;
+    DST[] dstArray = (DST[])Array.newInstance(dstType, size);
     for(int i = 0; i < size; ++i)
     {
-      Array.set(dstArray, i, c.convert(Array.get(srcAry, i)));
+      Array.set(dstArray, i, c.convert(src[i]));
     }
 
     return dstArray;
@@ -381,7 +382,7 @@ public class ArrayTool
   }
 
 
-  static class ArrayEnumeration implements Enumeration
+  static class ArrayEnumeration implements Enumeration<Object>
   {
     int _index = 0;
     int _size;
@@ -406,7 +407,7 @@ public class ArrayTool
 
 
 
-  static class ArrayIterator implements Iterator
+  static class ArrayIterator implements Iterator<Object>
   {
     int _index = 0;
     int _size;

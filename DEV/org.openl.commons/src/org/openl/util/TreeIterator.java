@@ -13,14 +13,14 @@ import java.util.Stack;
  * @author snshor
  *
  */
-public class TreeIterator extends AOpenIterator
+public class TreeIterator<N> extends AOpenIterator<N>
 {
 	
-	Object currentNode;
-	TreeAdaptor adaptor;
-	Stack path = new Stack(); 
+	N currentNode;
+	TreeAdaptor<N> adaptor;
+	Stack<NodeInfo<N>> path = new Stack<NodeInfo<N>>(); 
 	int mode = 0;
-	Iterator children = null;	
+	Iterator<N> children = null;	
 	
 	static final public int
 	  DEFAULT = 0, // top-bottom, left-right, all nodes included
@@ -30,7 +30,7 @@ public class TreeIterator extends AOpenIterator
 	  BOTTOM_TOP = 8; // iterate over children first  
 	
 	
-	public TreeIterator(Object treeRoot, TreeAdaptor adaptor, int mode)
+	public TreeIterator(N treeRoot, TreeAdaptor<N> adaptor, int mode)
 	{
 		this.children = single(treeRoot); 
 		this.adaptor = adaptor;
@@ -38,7 +38,7 @@ public class TreeIterator extends AOpenIterator
 		findNextNode();
 	}
 	
-	public static interface TreeAdaptor
+	public static interface TreeAdaptor<N>
 	{
 		/**
 		 * 
@@ -46,7 +46,7 @@ public class TreeIterator extends AOpenIterator
 		 * @param mode inthis case only, left-right or right-left is relevant
 		 * @return iterator over children collection, null or empty iterator if none
 		 */
-		public Iterator children(Object node);
+		public Iterator<N> children(N node);
 	}
 	
 	public boolean hasNext()
@@ -54,9 +54,9 @@ public class TreeIterator extends AOpenIterator
 		return currentNode != null;
 	}
 	
-	public Object next()
+	public N next()
 	{
-		Object result = currentNode;
+		N result = currentNode;
 		findNextNode();
 		
 		return result;
@@ -66,9 +66,9 @@ public class TreeIterator extends AOpenIterator
 	{
 		if (children.hasNext())
 		{
-			Object nextChild = children.next();
+			N nextChild = children.next();
 			
-			Iterator grandChildren = adaptor.children(nextChild);
+			Iterator<N> grandChildren = adaptor.children(nextChild);
 			
 			if (isEmpty(grandChildren)) //nextChild is a leaf
 			{
@@ -82,7 +82,7 @@ public class TreeIterator extends AOpenIterator
 				grandChildren = reverse(grandChildren);
 			}
 			
-			path.push(new NodeInfo(nextChild, children));
+			path.push(new NodeInfo<N>(nextChild, children));
 			children = grandChildren;
 
 			if ((mode & BOTTOM_TOP) != 0)//children first
@@ -102,7 +102,7 @@ public class TreeIterator extends AOpenIterator
 		  return;
 		}
 		
-		NodeInfo info = (NodeInfo)path.pop();
+		NodeInfo<N> info = path.pop();
 		children = info.children;
 
 		if ((mode & BOTTOM_TOP) != 0)//children first
@@ -115,15 +115,15 @@ public class TreeIterator extends AOpenIterator
 		
 	}
 	
-	static final class NodeInfo
+	static final class NodeInfo<N>
 	{
-		NodeInfo(Object node, Iterator children)
+		NodeInfo(N node, Iterator<N> children)
 		{
 			this.node = node;
 			this.children = children;
 		}
-		Object node; 
-		Iterator children;
+		N node; 
+		Iterator<N> children;
 	}	
 	
 	

@@ -14,24 +14,24 @@ import org.openl.base.NamedThing;
 public abstract class AStringBoolOperator extends NamedThing implements IStringBoolOperator
 {
 
-	String sample;
+	String sampleStr;
 	
 
 	public AStringBoolOperator(String name, String sample)
 	{
 		super(name);
-		this.sample = sample;
+		this.sampleStr = sample;
 	}
 
 
 	public boolean op(String test)
 	{
-		return op(sample, test);
+		return op(sampleStr, test);
 	}
 
 	public boolean opReverse(String test)
 	{
-		return op(test, sample);
+		return op(test, sampleStr);
 	}
 	
 	
@@ -40,13 +40,13 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
 
 	public String getSample()
 	{
-		return this.sample;
+		return this.sampleStr;
 	}
 
 
 	public void setSample(String sample)
 	{
-		this.sample = sample;
+		this.sampleStr = sample;
 	}
 	
 	
@@ -136,7 +136,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
 	}
 
 	
-	static public Class[] allTypes = 
+	static public Class<?>[] allTypes = 
 	{
 		ContainsOperator.class, MatchesOperator.class, EqualsOperator.class, EqualsIgnoreCaseOperator.class, StartsWithOperator.class, EndsWithOperator.class
 	};
@@ -151,7 +151,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
 		return res;
 	}
 	
-	static String opName(Class c)
+	static String opName(Class<?> c)
 	{
 		String cname = StringTool.lastToken(c.getName(), "$");
 		String name = StringTool.decapitalizeName(cname, " ");
@@ -162,7 +162,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
 	public static AStringBoolOperator makeOperator(String name, String sample)
 	{
 		
-		Class c = findOperatorClass(name);
+		Class<?> c = findOperatorClass(name);
 		
 		if (c == null)
 			throw new RuntimeException("Operator not found: " + name);
@@ -170,7 +170,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
 		
 		try
 		{
-			Constructor ctr = c.getConstructor(new Class[]{String.class});
+			Constructor<?> ctr = c.getConstructor(new Class[]{String.class});
 			AStringBoolOperator op = (AStringBoolOperator)ctr.newInstance(new Object[]{sample});
 			return op;
 		} 
@@ -180,11 +180,11 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
 		}
 	}	
 	
-	public static Class findOperatorClass(String name)
+	public static Class<?> findOperatorClass(String name)
 	{
 		for (int i = 0; i < allTypes.length; i++)
 		{
-			Class c = allTypes[i];
+			Class<?> c = allTypes[i];
 			if (opName(c).equals(name))
 			{
 				return c;

@@ -10,16 +10,16 @@ package org.openl.util;
  * @author snshor
  *
  */
-public interface IConvertor
+public interface IConvertor<T,C>
 {
-	public Object convert(Object obj);
+	public C convert(T obj);
 	
 	
-	static final public IConvertor SAME_AS = new SameAs();
+	static final  public  IConvertor<Object,Object> SAME_AS = new SameAs<Object>();
 	
-	static class SameAs implements IConvertor
+	static class SameAs<X> implements IConvertor<X,X>
 	{
-		public Object convert(Object obj)
+		public X convert(X obj)
 		{
 			return obj;
 		}

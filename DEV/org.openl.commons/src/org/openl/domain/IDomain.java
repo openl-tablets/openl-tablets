@@ -8,7 +8,7 @@ package org.openl.domain;
  * @author snshor
  */
 
-public interface IDomain
+public interface IDomain<T>
 {
 	
     	/**
@@ -32,7 +32,7 @@ public interface IDomain
 	 * @param obj 
 	 * @return true if object belongs to this domain
 	 */
-	public boolean selectObject(Object obj);
+	public boolean selectObject(T obj);
 	
 	/**
 	 * 

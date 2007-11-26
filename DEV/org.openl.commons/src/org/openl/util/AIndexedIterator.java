@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
  * @author snshor
  */
 
-public abstract class AIndexedIterator extends AOpenIterator
+public abstract class AIndexedIterator<T> extends AOpenIterator<T>
 {
 	
 	
@@ -56,7 +56,7 @@ public abstract class AIndexedIterator extends AOpenIterator
 	}
 	
 	
-	public Object next()
+	public T next()
 	{
 		if (size() <= 0)
 		{
@@ -69,38 +69,35 @@ public abstract class AIndexedIterator extends AOpenIterator
 		return indexedElement(idx);
 	}
 	
-	protected abstract Object indexedElement(int i);
+	protected abstract T indexedElement(int i);
 	
 	
-	static class ArrayIterator extends AIndexedIterator
+	static class ArrayIterator<T> extends AIndexedIterator<T>
 	{
-		Object[] ary;
+		T[] ary;
 		
-		ArrayIterator(Object[] ary)
+		ArrayIterator(T[] ary)
 		{
 			super(0, ary.length, 1);
 			this.ary = ary;
 		}
 		
-		ArrayIterator(Object[] ary, int from, int to, int step)
+		ArrayIterator(T[] ary, int from, int to, int step)
 		{
 			super(from, to, step);
 			this.ary = ary;
 		}
 		
 		
-    /* (non-Javadoc)
-     * @see org.openl.util.AIndexedIterator#indexedElement(int)
-     */
-    protected Object indexedElement(int i)
+    protected T indexedElement(int i)
     {
       return ary[i];
     }
     
     
-    public IOpenIterator reverse()
+    public IOpenIterator<T> reverse()
     {
-    	ArrayIterator it = new ArrayIterator(ary, from, to, step);
+    	ArrayIterator<T> it = new ArrayIterator<T>(ary, from, to, step);
     	it.reverseIndexes();
     	return it;
     }
@@ -108,7 +105,7 @@ public abstract class AIndexedIterator extends AOpenIterator
 	}
 
 
-	static class AnyArrayIterator extends AIndexedIterator
+	static class AnyArrayIterator extends AIndexedIterator<Object>
 	{
 		Object ary;
 		
@@ -134,7 +131,7 @@ public abstract class AIndexedIterator extends AOpenIterator
 		}
     
     
-		public IOpenIterator reverse()
+		public IOpenIterator<Object> reverse()
 		{
 			AnyArrayIterator it = new AnyArrayIterator(ary, from, to, step);
 			it.reverseIndexes();

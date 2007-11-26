@@ -13,27 +13,27 @@ import java.util.Iterator;
  * @author snshor
  *
  */
-public interface IOpenIteratorExtender
+public interface IOpenIteratorExtender<E,T>
 {
 
 	/**
 	 * 
 	 */
-	public Iterator extend(Object obj);
+	public Iterator<E> extend(T obj);
 
-	static final class CollectionExtender implements IOpenIteratorExtender
+	static final class CollectionExtender<E> implements IOpenIteratorExtender<E,Collection<E>>
 	{
 		/**
 			 *
 			 */
 
-		public Iterator extend(Object obj)
+		public Iterator<E> extend(Collection<E> col)
 		{
-			return ((Collection) obj).iterator();
+			return col.iterator();
 		}
 
 	}
 
-	public static final CollectionExtender COLLECTION_EXTENDER = new CollectionExtender();
+	public static final CollectionExtender<Object> COLLECTION_EXTENDER = new CollectionExtender<Object>();
 
 }
