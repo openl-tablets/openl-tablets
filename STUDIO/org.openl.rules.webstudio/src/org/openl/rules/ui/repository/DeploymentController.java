@@ -18,8 +18,6 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
 
-import java.io.Serializable;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
