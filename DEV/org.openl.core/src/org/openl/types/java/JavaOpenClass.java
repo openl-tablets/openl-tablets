@@ -13,11 +13,12 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.AmbiguousMethodException;
@@ -44,6 +45,8 @@ import org.openl.vm.IRuntimeEnv;
 public class JavaOpenClass extends AOpenClass
 {
     protected Class<?> instanceClass;
+    
+    boolean simple = false;
 
     protected HashMap<String, IOpenField> fields = null;
     protected HashMap<MethodKey, IOpenMethod> methods = null;
@@ -55,26 +58,35 @@ public class JavaOpenClass extends AOpenClass
 	this.schema = schema;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.types.IOpenClass#superClasses()
-     */
-    public Iterator<Class<?>> superClasses()
+    protected JavaOpenClass(Class<?> instanceClass, IOpenSchema schema, boolean simple)
     {
-	IOpenIterator interfaces = OpenIterator.fromArray(instanceClass
-		.getInterfaces());
-
-	Class<?> superClass = instanceClass.getSuperclass();
-
-	return OpenIterator.merge(OpenIterator.single(superClass), interfaces);
+	super(schema);
+	this.instanceClass = instanceClass;
+	this.schema = schema;
+	this.simple = simple;
     }
 
-    synchronized protected Map methodMap()
+    @SuppressWarnings("unchecked")
+    public Iterator<IOpenClass> superClasses()
+    {
+	IOpenIterator<Class> ic = OpenIterator.fromArray(instanceClass
+		.getInterfaces());
+
+	IOpenIterator<IOpenClass> interfaces = ic
+		.collect(new Class2JavaOpenClassCollector());
+
+	Class superClass = instanceClass.getSuperclass();
+
+	return OpenIterator.merge(OpenIterator
+		.single((IOpenClass) JavaOpenClass.getOpenClass(superClass)),
+		interfaces);
+    }
+
+    synchronized protected Map<MethodKey, IOpenMethod> methodMap()
     {
 	if (methods == null)
 	{
-	    methods = new HashMap();
+	    methods = new HashMap<MethodKey, IOpenMethod>();
 	    Method[] mm = instanceClass.getMethods();
 	    for (int i = 0; i < mm.length; i++)
 	    {
@@ -85,7 +97,7 @@ public class JavaOpenClass extends AOpenClass
 		}
 	    }
 
-	    Constructor[] cc = instanceClass.getConstructors();
+	    Constructor<?>[] cc = instanceClass.getConstructors();
 	    for (int i = 0; i < cc.length; i++)
 	    {
 		if (isPublic(cc[i].getDeclaringClass()))
@@ -101,7 +113,7 @@ public class JavaOpenClass extends AOpenClass
 	return methods;
     }
 
-    boolean isPublic(Class declaringClass)
+    boolean isPublic(Class<?> declaringClass)
     {
 	return Modifier.isPublic(declaringClass.getModifiers());
     }
@@ -193,11 +205,11 @@ public class JavaOpenClass extends AOpenClass
 	}
 	return fields;
     }
-    
+
     protected void collectBeanFields()
     {
-	    BeanOpenField.collectFields(fields, instanceClass, null, null);
-	
+	BeanOpenField.collectFields(fields, instanceClass, null, null);
+
     }
 
     /*
@@ -220,12 +232,7 @@ public class JavaOpenClass extends AOpenClass
 	return instanceClass.isInstance(instance);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.types.IOpenClass#isAssignableFrom(java.lang.Class)
-     */
-    public boolean isAssignableFrom(Class c)
+    public boolean isAssignableFrom(Class<?> c)
     {
 	return instanceClass.isAssignableFrom(c);
     }
@@ -240,12 +247,7 @@ public class JavaOpenClass extends AOpenClass
 	return instanceClass.isAssignableFrom(ioc.getInstanceClass());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.types.IOpenClass#instanceClass()
-     */
-    public Class getInstanceClass()
+    public Class<?> getInstanceClass()
     {
 	return instanceClass;
     }
@@ -267,17 +269,20 @@ public class JavaOpenClass extends AOpenClass
 
     // ////////////////////// helpers ////////////////////////////
 
-    static class Class2JavaOpenClassCollector implements IConvertor
+    @SuppressWarnings("unchecked")
+    static class Class2JavaOpenClassCollector implements
+	    IConvertor<Class, IOpenClass>
     {
-	public Object convert(Object obj)
+	public IOpenClass convert(Class c)
 	{
-	    return getOpenClass((Class<?>) obj);
+	    return getOpenClass(c);
 	}
     }
 
-    static public final IConvertor Class2JavaOpenClass = new Class2JavaOpenClassCollector();
+    @SuppressWarnings("unchecked")
+    static public final IConvertor<Class, IOpenClass> Class2JavaOpenClass = new Class2JavaOpenClassCollector();
 
-    static public IOpenClass[] getOpenClasses(Class[] cc)
+    static public IOpenClass[] getOpenClasses(Class<?>[] cc)
     {
 	if (cc.length == 0)
 	    return IOpenClass.EMPTY;
@@ -292,7 +297,13 @@ public class JavaOpenClass extends AOpenClass
 
     static class JavaPrimitiveClass extends JavaOpenClass
     {
-	Class wrapperClass;
+	@Override
+	public boolean isSimple()
+	{
+	    return true;
+	}
+
+	Class<?> wrapperClass;
 	Object nullObject;
 
 	/**
@@ -300,8 +311,8 @@ public class JavaOpenClass extends AOpenClass
 	 * @param schema
 	 * @param factory
 	 */
-	public JavaPrimitiveClass(Class instanceClass, Class wrapperClass,
-		Object nullObject)
+	public JavaPrimitiveClass(Class<?> instanceClass,
+		Class<?> wrapperClass, Object nullObject)
 	{
 	    super(instanceClass, null);
 	    this.wrapperClass = wrapperClass;
@@ -324,29 +335,32 @@ public class JavaOpenClass extends AOpenClass
 
     }
 
-    static Map javaClassCache = null;
+    static Map<Class<?>, IOpenClass> javaClassCache = null;
 
+    @SuppressWarnings("hiding")
     public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class,
-	    Integer.class, new Integer(0)), LONG = new JavaPrimitiveClass(
-	    long.class, Long.class, new Long(0)),
-	    DOUBLE = new JavaPrimitiveClass(double.class, Double.class,
-		    new Double(0)), FLOAT = new JavaPrimitiveClass(float.class,
-		    Float.class, new Float(0)), SHORT = new JavaPrimitiveClass(
+	    Integer.class, new Integer(0)), 
+	    LONG = new JavaPrimitiveClass(long.class, Long.class, new Long(0)),
+	    DOUBLE = new JavaPrimitiveClass(double.class, Double.class, new Double(0)), 
+	    FLOAT = new JavaPrimitiveClass(float.class,
+		    Float.class, new Float(0)), 
+	    SHORT = new JavaPrimitiveClass(
 		    short.class, Short.class, new Short((short) 0)),
 	    CHAR = new JavaPrimitiveClass(char.class, Character.class,
 		    new Character('\0')), BYTE = new JavaPrimitiveClass(
 		    byte.class, Byte.class, new Byte((byte) 0)),
 	    BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.class,
-		    Boolean.FALSE), VOID = new JavaPrimitiveClass(void.class,
-		    Void.class, null), STRING = new JavaOpenClass(String.class,
-		    null), OBJECT = new JavaOpenClass(Object.class, null),
-	    CLASS = new JavaOpenClass(Class.class, null);
+		    Boolean.FALSE), 
+	    VOID = new JavaPrimitiveClass(void.class, Void.class, null), 
+	    STRING = new JavaOpenClass(String.class, null, true), 
+	    OBJECT = new JavaOpenClass(Object.class, null, true),
+	    CLASS = new JavaOpenClass(Class.class, null, true);
 
-    static synchronized Map getJavaClassCache()
+    static synchronized Map<Class<?>, IOpenClass> getJavaClassCache()
     {
 	if (javaClassCache == null)
 	{
-	    javaClassCache = new HashMap();
+	    javaClassCache = new HashMap<Class<?>, IOpenClass>();
 	    javaClassCache.put(int.class, INT);
 	    javaClassCache.put(long.class, LONG);
 	    javaClassCache.put(double.class, DOUBLE);
@@ -364,30 +378,30 @@ public class JavaOpenClass extends AOpenClass
 
     }
 
-    public static synchronized void resetAllClassloaders(HashMap oldLoaders)
+    public static synchronized void resetAllClassloaders(HashMap<?, ClassLoader> oldLoaders)
     {
-	for (Iterator iter = oldLoaders.values().iterator(); iter.hasNext();)
+	for (Iterator<ClassLoader> iter = oldLoaders.values().iterator(); iter.hasNext();)
 	{
-	    ClassLoader cl = (ClassLoader) iter.next();
+	    ClassLoader cl = iter.next();
 	    resetClassloader(cl);
 	}
     }
 
     public static synchronized void resetClassloader(ClassLoader cl)
     {
-	Vector toRemove = new Vector();
-	for (Iterator iter = getJavaClassCache().keySet().iterator(); iter
+	List<Class<?>> toRemove = new ArrayList<Class<?>>();
+	for (Iterator<Class<?>> iter = getJavaClassCache().keySet().iterator(); iter
 		.hasNext();)
 	{
-	    Class c = (Class) iter.next();
+	    Class<?> c =  iter.next();
 	    if (c.getClassLoader() == cl)
 		toRemove.add(c);
 
 	}
 
-	for (Iterator iter = toRemove.iterator(); iter.hasNext();)
+	for (Iterator<Class<?>> iter = toRemove.iterator(); iter.hasNext();)
 	{
-	    Class c = (Class) iter.next();
+	    Class<?> c =  iter.next();
 	    javaClassCache.remove(c);
 
 	    // System.out.println("Removing " + printClass(c));
@@ -398,16 +412,16 @@ public class JavaOpenClass extends AOpenClass
     public static synchronized void printCache()
     {
 	int i = 0;
-	for (Iterator iter = getJavaClassCache().keySet().iterator(); iter
+	for (Iterator<Class<?>> iter = getJavaClassCache().keySet().iterator(); iter
 		.hasNext();)
 	{
-	    Class element = (Class) iter.next();
+	    Class<?> element = iter.next();
 	    System.out.println("" + (i++) + ":\t" + printClass(element));
 
 	}
     }
 
-    static String printClass(Class c)
+    static String printClass(Class<?> c)
     {
 	if (c.isArray())
 	    return "[]" + printClass(c.getComponentType());
@@ -428,7 +442,7 @@ public class JavaOpenClass extends AOpenClass
     // return getOpenClass((Class)obj);
     // }
     //
-    static public synchronized JavaOpenClass getOpenClass(Class c)
+    static public synchronized JavaOpenClass getOpenClass(Class<?> c)
     {
 	JavaOpenClass res = (JavaOpenClass) getJavaClassCache().get(c);
 	if (res == null)
@@ -485,7 +499,7 @@ public class JavaOpenClass extends AOpenClass
 		.getComponentType()));
     }
 
-    public static Class makeArrayClass(Class c)
+    public static Class<?> makeArrayClass(Class<?> c)
     {
 	return Array.newInstance(c, 0).getClass();
     }
@@ -529,15 +543,30 @@ public class JavaOpenClass extends AOpenClass
     static class JavaOpenInterface extends JavaOpenClass
     {
 
+	static Method toString, equals, hashCode;
+
+	{
+	    try
+	    {
+		toString = Object.class.getMethod("toString");
+		equals = Object.class.getMethod("equals", Object.class);
+		hashCode = Object.class.getMethod("hashCode");
+	    } catch (NoSuchMethodException nsme)
+	    {
+		throw RuntimeExceptionWrapper.wrap(nsme);
+	    }
+	}
+
 	HashMap<Method, BeanOpenField> getters;
 	HashMap<Method, BeanOpenField> setters;
-	
+
 	@Override
 	protected void collectBeanFields()
 	{
 	    getters = new HashMap<Method, BeanOpenField>();
 	    setters = new HashMap<Method, BeanOpenField>();
-	    BeanOpenField.collectFields(fields, instanceClass, getters, setters);
+	    BeanOpenField
+		    .collectFields(fields, instanceClass, getters, setters);
 	}
 
 	protected JavaOpenInterface(Class<?> instanceClass, IOpenSchema schema)
@@ -555,7 +584,8 @@ public class JavaOpenClass extends AOpenClass
 	{
 	    try
 	    {
-		return Proxy.newProxyInstance(instanceClass.getClassLoader(), new Class[]{instanceClass}, getInvocationHandler());
+		return Proxy.newProxyInstance(instanceClass.getClassLoader(),
+			new Class[] { instanceClass }, getInvocationHandler());
 	    } catch (Exception e)
 	    {
 		throw RuntimeExceptionWrapper.wrap(e);
@@ -564,50 +594,70 @@ public class JavaOpenClass extends AOpenClass
 	}
 
 	InvocationHandler handler;
+
 	class InterfaceInvocationHandler implements InvocationHandler
 	{
 
-	    public synchronized Object invoke(Object proxy, Method method, Object[] args)
-		    throws Throwable
+	    public synchronized Object invoke(Object proxy, Method method,
+		    Object[] args) throws Throwable
 	    {
 		HashMap<BeanOpenField, Object> values = map.get(proxy);
 		if (values == null)
 		{
 		    values = new HashMap<BeanOpenField, Object>();
 		    map.put(proxy, values);
-		}   
-		
+		}
+
 		BeanOpenField bf = getters.get(method);
-		
+
 		if (bf != null)
 		{
 		    Object res = values.get(bf);
 		    return res != null ? res : bf.getType().nullObject();
-		}    
+		}
 
 		bf = setters.get(method);
-		
+
 		if (bf != null)
 		{
 		    values.put(bf, args[0]);
 		    return null;
-		}    
-		
-		throw new RuntimeException("Default Interface Proxy Implementation does not support method " + method.getDeclaringClass().getName()+ "::" + method.getName() + ". Only bean access is supported");
+		}
+
+		if (method.getName().equals(toString.getName()))
+		{
+		    return proxy.getClass().getName()
+			    + "@"
+			    + Integer.toHexString(System
+				    .identityHashCode(proxy));
+		}
+
+		if (method.getName().equals(hashCode.getName()))
+		{
+		    return System.identityHashCode(proxy);
+		}
+
+		if (method.getName().equals(equals.getName()))
+		{
+		    return proxy == args[0];
+		}
+
+		throw new RuntimeException(
+			"Default Interface Proxy Implementation does not support method "
+				+ method.getDeclaringClass().getName() + "::"
+				+ method.getName()
+				+ ". Only bean access is supported");
 	    }
-	    
-	    
-	    
-	    IdentityHashMap<Object, HashMap<BeanOpenField, Object>> map = new IdentityHashMap<Object, HashMap<BeanOpenField,Object>>();
-	    
-	    
+
+	    IdentityHashMap<Object, HashMap<BeanOpenField, Object>> map = new IdentityHashMap<Object, HashMap<BeanOpenField, Object>>();
+
 	}
-	
+
 	private synchronized InvocationHandler getInvocationHandler()
 	{
 	    if (handler == null)
 		handler = new InterfaceInvocationHandler();
-	    
+
 	    return handler;
 	}
 
@@ -626,6 +676,11 @@ public class JavaOpenClass extends AOpenClass
 	case INamedThing.LONG:
 	    return name;
 	}
+    }
+
+    public boolean isSimple()
+    {
+        return simple;
     }
 
 }

@@ -58,7 +58,7 @@ public class OpenClassDelegator implements IOpenClass
 	this.metaInfo = metaInfo;
     }
 
-    public Iterator fields()
+    public Iterator<IOpenField> fields()
     {
 	return baseClass.fields();
     }
@@ -78,9 +78,9 @@ public class OpenClassDelegator implements IOpenClass
 	return baseClass.getDomain();
     }
 
-    public IOpenField getField(String name)
+    public IOpenField getField(String fname)
     {
-	return baseClass.getField(name);
+	return baseClass.getField(fname);
     }
 
     public IOpenField getIndexField()
@@ -88,20 +88,20 @@ public class OpenClassDelegator implements IOpenClass
 	return baseClass.getIndexField();
     }
 
-    public Class getInstanceClass()
+    public Class<?> getInstanceClass()
     {
 	return baseClass.getInstanceClass();
     }
 
-    public IOpenMethod getMatchingMethod(String name, IOpenClass[] params)
+    public IOpenMethod getMatchingMethod(String mname, IOpenClass[] params)
 	    throws AmbiguousMethodException
     {
-	return baseClass.getMatchingMethod(name, params);
+	return baseClass.getMatchingMethod(mname, params);
     }
 
-    public IOpenMethod getMethod(String name, IOpenClass[] classes)
+    public IOpenMethod getMethod(String mname, IOpenClass[] classes)
     {
-	return baseClass.getMethod(name, classes);
+	return baseClass.getMethod(mname, classes);
     }
 
     public IOpenSchema getSchema()
@@ -109,9 +109,9 @@ public class OpenClassDelegator implements IOpenClass
 	return baseClass.getSchema();
     }
 
-    public IOpenField getVar(String name)
+    public IOpenField getVar(String vname)
     {
-	return baseClass.getVar(name);
+	return baseClass.getVar(vname);
     }
 
     public boolean isAbstract()
@@ -119,7 +119,7 @@ public class OpenClassDelegator implements IOpenClass
 	return baseClass.isAbstract();
     }
 
-    public boolean isAssignableFrom(Class c)
+    public boolean isAssignableFrom(Class<?> c)
     {
 	return baseClass.isAssignableFrom(c);
     }
@@ -139,7 +139,7 @@ public class OpenClassDelegator implements IOpenClass
 	return baseClass.isInstance(instance);
     }
 
-    public Iterator methods()
+    public Iterator<IOpenMethod> methods()
     {
 	return baseClass.methods();
     }
@@ -154,7 +154,7 @@ public class OpenClassDelegator implements IOpenClass
 	return baseClass.nullObject();
     }
 
-    public Iterator superClasses()
+    public Iterator<IOpenClass> superClasses()
     {
 	return baseClass.superClasses();
     }
@@ -178,6 +178,11 @@ public class OpenClassDelegator implements IOpenClass
     public String toString()
     {
 	return (getNameSpace() == null ? "" : getNameSpace() + ":") +  getName();
+    }
+
+    public boolean isSimple()
+    {
+	return baseClass.isSimple();
     }
     
     
