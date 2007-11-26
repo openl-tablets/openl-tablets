@@ -749,7 +749,7 @@ public class RepositoryTreeController {
     }
 
     public String getFolderName() {
-        return folderName;
+        return null;
     }
 
     public void setFolderName(String newFolderName) {
@@ -782,7 +782,7 @@ public class RepositoryTreeController {
     }
 
     public String getFileName() {
-        return fileName;
+        return null;
     }
 
     public void setFileName(String fileName) {
