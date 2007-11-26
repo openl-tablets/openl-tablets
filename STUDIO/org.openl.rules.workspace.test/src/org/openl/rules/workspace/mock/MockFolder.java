@@ -1,13 +1,15 @@
 package org.openl.rules.workspace.mock;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectFolder;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.ArrayList;
-
 public class MockFolder extends MockArtefact implements ProjectFolder{
+    private static final Collection<ProjectArtefact> EMPTY_LIST = new LinkedList<ProjectArtefact>();
+    
     private Collection<ProjectArtefact> artefacts;
 
     public MockFolder(String name, MockFolder parent) {
@@ -15,7 +17,7 @@ public class MockFolder extends MockArtefact implements ProjectFolder{
     }
 
     public Collection<? extends ProjectArtefact> getArtefacts() {
-        return artefacts == null ? Collections.EMPTY_LIST : artefacts;
+        return (artefacts == null) ? EMPTY_LIST : artefacts;
     }
 
     public void setArtefacts(Collection<ProjectArtefact> artefacts) {
