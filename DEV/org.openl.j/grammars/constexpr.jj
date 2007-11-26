@@ -11,7 +11,7 @@ options {
 }
 
 
-PARSER_BEGIN(JGrammar)
+PARSER_BEGIN(BExGrammar)
 
 package org.openl.grammars.constexpr;
 
@@ -20,10 +20,10 @@ package org.openl.grammars.constexpr;
 //import org.openl.util.text.*;
 //import java.util.*;
 
-public class JGrammar extends org.openl.syntax.impl.JavaCC30Grammar
+public class BExGrammar extends org.openl.syntax.impl.JavaCC30Grammar
 {
 
-public JGrammar()
+public BExGrammar()
 {
 	this(new java.io.StringReader(""));		
 }
@@ -138,7 +138,7 @@ public void parseTopNode(String type)
 
 } //EOF JGrammar
 
-PARSER_END(JGrammar)
+PARSER_END(BExGrammar)
 
 TOKEN_MGR_DECLS:
 {
@@ -217,6 +217,7 @@ TOKEN :
 | < FOR: "for" >
 | < GOTO: "goto" >
 | < IF: "if" >
+| <PLUSSTR: "plus">
 | < IMPLEMENTS: "implements" >
 | < IMPORT: "import" >
 | < INSTANCEOF: "instanceof" >
@@ -274,6 +275,7 @@ TOKEN :
 | < TILDE: "~" >
 | < HOOK: "?" >
 | < COLON: ":" >
+//| < DOLLAR: "$" >
 | < EQ: "==" >
 | < LE: "<=" >
 | < GE: ">=" >
@@ -314,7 +316,7 @@ TOKEN :
 TOKEN :
 {
   < INTEGER_LITERAL:
-//        (["+","-"])? <DECIMAL_LITERAL> (["l","L"])?
+//        (["+","-"])?  ["$"]? <DECIMAL_LITERAL> (["l","L"])?
         <DECIMAL_LITERAL> (["l","L"])?
       | <HEX_LITERAL> (["l","L"])?
       | <OCTAL_LITERAL> (["l","L"])?
@@ -334,8 +336,17 @@ TOKEN :
   >
 |
   < BUSINESS_INTEGER_LITERAL:
-  		(["0"-"9"])+ "." (["0"-"9"])* (["M","K", "B"])?
+  		(["$"])? (["0"-"9"])+ ("." ["0"-"9"] ["0"-"9"] )?  (["M","K", "B"])?
+  		
+//"." (["0"-"9"])*  		
   >
+
+|
+	<PERCENT_LITERAL:
+	
+		(["0"-"9"])+ ("." ["0"-"9"] ["0"-"9"] )? "%"		
+	>
+  		
 	  
 |
   < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
@@ -552,7 +563,12 @@ void RelationalExpression() :
 {
   AdditiveExpression()
   (
-    ( x = <LT> {func="lt";} | x = <GT> {func="gt";} | x = <LE>{func="le";} | x = <GE>{func="ge";} )
+    ( x = <LT> {func="lt";} | x = "less than" {func="lt";} | 
+    x = <GT> {func="gt";} | x = "more than" {func="gt";} |
+    x = <LE>{func="le";} | x = "less or equal" {func="le";} | 
+    x = <GE>{func="ge";} | x = "more or equal" {func="ge";} 
+    
+    )
     AdditiveExpression()
     {
     	{stb.bop("op.binary." + func, pos(x));}
@@ -568,7 +584,7 @@ String func = null;
 {
   MultiplicativeExpression()
   (
-    (x=<PLUS> {func="add";}| x=<MINUS> {func="subtract";})
+    (x=<PLUS> {func="add";}| x=<PLUSSTR> {func="add";} | x=<MINUS> {func="subtract";})
     MultiplicativeExpression()
     {stb.bop("op.binary." + func, pos(x));}
   )*
@@ -657,6 +673,7 @@ void PrimaryExpression() :
   	if (args > 1)
   		stb.nop("chain", null, args);
   }
+  
 }
 
 void PrimaryPrefix() :
@@ -682,11 +699,12 @@ void PrimaryPrefix() :
 }
 
 void PrimarySuffix() :
-{}
+{Token x1;}
 {
   index()
   | LOOKAHEAD( "." function() ) "." function()
   | "." identifier()
+  | x1 = <IDENTIFIER> {stb.identifier("identifier.chain", pos(token),token.image);}
 }
 
 void CastExpression() :
@@ -850,6 +868,9 @@ void Literal() :
   <BUSINESS_INTEGER_LITERAL>         
   { stb.literal("literal.integer.business", pos(token), token.image); }
   |
+  <PERCENT_LITERAL>         
+  { stb.literal("literal.percent", pos(token), token.image); }
+  |
   <FLOATING_POINT_LITERAL>  
   { stb.literal("literal.real", pos(token), token.image); }
   |
@@ -977,7 +998,13 @@ void LabeledStatement() :
 void BlockStatement() :
 {}
 {
-  LOOKAHEAD(Type() <IDENTIFIER>)
+  LOOKAHEAD(Type() <IDENTIFIER> "=")
+  LocalVariableDeclaration() OptionalSemiColon()
+|
+  LOOKAHEAD(Type() <IDENTIFIER> ";")
+  LocalVariableDeclaration() OptionalSemiColon()
+|
+  LOOKAHEAD(Type() <IDENTIFIER> ",")
   LocalVariableDeclaration() OptionalSemiColon()
 |
   Statement()
