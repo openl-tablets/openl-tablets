@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.IOpenSourceCodeModule;
-import org.openl.syntax.impl.FileSourceCodeModule;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -11,12 +11,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.FileInputStream;
+
+import org.openl.IOpenSourceCodeModule;
+import org.openl.rules.ui.WebStudio;
+import org.openl.syntax.impl.FileSourceCodeModule;
 
 public class DownloadServlet extends HttpServlet {
+    private static final long serialVersionUID = -5102656998760586960L;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
