@@ -10,13 +10,13 @@ import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.deploy.DeploymentException;
+import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
-import org.openl.rules.workspace.deploy.ProductionDeployer;
-import org.openl.rules.workspace.deploy.DeploymentException;
 
 import java.io.Serializable;
 
@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.faces.model.SelectItem;
-import javax.faces.context.FacesContext;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+
 
 /**
  * Deployment controller.
@@ -44,9 +45,9 @@ public class DeploymentController implements Serializable {
     private RepositoryTreeState repositoryTreeState;
 
     public List<DeploymentDescriptorItem> getItems() {
-        if (repositoryTreeState.getCurrentNode().getDataBean() instanceof UserWorkspaceDeploymentProject) {
-            UserWorkspaceDeploymentProject project = (UserWorkspaceDeploymentProject) repositoryTreeState.getCurrentNode()
-                    .getDataBean();
+        Object dataBean = repositoryTreeState.getCurrentNode().getDataBean();
+        if (dataBean instanceof UserWorkspaceDeploymentProject) {
+            UserWorkspaceDeploymentProject project = (UserWorkspaceDeploymentProject) dataBean;
 
             if ((items == null) || !project.getName().equals(name)) {
                 name = project.getName();
@@ -62,6 +63,8 @@ public class DeploymentController implements Serializable {
                 }
             }
             return items;
+        } else {
+            name = null;
         }
         return null;
     }
@@ -149,7 +152,9 @@ public class DeploymentController implements Serializable {
         return null;
     }
 
-    private RulesUserSession getRulesUserSession() {return (RulesUserSession) FacesUtils.getSessionMap().get("rulesUserSession");}
+    private RulesUserSession getRulesUserSession() {
+        return (RulesUserSession) FacesUtils.getSessionMap().get("rulesUserSession");
+    }
 
     public SelectItem[] getProjects() {
         UserWorkspace workspace = getWorkspace();
@@ -212,7 +217,8 @@ public class DeploymentController implements Serializable {
             ProductionDeployer deployer = getRulesUserSession().getDeployer();
             deployer.deploy(getWorkspace().getProjects());
         } catch (DeploymentException e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("failed to deploy", e.getMessage()));
+            FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage("failed to deploy", e.getMessage()));
             log.error(e);
         }
         return null;
@@ -232,6 +238,14 @@ public class DeploymentController implements Serializable {
 
     public boolean isCheckoutable() {
         return true;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
