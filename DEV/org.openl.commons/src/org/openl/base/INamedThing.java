@@ -32,16 +32,16 @@ public interface INamedThing
   
 	public static final NameConverter NAME_CONVERTOR = new NameConverter();
   
-  static class NameConverter extends AStringConvertor
+  static class NameConverter extends AStringConvertor<INamedThing>
   {
       
-    public String getStringValue(Object obj)
+    public String getStringValue(INamedThing nt)
     {
-      return ((INamedThing)obj).getName();
+      return nt.getName();
     }
   }
   
-  public static class NameSelector extends ASelector.StringValueSelector
+  public static class NameSelector extends ASelector.StringValueSelector<INamedThing>
   {
   	public NameSelector(String value)
   	{
