@@ -3,9 +3,9 @@
  */
 package org.openl.rules.dt;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -19,40 +19,39 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
+ * 
  */
-public class RangeIndexedEvaluator  implements IDTConditionEvaluator
+public class RangeIndexedEvaluator implements IDTConditionEvaluator
 {
 
-	IRangeAdaptor adaptor = null;
-	
-	
-	public RangeIndexedEvaluator(IRangeAdaptor adaptor)
+	IRangeAdaptor<Object, Object> adaptor = null;
+
+	public RangeIndexedEvaluator(IRangeAdaptor<Object, Object> adaptor)
 	{
 		this.adaptor = adaptor;
 	}
 
-
-
-	public IIntSelector getSelector(IDTCondition condition, Object target, Object[] dtparams, IRuntimeEnv env)
+	public IIntSelector getSelector(IDTCondition condition, Object target,
+			Object[] dtparams, IRuntimeEnv env)
 	{
 		Object value = condition.getEvaluator().invoke(target, dtparams, env);
 		return new RangeSelector(condition, value, target, dtparams, env);
 	}
 
-	
-
-	
 	static class RangeSelector implements IIntSelector
 	{
 		IDTCondition condition;
+
 		Object value;
+
 		Object target;
+
 		Object[] dtparams;
+
 		IRuntimeEnv env;
-		
-		
-		public RangeSelector(IDTCondition condition, Object value, Object target, Object[] dtparams, IRuntimeEnv env)
+
+		public RangeSelector(IDTCondition condition, Object value, Object target,
+				Object[] dtparams, IRuntimeEnv env)
 		{
 			this.condition = condition;
 			this.value = value;
@@ -61,119 +60,115 @@ public class RangeIndexedEvaluator  implements IDTConditionEvaluator
 			this.target = target;
 		}
 
-
+		@SuppressWarnings("unchecked")
 		public boolean select(int rule)
 		{
 			Object[][] params = condition.getParamValues();
 			Object[] ruleParams = params[rule];
-			
+
 			if (ruleParams == null)
 				return true;
-			
+
 			Object[] realParams = new Object[params.length];
-			
-			FunctionalRow.loadParams(realParams, 0, ruleParams, target, dtparams, env);
-			
+
+			FunctionalRow
+					.loadParams(realParams, 0, ruleParams, target, dtparams, env);
+
 			if (ruleParams[0] == null)
 				return true;
-			
-			return ((Comparable)ruleParams[0]).compareTo(value) <= 0 && ((Comparable)value).compareTo(ruleParams[1]) < 0;
+
+			return ((Comparable<Object>) ruleParams[0]).compareTo(value) <= 0
+					&& ((Comparable<Object>) value).compareTo(ruleParams[1]) < 0;
 		}
 	}
 
-	
-	
-	
-	
-	
-	
+	@SuppressWarnings("unchecked")
 	public ADTRuleIndex makeIndex(Object[][] indexedparams, IIntIterator it)
 	{
-		
+
 		if (it.size() < 1)
 			return null;
-		
-		IntervalMap map = new IntervalMap();
-		DTRuleNodeBuilder emptyBuilder =  new DTRuleNodeBuilder();
-		
-		for (; it.hasNext(); )
+
+		IntervalMap<Object, Integer> map = new IntervalMap<Object, Integer>();
+		DTRuleNodeBuilder emptyBuilder = new DTRuleNodeBuilder();
+
+		for (; it.hasNext();)
 		{
 			int i = it.nextInt();
-			
+
 			if (indexedparams[i] == null || indexedparams[i][0] == null)
 			{
 				emptyBuilder.addRule(i);
-				
-				for (Iterator iter = map.treeMap().values().iterator(); iter.hasNext();)
+
+				for (Iterator<List<Integer>> iter = map.treeMap().values().iterator(); iter
+						.hasNext();)
 				{
-					ArrayList list = (ArrayList) iter.next();
-					list.add(new Integer(i));
+					List<Integer> list = iter.next();
+					list.add(i);
 				}
-				
+
 				continue;
-			}	
-			
-			Comparable vFrom = null;
-			Comparable vTo = null;
+			}
+
+			Comparable<Object> vFrom = null;
+			Comparable<Object> vTo = null;
 
 			if (adaptor == null)
-			{	
-			
-				vFrom = (Comparable)indexedparams[i][0];
-				vTo = (Comparable)indexedparams[i][1];
-			}
-			else
+			{
+
+				vFrom = (Comparable<Object>) indexedparams[i][0];
+				vTo = (Comparable<Object>) indexedparams[i][1];
+			} else
 			{
 				vFrom = adaptor.getMin(indexedparams[i][0]);
 				vTo = adaptor.getMax(indexedparams[i][0]);
-			}	
+			}
 			map.putInterval(vFrom, vTo, new Integer(i));
-			
+
 		}
-		
-		TreeMap tm = map.treeMap();
-		
+
+		TreeMap<Comparable<Object>, List<Integer>> tm = map.treeMap();
+
 		int n = tm.size();
-		
-		Comparable[] index = new Comparable[n];
+
+		Comparable<Object>[] index = new Comparable[n];
 		DTRuleNode[] rules = new DTRuleNode[n];
-		
+
 		int i = 0;
-		for (Iterator iter = tm.entrySet().iterator(); iter.hasNext();++i)
+		for (Iterator<Map.Entry<Comparable<Object>, List<Integer>>> iter = tm
+				.entrySet().iterator(); iter.hasNext(); ++i)
 		{
-			Map.Entry element = (Map.Entry) iter.next();
-			index[i] = (Comparable)element.getKey();
-			
-			ArrayList list = (ArrayList)element.getValue();
+			Map.Entry<Comparable<Object>, List<Integer>> element = iter.next();
+			index[i] = element.getKey();
+
+			List<Integer> list = element.getValue();
 			int[] idxAry = new int[list.size()];
 			for (int j = 0; j < idxAry.length; j++)
 			{
-				idxAry[j] = ((Integer)list.get(j)).intValue();
+				idxAry[j] = list.get(j);
 			}
-			
+
 			rules[i] = new DTRuleNode(idxAry);
 		}
-		
-		
+
 		RangeIndex rix = new RangeIndex(emptyBuilder.makeNode(), index, rules);
-		
-		
+
 		return rix;
-		
+
 	}
-	
-	
+
 	static class RangeIndex extends ADTRuleIndex
 	{
 
+		Comparable<Object>[] index;
 
-		Comparable[] index;
 		DTRuleNode[] rules;
-		
+
 		/**
 		 * @param emptyOrFormulaNodes
 		 */
-		public RangeIndex(DTRuleNode emptyOrFormulaNodes, Comparable[] index, DTRuleNode[] rules)
+		public RangeIndex(DTRuleNode emptyOrFormulaNodes,
+				Comparable<Object>[] index, DTRuleNode[] rules)
 		{
 			super(emptyOrFormulaNodes);
 			this.index = index;
@@ -185,20 +180,18 @@ public class RangeIndexedEvaluator  implements IDTConditionEvaluator
 			int idx = Arrays.binarySearch(index, value);
 			if (idx >= 0)
 				return rules[idx];
-			
+
 			idx = -(idx + 1) - 1;
 			return idx < 0 ? null : rules[idx];
-			
+
 		}
 
-		public Iterator nodes()
+		public Iterator<DTRuleNode> nodes()
 		{
 			return OpenIterator.fromArray(rules);
 		}
-		
+
 	}
-	
-	
 
 	public boolean isIndexed()
 	{

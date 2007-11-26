@@ -5,33 +5,32 @@ package org.openl.rules.dt;
 
 import org.openl.rules.helpers.IntRange;
 
-
 /**
  * @author snshor
- *
+ * 
  */
-public interface IRangeAdaptor
+public interface IRangeAdaptor<T, C>
 {
 
 	/**
 	 * @author snshor
-	 *
+	 * 
 	 */
-	public class IntRangeAdaptor implements IRangeAdaptor
+	public class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer>
 	{
 
-		public Comparable getMin(Object param)
+		public Integer getMin(IntRange range)
 		{
-			return new Integer(((IntRange)param).getMin());
+			return range.getMin();
 		}
 
-		public Comparable getMax(Object param)
+		public Integer getMax(IntRange range)
 		{
-			int max = ((IntRange)param).getMax();
+			int max = range.getMax();
 			if (max != Integer.MAX_VALUE)
 				max = max + 1;
-			
-				return new Integer(max);
+
+			return max;
 		}
 
 	}
@@ -41,13 +40,13 @@ public interface IRangeAdaptor
 	 * @param param
 	 * @return the min bound of the expression min <= X && X < max
 	 */
-	public Comparable getMin(Object param);
-	
+	public Comparable<C> getMin(T param);
+
 	/**
 	 * 
 	 * @param param
 	 * @return the max bound of the expression min <= X && X < max
 	 */
-	public Comparable getMax(Object param);
-	
+	public Comparable<C> getMax(T param);
+
 }
