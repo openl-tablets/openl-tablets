@@ -1,18 +1,17 @@
 package org.openl.rules.workspace.lw.impl;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.Date;
+
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
-
-import java.util.Collection;
-import java.util.Date;
-import java.io.File;
 
 public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
     private String name;

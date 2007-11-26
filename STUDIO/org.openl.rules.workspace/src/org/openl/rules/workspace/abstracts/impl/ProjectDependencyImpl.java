@@ -4,6 +4,8 @@ import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 
 public class ProjectDependencyImpl implements ProjectDependency {
+    private static final long serialVersionUID = -1745471023092596849L;
+
     private String projectName;
     private ProjectVersion lowerLimit;
     private ProjectVersion upperLimit;

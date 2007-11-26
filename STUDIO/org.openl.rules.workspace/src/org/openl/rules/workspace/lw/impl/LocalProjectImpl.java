@@ -21,9 +21,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalProject {
+    private static final LinkedList<ProjectDependency> EMPTY_LIST = new LinkedList<ProjectDependency>();
+    
     private ProjectVersion version;
 
     private LocalWorkspaceImpl localWorkspace;
@@ -52,7 +55,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     }
 
     public Collection<ProjectDependency> getDependencies() {
-        return dependencies == null ? Collections.EMPTY_LIST : Collections.unmodifiableCollection(dependencies);
+        return (dependencies == null) ? EMPTY_LIST : Collections.unmodifiableCollection(dependencies);
     }
 
     public void setDependencies(Collection<ProjectDependency> dependencies) {
@@ -235,6 +238,8 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     }
 
     private static class ArtefactStateHolder implements Serializable {
+        private static final long serialVersionUID = 1049629652852513808L;
+
         List<Property> properties;
         Date effectiveDate;
         Date expirationDate;
@@ -249,6 +254,8 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     }
 
     private static class ProjectStateHolder  extends ArtefactStateHolder {
+        private static final long serialVersionUID = -1745838798697133268L;
+
         Collection<ProjectDependency> dependencies;
         ProjectStateHolder(List<Property> properties, Date effectiveDate, Date expirationDate,
                 String LOB, Collection<ProjectDependency> dependencies) {
