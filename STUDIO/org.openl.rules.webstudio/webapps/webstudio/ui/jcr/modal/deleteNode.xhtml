@@ -16,8 +16,8 @@
 
     <h:form id="modalDeleteNodeForm">
       <h:outputText rendered="#{repositoryTreeController.selected.type == 'project'}"
-        value="Are you sure you want to delete the project '#{repositoryTreeController.selected.name}'?" />
 
+        value="Are you sure you want to delete the project '#{repositoryTreeController.selected.name}'?" />
       <h:outputText rendered="#{repositoryTreeController.selected.type == 'folder'}"
         value="Are you sure you want to delete the folder '#{repositoryTreeController.selected.name}'?" />
 
@@ -30,7 +30,7 @@
       <br />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Delete" onclick="Richfaces.hideModalPanel('modalDeleteNode');return true;" />
+        <h:commandButton styleClass="button" value="Delete" action="#{repositoryTreeController.delete}" onclick="Richfaces.hideModalPanel('modalDeleteNode');return true;" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalDeleteNode');" />
       </h:panelGrid>
     </h:form>
