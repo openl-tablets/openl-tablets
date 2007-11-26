@@ -14,6 +14,7 @@ import org.openl.conf.OpenFactoryConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
+import org.openl.grammars.constexpr.BExGrammar;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder
@@ -30,7 +31,7 @@ public class OpenLBuilder extends AOpenLBuilder
   		op.setShared(false);
   		
   		ClassFactory cfg = op.createGrammar();
-  		cfg.setClassName("org.openl.grammars.jgrammar.JGrammar");
+  		cfg.setClassName(BExGrammar.class.getName());
   		
   		NodeBinderFactoryConfiguration nbc = op.createBindings();
   		
