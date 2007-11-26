@@ -19,19 +19,19 @@ import java.util.Comparator;
  * This version is NOT synchronized
  *
  */
-public class PriorityQueue extends ArrayList
+public class PriorityQueue<T> extends ArrayList<T>
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5240446330214701778L;
-	Comparator comparator;
+	Comparator<T> comparator;
 
 
 	/**
 	 * @param initialCapacity
 	 */
-	public PriorityQueue(int initialCapacity, Comparator comparator)
+	public PriorityQueue(int initialCapacity, Comparator<T> comparator)
 	{
 		super(initialCapacity);
 		this.comparator = comparator;
@@ -41,7 +41,7 @@ public class PriorityQueue extends ArrayList
 	/**
 	 * 
 	 */
-	public PriorityQueue(Comparator comparator)
+	public PriorityQueue(Comparator<T> comparator)
 	{
 		super();
 		this.comparator = comparator;
@@ -49,7 +49,7 @@ public class PriorityQueue extends ArrayList
 	}
 	
 	
-	public void push(Object obj)
+	public void push(T obj)
 	{
 		int len = super.size();
 		int i = 0;
@@ -64,18 +64,14 @@ public class PriorityQueue extends ArrayList
 		super.add(i, obj);
 	}
 	
-	public Object pop()
+	public T pop()
 	{
 		return super.remove(super.size() - 1);
 	}
 	
-	public Object top()
+	public T top()
 	{
 		return super.get(super.size() - 1);
 	}
 	
-	
-	
-	
-
 }

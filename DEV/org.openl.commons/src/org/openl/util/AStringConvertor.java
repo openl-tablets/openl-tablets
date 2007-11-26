@@ -12,15 +12,15 @@ package org.openl.util;
  * @author snshor
  *
  */
-public abstract class AStringConvertor implements IConvertor
+public abstract class AStringConvertor<T> implements IConvertor<T, String>
 {
 
-    public Object convert(Object obj)
+    public String convert(T obj)
     {
         return getStringValue(obj);
     }
     
-    public abstract String getStringValue(Object obj);
+    public abstract String getStringValue(T obj);
     
 
 }

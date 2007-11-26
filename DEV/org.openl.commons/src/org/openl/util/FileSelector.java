@@ -11,12 +11,12 @@ import java.io.File;
  * @author snshor
  *
  */
-public abstract class FileSelector extends ASelector
+public abstract class FileSelector extends ASelector<File>
 {
 
-	public boolean select(Object obj)
+	public boolean select(File f)
 	{
-		return selectFile((File)obj);
+		return selectFile(f);
 	}
 
 	/**

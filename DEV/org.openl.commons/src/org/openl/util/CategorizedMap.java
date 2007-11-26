@@ -18,8 +18,8 @@ import java.util.Iterator;
 public class CategorizedMap 
 {
 	
-	protected HashMap categories = new HashMap();
-	protected HashMap all = new HashMap();
+	protected HashMap<String, Category> categories = new HashMap<String, Category>();
+	protected HashMap<String, Object> all = new HashMap<String, Object>();
 
 
 	
@@ -37,7 +37,7 @@ public class CategorizedMap
   
   public synchronized Category getCategory(String cc)
   {
-    Category c = (Category)categories.get(cc);
+    Category c = categories.get(cc);
     if (c == null)
     {
       c = new Category(cc);
@@ -58,9 +58,9 @@ public class CategorizedMap
     int parentDistance,
     Category parent)
   {
-    for (Iterator iter = categories.values().iterator(); iter.hasNext();)
+    for (Iterator<Category> iter = categories.values().iterator(); iter.hasNext();)
     {
-      Category c = (Category)iter.next();
+      Category c = iter.next();
 
       if (c.parent == parent && c.parentDistance > parentDistance)
       {
@@ -110,7 +110,7 @@ public class CategorizedMap
       if (index < 0)
         break;
       search = search.substring(0, index);
-      Category parent = (Category)categories.get(search);
+      Category parent = categories.get(search);
       if (parent != null)
       {
         cc.setParentDistance(i);
@@ -205,7 +205,7 @@ public class CategorizedMap
   }
 
 	
-	public Collection values()
+	public Collection<Object> values()
 	{
 		return all.values();
 	}

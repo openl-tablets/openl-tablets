@@ -12,79 +12,77 @@ import org.openl.util.OpenIterator;
 /**
  * @author snshor
  */
-public interface ISetDomain
+public interface ISetDomain<T>
 {
 
-  ISetDomain and(ISetDomain sd);
-  ISetDomain or(ISetDomain sd);
+    ISetDomain<T> and(ISetDomain<T> sd);
 
-	
-	ISetDomain sub(ISetDomain sd);
-	
-	boolean contains(Object obj);
-	
-	Iterator iterator();
-	int size();
+    ISetDomain<T> or(ISetDomain<T> sd);
+
+    ISetDomain<T> sub(ISetDomain<T> sd);
+
+    boolean contains(T obj);
+
+    Iterator<T> iterator();
+
+    int size();
+
+    static final public ISetDomain<Object> EMPTY_DOMAIN = new EmptyDomain<Object>();
 
 
-	static final public ISetDomain EMPTY_DOMAIN = new EmptyDomain();
+    static class EmptyDomain<T> implements ISetDomain<T>
+    {
 
-
-
-	static class EmptyDomain implements ISetDomain
+	public ISetDomain<T> and(ISetDomain<T> sd)
 	{
-		
-		public ISetDomain and(ISetDomain sd)
-		{
-			return this;
-		}
+	    return this;
+	}
 
-		/**
-		 *
-		 */
+	/**
+	 * 
+	 */
 
-		public boolean contains(Object obj)
-		{
-			return false;
-		}
+	public boolean contains(T obj)
+	{
+	    return false;
+	}
 
-		/**
-		 *
-		 */
+	/**
+	 * 
+	 */
 
-		public Iterator iterator()
-		{
-			return OpenIterator.EMPTY;
-		}
+	public Iterator<T> iterator()
+	{
+	    return OpenIterator.empty();
+	}
 
+	/**
+	 * 
+	 */
 
-		/**
-		 *
-		 */
+	public ISetDomain<T> or(ISetDomain<T> sd)
+	{
+	    return sd;
+	}
 
-		public ISetDomain or(ISetDomain sd)
-		{
-			return sd;
-		}
+	/**
+	 * 
+	 */
 
-		/**
-		 *
-		 */
+	public int size()
+	{
+	    return 0;
+	}
 
-		public int size()
-		{
-			return 0;
-		}
+	/**
+	 * 
+	 */
 
-		/**
-		 *
-		 */
+	public ISetDomain<T> sub(ISetDomain<T> sd)
+	{
+	    return this;
+	}
 
-		public ISetDomain sub(ISetDomain sd)
-		{
-			return this;
-		}
+    }
 
-}
-	
 }

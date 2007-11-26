@@ -9,7 +9,7 @@ import org.openl.util.AOpenIterator;
  * @author snshor
  *
  */
-public abstract class AIntIterator extends AOpenIterator implements IIntIterator
+public abstract class AIntIterator extends AOpenIterator<Integer> implements IIntIterator
 {
 
 	public IIntIterator select(IIntSelector selector)
@@ -17,9 +17,9 @@ public abstract class AIntIterator extends AOpenIterator implements IIntIterator
 		return new IIntSelector.IntSelectIterator(this, selector);
 	}
 
-	public Object next()
+	public Integer next()
 	{
-		return new Integer(nextInt());
+		return nextInt();
 	}
 
 	

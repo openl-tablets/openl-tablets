@@ -2,18 +2,18 @@ package org.openl.util;
 
 import java.util.Iterator;
 
-public interface ITreeElement
+public interface ITreeElement<T>
 {
 	String getType();
 //	String getDisplayValue();
-	Object getObject();
+	T getObject();
 //	TreeMap getElementsx();
-	Iterator getChildren();
+	Iterator<T> getChildren();
 	boolean isLeaf();
 	
-	static  public interface Node extends ITreeElement
+	static  public interface Node<T> extends ITreeElement<T>
 	{
-		ITreeElement getChild(Object key);
-		boolean addChild(Object key, ITreeElement child);
+		ITreeElement<T> getChild(Object key);
+		boolean addChild(Object key, ITreeElement<T> child);
 	}
 }

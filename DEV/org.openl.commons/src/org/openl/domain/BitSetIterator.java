@@ -79,9 +79,5 @@ public class BitSetIterator extends AIntIterator
 		return nextBit + min;
 	}
 
-	public Object next()
-	{
-		return new Integer(nextInt());
-	}
 
 }

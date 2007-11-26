@@ -5,6 +5,7 @@ package org.openl.util;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -34,25 +35,25 @@ import java.util.TreeMap;
  */    
 
 
-public class IntervalMap
+public class IntervalMap<T,V>
 {
 
-	TreeMap map = new TreeMap();
+	TreeMap<Comparable<T>, List<V>> map = new TreeMap<Comparable<T>, List<V>>();
 	
 	
 	
-	public void putInterval(Comparable fromKey,Comparable toKey, Object value)
+	public void putInterval(Comparable<T> fromKey,Comparable<T> toKey, V value)
 	{
 		
 		
-		SortedMap submap = map.subMap(fromKey, toKey);
+		SortedMap<Comparable<T>, List<V>> submap = map.subMap(fromKey, toKey);
 		
 		
 		if (submap.size() == 0 || !submap.firstKey().equals(fromKey))
 		{
-			SortedMap head = map.headMap(fromKey);
-			ArrayList firstList = head.size() == 0 ? new ArrayList() : 
-				new ArrayList((ArrayList)head.get(head.lastKey()));
+			SortedMap<Comparable<T>, List<V>> head = map.headMap(fromKey);
+			ArrayList<V> firstList = head.size() == 0 ? new ArrayList<V>() : 
+				new ArrayList<V>(head.get(head.lastKey()));
 			map.put(fromKey, firstList);
 			
 			submap = map.subMap(fromKey, toKey);
@@ -61,35 +62,35 @@ public class IntervalMap
 		
 		if (!map.containsKey(toKey))
 		{
-			ArrayList lastList = new ArrayList((ArrayList)submap.get(submap.lastKey()));
+			ArrayList<V> lastList = new ArrayList<V>(submap.get(submap.lastKey()));
 			map.put(toKey, lastList);
 		}
 		
 		
-		for (Iterator iter = submap.entrySet().iterator(); iter.hasNext();)
+		for (Iterator<Map.Entry<Comparable<T>, List<V>>> iter = submap.entrySet().iterator(); iter.hasNext();)
 		{
-			Map.Entry element = (Map.Entry) iter.next();
+			Map.Entry<Comparable<T>, List<V>> element =  iter.next();
 			
-			((ArrayList)element.getValue()).add(value);
+			element.getValue().add(value);
 		}
 	
 	}
 	
 	
-	public Object getInInterval(Comparable key)
+	public Object getInInterval(Comparable<T> key)
 	{
 		Object res = map.get(key);
 		if (res != null)
 			return res;
 		
-		SortedMap submap =  map.headMap(key);
+		SortedMap<Comparable<T>, List<V>> submap =  map.headMap(key);
 		
 		return submap.size() == 0 ? null : submap.get(submap.lastKey());
 	}
 
 
 
-	public TreeMap treeMap()
+	public TreeMap<Comparable<T>, List<V>> treeMap()
 	{
 		return map;
 	}
