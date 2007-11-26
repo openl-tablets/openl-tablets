@@ -71,12 +71,15 @@ public class AddDependencyController {
         try {
             if (!project.addDependency(dependency)) {
                 FacesContext.getCurrentInstance()
-                    .addMessage(null, new FacesMessage("duplicate dependency"));
+                    .addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "duplicate dependency", null));
                 return null;
             }
         } catch (ProjectException e) {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage(e.getMessage()));
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
             return null;
         }
 
@@ -89,8 +92,8 @@ public class AddDependencyController {
         if (projectVersion1 == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("lower version format error",
-                        "expected format - X[.Y[.Z]]"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "lower version format error", "expected format - X[.Y[.Z]]"));
             return null;
         }
         if (!StringUtils.isEmpty(upperVersion)) {
@@ -99,8 +102,8 @@ public class AddDependencyController {
             if (projectVersion2 == null) {
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
-                        new FacesMessage("upper version format error",
-                            "expected format - X[.Y[.Z]]"));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "upper version format error", "expected format - X[.Y[.Z]]"));
                 return null;
             }
         }
@@ -108,7 +111,8 @@ public class AddDependencyController {
         if ((projectVersion2 != null) && (projectVersion1.compareTo(projectVersion2) > 0)) {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage("lower version is greater than upper one"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "lower version is greater than upper one", null));
             return null;
         }
 
