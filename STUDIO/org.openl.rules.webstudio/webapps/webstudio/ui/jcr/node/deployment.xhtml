@@ -7,6 +7,7 @@
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax">
 
   <t:saveState value="#{deploymentController.items}" />
+  <t:saveState value="#{deploymentController.name}" />
   <t:saveState value="#{deploymentController.projectName}" />
 
   <h:panelGrid columns="1">
@@ -16,7 +17,9 @@
       <h:commandButton styleClass="button" value="Check In" action="#{deploymentController.save}" rendered="#{deploymentController.checkinable}" />
     </h:panelGrid>
 
+<!--
     <ui:include src="/ui/jcr/messages.xhtml" />
+     -->
 
     <rich:dataTable value="#{deploymentController.items}" var="item" width="500" onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
       onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'" rowKeyVar="index">
