@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="rules"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="src" path="sudoku"/>
 	<classpathentry kind="var" path="JRE_LIB"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>

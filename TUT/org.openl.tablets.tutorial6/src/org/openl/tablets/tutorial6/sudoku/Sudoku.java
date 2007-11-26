@@ -1,19 +1,15 @@
 package org.openl.tablets.tutorial6.sudoku;
 
-import org.openl.util.RuntimeExceptionWrapper;
-
 import com.exigen.ie.constrainer.Constrainer;
 import com.exigen.ie.constrainer.Failure;
 import com.exigen.ie.constrainer.Goal;
 import com.exigen.ie.constrainer.GoalAnd;
-import com.exigen.ie.constrainer.GoalFail;
 import com.exigen.ie.constrainer.GoalGenerate;
 import com.exigen.ie.constrainer.GoalImpl;
 import com.exigen.ie.constrainer.GoalPrintSolutionNumber;
 import com.exigen.ie.constrainer.IntExpArray;
 import com.exigen.ie.constrainer.IntVar;
 import com.exigen.ie.constrainer.IntVarSelectorFirstUnbound;
-import com.exigen.ie.constrainer.IntVarSelectorMinSize;
 import com.exigen.ie.constrainer.impl.ConstraintAllDiff;
 import com.exigen.ie.constrainer.impl.IntVarImpl;
 
