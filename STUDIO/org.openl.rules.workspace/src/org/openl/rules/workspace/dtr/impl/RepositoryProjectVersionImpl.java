@@ -5,6 +5,8 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.VersionInfo;
 
 public class RepositoryProjectVersionImpl implements ProjectVersion {
+    private static final long serialVersionUID = -5156747482692477220L;
+
     private int major;
     private int minor;
     private int revision;

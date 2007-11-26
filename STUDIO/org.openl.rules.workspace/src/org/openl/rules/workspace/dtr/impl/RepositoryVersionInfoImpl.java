@@ -5,6 +5,8 @@ import org.openl.rules.workspace.abstracts.VersionInfo;
 import java.util.Date;
 
 public class RepositoryVersionInfoImpl implements VersionInfo {
+    private static final long serialVersionUID = 5338481693656986251L;
+
     private Date createdAt;
     private String createdBy;
 
