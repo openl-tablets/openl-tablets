@@ -1,8 +1,10 @@
 package org.openl.rules.ui.repository;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.webstudio.util.FacesUtils;
@@ -27,10 +29,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 /**
  * Deployment controller.
@@ -63,6 +65,13 @@ public class DeploymentController implements Serializable {
                         .getProjectName(),
                         descriptor.getProjectVersion().getVersionName());
                 items.add(ddi);
+            }
+
+            try {
+                checkConflicts(items);
+            } catch (ProjectException e) {
+                log.error(e);
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
             }
         }
 
@@ -253,23 +262,77 @@ public class DeploymentController implements Serializable {
     }
 
     private void checkConflicts(List<DeploymentDescriptorItem> items) throws ProjectException {
+        if (items == null) {
+            return;
+        }
         UserWorkspace workspace = getWorkspace();
 
         int n = items.size();
-        Map[] projects = new Map[n];
+        Map<String, VersionRange>[] projects = new Map[n];
         for (int i = 0; i < items.size(); i++) {
             DeploymentDescriptorItem ddItem = items.get(i);
-            projects[i] = new HashMap();
+            Map<String, VersionRange> prMap = projects[i] = new HashMap<String, VersionRange>();
 
             UserWorkspaceProject workspaceProject = workspace.getProject(ddItem.getName());
+            prMap.put(workspaceProject.getName(),
+                    new VersionRange(workspaceProject.getVersion(), workspaceProject.getVersion()));
             for (ProjectDependency dep :  workspaceProject.getDependencies()) {
-
+                prMap.put(dep.getProjectName(), new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
             }
         }
 
-        for (DeploymentDescriptorItem item : items) {
-            StringBuilder message = new StringBuilder();
+        outer:
+        for(int i = 0; i < n; ++i) {
+            DeploymentDescriptorItem deploymentDescriptorItem = items.get(i);
+            for (Map.Entry<String, VersionRange> entries : projects[i].entrySet()) {
+                VersionRange range = entries.getValue();
+                for (int j = 0; j < n; ++j) if (i != j) {
+                    VersionRange otherRange = projects[j].get(entries.getKey());
+                    if (otherRange != null && !range.intersects(otherRange)) {
+                        deploymentDescriptorItem.setMessages(new StringBuilder()
+                                .append("<span style='color:red;'>Conflicting with project <b>")
+                                .append(StringEscapeUtils.escapeHtml(items.get(j).getName()))
+                                .append("</b></span>. Dependency causing conflict: <b>")
+                                .append(StringEscapeUtils.escapeHtml(entries.getKey()))
+                                .append("</b>").toString());
+                        continue outer; // one message is enough
+                    }
+                }
+            }
+            deploymentDescriptorItem.setMessages("");
+        }
+    }
 
+
+    private static class VersionRange {
+        CommonVersion lower, upper;
+
+        private int compare(int i, int j) {
+            return i == j ? 0 : i < j ? -1 : 1;
+        }
+
+        public int compare(CommonVersion o1, CommonVersion o2) {
+            if (o1 == null || o2 == null) {
+                // null stands for posistive infinity
+                if (o1 != null) return -1;
+                if (o2 != null) return 1;
+                return 0;
+            }
+
+            int c = compare(o1.getMajor(), o2.getMajor());
+            if (c != 0) return c;
+            c = compare(o1.getMinor(), o2.getMinor());
+            if (c != 0) return c;
+            return compare(o1.getRevision(), o2.getRevision());
+        }
+
+        private VersionRange(CommonVersion lower, CommonVersion upper) {
+            this.lower = lower;
+            this.upper = upper;
+        }
+
+        boolean intersects(VersionRange other) {
+            return compare(lower, other.upper) <= 0 && compare(other.lower, upper) <= 0;
         }
     }
 
