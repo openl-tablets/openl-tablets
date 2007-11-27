@@ -78,8 +78,11 @@
     persistence of the workspace:
     class: FQN of class implementing PersistenceManager interface
     -->
-    <PersistenceManager
-        class="org.apache.jackrabbit.core.state.obj.ObjectPersistenceManager"/>
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.db.DerbyPersistenceManager">
+        <param name="url" value="jdbc:derby:${wsp.home}/db;create=true"/>
+        <param name="schemaObjectPrefix" value="${wsp.name}_"/>
+        <param name="externalBLOBs" value="false"/>
+    </PersistenceManager>
     <!--
     Search index and the file system it uses.
     -->
@@ -106,8 +109,11 @@
     a 'normal' persistence manager, but this could change in future
     implementations.
     -->
-    <PersistenceManager
-        class="org.apache.jackrabbit.core.state.obj.ObjectPersistenceManager"/>
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.db.DerbyPersistenceManager">
+    	<param name="url" value="jdbc:derby:${rep.home}/version/db;create=true" />
+    	<param name="schemaObjectPrefix" value="version_" />
+        <param name="externalBLOBs" value="false"/>
+    </PersistenceManager>
 
   </Versioning>
 
