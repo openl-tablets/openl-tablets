@@ -22,7 +22,8 @@
       </rich:column>
       <rich:column>
         <h:commandLink styleClass="actionButton" action="#{repositoryTreeController.deleteElement}"
-          onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}">
+          onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
+          rendered="#{repositoryTreeController.selected.dataBean.project.checkedOut}">
           <f:param name="element" value="#{el.name}" />
           <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
         </h:commandLink>
