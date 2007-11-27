@@ -8,9 +8,7 @@
 
 
 <div style="padding-bottom:10px;">
-    <a4j:commandButton reRender="newDependencyPanel"
-               oncomplete="Richfaces.showModalPanel('modalNewDependency')"
-               ajaxSingle="true"
+    <h:commandButton onclick="showAddDependency(); return false"
                styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}"
                disabled="#{!repositoryTreeController.selected.dataBean.checkedOut}" 
                value="Add Dependency" />
