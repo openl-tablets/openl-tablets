@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.jsf;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,7 +30,7 @@ public class DateConverter implements Converter {
     {
         ValueBinding vb = uiComponent.getValueBinding("datePattern");
         String datePattern = (String) vb.getValue(facesContext);
-        if (value == null) {
+        if (StringUtils.isEmpty(value)) {
             return null;
         }
         try {
