@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web;
+package org.openl.rules.webstudio.web.jsf;
 
 import javax.faces.model.SelectItem;
 
