@@ -79,31 +79,18 @@ public class RepositoryTreeController {
     private String newProjectName;
     private Collection<UserWorkspaceProject> rulesProjects;
     private Collection<UserWorkspaceDeploymentProject> deploymentsProjects;
-    private String z;
 
-    public String getZ() {
-        return z;
-    }
-
-    public void setZ(String z) {
-        this.z = z;
-    }
-
-    private static String generateId(String nodeName) {
-        return nodeName;
-    }
-
-    private void traverseFolder(TreeFolder folder,
+    private void traverseFolder(String prefix, TreeFolder folder,
         Collection<?extends ProjectArtefact> artefacts) {
         for (ProjectArtefact artefact : artefacts) {
-            String name = artefact.getName();
+            String id = prefix + "/" + artefact.getName();
             if (artefact instanceof ProjectFolder) {
-                TreeFolder tf = new TreeFolder(generateId(name), name);
+                TreeFolder tf = new TreeFolder(id, artefact.getName());
                 tf.setDataBean(artefact);
                 folder.add(tf);
-                traverseFolder(tf, ((ProjectFolder) artefact).getArtefacts());
+                traverseFolder(id, tf, ((ProjectFolder) artefact).getArtefacts());
             } else {
-                TreeFile tf = new TreeFile(generateId(name), name);
+                TreeFile tf = new TreeFile(id, artefact.getName());
                 tf.setDataBean(artefact);
                 folder.add(tf);
             }
@@ -111,14 +98,15 @@ public class RepositoryTreeController {
     }
 
     private void buildTree() {
-        repositoryTreeState.setRoot(new TreeRepository(generateId(""), "", "root"));
+        repositoryTreeState.setRoot(new TreeRepository("", "", "root"));
 
-        TreeRepository rulesRep = new TreeRepository(generateId("Rules Projects"),
-                "Rules Projects", UiConst.TYPE_REPOSITORY);
+        String rulesProjectsRepositoryName = "Rules Projects";
+        TreeRepository rulesRep = new TreeRepository(rulesProjectsRepositoryName,
+                rulesProjectsRepositoryName, UiConst.TYPE_REPOSITORY);
         rulesRep.setDataBean(null);
-        TreeRepository deploymentRep = new TreeRepository(generateId(
-                    "Deployment Projects"), "Deployment Projects",
-                UiConst.TYPE_DEPLOYMENT_REPOSITORY);
+        String deploymentProjectsRepositoryName = "Deployment Projects";
+        TreeRepository deploymentRep = new TreeRepository(deploymentProjectsRepositoryName,
+                deploymentProjectsRepositoryName, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRep.setDataBean(null);
 
         repositoryTreeState.setRulesRepository(rulesRep);
@@ -131,12 +119,12 @@ public class RepositoryTreeController {
         }
 
         for (Project project : rulesProjects) {
-            TreeProject prj = new TreeProject(generateId(project.getName()),
-                    project.getName());
+            TreeProject prj = new TreeProject(rulesProjectsRepositoryName + "/"
+                    + project.getName(), project.getName());
             prj.setDataBean(project);
             rulesRep.add(prj);
             // redo that
-            traverseFolder(prj, project.getArtefacts());
+            traverseFolder(project.getName(), prj, project.getArtefacts());
         }
 
         if (deploymentsProjects == null) {
@@ -149,8 +137,8 @@ public class RepositoryTreeController {
         }
 
         for (UserWorkspaceDeploymentProject deplProject : deploymentsProjects) {
-            String name = deplProject.getName();
-            TreeDProject prj = new TreeDProject(generateId(name), name);
+            TreeDProject prj = new TreeDProject(deploymentProjectsRepositoryName + "/"
+                    + deplProject.getName(), deplProject.getName());
             prj.setDataBean(deplProject);
             deploymentRep.add(prj);
 
