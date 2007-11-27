@@ -64,6 +64,9 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void setProjectDescriptors(Collection<ProjectDescriptor> projectDescriptors) throws ProjectException {
+        if (isReadOnly()) {
+            throw new ProjectException("Cannot change deployment descriptor in read only mode");
+        }
         updateDescriptors(projectDescriptors);
     }
 
@@ -74,6 +77,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
 
         dtrDProject.commit(this, userWorkspace.getUser());
         dtrDProject.unlock(userWorkspace.getUser());
+        updateDescriptors(dtrDProject.getProjectDescriptors());
     }
 
     public void checkOut() throws ProjectException {
@@ -91,10 +95,12 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         }
 
         dtrDProject.lock(userWorkspace.getUser());
+        updateDescriptors(dtrDProject.getProjectDescriptors());
     }
 
     public void close() throws ProjectException {
-        // TODO clean
+        dtrDProject.unlock(userWorkspace.getUser());
+        updateDescriptors(dtrDProject.getProjectDescriptors());
     }
 
     public Collection<ProjectVersion> getVersions() {
@@ -149,7 +155,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public boolean isOpened() {
-        return false;
+        return isCheckedOut();
     }
 
     public boolean isRulesProject() {

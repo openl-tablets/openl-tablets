@@ -5,6 +5,7 @@ import org.openl.SmartProps;
 import static org.openl.rules.workspace.TestHelper.*;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.deploy.DeploymentException;
+import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.mock.MockProject;
 import org.openl.rules.workspace.TestHelper;
@@ -12,6 +13,7 @@ import org.openl.rules.workspace.TestHelper;
 import java.io.File;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.List;
 
 public class JcrProductionDeployerTestCase extends TestCase {
     /**
@@ -76,6 +78,12 @@ public class JcrProductionDeployerTestCase extends TestCase {
         File zipFile = new File(new File(TestHelper.FOLDER_TEST, TestHelper.getWorkspaceUser().getUserId()),
                 JcrProductionDeployer.ZIP_FILE_NAME);
         assertTrue("zip archive was not created", zipFile.exists());
+    }
+
+    public void testDeployProjectsTheSameName() throws DeploymentException {
+        List<Project> projects = Collections.singletonList(project);
+        DeployID id = instance.deploy(projects);
+        instance.deploy(id, projects);
     }
 
     

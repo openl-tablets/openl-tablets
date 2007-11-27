@@ -4,20 +4,19 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk"
-  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax">
-
-  <t:saveState value="#{deploymentController.items}" />
-  <t:saveState value="#{deploymentController.name}" />
-  <t:saveState value="#{deploymentController.projectName}" />
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+  xmlns:c="http://java.sun.com/jstl/core">
 
   <h:panelGrid columns="1">
-    <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton styleClass="button" value="Deploy" action="#{deploymentController.deploy}"/>
-      <h:commandButton styleClass="button" value="Check Out" action="#{deploymentController.checkOut}" rendered="#{deploymentController.checkoutable}" />
-      <h:commandButton styleClass="button" value="Check In" action="#{deploymentController.save}" rendered="#{deploymentController.checkinable}" />
-    </h:panelGrid>
 
-    <ui:include src="/ui/jcr/messages.xhtml" />
+    <c:set var="node" value="#{repositoryTreeController.selected.dataBean}"/>
+
+    <h:panelGrid columns="4" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:commandButton styleClass="button" value="Deploy" action="#{deploymentController.deploy}"/>
+      <h:commandButton styleClass="#{node.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" disabled="#{not node.opened}"/>  
+      <h:commandButton styleClass="#{node.checkedOut ? 'disabledButton' : 'button'}" value="Check Out" action="#{deploymentController.checkOut}" disabled="#{node.checkedOut}" />
+      <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" disabled="#{not node.checkedOut}" />
+    </h:panelGrid>
 
     <rich:dataTable value="#{deploymentController.items}" var="item" width="500" onRowMouseOver="this.style.backgroundColor='#F1F1F1'"
       onRowMouseOut="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'" rowKeyVar="index">
@@ -56,14 +55,14 @@
       <rich:column style="text-align:center">
         <h:commandLink styleClass="actionButton" action="#{deploymentController.deleteItem}" immediate="true"
           onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}">
-          <f:param name="key" value="#{index}" />
+          <f:param name="key" value="#{item.name}" />
           <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
         </h:commandLink>
       </rich:column>
     </rich:dataTable>
 
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton value="Add Descriptor" styleClass="button" onclick="Richfaces.showModalPanel('addDeployEntry')" type="button"/>
+      <h:commandButton value="Add Descriptor" styleClass="#{node.checkedOut ? 'button':'disabledButton'}" onclick="showAddDeployEntry()" type="button" disabled="#{not node.checkedOut}"/>
       <h:commandButton value="Open Selected Projects" styleClass="button" action="#{deploymentController.openSelectedProjects}"/>
     </h:panelGrid>
   </h:panelGrid>
