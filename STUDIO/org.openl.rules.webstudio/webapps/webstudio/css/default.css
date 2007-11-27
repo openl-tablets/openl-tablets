@@ -132,6 +132,7 @@ form .formfields {
   padding-bottom: 5px;
   width: 150px;
   vertical-align: top;
+  font-family: verdana, helvetica, arial, sans-serif;
 }
 
 .required {
@@ -141,19 +142,19 @@ form .formfields {
 }
 
 input {
-  font-family: Verdana, Arial;
+  font-family: verdana, helvetica, arial, sans-serif;
   font-weight: normal;
   font-size: 11px;
 }
 
 select {
-  font-family: Verdana, Arial;
+  font-family: verdana, helvetica, arial, sans-serif;
   font-weight: normal;
   font-size: 11px;
 }
 
 textarea {
-  font-family: Verdana, Arial;
+  font-family: verdana, helvetica, arial, sans-serif;
   font-weight: normal;
   font-size: 11px;
 }
