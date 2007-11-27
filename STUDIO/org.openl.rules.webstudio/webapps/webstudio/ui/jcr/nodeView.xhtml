@@ -52,7 +52,7 @@
         <h:commandButton styleClass="#{!(node.checkedOut || node.locked) ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!(node.checkedOut || node.locked)};"/>
         <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{repositoryTreeController.checkInProject}" onclick="return #{node.checkedOut};"/>
         <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog('#{node.name}');" />
-        <h:commandButton styleClass="#{!node.locked ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!node.locked} &amp;&amp; confirmDeleteNode();" />
+        <h:commandButton styleClass="#{(!node.locked || node.localOnly) ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!node.locked || node.localOnly} &amp;&amp; confirmDeleteNode();" />
         <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{node.checkedOut} &amp;&amp; openNewFolderDialog();" />
         <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Add File" type="button" onclick="#{node.checkedOut} &amp;&amp; openNewFileDialog();" />
       </h:panelGrid>
