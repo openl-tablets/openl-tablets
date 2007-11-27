@@ -3,7 +3,9 @@ package org.openl.rules.ui.repository;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeDProject;
 import org.openl.rules.ui.repository.tree.TreeFile;
@@ -24,26 +26,33 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
+
 import org.richfaces.component.UITree;
+
 import org.richfaces.event.NodeSelectedEvent;
+
 import org.richfaces.model.TreeNode;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import java.io.FileInputStream;
+
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 
 
 /**
@@ -54,6 +63,7 @@ import java.util.regex.Pattern;
  * @author Andrey Naumenko
  */
 public class RepositoryTreeController {
+    private static final Date SPECIAL_DATE = new Date(0);
     private final static Log log = LogFactory.getLog(RepositoryTreeController.class);
     private static final String PROJECTNAME_FORBIDDEN_REGEXP = "[\\\\/:;<>\\?\\*\t\n$%]";
     private static final Pattern PROJECTNAME_FORBIDDEN_PATTERN = Pattern.compile(PROJECTNAME_FORBIDDEN_REGEXP);
@@ -69,6 +79,15 @@ public class RepositoryTreeController {
     private String newProjectName;
     private Collection<UserWorkspaceProject> rulesProjects;
     private Collection<UserWorkspaceDeploymentProject> deploymentsProjects;
+    private String z;
+
+    public String getZ() {
+        return z;
+    }
+
+    public void setZ(String z) {
+        this.z = z;
+    }
 
     private static String generateId(String nodeName) {
         return nodeName;
@@ -197,9 +216,10 @@ public class RepositoryTreeController {
 
         getData();
 
-        Iterator<String> iterator = selected.getDataBean().getArtefactPath().getSegments().iterator();
+        Iterator<String> iterator = selected.getDataBean().getArtefactPath().getSegments()
+                .iterator();
         TreeNode currentNode = repositoryTreeState.getRulesRepository();
-        while (currentNode != null && iterator.hasNext()) {
+        while ((currentNode != null) && iterator.hasNext()) {
             currentNode = currentNode.getChild(iterator.next());
         }
 
@@ -255,7 +275,8 @@ public class RepositoryTreeController {
     }
 
     public String delete() {
-        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) getSelected().getDataBean();
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) getSelected()
+                .getDataBean();
         try {
             projectArtefact.delete();
             invalidateTree();
@@ -271,7 +292,8 @@ public class RepositoryTreeController {
 
     public String deleteElement() {
         AbstractTreeNode selected = getSelected();
-        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) selected.getDataBean();
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) selected
+                .getDataBean();
         String childName = FacesUtils.getRequestParameter("element");
 
         try {
@@ -279,8 +301,10 @@ public class RepositoryTreeController {
             invalidateTreeUpdateSelection();
         } catch (ProjectException e) {
             log.error("error deleting", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting", e.getMessage()));
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting",
+                        e.getMessage()));
         }
         return null;
     }
@@ -792,6 +816,34 @@ public class RepositoryTreeController {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public Date getEffectiveDate() {
+        return ((RulesRepositoryArtefact) getSelected().getDataBean()).getEffectiveDate();
+    }
+
+    public void setEffectiveDate(Date date) {
+        if (!SPECIAL_DATE.equals(date)) {
+            try {
+                ((RulesRepositoryArtefact) getSelected().getDataBean()).setEffectiveDate(date);
+            } catch (ProjectException e) {
+                log.error(e);
+            }
+        }
+    }
+
+    public Date getExpirationDate() {
+        return ((RulesRepositoryArtefact) getSelected().getDataBean()).getExpirationDate();
+    }
+
+    public void setExpirationDate(Date date) {
+        if (!SPECIAL_DATE.equals(date)) {
+            try {
+                ((RulesRepositoryArtefact) getSelected().getDataBean()).setExpirationDate(date);
+            } catch (ProjectException e) {
+                log.error(e);
+            }
+        }
     }
 
     public void setUploadService(UploadService uploadService) {

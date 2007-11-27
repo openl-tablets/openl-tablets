@@ -212,8 +212,8 @@ form.standard table.buttonPanel {
 }
 
 .readonly {
-  color: #555555;
-  background-color: #dddddd;
+  color: #888888;
+  background-color: #bbbbbb;
 }
 
 /* message styles */

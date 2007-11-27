@@ -14,9 +14,15 @@
 
   <managed-bean>
     <managed-bean-name>skinBean</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.SkinBean</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.jsf.SkinBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
+
+  <!-- Special date converter to suppress rich:calendar validation -->
+  <converter>
+    <converter-id>org.openl.DateConverter</converter-id>
+    <converter-class>org.openl.rules.webstudio.web.jsf.DateConverter</converter-class>
+  </converter>
 
   <!-- ====================================================================
     This two rederers were added because of migrating to Tomahawk 1.1.3.
