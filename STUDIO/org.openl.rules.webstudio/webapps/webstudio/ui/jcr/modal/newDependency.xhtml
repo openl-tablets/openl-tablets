@@ -5,7 +5,10 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
+    <a4j:keepAlive beanName="addDependency" />
+
   <rich:modalPanel id="modalNewDependency" width="400" minWidth="400" height="160" minHeight="160">
+    <a4j:outputPanel id="addDependencyPanel">
     <f:facet name="header">
       <h:outputText value="Add dependency" />
     </f:facet>
@@ -15,14 +18,18 @@
     </f:facet>
 
     <h:form id="modaNewDependencyForm">
+        <a4j:commandButton id="addDependencyBtn" reRender="addDependencyPanel" oncomplete="showAddDependencyUpdateVersion()" ajaxSingle="true" style="display:none;"/>
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="project" styleClass="required" value="Project" />
         <h:selectOneMenu id="project" required="true" value="#{addDependency.projectName}">
           <f:selectItems value="#{addDependency.availableProjects}" />
+          <a4j:support event="onchange" reRender="lowerVersion" ajaxSingle="true" />  
         </h:selectOneMenu>
 
         <h:outputLabel for="lowerVersion" styleClass="required" value="Lower version" />
-        <h:inputText id="lowerVersion" required="true" size="20" maxlength="20" value="#{addDependency.lowerVersion}" />
+          <h:selectOneMenu id="lowerVersion" value="#{addDependency.lowerVersion}" required="true">
+              <f:selectItems value="#{addDependency.projectVersions}" />
+          </h:selectOneMenu>
 
         <h:outputLabel for="upperVersion" value="Upper Version" />
         <h:inputText id="upperVersion" size="20" maxlength="20" value="#{addDependency.upperVersion}" />
@@ -34,8 +41,20 @@
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Add" action="#{addDependency.add}" />
-        <h:commandButton styleClass="button" value="Cancel" onclick="Richfaces.hideModalPanel('modalNewDependency');return false;" />
+        <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalNewDependency');" />
       </h:panelGrid>
     </h:form>
+      </a4j:outputPanel>
   </rich:modalPanel>
+
+    <script>
+        function showAddDependency() {
+            document.getElementById('modaNewDependencyForm:addDependencyBtn').onclick();
+            Richfaces.showModalPanel('modalNewDependency');
+        }
+
+        function showAddDependencyUpdateVersion() {
+            document.getElementById('modaNewDependencyForm:project').onchange();
+        }
+    </script>
 </ui:composition>

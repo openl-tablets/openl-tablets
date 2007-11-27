@@ -1,24 +1,26 @@
 package org.openl.rules.ui.repository.dependency;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.openl.rules.ui.repository.RepositoryTreeState;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeProject;
+import org.openl.rules.webstudio.RulesUserSession;
+import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.openl.util.Log;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 public class AddDependencyController {
@@ -85,6 +87,37 @@ public class AddDependencyController {
 
         return null;
     }
+
+    public SelectItem[] getProjectVersions() {
+        UserWorkspace workspace;
+        try {
+            workspace = getRulesUserSession().getUserWorkspace();
+        } catch (Exception e) {
+            Log.error("could not get user workspace", e);
+            return new SelectItem[0];
+        }
+        if (projectName == null) {
+            return new SelectItem[0];
+        }
+
+        try {
+            UserWorkspaceProject project = workspace.getProject(projectName);
+            List<SelectItem> selectItems = new ArrayList<SelectItem>();
+            for (ProjectVersion version : project.getVersions()) {
+                selectItems.add(new SelectItem(version.getVersionName()));
+            }
+            return selectItems.toArray(new SelectItem[selectItems.size()]);
+        } catch (ProjectException e) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
+        }
+
+        return new SelectItem[0];
+    }
+
+    private RulesUserSession getRulesUserSession() {
+        return (RulesUserSession) FacesUtils.getSessionMap().get("rulesUserSession");
+    }
+
 
     private ProjectDependencyImpl buildDependencyObject() {
         ProjectVersion projectVersion1 = versionFromString(lowerVersion);
