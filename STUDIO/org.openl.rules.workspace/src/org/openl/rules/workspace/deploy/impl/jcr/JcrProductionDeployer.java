@@ -20,8 +20,8 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.List;
 
 public class JcrProductionDeployer implements ProductionDeployer {
     public static final String PROPNAME_ZIPFOLDER = "temp.zip.location";
@@ -93,17 +93,31 @@ public class JcrProductionDeployer implements ProductionDeployer {
             RRepository rRepository = ProductionRepositoryFactoryProxy.getRepositoryInstance();
 
             RProject rProject;
+            RFile rFile = null;
             synchronized (rRepository) {
-                if (rRepository.hasProject(id.getName()))  {
-                    throw new DeploymentException("project '{0}' already deployed", null, id.getName());
+                if (rRepository.hasProject(id.getName())) {
+                    rProject = rRepository.getProject(id.getName());
+                    List<RFile> rFiles = rProject.getRootFolder().getFiles();
+                    for (RFile file : rFiles) {
+                        if (ZIP_NODE_NAME.equals(file.getName())) {
+                            rFile = file;
+                            break;
+                        }
+                    }
+                } else {
+                    rProject = rRepository.createProject(id.getName());
                 }
-                rProject = rRepository.createProject(id.getName());
             }
 
-            RFile rFile = rProject.getRootFolder().createFile(ZIP_NODE_NAME);
+            if (rFile == null) {
+                rFile = rProject.getRootFolder().createFile(ZIP_NODE_NAME);
+            }
+            
             try {
-                rFile.setContent(new FileInputStream(getZipFile()));
-            } catch (FileNotFoundException e) {
+                FileInputStream fis = new FileInputStream(getZipFile());
+                rFile.setContent(fis);
+                fis.close();
+            } catch (IOException e) {
                 throw new DeploymentException("IO exception", e);
             }
             rProject.commit(user);
