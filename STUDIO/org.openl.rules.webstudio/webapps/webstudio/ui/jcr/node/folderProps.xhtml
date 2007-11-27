@@ -4,8 +4,8 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <h:panelGrid columns="2" columnClasses="label,">
-    <h:outputText styleClass="niceLabel" value="Folder Name:" />
+  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+    <h:outputText value="Folder Name" />
     <h:outputText value="#{repositoryTreeController.selected.name}" />
   </h:panelGrid>
 

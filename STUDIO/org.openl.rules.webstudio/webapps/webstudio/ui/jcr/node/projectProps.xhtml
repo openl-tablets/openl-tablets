@@ -4,15 +4,15 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <h:panelGrid columns="2" columnClasses="label,">
-    <h:outputText styleClass="niceLabel" value="Project Name:" />
+  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+    <h:outputText value="Project Name" />
     <h:outputText value="#{repositoryTreeController.selected.name}" />
 
     <ui:remove>
-      <h:outputText styleClass="niceLabel" value="Description:" />
+      <h:outputText value="Description" />
       <h:inputTextarea value="" rows="3" cols="40" />
 
-      <h:outputText styleClass="niceLabel" value="Status:" />
+      <h:outputText value="Status" />
       <h:selectOneMenu value="DRAFT">
         <f:selectItem itemValue="INITIAL" />
         <f:selectItem itemValue="DRAFT" />
@@ -22,10 +22,10 @@
       </h:selectOneMenu>
     </ui:remove>
 
-    <h:outputText styleClass="niceLabel" value="Creation Date:" />
+    <h:outputText value="Creation Date" />
     <h:outputText value="#{repositoryTreeController.selected.createdAt}" />
 
-    <h:outputText styleClass="niceLabel" value="Created By:" />
+    <h:outputText value="Created By" />
     <h:outputText value="#{repositoryTreeController.selected.createdBy}" />
 
   </h:panelGrid>

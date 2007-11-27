@@ -4,13 +4,13 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <h:panelGrid columns="2" columnClasses="label,">
-    <h:outputText styleClass="niceLabel" value="File Name:" />
+  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+    <h:outputText value="File Name" />
     <h:outputText value="#{repositoryTreeController.selected.name}" />
   </h:panelGrid>
 
   <ui:include src="/ui/jcr/node/properties.xhtml">
-    <ui:param name="prefix" value="file"/>
+    <ui:param name="prefix" value="file" />
   </ui:include>
 
 </ui:composition>
