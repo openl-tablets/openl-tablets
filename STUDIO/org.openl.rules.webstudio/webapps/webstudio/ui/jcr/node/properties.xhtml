@@ -5,8 +5,6 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk">
 
-  <h:messages />
-
   <h:panelGrid columns="2" columnClasses="label,">
     <h:outputLabel for="#{prefix}effectiveDate" value="Effective date" />
     <t:inputCalendar id="#{prefix}effectiveDate" size="10" value="#{repositoryTreeController.selected.dataBean.effectiveDate}" renderAsPopup="true"
