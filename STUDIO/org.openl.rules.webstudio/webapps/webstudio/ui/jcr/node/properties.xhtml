@@ -22,8 +22,7 @@
     </rich:calendar>
 
     <h:outputLabel for="#{prefix}lineOfBusiness" value="Line of business" />
-    <h:inputText id="#{prefix}lineOfBusiness" disabled="#{!repositoryTreeController.selected.dataBean.project.checkedOut}"
-      styleClass="#{repositoryTreeController.selected.dataBean.readOnly ? 'readonly' : ''}"
-      value="#{repositoryTreeController.selected.dataBean.lineOfBusiness}" />
+    <h:inputText id="#{prefix}lineOfBusiness" value="#{repositoryTreeController.selected.dataBean.lineOfBusiness}"
+      disabled="#{!repositoryTreeController.selected.dataBean.project.checkedOut}"/>
   </h:panelGrid>
 </ui:composition>
