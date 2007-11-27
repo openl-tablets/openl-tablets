@@ -50,7 +50,7 @@
         <h:outputText value="#{item.version}" />
       </rich:column>
       <rich:column style="text-align:center">
-        <h:outputText value="#{item.messages}" />
+        <h:outputText value="#{item.messages}" escape="false"/>
       </rich:column>
       <rich:column style="text-align:center">
         <h:commandLink styleClass="actionButton" action="#{deploymentController.deleteItem}" immediate="true"
