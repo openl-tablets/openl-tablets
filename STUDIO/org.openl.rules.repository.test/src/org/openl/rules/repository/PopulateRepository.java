@@ -58,7 +58,7 @@ public class PopulateRepository {
             RFile f1 = p1.getRootFolder().getFolders().get(0).getFiles().get(0);
             if (f1.getVersionHistory().size() < 10) {
                 // add 1 more version each launch
-                int rev = p1.getBaseVersion().getRevision();
+                int rev = p1.getActiveVersion().getRevision();
                 
                 if (rev % 2 == 0) {
                     String s = "updated-" + (rev);
