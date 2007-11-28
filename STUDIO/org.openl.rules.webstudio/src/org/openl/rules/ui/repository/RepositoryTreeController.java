@@ -866,11 +866,13 @@ public class RepositoryTreeController {
         UserWorkspaceProject project = getActiveProject();
         if (project != null) {
             ProjectVersion version = project.getVersion();
+            if (version!=null) {
             version.getRevision();
             ProjectVersion newVersion = new RepositoryProjectVersionImpl(version.getMajor(),
                     version.getMinor(), version.getRevision() + 1, null);
 
             return newVersion.getVersionName();
+            }
         }
         return version;
     }
