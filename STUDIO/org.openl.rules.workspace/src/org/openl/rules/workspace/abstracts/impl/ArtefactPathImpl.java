@@ -110,7 +110,15 @@ public class ArtefactPathImpl implements ArtefactPath {
         if (this == obj) return true;
         if (obj instanceof ArtefactPathImpl) {
             ArtefactPathImpl other = (ArtefactPathImpl) obj;
-            return getStringValue().equals(other.getStringValue());
+            if (segmentCount() != other.segmentCount())
+                return false;
+            Iterator<String> it1 = segments.iterator();
+            Iterator<String> it2 = other.segments.iterator();
+            while (it1.hasNext()) {
+                if (!it1.next().equals(it2.next()))
+                    return false;
+            }
+            return true;
         } else {
             return false;
         }
