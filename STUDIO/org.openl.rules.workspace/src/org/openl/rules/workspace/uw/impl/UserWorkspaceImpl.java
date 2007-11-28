@@ -1,5 +1,17 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
@@ -7,7 +19,6 @@ import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -18,20 +29,9 @@ import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
-import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.util.Log;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Iterator;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     
@@ -197,7 +197,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace.addProject(repositoryProject);
     }
 
-    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject, ProjectVersion version) throws ProjectException {
+    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject, CommonVersion version) throws ProjectException {
         RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
         return localWorkspace.addProject(oldRP);
     }
