@@ -16,7 +16,7 @@ public class UiConst {
 
     // <rich:treeNode icon="..." iconLeaf="..."
     public static final String ICON_FILE = "/images/jcr/tree_document.gif";
-    public static final String ICON_FOLDER = "/images/jcr/tree_folder.png";
+    public static final String ICON_FOLDER = "/images/jcr/tree_folder.gif";
     public static final String ICON_PROJECT = "/images/jcr/tree_server.gif";
     public static final String ICON_REPOSITORY = "/images/jcr/tree_storage.gif";
 

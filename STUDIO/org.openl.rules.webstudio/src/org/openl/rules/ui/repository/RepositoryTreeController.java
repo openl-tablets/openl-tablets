@@ -1,24 +1,11 @@
 package org.openl.rules.ui.repository;
 
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeDProject;
@@ -42,6 +29,7 @@ import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
@@ -49,9 +37,28 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
+
 import org.richfaces.component.UITree;
+
 import org.richfaces.event.NodeSelectedEvent;
+
 import org.richfaces.model.TreeNode;
+
+import java.io.FileInputStream;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 
 
 /**
@@ -854,6 +861,15 @@ public class RepositoryTreeController {
     }
 
     public String getVersion() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project != null) {
+            ProjectVersion version = project.getVersion();
+            version.getRevision();
+            ProjectVersion newVersion = new RepositoryProjectVersionImpl(version.getMajor(),
+                    version.getMinor(), version.getRevision() + 1, null);
+
+            return newVersion.getVersionName();
+        }
         return version;
     }
 
