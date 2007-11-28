@@ -13,7 +13,7 @@ public class SkinBean {
             "DEFAULT", "blueSky", "classic", "deepMarine", "emeraldTown", "japanCherry",
             "ruby", "wine", "plain"
         };
-    private String skin = skinsArray[6];
+    private String skin = skinsArray[2];
 
     public String getSkin() {
         return skin;
