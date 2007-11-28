@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeDProject;
@@ -607,7 +608,8 @@ public class RepositoryTreeController {
         }
 
         try {
-            project.checkIn();
+            CommonVersion v = new CommonVersionImpl(version);
+            project.checkIn(v.getMajor(), v.getMinor());
             invalidateTree();
             return null;
         } catch (ProjectException e) {

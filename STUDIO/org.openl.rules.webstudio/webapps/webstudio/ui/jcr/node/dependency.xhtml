@@ -1,56 +1,46 @@
 <ui:composition
-        xmlns:f="http://java.sun.com/jsf/core"
-        xmlns:h="http://java.sun.com/jsf/html"
-        xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-        xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-        xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
 
+  <div style="padding-bottom: 10px;"><h:commandButton onclick="showAddDependency(); return false"
+    styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}"
+    disabled="#{!repositoryTreeController.selected.dataBean.checkedOut}" value="Add Dependency" /></div>
 
-
-<div style="padding-bottom:10px;">
-    <h:commandButton onclick="showAddDependency(); return false"
-               styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}"
-               disabled="#{!repositoryTreeController.selected.dataBean.checkedOut}" 
-               value="Add Dependency" />
-</div>
-
-<rich:dataTable rendered="#{not empty repositoryTreeController.selected.dependencies}"
-        value="#{repositoryTreeController.selected.dependencies}" var="dep">
+  <rich:dataTable rendered="#{not empty repositoryTreeController.selected.dependencies}"
+    value="#{repositoryTreeController.selected.dependencies}" var="dep">
     <f:facet name="header">
-    <rich:columnGroup>
+      <rich:columnGroup>
         <rich:column>
-            <h:outputText value="Action" />
+          <h:outputText value="Project" />
         </rich:column>
         <rich:column>
-            <h:outputText value="Project"/>
+          <h:outputText value="Versions" />
         </rich:column>
         <rich:column>
-            <h:outputText value="Versions"/>
+          <h:outputText value="Actions" />
         </rich:column>
-    </rich:columnGroup>
+      </rich:columnGroup>
     </f:facet>
 
     <rich:columnGroup>
-        <rich:column>
-            <h:commandLink action="#{dep.delete}" rendered="#{repositoryTreeController.selected.dataBean.checkedOut}">
-					<h:graphicImage 
-					    styleClass="actionImage"
-						style="vertical-align:bottom;" 
-						value="/images/test_neq.gif"
-						title="Remove"
-						onclick="NAMESPACE_deleteDepItem.showModalPanel(this); Event.stop(event || window.event);" 
-					/>
-			</h:commandLink>
-			&#160;
-        </rich:column>
-        <rich:column>
-            <h:outputText value="#{dep.projectName}" />
-        </rich:column>
-        <rich:column>
-            <h:outputText value="#{dep.versionString}" />
-        </rich:column>
+      <rich:column>
+        <h:outputText value="#{dep.projectName}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{dep.versionString}" />
+      </rich:column>
+      <rich:column style="text-align:center;">
+        <h:commandLink action="#{dep.delete}" rendered="#{repositoryTreeController.selected.dataBean.checkedOut}">
+          <h:graphicImage styleClass="actionImage" style="vertical-align:bottom;" value="/images/test_neq.gif" title="Remove"
+            onclick="NAMESPACE_deleteDepItem.showModalPanel(this); Event.stop(event || window.event);" />
+        </h:commandLink>
+        &#160;
+      </rich:column>
     </rich:columnGroup>
-</rich:dataTable>
+  </rich:dataTable>
 
 
 </ui:composition>
