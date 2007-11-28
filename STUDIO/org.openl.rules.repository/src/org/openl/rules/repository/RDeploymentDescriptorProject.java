@@ -6,7 +6,7 @@ import java.util.List;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface RDeploymentDescriptorProject extends RCommonProject {
-    public RVersion getBaseVersion();
+    public RVersion getActiveVersion();
     public List<RVersion> getVersionHistory() throws RRepositoryException;
 
     /**
