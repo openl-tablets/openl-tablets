@@ -8,7 +8,6 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.exceptions.RRepositoryException;
