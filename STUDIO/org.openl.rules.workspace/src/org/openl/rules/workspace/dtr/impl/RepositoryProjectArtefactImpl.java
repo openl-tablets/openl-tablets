@@ -36,7 +36,6 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
         this.path = path;
 
         reLoadVersions();
-        reLoadProps();
     }
 
     public String getName() {
@@ -56,7 +55,6 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     }
 
     public Collection<Property> getProperties() {
-        reLoadProps();
         return properties.getProperties();
     }
 
@@ -201,31 +199,5 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
         } catch (RRepositoryException e) {
             Log.error("Failed to get version history", e);
         }
-    }
-    
-    protected void reLoadProps() {
-        PropertiesContainer props = new PropertiesContainerImpl();
-        
-        for (RProperty rp : rulesEntity.getProperties()) {
-            String name = rp.getName();
-            Object value = rp.getValue();
-            
-            Property prop;
-            switch (rp.getType()) {
-            case DATE:
-                prop = new PropertyImpl(name, (Date) value);
-                break;
-            default:
-                prop = new PropertyImpl(name, value.toString());
-            }
-            
-            try {
-                props.addProperty(prop);
-            } catch (PropertyException e) {
-                // ignore -- must never happen
-            }            
-        }
-        
-        properties = props;
     }
 }
