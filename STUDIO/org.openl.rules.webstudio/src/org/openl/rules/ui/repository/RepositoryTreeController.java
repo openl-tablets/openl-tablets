@@ -25,6 +25,7 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectResource;
+import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -80,15 +81,15 @@ public class RepositoryTreeController {
     private Collection<UserWorkspaceProject> rulesProjects;
     private Collection<UserWorkspaceDeploymentProject> deploymentsProjects;
 
-    private void traverseFolder(String prefix, TreeFolder folder,
+    private void traverseFolder(TreeFolder folder,
         Collection<?extends ProjectArtefact> artefacts) {
         for (ProjectArtefact artefact : artefacts) {
-            String id = prefix + "/" + artefact.getName();
+            String id = artefact.getName();
             if (artefact instanceof ProjectFolder) {
                 TreeFolder tf = new TreeFolder(id, artefact.getName());
                 tf.setDataBean(artefact);
                 folder.add(tf);
-                traverseFolder(id, tf, ((ProjectFolder) artefact).getArtefacts());
+                traverseFolder(tf, ((ProjectFolder) artefact).getArtefacts());
             } else {
                 TreeFile tf = new TreeFile(id, artefact.getName());
                 tf.setDataBean(artefact);
@@ -119,12 +120,11 @@ public class RepositoryTreeController {
         }
 
         for (Project project : rulesProjects) {
-            TreeProject prj = new TreeProject(rulesProjectsRepositoryName + "/"
-                    + project.getName(), project.getName());
+            TreeProject prj = new TreeProject(project.getName(), project.getName());
             prj.setDataBean(project);
             rulesRep.add(prj);
             // redo that
-            traverseFolder(project.getName(), prj, project.getArtefacts());
+            traverseFolder(prj, project.getArtefacts());
         }
 
         if (deploymentsProjects == null) {
@@ -185,9 +185,23 @@ public class RepositoryTreeController {
     }
 
     public Boolean adviseNodeSelected(UITree uiTree) {
+        AbstractTreeNode selectedNode = getSelected();
         AbstractTreeNode node = (AbstractTreeNode) uiTree.getRowData();
-        AbstractTreeNode selected = getSelected();
-        return (node.getId().equals(selected.getId()));
+
+        ProjectArtefact projectArtefact = node.getDataBean();
+        ProjectArtefact selected = selectedNode.getDataBean();
+
+        if (selected == null || projectArtefact == null) {
+            return selectedNode.getId().equals(node.getId());
+        }
+
+        if(selected.getArtefactPath().equals(projectArtefact.getArtefactPath())) {
+            if (projectArtefact instanceof DeploymentDescriptorProject) {
+                return selected instanceof DeploymentDescriptorProject;
+            }
+            return true;
+        }
+        return false;
     }
 
     public final void invalidateTree() {
