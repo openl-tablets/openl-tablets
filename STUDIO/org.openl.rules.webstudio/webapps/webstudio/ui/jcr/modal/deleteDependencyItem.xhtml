@@ -24,12 +24,9 @@
 
         <rich:separator height="1" />
 
-        <h:panelGrid styleClass="modalButtonPanel"
-                     cellpadding="0" cellspacing="0" border="0"
-                     columns="2" columnClasses="modalButtonCol,modalButtonCol">
-
-            <h:commandButton styleClass="modalButton" type="button" value="Yes" onclick="NAMESPACE_deleteDepItem.apply()"/>
-            <h:commandButton styleClass="modalButton" type="button" value="No" onclick="NAMESPACE_deleteDepItem.cancel()"/>
+        <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+            <h:commandButton styleClass="button" type="button" value="Yes" onclick="NAMESPACE_deleteDepItem.apply()"/>
+            <h:commandButton styleClass="button" type="button" value="No" onclick="NAMESPACE_deleteDepItem.cancel()"/>
         </h:panelGrid>
 
         </h:panelGrid>
