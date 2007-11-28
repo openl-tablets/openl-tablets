@@ -48,7 +48,7 @@
     <h:panelGroup rendered="#{!node.deleted}">
       <h:panelGrid columns="7" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="#{!node.opened ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{!node.opened};"/>
-        <h:commandButton styleClass="#{!node.opened ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{!node.opened} &amp;&amp; openNewFileDialog();" />
+        <h:commandButton styleClass="#{!node.opened ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{!node.opened} &amp;&amp; openOpenVersionDialog('#{node.name}');" />
         <h:commandButton styleClass="#{node.opened ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{node.opened};"/>
         <h:commandButton styleClass="#{!(node.checkedOut || node.locked) ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!(node.checkedOut || node.locked)};"/>
         <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{repositoryTreeController.checkInProject}" onclick="return #{node.checkedOut};"/>
