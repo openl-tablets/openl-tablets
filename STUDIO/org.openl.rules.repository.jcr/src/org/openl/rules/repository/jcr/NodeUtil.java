@@ -1,6 +1,7 @@
 package org.openl.rules.repository.jcr;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
@@ -107,7 +108,7 @@ public class NodeUtil {
                 CommonVersionImpl cv = new CommonVersionImpl(jvi.getMajor(), jvi.getMinor(), jvi.getRevision());
                 
                 if (cv.compareTo(version) == 0) {
-                    result = jcrVersion.getNode("jcr:frozenNode");
+                    result = jcrVersion.getNode(JcrNT.FROZEN_NODE);
                     break;
                 }
             }
@@ -118,5 +119,50 @@ public class NodeUtil {
         }
         
         return result;
+    }
+    
+    protected static Node normalizeOldNode(Node node, CommonVersion version) throws RepositoryException {
+        if (node.isNodeType(JcrNT.NT_FROZEN_NODE)) {
+            // all is OK
+            return node;
+        }
+        
+        if (!node.isNodeType("nt:versionedChild")) {
+            // ??? unknown
+            return node;
+        }
+        
+        Node versionHistoryNode = node.getProperty("jcr:childVersionHistory").getNode();
+
+        int projectRevision = version.getRevision();
+
+        int correctVRev = -1;
+        Node correctVNode = null;
+
+        NodeIterator versions = versionHistoryNode.getNodes();
+        while (versions.hasNext()) {
+            Node versionNode = versions.nextNode();
+            if (!versionNode.isNodeType("nt:version")) continue;
+
+            // old nodes, should be 1 per versionNode
+            NodeIterator oldNodes = versionNode.getNodes();
+            while(oldNodes.hasNext()) {
+                Node oldNode = oldNodes.nextNode();
+
+                int nodeRevision = 0;
+                if (oldNode.hasProperty(JcrNT.PROP_REVISION)) {
+                    nodeRevision = (int)oldNode.getProperty(JcrNT.PROP_REVISION).getLong();
+                }
+
+                if (nodeRevision <= projectRevision) {
+                    if (nodeRevision > correctVRev) {
+                        correctVNode = oldNode;
+                        correctVRev = nodeRevision;
+                    }
+                }
+            }
+        }
+        
+        return correctVNode;
     }
 }

@@ -7,6 +7,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.openl.rules.repository.CommonUser;
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDependency;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RLock;
@@ -21,8 +22,8 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class JcrProject extends JcrEntity implements RProject {
     //TODO: candidate to move into JcrNT
-    private static final String NODE_FILES = "files";
-    private static final String NODE_DEPENDENCIES = "dependencies";
+    public static final String NODE_FILES = "files";
+    public static final String NODE_DEPENDENCIES = "dependencies";
 
     /** Project's root folder or project->files. */
     private JcrFolder rootFolder;
@@ -124,5 +125,14 @@ public class JcrProject extends JcrEntity implements RProject {
 
     public void setDependencies(Collection<? extends RDependency> dependencies) throws RRepositoryException {
         this.dependencies.updateDependencies(dependencies);
+    }
+    
+    public RProject getProjectVersion(CommonVersion version) throws RRepositoryException {
+        try {
+            Node frozenNode = NodeUtil.getNode4Version(node(), version);
+            return new JcrOldProject(getName(), frozenNode, version);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Cannot get project version", e);
+        }
     }
 }

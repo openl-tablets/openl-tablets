@@ -36,7 +36,7 @@ public class JcrVersion implements RVersion {
     
     public JcrVersion(Version version) throws RepositoryException {
         // storing node's properties into variables to reduce 'throws' for getters
-        Node frozen = version.getNode("jcr:frozenNode");
+        Node frozen = version.getNode(JcrNT.FROZEN_NODE);
         
         initVersion(frozen);
 
