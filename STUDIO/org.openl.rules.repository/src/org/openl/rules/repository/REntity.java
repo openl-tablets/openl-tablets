@@ -22,12 +22,11 @@ public interface REntity {
     public String getName();
 
     /**
-     * Gets base version of the entity.
-     * Base version is currently active one.
+     * Gets active version of the entity.
      *
-     * @return base version
+     * @return active version
      */
-    public RVersion getBaseVersion();
+    public RVersion getActiveVersion();
 
     /**
      * Gets version history of the entity.
