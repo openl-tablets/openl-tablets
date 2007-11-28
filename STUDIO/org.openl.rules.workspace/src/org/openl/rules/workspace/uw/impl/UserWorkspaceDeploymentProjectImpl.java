@@ -75,7 +75,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
             throw new ProjectException("Project ''{0}'' must be checked-out before checking-in", null, getName());
         }
 
-        if (major != 0 && minor != 0) {
+        if (major != 0 || minor != 0) {
             dtrDProject.riseVersion(major, minor);
         }
         
