@@ -8,10 +8,10 @@
     <a4j:keepAlive beanName="addDependency" />
 
   <rich:modalPanel id="modalNewDependency" width="400" minWidth="400" height="160" minHeight="160">
-    <a4j:outputPanel id="addDependencyPanel">
     <f:facet name="header">
-      <h:outputText value="Add dependency" />
+        <h:outputText value="Add dependency" />
     </f:facet>
+    <a4j:outputPanel id="addDependencyPanel">
 
     <f:facet name="controls">
       <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalNewDependency');" />

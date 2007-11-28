@@ -6,15 +6,13 @@
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <a4j:keepAlive beanName="deploymentController" />
-
-
     <rich:modalPanel id="addDeployEntry" width="400" minWidth="400" height="145" minHeight="145">
+    <f:facet name="header">
+        <h:outputText value="Add deployment descriptor" />
+    </f:facet>
     <a4j:outputPanel id="addDeployEntryPanel">
     <h:form id="addDeployEntryForm">
         <a4j:commandButton id="addDeployEntryBtn" reRender="addDeployEntryPanel" oncomplete="showAddDeployEntryUpdateVersion()" ajaxSingle="true" style="display:none;"/>
-        <f:facet name="header">
-            <h:outputText value="Add deployment descriptor" />
-        </f:facet>
 
         <f:facet name="controls">
             <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('addDeployEntry');" />
