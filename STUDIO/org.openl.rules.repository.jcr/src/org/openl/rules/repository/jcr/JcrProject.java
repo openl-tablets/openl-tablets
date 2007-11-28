@@ -135,4 +135,8 @@ public class JcrProject extends JcrEntity implements RProject {
             throw new RRepositoryException("Cannot get project version", e);
         }
     }
+
+    public void riseVersion(int major, int minor) throws RRepositoryException {
+        project.riseVersion(major, minor);
+    }
 }

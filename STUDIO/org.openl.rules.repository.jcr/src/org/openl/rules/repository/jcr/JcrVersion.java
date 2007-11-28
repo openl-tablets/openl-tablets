@@ -124,8 +124,9 @@ public class JcrVersion implements RVersion {
         node.setProperty(JcrNT.PROP_REVISION, version.getRevision());
     }
     
-    protected void set(int major, int minor, int revision) {
-        version = new CommonVersionImpl(major, minor, revision);
+    protected void set(int major, int minor) {
+        // keep revision unchanged
+        version = new CommonVersionImpl(major, minor, version.getRevision());
     }
 
     public int compareTo(CommonVersion o) {

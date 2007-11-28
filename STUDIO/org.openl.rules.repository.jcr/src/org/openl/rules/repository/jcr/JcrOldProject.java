@@ -90,4 +90,8 @@ public class JcrOldProject extends JcrOldEntity implements RProject {
     public RProject getProjectVersion(CommonVersion version) throws RRepositoryException {
         throw new RRepositoryException("In versioned mode can work with one version only!", null);
     }
+
+    public void riseVersion(int major, int minor) throws RRepositoryException {
+        notSupported();
+    }
 }
