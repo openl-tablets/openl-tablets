@@ -6,6 +6,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
+import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeDProject;
 import org.openl.rules.ui.repository.tree.TreeFile;
@@ -20,12 +22,13 @@ import org.openl.rules.webstudio.services.upload.UploadServiceParams;
 import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.FacesUtils;
 import org.openl.rules.workspace.WorkspaceException;
+import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectFolder;
 import org.openl.rules.workspace.abstracts.ProjectResource;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
+import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -43,6 +46,7 @@ import org.richfaces.model.TreeNode;
 
 import java.io.FileInputStream;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -54,6 +58,7 @@ import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 
 
 /**
@@ -80,6 +85,20 @@ public class RepositoryTreeController {
     private String newProjectName;
     private Collection<UserWorkspaceProject> rulesProjects;
     private Collection<UserWorkspaceDeploymentProject> deploymentsProjects;
+    private String version;
+
+    public SelectItem[] getProjectVersions() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) {
+            return new SelectItem[0];
+        }
+
+        List<SelectItem> selectItems = new ArrayList<SelectItem>();
+        for (ProjectVersion version : project.getVersions()) {
+            selectItems.add(new SelectItem(version.getVersionName()));
+        }
+        return selectItems.toArray(new SelectItem[selectItems.size()]);
+    }
 
     private void traverseFolder(TreeFolder folder,
         Collection<?extends ProjectArtefact> artefacts) {
@@ -191,11 +210,11 @@ public class RepositoryTreeController {
         ProjectArtefact projectArtefact = node.getDataBean();
         ProjectArtefact selected = selectedNode.getDataBean();
 
-        if (selected == null || projectArtefact == null) {
+        if ((selected == null) || (projectArtefact == null)) {
             return selectedNode.getId().equals(node.getId());
         }
 
-        if(selected.getArtefactPath().equals(projectArtefact.getArtefactPath())) {
+        if (selected.getArtefactPath().equals(projectArtefact.getArtefactPath())) {
             if (projectArtefact instanceof DeploymentDescriptorProject) {
                 return selected instanceof DeploymentDescriptorProject;
             }
@@ -438,6 +457,27 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to create new deployment project", e.getMessage()));
+            return UiConst.OUTCOME_FAILURE;
+        }
+    }
+
+    public String openVersion() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project == null) {
+            return UiConst.OUTCOME_FAILURE;
+        }
+
+        try {
+            project.openVersion(new CommonVersionImpl(version));
+            invalidateTree();
+            return null;
+        } catch (ProjectException e) {
+            log.error("Failed to open project", e);
+
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Failed to open project", e.getMessage()));
             return UiConst.OUTCOME_FAILURE;
         }
     }
@@ -818,6 +858,14 @@ public class RepositoryTreeController {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public Date getEffectiveDate() {
