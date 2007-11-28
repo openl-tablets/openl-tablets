@@ -23,7 +23,7 @@
         <h:outputLabel for="project" styleClass="required" value="Project" />
         <h:selectOneMenu id="project" required="true" value="#{addDependency.projectName}">
           <f:selectItems value="#{addDependency.availableProjects}" />
-          <a4j:support event="onchange" reRender="lowerVersion" ajaxSingle="true" />  
+          <a4j:support event="onchange" reRender="lowerVersion" ajaxSingle="true" />
         </h:selectOneMenu>
 
         <h:outputLabel for="lowerVersion" styleClass="required" value="Lower version" />

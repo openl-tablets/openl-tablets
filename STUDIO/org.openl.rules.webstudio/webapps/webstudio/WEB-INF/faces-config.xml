@@ -18,7 +18,7 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
-  <!-- Special date converter to suppress rich:calendar validation -->
+  <!-- Special date converter to suppress rich:calendar conversion errors -->
   <converter>
     <converter-id>org.openl.DateConverter</converter-id>
     <converter-class>org.openl.rules.webstudio.web.jsf.DateConverter</converter-class>
