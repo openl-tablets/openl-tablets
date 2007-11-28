@@ -382,4 +382,12 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     public void delete() throws ProjectException {
         throw new ProjectException("Use delete(CommonUser) instead");
     }
+
+    public void riseVersion(int major, int minor) throws ProjectException {
+        try {
+            rulesDescrProject.riseVersion(major, minor);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }        
+    }
 }

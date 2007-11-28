@@ -13,6 +13,7 @@ public interface UserWorkspaceProject extends Project, UserWorkspaceProjectFolde
     void openVersion(CommonVersion version) throws ProjectException;
     void checkOut() throws ProjectException;
     void checkIn() throws ProjectException;
+    void checkIn(int major, int minor) throws ProjectException;
 
     Collection<ProjectVersion> getVersions();
 
