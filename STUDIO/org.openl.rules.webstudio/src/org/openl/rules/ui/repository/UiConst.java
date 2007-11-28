@@ -21,9 +21,6 @@ public class UiConst {
     public static final String ICON_REPOSITORY = "/images/jcr/tree_storage.gif";
 
     //
-    public static final String ICON_FOLDER_MOD = "/images/jcr/tree_folder_major.gif";
-
-    //
     public static final String ICON_PROJECT_CHECKED_OUT = "/images/jcr/tree-prj-checkedout.png";
     public static final String ICON_PROJECT_CLOSED = "/images/jcr/tree-prj-closed.gif";
     public static final String ICON_PROJECT_CLOSED_LOCKED = "/images/jcr/tree-prj-closed-locked.gif";

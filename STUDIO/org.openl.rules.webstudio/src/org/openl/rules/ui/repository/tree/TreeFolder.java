@@ -25,9 +25,6 @@ public class TreeFolder extends AbstractTreeNode {
 	
     /** {@inheritDoc} */
 	public String getIcon() {
-		// FIXME: for mockup
-		if ("rules".equals(getName()) && isLeaf()==false) return UiConst.ICON_FOLDER_MOD;
-
 		return UiConst.ICON_FOLDER;
 	}
 	
