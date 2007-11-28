@@ -133,7 +133,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         try {
-            if (major != 0 && minor != 0) {
+            if (major != 0 || minor != 0) {
                 dest.riseVersion(major, minor);
             }
             
