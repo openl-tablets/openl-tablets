@@ -16,12 +16,12 @@ import javax.faces.el.ValueBinding;
 
 
 /**
- * Special date converter to suppress rich:calendar validation.
+ * Special date converter to suppress rich:calendar conversion errors.
  *
  * @author Andrey Naumenko
  */
 public class DateConverter implements Converter {
-    // ad hoc date value
+    // Ad hoc date value. Indicates conversion error.
     private static final Date SPECIAL_DATE = new Date(0);
     public static final java.lang.String CONVERTER_ID = "org.openl.date";
 

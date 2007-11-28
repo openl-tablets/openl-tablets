@@ -165,7 +165,7 @@ input.button {
   color: #FFFFFF;
   text-align: center;
   height: 18px;
-  background: url(../images/button.gif) repeat-x center;
+  background: url(../images/button_DEFAULT.gif) repeat-x center;
   background-color: #7c99b6;
   margin: 0;
   padding: 0px 5px 0px 5px;
