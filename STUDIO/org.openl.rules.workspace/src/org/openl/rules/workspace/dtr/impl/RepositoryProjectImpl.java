@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.openl.rules.repository.CommonUser;
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDependency;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RVersion;
@@ -52,8 +53,12 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
 
                 ProjectVersion lowVer = new RepositoryProjectVersionImpl(rDep
                         .getLowerLimit(), null);
-                ProjectVersion upVer = new RepositoryProjectVersionImpl(rDep
-                        .getUpperLimit(), null);
+                
+                ProjectVersion upVer = null;
+                CommonVersion dependencyUpperLimit = rDep.getUpperLimit(); 
+                if (dependencyUpperLimit != null){
+                    upVer = new RepositoryProjectVersionImpl(dependencyUpperLimit, null);
+                }
 
                 ProjectDependency pd = new ProjectDependencyImpl(projectName,
                         lowVer, upVer);
