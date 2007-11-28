@@ -54,4 +54,6 @@ public interface RCommonProject {
     public void unlock(CommonUser user) throws RRepositoryException;
     public boolean isLocked() throws RRepositoryException;
     public RLock getLock() throws RRepositoryException;
+    
+    public void riseVersion(int major, int minor) throws RRepositoryException;
 }
