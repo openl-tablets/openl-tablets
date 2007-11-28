@@ -52,7 +52,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     result.add(cached);
                 } else {
                     // get from the repository
-                    RepositoryProject project = wrapProject(rp);
+                    RepositoryProject project = wrapProject(rp, true);
                     result.add(project);
                 }
             }
@@ -75,7 +75,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             
         try {
             RProject rp = rulesRepository.getProject(name);
-            return wrapProject(rp);
+            return wrapProject(rp, true);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}''", e, name);
         }
@@ -110,7 +110,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public RepositoryProject getProject(String name, CommonVersion version) throws RepositoryException {
-        return getProject(name);
+        try {
+            RProject rp = rulesRepository.getProject(name);
+            RProject oldProject = rp.getProjectVersion(version);
+            return wrapProject(oldProject, false);
+        } catch (RRepositoryException e) {
+            throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''", e, name, version.getVersionName());
+        }        
     }
 
     public void updateProject(Project project, WorkspaceUser user) throws RepositoryException {
@@ -180,12 +186,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     // --- private
     
-    private RepositoryProjectImpl wrapProject(RProject rp) {
+    private RepositoryProjectImpl wrapProject(RProject rp, boolean cacheIt) {
         String name = rp.getName();
         ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
         
         RepositoryProjectImpl p = new RepositoryProjectImpl(rp, ap);
-        projects.put(name, p);
+        if (cacheIt) {
+            projects.put(name, p);
+        }
+
         return p;
     }
     
