@@ -35,14 +35,15 @@ public class JcrDependency extends JcrCommonArtefact implements RDependency {
     protected JcrDependency(Node node) throws RepositoryException {
         super(node);
         
-        checkNodeType(JcrNT.NT_DEPENDENCY);
+        // can be frozen node too
+//        checkNodeType(JcrNT.NT_DEPENDENCY);
         
         lowVersion = wrapProp("lowVersion");
         highVersion = wrapProp("highVersion");
     }
 
     @Override
-    public RVersion getBaseVersion() {
+    public RVersion getActiveVersion() {
         // not supported
         return null;
     }

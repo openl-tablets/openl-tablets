@@ -23,6 +23,9 @@ public interface JcrNT {
         public static final String NT_LOCK = "openl:lock";
 
 	public static final String MIX_VERSIONABLE = "mix:versionable";
+        
+        public static final String NT_FROZEN_NODE = "nt:frozenNode";
+        public static final String FROZEN_NODE = "jcr:frozenNode";
 
 	// Global Properties to track security issues
 // take time from version

@@ -38,7 +38,7 @@ public class JcrCommonArtefact {
         }
     }
 
-    public RVersion getBaseVersion() {
+    public RVersion getActiveVersion() {
         try {
             Version v = node().getBaseVersion();
             RVersion result = new JcrVersion(v);
@@ -84,7 +84,8 @@ public class JcrCommonArtefact {
      */
     protected void checkNodeType(String nodeType) throws RepositoryException {
         if (!node.isNodeType(nodeType)) {
-            throw new RepositoryException("Invalid NodeType. Expects " + nodeType);
+            String actualNodeType = node.getPrimaryNodeType().getName();
+            throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects " + nodeType);
         }
     }
 }

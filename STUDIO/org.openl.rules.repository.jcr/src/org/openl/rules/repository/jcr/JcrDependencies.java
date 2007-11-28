@@ -17,11 +17,12 @@ public class JcrDependencies extends JcrCommonArtefact {
     protected JcrDependencies(Node node) throws RepositoryException {
         super(node);
         
-        checkNodeType(JcrNT.NT_DEPENDENCIES);
+        // can be frozen node too
+//        checkNodeType(JcrNT.NT_DEPENDENCIES);
     }
 
     @Override
-    public RVersion getBaseVersion() {
+    public RVersion getActiveVersion() {
         // not supported
         return null;
     }
