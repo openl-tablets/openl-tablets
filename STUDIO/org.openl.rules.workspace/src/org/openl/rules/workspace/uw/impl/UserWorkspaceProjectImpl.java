@@ -79,7 +79,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void openVersion(ProjectVersion version) throws ProjectException {
-        if (isCheckedOut()) {
+        if (isCheckedOut() || isOpened()) {
             close();
         }
 
