@@ -88,7 +88,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     }
     
     public ProjectVersion getVersion() {
-        RVersion rv = rulesDescrProject.getBaseVersion();
+        RVersion rv = rulesDescrProject.getActiveVersion();
         RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
         RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(rv, info);
 
