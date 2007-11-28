@@ -119,7 +119,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }        
     }
 
-    public void updateProject(Project project, WorkspaceUser user) throws RepositoryException {
+    public void updateProject(Project project, WorkspaceUser user, int major, int minor) throws RepositoryException {
         String name = project.getName();
         RepositoryProject dest = getProject(name);
         
@@ -133,6 +133,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         try {
+            if (major != 0 && minor != 0) {
+                dest.riseVersion(major, minor);
+            }
+            
             dest.commit(project, user);
         } catch (ProjectException e) {
             throw new RepositoryException("Failed to update project ''{0}''", e, name);

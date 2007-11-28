@@ -202,8 +202,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace.addProject(oldRP);
     }
 
-    protected void checkInProject(LocalProject localProject) throws RepositoryException {
-        designTimeRepository.updateProject(localProject, user);
+    protected void checkInProject(LocalProject localProject, int major, int minor) throws RepositoryException {
+        designTimeRepository.updateProject(localProject, user, major, minor);
     }
 
     public WorkspaceUser getUser() {

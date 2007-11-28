@@ -197,6 +197,11 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         throw new ProjectException("Use delete(CommonUser) instead");
     }
 
-        // --- protected
-
+    public void riseVersion(int major, int minor) throws ProjectException {
+        try {
+            rulesProject.riseVersion(major, minor);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }        
+    }
 }

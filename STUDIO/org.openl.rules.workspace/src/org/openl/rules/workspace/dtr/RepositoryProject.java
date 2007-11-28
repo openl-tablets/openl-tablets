@@ -63,4 +63,5 @@ public interface RepositoryProject extends Project, RepositoryProjectFolder {
     LockInfo getlLockInfo();
     
     void commit(Project source, CommonUser user) throws ProjectException;
+    void riseVersion(int major, int minor) throws ProjectException;
 }

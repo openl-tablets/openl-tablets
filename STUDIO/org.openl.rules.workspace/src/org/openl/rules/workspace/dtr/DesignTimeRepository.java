@@ -32,7 +32,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param user
      * @throws RepositoryException
      */
-    void updateProject(Project project, WorkspaceUser user) throws RepositoryException;
+    void updateProject(Project project, WorkspaceUser user, int major, int minor) throws RepositoryException;
     
     /**
      * Copies project in/into Design Time Repository.

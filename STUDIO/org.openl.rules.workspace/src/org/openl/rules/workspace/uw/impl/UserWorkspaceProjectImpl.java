@@ -111,15 +111,20 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         updateArtefact(localProject, dtrProject);
     }
 
-    public void checkIn() throws ProjectException {
+    public void checkIn(int major, int minor) throws ProjectException {
         if (!isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' must be checked-out before checking-in", null, getName());
         }
 
-        userWorkspace.checkInProject(localProject);
+        userWorkspace.checkInProject(localProject, major, minor);
         // dtrProject != null
         dtrProject.unlock(userWorkspace.getUser());
         updateArtefact(localProject, dtrProject);
+    }
+
+    public void checkIn() throws ProjectException {
+        // do not rise version
+        checkIn(0, 0);
     }
 
     public boolean isCheckedOut() {

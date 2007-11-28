@@ -70,14 +70,23 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         updateDescriptors(projectDescriptors);
     }
 
-    public void checkIn() throws ProjectException {
+    public void checkIn(int major, int minor) throws ProjectException {
         if (!isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' must be checked-out before checking-in", null, getName());
         }
 
+        if (major != 0 && minor != 0) {
+            dtrDProject.riseVersion(major, minor);
+        }
+        
         dtrDProject.commit(this, userWorkspace.getUser());
         dtrDProject.unlock(userWorkspace.getUser());
         updateDescriptors(dtrDProject.getProjectDescriptors());
+    }
+
+    public void checkIn() throws ProjectException {
+        // do not rise version
+        checkIn(0, 0);
     }
 
     public void checkOut() throws ProjectException {
