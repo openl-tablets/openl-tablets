@@ -15,7 +15,7 @@
     </f:facet>
 
     <h:form id="deleteNodeForm">
-      <h:outputText rendered="#{repositoryTreeController.selected.type == 'project'}"
+      <h:outputText rendered="#{repositoryTreeController.selected.type == 'project' || repositoryTreeController.selected.type == 'deployment'}"
 
         value="Are you sure you want to delete the project '#{repositoryTreeController.selected.name}'?" />
       <h:outputText rendered="#{repositoryTreeController.selected.type == 'folder'}"

@@ -54,11 +54,11 @@ public class DeploymentController implements Serializable {
             projectNameCached = null;
             return items = null;
         }
-        if (items == null || !project.getName().equals(projectNameCached)) {
+        Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
+        if (items == null || !project.getName().equals(projectNameCached) || descriptors.size() != items.size()) {
             projectNameCached = project.getName();
             items = new ArrayList<DeploymentDescriptorItem>();
 
-            Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
 
             for (ProjectDescriptor descriptor : descriptors) {
                 DeploymentDescriptorItem ddi = new DeploymentDescriptorItem(descriptor
