@@ -2,6 +2,7 @@ package org.openl.rules.repository.jcr;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -97,8 +98,11 @@ public class JcrOldEntity implements REntity {
     }
 
     public List<RVersion> getVersionHistory() throws RRepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        LinkedList<RVersion> result = new LinkedList<RVersion>();
+        
+        // only current version
+        result.add(version);
+        return result;
     }
 
     public boolean hasProperty(String name) {

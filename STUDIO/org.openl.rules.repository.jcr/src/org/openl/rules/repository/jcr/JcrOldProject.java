@@ -4,9 +4,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
 import org.openl.rules.repository.CommonUser;
@@ -36,17 +33,6 @@ public class JcrOldProject extends JcrOldEntity implements RProject {
         rootFolder = new JcrOldFolder(this, null, files, version);
         
         Node deps = node.getNode(JcrProject.NODE_DEPENDENCIES);
-        PropertyIterator pi = deps.getProperties();
-        while(pi.hasNext()) {
-            Property p = pi.nextProperty();
-            System.out.println(" p " + p.getName());
-        }
-        NodeIterator ni = deps.getNodes();
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-            System.out.println(" n " + n.getName());
-        }
-        
         dependencies = new JcrDependencies(deps);
     }
 
