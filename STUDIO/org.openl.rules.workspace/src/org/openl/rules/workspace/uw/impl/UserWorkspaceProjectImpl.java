@@ -2,6 +2,7 @@ package org.openl.rules.workspace.uw.impl;
 
 import java.util.Collection;
 
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.Project;
@@ -78,7 +79,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         updateArtefact(localProject, dtrProject);
     }
 
-    public void openVersion(ProjectVersion version) throws ProjectException {
+    public void openVersion(CommonVersion version) throws ProjectException {
         if (isCheckedOut() || isOpened()) {
             close();
         }

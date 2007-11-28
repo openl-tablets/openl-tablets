@@ -1,15 +1,16 @@
 package org.openl.rules.workspace.uw;
 
+import java.util.Collection;
+
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 
-import java.util.Collection;
-
 public interface UserWorkspaceProject extends Project, UserWorkspaceProjectFolder {
     void close() throws ProjectException;
     void open() throws ProjectException;
-    void openVersion(ProjectVersion version) throws ProjectException;
+    void openVersion(CommonVersion version) throws ProjectException;
     void checkOut() throws ProjectException;
     void checkIn() throws ProjectException;
 

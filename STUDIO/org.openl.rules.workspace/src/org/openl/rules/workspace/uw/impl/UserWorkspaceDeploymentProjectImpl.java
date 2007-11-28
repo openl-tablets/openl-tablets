@@ -166,7 +166,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         // TODO open latest version
     }
 
-    public void openVersion(ProjectVersion version) throws ProjectException {
+    public void openVersion(CommonVersion version) throws ProjectException {
         // TODO open specified version
     }
 
