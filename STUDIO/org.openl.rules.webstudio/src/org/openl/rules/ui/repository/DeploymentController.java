@@ -1,9 +1,21 @@
 package org.openl.rules.ui.repository;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.RulesUserSession;
@@ -21,18 +33,6 @@ import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Deployment controller.
