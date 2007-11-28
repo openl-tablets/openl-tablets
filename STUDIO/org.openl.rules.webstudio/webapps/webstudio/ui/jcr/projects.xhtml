@@ -15,6 +15,9 @@
           <h:outputText value="Version" />
         </rich:column>
         <rich:column>
+          <h:outputText value="State" />
+        </rich:column>
+        <rich:column>
           <h:outputText value="Created At" />
         </rich:column>
         <rich:column>
@@ -32,6 +35,9 @@
       </rich:column>
       <rich:column>
         <h:outputText value="#{prj.version}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{prj.dataBean.checkedOut ? 'checked out' : ''}" />
       </rich:column>
       <rich:column>
         <h:outputText value="#{prj.createdAt}"/>&#160;
