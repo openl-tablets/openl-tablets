@@ -15,12 +15,12 @@ import org.openl.util.meta.ICollectionMetaInfo;
 /**
  * @author snshor
  */
-public class CollectionWrapper implements IOpenCollection
+public class CollectionWrapper<T> implements IOpenCollection<T>
 {
-	Collection collection;
+	Collection<T> collection;
 	ICollectionMetaInfo metaInfo;
 
-	public CollectionWrapper(Collection collection, ICollectionMetaInfo metaInfo)
+	public CollectionWrapper(Collection<T> collection, ICollectionMetaInfo metaInfo)
 	{
 		this.collection = collection;
 		this.metaInfo = metaInfo;
@@ -30,7 +30,7 @@ public class CollectionWrapper implements IOpenCollection
 	 * @param o
 	 * @return
 	 */
-	public boolean add(Object o)
+	public boolean add(T o)
 	{
 		return collection.add(o);
 	}
@@ -39,7 +39,7 @@ public class CollectionWrapper implements IOpenCollection
 	 * @param c
 	 * @return
 	 */
-	public boolean addAll(Collection c)
+	public boolean addAll(Collection<? extends T> c)
 	{
 		return collection.addAll(c);
 	}
@@ -65,7 +65,7 @@ public class CollectionWrapper implements IOpenCollection
 	 * @param c
 	 * @return
 	 */
-	public boolean containsAll(Collection c)
+	public boolean containsAll(Collection<?> c)
 	{
 		return collection.containsAll(c);
 	}
@@ -91,7 +91,7 @@ public class CollectionWrapper implements IOpenCollection
 	 * @param c
 	 * @return
 	 */
-	public boolean removeAll(Collection c)
+	public boolean removeAll(Collection<?> c)
 	{
 		return collection.removeAll(c);
 	}
@@ -100,7 +100,7 @@ public class CollectionWrapper implements IOpenCollection
 	 * @param c
 	 * @return
 	 */
-	public boolean retainAll(Collection c)
+	public boolean retainAll(Collection<?> c)
 	{
 		return collection.retainAll(c);
 	}
@@ -121,14 +121,6 @@ public class CollectionWrapper implements IOpenCollection
 		return collection.toArray();
 	}
 
-	/**
-	 * @param a
-	 * @return
-	 */
-	public Object[] toArray(Object[] a)
-	{
-		return collection.toArray(a);
-	}
 
 	/**
 	 *
@@ -143,7 +135,7 @@ public class CollectionWrapper implements IOpenCollection
 	 *
 	 */
 
-	public IOpenIterator openIterator()
+	public IOpenIterator<T> openIterator()
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -153,7 +145,7 @@ public class CollectionWrapper implements IOpenCollection
 	 *
 	 */
 
-	public Iterator iterator()
+	public Iterator<T> iterator()
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -187,6 +179,11 @@ public class CollectionWrapper implements IOpenCollection
 	{
 		// TODO Auto-generated method stub
 		return super.toString();
+	}
+
+	public <E> E[] toArray(E[] a)
+	{
+	    return collection.toArray(a);
 	}
 
 }

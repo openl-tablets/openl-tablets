@@ -21,7 +21,7 @@ public class BenchmarkJavaBasics
 {
 
 	
-	static ThreadLocal tracer = new ThreadLocal();
+	static ThreadLocal<Object> tracer = new ThreadLocal<Object>();
 	
 	static public boolean isTracerOn()
 	{
@@ -63,12 +63,12 @@ public class BenchmarkJavaBasics
 	{
 		MapGet() throws Exception
 		{
-			map = new HashMap();
+			map = new HashMap<String, String>();
 			for(int i = 0; i < 100; ++i)
 			  map.put("Xyz" + i, "Xyz" + i);
 		}
 		
-		HashMap map;
+		HashMap<String, String> map;
 		
 		String key = "Xyz" + 37;
 		
@@ -83,12 +83,12 @@ public class BenchmarkJavaBasics
 	{
 		TreeMapGet() throws Exception
 		{
-			map = new TreeMap();
+			map = new TreeMap<Integer, String>();
 			for(int i = 0; i < 100; ++i)
 			  map.put(new Integer(i *2), "Xyz" + i);
 		}
 		
-		TreeMap map;
+		TreeMap<Integer, String> map;
 		
 		Integer key = new Integer(50);
 		
@@ -125,18 +125,18 @@ public class BenchmarkJavaBasics
 	{
 		TreeMapGetFirstKey() throws Exception
 		{
-			map = new TreeMap();
+			map = new TreeMap<Integer, String>();
 			for(int i = 0; i < 100; ++i)
 			  map.put(new Integer(i *2), "Xyz" + i);
 		}
 		
-		TreeMap map;
+		TreeMap<Integer, String> map;
 		
 		Integer key = new Integer(51);
 		
 		protected void run() throws Exception
 		{
-			Iterator it = map.tailMap(key).values().iterator();
+			Iterator<String> it = map.tailMap(key).values().iterator();
 			if (it.hasNext())
 				it.next();
 		}
@@ -147,12 +147,12 @@ public class BenchmarkJavaBasics
 	{
 		MapInternGet() throws Exception
 		{
-			map = new HashMap();
+			map = new HashMap<String, String>();
 			for(int i = 0; i < 100; ++i)
 			  map.put(("Xyz" + i).intern(), "Xyz" + i);
 		}
 		
-		HashMap map;
+		HashMap<String, String> map;
 		
 		String key = ("Xyz" + 37).intern();
 		
@@ -210,12 +210,12 @@ public class BenchmarkJavaBasics
 				new TreeMapGetFirstKey(),
 				new BSearch()};
 		
-		Map res = new Benchmark(bu).measureAll(1000);
+		Map<String, BenchmarkInfo> res = new Benchmark(bu).measureAll(1000);
 		
 		
-		for (Iterator iter = res.entrySet().iterator(); iter.hasNext();)
+		for (Iterator<Map.Entry<String, BenchmarkInfo>> iter = res.entrySet().iterator(); iter.hasNext();)
 		{
-			Map.Entry element = (Map.Entry) iter.next();
+			Map.Entry<String, BenchmarkInfo> element =  iter.next();
 			
 			System.out.println(element.getKey() + " = \t" + element.getValue());
 			

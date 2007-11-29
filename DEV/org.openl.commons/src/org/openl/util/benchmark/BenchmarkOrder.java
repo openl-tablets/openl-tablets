@@ -7,7 +7,7 @@ package org.openl.util.benchmark;
  * @author snshor
  *
  */
-public class BenchmarkOrder implements Comparable
+public class BenchmarkOrder implements Comparable<BenchmarkOrder>
 {
 	
 	int index; 
@@ -60,9 +60,9 @@ public class BenchmarkOrder implements Comparable
 
 
 
-	public int compareTo(Object arg0)
+	public int compareTo(BenchmarkOrder arg0)
 	{
-		double x = info.drunsunitsec() - ((BenchmarkOrder)arg0).info.drunsunitsec();
+		double x = info.drunsunitsec() - arg0.info.drunsunitsec();
 		return  x > 0 ? -1 :
 			  x == 0 ? 0 : 1;
 	}

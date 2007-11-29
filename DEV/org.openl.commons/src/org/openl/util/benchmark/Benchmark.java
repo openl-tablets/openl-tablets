@@ -28,11 +28,11 @@ public class Benchmark
     }
 
 
-    HashMap _measurements = null;
+    HashMap<String, BenchmarkInfo> _measurements = null;
 
-    public Map measureAll(int ms) throws Exception
+    public Map<String, BenchmarkInfo> measureAll(int ms) throws Exception
     {
-      _measurements = new HashMap();
+      _measurements = new HashMap<String, BenchmarkInfo>();
       for(int i = 0; i < _units.length; ++i)
       {
         measureUnit(_units[i], ms);
@@ -50,7 +50,7 @@ public class Benchmark
     public void profileUnit(String name, int times) throws Exception
     {
       if (_measurements == null)
-        _measurements = new HashMap();
+        _measurements = new HashMap<String, BenchmarkInfo>();
 
       BenchmarkUnit bu = findUnit(name);
       satisfyPreconditions(bu);
@@ -67,7 +67,7 @@ public class Benchmark
       Log.info("Benchmarking Unit " + bu.getName());
 
       if (_measurements == null)
-        _measurements = new HashMap();
+        _measurements = new HashMap<String, BenchmarkInfo>();
 
       satisfyPreconditions(bu);
       return runUnit(bu, ms, false);
@@ -79,7 +79,7 @@ public class Benchmark
       for(int i = 0; i < names.length; ++i)
       {
         BenchmarkUnit prev = findUnit(names[i]);
-        BenchmarkInfo bi = (BenchmarkInfo) _measurements.get(bu.getName());
+        BenchmarkInfo bi =  _measurements.get(bu.getName());
         if (bi == null)
         {
           satisfyPreconditions(prev);
@@ -94,9 +94,9 @@ public class Benchmark
     {
     	
       if (_measurements == null)
-        _measurements = new HashMap();
+        _measurements = new HashMap<String, BenchmarkInfo>();
 
-      BenchmarkInfo bi = (BenchmarkInfo) _measurements.get(bu.getName());
+      BenchmarkInfo bi =  _measurements.get(bu.getName());
 
       if (bi == null)
       {
@@ -132,7 +132,7 @@ public class Benchmark
         if (time <= 0)
           time = 1;
 
-        double mult = Math.min(200, ((double) minMillis) * 1.1 / time);
+        double mult = Math.min(200, ( minMillis) * 1.1 / time);
 
 
         int newRuns = (int)Math.ceil(runs * mult);
@@ -142,22 +142,22 @@ public class Benchmark
     }
 
 
-    public void printResult(Map map, PrintStream ps )
+    public void printResult(Map<String, BenchmarkInfo> map, PrintStream ps )
     {
       for(int i = 0; i < _units.length; ++i)
       {
-        BenchmarkInfo info = (BenchmarkInfo)map.get(_units[i].getName());
+        BenchmarkInfo info = map.get(_units[i].getName());
         ps.println(info);
       }
     }
 
 
-    public String makeTableRow(Map map, String separator)
+    public String makeTableRow(Map<String, BenchmarkInfo> map, String separator)
     {
       String res ="";
       for(int i = 0; i < _units.length; ++i)
       {
-        BenchmarkInfo info = (BenchmarkInfo)map.get(_units[i].getName());
+        BenchmarkInfo info = map.get(_units[i].getName());
         res += BenchmarkInfo.printDouble(info.avg()) + separator;
       }
 

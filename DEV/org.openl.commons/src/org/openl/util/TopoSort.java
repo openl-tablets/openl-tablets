@@ -153,7 +153,7 @@ public final class TopoSort<T>
 	    roots.add(root);
     }
 
-    public ArrayList<T> sort() throws TopoSortCycleException
+    public List<T> sort() throws TopoSortCycleException
     {
 	ArrayList<T> res = new ArrayList<T>();
 	while (true)

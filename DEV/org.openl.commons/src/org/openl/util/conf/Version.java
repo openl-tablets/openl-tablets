@@ -8,7 +8,7 @@ package org.openl.util.conf;
 /**
  * @author snshor
  */
-public class Version implements Comparable
+public class Version implements Comparable<Version>
 {
 	static final public int MAJOR = 0, MINOR = 1, VARIANT = 2, BUILD = 3;
 
@@ -111,15 +111,12 @@ public class Version implements Comparable
 				}
 				break;
 			}
-			else
-			{
 				if (Character.isDigit(c))
 				{
 					++nnum;
 					inNumber = true;
 					continue;
 				}
-			}
 			break;
 
 		}
@@ -337,9 +334,8 @@ public class Version implements Comparable
 		version[BUILD] = i;
 	}
 
-	public int compareTo(Object o)
+	public int compareTo(Version v)
 	{
-		Version v = (Version) o;
 
 		for (int i = 0; i < version.length; i++)
 		{
