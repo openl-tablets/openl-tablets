@@ -14,7 +14,7 @@ import org.openl.util.ITreeElement;
  * @author snshor
  *
  */
-public interface ITracerObject extends ITreeElement, INamedThing
+public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing
 {
 
 	static final public ITracerObject[] EMPTY = {};
@@ -33,7 +33,7 @@ public interface ITracerObject extends ITreeElement, INamedThing
 	{
 		Object traceObject;
 		
-		ArrayList children;
+		ArrayList<ITracerObject> children;
 		
 		public SimpleTracerObject()
 		{
@@ -58,16 +58,19 @@ public interface ITracerObject extends ITreeElement, INamedThing
 		public void addChild(ITracerObject child)
 		{
 			if (children == null)
-				children = new ArrayList();
+				children = new ArrayList<ITracerObject>();
 			children.add(child);
 		}
 		
-		public Iterator getChildren()
+		public Iterator<ITracerObject> getChildren()
 		{
-			return children == null ? AOpenIterator.EMPTY : children.iterator();
+			if  (children == null)  
+			    return AOpenIterator.empty(); 
+				
+			return children.iterator();
 		}
 		
-		public Object getObject()
+		public ITracerObject getObject()
 		{
 			return this;
 		}

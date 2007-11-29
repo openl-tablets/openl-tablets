@@ -46,9 +46,27 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	public Iterator<IOpenMethod> methods();
 
 	/**
-	 * @return
+	 * @return an iterator of all the fields
 	 */
 	public Iterator<IOpenField> fields(); 
+
+	
+	/**
+	 * This method returns a class field by it's name; in case of strictMatch
+	 * the name search will be case-sensitive. In case of strictMatch == false,
+	 * the search will be case-insensitive and may produce AmbiguousVarException.
+	 * In the future we might implement more sophisticated matching techniques to help
+	 * users to deal with typos in their code   
+	 * 
+	 * @param name
+	 * @param strictMatch
+	 * @return
+	 * @since 5.0 
+	 */
+	public IOpenField getField(String name, boolean strictMatch);
+	
+	
+	public IOpenField getField(String name);
 	
 	public Object nullObject();
 
@@ -97,7 +115,8 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	
 	public IOpenMethod getMethod(String name, IOpenClass[] classes);
 	
-	public IOpenField getField(String name);
+	
+	
 	
 
 	public static final IOpenClass[] EMPTY = {};

@@ -6,10 +6,11 @@
 
 package org.openl.binding.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.Vector;
 
 import org.openl.IOpenBinder;
 import org.openl.binding.DuplicatedVarException;
@@ -32,9 +33,9 @@ public class BindingContext implements IBindingContext
 {
 
   IOpenBinder binder;
-  Vector errors = new Vector();
+  List<ISyntaxError> errors = new ArrayList<ISyntaxError>();
   
-  Map aliases = new HashMap();
+  Map<String, String> aliases = new HashMap<String, String>();
   
   IOpenClass returnType;
 
@@ -54,7 +55,7 @@ public class BindingContext implements IBindingContext
     return binder;
   }
 
-  Stack errorStack = new Stack();
+  Stack<List<ISyntaxError>> errorStack = new Stack<List<ISyntaxError>>();
 
   public void addError(ISyntaxError error)
   {
@@ -64,25 +65,25 @@ public class BindingContext implements IBindingContext
   }
   
   
-  public void addAllErrors(Vector err)
-  {
-    for (int i = 0; i < err.size(); i++)
-    {
-      errors.add(err.elementAt(i));
-    }
-  }
+//  public void addAllErrors(Vector err)
+//  {
+//    for (int i = 0; i < err.size(); i++)
+//    {
+//      errors.add(err.elementAt(i));
+//    }
+//  }
   
-  public Vector popErrors()
+  public List<ISyntaxError> popErrors()
   {
-    Vector tmp = errors;
-    errors = (Vector) errorStack.pop(); 
+    List<ISyntaxError> tmp = errors;
+    errors = errorStack.pop(); 
     return tmp;
   }
   
   public void pushErrors()
   {
     errorStack.push(errors);
-    errors = new Vector();
+    errors = new ArrayList<ISyntaxError>();
   }
   
   public ISyntaxError[] getError()
@@ -128,16 +129,15 @@ public class BindingContext implements IBindingContext
       binder.getCastFactory());
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBindingContext#findVar(java.lang.String)
-   */
-  public IOpenField findVar(String namespace, String name) //throws Exception
+
+  
+  public IOpenField findVar(String namespace, String name, boolean strictMatch) //throws Exception
   {
     ILocalVar var = localFrame.findLocalVar(namespace, name);
     if (var != null)
       return var;
 
-    return binder.getVarFactory().getVar(namespace, name);
+    return binder.getVarFactory().getVar(namespace, name, strictMatch);
   }
 
   /* (non-Javadoc)
@@ -145,7 +145,7 @@ public class BindingContext implements IBindingContext
    */
   public ISyntaxError getError(int i)
   {
-    return (ISyntaxError)errors.elementAt(i);
+    return errors.get(i);
   }
 
   /* (non-Javadoc)
@@ -230,7 +230,7 @@ public class BindingContext implements IBindingContext
    */
   public String getAlias(String name)
   {
-    return (String)aliases.get(name);
+    return aliases.get(name);
   }
 
 public void addType(String namespace, IOpenClass type)

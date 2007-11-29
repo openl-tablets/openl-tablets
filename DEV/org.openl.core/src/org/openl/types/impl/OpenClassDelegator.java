@@ -73,14 +73,15 @@ public class OpenClassDelegator implements IOpenClass
 	return baseClass.getDisplayName(mode);
     }
 
+    @SuppressWarnings("unchecked")
     public IDomain getDomain()
     {
 	return baseClass.getDomain();
     }
 
-    public IOpenField getField(String fname)
+    public IOpenField getField(String fname, boolean strictMatch)
     {
-	return baseClass.getField(fname);
+	return baseClass.getField(fname, strictMatch);
     }
 
     public IOpenField getIndexField()
@@ -109,9 +110,9 @@ public class OpenClassDelegator implements IOpenClass
 	return baseClass.getSchema();
     }
 
-    public IOpenField getVar(String vname)
+    public IOpenField getVar(String vname, boolean strictMatch)
     {
-	return baseClass.getVar(vname);
+	return baseClass.getVar(vname, strictMatch);
     }
 
     public boolean isAbstract()
@@ -183,6 +184,11 @@ public class OpenClassDelegator implements IOpenClass
     public boolean isSimple()
     {
 	return baseClass.isSimple();
+    }
+
+    public IOpenField getField(String fname)
+    {
+	return baseClass.getField(fname);
     }
     
     

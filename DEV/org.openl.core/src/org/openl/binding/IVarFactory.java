@@ -14,6 +14,6 @@ import org.openl.types.IOpenField;
 
 public interface IVarFactory
 {
-	public IOpenField getVar(String name);
+	public IOpenField getVar(String name, boolean strictMatch);
 
 }

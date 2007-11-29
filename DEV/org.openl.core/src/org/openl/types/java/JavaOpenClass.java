@@ -182,6 +182,12 @@ public class JavaOpenClass extends AOpenClass
 	    return "class";
 	}
 
+	@Override
+	public String toString()
+	{
+	    return getName();
+	}
+
     }
 
     synchronized protected Map<String, IOpenField> fieldMap()
@@ -483,15 +489,6 @@ public class JavaOpenClass extends AOpenClass
 	return this.getMethod(name, params);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.IVarFactory#getVar(java.lang.String)
-     */
-    public IOpenField getVar(String name)
-    {
-	return this.getField(name);
-    }
 
     public static ArrayIndex makeArrayIndex(IOpenClass arrayType)
     {
@@ -513,13 +510,10 @@ public class JavaOpenClass extends AOpenClass
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.types.IOpenClass#getAggregateInfo()
-     */
     public IAggregateInfo getAggregateInfo()
     {
+	if (List.class.isAssignableFrom(getInstanceClass()))
+	    return JavaListAggregateInfo.LIST_AGGREGATE;
 	return JavaArrayAggregateInfo.ARRAY_AGGREGATE;
     }
 

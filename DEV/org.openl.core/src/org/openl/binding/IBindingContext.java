@@ -6,7 +6,7 @@
 
 package org.openl.binding;
 
-import java.util.Vector;
+import java.util.List;
 
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
@@ -24,7 +24,7 @@ public interface IBindingContext extends ICastFactory
 
   public void addError(ISyntaxError error);
 
-  public void addAllErrors(Vector errors);
+//  public void addAllErrors(Vector errors);
   
   
   /**
@@ -32,7 +32,7 @@ public interface IBindingContext extends ICastFactory
    */
   void pushErrors();
   
-  Vector popErrors();
+  List<ISyntaxError> popErrors();
 
   public IMethodCaller findMethodCaller(
     String namespace,
@@ -40,7 +40,17 @@ public interface IBindingContext extends ICastFactory
     IOpenClass[] parTypes)
     throws AmbiguousMethodException;
 
-  public IOpenField findVar(String namespace, String name)
+  /**
+   * 
+   * @param namespace
+   * @param name
+   * @param strictMatch
+   * @return
+   * @throws AmbiguousVarException
+   * @see {@link IOpenClass#getField(String, boolean)}
+   */
+  
+  public IOpenField findVar(String namespace, String vname, boolean strictMatch)
     throws AmbiguousVarException;
 
   public ILocalVar addVar(String namespace, String name, IOpenClass type)

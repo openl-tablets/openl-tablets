@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
@@ -28,6 +29,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.ASelector;
 import org.openl.util.AStringConvertor;
+import org.openl.util.ISelector;
 import org.openl.util.OpenIterator;
 
 //TODO put references
@@ -63,7 +65,7 @@ public class OpenL
     static OpenLConfigurator config = new OpenLConfigurator();
 
     //TODO think about weak references for nice cleanup
-    static HashMap openlCache = new HashMap();
+    static HashMap<Object, OpenL> openlCache = new HashMap<Object, OpenL>();
 
     /**
      * Gets an instance of OpenL. Each instance is cached with name and user
@@ -86,7 +88,7 @@ public class OpenL
 
         Object key = Cache.makeKey(name, ucxt);
 
-        OpenL openl = (OpenL) openlCache.get(key);
+        OpenL openl =  openlCache.get(key);
         if (openl == null)
         {
         		IOpenLBuilder builder = config.getBuilder(name, ucxt); 
@@ -104,7 +106,7 @@ public class OpenL
 		{
       Object key = Cache.makeKey(name, ucxt);
 
-      OpenL openl = (OpenL) openlCache.get(key);
+      OpenL openl = openlCache.get(key);
       if (openl == null)
       {
           openl = builder.build(name);
@@ -119,7 +121,7 @@ public class OpenL
     
     static public void reset()
     {
-        openlCache = new HashMap();
+        openlCache = new HashMap<Object, OpenL>();
     }
 
     static synchronized public OpenL getInstance(String name, ClassLoader cl)
@@ -151,7 +153,7 @@ public class OpenL
     {
         Object key = Cache.makeKey(name, cxt);
 
-        OpenL openl = (OpenL) openlCache.get(key);
+        OpenL openl = openlCache.get(key);
         if (openl == null) return null;
 
         openlCache.remove(key);
@@ -223,7 +225,7 @@ public class OpenL
                 new Object[0]);
     }
 
-    public Object evaluateMethod(IOpenSourceCodeModule code, String name,
+    public Object evaluateMethod(IOpenSourceCodeModule code, String methodName,
             Object[] params) throws OpenLRuntimeException
     {
         IParsedCode pc = parser.parseAsModule(code);
@@ -236,7 +238,7 @@ public class OpenL
         if (error.length > 0) { throw new SyntaxErrorException(
                 "Binding Error:", error); }
         return vm.getRunner().run(
-                ((IBoundModuleNode) bc.getTopNode()).getMethodNode(name),
+                ((IBoundModuleNode) bc.getTopNode()).getMethodNode(methodName),
                 params);
     }
 
@@ -325,7 +327,7 @@ public class OpenL
         return method;
     }
 
-    public Object evaluateMethod2(IOpenSourceCodeModule src, String name,
+    public Object evaluateMethod2(IOpenSourceCodeModule src, String methodName,
             IOpenClass[] paramTypes, Object[] params)
             throws OpenLRuntimeException, MethodNotFoundException,
             SyntaxErrorException
@@ -337,30 +339,25 @@ public class OpenL
 
         IOpenMethod method = null;
         if (paramTypes != null)
-            method = ioc.getMatchingMethod(name, paramTypes);
+            method = ioc.getMatchingMethod(methodName, paramTypes);
         else
         {
-            AStringConvertor sc = new AStringConvertor()
-            {
-                public String getStringValue(Object test)
-                {
-                    return ((IOpenMethod) test).getName();
-                }
-                
-            };
-            List list = OpenIterator.select(ioc.methods(),
-                    new ASelector.StringValueSelector(name, sc)).asList();
+            AStringConvertor<INamedThing> sc = IOpenMethod.NAME_CONVERTOR;
+            ISelector<IOpenMethod> nameSel = (ISelector<IOpenMethod>)new ASelector.StringValueSelector(methodName, sc);
+            
+            List<IOpenMethod> list = OpenIterator.select(ioc.methods(),
+                    nameSel).asList();
             if (list.size() > 1)
             {
-                throw new AmbiguousMethodException(name, IOpenClass.EMPTY, list);
+                throw new AmbiguousMethodException(methodName, IOpenClass.EMPTY, list);
             } else if (list.size() == 1)
             {
-                method = (IOpenMethod) list.get(0);
+                method = list.get(0);
             }
         }
 
         if (method == null)
-                throw new MethodNotFoundException("Can not run method: ", name,
+                throw new MethodNotFoundException("Can not run method: ", methodName,
                         paramTypes == null ? IOpenClass.EMPTY : paramTypes);
 
         return method.invoke(target, params, vm.getRuntimeEnv());

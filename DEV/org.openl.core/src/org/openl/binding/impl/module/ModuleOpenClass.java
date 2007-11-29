@@ -6,7 +6,8 @@
  
 package org.openl.binding.impl.module;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.binding.IBoundNode;
 import org.openl.types.IAggregateInfo;
@@ -140,7 +141,7 @@ public class ModuleOpenClass extends ADynamicClass
   
   class DefaultInitializer implements IOpenMethod
   {
-		Vector boundNodes = new Vector();	
+		List<IBoundNode> boundNodes = new ArrayList<IBoundNode>();	
       /* (non-Javadoc)
      * @see org.openl.types.IOpenMethod#getParameterTypes()
      */
@@ -196,9 +197,6 @@ public class ModuleOpenClass extends ADynamicClass
       return this;
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.types.IMethodCaller#invoke(java.lang.Object, java.lang.Object[], org.openl.vm.IRuntimeEnv)
-     */
     public Object invoke(Object target, Object[] params, IRuntimeEnv env)
     {
       try
@@ -206,7 +204,7 @@ public class ModuleOpenClass extends ADynamicClass
       	env.pushThis(target);
         for (int i = 0; i < boundNodes.size(); i++)
         {
-        	IBoundNode node = (IBoundNode) boundNodes.elementAt(i);
+        	IBoundNode node = boundNodes.get(i);
         	node.evaluate(env);        
         }
         

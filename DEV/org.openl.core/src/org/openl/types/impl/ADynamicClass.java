@@ -31,16 +31,16 @@ public abstract class ADynamicClass extends AOpenClass
 
 	String name = "<anonymous class>";;
 
-	Map fieldMap = new HashMap();
+	Map<String, IOpenField> fieldMap = new HashMap<String, IOpenField>();
 
-	Map methodMap = new HashMap();
+	Map<MethodKey, IOpenMethod> methodMap = new HashMap<MethodKey, IOpenMethod>();
 
-	Class instanceClass;
+	Class<?> instanceClass;
 
 	/**
 	 * @param schema
 	 */
-	public ADynamicClass(IOpenSchema schema, String name, Class instanceClass)
+	public ADynamicClass(IOpenSchema schema, String name, Class<?> instanceClass)
 	{
 		super(schema);
 		this.name = name;
@@ -51,12 +51,7 @@ public abstract class ADynamicClass extends AOpenClass
 		this.addMethod(new OpenConstructor(this));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openl.types.impl.AOpenClass#fieldMap()
-	 */
-	protected Map fieldMap()
+	protected Map<String, IOpenField> fieldMap()
 	{
 		return fieldMap;
 	}
@@ -66,7 +61,7 @@ public abstract class ADynamicClass extends AOpenClass
 	 * 
 	 * @see org.openl.types.impl.AOpenClass#methodMap()
 	 */
-	protected Map methodMap()
+	protected Map<MethodKey, IOpenMethod> methodMap()
 	{
 		return methodMap;
 	}
@@ -76,7 +71,7 @@ public abstract class ADynamicClass extends AOpenClass
 	 * 
 	 * @see org.openl.types.IOpenClass#superClasses()
 	 */
-	public Iterator superClasses()
+	public Iterator<IOpenClass> superClasses()
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -119,17 +114,12 @@ public abstract class ADynamicClass extends AOpenClass
 	 * 
 	 * @see org.openl.types.IOpenClass#isAssignableFrom(java.lang.Class)
 	 */
-	public boolean isAssignableFrom(Class c)
+	public boolean isAssignableFrom(Class<?> c)
 	{
 		return instanceClass.isAssignableFrom(c);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openl.types.IOpenClass#getInstanceClass()
-	 */
-	public Class getInstanceClass()
+	public Class<?> getInstanceClass()
 	{
 		return instanceClass;
 	}
@@ -146,7 +136,7 @@ public abstract class ADynamicClass extends AOpenClass
 
 	public void addField(IOpenField field)
 	{
-		Map fields = fieldMap();
+		Map<String, IOpenField> fields = fieldMap();
 		if (fields.containsKey(field.getName()))
 			throw new DuplicatedVarException("", field.getName());
 
@@ -157,7 +147,7 @@ public abstract class ADynamicClass extends AOpenClass
 	{
 		MethodKey key = new MethodKey(method);
 
-		Map methods = methodMap();
+		Map<MethodKey, IOpenMethod> methods = methodMap();
 		if (methods.containsKey(key))
 			throw new DuplicatedMethodException("", method);
 

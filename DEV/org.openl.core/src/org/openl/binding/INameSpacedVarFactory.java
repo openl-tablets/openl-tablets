@@ -14,5 +14,5 @@ import org.openl.types.IOpenField;
  */
 public interface INameSpacedVarFactory
 {
-	IOpenField getVar(String namespace, String name);
+	IOpenField getVar(String namespace, String name, boolean strictMatch);
 }

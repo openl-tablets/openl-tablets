@@ -49,31 +49,25 @@ public class StaticClassLibrary  implements IOpenLibrary
     openClass = c;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IVarFactory#getVar(java.lang.String, java.lang.String)
-   */
-  public IOpenField getVar(String name)
+  public IOpenField getVar(String name, boolean strictMatch)
   {
-    return openClass.getField(name);
+    return openClass.getField(name, strictMatch);
   }
   
   
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IMethodFactory#methods()
-   */
-  public Iterator methods()
+  public Iterator<IOpenMethod> methods()
   {
-  	ISelector sel = new ASelector()
+  	ISelector<IOpenMethod> sel = new ASelector<IOpenMethod>()
   	{
-  		public boolean select(Object obj)
+  		public boolean select(IOpenMethod m)
   		{
-  			return ((IOpenMethod)obj).isStatic();
+  			return m.isStatic();
   		}
   		
   		//TODO fix if necessary
-  		public int redefinedHashCode(){return 0;}
-  		public boolean equalsSelector(ASelector sel){return this == sel;}
+  		public int redefinedHashCode(){return "static".hashCode();}
+  		public boolean equalsSelector(ASelector<?> xsel){return this == xsel;}
   		
   		
   	};

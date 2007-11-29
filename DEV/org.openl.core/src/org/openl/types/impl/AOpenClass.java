@@ -7,6 +7,8 @@
 package org.openl.types.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.binding.AmbiguousMethodException;
+import org.openl.binding.AmbiguousVarException;
 import org.openl.binding.MethodNotFoundException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -39,6 +42,7 @@ public abstract class AOpenClass implements IOpenClass
 	return false;
     }
 
+    @SuppressWarnings("unchecked")
     public IDomain getDomain()
     {
 	return null;
@@ -92,14 +96,9 @@ public abstract class AOpenClass implements IOpenClass
 	return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.IVarFactory#getVar(java.lang.String)
-     */
-    public IOpenField getVar(String name)
+    public IOpenField getVar(String name, boolean strictMatch)
     {
-	return getField(name);
+	return getField(name, strictMatch);
     }
 
     public Iterator<IOpenField> fields()
@@ -135,14 +134,14 @@ public abstract class AOpenClass implements IOpenClass
 	return getMethod(name, params);
     }
 
-    @SuppressWarnings({ "cast", "unchecked" })
+    @SuppressWarnings( { "cast", "unchecked" })
     public IOpenMethod getMethod(String name, IOpenClass[] classes)
     {
 	Map<MethodKey, IOpenMethod> m = methodMap();
 
 	if (classes == null)
 	{
-	    ISelector<IOpenMethod> nameSel = (ISelector<IOpenMethod>)new ASelector.StringValueSelector(
+	    ISelector<IOpenMethod> nameSel = (ISelector<IOpenMethod>) new ASelector.StringValueSelector(
 		    name, IOpenMethod.NAME_CONVERTOR);
 
 	    List<IOpenMethod> list = OpenIterator.select(methods(), nameSel)
@@ -162,11 +161,109 @@ public abstract class AOpenClass implements IOpenClass
 		classes));
     }
 
-    public IOpenField getField(String name)
+    public IOpenField getField(String fname)
     {
-	Map<String, IOpenField> m = fieldMap();
-	return m == null ? null : (IOpenField) m.get(name);
+	return getField(fname, true);
     }
+
+    
+    public IOpenField getField(String fname, boolean strictMatch)
+    {
+
+	IOpenField f = null;
+	if (strictMatch)
+	{
+
+	    Map<String, IOpenField> m = fieldMap();
+
+	    f = m == null ? null : m.get(fname);
+
+	    return f;
+	}
+	
+	String lfname = fname.toLowerCase();
+	
+	
+	
+	
+	Map<String, IOpenField> uniqueLowerCaseFields = getUniqueLowerCaseFieldMap();
+	
+	if (uniqueLowerCaseFields != null)
+	{
+	    f = uniqueLowerCaseFields.get(lfname);
+	    if (f != null)
+		return f;
+	}
+	
+	Map<String, List<IOpenField>> nonUniqueLowerCaseFields = getNonUniqueLowerCaseFieldMap();
+	
+	List<IOpenField> ff = nonUniqueLowerCaseFields.get(lfname);
+	
+	if (ff != null)
+	    throw new AmbiguousVarException(fname, ff);
+	
+	return null;
+    }
+
+    private synchronized Map<String, List<IOpenField>> getNonUniqueLowerCaseFieldMap()
+    {
+	if (nonUniqueLowerCaseFieldMap == null)
+	{    
+	    makeLowerCaseMaps();
+	} 
+	return nonUniqueLowerCaseFieldMap;
+    }
+
+    private synchronized Map<String, IOpenField> getUniqueLowerCaseFieldMap()
+    {
+	if (uniqueLowerCaseFieldMap == null)
+	{    
+	    makeLowerCaseMaps();
+	} 
+	return uniqueLowerCaseFieldMap;
+    }
+    
+    
+    private void makeLowerCaseMaps()
+    {
+	uniqueLowerCaseFieldMap = new HashMap<String, IOpenField>();
+	
+	for (Iterator<IOpenField> iterator = fields(); iterator.hasNext();)
+	{
+	    IOpenField f = iterator.next();
+	    
+	    String lname = f.getName().toLowerCase();
+	    
+	    if (uniqueLowerCaseFieldMap.containsKey(lname))
+	    {
+		initNonUniqueMap();
+		List<IOpenField> ff = new ArrayList<IOpenField>(2);
+		ff.add(uniqueLowerCaseFieldMap.get(lname));
+		ff.add(f);
+		nonUniqueLowerCaseFieldMap.put(lname, ff);
+	    }
+	    else if (nonUniqueLowerCaseFieldMap != null && nonUniqueLowerCaseFieldMap.containsKey(lname))
+	    {
+		nonUniqueLowerCaseFieldMap.get(lname).add(f);
+	    }
+	    else
+		uniqueLowerCaseFieldMap.put(lname, f);
+	    
+	}
+	
+	if (nonUniqueLowerCaseFieldMap == null)
+	    nonUniqueLowerCaseFieldMap = Collections.emptyMap();
+	
+    }
+
+    private void initNonUniqueMap()
+    {
+	if (nonUniqueLowerCaseFieldMap == null)
+	    nonUniqueLowerCaseFieldMap = new HashMap<String, List<IOpenField>>();
+    }
+
+    protected Map<String, IOpenField> uniqueLowerCaseFieldMap = null;
+    protected Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap = null;
 
     static public final class MethodKey
     {

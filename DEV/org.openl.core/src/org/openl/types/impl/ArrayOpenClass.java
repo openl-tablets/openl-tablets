@@ -12,6 +12,7 @@ import java.util.Map;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.java.JavaOpenClass;
 
@@ -23,7 +24,7 @@ public abstract class ArrayOpenClass extends AOpenClass
 {
 
 	protected IOpenClass componentClass;
-	protected HashMap fieldMap;
+	protected HashMap<String, IOpenField> fieldMap;
 	protected IOpenIndex index;
 
 	/**
@@ -36,7 +37,7 @@ public abstract class ArrayOpenClass extends AOpenClass
 	{
 		super(schema);
 		this.componentClass = componentClass;
-		fieldMap = new HashMap(1);
+		fieldMap = new HashMap<String, IOpenField>(1);
 		fieldMap.put(lengthOpenField.getName(), lengthOpenField);
 	}
 
@@ -59,7 +60,7 @@ public abstract class ArrayOpenClass extends AOpenClass
 	/* (non-Javadoc)
 	 * @see org.openl.types.AOpenClass#fieldMap()
 	 */
-	protected Map fieldMap()
+	protected Map<String, IOpenField> fieldMap()
 	{
 		return fieldMap;
 	}
@@ -67,7 +68,7 @@ public abstract class ArrayOpenClass extends AOpenClass
 	/* (non-Javadoc)
 	 * @see org.openl.types.AOpenClass#methodMap()
 	 */
-	protected Map methodMap()
+	protected Map<MethodKey, IOpenMethod> methodMap()
 	{
 		return null;
 	}
@@ -85,7 +86,7 @@ public abstract class ArrayOpenClass extends AOpenClass
 	/* (non-Javadoc)
 	 * @see org.openl.types.IOpenClass#getInstanceClass()
 	 */
-	public Class getInstanceClass()
+	public Class<?> getInstanceClass()
 	{
 		return JavaOpenClass.makeArrayClass(componentClass.getInstanceClass());
 	}

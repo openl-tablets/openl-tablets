@@ -8,7 +8,6 @@ package org.openl.syntax.impl;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
-import org.openl.util.text.TextInterval;
 
 /**
  * @author snshor

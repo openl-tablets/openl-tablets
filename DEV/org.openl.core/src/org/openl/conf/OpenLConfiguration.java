@@ -24,381 +24,356 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class OpenLConfiguration implements IOpenLConfiguration
 {
 
-  //	static WeakCache configurations = new WeakCache();
-  static HashMap configurations = new HashMap();
+    // static WeakCache configurations = new WeakCache();
+    static HashMap<Object, IOpenLConfiguration> configurations = new HashMap<Object, IOpenLConfiguration>();
 
-//  static HashMap sharedConfigurations = new HashMap();
+    // static HashMap sharedConfigurations = new HashMap();
 
+    static public void reset()
+    {
+	configurations = new HashMap<Object, IOpenLConfiguration>();
+    }
 
-	static public void reset()
+    static synchronized public void register(String name, IUserContext ucxt,
+	    IOpenLConfiguration oplc, boolean shared)
+	    throws OpenConfigurationException
+    {
+	Object key = null;
+
+	if (shared)
 	{
-		configurations = new HashMap();
+	    key = name;
 	}
-	
 
+	else
+	    key = Cache.makeKey(name, ucxt);
 
+	IOpenLConfiguration old = configurations.get(key);
+	if (old != null)
+	{
+	    throw new OpenConfigurationException("The configuration " + name
+		    + " already exists", null, null);
+	}
+	configurations.put(key, oplc);
 
-  static synchronized public void register(
-    String name,
-    IUserContext ucxt,
-    IOpenLConfiguration oplc,
-    boolean shared)
-    throws OpenConfigurationException
-  {
-		Object key = null;
-
-  	if (shared)
-  	{
-  		key = name;
-  	}
-  	
-		else key = Cache.makeKey(name, ucxt);
-
-    IOpenLConfiguration old = (IOpenLConfiguration)configurations.get(key);
-    if (old != null)
-    {
-      throw new OpenConfigurationException(
-        "The configuration " + name + " already exists",
-        null,
-        null);
-    }
-    configurations.put(key, oplc);
-
-  }
-
-  static public IOpenLConfiguration getInstance(String name, IUserContext ucxt)
-    throws OpenConfigurationException
-  {
-  	IOpenLConfiguration opc = (IOpenLConfiguration)configurations.get(name);
-  	
-  	if (opc != null)
-  	  return opc;
-  	  
-    Object key = Cache.makeKey(name, ucxt);
-
-    return (IOpenLConfiguration)configurations.get(key);
-
-  }
-
-  static synchronized public void unregister(String name, IUserContext ucxt)
-    throws OpenConfigurationException
-  {
-    Object key = Cache.makeKey(name, ucxt);
-
-    //		IOpenLConfiguration old = (IOpenLConfiguration)configurations.get(key);
-    //		if (old == null)
-    //		{
-    //			throw new OpenConfigurationException("The configuration " + name + " does not exists", null, null);
-    //		}	
-    configurations.remove(key);
-    configurations.remove(name);
-
-  }
-
-  String uri;
-
-  IOpenLConfiguration parent;
-  IConfigurableResourceContext configurationContext;
-
-  ClassFactory grammarFactory;
-
-  NodeBinderFactoryConfiguration binderFactory;
-
-  LibraryFactoryConfiguration methodFactory;
-
-  TypeCastFactory typeCastFactory;
-
-  TypeFactoryConfiguration typeFactory;
-
-  public void validate(IConfigurableResourceContext cxt)
-    throws OpenConfigurationException
-  {
-    if (grammarFactory != null)
-      grammarFactory.validate(cxt);
-    else if (parent == null)
-      throw new OpenConfigurationException(
-        "Grammar class is not set",
-        getUri(),
-        null);
-
-    if (binderFactory != null)
-      binderFactory.validate(cxt);
-    else if (parent == null)
-      throw new OpenConfigurationException(
-        "Bindings are not set",
-        getUri(),
-        null);
-
-    // Methods  and casts are optional			
-    //		else if (parent == null)
-    //			throw new OpenConfigurationException("Methods are not set", getUri(), null);  
-
-    if (methodFactory != null)
-      methodFactory.validate(cxt);
-
-    if (typeCastFactory != null)
-      typeCastFactory.validate(cxt);
-
-    if (typeFactory != null)
-      typeFactory.validate(cxt);
-
-    if (openFactories != null)
-    {
-      for (Iterator iter = openFactories.values().iterator(); iter.hasNext();)
-      {
-        OpenFactoryConfiguration element =
-          (OpenFactoryConfiguration)iter.next();
-        element.validate(cxt);
-      }
     }
 
-  }
+    static public IOpenLConfiguration getInstance(String name, IUserContext ucxt)
+	    throws OpenConfigurationException
+    {
+	IOpenLConfiguration opc = configurations.get(name);
 
-  /* (non-Javadoc)
-   * @see org.openl.syntax.IGrammarFactory#getGrammar()
-   */
-  public IGrammar getGrammar() throws OpenConfigurationException
-  {
-    return grammarFactory == null
-      ? parent.getGrammar()
-      : (IGrammar)grammarFactory.getResource(configurationContext);
-  }
+	if (opc != null)
+	    return opc;
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.INodeBinderFactory#getNodeBinder(org.openl.syntax.ISyntaxNode)
-   */
-  public INodeBinder getNodeBinder(ISyntaxNode node)
-  {
-    INodeBinder binder =
-      binderFactory == null
-        ? null
-        : binderFactory.getNodeBinder(node, configurationContext);
-    if (binder != null)
-      return binder;
-    return parent == null ? null : parent.getNodeBinder(node);
-  }
+	Object key = Cache.makeKey(name, ucxt);
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IMethodFactory#getMethodCaller(java.lang.String, java.lang.String, org.openl.types.IOpenClass[], org.openl.binding.ICastFactory)
-   */
-  public IMethodCaller getMethodCaller(
-    String namespace,
-    String name,
-    IOpenClass[] params,
-    ICastFactory casts)
-    throws AmbiguousMethodException
-  {
-    IMethodCaller mc =
-      methodFactory == null
-        ? null
-        : methodFactory.getMethodCaller(
-          namespace,
-          name,
-          params,
-          casts,
-          configurationContext);
+	return configurations.get(key);
 
-    if (mc != null)
-      return mc;
+    }
 
-    return parent == null
-      ? null
-      : parent.getMethodCaller(namespace, name, params, casts);
+    static synchronized public void unregister(String name, IUserContext ucxt)
+	    throws OpenConfigurationException
+    {
+	Object key = Cache.makeKey(name, ucxt);
 
-  }
+	// IOpenLConfiguration old =
+	// (IOpenLConfiguration)configurations.get(key);
+	// if (old == null)
+	// {
+	// throw new OpenConfigurationException("The configuration " + name + "
+	// does not exists", null, null);
+	// }
+	configurations.remove(key);
+	configurations.remove(name);
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.ICastFactory#getCast(java.lang.String, org.openl.types.IOpenClass, org.openl.types.IOpenClass)
-   */
-  public IOpenCast getCast(IOpenClass from, IOpenClass to)
-  {
-    IOpenCast cast =
-      typeCastFactory == null
-        ? null
-        : typeCastFactory.getCast(from, to, configurationContext);
-    if (cast != null)
-      return cast;
-    return parent == null ? null : parent.getCast(from, to);
-  }
+    }
 
-  /**
-   * @return
-   */
-  public String getUri()
-  {
-    return uri;
-  }
+    String uri;
 
-  /**
-   * @param string
-   */
-  public void setUri(String string)
-  {
-    uri = string;
-  }
+    IOpenLConfiguration parent;
+    IConfigurableResourceContext configurationContext;
 
-  /**
-   * @return
-   */
-  public ClassFactory getGrammarFactory()
-  {
-    return grammarFactory;
-  }
+    ClassFactory grammarFactory;
 
-  /**
-   * @param factory
-   */
-  public void setGrammarFactory(ClassFactory factory)
-  {
-    grammarFactory = factory;
-  }
+    NodeBinderFactoryConfiguration binderFactory;
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IVarFactory#getVar(java.lang.String, java.lang.String)
-   */
-  public IOpenField getVar(String namespace, String name)
-  {
-    IOpenField field =
-      methodFactory == null
-        ? null
-        : methodFactory.getVar(namespace, name, configurationContext);
-    if (field != null)
-      return field;
-    return parent == null ? null : parent.getVar(namespace, name);
-  }
+    LibraryFactoryConfiguration methodFactory;
 
-  public IOpenClass getType(String namespace, String name)
-  {
-    IOpenClass type =
-      typeFactory == null
-        ? null
-        : typeFactory.getType(namespace, name, configurationContext);
-    if (type != null)
-      return type;
-    return parent == null ? null : parent.getType(namespace, name);
-  }
+    TypeCastFactory typeCastFactory;
 
-  /**
-   * @return
-   */
-  public IConfigurableResourceContext getConfigurationContext()
-  {
-    return configurationContext;
-  }
+    TypeFactoryConfiguration typeFactory;
 
-  /**
-   * @param context
-   */
-  public void setConfigurationContext(IConfigurableResourceContext context)
-  {
-    configurationContext = context;
-  }
+    public void validate(IConfigurableResourceContext cxt)
+	    throws OpenConfigurationException
+    {
+	if (grammarFactory != null)
+	    grammarFactory.validate(cxt);
+	else if (parent == null)
+	    throw new OpenConfigurationException("Grammar class is not set",
+		    getUri(), null);
 
-  /**
-   * @return
-   */
-  public NodeBinderFactoryConfiguration getBinderFactory()
-  {
-    return binderFactory;
-  }
+	if (binderFactory != null)
+	    binderFactory.validate(cxt);
+	else if (parent == null)
+	    throw new OpenConfigurationException("Bindings are not set",
+		    getUri(), null);
 
-  /**
-   * @param factory
-   */
-  public void setBinderFactory(NodeBinderFactoryConfiguration factory)
-  {
-    binderFactory = factory;
-  }
+	// Methods and casts are optional
+	// else if (parent == null)
+	// throw new OpenConfigurationException("Methods are not set", getUri(),
+	// null);
 
-  /**
-   * @param configuration
-   */
-  public void setParent(IOpenLConfiguration configuration)
-  {
-    parent = configuration;
-  }
+	if (methodFactory != null)
+	    methodFactory.validate(cxt);
 
-  /**
-   * @return
-   */
-  public LibraryFactoryConfiguration getMethodFactory()
-  {
-    return methodFactory;
-  }
+	if (typeCastFactory != null)
+	    typeCastFactory.validate(cxt);
 
-  /**
-   * @param factory
-   */
-  public void setMethodFactory(LibraryFactoryConfiguration factory)
-  {
-    methodFactory = factory;
-  }
+	if (typeFactory != null)
+	    typeFactory.validate(cxt);
 
-  /**
-   * @return
-   */
-  public TypeCastFactory getTypeCastFactory()
-  {
-    return typeCastFactory;
-  }
+	if (openFactories != null)
+	{
+	    for (Iterator<IOpenFactoryConfiguration> iter = openFactories.values().iterator(); iter
+		    .hasNext();)
+	    {
+		IOpenFactoryConfiguration factory = iter
+			.next();
+		factory.validate(cxt);
+	    }
+	}
 
-  /**
-   * @param factory
-   */
-  public void setTypeCastFactory(TypeCastFactory factory)
-  {
-    typeCastFactory = factory;
-  }
+    }
 
-  Map openFactories = null;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openl.syntax.IGrammarFactory#getGrammar()
+     */
+    public IGrammar getGrammar() throws OpenConfigurationException
+    {
+	return grammarFactory == null ? parent.getGrammar()
+		: (IGrammar) grammarFactory.getResource(configurationContext);
+    }
 
-  public synchronized void addOpenFactory(IOpenFactoryConfiguration opfc)
-    throws OpenConfigurationException
-  {
-    if (openFactories == null)
-      openFactories = new HashMap();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openl.binding.INodeBinderFactory#getNodeBinder(org.openl.syntax.ISyntaxNode)
+     */
+    public INodeBinder getNodeBinder(ISyntaxNode node)
+    {
+	INodeBinder binder = binderFactory == null ? null : binderFactory
+		.getNodeBinder(node, configurationContext);
+	if (binder != null)
+	    return binder;
+	return parent == null ? null : parent.getNodeBinder(node);
+    }
 
-    if (opfc.getName() == null)
-      throw new OpenConfigurationException(
-        "The factory must have a name",
-        opfc.getUri(),
-        null);
-    if (openFactories.containsKey(opfc.getName()))
-      throw new OpenConfigurationException(
-        "Duplicated name: " + opfc.getName(),
-        opfc.getUri(),
-        null);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openl.binding.IMethodFactory#getMethodCaller(java.lang.String,
+     *      java.lang.String, org.openl.types.IOpenClass[],
+     *      org.openl.binding.ICastFactory)
+     */
+    public IMethodCaller getMethodCaller(String namespace, String name,
+	    IOpenClass[] params, ICastFactory casts)
+	    throws AmbiguousMethodException
+    {
+	IMethodCaller mc = methodFactory == null ? null : methodFactory
+		.getMethodCaller(namespace, name, params, casts,
+			configurationContext);
 
-    openFactories.put(opfc.getName(), opfc);
-  }
+	if (mc != null)
+	    return mc;
 
-  public IOpenFactory getOpenFactory(String name)
-  {
-    OpenFactoryConfiguration conf =
-      openFactories == null
-        ? null
-        : (OpenFactoryConfiguration)openFactories.get(name);
+	return parent == null ? null : parent.getMethodCaller(namespace, name,
+		params, casts);
 
-    if (conf != null)
-      return conf.getOpenFactory(configurationContext);
+    }
 
-    if (parent != null)
-      return parent.getOpenFactory(name);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openl.binding.ICastFactory#getCast(java.lang.String,
+     *      org.openl.types.IOpenClass, org.openl.types.IOpenClass)
+     */
+    public IOpenCast getCast(IOpenClass from, IOpenClass to)
+    {
+	IOpenCast cast = typeCastFactory == null ? null : typeCastFactory
+		.getCast(from, to, configurationContext);
+	if (cast != null)
+	    return cast;
+	return parent == null ? null : parent.getCast(from, to);
+    }
 
-    return null;
-  }
+    /**
+     * @return
+     */
+    public String getUri()
+    {
+	return uri;
+    }
 
-  /**
-   * @param configuration
-   */
-  public void setTypeFactory(TypeFactoryConfiguration configuration)
-  {
-    typeFactory = configuration;
-  }
+    /**
+     * @param string
+     */
+    public void setUri(String string)
+    {
+	uri = string;
+    }
+
+    /**
+     * @return
+     */
+    public ClassFactory getGrammarFactory()
+    {
+	return grammarFactory;
+    }
+
+    /**
+     * @param factory
+     */
+    public void setGrammarFactory(ClassFactory factory)
+    {
+	grammarFactory = factory;
+    }
+
+    public IOpenField getVar(String namespace, String name, boolean strictMatch)
+    {
+	IOpenField field = methodFactory == null ? null : methodFactory.getVar(
+		namespace, name, configurationContext, strictMatch);
+	if (field != null)
+	    return field;
+	return parent == null ? null : parent.getVar(namespace, name, strictMatch);
+    }
+
+    public IOpenClass getType(String namespace, String name)
+    {
+	IOpenClass type = typeFactory == null ? null : typeFactory.getType(
+		namespace, name, configurationContext);
+	if (type != null)
+	    return type;
+	return parent == null ? null : parent.getType(namespace, name);
+    }
+
+    /**
+     * @return
+     */
+    public IConfigurableResourceContext getConfigurationContext()
+    {
+	return configurationContext;
+    }
+
+    /**
+     * @param context
+     */
+    public void setConfigurationContext(IConfigurableResourceContext context)
+    {
+	configurationContext = context;
+    }
+
+    /**
+     * @return
+     */
+    public NodeBinderFactoryConfiguration getBinderFactory()
+    {
+	return binderFactory;
+    }
+
+    /**
+     * @param factory
+     */
+    public void setBinderFactory(NodeBinderFactoryConfiguration factory)
+    {
+	binderFactory = factory;
+    }
+
+    /**
+     * @param configuration
+     */
+    public void setParent(IOpenLConfiguration configuration)
+    {
+	parent = configuration;
+    }
+
+    /**
+     * @return
+     */
+    public LibraryFactoryConfiguration getMethodFactory()
+    {
+	return methodFactory;
+    }
+
+    /**
+     * @param factory
+     */
+    public void setMethodFactory(LibraryFactoryConfiguration factory)
+    {
+	methodFactory = factory;
+    }
+
+    /**
+     * @return
+     */
+    public TypeCastFactory getTypeCastFactory()
+    {
+	return typeCastFactory;
+    }
+
+    /**
+     * @param factory
+     */
+    public void setTypeCastFactory(TypeCastFactory factory)
+    {
+	typeCastFactory = factory;
+    }
+
+    Map<String, IOpenFactoryConfiguration> openFactories = null;
+
+    public synchronized void addOpenFactory(IOpenFactoryConfiguration opfc)
+	    throws OpenConfigurationException
+    {
+	if (openFactories == null)
+	    openFactories = new HashMap<String, IOpenFactoryConfiguration>();
+
+	if (opfc.getName() == null)
+	    throw new OpenConfigurationException(
+		    "The factory must have a name", opfc.getUri(), null);
+	if (openFactories.containsKey(opfc.getName()))
+	    throw new OpenConfigurationException("Duplicated name: "
+		    + opfc.getName(), opfc.getUri(), null);
+
+	openFactories.put(opfc.getName(), opfc);
+    }
+
+    public IOpenFactory getOpenFactory(String name)
+    {
+	OpenFactoryConfiguration conf = openFactories == null ? null
+		: (OpenFactoryConfiguration) openFactories.get(name);
+
+	if (conf != null)
+	    return conf.getOpenFactory(configurationContext);
+
+	if (parent != null)
+	    return parent.getOpenFactory(name);
+
+	return null;
+    }
+
+    /**
+     * @param configuration
+     */
+    public void setTypeFactory(TypeFactoryConfiguration configuration)
+    {
+	typeFactory = configuration;
+    }
 
 }

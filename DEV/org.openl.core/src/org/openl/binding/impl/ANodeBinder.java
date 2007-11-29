@@ -152,20 +152,17 @@ public abstract class ANodeBinder implements INodeBinder
 		{
 			throw new BoundError(node, "Can not find binder for node: " + node.getType(), null);
 		}
-		else
+		try
 		{
-			try
-			{
-				return binder.bind(node, bindingContext);
- 			}
- 			catch(SyntaxError se)
- 			{
- 				throw se;
- 			}
-			catch (Throwable t)
-			{
-				throw new BoundError(node, null, t);
-			}
+			return binder.bind(node, bindingContext);
+		}
+		catch(SyntaxError se)
+		{
+			throw se;
+		}
+		catch (Throwable t)
+		{
+			throw new BoundError(node, null, t);
 		}
 	}
 	
@@ -179,21 +176,18 @@ public abstract class ANodeBinder implements INodeBinder
 			bindingContext.addError(new BoundError(node, "Can not bind node:" + node.getType(), null));
 			return new ErrorBoundNode(node);
 		}
-		else
+		try
 		{
-			try
-			{
-				return binder.bindType(node, bindingContext, type);
-          
-			}
-			catch(SyntaxError se)
-			{
-				throw se;
-			}
-			catch (Throwable t)
-			{
-				throw new BoundError(node, null, t);
-			}
+			return binder.bindType(node, bindingContext, type);
+        
+		}
+		catch(SyntaxError se)
+		{
+			throw se;
+		}
+		catch (Throwable t)
+		{
+			throw new BoundError(node, null, t);
 		}
 	}
 	
@@ -210,21 +204,18 @@ public abstract class ANodeBinder implements INodeBinder
 			bindingContext.addError(new BoundError(node, "Can not bind node:" + node.getType(), null));
 			return new ErrorBoundNode(node);
 		}
-		else
+		try
 		{
-			try
-			{
-				return binder.bindTarget(node, bindingContext, targetNode);
-          
-			}
-			catch(SyntaxError se)
-			{
-				throw se;
-			}
-			catch (Throwable t)
-			{
-				throw new BoundError(node, null, t);
-			}
+			return binder.bindTarget(node, bindingContext, targetNode);
+        
+		}
+		catch(SyntaxError se)
+		{
+			throw se;
+		}
+		catch (Throwable t)
+		{
+			throw new BoundError(node, null, t);
 		}
 	}
 

@@ -3,7 +3,7 @@
  *
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
- 
+
 package org.openl.binding;
 
 import java.util.Iterator;
@@ -14,45 +14,42 @@ import org.openl.types.IOpenMethod;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class AmbiguousMethodException extends RuntimeException
 {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4733490029481524664L;
+    List<IOpenMethod> matchingMethods;
+    String methodName;
+    IOpenClass[] pars;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4733490029481524664L;
-	List matchingMethods; 
-	String methodName; 
-	IOpenClass[] pars;
-	
-	public AmbiguousMethodException( String methodName, IOpenClass[] pars, List matchingMethods)
-	{
-		this.methodName = methodName;
-		this.pars = pars;
-		this.matchingMethods = matchingMethods; 
-	}
-	
-	public String getMessage()
-	{
-		StringBuffer buf = new StringBuffer();
-		
-		buf.append("Method ");
-		MethodUtil.printMethod(methodName, pars, buf);
-		buf.append(" is ambigous:\n").
-		append("Matching methods:\n");
-		for (Iterator iter = matchingMethods.iterator(); iter.hasNext();)
+    public AmbiguousMethodException(String methodName, IOpenClass[] pars,
+	    List<IOpenMethod> matchingMethods)
     {
-			IOpenMethod method = (IOpenMethod)iter.next();
-      MethodUtil.printMethod(method, buf).append('\n');
+	this.methodName = methodName;
+	this.pars = pars;
+	this.matchingMethods = matchingMethods;
     }
-		
-		
-		return buf.toString();
+
+    public String getMessage()
+    {
+	StringBuffer buf = new StringBuffer();
+
+	buf.append("Method ");
+	MethodUtil.printMethod(methodName, pars, buf);
+	buf.append(" is ambigous:\n").append("Matching methods:\n");
+	for (Iterator<IOpenMethod> iter = matchingMethods.iterator(); iter
+		.hasNext();)
+	{
+	    IOpenMethod method = iter.next();
+	    MethodUtil.printMethod(method, buf).append('\n');
 	}
 
-
+	return buf.toString();
+    }
 
 }
