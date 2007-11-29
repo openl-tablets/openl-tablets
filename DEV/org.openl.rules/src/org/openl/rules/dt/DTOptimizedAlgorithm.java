@@ -219,7 +219,7 @@ public class DTOptimizedAlgorithm
 		{
 		case 1:
 			IOpenClass paramType = params[0].getType();
-			if (methodType == paramType)
+			if (methodType == paramType || methodType.getInstanceClass() == paramType.getInstanceClass())
 				return new EqualsIndexedEvaluator();
 			IAggregateInfo aggr = paramType.getAggregateInfo();
 			if (aggr.isAggregate(paramType) && aggr.getComponentType(paramType) == methodType)

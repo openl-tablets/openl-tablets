@@ -6,8 +6,9 @@
 
 package org.openl.rules.table;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 /**
  * @author snshor
@@ -16,7 +17,7 @@ import java.util.Vector;
 public class GridSplitter
 {
 
-  Vector tables = new Vector();
+  List<GridTable> tables = new ArrayList<GridTable>();
 
   IGrid grid;
   
@@ -54,7 +55,7 @@ public class GridSplitter
       }
     }
     
-    return (GridTable[])tables.toArray(new GridTable[tables.size()]);
+    return tables.toArray(new GridTable[tables.size()]);
     
   }
 
@@ -129,9 +130,9 @@ public class GridSplitter
 
   boolean cellIsUsed(int col, int row)
   {
-    for (Iterator iter = tables.iterator(); iter.hasNext();)
+    for (Iterator<GridTable> iter = tables.iterator(); iter.hasNext();)
     {
-      GridTable table = (GridTable)iter.next();
+      GridTable table = iter.next();
       if (GridTool.contains(table, col, row))
         return true;
     }

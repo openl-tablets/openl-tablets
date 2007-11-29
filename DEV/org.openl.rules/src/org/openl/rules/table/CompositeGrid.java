@@ -96,18 +96,18 @@ public class CompositeGrid extends AGridModel
 		}
 		
 		
-		HashSet gridSet = new HashSet();
+		HashSet<IGrid> gridSet = new HashSet<IGrid>();
 		
 		for (int i = 0; i < gridTables.length; i++)
 		{
 			gridSet.add(gridTables[i].getGrid());
 		}
 		
-		ArrayList mergedRegionsList = new ArrayList();
+		ArrayList<IGridRegion> mergedRegionsList = new ArrayList<IGridRegion>();
 
-		for (Iterator iter = gridSet.iterator(); iter.hasNext();)
+		for (Iterator<IGrid> iter = gridSet.iterator(); iter.hasNext();)
 		{
-			IGrid grid = (IGrid) iter.next();
+			IGrid grid =  iter.next();
 			
 			int n = grid.getNumberOfMergedRegions();
 			for (int i = 0; i < n; i++)
@@ -134,7 +134,7 @@ public class CompositeGrid extends AGridModel
 			
 		}
 		
-		mergedRegions = (IGridRegion[])mergedRegionsList.toArray(new IGridRegion[0]);
+		mergedRegions = mergedRegionsList.toArray(new IGridRegion[0]);
 	}
 	
 	

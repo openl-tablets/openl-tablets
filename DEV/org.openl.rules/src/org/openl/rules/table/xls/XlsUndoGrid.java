@@ -70,15 +70,15 @@ public class XlsUndoGrid implements IUndoGrid
 	}
 
 	
-	private int getColumn(int cnt)
+	private int getColumn(int cid)
 	{
-		return cnt/CELLS_IN_A_ROW;
+		return cid/CELLS_IN_A_ROW;
 	}
 	
 	
-	private int getRow(int cnt)
+	private int getRow(int cid)
 	{
-		return cnt%CELLS_IN_A_ROW;
+		return cid%CELLS_IN_A_ROW;
 	}
 
 	public int saveCell(IWritableGrid fromGrid, int col, int row)

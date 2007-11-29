@@ -189,7 +189,7 @@ public class TestMethodHelper
 				Object[] mpvals = new Object[mpars.length];
 				for (int j = 0; j < mpars.length; j++)
 				{
-					IOpenField f = dclass.getField(msign.getParameterName(j));
+					IOpenField f = dclass.getField(msign.getParameterName(j), true);
 					mpvals[j] = f.get(dd[i], env);
 				}
 
@@ -267,7 +267,7 @@ public class TestMethodHelper
 				Object[] mpvals = new Object[mpars.length];
 				for (int j = 0; j < mpars.length; j++)
 				{
-					IOpenField f = dclass.getField(msign.getParameterName(j));
+					IOpenField f = dclass.getField(msign.getParameterName(j), true);
 					mpvals[j] = f.get(dd[tid], env);
 				}
 

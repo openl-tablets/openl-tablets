@@ -25,7 +25,7 @@ public class BooleanTypeAdaptor
 		if (bv != null)
 			return new BoolMethodAdaptor(bv);
 
-		IOpenField bf = ioc.getField(booleanValue);
+		IOpenField bf = ioc.getField(booleanValue, true);
 		if (bf != null)
 			return new BoolFieldAdaptor(bf);
 		

@@ -11,6 +11,7 @@ import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.IGridSelector;
+import org.openl.rules.table.xls.XlsNumberFormat.SegmentFormatter;
 
 /**
  * @author snshor
@@ -97,6 +98,13 @@ public class SimpleXlsFormatter implements IGridFilter
 
 		return true;
 	}
+	
+	
+	static boolean isGeneralFormat(String fmt)
+	{
+		return fmt == null || GENERAL_XLS_FORMAT.equalsIgnoreCase(fmt);
+	}
+	
 
 	
 	static boolean containsAny(String src, String test)
@@ -134,7 +142,7 @@ public class SimpleXlsFormatter implements IGridFilter
 	 */
 	XlsNumberFormat findXlsNumberFormat(String fmt)
 	{
-		if (fmt == null)
+		if (isGeneralFormat(fmt))
 			return XlsNumberFormat.General;
 		
 		XlsNumberFormat xnf = (XlsNumberFormat)existingFormatters.get(fmt);
@@ -145,9 +153,9 @@ public class SimpleXlsFormatter implements IGridFilter
 		return xnf;
 	}
 
-	Map existingFormatters = new HashMap();
+	Map<String, XlsFormat> existingFormatters = new HashMap<String, XlsFormat>();
 	
-	Map existingFmts = new HashMap();
+	Map<String, SegmentFormatter> existingFmts = new HashMap<String, SegmentFormatter>();
 	
 	XlsNumberFormat makeFormat(String fmt)
 	{

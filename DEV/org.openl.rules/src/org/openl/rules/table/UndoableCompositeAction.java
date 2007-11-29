@@ -14,28 +14,28 @@ import java.util.List;
 public class UndoableCompositeAction implements IUndoableGridAction
 {
 
-	List actions;
+	List<IUndoableGridAction> actions;
 	
-	public UndoableCompositeAction(List actions)
+	public UndoableCompositeAction(List<IUndoableGridAction> actions)
 	{
 		this.actions = actions;
 	}
 
 	public void doAction(IWritableGrid grid, IUndoGrid undo)
 	{
-		for (Iterator iter = actions.iterator(); iter.hasNext();)
+		for (Iterator<IUndoableGridAction> iter = actions.iterator(); iter.hasNext();)
 		{
-			IUndoableGridAction element = (IUndoableGridAction) iter.next();
-			element.doAction(grid, undo);
+			IUndoableGridAction action =  iter.next();
+			action.doAction(grid, undo);
 		}
 	}
 
 	public void undoAction(IWritableGrid grid, IUndoGrid undo)
 	{
-		for (Iterator iter = actions.iterator(); iter.hasNext();)
+		for (Iterator<IUndoableGridAction> iter = actions.iterator(); iter.hasNext();)
 		{
-			IUndoableGridAction element = (IUndoableGridAction) iter.next();
-			element.undoAction(grid, undo);
+			IUndoableGridAction action = iter.next();
+			action.undoAction(grid, undo);
 		}
 		
 	}

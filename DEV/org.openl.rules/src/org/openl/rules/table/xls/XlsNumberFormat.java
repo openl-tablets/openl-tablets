@@ -7,7 +7,6 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.table.ui.AGridFilter;
 import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.ITextFormatter;
@@ -24,7 +23,7 @@ import org.openl.util.StringTool;
  * @author snshor
  * 
  */
-public class XlsNumberFormat extends AGridFilter
+public class XlsNumberFormat extends  XlsFormat
 {
 
 	static final public DecimalFormat DEFAULT_FORMAT = new DecimalFormat("0.00");
@@ -54,7 +53,7 @@ public class XlsNumberFormat extends AGridFilter
 	
 	
 	
-	static public XlsNumberFormat makeFormat(String xlsformat, Map existingFmts)
+	static public XlsNumberFormat makeFormat(String xlsformat, Map<String, SegmentFormatter> existingFmts)
 	{
 		String[] fmts = StringTool.tokenize(xlsformat, ";");
 		
@@ -81,9 +80,9 @@ public class XlsNumberFormat extends AGridFilter
 	 * @param existingFmts
 	 * @return
 	 */
-	private static SegmentFormatter getFormat(String fmt, Map existingFmts, boolean isNegative)
+	private static SegmentFormatter getFormat(String fmt, Map<String, SegmentFormatter> existingFmts, boolean isNegative)
 	{
-		SegmentFormatter sf = (SegmentFormatter)existingFmts.get(fmt);
+		SegmentFormatter sf = existingFmts.get(fmt);
 		if (sf != null) return sf;
 		
 		sf = makeSegmentFormatter(fmt, isNegative);
@@ -279,7 +278,7 @@ public class XlsNumberFormat extends AGridFilter
 		String[] formats = {"$#,##0_);[Red]($#,##0)","_(* #,##0.0_);_(* (#,##0.0);_(* \"-\"??_);_(@_)" , "#,###", "#,", "####.#", "#.000", "0.#", "#.0#",
 				"???.???", "#.0;(#.0)", };
 
-		HashMap existingFmts = new HashMap();
+		HashMap<String, SegmentFormatter> existingFmts = new HashMap<String, SegmentFormatter>();
 		for (int i = 0; i < formats.length; i++)
 		{
 			XlsNumberFormat  xnf =  makeFormat(formats[i], existingFmts);
