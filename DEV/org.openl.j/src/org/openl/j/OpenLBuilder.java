@@ -14,7 +14,7 @@ import org.openl.conf.OpenFactoryConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
-import org.openl.grammars.constexpr.BExGrammar;
+import org.openl.grammars.bex.BExGrammar;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder
@@ -40,6 +40,7 @@ public class OpenLBuilder extends AOpenLBuilder
   		{"literal","org.openl.binding.impl.LiteralNodeBinder"
   		,"literal.integer","org.openl.binding.impl.IntNodeBinder"
   		,"literal.real","org.openl.binding.impl.DoubleNodeBinder"
+  		,"literal.percent","org.openl.binding.impl.PercentNodeBinder"
   		,"literal.string","org.openl.binding.impl.StringNodeBinder"
   		,"literal.char","org.openl.binding.impl.CharNodeBinder"
   		,"array.init","org.openl.binding.impl.ArrayInitializationBinder"
@@ -70,7 +71,10 @@ public class OpenLBuilder extends AOpenLBuilder
 
   		,"function","org.openl.binding.impl.MethodNodeBinder"
   		,"identifier","org.openl.binding.impl.IdentifierBinder"
-  		,"chain","org.openl.binding.impl.ChainBinder"
+  		,"identifier.sequence","org.openl.binding.impl.IdentifierSequenceBinder"
+//  		,"chain","org.openl.binding.impl.ChainBinder"
+  		,"chain","org.openl.binding.impl.BExChainBinder"
+  		,"chain.suffix","org.openl.binding.impl.BExChainSuffixBinder"
 
   		,"control.for","org.openl.binding.impl.ForNodeBinder"
   		,"control.if","org.openl.binding.impl.IfNodeBinder"
