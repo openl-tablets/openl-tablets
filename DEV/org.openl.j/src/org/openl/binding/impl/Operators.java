@@ -6,6 +6,8 @@
  
 package org.openl.binding.impl;
 
+import java.util.Date;
+
 /**
  * @author snshor
  *
@@ -31,6 +33,29 @@ public class Operators
 	static public double multiply(double x, double y)
 	{
 		return x * y;
+	}
+	
+	
+	
+/*************************** Simple Date arithmetics,  will switch to Joda later**/	
+	
+	
+	static final long SECONDS_IN_DAY = 1000L * 3600 * 24;
+
+	static public Date add(Date d, int days)
+	{
+	    return new Date(d.getTime() + SECONDS_IN_DAY * days);
+	}
+	
+	static public Date subtract(Date d, int days)
+	{
+	    return new Date(d.getTime() - SECONDS_IN_DAY * days);
+	}
+	
+	
+	static public int subtract(Date d1, Date d2)
+	{
+	    return (int) ((d1.getTime() / SECONDS_IN_DAY) - (d2.getTime() / SECONDS_IN_DAY)) ;
 	}
 	
 
@@ -274,6 +299,11 @@ public class Operators
 	}
 	
 	public static String add(String x, double y)
+	{
+		return x + y;
+	}
+	
+	public static String add(String x, Double y)
 	{
 		return x + y;
 	}
