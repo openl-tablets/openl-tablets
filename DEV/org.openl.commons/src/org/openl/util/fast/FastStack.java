@@ -91,7 +91,7 @@ public final class FastStack implements Cloneable, java.io.Serializable
     try
     {
         FastStack v = (FastStack)super.clone();
-        v.m_data = (Object[])m_data.clone();
+        v.m_data = m_data.clone();
 //        v.m_data = new Object[m_data.length];
 //        System.arraycopy(m_data, 0, v.m_data, 0, m_data.length);
         return v;
