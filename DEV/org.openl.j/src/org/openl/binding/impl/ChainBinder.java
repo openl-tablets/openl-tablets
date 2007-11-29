@@ -21,92 +21,99 @@ import org.openl.types.IOpenField;
 public class ChainBinder extends ANodeBinder
 {
 
-	/* (non-Javadoc)
-	 * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
-	 */
-	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-	  throws Exception
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode,
+     *      org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
+     */
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
+	    throws Exception
+    {
+	
+	
+	
+
+	LongNameBuilder builder = new LongNameBuilder(node, bindingContext);
+
+	builder.bindName();
+
+	int n = node.getNumberOfChildren();
+
+	IBoundNode target = builder.targetNode;
+
+	if (target == null)
 	{
-		LongNameBuilder builder = new LongNameBuilder(node, bindingContext);
-
-		builder.bindName();
-
-		int n = node.getNumberOfChildren();
-
-		IBoundNode target = builder.targetNode;
-
-		if (target == null)
-		{
-			if (builder.cnt > 0)
-				throw new BoundError(
-					node,
-					"Can not resolve: " + builder.name,
-					null);
-			else
-			{
-				target = bindChildNode(node.getChild(0), bindingContext);
-				builder.cnt = 1;
-			}
-		}
-
-		//bind suffixes
-
-		for (int i = builder.cnt; i < n; i++)
-		{
-			target = bindTargetNode(node.getChild(i), bindingContext, target);
-		}
-
-		return target;
-
+	    if (builder.cnt > 0)
+		throw new BoundError(node, "Can not resolve: " + builder.name,
+			null);
+	    else
+	    {
+		target = bindChildNode(node.getChild(0), bindingContext);
+		builder.cnt = 1;
+	    }
 	}
 
-	static class LongNameBuilder
+	// bind suffixes
+
+	for (int i = builder.cnt; i < n; i++)
 	{
-		ISyntaxNode node;
-		IBindingContext bindingContext;
-		int cnt = 0;
-		String name = "";
-		IBoundNode targetNode;
-
-		LongNameBuilder(ISyntaxNode node, IBindingContext bindingContext)
-		{
-			this.node = node;
-			this.bindingContext = bindingContext;
-		}
-
-		void bindName()
-		{
-			int n = node.getNumberOfChildren();
-
-			for (; cnt < n; cnt++, name += '.')
-			{
-				ISyntaxNode child = node.getChild(cnt);
-				if (child.getType().equals("identifier"))
-					name = name + ((IdentifierNode) child).getIdentifier();
-				else
-					return;
-
-				IOpenField field =
-					bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, name);
-				//TODO merge syntax node				
-				if (field != null)
-				{
-					++cnt;
-					targetNode = new FieldBoundNode(child, field);
-					return;
-				}
-
-				IOpenClass type =
-					bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, name);
-				if (type != null)
-				{
-					++cnt;
-					targetNode = new TypeBoundNode(child, type);
-					return;
-				}
-			}
-		}
-
+	    target = bindTargetNode(node.getChild(i), bindingContext, target);
 	}
+
+	return target;
+
+    }
+
+
+
+    static class LongNameBuilder
+    {
+	ISyntaxNode node;
+	IBindingContext bindingContext;
+	int cnt = 0;
+	String name = "";
+	IBoundNode targetNode;
+
+	LongNameBuilder(ISyntaxNode node, IBindingContext bindingContext)
+	{
+	    this.node = node;
+	    this.bindingContext = bindingContext;
+	}
+
+	void bindName()
+	{
+	    int n = node.getNumberOfChildren();
+
+	    for (; cnt < n; cnt++, name += '.')
+	    {
+		ISyntaxNode child = node.getChild(cnt);
+		if (child.getType().equals("identifier"))
+		    name = name + ((IdentifierNode) child).getIdentifier();
+		else
+		    return;
+
+		IOpenField field = bindingContext.findVar(
+			ISyntaxConstants.THIS_NAMESPACE, name, true);
+		// TODO merge syntax node
+		if (field != null)
+		{
+		    ++cnt;
+		    targetNode = new FieldBoundNode(child, field);
+		    return;
+		}
+
+		IOpenClass type = bindingContext.findType(
+			ISyntaxConstants.THIS_NAMESPACE, name);
+		if (type != null)
+		{
+		    ++cnt;
+		    targetNode = new TypeBoundNode(child, type);
+		    return;
+		}
+	    }
+	}
+
+    }
 
 }
