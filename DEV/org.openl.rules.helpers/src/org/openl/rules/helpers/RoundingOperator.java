@@ -88,7 +88,7 @@ public class RoundingOperator
 
 
 		public double value(double value, double precision) {
-			return ((double) Math.round(value/precision))*precision;
+			return (Math.round(value/precision))*precision;
 		}
 	}
 
