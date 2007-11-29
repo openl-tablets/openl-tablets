@@ -22,9 +22,9 @@ public class RulesVocabulary implements IVocabulary
 		ArrayList<IOpenClass> list = makeBaseTypes();
 		makeDomains(list);
 		
-		for (Iterator iterator = list.iterator(); iterator.hasNext();)
+		for (Iterator<IOpenClass> iterator = list.iterator(); iterator.hasNext();)
 		{
-			IOpenClass ioc = (IOpenClass) iterator.next();
+			IOpenClass ioc = iterator.next();
 			newTypes.put(ioc.getName(), ioc);
 			
 		}
@@ -43,7 +43,7 @@ public class RulesVocabulary implements IVocabulary
 		for (int i = 0; i < dc.length; i++)
 		{
 			IOpenClass newType = dc[i].makeDomain();
-			list.add(dc[i].makeDomain());
+			list.add(newType);
 		}
 		
 		return list;
@@ -58,12 +58,12 @@ public class RulesVocabulary implements IVocabulary
 		{
 			
 			StringValue fieldName = attributes[i].getName();
-			IOpenField field = attributes[i].getBase().getField(fieldName.getValue());
+			IOpenField field = attributes[i].getBase().getField(fieldName.getValue(), true);
 			if (field == null)
 			{
 				try
 				{
-					throw new FieldNotFoundException("Can not find attribute", fieldName.getValue());
+					throw new FieldNotFoundException("Can not find attribute", fieldName.getValue(),null);
 				} catch (FieldNotFoundException e)
 				{
 					throw new BoundError( e, fieldName.asSourceCodeModule());

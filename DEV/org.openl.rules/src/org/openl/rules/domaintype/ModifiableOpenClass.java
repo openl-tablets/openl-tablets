@@ -26,18 +26,20 @@ public class ModifiableOpenClass extends OpenClassDelegator
 
 
 	@Override
-	public Iterator fields()
+	public Iterator<IOpenField> fields()
 	{
 		// TODO Auto-generated method stub
+		//TODO this does not take strictMatch correctly 
 		return super.fields();
 	}
 
 
 	@Override
-	public IOpenField getField(String name)
+	public IOpenField getField(String name, boolean strictMatch)
 	{
+		//TODO this does not take strictMatch correctly 
 		IOpenField f = modifiedFields.get(name);
-		return f != null ? f : super.getField(name);
+		return f != null ? f : super.getField(name, strictMatch);
 	}
 
 

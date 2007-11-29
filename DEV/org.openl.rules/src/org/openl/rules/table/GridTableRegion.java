@@ -39,9 +39,9 @@ public class GridTableRegion extends AGridTableDelegator
 	 *
 	 */
 
-	public int getGridColumn(int column, int row)
+	public int getGridColumn(int xcol, int yrow)
 	{
-		return gridTable.getGridColumn(this.column + column, this.row + row);
+		return gridTable.getGridColumn(this.column + xcol, this.row + yrow);
 	}
 
 	/**
@@ -57,9 +57,9 @@ public class GridTableRegion extends AGridTableDelegator
 	 *
 	 */
 
-	public int getGridRow(int column, int row)
+	public int getGridRow(int xcol, int yrow)
 	{
-		return gridTable.getGridRow(this.column + column, this.row + row);
+		return gridTable.getGridRow(this.column + xcol, this.row + yrow);
 	}
 
 	/**

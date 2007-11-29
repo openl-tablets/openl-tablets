@@ -667,12 +667,12 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 	private Map<CellKey, ICellStyle> styleMap = new HashMap<CellKey, ICellStyle>();
 
 
-	public Object getCellMetaInfo(int col, int row, Object key)
-	{
-		CellKey ck = new CellKey(col, row);
-		Map map = (Map) metaInfoMap.get(ck);
-		return map == null ? null : map.get(key);
-	}
+//	public CellMetaInfo getCellMetaInfo(int col, int row)
+//	{
+//		CellKey ck = new CellKey(col, row);
+//		CellMetaInfo cmi =  metaInfoMap.get(ck);
+//		return cmi;
+//	}
 
 	public CellMetaInfo getCellMetaInfo(int col, int row)
 	{

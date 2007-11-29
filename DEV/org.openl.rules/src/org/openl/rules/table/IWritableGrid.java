@@ -24,7 +24,6 @@ public interface IWritableGrid extends IGrid
 
 	void setCellType(int col, int row, int type);
 
-
 	void setCellMetaInfo(int col, int row, CellMetaInfo meta);
 
 	void setCellStyle(int col, int row, ICellStyle style);
@@ -40,13 +39,13 @@ public interface IWritableGrid extends IGrid
 				return (IWritableGrid) grid;
 			return null;
 		}
-		
+
 		public static IWritableGrid getWritableGrid(IGrid grid)
 		{
 			if (grid instanceof IWritableGrid)
 				return (IWritableGrid) grid;
 			return null;
-		}		
+		}
 
 		public static void putCellMetaInfo(IGridTable table, int col, int row,
 				CellMetaInfo meta)
@@ -60,9 +59,8 @@ public interface IWritableGrid extends IGrid
 			wgrid.setCellMetaInfo(gcol, grow, meta);
 		}
 
-
-
-		public static CellMetaInfo getCellMetaInfo(IGridTable table, int col, int row)
+		public static CellMetaInfo getCellMetaInfo(IGridTable table, int col,
+				int row)
 		{
 			IWritableGrid wgrid = getWritableGrid(table);
 			if (wgrid == null)
@@ -72,7 +70,7 @@ public interface IWritableGrid extends IGrid
 
 			return wgrid.getCellMetaInfo(gcol, grow);
 		}
-		
+
 		public static CellMetaInfo getCellMetaInfo(IGrid grid, int col, int row)
 		{
 			IWritableGrid wgrid = getWritableGrid(grid);
@@ -80,62 +78,66 @@ public interface IWritableGrid extends IGrid
 				return null;
 
 			return wgrid.getCellMetaInfo(col, row);
-		}		
+		}
 
-		public static IUndoableGridAction removeColumns(int nCols, int startColumn, IGridRegion region)
+		public static IUndoableGridAction removeColumns(int nCols, int startColumn,
+				IGridRegion region)
 		{
 			int firstToMove = startColumn + nCols;
 			int w = IGridRegion.Tool.width(region);
 			int h = IGridRegion.Tool.height(region);
 			int left = region.getLeft();
 			int top = region.getTop();
-			
-			ArrayList actions = new ArrayList(h * (w-startColumn));
+
+			ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(h * (w - startColumn));
 			for (int i = firstToMove; i < w; i++)
 			{
-					for (int j = 0; j < h; j++)
-					{
-						actions.add(new UndoableCopyValueAction(left+i,top+j, left+i -nCols, top + j));
-					}
+				for (int j = 0; j < h; j++)
+				{
+					actions.add(new UndoableCopyValueAction(left + i, top + j, left + i
+							- nCols, top + j));
+				}
 			}
 			for (int i = 0; i < nCols; i++)
 			{
-					for (int j = 0; j < h; j++)
-					{
-						actions.add(new UndoableClearAction(left+w-1-i,top+j));
-					}
+				for (int j = 0; j < h; j++)
+				{
+					actions.add(new UndoableClearAction(left + w - 1 - i, top + j));
+				}
 			}
 			return new UndoableCompositeAction(actions);
 		}
-		
-		
-		public static IUndoableGridAction removeRows(int nRows, int startRow, IGridRegion region)
+
+		public static IUndoableGridAction removeRows(int nRows, int startRow,
+				IGridRegion region)
 		{
 			int firstToMove = startRow + nRows;
 			int w = IGridRegion.Tool.width(region);
 			int h = IGridRegion.Tool.height(region);
 			int left = region.getLeft();
 			int top = region.getTop();
-			
-			ArrayList actions = new ArrayList(w * (h-startRow));
+
+			ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(w * (h - startRow));
 			for (int i = firstToMove; i < h; i++)
 			{
-					for (int j = 0; j < w; j++)
-					{
-						actions.add(new UndoableCopyValueAction(left+j,top+i, left+j, top + i - nRows));
-					}
+				for (int j = 0; j < w; j++)
+				{
+					actions.add(new UndoableCopyValueAction(left + j, top + i, left + j,
+							top + i - nRows));
+				}
 			}
 			for (int i = 0; i < nRows; i++)
 			{
-					for (int j = 0; j < w; j++)
-					{
-						actions.add(new UndoableClearAction(left+j,top+h-1-i));
-					}
+				for (int j = 0; j < w; j++)
+				{
+					actions.add(new UndoableClearAction(left + j, top + h - 1 - i));
+				}
 			}
 			return new UndoableCompositeAction(actions);
 		}
 
-		public static IUndoableGridAction insertRows(int nRows, int beforeRow, IGridRegion region,
+		public static IUndoableGridAction insertRows(int nRows, int beforeRow,
+				IGridRegion region, @SuppressWarnings("unused")
 				IWritableGrid wgrid)
 		{
 			int h = IGridRegion.Tool.height(region);
@@ -143,58 +145,61 @@ public interface IWritableGrid extends IGrid
 			int rowsToMove = h - beforeRow;
 			int left = region.getLeft();
 
-			ArrayList actions = new ArrayList(w * rowsToMove);
-			
+			ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(w * rowsToMove);
+
 			// move row
 			for (int i = 0; i < rowsToMove; i++)
 			{
 				int row = region.getBottom() - i;
 				for (int j = 0; j < w; j++)
 				{
-//					wgrid.copyCell(left+j, row, left+j, row + nRows);
-					actions.add(new UndoableCopyValueAction(left+j, row, left+j, row + nRows));
+					// wgrid.copyCell(left+j, row, left+j, row + nRows);
+					actions.add(new UndoableCopyValueAction(left + j, row, left + j, row
+							+ nRows));
 				}
 			}
 			return new UndoableCompositeAction(actions);
 		}
-		
 
-		public static IUndoableGridAction setStringValue(int col, int row, IGridTable table, String value)
+		public static IUndoableGridAction setStringValue(int col, int row,
+				IGridTable table, String value)
 		{
-//			IWritableGrid wgrid = getWritableGrid(table);
+			// IWritableGrid wgrid = getWritableGrid(table);
 			int gcol = table.getGridColumn(col, row);
 			int grow = table.getGridRow(col, row);
-			
-//		wgrid.setCellStringValue(gcol, grow, value);
-			return new UndoableSetValueAction(gcol, grow , value); 
-			
-		}
-	
 
-		public static IUndoableGridAction setStringValue(int col, int row, IGridRegion region, String value)
-		{
-			int gcol = region.getLeft()  + col;
-			int grow = region.getTop() + row;
-			
-//		wgrid.setCellStringValue(gcol, grow, value);
-			return new UndoableSetValueAction(gcol, grow , value); 
+			// wgrid.setCellStringValue(gcol, grow, value);
+			return new UndoableSetValueAction(gcol, grow, value);
+
 		}
-	
-		public static IUndoableGridAction setStyle(int col, int row, IGridTable table, ICellStyle style)
+
+		public static IUndoableGridAction setStringValue(int col, int row,
+				IGridRegion region, String value)
+		{
+			int gcol = region.getLeft() + col;
+			int grow = region.getTop() + row;
+
+			// wgrid.setCellStringValue(gcol, grow, value);
+			return new UndoableSetValueAction(gcol, grow, value);
+		}
+
+		public static IUndoableGridAction setStyle(int col, int row,
+				IGridTable table, ICellStyle style)
 		{
 			int gcol = table.getGridColumn(col, row);
 			int grow = table.getGridRow(col, row);
-			return new UndoableSetStyleAction(gcol, grow , style); 
+			return new UndoableSetStyleAction(gcol, grow, style);
 		}
 
-		public static IUndoableGridAction setStyle(int col, int row, IGridRegion region, ICellStyle style)
+		public static IUndoableGridAction setStyle(int col, int row,
+				IGridRegion region, ICellStyle style)
 		{
-			int gcol = region.getLeft()  + col;
+			int gcol = region.getLeft() + col;
 			int grow = region.getTop() + row;
-			return new UndoableSetStyleAction(gcol, grow , style);
+			return new UndoableSetStyleAction(gcol, grow, style);
 		}
 
-        public static ICellStyle getCellStyle(IGrid grid, int col, int row)
+		public static ICellStyle getCellStyle(IGrid grid, int col, int row)
 		{
 			IWritableGrid wgrid = getWritableGrid(grid);
 			if (wgrid == null)
@@ -203,27 +208,30 @@ public interface IWritableGrid extends IGrid
 			return wgrid.getCellStyle(col, row);
 		}
 
-        public static IUndoableGridAction insertColumns(int nColumns, int beforeColumns, IGridRegion region,
+		public static IUndoableGridAction insertColumns(int nColumns,
+				int beforeColumns, IGridRegion region, @SuppressWarnings("unused")
 				IWritableGrid wgrid)
 		{
 			int h = IGridRegion.Tool.height(region);
 			int w = IGridRegion.Tool.width(region);
 			int columnsToMove = w - beforeColumns;
 			int top = region.getTop();
-			
-			ArrayList actions = new ArrayList(h * columnsToMove);
-			
+
+			ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(
+					h * columnsToMove);
+
 			// move columns
 			for (int i = 0; i < columnsToMove; i++)
 			{
 				int col = region.getRight() - i;
 				for (int j = 0; j < h; j++)
 				{
-//					wgrid.copyCell(col, top+j, col + nColumns, top+j);
-					actions.add(new UndoableCopyValueAction(col, top+j, col + nColumns, top+j));
+					// wgrid.copyCell(col, top+j, col + nColumns, top+j);
+					actions.add(new UndoableCopyValueAction(col, top + j, col + nColumns,
+							top + j));
 				}
 			}
-			
+
 			return new UndoableCompositeAction(actions);
 		}
 	}

@@ -8,6 +8,7 @@ package org.openl.rules.lang.xls.syntax;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.meta.StringValue;
 import org.openl.rules.indexer.IDocumentType;
@@ -21,7 +22,6 @@ import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ASyntaxNode;
-import org.openl.syntax.impl.TerminalNode;
 import org.openl.types.IOpenMember;
 
 
@@ -42,9 +42,10 @@ public class TableSyntaxNode  extends ASyntaxNode implements IIndexElement
 	
 	IOpenMember member;
 	
-	HashMap subTables = new HashMap();
+	Map<String, ILogicalTable> subTables = new HashMap<String, ILogicalTable>();
 	
-	ArrayList errors;
+	
+	ArrayList<ISyntaxError> errors;
 	
 
 	public TableSyntaxNode(
@@ -141,7 +142,7 @@ public class TableSyntaxNode  extends ASyntaxNode implements IIndexElement
 	}
 
 
-	public HashMap getSubTables()
+	public Map<String, ILogicalTable> getSubTables()
 	{
 		return subTables;
 	}
@@ -149,7 +150,7 @@ public class TableSyntaxNode  extends ASyntaxNode implements IIndexElement
 	public void addError(ISyntaxError error)
 	{
 		if (errors == null)
-			errors = new ArrayList();
+			errors = new ArrayList<ISyntaxError>();
 		errors.add(error);
 	}
 	

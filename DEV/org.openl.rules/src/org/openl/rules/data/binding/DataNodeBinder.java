@@ -75,7 +75,10 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 	IdentifierNode[] parsedHeader;
 	
 	
-	protected IOpenClass getTableType(String typeName, IBindingContext cxt, XlsModuleOpenClass module,  DataTableBoundNode dataNode, String tableName)
+	protected IOpenClass getTableType(String typeName, IBindingContext cxt, @SuppressWarnings("unused")
+	XlsModuleOpenClass module,  @SuppressWarnings("unused")
+	DataTableBoundNode dataNode, @SuppressWarnings("unused")
+	String tableName)
 	{
 		IOpenClass tableType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE,
 				typeName);
@@ -229,7 +232,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 					.getStringValue(0, 0);
 			if (fieldName == null)
 				continue;
-			IOpenField of = tableType.getField(fieldName);
+			IOpenField of = tableType.getField(fieldName, true);
 			if (of != null)
 				++cnt;
 		}
@@ -237,6 +240,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 	}
 
 	IColumnDescriptor[] makeDescriptors(ILogicalTable descriptorRows,
+			@SuppressWarnings("unused")
 			IBindingContext cxt, IOpenClass type, OpenL openl,
 			boolean hasIndexRow, ILogicalTable dataWithHeader) throws Exception
 	{
@@ -271,29 +275,26 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 				{
 				   //targetType = targetType;
 					break;
-				}	
-				else
-				{	
-					IOpenField field = targetType.getField(fieldName);
-
-					if (field == null)
-					{
-						BoundError err = new BoundError(parsedFields[j], "Field " + fieldName
-							+ " not found in " + targetType.getName());
-						throw err;
-						
-					}
-
-					if (!field.isWritable())
-					{
-						BoundError err = new BoundError(parsedFields[j], "Field " + fieldName
-							+ " is not Writable in " + targetType.getName());
-						throw err;
-					}
-					
-				targetType = field.getType();
-				fields[j] = field;
 				}
+				IOpenField field = targetType.getField(fieldName, true);
+
+				if (field == null)
+				{
+					BoundError err = new BoundError(parsedFields[j], "Field " + fieldName
+						+ " not found in " + targetType.getName());
+					throw err;
+					
+				}
+
+				if (!field.isWritable())
+				{
+					BoundError err = new BoundError(parsedFields[j], "Field " + fieldName
+						+ " is not Writable in " + targetType.getName());
+					throw err;
+				}
+				
+targetType = field.getType();
+fields[j] = field;
 			}
 			
 
@@ -337,7 +338,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 
 			if (indexTable == null)
 			{
-				Class cc = targetType.getInstanceClass();
+				Class<?> cc = targetType.getInstanceClass();
 				if (cc.isArray())
 					cc = cc.getComponentType();
 

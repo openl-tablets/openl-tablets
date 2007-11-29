@@ -6,7 +6,6 @@ package org.openl.rules.table.xls;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.openl.rules.table.ui.AGridFilter;
 import org.openl.rules.table.ui.FormattedCell;
 import org.openl.util.Log;
 
@@ -14,7 +13,7 @@ import org.openl.util.Log;
  * @author snshor
  *
  */
-public class XlsDateFormat extends AGridFilter
+public class XlsDateFormat extends XlsFormat
 {
 	
 	SimpleDateFormat format;
