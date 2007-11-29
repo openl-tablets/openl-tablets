@@ -25,7 +25,8 @@ public class OpenConfigurationException extends NestableRuntimeException
 	String uri;
   Throwable cause;
   
-	public OpenConfigurationException(String msg, String uri, Throwable t)
+	public OpenConfigurationException(String msg, @SuppressWarnings("unused")
+	String uri, Throwable t)
 	{
 		super(msg, t);
 	}

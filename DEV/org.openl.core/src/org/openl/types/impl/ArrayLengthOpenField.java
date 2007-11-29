@@ -3,7 +3,7 @@
  *
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
- 
+
 package org.openl.types.impl;
 
 import org.openl.types.IOpenClass;
@@ -15,85 +15,71 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
+ * 
  */
 public abstract class ArrayLengthOpenField implements IOpenField
 {
-			public String getDisplayName(int mode)
-	{
-		return getName();
-	}
+    public String getDisplayName(int mode)
+    {
+	return getName();
+    }
 
-		/* (non-Javadoc)
-		 * @see org.openl.types.IOpenField#get(java.lang.Object)
-		 */
-		public Object get(Object target, IRuntimeEnv env)
-		{
-			return new Integer(getLength(target));
-		}
-		
-		public abstract int getLength(Object target);
-		/* (non-Javadoc)
-		 * @see org.openl.types.IOpenField#isConst()
-		 */
-		public boolean isConst()
-		{
-			return true;
-		}
+    public Object get(Object target, IRuntimeEnv env)
+    {
+	return new Integer(getLength(target));
+    }
 
-		/* (non-Javadoc)
-		 * @see org.openl.types.IOpenField#isReadable()
-		 */
-		public boolean isReadable()
-		{
-			return true;
-		}
+    public abstract int getLength(Object target);
 
-		public boolean isWritable()
-		{
-			return false;
-		}
+    public boolean isConst()
+    {
+	return true;
+    }
 
-		public void set(Object target, Object value, IRuntimeEnv env)
-		{
-			throw new UnsupportedOperationException();
-		}
+    public boolean isReadable()
+    {
+	return true;
+    }
 
-		/* (non-Javadoc)
-		 * @see org.openl.types.IOpenMember#getDeclaringClass()
-		 */
-		public IOpenClass getDeclaringClass()
-		{
-			return NullOpenClass.the;
-		}
+    public boolean isWritable()
+    {
+	return false;
+    }
 
-		public IMemberMetaInfo getInfo()
-		{
-			return null;
-		}
+    public void set(Object target, Object value, IRuntimeEnv env)
+    {
+	throw new UnsupportedOperationException();
+    }
 
-		/* (non-Javadoc)
-		 * @see org.openl.types.IOpenMember#getType()
-		 */
-		public IOpenClass getType()
-		{
-			return JavaOpenClass.INT;
-		}
+    public IOpenClass getDeclaringClass()
+    {
+	return NullOpenClass.the;
+    }
 
-		/* (non-Javadoc)
-		 * @see org.openl.types.IOpenMember#isStatic()
-		 */
-		public boolean isStatic()
-		{
-			return false;
-		}
+    public IMemberMetaInfo getInfo()
+    {
+	return null;
+    }
 
-		/* (non-Javadoc)
-		 * @see org.openl.base.INamedThing#getName()
-		 */
-		public String getName()
-		{
-			return "length";
-		}
+    public IOpenClass getType()
+    {
+	return JavaOpenClass.INT;
+    }
+
+    public boolean isStatic()
+    {
+	return false;
+    }
+
+    public String getName()
+    {
+	return "length";
+    }
+
+    @Override
+    public String toString()
+    {
+	return getName();
+    }
 
 }

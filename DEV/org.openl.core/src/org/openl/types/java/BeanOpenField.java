@@ -197,4 +197,10 @@ public class BeanOpenField implements IOpenField
 		return getName();
 	}
 
+	@Override
+	public String toString()
+	{
+	    return getName();
+	}
+
 }

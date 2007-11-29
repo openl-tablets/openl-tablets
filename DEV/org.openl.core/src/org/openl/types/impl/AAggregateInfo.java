@@ -23,9 +23,6 @@ public abstract class AAggregateInfo implements IAggregateInfo
 	
 
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IAggregateInfo#makeIndexedAggregate(org.openl.types.IOpenClass, int[])
-   */
   public Object makeIndexedAggregate(
     IOpenClass componentClass,
     int[] dimValues)
@@ -33,9 +30,6 @@ public abstract class AAggregateInfo implements IAggregateInfo
     return Array.newInstance(componentClass.getInstanceClass(), dimValues);
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IAggregateInfo#getIndexedAggregateType(org.openl.types.IOpenClass, int)
-   */
   public IOpenClass getIndexedAggregateType(
     IOpenClass componentType,
     int dim)

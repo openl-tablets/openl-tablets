@@ -6,7 +6,7 @@
 
 package org.openl.binding.impl;
 
-import java.util.Vector;
+import java.util.List;
 
 import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.AmbiguousVarException;
@@ -98,10 +98,10 @@ public class BindingContextDelegator implements IBindingContextDelegator
 	 * @return
 	 * @throws AmbiguousVarException
 	 */
-	public IOpenField findVar(String namespace, String name)
+	public IOpenField findVar(String namespace, String name, boolean strictMatch)
 		throws AmbiguousVarException
 	{
-		return delegate.findVar(namespace, name);
+		return delegate.findVar(namespace, name, strictMatch);
 	}
 
 	/**
@@ -229,14 +229,14 @@ public class BindingContextDelegator implements IBindingContextDelegator
   /**
    * @param errors
    */
-  public void addAllErrors(Vector errors)
-  {
-    delegate.addAllErrors(errors);
-  }
+//  public void addAllErrors(Vector errors)
+//  {
+//    delegate.addAllErrors(errors);
+//  }
   /**
    * @return
    */
-  public Vector popErrors()
+  public List<ISyntaxError> popErrors()
   {
     return delegate.popErrors();
   }

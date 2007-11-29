@@ -21,9 +21,6 @@ public class LiteralNodeBinder extends ANodeBinder
 {
 	
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
-   */
   public IBoundNode bind(
     ISyntaxNode node,
     IBindingContext bindingContext)
@@ -40,7 +37,6 @@ public class LiteralNodeBinder extends ANodeBinder
 			return new LiteralBoundNode(node, Boolean.FALSE, JavaOpenClass.BOOLEAN);
   	
   	throw new RuntimeException("Literal <" + s + "> can not be resolved");
-  	
   }
 
 }

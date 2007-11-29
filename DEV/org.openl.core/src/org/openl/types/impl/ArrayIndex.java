@@ -21,41 +21,26 @@ public class ArrayIndex implements IOpenIndex
 		this.elementType = elementType;
 	}
 
-	/* (non-Javadoc)
-	* @see org.openl.types.IOpenIndex#getElementType()
-	*/
 	public IOpenClass getElementType()
 	{
 		return elementType;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IOpenIndex#getValue(java.lang.Object, java.lang.Object)
-	 */
 	public Object getValue(Object container, Object index)
 	{
 		return Array.get(container, ((Integer) index).intValue());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IOpenIndex#isWritable()
-	 */
 	public boolean isWritable()
 	{
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IOpenIndex#setValue(java.lang.Object, java.lang.Object, java.lang.Object)
-	 */
 	public void setValue(Object container, Object index, Object value)
 	{
 		Array.set(container, ((Integer) index).intValue(), value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IOpenIndex#getIndexType()
-	 */
 	public IOpenClass getIndexType()
 	{
 		return JavaOpenClass.INT;

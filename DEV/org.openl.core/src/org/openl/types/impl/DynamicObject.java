@@ -22,7 +22,7 @@ public class DynamicObject implements IDynamicObject
 
   IOpenClass type;
 
-  HashMap fields = new HashMap();
+  HashMap<String, Object> fields = new HashMap<String, Object>();
 
   public DynamicObject(IOpenClass type)
   {
@@ -45,22 +45,11 @@ public class DynamicObject implements IDynamicObject
     return type;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.openl.types.IDynamicObject#getFieldValue(java.lang.String)
-   */
   public Object getFieldValue(String name)
   {
     return fields.get(name);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.openl.types.IDynamicObject#setFieldValue(java.lang.String,
-   *      java.lang.Object)
-   */
   public void setFieldValue(String name, Object value)
   {
     fields.put(name, value);

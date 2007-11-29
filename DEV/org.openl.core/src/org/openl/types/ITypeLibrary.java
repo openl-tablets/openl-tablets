@@ -33,6 +33,6 @@ public interface ITypeLibrary
 	 */
 
 	
-	public Iterator typeNames();
+	public Iterator<String> typeNames();
 	
 }

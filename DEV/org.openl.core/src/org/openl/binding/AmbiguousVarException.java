@@ -3,52 +3,52 @@
  *
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
- 
+
 package org.openl.binding;
 
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
-import org.openl.types.IOpenMethod;
+import org.openl.base.INamedThing;
+import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class AmbiguousVarException extends RuntimeException
 {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -8752617383143899614L;
+    List<IOpenField> matchingFields;
+    String varName;
 
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8752617383143899614L;
-	Vector matchingFields; 
-	String varName; 
-	
-	public AmbiguousVarException( String varName, Vector matchingFields)
-	{
-		this.varName = varName;
-		this.matchingFields = matchingFields; 
-	}
-	
-	public String getMessage()
-	{
-		StringBuffer buf = new StringBuffer();
-		
-		buf.append("Variable ").append(varName);
-		buf.append(" is ambigous:\n").
-		append("Matching fields:\n");
-		for (Iterator iter = matchingFields.iterator(); iter.hasNext();)
+    public AmbiguousVarException(String varName, List<IOpenField> matchingFields)
     {
-			IOpenMethod method = (IOpenMethod)iter.next();
-      MethodUtil.printMethod(method, buf).append('\n');
+	this.varName = varName;
+	this.matchingFields = matchingFields;
     }
-		
-		
-		return buf.toString();
+
+    public String getMessage()
+    {
+	StringBuffer buf = new StringBuffer();
+
+	buf.append("Variable ").append(varName);
+	buf.append(" is ambigous:\n").append("Matching fields:\n");
+	boolean first = true;
+	for (Iterator<IOpenField> iter = matchingFields.iterator(); iter
+		.hasNext();)
+	{
+	    IOpenField f = iter.next();
+	    if (!first)
+		buf.append(", ");
+	    buf.append(f.getDisplayName(INamedThing.LONG));
+	    first = false;
 	}
 
-
+	return buf.toString();
+    }
 
 }

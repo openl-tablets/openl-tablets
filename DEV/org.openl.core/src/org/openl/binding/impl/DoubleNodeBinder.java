@@ -19,9 +19,6 @@ import org.openl.types.java.JavaOpenClass;
 public class DoubleNodeBinder extends ANodeBinder
 {
 
-	/* (non-Javadoc)
-	 * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
-	 */
 	public IBoundNode bind(
 		ISyntaxNode node,
 		IBindingContext bindingContext)
@@ -37,7 +34,4 @@ public class DoubleNodeBinder extends ANodeBinder
 		  	
 		return new LiteralBoundNode(node, Double.valueOf(s), JavaOpenClass.DOUBLE);
 	}
-
-
-
 }

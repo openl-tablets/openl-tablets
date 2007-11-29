@@ -15,7 +15,7 @@ import java.util.Iterator;
 public interface IAggregateInfo
 {
 	public IOpenClass getComponentType(IOpenClass aggregateType);
-	public Iterator getIterator(Object aggregate);
+	public Iterator<Object> getIterator(Object aggregate);
 	
 	public Object makeIndexedAggregate(IOpenClass componentType, int[] dimValues);
 	public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dims);

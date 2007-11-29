@@ -116,9 +116,6 @@ public class OpenFieldDelegator implements IOpenField
     field.set(target, value, env);
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
   public String toString()
   {
     return field.toString();
@@ -129,6 +126,31 @@ public class OpenFieldDelegator implements IOpenField
 	public String getDisplayName(int mode)
 	{
 		return field.getDisplayName(mode);
+	}
+
+
+
+	@Override
+	public boolean equals(Object obj)
+	{
+	    if (obj == null)
+		return false;
+	    if (obj == this)
+		return true;
+	    
+	    if (obj instanceof OpenFieldDelegator)
+	    {
+		OpenFieldDelegator d = (OpenFieldDelegator) obj;
+		return field.equals(d.field);
+	    }
+	    
+	    if (obj instanceof IOpenField)
+	    {
+		IOpenField f = (IOpenField) obj;
+		return field.equals(f);
+	    }
+	    
+	    return super.equals(obj);
 	}
 
 }

@@ -46,21 +46,15 @@ public class MapOpenClass extends JavaOpenClass
     return name;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#fields()
-   */
-  public Iterator fields()
+  public Iterator<IOpenField> fields()
   {
     // TODO Auto-generated method stub
     return super.fields();
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenClass#getField(java.lang.String)
-   */
-  public synchronized IOpenField getField(String name)
+  public synchronized IOpenField getField(String fname, boolean strictMatch)
   {
-    IOpenField f = super.getField(name);
+    IOpenField f = super.getField(fname, strictMatch);
     if (f == null)
     {
     	f = new MapOpenField(name, dynamicFieldType);
@@ -90,17 +84,13 @@ public class MapOpenClass extends JavaOpenClass
       super(name, type);
     }
 
-	    /* (non-Javadoc)
-     * @see org.openl.types.IOpenField#get(java.lang.Object)
-     */
+    @SuppressWarnings("unchecked")
     public Object get(Object target, IRuntimeEnv env)
     {
-      return ((Map)target).get(this.name);
+      return ((Map<Object, Object>)target).get(this.name);
     }
 
-    /* (non-Javadoc)
-     * @see org.openl.types.IOpenField#set(java.lang.Object, java.lang.Object)
-     */
+    @SuppressWarnings("unchecked")
     public void set(Object target, Object value, IRuntimeEnv env)
     {
     	((Map)target).put(this.name, value);

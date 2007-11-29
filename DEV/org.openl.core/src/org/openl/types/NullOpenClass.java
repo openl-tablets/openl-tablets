@@ -73,7 +73,7 @@ public class NullOpenClass implements IOpenClass
 	return null;
     }
 
-    public IOpenField getField(String name)
+    public IOpenField getField(String fname, boolean strictMatch)
     {
 	return null;
     }
@@ -110,12 +110,7 @@ public class NullOpenClass implements IOpenClass
 	return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.IVarFactory#getVar(java.lang.String)
-     */
-    public IOpenField getVar(String name)
+    public IOpenField getVar(String fname, boolean strictMatch)
     {
 	return null;
     }
@@ -185,6 +180,7 @@ public class NullOpenClass implements IOpenClass
 	return ISyntaxConstants.THIS_NAMESPACE;
     }
 
+    @SuppressWarnings("unchecked")
     public IDomain getDomain()
     {
 	return null;
@@ -198,6 +194,11 @@ public class NullOpenClass implements IOpenClass
     public boolean isSimple()
     {
 	return true;
+    }
+
+    public IOpenField getField(String name)
+    {
+	return null;
     }
 
 }
