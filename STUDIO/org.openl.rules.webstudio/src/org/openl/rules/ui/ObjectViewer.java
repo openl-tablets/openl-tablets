@@ -724,7 +724,7 @@ public class ObjectViewer
 		} else
 			ioc = JavaOpenClass.getOpenClass(x.getClass());
 
-		IOpenField f = ioc.getField("name");
+		IOpenField f = ioc.getField("name", true);
 
 		String type = StringTool.lastToken(ioc.getName(), ".");
 
