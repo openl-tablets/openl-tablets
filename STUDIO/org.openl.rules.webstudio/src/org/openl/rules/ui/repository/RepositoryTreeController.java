@@ -97,6 +97,14 @@ public class RepositoryTreeController {
         this.minor = minor;
     }
 
+    private ProjectVersion getProjectVersion() {
+        UserWorkspaceProject project = getSelectedProject();
+        if (project != null) {
+            return project.getVersion();
+        }
+        return null;
+    }
+
     private UserWorkspaceProject getSelectedProject() {
         ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode()
                 .getDataBean();
@@ -459,7 +467,7 @@ public class RepositoryTreeController {
         return null;
     }
 
-    private boolean checkName(String projectName) {
+    public boolean checkName(String projectName) {
         return !PROJECTNAME_FORBIDDEN_PATTERN.matcher(projectName).find();
     }
 
@@ -726,22 +734,6 @@ public class RepositoryTreeController {
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    private ProjectVersion getProjectVersion() {
-        UserWorkspaceProject project = getSelectedProject();
-        if (project != null) {
-            ProjectVersion version = project.getVersion();
-            if (version != null) {
-                version.getRevision();
-                ProjectVersion newVersion = new RepositoryProjectVersionImpl(version
-                            .getMajor(), version.getMinor(), version.getRevision() + 1,
-                        null);
-
-                return newVersion;
-            }
-        }
-        return null;
     }
 
     public Date getEffectiveDate() {
