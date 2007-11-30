@@ -31,7 +31,7 @@ public class AddDependencyController {
     private String upperVersion;
 
     public SelectItem[] getAvailableProjects() {
-        AbstractTreeNode selected = repositoryTreeState.getCurrentNode();
+        AbstractTreeNode selected = repositoryTreeState.getSelectedNode();
         Set<String> existing = new HashSet<String>();
 
         if (selected instanceof TreeProject) {
@@ -59,7 +59,7 @@ public class AddDependencyController {
     }
 
     public String add() {
-        AbstractTreeNode selected = repositoryTreeState.getCurrentNode();
+        AbstractTreeNode selected = repositoryTreeState.getSelectedNode();
         if (!(selected instanceof TreeProject)) {
             return null;
         }

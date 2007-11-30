@@ -15,14 +15,14 @@
     </f:facet>
 
     <h:form id="deleteNodeForm">
-      <h:outputText rendered="#{repositoryTreeController.selected.type == 'project' || repositoryTreeController.selected.type == 'deployment'}"
+      <h:outputText rendered="#{node.type == 'project' || node.type == 'deployment'}"
 
-        value="Are you sure you want to delete the project '#{repositoryTreeController.selected.name}'?" />
-      <h:outputText rendered="#{repositoryTreeController.selected.type == 'folder'}"
-        value="Are you sure you want to delete the folder '#{repositoryTreeController.selected.name}'?" />
+        value="Are you sure you want to delete the project '#{node.name}'?" />
+      <h:outputText rendered="#{node.type == 'folder'}"
+        value="Are you sure you want to delete the folder '#{node.name}'?" />
 
-      <h:outputText rendered="#{repositoryTreeController.selected.type == 'file'}"
-        value="Are you sure you want to delete the file '#{repositoryTreeController.selected.name}'?" />
+      <h:outputText rendered="#{node.type == 'file'}"
+        value="Are you sure you want to delete the file '#{node.name}'?" />
 
       <br />
       <br />

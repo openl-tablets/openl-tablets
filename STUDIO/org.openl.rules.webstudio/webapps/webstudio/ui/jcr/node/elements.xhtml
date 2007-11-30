@@ -5,9 +5,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:c="http://java.sun.com/jstl/core">
 
-  <c:set var="node" value="#{repositoryTreeController.selected.dataBean}"/>
-
-  <rich:dataTable rendered="#{not empty repositoryTreeController.selected.childNodes}" value="#{repositoryTreeController.selected.childNodes}" var="el">
+    <rich:dataTable rendered="#{not empty node.childNodes}" value="#{node.childNodes}" var="el">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -33,7 +31,7 @@
       <rich:column style="text-align:center;">
         <h:commandLink styleClass="actionButton" action="#{repositoryTreeController.deleteElement}"
           onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
-          rendered="#{!node.project.locked || node.project.lockedByMe || node.project.localOnly}">
+          rendered="#{!artefact.project.locked || artefact.project.lockedByMe || artefact.project.localOnly}">
           <f:param name="element" value="#{el.name}" />
           <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
         </h:commandLink>
@@ -42,6 +40,6 @@
 
   </rich:dataTable>
 
-  <h:outputText styleClass="niceLabel" rendered="#{empty repositoryTreeController.selected.children}" value="There are no elements (Folders, Files)." />
+  <h:outputText styleClass="niceLabel" rendered="#{empty node.children}" value="There are no elements (Folders, Files)." />
 
 </ui:composition>

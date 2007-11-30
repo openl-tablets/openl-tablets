@@ -29,6 +29,10 @@
     <managed-bean-name>repositoryTreeState</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeState</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>userWorkspace</property-name>
+      <value>#{sessionScope.rulesUserSession.userWorkspace}</value>
+    </managed-property>
   </managed-bean>
 
   <managed-bean>

@@ -9,20 +9,18 @@
 
   <h:panelGrid columns="1">
 
-    <c:set var="node" value="#{repositoryTreeController.selected.dataBean}"/>
-
-    <h:panelGroup rendered="#{node.deleted}">
+    <h:panelGroup rendered="#{artefact.deleted}">
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Undelete" onclick="return confirmUndeleteProject();" />
         <h:commandButton styleClass="button" value="Erase" action="eraseProject" onclick="return confirmEraseProject();" />
       </h:panelGrid>
     </h:panelGroup>
 
-    <h:panelGrid columns="5" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not node.deleted}">
+    <h:panelGrid columns="5" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not artefact.deleted}">
       <h:commandButton styleClass="button" value="Deploy" action="#{deploymentController.deploy}"/>
-      <h:commandButton styleClass="#{node.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" disabled="#{not node.opened}"/>  
-      <h:commandButton styleClass="#{node.checkedOut ? 'disabledButton' : 'button'}" value="Check Out" action="#{deploymentController.checkOut}" disabled="#{node.checkedOut}" />
-      <h:commandButton styleClass="#{node.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" disabled="#{not node.checkedOut}" />
+      <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" disabled="#{not artefact.opened}"/>
+      <h:commandButton styleClass="#{artefact.checkedOut ? 'disabledButton' : 'button'}" value="Check Out" action="#{deploymentController.checkOut}" disabled="#{artefact.checkedOut}" />
+      <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" disabled="#{not artefact.checkedOut}" />
       <h:commandButton styleClass="button" value="Delete" type="button" onclick="confirmDeleteNode()"/>
     </h:panelGrid>
 
@@ -70,7 +68,7 @@
     </rich:dataTable>
 
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton value="Add Descriptor" styleClass="#{node.checkedOut ? 'button':'disabledButton'}" onclick="showAddDeployEntry()" type="button" disabled="#{not node.checkedOut}"/>
+      <h:commandButton value="Add Descriptor" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" onclick="showAddDeployEntry()" type="button" disabled="#{not artefact.checkedOut}"/>
       <h:commandButton value="Open Selected Projects" styleClass="button" action="#{deploymentController.openSelectedProjects}"/>
     </h:panelGrid>
   </h:panelGrid>
