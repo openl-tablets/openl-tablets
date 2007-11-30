@@ -15,6 +15,7 @@ import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
 import org.openl.rules.workspace.lw.LocalProjectResource;
+import org.openl.rules.workspace.props.PropertyException;
 
 public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements LocalProjectFolder {
     public static final String PROPERTIES_FOLDER = ".studioProps";
@@ -210,5 +211,13 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
 
         artefacts.put(newArtefact.getName(), newArtefact);
         setChanged(true);
+    }
+
+    public StateHolder getState() {
+        return super.getState();
+    }
+    
+    public void setState(StateHolder aState) throws PropertyException {
+        super.setState(aState);
     }
 }

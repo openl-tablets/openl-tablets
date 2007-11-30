@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -128,5 +129,49 @@ public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
             expirationDate = rulesArtefact.getExpirationDate();
             lineOfBusiness = rulesArtefact.getLineOfBusiness();
         }
+    }
+    
+    public StateHolder getState() {
+        ArtefactStateHolder state = new ArtefactStateHolder();
+        
+        state.isNew = isNew;
+        state.isChanged = isChanged;
+        
+        state.effectiveDate = effectiveDate;
+        state.expirationDate = expirationDate;
+        state.LOB = lineOfBusiness;
+        
+        state.properties = new ArrayList<Property>(properties.getProperties());
+        
+        return state;
+    }
+    
+    public void setState(StateHolder aState) throws PropertyException {
+        ArtefactStateHolder state = (ArtefactStateHolder) aState;
+        
+        effectiveDate = state.effectiveDate;
+        expirationDate = state.expirationDate;
+        lineOfBusiness = state.LOB;
+        
+        properties.removeAll();
+        for (Property prop : state.properties) {
+            properties.addProperty(prop);
+        }
+
+        isNew = state.isNew;
+        isChanged = state.isChanged;
+    }
+
+    private static class ArtefactStateHolder implements StateHolder {
+        private static final long serialVersionUID = 1049629652852513808L;
+
+        boolean isNew;
+        boolean isChanged;
+        
+        Date effectiveDate;
+        Date expirationDate;
+        String LOB;
+        
+        Collection<Property> properties;
     }
 }

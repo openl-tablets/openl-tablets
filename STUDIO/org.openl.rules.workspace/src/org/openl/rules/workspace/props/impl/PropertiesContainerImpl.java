@@ -68,4 +68,11 @@ public class PropertiesContainerImpl implements PropertiesContainer {
         properties.remove(name);
         return prop;
     }
+
+    /**
+     * For internal use.
+     */
+    public void removeAll() {
+        properties.clear();
+    }
 }

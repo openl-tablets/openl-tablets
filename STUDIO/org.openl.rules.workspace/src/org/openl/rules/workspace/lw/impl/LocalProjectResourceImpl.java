@@ -1,17 +1,23 @@
 package org.openl.rules.workspace.lw.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectResource;
+import org.openl.rules.workspace.props.PropertyException;
 import org.openl.util.Log;
 
-import java.io.*;
-
 public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implements LocalProjectResource {
-    // 1 KBytes
-    public static final int DOWNLOAD_BUFFER_SIZE = 1024;
+    // 8 KBytes
+    public static final int DOWNLOAD_BUFFER_SIZE = 8 * 1024;
     
     private String resourceType;
 
@@ -106,5 +112,33 @@ public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implement
                 }
             }
         }
+    }
+    
+    public StateHolder getState() {
+        ResourceStateHolder state = new ResourceStateHolder();
+        
+        state.parent = super.getState();
+        
+        state.resourceType = resourceType;
+        state.lastModified = lastModified;
+        
+        return state;
+    }
+    
+    public void setState(StateHolder aState) throws PropertyException {
+        ResourceStateHolder state = (ResourceStateHolder) aState;
+        super.setState(state.parent);
+        
+        resourceType = state.resourceType;
+        lastModified = state.lastModified;
+    }
+
+    private static class ResourceStateHolder implements StateHolder {
+        private static final long serialVersionUID = -8202714450047051624L;
+
+        StateHolder parent;
+
+        String resourceType;
+        long lastModified;
     }
 }

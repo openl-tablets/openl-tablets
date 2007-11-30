@@ -13,6 +13,7 @@ import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.util.Log;
 
 public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl implements UserWorkspaceProject {
     private Project project;
@@ -50,15 +51,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void close() throws ProjectException {
-        if (!isOpened()) {
-            throw new ProjectException("Project ''{0}'' is already closed", null, getName());
-        }
-
         if (isLockedByMe()) {
             dtrProject.unlock(userWorkspace.getUser());
         }
         
-        localProject.remove();
+        if (localProject != null) {
+            localProject.remove();
+        }
+        
         updateArtefact(null, dtrProject);
     }
 
@@ -220,6 +220,17 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
             project = dtrProject;
         } else {
             project = localProject;
+        }
+
+        if (isLockedByMe() && isOpened() == false) {
+            // locked but no in local workspace
+            Log.warn("Project {0} is locked but not opened -- removing lock.", getName());
+            
+            try {
+                dtrProject.unlock(getUser());
+            } catch (ProjectException e) {
+                Log.error("Failed to remove lock from project {0}", e, getName());
+            }            
         }
     }
     
