@@ -19,7 +19,6 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.workspace.dtr.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
@@ -47,9 +46,10 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         localProject = (LocalProjectImpl) workspace.addProject(
                 new LocalProjectImpl(PROJECT_NAME, new ArtefactPathImpl("sample"),
                         new File(TestHelper.FOLDER_TEST),
-                        new RepositoryProjectVersionImpl(1, 0, 0, new RepositoryVersionInfoImpl(new Date(), "test")),
                         workspace));
 
+//        new RepositoryProjectVersionImpl(1, 0, 0, new RepositoryVersionInfoImpl(new Date(), "test"))
+        
         folder1 = localProject.addFolder("folder1");
         folder2 = localProject.addFolder("folder2");
         File folder1File = new File(localProject.getLocation(), folder1.getName());
