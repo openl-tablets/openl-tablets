@@ -3,7 +3,9 @@ package org.openl.rules.repository.jcr;
 import java.util.Date;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
+import javax.jcr.ValueFormatException;
 import javax.jcr.version.Version;
 
 import org.openl.rules.repository.CommonUser;
@@ -30,8 +32,14 @@ public class JcrVersion implements RVersion {
         node.setProperty(JcrNT.PROP_REVISION, 0);
     }
     
-    public JcrVersion(Node node) {
+    public JcrVersion(Node node) throws RepositoryException {
+        // frozen node
         initVersion(node);
+        
+        Node parent = node.getParent();
+        if (parent.hasProperty("jcr:created")) {
+            lastModified = parent.getProperty("jcr:created").getDate().getTime();
+        }
     }
     
     public JcrVersion(Version version) throws RepositoryException {
@@ -41,12 +49,6 @@ public class JcrVersion implements RVersion {
         initVersion(frozen);
 
         lastModified = version.getProperty("jcr:created").getDate().getTime();
-//      if (frozen.hasProperty(JcrNT.PROP_MODIFIED_TIME)) {
-//      lastModified = frozen.getProperty(JcrNT.PROP_MODIFIED_TIME).getDate().getTime();
-//      }
-        if (frozen.hasProperty(JcrNT.PROP_MODIFIED_BY)) { 
-            modifiedBy = frozen.getProperty(JcrNT.PROP_MODIFIED_BY).getString();
-        }
     }
     
     public JcrVersion(RVersion version) {
@@ -83,7 +85,7 @@ public class JcrVersion implements RVersion {
     
     // --- protected
     
-    protected void initVersion(Node node) {
+    protected void initVersion(Node node) throws RepositoryException {
         int major = 0;
         int minor = 0;
         long revision = 0;
@@ -104,6 +106,13 @@ public class JcrVersion implements RVersion {
         }
         
         version = new CommonVersionImpl(major, minor, (int)revision);
+
+        if (node.hasProperty(JcrNT.PROP_MODIFIED_BY)) { 
+            modifiedBy = node.getProperty(JcrNT.PROP_MODIFIED_BY).getString();
+        }
+//      if (node.hasProperty(JcrNT.PROP_MODIFIED_TIME)) {
+//      lastModified = node.getProperty(JcrNT.PROP_MODIFIED_TIME).getDate().getTime();
+//      }
     }
     
     protected void nextRevision() {
