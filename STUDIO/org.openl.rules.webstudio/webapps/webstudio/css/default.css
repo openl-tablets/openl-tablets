@@ -152,6 +152,10 @@ input {
   font-size: 11px;
 }
 
+input.readonlyRowInput {
+  border: none;
+}
+
 select {
   font-family: verdana, helvetica, arial, sans-serif;
   font-weight: normal;

@@ -21,7 +21,7 @@
         <a4j:commandButton id="addDependencyBtn" reRender="addDependencyPanel" oncomplete="showAddDependencyUpdateVersion()" ajaxSingle="true" style="display:none;"/>
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="project" styleClass="required" value="Project" />
-        <h:selectOneMenu id="project" required="true" value="#{addDependency.projectName}">
+        <h:selectOneMenu id="project" required="true" value="#{addDependency.projectName}" style="width:250px;">
           <f:selectItems value="#{addDependency.availableProjects}" />
           <a4j:support event="onchange" reRender="lowerVersion" ajaxSingle="true" />
         </h:selectOneMenu>
