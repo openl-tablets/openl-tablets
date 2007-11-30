@@ -18,7 +18,7 @@
         <h:outputText value="Project Name" />
         <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputText value="Current Version" />
-        <h:outputText value="#{artefact.project.version.versionName}"/>
+        <h:outputText value="#{(empty artefact[project]) ? '' : artefact.project.version.versionName}"/>
         <h:outputLabel for="major" styleClass="required" value="Major Version" />
         <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="65535" value="#{repositoryTreeController.major}" inputSize="4" cycled="false" />
         <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
