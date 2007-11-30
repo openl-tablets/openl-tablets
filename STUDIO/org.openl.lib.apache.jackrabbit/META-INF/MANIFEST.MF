@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Jackrabbit Library
 Bundle-SymbolicName: org.openl.lib.apache.jackrabbit;singleton:=true
-Bundle-Version: 5.0.1
+Bundle-Version: 5.0.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: libs/commons-collections-3.1.jar,
@@ -33,6 +33,12 @@ Export-Package: javax.jcr,
  javax.jcr.query,
  javax.jcr.util,
  javax.jcr.version,
+ junit.awtui,
+ junit.extensions,
+ junit.framework,
+ junit.runner,
+ junit.swingui,
+ junit.textui,
  org.apache.jackrabbit,
  org.apache.jackrabbit.api,
  org.apache.jackrabbit.commons,
