@@ -52,7 +52,7 @@ body {
   font-weight: normal;
   color: black;
   background: #eceef8;
-  margin : 0px;
+  margin: 0px;
   padding: 0px;
 }
 
@@ -187,11 +187,11 @@ input.button[class] {
 }
 
 input.disabledButton {
-  border : 0px;
-  font-weight : bold;
-  color : #FFFFFF;
-  text-align : center;
-  height : 18px;
+  border: 0px;
+  font-weight: bold;
+  color: #FFFFFF;
+  text-align: center;
+  height: 18px;
   background: url(../images/buttonDisabled.gif) repeat-x center;
   background-color: #7c99b6;
   margin: 0;
@@ -202,6 +202,11 @@ input.disabledButton {
 
 input.disabledButton[class] {
   width: auto;
+}
+
+a {
+  text-decoration: underlined;
+  color: rgb(5, 38, 121);
 }
 
 form.standard table.buttonPanel {
@@ -238,6 +243,65 @@ form.standard table.buttonPanel {
 
 .success {
   color: green;
+}
+
+/* Standard table that should be used to display any tabular data */
+table.standard {
+  border: none;
+  border-bottom: 1px solid rgb(120, 136, 180);
+}
+
+table.standard caption {
+  background-color: #BFC0CE;
+  color: black;
+  font-weight: bold;
+  text-align: left;
+  padding: 5px;
+}
+
+table.standard thead {
+
+}
+
+table.standard th {
+  border-color: #7888B4 white;
+  border-style: solid;
+  border-width: 1px 1px 1px 0px;
+  color: #052679;
+  padding: 5px 8px 6px;
+}
+
+table.standard th a {
+  color: rgb(5, 38, 121);
+  text-decoration: none;
+}
+
+table.standard td {
+  border-right: 1px solid white;
+  border-bottom: none;
+  padding: 5px 5px 5px 2px;
+}
+
+table.standard td .right {
+  text-align: right;
+}
+
+table.standard td .left {
+  text-align: left;
+}
+
+/* for verticale table header */
+table.standard td.header {
+  padding: 0px 5px 5px 2px;
+  font-weight: bold;
+}
+
+table.standard tr.even {
+  background-color: rgb(235, 238, 247);
+}
+
+table.standard tr.odd {
+  background-color: white;
 }
 
 /* RichFaces tree styles */
