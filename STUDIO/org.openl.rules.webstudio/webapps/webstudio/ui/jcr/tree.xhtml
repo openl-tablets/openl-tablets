@@ -6,7 +6,7 @@
 
   <rich:panel style="width:300px; height:518px; overflow:auto">
     <rich:tree switchType="client" ajaxSubmitSelection="true" nodeSelectListener="#{repositoryTreeState.processSelection}"
-      reRender="modalDeleteNode, nodeView, modalOpenVersion" value="#{repositoryTreeState.root}" var="item" nodeFace="#{item.type}"
+      reRender="modalDeleteNode, nodeView, modalOpenVersion, modalCheckIn" value="#{repositoryTreeState.root}" var="item" nodeFace="#{item.type}"
       adviseNodeSelected="#{repositoryTreeState.adviseNodeSelected}">
 
       <rich:treeNode type="repository" icon="#{item.icon}" iconLeaf="#{item.iconLeaf}">
