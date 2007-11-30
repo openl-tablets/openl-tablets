@@ -20,7 +20,7 @@
         <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
         <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
-            <f:selectItems value="#{repositoryTreeController.projectVersions}" />
+            <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
         </h:selectOneMenu>
       </h:panelGrid>
 
