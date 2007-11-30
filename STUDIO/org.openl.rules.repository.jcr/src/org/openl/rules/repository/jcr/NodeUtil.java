@@ -2,6 +2,8 @@ package org.openl.rules.repository.jcr;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
@@ -164,5 +166,28 @@ public class NodeUtil {
         }
         
         return correctVNode;
+    }
+    
+    protected static void printNode(Node node) throws RepositoryException {
+        System.out.println("Node: " + node.getName());
+        
+        PropertyIterator pi = node.getProperties();
+        while (pi.hasNext()) {
+            Property p = pi.nextProperty();
+            
+            boolean isProtected = p.getDefinition().isProtected();
+            boolean isMultiple = p.getDefinition().isMultiple();
+
+            String status = "";
+            if (isProtected) {
+                status = "protected";
+            }
+            
+            if (isMultiple) {
+                System.out.println(" p " + p.getName() + " multiple " + status);
+            } else {
+                System.out.println(" p " + p.getName() + " " + status + " =" + p.getString());
+            }
+        }
     }
 }
