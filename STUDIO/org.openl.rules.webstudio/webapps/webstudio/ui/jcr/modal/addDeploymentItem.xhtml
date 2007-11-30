@@ -20,7 +20,7 @@
 
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
             <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" required="true">
+            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" required="true" style="width:250px;">
                 <f:selectItems value="#{deploymentController.projects}" />
                 <a4j:support event="onchange" reRender="projectVersion" ajaxSingle="true" />
             </h:selectOneMenu>

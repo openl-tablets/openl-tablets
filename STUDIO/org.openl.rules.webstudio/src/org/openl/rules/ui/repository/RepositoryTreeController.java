@@ -85,8 +85,8 @@ public class RepositoryTreeController {
     private String uploadFrom;
     private String newProjectName;
     private String version;
-    private int major = 5;
-    private int minor = 4;
+    private int major;
+    private int minor;
 
     public int getMajor() {
         ProjectVersion v = getProjectVersion();
@@ -360,9 +360,6 @@ public class RepositoryTreeController {
 
     public String openVersion() {
         UserWorkspaceProject project = getActiveProject();
-        if (project == null) {
-            return UiConst.OUTCOME_FAILURE;
-        }
 
         try {
             project.openVersion(new CommonVersionImpl(version));
@@ -375,15 +372,12 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to open project", e.getMessage()));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
     }
 
     public String openProject() {
         UserWorkspaceProject project = getActiveProject();
-        if (project == null) {
-            return UiConst.OUTCOME_FAILURE;
-        }
 
         try {
             project.open();
@@ -402,9 +396,6 @@ public class RepositoryTreeController {
 
     public String closeProject() {
         UserWorkspaceProject project = getActiveProject();
-        if (project == null) {
-            return UiConst.OUTCOME_FAILURE;
-        }
 
         try {
             project.close();
@@ -478,9 +469,6 @@ public class RepositoryTreeController {
 
     public String checkOutProject() {
         UserWorkspaceProject project = getActiveProject();
-        if (project == null) {
-            return UiConst.OUTCOME_FAILURE;
-        }
 
         try {
             project.checkOut();
@@ -499,9 +487,6 @@ public class RepositoryTreeController {
 
     public String checkInProject() {
         UserWorkspaceProject project = getActiveProject();
-        if (project == null) {
-            return null;
-        }
 
         try {
             project.checkIn(major, minor);

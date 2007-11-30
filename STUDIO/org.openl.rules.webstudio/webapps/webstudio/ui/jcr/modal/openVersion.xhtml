@@ -16,8 +16,8 @@
 
     <h:form id="openVersionForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputLabel for="projectName" value="Project Name" />
-        <h:inputText id="projectName" styleClass="readonly" size="35" value="#{repositoryTreeController.projectName}" readonly="true" />
+        <h:outputText value="Project Name" />
+        <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
         <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
             <f:selectItems value="#{repositoryTreeController.projectVersions}" />
@@ -39,7 +39,6 @@
 
   <script>
     function openOpenVersionDialog(projectName) {
-      document.getElementById('openVersionForm:projectName').value = projectName;
       document.getElementById('openVersionForm:hiddenProjectName').value = projectName;
       Richfaces.showModalPanel('modalOpenVersion');
       focusElement('openVersionForm:projectVersion');

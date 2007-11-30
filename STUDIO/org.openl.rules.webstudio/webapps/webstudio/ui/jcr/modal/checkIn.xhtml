@@ -5,7 +5,7 @@
     xmlns:rich="http://richfaces.ajax4jsf.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalCheckIn" width="300" minWidth="300" height="195" minHeight="195">
+  <rich:modalPanel id="modalCheckIn" width="400" minWidth="400" height="195" minHeight="195">
     <f:facet name="header">
       <h:outputText value="Check In" />
     </f:facet>
@@ -16,7 +16,7 @@
     <h:form id="checkInForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
-        <h:outputText value="#{artefact.name}" />
+        <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputText value="Current Version" />
         <h:outputText value="#{repositoryTreeController.version}" />
         <h:outputLabel for="major" styleClass="required" value="Major Version" />
