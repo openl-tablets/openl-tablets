@@ -1,5 +1,6 @@
 package org.openl.rules.repository.factories;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -35,6 +36,15 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
 
         String repName = props.getStr(PROP_REPOSITORY_NAME, DEFAULT_REPOSITORY_NAME);
         repHome = props.getStr(PROP_REPOSITORY_HOME, DEFAULT_REPOSITORY_HOME);
+        
+        // resolve "." and "..", if any
+        try {
+            File f = new File(repHome);
+            repHome = f.getCanonicalPath();
+        } catch (IOException e) {
+            System.err.println("Failed to get canonical path for repository home (" + repHome + ")");
+            e.printStackTrace();
+        }        
 
         try {
             init();
