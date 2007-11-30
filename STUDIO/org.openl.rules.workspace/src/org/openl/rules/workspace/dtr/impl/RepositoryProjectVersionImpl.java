@@ -10,7 +10,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private int major;
     private int minor;
     private int revision;
-    private String versionName;
+    private transient String versionName;
     private VersionInfo versionInfo;
 
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo) {

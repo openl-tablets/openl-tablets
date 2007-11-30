@@ -15,6 +15,7 @@ import org.openl.util.Log;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -76,8 +77,18 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public void refresh() {
-        for (LocalProject lp : localProjects.values()) {
-            lp.refresh();
+        Iterator<LocalProject> i = localProjects.values().iterator();
+        while (i.hasNext()) {
+            LocalProjectImpl lp = (LocalProjectImpl)i.next();
+            
+            File location = lp.getLocation();
+            if (location.exists()) {
+                // still here
+                lp.refresh();
+            } else {
+                // deleted externally
+                i.remove();
+            }
         }
     }
 
@@ -125,10 +136,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         String name = project.getName();
 
         ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
-        ProjectVersion pv = project.getVersion();
         File f = new File(location, name);
 
-        LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, pv, this);
+        LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, this);
         lpi.downloadArtefact(project);
         
         lpi.save();
@@ -144,7 +154,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             String name = f.getName();
             ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
 
-            LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, null, this);
+            LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, this);
             try {
                 lpi.load();
             } catch (ProjectException e) {
