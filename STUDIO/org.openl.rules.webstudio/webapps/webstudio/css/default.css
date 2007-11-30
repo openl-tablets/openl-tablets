@@ -2,19 +2,6 @@
   font-size: 13px;
 }
 
-.niceLabel {
-  font-size: 12px;
-}
-
-.smlBackButton {
-  font-size: 9px;
-}
-
-.outpanelHeader {
-  height: 4px;
-  border-width: 0;
-}
-
 .columnTree {
   vertical-align: top;
 }
@@ -57,60 +44,6 @@ body {
 }
 
 /* ------------------------------------------- */
-.modalBody {
-  height: 165px;
-  width: 100%;
-}
-
-.modalRow1 {
-  height: 100px;
-}
-
-.modalRow2 {
-  height: 2px;
-}
-
-.modalRow3 {
-  height: 40px;
-}
-
-.modalCol {
-  text-align: center;
-}
-
-.modalButtonPanel {
-}
-
-.modalButtonCol {
-  padding: 0 10px;
-}
-
-.modalButton {
-}
-
-.modalRow1Grid {
-  width: 100%;
-  text-align: left;
-}
-
-.modalInput,.modalInputRO {
-  width: 370px;
-}
-
-.modalInputRO {
-  background: #EEE;
-}
-
-.modalInputShort {
-  width: 150px;
-}
-
-.modalMessage {
-  width: 100%;
-  text-align: center;
-  font-size: 12px;
-}
-
 .colDiff {
   width: 50%;
   height: 100%;
