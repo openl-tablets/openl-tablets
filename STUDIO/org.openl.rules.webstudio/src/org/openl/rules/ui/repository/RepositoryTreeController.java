@@ -63,7 +63,6 @@ public class RepositoryTreeController {
     private UserWorkspace userWorkspace;
     private UploadService uploadService;
     private String projectName;
-    private String deploymentProjectName;
     private String folderName;
     private UploadedFile file;
     private String fileName;
@@ -347,7 +346,7 @@ public class RepositoryTreeController {
 
     public String createDeploymentProject() {
         try {
-            userWorkspace.createDDProject(deploymentProjectName);
+            userWorkspace.createDDProject(projectName);
             invalidateTree();
             return null;
         } catch (ProjectException e) {
@@ -683,16 +682,12 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public void setDeploymentProjectName(String newDeploymentProjectName) {
-        this.deploymentProjectName = newDeploymentProjectName;
-    }
-
     public String getFolderName() {
         return null;
     }
 
-    public void setFolderName(String newFolderName) {
-        this.folderName = newFolderName;
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
     }
 
     public String getNewProjectName() {
