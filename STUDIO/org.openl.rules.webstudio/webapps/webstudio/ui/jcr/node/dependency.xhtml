@@ -6,11 +6,11 @@
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <div style="padding-bottom: 10px;"><h:commandButton onclick="showAddDependency(); return false"
-    styleClass="#{repositoryTreeController.selected.dataBean.checkedOut ? 'button':'disabledButton'}"
-    disabled="#{!repositoryTreeController.selected.dataBean.checkedOut}" value="Add Dependency" /></div>
+    styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}"
+    disabled="#{!artefact.checkedOut}" value="Add Dependency" /></div>
 
-  <rich:dataTable rendered="#{not empty repositoryTreeController.selected.dependencies}"
-    value="#{repositoryTreeController.selected.dependencies}" var="dep">
+  <rich:dataTable rendered="#{not empty node.dependencies}"
+    value="#{node.dependencies}" var="dep">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -33,7 +33,7 @@
         <h:outputText value="#{dep.versionString}" />
       </rich:column>
       <rich:column style="text-align:center;">
-        <h:commandLink action="#{dep.delete}" rendered="#{repositoryTreeController.selected.dataBean.checkedOut}">
+        <h:commandLink action="#{dep.delete}" rendered="#{artefact.checkedOut}">
           <h:graphicImage styleClass="actionImage" style="vertical-align:bottom;" value="/images/test_neq.gif" title="Remove"
             onclick="NAMESPACE_deleteDepItem.showModalPanel(this); Event.stop(event || window.event);" />
         </h:commandLink>

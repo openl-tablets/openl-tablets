@@ -5,21 +5,24 @@
     xmlns:rich="http://richfaces.ajax4jsf.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:modalPanel id="modalCheckIn" width="400" minWidth="400" height="145" minHeight="145">
+  <rich:modalPanel id="modalCheckIn" width="300" minWidth="300" height="195" minHeight="195">
     <f:facet name="header">
       <h:outputText value="Check In" />
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalCheckIn');" />
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" alt="Close" title="Close" onclick="Richfaces.hideModalPanel('modalCheckIn');" />
     </f:facet>
-
     <h:form id="checkInForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputLabel for="projectName" value="Project Name" />
-        <h:inputText id="projectName" styleClass="readonly" size="35" value="#{repositoryTreeController.projectName}" readonly="true" />
-        <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
-        <h:inputText id="projectVersion" size="35" value="#{repositoryTreeController.version}" />
+        <h:outputText value="Project Name" />
+        <h:outputText value="#{artefact.name}" />
+        <h:outputText value="Current Version" />
+        <h:outputText value="#{repositoryTreeController.version}" />
+        <h:outputLabel for="major" styleClass="required" value="Major Version" />
+        <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="65535" value="#{repositoryTreeController.major}" inputSize="4" cycled="false" />
+        <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
+        <rich:inputNumberSpinner id="minor" minValue="0" maxValue="65535" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false" />
       </h:panelGrid>
 
       <br />
@@ -37,7 +40,6 @@
 
   <script>
     function openCheckInDialog(projectName) {
-      document.getElementById('checkInForm:projectName').value = projectName;
       document.getElementById('checkInForm:hiddenProjectName').value = projectName;
       Richfaces.showModalPanel('modalCheckIn');
       focusElement('checkInForm:projectVersion');

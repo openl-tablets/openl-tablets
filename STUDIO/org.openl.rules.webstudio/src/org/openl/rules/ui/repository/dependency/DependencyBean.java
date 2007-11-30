@@ -1,6 +1,7 @@
 package org.openl.rules.ui.repository.dependency;
 
 import org.openl.rules.ui.repository.RepositoryTreeController;
+import org.openl.rules.ui.repository.RepositoryTreeState;
 import org.openl.rules.ui.repository.UiConst;
 import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.ui.repository.tree.TreeProject;
@@ -50,11 +51,11 @@ public class DependencyBean {
     }
 
     public String delete() {
-        RepositoryTreeController tree = (RepositoryTreeController) FacesUtils.getFacesVariable("#{repositoryTreeController}");
-        if (tree != null && tree.getSelected() != null) {
-            AbstractTreeNode selected = tree.getSelected();
-            if (selected instanceof TreeProject) {
-                TreeProject project = (TreeProject) selected;
+        RepositoryTreeState treeState = (RepositoryTreeState) FacesUtils.getFacesVariable("#{repositoryTreeState}");
+        if (treeState != null) {
+            AbstractTreeNode selectedNode = treeState.getSelectedNode();
+            if (selectedNode instanceof TreeProject) {
+                TreeProject project = (TreeProject) selectedNode;
                 try {
                     project.removeDependency(projectName);
                 } catch (ProjectException e) {

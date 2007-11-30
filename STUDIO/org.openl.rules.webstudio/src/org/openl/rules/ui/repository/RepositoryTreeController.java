@@ -84,9 +84,33 @@ public class RepositoryTreeController {
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
-    private Collection<UserWorkspaceProject> rulesProjects;
-    private Collection<UserWorkspaceDeploymentProject> deploymentsProjects;
     private String version;
+    private int major = 5;
+    private int minor = 4;
+
+    public int getMajor() {
+        ProjectVersion v = getProjectVersion();
+        if (v != null) {
+            return v.getMajor();
+        }
+        return major;
+    }
+
+    public void setMajor(int major) {
+        this.major = major;
+    }
+
+    public int getMinor() {
+        ProjectVersion v = getProjectVersion();
+        if (v != null) {
+            return v.getMinor();
+        }
+        return minor;
+    }
+
+    public void setMinor(int minor) {
+        this.minor = minor;
+    }
 
     public SelectItem[] getProjectVersions() {
         UserWorkspaceProject project = getActiveProject();
@@ -101,129 +125,6 @@ public class RepositoryTreeController {
         return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
 
-    private void traverseFolder(TreeFolder folder,
-        Collection<?extends ProjectArtefact> artefacts) {
-        for (ProjectArtefact artefact : artefacts) {
-            String id = artefact.getName();
-            if (artefact instanceof ProjectFolder) {
-                TreeFolder tf = new TreeFolder(id, artefact.getName());
-                tf.setDataBean(artefact);
-                folder.add(tf);
-                traverseFolder(tf, ((ProjectFolder) artefact).getArtefacts());
-            } else {
-                TreeFile tf = new TreeFile(id, artefact.getName());
-                tf.setDataBean(artefact);
-                folder.add(tf);
-            }
-        }
-    }
-
-    private void buildTree() {
-        repositoryTreeState.setRoot(new TreeRepository("", "", "root"));
-
-        String rulesProjectsRepositoryName = "Rules Projects";
-        TreeRepository rulesRep = new TreeRepository(rulesProjectsRepositoryName,
-                rulesProjectsRepositoryName, UiConst.TYPE_REPOSITORY);
-        rulesRep.setDataBean(null);
-        String deploymentProjectsRepositoryName = "Deployment Projects";
-        TreeRepository deploymentRep = new TreeRepository(deploymentProjectsRepositoryName,
-                deploymentProjectsRepositoryName, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
-        deploymentRep.setDataBean(null);
-
-        repositoryTreeState.setRulesRepository(rulesRep);
-        repositoryTreeState.setDeploymentRepository(deploymentRep);
-        repositoryTreeState.getRoot().add(rulesRep);
-        repositoryTreeState.getRoot().add(deploymentRep);
-
-        if (rulesProjects == null) {
-            rulesProjects = userWorkspace.getProjects();
-        }
-
-        for (Project project : rulesProjects) {
-            TreeProject prj = new TreeProject(project.getName(), project.getName());
-            prj.setDataBean(project);
-            rulesRep.add(prj);
-            // redo that
-            traverseFolder(prj, project.getArtefacts());
-        }
-
-        if (deploymentsProjects == null) {
-            try {
-                deploymentsProjects = userWorkspace.getDDProjects();
-            } catch (RepositoryException e) {
-                log.error("Cannot list deployments projects", e);
-                deploymentsProjects = new LinkedList<UserWorkspaceDeploymentProject>();
-            }
-        }
-
-        for (UserWorkspaceDeploymentProject deplProject : deploymentsProjects) {
-            TreeDProject prj = new TreeDProject(deploymentProjectsRepositoryName + "/"
-                    + deplProject.getName(), deplProject.getName());
-            prj.setDataBean(deplProject);
-            deploymentRep.add(prj);
-
-            // deployments projects haven't child nodes
-        }
-    }
-
-    public synchronized Object getData() {
-        if (repositoryTreeState.getRoot() == null) {
-            buildTree();
-        }
-
-        return repositoryTreeState.getRoot();
-    }
-
-    public synchronized TreeRepository getRulesNode() {
-        if (repositoryTreeState.getRoot() == null) {
-            buildTree();
-        }
-        return repositoryTreeState.getRulesRepository();
-    }
-
-    public synchronized TreeRepository getDeploymentNode() {
-        if (repositoryTreeState.getRoot() == null) {
-            buildTree();
-        }
-        return repositoryTreeState.getDeploymentRepository();
-    }
-
-    public AbstractTreeNode getSelected() {
-        if (repositoryTreeState.getCurrentNode() == null) {
-            // lazy loading
-            getData();
-            //
-            repositoryTreeState.setCurrentNode(repositoryTreeState.getRulesRepository());
-        }
-        return repositoryTreeState.getCurrentNode();
-    }
-
-    public void processSelection(NodeSelectedEvent event) {
-        UITree tree = (UITree) event.getComponent();
-        AbstractTreeNode node = (AbstractTreeNode) tree.getRowData();
-        repositoryTreeState.setCurrentNode(node);
-    }
-
-    public Boolean adviseNodeSelected(UITree uiTree) {
-        AbstractTreeNode selectedNode = getSelected();
-        AbstractTreeNode node = (AbstractTreeNode) uiTree.getRowData();
-
-        ProjectArtefact projectArtefact = node.getDataBean();
-        ProjectArtefact selected = selectedNode.getDataBean();
-
-        if ((selected == null) || (projectArtefact == null)) {
-            return selectedNode.getId().equals(node.getId());
-        }
-
-        if (selected.getArtefactPath().equals(projectArtefact.getArtefactPath())) {
-            if (projectArtefact instanceof DeploymentDescriptorProject) {
-                return selected instanceof DeploymentDescriptorProject;
-            }
-            return true;
-        }
-        return false;
-    }
-
     public final void invalidateTree() {
         repositoryTreeState.setRoot(null);
     }
@@ -231,12 +132,7 @@ public class RepositoryTreeController {
     public void invalidateTreeUpdateSelection() {
         invalidateTree();
 
-        AbstractTreeNode selected = getSelected();
-        if (selected == null) {
-            return;
-        }
-
-        getData();
+        AbstractTreeNode selected = repositoryTreeState.getSelectedNode();
 
         Iterator<String> iterator = selected.getDataBean().getArtefactPath().getSegments()
                 .iterator();
@@ -246,7 +142,7 @@ public class RepositoryTreeController {
         }
 
         if (currentNode != null) {
-            repositoryTreeState.setCurrentNode((AbstractTreeNode) currentNode);
+            repositoryTreeState.setSelectedNode((AbstractTreeNode) currentNode);
         }
     }
 
@@ -256,7 +152,7 @@ public class RepositoryTreeController {
      * @return list of rules projects
      */
     public List<AbstractTreeNode> getProjects() {
-        return getRulesNode().getChildNodes();
+        return repositoryTreeState.getRulesRepository().getChildNodes();
     }
 
     /**
@@ -265,11 +161,11 @@ public class RepositoryTreeController {
      * @return list of deployments projects
      */
     public List<AbstractTreeNode> getDeploymentProjects() {
-        return getDeploymentNode().getChildNodes();
+        return repositoryTreeState.getDeploymentRepository().getChildNodes();
     }
 
     public String addFolder() {
-        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getDataBean();
         String errorMessage = null;
         if (projectArtefact instanceof UserWorkspaceProjectFolder) {
             if (checkName(folderName)) {
@@ -297,7 +193,7 @@ public class RepositoryTreeController {
     }
 
     public String delete() {
-        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) getSelected()
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) repositoryTreeState.getSelectedNode()
                 .getDataBean();
         try {
             projectArtefact.delete();
@@ -313,7 +209,7 @@ public class RepositoryTreeController {
     }
 
     public String deleteElement() {
-        AbstractTreeNode selected = getSelected();
+        AbstractTreeNode selected = repositoryTreeState.getSelectedNode();
         UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) selected
                 .getDataBean();
         String childName = FacesUtils.getRequestParameter("element");
@@ -366,7 +262,7 @@ public class RepositoryTreeController {
     }
 
     public String undeleteProject() {
-        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getDataBean();
         if (projectArtefact instanceof UserWorkspaceProject) {
             UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
             if (!project.isDeleted()) {
@@ -394,7 +290,7 @@ public class RepositoryTreeController {
     }
 
     public String eraseProject() {
-        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getDataBean();
         if (projectArtefact instanceof UserWorkspaceProject) {
             UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
             if (!project.isDeleted()) {
@@ -409,7 +305,7 @@ public class RepositoryTreeController {
             try {
                 project.erase();
                 invalidateTree();
-                repositoryTreeState.setCurrentNode(null);
+                repositoryTreeState.setSelectedNode(null);
             } catch (ProjectException e) {
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
@@ -500,7 +396,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to open project", e.getMessage()));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
     }
 
@@ -521,19 +417,19 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to close project", e.getMessage()));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
     }
 
     public String refresh() {
         invalidateTree();
-        repositoryTreeState.setCurrentNode(null);
+        repositoryTreeState.setSelectedNode(null);
         return null;
     }
 
     public String copyProject() {
         String errorMessage = null;
-        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getDataBean();
         UserWorkspaceProject project = null;
 
         if (projectArtefact instanceof UserWorkspaceProject) {
@@ -604,12 +500,11 @@ public class RepositoryTreeController {
     public String checkInProject() {
         UserWorkspaceProject project = getActiveProject();
         if (project == null) {
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
 
         try {
-            CommonVersion v = new CommonVersionImpl(version);
-            project.checkIn(v.getMajor(), v.getMinor());
+            project.checkIn(major, minor);
             invalidateTree();
             return null;
         } catch (ProjectException e) {
@@ -618,13 +513,13 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to check in project", e.getMessage()));
-            return UiConst.OUTCOME_FAILURE;
+                        "Failed to check in project", null));
+            return null;
         }
     }
 
     private UserWorkspaceProject getActiveProject() {
-        ProjectArtefact projectArtefact = getSelected().getDataBean();
+        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getDataBean();
         if (projectArtefact instanceof UserWorkspaceProject) {
             return (UserWorkspaceProject) projectArtefact;
         } else {
@@ -720,7 +615,7 @@ public class RepositoryTreeController {
         try {
             UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
 
-            UserWorkspaceProjectFolder node = (UserWorkspaceProjectFolder) getSelected()
+            UserWorkspaceProjectFolder node = (UserWorkspaceProjectFolder) repositoryTreeState.getSelectedNode()
                     .getDataBean();
 
             ProjectResource projectResource = new FileProjectResource(new FileInputStream(
@@ -771,7 +666,7 @@ public class RepositoryTreeController {
         try {
             UploadServiceResult result = (UploadServiceResult) uploadService.execute(params);
 
-            UserWorkspaceProjectResource node = (UserWorkspaceProjectResource) getSelected()
+            UserWorkspaceProjectResource node = (UserWorkspaceProjectResource) repositoryTreeState.getSelectedNode()
                     .getDataBean();
             node.setContent(new FileInputStream(result.getResultFile()));
             result.getResultFile().delete();
@@ -866,15 +761,32 @@ public class RepositoryTreeController {
         UserWorkspaceProject project = getActiveProject();
         if (project != null) {
             ProjectVersion version = project.getVersion();
-            if (version!=null) {
-            version.getRevision();
-            ProjectVersion newVersion = new RepositoryProjectVersionImpl(version.getMajor(),
-                    version.getMinor(), version.getRevision() + 1, null);
+            if (version != null) {
+                version.getRevision();
+                ProjectVersion newVersion = new RepositoryProjectVersionImpl(version
+                            .getMajor(), version.getMinor(), version.getRevision() + 1,
+                        null);
 
-            return newVersion.getVersionName();
+                return newVersion.getVersionName();
             }
         }
         return version;
+    }
+
+    public ProjectVersion getProjectVersion() {
+        UserWorkspaceProject project = getActiveProject();
+        if (project != null) {
+            ProjectVersion version = project.getVersion();
+            if (version != null) {
+                version.getRevision();
+                ProjectVersion newVersion = new RepositoryProjectVersionImpl(version
+                            .getMajor(), version.getMinor(), version.getRevision() + 1,
+                        null);
+
+                return newVersion;
+            }
+        }
+        return null;
     }
 
     public void setVersion(String version) {
@@ -882,30 +794,64 @@ public class RepositoryTreeController {
     }
 
     public Date getEffectiveDate() {
-        return ((RulesRepositoryArtefact) getSelected().getDataBean()).getEffectiveDate();
+        return ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).getEffectiveDate();
     }
 
     public void setEffectiveDate(Date date) {
         if (!SPECIAL_DATE.equals(date)) {
             try {
-                ((RulesRepositoryArtefact) getSelected().getDataBean()).setEffectiveDate(date);
+                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setEffectiveDate(date);
             } catch (ProjectException e) {
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Failed to set effective date.", e.getMessage()));
                 log.error(e);
             }
+        } else {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Specified effective date value is not a valid date/time.", null));
         }
     }
 
     public Date getExpirationDate() {
-        return ((RulesRepositoryArtefact) getSelected().getDataBean()).getExpirationDate();
+        return ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).getExpirationDate();
     }
 
     public void setExpirationDate(Date date) {
         if (!SPECIAL_DATE.equals(date)) {
             try {
-                ((RulesRepositoryArtefact) getSelected().getDataBean()).setExpirationDate(date);
+                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setExpirationDate(date);
             } catch (ProjectException e) {
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Failed to set expiration date.", e.getMessage()));
                 log.error(e);
             }
+        } else {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Specified expiration date value is not a valid date/time.", null));
+        }
+    }
+
+    public String getLineOfBusiness() {
+        return ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).getLineOfBusiness();
+    }
+
+    public void setLineOfBusiness(String lineOfBusiness) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setLineOfBusiness(lineOfBusiness);
+        } catch (ProjectException e) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Failed to set line of business.", e.getMessage()));
+            log.error(e);
         }
     }
 

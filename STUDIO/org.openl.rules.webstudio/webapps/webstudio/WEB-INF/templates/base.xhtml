@@ -9,6 +9,8 @@
    xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+  <c:set var="node" value="#{repositoryTreeState.selectedNode}"/>
+  <c:set var="artefact" value="#{node.dataBean}"/>
 
   <head>
     <a4j:loadStyle src="/css/default.css" />

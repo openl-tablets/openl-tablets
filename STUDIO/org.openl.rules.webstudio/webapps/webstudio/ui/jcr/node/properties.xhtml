@@ -10,19 +10,25 @@
 
     <rich:calendar id="#{prefix}effectiveDate" value="#{repositoryTreeController.effectiveDate}" popup="true" enableManualInput="true"
       jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      disabled="#{!repositoryTreeController.selected.dataBean.project.checkedOut}">
+      rendered="#{artefact.project.checkedOut}">
       <f:converter converterId="org.openl.DateConverter" />
     </rich:calendar>
+    <h:outputText value="#{repositoryTreeController.effectiveDate}" rendered="#{!artefact.project.checkedOut}">
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+    </h:outputText>
 
     <h:outputLabel for="#{prefix}expirationDate" value="Expiration date" />
     <rich:calendar id="#{prefix}expirationDate" value="#{repositoryTreeController.expirationDate}" popup="true" enableManualInput="true"
       jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      disabled="#{!repositoryTreeController.selected.dataBean.project.checkedOut}">
+      rendered="#{artefact.project.checkedOut}">
       <f:converter converterId="org.openl.DateConverter" />
     </rich:calendar>
+    <h:outputText value="#{repositoryTreeController.expirationDate}" rendered="#{!artefact.project.checkedOut}">
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+    </h:outputText>
 
     <h:outputLabel for="#{prefix}lineOfBusiness" value="Line of business" />
-    <h:inputText id="#{prefix}lineOfBusiness" value="#{repositoryTreeController.selected.dataBean.lineOfBusiness}"
-      disabled="#{!repositoryTreeController.selected.dataBean.project.checkedOut}"/>
+    <h:inputText id="#{prefix}lineOfBusiness" value="#{artefact.lineOfBusiness}" rendered="#{artefact.project.checkedOut}"/>
+    <h:outputText value="#{repositoryTreeController.lineOfBusiness}" rendered="#{!artefact.project.checkedOut}"/>
   </h:panelGrid>
 </ui:composition>

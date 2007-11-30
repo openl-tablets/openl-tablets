@@ -6,7 +6,7 @@
 
   <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
     <h:outputText value="File Name" />
-    <h:outputText value="#{repositoryTreeController.selected.name}" />
+    <h:outputText value="#{node.name}" />
   </h:panelGrid>
 
   <ui:include src="/ui/jcr/node/properties.xhtml">

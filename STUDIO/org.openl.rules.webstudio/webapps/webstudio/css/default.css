@@ -29,16 +29,17 @@
   height: 70px;
   background-image: url(/webstudio/images/header_logo.jpg);
   background-repeat: no-repeat;
-  border-bottom: 1px solid #CCCCCC;
   min-width: 800px;
   max-width: 1400px;
   position: relative;
+  border: medium none;
+  margin: 0px 0px -2px 0px;
 }
 
 .logo {
   position: absolute;
   top: 10px;
-  right: 40px;
+  right: 10px;
 }
 
 img.actionImage {
@@ -46,9 +47,13 @@ img.actionImage {
 }
 
 body {
-  background: #eceef8;
   font-family: verdana, helvetica, arial, sans-serif;
   font-size: 12px;
+  font-weight: normal;
+  color: black;
+  background: #eceef8;
+  margin : 0px;
+  padding: 0px;
 }
 
 /* ------------------------------------------- */
@@ -229,4 +234,9 @@ form.standard table.buttonPanel {
 
 .success {
   color: green;
+}
+
+/* RichFaces tree styles */
+.dr-pnl-b {
+  padding: 2px !important;
 }

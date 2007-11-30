@@ -4,7 +4,7 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:dataTable value="#{repositoryTreeController.selected.versions}" var="version">
+  <rich:dataTable value="#{node.versions}" var="version">
         <f:facet name="header">
       <rich:columnGroup>
         <rich:column><h:outputText value="Version" /></rich:column>

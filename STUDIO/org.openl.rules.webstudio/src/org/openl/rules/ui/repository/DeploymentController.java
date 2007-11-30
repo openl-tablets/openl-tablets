@@ -1,6 +1,5 @@
 package org.openl.rules.ui.repository;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +38,7 @@ import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
  *
  * @author Andrey Naumenko
  */
-public class DeploymentController implements Serializable {
+public class DeploymentController {
     private static final long serialVersionUID = 1L;
     private final static Log log = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
@@ -148,7 +147,7 @@ public class DeploymentController implements Serializable {
     }
 
     private UserWorkspaceDeploymentProject getProject() {
-        ProjectArtefact artefact =  repositoryTreeState.getCurrentNode().getDataBean();
+        ProjectArtefact artefact =  repositoryTreeState.getSelectedNode().getDataBean();
         if (artefact instanceof UserWorkspaceDeploymentProject) {
             return (UserWorkspaceDeploymentProject) artefact;
 
