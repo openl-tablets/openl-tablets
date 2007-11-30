@@ -53,7 +53,12 @@ public class StartTomcat
 
 		if (cbase == null)
 		{
+		    if (args != null && args.length > 0){
+			cbase = args[0];
+		    }
+		    else{
 			cbase=".";
+		    }
 		}
 		
 		File catalinaBase = new File(cbase);

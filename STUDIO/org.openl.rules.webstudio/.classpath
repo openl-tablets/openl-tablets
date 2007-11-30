@@ -4,10 +4,5 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.openl.lib.apache.tomcat"/>
-	<classpathentry kind="lib" path="/org.openl.lib.apache.tomcat/apache-tomcat-5.5.17/common/lib/jsp-api.jar"/>
-	<classpathentry kind="lib" path="/org.openl.lib.apache.tomcat/apache-tomcat-5.5.17/common/lib/servlet-api.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.openl.lib.jsfext"/>
-	<classpathentry kind="lib" path="/org.openl.lib.exigen.jcr/libs/junit-3.8.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

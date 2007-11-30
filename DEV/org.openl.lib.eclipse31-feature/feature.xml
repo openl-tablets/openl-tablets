@@ -2,7 +2,7 @@
 <feature
       id="org.openl.lib.eclipse.feature"
       label="OpenL 3rd party libraries"
-      version="4.1.1"
+      version="5.0.5"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -221,13 +221,13 @@
          id="org.openl.lib.apache.commons"
          download-size="0"
          install-size="0"
-         version="4.1.1"/>
+         version="5.0.5"/>
 
    <plugin
          id="org.openl.lib.apache.poi.modified"
          download-size="0"
          install-size="0"
-         version="4.1.1"
+         version="5.0.5"
          unpack="false"/>
 
 </feature>

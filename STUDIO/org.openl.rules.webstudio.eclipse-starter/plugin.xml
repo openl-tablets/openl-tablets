@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications"
+         name="OpenL WebStudio">
+      <application>
+         <run
+               class="org.openl.rules.webstudio.eclipse.starter.Application">
+         </run>
+      </application>
+   </extension>
+
+</plugin>

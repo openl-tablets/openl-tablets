@@ -2,7 +2,7 @@
 <feature
       id="org.openl.rules.eclipse.feature"
       label="OpenL Tables"
-      version="4.1.1"
+      version="5.0.5"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -519,7 +519,7 @@ That&apos;s all there is to it!
    </license>
 
    <requires>
-      <import feature="org.openl.eclipse.feature" version="4.1.1"/>
+      <import feature="org.openl.eclipse.feature" version="5.0.5"/>
       <import plugin="org.openl.core"/>
       <import plugin="org.openl.lib.apache.poi.modified"/>
       <import plugin="org.eclipse.ui"/>
@@ -542,41 +542,41 @@ That&apos;s all there is to it!
          id="org.openl.rules"
          download-size="0"
          install-size="0"
-         version="4.1.1"
+         version="5.0.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui"
          download-size="0"
          install-size="0"
-         version="4.1.1"
+         version="5.0.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui.wizard"
          download-size="0"
          install-size="0"
-         version="4.1.1"/>
+         version="5.0.5"/>
 
    <plugin
          id="org.openl.rules.helpers"
          download-size="0"
          install-size="0"
-         version="4.1.1"
+         version="5.0.5"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.validator"
          download-size="0"
          install-size="0"
-         version="4.1.1"
+         version="5.0.5"
          unpack="false"/>
 
    <plugin
          id="com.exigen.rules.constrainer"
          download-size="0"
          install-size="0"
-         version="4.1.1"
+         version="5.0.5"
          unpack="false"/>
 
 </feature>

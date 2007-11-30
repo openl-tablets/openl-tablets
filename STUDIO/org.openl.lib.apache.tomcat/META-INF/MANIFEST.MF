@@ -2,7 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tomcat Plug-in
 Bundle-SymbolicName: org.openl.lib.apache.tomcat
-Bundle-Version: 3.1.0.7
+Bundle-Version: 5.0.5
 Bundle-Localization: plugin
 Export-Package: javax.servlet,
- javax.servlet.http
+ javax.servlet.http,
+ javax.servlet.jsp,
+ javax.servlet.jsp.el,
+ javax.servlet.jsp.tagext
