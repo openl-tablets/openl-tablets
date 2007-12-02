@@ -9,3 +9,4 @@ Export-Package: javax.servlet,
  javax.servlet.jsp,
  javax.servlet.jsp.el,
  javax.servlet.jsp.tagext
+Bundle-ClassPath: apache-tomcat-5.5.17/common/lib/servlet-api.jar
