@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="commons-io/commons-io-1.3.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry exported="true" kind="lib" path="commons-beanutils-1.7.0/commons-beanutils-1.7.0.jar"/>
@@ -23,6 +24,5 @@
 	<classpathentry exported="true" kind="lib" path="tomahawk/tomahawk-1.1.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="commons-fileupload/commons-fileupload-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="spring/spring-core-2.0.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-io/commons-io-1.3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
