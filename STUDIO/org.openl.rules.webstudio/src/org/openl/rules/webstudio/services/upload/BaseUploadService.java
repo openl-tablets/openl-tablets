@@ -3,8 +3,6 @@ package org.openl.rules.webstudio.services.upload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.openl.rules.webstudio.services.Service;
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.services.ServiceParams;
@@ -39,17 +37,16 @@ public abstract class BaseUploadService implements Service {
         UploadServiceParams params = (UploadServiceParams) serviceParams;
         UploadServiceResult result = null;
 
-        UploadedFile uploadFile = params.getFile();
         try {
-            if (uploadFile.getSize() == 0) {
-                throw new EmptyFileException(uploadFile.getName(), "file-empty");
-            }
-
-            if (isZipFile(params) && params.isUnpackZipFile()) {
-                result = uploadZipFile(params);
-                if (log.isDebugEnabled()) {
-                    log.debug("Zip file uploaded and unpacked: "
-                        + result.getResultFiles());
+            if (params.isUnpackZipFile()) {
+                if (isZipFile(params)) {
+                    result = uploadZipFile(params);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Zip file uploaded and unpacked: "
+                            + result.getResultFiles());
+                    }
+                } else {
+                    throw new NotUnzippedFileException("File is not a valid zip archive.");
                 }
             } else {
                 result = uploadNonZipFile(params);
