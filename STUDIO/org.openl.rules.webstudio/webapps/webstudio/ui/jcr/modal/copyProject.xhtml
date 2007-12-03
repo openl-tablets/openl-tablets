@@ -16,8 +16,8 @@
 
     <h:form id="copyProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputLabel for="projectName" value="Project Name" />
-        <h:inputText id="projectName" styleClass="readonly" size="35" value="#{repositoryTreeController.projectName}" readonly="true" />
+        <h:outputText value="Project Name" />
+        <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
         <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
       </h:panelGrid>
@@ -27,21 +27,23 @@
       <br />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Copy" action="#{repositoryTreeController.copyProject}" />
+        <h:commandButton styleClass="button" value="Copy" type="button" onclick="submitCopyProjectForm();" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalCopyProject');" />
       </h:panelGrid>
-      <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
     </h:form>
 
   </rich:modalPanel>
 
   <script>
-    function openCopyProjectDialog(projectName) {
-      document.getElementById('copyProjectForm:projectName').value = projectName;
-      document.getElementById('copyProjectForm:hiddenProjectName').value = projectName;
+    function openCopyProjectDialog() {
       Richfaces.showModalPanel('modalCopyProject');
       focusElement('copyProjectForm:newProjectName');
       return false;
+    }
+
+    function submitCopyProjectForm() {
+      document.getElementById('mainForm:newProjectName').value = document.getElementById('copyProjectForm:newProjectName').value;
+      document.getElementById('mainForm:copyProject').click();
     }
   </script>
 </ui:composition>

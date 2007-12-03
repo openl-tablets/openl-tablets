@@ -30,20 +30,24 @@
       <br />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Check In" action="#{repositoryTreeController.checkInProject}" />
+        <h:commandButton styleClass="button" value="Check In" type="button" onclick="submitCheckInForm();" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalCheckIn');" />
       </h:panelGrid>
-      <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
     </h:form>
 
   </rich:modalPanel>
 
   <script>
     function openCheckInDialog(projectName) {
-      document.getElementById('checkInForm:hiddenProjectName').value = projectName;
       Richfaces.showModalPanel('modalCheckIn');
       focusElement('checkInForm:projectVersion');
       return false;
+    }
+
+    function submitCheckInForm() {
+      document.getElementById('mainForm:majorEdit').childNodes[0].value = document.getElementById('checkInForm:majorEdit').childNodes[0].value;
+      document.getElementById('mainForm:minorEdit').childNodes[0].value = document.getElementById('checkInForm:minorEdit').childNodes[0].value;
+      document.getElementById('mainForm:checkIn').click();
     }
   </script>
 </ui:composition>
