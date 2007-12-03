@@ -10,10 +10,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -52,9 +53,9 @@ import org.openl.util.StringTool;
 public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 {
 
-	Vector nodesVector = new Vector();
+	List<ISyntaxNode> nodesList = new ArrayList<ISyntaxNode>();
 
-	Vector errors = new Vector();
+	List<ISyntaxError> errors = new ArrayList<ISyntaxError>();
 
 	OpenlSyntaxNode openl;
 
@@ -94,7 +95,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 					"Only one vocabulary is allowed", null));
 	}
 
-	HashSet preprocessedWorkBooks = new HashSet();
+	HashSet<String> preprocessedWorkBooks = new HashSet<String>();
 
 	void preprocessWorkbook(IOpenSourceCodeModule source)
 	{
@@ -164,10 +165,10 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 		// null, source));
 		// }
 
-		TableSyntaxNode[] nodes = (TableSyntaxNode[]) nodesVector
-				.toArray(new TableSyntaxNode[nodesVector.size()]);
+		TableSyntaxNode[] nodes =  nodesList
+				.toArray(new TableSyntaxNode[nodesList.size()]);
 		return new ParsedCode(new XlsModuleSyntaxNode(nodes, source, openl,
-				vocabulary, allImportString), source, (ISyntaxError[]) errors
+				vocabulary, allImportString), source, errors
 				.toArray(new ISyntaxError[0]));
 	}
 
@@ -187,7 +188,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 	}
 
-	static Map tableHeaders;
+	static Map<String, String> tableHeaders;
 
 	static final String[][] headerMapping = { { DECISION_TABLE, XLS_DT },
 			{ DECISION_TABLE2, XLS_DT }, { DATA_TABLE, XLS_DATA },
@@ -197,11 +198,11 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 			{ TEST_METHOD_TABLE, XLS_TEST_METHOD },
 			{ RUN_METHOD_TABLE, XLS_RUN_METHOD } };
 
-	static public Map tableHeaders()
+	static public Map<String, String> tableHeaders()
 	{
 		if (tableHeaders == null)
 		{
-			tableHeaders = new HashMap();
+			tableHeaders = new HashMap<String, String>();
 			for (int i = 0; i < headerMapping.length; i++)
 			{
 				tableHeaders.put(headerMapping[i][0], headerMapping[i][1]);
@@ -226,7 +227,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 		
 		HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, headerToken);
 
-		String xls_type = (String) tableHeaders().get(header);
+		String xls_type = tableHeaders().get(header);
 
 		if (xls_type == null)
 			xls_type = XLS_OTHER;
@@ -260,9 +261,9 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 			XlsSheetSourceCodeModule source)
 	{
 
-		String vocabulary = table.getStringValue(1, 0);
+		String vocabularyStr = table.getStringValue(1, 0);
 
-		setVocabulary(new IdentifierNode(VOCABULARY_PROPERTY, new GridLocation(table), vocabulary,
+		setVocabulary(new IdentifierNode(VOCABULARY_PROPERTY, new GridLocation(table), vocabularyStr,
 				source));
 
 	}
@@ -295,6 +296,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 	}
 
 	private void preprocessImportTable(IGridTable table,
+			@SuppressWarnings("unused")
 			XlsSheetSourceCodeModule sheetSource)
 	{
 
@@ -451,7 +453,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 	void addNode(ISyntaxNode node)
 	{
-		nodesVector.add(node);
+		nodesList.add(node);
 	}
 
 	void addError(ISyntaxError error)
