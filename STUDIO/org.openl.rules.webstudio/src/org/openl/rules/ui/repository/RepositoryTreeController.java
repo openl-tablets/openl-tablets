@@ -509,7 +509,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Error occured during uploading file", errorMessage));
+                        errorMessage, "Error occured during uploading file"));
         }
         return null;
     }
@@ -537,7 +537,7 @@ public class RepositoryTreeController {
             //importFile = result.getResultFile().getName();
         } catch (ServiceException e) {
             log.error("Error while uploading project", e);
-            return e.getMessage();
+            return "" + e.getMessage();
         }
 
         return null;
@@ -558,7 +558,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Error occured during uploading file", errorMessage));
+                        errorMessage, "Error occured during uploading file"));
         }
         return null;
     }
@@ -613,7 +613,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Error occured during uploading file", errorMessage));
+                        errorMessage,"Error occured during uploading file"));
         }
         return null;
     }
