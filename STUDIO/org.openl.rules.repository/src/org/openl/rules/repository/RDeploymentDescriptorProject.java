@@ -19,4 +19,6 @@ public interface RDeploymentDescriptorProject extends RCommonProject {
     void setProjectDescriptors(Collection<RProjectDescriptor> projectDescriptors) throws RRepositoryException;
     
     RProjectDescriptor createProjectDescriptor(String name) throws RRepositoryException;
+
+    RDeploymentDescriptorProject getProjectVersion(CommonVersion version) throws RRepositoryException;
 }
