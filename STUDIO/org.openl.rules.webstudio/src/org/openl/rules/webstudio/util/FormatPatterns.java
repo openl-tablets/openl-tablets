@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.util;
 
+import java.util.TimeZone;
+
+
 /**
  * Contains default format patterns.
  *
@@ -13,5 +16,9 @@ public class FormatPatterns {
      */
     public String getDatePattern() {
         return "MM/dd/yyyy";
+    }
+
+    public TimeZone getTimeZone() {
+        return TimeZone.getTimeZone("GMT");
     }
 }

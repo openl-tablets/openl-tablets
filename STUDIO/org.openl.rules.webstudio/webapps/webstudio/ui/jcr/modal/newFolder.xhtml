@@ -25,7 +25,7 @@
       <br/>
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Add" action="#{repositoryTreeController.addFolder}" />
+        <h:commandButton styleClass="button" value="Add" type="button" onclick="submitNewFolderForm();" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalNewFolder');" />
       </h:panelGrid>
     </h:form>
@@ -36,6 +36,11 @@
       Richfaces.showModalPanel('modalNewFolder');
       focusElement("newFolderForm:folderName");
       return false;
+    }
+
+    function submitNewFolderForm() {
+      document.getElementById('mainForm:folderName').value = document.getElementById('newFolderForm:folderName').value;
+      document.getElementById('mainForm:newFolder').click();
     }
   </script>
 </ui:composition>

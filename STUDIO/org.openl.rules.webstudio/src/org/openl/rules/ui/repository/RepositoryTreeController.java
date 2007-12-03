@@ -187,7 +187,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error adding folder",
                         errorMessage));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
         return null;
     }
@@ -338,7 +338,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to create new project", errorMessage));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
 
         return null;
@@ -356,7 +356,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to create new deployment project", e.getMessage()));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
     }
 
@@ -422,17 +422,7 @@ public class RepositoryTreeController {
 
     public String copyProject() {
         String errorMessage = null;
-        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode()
-                .getDataBean();
-        UserWorkspaceProject project = null;
-
-        if (projectArtefact instanceof UserWorkspaceProject) {
-            project = (UserWorkspaceProject) projectArtefact;
-        } else if (projectName != null) {
-            try {
-                project = userWorkspace.getProject(projectName);
-            } catch (ProjectException e) {}
-        }
+        UserWorkspaceProject project = getSelectedProject();
 
         if (project == null) {
             errorMessage = "No project is selected";
@@ -449,7 +439,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not copy project",
                         errorMessage));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
 
         try {
@@ -460,7 +450,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to copy project", e.getMessage()));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
 
         return null;
@@ -484,7 +474,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to check out project", e.getMessage()));
-            return UiConst.OUTCOME_FAILURE;
+            return null;
         }
     }
 
@@ -732,8 +722,12 @@ public class RepositoryTreeController {
     }
 
     public Date getEffectiveDate() {
-        return ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-            .getDataBean()).getEffectiveDate();
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getEffectiveDate();
+        }
+        return null;
     }
 
     public void setEffectiveDate(Date date) {
@@ -757,8 +751,12 @@ public class RepositoryTreeController {
     }
 
     public Date getExpirationDate() {
-        return ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-            .getDataBean()).getExpirationDate();
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getExpirationDate();
+        }
+        return null;
     }
 
     public void setExpirationDate(Date date) {
@@ -782,8 +780,12 @@ public class RepositoryTreeController {
     }
 
     public String getLineOfBusiness() {
-        return ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-            .getDataBean()).getLineOfBusiness();
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getLineOfBusiness();
+        }
+        return null;
     }
 
     public void setLineOfBusiness(String lineOfBusiness) {

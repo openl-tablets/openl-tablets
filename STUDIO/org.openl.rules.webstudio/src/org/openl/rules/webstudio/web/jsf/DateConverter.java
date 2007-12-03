@@ -3,16 +3,19 @@ package org.openl.rules.webstudio.web.jsf;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.openl.rules.webstudio.util.ComponentUtils;
+
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.ConverterException;
-import javax.faces.el.ValueBinding;
 
 
 /**
@@ -28,13 +31,18 @@ public class DateConverter implements Converter {
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent,
         String value) throws ConverterException
     {
-        ValueBinding vb = uiComponent.getValueBinding("datePattern");
-        String datePattern = (String) vb.getValue(facesContext);
         if (StringUtils.isEmpty(value)) {
             return null;
         }
+        String datePattern = ComponentUtils.getStringFromValueBinding(uiComponent,
+                "datePattern");
+        TimeZone timeZone = (TimeZone) ComponentUtils.getObjectFromValueBinding(uiComponent,
+                "timeZone");
         try {
-            return (new SimpleDateFormat(datePattern)).parse(value);
+            DateFormat format = new SimpleDateFormat(datePattern);
+            format.setTimeZone(timeZone);
+
+            return format.parse(value);
         } catch (ParseException e) {
             return SPECIAL_DATE;
         }

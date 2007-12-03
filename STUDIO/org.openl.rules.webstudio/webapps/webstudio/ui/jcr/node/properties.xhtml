@@ -10,21 +10,21 @@
 
     <rich:calendar id="#{prefix}effectiveDate" value="#{repositoryTreeController.effectiveDate}" popup="true" enableManualInput="true"
       jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      rendered="#{artefact.project.checkedOut}">
+      rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.timeZone}">
       <f:converter converterId="org.openl.DateConverter" />
     </rich:calendar>
     <h:outputText value="#{repositoryTreeController.effectiveDate}" rendered="#{!artefact.project.checkedOut}">
-      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.timeZone}" />
     </h:outputText>
 
     <h:outputLabel for="#{prefix}expirationDate" value="Expiration date" />
     <rich:calendar id="#{prefix}expirationDate" value="#{repositoryTreeController.expirationDate}" popup="true" enableManualInput="true"
       jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      rendered="#{artefact.project.checkedOut}">
+      rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.timeZone}">
       <f:converter converterId="org.openl.DateConverter" />
     </rich:calendar>
     <h:outputText value="#{repositoryTreeController.expirationDate}" rendered="#{!artefact.project.checkedOut}">
-      <f:convertDateTime pattern="#{formatPatterns.datePattern}" />
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.timeZone}" />
     </h:outputText>
 
     <h:outputLabel for="#{prefix}lineOfBusiness" value="Line of business" />
