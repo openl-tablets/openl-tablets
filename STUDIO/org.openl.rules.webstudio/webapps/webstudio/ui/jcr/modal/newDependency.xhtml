@@ -21,7 +21,7 @@
         <a4j:commandButton id="addDependencyBtn" reRender="addDependencyPanel" oncomplete="showAddDependencyUpdateVersion()" ajaxSingle="true" style="display:none;"/>
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="project" styleClass="required" value="Project" />
-        <h:selectOneMenu id="project" required="true" value="#{addDependency.projectName}" style="width:250px;">
+        <h:selectOneMenu id="projectName" required="true" value="#{addDependency.projectName}" style="width:250px;">
           <f:selectItems value="#{addDependency.availableProjects}" />
           <a4j:support event="onchange" reRender="lowerVersion" ajaxSingle="true" />
         </h:selectOneMenu>
@@ -58,7 +58,9 @@
     }
 
     function submitNewDependencyForm() {
-      document.getElementById('mainForm:folderName').value = document.getElementById('newFolderForm:folderName').value;
+      document.getElementById('mainForm:projectName').value = document.getElementById('modaNewDependencyForm:projectName').value;
+      document.getElementById('mainForm:lowerVersion').value = document.getElementById('modaNewDependencyForm:lowerVersion').value;
+      document.getElementById('mainForm:upperVersion').value = document.getElementById('modaNewDependencyForm:upperVersion').value;
       document.getElementById('mainForm:addDependency').click();
     }
   </script>
