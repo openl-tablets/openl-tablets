@@ -20,7 +20,6 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
-import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
@@ -71,6 +70,7 @@ public class RepositoryTreeController {
     private String version;
     private int major;
     private int minor;
+    private boolean validationError = false;
 
     public int getMajor() {
         ProjectVersion v = getProjectVersion();
@@ -479,6 +479,9 @@ public class RepositoryTreeController {
     }
 
     public String checkInProject() {
+        if (validationError) {
+            return null;
+        }
         UserWorkspaceProject project = getSelectedProject();
 
         try {
@@ -736,6 +739,7 @@ public class RepositoryTreeController {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
                     .getDataBean()).setEffectiveDate(date);
             } catch (ProjectException e) {
+                validationError = true;
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -743,6 +747,7 @@ public class RepositoryTreeController {
                 log.error(e);
             }
         } else {
+            validationError = true;
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -765,6 +770,7 @@ public class RepositoryTreeController {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
                     .getDataBean()).setExpirationDate(date);
             } catch (ProjectException e) {
+                validationError = true;
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -772,6 +778,7 @@ public class RepositoryTreeController {
                 log.error(e);
             }
         } else {
+            validationError = true;
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -793,6 +800,7 @@ public class RepositoryTreeController {
             ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
                 .setLineOfBusiness(lineOfBusiness);
         } catch (ProjectException e) {
+            validationError = true;
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
