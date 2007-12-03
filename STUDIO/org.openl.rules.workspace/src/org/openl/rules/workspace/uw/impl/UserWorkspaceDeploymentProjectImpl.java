@@ -26,7 +26,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeploymentProject {
     private UserWorkspaceImpl userWorkspace;
     private RepositoryDDProject dtrDProject;
-    
+
     private String name;
     private ArtefactPath path;
     private HashMap<String, ProjectDescriptor> descriptors;
@@ -34,24 +34,24 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     protected UserWorkspaceDeploymentProjectImpl(UserWorkspaceImpl userWorkspace, RepositoryDDProject dtrDProject) {
         this.userWorkspace = userWorkspace;
         this.dtrDProject = dtrDProject;
-        
+
         name = dtrDProject.getName();
         path = new ArtefactPathImpl(new String[]{name});
-        
+
         descriptors = new HashMap<String, ProjectDescriptor>();
         updateDescriptors(dtrDProject.getProjectDescriptors());
     }
-    
+
     public ProjectDescriptor addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
         UserWorkspaceProjectDescriptorImpl uwpd = new UserWorkspaceProjectDescriptorImpl(this, name, version);
         descriptors.put(name, uwpd);
-        
+
         return uwpd;
     }
 
     public ProjectDescriptor getProjectDescriptor(String name) throws ProjectException {
         ProjectDescriptor pd = descriptors.get(name);
-        
+
         if (pd == null) {
             throw new ProjectException("Cannot find descriptor for project {0} in {1}", null, name, getName());
         }
@@ -78,7 +78,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         if (major != 0 || minor != 0) {
             dtrDProject.riseVersion(major, minor);
         }
-        
+
         dtrDProject.commit(this, userWorkspace.getUser());
         dtrDProject.unlock(userWorkspace.getUser());
         updateDescriptors(dtrDProject.getProjectDescriptors());
@@ -119,7 +119,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     public boolean isCheckedOut() {
         if (dtrDProject.isLocked()) {
             WorkspaceUser lockedBy = dtrDProject.getlLockInfo().getLockedBy();
-            
+
             if (lockedBy.equals(userWorkspace.getUser())) {
                 return true;
             }
@@ -158,7 +158,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
 
     public boolean isLockedByMe() {
         if (!isLocked()) return false;
-        
+
         WorkspaceUser lockedBy = dtrDProject.getlLockInfo().getLockedBy();
         return lockedBy.equals(userWorkspace.getUser());
     }
@@ -187,7 +187,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         if (isOpened()) {
             close();
         }
-        
+
         dtrDProject.delete(userWorkspace.getUser());
     }
 
@@ -295,8 +295,8 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         notSupported();
     }
 
-    
-    
+
+
     protected void notSupported() throws ProjectException {
         throw new ProjectException("Not supported for deployment project");
     }
@@ -304,21 +304,25 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     protected void notSupportedProps() throws PropertyException {
         throw new PropertyException("Not supported for deployment project", null);
     }
-    
+
     protected void removeProjectDescriptor(UserWorkspaceProjectDescriptorImpl pd) {
         descriptors.remove(pd.getProjectName());
     }
-    
+
     protected void updateDescriptors(Collection<ProjectDescriptor> projectDescriptors) {
         HashMap<String, ProjectDescriptor> descrs = new HashMap<String, ProjectDescriptor>();
-        
+
         for (ProjectDescriptor pd : projectDescriptors) {
             String name = pd.getProjectName();
             UserWorkspaceProjectDescriptorImpl uwpd = new UserWorkspaceProjectDescriptorImpl(this, name, pd.getProjectVersion());
             descrs.put(name, uwpd);
         }
-        
+
         descriptors.clear();
         descriptors = descrs;
+    }
+
+    public UserWorkspaceDeploymentProjectImpl getProject() {
+        return this;
     }
 }
