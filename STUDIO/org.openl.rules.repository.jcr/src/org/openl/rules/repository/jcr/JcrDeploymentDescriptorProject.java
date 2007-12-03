@@ -7,6 +7,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -74,6 +75,15 @@ public class JcrDeploymentDescriptorProject extends JcrCommonProject implements 
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot create project descriptor {0}", e, name);
         }        
+    }
+    
+    public RDeploymentDescriptorProject getProjectVersion(CommonVersion version) throws RRepositoryException {
+        try {
+            Node frozenNode = NodeUtil.getNode4Version(node(), version);
+            return new JcrOldDeploymentProject(getName(), frozenNode);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Cannot get project version", e);
+        }
     }
     
     // --- protected
