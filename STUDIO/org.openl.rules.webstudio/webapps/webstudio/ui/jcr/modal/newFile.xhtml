@@ -65,7 +65,11 @@
       }
      }
 
-     document.getElementById('newFileForm:effectiveDatePopup').style.display = 'none';
-     document.getElementById('newFileForm:expirationDatePopup').style.display = 'none';
+     if (document.getElementById('newFileForm:effectiveDatePopup')) {
+       document.getElementById('newFileForm:effectiveDatePopup').style.display = 'none';
+     }
+     if (document.getElementById('newFileForm:expirationDatePopup')) {
+       document.getElementById('newFileForm:expirationDatePopup').style.display = 'none';
+     }
   </script>
 </ui:composition>
