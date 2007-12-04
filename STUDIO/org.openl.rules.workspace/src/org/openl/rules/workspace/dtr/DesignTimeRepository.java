@@ -48,6 +48,8 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
     void createProject(String name) throws RepositoryException;
     
     public RepositoryDDProject getDDProject(String name) throws RepositoryException;
+    public RepositoryDDProject getDDProject(String name, CommonVersion version) throws RepositoryException;
+
     public List<RepositoryDDProject> getDDProjects() throws RepositoryException;
     public void createDDProject(String name) throws RepositoryException;
 }

@@ -173,6 +173,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }        
     }
 
+    public RepositoryDDProject getDDProject(String name, CommonVersion version) throws RepositoryException {
+        try {
+            RDeploymentDescriptorProject p = rulesRepository.getDDProject(name);
+            RDeploymentDescriptorProject oldProject = p.getProjectVersion(version);
+            return wrapDDProject(oldProject);
+        } catch (RRepositoryException e) {
+            throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''", e, name, version.getVersionName());
+        }        
+    }
+
     public List<RepositoryDDProject> getDDProjects() throws RepositoryException {
         LinkedList<RepositoryDDProject> result = new LinkedList<RepositoryDDProject>();
         
