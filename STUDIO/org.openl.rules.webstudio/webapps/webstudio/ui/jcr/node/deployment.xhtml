@@ -19,7 +19,7 @@
     <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
     <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked) ? 'button' : 'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{!(artefact.checkedOut || artefact.locked)};" />
     <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />
-    <h:commandButton styleClass="#{!artefact.locked ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked} &amp; &amp; confirmDeleteNode()"/>
+    <h:commandButton styleClass="#{!artefact.locked ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked} &amp;&amp; confirmDeleteNode();"/>
   </h:panelGrid>
 
   <rich:tabPanel switchType="client" style="height:425px; margin-top:5px;">
