@@ -20,9 +20,9 @@
         <h:outputText value="Current Version" />
         <h:outputText value="#{node.versionName}"/>
         <h:outputLabel for="major" styleClass="required" value="Major Version" />
-        <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="65535" value="#{repositoryTreeController.major}" inputSize="4" cycled="false" />
+        <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="32000" value="#{repositoryTreeController.major}" inputSize="4" cycled="false" />
         <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
-        <rich:inputNumberSpinner id="minor" minValue="0" maxValue="65535" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false" />
+        <rich:inputNumberSpinner id="minor" minValue="0" maxValue="32000" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false" />
       </h:panelGrid>
 
       <br />
