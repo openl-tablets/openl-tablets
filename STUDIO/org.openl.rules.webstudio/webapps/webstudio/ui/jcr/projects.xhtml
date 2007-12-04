@@ -53,7 +53,7 @@
             <h:graphicImage url="/images/copy.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Copy" title="Copy" />
           </h:commandLink>
           &#160;
-          <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteProject}"
+          <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteRulesProject}"
             onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}">
             <f:param name="projectName" value="#{prj.name}" />
             <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />

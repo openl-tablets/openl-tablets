@@ -151,7 +151,7 @@ public class RepositoryTreeController {
                     repositoryTreeState.invalidateTree();
                     repositoryTreeState.updateSelectionAfterAdd(folderName);
                 } catch (ProjectException e) {
-                    log.error("Failed to add new folder " + folderName, e);
+                    log.error("Failed to create folder " + folderName, e);
                     errorMessage = e.getMessage();
                 }
             } else {
@@ -162,33 +162,33 @@ public class RepositoryTreeController {
         if (errorMessage != null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error adding folder",
-                        errorMessage));
-            return null;
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Failed to create folder", errorMessage));
         }
         return null;
     }
 
-    public String delete() {
+    public String deleteNode() {
         UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) repositoryTreeState.getSelectedNode()
                 .getDataBean();
         try {
             projectArtefact.delete();
             repositoryTreeState.invalidateTree();
-            repositoryTreeState.updateSelectionAfterDelete();
+            if (!(projectArtefact instanceof UserWorkspaceProject)) {
+                repositoryTreeState.updateSelectionAfterDelete();
+            }
         } catch (ProjectException e) {
-            log.error("error deleting", e);
+            log.error("Failed to delete node", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting",
-                        e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Failed to delete node", e.getMessage()));
         }
         return null;
     }
 
     public String deleteElement() {
-        AbstractTreeNode selected = repositoryTreeState.getSelectedNode();
-        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) selected
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) repositoryTreeState.getSelectedNode()
                 .getDataBean();
         String childName = FacesUtils.getRequestParameter("element");
 
@@ -205,7 +205,7 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String deleteProject() {
+    public String deleteRulesProject() {
         String projectName = FacesUtils.getRequestParameter("projectName");
 
         try {
@@ -213,11 +213,11 @@ public class RepositoryTreeController {
             project.delete();
             repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
-            log.error("Cannot delete project " + projectName, e);
+            log.error("Cannot delete rules project " + projectName, e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to delete project", e.getMessage()));
+                        "Failed to delete rules project", e.getMessage()));
         }
         return null;
     }
@@ -240,64 +240,54 @@ public class RepositoryTreeController {
     }
 
     public String undeleteProject() {
-        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode()
-                .getDataBean();
-        if (projectArtefact instanceof UserWorkspaceProject) {
-            UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
-            if (!project.isDeleted()) {
-                FacesContext.getCurrentInstance()
-                    .addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Can not undelete project " + project.getName(),
-                            "project is not deleted"));
-                return null;
-            }
-
-            try {
-                project.undelete();
-                repositoryTreeState.invalidateTree();
-            } catch (ProjectException e) {
-                FacesContext.getCurrentInstance()
-                    .addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Can not undelete project " + project.getName(),
-                            e.getMessage()));
-            }
+        UserWorkspaceProject project = getSelectedProject();
+        if (!project.isDeleted()) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Can not undelete project " + project.getName(),
+                        "project is not deleted"));
+            return null;
         }
 
+        try {
+            project.undelete();
+            repositoryTreeState.invalidateTree();
+        } catch (ProjectException e) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Can not undelete project " + project.getName(), e.getMessage()));
+        }
         return null;
     }
 
     public String eraseProject() {
-        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode()
-                .getDataBean();
-        if (projectArtefact instanceof UserWorkspaceProject) {
-            UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
-            if (!project.isDeleted()) {
-                FacesContext.getCurrentInstance()
-                    .addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Can not erase project " + project.getName(),
-                            "project is not deleted"));
-                return null;
-            }
-
-            try {
-                project.erase();
-                repositoryTreeState.invalidateTree();
-                repositoryTreeState.setSelectedNode(null);
-            } catch (ProjectException e) {
-                FacesContext.getCurrentInstance()
-                    .addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Can not erase project " + project.getName(), e.getMessage()));
-            }
+        UserWorkspaceProject project = getSelectedProject();
+        if (!project.isDeleted()) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Can not erase project " + project.getName(),
+                        "project is not deleted"));
+            return null;
         }
 
+        try {
+            project.erase();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.setSelectedNode(null);
+        } catch (ProjectException e) {
+            log.error("Failed to erase project", e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Can not erase project " + project.getName(), e.getMessage()));
+        }
         return null;
     }
 
-    public String createProject() {
+    public String createRulesProject() {
         String errorMessage = null;
         try {
             if (checkName(projectName)) {
@@ -307,7 +297,7 @@ public class RepositoryTreeController {
                 errorMessage = "project name is invalid";
             }
         } catch (ProjectException e) {
-            log.error("Failed to create new project", e);
+            log.error("Failed to create project", e);
             errorMessage = e.getMessage();
         }
 
@@ -315,10 +305,8 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to create new project", errorMessage));
-            return null;
+                        "Failed to create project", errorMessage));
         }
-
         return null;
     }
 
@@ -326,75 +314,86 @@ public class RepositoryTreeController {
         try {
             userWorkspace.createDDProject(projectName);
             repositoryTreeState.invalidateTree();
-            return null;
         } catch (ProjectException e) {
-            log.error("Failed to create new deployment project", e);
-
+            log.error("Failed to create deployment project", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to create new deployment project", e.getMessage()));
-            return null;
+                        "Failed to create deployment project", e.getMessage()));
         }
-    }
-
-    public String openVersion() {
-        UserWorkspaceProject project = getSelectedProject();
-
-        try {
-            project.openVersion(new CommonVersionImpl(version));
-            repositoryTreeState.invalidateTree();
-            return null;
-        } catch (ProjectException e) {
-            log.error("Failed to open project", e);
-
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to open project", e.getMessage()));
-            return null;
-        }
+        return null;
     }
 
     public String openProject() {
-        UserWorkspaceProject project = getSelectedProject();
-
         try {
-            project.open();
+            getSelectedProject().open();
             repositoryTreeState.invalidateTree();
-            return null;
         } catch (ProjectException e) {
             log.error("Failed to open project", e);
-
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to open project", e.getMessage()));
-            return null;
         }
+        return null;
+    }
+
+    public String openProjectVersion() {
+        try {
+            getSelectedProject().openVersion(new CommonVersionImpl(version));
+            repositoryTreeState.invalidateTree();
+        } catch (ProjectException e) {
+            log.error("Failed to open project version", e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Failed to open project version", e.getMessage()));
+        }
+        return null;
     }
 
     public String closeProject() {
-        UserWorkspaceProject project = getSelectedProject();
-
         try {
-            project.close();
+            getSelectedProject().close();
             repositoryTreeState.invalidateTree();
-            return null;
         } catch (ProjectException e) {
             log.error("Failed to close project", e);
-
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to close project", e.getMessage()));
-            return null;
         }
+        return null;
     }
 
-    public String refresh() {
-        repositoryTreeState.invalidateTree();
-        repositoryTreeState.setSelectedNode(null);
+    public String checkOutProject() {
+        try {
+            getSelectedProject().checkOut();
+            repositoryTreeState.invalidateTree();
+        } catch (ProjectException e) {
+            log.error("Failed to check out project", e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Failed to check out project", e.getMessage()));
+        }
+        return null;
+    }
+
+    public String checkInProject() {
+        if (!validationError) {
+            try {
+                getSelectedProject().checkIn(major, minor);
+                repositoryTreeState.invalidateTree();
+            } catch (ProjectException e) {
+                log.error("Failed to check in project", e);
+
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Failed to check in project", null));
+            }
+        }
         return null;
     }
 
@@ -424,57 +423,24 @@ public class RepositoryTreeController {
             userWorkspace.copyProject(project, newProjectName);
             repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
+            log.error("Failed to copy project", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Failed to copy project", e.getMessage()));
-            return null;
         }
 
         return null;
     }
 
+    public String refreshTree() {
+        repositoryTreeState.invalidateTree();
+        repositoryTreeState.setSelectedNode(null);
+        return null;
+    }
+
     public boolean checkName(String projectName) {
         return !PROJECTNAME_FORBIDDEN_PATTERN.matcher(projectName).find();
-    }
-
-    public String checkOutProject() {
-        UserWorkspaceProject project = getSelectedProject();
-
-        try {
-            project.checkOut();
-            repositoryTreeState.invalidateTree();
-            return null;
-        } catch (ProjectException e) {
-            log.error("Failed to check out project", e);
-
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to check out project", e.getMessage()));
-            return null;
-        }
-    }
-
-    public String checkInProject() {
-        if (validationError) {
-            return null;
-        }
-        UserWorkspaceProject project = getSelectedProject();
-
-        try {
-            project.checkIn(major, minor);
-            repositoryTreeState.invalidateTree();
-            return null;
-        } catch (ProjectException e) {
-            log.error("Failed to check in project", e);
-
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to check in project", null));
-            return null;
-        }
     }
 
     public String upload() {
