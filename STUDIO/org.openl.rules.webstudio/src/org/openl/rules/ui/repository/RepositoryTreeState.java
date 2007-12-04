@@ -17,10 +17,15 @@ import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
+
 import org.richfaces.component.UITree;
+
 import org.richfaces.event.NodeSelectedEvent;
 
+import org.richfaces.model.TreeNode;
+
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -125,6 +130,49 @@ public class RepositoryTreeState {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Forces tree rebuild during next access.
+     */
+    public void invalidateTree() {
+        root = null;
+    }
+
+    /**
+     * Updates repositoryTreeState.selectedNode after add.
+     *
+     * @param name
+     */
+    public void updateSelectionAfterAdd(String name) {
+        Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath()
+                .getSegments().iterator();
+        TreeNode currentNode = getRulesRepository();
+        while ((currentNode != null) && it.hasNext()) {
+            currentNode = currentNode.getChild(it.next());
+        }
+
+        if (currentNode != null) {
+            selectedNode = (AbstractTreeNode) currentNode;
+        }
+    }
+
+    /**
+     * Updates repositoryTreeState.selectedNode value after delete.
+     */
+    public void updateSelectionAfterDelete() {
+        Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath()
+                .getSegments().iterator();
+        TreeNode node = getRulesRepository();
+        TreeNode prevNode = null;
+        while ((node != null) && it.hasNext()) {
+            prevNode = node;
+            node = node.getChild(it.next());
+        }
+
+        if (prevNode != null) {
+            selectedNode = (AbstractTreeNode) prevNode;
+        }
     }
 
     public TreeRepository getRoot() {
