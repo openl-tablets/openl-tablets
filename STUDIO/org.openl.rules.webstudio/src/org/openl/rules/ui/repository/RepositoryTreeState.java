@@ -24,7 +24,9 @@ import org.richfaces.event.NodeSelectedEvent;
 
 import org.richfaces.model.TreeNode;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,6 +38,17 @@ import java.util.List;
  */
 public class RepositoryTreeState {
     private final static Log log = LogFactory.getLog(RepositoryTreeState.class);
+    
+    public static final Comparator<ProjectArtefact> ARTEFACT_COMPARATOR 
+    = new Comparator<ProjectArtefact>() {
+	public int compare(ProjectArtefact o1, ProjectArtefact o2) {
+	    if (o1.isFolder() == o2.isFolder()) {
+		return o1.getName().compareTo(o2.getName());
+	    } else {
+		return (o1.isFolder() ? -1 : 1);
+	    }
+	}
+    };
 
     /** Root node for RichFaces's tree.  It is not displayed. */
     private TreeRepository root;
@@ -44,11 +57,15 @@ public class RepositoryTreeState {
     private TreeRepository deploymentRepository;
     private UserWorkspace userWorkspace;
 
-    private void traverseFolder(TreeFolder folder,
-        Collection<?extends ProjectArtefact> artefacts) {
-        for (ProjectArtefact artefact : artefacts) {
+    private void traverseFolder(TreeFolder folder, Collection<? extends ProjectArtefact> artefacts) {
+	ProjectArtefact[] sortedArtefacts = new ProjectArtefact[artefacts.size()];
+	sortedArtefacts = artefacts.toArray(sortedArtefacts);
+	
+	Arrays.sort(sortedArtefacts, ARTEFACT_COMPARATOR);
+	
+	for (ProjectArtefact artefact : sortedArtefacts) {
             String id = artefact.getName();
-            if (artefact instanceof ProjectFolder) {
+            if (artefact.isFolder()) {
                 TreeFolder treeFolder = new TreeFolder(id, artefact.getName());
                 treeFolder.setDataBean(artefact);
                 folder.add(treeFolder);
