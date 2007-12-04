@@ -124,27 +124,6 @@ public class RepositoryTreeController {
         return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
 
-    private void invalidateTree() {
-        repositoryTreeState.setRoot(null);
-    }
-
-    private void invalidateTreeUpdateSelection() {
-        invalidateTree();
-
-        AbstractTreeNode selected = repositoryTreeState.getSelectedNode();
-
-        Iterator<String> iterator = selected.getDataBean().getArtefactPath().getSegments()
-                .iterator();
-        TreeNode currentNode = repositoryTreeState.getRulesRepository();
-        while ((currentNode != null) && iterator.hasNext()) {
-            currentNode = currentNode.getChild(iterator.next());
-        }
-
-        if (currentNode != null) {
-            repositoryTreeState.setSelectedNode((AbstractTreeNode) currentNode);
-        }
-    }
-
     /**
      * Gets all rules projects from a rule repository.
      *
@@ -172,7 +151,8 @@ public class RepositoryTreeController {
                 UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
                 try {
                     folder.addFolder(folderName);
-                    invalidateTreeUpdateSelection();
+                    repositoryTreeState.invalidateTree();
+                    repositoryTreeState.updateSelectionAfterAdd(folderName);
                 } catch (ProjectException e) {
                     log.error("Failed to add new folder " + folderName, e);
                     errorMessage = e.getMessage();
@@ -197,7 +177,8 @@ public class RepositoryTreeController {
                 .getDataBean();
         try {
             projectArtefact.delete();
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.updateSelectionAfterDelete();
         } catch (ProjectException e) {
             log.error("error deleting", e);
             FacesContext.getCurrentInstance()
@@ -216,7 +197,7 @@ public class RepositoryTreeController {
 
         try {
             projectArtefact.getArtefact(childName).delete();
-            invalidateTreeUpdateSelection();
+            repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
             log.error("error deleting", e);
             FacesContext.getCurrentInstance()
@@ -233,7 +214,7 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject project = userWorkspace.getProject(projectName);
             project.delete();
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
             log.error("Cannot delete project " + projectName, e);
             FacesContext.getCurrentInstance()
@@ -250,7 +231,7 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceDeploymentProject project = userWorkspace.getDDProject(projectName);
             project.delete();
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
             log.error("Cannot delete deployment project " + projectName, e);
             FacesContext.getCurrentInstance()
@@ -277,7 +258,7 @@ public class RepositoryTreeController {
 
             try {
                 project.undelete();
-                invalidateTree();
+                repositoryTreeState.invalidateTree();
             } catch (ProjectException e) {
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
@@ -306,7 +287,7 @@ public class RepositoryTreeController {
 
             try {
                 project.erase();
-                invalidateTree();
+                repositoryTreeState.invalidateTree();
                 repositoryTreeState.setSelectedNode(null);
             } catch (ProjectException e) {
                 FacesContext.getCurrentInstance()
@@ -324,7 +305,7 @@ public class RepositoryTreeController {
         try {
             if (checkName(projectName)) {
                 userWorkspace.createProject(projectName);
-                invalidateTree();
+                repositoryTreeState.invalidateTree();
             } else {
                 errorMessage = "project name is invalid";
             }
@@ -347,7 +328,7 @@ public class RepositoryTreeController {
     public String createDeploymentProject() {
         try {
             userWorkspace.createDDProject(projectName);
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
             return null;
         } catch (ProjectException e) {
             log.error("Failed to create new deployment project", e);
@@ -365,7 +346,7 @@ public class RepositoryTreeController {
 
         try {
             project.openVersion(new CommonVersionImpl(version));
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
             return null;
         } catch (ProjectException e) {
             log.error("Failed to open project", e);
@@ -383,7 +364,7 @@ public class RepositoryTreeController {
 
         try {
             project.open();
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
             return null;
         } catch (ProjectException e) {
             log.error("Failed to open project", e);
@@ -401,7 +382,7 @@ public class RepositoryTreeController {
 
         try {
             project.close();
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
             return null;
         } catch (ProjectException e) {
             log.error("Failed to close project", e);
@@ -415,7 +396,7 @@ public class RepositoryTreeController {
     }
 
     public String refresh() {
-        invalidateTree();
+        repositoryTreeState.invalidateTree();
         repositoryTreeState.setSelectedNode(null);
         return null;
     }
@@ -444,7 +425,7 @@ public class RepositoryTreeController {
 
         try {
             userWorkspace.copyProject(project, newProjectName);
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
@@ -465,7 +446,7 @@ public class RepositoryTreeController {
 
         try {
             project.checkOut();
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
             return null;
         } catch (ProjectException e) {
             log.error("Failed to check out project", e);
@@ -486,7 +467,7 @@ public class RepositoryTreeController {
 
         try {
             project.checkIn(major, minor);
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
             return null;
         } catch (ProjectException e) {
             log.error("Failed to check in project", e);
@@ -504,12 +485,12 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("Project was successfully uploaded"));
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        errorMessage, "Error occured during uploading file"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage,
+                        "Error occured during uploading file"));
         }
         return null;
     }
@@ -553,12 +534,13 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was successfully uploaded"));
-            invalidateTreeUpdateSelection();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.updateSelectionAfterAdd(fileName);
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        errorMessage, "Error occured during uploading file"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage,
+                        "Error occured during uploading file"));
         }
         return null;
     }
@@ -608,12 +590,12 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was successfully uploaded"));
-            invalidateTree();
+            repositoryTreeState.invalidateTree();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        errorMessage,"Error occured during uploading file"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage,
+                        "Error occured during uploading file"));
         }
         return null;
     }
