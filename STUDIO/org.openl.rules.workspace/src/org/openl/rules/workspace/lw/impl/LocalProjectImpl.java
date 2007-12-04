@@ -75,6 +75,19 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         localWorkspace.notifyRemoved(this);
     }
 
+    public void checkedIn(ProjectVersion newVersion) {
+	// update new version
+	version = newVersion;
+	// reset all isNew & isChanged
+	resetNewAndChanged();
+	
+        try {
+	    save();
+	} catch (ProjectException e) {
+	    Log.error("Failed to save local project state", e);
+	}
+    }
+
     // --- protected
 
     protected void downloadArtefact(Project project) throws ProjectException {
@@ -83,8 +96,8 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         version = project.getVersion();
         dependencies = project.getDependencies();
         
-        setNew(false);
-        setChanged(false);
+	// reset all isNew & isChanged
+        resetNewAndChanged();
     }
 
     private static void saveState(LocalProjectArtefactImpl artefact, File destFile) {

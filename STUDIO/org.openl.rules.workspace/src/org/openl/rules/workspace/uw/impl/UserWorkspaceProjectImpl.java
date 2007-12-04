@@ -119,6 +119,10 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         userWorkspace.checkInProject(localProject, major, minor);
         // dtrProject != null
         dtrProject.unlock(userWorkspace.getUser());
+        
+        // update version, reset & persist states
+        localProject.checkedIn(dtrProject.getVersion());
+        
         updateArtefact(localProject, dtrProject);
     }
 
