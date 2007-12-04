@@ -124,7 +124,7 @@ public class JcrVersion implements RVersion {
     }
     
     protected void updateVersion(Node node) throws RepositoryException {
-        long l = (version.getMajor() << 16) | (version.getMinor() & 0xFFFF);
+        long l = ((version.getMajor() & 0x7FFF) << 16) | (version.getMinor() & 0x7FFF);
         node.setProperty(JcrNT.PROP_VERSION, l);
         node.setProperty(JcrNT.PROP_REVISION, version.getRevision());
     }
