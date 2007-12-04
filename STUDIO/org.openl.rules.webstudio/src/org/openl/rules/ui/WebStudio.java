@@ -4,12 +4,13 @@
  */
 package org.openl.rules.ui;
 
+import org.openl.util.benchmark.BenchmarkInfo;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
-
-import org.openl.util.benchmark.BenchmarkInfo;
+import java.util.Set;
 
 /**
  * @author snshor
@@ -36,6 +37,8 @@ public class WebStudio
 	OpenLWrapperInfo[] wrappers = null;
 
 	WebStudioMode mode = WebStudioMode.BUSINESS1;
+
+    private Set<String> writableProjects;
 
     public WebStudio() {
         this("..");
@@ -80,7 +83,11 @@ public class WebStudio
 		return model;
 	}
 
-	/**
+    public void setWritableProjects(Set<String> writableProjects) {
+        this.writableProjects = writableProjects;
+    }
+
+    /**
 	 * @return Returns the wrappers.
 	 * @throws IOException
 	 */
@@ -141,7 +148,8 @@ public class WebStudio
 		if (this.currentWrapper != wrapper)
 		{
 			model.setWrapperInfo(wrapper);
-		}
+            model.setReadOnly(!(writableProjects == null || writableProjects.contains(wrapper.getProjectInfo().getName())));
+        }
 		this.currentWrapper = wrapper;
         for (StudioListener listener : listeners) listener.studioReset();
     }

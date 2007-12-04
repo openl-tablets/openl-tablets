@@ -13,9 +13,20 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * Zip helper methods container. The class has methods, which allow to unzip an archive to a given location and
+ * to zip a given folder to an archive. 
+ */
 public class ZipUtil {
     private ZipUtil() {}
 
+    /**
+     * Zips a given folder recursively, preserving files and folders hierarchy. 
+     *
+     * @param folder a folder to zip
+     * @param zipFilename the file name of the created archive
+     * @throws IOException if an I/O exception occurs
+     */
     public static void zipFolder(File folder, File zipFilename) throws IOException {
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFilename));
         out.setLevel(Deflater.DEFAULT_COMPRESSION);
@@ -25,6 +36,13 @@ public class ZipUtil {
         out.close();
     }
 
+    /**
+     * Unzips a ZIP archive to a given location.
+     *
+     * @param zipFilename the archive to unzip
+     * @param destFolder destination
+     * @throws IOException if an I/O exception occurs
+     */
     public static void unzip(File zipFilename, File destFolder) throws IOException {
         ZipInputStream in = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFilename)));
         try {

@@ -9,6 +9,9 @@ import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
 
 import java.util.HashMap;
 
+/**
+ * This class is responsible for creating <code>ProductionDeployer</code> instances for given users. 
+ */
 public class ProductionDeployerManagerImpl implements ProductionDeployerManager {
     public static final String PROPERTY_FILE = "deploy.properties";
 
