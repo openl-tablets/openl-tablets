@@ -28,14 +28,11 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 
-import org.richfaces.model.TreeNode;
-
 import java.io.FileInputStream;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

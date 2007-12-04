@@ -9,8 +9,8 @@
     styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}"
     disabled="#{!artefact.checkedOut}" value="Add Dependency" /></div>
 
-  <rich:dataTable rendered="#{not empty node.dependencies}"
-    value="#{node.dependencies}" var="dep">
+  <rich:dataTable rendered="#{!empty node.dependencies}"
+    value="#{node.dependencies}" var="dep" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
