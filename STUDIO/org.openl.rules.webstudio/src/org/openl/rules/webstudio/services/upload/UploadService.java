@@ -96,13 +96,14 @@ public class UploadService extends BaseUploadService {
 
         String fileNameWithoutExt = FilenameUtils.getBaseName(params.getFile().getName());
         File uploadDir = getFile(params, fileNameWithoutExt);
+        UploadFilter filter = getFilter();
 
         // Sort zip entries names alphabetically
         Set<String> sortedNames = new TreeSet<String>();
-        for (Enumeration<?extends ZipEntry> items = zipFile.entries();
-                items.hasMoreElements();) {
+        for (Enumeration<?extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
             ZipEntry item = items.nextElement();
-            sortedNames.add(item.getName());
+            if (filter.accept(item.getName()))
+                sortedNames.add(item.getName());
         }
 
         for (String name : sortedNames) {
