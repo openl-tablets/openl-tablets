@@ -27,11 +27,13 @@ public class SkinBean {
             Cookie[] cookies = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())
                                 .getCookies();
 
-            for(Cookie cookie : cookies)
-                if(SKIN_COOKIE.equals(cookie.getName())) {
-                    skin = cookie.getValue();
-                    break;
-                }
+            if (cookies != null) {
+                for(Cookie cookie : cookies)
+                    if(SKIN_COOKIE.equals(cookie.getName())) {
+                        skin = cookie.getValue();
+                        break;
+                    }
+            }
 
             if (skin == null)
                 skin = DEFAULT_SKIN;
