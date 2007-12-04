@@ -116,6 +116,11 @@ public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
     protected void setChanged(boolean changed) {
         isChanged = changed;
     }
+    
+    protected void resetNewAndChanged() {
+	setNew(false);
+	setChanged(false);
+    }
 
     protected File getLocation() {
         return location;

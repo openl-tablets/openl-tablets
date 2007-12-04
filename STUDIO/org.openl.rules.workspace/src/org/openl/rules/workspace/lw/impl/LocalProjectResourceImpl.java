@@ -77,9 +77,6 @@ public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implement
         setLocalContent(is);
 
         refresh();
-
-        setNew(false);
-        setChanged(false);
     }
     
     protected void setLocalContent(InputStream is) throws ProjectException {

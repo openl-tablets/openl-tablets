@@ -148,6 +148,15 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
     }
 
     // --- protected
+    
+    protected void resetNewAndChanged() {
+	
+	for (LocalProjectArtefact artefact : artefacts.values()) {
+	    ((LocalProjectArtefactImpl)artefact).resetNewAndChanged();
+	}
+
+	super.resetNewAndChanged();
+    }
 
     protected void addAsNew(File f) {
         String name = f.getName();
@@ -198,9 +207,6 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
                 artefacts.put(name, lpri);
             }
         }
-
-        setNew(false);
-        setChanged(false);
     }
     
     // --- private
