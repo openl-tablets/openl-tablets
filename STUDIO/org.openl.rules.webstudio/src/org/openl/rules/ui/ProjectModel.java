@@ -62,7 +62,9 @@ public class ProjectModel
 
 	ColorFilterHolder filterHolder = new ColorFilterHolder();
 
-	public ProjectModel(WebStudio studio)
+    private boolean readOnly;
+
+    public ProjectModel(WebStudio studio)
 	{
 		this.studio = studio;
 	}
@@ -553,7 +555,11 @@ public class ProjectModel
      * @return <code>true</code> if project is read only.
      */
     public boolean isReadOnly() {
-        return false;
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     public AllTestsRunResult getRunMethods(int elementID)

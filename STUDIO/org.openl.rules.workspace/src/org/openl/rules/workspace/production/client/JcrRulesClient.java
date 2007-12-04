@@ -12,11 +12,20 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
+/**
+ * This class can extract rules projects deployed into production JCR based environment to a specified location on
+ * file system. 
+ */
 public class JcrRulesClient {
+    /**
+     * Temporary file name.
+     */
     private static final String ZIPPED_PROJECT_FILENAME = "__deployement.archive.zip";
 
     /**
      * Unpacks deployed project with given deploy id to <code>destFolder</code>.
+     * The methods uses <code>RRepository</code> instance provided by <code>ProductionRepositoryFactoryProxy</code>
+     * factory as production repository. 
      *
      * @param deployID identifier of deployed project
      * @param destFolder the folder to unpack the project to.

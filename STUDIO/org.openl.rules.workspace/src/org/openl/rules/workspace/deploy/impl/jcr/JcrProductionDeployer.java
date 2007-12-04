@@ -23,17 +23,29 @@ import java.io.FileInputStream;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Implementation of <code>ProductionDeployer</code>  that uses <i>JCR</i> as production repository.
+ */
 public class JcrProductionDeployer implements ProductionDeployer {
     public static final String PROPNAME_ZIPFOLDER = "temp.zip.location";
     public static final String DEFAULT_ZIPFOLDER = "/tmp/rules-deployment/";
     public static final String WORKING_FOLDER = "work";
     static final String ZIP_FILE_NAME = "project.zip";
     public static final String ZIP_NODE_NAME = "deployment";
-
+    /**
+     * A folder inside of <code>userFolder</code>. A place to download deployed projects into before zipping and actual
+     * deploying.
+     */
     private final File workingFolder;
+    /**
+     * A folder to perform file operation in for given user. 
+     */
     private final File userFolder;
 
     private final DeployerLocalWorkspace localWorkspace;
+    /**
+     * The user.
+     */
     private final WorkspaceUser user;
 
     public JcrProductionDeployer(WorkspaceUser user, SmartProps props) throws DeploymentException {
@@ -53,6 +65,14 @@ public class JcrProductionDeployer implements ProductionDeployer {
         }
     }
 
+    /**
+     * Deploys a collection of <code>Project</code>s to the production repository. Generates unique ID for the
+     * deployment.
+     *
+     * @param projects projects to deploy
+     * @return generated id for this deployment
+     * @throws DeploymentException if any deployment error occures
+     */
     public DeployID deploy(Collection<? extends Project> projects) throws DeploymentException {
         StringBuilder name = new StringBuilder();
         for (Project p : projects) {
@@ -64,6 +84,15 @@ public class JcrProductionDeployer implements ProductionDeployer {
         name.append(System.currentTimeMillis());
         return deploy(new DeployID(name.toString()), projects);
     }
+
+    /**
+     * Deploys a collection of <code>Project</code>s to the production repository with given ID.
+     * Overwrites deployment with given <i>id</i> if it already exists.
+     *
+     * @param projects projects to deploy
+     * @return <code>id</code> parameter
+     * @throws DeploymentException if any deployment error occures
+     */
 
     public synchronized DeployID deploy(DeployID id, Collection<? extends Project> projects) throws DeploymentException {
         if (!FolderHelper.clearFolder(userFolder)) {
@@ -141,7 +170,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return workingFolder;
     }
 
-    class DeployerLocalWorkspace extends LocalWorkspaceImpl {
+    static class DeployerLocalWorkspace extends LocalWorkspaceImpl {
         public DeployerLocalWorkspace(WorkspaceUser user, File location) {
             super(user, location);
         }
