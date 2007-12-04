@@ -31,7 +31,7 @@ public class PopulateRepository {
 
                 RProject prj1 = repository.createProject("prj1");
                 repository.createProject("prj2");
-                repository.createProject("prj3(marked)").delete();
+                repository.createProject("prj3(marked)").delete(user);
 
                 RFolder r1 = prj1.getRootFolder().createFolder("rules");
                 
