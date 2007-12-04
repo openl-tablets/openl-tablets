@@ -60,7 +60,21 @@ public abstract class AbstractTreeNode implements TreeNode {
             return o2.compareTo(o1);
         }
     };
-
+    
+//    private static final Comparator<AbstractTreeNode> CHILD_COMPARATOR
+//    = new Comparator<AbstractTreeNode>() {
+//        public int compare(AbstractTreeNode o1, AbstractTreeNode o2) {
+//            ProjectArtefact p1 = o1.dataBean;
+//            ProjectArtefact p2 = o2.dataBean;
+//            
+//            if (p1 == null || p2 == null || p1.isFolder() == p2.isFolder()) {
+//                return o1.getName().compareToIgnoreCase(o2.getName());
+//            }
+//            
+//            return (p1.isFolder() ? -1 : 1);
+//        }
+//    };
+//
     /**
      * Identifier of the node.
      */
@@ -172,11 +186,8 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     public List<AbstractTreeNode> getChildNodes() {
         List<AbstractTreeNode> list = new ArrayList<AbstractTreeNode>(elements.values());
-        Collections.sort(list, new Comparator<AbstractTreeNode>() {
-            public int compare(AbstractTreeNode o1, AbstractTreeNode o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        // elements are sorted already
+        //Collections.sort(list, CHILD_COMPARATOR);
 
         return list;
     }
