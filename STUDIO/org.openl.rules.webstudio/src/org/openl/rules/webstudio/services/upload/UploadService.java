@@ -85,7 +85,7 @@ public class UploadService extends BaseUploadService {
         ZipFile zipFile) throws ServiceException, IOException
     {
         UserWorkspace workspace = params.getWorkspace();
-        UserWorkspaceProject project = null;
+        UserWorkspaceProject project;
         try {
             workspace.createProject(params.getProjectName());
             project = workspace.getProject(params.getProjectName());
@@ -122,7 +122,7 @@ public class UploadService extends BaseUploadService {
                 InputStream zipInputStream = zipFile.getInputStream(item);
 
                 UserWorkspaceProjectFolder folder = project;
-                String resName = null;
+                String resName;
 
                 int pos = fullName.lastIndexOf('/');
                 if (pos >=0) {
@@ -141,16 +141,6 @@ public class UploadService extends BaseUploadService {
                 } catch (ProjectException e) {
                     throw new ServiceException("Error adding file to user workspace", e);
                 }
-
-                /*
-                   try {
-                       FileCopyUtils.copy(zipInputStream, new FileOutputStream(targetFile));
-                   } finally {
-                       if (zipInputStream != null) {
-                           zipInputStream.close();
-                       }
-                   }
-                 */
             }
         }
 
