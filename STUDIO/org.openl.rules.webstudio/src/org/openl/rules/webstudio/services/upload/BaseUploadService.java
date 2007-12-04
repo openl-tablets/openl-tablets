@@ -154,6 +154,10 @@ public abstract class BaseUploadService implements Service {
         }
     }
 
+    protected UploadFilter getFilter() {
+        return FolderUploadFilter.VCS_FILES_FILTER;
+    }
+
     /**
      * Unpack uploaded archive file.
      *
