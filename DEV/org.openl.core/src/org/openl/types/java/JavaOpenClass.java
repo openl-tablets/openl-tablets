@@ -69,7 +69,7 @@ public class JavaOpenClass extends AOpenClass
     @SuppressWarnings("unchecked")
     public Iterator<IOpenClass> superClasses()
     {
-	IOpenIterator<Class> ic = OpenIterator.fromArray(instanceClass
+	IOpenIterator<Class<?>> ic = OpenIterator.fromArray(instanceClass
 		.getInterfaces());
 
 	IOpenIterator<IOpenClass> interfaces = ic
@@ -277,7 +277,7 @@ public class JavaOpenClass extends AOpenClass
 
     @SuppressWarnings("unchecked")
     static class Class2JavaOpenClassCollector implements
-	    IConvertor<Class, IOpenClass>
+	    IConvertor<Class<?>, IOpenClass>
     {
 	public IOpenClass convert(Class c)
 	{
@@ -285,8 +285,7 @@ public class JavaOpenClass extends AOpenClass
 	}
     }
 
-    @SuppressWarnings("unchecked")
-    static public final IConvertor<Class, IOpenClass> Class2JavaOpenClass = new Class2JavaOpenClassCollector();
+    static public final IConvertor<Class<?>, IOpenClass> Class2JavaOpenClass = new Class2JavaOpenClassCollector();
 
     static public IOpenClass[] getOpenClasses(Class<?>[] cc)
     {
