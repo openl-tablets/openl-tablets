@@ -20,16 +20,16 @@
     <h:form id="modaNewDependencyForm">
         <a4j:commandButton id="addDependencyBtn" reRender="addDependencyPanel" oncomplete="showAddDependencyUpdateVersion()" ajaxSingle="true" style="display:none;"/>
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputLabel for="project" styleClass="required" value="Project" />
+        <h:outputLabel for="projectName" styleClass="required" value="Project" />
         <h:selectOneMenu id="projectName" required="true" value="#{addDependency.projectName}" style="width:250px;">
           <f:selectItems value="#{addDependency.availableProjects}" />
           <a4j:support event="onchange" reRender="lowerVersion" ajaxSingle="true" />
         </h:selectOneMenu>
 
         <h:outputLabel for="lowerVersion" styleClass="required" value="Lower version" />
-          <h:selectOneMenu id="lowerVersion" value="#{addDependency.lowerVersion}" required="true">
-              <f:selectItems value="#{addDependency.projectVersions}" />
-          </h:selectOneMenu>
+        <h:selectOneMenu id="lowerVersion" value="#{addDependency.lowerVersion}" required="true">
+          <f:selectItems value="#{addDependency.projectVersions}" />
+        </h:selectOneMenu>
 
         <h:outputLabel for="upperVersion" value="Upper Version" />
         <h:inputText id="upperVersion" size="20" maxlength="20" value="#{addDependency.upperVersion}" />
