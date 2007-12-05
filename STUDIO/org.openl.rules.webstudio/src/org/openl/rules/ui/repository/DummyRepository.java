@@ -59,4 +59,8 @@ public class DummyRepository implements RRepository {
         // empty list
         return new LinkedList<RDeploymentDescriptorProject>();
     }
+
+    public boolean hasDDProject(String name) throws RRepositoryException {
+	return false;
+    }
 }
