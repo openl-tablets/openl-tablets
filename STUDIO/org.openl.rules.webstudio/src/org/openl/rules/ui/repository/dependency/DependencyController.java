@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class AddDependencyController {
+public class DependencyController {
     /** A controller which contains pre-built UI object tree. */
     private RepositoryTreeState repositoryTreeState;
     private String projectName;

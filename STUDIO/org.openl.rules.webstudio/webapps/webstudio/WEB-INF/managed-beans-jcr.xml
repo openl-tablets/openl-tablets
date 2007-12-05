@@ -51,11 +51,11 @@
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
     </managed-property>
-</managed-bean>
+  </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>addDependency</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.dependency.AddDependencyController</managed-bean-class>
+    <managed-bean-name>dependencyController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.repository.dependency.DependencyController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>repositoryTreeState</property-name>
