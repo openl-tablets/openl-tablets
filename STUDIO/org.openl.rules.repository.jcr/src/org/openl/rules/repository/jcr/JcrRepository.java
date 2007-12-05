@@ -72,6 +72,14 @@ public class JcrRepository implements RRepository {
         }        
     }
 
+    public boolean hasDDProject(String name) throws RRepositoryException {
+        try {
+            return defDeploymentsLocation.hasNode(name);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to check project {0}", e, name);
+        }        
+    }
+
     /** {@inheritDoc} */
     public List<RProject> getProjects() throws RRepositoryException {
         // TODO list all or only that are active (not marked4deletion)?
