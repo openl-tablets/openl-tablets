@@ -467,9 +467,9 @@ public class DTOptimizedAlgorithm
 		if (params.size() <= level)
 			return;
 		
-		for (Iterator iter = index.nodes(); iter.hasNext();)
+		for (Iterator<DTRuleNode> iter = index.nodes(); iter.hasNext();)
 		{
-			DTRuleNode node = (DTRuleNode) iter.next();
+			DTRuleNode node = iter.next();
 			
 			indexNode(node, params, level);
 		}
