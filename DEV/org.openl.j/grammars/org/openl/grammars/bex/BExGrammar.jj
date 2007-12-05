@@ -209,6 +209,7 @@ TOKEN :
 //| < BOOLEAN: "boolean" >
 | < BREAK: "break" >
 //| < BYTE: "byte" >
+| < CALCULATE: "Calculate" >
 | < CASE: "case" >
 | < CATCH: "catch" >
 //| < CHAR: "char" >
@@ -256,6 +257,7 @@ TOKEN :
 | < VOID: "void" >
 | < VOLATILE: "volatile" >
 | < WHILE: "while" >
+| < WHERE: "where" >
 }
 
 
@@ -1069,6 +1071,8 @@ void Statement() :
 |
   EmptyStatement()
 |
+   LOOKAHEAD(2) ExtendedWhereStatement() 	  
+|
   StatementExpression() OptionalSemiColon()
 |
   IfStatement()
@@ -1087,8 +1091,25 @@ void Statement() :
 |
   ThrowStatement()
 
-
 }
+
+
+
+void ExtendedWhereStatement():
+{
+		
+}
+{
+	(<IDENTIFIER> ":=" | "Calculate") Expression() "," "where" WhereVarExpalnation() ("," WhereVarExpalnation())* OptionalSemiColon()
+}
+
+
+void WhereVarExpalnation():
+{}
+{
+	<IDENTIFIER> "-" Expression()
+}
+
 
 void LabeledStatement() :
 {
