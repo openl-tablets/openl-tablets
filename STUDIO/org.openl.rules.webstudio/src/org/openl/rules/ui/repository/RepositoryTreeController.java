@@ -294,8 +294,8 @@ public class RepositoryTreeController {
                 if (userWorkspace.hasProject(projectName)) {
                     errorMessage = "Can not create project because project with such name already exists.";
                 } else {
-                userWorkspace.createProject(projectName);
-                repositoryTreeState.invalidateTree();
+                    userWorkspace.createProject(projectName);
+                    repositoryTreeState.invalidateTree();
                 }
             } else {
                 errorMessage = "Specified name is not a valid project name.";
@@ -308,8 +308,7 @@ public class RepositoryTreeController {
         if (errorMessage != null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        null, errorMessage));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
         }
         return null;
     }
@@ -403,7 +402,17 @@ public class RepositoryTreeController {
 
     public String copyProject() {
         String errorMessage = null;
-        UserWorkspaceProject project = getSelectedProject();
+        UserWorkspaceProject project;
+
+        try {
+            project = userWorkspace.getProject(projectName);
+        } catch (ProjectException e) {
+            log.error("Can not obtain rules project " + projectName, e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, e.getMessage()));
+            return null;
+        }
 
         if (project == null) {
             errorMessage = "No project is selected";
@@ -456,8 +465,7 @@ public class RepositoryTreeController {
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                            errorMessage));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
         }
         return null;
     }
@@ -468,10 +476,9 @@ public class RepositoryTreeController {
         params.setProjectName(projectName);
         params.setWorkspace(userWorkspace);
 
-            if (userWorkspace.hasProject(projectName)) {
-                return "Can not create project because project with such name already exists.";
-            }
-
+        if (userWorkspace.hasProject(projectName)) {
+            return "Can not create project because project with such name already exists.";
+        }
 
         try {
             //UploadServiceResult result = (UploadServiceResult)
