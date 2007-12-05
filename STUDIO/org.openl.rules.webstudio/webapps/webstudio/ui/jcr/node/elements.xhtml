@@ -5,8 +5,8 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:c="http://java.sun.com/jstl/core">
 
-    <rich:dataTable rendered="#{not empty node.childNodes}" value="#{node.childNodes}" var="el"
-      cellspacing="0px" styleClass="standard" rowClasses="odd,even">
+  <rich:dataTable rendered="#{!empty node.childNodes}" value="#{node.childNodes}" var="el" cellspacing="0px" styleClass="standard"
+    rowClasses="odd,even">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -23,8 +23,8 @@
 
     <rich:columnGroup>
       <rich:column style="text-align:center;">
-        <h:graphicImage url="/images/jcr/tree_folder.gif" alt="Folder" title="Folder" rendered="#{el.type=='folder'}"/>
-        <h:graphicImage url="/images/jcr/tree_document.gif" alt="File" title="File" rendered="#{el.type=='file'}"/>
+        <h:graphicImage url="/images/jcr/tree_folder.gif" alt="Folder" title="Folder" rendered="#{el.type=='folder'}" />
+        <h:graphicImage url="/images/jcr/tree_document.gif" alt="File" title="File" rendered="#{el.type=='file'}" />
       </rich:column>
       <rich:column>
         <h:outputText value="#{el.name}" />
@@ -42,5 +42,4 @@
   </rich:dataTable>
 
   <h:outputText styleClass="label" rendered="#{empty node.children}" value="There are no elements (Folders, Files)." />
-
 </ui:composition>
