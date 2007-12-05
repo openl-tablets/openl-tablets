@@ -17,7 +17,7 @@
     <h:form id="copyProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
-        <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <input id="projectName" value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
         <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
       </h:panelGrid>
@@ -35,13 +35,18 @@
   </rich:modalPanel>
 
   <script>
-    function openCopyProjectDialog() {
+    function openCopyProjectDialog(projectName) {
+      if (projectName) {
+        document.getElementById('projectName').value = projectName;
+        document.getElementById('projectName').title = projectName;
+      }
       Richfaces.showModalPanel('modalCopyProject');
       focusElement('copyProjectForm:newProjectName');
       return false;
     }
 
     function submitCopyProjectForm() {
+      document.getElementById('mainForm:srcProjectName').value = document.getElementById('projectName').value;
       document.getElementById('mainForm:newProjectName').value = document.getElementById('copyProjectForm:newProjectName').value;
       document.getElementById('mainForm:copyProject').click();
     }
