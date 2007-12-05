@@ -3,8 +3,7 @@
 <%@ page import="java.io.File" %>
 
 <%
-    String remote = request.getRemoteAddr();
-    boolean local = Util.isLoopbackAddress(remote) || request.getLocalAddr().equals(remote);
+    boolean local = Util.isLocalRequest(request);
     boolean wantURI = request.getParameter("uri") != null;
     if (local) {
         if (wantURI) {

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author snshor
@@ -63,9 +64,21 @@ public class OpenLProjectLocator {
 		
 		return  v.toArray(new OpenLWrapperInfo[0]);
 	}
-	
-	
-	/**
+
+    public List<File> listOpenLFolders() {
+        List<File> res = new ArrayList<File>();
+        for (File f : listProjects()) {
+            try {
+                if (isRulesProject(f)) {
+                    res.add(f);
+                }
+            } catch (IOException neverMind) {}
+        }
+
+        return res;
+    }
+
+    /**
 	 * @param project
 	 * @return
 	 * @throws IOException 
