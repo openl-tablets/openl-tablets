@@ -1,8 +1,8 @@
 package org.openl.rules.webstudio.services.upload;
 
-import java.io.File;
-
 import org.openl.rules.webstudio.services.ServiceResult;
+
+import java.io.File;
 
 
 /**
@@ -16,9 +16,7 @@ public class UploadServiceResult extends ServiceResult {
     private File[] resultFiles;
 
     /**
-     * Uploaded file. For {@link UploadService} contains uploaded files. For
-     * {@link UploadCatalogFilesService} valid only if user upload non-zip file or zip
-     * file contains one catalog file.
+     * Uploaded file. For {@link UploadService} contains uploaded files.
      *
      * @return file name.
      */
@@ -46,8 +44,7 @@ public class UploadServiceResult extends ServiceResult {
     /**
      * Number of uploaded files (can be different from 1 if user has uploaded zip
      * file with more than 1 file inside).<p>This values is always <code>1</code>
-     * for {@link UploadService}, but can have other values for {@link
-     * UploadCatalogFilesService}.</p>
+     * for {@link UploadService}.</p>
      *
      * @return number of uploaded files.
      */

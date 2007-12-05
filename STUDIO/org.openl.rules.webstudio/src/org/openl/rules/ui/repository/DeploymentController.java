@@ -1,20 +1,9 @@
 package org.openl.rules.ui.repository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.RulesUserSession;
@@ -33,13 +22,25 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+
+
 /**
  * Deployment controller.
  *
  * @author Andrey Naumenko
  */
 public class DeploymentController {
-    private static final long serialVersionUID = 1L;
     private final static Log log = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectNameCached;
@@ -48,20 +49,20 @@ public class DeploymentController {
     private RepositoryTreeState repositoryTreeState;
 
     public synchronized List<DeploymentDescriptorItem> getItems() {
-        UserWorkspaceDeploymentProject project = getProject();
+        UserWorkspaceDeploymentProject project = getSelectedProject();
         if (project == null) {
             projectNameCached = null;
             return items = null;
         }
         Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
-        if (items == null || !project.getName().equals(projectNameCached) || descriptors.size() != items.size()) {
+        if ((items == null) || !project.getName().equals(projectNameCached)
+                || (descriptors.size() != items.size())) {
             projectNameCached = project.getName();
             items = new ArrayList<DeploymentDescriptorItem>();
 
-
             for (ProjectDescriptor descriptor : descriptors) {
                 DeploymentDescriptorItem ddi = new DeploymentDescriptorItem(descriptor
-                        .getProjectName(),
+                            .getProjectName(),
                         descriptor.getProjectVersion().getVersionName());
                 items.add(ddi);
             }
@@ -70,7 +71,10 @@ public class DeploymentController {
                 checkConflicts(items);
             } catch (ProjectException e) {
                 log.error(e);
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(),
+                            e.getMessage()));
             }
         }
 
@@ -94,26 +98,30 @@ public class DeploymentController {
     }
 
     public synchronized String addItem() {
-        UserWorkspaceDeploymentProject project = getProject();
+        UserWorkspaceDeploymentProject project = getSelectedProject();
 
-        UserWorkspaceProjectDescriptorImpl newItem =
-                new UserWorkspaceProjectDescriptorImpl((UserWorkspaceDeploymentProjectImpl) project,
-                        projectName, new CommonVersionImpl(version));
-        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
+        UserWorkspaceProjectDescriptorImpl newItem = new UserWorkspaceProjectDescriptorImpl((UserWorkspaceDeploymentProjectImpl) project,
+                projectName, new CommonVersionImpl(version));
+        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName,
+                newItem);
 
         items = null;
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("failed to add project descriptor", e.getMessage()));
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "failed to add project descriptor", e.getMessage()));
             log.error(e);
         }
 
         return null;
     }
 
-    private List<ProjectDescriptor> replaceDescriptor(UserWorkspaceDeploymentProject project, String projectName,
-            UserWorkspaceProjectDescriptorImpl newItem) {
+    private List<ProjectDescriptor> replaceDescriptor(
+        UserWorkspaceDeploymentProject project, String projectName,
+        UserWorkspaceProjectDescriptorImpl newItem) {
         List<ProjectDescriptor> newDescriptors = new ArrayList<ProjectDescriptor>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {
@@ -134,23 +142,25 @@ public class DeploymentController {
 
     public String deleteItem() {
         String projectName = FacesUtils.getRequestParameter("key");
-        UserWorkspaceDeploymentProject project = getProject();
+        UserWorkspaceDeploymentProject project = getSelectedProject();
 
         items = null;
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("failed to add project descriptor", e.getMessage()));
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "failed to add project descriptor", e.getMessage()));
             log.error(e);
         }
         return null;
     }
 
-    private UserWorkspaceDeploymentProject getProject() {
-        ProjectArtefact artefact =  repositoryTreeState.getSelectedNode().getDataBean();
+    private UserWorkspaceDeploymentProject getSelectedProject() {
+        ProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
         if (artefact instanceof UserWorkspaceDeploymentProject) {
             return (UserWorkspaceDeploymentProject) artefact;
-
         }
         return null;
     }
@@ -182,7 +192,8 @@ public class DeploymentController {
         }
 
         for (UserWorkspaceProject project : workspaceProjects) {
-            if (!(project.isDeploymentProject() || existing.contains(project.getName()) || project.isLocalOnly())) {
+            if (!(project.isDeploymentProject() || existing.contains(project.getName())
+                    || project.isLocalOnly())) {
                 selectItems.add(new SelectItem(project.getName()));
             }
         }
@@ -216,30 +227,29 @@ public class DeploymentController {
         for (DeploymentDescriptorItem item : items) {
             if (item.isSelected()) {
                 String projectName = item.getName();
-                UserWorkspaceProject project;
                 try {
-                    project = workspace.getProject(projectName);
+                    UserWorkspaceProject project = workspace.getProject(projectName);
                     if (!project.isOpened()) {
                         project.open();
                     }
                 } catch (ProjectException e) {
-                    log.error("Error obtaining project " + projectName + " "
+                    log.error("Failed to open project " + projectName + " "
                         + e.getMessage());
                 }
             }
         }
-
         return null;
     }
 
     public String deploy() {
-        UserWorkspaceDeploymentProject project = getProject();
+        UserWorkspaceDeploymentProject project = getSelectedProject();
         if (project != null) {
             try {
                 ProductionDeployer deployer = getRulesUserSession().getDeployer();
                 UserWorkspace workspace = getWorkspace();
 
-                Collection<ProjectDescriptor> projectDescriptors = project.getProjectDescriptors();
+                Collection<ProjectDescriptor> projectDescriptors = project
+                        .getProjectDescriptors();
                 Collection<Project> projects = new ArrayList<Project>();
 
                 for (ProjectDescriptor pd : projectDescriptors) {
@@ -250,17 +260,24 @@ public class DeploymentController {
                 DeployID id = getDeployID(project);
                 deployer.deploy(id, projects);
 
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "project successfully deployed with id: " + id.getName(), null));
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "project successfully deployed with id: " + id.getName(), null));
             } catch (Exception e) {
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("failed to deploy", e.getMessage()));
+                FacesContext.getCurrentInstance()
+                    .addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to deploy",
+                            e.getMessage()));
                 log.error(e);
             }
         }
         return null;
     }
 
-    private void checkConflicts(List<DeploymentDescriptorItem> items) throws ProjectException {
+    private void checkConflicts(List<DeploymentDescriptorItem> items)
+        throws ProjectException
+    {
         if (items == null) {
             return;
         }
@@ -274,64 +291,36 @@ public class DeploymentController {
 
             UserWorkspaceProject workspaceProject = workspace.getProject(ddItem.getName());
             prMap.put(workspaceProject.getName(),
-                    new VersionRange(workspaceProject.getVersion(), workspaceProject.getVersion()));
-            for (ProjectDependency dep :  workspaceProject.getDependencies()) {
-                prMap.put(dep.getProjectName(), new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
+                new VersionRange(workspaceProject.getVersion(),
+                    workspaceProject.getVersion()));
+            for (ProjectDependency dep : workspaceProject.getDependencies()) {
+                prMap.put(dep.getProjectName(),
+                    new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
             }
         }
 
-        outer:
-        for(int i = 0; i < n; ++i) {
+outer:
+        for (int i = 0; i < n; ++i) {
             DeploymentDescriptorItem deploymentDescriptorItem = items.get(i);
             for (Map.Entry<String, VersionRange> entries : projects[i].entrySet()) {
                 VersionRange range = entries.getValue();
-                for (int j = 0; j < n; ++j) if (i != j) {
-                    VersionRange otherRange = projects[j].get(entries.getKey());
-                    if (otherRange != null && !range.intersects(otherRange)) {
-                        deploymentDescriptorItem.setMessages(new StringBuilder()
-                                .append("<span style='color:red;'>Conflicting with project <b>")
-                                .append(StringEscapeUtils.escapeHtml(items.get(j).getName()))
-                                .append("</b></span>. Dependency causing conflict: <b>")
-                                .append(StringEscapeUtils.escapeHtml(entries.getKey()))
-                                .append("</b>").toString());
-                        continue outer; // one message is enough
+                for (int j = 0; j < n; ++j) {
+                    if (i != j) {
+                        VersionRange otherRange = projects[j].get(entries.getKey());
+                        if ((otherRange != null) && !range.intersects(otherRange)) {
+                            deploymentDescriptorItem.setMessages(new StringBuilder().append(
+                                    "<span style='color:red;'>Conflicting with project <b>")
+                                    .append(StringEscapeUtils.escapeHtml(items.get(j)
+                                            .getName()))
+                                    .append("</b></span>. Dependency causing conflict: <b>")
+                                    .append(StringEscapeUtils.escapeHtml(entries.getKey()))
+                                    .append("</b>").toString());
+                            continue outer; // one message is enough
+                        }
                     }
                 }
             }
             deploymentDescriptorItem.setMessages("");
-        }
-    }
-
-
-    private static class VersionRange {
-        CommonVersion lower, upper;
-
-        private int compare(int i, int j) {
-            return i == j ? 0 : i < j ? -1 : 1;
-        }
-
-        public int compare(CommonVersion o1, CommonVersion o2) {
-            if (o1 == null || o2 == null) {
-                // null stands for posistive infinity
-                if (o1 != null) return -1;
-                if (o2 != null) return 1;
-                return 0;
-            }
-
-            int c = compare(o1.getMajor(), o2.getMajor());
-            if (c != 0) return c;
-            c = compare(o1.getMinor(), o2.getMinor());
-            if (c != 0) return c;
-            return compare(o1.getRevision(), o2.getRevision());
-        }
-
-        private VersionRange(CommonVersion lower, CommonVersion upper) {
-            this.lower = lower;
-            this.upper = upper;
-        }
-
-        boolean intersects(VersionRange other) {
-            return compare(lower, other.upper) <= 0 && compare(other.lower, upper) <= 0;
         }
     }
 
@@ -346,11 +335,14 @@ public class DeploymentController {
 
     public String checkIn() {
         try {
-            getProject().checkIn();
+            getSelectedProject().checkIn();
             items = null;
         } catch (ProjectException e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("failed to check in", e.getMessage()));
             log.error(e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check in",
+                        e.getMessage()));
         }
 
         return null;
@@ -358,11 +350,14 @@ public class DeploymentController {
 
     public String close() {
         try {
-            getProject().close();
+            getSelectedProject().close();
             items = null;
         } catch (ProjectException e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("failed to close deployment project", e.getMessage()));
             log.error(e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "failed to close deployment project", e.getMessage()));
         }
 
         return null;
@@ -370,10 +365,13 @@ public class DeploymentController {
 
     public String checkOut() {
         try {
-            getProject().checkOut();
+            getSelectedProject().checkOut();
             items = null;
         } catch (ProjectException e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("failed to check out", e.getMessage()));
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check out",
+                        e.getMessage()));
             log.error(e);
         }
 
@@ -390,5 +388,47 @@ public class DeploymentController {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    private static class VersionRange {
+        CommonVersion lower;
+        CommonVersion upper;
+
+        private VersionRange(CommonVersion lower, CommonVersion upper) {
+            this.lower = lower;
+            this.upper = upper;
+        }
+
+        private int compare(int i, int j) {
+            return (i == j) ? 0 : ((i < j) ? (-1) : 1);
+        }
+
+        public int compare(CommonVersion o1, CommonVersion o2) {
+            if ((o1 == null) || (o2 == null)) {
+                // null stands for posistive infinity
+                if (o1 != null) {
+                    return -1;
+                }
+                if (o2 != null) {
+                    return 1;
+                }
+                return 0;
+            }
+
+            int c = compare(o1.getMajor(), o2.getMajor());
+            if (c != 0) {
+                return c;
+            }
+            c = compare(o1.getMinor(), o2.getMinor());
+            if (c != 0) {
+                return c;
+            }
+            return compare(o1.getRevision(), o2.getRevision());
+        }
+
+        boolean intersects(VersionRange other) {
+            return (compare(lower, other.upper) <= 0)
+                && (compare(other.lower, upper) <= 0);
+        }
     }
 }
