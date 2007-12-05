@@ -33,7 +33,7 @@ public abstract class ADTRuleIndex
 	
 	public abstract DTRuleNode findNodeInIndex(Object value);
 	
-	public abstract Iterator nodes(); 
+	public abstract Iterator<DTRuleNode> nodes(); 
 
 	DTRuleNode emptyOrFormulaNodes;
 	
@@ -41,18 +41,18 @@ public abstract class ADTRuleIndex
 	
 	static class DTRuleNodeBuilder
 	{
-		ArrayList rules;
+		ArrayList<Integer> rules;
 		
 		public DTRuleNodeBuilder()
 		{
-			rules = new ArrayList();
+			rules = new ArrayList<Integer>();
 		}
 		/**
 		 * @param emptyBuilder
 		 */
 		public DTRuleNodeBuilder(DTRuleNodeBuilder emptyBuilder)
 		{
-			rules = new ArrayList(emptyBuilder.rules);
+			rules = new ArrayList<Integer>(emptyBuilder.rules);
 		}
 
 		void addRule(int rule)
@@ -65,7 +65,7 @@ public abstract class ADTRuleIndex
 			int[] res = new int[rules.size()];
 			for (int i = 0; i < res.length; i++)
 			{
-				res[i] = ((Integer)rules.get(i)).intValue();
+				res[i] = rules.get(i);
 			}
 			return res;
 		}
