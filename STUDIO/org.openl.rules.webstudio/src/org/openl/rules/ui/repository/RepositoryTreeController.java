@@ -148,7 +148,7 @@ public class RepositoryTreeController {
                 try {
                     folder.addFolder(folderName);
                     repositoryTreeState.invalidateTree();
-                    repositoryTreeState.updateSelectionAfterAdd(folderName);
+                    repositoryTreeState.updateSelection();
                 } catch (ProjectException e) {
                     log.error("Failed to create folder " + folderName, e);
                     errorMessage = e.getMessage();
@@ -194,6 +194,7 @@ public class RepositoryTreeController {
         try {
             projectArtefact.getArtefact(childName).delete();
             repositoryTreeState.invalidateTree();
+            repositoryTreeState.updateSelection();
         } catch (ProjectException e) {
             log.error("error deleting", e);
             FacesContext.getCurrentInstance()
@@ -290,13 +291,17 @@ public class RepositoryTreeController {
         String errorMessage = null;
         try {
             if (checkName(projectName)) {
+                if (userWorkspace.hasProject(projectName)) {
+                    errorMessage = "Can not create project because project with such name already exists.";
+                } else {
                 userWorkspace.createProject(projectName);
                 repositoryTreeState.invalidateTree();
+                }
             } else {
-                errorMessage = "project name is invalid";
+                errorMessage = "Specified name is not a valid project name.";
             }
         } catch (ProjectException e) {
-            log.error("Failed to create project", e);
+            log.error("Error creating project", e);
             errorMessage = e.getMessage();
         }
 
@@ -304,7 +309,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to create project", errorMessage));
+                        null, errorMessage));
         }
         return null;
     }
@@ -446,13 +451,13 @@ public class RepositoryTreeController {
         String errorMessage = uploadProject();
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("Project was successfully uploaded"));
+                .addMessage(null, new FacesMessage("Project was uploaded successfully."));
             repositoryTreeState.invalidateTree();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage,
-                        "Error occured during uploading file"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                            errorMessage));
         }
         return null;
     }
@@ -461,17 +466,12 @@ public class RepositoryTreeController {
         UploadServiceParams params = new UploadServiceParams();
         params.setFile(file);
         params.setProjectName(projectName);
+        params.setWorkspace(userWorkspace);
 
-        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
-                .get("rulesUserSession");
+            if (userWorkspace.hasProject(projectName)) {
+                return "Can not create project because project with such name already exists.";
+            }
 
-        try {
-            UserWorkspace workspace = rulesUserSession.getUserWorkspace();
-            params.setWorkspace(workspace);
-        } catch (Exception e) {
-            log.error("Error obtaining user workspace", e);
-            return e.getMessage();
-        }
 
         try {
             //UploadServiceResult result = (UploadServiceResult)
@@ -497,7 +497,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was successfully uploaded"));
             repositoryTreeState.invalidateTree();
-            repositoryTreeState.updateSelectionAfterAdd(fileName);
+            repositoryTreeState.updateSelection();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
