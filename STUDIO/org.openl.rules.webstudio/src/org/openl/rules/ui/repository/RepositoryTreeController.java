@@ -102,10 +102,9 @@ public class RepositoryTreeController {
     }
 
     private UserWorkspaceProject getSelectedProject() {
-        ProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode()
-                .getDataBean();
-        if (projectArtefact instanceof UserWorkspaceProject) {
-            return (UserWorkspaceProject) projectArtefact;
+        ProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
+        if (artefact instanceof UserWorkspaceProject) {
+            return (UserWorkspaceProject) artefact;
         }
         return null;
     }

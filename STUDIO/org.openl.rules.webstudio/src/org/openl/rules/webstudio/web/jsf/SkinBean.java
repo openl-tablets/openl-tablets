@@ -17,7 +17,7 @@ public class SkinBean {
             "ruby", "wine", "plain"
         };
 
-    private static final String DEFAULT_SKIN = skinsArray[2];
+    private static final String DEFAULT_SKIN = skinsArray[0];
     private static final String SKIN_COOKIE = "rulesskin";
 
     private String skin;
@@ -38,14 +38,14 @@ public class SkinBean {
             if (skin == null)
                 skin = DEFAULT_SKIN;
         }
-        
+
         return skin;
     }
 
     public void setSkin(String skin) {
         if (skin != null && !skin.equals(this.skin)) {
             Cookie skinCookie = new Cookie(SKIN_COOKIE, skin);
-            skinCookie.setMaxAge(60*60*24*365); // store it for a year 
+            skinCookie.setMaxAge(60*60*24*365); // store it for a year
             ((HttpServletResponse)FacesContext.getCurrentInstance().getExternalContext().getResponse()).addCookie(skinCookie);
         }
 
