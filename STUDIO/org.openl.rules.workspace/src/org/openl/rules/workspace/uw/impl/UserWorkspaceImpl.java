@@ -234,17 +234,56 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException {
-        RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
-        return new UserWorkspaceDeploymentProjectImpl(this, ddp);
+	try {
+	    RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
+
+	    UserWorkspaceDeploymentProject userDProject = userDProjects.get(name);
+	    if (userDProject == null) {
+		// create new
+	        userDProject = new UserWorkspaceDeploymentProjectImpl(this, ddp);
+	        
+	        userDProjects.put(name, userDProject);
+	    }
+	    
+	    return userDProject;
+	} catch (RepositoryException e) {
+	    // no such project
+	    userDProjects.remove(name);
+	    // re-throw exception
+	    throw e;
+	}
     }
 
     public List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException {
-	ArrayList<UserWorkspaceDeploymentProject> result = new ArrayList<UserWorkspaceDeploymentProject>();
+	List<RepositoryDDProject> dtrProjects = designTimeRepository.getDDProjects();
 
-        for (RepositoryDDProject ddp : designTimeRepository.getDDProjects()) {
-            result.add(new UserWorkspaceDeploymentProjectImpl(this, ddp));
+	// add new
+	HashMap<String, RepositoryDDProject> dtrProjectsMap = new HashMap<String, RepositoryDDProject>();
+	for (RepositoryDDProject ddp : dtrProjects) {
+            String name = ddp.getName();
+            dtrProjectsMap.put(name, ddp);
+            
+	    UserWorkspaceDeploymentProject userDProject = userDProjects.get(name);
+            
+	    if (userDProject == null) {
+		// add new
+		userDProject = new UserWorkspaceDeploymentProjectImpl(this, ddp);
+		userDProjects.put(name, userDProject);
+	    }
         }
+	
+	// remove deleted
+	Iterator<UserWorkspaceDeploymentProject> i = userDProjects.values().iterator();
+	while (i.hasNext()) {
+	    UserWorkspaceDeploymentProject userDProject = i.next();
+	    String name = userDProject.getName();
+	    
+	    if (!dtrProjectsMap.containsKey(name)) {
+		i.remove();
+	    }
+	}
         
+	ArrayList<UserWorkspaceDeploymentProject> result = new ArrayList<UserWorkspaceDeploymentProject>(userDProjects.values());
         Collections.sort(result, PROJECTS_COMPARATOR);
         
         return result;
