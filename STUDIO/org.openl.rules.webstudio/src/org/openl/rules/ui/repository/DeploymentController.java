@@ -43,7 +43,6 @@ import javax.faces.model.SelectItem;
 public class DeploymentController {
     private final static Log log = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
-    private String projectNameCached;
     private String projectName;
     private String version;
     private RepositoryTreeState repositoryTreeState;
@@ -51,31 +50,25 @@ public class DeploymentController {
     public synchronized List<DeploymentDescriptorItem> getItems() {
         UserWorkspaceDeploymentProject project = getSelectedProject();
         if (project == null) {
-            projectNameCached = null;
-            return items = null;
+            return null;
         }
         Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
-        if ((items == null) || !project.getName().equals(projectNameCached)
-                || (descriptors.size() != items.size())) {
-            projectNameCached = project.getName();
-            items = new ArrayList<DeploymentDescriptorItem>();
+        items = new ArrayList<DeploymentDescriptorItem>();
 
-            for (ProjectDescriptor descriptor : descriptors) {
-                DeploymentDescriptorItem ddi = new DeploymentDescriptorItem(descriptor
-                            .getProjectName(),
-                        descriptor.getProjectVersion().getVersionName());
-                items.add(ddi);
-            }
+        for (ProjectDescriptor descriptor : descriptors) {
+            DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor
+                        .getProjectName(), descriptor.getProjectVersion().getVersionName());
+            items.add(item);
+        }
 
-            try {
-                checkConflicts(items);
-            } catch (ProjectException e) {
-                log.error(e);
-                FacesContext.getCurrentInstance()
-                    .addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(),
-                            e.getMessage()));
-            }
+        try {
+            checkConflicts(items);
+        } catch (ProjectException e) {
+            log.error(e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(),
+                        e.getMessage()));
         }
 
         return items;
@@ -105,7 +98,6 @@ public class DeploymentController {
         List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName,
                 newItem);
 
-        items = null;
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
@@ -144,15 +136,14 @@ public class DeploymentController {
         String projectName = FacesUtils.getRequestParameter("key");
         UserWorkspaceDeploymentProject project = getSelectedProject();
 
-        items = null;
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
+            log.error(e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "failed to add project descriptor", e.getMessage()));
-            log.error(e);
         }
         return null;
     }
@@ -203,10 +194,6 @@ public class DeploymentController {
 
     public SelectItem[] getProjectVersions() {
         UserWorkspace workspace = getWorkspace();
-        if (projectName == null) {
-            return new SelectItem[0];
-        }
-
         try {
             UserWorkspaceProject project = workspace.getProject(projectName);
 
@@ -218,7 +205,6 @@ public class DeploymentController {
         } catch (ProjectException e) {
             log.error(e);
         }
-
         return new SelectItem[0];
     }
 

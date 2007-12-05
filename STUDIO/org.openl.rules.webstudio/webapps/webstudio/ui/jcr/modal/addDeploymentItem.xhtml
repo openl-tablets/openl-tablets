@@ -3,15 +3,16 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
 
-  <a4j:keepAlive beanName="deploymentController" />
     <rich:modalPanel id="addDeployEntry" width="400" minWidth="400" height="145" minHeight="145">
     <f:facet name="header">
         <h:outputText value="Add deployment descriptor" />
     </f:facet>
     <a4j:outputPanel id="addDeployEntryPanel">
     <h:form id="addDeployEntryForm">
+        <t:saveState value="#{deploymentController.projectName}" />
         <a4j:commandButton id="addDeployEntryBtn" reRender="addDeployEntryPanel" oncomplete="showAddDeployEntryUpdateVersion()" ajaxSingle="true" style="display:none;"/>
 
         <f:facet name="controls">
