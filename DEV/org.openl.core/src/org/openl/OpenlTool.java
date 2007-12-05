@@ -152,6 +152,17 @@ public class OpenlTool
 		IOpenMethodHeader header,
 		IBindingContext cxt)
 	{
+	    return makeMethod(src, openl, header, MethodBindingContext.DEFAULT_CONTEXT_LEVEL, cxt);
+	}
+
+	
+	static public CompositeMethod makeMethod(
+		IOpenSourceCodeModule src,
+		OpenL openl,
+		IOpenMethodHeader header,
+		int depthParameterSearchLevel,
+		IBindingContext cxt)
+	{
 		try
 		{
 			cxt.pushErrors();
@@ -166,7 +177,8 @@ public class OpenlTool
 
 			IOpenBinder binder = openl.getBinder();
 
-			MethodBindingContext mbc = new MethodBindingContext(header, cxt);
+			boolean searchInContext = depthParameterSearchLevel >= 0;
+			MethodBindingContext mbc = new MethodBindingContext(header, cxt, searchInContext, depthParameterSearchLevel);
 
 			IBoundCode bc = binder.bind(pc, mbc);
 			error = bc.getError();

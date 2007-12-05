@@ -29,9 +29,9 @@ public class MethodBindingContext extends BindingContextDelegator
 
     static final int STATUS_ADDING_PARAMS = 0, STATUS_ADDING_LOCAL_VARS = 1;
 
-    private static final boolean DEFAULT_SEARCH_IN_CONTEXT = true;
+    public static final boolean DEFAULT_SEARCH_IN_CONTEXT = true;
 
-    private static final int DEFAULT_CONTEXT_LEVEL = 2;
+    public static final int DEFAULT_CONTEXT_LEVEL = 1;
 
     LocalFrameBuilder localFrame = new LocalFrameBuilder();
 
