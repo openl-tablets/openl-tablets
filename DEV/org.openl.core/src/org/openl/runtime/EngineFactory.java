@@ -16,16 +16,18 @@ import org.openl.conf.UserContext;
 import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class EngineFactory<T> 
+public class EngineFactory<T>
 {
 
     Class<T> engineInterface;
 
-    Map<Method, IOpenMethod> methodMap = new HashMap<Method, IOpenMethod>();
+    Map<Method, IOpenMember> methodMap = new HashMap<Method, IOpenMember>();
 
     // / These fields may be derived from other fields, or set by constructor
     // directly
@@ -41,13 +43,13 @@ public class EngineFactory<T>
 
     private String sourceFile;
 
-    public EngineFactory(String openlName, String sourceFile, Class<T> engineInterface)
+    public EngineFactory(String openlName, String sourceFile,
+	    Class<T> engineInterface)
     {
 	this.openlName = openlName;
 	this.sourceFile = sourceFile;
 	this.engineInterface = engineInterface;
     }
-
 
     public EngineFactory(String openlName, File file, Class<T> engineInterface)
     {
@@ -56,15 +58,15 @@ public class EngineFactory<T>
 	this.engineInterface = engineInterface;
     }
 
-    public EngineFactory(String openlName,URL url, Class<T> engineInterface)
+    public EngineFactory(String openlName, URL url, Class<T> engineInterface)
     {
 	this.openlName = openlName;
 	sourceCode = new URLSourceCodeModule(url);
 	this.engineInterface = engineInterface;
     }
 
-    public EngineFactory(String openlName, String userHome,
-	    String sourceFile, Class<T> engineInterface)
+    public EngineFactory(String openlName, String userHome, String sourceFile,
+	    Class<T> engineInterface)
     {
 	this.openlName = openlName;
 	this.userHome = userHome;
@@ -72,13 +74,14 @@ public class EngineFactory<T>
 	this.engineInterface = engineInterface;
     }
 
-    public EngineFactory(String openlName, EngineFactoryDefinition factoryDef, Class<T> engineInterface)
+    public EngineFactory(String openlName, EngineFactoryDefinition factoryDef,
+	    Class<T> engineInterface)
     {
-	
+
 	this.openlName = openlName;
-	this.ucxt =    factoryDef.ucxt;
-	this.sourceCode =    factoryDef.sourceCode;
-	
+	this.ucxt = factoryDef.ucxt;
+	this.sourceCode = factoryDef.sourceCode;
+
 	this.engineInterface = engineInterface;
     }
 
@@ -132,10 +135,36 @@ public class EngineFactory<T>
 	    Method m = methods[i];
 	    IOpenMethod om = module.getMatchingMethod(m.getName(),
 		    JavaOpenClass.getOpenClasses(m.getParameterTypes()));
-	    if (om == null)
-		throw new RuntimeException("Method " + m + " not found");
 
-	    methodMap.put(m, om);
+	    if (om != null)
+	    {
+		methodMap.put(m, om);
+		continue;
+
+	    }
+
+	    if (m.getName().startsWith("get"))
+	    {
+		String fname = ""
+			+ Character.toLowerCase(m.getName().charAt(3))
+			+ m.getName().substring(4);
+		IOpenField f = module.getField(fname, true);
+		if (f != null)
+		{
+		    if (JavaOpenClass.getOpenClass(m.getReturnType()) == f
+			    .getType())
+		    {
+			methodMap.put(m, f);
+			continue;
+		    }
+		    throw new RuntimeException("Type of" + m.getName()
+			    + " should be " + f.getType());
+
+		}
+	    }
+
+	    throw new RuntimeException("Method " + m + " not found");
+
 	}
     }
 
@@ -173,28 +202,38 @@ public class EngineFactory<T>
 	{
 
 	    if (method.getDeclaringClass() == engineInterface)
-		return methodMap.get(method).invoke(openlInstance, args,
-			openlEnv);
+	    {
 
-	    
-//	    String mname = method.getName();
-	    
+		IOpenMember m = methodMap.get(method);
+
+		if (m instanceof IOpenMethod)
+		{
+		    IOpenMethod mx = (IOpenMethod) m;
+
+		    return mx.invoke(openlInstance, args, openlEnv);
+		}
+		
+		
+		IOpenField f = (IOpenField)m;
+		
+		return f.get(openlInstance, openlEnv);
+	    }
+
+	    // String mname = method.getName();
+
 	    Class<?>[] cargs = {};
-	    
+
 	    if (args != null && args.length == 1)
-		 cargs = new Class<?>[]{Object.class};
-	    
-	    
+		cargs = new Class<?>[] { Object.class };
+
 	    if (method.getDeclaringClass() == IEngineWrapper.class)
 	    {
 		Method myMethod = OpenLHandler.class.getDeclaredMethod(method
 			.getName(), cargs);
 		return myMethod.invoke(this, args);
 	    }
-	    
-	    
 
-	    Method objectMethod =   Object.class.getDeclaredMethod(method
+	    Method objectMethod = Object.class.getDeclaredMethod(method
 		    .getName(), cargs);
 	    return objectMethod.invoke(this, args);
 
@@ -225,17 +264,15 @@ public class EngineFactory<T>
 	@Override
 	public boolean equals(Object obj)
 	{
-	    
+
 	    if (obj == null)
 		return false;
-	    
+
 	    if (obj instanceof Proxy)
 		return Proxy.getInvocationHandler(obj) == this;
-		
+
 	    return super.equals(obj);
 	}
-	
-	
 
     }
 
