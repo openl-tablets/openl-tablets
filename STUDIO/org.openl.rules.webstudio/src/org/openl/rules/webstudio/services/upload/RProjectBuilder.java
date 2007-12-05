@@ -10,13 +10,10 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import java.io.InputStream;
 
 public class RProjectBuilder {
-    private final UserWorkspace userWorkspace;
     private final UserWorkspaceProject project;
     private final UploadFilter filter = FolderUploadFilter.VCS_FILES_FILTER;
 
     public RProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
-        userWorkspace = workspace;
-
         workspace.createProject(projectName);
         project = workspace.getProject(projectName);
         project.checkOut();
@@ -75,8 +72,4 @@ public class RProjectBuilder {
 
         return current;
     }
-
-    
-
-
 }
