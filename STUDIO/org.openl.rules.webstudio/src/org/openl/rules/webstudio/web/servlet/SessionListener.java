@@ -1,5 +1,6 @@
-package org.openl.rules.webstudio;
+package org.openl.rules.webstudio.web.servlet;
 
+import org.openl.rules.webstudio.web.jsf.JSFConst;
 import org.openl.util.Log;
 
 import javax.servlet.http.*;
@@ -82,7 +83,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
     }
 
     private RulesUserSession getUserRules(HttpSession session) {
-        return (RulesUserSession) session.getAttribute(Const.RULES_USER_SESSION_ATTR);
+        return (RulesUserSession) session.getAttribute(JSFConst.RULES_USER_SESSION_ATTR);
     }
 
     protected void printSession(HttpSession session) {

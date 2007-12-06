@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.util;
+package org.openl.rules.webstudio.web.jsf.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;

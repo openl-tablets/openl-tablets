@@ -2,9 +2,9 @@ package org.openl.jsf;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.util.FacesUtils;
-import org.openl.rules.webstudio.RulesUserSession;
-import org.openl.rules.webstudio.Const;
+import org.openl.rules.webstudio.web.jsf.JSFConst;
+import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -25,7 +25,7 @@ public abstract class Util {
         if (session == null) {
             return null;
         }
-        return (RulesUserSession) session.getAttribute(Const.RULES_USER_SESSION_ATTR);
+        return (RulesUserSession) session.getAttribute(JSFConst.RULES_USER_SESSION_ATTR);
     }
 
     /**

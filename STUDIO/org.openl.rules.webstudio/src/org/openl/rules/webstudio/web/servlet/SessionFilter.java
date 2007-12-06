@@ -1,5 +1,6 @@
-package org.openl.rules.webstudio;
+package org.openl.rules.webstudio.web.servlet;
 
+import org.openl.rules.webstudio.web.jsf.JSFConst;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -36,7 +37,7 @@ public class SessionFilter implements Filter {
                 RulesUserSession rulesUserSession = new RulesUserSession(user, workspaceManager);
 
                 session = httpRequest.getSession(true);
-                session.setAttribute(Const.RULES_USER_SESSION_ATTR, rulesUserSession);
+                session.setAttribute(JSFConst.RULES_USER_SESSION_ATTR, rulesUserSession);
 //                session.setMaxInactiveInterval(15);
             }
         }

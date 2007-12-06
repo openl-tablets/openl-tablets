@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web.jsf;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.webstudio.web.jsf.util.ComponentUtils;
 
-import org.openl.rules.webstudio.util.ComponentUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
