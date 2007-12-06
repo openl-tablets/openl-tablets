@@ -9,3 +9,4 @@ Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.lib.apache.tomcat
 Export-Package: org.openl.rules.webtools,
  org.openl.rules.webtools.indexer
+Bundle-Vendor: OpenL Tablets

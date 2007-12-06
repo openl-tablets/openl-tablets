@@ -15,7 +15,7 @@ public class Application implements IApplication/*, IPlatformRunnable*/ {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-	    StartTomcat.main(new String[]{"/org.openl.rules.webstudio_5.0.5"});
+	    StartTomcat.main(new String[]{"catalina.base=${eclipse_home}/plugins/org.openl.rules.webstudio_5.0.5/", "catalina.home=${eclipse_home}/plugins/org.openl.lib.apache.tomcat_5.0.5/apache-tomcat-5.5.17"});
 	    System.out.println("WebStudio started");
 	    return IApplication.EXIT_OK;
 	}

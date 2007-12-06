@@ -36,3 +36,4 @@ Export-Package: org.openl.rules.data,
  org.openl.rules.testmethod.binding,
  org.openl.rules.word,
  org.openl.xls
+Bundle-Vendor: OpenL Tablets

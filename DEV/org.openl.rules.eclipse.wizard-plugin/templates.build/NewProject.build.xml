@@ -32,6 +32,7 @@
     </fileset>
   </copy>
   <copy tofile="${dst.dir}/Generate ${dst.project.name} Wrapper.launch"  file="${src.dir}/Generate Template Wrapper.launch" overwrite="true"/>
+  <copy tofile="${dst.dir}/WebStudio Starter.launch"  file="${src.dir}/WebStudio Starter.launch" overwrite="true"/>
 	
 </target>
 

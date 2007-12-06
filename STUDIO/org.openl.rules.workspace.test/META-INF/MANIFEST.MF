@@ -7,3 +7,4 @@ Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.workspace,
  org.openl.rules.repository.jcr,
  org.openl.rules.repository
+Bundle-Vendor: OpenL Tablets
