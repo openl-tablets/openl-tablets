@@ -1,6 +1,6 @@
 
 <%@ page import="javax.faces.context.FacesContext"%>
-<%@ page import="org.openl.jsf.*"%>
+<%@ page import="org.openl.rules.webstudio.jsf.*"%>
 
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
