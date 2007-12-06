@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-import org.openl.jsf.Util;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.FilteredGrid;
@@ -9,6 +8,7 @@ import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.TableEditorModel;
+import org.openl.rules.webstudio.web.jsf.util.Util;
 
 public class TableViewController {
     protected int elementID;

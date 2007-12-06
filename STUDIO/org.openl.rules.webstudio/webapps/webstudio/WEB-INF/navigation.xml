@@ -5,7 +5,7 @@
 
     <lifecycle>
 		<phase-listener>
-			org.openl.jsf.TableEditorAjaxDispatcher
+			org.openl.rules.webstudio.web.tableeditor.TableEditorAjaxDispatcher
 		</phase-listener>
 	</lifecycle>
 

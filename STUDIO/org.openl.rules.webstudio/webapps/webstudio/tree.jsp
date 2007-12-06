@@ -1,4 +1,4 @@
-<%@ page import = "org.openl.jsf.Util" %>
+<%@ page import = "org.openl.rules.webstudio.web.jsf.util.Util" %>
 <%@ page import="org.openl.meta.DoubleValue" %>
 <%@ page import="org.openl.rules.ui.Explanation" %>
 <%@ page import="org.openl.rules.ui.OpenLWrapperInfo" %>

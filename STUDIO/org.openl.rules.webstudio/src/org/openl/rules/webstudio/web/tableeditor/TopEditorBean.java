@@ -1,4 +1,4 @@
-package org.openl.jsf;
+package org.openl.rules.webstudio.web.tableeditor;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlOutputText;
@@ -7,6 +7,7 @@ import javax.faces.context.FacesContext;
 import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.jsf.util.Util;
 public class TopEditorBean {
 
     protected String test2 = "IT IS TEST2";

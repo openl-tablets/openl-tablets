@@ -25,23 +25,23 @@
 
   <managed-bean>
     <managed-bean-name>tableWriterBean</managed-bean-name>
-    <managed-bean-class>org.openl.jsf.TableWriterBean</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TableWriterBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
   <managed-bean>
     <managed-bean-name>editorBean</managed-bean-name>
-    <managed-bean-class>org.openl.jsf.EditorBean</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.EditorBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
   <managed-bean>
     <managed-bean-name>topEditorBean</managed-bean-name>
-    <managed-bean-class>org.openl.jsf.TopEditorBean</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TopEditorBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
   <managed-bean>
     <managed-bean-name>popupEditorBean</managed-bean-name>
-    <managed-bean-class>org.openl.jsf.PopupEditorBean</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.PopupEditorBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 

@@ -1,4 +1,4 @@
-package org.openl.jsf;
+package org.openl.rules.webstudio.web.tableeditor;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -26,6 +26,7 @@ import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.jsf.util.Util;
 import org.openl.rules.webtools.WebTool;
 
 public class TableWriterBean {
