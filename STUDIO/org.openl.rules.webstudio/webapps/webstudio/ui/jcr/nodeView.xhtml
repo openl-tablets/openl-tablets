@@ -45,8 +45,8 @@
       <h:panelGrid columns="7" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="#{!artefact.opened ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{!artefact.opened};"/>
         <h:commandButton styleClass="#{!artefact.opened ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{!artefact.opened} &amp;&amp; openOpenVersionDialog('#{artefact.name}');" />
-        <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{artefact.opened};"/>
-        <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked) ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!(artefact.checkedOut || artefact.locked)};"/>
+        <h:commandButton styleClass="#{artefact.opened &amp;&amp; !artefact.local ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{artefact.opened &amp;&amp; !artefact.local};"/>
+        <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked || artefact.local) ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!(artefact.checkedOut || artefact.locked || artefact.local)};"/>
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();"/>
         <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog();" />
         <h:commandButton styleClass="#{(!artefact.locked || artefact.lockedByMe || artefact.localOnly) ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked || artefact.lockedByMe || artefact.localOnly} &amp;&amp; confirmDeleteNode();" />
