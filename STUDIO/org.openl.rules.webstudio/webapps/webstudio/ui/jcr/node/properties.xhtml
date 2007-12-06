@@ -1,6 +1,7 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk">
@@ -13,6 +14,7 @@
       rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.timeZone}">
       <f:converter converterId="org.openl.DateConverter" />
     </rich:calendar>
+
     <h:outputText value="#{repositoryTreeController.effectiveDate}" rendered="#{!artefact.project.checkedOut}">
       <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.timeZone}" />
     </h:outputText>

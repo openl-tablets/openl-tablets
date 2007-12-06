@@ -81,6 +81,7 @@ public class RepositoryTreeState {
         if (root != null) {
             return;
         }
+        log.debug("Starting buildTree()");
         root = new TreeRepository("", "", "root");
 
         String rpName = "Rules Projects";
@@ -122,6 +123,7 @@ public class RepositoryTreeState {
             prj.setDataBean(project);
             deploymentRepository.add(prj);
         }
+        log.debug("Finishing buildTree()");
     }
 
     public void processSelection(NodeSelectedEvent event) {

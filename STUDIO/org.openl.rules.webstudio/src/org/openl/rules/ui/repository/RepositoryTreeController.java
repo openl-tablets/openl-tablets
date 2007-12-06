@@ -742,19 +742,19 @@ public class RepositoryTreeController {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
                     .getDataBean()).setEffectiveDate(date);
             } catch (ProjectException e) {
+                log.error(e);
                 validationError = true;
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Failed to set effective date.", e.getMessage()));
-                log.error(e);
+                            "Can not set effective date.", e.getMessage()));
             }
         } else {
             validationError = true;
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Specified effective date value is not a valid date/time.", null));
+                        null, "Specified effective date value is not a valid date/time."));
         }
     }
 
@@ -773,19 +773,19 @@ public class RepositoryTreeController {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
                     .getDataBean()).setExpirationDate(date);
             } catch (ProjectException e) {
+                log.error(e);
                 validationError = true;
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Failed to set expiration date.", e.getMessage()));
-                log.error(e);
+                            "Can not set expiration date.", e.getMessage()));
             }
         } else {
             validationError = true;
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Specified expiration date value is not a valid date/time.", null));
+                        null, "Specified expiration date value is not a valid date/time."));
         }
     }
 
@@ -807,7 +807,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to set line of business.", e.getMessage()));
+                        "Can not set line of business.", e.getMessage()));
             log.error(e);
         }
     }

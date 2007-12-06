@@ -17,7 +17,7 @@
     <h:form id="copyDeploymentProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
-        <input id="projectName" value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+        <input id="deploymentProjectName" value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
         <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
       </h:panelGrid>
@@ -27,28 +27,24 @@
       <br />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Copy" type="button" onclick="submitCopyDeploymentProjectForm();" />
+        <h:commandButton styleClass="button" value="Copy" action="#{repositoryTreeController.copyDeploymentProject}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalCopyDeploymentProject');" />
+        <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
       </h:panelGrid>
     </h:form>
-
   </rich:modalPanel>
 
   <script>
     function openCopyDeploymentProjectDialog(projectName) {
-      if (projectName) {
-        document.getElementById('projectName').value = projectName;
-        document.getElementById('projectName').title = projectName;
-      }
-      Richfaces.showModalPanel('modalCopyDeploymentProject');
-      focusElement('copyDeploymentProjectForm:newProjectName');
-      return false;
-    }
-
-    function submitCopyDeploymentProjectForm() {
-      document.getElementById('mainForm:srcProjectName').value = document.getElementById('projectName').value;
-      document.getElementById('mainForm:newProjectName').value = document.getElementById('copyDeploymentProjectForm:newProjectName').value;
-      document.getElementById('mainForm:copyDeploymentProject').click();
+      submitMainForm(function() {
+        if (projectName) {
+          document.getElementById('deploymentProjectName').value = projectName;
+          document.getElementById('deploymentProjectName').title = projectName;
+        }
+        Richfaces.showModalPanel('modalCopyDeploymentProject');
+        focusElement('copyDeploymentProjectForm:newProjectName');
+        document.getElementById('copyDeploymentProjectForm:hiddenProjectName').value = document.getElementById('deploymentProjectName').value;
+      });
     }
   </script>
 </ui:composition>
