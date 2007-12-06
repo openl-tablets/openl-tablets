@@ -67,7 +67,6 @@ public class RepositoryTreeController {
     private String version;
     private int major;
     private int minor;
-    private boolean validationError = false;
 
     public int getMajor() {
         ProjectVersion v = getProjectVersion();
@@ -384,18 +383,16 @@ public class RepositoryTreeController {
     }
 
     public String checkInProject() {
-        if (!validationError) {
-            try {
-                getSelectedProject().checkIn(major, minor);
-                repositoryTreeState.invalidateTree();
-            } catch (ProjectException e) {
-                log.error("Failed to check in project", e);
+        try {
+            getSelectedProject().checkIn(major, minor);
+            repositoryTreeState.invalidateTree();
+        } catch (ProjectException e) {
+            log.error("Failed to check in project", e);
 
-                FacesContext.getCurrentInstance()
-                    .addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Failed to check in project", null));
-            }
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Failed to check in project", null));
         }
         return null;
     }
@@ -473,8 +470,8 @@ public class RepositoryTreeController {
         if (errorMessage != null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not copy deployment project",
-                        errorMessage));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Can not copy deployment project", errorMessage));
             return null;
         }
 
@@ -491,7 +488,7 @@ public class RepositoryTreeController {
 
         return null;
     }
-    
+
     public String refreshTree() {
         repositoryTreeState.invalidateTree();
         repositoryTreeState.setSelectedNode(null);
@@ -743,18 +740,16 @@ public class RepositoryTreeController {
                     .getDataBean()).setEffectiveDate(date);
             } catch (ProjectException e) {
                 log.error(e);
-                validationError = true;
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Can not set effective date.", e.getMessage()));
             }
         } else {
-            validationError = true;
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        null, "Specified effective date value is not a valid date/time."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                        "Specified effective date value is not a valid date/time."));
         }
     }
 
@@ -774,18 +769,16 @@ public class RepositoryTreeController {
                     .getDataBean()).setExpirationDate(date);
             } catch (ProjectException e) {
                 log.error(e);
-                validationError = true;
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Can not set expiration date.", e.getMessage()));
             }
         } else {
-            validationError = true;
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        null, "Specified expiration date value is not a valid date/time."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                        "Specified expiration date value is not a valid date/time."));
         }
     }
 
@@ -803,7 +796,6 @@ public class RepositoryTreeController {
             ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
                 .setLineOfBusiness(lineOfBusiness);
         } catch (ProjectException e) {
-            validationError = true;
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,

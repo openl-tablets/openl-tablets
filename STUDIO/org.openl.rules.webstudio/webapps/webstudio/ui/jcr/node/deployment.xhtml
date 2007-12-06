@@ -15,7 +15,7 @@
   </h:panelGroup>
   <h:panelGrid columns="7" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not artefact.deleted}">
     <h:commandButton styleClass="button" value="Deploy" action="#{deploymentController.deploy}"/>
-    <h:commandButton styleClass="button" value="Open Version" type="button" onclick="openOpenVersionDialog('#{artefact.name}');" />
+    <h:commandButton styleClass="button" value="Open Version" type="button" onclick="openOpenVersionDialog();" />
     <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
     <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked) ? 'button' : 'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{!(artefact.checkedOut || artefact.locked)};" />
     <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />

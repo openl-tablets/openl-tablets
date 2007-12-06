@@ -32,16 +32,16 @@
         <h:commandButton styleClass="button" value="Open" action="#{repositoryTreeController.openProjectVersion}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalOpenVersion');" />
       </h:panelGrid>
-      <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
     </h:form>
 
   </rich:modalPanel>
 
   <script>
-    function openOpenVersionDialog(projectName) {
-      document.getElementById('openVersionForm:hiddenProjectName').value = projectName;
-      Richfaces.showModalPanel('modalOpenVersion');
-      focusElement('openVersionForm:projectVersion');
+    function openOpenVersionDialog() {
+      submitMainForm(function() {
+        Richfaces.showModalPanel('modalOpenVersion');
+        focusElement('openVersionForm:projectVersion');
+      });
     }
   </script>
 </ui:composition>
