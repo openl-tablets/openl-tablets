@@ -13,19 +13,18 @@
       <h:commandButton styleClass="button" value="Erase" action="eraseProject" onclick="return confirmEraseProject();" />
     </h:panelGrid>
   </h:panelGroup>
-
-  <h:panelGrid columns="6" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not artefact.deleted}">
+  <h:panelGrid columns="7" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not artefact.deleted}">
     <h:commandButton styleClass="button" value="Deploy" action="#{deploymentController.deploy}"/>
     <h:commandButton styleClass="button" value="Open Version" type="button" onclick="openOpenVersionDialog('#{artefact.name}');" />
     <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
     <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked) ? 'button' : 'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{!(artefact.checkedOut || artefact.locked)};" />
     <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />
+    <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyDeploymentProjectDialog();" />
     <h:commandButton styleClass="#{!artefact.locked ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked} &amp;&amp; confirmDeleteNode();"/>
   </h:panelGrid>
 
   <rich:tabPanel switchType="client" style="height:425px; margin-top:5px;">
     <rich:tab label="Properties">
-
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputText value="Project Name" />
         <h:outputText value="#{node.name}" />
@@ -39,7 +38,6 @@
         <h:outputText value="Created By" />
         <h:outputText value="#{node.createdBy}" />
       </h:panelGrid>
-
     </rich:tab>
     <rich:tab label="Versions">
       <ui:include src="/ui/jcr/node/versions.xhtml" />
