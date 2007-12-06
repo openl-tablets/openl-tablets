@@ -28,48 +28,18 @@
       <br />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Add" action="#{repositoryTreeController.addFile}" onclick="copyMainForm(); return true;"/>
+        <h:commandButton styleClass="button" value="Add" action="#{repositoryTreeController.addFile}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalNewFile');" />
       </h:panelGrid>
-
-      <rich:calendar id="effectiveDate" value="#{repositoryTreeController.effectiveDate}" popup="true" enableManualInput="true"
-        jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}" rendered="#{artefact.project.checkedOut}"
-        timeZone="#{formatPatterns.timeZone}">
-        <f:converter converterId="org.openl.DateConverter"/>
-      </rich:calendar>
-      <rich:calendar id="#{prefix}expirationDate" value="#{repositoryTreeController.expirationDate}" popup="true" enableManualInput="true"
-        jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}" rendered="#{artefact.project.checkedOut}"
-        timeZone="#{formatPatterns.timeZone}">
-        <f:converter converterId="org.openl.DateConverter" />
-      </rich:calendar>
-      <h:inputText id="lineOfBusiness" value="#{artefact.lineOfBusiness}" rendered="#{artefact.project.checkedOut}" style="display:none;" />
     </h:form>
   </rich:modalPanel>
 
   <script>
     function openNewFileDialog() {
-      Richfaces.showModalPanel('modalNewFile');
-      focusElement("newFileForm:file");
-      return false;
+      submitMainForm(function() {
+        Richfaces.showModalPanel('modalNewFile');
+        focusElement("newFileForm:file");
+      });
     }
-
-    function copyMainForm() {
-      if (document.getElementById('newFileForm:effectiveDateInputDate')) {
-        document.getElementById('newFileForm:effectiveDateInputDate').value = document.getElementById('mainForm:projecteffectiveDateInputDate').value;
-      }
-      if (document.getElementById('newFileForm:expirationDateInputDate')) {
-        document.getElementById('newFileForm:expirationDateInputDate').value = document.getElementById('mainForm:projectexpirationDateInputDate').value;
-      }
-      if (document.getElementById('newFileForm:lineOfBusinessInputDate')) {
-        document.getElementById('newFileForm:lineOfBusinessInputDate').value = document.getElementById('mainForm:projectlineOfBusiness').value;
-      }
-     }
-
-     if (document.getElementById('newFileForm:effectiveDatePopup')) {
-       document.getElementById('newFileForm:effectiveDatePopup').style.display = 'none';
-     }
-     if (document.getElementById('newFileForm:expirationDatePopup')) {
-       document.getElementById('newFileForm:expirationDatePopup').style.display = 'none';
-     }
   </script>
 </ui:composition>

@@ -34,9 +34,10 @@
 
   <script>
     function openUpdateFileDialog() {
-      Richfaces.showModalPanel('modalUpdateFile');
-      focusElement("updateFileForm:file");
-      return false;
+      submitMainForm(function() {
+        Richfaces.showModalPanel('modalUpdateFile');
+        focusElement("updateFileForm:file");
+      });
     }
   </script>
 </ui:composition>

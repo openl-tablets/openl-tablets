@@ -37,22 +37,23 @@
         <br/>
 
         <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-            <h:commandButton styleClass="button" value="Add" action="#{deploymentController.addItem}" />
-            <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('addDeployEntry')" />
+          <h:commandButton styleClass="button" value="Add" action="#{deploymentController.addItem}" />
+          <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('addDeployEntry')" />
         </h:panelGrid>
     </h:form>
     </a4j:outputPanel>
   </rich:modalPanel>
 
-    <script>
-        function showAddDeployEntry() {
-            Richfaces.showModalPanel('addDeployEntry');
-            document.getElementById('addDeployEntryForm:addDeployEntryBtn').onclick();
-        }
+  <script>
+    function showAddDeployEntry() {
+      submitMainForm(function() {
+        Richfaces.showModalPanel('addDeployEntry');
+        document.getElementById('addDeployEntryForm:addDeployEntryBtn').click();
+      });
+    }
 
-        function showAddDeployEntryUpdateVersion() {
-            document.getElementById('addDeployEntryForm:projectName').onchange();
-        }
-    </script>
-
+    function showAddDeployEntryUpdateVersion() {
+      document.getElementById('addDeployEntryForm:projectName').onchange();
+    }
+  </script>
 </ui:composition>
