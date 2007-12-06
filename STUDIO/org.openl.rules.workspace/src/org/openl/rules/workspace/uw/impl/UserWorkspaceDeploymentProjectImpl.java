@@ -164,13 +164,13 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public boolean isLocked() {
-        return activeProjectVersion.isLocked();
+        return dtrDProject.isLocked();
     }
 
     public boolean isLockedByMe() {
         if (!isLocked()) return false;
 
-        WorkspaceUser lockedBy = activeProjectVersion.getlLockInfo().getLockedBy();
+        WorkspaceUser lockedBy = dtrDProject.getlLockInfo().getLockedBy();
         return lockedBy.equals(userWorkspace.getUser());
     }
 
