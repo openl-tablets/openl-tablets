@@ -9,8 +9,8 @@
 
   <h:panelGroup rendered="#{artefact.deleted}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton styleClass="button" value="Undelete" onclick="return confirmUndeleteProject();" />
-      <h:commandButton styleClass="button" value="Erase" action="eraseProject" onclick="return confirmEraseProject();" />
+      <h:commandButton styleClass="button" value="Undelete" type="button" onclick="confirmUndeleteProject();" />
+      <h:commandButton styleClass="button" value="Erase" type="button" onclick="confirmEraseProject();" />
     </h:panelGrid>
   </h:panelGroup>
   <h:panelGrid columns="7" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not artefact.deleted}">

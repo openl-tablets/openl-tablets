@@ -32,7 +32,9 @@
 
   <script>
     function confirmUndeleteProject() {
-      Richfaces.showModalPanel('modalUndeleteProject');
+      submitMainForm(function() {
+        Richfaces.showModalPanel('modalUndeleteProject');
+      });
     }
   </script>
 
