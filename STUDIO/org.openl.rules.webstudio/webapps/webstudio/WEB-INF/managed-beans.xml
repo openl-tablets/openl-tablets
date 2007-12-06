@@ -53,7 +53,7 @@
 
   <managed-bean>
     <managed-bean-name>formatPatterns</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.util.FormatPatterns</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.jsf.util.FormatPatterns</managed-bean-class>
     <managed-bean-scope>application</managed-bean-scope>
   </managed-bean>
 
