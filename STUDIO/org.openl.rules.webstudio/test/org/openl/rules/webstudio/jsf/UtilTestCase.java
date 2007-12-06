@@ -1,4 +1,6 @@
-package org.openl.jsf;
+package org.openl.rules.webstudio.jsf;
+
+import org.openl.rules.webstudio.web.jsf.util.Util;
 
 import junit.framework.TestCase;
 

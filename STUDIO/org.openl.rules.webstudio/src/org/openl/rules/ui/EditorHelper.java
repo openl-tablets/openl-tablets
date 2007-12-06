@@ -3,7 +3,7 @@
  */
 package org.openl.rules.ui;
 
-import org.openl.jsf.Util;
+import org.openl.rules.webstudio.web.jsf.util.Util;
 
 /**
  * @author snshor
