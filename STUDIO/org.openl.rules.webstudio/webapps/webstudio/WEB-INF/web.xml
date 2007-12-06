@@ -74,7 +74,7 @@
 
   <filter>
     <filter-name>SessionFilter</filter-name>
-    <filter-class>org.openl.rules.webstudio.SessionFilter</filter-class>
+    <filter-class>org.openl.rules.webstudio.web.servlet.SessionFilter</filter-class>
   </filter>
 
   <filter-mapping>
@@ -108,7 +108,7 @@
   </listener>
 
   <listener>
-    <listener-class>org.openl.rules.webstudio.SessionListener</listener-class>
+    <listener-class>org.openl.rules.webstudio.web.servlet.SessionListener</listener-class>
   </listener>
 
   <servlet>

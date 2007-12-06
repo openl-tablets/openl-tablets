@@ -1,4 +1,4 @@
-<%@ page import="org.openl.rules.webstudio.RulesUserSession" %>
+<%@ page import="org.openl.rules.webstudio.web.servlet.RulesUserSession" %>
 <%@ page import="org.openl.rules.workspace.uw.UserWorkspace" %>
 <%@ page import="org.openl.rules.workspace.uw.UserWorkspaceProject" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>

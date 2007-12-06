@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.webstudio.RulesUserSession;
-import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;

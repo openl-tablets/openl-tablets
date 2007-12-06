@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 
 public class DiffFormController {
     private String compareWithVersion;

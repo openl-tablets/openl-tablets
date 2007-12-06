@@ -6,8 +6,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.webstudio.RulesUserSession;
-import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDependency;

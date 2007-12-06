@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio;
+package org.openl.rules.webstudio.web.servlet;
 
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;

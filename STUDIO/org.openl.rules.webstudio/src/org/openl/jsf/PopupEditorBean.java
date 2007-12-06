@@ -5,7 +5,7 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import org.openl.rules.ui.EditorHelper;
-import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.richfaces.component.html.HtmlModalPanel;
 
 public class PopupEditorBean {
