@@ -239,7 +239,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     @Override
-    public boolean isLocal() {
+    protected boolean isLocal() {
         return (project == localProject);
     }
 
