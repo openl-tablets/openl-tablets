@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.jsf;
+package org.openl.rules.webstudio.jsf.util;
 
 import org.openl.rules.webstudio.web.jsf.util.Util;
 
