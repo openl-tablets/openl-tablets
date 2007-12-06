@@ -3,7 +3,8 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
 
   <rich:modalPanel id="modalNewDependency" width="400" minWidth="400" height="160" minHeight="160">
     <f:facet name="header">
@@ -16,6 +17,7 @@
     </f:facet>
 
     <h:form id="modaNewDependencyForm">
+      <t:saveState value="#{dependencyController.projectName}" />
       <a4j:commandButton id="addDependencyBtn" reRender="addDependencyPanel" oncomplete="showAddDependencyUpdateVersion()" ajaxSingle="true" style="display:none;"/>
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="projectName" styleClass="required" value="Project" />
@@ -38,7 +40,7 @@
       <br />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Add" type="button" onclick="submitNewDependencyForm();" />
+        <h:commandButton styleClass="button" value="Add" action="#{dependencyController.add}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalNewDependency');" />
       </h:panelGrid>
     </h:form>
@@ -47,19 +49,14 @@
 
   <script>
     function showAddDependency() {
-      document.getElementById('modaNewDependencyForm:addDependencyBtn').click();
-      Richfaces.showModalPanel('modalNewDependency');
+      submitMainForm(function() {
+        document.getElementById('modaNewDependencyForm:addDependencyBtn').click();
+        Richfaces.showModalPanel('modalNewDependency');
+      });
     }
 
     function showAddDependencyUpdateVersion() {
-      document.getElementById('modaNewDependencyForm:project').onchange();
-    }
-
-    function submitNewDependencyForm() {
-      document.getElementById('mainForm:projectName').value = document.getElementById('modaNewDependencyForm:projectName').value;
-      document.getElementById('mainForm:lowerVersion').value = document.getElementById('modaNewDependencyForm:lowerVersion').value;
-      document.getElementById('mainForm:upperVersion').value = document.getElementById('modaNewDependencyForm:upperVersion').value;
-      document.getElementById('mainForm:addDependency').click();
+      document.getElementById('modaNewDependencyForm:projectName').onchange();
     }
   </script>
 </ui:composition>
