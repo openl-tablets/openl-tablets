@@ -124,7 +124,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         return (isLocal()) ? localArtefact : dtrArtefact;
     }
 
-    protected boolean isLocal() {
+    public boolean isLocal() {
         return project.isLocal();
     }
 
