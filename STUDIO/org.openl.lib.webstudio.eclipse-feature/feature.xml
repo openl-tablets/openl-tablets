@@ -20,25 +20,27 @@
          id="org.openl.lib.apache.jackrabbit"
          download-size="0"
          install-size="0"
-         version="5.0.5"/>
+         version="5.0.5"
+         unpack="false"/>
 
    <plugin
          id="org.openl.lib.exigen.jcr"
          download-size="0"
          install-size="0"
-         version="5.0.5"/>
+         version="5.0.5"
+         unpack="false"/>
 
    <plugin
          id="org.openl.lib.jsf"
          download-size="0"
          install-size="0"
-         version="5.0.5"/>
+         version="5.0.5"
+         unpack="false"/>
 
    <plugin
          id="org.openl.lib.apache.tomcat"
          download-size="0"
          install-size="0"
-         version="5.0.5"
-         unpack="false"/>
+         version="5.0.5"/>
 
 </feature>

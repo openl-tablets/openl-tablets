@@ -31,6 +31,10 @@ public class StartTomcat
 
 		if (chome == null)
 		{
+			chome = getProperty(args, "catalina.home");
+		}
+		if (chome == null)
+		{
 			chome ="../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17";
 		}
 		File catalinaHome = new File(chome);
@@ -48,6 +52,10 @@ public class StartTomcat
 		String cbase = System.getProperty("catalina.base");
 		
 
+		if (cbase == null)
+		{
+			cbase = getProperty(args, "catalina.base");
+		}
 		if (cbase == null)
 		{
 			cbase=".";
@@ -89,4 +97,16 @@ public class StartTomcat
 	
 	*/
 
+	private static String getProperty(String[] args, String prefix) {
+		if (args != null){
+			for (String parameter : args){
+				if (parameter.startsWith(prefix)){
+					return parameter.substring(parameter.indexOf('=')+1).trim();					
+				}
+			}
+		}
+		return null;
+	}
+
 }
+

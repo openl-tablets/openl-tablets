@@ -7,7 +7,6 @@ Bundle-Activator: org.openl.rules.webstudio.eclipse.starter.Activator
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
- org.openl.rules.webtools,
  org.openl.lib.apache.tomcat,
  org.openl.rules.webstudio
 Eclipse-AutoStart: true

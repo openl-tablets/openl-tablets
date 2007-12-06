@@ -34,13 +34,17 @@ public class StartTomcat
 
 		if (chome == null)
 		{
+			chome = getProperty(args, "catalina.home");
+		}
+		if (chome == null)
+		{
 			chome ="../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17";
 		}
 		File catalinaHome = new File(chome);
 		
 		if (!catalinaHome.exists())
 		{
-			throw new Exception("\nYou did not set up correctly catalina.home variable.\n Please refer to OpenL Tablets document 'Web Programming and OpenL Tablets'. Chapter - Web Develoment Setup");
+			throw new Exception(String.format("\nYou did not set up correctly catalina.home variable. It was \"{0}\".\n Please refer to OpenL Tablets document 'Web Programming and OpenL Tablets'. Chapter - Web Develoment Setup", chome));
 		}	
 		
 		System.setProperty("catalina.home", catalinaHome.getCanonicalPath());
@@ -53,12 +57,11 @@ public class StartTomcat
 
 		if (cbase == null)
 		{
-		    if (args != null && args.length > 0){
-			cbase = args[0];
-		    }
-		    else{
-			cbase=".";
-		    }
+			cbase = getProperty(args, "catalina.base");
+		}
+		if (cbase == null)
+		{
+		    cbase=".";
 		}
 		
 		File catalinaBase = new File(cbase);
@@ -96,5 +99,15 @@ public class StartTomcat
 		org.apache.catalina.startup.Bootstrap  start
 	
 	*/
-
+	
+	private static String getProperty(String[] args, String prefix) {
+		if (args != null){
+			for (String parameter : args){
+				if (parameter.startsWith(prefix)){
+					return parameter.substring(parameter.indexOf('=')+1).trim();					
+				}
+			}
+		}
+		return null;
+	}
 }
