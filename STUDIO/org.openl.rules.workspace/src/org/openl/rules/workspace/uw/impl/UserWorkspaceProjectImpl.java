@@ -26,7 +26,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     public UserWorkspaceProjectImpl(UserWorkspaceImpl userWorkspace, LocalProject localProject, RepositoryProject dtrProject) {
         super(null, localProject, dtrProject);
         setProject(this);
-        
+
         this.userWorkspace = userWorkspace;
         updateArtefact(localProject, dtrProject);
     }
@@ -54,11 +54,11 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isLockedByMe()) {
             dtrProject.unlock(userWorkspace.getUser());
         }
-        
+
         if (localProject != null) {
             localProject.remove();
         }
-        
+
         updateArtefact(null, dtrProject);
     }
 
@@ -92,7 +92,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isLocalOnly()) {
             throw new ProjectException("Project ''{0}'' cannot be checked out since it is local only!", null, getName());
         }
-        
+
         if (isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' is already checked-out", null, getName());
         }
@@ -119,10 +119,10 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         userWorkspace.checkInProject(localProject, major, minor);
         // dtrProject != null
         dtrProject.unlock(userWorkspace.getUser());
-        
+
         // update version, reset & persist states
         localProject.checkedIn(dtrProject.getVersion());
-        
+
         updateArtefact(localProject, dtrProject);
     }
 
@@ -138,7 +138,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
         if (dtrProject.isLocked()) {
             WorkspaceUser lockedBy = dtrProject.getlLockInfo().getLockedBy();
-            
+
             if (lockedBy.equals(userWorkspace.getUser())) {
                 return true;
             }
@@ -155,7 +155,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isLocalOnly()) {
             return false;
         }
-        
+
         return dtrProject.isMarkedForDeletion();
     }
 
@@ -166,14 +166,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
         return dtrProject.isLocked();
     }
-    
+
     public boolean isLockedByMe() {
         if (!isLocked()) return false;
-        
+
         WorkspaceUser lockedBy = dtrProject.getlLockInfo().getLockedBy();
         return lockedBy.equals(userWorkspace.getUser());
     }
-    
+
     public boolean isLocalOnly() {
         return (dtrProject == null);
     }
@@ -186,7 +186,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isOpened()) {
             close();
         }
-        
+
         if (dtrProject != null) {
             dtrProject.delete(userWorkspace.getUser());
         }
@@ -229,25 +229,25 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isLockedByMe() && isOpened() == false) {
             // locked but no in local workspace
             Log.warn("Project {0} is locked but not opened -- removing lock.", getName());
-            
+
             try {
                 dtrProject.unlock(getUser());
             } catch (ProjectException e) {
                 Log.error("Failed to remove lock from project {0}", e, getName());
-            }            
+            }
         }
     }
-    
+
     @Override
-    protected boolean isLocal() {
+    public boolean isLocal() {
         return (project == localProject);
     }
-    
+
     @Override
     public boolean isReadOnly() {
         return !isCheckedOut();
     }
-    
+
     protected WorkspaceUser getUser() {
         return userWorkspace.getUser();
     }
