@@ -39,8 +39,9 @@
 
   <script>
     function confirmDeleteNode() {
-      Richfaces.showModalPanel('modalDeleteNode');
-      return false;
+      submitMainForm(function() {
+        Richfaces.showModalPanel('modalDeleteNode');
+      });
     }
   </script>
 </ui:composition>

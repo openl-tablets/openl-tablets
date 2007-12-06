@@ -31,8 +31,9 @@
 
   <script>
     function confirmEraseProject() {
-      Richfaces.showModalPanel('modalEraseProject');
-      return false;
+      submitMainForm(function() {
+        Richfaces.showModalPanel('modalEraseProject');
+      });
     }
   </script>
 </ui:composition>
