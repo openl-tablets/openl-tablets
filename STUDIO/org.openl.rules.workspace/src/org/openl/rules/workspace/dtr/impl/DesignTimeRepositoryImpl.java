@@ -13,6 +13,7 @@ import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
+import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -101,6 +102,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return inCache;
     }
 
+    public boolean hasDDProject(String name) {
+	try {
+	    return rulesRepository.hasDDProject(name);
+        } catch (RRepositoryException e) {
+            Log.error("Failed to check deployment project ''{0}'' in the repository", e, name);
+            return false;
+        }
+    }
+
     public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
         RepositoryProject rp = getProject(projectName);
@@ -163,6 +173,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         } catch (RRepositoryException e) {
             throw new RepositoryException("Failed to create deployment project ''{0}''", e, name);
         }        
+    }
+    
+    public void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user) throws ProjectException {
+	createDDProject(name);
+	RepositoryDDProject newProject = getDDProject(name);
+	newProject.commit((Project)project, user);
     }
 
     public RepositoryDDProject getDDProject(String name) throws RepositoryException {

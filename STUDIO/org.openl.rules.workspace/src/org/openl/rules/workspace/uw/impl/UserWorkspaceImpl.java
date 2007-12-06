@@ -96,6 +96,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return false;
     }
 
+    public boolean hasDDProject(String name) {
+        if (userDProjects.get(name) != null) return true;
+        if (designTimeRepository.hasDDProject(name)) return true;
+
+        return false;
+    }
+
     public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
         UserWorkspaceProject uwp = getProject(projectName);
@@ -222,6 +229,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public void copyProject(UserWorkspaceProject project, String name) throws ProjectException {
         designTimeRepository.copyProject(project, name, user);
+        refresh();
+    }
+
+    public void copyDDProject(UserWorkspaceDeploymentProject project, String name) throws ProjectException {
+        designTimeRepository.copyDDProject(project, name, user);
         refresh();
     }
 
