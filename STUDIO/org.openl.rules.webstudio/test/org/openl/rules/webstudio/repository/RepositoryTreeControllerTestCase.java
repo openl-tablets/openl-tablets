@@ -1,4 +1,6 @@
-package org.openl.rules.ui.repository;
+package org.openl.rules.webstudio.repository;
+
+import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 
 import junit.framework.TestCase;
 

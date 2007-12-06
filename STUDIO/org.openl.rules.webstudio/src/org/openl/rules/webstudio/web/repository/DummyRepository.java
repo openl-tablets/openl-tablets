@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository;
+package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RRepository;

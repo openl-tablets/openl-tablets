@@ -5,13 +5,13 @@
 
   <managed-bean>
     <managed-bean-name>diff</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.DiffFormController</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.DiffFormController</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
   <managed-bean>
     <managed-bean-name>deploymentController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.DeploymentController</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.DeploymentController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>repositoryTreeState</property-name>
@@ -27,7 +27,7 @@
 
   <managed-bean>
     <managed-bean-name>repositoryTreeState</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeState</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeState</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
     <managed-property>
       <property-name>userWorkspace</property-name>
@@ -37,7 +37,7 @@
 
   <managed-bean>
     <managed-bean-name>repositoryTreeController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.RepositoryTreeController</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>userWorkspace</property-name>
@@ -55,7 +55,7 @@
 
   <managed-bean>
     <managed-bean-name>dependencyController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.repository.dependency.DependencyController</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.DependencyController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>repositoryTreeState</property-name>

@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository.tree;
+package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.ui.repository.dependency.DependencyBean;
+import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;

@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository;
+package org.openl.rules.webstudio.web.repository;
 
 import org.openl.jsf.Util;
 import org.openl.rules.ui.WebStudio;
