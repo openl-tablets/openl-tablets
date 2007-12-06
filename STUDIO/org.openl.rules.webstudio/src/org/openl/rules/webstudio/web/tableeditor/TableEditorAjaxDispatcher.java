@@ -1,4 +1,4 @@
-package org.openl.jsf;
+package org.openl.rules.webstudio.web.tableeditor;
 
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.FacesContext;
