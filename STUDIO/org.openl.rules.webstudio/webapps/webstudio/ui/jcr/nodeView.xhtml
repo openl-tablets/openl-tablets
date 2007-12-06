@@ -28,9 +28,9 @@
 
   <h:panelGroup rendered="#{node.type == 'folder'}">
     <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-      <h:commandButton styleClass="#{artefact.project.checkedOut ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{artefact.project.checkedOut} &amp;&amp; confirmDeleteNode();" />
       <h:commandButton styleClass="#{artefact.project.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{artefact.project.checkedOut} &amp;&amp; openNewFolderDialog();" />
       <h:commandButton styleClass="#{artefact.project.checkedOut ? 'button':'disabledButton'}" value="Add File" type="button" onclick="#{artefact.project.checkedOut} &amp;&amp; openNewFileDialog();" />
+      <h:commandButton styleClass="#{artefact.project.checkedOut ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{artefact.project.checkedOut} &amp;&amp; confirmDeleteNode();" />
     </h:panelGrid>
   </h:panelGroup>
 

@@ -499,17 +499,23 @@ public class RepositoryTreeController {
      * @return
      */
     public String addFile() {
+        if (StringUtils.isEmpty(fileName)) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                        "File name must not be empty."));
+            return null;
+        }
         String errorMessage = uploadAndAddFile();
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("File was successfully uploaded"));
+                .addMessage(null, new FacesMessage("File was uploaded successfully."));
             repositoryTreeState.invalidateTree();
             repositoryTreeState.updateSelection();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage,
-                        "Error occured during uploading file"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
         }
         return null;
     }
@@ -660,7 +666,7 @@ public class RepositoryTreeController {
     }
 
     public String getFileName() {
-        return null;
+        return fileName;
     }
 
     public void setFileName(String fileName) {

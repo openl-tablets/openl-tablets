@@ -39,7 +39,7 @@ public abstract class BaseUploadService implements Service {
 
         try {
             if (params.getFile()==null) {
-                throw new ServiceException("File not found");
+                throw new ServiceException("File was not found.");
             }
             if (params.isUnpackZipFile()) {
                 if (isZipFile(params)) {
