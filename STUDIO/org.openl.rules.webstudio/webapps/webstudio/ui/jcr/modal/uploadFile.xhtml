@@ -8,7 +8,7 @@
 
   <rich:modalPanel id="modalNewFile" width="400" minWidth="400" height="145" minHeight="145">
     <f:facet name="header">
-      <h:outputText value="Add File" />
+      <h:outputText value="Upload File" />
     </f:facet>
 
     <f:facet name="controls">
@@ -28,7 +28,7 @@
       <br />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Add" action="#{repositoryTreeController.addFile}" />
+        <h:commandButton styleClass="button" value="Upload" action="#{repositoryTreeController.addFile}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalNewFile');" />
       </h:panelGrid>
     </h:form>
