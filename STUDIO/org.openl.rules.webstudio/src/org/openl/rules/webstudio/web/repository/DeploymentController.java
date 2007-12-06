@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository;
+package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;

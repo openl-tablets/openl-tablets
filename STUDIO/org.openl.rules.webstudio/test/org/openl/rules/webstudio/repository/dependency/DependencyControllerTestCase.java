@@ -1,6 +1,8 @@
-package org.openl.rules.ui.repository.dependency;
+package org.openl.rules.webstudio.repository.dependency;
 
 import junit.framework.TestCase;
+
+import org.openl.rules.webstudio.web.repository.DependencyController;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 
 public class DependencyControllerTestCase extends TestCase {

@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository;
+package org.openl.rules.webstudio.web.repository;
 
 import java.io.IOException;
 import java.io.InputStream;

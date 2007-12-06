@@ -1,14 +1,14 @@
-package org.openl.rules.ui.repository;
+package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.openl.rules.ui.repository.tree.AbstractTreeNode;
-import org.openl.rules.ui.repository.tree.TreeDProject;
-import org.openl.rules.ui.repository.tree.TreeFile;
-import org.openl.rules.ui.repository.tree.TreeFolder;
-import org.openl.rules.ui.repository.tree.TreeProject;
-import org.openl.rules.ui.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeFile;
+import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;

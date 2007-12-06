@@ -1,11 +1,8 @@
-package org.openl.rules.ui.repository.dependency;
+package org.openl.rules.webstudio.web.repository;
 
-import org.openl.rules.ui.repository.RepositoryTreeController;
-import org.openl.rules.ui.repository.RepositoryTreeState;
-import org.openl.rules.ui.repository.UiConst;
-import org.openl.rules.ui.repository.tree.AbstractTreeNode;
-import org.openl.rules.ui.repository.tree.TreeProject;
 import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.workspace.abstracts.ProjectException;
 
 import javax.faces.context.FacesContext;

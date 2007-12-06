@@ -1,7 +1,7 @@
-package org.openl.rules.ui.repository.tree;
+package org.openl.rules.webstudio.web.repository.tree;
 
-import org.openl.rules.ui.repository.dependency.DependencyBean;
-import org.openl.rules.ui.repository.UiConst;
+import org.openl.rules.webstudio.web.repository.DependencyBean;
+import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.ProjectDependency;

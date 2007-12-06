@@ -1,9 +1,9 @@
-package org.openl.rules.ui.repository.tree;
+package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openl.rules.ui.repository.UiConst;
+import org.openl.rules.webstudio.web.repository.UiConst;
 
 /**
  * Represents OpenL file in a tree.

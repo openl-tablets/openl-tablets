@@ -1,4 +1,4 @@
-package org.openl.rules.ui.repository;
+package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -7,7 +7,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.ui.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.RulesUserSession;
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.services.upload.FileProjectResource;
@@ -15,6 +14,7 @@ import org.openl.rules.webstudio.services.upload.UploadService;
 import org.openl.rules.webstudio.services.upload.UploadServiceParams;
 import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.FacesUtils;
+import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;

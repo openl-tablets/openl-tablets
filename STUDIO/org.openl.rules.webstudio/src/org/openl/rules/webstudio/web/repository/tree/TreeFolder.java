@@ -1,6 +1,6 @@
-package org.openl.rules.ui.repository.tree;
+package org.openl.rules.webstudio.web.repository.tree;
 
-import org.openl.rules.ui.repository.UiConst;
+import org.openl.rules.webstudio.web.repository.UiConst;
 
 /**
  * Represents OpenL folder in a tree.
