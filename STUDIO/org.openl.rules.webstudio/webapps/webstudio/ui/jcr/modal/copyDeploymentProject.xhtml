@@ -7,7 +7,7 @@
 
   <rich:modalPanel id="modalCopyDeploymentProject" width="400" minWidth="400" height="145" minHeight="145">
     <f:facet name="header">
-      <h:outputText value="Copy Project" />
+      <h:outputText value="Copy Deployment Project" />
     </f:facet>
 
     <f:facet name="controls">
@@ -41,7 +41,7 @@
         document.getElementById('projectName').title = projectName;
       }
       Richfaces.showModalPanel('modalCopyDeploymentProject');
-      focusElement('copyProjectForm:newProjectName');
+      focusElement('copyDeploymentProjectForm:newProjectName');
       return false;
     }
 

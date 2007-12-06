@@ -419,7 +419,7 @@ public class RepositoryTreeController {
         } else if (StringUtils.isBlank(newProjectName)) {
             errorMessage = "Project name is empty";
         } else if (!checkName(newProjectName)) {
-            errorMessage = "Project contains forbidden symbols";
+            errorMessage = "Project name contains forbidden symbols";
         } else if (userWorkspace.hasProject(newProjectName)) {
             errorMessage = "Project " + newProjectName + " already exists";
         }
@@ -446,6 +446,52 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String copyDeploymentProject() {
+        String errorMessage = null;
+        UserWorkspaceDeploymentProject project;
+
+        try {
+            project = userWorkspace.getDDProject(projectName);
+        } catch (ProjectException e) {
+            log.error("Can not obtain deployment project " + projectName, e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null, e.getMessage()));
+            return null;
+        }
+
+        if (project == null) {
+            errorMessage = "No project is selected";
+        } else if (StringUtils.isBlank(newProjectName)) {
+            errorMessage = "Project name is empty";
+        } else if (!checkName(newProjectName)) {
+            errorMessage = "Project name contains forbidden symbols";
+        } else if (userWorkspace.hasDDProject(newProjectName)) {
+            errorMessage = "Deployment project " + newProjectName + " already exists";
+        }
+
+        if (errorMessage != null) {
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not copy deployment project",
+                        errorMessage));
+            return null;
+        }
+
+        try {
+            userWorkspace.copyDDProject(project, newProjectName);
+            repositoryTreeState.invalidateTree();
+        } catch (ProjectException e) {
+            log.error("Failed to copy deployment project", e);
+            FacesContext.getCurrentInstance()
+                .addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Failed to copy deployment project", e.getMessage()));
+        }
+
+        return null;
+    }
+    
     public String refreshTree() {
         repositoryTreeState.invalidateTree();
         repositoryTreeState.setSelectedNode(null);
