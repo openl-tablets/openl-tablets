@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
@@ -44,12 +45,13 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @throws RepositoryException
      */
     void copyProject(Project project, String name, WorkspaceUser user) throws ProjectException;
-    
     void createProject(String name) throws RepositoryException;
     
     public RepositoryDDProject getDDProject(String name) throws RepositoryException;
     public RepositoryDDProject getDDProject(String name, CommonVersion version) throws RepositoryException;
+    boolean hasDDProject(String name);
 
     public List<RepositoryDDProject> getDDProjects() throws RepositoryException;
     public void createDDProject(String name) throws RepositoryException;
+    public void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user) throws ProjectException;
 }

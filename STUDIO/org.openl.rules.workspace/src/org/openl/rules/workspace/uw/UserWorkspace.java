@@ -24,6 +24,8 @@ public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
     List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException;
     void createDDProject(String name) throws RepositoryException;
     void copyProject(UserWorkspaceProject project, String name) throws ProjectException;
+    void copyDDProject(UserWorkspaceDeploymentProject project, String name) throws ProjectException;
+    boolean hasDDProject(String name);
 
     void addWorkspaceListener(UserWorkspaceListener listener);
     boolean removeWorkspaceListener(UserWorkspaceListener listener);
