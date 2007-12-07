@@ -11,121 +11,110 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
-
 import com.exigen.ie.constrainer.Constrainer;
 import com.exigen.ie.constrainer.IntExp;
 import com.exigen.ie.constrainer.IntVar;
 
 /**
  * @author snshor
- *
+ * 
  */
-public class DTValidatedObject implements IDTValidatedObject, IConditionTransformer
+public class DTValidatedObject implements IDTValidatedObject,
+	IConditionTransformer
 {
-  
-	DecisionTable dt;
-	Map domains;
 
-	public DTValidatedObject(DecisionTable dt, Map domains)
-	{
-		this.dt = dt;
-		this.domains = domains;
-	}
-	
-	
-	public DTValidatedObject(DecisionTable dt)
-	{
-		this.dt = dt;
-	}
+    DecisionTable dt;
+    Map<String, IDomainDescriptor> domains;
 
-	
-	public DecisionTable getDT()
-	{
-		return dt;
-	}
-	public IConditionSelector getSelector()
-	{
-		return null;
-	}
+    public DTValidatedObject(DecisionTable dt,
+	    Map<String, IDomainDescriptor> domains)
+    {
+	this.dt = dt;
+	this.domains = domains;
+    }
 
-	public IConditionTransformer getTransformer()
-	{
-		return this;
-	}
+    public DTValidatedObject(DecisionTable dt)
+    {
+	this.dt = dt;
+    }
 
-	public IOpenClass transformSignatureType(IOpenClass class1, String parameterName, int parameterDirection)
+    public DecisionTable getDT()
+    {
+	return dt;
+    }
+
+    public IConditionSelector getSelector()
+    {
+	return null;
+    }
+
+    public IConditionTransformer getTransformer()
+    {
+	return this;
+    }
+
+    public IOpenClass transformSignatureType(IOpenClass class1,
+	    String parameterName, int parameterDirection)
+    {
+	if (class1 == JavaOpenClass.STRING)
 	{
-		if (class1 == JavaOpenClass.STRING)
-		{
-			return JavaOpenClass.getOpenClass(IntExp.class);
-		}	
-		
-		if (class1 == JavaOpenClass.INT)
-		{
-			return JavaOpenClass.getOpenClass(IntExp.class);
-		}
-		
-		return null;
+	    return JavaOpenClass.getOpenClass(IntExp.class);
 	}
 
-	public IOpenClass transformParameterType(IParameterDeclaration pd)
+	if (class1 == JavaOpenClass.INT)
 	{
-		if (pd.getType() == JavaOpenClass.STRING)
-		{
-			return JavaOpenClass.INT;
-		}	
-		return null;
+	    return JavaOpenClass.getOpenClass(IntExp.class);
 	}
 
+	return null;
+    }
 
-	
-	public IntVar makeSignatureVar(String parameterName, IOpenClass class1, Constrainer c)
+    public IOpenClass transformParameterType(IParameterDeclaration pd)
+    {
+	if (pd.getType() == JavaOpenClass.STRING)
 	{
-		IDomainDescriptor domain = (IDomainDescriptor)domains.get(parameterName);
-		
-		if (domain != null)
-		{
-			return c.addIntVar(domain.getMin(), domain.getMax(), parameterName);
-		}	
-		
-		return null;
+	    return JavaOpenClass.INT;
+	}
+	return null;
+    }
 
+    public IntVar makeSignatureVar(String parameterName, IOpenClass class1,
+	    Constrainer c)
+    {
+	IDomainDescriptor domain = domains.get(parameterName);
+
+	if (domain != null)
+	{
+	    return c.addIntVar(domain.getMin(), domain.getMax(), parameterName);
 	}
 
-	public Object transformParameterValue(String name, IDTCondition condition, Object value, Constrainer C)
+	return null;
+
+    }
+
+    public Object transformParameterValue(String name, IDTCondition condition,
+	    Object value, Constrainer C)
+    {
+	IDomainDescriptor domain = domains.get(name);
+
+	if (domain != null)
 	{
-		IDomainDescriptor domain = (IDomainDescriptor)domains.get(name);
-		
-		if (domain != null)
-		{
-			return new Integer(domain.getIndex(value));
-		}	
-		
-		
-		return null;
+	    return new Integer(domain.getIndex(value));
 	}
 
-	public Object transformSignatureValueBack(String name, int i)
+	return null;
+    }
+
+    public Object transformSignatureValueBack(String name, int i)
+    {
+	IDomainDescriptor domain = domains.get(name);
+
+	if (domain != null)
 	{
-		IDomainDescriptor domain = (IDomainDescriptor)domains.get(name);
-		
-		if (domain != null)
-		{
-			return domain.getValue(i);
-		}
-		
-		return new Integer(i);
+	    return domain.getValue(i);
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	return new Integer(i);
+    }
+
 }
