@@ -17,18 +17,18 @@
 <style type="text/css">
 
 BODY {
-	padding: 0;
-	margin: 0 0 0 10px;
-	background: <%=System.getProperty( "org.openl.webstudio.tree.bcgr", "#eceef8")%>;
-	}
+  padding: 0;
+  margin: 0 0 0 10px;
+  background: <%=System.getProperty( "org.openl.webstudio.tree.bcgr", "#eceef8")%>;
+  }
 
-	
+
 #tree {
-	text-overflow: ellipsis; 
-	overflow : hidden
-	width: 100%;
-	height: 100%;
-	}
+  text-overflow: ellipsis;
+  overflow : hidden
+  width: 100%;
+  height: 100%;
+  }
 
 </style>
 </head>
@@ -43,13 +43,13 @@ BODY {
 <tr>
 <td>
 <%
-	if (studio.getModel().getAllTestMethods() != null && studio.getModel().getAllTestMethods().getTests().length > 0)
-	{
+  if (studio.getModel().getAllTestMethods() != null && studio.getModel().getAllTestMethods().getTests().length > 0)
+  {
 %>
 <a href="jsp/runAllTests.jsp" target="mainFrame" title="Run All Tests"><img border="0" src="images/test_ok.gif"/></a>
 
 <%
-	}
+  }
 %>
 <a href="index.jsp?reload=true" title="Refresh Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
 
@@ -86,7 +86,7 @@ d = new dTree('d');
 
 
 document.getElementById('tree').innerHTML = d;
-</script>              
+</script>
 
 
 
