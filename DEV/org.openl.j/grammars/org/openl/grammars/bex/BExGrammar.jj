@@ -198,6 +198,8 @@ TOKEN :
   < OR: "or" >
 //| < BOOLEAN: "boolean" >
 | < AND: "and" >
+| < NOT: "not" >
+  
 }
 
 
@@ -727,10 +729,7 @@ void PrimaryPrefix() :
 {
 	
  CommaSeparatedList()
-  |	
-	
-LOOKAHEAD(2) IdentifierSequence()
-  |
+|  
   Literal()
 |
   AbsExpression()
@@ -745,9 +744,18 @@ LOOKAHEAD(2) IdentifierSequence()
 
 
 |
-  LOOKAHEAD( function() ) function()
+ LOOKAHEAD( function() ) function()
+
 |
-  identifier()
+LOOKAHEAD(2) 
+
+FilterExpression() IdentifierSequence() 
+
+  
+|
+IdentifierSequence()//|	//	  
+  
+//|//  identifier()
 
 //| BlockClosure()
 }
@@ -755,17 +763,40 @@ LOOKAHEAD(2) IdentifierSequence()
 //void IdentifierChain() ://{Token x1;}//{// 	//  IdentifierSequence()//  (x1="of the" IdentifierSequence())*//}
 
 
+//void IdentifierSequence() ://{Token x1; int args = 2;}//{//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image); ++args;})*//  {//    	if (args > 1)//  		   stb.nop("identifier.sequence", null, args);//  }		//  //}
+
 void IdentifierSequence() :
-{Token x1; int args = 2;}
+{Token x1; int args = 1;}
 {
-  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})
-  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})
+  (x1 = <IDENTIFIER> {stb.identifier("identifier", pos(token),token.image);})
   (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image); ++args;})*
   {
     	if (args > 1)
   		   stb.nop("identifier.sequence", null, args);
   }		
   
+}
+
+
+void FilterExpression() :
+{Token x1; int args = 1;}
+{
+	SimpleFilter() ("or" | "and") FilterExpression()
+	|
+	SimpleNotFilter() (("or" | "and") (SimpleFilter() | SimpleNotFilter()))*  
+}
+
+void SimpleFilter() :
+{}
+{
+	Word("identifier.filter")
+}
+
+
+void SimpleNotFilter() :
+{}
+{
+	"not" Word("identifier.filter")
 }
 
 
@@ -1070,8 +1101,7 @@ void Statement() :
   Block()
 |
   EmptyStatement()
-|
-   LOOKAHEAD(2) ExtendedWhereStatement() 	  
+//|//   LOOKAHEAD(2) ExtendedWhereStatement() 	  
 |
   StatementExpression() OptionalSemiColon()
 |
