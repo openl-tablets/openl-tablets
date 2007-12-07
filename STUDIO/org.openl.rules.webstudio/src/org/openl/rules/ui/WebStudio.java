@@ -41,7 +41,7 @@ public class WebStudio
     private Set<String> writableProjects;
 
     public WebStudio() {
-        this("..");
+    	this(System.getProperty("openl.webstudio.home") == null ? ".." : System.getProperty("openl.webstudio.home"));
     }
 
     public WebStudio(String workspacePath) {
