@@ -181,7 +181,7 @@ form.standard table.buttonPanel {
 /* Standard table that should be used to display any tabular data */
 table.standard {
   border: none;
-  border-bottom: 1px solid rgb(120, 136, 180);
+  border-bottom: 1px solid gray;
 }
 
 table.standard caption {
@@ -196,15 +196,15 @@ table.standard thead {
 
 }
 
-table.standard th {
-  border-color: #7888B4 white;
+table.standard thead td {
+  border-color: gray white;
   border-style: solid;
-  border-width: 1px 1px 1px 0px;
+  border-width: 1px 1px 0px 0px;
   color: #052679;
   padding: 5px 8px 6px;
 }
 
-table.standard th a {
+table.standard thead td a {
   color: rgb(5, 38, 121);
   text-decoration: none;
 }
