@@ -1,6 +1,6 @@
 
 <%@ page import="javax.faces.context.FacesContext"%>
-<%@ page import="org.openl.rules.webstudio.jsf.*"%>
+<%@ page import="org.openl.rules.webstudio.web.tableeditor.*"%>
 
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
@@ -187,7 +187,7 @@ function enableMenu(which){
     v.down("span").className = "dr-menu-icon rich-menu-item-icon dr-menu-icon-enabled rich-menu-item-icon-enabled";
     v.down("span", 1).className = "rich-menu-item-label rich-menu-item-label-enabled";
     v.down("img").style.visibility = "";
-    
+
     v.onmouseover = v._mouseover;
     v.onmouseout = v._mouseout;
     v.onclick = v._onclick;
