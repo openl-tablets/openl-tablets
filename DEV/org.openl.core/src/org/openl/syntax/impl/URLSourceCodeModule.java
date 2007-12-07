@@ -27,7 +27,7 @@ public class URLSourceCodeModule extends ASourceCodeModule
   }
   
 
-  public String getUri(int textpos)
+  public String makeUri()
   {
     return url.toExternalForm();
   }

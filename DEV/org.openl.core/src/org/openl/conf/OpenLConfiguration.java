@@ -109,7 +109,7 @@ public class OpenLConfiguration implements IOpenLConfiguration
 
     TypeFactoryConfiguration typeFactory;
 
-    public void validate(IConfigurableResourceContext cxt)
+    public synchronized void validate(IConfigurableResourceContext cxt)
 	    throws OpenConfigurationException
     {
 	if (grammarFactory != null)
@@ -151,22 +151,14 @@ public class OpenLConfiguration implements IOpenLConfiguration
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.syntax.IGrammarFactory#getGrammar()
-     */
-    public IGrammar getGrammar() throws OpenConfigurationException
+
+    public synchronized IGrammar getGrammar() throws OpenConfigurationException
     {
 	return grammarFactory == null ? parent.getGrammar()
 		: (IGrammar) grammarFactory.getResource(configurationContext);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.INodeBinderFactory#getNodeBinder(org.openl.syntax.ISyntaxNode)
-     */
+
     public INodeBinder getNodeBinder(ISyntaxNode node)
     {
 	INodeBinder binder = binderFactory == null ? null : binderFactory
@@ -176,13 +168,6 @@ public class OpenLConfiguration implements IOpenLConfiguration
 	return parent == null ? null : parent.getNodeBinder(node);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.IMethodFactory#getMethodCaller(java.lang.String,
-     *      java.lang.String, org.openl.types.IOpenClass[],
-     *      org.openl.binding.ICastFactory)
-     */
     public IMethodCaller getMethodCaller(String namespace, String name,
 	    IOpenClass[] params, ICastFactory casts)
 	    throws AmbiguousMethodException

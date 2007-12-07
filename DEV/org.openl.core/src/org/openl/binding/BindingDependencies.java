@@ -19,13 +19,13 @@ import org.openl.types.IOpenMethod;
 public class BindingDependencies
 {
 	
-  HashMap types = new HashMap();
-  HashMap methods = new HashMap();
-  HashMap fields = new HashMap();
-  HashMap assigned = new HashMap();
+  HashMap<IOpenClass, IBoundNode> types = new HashMap<IOpenClass, IBoundNode>();
+  HashMap<IOpenMethod, IBoundNode> methods = new HashMap<IOpenMethod, IBoundNode>();
+  HashMap<IBoundNode,IOpenField> fields = new HashMap<IBoundNode, IOpenField>();
+  HashMap<IOpenField, IBoundNode> assigned = new HashMap<IOpenField, IBoundNode>();
 	
 	
-	public void addTypeDependency(IOpenClass type, IBoundNode node)
+	public synchronized void addTypeDependency(IOpenClass type, IBoundNode node)
 	{
 		types.put(type, node);
 	}
@@ -41,7 +41,8 @@ public class BindingDependencies
 	}
 	
 	
-	public void addAssign(IBoundNode target, IBoundNode node)
+	public void addAssign(IBoundNode target, @SuppressWarnings("unused")
+	IBoundNode node)
 	{
 		target.updateAssignFieldDependency(this);
 	}
@@ -84,47 +85,47 @@ public class BindingDependencies
 		;
 	}
 	
-	String setToString(Set set)
+	String setToString(Set<?> set)
 	{
 		return set.toString();
 	}
 
-	public Set getAssigned()
+	public Set<IOpenField> getAssigned()
 	{
 		return this.assigned.keySet();
 	}
 
-	public Map getAssignedMap()
+	public Map<IOpenField, IBoundNode> getAssignedMap()
 	{
 		return this.assigned;
 	}
 
-	public Set getFieldNodes()
+	public Set<IBoundNode> getFieldNodes()
 	{
 		return this.fields.keySet();
 	}
 
-	public Map getFieldsMap()
+	public Map<IBoundNode,IOpenField> getFieldsMap()
 	{
 		return this.fields;
 	}
 
-	public Set getMethods()
+	public Set<IOpenMethod> getMethods()
 	{
 		return this.methods.keySet();
 	}
 
-	public Map getMethodsMap()
+	public Map<IOpenMethod, IBoundNode> getMethodsMap()
 	{
 		return this.methods;
 	}
 	
-	public Set getTypes()
+	public Set<IOpenClass> getTypes()
 	{
 		return this.types.keySet();
 	}
 
-	public Map getTypesMap()
+	public Map<IOpenClass, IBoundNode> getTypesMap()
 	{
 		return this.types;
 	}

@@ -252,4 +252,10 @@ public class BindingContextDelegator implements IBindingContextDelegator
 	{
 		this.delegate.setReturnType(type);
 	}
+
+	public IOpenField findFieldFor(IOpenClass type, String fieldName,
+		boolean strictMatch)
+	{
+	    return delegate.findFieldFor(type, fieldName, strictMatch);
+	}
 }
