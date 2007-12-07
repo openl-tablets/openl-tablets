@@ -19,7 +19,6 @@ import org.openl.rules.workspace.props.PropertiesContainer;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
-import org.openl.rules.workspace.props.impl.PropertyImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.util.Log;
 
@@ -36,6 +35,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
         this.path = path;
 
         reLoadVersions();
+        properties = new PropertiesContainerImpl();
     }
 
     public String getName() {
