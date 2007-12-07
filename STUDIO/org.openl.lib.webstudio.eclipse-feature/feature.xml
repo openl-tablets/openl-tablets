@@ -43,4 +43,11 @@
          install-size="0"
          version="5.0.5"/>
 
+   <plugin
+         id="org.openl.lib.browserlauncher"
+         download-size="0"
+         install-size="0"
+         version="5.0.5"
+         unpack="false"/>
+
 </feature>
