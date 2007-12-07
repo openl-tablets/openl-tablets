@@ -69,7 +69,7 @@ public class RootDictionaryContext
     }
     
     
-    private void add(ContextField contextField)
+    private synchronized void add(ContextField contextField)
     {
 	
 	String name = contextField.getName().toLowerCase();

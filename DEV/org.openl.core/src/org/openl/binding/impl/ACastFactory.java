@@ -52,11 +52,11 @@ public class ACastFactory implements ICastFactory
     this.methodFactory = methodFactory;
   }
 
-  public IOpenCast getCast(IOpenClass from, IOpenClass to)
+  public synchronized IOpenCast  getCast(IOpenClass from, IOpenClass to)
   {
     Object key = Cache.makeKey(from, to);
 
-    IOpenCast cast = (IOpenCast)castCache.get(key);
+    IOpenCast cast = castCache.get(key);
 
     if (cast == null)
     {
@@ -99,9 +99,6 @@ public class ACastFactory implements ICastFactory
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.ICastFactory#getCast(java.lang.String, org.openl.types.IOpenClass, org.openl.types.IOpenClass)
-   */
   public IOpenCast findCast(IOpenClass from, IOpenClass to)
   {
 
@@ -114,8 +111,8 @@ public class ACastFactory implements ICastFactory
        //(from instanceof JavaOpenClass) && 
        (to instanceof JavaOpenClass))
     {
-      Class fromClass = from.getInstanceClass();
-      Class toClass = to.getInstanceClass();
+      Class<?> fromClass = from.getInstanceClass();
+      Class<?> toClass = to.getInstanceClass();
 
       if (toClass.isAssignableFrom(fromClass))
         return JAVA_DOWNCAST;
@@ -238,7 +235,7 @@ public class ACastFactory implements ICastFactory
 
   }
 
-  HashMap castCache = new HashMap();
+  HashMap<Object, IOpenCast> castCache = new HashMap<Object, IOpenCast>();
 
   /**
    * @return

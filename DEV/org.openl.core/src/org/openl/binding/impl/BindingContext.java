@@ -190,27 +190,18 @@ public class BindingContext implements IBindingContext
     return binder.getTypeFactory().getType(namespace, typeName);
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBindingContext#findCast(org.openl.types.IOpenClass, org.openl.types.IOpenClass)
-   */
   public IOpenCast getCast(IOpenClass from, IOpenClass to)
   {
 
     return binder.getCastFactory().getCast(from, to);
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBindingContext#addParameter(java.lang.String, java.lang.String, org.openl.types.IOpenClass)
-   */
   public ILocalVar addParameter(String namespace, String name, IOpenClass type)
     throws DuplicatedVarException
   {
     throw new UnsupportedOperationException();
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBindingContext#getReturnType()
-   */
   public IOpenClass getReturnType()
   {
     return returnType;
@@ -219,16 +210,13 @@ public class BindingContext implements IBindingContext
   /* (non-Javadoc)
    * @see org.openl.binding.IBindingContext#addAlias(java.lang.String, java.lang.String)
    */
-  public void addAlias(String name, String value)
+  public synchronized void addAlias(String name, String value)
   {
     aliases.put(name, value);
 
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBindingContext#getAlias(java.lang.String)
-   */
-  public String getAlias(String name)
+  public synchronized String getAlias(String name)
   {
     return aliases.get(name);
   }
@@ -244,6 +232,12 @@ public void setReturnType(IOpenClass type)
 	if (returnType != NullOpenClass.the)
 		throw new RuntimeException("Can not override return type " + returnType.getName());
 	returnType = type;
+}
+
+public IOpenField findFieldFor(IOpenClass type, String fieldName,
+	boolean strictMatch)
+{
+    return type.getField(fieldName, strictMatch);
 }
 
 }

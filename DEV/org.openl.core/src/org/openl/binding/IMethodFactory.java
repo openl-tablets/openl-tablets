@@ -23,7 +23,7 @@ public interface IMethodFactory
 	public IOpenMethod getMatchingMethod(String name, IOpenClass[] params)
 		throws AmbiguousMethodException;
 	
-	public Iterator methods();
+	public Iterator<IOpenMethod> methods();
 	
 	
 	

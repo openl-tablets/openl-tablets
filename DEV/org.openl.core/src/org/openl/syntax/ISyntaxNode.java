@@ -28,7 +28,7 @@ public interface ISyntaxNode
 	
 	public ILocation getSourceLocation();
 	
-	public Map getProperties();
+	public Map<String, String> getProperties();
 
 	/**
 	 * @param i

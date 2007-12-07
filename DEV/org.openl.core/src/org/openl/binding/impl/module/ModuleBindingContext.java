@@ -75,12 +75,6 @@ public class ModuleBindingContext extends BindingContextDelegator
 	return module;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.IBindingContext#addVar(java.lang.String,
-     *      java.lang.String, org.openl.types.IOpenClass)
-     */
     public ILocalVar addVar(String namespace, String name, IOpenClass type)
 	    throws DuplicatedVarException
     {
@@ -101,7 +95,7 @@ public class ModuleBindingContext extends BindingContextDelegator
      * 
      */
 
-    public void addType(String namespace, IOpenClass type) throws Exception
+    public synchronized void addType(String namespace, IOpenClass type) throws Exception
     {
 	String key = typeKey(namespace, type.getName());
 	Map<String, IOpenClass> map = internalTypes();

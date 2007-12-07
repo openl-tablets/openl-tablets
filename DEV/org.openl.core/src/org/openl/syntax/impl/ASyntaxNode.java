@@ -27,14 +27,14 @@ public abstract class ASyntaxNode implements ISyntaxNode
 
 	IOpenSourceCodeModule module;
 
-	Map properties;
+	Map<String, String> properties;
 
 	ILocation location;
 
 	public ASyntaxNode(
 		String type,
 		ILocation location,
-		Map properties,
+		Map<String, String> properties,
 		IOpenSourceCodeModule module)
 	{
 		this.type = type;
@@ -83,16 +83,15 @@ public abstract class ASyntaxNode implements ISyntaxNode
 		type = string;
 	}
 
-	static class SyntaxTreeAdaptor implements TreeIterator.TreeAdaptor
+	static class SyntaxTreeAdaptor implements TreeIterator.TreeAdaptor<ISyntaxNode>
 	{
-		public Iterator children(Object obj)
+		public Iterator<ISyntaxNode> children(ISyntaxNode syntaxNode)
 		{
-			ISyntaxNode syntaxNode = (ISyntaxNode) obj;
 			return new SyntaxNodeChildrenIterator(syntaxNode);
 
 		}
 
-		static class SyntaxNodeChildrenIterator extends AIndexedIterator
+		static class SyntaxNodeChildrenIterator extends AIndexedIterator<ISyntaxNode>
 		{
 			ISyntaxNode node;
 
@@ -105,7 +104,7 @@ public abstract class ASyntaxNode implements ISyntaxNode
 			/* (non-Javadoc)
 			 * @see org.openl.util.AIndexedIterator#indexedElement(int)
 			 */
-			protected Object indexedElement(int i)
+			protected ISyntaxNode indexedElement(int i)
 			{
 				return node.getChild(i);
 			}
@@ -114,13 +113,13 @@ public abstract class ASyntaxNode implements ISyntaxNode
 
 	}
 
-	static public final TreeIterator.TreeAdaptor TREE_ADAPTOR =
+	static public final TreeIterator.TreeAdaptor<ISyntaxNode> TREE_ADAPTOR =
 		new SyntaxTreeAdaptor();
 
 	/**
 	 * @return
 	 */
-	public Map getProperties()
+	public Map<String, String> getProperties()
 	{
 		return properties;
 	}

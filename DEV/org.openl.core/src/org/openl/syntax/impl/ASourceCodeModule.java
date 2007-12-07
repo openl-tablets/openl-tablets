@@ -14,58 +14,77 @@ import org.openl.util.RuntimeExceptionWrapper;
 /**
  * @author snshor
  */
-public abstract class ASourceCodeModule implements
-    IOpenSourceCodeModule
+public abstract class ASourceCodeModule implements IOpenSourceCodeModule
 {
-  
-  public String getCode()
-  {
-  	
-  	
-  	if (code == null)
-  	{
-    	StringBuffer buf = new StringBuffer(4096);
-      	char[] c = new char[4096];
-  		BufferedReader br = new BufferedReader(  getCharacterStream());
-			
-      try
-      {
-        for(int len;   (len =  br.read(c)) > 0; )
-          buf.append(c, 0, len);
-      }
-      catch (IOException e)
-      {
-        throw RuntimeExceptionWrapper.wrap(e);
-      }
-  		code = buf.toString();   
-  	}
-  	return code;
-  }
-  
-  String code;
-  
-  int tabSize = 2;
-  
-  
+    
+    
+    protected String code;
 
-  /**
-   * @return Returns the tabSize.
-   */
-  public int getTabSize()
-  {
-    return tabSize;
-  }
-  /**
-   * @param tabSize The tabSize to set.
-   */
-  public void setTabSize(int tabSize)
-  {
-    this.tabSize = tabSize;
-  }
-  
-	public int getStartPosition()
+    protected int tabSize = 2;
+    
+    protected String uri;
+    
+    
+    
+    
+    
+
+    public synchronized String getUri(int textpos)
+    {
+	
+	if (uri == null)
+	    uri = makeUri();
+	return uri;
+    }
+
+
+    protected abstract String makeUri();
+
+
+
+    public synchronized String getCode()
+    {
+
+	if (code == null)
 	{
-		return 0;
+	    StringBuffer buf = new StringBuffer(4096);
+	    char[] c = new char[8192];
+	    BufferedReader br = new BufferedReader(getCharacterStream());
+
+	    try
+	    {
+		for (int len; (len = br.read(c)) > 0;)
+		    buf.append(c, 0, len);
+	    } catch (IOException e)
+	    {
+		throw RuntimeExceptionWrapper.wrap(e);
+	    }
+	    code = buf.toString();
 	}
+	return code;
+    }
+
+
+    /**
+     * @return Returns the tabSize.
+     */
+    public int getTabSize()
+    {
+	return tabSize;
+    }
+
+    /**
+     * @param tabSize
+     *                The tabSize to set.
+     */
+    public void setTabSize(int tabSize)
+    {
+	this.tabSize = tabSize;
+    }
+
+    public int getStartPosition()
+    {
+	return 0;
+    }
 
 }

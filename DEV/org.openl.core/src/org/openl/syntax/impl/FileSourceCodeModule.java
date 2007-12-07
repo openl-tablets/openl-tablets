@@ -24,7 +24,7 @@ public class FileSourceCodeModule extends ASourceCodeModule
 {
 	
 	File file;
-	String uri;
+	String externalUri;
 
 
 	public FileSourceCodeModule(String fileName, String uri, int tabSize)
@@ -49,25 +49,14 @@ public class FileSourceCodeModule extends ASourceCodeModule
   public FileSourceCodeModule(File file, String uri)
   {
   	this.file = file;
-  	this.uri = uri;
+  	this.externalUri = uri;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.IOpenSourceCodeModule#getCode()
-   */
-//  public String getCode()
-//  {
-//    return code;
-//  }
-
-  /* (non-Javadoc)
-   * @see org.openl.IOpenSourceCodeModule#getUri(int)
-   */
-  public String getUri(int textpos)
+  public String makeUri()
   {
     try
     {
-      return uri != null ? uri : file.getCanonicalFile().toURL().toExternalForm();
+      return externalUri != null ? externalUri : file.getCanonicalFile().toURL().toExternalForm();
     }
     catch (Exception e)
     {
