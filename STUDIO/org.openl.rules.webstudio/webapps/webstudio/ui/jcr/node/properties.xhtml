@@ -30,7 +30,7 @@
     </h:outputText>
 
     <h:outputLabel for="#{prefix}lineOfBusiness" value="Line of business" />
-    <h:inputText id="#{prefix}lineOfBusiness" value="#{artefact.lineOfBusiness}" rendered="#{artefact.project.checkedOut}"/>
+    <h:inputText id="#{prefix}lineOfBusiness" maxlength="100" size="20" value="#{artefact.lineOfBusiness}" rendered="#{artefact.project.checkedOut}"/>
     <h:outputText value="#{repositoryTreeController.lineOfBusiness}" rendered="#{!artefact.project.checkedOut}"/>
   </h:panelGrid>
 </ui:composition>
