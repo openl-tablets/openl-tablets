@@ -14,7 +14,7 @@
 
     <rich:tabPanel style="height:400px;">
       <rich:tab label="Rules Projects">
-        <ui:include src="/ui/jcr/projects.xhtml" />
+        <ui:include src="/repository/projects.xhtml" />
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>
@@ -65,23 +65,23 @@
    &amp;&amp; node.type != 'deployment'}">
     <rich:tab label="Properties">
       <h:panelGroup rendered="#{node.type == 'file'}">
-        <ui:include src="/ui/jcr/node/fileProps.xhtml" />
+        <ui:include src="/repository/node/fileProps.xhtml" />
       </h:panelGroup>
       <h:panelGroup rendered="#{node.type == 'folder'}">
-        <ui:include src="/ui/jcr/node/folderProps.xhtml" />
+        <ui:include src="/repository/node/folderProps.xhtml" />
       </h:panelGroup>
       <h:panelGroup rendered="#{node.type == 'project'}">
-        <ui:include src="/ui/jcr/node/projectProps.xhtml" />
+        <ui:include src="/repository/node/projectProps.xhtml" />
       </h:panelGroup>
     </rich:tab>
     <rich:tab label="Versions">
-      <ui:include src="/ui/jcr/node/versions.xhtml" />
+      <ui:include src="/repository/node/versions.xhtml" />
     </rich:tab>
     <rich:tab label="Elements" rendered="#{node.type != 'file'}">
-      <ui:include src="/ui/jcr/node/elements.xhtml" />
+      <ui:include src="/repository/node/elements.xhtml" />
     </rich:tab>
     <rich:tab label="Dependencies" rendered="#{node.type == 'project'}">
-      <ui:include src="/ui/jcr/node/dependency.xhtml" />
+      <ui:include src="/repository/node/dependency.xhtml" />
     </rich:tab>
   </rich:tabPanel>
 
@@ -92,7 +92,7 @@
 
     <rich:tabPanel style="height:400px;">
       <rich:tab label="Deployment Projects">
-        <ui:include src="/ui/jcr/projectsD.xhtml" />
+        <ui:include src="/repository/projectsD.xhtml" />
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>

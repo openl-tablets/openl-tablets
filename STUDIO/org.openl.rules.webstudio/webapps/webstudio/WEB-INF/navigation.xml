@@ -4,10 +4,10 @@
 <faces-config>
 
     <lifecycle>
-		<phase-listener>
-			org.openl.rules.webstudio.web.tableeditor.TableEditorAjaxDispatcher
-		</phase-listener>
-	</lifecycle>
+    <phase-listener>
+      org.openl.rules.webstudio.web.tableeditor.TableEditorAjaxDispatcher
+    </phase-listener>
+  </lifecycle>
 
     <navigation-rule>
         <navigation-case>
@@ -17,7 +17,7 @@
     </navigation-rule>
 
     <navigation-rule>
-        <from-view-id>/ui/jcr/jcrMain.xhtml</from-view-id>
+        <from-view-id>/repository/jcrMain.xhtml</from-view-id>
         <navigation-case>
             <from-outcome>webstudio</from-outcome>
             <to-view-id>/jsp/index_jsf.jsp</to-view-id>

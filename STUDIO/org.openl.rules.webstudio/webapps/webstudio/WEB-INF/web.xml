@@ -49,6 +49,11 @@
   </context-param>
 
   <context-param>
+    <param-name>facelets.RESOURCE_RESOLVER</param-name>
+    <param-value>org.openl.rules.webstudio.web.jsf.faceletes.DefaultResourceResolver</param-value>
+  </context-param>
+
+  <context-param>
     <param-name>org.ajax4jsf.SKIN</param-name>
     <param-value>#{skinBean.skin}</param-value>
   </context-param>
@@ -66,7 +71,7 @@
 
   <filter-mapping>
     <filter-name>ajax4jsf</filter-name>
-    <servlet-name>Faces Servlet</servlet-name>
+    <servlet-name>FacesServlet</servlet-name>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>INCLUDE</dispatcher>
@@ -99,7 +104,7 @@
 
   <filter-mapping>
     <filter-name>MyFacesExtensionsFilter</filter-name>
-    <url-pattern>/faces/*</url-pattern>
+    <url-pattern>*.faces</url-pattern>
   </filter-mapping>
 
   <!-- Listeners, that does all the startup work (configuration, init). -->
@@ -112,19 +117,19 @@
   </listener>
 
   <servlet>
-    <servlet-name>Faces Servlet</servlet-name>
+    <servlet-name>FacesServlet</servlet-name>
     <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>Faces Servlet</servlet-name>
-    <url-pattern>*.jsf</url-pattern>
+    <servlet-name>FacesServlet</servlet-name>
+    <url-pattern>/faces/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>Faces Servlet</servlet-name>
-    <url-pattern>/faces/*</url-pattern>
+    <servlet-name>FacesServlet</servlet-name>
+    <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
 
   <servlet>

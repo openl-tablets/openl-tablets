@@ -17,9 +17,9 @@
 	if (reload != null)
 	  studio.reset();
 	String selected = request.getParameter("select_wrapper");
-		
+
 	studio.select(selected);
-	  
+
 %>
 
 <frameset rows="70,*">
@@ -29,7 +29,7 @@
 <frameset rows="*,1" framespacing="0"  scrolling="auto" >
     <frame src="tree.jsp" name="leftFrame" scrolling="auto">
     <frame src="html/nothing.html" name="show_app_hidden">
-</frameset>  
+</frameset>
 
 <frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
 
