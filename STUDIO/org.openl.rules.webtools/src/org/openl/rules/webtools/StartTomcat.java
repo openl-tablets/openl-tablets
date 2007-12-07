@@ -4,8 +4,12 @@ package org.openl.rules.webtools;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URI;
 
 import org.openl.main.OpenLVersion;
+import org.openl.util.Log;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 /*
  * Created on Jul 11, 2004
@@ -70,7 +74,7 @@ public class StartTomcat
 		System.out.println(
 				"Using tomcat base: " + System.getProperty("catalina.base"));
 		
-		Class bootstrap = null;
+		Class<?> bootstrap = null;
 		try
 		{
 			bootstrap = Class.forName("org.apache.catalina.startup.Bootstrap");
@@ -82,9 +86,9 @@ public class StartTomcat
 		
 		Method main = bootstrap.getMethod("main", new Class[]{String[].class});
 		
+		new Thread(new BrowserStarter()).start();
 		
 		main.invoke(null, new Object[]{new String[] { "start" }});
-		
 		
 //		org.apache.catalina.startup.Bootstrap.main(new String[] { "start" });
 		
@@ -109,5 +113,33 @@ public class StartTomcat
 			}
 		}
 		return null;
+	}
+	
+	private static class BrowserStarter implements Runnable{
+
+		@Override
+		public void run(){
+			try{
+				Thread.sleep(20000);
+			}
+			catch (InterruptedException ex){
+				// Do nothing
+			}
+			
+			try{
+				//NOTICE: The desktop support is available beginning from JDK 1.6
+				if (java.awt.Desktop.isDesktopSupported()){
+					java.awt.Desktop.getDesktop().browse(new URI("http://localhost:8080/webstudio/"));
+				}
+				else{
+					 BrowserLauncher browserLauncher = new BrowserLauncher();
+					 browserLauncher.openURLinBrowser("http://localhost:8080/webstudio/");
+				}
+			}
+			catch (Exception ex){
+				Log.error("Could not start a browser. Error: {0}", ex, ex.getMessage());
+			}
+		}
+		
 	}
 }
