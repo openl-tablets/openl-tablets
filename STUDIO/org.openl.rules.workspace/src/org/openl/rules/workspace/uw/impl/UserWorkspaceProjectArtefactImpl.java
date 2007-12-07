@@ -64,13 +64,8 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         if (dtrArtefact != null) {
             return dtrArtefact.getVersions();
         } else {
-            VersionInfo vi = new RepositoryVersionInfoImpl(null, getProject().getUser().getUserName());
-            ProjectVersion pv = new RepositoryProjectVersionImpl(0, 0, 0, vi);
-
-            Collection<ProjectVersion> result = new LinkedList<ProjectVersion>();
-            result.add(pv);
-
-            return result;
+            // no versions
+            return new LinkedList<ProjectVersion>();
         }
     }
 
