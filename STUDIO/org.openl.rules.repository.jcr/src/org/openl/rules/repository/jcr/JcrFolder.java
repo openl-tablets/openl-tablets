@@ -38,7 +38,7 @@ public class JcrFolder extends JcrEntity implements RFolder {
     public JcrFolder(Node node) throws RepositoryException {
         super(node);
 
-        checkNodeType(JcrNT.NT_FOLDER);
+        NodeUtil.checkNodeType(node, JcrNT.NT_FOLDER);
     }
 
     /** {@inheritDoc} */

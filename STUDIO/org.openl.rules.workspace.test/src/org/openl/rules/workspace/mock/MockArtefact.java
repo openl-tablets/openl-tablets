@@ -5,15 +5,21 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
+import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 
-public class MockArtefact implements ProjectArtefact{
+public class MockArtefact implements ProjectArtefact, RulesRepositoryArtefact {
 
     private final static PropertyException PROPERTY_EXCEPTION = new PropertyException("", null);
     private String name;
     private MockFolder parent;
+
+    private Date effectiveDate;
+    private Date expirationDate;
+    private String lineOfBusiness;
 
     public MockArtefact(String name, MockFolder parent) {
         this.name = name;
@@ -100,5 +106,29 @@ public class MockArtefact implements ProjectArtefact{
      */
     public Property removeProperty(String name) throws PropertyException {
         throw PROPERTY_EXCEPTION;
+    }
+
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(Date effectiveDate) {
+        this.effectiveDate = effectiveDate;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    public String getLineOfBusiness() {
+        return lineOfBusiness;
+    }
+
+    public void setLineOfBusiness(String lineOfBusiness) {
+        this.lineOfBusiness = lineOfBusiness;
     }
 }

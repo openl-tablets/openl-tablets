@@ -25,10 +25,12 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     public static final String DEFAULT_REPOSITORY_HOME = "../local-repository";
     public static final String PROP_REPOSITORY_NAME = "JCR.name";
     public static final String DEFAULT_REPOSITORY_NAME = "Jackrabbit Local";
-
+    public static final String PROP_NODETYPE_FILE = "JCR.nodetype.file";
+    public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
     /** Jackrabbit local repository */
     private TransientRepository repository;
     private String repHome;
+    private String nodeTypeFile;
 
     /** {@inheritDoc} */
     public void initialize(SmartProps props) throws RRepositoryException {
@@ -36,6 +38,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
 
         String repName = props.getStr(PROP_REPOSITORY_NAME, DEFAULT_REPOSITORY_NAME);
         repHome = props.getStr(PROP_REPOSITORY_HOME, DEFAULT_REPOSITORY_HOME);
+        nodeTypeFile = props.getStr(PROP_NODETYPE_FILE, DEFAULT_NODETYPE_FILE);
         
         // resolve "." and "..", if any
         try {
@@ -98,7 +101,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         try {
             InputStream is = null;
             try {
-                is = this.getClass().getResourceAsStream("/org/openl/rules/repository/openl_nodetypes.xml");
+                is = this.getClass().getResourceAsStream(nodeTypeFile);
                 ntmi.registerNodeTypes(is, NodeTypeManagerImpl.TEXT_XML, true);
             } finally {
                 if (is != null) {

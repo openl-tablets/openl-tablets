@@ -34,7 +34,7 @@ public interface RFolder extends REntity {
      * Root folder cannot be deleted.
      * Still, on delete it removes all its content, i.e. sub folders and all files.
      * 
-     * @throws RDeleteException
+     * @throws RRepositoryException
      */
     public void delete() throws RRepositoryException;
 
@@ -43,7 +43,7 @@ public interface RFolder extends REntity {
      *
      * @param name name of new folder
      * @return newly created folder
-     * @throws RModifyException if failed
+     * @throws RRepositoryException if failed
      */
     public RFolder createFolder(String name) throws RRepositoryException;
 
@@ -52,7 +52,7 @@ public interface RFolder extends REntity {
      *
      * @param name name of new file
      * @return newly created file
-     * @throws RModifyException if failed
+     * @throws RRepositoryException if failed
      */
     public RFile createFile(String name) throws RRepositoryException;
 }

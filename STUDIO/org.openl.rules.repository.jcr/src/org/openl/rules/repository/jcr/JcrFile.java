@@ -1,6 +1,5 @@
 package org.openl.rules.repository.jcr;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -28,22 +27,7 @@ public class JcrFile extends JcrEntity implements RFile {
      * @throws RepositoryException if fails
      */
     protected static JcrFile createFile(Node parentNode, String nodeName) throws RepositoryException {
-        Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_FILE, true);
-
-        String mimeType = "text/plain";
-        String encoding = "UTF-8";
-        long lastModifiedTime = System.currentTimeMillis();
-        Calendar lastModified = Calendar.getInstance ();
-        lastModified.setTimeInMillis(lastModifiedTime);
-
-        //create the file node - see section 6.7.22.6 of the spec
-        //create the mandatory child node - jcr:content
-        Node resNode = n.addNode (JcrNT.PROP_RES_CONTENT, JcrNT.NT_RESOURCE);
-        resNode.setProperty (JcrNT.PROP_RES_MIMETYPE, mimeType);
-        resNode.setProperty (JcrNT.PROP_RES_ENCODING, encoding);
-        // TODO add real init-content
-        resNode.setProperty (JcrNT.PROP_RES_DATA, new ByteArrayInputStream (new byte[0]));
-        resNode.setProperty (JcrNT.PROP_RES_LASTMODIFIED, lastModified);
+        Node n = NodeUtil.createFileNode(parentNode, nodeName);
 
         parentNode.save();
         n.save();
@@ -54,7 +38,7 @@ public class JcrFile extends JcrEntity implements RFile {
     public JcrFile(Node node) throws RepositoryException {
         super(node);
 
-        checkNodeType(JcrNT.NT_FILE);
+        NodeUtil.checkNodeType(node, JcrNT.NT_FILE);
     }
 
     /** {@inheritDoc} */
@@ -65,18 +49,7 @@ public class JcrFile extends JcrEntity implements RFile {
 
     /** {@inheritDoc} */
     public long getSize() {
-        long result;
-
-        try {
-            Node n = node();
-            Node resNode = n.getNode ("jcr:content");
-            result = resNode.getProperty("jcr:data").getLength();
-        } catch (RepositoryException e) {
-            // TODO: log exception
-            result = -1;
-        }
-
-        return result;
+        return NodeUtil.getFileNodeSize(node());
     }
 
     /** {@inheritDoc} */ 
@@ -102,15 +75,7 @@ public class JcrFile extends JcrEntity implements RFile {
 
     /** {@inheritDoc} */
     public InputStream getContent() throws RRepositoryException {
-        try {
-            Node n = node();
-            Node resNode = n.getNode ("jcr:content");
-            InputStream result = resNode.getProperty("jcr:data").getStream();
-
-            return result;
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Content", e);
-        }
+        return NodeUtil.getFileNodeContent(node());
     }
 
     /** {@inheritDoc} */
