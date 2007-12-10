@@ -1,9 +1,9 @@
 package org.openl.rules.workspace.production.client;
 
 import junit.framework.TestCase;
-import org.openl.SmartProps;
 import org.openl.rules.workspace.TestHelper;
-import static org.openl.rules.workspace.TestHelper.*;
+import static org.openl.rules.workspace.TestHelper.ensureTestFolderExistsAndClear;
+import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
@@ -13,7 +13,6 @@ import org.openl.rules.workspace.mock.MockProject;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.Collections;
-import java.util.Properties;
 
 public class JcrRulesClientTestCase extends TestCase{
     private JcrRulesClient instance;
@@ -82,8 +81,6 @@ public class JcrRulesClientTestCase extends TestCase{
     }
 
     private JcrProductionDeployer getDeployer() throws DeploymentException {
-        Properties properties = new Properties();
-        properties.put(JcrProductionDeployer.PROPNAME_ZIPFOLDER, FOLDER_TEST);
-        return new JcrProductionDeployer(getWorkspaceUser(), new SmartProps(properties));
+        return new JcrProductionDeployer(getWorkspaceUser());
     }
 }

@@ -23,21 +23,16 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public class JcrRepository implements RRepository {
+public class JcrRepository extends BaseJcrRepository implements RRepository {
     private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
     private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@" + JcrNT.PROP_PRJ_MARKED_4_DELETION + "]";
     private static final String QUERY_DDPROJECTS = "//element(*, " + JcrNT.NT_DEPLOYMENT_PROJECT + ")";
-
-    private String name;
-    /** JCR Session */
-    private Session session;
 
     private Node defRulesLocation;
     private Node defDeploymentsLocation;
 
     public JcrRepository(String name, Session session, String defRulesPath, String defDeploymentsPath) throws RepositoryException {
-        this.name = name;
-        this.session = session;
+        super(name, session);
 
         defRulesLocation = checkPath(defRulesPath);
         defDeploymentsLocation = checkPath(defDeploymentsPath);
@@ -54,7 +49,7 @@ public class JcrRepository implements RRepository {
             if (!defRulesLocation.hasNode(name)) {
                 throw new RRepositoryException("Cannot find project ''{0}''", null, name);
             }
-
+                                                                                                                                            
             Node n = defRulesLocation.getNode(name);
             JcrProject p = new JcrProject(n);
             return p;
@@ -94,11 +89,6 @@ public class JcrRepository implements RRepository {
     /** {@inheritDoc} */
     public void release() {
         session.logout();
-    }
-
-    /** {@inheritDoc} */
-    public String getName() {
-        return name;
     }
 
     /** {@inheritDoc} */
@@ -194,23 +184,5 @@ public class JcrRepository implements RRepository {
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to run query", e);
         }
-    }
-    
-    protected Node checkPath(String aPath) throws RepositoryException {
-        Node node = session.getRootNode();
-        String[] paths = aPath.split("/");
-        for (String path : paths) {
-            if (path.length() == 0) continue; // first element (root folder) or illegal path
-
-            if (node.hasNode(path)) {
-                // go deeper
-                node = node.getNode(path);
-            } else {
-                // create new
-                node = node.addNode(path);
-            }
-        }
-        
-        return node;
     }
 }

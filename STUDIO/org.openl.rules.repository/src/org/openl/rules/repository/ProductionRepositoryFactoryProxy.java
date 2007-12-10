@@ -22,8 +22,8 @@ public class ProductionRepositoryFactoryProxy {
         }
     }
     
-    public static synchronized RRepository getRepositoryInstance() throws RRepositoryException {
-        return repFactory.getRepositoryInstance();
+    public static synchronized RProductionRepository getRepositoryInstance() throws RRepositoryException {
+        return (RProductionRepository) repFactory.getRepositoryInstance();
     }
 
     private static void initFactory() throws RRepositoryException {

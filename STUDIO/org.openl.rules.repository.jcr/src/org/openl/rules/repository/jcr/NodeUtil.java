@@ -11,7 +11,12 @@ import javax.jcr.version.VersionIterator;
 
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 /**
  * JCR Node Utility
@@ -190,4 +195,78 @@ public class NodeUtil {
             }
         }
     }
+
+    /**
+     * Checks whether type of the JCR node is correct.
+     *
+     * @param nodeType expected node type
+     * @throws RepositoryException if failed
+     */
+    protected static void checkNodeType(Node node, String nodeType) throws RepositoryException {
+        if (!node.isNodeType(nodeType)) {
+            String actualNodeType = node.getPrimaryNodeType().getName();
+            throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects " + nodeType);
+        }
+    }
+
+    public static boolean isSame(Object o1, Object o2) {
+        // both are null (the same)
+        if (o1 == null && o2 == null) return true;
+        // at least one is null (other is not)
+        if (o1 == null || o2 == null) return false;
+        // equals or not?
+        return o1.equals(o2);
+    }
+
+    public static Calendar convertDate2Calendar(Date date) {
+        if (date == null) return null;
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c;
+    }
+
+    protected static Node createFileNode(Node parentNode, String nodeName) throws RepositoryException {
+        Node n = createNode(parentNode, nodeName, JcrNT.NT_FILE, true);
+
+        String mimeType = "text/plain";
+        String encoding = "UTF-8";
+        long lastModifiedTime = System.currentTimeMillis();
+        Calendar lastModified = Calendar.getInstance ();
+        lastModified.setTimeInMillis(lastModifiedTime);
+
+        //create the file node - see section 6.7.22.6 of the spec
+        //create the mandatory child node - jcr:content
+        Node resNode = n.addNode (JcrNT.PROP_RES_CONTENT, JcrNT.NT_RESOURCE);
+        resNode.setProperty (JcrNT.PROP_RES_MIMETYPE, mimeType);
+        resNode.setProperty (JcrNT.PROP_RES_ENCODING, encoding);
+        // TODO add real init-content
+        resNode.setProperty (JcrNT.PROP_RES_DATA, new ByteArrayInputStream(new byte[0]));
+        resNode.setProperty (JcrNT.PROP_RES_LASTMODIFIED, lastModified);
+        return n;
+    }
+
+    protected static long getFileNodeSize(Node node) {
+        long result;
+
+        try {
+            Node resNode = node.getNode ("jcr:content");
+            result = resNode.getProperty("jcr:data").getLength();
+        } catch (RepositoryException e) {
+            // TODO: log exception
+            result = -1;
+        }
+
+        return result;
+    }
+
+    protected static InputStream getFileNodeContent(Node node) throws RRepositoryException {
+        try {
+            return node.getNode ("jcr:content").getProperty("jcr:data").getStream();
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get Content", e);
+        }
+    }
+
+
 }

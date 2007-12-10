@@ -63,7 +63,7 @@ public class JcrProject extends JcrEntity implements RProject {
     public JcrProject(Node node) throws RepositoryException {
         super(node);
 
-        checkNodeType(JcrNT.NT_PROJECT);
+        NodeUtil.checkNodeType(node, JcrNT.NT_PROJECT);
 
         Node files = node.getNode(NODE_FILES);
         rootFolder = new JcrFolder(files);

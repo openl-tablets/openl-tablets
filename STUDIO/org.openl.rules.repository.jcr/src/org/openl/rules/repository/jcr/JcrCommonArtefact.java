@@ -75,17 +75,4 @@ public class JcrCommonArtefact {
     protected Node node() {
         return node;
     }
-
-    /**
-     * Checks whether type of the JCR node is correct.
-     *
-     * @param nodeType expected node type
-     * @throws RepositoryException if failed
-     */
-    protected void checkNodeType(String nodeType) throws RepositoryException {
-        if (!node.isNodeType(nodeType)) {
-            String actualNodeType = node.getPrimaryNodeType().getName();
-            throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects " + nodeType);
-        }
-    }
 }

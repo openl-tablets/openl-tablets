@@ -1,0 +1,137 @@
+package org.openl.rules.repository.jcr;
+
+import org.openl.rules.repository.RDeploymentDescriptorProject;
+import org.openl.rules.repository.RProductionDeployment;
+import org.openl.rules.repository.RProductionRepository;
+import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.util.List;
+
+public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
+    private Node deployLocation;
+
+    public JcrProductionRepository(String name, Session session) throws RepositoryException {
+        super(name, session);
+
+        deployLocation = checkPath("/deploy");
+        if (deployLocation.isNew()) {
+            session.save();
+        }
+    }
+
+    /**
+     * Gets project by name.
+     *
+     * @param name
+     * @return project
+     * @throws org.openl.rules.repository.exceptions.RRepositoryException
+     *          if failed or no project with specified name
+     */
+    public RProject getProject(String name) throws RRepositoryException {
+        throw new UnsupportedOperationException(); 
+    }
+
+    /**
+     * Checks whether project with given name exists in the repository.
+     *
+     * @param name
+     * @return <code>true</code> if project with such name exists
+     * @throws org.openl.rules.repository.exceptions.RRepositoryException
+     *
+     */
+    public boolean hasProject(String name) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Gets list of projects from the repository.
+     *
+     * @return list of projects
+     * @throws org.openl.rules.repository.exceptions.RRepositoryException
+     *          if failed
+     */
+    public List<RProject> getProjects() throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Gets list of projects from the repository that are marked for deletion.
+     *
+     * @return list of projects that are marked for deletion
+     */
+    public List<RProject> getProjects4Deletion() throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Creates a project in the repository.
+     * Name of new project must be unique.
+     *
+     * @param name name of new project
+     * @return newly created project
+     * @throws org.openl.rules.repository.exceptions.RRepositoryException
+     *          if failed
+     */
+    public RProject createProject(String name) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Releases resources allocated by this Rules Repository instance.
+     */
+    public void release() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    
+    public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean hasDDProject(String name) throws RRepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean hasDeployment(String name) throws RRepositoryException {
+        try {
+            return deployLocation.hasNode(name);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to check project {0}", e, name);
+        }
+    }
+
+    public RProductionDeployment createDeployment(String name) throws RRepositoryException {
+        try {
+            return JcrProductionDeployment.createDeployment(deployLocation, name);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("could not create deployment {0}", e, name);
+        }
+    }
+
+    public RProductionDeployment getDeployment(String name) throws RRepositoryException {
+        Node node;
+        try {
+            node = deployLocation.getNode(name);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to get node", e);
+        }
+
+        try {
+            return new JcrProductionDeployment(node);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to wrap JCR node", e);
+        }
+    }
+}

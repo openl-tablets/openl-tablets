@@ -12,6 +12,8 @@ import javax.jcr.RepositoryException;
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProperty;
 import org.openl.rules.repository.RPropertyType;
+import static org.openl.rules.repository.jcr.NodeUtil.isSame;
+import static org.openl.rules.repository.jcr.NodeUtil.convertDate2Calendar;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -185,14 +187,6 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
         }
     }
 
-    private Calendar convertDate2Calendar(Date date) {
-        if (date == null) return null;
-        
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        return c;
-    }
-
     private static final String[] ALLOWED_PROPS = {};
     private void initProperties() throws RepositoryException {
         properties.clear();
@@ -206,14 +200,5 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
                 properties.put(prop.getName(), prop);
             }
         }
-    }
-    
-    private boolean isSame(Object o1, Object o2) {
-        // both are null (the same)
-        if (o1 == null && o2 == null) return true;
-        // at least one is null (other is not)
-        if (o1 == null || o2 == null) return false;
-        // equals or not?
-        return o1.equals(o2);
     }
 }

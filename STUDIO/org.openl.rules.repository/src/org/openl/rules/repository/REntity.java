@@ -40,7 +40,7 @@ public interface REntity {
      * Also can delete other entities.
      * For example, deleting a folder will lead to deleting all its sub entities.
      *
-     * @throws RDeleteException if failed
+     * @throws RRepositoryException if failed
      */
     public void delete() throws RRepositoryException;
 
@@ -81,7 +81,7 @@ public interface REntity {
      * Effective date can be disabled if <code>null</code> is passed.
      * 
      * @param date new effective date or <code>null</code>
-     * @throws RModifyException if failed
+     * @throws RRepositoryException if failed
      */
     public void setEffectiveDate(Date date) throws RRepositoryException;
 
@@ -90,7 +90,7 @@ public interface REntity {
      * expiration date can be disabled if <code>null</code> is passed.
      * 
      * @param date new expiration date or <code>null</code>
-     * @throws RModifyException if failed
+     * @throws RRepositoryException if failed
      */
     public void setExpirationDate(Date date) throws RRepositoryException;
 
@@ -98,8 +98,7 @@ public interface REntity {
      * Sets line of business for rules entity.
      * Line of business can be disabled if <code>null</code> is passed.
      * 
-     * @param date new line of business or <code>null</code>
-     * @throws RModifyException if failed
+     * @throws RRepositoryException if failed
      */
     public void setLineOfBusiness(String lineOfBusiness) throws RRepositoryException;
     

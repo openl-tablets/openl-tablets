@@ -32,7 +32,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     public static final String DEF_DEPLOYMENTS_PATH = "/deployments";
 
     private Repository repository;
-    private String repositoryName;
+    protected String repositoryName;
     /** Default path where new project should be created */
     private String defRulesPath;
     private String defDeploymentsPath;

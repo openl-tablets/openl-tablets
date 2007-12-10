@@ -13,27 +13,20 @@ import java.util.HashMap;
  * This class is responsible for creating <code>ProductionDeployer</code> instances for given users. 
  */
 public class ProductionDeployerManagerImpl implements ProductionDeployerManager {
-    public static final String PROPERTY_FILE = "deploy.properties";
-
-    public final SmartProps properties;
-
     /**
      * User name -> Production deployer.
      */
     private final HashMap<String, ProductionDeployer> deployers = new HashMap<String, ProductionDeployer>();
 
     public ProductionDeployerManagerImpl() {
-        this(new SmartProps(PROPERTY_FILE));
+
     }
 
-    public ProductionDeployerManagerImpl(SmartProps props) {
-        properties = props;
-    }
 
     public synchronized ProductionDeployer getDeployer(WorkspaceUser user) throws DeploymentException {
         ProductionDeployer productionDeployer = deployers.get(user.getUserId());
         if (productionDeployer == null) {
-            deployers.put(user.getUserId(), productionDeployer = new JcrProductionDeployer(user, properties));
+            deployers.put(user.getUserId(), productionDeployer = new JcrProductionDeployer(user));
         }
 
         return productionDeployer;
