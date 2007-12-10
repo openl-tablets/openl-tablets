@@ -133,10 +133,28 @@ public class StartTomcat {
                 // Do nothing
             }
 
-            try {
-                // NOTICE: The desktop support is available beginning from JDK 1.6
-                if (java.awt.Desktop.isDesktopSupported()) {
-                    java.awt.Desktop.getDesktop().browse(new URI("http://localhost:8080/webstudio/"));
+            try {            
+                Class<?> desktop = null;
+                try {
+                    desktop = Class.forName("java.awt.Desktop");
+                } catch (ClassNotFoundException cnfe) {
+                    // NOTICE: The desktop support is available beginning from JDK 1.6
+                }
+
+                if (desktop != null){
+                    Method isDesktopSupported = desktop.getMethod("isDesktopSupported", new Class[] {});
+                    
+                    boolean isDesktopSupportedResult = (Boolean) isDesktopSupported.invoke(null, new Object[] {});
+                    
+                    if (isDesktopSupportedResult){
+                        Method getDesktop = desktop.getMethod("getDesktop", new Class[] {});
+                        
+                        Object desktopObject = getDesktop.invoke(null, new Object[] {});
+                        
+                        Method browse = desktop.getMethod("browse", new Class[] { URI.class });
+                        
+                        browse.invoke(desktopObject, new Object[] {new URI("http://localhost:8080/webstudio/")});
+                    }
                 } else {
                     BrowserLauncher browserLauncher = new BrowserLauncher();
                     browserLauncher.openURLinBrowser("http://localhost:8080/webstudio/");
