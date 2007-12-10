@@ -358,6 +358,7 @@ public class RepositoryTreeController {
         try {
             getSelectedProject().close();
             repositoryTreeState.invalidateTree();
+            repositoryTreeState.updateSelection();
         } catch (ProjectException e) {
             log.error("Failed to close project", e);
             FacesContext.getCurrentInstance()
