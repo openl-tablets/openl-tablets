@@ -750,7 +750,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                        "Specified effective date value is not a valid date/time."));
+                        "Specified effective date value is not a valid date."));
         }
     }
 
@@ -779,7 +779,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                        "Specified expiration date value is not a valid date/time."));
+                        "Specified expiration date value is not a valid date."));
         }
     }
 
