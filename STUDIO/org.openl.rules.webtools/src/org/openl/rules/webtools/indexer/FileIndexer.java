@@ -5,8 +5,10 @@ package org.openl.rules.webtools.indexer;
 
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -335,7 +337,7 @@ public class FileIndexer extends WebTool
 
 	static String[] tokens(String[][] src, Index idx)
 	{
-		Vector v = new Vector();
+		List<String> v = new ArrayList<String>();
 
 		for (int i = 0; i < src.length; i++)
 		{
@@ -348,7 +350,7 @@ public class FileIndexer extends WebTool
 					v.add(tx);
 					continue;
 				}	
-				for (Iterator iter = tb.getTokens().values().iterator(); iter.hasNext();)
+				for (Iterator<String> iter = tb.getTokens().values().iterator(); iter.hasNext();)
 				{
 					v.add(iter.next());
 				}
@@ -356,7 +358,7 @@ public class FileIndexer extends WebTool
 			}
 		}
 
-		String[] ret = (String[]) v.toArray(new String[v.size()]);
+		String[] ret = v.toArray(new String[v.size()]);
 
 		Arrays.sort(ret, Index.TokenBucket.TOKEN_COMPARATOR);
 		return ret;

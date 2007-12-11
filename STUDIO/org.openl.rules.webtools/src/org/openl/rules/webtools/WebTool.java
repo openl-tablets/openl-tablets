@@ -215,7 +215,7 @@ public class WebTool extends StringTool
 	}
 
 	
-	public static String listParamsExcept(String[] usedParams, Map pmap) {
+	public static String listParamsExcept(String[] usedParams, Map<String,String[]> pmap) {
 		StringBuffer buf = null;
 		
 		for (Iterator iter = pmap.keySet().iterator(); iter.hasNext();)
