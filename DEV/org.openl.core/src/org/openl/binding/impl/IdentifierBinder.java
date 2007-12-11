@@ -57,7 +57,7 @@ public class IdentifierBinder extends ANodeBinder
 
 	    String fieldName = ((IdentifierNode) node).getIdentifier();
 
-	    IOpenField of =  bindingContext.findFieldFor(target.getType(), fieldName, strictMatch);
+	    IOpenField of =  bindingContext.findFieldFor(target.getType(), fieldName, false);
 
 	    if (of == null)
 		throw new FieldNotFoundException("Identifier: ", fieldName,
