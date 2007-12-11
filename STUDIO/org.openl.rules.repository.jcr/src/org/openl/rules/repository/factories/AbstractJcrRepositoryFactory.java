@@ -59,6 +59,10 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         // 2. pass as parameter or property to JcrRepository
     }
 
+    public void release() throws RRepositoryException {
+        
+    }
+
     // ------ protected methods ------
 
     /**

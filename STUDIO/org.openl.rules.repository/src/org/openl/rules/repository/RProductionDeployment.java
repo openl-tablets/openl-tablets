@@ -14,5 +14,7 @@ public interface RProductionDeployment extends REntity {
 
     boolean hasProject(String name) throws RRepositoryException;
 
+    RProject getProject(String name) throws RRepositoryException;
+
     void save() throws RRepositoryException;
 }

@@ -28,7 +28,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     public static final String PROP_NODETYPE_FILE = "JCR.nodetype.file";
     public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
     /** Jackrabbit local repository */
-    private TransientRepository repository;
+    protected TransientRepository repository;
     private String repHome;
     private String nodeTypeFile;
 
@@ -66,7 +66,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     @Override
     protected void finalize() throws Throwable {
         // TODO: close open sessions
-        repository.shutdown();
+        if (repository != null) {
+            repository.shutdown();
+        }
         super.finalize();
     }
 

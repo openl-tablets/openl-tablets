@@ -24,4 +24,6 @@ public interface RRepositoryFactory {
      * @throws RRepositoryException if failed
      */
     public void initialize(SmartProps props) throws RRepositoryException;
+
+    void release() throws RRepositoryException;
 }

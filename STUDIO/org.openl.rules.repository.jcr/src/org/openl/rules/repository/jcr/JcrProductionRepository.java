@@ -4,12 +4,18 @@ import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.NodeIterator;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
 import java.util.List;
+import java.util.Collection;
+import java.util.ArrayList;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
     private Node deployLocation;
@@ -84,7 +90,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
      * Releases resources allocated by this Rules Repository instance.
      */
     public void release() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        
     }
 
     
@@ -133,5 +139,52 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to wrap JCR node", e);
         }
+    }
+
+    public Collection<String> getDeploymentNames() throws RRepositoryException {
+        List<String> result = new ArrayList<String>();
+        try {
+            NodeIterator iterator = deployLocation.getNodes();
+            while (iterator.hasNext()) {
+                Node node = iterator.nextNode();
+                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_DEPLOYMENT)) {
+                    result.add(node.getName());
+                }
+            }
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to enumerate deployments", e);
+        }
+
+        return result;
+    }
+
+    public Collection<REntity> findNodes(SearchParams params) throws RRepositoryException {
+        try {
+            Query query = session.getWorkspace().getQueryManager().createQuery(buildQuery(params), Query.XPATH);
+            QueryResult queryResult = query.execute();
+
+            NodeIterator nodeIterator = queryResult.getNodes();
+            List<REntity> result = new ArrayList<REntity>();
+            while (nodeIterator.hasNext()) {
+                Node node = nodeIterator.nextNode();
+                String type = node.getPrimaryNodeType().getName();
+                if (type.equals(JcrNT.NT_DEPLOYMENT)) {
+                    result.add(new JcrProductionDeployment(node));
+                } else if (type.equals(JcrNT.NT_FOLDER)) {
+                    result.add(new JcrProductionFolder(node));
+                } else if (type.equals(JcrNT.NT_FILE)) {
+                    result.add(new JcrProductionFile(node));
+                }
+            }
+
+            return result;
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to run query", e);
+        }
+    }
+
+    private static String buildQuery(SearchParams params) {
+        StringBuilder sb = new StringBuilder("element(*)");
+        return sb.toString();
     }
 }

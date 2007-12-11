@@ -26,7 +26,19 @@ public class ProductionRepositoryFactoryProxy {
         return (RProductionRepository) repFactory.getRepositoryInstance();
     }
 
-    private static void initFactory() throws RRepositoryException {
+    public static synchronized void reset() throws RRepositoryException {
+        release();
+        initFactory();
+    }
+
+    public static synchronized void release() throws RRepositoryException {
+        if (repFactory != null) {
+            repFactory.release();
+        }
+    }
+
+
+    private static synchronized void initFactory() throws RRepositoryException {
         SmartProps props = new SmartProps(PROP_FILE);
 
         String className = props.getStr(PROP_JCR_TYPE);

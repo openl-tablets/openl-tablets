@@ -5,6 +5,7 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
+import java.util.Date;
 
 public class MockResource extends MockArtefact implements ProjectResource{
     private static final InputStream NULL_STREAM = new ByteArrayInputStream(new byte[0]);
@@ -31,5 +32,15 @@ public class MockResource extends MockArtefact implements ProjectResource{
 
     public void setResourceType(String resourceType) {
         this.resourceType = resourceType;
+    }
+
+    public MockResource _setExpirationDate(Date expirationDate) {
+        setExpirationDate(expirationDate);
+        return this;
+    }
+
+    public MockResource _setLineOfBusiness(String lob) {
+        setLineOfBusiness(lob);
+        return this;
     }
 }

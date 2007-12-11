@@ -7,7 +7,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import java.util.Collection;
-import java.util.List;
 
 public class JcrProductionDeployment extends JcrProductionEntity implements RProductionDeployment {
     private Node node;
@@ -57,6 +56,14 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
             return node.hasNode(name);
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to check if project exists", e);
+        }
+    }
+
+    public RProject getProject(String name) throws RRepositoryException {
+        try {
+            return new JcrProductionProject(node.getNode(name));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to get project " + name, e);
         }
     }
 
