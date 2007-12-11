@@ -11,7 +11,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -24,18 +23,18 @@ public class LocalVarDeclarationNode extends ABoundNode
 {
 
 	ILocalVar var;
-	IOpenCast cast;
+//	IOpenCast cast;
 
   /**
    * @param syntaxNode
    * @param children
    */
-  public LocalVarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode[] children, ILocalVar var, IOpenCast cast)
+  public LocalVarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode[] children, ILocalVar var)
   {
     super(syntaxNode, children);
     
     this.var = var;
-    this.cast = cast;
+//    this.cast = cast;
   }
 
   /* (non-Javadoc)
@@ -60,16 +59,13 @@ public class LocalVarDeclarationNode extends ABoundNode
 
 
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-   */
 	public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException
   {
   	Object[] init = evaluateChildren(env); 
   	
   	Object initObj = init == null || init.length == 0 ? null : init[0];
   	
-  	initObj = cast == null ? initObj : cast.convert(initObj);
+///  	initObj = cast == null ? initObj : cast.convert(initObj);
   	
 		env.getLocalFrame()[var.getIndexInLocalFrame()] = initObj;
 		return null; 

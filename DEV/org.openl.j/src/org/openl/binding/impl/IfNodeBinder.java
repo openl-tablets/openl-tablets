@@ -3,7 +3,7 @@
  *
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
- 
+
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
@@ -13,28 +13,26 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class IfNodeBinder extends ANodeBinder
 {
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
-   */
-  public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-    throws Exception
-  {
-  	
-		IBoundNode[] children = bindChildren(node, bindingContext);
-  	//check condition
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
+	    throws Exception
+    {
 
-  	IBoundNode conditionNode = children[0];
-  	if (conditionNode.getType() != JavaOpenClass.BOOLEAN)
-  	{
-  		throw new BoundError(conditionNode.getSyntaxNode(), "Condition must have boolean type");
-  	}
-  	
-    return new IfNode(node, children);
-  }
+	IBoundNode[] children = bindChildren(node, bindingContext);
+	// check condition
+
+	IBoundNode conditionNode = children[0];
+	if (conditionNode.getType() != JavaOpenClass.BOOLEAN)
+	{
+	    throw new BoundError(conditionNode.getSyntaxNode(),
+		    "Condition must have boolean type");
+	}
+
+	return new IfNode(node, children);
+    }
 
 }
