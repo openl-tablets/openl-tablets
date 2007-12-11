@@ -37,16 +37,16 @@ public class XlsUrlParser implements XlsURLConstants {
 //		scriptName =
 //			toCanonicalUrl(OpenlRulesPlugin.getDefault().getBundle(), SCRIPT_NAME);
 
-		Map urlMap = SourceCodeURLTool.parseUrl(url);
+		Map<String, String> urlMap = SourceCodeURLTool.parseUrl(url);
 
-		String file = (String) urlMap.get(FILE);
-		wsName = (String) urlMap.get(SHEET);
+		String file = urlMap.get(FILE);
+		wsName = urlMap.get(SHEET);
 
-		range = (String) urlMap.get(RANGE);
+		range = urlMap.get(RANGE);
 
 		if (range == null) {
 			// TODO line, col
-			range = (String) urlMap.get(CELL);
+			range = urlMap.get(CELL);
 		}
 
 		File f = null;

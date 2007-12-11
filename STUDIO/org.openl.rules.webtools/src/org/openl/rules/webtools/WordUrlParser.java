@@ -35,14 +35,14 @@ public class WordUrlParser implements XlsURLConstants {
 //		scriptName =
 //			toCanonicalUrl(OpenlRulesPlugin.getDefault().getBundle(), SCRIPT_NAME);
 
-		Map urlMap = SourceCodeURLTool.parseUrl(url);
+		Map<String, String> urlMap = SourceCodeURLTool.parseUrl(url);
 
-		String file = (String) urlMap.get(FILE);
+		String file = urlMap.get(FILE);
 
-		wdParStart = (String) urlMap.get(PARAGRAPH_NUM);
+		wdParStart = urlMap.get(PARAGRAPH_NUM);
 		if (wdParStart == null)
-			wdParStart = (String) urlMap.get(PARAGRAPH_START);
-		wdParEnd = (String) urlMap.get(PARAGRAPH_END);
+			wdParStart = urlMap.get(PARAGRAPH_START);
+		wdParEnd = urlMap.get(PARAGRAPH_END);
 
 
 		File f = new File(file).getCanonicalFile();
