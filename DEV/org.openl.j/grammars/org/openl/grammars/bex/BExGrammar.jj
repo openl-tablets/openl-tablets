@@ -1127,17 +1127,24 @@ void Statement() :
 
 void ExtendedWhereStatement():
 {
-		
+	int args = 1;	
 }
 {
-	(<IDENTIFIER> ":=" | "Calculate") Expression() "," "where" WhereVarExpalnation() ("," WhereVarExpalnation())* OptionalSemiColon()
+	//(<IDENTIFIER> ":=" | "Calculate") Expression()
+	
+	 "," "where" WhereVarExpalnation() (LOOKAHEAD(2) "," WhereVarExpalnation() {++args;})*
+	 
+	 {stb.nop("where.explanation", null, args);} 
 }
 
 
 void WhereVarExpalnation():
 {}
 {
-	<IDENTIFIER> "-" Expression()
+	Word("identifier.var.explanation") "-" Expression()
+	{
+		stb.bop("where.var.expalnation", null);
+	}
 }
 
 
@@ -1170,7 +1177,7 @@ void BlockStatement() :
 void StatementExpression() :
 {}
 {
-  Expression()
+  Expression() [LOOKAHEAD(2) ExtendedWhereStatement()  {stb.bop("where.expression", null);}]
 }
 
 void EmptyStatement() :

@@ -19,41 +19,31 @@ import org.openl.types.IOpenClass;
 public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder
 {
 
-	/* (non-Javadoc)
-	 * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
-	 */
-	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-		throws Exception
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
+	    throws Exception
+    {
+
+	if (node.getNumberOfChildren() != 2)
 	{
-
-		if (node.getNumberOfChildren() != 2)
-		{
-			throw new BoundError(
-				node,
-				"Binary node must have 2 subnodes",
-				null);
-		}
-
-		int index = node.getType().lastIndexOf('.');
-
-		String methodName = node.getType().substring(index + 1);
-
-		IBoundNode[] children = bindChildren(node, bindingContext);
-
-		IOpenClass[] types = getTypes(children);
-
-		IMethodCaller om =
-			findBinaryOperatorMethodCaller(methodName, types, bindingContext);
-
-		if (om == null)
-			throw new BoundError(
-				node,
-				errorMsg(methodName, types[0], types[1]));
-
-		return new BinaryOpNodeAnd(node, children, om);
-
+	    throw new BoundError(node, "Binary node must have 2 subnodes", null);
 	}
 
+	int index = node.getType().lastIndexOf('.');
 
+	String methodName = node.getType().substring(index + 1);
+
+	IBoundNode[] children = bindChildren(node, bindingContext);
+
+	IOpenClass[] types = getTypes(children);
+
+	IMethodCaller om = findBinaryOperatorMethodCaller(methodName, types,
+		bindingContext);
+
+	if (om == null)
+	    throw new BoundError(node, errorMsg(methodName, types[0], types[1]));
+
+	return new BinaryOpNodeAnd(node, children, om);
+
+    }
 
 }

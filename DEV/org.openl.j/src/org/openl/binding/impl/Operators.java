@@ -8,6 +8,8 @@ package org.openl.binding.impl;
 
 import java.util.Date;
 
+import org.openl.util.ArrayTool;
+
 /**
  * @author snshor
  *
@@ -354,6 +356,12 @@ public class Operators
 	public static boolean le(long x, long y)
 	{
 		return x <= y;
+	}
+	
+	
+	public static boolean le(String x, String[] y)
+	{
+		return ArrayTool.contains(y, x);
 	}
 	
 	public static boolean eq(boolean x, boolean y)

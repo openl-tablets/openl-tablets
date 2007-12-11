@@ -37,11 +37,12 @@ public class OpenLBuilder extends AOpenLBuilder
   		
   		
   		String[] binders =
-  		{"literal","org.openl.binding.impl.LiteralNodeBinder"
-  		,"literal.integer","org.openl.binding.impl.IntNodeBinder"
+  		{
+  		"literal", org.openl.binding.impl.LiteralNodeBinder.class.getName()
+  		,"literal.integer",org.openl.binding.impl.IntNodeBinder.class.getName()
   		,"literal.real","org.openl.binding.impl.DoubleNodeBinder"
   		,"literal.percent","org.openl.binding.impl.PercentNodeBinder"
-  		,"literal.string","org.openl.binding.impl.StringNodeBinder"
+  		,"literal.string",org.openl.binding.impl.StringNodeBinder.class.getName()
   		,"literal.char","org.openl.binding.impl.CharNodeBinder"
   		,"array.init","org.openl.binding.impl.ArrayInitializationBinder"
 
@@ -49,7 +50,7 @@ public class OpenLBuilder extends AOpenLBuilder
   		,"method.header","org.openl.binding.impl.MethodHeaderNodeBinder"
   		,"method.parameters","org.openl.binding.impl.module.MethodParametersNodeBinder"
   		,"method.declaration","org.openl.binding.impl.module.MethodDeclarationNodeBinder"
-  		,"var.declaration","org.openl.binding.impl.module.VarDeclarationNodeBinder"
+  		,"var.declaration", org.openl.binding.impl.module.VarDeclarationNodeBinder.class.getName()
   		,"parameter.declaration","org.openl.binding.impl.module.ParameterDeclarationNodeBinder"
 
   		,"block","org.openl.binding.impl.BlockBinder"
@@ -65,21 +66,30 @@ public class OpenLBuilder extends AOpenLBuilder
   		,"op.index","org.openl.binding.impl.IndexNodeBinder"
 
 
-  	    ,"local.var.declaration","org.openl.binding.impl.LocalVarBinder"
-  	    ,"type.declaration","org.openl.binding.impl.TypeBinder"
-  	    ,"type.cast","org.openl.binding.impl.TypeCastBinder"
+  		,"local.var.declaration",org.openl.binding.impl.LocalVarBinder.class.getName()
+  		,"type.declaration","org.openl.binding.impl.TypeBinder"
+  		,"type.cast","org.openl.binding.impl.TypeCastBinder"
 
   		,"function","org.openl.binding.impl.MethodNodeBinder"
   		,"identifier","org.openl.binding.impl.IdentifierBinder"
   		,"identifier.sequence","org.openl.binding.impl.IdentifierSequenceBinder"
 //  		,"chain","org.openl.binding.impl.ChainBinder"
   		,"chain","org.openl.binding.impl.BExChainBinder"
-  		,"chain.suffix","org.openl.binding.impl.BExChainSuffixBinder"
+  		,"chain.suffix",org.openl.binding.impl.BExChainSuffixBinder.class.getName()
 
+  		, "where.expression",  org.openl.binding.impl.WhereExpressionNodeBinder.class.getName()
+  		, "where.var.expalnation",  org.openl.binding.impl.WhereVarNodeBinder.class.getName()
+  		, "list", org.openl.binding.impl.ListNodeBinder.class.getName()
+  		
+  		
   		,"control.for","org.openl.binding.impl.ForNodeBinder"
   		,"control.if","org.openl.binding.impl.IfNodeBinder"
   		,"control.while","org.openl.binding.impl.WhileNodeBinder"
-  		,"control.return","org.openl.binding.impl.ReturnNodeBinder"};
+  		,"control.return","org.openl.binding.impl.ReturnNodeBinder"
+  		
+
+  		
+  		};
 
   		
   		for (int i = 0; i < binders.length/2; i++) 

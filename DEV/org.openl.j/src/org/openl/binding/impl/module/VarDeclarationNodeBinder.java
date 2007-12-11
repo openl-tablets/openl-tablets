@@ -1,4 +1,5 @@
 package org.openl.binding.impl.module;
+
 import java.util.Vector;
 
 import org.openl.binding.IBindingContext;
@@ -20,107 +21,105 @@ import org.openl.types.impl.DynamicObjectField;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class VarDeclarationNodeBinder extends ANodeBinder
 {
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
-   */
-  public IBoundNode bind(ISyntaxNode unode, IBindingContext bindingContext)
-    throws Exception
-  {
-  	
-  	ISyntaxNode node = unode.getChild(0);
-  	
-		IBoundNode typeNode = bindChildNode(node.getChild(0), bindingContext);
-  	
-  	
-		IOpenClass varType = typeNode.getType();
-  	
-  	
-		
-		Vector boundNodes = new Vector();
-		
-		for(int i = 1; i < node.getNumberOfChildren(); ++i)
-		{
-			//we may get basically 2 different situations here, either just name or name and initializer
-			ISyntaxNode child = node.getChild(i);
-			if (child instanceof IdentifierNode)
-			{
-				String name = ((IdentifierNode)child).getIdentifier();
-				boundNodes.add(createVarDeclarationNode(child, name, null, varType, bindingContext));
-			}
-			else
-			{
-				
-				String name = ((IdentifierNode)child.getChild(0)).getIdentifier();
-				boundNodes.add(createVarDeclarationNode(child, name, child.getChild(1), varType, bindingContext));				
-			}
-			
-		}
-		
-		return new MemberBlockNode(node, ((IBoundNode[]) boundNodes.toArray(new IBoundNode[boundNodes.size()]) ));
-
-  }
-  
-  
-  static class MemberBlockNode extends BlockNode implements IMemberBoundNode
-  {
-  	
-    /**
-     * @param node
-     * @param children
-     * @param localFrameSize
-     */
-    public MemberBlockNode(
-      ISyntaxNode node,
-      IBoundNode[] children)
+    public IBoundNode bind(ISyntaxNode unode, IBindingContext bindingContext)
+	    throws Exception
     {
-      super(node, children, 0);
-    }
 
-    /* (non-Javadoc)
-     * @see org.openl.binding.impl.module.IMemberBoundNode#addTo(org.openl.binding.impl.module.ModuleOpenClass)
-     */
-    public void addTo(ModuleOpenClass openClass)
-    {
-    	
-			for (int i = 0; i < children.length; i++)
-      {
-        ((IMemberBoundNode) children[i]).addTo(openClass);
-      }
-    }
+	ISyntaxNode node = unode.getChild(0);
 
-    /* (non-Javadoc)
-     * @see org.openl.binding.impl.module.IMemberBoundNode#finalizeBind(org.openl.binding.IBindingContext)
-     */
-    public void finalizeBind(IBindingContext cxt) throws Exception
-    {
-    }
+	IBoundNode typeNode = bindChildNode(node.getChild(0), bindingContext);
 
-}
-  
-  
-	static public final IBoundNode createVarDeclarationNode(ISyntaxNode node,String name, ISyntaxNode initializationNode, IOpenClass varType, IBindingContext bindingContext)
-		throws Exception
+	IOpenClass varType = typeNode.getType();
+
+	Vector boundNodes = new Vector();
+
+	for (int i = 1; i < node.getNumberOfChildren(); ++i)
 	{
-		IBoundNode init = null;
-		IOpenCast cast = null;
+	    // we may get basically 2 different situations here, either just
+	    // name or name and initializer
+	    ISyntaxNode child = node.getChild(i);
+	    if (child instanceof IdentifierNode)
+	    {
+		String name = ((IdentifierNode) child).getIdentifier();
+		boundNodes.add(createVarDeclarationNode(child, name, null,
+			varType, bindingContext));
+	    } else
+	    {
 
-		if (initializationNode != null)
-		{
-			
-			init = bindTypeNode(initializationNode, bindingContext, varType);
+		String name = ((IdentifierNode) child.getChild(0))
+			.getIdentifier();
+		boundNodes.add(createVarDeclarationNode(child, name, child
+			.getChild(1), varType, bindingContext));
+	    }
 
-			cast = getCast(init, varType, bindingContext);
-
-		}
-		
-
-		
-		
-		return new VarDeclarationNode(node, init == null ? null : new IBoundNode[]{init},  new DynamicObjectField(name, varType),cast);
 	}
+
+	return new MemberBlockNode(node, ((IBoundNode[]) boundNodes
+		.toArray(new IBoundNode[boundNodes.size()])));
+
+    }
+
+    static class MemberBlockNode extends BlockNode implements IMemberBoundNode
+    {
+
+	/**
+	 * @param node
+	 * @param children
+	 * @param localFrameSize
+	 */
+	public MemberBlockNode(ISyntaxNode node, IBoundNode[] children)
+	{
+	    super(node, children, 0);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.openl.binding.impl.module.IMemberBoundNode#addTo(org.openl.binding.impl.module.ModuleOpenClass)
+	 */
+	public void addTo(ModuleOpenClass openClass)
+	{
+
+	    for (int i = 0; i < children.length; i++)
+	    {
+		((IMemberBoundNode) children[i]).addTo(openClass);
+	    }
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.openl.binding.impl.module.IMemberBoundNode#finalizeBind(org.openl.binding.IBindingContext)
+	 */
+	public void finalizeBind(IBindingContext cxt) throws Exception
+	{
+	}
+
+    }
+
+    static public final IBoundNode createVarDeclarationNode(ISyntaxNode node,
+	    String name, ISyntaxNode initializationNode, IOpenClass varType,
+	    IBindingContext bindingContext) throws Exception
+    {
+	IBoundNode init = null;
+	IOpenCast cast = null;
+
+	if (initializationNode != null)
+	{
+
+	    init = bindTypeNode(initializationNode, bindingContext, varType);
+
+	    cast = getCast(init, varType, bindingContext);
+
+	}
+
+	return new VarDeclarationNode(node, init == null ? null
+		: new IBoundNode[] { init }, new DynamicObjectField(name,
+		varType), cast);
+    }
 }
