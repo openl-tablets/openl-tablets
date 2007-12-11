@@ -9,7 +9,7 @@ import java.util.TreeMap;
 public class Index
 {
 
-	Map firstCharMap = new TreeMap();
+	Map<String, TreeMap<String, TokenBucket>> firstCharMap = new TreeMap<String, TreeMap<String,TokenBucket>>();
 	
 	
  
@@ -67,9 +67,9 @@ public class Index
 	}
 	
 	
-	protected synchronized TokenBucket getTokenBucket(Map tokenMap, String token)
+	protected synchronized TokenBucket getTokenBucket(Map<String, TokenBucket> tokenMap, String token)
 	{
-		TokenBucket tb = (TokenBucket)tokenMap.get(token);
+		TokenBucket tb = tokenMap.get(token);
 		if (tb == null)
 		{	
 		  tb = new TokenBucket(token);
@@ -81,12 +81,12 @@ public class Index
 
 
 
-	protected synchronized Map getFirstCharMap(String charStr)
+	protected synchronized Map<String, TokenBucket> getFirstCharMap(String charStr)
 	{
-		Map map = (Map)firstCharMap.get(charStr);
+		TreeMap<String, TokenBucket> map = firstCharMap.get(charStr);
 		if (map == null)
 		{	
-		  map = new TreeMap();
+		  map = new TreeMap<String, TokenBucket>();
 		  firstCharMap.put(charStr, map);
 		}  
 		return map;
@@ -113,7 +113,7 @@ public class Index
 		public synchronized HitBucket getHitBucket(IIndexElement element)
 		{
 			String uri = element.getUri();
-			HitBucket hb = (HitBucket) indexElements.get(uri);
+			HitBucket hb =  indexElements.get(uri);
 			if (hb == null)
 			{
 				hb = new HitBucket(element);
@@ -126,8 +126,8 @@ public class Index
 		String baseToken;
 //		Map indexElements = new TreeMap();
 //		Map tokens = new TreeMap(TOKEN_COMPARATOR);
-		Map indexElements = new HashMap();
-		Map tokens = new HashMap();
+		Map<String, HitBucket> indexElements = new HashMap<String, HitBucket>();
+		Map<String, String> tokens = new HashMap<String, String>();
 		
 		static public final TokenComparator TOKEN_COMPARATOR = new TokenComparator();
 		
@@ -141,29 +141,27 @@ public class Index
 			return baseToken;
 		}
 
-		public Map getIndexElements()
+		public Map<String, HitBucket> getIndexElements()
 		{
 			return indexElements;
 		}
 
-		public Map getTokens()
+		public Map<String, String> getTokens()
 		{
 			return tokens;
 		}
 		
 		public String displayValue()
 		{
-			return (String)tokens.values().iterator().next();
+			return tokens.values().iterator().next();
 		}
 		
 		
-		static class TokenComparator implements Comparator
+		static class TokenComparator implements Comparator<String>
 		{
 
-			public int compare(Object arg0, Object arg1)
+			public int compare(String s0, String s1)
 			{
-				String s0 = (String)arg0;
-				String s1 = (String)arg1;
 				return s0.length() == s1.length() ? s0.compareTo(s1) : s0.length() - s1.length() ;
 			}
 			
@@ -174,7 +172,7 @@ public class Index
 
 
 
-	public Map getFirstCharMap()
+	public Map<String, TreeMap<String, TokenBucket>> getFirstCharMap()
 	{
 		return firstCharMap;
 	}
@@ -184,7 +182,7 @@ public class Index
 	{
 		String charStr = token.substring(0,1).toUpperCase();
 		
-		Map charMap = getFirstCharMap(charStr);
+		Map<String, TokenBucket> charMap = getFirstCharMap(charStr);
 		
 		String tokenRoot = getRoot(token);
 		TokenBucket tb = getTokenBucket(charMap, tokenRoot);
@@ -196,7 +194,7 @@ public class Index
 	{
 		String charStr = token.substring(0,1).toUpperCase();
 
-		Map charMap = (Map)firstCharMap.get(charStr);
+		Map<String, TokenBucket> charMap = firstCharMap.get(charStr);
 		
 		if (charMap == null)
 			return null;
@@ -204,7 +202,7 @@ public class Index
 		
 		String tokenRoot = getRoot(token);
 		
-		TokenBucket tb = (TokenBucket)charMap.get(tokenRoot);
+		TokenBucket tb = charMap.get(tokenRoot);
 		
 		return tb;
 	}
