@@ -128,7 +128,7 @@ public class StartTomcat {
 
         public void run() {
             try {
-                Thread.sleep(20000);
+                Thread.sleep(5000);
             } catch (InterruptedException ex) {
                 // Do nothing
             }
