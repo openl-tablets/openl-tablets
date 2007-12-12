@@ -2,26 +2,24 @@ package org.openl.rules.workspace.production.client;
 
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RFile;
+import org.openl.rules.repository.RFolder;
+import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.util.IOUtil;
-import org.openl.rules.workspace.util.ZipUtil;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Collection;
 
 /**
  * This class can extract rules projects deployed into production JCR based environment to a specified location on
  * file system. 
  */
 public class JcrRulesClient {
-    /**
-     * Temporary file name.
-     */
-    private static final String ZIPPED_PROJECT_FILENAME = "__deployement.archive.zip";
-
     /**
      * Unpacks deployed project with given deploy id to <code>destFolder</code>.
      * The methods uses <code>RRepository</code> instance provided by <code>ProductionRepositoryFactoryProxy</code>
@@ -30,18 +28,30 @@ public class JcrRulesClient {
      * @param deployID identifier of deployed project
      * @param destFolder the folder to unpack the project to.
      */
-    public void fetchProject(DeployID deployID, File destFolder) throws Exception {
+    public void fetchDeployment(DeployID deployID, File destFolder) throws Exception {
         destFolder.mkdirs();
         FolderHelper.clearFolder(destFolder);
 
-        RProject rProject = ProductionRepositoryFactoryProxy.getRepositoryInstance().getProject(deployID.getName());
-        RFile rFile = rProject.getRootFolder().getFiles().get(0);
+        RProductionDeployment rDeployment = ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeployment(deployID.getName());
 
-        File projectZip = new File(destFolder, ZIPPED_PROJECT_FILENAME);
-        IOUtil.copy(rFile.getContent(), new BufferedOutputStream(new FileOutputStream(projectZip)));
+        Collection<RProject> projects = rDeployment.getProjects();
+        for (RProject project : projects) {
+            File projectFolder = new File(destFolder, project.getName());
+            projectFolder.mkdirs();
+            
+            download(project.getRootFolder(), projectFolder);
+        }
+    }
 
-        ZipUtil.unzip(projectZip, destFolder);
-        projectZip.delete();
+    private void download(RFolder folder, File location) throws RRepositoryException, IOException {
+        location.mkdirs();
+        for (RFile rFile : folder.getFiles()) {
+            IOUtil.copy(rFile.getContent(), new FileOutputStream(new File(location, rFile.getName())));
+        }
+
+        for (RFolder rFolder : folder.getFolders()) {
+            download(rFolder, new File(location, rFolder.getName()));
+        }
     }
 
 }

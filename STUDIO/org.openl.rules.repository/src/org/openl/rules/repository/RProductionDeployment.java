@@ -8,7 +8,7 @@ import java.util.Collection;
  * Represents a set of deployed projects to production repository.
  */
 public interface RProductionDeployment extends REntity {
-    Collection<RProject> getProjects();
+    Collection<RProject> getProjects() throws RRepositoryException;
 
     RProject createProject(String projectName) throws RRepositoryException;
 
