@@ -1,0 +1,58 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  template="/common/baseFrame.xhtml">
+
+  <ui:define name="extrastyle">
+    <link rel="stylesheet" type="text/css" href="#{contextPath}/css/dtree.css"></link>
+
+    <style type="text/css">
+      #tree {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </ui:define>
+
+  <ui:define name="page">
+    <script language="JavaScript" type="text/JavaScript" src="#{contextPath}/javascript/dtree.js"></script>
+
+    <div style="border:1px solid #949ABD; height:650px;">
+
+    <table>
+      <tr>
+        <td>
+          <a href="index.jsp?reload=true" title="Refresh Project" target="_top">
+            <img border="0" src="#{contextPath}/images/refresh.gif" />
+          </a>
+        </td>
+
+        <td align="right">
+          <a href="javascript: d.openAll(); d.o(0);" title="Expand All">
+            <img border="0" src="images/expandall.gif" />
+          </a>
+          <a href="javascript: d.closeAll()" title="Collapse All">
+            <img border="0" src="images/collapseall.gif" />
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <p />
+
+    <div class="dtree" id="tree"></div>
+
+    </div>
+
+    <script>
+      d = new dTree('d');
+     <h:outputText value="#{sessionScope.studio.renderedTree}" escape="false"/>
+      document.getElementById('tree').innerHTML = d;
+    </script>
+
+  </ui:define>
+</ui:composition>

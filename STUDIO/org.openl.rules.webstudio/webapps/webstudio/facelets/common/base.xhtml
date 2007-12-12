@@ -14,6 +14,14 @@
 
   <head>
     <a4j:loadStyle src="/css/default.css" />
+    <style>
+      input.button { background-image: url(#{contextPath}/images/button_#{skinBean.skin}.gif); }
+      input.readonlyRowInput { background-color: #{a4jSkin.generalBackgroundColor}; }
+      table.standard { border-bottom: 1px solid #{a4jSkin.headerBackgroundColor}; }
+      table.standard td { border-right-color: #{a4jSkin.generalBackgroundColor}; }
+      table.standard thead td {  border-top-color: #{a4jSkin.headerBackgroundColor}; border-right-color: #{a4jSkin.generalBackgroundColor}; }
+    </style>
+
     <a4j:loadScript src="/javascript/common.js" />
     <script>
       function ajaxRequestContainsErrors() {
@@ -33,13 +41,7 @@
         document.getElementById('mainForm:submitButton').click();
       }
     </script>
-    <style>
-      input.button { background-image: url(../../images/button_#{skinBean.skin}.gif); }
-      input.readonlyRowInput { background-color: #{a4jSkin.generalBackgroundColor}; }
-      table.standard { border-bottom: 1px solid #{a4jSkin.headerBackgroundColor}; }
-      table.standard td { border-right-color: #{a4jSkin.generalBackgroundColor}; }
-      table.standard thead td {  border-top-color: #{a4jSkin.headerBackgroundColor}; border-right-color: #{a4jSkin.generalBackgroundColor}; }
-    </style>
+
     <title><ui:insert name="title">OpenL Web Studio</ui:insert></title>
   </head>
 

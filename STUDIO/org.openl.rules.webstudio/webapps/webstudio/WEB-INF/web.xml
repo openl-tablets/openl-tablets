@@ -14,16 +14,15 @@
     </description>
     <param-name>javax.faces.CONFIG_FILES</param-name>
     <param-value>
-      /WEB-INF/managed-beans.xml,
-      /WEB-INF/navigation.xml,
-      /WEB-INF/managed-beans-jcr.xml,
-      /WEB-INF/navigation-jcr.xml
+      /WEB-INF/faces/faces-config.xml,
+      /WEB-INF/faces/faces-repository.xml,
+      /WEB-INF/faces/faces-studio.xml
     </param-value>
   </context-param>
 
   <context-param>
     <param-name>javax.faces.DEFAULT_SUFFIX</param-name>
-    <param-value>.jsp</param-value>
+    <param-value>.xhtml</param-value>
   </context-param>
 
   <context-param>
@@ -124,12 +123,7 @@
 
   <servlet-mapping>
     <servlet-name>FacesServlet</servlet-name>
-    <url-pattern>/faces/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>FacesServlet</servlet-name>
-    <url-pattern>*.jsf</url-pattern>
+    <url-pattern>*.xhtml</url-pattern>
   </servlet-mapping>
 
   <servlet>

@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:c="http://java.sun.com/jstl/core"
+      xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+      xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+
+  <head>
+    <a4j:loadStyle src="/css/default.css" />
+    <style>
+      input.button { background-image: url(#{contextPath}/images/button_#{skinBean.skin}.gif); }
+      input.readonlyRowInput { background-color: #{a4jSkin.generalBackgroundColor}; }
+      table.standard { border-bottom: 1px solid #{a4jSkin.headerBackgroundColor}; }
+      table.standard td { border-right-color: #{a4jSkin.generalBackgroundColor}; }
+      table.standard thead td {  border-top-color: #{a4jSkin.headerBackgroundColor}; border-right-color: #{a4jSkin.generalBackgroundColor}; }
+    </style>
+    <ui:insert name="extrastyle"/>
+
+    <ui:insert name="extrascript"/>
+
+    <title><ui:insert name="title"></ui:insert></title>
+  </head>
+
+  <body>
+    <ui:insert name="page"/>
+  </body>
+</html>
