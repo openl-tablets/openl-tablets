@@ -41,5 +41,12 @@ public class BaseJcrRepository {
     public String getName() {
         return name;
     }
+
+    /**
+     * Releases resources allocated by this Rules Repository instance.
+     */
+    public void release() {
+        session.logout();
+    }
     
 }

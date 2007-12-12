@@ -36,6 +36,7 @@ public class JcrProductionProject extends JcrProductionEntity implements RProjec
         Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_PROJECT, false);
 
         parentNode.save();
+        n.save();
 
         Node nodeFiles = NodeUtil.createNode(n, NODE_FILES, JcrNT.NT_FILES, false);
         n.save();

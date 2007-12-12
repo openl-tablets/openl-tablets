@@ -25,9 +25,9 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
 
     @Override
     public void release() throws RRepositoryException {
-        repository.shutdown();
-        repository = null;
+        if (repository != null) {
+            repository.shutdown();
+            repository = null;
+        }
     }
-
-    
 }
