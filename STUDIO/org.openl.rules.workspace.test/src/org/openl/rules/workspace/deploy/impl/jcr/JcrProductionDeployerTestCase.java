@@ -32,7 +32,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
     private static final String PROJECT1_NAME = "project1";
     private static final String PROJECT2_NAME = "project2";
     private static final Date EFFECTIVE_DATE = new Date();
-    private static final Date EXPIRATION_DATE = new Date(EFFECTIVE_DATE.getTime() + 110);
+    private static final Date EXPIRATION_DATE = new Date(EFFECTIVE_DATE.getTime() + 2*60*60*1000);
     private static final String LOB = "management";
 
     private Project project1;

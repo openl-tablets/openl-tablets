@@ -60,7 +60,7 @@ public class JcrRulesClientTestCase extends TestCase{
         File destDir = new File(TestHelper.FOLDER_TEST);
         TestHelper.clearDirectory(destDir);
 
-        instance.fetchProject(id, destDir);
+        instance.fetchDeployment(id, destDir);
 
         File file1_2 = new File(destDir, PROJECT_NAME + "/" + FOLDER1 + "/" + FILE1_2);
         assertEquals(20L, file1_2.length());
@@ -68,16 +68,17 @@ public class JcrRulesClientTestCase extends TestCase{
 
     public void testFetchRedeployedProject() throws Exception {
         JcrProductionDeployer deployer = getDeployer();
-        DeployID id = deployer.deploy(Collections.singletonList(project));
-        deployer.deploy(id, Collections.singletonList(makeProject2()));
-
+        DeployID id = deployer.deploy(Collections.singletonList(makeProject2()));
+        
         File destDir = new File(TestHelper.FOLDER_TEST);
         TestHelper.clearDirectory(destDir);
 
-        instance.fetchProject(id, destDir);
-
-        File file1_2 = new File(destDir, PROJECT_NAME2 + "/" + FOLDER1 + "/" + FILE1_2);
-        assertEquals(42L, file1_2.length());
+        try {
+            deployer.deploy(id, Collections.singletonList(makeProject2()));
+            fail("exception expected");
+        } catch (DeploymentException e) {
+            // ok
+        }
     }
 
     private JcrProductionDeployer getDeployer() throws DeploymentException {

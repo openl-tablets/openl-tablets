@@ -6,7 +6,9 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.NodeIterator;
 import java.util.Collection;
+import java.util.ArrayList;
 
 public class JcrProductionDeployment extends JcrProductionEntity implements RProductionDeployment {
     private Node node;
@@ -39,8 +41,21 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
     }
 
 
-    public Collection<RProject> getProjects() {
-        return null;
+    public Collection<RProject> getProjects() throws RRepositoryException {
+        Collection<RProject> result = new ArrayList<RProject>();
+        try {
+            NodeIterator nodeIterator = node().getNodes();
+            while (nodeIterator.hasNext()) {
+                Node node = nodeIterator.nextNode();
+                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_PROJECT)) {
+                    result.add(getProject(node.getName()));
+                }
+            }
+
+            return result;
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to get projects", e);
+        }
     }
 
     public RProject createProject(String projectName) throws RRepositoryException {

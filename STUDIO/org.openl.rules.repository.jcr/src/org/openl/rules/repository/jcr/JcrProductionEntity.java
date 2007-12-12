@@ -1,19 +1,17 @@
 package org.openl.rules.repository.jcr;
 
 import org.openl.rules.repository.REntity;
-import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.RProperty;
 import org.openl.rules.repository.RPropertyType;
-import static org.openl.rules.repository.jcr.NodeUtil.isSame;
-import static org.openl.rules.repository.jcr.NodeUtil.convertDate2Calendar;
+import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import static org.openl.rules.repository.jcr.NodeUtil.isSame;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import java.util.Date;
-import java.util.Calendar;
-import java.util.List;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 public abstract class JcrProductionEntity implements REntity {
     private String name;
@@ -28,10 +26,10 @@ public abstract class JcrProductionEntity implements REntity {
         name = node.getName();
 
         if (node.hasProperty(JcrNT.PROP_EFFECTIVE_DATE)) {
-            effectiveDate = node.getProperty(JcrNT.PROP_EFFECTIVE_DATE).getDate().getTime();
+            effectiveDate = new Date(node.getProperty(JcrNT.PROP_EFFECTIVE_DATE).getLong());
         }
         if (node.hasProperty(JcrNT.PROP_EXPIRATION_DATE)) {
-            expirationDate = node.getProperty(JcrNT.PROP_EXPIRATION_DATE).getDate().getTime();
+            expirationDate = new Date(node.getProperty(JcrNT.PROP_EXPIRATION_DATE).getLong());
         }
         if (node.hasProperty(JcrNT.PROP_LINE_OF_BUSINESS)) {
             lineOfBusiness = node.getProperty(JcrNT.PROP_LINE_OF_BUSINESS).getString();
@@ -63,10 +61,9 @@ public abstract class JcrProductionEntity implements REntity {
         if (isSame(effectiveDate, date)) return;
 
         Node n = node();
-        Calendar c = convertDate2Calendar(date);
 
         try {
-            n.setProperty(JcrNT.PROP_EFFECTIVE_DATE, c);
+            n.setProperty(JcrNT.PROP_EFFECTIVE_DATE, date.getTime());
             effectiveDate = date;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set effectiveDate", e);
@@ -78,10 +75,9 @@ public abstract class JcrProductionEntity implements REntity {
         if (isSame(expirationDate, date)) return;
 
         Node n = node();
-        Calendar c = convertDate2Calendar(date);
-
+        
         try {
-            n.setProperty(JcrNT.PROP_EXPIRATION_DATE, c);
+            n.setProperty(JcrNT.PROP_EXPIRATION_DATE, date.getTime());
             expirationDate = date;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot set expirationDate", e);

@@ -47,8 +47,8 @@
             </requiredPrimaryTypes>
         </childNodeDefinition>
 
-        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
-        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="effectiveDate" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
         <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
     </nodeType>
 
@@ -57,8 +57,8 @@
             <supertype>nt:file</supertype>
         </supertypes>
 
-        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
-        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="effectiveDate" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
         <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
     </nodeType>
 
@@ -67,8 +67,8 @@
             <supertype>nt:folder</supertype>
         </supertypes>
 
-        <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
-        <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="effectiveDate" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="expirationDate" requiredType="Long" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
         <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
     </nodeType>
 

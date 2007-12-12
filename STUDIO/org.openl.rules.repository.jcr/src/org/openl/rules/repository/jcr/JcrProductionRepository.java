@@ -14,7 +14,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -173,7 +172,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                     result.add(new JcrProductionProject(node));
                 }
             }
-
+                                  
             return result;
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to run query", e);
@@ -187,19 +186,17 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             sb.append("[@" + JcrNT.PROP_LINE_OF_BUSINESS + "='").append(params.getLineOfBusiness()).append("']");
         }
 
-        class F {
-            final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss SSS");
-            String format(Date date) {
-                String[] strings = dateFormat.format(date).split(" ");
-                return strings[0] + "T" + strings[1] + "." + strings[2] + "Z";
-            }
-        }
-        F F = new F();
-
-        if (params.getLowerEffectiveDate() != null) {
-            sb.append("[@" + JcrNT.PROP_EFFECTIVE_DATE + " >= '").append(F.format(params.getLowerEffectiveDate())).append("']");
-        }
+        appendDateCondition(params.getLowerEffectiveDate(), JcrNT.PROP_EFFECTIVE_DATE + " >= ", sb);
+        appendDateCondition(params.getUpperEffectiveDate(), JcrNT.PROP_EFFECTIVE_DATE + " <= ", sb);
+        appendDateCondition(params.getLowerExpirationDate(), JcrNT.PROP_EXPIRATION_DATE + " >= ", sb);
+        appendDateCondition(params.getUpperExpirationDate(), JcrNT.PROP_EXPIRATION_DATE + " <= ", sb);
 
         return sb.toString();
+    }
+
+    private static void appendDateCondition(Date date, String condition, StringBuilder sb) {
+        if (date != null) {
+            sb.append("[@").append(condition).append(date.getTime()).append("]");
+        }
     }
 }
