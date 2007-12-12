@@ -54,7 +54,7 @@ BODY {
 <a href="index.jsp?reload=true" title="Refresh Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
 
 <%if (Util.isLocalRequest(request)) {%>
-    <a href="jsp/uploadProjects.jsf" target="mainFrame" title="Upload projects to repository"><img border=0 alt="upload" src="<%= request.getContextPath()%>/images/upload.gif"></a>
+    <a href="jsp/uploadProjects.jsf" target="mainFrame" title="Upload projects to repository">upload</a>
 <%}%>
 
 </td>
