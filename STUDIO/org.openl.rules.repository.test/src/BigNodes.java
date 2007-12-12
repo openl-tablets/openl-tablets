@@ -21,7 +21,7 @@ public class BigNodes {
     private Repository repository;
     private Session session;
 
-    protected void startExigne() throws RepositoryException {
+    protected void startExigen() throws RepositoryException {
 	out.println(">> Starting Exigne JCR");
         repository = RepositoryProvider.getInstance().getRepository();
     }
@@ -115,7 +115,7 @@ public class BigNodes {
 	BigNodes test = new BigNodes();
 	
 	try {
-	    test.startExigne();
+	    test.startExigen();
 	    test.createSession("user", "pass");
 	    test.run();
 	    

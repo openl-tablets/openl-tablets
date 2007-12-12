@@ -24,7 +24,7 @@ public class CheckObservation {
     private Repository repository;
     private Session session;
 
-    protected void startExigne() throws RepositoryException {
+    protected void startExigen() throws RepositoryException {
 	out.println(">> Starting Exigne JCR");
         repository = RepositoryProvider.getInstance().getRepository();
     }
@@ -111,6 +111,12 @@ public class CheckObservation {
     protected void run() throws RepositoryException {
 	checkPath();
 	createNodes(10);
+	
+	try {
+	    Thread.sleep(10000);
+	} catch (Exception e) {
+	    // TODO: handle exception
+	}
     }
     
     public static final void main(String[] args) {
@@ -119,7 +125,7 @@ public class CheckObservation {
 	CheckObservation test = new CheckObservation();
 	
 	try {
-	    test.startExigne();
+	    test.startExigen();
 	    test.createSession("user", "pass");
 	    test.run();
 	    
@@ -131,11 +137,19 @@ public class CheckObservation {
 	    e.printStackTrace(out);
 	}
 	
+	if (!eventFired) {
+	    out.println("* WARNING: No events were fired!!!");
+	}
+	
 	out.println(">> Done");
     }
 
+    private static boolean eventFired;
+    
     private class EL implements EventListener {
 	public void onEvent(EventIterator ei) {
+	    eventFired = true;
+	    
 	    while (ei.hasNext()) {
 		Event e = ei.nextEvent();
 		String path;
