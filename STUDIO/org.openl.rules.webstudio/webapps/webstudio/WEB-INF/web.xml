@@ -104,7 +104,7 @@
 
   <filter-mapping>
     <filter-name>MyFacesExtensionsFilter</filter-name>
-    <url-pattern>*.faces</url-pattern>
+    <url-pattern>*.xhtml</url-pattern>
   </filter-mapping>
 
   <!-- Listeners, that does all the startup work (configuration, init). -->
