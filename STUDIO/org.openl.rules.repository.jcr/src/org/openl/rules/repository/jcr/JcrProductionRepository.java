@@ -1,21 +1,24 @@
 package org.openl.rules.repository.jcr;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
+import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
-import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.NodeIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
-import java.util.List;
-import java.util.Collection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
     private Node deployLocation;
@@ -86,14 +89,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Releases resources allocated by this Rules Repository instance.
-     */
-    public void release() {
-        
-    }
-
-    
     public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
@@ -174,6 +169,8 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                     result.add(new JcrProductionFolder(node));
                 } else if (type.equals(JcrNT.NT_FILE)) {
                     result.add(new JcrProductionFile(node));
+                } else if (type.equals(JcrNT.NT_PROJECT)) {
+                    result.add(new JcrProductionProject(node));
                 }
             }
 
@@ -184,7 +181,25 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     private static String buildQuery(SearchParams params) {
-        StringBuilder sb = new StringBuilder("element(*)");
+        StringBuilder sb = new StringBuilder("//element(*, nt:base)");
+        if (!StringUtils.isEmpty(params.getLineOfBusiness())) {
+            // todo: check for injection
+            sb.append("[@" + JcrNT.PROP_LINE_OF_BUSINESS + "='").append(params.getLineOfBusiness()).append("']");
+        }
+
+        class F {
+            final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss SSS");
+            String format(Date date) {
+                String[] strings = dateFormat.format(date).split(" ");
+                return strings[0] + "T" + strings[1] + "." + strings[2] + "Z";
+            }
+        }
+        F F = new F();
+
+        if (params.getLowerEffectiveDate() != null) {
+            sb.append("[@" + JcrNT.PROP_EFFECTIVE_DATE + " >= '").append(F.format(params.getLowerEffectiveDate())).append("']");
+        }
+
         return sb.toString();
     }
 }

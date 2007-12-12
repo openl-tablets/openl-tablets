@@ -45,6 +45,16 @@ public class SmartProps {
     }
 
     /**
+     * Create wrapper for <code>Properties</code>.
+     *
+     * @param properties properties to initialize this instance from
+     */
+    public SmartProps(Properties properties) {
+        props = (Properties) properties.clone();
+    }
+    
+
+    /**
      * Gets string value of property by name.
      *
      * @param name name of property

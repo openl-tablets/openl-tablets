@@ -19,10 +19,10 @@ import org.openl.rules.workspace.mock.MockProject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Collection;
 
 public class JcrProductionDeployerTestCase extends TestCase {
     /**

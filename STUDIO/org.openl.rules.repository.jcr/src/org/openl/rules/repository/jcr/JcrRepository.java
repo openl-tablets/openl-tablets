@@ -87,11 +87,6 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
     }
 
     /** {@inheritDoc} */
-    public void release() {
-        session.logout();
-    }
-
-    /** {@inheritDoc} */
     public RProject createProject(String nodeName) throws RRepositoryException {
         try {
             return JcrProject.createProject(defRulesLocation, nodeName);

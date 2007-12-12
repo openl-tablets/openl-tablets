@@ -21,7 +21,7 @@ public class ProductionRepositoryFactoryProxy {
             throw new RuntimeException(e);
         }
     }
-    
+
     public static synchronized RProductionRepository getRepositoryInstance() throws RRepositoryException {
         return (RProductionRepository) repFactory.getRepositoryInstance();
     }
