@@ -29,10 +29,6 @@
   right: 10px;
 }
 
-img.actionImage {
-  border: 0;
-}
-
 body {
   font-family: verdana, helvetica, arial, sans-serif;
   font-size: 12px;
@@ -54,9 +50,9 @@ body {
   width: 100%;
   height: 100%;
 }
-/* ------------------------------------------- */
 
-/* form elements styles */
+/* ------------------------------------------- */
+  /* form elements styles */
 form .formfields {
   vertical-align: top;
   border: none;
@@ -151,11 +147,19 @@ form.standard table.buttonPanel {
   display: ;
 }
 
+.actionButton img {
+  vertical-align: bottom;
+}
+
 .actionLabel {
   vertical-align: top;
   text-align: center;
   display: screen;
   font-size: 8pt;
+}
+
+img {
+  border: 0;
 }
 
 .readonly {
@@ -223,12 +227,6 @@ table.standard td .left {
   text-align: left;
 }
 
-/* for verticale table header */
-table.standard td.header {
-  padding: 0px 5px 5px 2px;
-  font-weight: bold;
-}
-
 table.standard tr.even {
   background-color: rgb(235, 238, 247);
 }
@@ -240,4 +238,13 @@ table.standard tr.odd {
 /* RichFaces tree styles */
 .dr-pnl-b {
   padding: 2px !important;
+}
+
+div#iconbar {
+  display: block;
+  float: right;
+  height: 16px;
+  position: absolute;
+  right: 5px;
+  top: 0px;
 }

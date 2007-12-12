@@ -1,13 +1,4 @@
 
-
-body
-{
-font-size: 70%;
-color:#000000;
-background-color:#f1f1f1;
-margin:0px;
-}
-
 body, p, h1, h2, h3, table, td, th, ul, ol, textarea, input
 {
 font-family: verdana,helvetica,arial,sans-serif;
@@ -21,25 +12,25 @@ font-size: 100%;
 
 .error_box
 {
-	background: #ffeeee; border: 1px solid;
+  background: #ffeeee; border: 1px solid;
 }
 
 
 .data_cell
 {
-	background: #eeffee; border: 1px solid;
+  background: #eeffee; border: 1px solid;
 }
 
 .ov-matrix
 {
-	background: #ffffff; border: 1px solid rgb(0,0,0); padding: 4px;
+  background: #ffffff; border: 1px solid rgb(0,0,0); padding: 4px;
 }
 
 
 
 th.data_header
 {
-	background: #eeeeff; border: 1px solid;
+  background: #eeeeff; border: 1px solid;
 }
 
 
@@ -75,12 +66,12 @@ border-collapse: collapse;
 
 .testtable
 {
-	border:1px solid black;
+  border:1px solid black;
 }
 
 th.testtable
 {
-	border:1px solid black;
+  border:1px solid black;
 }
 
 
@@ -243,13 +234,13 @@ float:left;
 h1, h2, h3
 {
 background-color:transparent;
-color:#000000; 
+color:#000000;
 }
 
 h1.att, h2.att, h3.att, hr.att
 {
 background-color:transparent;
-color:#000000; 
+color:#000000;
 }
 
 hr
@@ -277,6 +268,7 @@ color:#000000;
 background-color:#f1f1f1;
 }
 
+/*
 a.nounderline {text-decoration:none}
 a.rule-link {text-decoration:none}
 
@@ -320,45 +312,46 @@ a.anibutton:hover
 {
 color: #000000;
 border: 2px inset;
-background: #ffff10; 
+background: #ffff10;
 text-decoration: none;
 padding: 1px 5px 1px 10px;
 line-height: 200%;
 }
+*/
 
-/* CSS Document - SitePoint specific CSS for W3Schools */ 
+/* CSS Document - SitePoint specific CSS for W3Schools */
 #sp
 {
-	padding:10px 3px;
-	text-align:left;
+  padding:10px 3px;
+  text-align:left;
 }
 #sp p
 {
-	float:left;
-	border:0px none;
-	padding:0px;
-	margin:4px 0px;
+  float:left;
+  border:0px none;
+  padding:0px;
+  margin:4px 0px;
 }
 #sp p img
 {
-	float:left;
-	border:0px none;
-	padding-right:2px;
+  float:left;
+  border:0px none;
+  padding-right:2px;
 }
 #sp p.splink
 {
-	padding:0px 0px 0px 0px;
-	margin:0px 0px 14px 0px;
+  padding:0px 0px 0px 0px;
+  margin:0px 0px 14px 0px;
 }
 #sp p.splink a
 {
-	color:#0000FF;
-	font:bold xx-small Verdana, Arial, Helvetica, sans-serif; 
+  color:#0000FF;
+  font:bold xx-small Verdana, Arial, Helvetica, sans-serif;
 }
 span.insert
 {
-	color:#e80000;
-	background-color:transparent;
+  color:#e80000;
+  background-color:transparent;
 }
 
 
@@ -387,15 +380,15 @@ font-size: 150%;
 
 span.codeerror
 {
-	color: red; font-weight: bold;
+  color: red; font-weight: bold;
 }
 
 .javacode
 {
-	margin-left: 4px;
-	background: #e0f0e0; padding: 2; 
-	border-width: 1; border-style: solid;
-	border-color: black;
+  margin-left: 4px;
+  background: #e0f0e0; padding: 2;
+  border-width: 1; border-style: solid;
+  border-color: black;
 }
 
 

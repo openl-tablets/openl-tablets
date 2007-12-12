@@ -44,13 +44,13 @@
         <h:panelGroup rendered="#{!prj.dataBean.deleted}">
           &#160;
           <h:commandLink styleClass="actionButton" immediate="true" onclick="return openCopyDeploymentProjectDialog('#{prj.name}');">
-            <h:graphicImage url="/images/copy.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Copy" title="Copy" />
+            <h:graphicImage url="/images/copy.gif" styleClass="actionImage" alt="Copy" title="Copy" />
           </h:commandLink>
           &#160;
           <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}"
             onclick="if(!window.confirm('Are you sure you want to delete the deployment project?')) {return false;}">
             <f:param name="deploymentProjectName" value="#{prj.name}" />
-            <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
+            <h:graphicImage url="/images/delete.gif" styleClass="actionImage" alt="Delete" title="Delete" />
           </h:commandLink>
         </h:panelGroup>
       </rich:column>
