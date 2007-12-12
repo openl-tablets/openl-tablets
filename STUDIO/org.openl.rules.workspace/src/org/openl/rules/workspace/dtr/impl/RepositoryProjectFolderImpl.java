@@ -86,23 +86,19 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
         for (RepositoryProjectArtefact rpa : getArtefacts()) {
             String name = rpa.getName();
 
-            boolean isAFolder = false;
-            try {
+            if (!srcFolder.hasArtefact(name)) {
+        	// was deleted
+        	rpa.delete();
+            } else {
                 ProjectArtefact artefact = srcFolder.getArtefact(name);
-                isAFolder = artefact.isFolder();
 
-                if (rpa.isFolder() == isAFolder) {
+                if (rpa.isFolder() == artefact.isFolder()) {
                     // update existing
                     rpa.update(artefact);
+                } else {
+                    // the same name but other type
+                    rpa.delete();
                 }
-            } catch (ProjectException e) {
-                // absent ?
-                rpa.delete();
-            }
-
-            if (rpa.isFolder() != isAFolder) {
-                // the same name but other type
-                rpa.delete();
             }
         }
         
@@ -110,13 +106,10 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
         for (ProjectArtefact pa : srcFolder.getArtefacts()) {
             String name = pa.getName();
             
-            try {
-                getArtefact(name);
-            } catch (ProjectException e) {
+            if (!hasArtefact(name)) {
                 // absent ?
-                
                 addArtefact(pa);
-            }            
+            }
         }
     }
 
