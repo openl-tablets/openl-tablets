@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.services.upload;
 
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
@@ -37,6 +38,9 @@ public class RProjectBuilder {
             resName = fileName;
         }
 
+        // throws exception if name is invalid
+        checkName(resName);
+        
         ProjectResource projectResource = new FileProjectResource(inputStream);
         folder.addResource(resName, projectResource);
 
@@ -66,10 +70,19 @@ public class RProjectBuilder {
             if (current.hasArtefact(segment)) {
                 current = (UserWorkspaceProjectFolder) current.getArtefact(segment);
             } else {
+                // throws exception if name is invalid
+        	checkName(segment);
+        	
                 current = current.addFolder(segment);
             }
         }
 
         return current;
+    }
+    
+    private void checkName(String artefactName) throws ProjectException {
+	if (!NameChecker.checkName(artefactName)) {
+	    throw new ProjectException("File or folder name '" + artefactName + "' is invalid. " + NameChecker.BAD_NAME_MSG);
+	}
     }
 }

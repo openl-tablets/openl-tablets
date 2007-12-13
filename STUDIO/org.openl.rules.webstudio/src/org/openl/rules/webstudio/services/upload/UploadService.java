@@ -83,7 +83,7 @@ public class UploadService extends BaseUploadService {
         try {
             builder = new RProjectBuilder(params.getWorkspace(), params.getProjectName());
         } catch (ProjectException e) {
-            throw new ServiceException("Error creating project", e);
+            throw new ServiceException("Error creating project: " + e.getMessage(), e);
         }
 
         String fileNameWithoutExt = FilenameUtils.getBaseName(params.getFile().getName());
@@ -103,7 +103,7 @@ public class UploadService extends BaseUploadService {
                 try {
                     builder.addFolder(item.getName());
                 } catch (ProjectException e) {
-                    throw new ServiceException("Error adding folder to user workspace", e);
+                    throw new ServiceException("Error adding folder to user workspace: " + e.getMessage(), e);
                 }
             } else {
                 InputStream zipInputStream = zipFile.getInputStream(item);
@@ -111,7 +111,7 @@ public class UploadService extends BaseUploadService {
                 try {
                     builder.addFile(item.getName(), zipInputStream);
                 } catch (ProjectException e) {
-                    throw new ServiceException("Error adding file to user workspace", e);
+                    throw new ServiceException("Error adding file to user workspace: " + e.getMessage(), e);
                 }
             }
         }
@@ -119,7 +119,7 @@ public class UploadService extends BaseUploadService {
         try {
             builder.checkIn();
         } catch (ProjectException e) {
-            throw new ServiceException("Error during project checkIn", e);
+            throw new ServiceException("Error during project checkIn: " + e.getMessage(), e);
         }
 
         result.setResultFile(uploadDir);
