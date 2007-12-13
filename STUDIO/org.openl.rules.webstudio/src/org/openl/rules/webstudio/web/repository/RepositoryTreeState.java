@@ -157,6 +157,15 @@ public class RepositoryTreeState {
         root = null;
     }
 
+    public void invalidateSelectedNode() {
+        selectedNode = null;
+    }
+
+    public void invalidateTreeAndSelectedNode() {
+        root = null;
+        selectedNode = null;
+    }
+
     /**
      * Updates repositoryTreeState.selectedNode.
      */
