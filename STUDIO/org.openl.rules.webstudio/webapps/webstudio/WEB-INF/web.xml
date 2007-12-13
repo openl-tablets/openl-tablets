@@ -49,7 +49,7 @@
 
   <context-param>
     <param-name>facelets.RESOURCE_RESOLVER</param-name>
-    <param-value>org.openl.rules.webstudio.web.jsf.faceletes.DefaultResourceResolver</param-value>
+    <param-value>org.openl.rules.webstudio.web.jsf.facelets.DefaultResourceResolver</param-value>
   </context-param>
 
   <context-param>
