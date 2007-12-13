@@ -3,40 +3,37 @@ package org.openl.rules.ui;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
-public class WorkbookSorter extends ATableTreeSorter implements IProjectTypes
-{
 
-	public String[] getDisplayValue(Object sorterObject, int i)
-	{
-		XlsWorkbookSourceCodeModule wb = (XlsWorkbookSourceCodeModule)sorterObject;
-		
-		return new String[]{wb.getDisplayName(), wb.getUri(), wb.getUri()};
-	}
+/**
+ * DOCUMENT ME!
+ *
+ * @author Stanislav Shor
+ */
+public class WorkbookSorter extends ATableTreeSorter implements IProjectTypes {
+    public String[] getDisplayValue(Object sorterObject, int i) {
+        XlsWorkbookSourceCodeModule wb = (XlsWorkbookSourceCodeModule) sorterObject;
 
-	public String getName()
-	{
-		return "workbook";
-	}
+        return new String[] { wb.getDisplayName(), wb.getUri(), wb.getUri() };
+    }
 
-	public String getType(Object sorterObject)
-	{
-		return PT_WORKBOOK;
-	}
+    public String getName() {
+        return "workbook";
+    }
 
-	public String getUrl(Object sorterObject)
-	{
-		XlsWorkbookSourceCodeModule wb = (XlsWorkbookSourceCodeModule)sorterObject;
-		return wb.getUri();
-	}
+    public String getType(Object sorterObject) {
+        return PT_WORKBOOK;
+    }
 
-	public int getWeight(Object sorterObject)
-	{
-		return 0;
-	}
+    public String getUrl(Object sorterObject) {
+        XlsWorkbookSourceCodeModule wb = (XlsWorkbookSourceCodeModule) sorterObject;
+        return wb.getUri();
+    }
 
-	public Object makeSorterObject(TableSyntaxNode tsn)
-	{
-		return tsn.getXlsSheetSourceCodeModule().getWorkbookSource();
-	}
-	
+    public int getWeight(Object sorterObject) {
+        return 0;
+    }
+
+    public Object makeSorterObject(TableSyntaxNode tsn) {
+        return tsn.getXlsSheetSourceCodeModule().getWorkbookSource();
+    }
 }

@@ -2,39 +2,39 @@ package org.openl.rules.ui;
 
 import org.openl.rules.table.ui.ICellFont;
 
-public interface ICellModel
-{
 
-	public BorderStyle[] getBorderStyle();
+/**
+ *
+ * @author Stanislav Shor
+ */
+public interface ICellModel {
+    public BorderStyle[] getBorderStyle();
 
-	public void setBorderStyle(BorderStyle[] borderStyle);
+    public void setBorderStyle(BorderStyle[] borderStyle);
 
+    public int getColspan();
 
-	public int getColspan();
+    public void setColspan(int colspan);
 
-	public void setColspan(int colspan);
+    public String getContent();
 
-	public String getContent();
+    public void setContent(String content);
 
-	public void setContent(String content);
+    public ICellFont getFont();
 
-	public ICellFont getFont();
+    public void setFont(ICellFont font);
 
-	public void setFont(ICellFont font);
+    public short[] getRgbBackground();
 
+    public void setRgbBackground(short[] rgbBackground);
 
-	public short[] getRgbBackground();
+    public int getRowspan();
 
-	public void setRgbBackground(short[] rgbBackground);
+    public void setRowspan(int rowspan);
 
-	public int getRowspan();
+    public void toHtmlString(StringBuffer buf, TableModel model);
 
-	public void setRowspan(int rowspan);
+    public boolean isReal();
 
-	public void toHtmlString(StringBuffer buf, TableModel model);
-
-	public boolean isReal();
-	
 //!!!	public void setColorFilter(IColorFilter[] filter);
-	
 }

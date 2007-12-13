@@ -1,14 +1,11 @@
 package org.openl.rules.ui;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Iterator;
-import java.util.Vector;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
+
 import org.openl.base.INamedThing;
+
 import org.openl.main.OpenLWrapper;
+
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.TableProperties;
@@ -28,364 +25,339 @@ import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult.Test;
+import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
-import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
+
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
+
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
+
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
+
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.Tracer;
 
-public class ProjectModel
-{
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
-	OpenLWrapper wrapper;
-	
+import java.util.Iterator;
+import java.util.Vector;
 
-	OpenLWrapperInfo wrapperInfo;
 
-	Throwable projectProblem;
-
-	ProjectIndexer indexer;
-
-	WebStudio studio;
-
-	ColorFilterHolder filterHolder = new ColorFilterHolder();
-
+/**
+ * DOCUMENT ME!
+ *
+ * @author Stanislav Shor
+ */
+public class ProjectModel {
+    OpenLWrapper wrapper;
+    OpenLWrapperInfo wrapperInfo;
+    Throwable projectProblem;
+    ProjectIndexer indexer;
+    WebStudio studio;
+    ColorFilterHolder filterHolder = new ColorFilterHolder();
     private boolean readOnly;
+    ProjectTreeElement projectRoot = null;
+    ProjectTreeRenderer ptr;
 
-    public ProjectModel(WebStudio studio)
-	{
-		this.studio = studio;
-	}
+    public ProjectModel(WebStudio studio) {
+        this.studio = studio;
+    }
 
-	public TableInfo getTableInfo(String uri)
-	{
-		if (uri == null)
-			return null;
-		TableSyntaxNode node = findNode(uri);
-		if (node == null)
-			return null;
+    public TableInfo getTableInfo(String uri) {
+        if (uri == null) {
+            return null;
+        }
+        TableSyntaxNode node = findNode(uri);
+        if (node == null) {
+            return null;
+        }
 
-		return new TableInfo(node.getTable().getGridTable(), node.getDisplayName(),
-				false, uri);
-	}
+        return new TableInfo(node.getTable().getGridTable(), node.getDisplayName(),
+            false, uri);
+    }
 
-	public  XlsModuleSyntaxNode getXlsModuleNode()
-	{
-		XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
-		XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
-		return xsn;
-	}
-	
-	public TableSyntaxNode findNode(String url)
-	{
-		XlsModuleSyntaxNode xsn = getXlsModuleNode();
-		TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+    public XlsModuleSyntaxNode getXlsModuleNode() {
+        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
+        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
+        return xsn;
+    }
 
-		XlsUrlParser p1 = new XlsUrlParser();
-		p1.parse(url);
+    public TableSyntaxNode findNode(String url) {
+        XlsModuleSyntaxNode xsn = getXlsModuleNode();
+        TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
 
-		for (int i = 0; i < nodes.length; i++)
-		{
-			if (intersects(p1, nodes[i].getTable().getGridTable().getUri()))
-				return nodes[i];
-		}
+        XlsUrlParser p1 = new XlsUrlParser();
+        p1.parse(url);
 
-		return null;
-	}
+        for (int i = 0; i < nodes.length; i++) {
+            if (intersects(p1, nodes[i].getTable().getGridTable().getUri())) {
+                return nodes[i];
+            }
+        }
 
-	public String showTableWithSelection(String url, String view)
-	{
-		TableSyntaxNode tsn = findNode(url);
-		if (tsn == null)
-			return "NOT FOUND";
+        return null;
+    }
 
-		XlsUrlParser p1 = new XlsUrlParser();
-		p1.parse(url);
+    public String showTableWithSelection(String url, String view) {
+        TableSyntaxNode tsn = findNode(url);
+        if (tsn == null) {
+            return "NOT FOUND";
+        }
 
-		IGridRegion region = XlsSheetGridModel.makeRegion(p1.range);
+        XlsUrlParser p1 = new XlsUrlParser();
+        p1.parse(url);
 
-		if (view == null)
-			view = IDecisionTableConstants.VIEW_BUSINESS;
-		ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
-		IGridTable gt = tsn.getTable().getGridTable();
-		if (gtx != null)
-			gt = gtx.getGridTable();
+        IGridRegion region = XlsSheetGridModel.makeRegion(p1.range);
+
+        if (view == null) {
+            view = IDecisionTableConstants.VIEW_BUSINESS;
+        }
+        ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
+        IGridTable gt = tsn.getTable().getGridTable();
+        if (gtx != null) {
+            gt = gtx.getGridTable();
+        }
 
         TableModel tableModel = buildModel(gt,
-                new IGridFilter[]{new ColorGridFilter(new RegionGridSelector(region, true), filterHolder.makeFilter())});
+                new IGridFilter[] {
+                    new ColorGridFilter(new RegionGridSelector(region, true),
+                        filterHolder.makeFilter())
+                });
         return new TableRenderer(tableModel).renderWithMenu();
-	}
+    }
 
-	public static String showTable(IGridTable gt, IGridFilter filter,
-			boolean showgrid)
-	{
-		return showTable(gt, new IGridFilter[] { filter }, showgrid);
-	}
+    public static String showTable(IGridTable gt, IGridFilter filter, boolean showgrid) {
+        return showTable(gt, new IGridFilter[] { filter }, showgrid);
+    }
 
-	public static String showTable(IGridTable gt, boolean showgrid)
-	{
-		return showTable(gt, (IGridFilter[]) null, showgrid);
-	}
+    public static String showTable(IGridTable gt, boolean showgrid) {
+        return showTable(gt, (IGridFilter[]) null, showgrid);
+    }
 
-	public static String showTable(IGridTable gt, IGridFilter[] filters,
-			boolean showgrid)
-	{
+    public static String showTable(IGridTable gt, IGridFilter[] filters, boolean showgrid) {
         TableModel model = buildModel(gt, filters);
         return TableViewer.showTable(model, showgrid);
-	}
+    }
 
     public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
         IGrid htmlGrid = gt.getGrid();
-        if (!(htmlGrid instanceof FilteredGrid))
-        {
+        if (!(htmlGrid instanceof FilteredGrid)) {
             int N = 1;
-            IGridFilter[] f1 = new IGridFilter[filters == null ? N : filters.length
-                    + N];
+            IGridFilter[] f1 = new IGridFilter[(filters == null) ? N : (filters.length
+                + N)];
             f1[0] = new SimpleXlsFormatter();
+
             //f1[1] = new SimpleHtmlFilter();
-            for (int i = N; i < f1.length; i++)
-            {
+            for (int i = N; i < f1.length; i++) {
                 f1[i] = filters[i - N];
             }
 
             htmlGrid = new FilteredGrid(gt.getGrid(), f1);
-
         }
 
         return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
     }
 
-    static public boolean intersects(XlsUrlParser p1, String url2)
-	{
-		XlsUrlParser p2 = new XlsUrlParser();
-		p2.parse(url2);
+    public static boolean intersects(XlsUrlParser p1, String url2) {
+        XlsUrlParser p2 = new XlsUrlParser();
+        p2.parse(url2);
 
-		if (!p1.wbPath.equals(p2.wbPath) || !p1.wbName.equals(p2.wbName)
-				|| !p1.wsName.equals(p2.wsName))
-			return false;
+        if (!p1.wbPath.equals(p2.wbPath) || !p1.wbName.equals(p2.wbName)
+                || !p1.wsName.equals(p2.wsName)) {
+            return false;
+        }
 
-		return IGridRegion.Tool.intersects(XlsSheetGridModel.makeRegion(p1.range),
-				XlsSheetGridModel.makeRegion(p2.range));
-	}
+        return IGridRegion.Tool.intersects(XlsSheetGridModel.makeRegion(p1.range),
+            XlsSheetGridModel.makeRegion(p2.range));
+    }
 
-	// public ProjectModel(OpenLWrapper wrapper) {
-	// this.wrapper = wrapper;
-	// }
+    // public ProjectModel(OpenLWrapper wrapper) {
+    // this.wrapper = wrapper;
+    // }
+    public String renderTree(String targetJsp) {
+        ProjectTreeElement tr = getProjectRoot();
 
-	public String renderTree(String targetJsp)
-	{
+        if (tr == null) {
+            String errMsg = "";
+            if (projectProblem != null) {
+                Throwable t = projectProblem;
+                try {
+                    t = ExceptionUtils.getCause(projectProblem);
+                    if (t == null) {
+                        t = projectProblem;
+                    }
+                } catch (Exception e) {}
 
-		ProjectTreeElement tr = getProjectRoot();
+                errMsg = new ObjectViewer().displayResult(t);
+            }
 
-		if (tr == null)
-		{
-			String errMsg = "";
-			if (projectProblem != null)
-			{
-				Throwable t = projectProblem;
-				try
-				{
-					t = ExceptionUtils.getCause(projectProblem);
-					if (t == null)
-						t = projectProblem;
-				} catch (Exception e)
-				{
-				}
+            return "document.all['msg'].innerHTML = 'There was a problem opening OpenL Project."
+            + " Try to run <i>Generate Wrapper</i> procedure in Eclipse for this project."
+            + " You will have to refresh the <i>Eclipse project</i> and <a href=\"/webstudio/index.jsp?reload=true\" target=\"_top\">refresh the Web Studio</a> afterwards."
+            + " Check Eclipse Console for more details. <p/>" + errMsg + "'";
+        }
 
-				errMsg = new ObjectViewer().displayResult(t);
-			}
+        // StringBuffer buf = new StringBuffer(1000);
 
-			return "document.all['msg'].innerHTML = 'There was a problem opening OpenL Project."
-					+ " Try to run <i>Generate Wrapper</i> procedure in Eclipse for this project."
-					+ " You will have to refresh the <i>Eclipse project</i> and <a href=\"/webstudio/index.jsp?reload=true\" target=\"_top\">refresh the Web Studio</a> afterwards."
-					+ " Check Eclipse Console for more details. <p/>" + errMsg + "'";
+        // renderElement(null, tr, targetJsp, buf);
+        ptr = new ProjectTreeRenderer(this, targetJsp, "mainFrame");
+        return ptr.renderRoot(tr);
 
-		}
+        // return buf.toString();
+    }
 
-		// StringBuffer buf = new StringBuffer(1000);
+    public void renderElement(ProjectTreeElement parent, ProjectTreeElement pte,
+        String targetJsp, StringBuffer buf) {
+        DTreeModel dtm = new DTreeModel();
 
-		// renderElement(null, tr, targetJsp, buf);
-		ptr = new ProjectTreeRenderer(this, targetJsp, "mainFrame");
-		return ptr.renderRoot(tr);
-		// return buf.toString();
-	}
+        dtm.renderElement(parent, pte, targetJsp, buf);
+        for (Iterator iter = pte.getChildren(); iter.hasNext();) {
+            ProjectTreeElement element = (ProjectTreeElement) iter.next();
 
-	public void renderElement(ProjectTreeElement parent, ProjectTreeElement pte,
-			String targetJsp, StringBuffer buf)
-	{
-		DTreeModel dtm = new DTreeModel();
+            renderElement(pte, element, targetJsp, buf);
+        }
+    }
 
-		dtm.renderElement(parent, pte, targetJsp, buf);
-		for (Iterator iter = pte.getChildren(); iter.hasNext();)
-		{
-			ProjectTreeElement element = (ProjectTreeElement) iter.next();
+    public ProjectTreeElement makeProjectTree() {
+        if (wrapper == null) {
+            return null;
+        }
 
-			renderElement(pte, element, targetJsp, buf);
+        // String name =
+        // StringTool.lastToken(wrapper.getClass()
+        // .getName(), ".");
+        String name = studio.getMode().getDisplayName(wrapperInfo);
 
-		}
-	}
+        ProjectTreeElement root = new ProjectTreeElement(new String[] { name, name, name },
+                "root", null, null, 0, null);
 
-	public ProjectTreeElement makeProjectTree()
-	{
-		if (wrapper == null)
-			return null;
+        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
 
-		// String name =
-		// StringTool.lastToken(wrapper.getClass()
-		// .getName(), ".");
+        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
-		String name = studio.getMode().getDisplayName(wrapperInfo);
+        TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
 
-		ProjectTreeElement root = new ProjectTreeElement(new String[] { name, name,
-				name }, "root", null, null, 0, null);
+        ATableTreeSorter[][] sorters = studio.getMode().getSorters();
+        String[][] folders = studio.getMode().getFolders();
 
-		XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
+        for (int k = 0; k < sorters.length; k++) {
+            ProjectTreeElement folder = root;
 
-		XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
+            if ((folders != null) && (folders[k] != null)) {
+                folder = new ProjectTreeElement(folders[k], "folder", null, null, 0, null);
+                root.getElements()
+                    .put(new ATableTreeSorter.Key(k, folder.getDisplayName()), folder);
+            }
+            ATableTreeSorter[] ts = sorters[k];
 
-		TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+            int cnt = 0;
+            for (int i = 0; i < nodes.length; i++) {
+                if (studio.getMode().select(nodes[i])) {
+                    ATableTreeSorter.addElement(folder, nodes[i], ts, 0);
+                    ++cnt;
+                }
+            }
 
-		ATableTreeSorter[][] sorters = studio.getMode().getSorters();
-		String[][] folders = studio.getMode().getFolders();
+            if (cnt == 0) // no selection have been made (usually in a business mode)
+             {
+                for (int i = 0; i < nodes.length; i++) {
+                    if (!nodes[i].getType().equals(ITableNodeTypes.XLS_OTHER)) {
+                        ATableTreeSorter.addElement(folder, nodes[i], ts, 0);
+                    }
+                }
+            }
+        }
 
-		for (int k = 0; k < sorters.length; k++)
-		{
-			ProjectTreeElement folder = root;
+        return root;
+    }
 
-			if (folders != null && folders[k] != null)
-			{
-				folder = new ProjectTreeElement(folders[k], "folder", null, null, 0, null);
-				root.getElements().put(
-						new ATableTreeSorter.Key(k, folder.getDisplayName()), folder);
-			}
-			ATableTreeSorter[] ts = sorters[k];
+    public synchronized ProjectTreeElement getProjectRoot() {
+        if (projectRoot == null) {
+            projectRoot = makeProjectTree();
+        }
+        return projectRoot;
+    }
 
-			int cnt = 0;
-			for (int i = 0; i < nodes.length; i++)
-			{
-				if (studio.getMode().select(nodes[i]))
-				{
-					ATableTreeSorter.addElement(folder, nodes[i], ts, 0);
-					++cnt;
-				}
-			}
+    public void reset() throws Exception {
+        if (wrapperInfo != null) {
+            wrapperInfo.reset();
+            setWrapperInfo(wrapperInfo, true);
+        } else if (wrapper != null) {
+            wrapper.reload();
+        }
 
-			if (cnt == 0) // no selection have been made (usually in a business mode)
-			{
-				for (int i = 0; i < nodes.length; i++)
-				{
-					if (!nodes[i].getType().equals(ITableNodeTypes.XLS_OTHER))
-					  ATableTreeSorter.addElement(folder, nodes[i], ts, 0);
-				}
-			}
-			
+        projectRoot = null;
+    }
 
-		}
+    public void redraw() throws Exception {
+        projectRoot = null;
+    }
 
-		return root;
-	}
+    public OpenLWrapper getWrapper() {
+        return wrapper;
+    }
 
-	ProjectTreeElement projectRoot = null;
+    public void setWrapper(OpenLWrapper wrapper) {
+        this.wrapper = wrapper;
+    }
 
-	public synchronized ProjectTreeElement getProjectRoot()
-	{
-		if (projectRoot == null)
-			projectRoot = makeProjectTree();
-		return projectRoot;
-	}
+    public void setProjectRoot(ProjectTreeElement projectRoot) {
+        this.projectRoot = projectRoot;
+    }
 
-	public void reset() throws Exception
-	{
-		if (wrapperInfo != null)
-		{
-			wrapperInfo.reset();
-			setWrapperInfo(wrapperInfo, true);
-		} else if (wrapper != null)
-			wrapper.reload();
-		
-		projectRoot = null;
-	}
-	
+    public IGridTable getTableWithMode(int elementID) {
+        return getTableWithMode(elementID, null);
+    }
 
-	public void redraw() throws Exception
-	{
-		projectRoot = null;
-	}
+    public IGridTable getTableWithMode(int elementID, String mode) {
+        TableSyntaxNode tsn = getNode(elementID);
+        if (tsn == null) {
+            return null;
+        }
 
-	public OpenLWrapper getWrapper()
-	{
-		return wrapper;
-	}
+        IGridTable gt = tsn.getTable().getGridTable();
+        String type = getTableView(mode);
 
-	public void setWrapper(OpenLWrapper wrapper)
-	{
-		this.wrapper = wrapper;
-	}
+        if (type != null) {
+            ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(type);
+            if (gtx != null) {
+                gt = gtx.getGridTable();
+            }
+        }
+        return gt;
+    }
 
-	public void setProjectRoot(ProjectTreeElement projectRoot)
-	{
-		this.projectRoot = projectRoot;
-	}
+    public IGridTable getTable(int elementID) {
+        TableSyntaxNode tsn = getNode(elementID);
 
-	public IGridTable getTableWithMode(int elementID) {
-      return getTableWithMode(elementID, null);
-   }
+        return (tsn == null) ? null : tsn.getTable().getGridTable();
+    }
 
-   public IGridTable getTableWithMode(int elementID, String mode)
-   {
+    public TableSyntaxNode getNode(int elementID) {
+        ProjectTreeElement pte = ptr.getElement(elementID);
+        if (pte == null) {
+            return null;
+        }
 
-      TableSyntaxNode tsn = getNode(elementID);
-      if (tsn == null)
-         return null;
+        TableSyntaxNode tsn = (TableSyntaxNode) pte.getObject();
 
-      IGridTable gt = tsn.getTable().getGridTable();
-      String type = getTableView(mode);
-
-      if (type != null)
-      {
-         ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(type);
-         if (gtx != null)
-            gt = gtx.getGridTable();
-      }
-      return gt;
-
-   }
-
-
-   public IGridTable getTable(int elementID)
-	{
-
-		TableSyntaxNode tsn = getNode(elementID);
-
-		return tsn == null ? null : tsn.getTable().getGridTable();
-
-	}
-
-	public TableSyntaxNode getNode(int elementID)
-	{
-		ProjectTreeElement pte = ptr.getElement(elementID);
-		if (pte == null)
-			return null;
-
-		TableSyntaxNode tsn = (TableSyntaxNode) pte.getObject();
-
-		return tsn;
-	}
+        return tsn;
+    }
 
     public int indexForNode(TableSyntaxNode tsn) {
-        for (Object obj: ptr.map.getValues()) {
+        for (Object obj : ptr.map.getValues()) {
             ProjectTreeElement pte = (ProjectTreeElement) obj;
             if (pte.getObject() == tsn) {
                 return ptr.map.getID(obj);
@@ -395,159 +367,157 @@ public class ProjectModel
         return -1;
     }
 
-    public ISyntaxError[] getErrors(int elementID)
-	{
-		TableSyntaxNode tsn = getNode(elementID);
-		ISyntaxError[] se = tsn.getErrors();
-		return se == null ? ISyntaxError.EMPTY : se;
-	}
+    public ISyntaxError[] getErrors(int elementID) {
+        TableSyntaxNode tsn = getNode(elementID);
+        ISyntaxError[] se = tsn.getErrors();
+        return (se == null) ? ISyntaxError.EMPTY : se;
+    }
 
-	public String showErrors(int elementID)
-	{
-		TableSyntaxNode tsn = getNode(elementID);
-		ISyntaxError[] se = tsn.getErrors();
-		if (se != null)
-			return new ObjectViewer().displayResult(se);
-		return "";
-	}
+    public String showErrors(int elementID) {
+        TableSyntaxNode tsn = getNode(elementID);
+        ISyntaxError[] se = tsn.getErrors();
+        if (se != null) {
+            return new ObjectViewer().displayResult(se);
+        }
+        return "";
+    }
 
-	ProjectTreeRenderer ptr;
+    public String getDisplayName(int elementID) {
+        ProjectTreeElement pte = ptr.getElement(elementID);
+        if (pte == null) {
+            return "";
+        }
 
-	public String getDisplayName(int elementID)
-	{
-		ProjectTreeElement pte = ptr.getElement(elementID);
-		if (pte == null)
-			return "";
+        String displayName = pte.getDisplayName(INamedThing.REGULAR);
 
-		String displayName = pte.getDisplayName(INamedThing.REGULAR);
+        if (displayName == null) {
+            return "NO_NAME";
+        }
 
-		if (displayName == null)
-			return "NO_NAME";
+        if (displayName.length() > 30) {
+            return displayName.substring(0, 29);
+        }
+        return displayName;
+    }
 
-		if (displayName.length() > 30)
-			return displayName.substring(0, 29);
-		return displayName;
+    public String getDisplayNameFull(int elementID) {
+        ProjectTreeElement pte = ptr.getElement(elementID);
+        if (pte == null) {
+            return "";
+        }
 
-	}
+        String displayName = pte.getDisplayName(INamedThing.REGULAR);
 
-	public String getDisplayNameFull(int elementID)
-	{
-		ProjectTreeElement pte = ptr.getElement(elementID);
-		if (pte == null)
-			return "";
+        if (displayName == null) {
+            return "NO_NAME";
+        }
 
-		String displayName = pte.getDisplayName(INamedThing.REGULAR);
-
-		if (displayName == null)
-			return "NO_NAME";
-
-		return displayName;
-	}
+        return displayName;
+    }
 
     public String getTableView(String view) {
-        return view == null ? studio.getMode().getTableMode() : view;
-	}
+        return (view == null) ? studio.getMode().getTableMode() : view;
+    }
 
-    public String showTable(int elementID, String view)
-	{
-		TableSyntaxNode tsn = getNode(elementID);
-		if (tsn == null)
-			return "No Table have been selected yet";
+    public String showTable(int elementID, String view) {
+        TableSyntaxNode tsn = getNode(elementID);
+        if (tsn == null) {
+            return "No Table have been selected yet";
+        }
 
-		IGridTable gt = tsn.getTable().getGridTable();
-		if (view == null)
-		{
-			view = studio.getMode().getTableMode();
-		}
+        IGridTable gt = tsn.getTable().getGridTable();
+        if (view == null) {
+            view = studio.getMode().getTableMode();
+        }
 
-		boolean showGrid = studio.getMode().showTableGrid();
+        boolean showGrid = studio.getMode().showTableGrid();
 
-		if (view != null)
-		{
-			ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
-			if (gtx != null)
-				gt = gtx.getGridTable();
-		}
+        if (view != null) {
+            ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
+            if (gtx != null) {
+                gt = gtx.getGridTable();
+            }
+        }
 
-		// return new TableViewer().showTable(gt, new ICellFilter[]{cellFilter});
-		return showTable(gt, showGrid);
-	}
+        // return new TableViewer().showTable(gt, new ICellFilter[]{cellFilter});
+        return showTable(gt, showGrid);
+    }
 
-	public String showProperty(int elementID, String propertyName)
-	{
-		TableSyntaxNode tsn = getNode(elementID);
-		if (tsn == null)
-			return "";
+    public String showProperty(int elementID, String propertyName) {
+        TableSyntaxNode tsn = getNode(elementID);
+        if (tsn == null) {
+            return "";
+        }
 
-		TableProperties tp = tsn.getTableProperties();
-		if (tp == null)
-			return "";
+        TableProperties tp = tsn.getTableProperties();
+        if (tp == null) {
+            return "";
+        }
 
-		String p = tp.getPropertyValue(propertyName);
+        String p = tp.getPropertyValue(propertyName);
 
-		return p == null ? "" : p;
+        return (p == null) ? "" : p;
+    }
 
-	}
+    public String makeXlsUrl(int elementID) {
+        IGridTable table = getTable(elementID);
 
-	public String makeXlsUrl(int elementID)
-	{
-		IGridTable table = getTable(elementID);
+        if (table == null) {
+            return "problem: elementID: " + elementID;
+        }
 
-		if (table == null)
-			return "problem: elementID: " + elementID;
+        return WebTool.makeXlsOrDocUrl(table.getUri());
+    }
 
-		return WebTool.makeXlsOrDocUrl(table.getUri());
-	}
+    public boolean isRunnable(int elementID) {
+        IOpenMethod m = getMethod(elementID);
+        if (m == null) {
+            return false;
+        }
 
-	public boolean isRunnable(int elementID)
-	{
-		IOpenMethod m = getMethod(elementID);
-		if (m == null)
-			return false;
+        return ProjectHelper.isRunnable(m);
+    }
 
-		return ProjectHelper.isRunnable(m);
-	}
+    public boolean isTestable(TableSyntaxNode tsn) {
+        IOpenMethod m = getMethod(tsn);
+        if (m == null) {
+            return false;
+        }
 
-	public boolean isTestable(TableSyntaxNode tsn)
-	{
-		IOpenMethod m = getMethod(tsn);
-		if (m == null)
-			return false;
+        return ProjectHelper.isTestable(m);
+    }
 
-		return ProjectHelper.isTestable(m);
-	}	
-	
-	public boolean isTestable(int elementID)
-	{
-		IOpenMethod m = getMethod(elementID);
-		if (m == null)
-			return false;
+    public boolean isTestable(int elementID) {
+        IOpenMethod m = getMethod(elementID);
+        if (m == null) {
+            return false;
+        }
 
-		return ProjectHelper.isTestable(m);
-	}
-	public IOpenMethod getMethod(int elementID)
-	{
-		TableSyntaxNode tsn = getNode(elementID);
-		if (tsn == null)
-			return null;
+        return ProjectHelper.isTestable(m);
+    }
 
-		return getMethod(tsn);
-	}
+    public IOpenMethod getMethod(int elementID) {
+        TableSyntaxNode tsn = getNode(elementID);
+        if (tsn == null) {
+            return null;
+        }
 
-	public IOpenMethod getMethod(TableSyntaxNode tsn)
-	{
-		IOpenClass oc = wrapper.getOpenClass();
+        return getMethod(tsn);
+    }
 
-		for (Iterator iter = oc.methods(); iter.hasNext();)
-		{
-			IOpenMethod m = (IOpenMethod) iter.next();
-			IMemberMetaInfo mi = m.getInfo();
-			if (mi != null && mi.getSyntaxNode() == tsn)
-				return m;
-		}
+    public IOpenMethod getMethod(TableSyntaxNode tsn) {
+        IOpenClass oc = wrapper.getOpenClass();
 
-		return null;
-	}
+        for (Iterator iter = oc.methods(); iter.hasNext();) {
+            IOpenMethod m = (IOpenMethod) iter.next();
+            IMemberMetaInfo mi = m.getInfo();
+            if ((mi != null) && (mi.getSyntaxNode() == tsn)) {
+                return m;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Returns if current project is read only.
@@ -562,503 +532,408 @@ public class ProjectModel
         this.readOnly = readOnly;
     }
 
-    public AllTestsRunResult getRunMethods(int elementID)
-	{
-		IOpenMethod m = getMethod(elementID);
-		
-		if (m == null)
-			return null;
+    public AllTestsRunResult getRunMethods(int elementID) {
+        IOpenMethod m = getMethod(elementID);
 
-		
-		IOpenMethod[] runners = ProjectHelper.runners(m);
-		String[] names = new String[runners.length];
-		
-		for (int i = 0; i < runners.length; i++)
-		{
-			IMemberMetaInfo mi = runners[i].getInfo();
-			TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
+        if (m == null) {
+            return null;
+        }
 
-			names[i] = TableInstanceSorter.getTableDisplayValue(tnode)[1];
-		}
-		
-		return  new AllTestsRunResult( runners, names) ;
-		
-	}	
-	
-	
-	public AllTestsRunResult getTestMethods(int elementID)
-	{
-		IOpenMethod[] testers = null;
-		
-		if (elementID >= 0)
-		{	
-			IOpenMethod m = getMethod(elementID);
-		
-			if (m == null)
-				return null;
-			testers = ProjectHelper.testers(m);
-		}
-		else 
-			testers = ProjectHelper.allTesters(wrapper.getOpenClass());
+        IOpenMethod[] runners = ProjectHelper.runners(m);
+        String[] names = new String[runners.length];
 
-		
-		String[] names = new String[testers.length];
-		
-		for (int i = 0; i < testers.length; i++)
-		{
-			IMemberMetaInfo mi = testers[i].getInfo();
-			TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
+        for (int i = 0; i < runners.length; i++) {
+            IMemberMetaInfo mi = runners[i].getInfo();
+            TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
 
-			names[i] = TableInstanceSorter.getTableDisplayValue(tnode)[1];
-		}
-		
-		return  new AllTestsRunResult( testers, names) ;
-		
-	}	
-	
-	public AllTestsRunResult getAllTestMethods()
-	{
-		
-		if (wrapper == null)
-			return null;
-		
-		IOpenClass oc = wrapper.getOpenClass();
-		Vector mm = new Vector();
-		Vector names = new Vector();
+            names[i] = TableInstanceSorter.getTableDisplayValue(tnode)[1];
+        }
 
-		for (Iterator iter = oc.methods(); iter.hasNext();)
-		{
-			IOpenMethod m = (IOpenMethod) iter.next();
-			IMemberMetaInfo mi = m.getInfo();
-			ISyntaxNode node = null;
-			if (mi == null || ((node = mi.getSyntaxNode()) == null))
-				continue;
-			if (node instanceof TableSyntaxNode)
-			{
-				TableSyntaxNode tnode = (TableSyntaxNode) node;
+        return new AllTestsRunResult(runners, names);
+    }
 
-				if (tnode.getType().equals(ITableNodeTypes.XLS_TEST_METHOD))
-				{	
-					mm.add(m);
-					names.add(TableInstanceSorter.getTableDisplayValue(tnode)[1]);
-				}	
-			}
-		}
+    public AllTestsRunResult getTestMethods(int elementID) {
+        IOpenMethod[] testers = null;
 
-		return  new AllTestsRunResult( (IOpenMethod[]) mm.toArray(new IOpenMethod[0]), (String[]) names.toArray(new String[0])) ;
-	}
-	
-	
-	public AllTestsRunResult runAllTests(int elementID)
-	{
-		
+        if (elementID >= 0) {
+            IOpenMethod m = getMethod(elementID);
+
+            if (m == null) {
+                return null;
+            }
+            testers = ProjectHelper.testers(m);
+        } else {
+            testers = ProjectHelper.allTesters(wrapper.getOpenClass());
+        }
+
+        String[] names = new String[testers.length];
+
+        for (int i = 0; i < testers.length; i++) {
+            IMemberMetaInfo mi = testers[i].getInfo();
+            TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
+
+            names[i] = TableInstanceSorter.getTableDisplayValue(tnode)[1];
+        }
+
+        return new AllTestsRunResult(testers, names);
+    }
+
+    public AllTestsRunResult getAllTestMethods() {
+        if (wrapper == null) {
+            return null;
+        }
+
+        IOpenClass oc = wrapper.getOpenClass();
+        Vector mm = new Vector();
+        Vector names = new Vector();
+
+        for (Iterator iter = oc.methods(); iter.hasNext();) {
+            IOpenMethod m = (IOpenMethod) iter.next();
+            IMemberMetaInfo mi = m.getInfo();
+            ISyntaxNode node = null;
+            if ((mi == null) || ((node = mi.getSyntaxNode()) == null)) {
+                continue;
+            }
+            if (node instanceof TableSyntaxNode) {
+                TableSyntaxNode tnode = (TableSyntaxNode) node;
+
+                if (tnode.getType().equals(ITableNodeTypes.XLS_TEST_METHOD)) {
+                    mm.add(m);
+                    names.add(TableInstanceSorter.getTableDisplayValue(tnode)[1]);
+                }
+            }
+        }
+
+        return new AllTestsRunResult((IOpenMethod[]) mm.toArray(new IOpenMethod[0]),
+            (String[]) names.toArray(new String[0]));
+    }
+
+    public AllTestsRunResult runAllTests(int elementID) {
 //		AllTestsRunResult atr = getAllTestMethods();
-		AllTestsRunResult atr = getTestMethods(elementID);
-		
-		Test[] ttm = atr.getTests();
-		
-		TestResult[] ttr = new TestResult[ttm.length];
-		for (int i = 0; i < ttr.length; i++)
-		{
-			ttr[i] = (TestResult)runMethod(ttm[i].method);
-		}
-		
-		atr.setResults(ttr);
-		return atr;
-	}
+        AllTestsRunResult atr = getTestMethods(elementID);
 
-	
-	public BenchmarkInfo benchmarkElement(int elementID, final String testName, String testID, final String testDescr, int ms) throws Exception
-	{
-		
-		BenchmarkUnit bu = null;
-		
-		if (testName == null)
-		{	
-			IOpenMethod m = getMethod(elementID);
-			return benchmarkMethod(m, ms);
-		}
-		else
-		{
-			final AllTestsRunResult atr = getRunMethods(elementID);
-			
-			final int tid = Integer.parseInt(testID);
-			
-			final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-			final Object target = wrapper.getOpenClass().newInstance(env);
-			
-			bu  = new BenchmarkUnit()
-			{
-	
-				public void runNtimes(int times) throws Exception
-				{
-					try
-					{
-						atr.run(testName, tid, target, env, times);
-					}
-					catch (Throwable t)
-					{
-						Log.error("Error during Method run: ", t);
-						throw RuntimeExceptionWrapper.wrap(t);
-					}
-				}
-				
-				
-	
-				public String getName()
-				{
-					return testDescr;
-				}
+        Test[] ttm = atr.getTests();
 
-				public String[] unitName()
-				{
-					return new String[]{testName + ":" + tid};
-				}
+        TestResult[] ttr = new TestResult[ttm.length];
+        for (int i = 0; i < ttr.length; i++) {
+            ttr[i] = (TestResult) runMethod(ttm[i].method);
+        }
 
+        atr.setResults(ttr);
+        return atr;
+    }
 
-				public void run() throws Exception
-				{
-					throw new RuntimeException();
-				}
-				
-			};
-		}	
-		
-		BenchmarkUnit[] buu = {bu};
-		return new Benchmark(buu).runUnit(bu, ms, false);
-		
-	}
-	
+    public BenchmarkInfo benchmarkElement(int elementID, final String testName,
+        String testID, final String testDescr, int ms) throws Exception
+    {
+        BenchmarkUnit bu = null;
 
-	
-	
+        if (testName == null) {
+            IOpenMethod m = getMethod(elementID);
+            return benchmarkMethod(m, ms);
+        } else {
+            final AllTestsRunResult atr = getRunMethods(elementID);
 
-	public Object runElement(int elementID, String testName, String testID)
-	{
-		if (testName == null)
-		{	
-			IOpenMethod m = getMethod(elementID);
-			return  convertResult(runMethod(m));
-		}
-		
-		AllTestsRunResult atr = getRunMethods(elementID);
-		
-		int tid = Integer.parseInt(testID);
-		
-		IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-		Object target = wrapper.getOpenClass().newInstance(env);
-		try
-		{
-			Object res = atr.run(testName, tid, target, env, 1);
-			return res;
-		}
-		catch (Throwable t)
-		{
-			Log.error("Error during Method run: ", t);
-			return t;
-		}
-		
-	}
+            final int tid = Integer.parseInt(testID);
 
-	public BenchmarkInfo benchmarkMethod(final IOpenMethod m, int ms) throws Exception
-	{
-		final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-		final Object target = wrapper.getOpenClass().newInstance(env);
+            final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+            final Object target = wrapper.getOpenClass().newInstance(env);
 
-		Thread.currentThread().setContextClassLoader(
-				wrapper.getClass().getClassLoader());
+            bu = new BenchmarkUnit() {
+                        public void runNtimes(int times) throws Exception {
+                            try {
+                                atr.run(testName, tid, target, env, times);
+                            } catch (Throwable t) {
+                                Log.error("Error during Method run: ", t);
+                                throw RuntimeExceptionWrapper.wrap(t);
+                            }
+                        }
 
+                        public String getName() {
+                            return testDescr;
+                        }
 
-		final Object[] params = {};
-		
+                        public String[] unitName() {
+                            return new String[] { testName + ":" + tid };
+                        }
+
+                        public void run() throws Exception {
+                            throw new RuntimeException();
+                        }
+                    };
+        }
+
+        BenchmarkUnit[] buu = { bu };
+        return new Benchmark(buu).runUnit(bu, ms, false);
+    }
+
+    public Object runElement(int elementID, String testName, String testID) {
+        if (testName == null) {
+            IOpenMethod m = getMethod(elementID);
+            return convertResult(runMethod(m));
+        }
+
+        AllTestsRunResult atr = getRunMethods(elementID);
+
+        int tid = Integer.parseInt(testID);
+
+        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        Object target = wrapper.getOpenClass().newInstance(env);
+        try {
+            Object res = atr.run(testName, tid, target, env, 1);
+            return res;
+        } catch (Throwable t) {
+            Log.error("Error during Method run: ", t);
+            return t;
+        }
+    }
+
+    public BenchmarkInfo benchmarkMethod(final IOpenMethod m, int ms) throws Exception {
+        final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        final Object target = wrapper.getOpenClass().newInstance(env);
+
+        Thread.currentThread().setContextClassLoader(wrapper.getClass().getClassLoader());
+
+        final Object[] params = {  };
+
 //		Object res = null;
-		BenchmarkUnit bu = null;
+        BenchmarkUnit bu = null;
 
-		try
-		{
-			
-			
-			if (m instanceof IBenchmarkableMethod)
-			{
-				final IBenchmarkableMethod bm = (IBenchmarkableMethod)m;
-				bu = new BenchmarkUnit()
-				{
-					protected void run() throws Exception
-					{
-						throw new RuntimeException();
-					}
+        try {
+            if (m instanceof IBenchmarkableMethod) {
+                final IBenchmarkableMethod bm = (IBenchmarkableMethod) m;
+                bu = new BenchmarkUnit() {
+                            protected void run() throws Exception {
+                                throw new RuntimeException();
+                            }
 
-					public void runNtimes(int times) throws Exception
-					{
-						bm.invokeBenchmark(target, params, env, times);
-					}
+                            public void runNtimes(int times) throws Exception {
+                                bm.invokeBenchmark(target, params, env, times);
+                            }
 
-					public String getName()
-					{
-						return bm.getBenchmarkName();
-					}
+                            public String getName() {
+                                return bm.getBenchmarkName();
+                            }
 
-					public int nUnitRuns()
-					{
-						return bm.nUnitRuns();
-					}
+                            public int nUnitRuns() {
+                                return bm.nUnitRuns();
+                            }
 
-					public String[] unitName()
-					{
-						return bm.unitName();
-					}
-					
-				};
-				
-			}
-			else 
-			{
-				bu = new BenchmarkUnit()
-				{
+                            public String[] unitName() {
+                                return bm.unitName();
+                            }
+                        };
+            } else {
+                bu = new BenchmarkUnit() {
+                            protected void run() throws Exception {
+                                m.invoke(target, params, env);
+                            }
 
-					protected void run() throws Exception
-					{
-						m.invoke(target, params, env);
-					}
-					
-					public String getName()
-					{
-					    return m.getName();
-					}
-				
-				};
-					
-					
-			}
-			
-			BenchmarkUnit[] buu = {bu};
-			return new Benchmark(buu).runUnit(bu, ms, false);
-			
-			
-		} catch (Throwable t)
-		{
-			Log.error("Run Error:", t);
-			return new BenchmarkInfo(t, bu, bu.getName());
-		}
+                            public String getName() {
+                                return m.getName();
+                            }
+                        };
+            }
 
-	}
-	
-	
-	
-	
-	public Object runMethod(IOpenMethod m)
-	{
-		IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-		Object target = wrapper.getOpenClass().newInstance(env);
+            BenchmarkUnit[] buu = { bu };
+            return new Benchmark(buu).runUnit(bu, ms, false);
+        } catch (Throwable t) {
+            Log.error("Run Error:", t);
+            return new BenchmarkInfo(t, bu, bu.getName());
+        }
+    }
 
-		Thread.currentThread().setContextClassLoader(
-				wrapper.getClass().getClassLoader());
+    public Object runMethod(IOpenMethod m) {
+        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        Object target = wrapper.getOpenClass().newInstance(env);
 
+        Thread.currentThread().setContextClassLoader(wrapper.getClass().getClassLoader());
 
-		Object res = null;
+        Object res = null;
 
-		try
-		{
-			res = m.invoke(target, new Object[] {}, env);
-			
-		} catch (Throwable t)
-		{
-			Log.error("Run Error:", t);
-			return t;
-		}
-		return res;
-	}
+        try {
+            res = m.invoke(target, new Object[] {  }, env);
+        } catch (Throwable t) {
+            Log.error("Run Error:", t);
+            return t;
+        }
+        return res;
+    }
 
-	/**
-	 * @param res
-	 * @return
-	 */
-	private Object convertResult(Object res)
-	{
-		if (res == null)
-			return null;
-		Class clazz = res.getClass();
-		if (!(clazz == TestResult.class))
-			return res;
-		TestResult tr = (TestResult)res;
-		Object[] ores = new Object[tr.getNumberOfTests()];
-		
-		for (int i = 0; i < ores.length; i++)
-		{
-			ores[i] = tr.getResult(i);
-		}
-		
-		return ores;
-	}
+    /**
+     * DOCUMENT ME!
+     *
+     * @param res
+     *
+     * @return
+     */
+    private Object convertResult(Object res) {
+        if (res == null) {
+            return null;
+        }
+        Class clazz = res.getClass();
+        if (!(clazz == TestResult.class)) {
+            return res;
+        }
+        TestResult tr = (TestResult) res;
+        Object[] ores = new Object[tr.getNumberOfTests()];
 
-	public Tracer traceElement(int elementID) throws Exception
-	{
-		IOpenMethod m = getMethod(elementID);
-		return traceMethod(m);
-	}
+        for (int i = 0; i < ores.length; i++) {
+            ores[i] = tr.getResult(i);
+        }
 
-	public Tracer traceMethod(IOpenMethod m) throws Exception
-	{
-		Tracer t = new Tracer();
-		Tracer.setTracer(t);
-		
-		Thread.currentThread().setContextClassLoader(
-				wrapper.getClass().getClassLoader());
-		try
-		{
-			IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-			Object target = wrapper.getOpenClass().newInstance(env);
-	
-			m.invoke(target, new Object[] {}, env);
-		}
-		finally
-		{
-			Tracer.setTracer(null);
-		}	
+        return ores;
+    }
 
-		return t;
-	}
-	
-	
-	public String getUri(int elementID)
-	{
-		IGridTable table = getTable(elementID);
+    public Tracer traceElement(int elementID) throws Exception {
+        IOpenMethod m = getMethod(elementID);
+        return traceMethod(m);
+    }
 
-		if (table == null)
-			return "file://NO_FILE";
+    public Tracer traceMethod(IOpenMethod m) throws Exception {
+        Tracer t = new Tracer();
+        Tracer.setTracer(t);
 
-		return table.getUri();
-	}
+        Thread.currentThread().setContextClassLoader(wrapper.getClass().getClassLoader());
+        try {
+            IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+            Object target = wrapper.getOpenClass().newInstance(env);
 
-	public String displayResult(Object res)
-	{
-		return new ObjectViewer(this).displayResult(res);
-	}
+            m.invoke(target, new Object[] {  }, env);
+        } finally {
+            Tracer.setTracer(null);
+        }
 
-	// /**
-	// * @return Returns the folders.
-	// */
-	// public String[] getFolders() {
-	// return folders;
-	// }
-	//
-	// /**
-	// * @param folders
-	// * The folders to set.
-	// */
-	// public void setFolders(String[] folders) {
-	// this.folders = folders;
-	// }
+        return t;
+    }
 
-	/**
-	 * @return Returns the wrapperInfo.
-	 */
-	public OpenLWrapperInfo getWrapperInfo()
-	{
-		return wrapperInfo;
-	}
+    public String getUri(int elementID) {
+        IGridTable table = getTable(elementID);
 
-	public void setWrapperInfo(OpenLWrapperInfo wrapperInfo) throws Exception
-	{
-		setWrapperInfo(wrapperInfo, false);
-	}
+        if (table == null) {
+            return "file://NO_FILE";
+        }
 
-	// String errorMsg = null;
+        return table.getUri();
+    }
 
-	public void setWrapperInfo(OpenLWrapperInfo wrapperInfo, boolean reload)
-			throws Exception
-	{
-			if (this.wrapperInfo == wrapperInfo && !reload)
-				return;
+    public String displayResult(Object res) {
+        return new ObjectViewer(this).displayResult(res);
+    }
 
+    // /**
+    // * @return Returns the folders.
+    // */
+    // public String[] getFolders() {
+    // return folders;
+    // }
+    //
+    // /**
+    // * @param folders
+    // * The folders to set.
+    // */
+    // public void setFolders(String[] folders) {
+    // this.folders = folders;
+    // }
+    /**
+     * DOCUMENT ME!
+     *
+     * @return Returns the wrapperInfo.
+     */
+    public OpenLWrapperInfo getWrapperInfo() {
+        return wrapperInfo;
+    }
 
-		this.wrapperInfo = wrapperInfo;
-		indexer = new ProjectIndexer(wrapperInfo.getProjectInfo().projectHome());
+    public void setWrapperInfo(OpenLWrapperInfo wrapperInfo) throws Exception {
+        setWrapperInfo(wrapperInfo, false);
+    }
 
-		ClassLoader cl = wrapperInfo.getProjectInfo().getClassLoader(
-				this.getClass().getClassLoader(), reload);
+    // String errorMsg = null;
+    public void setWrapperInfo(OpenLWrapperInfo wrapperInfo, boolean reload)
+        throws Exception
+    {
+        if ((this.wrapperInfo == wrapperInfo) && !reload) {
+            return;
+        }
 
-		Class c = null;
-		wrapper = null;
-		projectRoot = null;
-		projectProblem = null;
+        this.wrapperInfo = wrapperInfo;
+        indexer = new ProjectIndexer(wrapperInfo.getProjectInfo().projectHome());
 
-		try
-		{
-			c = cl.loadClass(wrapperInfo.getWrapperClassName());
-		} catch (Throwable t)
-		{
-			Log.error("Error instantiating wrapper", t);
-			projectProblem = t;
-			return;
-			// errorMsg = "Most probably ";
-		}
+        ClassLoader cl = wrapperInfo.getProjectInfo()
+                .getClassLoader(this.getClass().getClassLoader(), reload);
 
-		Field f = c.getField("__userHome");
-		
-		if (Modifier.isStatic(f.getModifiers()))
-		    f.set(null, wrapperInfo.getProjectInfo().projectHome());
-		else throw new RuntimeException("Field " + f.getName() + " is not static in " + c.getName());
+        Class c = null;
+        wrapper = null;
+        projectRoot = null;
+        projectProblem = null;
 
-		Thread.currentThread().setContextClassLoader(cl);
+        try {
+            c = cl.loadClass(wrapperInfo.getWrapperClassName());
+        } catch (Throwable t) {
+            Log.error("Error instantiating wrapper", t);
+            projectProblem = t;
+            return;
 
-		try
-		{
-				wrapper = (OpenLWrapper) wrapperNewInstance(c);
-				if (reload)
-					wrapper.reload();
-				
-		} catch (Throwable t)
-		{
-			Log.error("Problem Loading OpenLWrapper", t);
-			projectProblem = t;
-		}
+            // errorMsg = "Most probably ";
+        }
 
-	}
+        Field f = c.getField("__userHome");
 
-	public static Object wrapperNewInstance(Class c) throws Exception
-	{
-		Constructor ctr;
-		try
-		{
-			ctr = c.getConstructor(new Class[] { boolean.class });
-			return ctr.newInstance(new Object[] { Boolean.TRUE });
-		} catch (NoSuchMethodException e)
-		{
-			throw new RuntimeException(
-					"Using older version of OpenL Wrapper, please run Generate ... Wrapper");
-		}
-	}
+        if (Modifier.isStatic(f.getModifiers())) {
+            f.set(null, wrapperInfo.getProjectInfo().projectHome());
+        } else {
+            throw new RuntimeException("Field " + f.getName() + " is not static in "
+                + c.getName());
+        }
+
+        Thread.currentThread().setContextClassLoader(cl);
+
+        try {
+            wrapper = (OpenLWrapper) wrapperNewInstance(c);
+            if (reload) {
+                wrapper.reload();
+            }
+        } catch (Throwable t) {
+            Log.error("Problem Loading OpenLWrapper", t);
+            projectProblem = t;
+        }
+    }
+
+    public static Object wrapperNewInstance(Class c) throws Exception {
+        Constructor ctr;
+        try {
+            ctr = c.getConstructor(new Class[] { boolean.class });
+            return ctr.newInstance(new Object[] { Boolean.TRUE });
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(
+                "Using older version of OpenL Wrapper, please run Generate ... Wrapper");
+        }
+    }
 
     public WebStudio getStudio() {
         return studio;
     }
 
     /**
-	 * @return Returns the indexer.
-	 */
-	public ProjectIndexer getIndexer()
-	{
-		return indexer;
-	}
+     * DOCUMENT ME!
+     *
+     * @return Returns the indexer.
+     */
+    public ProjectIndexer getIndexer() {
+        return indexer;
+    }
 
-	public ColorFilterHolder getFilterHolder()
-	{
-		return this.filterHolder;
-	}
+    public ColorFilterHolder getFilterHolder() {
+        return this.filterHolder;
+    }
 
-	
-	public Object runSearch(OpenLAdvancedSearch searchBean)
-	{
-		XlsModuleSyntaxNode xsn = getXlsModuleNode();
+    public Object runSearch(OpenLAdvancedSearch searchBean) {
+        XlsModuleSyntaxNode xsn = getXlsModuleNode();
 
-		return searchBean.search(xsn);
-		
-	}
-	
-	public boolean isReady()
-	{
-		return wrapper != null;
-	}
-	
+        return searchBean.search(xsn);
+    }
+
+    public boolean isReady() {
+        return wrapper != null;
+    }
 }
