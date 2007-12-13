@@ -494,7 +494,19 @@ public class RepositoryTreeController {
     }
 
     public boolean checkName(String projectName) {
-        return !PROJECTNAME_FORBIDDEN_PATTERN.matcher(projectName).find();
+        if (PROJECTNAME_FORBIDDEN_PATTERN.matcher(projectName).find()) {
+            // contains forbidden (bad) characters
+            return false;
+        }
+        
+        // JCR path cannot starts with space
+        if (projectName.startsWith(" ")) return false;
+        // Windows File System issues
+        if (projectName.endsWith(" ")) return false;
+        if (projectName.endsWith(".")) return false;
+        
+        // seems OK
+        return true;
     }
 
     public String upload() {

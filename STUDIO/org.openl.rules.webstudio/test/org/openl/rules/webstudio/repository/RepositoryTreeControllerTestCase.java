@@ -14,7 +14,8 @@ public class RepositoryTreeControllerTestCase extends TestCase {
 
     public void testCheckNameBad() {
         final String[] badNames = {
-                "\\f","f/g", "f*", "?f*", "g?","f:x", "f;x","a<b", "a>b", "a\tb", "a\nv", "a$", "a%b"
+                "\\f","f/g", "f*", "?f*", "g?","f:x", "f;x","a<b", "a>b", "a\tb", "a\nv", "a$", "a%b",
+                " test", "test ", "test.", "test..", "test..."
         };
 
         for (String s : badNames) {
