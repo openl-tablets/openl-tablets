@@ -65,4 +65,8 @@
     </rich:columnGroup>
   </rich:dataTable>
 
+  <h:panelGroup rendered="#{empty repositoryTreeController.rulesProjects}" styleClass="noEntries">
+    <h:outputText value="No entries found" />
+  </h:panelGroup>
+
 </ui:composition>

@@ -182,6 +182,12 @@ img {
   color: green;
 }
 
+.noEntries {
+  color: #002276;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
 /* Standard table that should be used to display any tabular data */
 table.standard {
   border: none;

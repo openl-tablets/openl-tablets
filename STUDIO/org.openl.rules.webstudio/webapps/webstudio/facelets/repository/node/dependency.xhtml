@@ -5,8 +5,7 @@
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:dataTable rendered="#{!empty node.dependencies}"
-    value="#{node.dependencies}" var="dep" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
+  <rich:dataTable value="#{node.dependencies}" var="dep" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -37,6 +36,10 @@
       </rich:column>
     </rich:columnGroup>
   </rich:dataTable>
+
+  <h:panelGroup rendered="#{empty node.dependencies}" styleClass="noEntries">
+    <h:outputText value="No entries found" />
+  </h:panelGroup>
 
   <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
     <h:commandButton value="Add Dependency" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" type="button"
