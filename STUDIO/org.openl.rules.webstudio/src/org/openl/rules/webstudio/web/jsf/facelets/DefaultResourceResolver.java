@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.jsf.faceletes;
+package org.openl.rules.webstudio.web.jsf.facelets;
 
 import com.sun.facelets.impl.ResourceResolver;
 import com.sun.facelets.util.Resource;
