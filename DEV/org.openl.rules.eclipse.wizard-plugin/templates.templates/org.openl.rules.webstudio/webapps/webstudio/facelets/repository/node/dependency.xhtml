@@ -1,0 +1,45 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:dataTable rendered="#{!empty node.dependencies}"
+    value="#{node.dependencies}" var="dep" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
+    <f:facet name="header">
+      <rich:columnGroup>
+        <rich:column>
+          <h:outputText value="Project" />
+        </rich:column>
+        <rich:column>
+          <h:outputText value="Versions" />
+        </rich:column>
+        <rich:column>
+          <h:outputText value="Actions" />
+        </rich:column>
+      </rich:columnGroup>
+    </f:facet>
+
+    <rich:columnGroup>
+      <rich:column>
+        <h:outputText value="#{dep.projectName}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{dep.versionString}" />
+      </rich:column>
+      <rich:column style="text-align:center;">
+        <h:commandLink styleClass="actionButton" action="#{dep.delete}"
+          onclick="if(!window.confirm('Are you sure you want to delete the project dependency?')) {return false;}"
+          rendered="#{artefact.checkedOut}">
+          <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
+        </h:commandLink>
+      </rich:column>
+    </rich:columnGroup>
+  </rich:dataTable>
+
+  <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+    <h:commandButton value="Add Dependency" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}"
+      onclick="showAddDependency(); return false" disabled="#{!artefact.checkedOut}" />
+  </h:panelGrid>
+</ui:composition>

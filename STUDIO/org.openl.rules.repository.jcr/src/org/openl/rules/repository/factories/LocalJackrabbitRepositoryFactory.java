@@ -1,12 +1,16 @@
 package org.openl.rules.repository.factories;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
+
+import org.springframework.util.*;
 
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
@@ -87,8 +91,18 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             
             // obtain real path to repository configuration file
             URL url = this.getClass().getResource(repConf);
-            String fullPath = url.getFile();
-
+//            String fullPath = url.getFile();
+            
+            File tempRepositorySettings = File.createTempFile("jackrabbit-repository", ".xml");
+            
+            String fullPath = tempRepositorySettings.getCanonicalPath();
+            boolean a = tempRepositorySettings.canWrite();
+            a = false;
+                
+            OutputStream tempRepositorySettingsStream = new FileOutputStream(tempRepositorySettings);
+            FileCopyUtils.copy(url.openStream(), tempRepositorySettingsStream);
+            tempRepositorySettingsStream.close();
+            
             repository = new TransientRepository(fullPath, repHome);
         } catch (IOException e) {
             // TODO: log

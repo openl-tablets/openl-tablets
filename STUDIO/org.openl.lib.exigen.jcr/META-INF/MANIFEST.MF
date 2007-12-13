@@ -119,4 +119,5 @@ Export-Package: com.exigen.cm,
  com.exigen.cm.store.remote.transport.http.server,
  com.exigen.cm.user,
  com.exigen.cm.utils,
- com.exigen.cm.utils.dbtest
+ com.exigen.cm.utils.dbtest,
+ org.springframework.util
