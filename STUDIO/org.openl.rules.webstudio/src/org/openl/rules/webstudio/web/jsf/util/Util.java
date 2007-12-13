@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.jsf.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.studio.WebStudio;
 import org.openl.rules.webstudio.web.jsf.JSFConst;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 

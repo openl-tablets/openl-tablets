@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.ui.studio;
 
 /**
  * DOCUMENT ME!

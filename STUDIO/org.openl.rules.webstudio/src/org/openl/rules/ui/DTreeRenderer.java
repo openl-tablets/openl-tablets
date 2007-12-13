@@ -24,7 +24,7 @@ public abstract class DTreeRenderer {
     static final String[] DEFAULT_ICON_LEAF = {
             "default.leaf", "images/reg-text.png", "images/categoryset.gif"
         };
-    static final public String GUESS_TYPE = "guess.type";
+    public static final String GUESS_TYPE = "guess.type";
     String targetFrame = "mainFrame";
     String targetJsp;
     String[][] icons;

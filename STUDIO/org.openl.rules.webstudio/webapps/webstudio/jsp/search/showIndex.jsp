@@ -1,6 +1,6 @@
 <%@include file="header.jsp"%>
 
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.studio.WebStudio" />
 
 
 <%

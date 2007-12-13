@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.ui.studio;
 
 import org.openl.base.INamedThing;
 import org.openl.base.NamedThing;
@@ -6,6 +6,13 @@ import org.openl.base.NamedThing;
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.ui.ATableTreeSorter;
+import org.openl.rules.ui.CategorySorter;
+import org.openl.rules.ui.CategorySorterN;
+import org.openl.rules.ui.OpenLWrapperInfo;
+import org.openl.rules.ui.TableInstanceSorter;
+import org.openl.rules.ui.WorkbookSorter;
+import org.openl.rules.ui.WorksheetSorter;
 
 import org.openl.util.StringTool;
 
@@ -16,12 +23,12 @@ import org.openl.util.StringTool;
  * @author Stanislav Shor
  */
 public abstract class WebStudioMode extends NamedThing {
-    static final public String DEVELOPER_MODE = "developer";
-    static final public String BUSINESS_MODE = "business";
-    static final public WebStudioMode DEVELOPER = new DeveloperMode();
-    static final public WebStudioMode BUSINESS1 = new BusinessMode1();
-    static final public WebStudioMode BUSINESS2 = new BusinessMode2();
-    static final public WebStudioMode BUSINESS3 = new BusinessMode3();
+    public static final String DEVELOPER_MODE = "developer";
+    public static final String BUSINESS_MODE = "business";
+    public static final WebStudioMode DEVELOPER = new DeveloperMode();
+    public static final WebStudioMode BUSINESS1 = new BusinessMode1();
+    public static final WebStudioMode BUSINESS2 = new BusinessMode2();
+    public static final WebStudioMode BUSINESS3 = new BusinessMode3();
     String name;
     String displayName;
     String description;
