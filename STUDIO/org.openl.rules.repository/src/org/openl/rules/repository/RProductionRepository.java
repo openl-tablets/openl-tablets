@@ -44,7 +44,11 @@ public interface RProductionRepository extends RRepository {
 
     Collection<REntity> findNodes(SearchParams params) throws RRepositoryException;
 
-    public static interface SearchParams {
+    void addListener(RDeploymentListener listener) throws RRepositoryException;
+
+    boolean removeListener(RDeploymentListener listener) throws RRepositoryException;
+
+    interface SearchParams {
         Date getLowerEffectiveDate();
         Date getUpperEffectiveDate();
 

@@ -7,12 +7,15 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.NodeIterator;
+import javax.jcr.Property;
 import java.util.Collection;
 import java.util.ArrayList;
 
 public class JcrProductionDeployment extends JcrProductionEntity implements RProductionDeployment {
     private Node node;
 
+    private static final Object lock = new Object();
+    
     public JcrProductionDeployment(Node node) throws RepositoryException {
         super(node);
         NodeUtil.checkNodeType(node, JcrNT.NT_DEPLOYMENT);
@@ -85,8 +88,18 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
     public void save() throws RRepositoryException {
         try {
             node.save();
+            repositoryNotify();
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to save deployment", e);
+        }
+    }
+
+    private void repositoryNotify() throws RepositoryException {
+        synchronized (lock) {
+            Node root = node.getParent();
+            root.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, (String)null);
+            root.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, "1");
+            node.getParent().save();
         }
     }
 }
