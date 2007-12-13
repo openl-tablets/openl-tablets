@@ -146,8 +146,7 @@ public class RepositoryTreeController {
                 UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
                 try {
                     folder.addFolder(folderName);
-                    repositoryTreeState.invalidateTree();
-                    repositoryTreeState.updateSelection();
+                    repositoryTreeState.invalidateTreeAndSelectedNode();
                 } catch (ProjectException e) {
                     log.error("Failed to create folder " + folderName, e);
                     errorMessage = e.getMessage();
@@ -192,8 +191,7 @@ public class RepositoryTreeController {
 
         try {
             projectArtefact.getArtefact(childName).delete();
-            repositoryTreeState.invalidateTree();
-            repositoryTreeState.updateSelection();
+            repositoryTreeState.invalidateTreeAndSelectedNode();
         } catch (ProjectException e) {
             log.error("error deleting", e);
             FacesContext.getCurrentInstance()
@@ -264,24 +262,24 @@ public class RepositoryTreeController {
     public String eraseProject() {
         UserWorkspaceProject project = getSelectedProject();
         if (!project.isDeleted()) {
+            repositoryTreeState.invalidateTreeAndSelectedNode();
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Can not erase project " + project.getName(),
-                        "project is not deleted"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                        "Can not erase project " + project.getName() + "."));
             return null;
         }
 
         try {
             project.erase();
-            repositoryTreeState.invalidateTree();
-            repositoryTreeState.setSelectedNode(null);
+            repositoryTreeState.invalidateTreeAndSelectedNode();
         } catch (ProjectException e) {
             log.error("Failed to erase project", e);
+            repositoryTreeState.invalidateTreeAndSelectedNode();
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Can not erase project " + project.getName(), e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                        "Can not erase project " + project.getName() + "."));
         }
         return null;
     }
@@ -491,8 +489,7 @@ public class RepositoryTreeController {
     }
 
     public String refreshTree() {
-        repositoryTreeState.invalidateTree();
-        repositoryTreeState.setSelectedNode(null);
+        repositoryTreeState.invalidateTreeAndSelectedNode();
         return null;
     }
 
@@ -554,8 +551,7 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was uploaded successfully."));
-            repositoryTreeState.invalidateTree();
-            repositoryTreeState.updateSelection();
+            repositoryTreeState.invalidateTreeAndSelectedNode();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
