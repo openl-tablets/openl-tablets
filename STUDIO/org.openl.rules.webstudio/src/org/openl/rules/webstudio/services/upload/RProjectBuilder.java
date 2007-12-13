@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.services.upload;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
@@ -11,6 +13,8 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import java.io.InputStream;
 
 public class RProjectBuilder {
+    private final static Log log = LogFactory.getLog(RProjectBuilder.class);
+
     private final UserWorkspaceProject project;
     private final UploadFilter filter = FolderUploadFilter.VCS_FILES_FILTER;
 
@@ -61,6 +65,19 @@ public class RProjectBuilder {
 
     public void checkIn() throws ProjectException {
         project.checkIn();
+    }
+    
+    public void cancel() {
+	// it was created it will be perish
+	try {
+	    log.debug("Canceling uploading of new project");
+	    
+	    project.close();
+	    project.delete();
+	    project.erase();
+	} catch (ProjectException e) {
+	    log.error("Failed to cancel new project", e);
+	}
     }
 
     private UserWorkspaceProjectFolder checkPath(UserWorkspaceProject project, String fullName) throws ProjectException {
