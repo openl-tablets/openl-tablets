@@ -30,7 +30,9 @@
       </rich:column>
     </rich:columnGroup>
   </rich:dataTable>
-  
-  <h:outputText value="No Versions" rendered="#{empty node.versions}"/>
-  
+
+  <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
+    <h:outputText value="No entries found" />
+  </h:panelGroup>
+
 </ui:composition>
