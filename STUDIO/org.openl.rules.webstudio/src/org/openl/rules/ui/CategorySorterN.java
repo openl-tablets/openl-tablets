@@ -1,48 +1,38 @@
-/**
- * Created Apr 3, 2007
- */
 package org.openl.rules.ui;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+
 import org.openl.util.StringTool;
 
+
 /**
- * @author snshor
+ * DOCUMENT ME!
  *
+ * @author Stanislav Shor
  */
-public class CategorySorterN extends CategorySorter
-{
+public class CategorySorterN extends CategorySorter {
+    int categoryLevel;
+    String separators;
 
-	int categoryLevel;
-	String separators;
-	
-	public CategorySorterN(int categoryLevel, String separators)
-	{
-		this.categoryLevel = categoryLevel;
-		this.separators = separators;
-	}
+    public CategorySorterN(int categoryLevel, String separators) {
+        this.categoryLevel = categoryLevel;
+        this.separators = separators;
+    }
 
+    public String getType(Object sorterObject) {
+        return "category." + categoryLevel;
+    }
 
+    public String getName() {
+        return "category." + categoryLevel;
+    }
 
-	public String getType(Object sorterObject)
-	{
-		return "category." + categoryLevel;
-	}
+    String getCategory(TableSyntaxNode tsn) {
+        String category = super.getCategory(tsn);
 
-	public String getName()
-	{
-		return "category." + categoryLevel;
-	}
+        String[] categories = StringTool.tokenize(category, separators);
 
-
-
-	String getCategory(TableSyntaxNode tsn)
-	{
-		String category = super.getCategory(tsn);
-		
-		String[] categories = StringTool.tokenize(category, separators);
-		
-		return categoryLevel < categories.length ? categories[categoryLevel] : categories[categories.length-1] ;
-	}
-
+        return (categoryLevel < categories.length) ? categories[categoryLevel]
+        : categories[categories.length - 1];
+    }
 }

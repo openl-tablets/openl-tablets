@@ -4,6 +4,11 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.webtools.WebTool;
 
 
+/**
+ * DOCUMENT ME!
+ *
+ * @author Stanislav Shor
+ */
 public class CellModel implements ICellModel {
     static final short[] WHITE = { 255, 255, 255 };
 
@@ -152,19 +157,19 @@ public class CellModel implements ICellModel {
 
     public void atttributesToHtml(StringBuffer buf, TableModel table) {
         if (colspan != 1) {
-            buf.append(" colspan=\"").append(colspan+"\"");
+            buf.append(" colspan=\"").append(colspan + "\"");
         }
         if (rowspan != 1) {
-            buf.append(" rowspan=\"").append(rowspan+"\"");
+            buf.append(" rowspan=\"").append(rowspan + "\"");
         }
         if (halign != null) {
-            buf.append(" align=\"" + halign+"\"");
+            buf.append(" align=\"" + halign + "\"");
         }
         if (valign != null) {
-            buf.append(" valign=\"" + valign+"\"");
+            buf.append(" valign=\"" + valign + "\"");
         }
         if (width != 0) {
-            buf.append(" width=\"" + width+"\"");
+            buf.append(" width=\"" + width + "\"");
         }
 
         // else if (isNumber(content))
@@ -179,7 +184,7 @@ public class CellModel implements ICellModel {
         // bcgFilter.filterColor(rgbBackground);
         short[] color = rgbBackground;
 
-        buf.append(" bgcolor=\"" + WebTool.toHexString(color)+"\"");
+        buf.append(" bgcolor=\"" + WebTool.toHexString(color) + "\"");
 
         if ((borderStyle != null) || (font != null)) {
             buf.append(" style=\"padding:1px;");
@@ -227,7 +232,7 @@ public class CellModel implements ICellModel {
         for (int i = 0; i < borderStyle.length; i++) {
             int w = (borderStyle[i] == null) ? 0 : borderStyle[i].width;
 
-            buf.append(' ').append(w+"px");
+            buf.append(' ').append(w + "px");
         }
         buf.append(';');
 
