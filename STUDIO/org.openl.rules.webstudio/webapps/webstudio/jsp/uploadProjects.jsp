@@ -8,7 +8,7 @@
 <%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich" %>
 
 
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.studio.WebStudio" />
 <%@include file="checkTimeout.jsp"%>
 
 <%if (!Util.isLocalRequest(request)) {%>

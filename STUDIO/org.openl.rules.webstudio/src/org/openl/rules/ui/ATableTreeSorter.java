@@ -16,7 +16,7 @@ import java.util.Map;
  * @author Stanislav Shor
  */
 public abstract class ATableTreeSorter extends TreeSorter {
-    static final public TableTypeSorter TABLE_TYPE_SORTER = new TableTypeSorter();
+    public static final TableTypeSorter TABLE_TYPE_SORTER = new TableTypeSorter();
 
     public ITreeElement makeElement(Object obj, int i) {
         TableSyntaxNode tsn = (TableSyntaxNode) obj;

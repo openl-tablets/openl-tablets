@@ -1,11 +1,13 @@
-package org.openl.rules.ui;
+package org.openl.rules.ui.studio;
 
+import org.openl.rules.ui.OpenLProjectLocator;
+import org.openl.rules.ui.OpenLWrapperInfo;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.util.benchmark.BenchmarkInfo;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
 import java.util.Set;
 
@@ -246,9 +248,5 @@ public class WebStudio {
     public String getRenderedTree() {
         String tree = model.renderTree("view.xhtml");
         return tree;
-    }
-
-    static interface StudioListener extends EventListener {
-        void studioReset();
     }
 }

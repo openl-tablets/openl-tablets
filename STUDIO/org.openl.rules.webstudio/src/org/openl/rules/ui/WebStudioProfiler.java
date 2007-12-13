@@ -1,5 +1,6 @@
 package org.openl.rules.ui;
 
+import org.openl.rules.ui.studio.WebStudio;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 

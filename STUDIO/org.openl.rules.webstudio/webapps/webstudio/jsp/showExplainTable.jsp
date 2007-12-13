@@ -4,7 +4,7 @@
 <%@ page import="org.openl.rules.lang.xls.syntax.TableSyntaxNode" %>
 
 
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.studio.WebStudio" />
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
 

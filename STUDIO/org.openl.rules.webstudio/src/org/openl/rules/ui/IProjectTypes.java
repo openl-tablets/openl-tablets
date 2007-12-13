@@ -5,8 +5,8 @@ package org.openl.rules.ui;
  *
  */
 public interface IProjectTypes {
-    static final public String PT_WORKSHEET = "worksheet";
-    static final public String PT_WORKBOOK = "workbook";
-    static final public String PT_WORDDOC = "word document";
-    static final public String PT_TABLE = "table";
+    public static final String PT_WORKSHEET = "worksheet";
+    public static final String PT_WORKBOOK = "workbook";
+    public static final String PT_WORDDOC = "word document";
+    public static final String PT_TABLE = "table";
 }

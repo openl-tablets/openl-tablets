@@ -25,7 +25,7 @@ import org.openl.rules.ui.CellModel;
 import org.openl.rules.ui.ICellModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
-import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.studio.WebStudio;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.jsf.util.Util;
 import org.openl.rules.webtools.WebTool;

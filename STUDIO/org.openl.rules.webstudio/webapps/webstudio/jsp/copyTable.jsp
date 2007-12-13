@@ -1,5 +1,5 @@
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
-<jsp:useBean id='editor' scope='session' class="org.openl.rules.ui.EditorHelper" />
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.studio.WebStudio" />
+<jsp:useBean id='editor' scope='session' class="org.openl.rules.ui.studio.EditorHelper" />
 
 
 <%@include file="checkTimeout.jsp"%>

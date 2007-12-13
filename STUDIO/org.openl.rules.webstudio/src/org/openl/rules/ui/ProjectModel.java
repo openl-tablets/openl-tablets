@@ -25,6 +25,7 @@ import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult.Test;
+import org.openl.rules.ui.studio.WebStudio;
 import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
@@ -886,6 +887,7 @@ public class ProjectModel {
                 + c.getName());
         }
 
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(cl);
 
         try {
@@ -896,6 +898,8 @@ public class ProjectModel {
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
             projectProblem = t;
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
         }
     }
 
