@@ -6,12 +6,16 @@ import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.observation.Event;
+import javax.jcr.observation.EventListener;
+import javax.jcr.observation.EventIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import java.util.ArrayList;
@@ -19,16 +23,34 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
+public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository, EventListener {
     private Node deployLocation;
+    private List<RDeploymentListener> listeners =new ArrayList<RDeploymentListener>();
+
+    final static String PROPERTY_NOTIFICATION = "deploymentReady";
+    private static final String DEPLOY_ROOT = "/deploy";
 
     public JcrProductionRepository(String name, Session session) throws RepositoryException {
         super(name, session);
 
-        deployLocation = checkPath("/deploy");
+        deployLocation = checkPath(DEPLOY_ROOT);
         if (deployLocation.isNew()) {
             session.save();
         }
+
+        session.getWorkspace().getObservationManager().addEventListener(this, Event.PROPERTY_ADDED,
+                DEPLOY_ROOT, false, null, null, false);
+    }
+
+    /**
+     * Releases resources allocated by this Rules Repository instance.
+     */
+    @Override
+    public void release() {
+        try {
+            session.getWorkspace().getObservationManager().removeEventListener(this);
+        } catch (RepositoryException e) {}
+        super.release();
     }
 
     /**
@@ -179,6 +201,14 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
     }
 
+    public synchronized void addListener(RDeploymentListener listener) throws RRepositoryException {
+        listeners.add(listener);
+    }
+
+    public synchronized boolean removeListener(RDeploymentListener listener) throws RRepositoryException {
+        return listeners.remove(listener);
+    }
+
     private static String buildQuery(SearchParams params) {
         StringBuilder sb = new StringBuilder("//element(*, nt:base)");
         if (!StringUtils.isEmpty(params.getLineOfBusiness())) {
@@ -197,6 +227,29 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     private static void appendDateCondition(Date date, String condition, StringBuilder sb) {
         if (date != null) {
             sb.append("[@").append(condition).append(date.getTime()).append("]");
+        }
+    }
+
+    public void onEvent(EventIterator eventIterator) {
+        boolean hasInterestingEvents = false;
+        while (eventIterator.hasNext()) {
+            Event event = eventIterator.nextEvent();
+            try {
+                if (event.getPath().equals(DEPLOY_ROOT + "/" + PROPERTY_NOTIFICATION)) {
+                    hasInterestingEvents = true;
+                    break;
+                }
+            } catch (RepositoryException e) {}
+        }
+
+        if (hasInterestingEvents) {
+            Collection<RDeploymentListener> listenersCopy = new ArrayList<RDeploymentListener>(listeners);
+            for (RDeploymentListener l : listenersCopy) {
+                try {
+                    l.projectsAdded();
+                } catch (Exception e) {}
+            }
+
         }
     }
 }

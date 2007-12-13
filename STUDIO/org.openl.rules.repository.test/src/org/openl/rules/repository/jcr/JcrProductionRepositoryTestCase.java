@@ -9,6 +9,7 @@ import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import javax.jcr.RepositoryException;
@@ -93,11 +94,39 @@ public class JcrProductionRepositoryTestCase extends TestCase {
      *
      * @throws RRepositoryException if an error occures
      */
-    public void testIt() throws RRepositoryException {
-        _testLob();
+    public void testIt() throws RRepositoryException, InterruptedException {
+    /*    _testLob();
         _testEffectiveDate();
         _testExpirationDate();
-        _testSeveralProperties();
+        _testSeveralProperties();*/
+
+        _testListeners();
+    }
+
+    private void _testListeners() throws RRepositoryException, InterruptedException {
+        final boolean[] flag = new boolean[1];
+        class TestListener implements RDeploymentListener {
+            public void projectsAdded() {
+                flag[0] = true;
+            }
+        }
+
+        TestListener listener = new TestListener();
+        instance.addListener(listener);
+        try {
+            RProductionDeployment deployment = instance.createDeployment("lis");
+
+            RProject rProject = deployment.createProject("p1");
+            rProject.getRootFolder().createFolder("f1");
+
+            deployment.save();
+            Thread.sleep(500); // notifications come asynchroniously
+        } finally {
+            instance.removeListener(listener);
+        }
+
+
+        assertTrue(flag[0]);
     }
 
     public void _testLob() throws RRepositoryException {

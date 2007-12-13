@@ -27,6 +27,8 @@ public class JcrRulesClient {
      *
      * @param deployID identifier of deployed project
      * @param destFolder the folder to unpack the project to.
+     *
+     * @throws Exception if an error occurres
      */
     public void fetchDeployment(DeployID deployID, File destFolder) throws Exception {
         destFolder.mkdirs();
@@ -53,5 +55,17 @@ public class JcrRulesClient {
             download(rFolder, new File(location, rFolder.getName()));
         }
     }
+
+    /**
+     * Returns names of all existing deployments in production repository.
+     *
+     * @return collection of names
+     * @throws RRepositoryException on repository error
+     */
+    public Collection<String> getDeploymentNames() throws RRepositoryException {
+        return ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeploymentNames();
+    }
+
+    
 
 }
