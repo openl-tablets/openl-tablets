@@ -24,13 +24,14 @@ import org.xml.sax.InputSource;
  * This is Abstract class with common code for Local and RMI methods of
  * accessing any JCR-170 compliant instance.
  * <p>
- * It performs basic insanity checks.
- * For example, it verifies that OpenL node types are registered in using JCR.
+ * It performs basic insanity checks. For example, it verifies that OpenL node
+ * types are registered in using JCR.
  * 
  * @author Aleh Bykhavets
- *
+ * 
  */
-public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory {
+public abstract class AbstractJcrRepositoryFactory implements
+        RRepositoryFactory {
     public static final String PROP_DEF_RULES_PATH = "JCR.rules.path";
     public static final String PROP_DEF_DEPLOYMENTS_PATH = "JCR.deployments.path";
 
@@ -60,25 +61,25 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     public void initialize(SmartProps props) throws RRepositoryException {
         defRulesPath = props.getStr(PROP_DEF_RULES_PATH, DEF_RULES_PATH);
         defDeploymentsPath = props.getStr(PROP_DEF_DEPLOYMENTS_PATH, DEF_DEPLOYMENTS_PATH);
-        //TODO: add default path support
+        // TODO: add default path support
         // 1. check path -- create if absent
         // 2. pass as parameter or property to JcrRepository
     }
 
     public void release() throws RRepositoryException {
-        
     }
 
     // ------ protected methods ------
 
     /**
-     * Sets repository reference.
-     * Must be called before invoking {@link #getRepositoryInstance()} method.
-     *
+     * Sets repository reference. Must be called before invoking
+     * {@link #getRepositoryInstance()} method.
+     * 
      * @param rep implementation specific repository
      * @throws RepositoryException if fails to check first start
      */
-    protected void setRepository(Repository rep, String name) throws RepositoryException {
+    protected void setRepository(Repository rep, String name)
+            throws RepositoryException {
         repository = rep;
         repositoryName = name;
 
@@ -87,7 +88,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /**
      * Creates JCR Session.
-     *
+     * 
      * @param user user id
      * @param pass password of user
      * @return new JCR session
@@ -103,15 +104,16 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     /**
      * Checks whether the JCR instance is prepared for OpenL.
      * If it is the first time, then there are no openL node types, yet.
-     *
+     * 
      * @throws RepositoryException if failed
      */
     protected void checkOnStart() throws RepositoryException {
         Session systemSession = null;
         try {
-            //FIXME: do not hardcode system credentials
+            // FIXME: do not hardcode system credentials
             systemSession = createSession("sys", "secret");
-            NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
+            NodeTypeManager ntm = systemSession.getWorkspace()
+                    .getNodeTypeManager();
 
             boolean initNodeTypes = false;
             try {
@@ -126,7 +128,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
                 // Add OpenL node definitions
                 initNodeTypes(ntm);
             } else {
-        	checkSchemaVersion(ntm);
+                checkSchemaVersion(ntm);
             }
         } finally {
             if (systemSession != null) {
@@ -141,12 +143,12 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * Usually it can be done on local JCR instance.
      * <p>
      * This operation may not be supported via RMI.
-     *
+     * 
      * @param ntm node type manager
      * @throws RepositoryException if failed
      */
     protected abstract void initNodeTypes(NodeTypeManager ntm) throws RepositoryException;
-    
+
     /**
      * Checks whether schema version of the repository is valid.
      * If check failed then it throws exception.
@@ -155,66 +157,66 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @throws RepositoryException if check failed
      */
     protected void checkSchemaVersion(NodeTypeManager ntm) throws RepositoryException {
-	String schemaVersion = null;
-	
-	// check special node
-	NodeType nodeType = null;
-	try {
-	    nodeType = ntm.getNodeType("openl:repository");
+        String schemaVersion = null;
+
+        // check special node
+        NodeType nodeType = null;
+        try {
+            nodeType = ntm.getNodeType("openl:repository");
         } catch (NoSuchNodeTypeException e) {
             throw new RepositoryException("Cannot determine scheme version: " + e.getMessage());
-	}
-        
-	PropertyDefinition[] propDefs = nodeType.getPropertyDefinitions();
-	
-	// retrieve value of schema version
-	for (PropertyDefinition definition : propDefs) {
-	    if ("schema-version".equals(definition.getName())) {
-		Value[] defValues = definition.getDefaultValues();
-		
-		if (defValues != null && defValues.length > 0) {
-		    // take first only
-		    // Note: multiply values are not supported
-		    schemaVersion = defValues[0].getString();
-		}
-		
-		break;
-	    }
-	}
-	
-	if (schemaVersion == null) {
-	    throw new RepositoryException("Cannot determine scheme version: no special property or value!");
-	}
-	
-	// compare expected and repository schema versions
-	String expectedVersion = getExpectedSchemaVersion();
-	if (!expectedVersion.equals(schemaVersion)) {
-	    throw new RepositoryException("Schema version is different. Has (" + schemaVersion 
-		    + ") when (" + expectedVersion + ") expected.");
-	}
+        }
+
+        PropertyDefinition[] propDefs = nodeType.getPropertyDefinitions();
+
+        // retrieve value of schema version
+        for (PropertyDefinition definition : propDefs) {
+            if ("schema-version".equals(definition.getName())) {
+                Value[] defValues = definition.getDefaultValues();
+
+                if (defValues != null && defValues.length > 0) {
+                    // take first only
+                    // Note: multiply values are not supported
+                    schemaVersion = defValues[0].getString();
+                }
+
+                break;
+            }
+        }
+
+        if (schemaVersion == null) {
+            throw new RepositoryException("Cannot determine scheme version: no special property or value!");
+        }
+
+        // compare expected and repository schema versions
+        String expectedVersion = getExpectedSchemaVersion();
+        if (!expectedVersion.equals(schemaVersion)) {
+            throw new RepositoryException("Schema version is different. Has ("
+                    + schemaVersion + ") when (" + expectedVersion + ") expected.");
+        }
     }
-    
+
     private String getExpectedSchemaVersion() throws RepositoryException {
-	String xPathQ = "/nodeTypes/nodeType[@name = 'openl:repository']" 
-	    + "/propertyDefinition[@name = 'schema-version']/defaultValues/defaultValue[1]";
-	
-	XPathFactory factory = XPathFactory.newInstance();
+        String xPathQ = "/nodeTypes/nodeType[@name = 'openl:repository']"
+                + "/propertyDefinition[@name = 'schema-version']/defaultValues/defaultValue[1]";
+
+        XPathFactory factory = XPathFactory.newInstance();
         XPath xPath = factory.newXPath();
-        
+
         String file = LocalJackrabbitRepositoryFactory.DEFAULT_NODETYPE_FILE;
         try {
-            
+
             InputSource source = new InputSource(this.getClass().getResourceAsStream(file));
-	    String result = xPath.evaluate(xPathQ, source);
-	    
-	    if (result == null || result.length() == 0) {
-		throw new Exception("Cannot find node.");
-	    }
-	    
-	    return result;
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    throw new RepositoryException("Cannot read schema version from '" + file + "': " + e.getMessage());
-	}
+            String result = xPath.evaluate(xPathQ, source);
+
+            if (result == null || result.length() == 0) {
+                throw new Exception("Cannot find node.");
+            }
+
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RepositoryException("Cannot read schema version from '" + file + "': " + e.getMessage());
+        }
     }
 }
