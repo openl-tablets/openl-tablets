@@ -43,9 +43,9 @@
     </rich:column>
     <rich:column style="text-align:center">
       <h:commandLink styleClass="actionButton" action="#{deploymentController.deleteItem}" immediate="true"
-        onclick="if(!window.confirm('Are you sure you want to delete the descriptor?')) {return false;}" rendered="#{artefact.checkedOut}">
+        onclick="if(!window.confirm('Are you sure you want to delete the descriptor?')) {return false;}" rendered="#{artefact.checkedOut}" title="Delete">
         <f:param name="key" value="#{item.name}" />
-        <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" alt="Delete" title="Delete" />
+        <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" />
       </h:commandLink>
     </rich:column>
   </rich:dataTable>

@@ -30,8 +30,8 @@
       <rich:column style="text-align:center;">
         <h:commandLink styleClass="actionButton" action="#{dep.delete}"
           onclick="if(!window.confirm('Are you sure you want to delete the project dependency?')) {return false;}"
-          rendered="#{artefact.checkedOut}">
-          <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" alt="Delete" title="Delete" />
+          rendered="#{artefact.checkedOut}" title="Delete">
+          <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" />
         </h:commandLink>
       </rich:column>
     </rich:columnGroup>

@@ -682,7 +682,7 @@ public class ObjectViewer {
         String uri = table.getUri();
         String url = WebTool.makeXlsOrDocUrl(table.getUri());
 
-        buf.append("<img src='../images/excel-workbook.png'/>");
+        buf.append("<img src='../images/excel-workbook.gif'/>");
         buf.append("<a class='left' href='showLinks.jsp?" + url
             + "' target='show_app_hidden' title='" + uri + "'>" + "&nbsp;" + text
             + "</a>");

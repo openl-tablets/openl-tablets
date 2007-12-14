@@ -144,7 +144,7 @@ form.standard table.buttonPanel {
 }
 
 .actionButton {
-  display: ;
+  /*display: ;*/
 }
 
 .actionButton img {
@@ -159,7 +159,7 @@ form.standard table.buttonPanel {
 }
 
 img {
-  border: 0;
+  border: 0px;
 }
 
 .readonly {
@@ -253,5 +253,9 @@ div#iconbar {
   height: 16px;
   position: absolute;
   right: 5px;
-  top: 0px;
+  top: 5px;
+}
+
+#iconbar a {
+  margin-right: 0px;
 }
