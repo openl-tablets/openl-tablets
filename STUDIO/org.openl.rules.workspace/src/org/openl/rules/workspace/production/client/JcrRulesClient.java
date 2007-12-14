@@ -17,7 +17,7 @@ import java.util.Collection;
 
 /**
  * This class can extract rules projects deployed into production JCR based environment to a specified location on
- * file system. 
+ * file system. Also it is a good place for higher level utility methods on top of production repository API. 
  */
 public class JcrRulesClient {
     /**

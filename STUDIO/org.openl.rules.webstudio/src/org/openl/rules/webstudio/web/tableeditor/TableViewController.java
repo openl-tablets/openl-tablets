@@ -6,6 +6,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.ui.SimpleHtmlFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.ui.OpenLWrapperInfo;
 import org.openl.rules.ui.TableEditorModel;
@@ -51,9 +52,10 @@ public class TableViewController {
 
         IGrid htmlGrid = gt.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
-            int N = 1;
+            int N = 2;
             IGridFilter[] f1 = new IGridFilter[N];
             f1[0] = new SimpleXlsFormatter();
+            f1[1] = new SimpleHtmlFilter();
             htmlGrid = new FilteredGrid(gt.getGrid(), f1);
         }
 
