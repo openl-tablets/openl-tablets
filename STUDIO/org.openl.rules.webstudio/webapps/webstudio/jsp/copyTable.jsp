@@ -6,23 +6,23 @@
 
 
 <%
-	String s_id = request.getParameter("elementID"); 
-   	int elementID = -100; 	
-   	if (s_id != null)
-   	{
-     	elementID = Integer.parseInt(s_id);
-     	studio.setTableID(elementID);
+  String s_id = request.getParameter("elementID");
+     int elementID = -100;
+     if (s_id != null)
+     {
+       elementID = Integer.parseInt(s_id);
+       studio.setTableID(elementID);
     }
-    else 
-      elementID = studio.getTableID(); 	
+    else
+      elementID = studio.getTableID();
    String url = studio.getModel().makeXlsUrl(elementID);
    String uri = studio.getModel().getUri(elementID);
-   String text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);   
+   String text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);
    String name = studio.getModel().getDisplayNameFull(elementID);
    boolean isRunnable  = studio.getModel().isRunnable(elementID);
    boolean isTestable  = studio.getModel().isTestable(elementID);
    org.openl.syntax.ISyntaxError[] se = studio.getModel().getErrors(elementID);
-   
+
 %>
 
 
@@ -48,7 +48,7 @@ function open_win(url)
 <body>
 <h2>Copying...</h2>
 
-<img src="../images/excel-workbook.png"/>
+<img src="../images/excel-workbook.gif"/>
 <a class="left" href="showLinks.jsp?<%=url%>" target="show_app_hidden" title="<%=uri%>">
       &nbsp;<%=text+ " : " + name%></a>
 
@@ -72,7 +72,7 @@ New
 
 <input id="textCell" type="text" size="10" name="newwb" value="Rules2.xls"/>
 
- 
+
 <input type="radio" checked="checked" name="Workbook" value="existing"/>
 Existing
 
@@ -95,7 +95,7 @@ New
 
 <input id="textCell" type="text" size="10" name="newws" value="Sheet X"/>
 
- 
+
 <input type="radio" name="Worksheet" value="existing"/>
 Existing
 

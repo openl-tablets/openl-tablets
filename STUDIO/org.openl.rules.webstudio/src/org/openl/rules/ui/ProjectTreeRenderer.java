@@ -15,7 +15,7 @@ public class ProjectTreeRenderer extends DTreeRenderer implements IProjectTypes,
 {
     static String[][] icons = {
             {
-                "workbook", "images/excel-workbook.png", "images/excel-workbook.png",
+                "workbook", "images/excel-workbook.gif", "images/excel-workbook.gif",
                 "images/excel-workbook-error.png", "images/excel-workbook-error.png"
             },
             {

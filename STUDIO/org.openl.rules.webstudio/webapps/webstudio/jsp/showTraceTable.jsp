@@ -13,23 +13,23 @@
 
     if (request.getParameter("first") != null)
     {
-%>    
-      <b>Select  a Trace Element on the left side and you will see it's trace here</b> 
+%>
+      <b>Select  a Trace Element on the left side and you will see it's trace here</b>
 <%
-      return;    
+      return;
     }
- 
-	String s_id = request.getParameter("elementID"); 
-   	 	
-   	int traceElementID = -100;	
-   	if (s_id != null)
-   	{
-     	traceElementID = Integer.parseInt(s_id);
-    }
-    
-	TableInfo ti = tracer.getTableInfo(traceElementID);
 
-    int elementID = tracer.getProjectNodeIndex(traceElementID, studio.getModel());   
+  String s_id = request.getParameter("elementID");
+
+     int traceElementID = -100;
+     if (s_id != null)
+     {
+       traceElementID = Integer.parseInt(s_id);
+    }
+
+  TableInfo ti = tracer.getTableInfo(traceElementID);
+
+    int elementID = tracer.getProjectNodeIndex(traceElementID, studio.getModel());
 %>
 
 
@@ -75,19 +75,19 @@ document.getElementById(elmnt).style.visibility="hidden"
 
 
 <body>
-<p/> 
+<p/>
 
 <%
-	String view = null;
-	
-	if (ti != null)
-	{
-	
+  String view = null;
+
+  if (ti != null)
+  {
+
 %>
 
 <table>
 <tr><td>
-<img src="../images/excel-workbook.png"/>
+<img src="../images/excel-workbook.gif"/>
 <a class="left" href="showLinks.jsp?<%=ti.getUrl()%>" target="show_app_hidden" title="<%=ti.getUri()%>">
       &nbsp;<%=ti.getText()+ " : " + ti.getDisplayName()%></a>
 </td>

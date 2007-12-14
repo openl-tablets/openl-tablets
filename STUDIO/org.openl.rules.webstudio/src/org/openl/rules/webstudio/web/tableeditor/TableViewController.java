@@ -14,18 +14,11 @@ import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.studio.WebStudio;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.jsf.util.Util;
-import org.openl.rules.webstudio.web.studio.StudioFromLWSController;
 import org.openl.rules.webtools.indexer.FileIndexer;
 
 import java.io.IOException;
 
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 
 public class TableViewController {
@@ -134,16 +127,16 @@ public class TableViewController {
         this.mode = mode;
     }
 
-    public void setInit(Boolean init) throws Exception {
-        if (Util.getWebStudio() == null) {
-            WebStudio studio = new WebStudio();
+    public void setInit(boolean init) throws Exception {
+        WebStudio studio = Util.getWebStudio();
+        if (studio == null) {
+            studio = new WebStudio();
             FacesUtils.getSessionMap().put("studio", studio);
             studio.select(studio.getWrappers()[0].getWrapperClassName());
-
-            String reload = FacesUtils.getRequestParameter("reload");
-            if (reload != null) {
-                studio.reset();
-            }
+        }
+        String reload = FacesUtils.getRequestParameter("reload");
+        if (reload != null) {
+            studio.reset();
         }
         if (StringUtils.isNotEmpty(mode)) {
             Util.getWebStudio().setMode(mode);
