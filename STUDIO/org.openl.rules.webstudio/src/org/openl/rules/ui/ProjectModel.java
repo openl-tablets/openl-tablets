@@ -887,7 +887,7 @@ public class ProjectModel {
                 + c.getName());
         }
 
-        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(cl);
 
         try {
@@ -899,7 +899,7 @@ public class ProjectModel {
             Log.error("Problem Loading OpenLWrapper", t);
             projectProblem = t;
         } finally {
-            Thread.currentThread().setContextClassLoader(oldCl);
+            Thread.currentThread().setContextClassLoader(oldClassloader);
         }
     }
 

@@ -122,4 +122,13 @@
     </navigation-case>
   </navigation-rule>
 
+  <navigation-rule>
+    <from-view-id>/repository/main.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>webstudio</from-outcome>
+      <to-view-id>/studio/main.xhtml</to-view-id>
+      <redirect/>
+    </navigation-case>
+  </navigation-rule>
+
 </faces-config>
