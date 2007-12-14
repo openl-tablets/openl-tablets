@@ -95,10 +95,10 @@ public class JcrProductionRepositoryTestCase extends TestCase {
      * @throws RRepositoryException if an error occures
      */
     public void testIt() throws RRepositoryException, InterruptedException {
-    /*    _testLob();
+        _testLob();
         _testEffectiveDate();
         _testExpirationDate();
-        _testSeveralProperties();*/
+        _testSeveralProperties();
 
         _testListeners();
     }
