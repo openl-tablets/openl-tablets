@@ -26,8 +26,8 @@ import org.openl.rules.ui.ICellModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.studio.WebStudio;
+import org.openl.rules.webstudio.util.Util;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.jsf.util.Util;
 import org.openl.rules.webtools.WebTool;
 
 public class TableWriterBean {

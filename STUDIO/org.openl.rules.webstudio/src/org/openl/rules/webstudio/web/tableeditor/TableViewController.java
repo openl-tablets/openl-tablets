@@ -12,13 +12,16 @@ import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.studio.WebStudio;
+import org.openl.rules.webstudio.util.Util;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.jsf.util.Util;
 import org.openl.rules.webtools.indexer.FileIndexer;
 
 import java.io.IOException;
 
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 public class TableViewController {
@@ -95,21 +98,33 @@ public class TableViewController {
 
     public String getUrl() {
         elementID = getElementId();
+        if (elementID==-1) {
+            return null;
+        }
         return Util.getWebStudio().getModel().makeXlsUrl(elementID);
     }
 
     public String getUri() {
         elementID = getElementId();
+        if (elementID==-1) {
+            return null;
+        }
         return Util.getWebStudio().getModel().getUri(elementID);
     }
 
     public String getText() {
         elementID = getElementId();
+        if (elementID==-1) {
+            return null;
+        }
         return FileIndexer.showElementHeader(getUri());
     }
 
     public String getDisplayNameFull() {
         elementID = getElementId();
+        if (elementID==-1) {
+            return null;
+        }
         return Util.getWebStudio().getModel().getDisplayNameFull(elementID);
     }
 
@@ -132,7 +147,9 @@ public class TableViewController {
         if (studio == null) {
             studio = new WebStudio();
             FacesUtils.getSessionMap().put("studio", studio);
-            studio.select(studio.getWrappers()[0].getWrapperClassName());
+            if (studio.getWrappers().length > 0) {
+                studio.select(studio.getWrappers()[0].getWrapperClassName());
+            }
         }
         String reload = FacesUtils.getRequestParameter("reload");
         if (reload != null) {
@@ -141,6 +158,12 @@ public class TableViewController {
         if (StringUtils.isNotEmpty(mode)) {
             Util.getWebStudio().setMode(mode);
         }
+    }
+
+    public boolean isLocalRequest() {
+        boolean b = Util.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest());
+        return b;
     }
 
     public SelectItem[] getWrappers() throws IOException {

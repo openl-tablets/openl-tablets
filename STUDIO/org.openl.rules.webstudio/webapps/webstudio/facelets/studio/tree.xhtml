@@ -24,7 +24,7 @@
 
     <div style="border:1px solid #949ABD; height:650px;">
 
-    <table>
+    <table width="95%">
       <tr>
         <td>
           <a class="actionButton" target="_top" href="#{contextPath}/studio/main.xhtml?reload=true" title="Refresh Project">
@@ -32,12 +32,18 @@
           </a>
         </td>
 
+        <td>
+          <h:panelGroup rendered="#{tableViewController.localRequest}">
+            <a class="actionButton" href="#{contextPath}/studio/uploadProjects.xhtml" target="mainFrame" title="Upload projects to repository">upload</a>
+          </h:panelGroup>
+        </td>
+
         <td align="right">
           <a href="javascript: d.openAll(); d.o(0);" title="Expand All">
-            <img border="0" src="images/expandall.gif" />
+            <h:graphicImage url="/images/expandall.gif" styleClass="actionImage" />
           </a>
           <a href="javascript: d.closeAll()" title="Collapse All">
-            <img border="0" src="images/collapseall.gif" />
+            <h:graphicImage url="/images/collapseall.gif" styleClass="actionImage" />
           </a>
         </td>
       </tr>
@@ -45,7 +51,8 @@
 
     <p />
 
-    <div class="dtree" id="tree"></div>
+    <div class="errmsg" id="msg" style="padding-left:5px; padding-right:5px; font-size:11px;"><!--  --></div>
+    <div class="dtree" id="tree"/>
 
     </div>
 

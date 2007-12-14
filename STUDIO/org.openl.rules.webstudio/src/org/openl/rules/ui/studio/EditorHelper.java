@@ -2,7 +2,7 @@ package org.openl.rules.ui.studio;
 
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TableEditorModel;
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.util.Util;
 
 
 /**

@@ -9,8 +9,8 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.studio.EditorHelper;
+import org.openl.rules.webstudio.util.Util;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.jsf.util.Util;
 import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
 
 import java.io.IOException;
@@ -63,35 +63,35 @@ public class TableEditorController extends TableViewController implements JSTabl
         }
         return OUTCOME_SUCCESS;
     }
-    
+
     /**
      * Generates JSON response for cell type: editor type and editor specific
      * setup javascript object.
-     * 
+     *
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
-     * 
+     *
      * Modified by snshor to reflect new Cell Editor creation/selection framework
      */
 
     public String getCellType()
     {
-	readRequestParams();
+    readRequestParams();
 
-	response = "";
+    response = "";
 
-	EditorHelper editorHelper = getHelper(elementID);
-	if (editorHelper != null)
-	{
-	    TableEditorModel model = editorHelper.getModel();
-	    ICellEditor editor = selector.selectEditor(row, col, model);
-	    EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
-	    response = pojo2json(typeResponse);
-	}
+    EditorHelper editorHelper = getHelper(elementID);
+    if (editorHelper != null)
+    {
+        TableEditorModel model = editorHelper.getModel();
+        ICellEditor editor = selector.selectEditor(row, col, model);
+        EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
+        response = pojo2json(typeResponse);
+    }
 
-	return OUTCOME_SUCCESS;
+    return OUTCOME_SUCCESS;
 
     }
-    
+
 
     /**
      * Generates JSON response for cell type: editor type and editor specific setup javascript object.
@@ -163,7 +163,7 @@ public class TableEditorController extends TableViewController implements JSTabl
             }
             response = pojo2json(tmResponse);
         }
-        return OUTCOME_SUCCESS; 
+        return OUTCOME_SUCCESS;
     }
 
     public String redo() throws Exception {
