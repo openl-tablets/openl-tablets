@@ -16,3 +16,4 @@ Export-Package: at.jta,
  edu.stanford.ejalbert.launching.windows,
  edu.stanford.ejalbert.testing,
  net.sf.wraplog
+Bundle-Vendor: OpenL Tablets
