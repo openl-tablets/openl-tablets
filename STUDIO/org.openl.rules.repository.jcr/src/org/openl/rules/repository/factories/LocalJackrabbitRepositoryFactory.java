@@ -57,7 +57,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             init();
             setRepository(repository, repName);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to initialize", e);
+            throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
     }
 
