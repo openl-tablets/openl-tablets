@@ -33,7 +33,7 @@ IconManager.prototype = {
             } catch(ex) {}
         }
         this.onMouseDown = function() {this.offset(1)};
-        this.onMouseUp = function() {this.offset(0)}; 
+        this.onMouseUp = function() {this.offset(0)};
     },
 
     init: function(img) {
@@ -65,7 +65,7 @@ IconManager.prototype = {
         if (!this.enabled(img = $(img))) return;
         img.className = this.disabledClass;
         IconManager.renameProperty(img, "_onclick", "onclick")
-        
+
         var parent = img.up();
         parent.onmouseover = parent.onmouseout = img.onmousedown = img.onmouseup = Prototype.emptyFunction;
         parent.className = this.parentStyleClasses;

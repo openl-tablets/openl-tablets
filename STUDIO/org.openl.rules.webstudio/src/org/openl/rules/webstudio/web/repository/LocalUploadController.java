@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.ui.studio.WebStudio;
 import org.openl.rules.webstudio.services.upload.RProjectBuilder;
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.util.Util;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectException;

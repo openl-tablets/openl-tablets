@@ -204,9 +204,9 @@ public class ProjectModel {
                 errMsg = new ObjectViewer().displayResult(t);
             }
 
-            return "document.all['msg'].innerHTML = 'There was a problem opening OpenL Project."
+            return "document.getElementById('msg').innerHTML = 'There was a problem opening OpenL Project."
             + " Try to run <i>Generate Wrapper</i> procedure in Eclipse for this project."
-            + " You will have to refresh the <i>Eclipse project</i> and <a href=\"/webstudio/index.jsp?reload=true\" target=\"_top\">refresh the Web Studio</a> afterwards."
+            + " You will have to refresh the <i>Eclipse project</i> and <a href=\"/webstudio/studio/main.xhtml?reload=true\" target=\"_top\">refresh the Web Studio</a> afterwards."
             + " Check Eclipse Console for more details. <p/>" + errMsg + "'";
         }
 
