@@ -48,6 +48,6 @@ public abstract class Util {
 
     public static boolean isLocalRequest(HttpServletRequest request) {
         String remote = request.getRemoteAddr();
-        return false;//Util.isLoopbackAddress(remote)/* || request.getLocalAddr().equals(remote)*/;
+        return Util.isLoopbackAddress(remote) || request.getLocalAddr().equals(remote);
     }
 }
