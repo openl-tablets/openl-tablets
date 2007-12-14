@@ -32,15 +32,15 @@
     }
 </script>
 
-<form name="editForm" action="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf">
+<form name="editForm" action="#{contextPath}/studio/edit.xhtml">
 <input type="hidden" name="elementID" value="#{param.elementID}" />
 <input type="hidden" name="cell" value="" />
 <input type="hidden" name="view" value="=studio.getModel().getTableView(request.getParameter(view))" />
 </form>
-<form name="editFormXls" action="${pageContext.request.contextPath}/jsp/showLinks.jsp" target="show_app_hidden">
+<form name="editFormXls" action="#{contextPath}/jsp/showLinks.jsp" target="show_app_hidden">
     <input type="hidden" name="uri" value=""/>
 </form>
-<form name="searchForm" action="${pageContext.request.contextPath}/jsp/search/search.jsp">
+<form name="searchForm" action="#{contextPath}/jsp/search/search.jsp">
     <input type="hidden" name="searchQuery" value=""/>
 </form>
 
