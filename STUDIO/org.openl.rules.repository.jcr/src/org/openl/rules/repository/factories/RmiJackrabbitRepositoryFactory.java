@@ -38,7 +38,7 @@ public class RmiJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory
             // TODO: do not hardcode repository name
             setRepository(repository, "Jackrabbit RMI " + rmiUrl);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to initialize", e);
+            throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
     }
 
