@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="E:/Projects/SVN/STUDIO/org.openl.lib.axis/lib/wsdl4j-1.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Projects/SVN/STUDIO/org.openl.lib.axis/lib/axis.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Projects/SVN/STUDIO/org.openl.lib.axis/lib/axis-ant.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Projects/SVN/STUDIO/org.openl.lib.axis/lib/commons-discovery-0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Projects/SVN/STUDIO/org.openl.lib.axis/lib/jaxrpc.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/Projects/SVN/STUDIO/org.openl.lib.axis/lib/saaj.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
