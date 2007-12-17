@@ -44,7 +44,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         path = new ArtefactPathImpl(new String[]{name});
 
         activeProjectVersion = dtrDProject;
-        
+
         descriptors = new HashMap<String, ProjectDescriptor>();
         refresh();
     }
@@ -103,7 +103,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
 
         if (isLocked()) {
             throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''", null, getName(),
-        	    activeProjectVersion.getlLockInfo().getLockedBy().getUserName(), activeProjectVersion.getlLockInfo().getLockedAt());
+                    activeProjectVersion.getlLockInfo().getLockedBy().getUserName(), activeProjectVersion.getlLockInfo().getLockedAt());
         }
 
         if (isOpened()) {
@@ -115,11 +115,11 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void close() throws ProjectException {
-	if (isLockedByMe()) {
-	    activeProjectVersion.unlock(userWorkspace.getUser());
-	}
-	
-	activeProjectVersion = dtrDProject;
+        if (isLockedByMe()) {
+            activeProjectVersion.unlock(userWorkspace.getUser());
+        }
+
+        activeProjectVersion = dtrDProject;
         refresh();
     }
 
@@ -152,11 +152,11 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void undelete() throws ProjectException {
-	activeProjectVersion.undelete(userWorkspace.getUser());
+        activeProjectVersion.undelete(userWorkspace.getUser());
     }
 
     public void erase() throws ProjectException {
-	activeProjectVersion.erase(userWorkspace.getUser());
+        activeProjectVersion.erase(userWorkspace.getUser());
     }
 
     public boolean isLocalOnly() {
@@ -183,13 +183,13 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void open() throws ProjectException {
-	activeProjectVersion = dtrDProject;
+        activeProjectVersion = dtrDProject;
         refresh();
     }
 
     public void openVersion(CommonVersion version) throws ProjectException {
         // open specified version
-	activeProjectVersion = userWorkspace.getDDProjectFor(dtrDProject, version);
+        activeProjectVersion = userWorkspace.getDDProjectFor(dtrDProject, version);
         refresh();
     }
 
@@ -324,9 +324,9 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     protected void refresh() {
-	updateDescriptors(activeProjectVersion.getProjectDescriptors());
+        updateDescriptors(activeProjectVersion.getProjectDescriptors());
     }
-    
+
     protected void updateDescriptors(Collection<ProjectDescriptor> projectDescriptors) {
         HashMap<String, ProjectDescriptor> descrs = new HashMap<String, ProjectDescriptor>();
 
@@ -342,5 +342,17 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
 
     public UserWorkspaceDeploymentProjectImpl getProject() {
         return this;
+    }
+
+    protected void updateArtefact(RepositoryDDProject repositoryDDProject) {
+        if (isCheckedOut()) return;
+
+        if (isOpened()) {
+            dtrDProject = repositoryDDProject;
+        } else {
+            dtrDProject = repositoryDDProject;
+            activeProjectVersion = repositoryDDProject;
+            refresh();
+        }
     }
 }
