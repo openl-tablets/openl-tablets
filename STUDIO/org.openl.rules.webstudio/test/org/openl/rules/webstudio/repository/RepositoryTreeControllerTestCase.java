@@ -15,7 +15,7 @@ public class RepositoryTreeControllerTestCase extends TestCase {
 
     public void testCheckNameBad() {
         final String[] badNames = {
-                "\\f","f/g", "f*", "?f*", "g?","f:x", "f;x","a<b", "a>b", "a\tb", "a\nv", "a$", "a%b",
+                "\\f","f/g", "f*", "?f*", "g?","f:x", "f;x","a<b", "a>b", "a\tb", "a\nv", "a%b",
                 " test", "test ", "test.", "test..", "test..."
         };
 
@@ -29,7 +29,7 @@ public class RepositoryTreeControllerTestCase extends TestCase {
 
     public void testCheckNameOk() {
         final String[] okNames = {
-                "a-b", "1,2,3", "hello world"
+                "a-b", "1,2,3", "hello world", "PublicClass$InnerClass"
         };
 
         for (String s: okNames)

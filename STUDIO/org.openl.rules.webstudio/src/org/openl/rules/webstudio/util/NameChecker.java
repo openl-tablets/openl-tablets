@@ -6,14 +6,14 @@ package org.openl.rules.webstudio.util;
  * @author Aleh Bykhavets
  */
 public class NameChecker {
-    private static final char[] FORBIDDEN_CHARS = {'\\', '/', ':', ';', '<', '>', '?', '*', '$', '%'};
+    private static final char[] FORBIDDEN_CHARS = {'\\', '/', ':', ';', '<', '>', '?', '*', '%'};
     private static String forbiddenChars;
     public static final String BAD_NAME_MSG = "Name must not contain forbidden characters (" + NameChecker.getForbiddenCharacters()
     + "), special characters, start with space, end with space or dot!";
 
     public static String getForbiddenCharacters() {
 	if (forbiddenChars == null) {
-	    // generate string: "\, /, :, ;, <, >, ?, *, $, %"
+	    // generate string: "\, /, :, ;, <, >, ?, *, %"
 	    StringBuilder sb = new StringBuilder();
 	    for (int i = 0; i < FORBIDDEN_CHARS.length; i++) {
 		if (i > 0) {
