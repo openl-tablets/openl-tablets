@@ -12,6 +12,7 @@ import org.openl.rules.webstudio.services.upload.FileProjectResource;
 import org.openl.rules.webstudio.services.upload.UploadService;
 import org.openl.rules.webstudio.services.upload.UploadServiceParams;
 import org.openl.rules.webstudio.services.upload.UploadServiceResult;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -53,8 +54,6 @@ import javax.faces.model.SelectItem;
 public class RepositoryTreeController {
     private static final Date SPECIAL_DATE = new Date(0);
     private final static Log log = LogFactory.getLog(RepositoryTreeController.class);
-    private static final String PROJECTNAME_FORBIDDEN_REGEXP = "[\\\\/:;<>\\?\\*\t\n$%]";
-    private static final Pattern PROJECTNAME_FORBIDDEN_PATTERN = Pattern.compile(PROJECTNAME_FORBIDDEN_REGEXP);
     private RepositoryTreeState repositoryTreeState;
     private UserWorkspace userWorkspace;
     private UploadService uploadService;
@@ -142,18 +141,17 @@ public class RepositoryTreeController {
                 .getDataBean();
         String errorMessage = null;
         if (projectArtefact instanceof UserWorkspaceProjectFolder) {
-            if (checkName(folderName)) {
+            if (NameChecker.checkName(folderName)) {
                 UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
                 try {
                     folder.addFolder(folderName);
-                    repositoryTreeState.invalidateTree();
-                    repositoryTreeState.updateSelection();
+                    repositoryTreeState.invalidateTreeAndSelectedNode();
                 } catch (ProjectException e) {
-                    log.error("Failed to create folder " + folderName, e);
+                    log.error("Failed to create folder '" + folderName + "'", e);
                     errorMessage = e.getMessage();
                 }
             } else {
-                errorMessage = "Folder name is invalid";
+                errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
             }
         }
 
@@ -192,8 +190,7 @@ public class RepositoryTreeController {
 
         try {
             projectArtefact.getArtefact(childName).delete();
-            repositoryTreeState.invalidateTree();
-            repositoryTreeState.updateSelection();
+            repositoryTreeState.invalidateTreeAndSelectedNode();
         } catch (ProjectException e) {
             log.error("error deleting", e);
             FacesContext.getCurrentInstance()
@@ -264,24 +261,24 @@ public class RepositoryTreeController {
     public String eraseProject() {
         UserWorkspaceProject project = getSelectedProject();
         if (!project.isDeleted()) {
+            repositoryTreeState.invalidateTreeAndSelectedNode();
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Can not erase project " + project.getName(),
-                        "project is not deleted"));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                        "Can not erase project " + project.getName() + "."));
             return null;
         }
 
         try {
             project.erase();
-            repositoryTreeState.invalidateTree();
-            repositoryTreeState.setSelectedNode(null);
+            repositoryTreeState.invalidateTreeAndSelectedNode();
         } catch (ProjectException e) {
             log.error("Failed to erase project", e);
+            repositoryTreeState.invalidateTreeAndSelectedNode();
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Can not erase project " + project.getName(), e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                        "Can not erase project " + project.getName() + "."));
         }
         return null;
     }
@@ -289,7 +286,7 @@ public class RepositoryTreeController {
     public String createRulesProject() {
         String errorMessage = null;
         try {
-            if (checkName(projectName)) {
+            if (NameChecker.checkName(projectName)) {
                 if (userWorkspace.hasProject(projectName)) {
                     errorMessage = "Can not create project because project with such name already exists.";
                 } else {
@@ -416,10 +413,10 @@ public class RepositoryTreeController {
             errorMessage = "No project is selected";
         } else if (StringUtils.isBlank(newProjectName)) {
             errorMessage = "Project name is empty";
-        } else if (!checkName(newProjectName)) {
-            errorMessage = "Project name contains forbidden symbols";
+        } else if (!NameChecker.checkName(newProjectName)) {
+            errorMessage = "Project name '" + newProjectName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
         } else if (userWorkspace.hasProject(newProjectName)) {
-            errorMessage = "Project " + newProjectName + " already exists";
+            errorMessage = "Project '" + newProjectName + "' already exists";
         }
 
         if (errorMessage != null) {
@@ -462,10 +459,10 @@ public class RepositoryTreeController {
             errorMessage = "No project is selected";
         } else if (StringUtils.isBlank(newProjectName)) {
             errorMessage = "Project name is empty";
-        } else if (!checkName(newProjectName)) {
-            errorMessage = "Project name contains forbidden symbols";
+        } else if (!NameChecker.checkName(newProjectName)) {
+            errorMessage = "Project name '" + newProjectName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
         } else if (userWorkspace.hasDDProject(newProjectName)) {
-            errorMessage = "Deployment project " + newProjectName + " already exists";
+            errorMessage = "Deployment project '" + newProjectName + "' already exists";
         }
 
         if (errorMessage != null) {
@@ -491,13 +488,8 @@ public class RepositoryTreeController {
     }
 
     public String refreshTree() {
-        repositoryTreeState.invalidateTree();
-        repositoryTreeState.setSelectedNode(null);
+        repositoryTreeState.invalidateTreeAndSelectedNode();
         return null;
-    }
-
-    public boolean checkName(String projectName) {
-        return !PROJECTNAME_FORBIDDEN_PATTERN.matcher(projectName).find();
     }
 
     public String upload() {
@@ -554,8 +546,7 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was uploaded successfully."));
-            repositoryTreeState.invalidateTree();
-            repositoryTreeState.updateSelection();
+            repositoryTreeState.invalidateTreeAndSelectedNode();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
@@ -565,8 +556,8 @@ public class RepositoryTreeController {
     }
 
     private String uploadAndAddFile() {
-        if (!checkName(fileName)) {
-            return "incorrect file name";
+        if (!NameChecker.checkName(fileName)) {
+            return "File name '" + fileName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
         }
 
         UploadServiceParams params = new UploadServiceParams();
@@ -710,7 +701,7 @@ public class RepositoryTreeController {
     }
 
     public String getFileName() {
-        return fileName;
+        return null;
     }
 
     public void setFileName(String fileName) {
