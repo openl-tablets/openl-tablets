@@ -23,6 +23,6 @@
 	<classpathentry exported="true" kind="lib" path="standard/standard.jar"/>
 	<classpathentry exported="true" kind="lib" path="tomahawk/tomahawk-1.1.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="commons-fileupload/commons-fileupload-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="spring/spring-core-2.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="spring/spring.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
