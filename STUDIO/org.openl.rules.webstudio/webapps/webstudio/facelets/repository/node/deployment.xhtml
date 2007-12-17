@@ -14,7 +14,7 @@
     </h:panelGrid>
   </h:panelGroup>
   <h:panelGrid columns="7" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not artefact.deleted}">
-    <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked) ? 'button' : 'disabledButton'}" value="Deploy" action="#{deploymentController.deploy}" disabled="#{artefact.checkedOut || artefact.locked}"/>
+    <h:commandButton styleClass="button" value="Deploy" action="#{deploymentController.deploy}"/>
     <h:commandButton styleClass="button" value="Open Version" type="button" onclick="openOpenVersionDialog();" />
     <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
     <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked) ? 'button' : 'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{!(artefact.checkedOut || artefact.locked)};" />
@@ -32,11 +32,11 @@
         <h:outputText value="Project Version" />
         <h:outputText value="#{artefact.version.versionName}" />
 
-        <h:outputText value="Created By" />
-        <h:outputText value="#{node.createdBy}" />
-
         <h:outputText value="Creation Date" />
         <h:outputText value="#{node.createdAt}" />
+
+        <h:outputText value="Created By" />
+        <h:outputText value="#{node.createdBy}" />
       </h:panelGrid>
     </rich:tab>
     <rich:tab label="Versions">

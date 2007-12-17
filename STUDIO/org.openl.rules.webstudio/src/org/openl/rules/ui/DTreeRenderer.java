@@ -1,202 +1,213 @@
+/**
+ * Created Jan 26, 2007
+ */
 package org.openl.rules.ui;
-
-import org.openl.base.INamedThing;
-
-import org.openl.util.ITreeElement;
-import org.openl.util.StringTool;
 
 import java.util.Iterator;
 
+import org.openl.base.INamedThing;
+import org.openl.util.ITreeElement;
+import org.openl.util.StringTool;
 
 /**
- * DOCUMENT ME!
- *
- * @author Stanislav Shor
+ * @author snshor
+ * 
  */
-public abstract class DTreeRenderer {
-    private static final int CLOSE = 0;
-    private static final int OPEN = 1;
-    static final int STATE_SHIFT = 2;
-    static final String[] DEFAULT_ICON_NODE = {
-            "default.node", "images/dtree/folder-c-n.gif", "images/dtree/folder-o-n.gif",
-            "images/folder-c-error.png", "images/folder-o-error.png"
-        };
-    static final String[] DEFAULT_ICON_LEAF = {
-            "default.leaf", "images/reg-text.png", "images/categoryset.gif"
-        };
-    public static final String GUESS_TYPE = "guess.type";
-    String targetFrame = "mainFrame";
-    String targetJsp;
-    String[][] icons;
-    ObjectMap map = new ObjectMap();
+public abstract class DTreeRenderer
+{
 
-    public DTreeRenderer(String jsp, String frame, String[][] icons) {
-        this.icons = icons;
-        this.targetFrame = frame;
-        this.targetJsp = jsp;
-    }
+	private static final int CLOSE = 0, OPEN = 1;
 
-    protected String getDisplayName(Object obj, int mode) {
-        if (obj instanceof INamedThing) {
-            INamedThing nt = (INamedThing) obj;
-            return nt.getDisplayName(mode);
-        }
+	String targetFrame = "mainFrame";
 
-        return getCustomDisplayName(obj);
-    }
+	String targetJsp;
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param obj
-     *
-     * @return
-     */
-    protected String getCustomDisplayName(Object obj) {
-        return String.valueOf(obj);
-    }
+	String[][] icons;
+	
+	
+	
 
-    protected abstract String makeURL(ITreeElement element);
+	public DTreeRenderer(String jsp, String frame,  String[][] icons)
+	{
+		this.icons = icons;
+		this.targetFrame = frame;
+		this.targetJsp = jsp;
+	}
 
-    public String renderRoot(ITreeElement element) {
-        StringBuffer buf = new StringBuffer(1000);
-        renderElement(null, element, buf);
-        return buf.toString();
-    }
+	protected String getDisplayName(Object obj, int mode)
+	{
+		if (obj instanceof INamedThing)
+		{
+			INamedThing nt = (INamedThing)obj;
+			return nt.getDisplayName(mode);
+		}
+		
+		return getCustomDisplayName(obj);
+	}
 
-    public void renderElement(ITreeElement parent, ITreeElement element, StringBuffer buf) {
-        renderSingleElement(parent, element, buf);
-        for (Iterator iter = element.getChildren(); iter.hasNext();) {
-            ITreeElement child = (ITreeElement) iter.next();
-            renderElement(element, child, buf);
-        }
-    }
+	/**
+	 * @param obj
+	 * @return
+	 */
+	protected String getCustomDisplayName(Object obj)
+	{
+		return String.valueOf(obj);
+	}
 
-    public void renderSingleElement(ITreeElement parent, ITreeElement element,
-        StringBuffer buf) {
-        // d.add(id, parentId, name, url, title, target, icon, iconOpen, open) {
-        buf.append("d.add(");
-        int parentId = (parent == null) ? (-1) : map.getID(parent);
-        int id = map.getNewID(element);
+	protected abstract String makeURL(ITreeElement element);
 
-        // String sfx = (element.getNameCount() < 2 ?
-        // "":"("+element.getNameCount()+")");
-        String name = getDisplayName(element, INamedThing.SHORT);
-        String url = makeURL(element);
-        String title = getDisplayName(element, INamedThing.REGULAR);
-        String target = targetFrame;
-        String icon = "../" + getIcon(element, CLOSE);
-        String iconOpen = "../" + getIcon(element, OPEN);
-        String open = null;
 
-        buf.append(id).append(',');
-        buf.append(parentId).append(',');
-        buf.append(jsStrName(name)).append(',');
-        buf.append(jsStr(url)).append(',');
-        buf.append(jsStrName(title)).append(',');
-        buf.append(jsStr(target)).append(',');
-        buf.append(jsStr(icon)).append(',');
-        buf.append(jsStr(iconOpen)).append(',');
-        buf.append(jsStr(open));
+	public String renderRoot(ITreeElement element)
+	{
+		StringBuffer buf = new StringBuffer(1000);
+		renderElement(null, element, buf);
+		return buf.toString();
+	}
 
-        buf.append(");");
-        buf.append("\n");
-    }
+	
+	public void renderElement(ITreeElement parent, ITreeElement element, StringBuffer buf)
+	{
+		renderSingleElement(parent, element, buf);
+		for (Iterator iter = element.getChildren(); iter.hasNext();)
+		{
+			ITreeElement child = (ITreeElement) iter.next();
+			renderElement(element, child, buf);
+		}
+	}
+	
+	
+	public void renderSingleElement(ITreeElement parent, ITreeElement element, StringBuffer buf)
+	{
+		// d.add(id, parentId, name, url, title, target, icon, iconOpen, open) {
 
-    public static String jsStr(String string) {
-        if (string == null) {
-            return "''";
-        }
+		buf.append("d.add(");
+		int parentId = parent == null ? -1 : map.getID(parent);
+		int id = map.getNewID(element);
+		// String sfx = (element.getNameCount() < 2 ?
+		// "":"("+element.getNameCount()+")");
+		String name = getDisplayName(element, INamedThing.SHORT);
+		String url = makeURL(element);
+		String title = getDisplayName(element, INamedThing.REGULAR);
+		String target = targetFrame;
+		String icon = getIcon(element, CLOSE);
+		String iconOpen = getIcon(element, OPEN);
+		String open = null;
 
-        return "'" + string + "'";
-    }
+		buf.append(id).append(',');
+		buf.append(parentId).append(',');
+		buf.append(jsStrName(name)).append(',');
+		buf.append(jsStr(url)).append(',');
+		buf.append(jsStrName(title)).append(',');
+		buf.append(jsStr(target)).append(',');
+		buf.append(jsStr(icon)).append(',');
+		buf.append(jsStr(iconOpen)).append(',');
+		buf.append(jsStr(open));
 
-    public static String jsStrName(String string) {
-        if (string == null) {
-            return "''";
-        }
+		buf.append(");");
+		buf.append("\n");
+	}
 
-        int idx = string.indexOf('\n');
-        if (idx > 0) {
-            string = string.substring(0, idx) + " ...";
-        }
+	public static String jsStr(String string)
+	{
+		if (string == null)
+			return "''";
 
-        return "'" + StringTool.encodeJavaScriptString(string) + "'";
-    }
+		return "'" + string + "'";
+	}
 
-    static final int errIndex(ProjectTreeElement element) {
-        return element.hasProblem() ? 1 : 0;
-    }
+	public static String jsStrName(String string)
+	{
+		if (string == null)
+			return "''";
 
-    private String getIcon(ITreeElement element, int open) {
-        int state = getState(element);
-        String type = getType(element);
-        String[] iconset = guessIcon(element, type);
-        if (iconset.length > (1 + open + (STATE_SHIFT * state))) {
-            return iconset[1 + open + (STATE_SHIFT * state)];
-        }
-        return iconset[1 + open];
-    }
+		int idx = string.indexOf('\n');
+		if (idx > 0)
+			string =   string.substring(0, idx) + " ...";
+		
+		return "'" + StringTool.encodeJavaScriptString(string) + "'";
+	}
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param element
-     * @param type
-     *
-     * @return
-     */
-    private String[] guessIcon(ITreeElement element, String type) {
-        if (type == GUESS_TYPE) {
-            type = getJavaType(element);
-        }
+	static final int errIndex(ProjectTreeElement element)
+	{
+		return element.hasProblem() ? 1 : 0;
+	}
 
-        int minIndex = -1;
-        int minDist = 999999;
+	static final int STATE_SHIFT = 2;
 
-        for (int i = 0; i < icons.length; i++) {
-            int idx = type.indexOf(icons[i][0]);
-            if ((0 <= idx) && (idx < minDist)) {
-                minIndex = i;
-                minDist = idx;
-            }
-        }
 
-        if (minIndex >= 0) {
-            return icons[minIndex];
-        }
+	static final String[] DEFAULT_ICON_NODE = {"default.node", "images/dtree/folder-c-n.gif", "images/dtree/folder-o-n.gif"
+			, "images/folder-c-error.png", "images/folder-o-error.png" },
+			DEFAULT_ICON_LEAF = {"default.leaf", "images/reg-text.png", "images/categoryset.gif" };
 
-        return element.isLeaf() ? DEFAULT_ICON_LEAF : DEFAULT_ICON_NODE;
-    }
+	private String getIcon(ITreeElement element, int open)
+	{
+		int state = getState(element);
+		String type = getType(element);
+		String[] iconset = guessIcon(element, type);
+		if (iconset.length > 1 + open + STATE_SHIFT * state)
+			return iconset[1 + open + STATE_SHIFT * state];
+		return iconset[1 + open];
+	}
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param element
-     *
-     * @return
-     */
-    protected String getJavaType(ITreeElement element) {
-        return StringTool.lastToken(element.getObject().getClass().getName(), ".")
-            .toLowerCase();
-    }
+	/**
+	 * @param element
+	 * @param type
+	 * @return
+	 */
+	private String[] guessIcon(ITreeElement element, String type)
+	{
+		if (type == GUESS_TYPE)
+			type = getJavaType(element);
+		
+		int minIndex = -1;
+		int minDist = 999999;
+		
+		for (int i = 0; i < icons.length; i++)
+		{
+			int idx = type.indexOf(icons[i][0]);
+			if (0 <= idx && idx < minDist)
+			{	
+				minIndex =i;
+				minDist = idx;
+			}
+		}
+		
+		if (minIndex >= 0)
+			return icons[minIndex];
+			
+		return element.isLeaf() ? DEFAULT_ICON_LEAF : DEFAULT_ICON_NODE;
+	}
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param element
-     *
-     * @return
-     */
-    protected String getType(ITreeElement element) {
-        String type = element.getType();
-        if (type != null) {
-            return type;
-        }
-        return GUESS_TYPE;
-    }
+	/**
+	 * @param element
+	 * @return
+	 */
+	protected String getJavaType(ITreeElement element)
+	{
+		return  StringTool.lastToken(element.getObject().getClass().getName(), ".").toLowerCase();
+	}
 
-    protected int getState(ITreeElement element) {
-        return 0;
-    }
+	static final public String GUESS_TYPE = "guess.type";
+
+	/**
+	 * @param element
+	 * @return
+	 */
+	protected String getType(ITreeElement element)
+	{
+		String type = element.getType();
+		if (type != null)
+			return type;
+		return GUESS_TYPE;
+	}
+
+	protected int getState(ITreeElement element)
+	{
+		return 0;
+	}
+
+
+	ObjectMap map = new ObjectMap();
+
+
 }

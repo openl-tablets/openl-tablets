@@ -18,7 +18,7 @@
     <h:form id="newFileForm" enctype="multipart/form-data">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File" />
-        <t:inputFileUpload id="file" size="30" storage="file" value="#{repositoryTreeController.file}" />
+        <t:inputFileUpload id="file" size="40" storage="file" value="#{repositoryTreeController.file}" />
         <h:outputLabel for="fileName" styleClass="required" value="File name" />
         <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}" />
       </h:panelGrid>

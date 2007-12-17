@@ -4,7 +4,7 @@
 <%@ page import="org.openl.rules.lang.xls.syntax.TableSyntaxNode" %>
 
 
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.studio.WebStudio" />
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
 
@@ -12,11 +12,11 @@
 
 
 <%
-  String uri = request.getParameter("uri");
-  String text = request.getParameter("text");
-
-
-  int elementID = 1;
+	String uri = request.getParameter("uri");
+	String text = request.getParameter("text");
+	
+ 
+	int elementID = 1;   
 %>
 
 
@@ -59,31 +59,31 @@ document.getElementById(elmnt).style.visibility="hidden"
 
 
 <body>
-<p/>
+<p/> 
 
 <%
-  if (uri == null || uri.equals("null"))
-  {
+	if (uri == null || uri.equals("null"))
+	{
 
 %>
-     <p/>
-     <h2>Source View Frame</h2>
-     <p> This frame will show the source table for the values you select using the navigation
-     frame on the left. You will be able to navigate to the original document from here as usual.
-     If the value is an expression or a formula, you can explore it's content by opening the tree branch
-     of that expression.
-     </p>
+	   <p/>
+	   <h2>Source View Frame</h2>
+	   <p> This frame will show the source table for the values you select using the navigation
+	   frame on the left. You will be able to navigate to the original document from here as usual. 
+	   If the value is an expression or a formula, you can explore it's content by opening the tree branch 
+	   of that expression. 
+	   </p>	
 
 <%
-    return;
-  }
+		return;
+	}
 %>
 
 
 <%
-  TableInfo ti = studio.getModel().getTableInfo(uri);
-   String view = null;
-
+	TableInfo ti = studio.getModel().getTableInfo(uri);   
+ 	String view = null;
+ 	
 if (ti != null)
 {
     elementID = studio.getModel().indexForNode(studio.getModel().findNode(uri));
@@ -91,13 +91,13 @@ if (ti != null)
 
 <table>
 <tr><td>
-<img src="../images/excel-workbook.gif"/>
+<img src="../images/excel-workbook.png"/>
 <a class="left" href="showLinks.jsp?<%=ti.getUrl()%>" target="show_app_hidden" title="<%=ti.getUri()%>">
       &nbsp;<%=ti.getText()+ " : " + ti.getDisplayName()%> : <%=text%></a>
 
 </td>
 <%@include file="tableViewMenu.jsp"%>
-
+ 
  </tr>
 </table>
 

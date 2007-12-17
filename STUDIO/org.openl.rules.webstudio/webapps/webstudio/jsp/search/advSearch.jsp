@@ -1,5 +1,5 @@
 <%@ page import = "org.openl.rules.search.*" %>
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.studio.WebStudio" />
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id='searchBean' scope='session' class="org.openl.rules.search.OpenLAdvancedSearch" />
 
 

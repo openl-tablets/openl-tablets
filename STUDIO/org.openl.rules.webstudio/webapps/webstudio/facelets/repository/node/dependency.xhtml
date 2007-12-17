@@ -5,7 +5,8 @@
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:dataTable value="#{node.dependencies}" var="dep" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
+  <rich:dataTable rendered="#{!empty node.dependencies}"
+    value="#{node.dependencies}" var="dep" cellspacing="0px" styleClass="standard" rowClasses="odd,even">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -30,19 +31,15 @@
       <rich:column style="text-align:center;">
         <h:commandLink styleClass="actionButton" action="#{dep.delete}"
           onclick="if(!window.confirm('Are you sure you want to delete the project dependency?')) {return false;}"
-          rendered="#{artefact.checkedOut}" title="Delete">
-          <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" />
+          rendered="#{artefact.checkedOut}">
+          <h:graphicImage url="/images/test_neq.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
         </h:commandLink>
       </rich:column>
     </rich:columnGroup>
   </rich:dataTable>
 
-  <h:panelGroup rendered="#{empty node.dependencies}" styleClass="noEntries">
-    <h:outputText value="No entries found" />
-  </h:panelGroup>
-
   <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-    <h:commandButton value="Add Dependency" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" type="button"
-      onclick="#{artefact.checkedOut} &amp;&amp; showAddDependency()" />
+    <h:commandButton value="Add Dependency" styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}"
+      onclick="showAddDependency(); return false" disabled="#{!artefact.checkedOut}" />
   </h:panelGrid>
 </ui:composition>

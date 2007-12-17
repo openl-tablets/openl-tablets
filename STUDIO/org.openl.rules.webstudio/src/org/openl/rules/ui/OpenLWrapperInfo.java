@@ -1,67 +1,68 @@
+/**
+ *  OpenL Tablets,  2006
+ *  https://sourceforge.net/projects/openl-tablets/ 
+ */
 package org.openl.rules.ui;
 
 /**
- * DOCUMENT ME!
+ * @author snshor
  *
- * @author Stanislav Shor
  */
-public class OpenLWrapperInfo {
-    String wrapperClassName;
-    OpenLWebProjectInfo projectInfo;
+public class OpenLWrapperInfo 
+{
+	String wrapperClassName;
+	
+	OpenLWebProjectInfo projectInfo;
 
-/**
-         * @param name
-         * @param projectInfo
-         */
-    public OpenLWrapperInfo(String name, OpenLWebProjectInfo projectInfo) {
-        this.wrapperClassName = name;
-        this.projectInfo = projectInfo;
-    }
+	/**
+	 * @param name
+	 * @param projectInfo
+	 */
+	public OpenLWrapperInfo(String name, OpenLWebProjectInfo projectInfo) {
+		this.wrapperClassName = name;
+		this.projectInfo = projectInfo;
+	}
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return Returns the name.
-     */
-    public String getWrapperClassName() {
-        return wrapperClassName;
-    }
+	/**
+	 * @return Returns the name.
+	 */
+	public String getWrapperClassName() {
+		return wrapperClassName;
+	}
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param name The name to set.
-     */
-    public void setWrapperClassName(String name) {
-        this.wrapperClassName = name;
-    }
+	/**
+	 * @param name The name to set.
+	 */
+	public void setWrapperClassName(String name) {
+		this.wrapperClassName = name;
+	}
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return Returns the projectInfo.
-     */
-    public OpenLWebProjectInfo getProjectInfo() {
-        return projectInfo;
-    }
+	/**
+	 * @return Returns the projectInfo.
+	 */
+	public OpenLWebProjectInfo getProjectInfo() {
+		return projectInfo;
+	}
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param projectInfo The projectInfo to set.
-     */
-    public void setProjectInfo(OpenLWebProjectInfo projectInfo) {
-        this.projectInfo = projectInfo;
-    }
+	/**
+	 * @param projectInfo The projectInfo to set.
+	 */
+	public void setProjectInfo(OpenLWebProjectInfo projectInfo) {
+		this.projectInfo = projectInfo;
+	}
+	
+	
+	public String getDisplayName()
+	{
+		return projectInfo.getDisplayName(wrapperClassName);
+	}
 
-    public String getDisplayName() {
-        return projectInfo.getDisplayName(wrapperClassName);
-    }
+	/**
+	 * 
+	 */
+	public void reset()
+	{
+		projectInfo.reset();
+	}
 
-    /**
-     *
-     */
-    public void reset() {
-        projectInfo.reset();
-    }
 }

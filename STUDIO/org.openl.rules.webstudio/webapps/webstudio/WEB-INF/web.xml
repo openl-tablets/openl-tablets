@@ -14,15 +14,16 @@
     </description>
     <param-name>javax.faces.CONFIG_FILES</param-name>
     <param-value>
-      /WEB-INF/faces/faces-config.xml,
-      /WEB-INF/faces/faces-repository.xml,
-      /WEB-INF/faces/faces-studio.xml
+      /WEB-INF/managed-beans.xml,
+      /WEB-INF/navigation.xml,
+      /WEB-INF/managed-beans-jcr.xml,
+      /WEB-INF/navigation-jcr.xml
     </param-value>
   </context-param>
 
   <context-param>
     <param-name>javax.faces.DEFAULT_SUFFIX</param-name>
-    <param-value>.xhtml</param-value>
+    <param-value>.jsp</param-value>
   </context-param>
 
   <context-param>
@@ -49,7 +50,7 @@
 
   <context-param>
     <param-name>facelets.RESOURCE_RESOLVER</param-name>
-    <param-value>org.openl.rules.webstudio.web.jsf.facelets.DefaultResourceResolver</param-value>
+    <param-value>org.openl.rules.webstudio.web.jsf.faceletes.DefaultResourceResolver</param-value>
   </context-param>
 
   <context-param>
@@ -123,12 +124,12 @@
 
   <servlet-mapping>
     <servlet-name>FacesServlet</servlet-name>
-    <url-pattern>*.xhtml</url-pattern>
+    <url-pattern>/faces/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>FacesServlet</servlet-name>
-    <url-pattern>/faces/*</url-pattern>
+    <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
 
   <servlet>

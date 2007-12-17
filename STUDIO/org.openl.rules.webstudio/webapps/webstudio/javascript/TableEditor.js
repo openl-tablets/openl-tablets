@@ -26,7 +26,7 @@ TableEditor.Constants = {
 TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
 
 /**
- * returns array [row, column] from string like 'B20' - excel style cell coordinates
+ * returns array [row, column] from string like 'B20' - excel style cell coordinates   
  */
 TableEditor.parseXlsCell = function (s) {
     var m = s.match(/^([A-Z]+)(\d+)$/)
@@ -478,7 +478,7 @@ TableEditor.prototype = {
             },
             parameters : params
         });
-
+        
     },
 
     doRowOperation: function(op) {this.doColRowOperation(0, op)},
