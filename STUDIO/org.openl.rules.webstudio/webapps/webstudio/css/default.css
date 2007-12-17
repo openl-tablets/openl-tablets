@@ -29,6 +29,10 @@
   right: 10px;
 }
 
+img.actionImage {
+  border: 0;
+}
+
 body {
   font-family: verdana, helvetica, arial, sans-serif;
   font-size: 12px;
@@ -50,9 +54,9 @@ body {
   width: 100%;
   height: 100%;
 }
-
 /* ------------------------------------------- */
-  /* form elements styles */
+
+/* form elements styles */
 form .formfields {
   vertical-align: top;
   border: none;
@@ -144,11 +148,7 @@ form.standard table.buttonPanel {
 }
 
 .actionButton {
-  /*display: ;*/
-}
-
-.actionButton img {
-  vertical-align: bottom;
+  display: ;
 }
 
 .actionLabel {
@@ -156,10 +156,6 @@ form.standard table.buttonPanel {
   text-align: center;
   display: screen;
   font-size: 8pt;
-}
-
-img {
-  border: 0px;
 }
 
 .readonly {
@@ -180,12 +176,6 @@ img {
 
 .success {
   color: green;
-}
-
-.noEntries {
-  color: #002276;
-  font-weight: bold;
-  margin-left: 10px;
 }
 
 /* Standard table that should be used to display any tabular data */
@@ -210,7 +200,6 @@ table.standard thead td {
   border-color: gray white;
   border-style: solid;
   border-width: 1px 1px 0px 0px;
-  font-weight: bold;
   color: #052679;
   padding: 5px 8px 6px;
 }
@@ -234,6 +223,12 @@ table.standard td .left {
   text-align: left;
 }
 
+/* for verticale table header */
+table.standard td.header {
+  padding: 0px 5px 5px 2px;
+  font-weight: bold;
+}
+
 table.standard tr.even {
   background-color: rgb(235, 238, 247);
 }
@@ -245,17 +240,4 @@ table.standard tr.odd {
 /* RichFaces tree styles */
 .dr-pnl-b {
   padding: 2px !important;
-}
-
-div#iconbar {
-  display: block;
-  float: right;
-  height: 16px;
-  position: absolute;
-  right: 5px;
-  top: 5px;
-}
-
-#iconbar a {
-  margin-right: 0px;
 }

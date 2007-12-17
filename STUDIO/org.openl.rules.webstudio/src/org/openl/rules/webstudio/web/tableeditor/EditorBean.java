@@ -5,9 +5,9 @@ import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
 import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
-import org.openl.rules.ui.studio.EditorHelper;
-import org.openl.rules.webstudio.util.Util;
+import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.jsf.util.Util;
 
 
 public class EditorBean {

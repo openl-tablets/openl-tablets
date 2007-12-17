@@ -16,10 +16,10 @@
           <h:outputText value="Version" />
         </rich:column>
         <rich:column>
-          <h:outputText value="Created By" />
+          <h:outputText value="Created At" />
         </rich:column>
         <rich:column>
-          <h:outputText value="Created At" />
+          <h:outputText value="Created By" />
         </rich:column>
         <rich:column>
           <h:outputText value="Actions" />
@@ -35,31 +35,27 @@
         <h:outputText value="#{prj.version}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{prj.createdBy}" />
+        <h:outputText value="#{prj.createdAt}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{prj.createdAt}" />
+        <h:outputText value="#{prj.createdBy}" />
       </rich:column>
       <rich:column style="text-align:center">
         <h:panelGroup rendered="#{!prj.dataBean.deleted}">
           &#160;
-          <h:commandLink styleClass="actionButton" immediate="true" onclick="return openCopyDeploymentProjectDialog('#{prj.name}');" title="Copy">
-            <h:graphicImage url="/images/copy.gif" styleClass="actionImage" />
+          <h:commandLink styleClass="actionButton" immediate="true" onclick="return openCopyDeploymentProjectDialog('#{prj.name}');">
+            <h:graphicImage url="/images/copy.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Copy" title="Copy" />
           </h:commandLink>
           &#160;
           <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}"
             onclick="if(!window.confirm('Are you sure you want to delete the deployment project?')) {return false;}">
-            <f:param name="deploymentProjectName" value="#{prj.name}" title="Delete"/>
-            <h:graphicImage url="/images/delete.gif" styleClass="actionImage" />
+            <f:param name="deploymentProjectName" value="#{prj.name}" />
+            <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
           </h:commandLink>
         </h:panelGroup>
       </rich:column>
 
     </rich:columnGroup>
   </rich:dataTable>
-
-  <h:panelGroup rendered="#{empty repositoryTreeController.deploymentProjects}" styleClass="noEntries">
-    <h:outputText value="No entries found" />
-  </h:panelGroup>
 
 </ui:composition>

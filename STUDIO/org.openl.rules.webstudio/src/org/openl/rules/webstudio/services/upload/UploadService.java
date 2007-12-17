@@ -83,7 +83,7 @@ public class UploadService extends BaseUploadService {
         try {
             builder = new RProjectBuilder(params.getWorkspace(), params.getProjectName());
         } catch (ProjectException e) {
-            throw new ServiceException("Error creating project: " + e.getMessage(), e);
+            throw new ServiceException("Error creating project", e);
         }
 
         String fileNameWithoutExt = FilenameUtils.getBaseName(params.getFile().getName());
@@ -100,30 +100,28 @@ public class UploadService extends BaseUploadService {
             ZipEntry item = zipFile.getEntry(name);
 
             if (item.isDirectory()) {
-        	try {
-        	    builder.addFolder(item.getName());
-        	} catch (ProjectException e) {
-        	    builder.cancel();
-        	    throw new ServiceException("Error adding folder to user workspace: " + e.getMessage(), e);
-        	}
+                try {
+                    builder.addFolder(item.getName());
+                } catch (ProjectException e) {
+                    throw new ServiceException("Error adding folder to user workspace", e);
+                }
             } else {
-        	InputStream zipInputStream = zipFile.getInputStream(item);
+                InputStream zipInputStream = zipFile.getInputStream(item);
 
-        	try {
-        	    builder.addFile(item.getName(), zipInputStream);
-        	} catch (ProjectException e) {
-        	    builder.cancel();
-        	    throw new ServiceException("Error adding file to user workspace: " + e.getMessage(), e);
-        	}
+                try {
+                    builder.addFile(item.getName(), zipInputStream);
+                } catch (ProjectException e) {
+                    throw new ServiceException("Error adding file to user workspace", e);
+                }
             }
         }
-        
+
         try {
             builder.checkIn();
         } catch (ProjectException e) {
-            throw new ServiceException("Error during project checkIn: " + e.getMessage(), e);
+            throw new ServiceException("Error during project checkIn", e);
         }
-        
+
         result.setResultFile(uploadDir);
     }
 }

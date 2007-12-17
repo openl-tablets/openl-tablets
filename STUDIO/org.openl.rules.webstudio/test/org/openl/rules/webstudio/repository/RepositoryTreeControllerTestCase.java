@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.repository;
 
-import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 
 import junit.framework.TestCase;
@@ -15,12 +14,11 @@ public class RepositoryTreeControllerTestCase extends TestCase {
 
     public void testCheckNameBad() {
         final String[] badNames = {
-                "\\f","f/g", "f*", "?f*", "g?","f:x", "f;x","a<b", "a>b", "a\tb", "a\nv", "a$", "a%b",
-                " test", "test ", "test.", "test..", "test..."
+                "\\f","f/g", "f*", "?f*", "g?","f:x", "f;x","a<b", "a>b", "a\tb", "a\nv", "a$", "a%b"
         };
 
         for (String s : badNames) {
-            boolean res = NameChecker.checkName(s);
+            boolean res = instance.checkName(s);
             if (res) {
                 fail("wrong name passed check: " + s);
             }
@@ -33,6 +31,6 @@ public class RepositoryTreeControllerTestCase extends TestCase {
         };
 
         for (String s: okNames)
-            assertTrue(NameChecker.checkName(s));
+            assertTrue(instance.checkName(s));
     }
 }

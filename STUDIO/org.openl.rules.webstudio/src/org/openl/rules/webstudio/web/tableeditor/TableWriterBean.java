@@ -11,7 +11,6 @@ import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.myfaces.shared_impl.renderkit.html.HtmlResponseWriterImpl;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGrid;
@@ -25,9 +24,9 @@ import org.openl.rules.ui.CellModel;
 import org.openl.rules.ui.ICellModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
-import org.openl.rules.ui.studio.WebStudio;
-import org.openl.rules.webstudio.util.Util;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.jsf.util.Util;
 import org.openl.rules.webtools.WebTool;
 
 public class TableWriterBean {
@@ -74,7 +73,7 @@ public class TableWriterBean {
 
         this.sid = (String)(request.get("elementID"));
            this.elementID = -100;
-           if (StringUtils.isNotEmpty(sid))
+           if (sid != null)
            {
              elementID = Integer.parseInt(sid);
              studio.setTableID(elementID);
@@ -249,7 +248,7 @@ public class TableWriterBean {
         return sid;
     }
 
-
+    
     protected void renderResponse(FacesContext context,UIComponent component) throws IOException {
         //
         component.encodeBegin(context);
@@ -273,9 +272,9 @@ public class TableWriterBean {
         if (tsn == null) return; // table is not selected yet
         IGridTable gt = tsn.getTable().getGridTable();
         view = studio.getModel().getTableView(view);
-
+        
         @SuppressWarnings("unused")
-    boolean showGrid = studio.getMode().showTableGrid();
+	boolean showGrid = studio.getMode().showTableGrid();
 
         if (view != null) {
             ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);

@@ -2,7 +2,7 @@
 <%@ page import = "org.openl.meta.*" %>
 <%@ page import="org.openl.rules.ui.Explanation" %>
 
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.studio.WebStudio" />
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
 

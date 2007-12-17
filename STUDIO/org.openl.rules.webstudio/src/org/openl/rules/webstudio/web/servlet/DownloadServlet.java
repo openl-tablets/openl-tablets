@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.openl.IOpenSourceCodeModule;
-import org.openl.rules.ui.studio.WebStudio;
+import org.openl.rules.ui.WebStudio;
 import org.openl.syntax.impl.FileSourceCodeModule;
 
 public class DownloadServlet extends HttpServlet {

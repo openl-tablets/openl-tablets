@@ -194,18 +194,16 @@ public class DeploymentController {
 
     public SelectItem[] getProjectVersions() {
         UserWorkspace workspace = getWorkspace();
-        if (projectName != null) {
-            try {
-                UserWorkspaceProject project = workspace.getProject(projectName);
+        try {
+            UserWorkspaceProject project = workspace.getProject(projectName);
 
-                List<SelectItem> selectItems = new ArrayList<SelectItem>();
-                for (ProjectVersion version : project.getVersions()) {
-                    selectItems.add(new SelectItem(version.getVersionName()));
-                }
-                return selectItems.toArray(new SelectItem[selectItems.size()]);
-            } catch (ProjectException e) {
-                log.error(e);
+            List<SelectItem> selectItems = new ArrayList<SelectItem>();
+            for (ProjectVersion version : project.getVersions()) {
+                selectItems.add(new SelectItem(version.getVersionName()));
             }
+            return selectItems.toArray(new SelectItem[selectItems.size()]);
+        } catch (ProjectException e) {
+            log.error(e);
         }
         return new SelectItem[0];
     }
