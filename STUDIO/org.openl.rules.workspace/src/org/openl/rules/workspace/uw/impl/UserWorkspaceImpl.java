@@ -33,23 +33,23 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.util.Log;
 
 public class UserWorkspaceImpl implements UserWorkspace {
-    
+
     private static final Comparator<UserWorkspaceProject> PROJECTS_COMPARATOR
     = new Comparator<UserWorkspaceProject>(){
         public int compare(UserWorkspaceProject o1, UserWorkspaceProject o2) {
             return o1.getName().compareTo(o2.getName());
         }
     };
-    
+
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
     private final DesignTimeRepository designTimeRepository;
     private final ProductionDeployer deployer;
 
-    private HashMap<String, UserWorkspaceProject> userRulesProjects;
-    private HashMap<String, UserWorkspaceDeploymentProject> userDProjects;
+    private final HashMap<String, UserWorkspaceProject> userRulesProjects;
+    private final HashMap<String, UserWorkspaceDeploymentProject> userDProjects;
 
-    private List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
+    private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
 
     public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace,
             DesignTimeRepository designTimeRepository, ProductionDeployer deployer) {
@@ -64,21 +64,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public Collection<UserWorkspaceProject> getProjects() {
         try {
-            refresh();
+            refreshRulesProjects();
         } catch (ProjectException e) {
             // ignore
             Log.error("Failed to resfresh projects", e);
         }
-        
+
         ArrayList<UserWorkspaceProject> result = new ArrayList<UserWorkspaceProject>(userRulesProjects.values());
-        
+
         Collections.sort(result, PROJECTS_COMPARATOR);
-        
+
         return result;
     }
 
     public UserWorkspaceProject getProject(String name) throws ProjectException {
-        refresh();
+        refreshRulesProjects();
         UserWorkspaceProject uwp = userRulesProjects.get(name);
 
         if (uwp == null) {
@@ -130,6 +130,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void refresh() throws ProjectException {
+        refreshRulesProjects();
+        refreshDeploymentProjects();
+    }
+
+    protected void refreshRulesProjects() throws RepositoryException {
         localWorkspace.refresh();
 
         // add new
@@ -195,7 +200,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public void createProject(String name) throws ProjectException {
         designTimeRepository.createProject(name);
-        
+
         refresh();
     }
 
@@ -211,10 +216,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     protected RepositoryDDProject getDDProjectFor(RepositoryDDProject deploymentProject, CommonVersion version) throws ProjectException {
-	RepositoryDDProject oldDP = designTimeRepository.getDDProject(deploymentProject.getName(), version);
-	return oldDP;
+        RepositoryDDProject oldDP = designTimeRepository.getDDProject(deploymentProject.getName(), version);
+        return oldDP;
     }
-    
+
     protected void checkInProject(LocalProject localProject, int major, int minor) throws RepositoryException {
         designTimeRepository.updateProject(localProject, user, major, minor);
     }
@@ -222,7 +227,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public WorkspaceUser getUser() {
         return user;
     }
-    
+
     public void createDDProject(String name) throws RepositoryException {
         designTimeRepository.createDDProject(name);
     }
@@ -246,58 +251,65 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException {
-	try {
-	    RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
+        try {
+            RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
 
-	    UserWorkspaceDeploymentProject userDProject = userDProjects.get(name);
-	    if (userDProject == null) {
-		// create new
-	        userDProject = new UserWorkspaceDeploymentProjectImpl(this, ddp);
-	        
-	        userDProjects.put(name, userDProject);
-	    }
-	    
-	    return userDProject;
-	} catch (RepositoryException e) {
-	    // no such project
-	    userDProjects.remove(name);
-	    // re-throw exception
-	    throw e;
-	}
+            UserWorkspaceDeploymentProject userDProject = userDProjects.get(name);
+            if (userDProject == null) {
+                // create new
+                userDProject = new UserWorkspaceDeploymentProjectImpl(this, ddp);
+
+                userDProjects.put(name, userDProject);
+            }
+
+            return userDProject;
+        } catch (RepositoryException e) {
+            // no such project
+            userDProjects.remove(name);
+            // re-throw exception
+            throw e;
+        }
     }
 
     public List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException {
-	List<RepositoryDDProject> dtrProjects = designTimeRepository.getDDProjects();
+        refreshDeploymentProjects();
 
-	// add new
-	HashMap<String, RepositoryDDProject> dtrProjectsMap = new HashMap<String, RepositoryDDProject>();
-	for (RepositoryDDProject ddp : dtrProjects) {
+        ArrayList<UserWorkspaceDeploymentProject> result = new ArrayList<UserWorkspaceDeploymentProject>(userDProjects.values());
+        Collections.sort(result, PROJECTS_COMPARATOR);
+
+        return result;
+    }
+
+    protected void refreshDeploymentProjects() throws RepositoryException {
+        List<RepositoryDDProject> dtrProjects = designTimeRepository.getDDProjects();
+
+        // add new
+        HashMap<String, RepositoryDDProject> dtrProjectsMap = new HashMap<String, RepositoryDDProject>();
+        for (RepositoryDDProject ddp : dtrProjects) {
             String name = ddp.getName();
             dtrProjectsMap.put(name, ddp);
-            
-	    UserWorkspaceDeploymentProject userDProject = userDProjects.get(name);
-            
-	    if (userDProject == null) {
-		// add new
-		userDProject = new UserWorkspaceDeploymentProjectImpl(this, ddp);
-		userDProjects.put(name, userDProject);
-	    }
+
+            UserWorkspaceDeploymentProjectImpl userDProject = (UserWorkspaceDeploymentProjectImpl) userDProjects.get(name);
+
+            if (userDProject == null) {
+                // add new
+                userDProject = new UserWorkspaceDeploymentProjectImpl(this, ddp);
+                userDProjects.put(name, userDProject);
+            } else {
+                // update existing
+                userDProject.updateArtefact(ddp);
+            }
         }
-	
-	// remove deleted
-	Iterator<UserWorkspaceDeploymentProject> i = userDProjects.values().iterator();
-	while (i.hasNext()) {
-	    UserWorkspaceDeploymentProject userDProject = i.next();
-	    String name = userDProject.getName();
-	    
-	    if (!dtrProjectsMap.containsKey(name)) {
-		i.remove();
-	    }
-	}
-        
-	ArrayList<UserWorkspaceDeploymentProject> result = new ArrayList<UserWorkspaceDeploymentProject>(userDProjects.values());
-        Collections.sort(result, PROJECTS_COMPARATOR);
-        
-        return result;
+
+        // remove deleted
+        Iterator<UserWorkspaceDeploymentProject> i = userDProjects.values().iterator();
+        while (i.hasNext()) {
+            UserWorkspaceDeploymentProject userDProject = i.next();
+            String name = userDProject.getName();
+
+            if (!dtrProjectsMap.containsKey(name)) {
+                i.remove();
+            }
+        }
     }
 }
