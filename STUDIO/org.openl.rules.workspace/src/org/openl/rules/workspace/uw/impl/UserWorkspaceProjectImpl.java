@@ -10,6 +10,7 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
@@ -151,6 +152,21 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return (localProject != null);
     }
 
+    public boolean isOpenedOtherVersion() {
+        if (!isOpened()) return false;
+
+        Collection<ProjectVersion> versions = dtrProject.getVersions();
+
+        ProjectVersion max = null;
+        for (ProjectVersion version : versions) {
+            if (max == null || max.compareTo(version) < 0) {
+                max = version;
+            }
+        }
+
+        return (!getVersion().equals(max));
+    }
+
     public boolean isDeleted() {
         if (isLocalOnly()) {
             return false;
@@ -250,5 +266,13 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
     protected WorkspaceUser getUser() {
         return userWorkspace.getUser();
+    }
+
+    public LockInfo getLockInfo() {
+        if (dtrProject == null) {
+            return null;
+        }
+
+        return dtrProject.getlLockInfo();
     }
 }

@@ -6,6 +6,7 @@ import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.dtr.LockInfo;
 
 public interface UserWorkspaceProject extends Project, UserWorkspaceProjectFolder {
     void close() throws ProjectException;
@@ -21,16 +22,20 @@ public interface UserWorkspaceProject extends Project, UserWorkspaceProjectFolde
     boolean isCheckedOut();
     // is opened by me? -- in LW
     boolean isOpened();
+    // is opened other version? (not last)
+    boolean isOpenedOtherVersion();
     // is deleted in DTR
     boolean isDeleted();
     // is locked in DTR
     boolean isLocked();
     // no such project in DTR
     boolean isLocalOnly();
-    
+
     boolean isRulesProject();
     boolean isDeploymentProject();
 
     void undelete() throws ProjectException;
     void erase() throws ProjectException;
+
+    LockInfo getLockInfo();
 }
