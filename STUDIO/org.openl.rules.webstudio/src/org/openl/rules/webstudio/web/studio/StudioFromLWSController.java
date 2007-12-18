@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.studio;
 
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.Project;
@@ -19,9 +19,9 @@ import java.util.Set;
 public class StudioFromLWSController {
     public String openStudio() {
         HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(true);
-        RulesUserSession rulesUserSession = Util.getRulesUserSession(session);
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
 
-        if (rulesUserSession != null && !Util.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())) {
+        if (rulesUserSession != null && !WebStudioUtils.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())) {
             try {
                 UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
                 String path = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();

@@ -1,4 +1,4 @@
-<%@ page import="org.openl.rules.webstudio.web.jsf.util.Util" %>
+<%@ page import="org.openl.rules.webstudio.web.jsf.util.WebStudioUtils" %>
 <%@ page import="org.openl.meta.DoubleValue" %>
 <%@ page import="org.openl.rules.ui.Explanation" %>
 <%@ page import="org.openl.rules.ui.OpenLWrapperInfo" %>
@@ -11,7 +11,7 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <%@include file="checkTimeout.jsp"%>
 
-<%if (!Util.isLocalRequest(request)) {%>
+<%if (!WebStudioUtils.isLocalRequest(request)) {%>
 <script type="text/javascript">alert("This action is available only from the machine server runs at.")</script>
 <%  return;} %>
 
@@ -38,9 +38,9 @@
       <rich:column><h:outputText value="#{item.projectName}" /></rich:column>
     </rich:dataTable>
 
-    <br />    
+    <br />
     <h:commandButton styleClass="button" action="#{localUpload.upload}" rendered="#{not empty localUpload.projects4Upload}" value="Upload" />
-    <h:outputText value="All projects are already in repository" rendered="#{empty localUpload.projects4Upload}" />    
+    <h:outputText value="All projects are already in repository" rendered="#{empty localUpload.projects4Upload}" />
 
   </h:form>
       <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" />

@@ -26,7 +26,7 @@ import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 
 public class TableWriterBean {
@@ -68,7 +68,7 @@ public class TableWriterBean {
     @SuppressWarnings("unchecked")
     protected void initialize() {
         //
-        WebStudio studio = Util.getWebStudio();
+        WebStudio studio = WebStudioUtils.getWebStudio();
         Map request = FacesUtils.getRequestParameterMap();
 
         this.sid = (String)(request.get("elementID"));

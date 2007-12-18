@@ -7,7 +7,7 @@ package org.openl.rules.ui;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.WorkspaceException;
@@ -268,7 +268,7 @@ public class WebStudio {
             return null;
         }
         String projectName = currentWrapper.getProjectInfo().getName();
-        RulesUserSession rulesUserSession = Util.getRulesUserSession(session);
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
         UserWorkspaceProject project = rulesUserSession.getUserWorkspace()
                 .getProject(projectName);
         return project;

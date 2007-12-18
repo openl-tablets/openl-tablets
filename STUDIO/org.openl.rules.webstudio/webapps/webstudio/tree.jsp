@@ -1,4 +1,4 @@
-<%@ page import = "org.openl.rules.webstudio.web.jsf.util.Util" %>
+<%@ page import = "org.openl.rules.webstudio.web.jsf.util.WebStudioUtils" %>
 <%@ page import="org.openl.meta.DoubleValue" %>
 <%@ page import="org.openl.rules.ui.Explanation" %>
 <%@ page import="org.openl.rules.ui.OpenLWrapperInfo" %>
@@ -53,11 +53,11 @@ BODY {
 %>
 <a href="index.jsp?reload=true" title="Refresh Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
 
-<%if (Util.isLocalRequest(request)) {%>
+<%if (WebStudioUtils.isLocalRequest(request)) {%>
     <a href="jsp/uploadProjects.jsf" target="mainFrame" title="Upload projects to repository">upload</a>
 <%}%>
 
-<%if (!Util.isLocalRequest(request)) {%>
+<%if (!WebStudioUtils.isLocalRequest(request)) {%>
   <%if (studio.getCurrentProject(session)!=null && studio.getCurrentProject(session).isCheckedOut()) {%>
     <a href="index.jsp?operation=checkIn" target="_top" title="Check In Propject"><span style="white-space: nowrap;">Check In</span></a>
   <%}%>

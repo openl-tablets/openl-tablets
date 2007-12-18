@@ -25,7 +25,7 @@ public class UiConst {
     public static final String ICON_PROJECT_CLOSED = "/images/jcr/tree-prj-closed.gif";
     public static final String ICON_PROJECT_CLOSED_LOCKED = "/images/jcr/tree-prj-closed-locked.gif";
     public static final String ICON_PROJECT_DELETED = "/images/jcr/tree-prj-deleted.gif";
-    public static final String ICON_PROJECT_LOCAL = "/images/jcr/tree-prj-local.png";
+    public static final String ICON_PROJECT_LOCAL = "/images/jcr/tree-prj-local.gif";
     public static final String ICON_PROJECT_OPENED = "/images/jcr/tree-prj-opened.gif";
     public static final String ICON_PROJECT_OPENED_LOCKED = "/images/jcr/tree-prj-opened-locked.gif";
 

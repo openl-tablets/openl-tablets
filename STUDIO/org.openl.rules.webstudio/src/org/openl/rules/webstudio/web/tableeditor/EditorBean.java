@@ -7,7 +7,7 @@ import javax.faces.context.FacesContext;
 import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 
 
 public class EditorBean {
@@ -101,7 +101,7 @@ public class EditorBean {
     public EditorHelper getEditorHelper() {
         if (!FacesUtils.getSessionMap().containsKey("editor")) {
             EditorHelper result = new EditorHelper();
-            result.setTableID(elementID, Util.getWebStudio().getModel());
+            result.setTableID(elementID, WebStudioUtils.getWebStudio().getModel());
             FacesUtils.getSessionMap().put("editor",result);
         }
         return (EditorHelper)(FacesUtils.getSessionMap().get("editor"));
