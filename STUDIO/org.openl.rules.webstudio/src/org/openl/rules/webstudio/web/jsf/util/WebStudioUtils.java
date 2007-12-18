@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author Aliaksandr Antonik
  */
-public abstract class Util {
+public abstract class WebStudioUtils {
     public static WebStudio getWebStudio() {
         return (WebStudio) (FacesUtils.getSessionMap().get("studio"));
     }
