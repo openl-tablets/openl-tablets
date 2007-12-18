@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.services.upload.RProjectBuilder;
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -26,7 +26,7 @@ public class LocalUploadController {
         if (uploadBeans == null) {
             uploadBeans = new ArrayList<UploadBean>();
             RulesUserSession userRules = getRules();
-            WebStudio webStudio = Util.getWebStudio();
+            WebStudio webStudio = WebStudioUtils.getWebStudio();
             if (webStudio != null && userRules != null) {
                 List<File> projects = webStudio.getLocator().listOpenLFolders();
                 for (File f : projects)
@@ -46,11 +46,11 @@ public class LocalUploadController {
         HttpSession session = ((HttpServletRequest) FacesContext.getCurrentInstance()
                 .getExternalContext().getRequest()).getSession(false);
 
-        return Util.getRulesUserSession(session);
+        return WebStudioUtils.getRulesUserSession(session);
     }
 
     public String upload() {
-        String workspacePath = Util.getWebStudio().getWorkspacePath();
+        String workspacePath = WebStudioUtils.getWebStudio().getWorkspacePath();
         RulesUserSession rulesUserSession = getRules();
 
         List<UploadBean> beans = uploadBeans;

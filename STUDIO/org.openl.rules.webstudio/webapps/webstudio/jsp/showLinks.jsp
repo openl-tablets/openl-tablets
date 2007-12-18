@@ -1,9 +1,9 @@
-<%@ page import="org.openl.rules.webstudio.web.jsf.util.Util" %>
+<%@ page import="org.openl.rules.webstudio.web.jsf.util.WebStudioUtils" %>
 <%@ page import="org.openl.rules.webtools.XlsUrlParser" %>
 <%@ page import="java.io.File" %>
 
 <%
-    boolean local = Util.isLocalRequest(request);
+    boolean local = WebStudioUtils.isLocalRequest(request);
     boolean wantURI = request.getParameter("uri") != null;
     if (local) {
         if (wantURI) {
@@ -43,7 +43,7 @@
     String path = request.getParameter("wbPath");
     if (filename == null) {
         filename = request.getParameter("wdName");
-        path = request.getParameter("wdPath"); 
+        path = request.getParameter("wdPath");
     }
     pageContext.setAttribute("filename", new File(path, filename).getAbsolutePath());
 %>

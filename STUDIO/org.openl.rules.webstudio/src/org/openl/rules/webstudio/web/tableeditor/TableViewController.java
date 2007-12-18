@@ -14,7 +14,7 @@ import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webtools.indexer.FileIndexer;
 
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class TableViewController {
     }
 
     protected IGridTable getGridTable(int elementID) {
-        return new TableEditorModel(Util.getWebStudio().getModel()
+        return new TableEditorModel(WebStudioUtils.getWebStudio().getModel()
                 .getTableWithMode(elementID, view)).getUpdatedTable();
     }
 
@@ -73,7 +73,7 @@ public class TableViewController {
     }
 
     public String getMode() {
-        return Util.getWebStudio().getModel().getTableView(view);
+        return WebStudioUtils.getWebStudio().getModel().getTableView(view);
     }
 
     /**
@@ -94,7 +94,7 @@ public class TableViewController {
         try {
             return Integer.valueOf(FacesUtils.getRequestParameter("elementID"));
         } catch (Exception e) {
-            return Util.getWebStudio().getTableID();
+            return WebStudioUtils.getWebStudio().getTableID();
         }
     }
 
@@ -103,7 +103,7 @@ public class TableViewController {
         if (elementID == -1) {
             return null;
         }
-        return Util.getWebStudio().getModel().makeXlsUrl(elementID);
+        return WebStudioUtils.getWebStudio().getModel().makeXlsUrl(elementID);
     }
 
     public String getUri() {
@@ -111,7 +111,7 @@ public class TableViewController {
         if (elementID == -1) {
             return null;
         }
-        return Util.getWebStudio().getModel().getUri(elementID);
+        return WebStudioUtils.getWebStudio().getModel().getUri(elementID);
     }
 
     public String getText() {
@@ -127,7 +127,7 @@ public class TableViewController {
         if (elementID == -1) {
             return null;
         }
-        return Util.getWebStudio().getModel().getDisplayNameFull(elementID);
+        return WebStudioUtils.getWebStudio().getModel().getDisplayNameFull(elementID);
     }
 
     private String render() throws Exception {
@@ -145,7 +145,7 @@ public class TableViewController {
     }
 
     public void setInit(boolean init) throws Exception {
-        WebStudio studio = Util.getWebStudio();
+        WebStudio studio = WebStudioUtils.getWebStudio();
         if (studio == null) {
             studio = new WebStudio();
             FacesUtils.getSessionMap().put("studio", studio);
@@ -158,18 +158,18 @@ public class TableViewController {
             studio.reset();
         }
         if (StringUtils.isNotEmpty(mode)) {
-            Util.getWebStudio().setMode(mode);
+            WebStudioUtils.getWebStudio().setMode(mode);
         }
     }
 
     public boolean isLocalRequest() {
-        boolean b = Util.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance()
+        boolean b = WebStudioUtils.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance()
                     .getExternalContext().getRequest());
         return b;
     }
 
     public SelectItem[] getWrappers() throws IOException {
-        WebStudio studio = Util.getWebStudio();
+        WebStudio studio = WebStudioUtils.getWebStudio();
         OpenLWrapperInfo[] wrappers = studio.getWrappers();
         SelectItem[] selectItems = new SelectItem[wrappers.length];
         for (int i = 0; i < wrappers.length; i++) {

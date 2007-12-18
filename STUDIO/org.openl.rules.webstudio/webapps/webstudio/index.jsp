@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 
 <%@page import="org.openl.rules.webstudio.web.servlet.RulesUserSession"%>
-<%@page import="org.openl.rules.webstudio.web.jsf.util.Util"%>
+<%@page import="org.openl.rules.webstudio.web.jsf.util.WebStudioUtils"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspace"%>
 <%@page import="org.openl.rules.ui.WebStudio"%>
 <%@page import="java.util.Set"%>
@@ -18,9 +18,9 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 
 <%
-RulesUserSession rulesUserSession = Util.getRulesUserSession(session);
+RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
 
-if (rulesUserSession != null && !Util.isLocalRequest(request) && (session.getAttribute("studio_from_userWorkspace")==null)) {
+if (rulesUserSession != null && !WebStudioUtils.isLocalRequest(request) && (session.getAttribute("studio_from_userWorkspace")==null)) {
         UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
         String path = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
 

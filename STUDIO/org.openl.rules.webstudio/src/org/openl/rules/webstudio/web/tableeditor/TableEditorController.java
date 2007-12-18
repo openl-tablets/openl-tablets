@@ -10,7 +10,7 @@ import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
 
 import java.io.IOException;
@@ -298,7 +298,7 @@ public class TableEditorController extends TableViewController implements JSTabl
                 return editorHelper;
             }
             EditorHelper editorHelper = new EditorHelper();
-            editorHelper.setTableID(elementId, Util.getWebStudio().getModel());
+            editorHelper.setTableID(elementId, WebStudioUtils.getWebStudio().getModel());
             sessionMap.put("editorHelper", editorHelper);
             return editorHelper;
         }

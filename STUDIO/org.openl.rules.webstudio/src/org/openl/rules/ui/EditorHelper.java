@@ -3,7 +3,7 @@
  */
 package org.openl.rules.ui;
 
-import org.openl.rules.webstudio.web.jsf.util.Util;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 
 /**
  * @author snshor
@@ -15,7 +15,7 @@ public class EditorHelper implements WebStudio.StudioListener
     private int elementID = -1;
 
     public EditorHelper() {
-        WebStudio webStudio = Util.getWebStudio();
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
         if (webStudio != null) webStudio.addEventListener(this);
     }
 
