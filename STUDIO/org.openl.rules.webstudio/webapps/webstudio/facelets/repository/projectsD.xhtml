@@ -16,6 +16,9 @@
           <h:outputText value="Version" />
         </rich:column>
         <rich:column>
+          <h:outputText value="Status" />
+        </rich:column>
+        <rich:column>
           <h:outputText value="Created By" />
         </rich:column>
         <rich:column>
@@ -33,6 +36,9 @@
       </rich:column>
       <rich:column>
         <h:outputText value="#{prj.version}" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{prj.status}" />
       </rich:column>
       <rich:column>
         <h:outputText value="#{prj.createdBy}" />
