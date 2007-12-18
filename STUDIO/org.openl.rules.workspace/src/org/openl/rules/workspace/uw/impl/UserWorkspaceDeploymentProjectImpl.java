@@ -15,6 +15,7 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
+import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryDDProject;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
@@ -176,6 +177,15 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
 
     public boolean isOpened() {
         return (activeProjectVersion != dtrDProject) || isCheckedOut();
+    }
+
+    public boolean isOpenedOtherVersion() {
+        if (!isOpened()) return false;
+
+        ProjectVersion activeVersion = activeProjectVersion.getVersion();
+        ProjectVersion max = dtrDProject.getVersion();
+
+        return (!activeVersion.equals(max));
     }
 
     public boolean isRulesProject() {
@@ -354,5 +364,13 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
             activeProjectVersion = repositoryDDProject;
             refresh();
         }
+    }
+
+    public LockInfo getLockInfo() {
+        if (dtrDProject == null) {
+            return null;
+        }
+
+        return dtrDProject.getlLockInfo();
     }
 }
