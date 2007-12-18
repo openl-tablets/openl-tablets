@@ -11,10 +11,10 @@
           <h:outputText value="Version" />
         </rich:column>
         <rich:column>
-          <h:outputText value="Created At" />
+          <h:outputText value="Created By" />
         </rich:column>
         <rich:column>
-          <h:outputText value="Created By" />
+          <h:outputText value="Created At" />
         </rich:column>
       </rich:columnGroup>
     </f:facet>
@@ -23,14 +23,16 @@
         <h:outputText value="#{version.versionName}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{version.versionInfo.createdAt}" />
+        <h:outputText value="#{version.versionInfo.createdBy}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{version.versionInfo.createdBy}" />
+        <h:outputText value="#{version.versionInfo.createdAt}" />
       </rich:column>
     </rich:columnGroup>
   </rich:dataTable>
-  
-  <h:outputText value="No Versions" rendered="#{empty node.versions}"/>
-  
+
+  <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
+    <h:outputText value="No entries found" />
+  </h:panelGroup>
+
 </ui:composition>
