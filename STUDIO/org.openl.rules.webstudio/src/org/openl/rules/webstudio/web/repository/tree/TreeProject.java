@@ -3,10 +3,12 @@ package org.openl.rules.webstudio.web.repository.tree;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.rules.workspace.abstracts.Project;
+import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.VersionInfo;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
 import java.util.Date;
@@ -44,15 +46,15 @@ public class TreeProject extends TreeFolder {
         if (project.isLocalOnly()) {
             return UiConst.ICON_PROJECT_LOCAL;
         }
-        
+
         if (project.isDeleted()) {
             return UiConst.ICON_PROJECT_DELETED;
         }
-        
+
         if (project.isCheckedOut()) {
             return UiConst.ICON_PROJECT_CHECKED_OUT;
         }
-        
+
         boolean isLocked = project.isLocked();
         if (project.isOpened()) {
             if (isLocked) {
@@ -72,7 +74,7 @@ public class TreeProject extends TreeFolder {
     public Date getCreatedAt() {
         ProjectVersion projectVersion = getProject().getVersion();
         if (projectVersion == null) return null;
-        
+
         VersionInfo vi = projectVersion.getVersionInfo();
         return (vi != null) ? vi.getCreatedAt() : null;
     }
@@ -92,6 +94,13 @@ public class TreeProject extends TreeFolder {
         return projectVersion.getVersionName();
     }
 
+    public String getComments() {
+        return generateComments(getDataBean());
+    }
+
+    public String getStatus() {
+        return generateStatus(getDataBean());
+    }
 
     @Override
     public synchronized List<DependencyBean> getDependencies() {
@@ -144,5 +153,69 @@ public class TreeProject extends TreeFolder {
             this.dependencies = null;
             getProject().setDependencies(newDeps);
         }
+    }
+
+    protected static String generateComments(ProjectArtefact artefact) {
+        if (artefact == null || !(artefact instanceof UserWorkspaceProject)) return null;
+
+        UserWorkspaceProject userProject = (UserWorkspaceProject) artefact;
+        if (userProject.isLocalOnly()) {
+            return "Local";
+        }
+
+        if (userProject.isDeleted()) {
+            return "Deleted";
+        }
+
+        if (userProject.isCheckedOut()) {
+            return "Checked-out";
+        }
+
+        if (userProject.isOpened()) {
+            ProjectVersion activeVersion = userProject.getVersion();
+
+            if (activeVersion != null && userProject.isOpenedOtherVersion()) {
+                return "Version " + activeVersion.getVersionName();
+            } else {
+                return null;
+            }
+        }
+
+        if (userProject.isLocked()) {
+            LockInfo lock= userProject.getLockInfo();
+            
+            if (lock != null) {
+                return "Locked by " + lock.getLockedBy().getUserName();
+            }
+        }
+
+        return null;
+    }
+
+    protected static String generateStatus(ProjectArtefact artefact) {
+        if (artefact == null || !(artefact instanceof UserWorkspaceProject)) return null;
+
+        UserWorkspaceProject userProject = (UserWorkspaceProject) artefact;
+        if (userProject.isLocalOnly()) {
+            return "Local";
+        }
+
+        if (userProject.isDeleted()) {
+            return "Deleted";
+        }
+
+        if (userProject.isCheckedOut()) {
+            return "Checked-out";
+        }
+
+        if (userProject.isOpened()) {
+            if (userProject.isOpenedOtherVersion()) {
+                return "Open Version";
+            } else {
+                return "Open";
+            }
+        }
+
+        return null;
     }
 }
