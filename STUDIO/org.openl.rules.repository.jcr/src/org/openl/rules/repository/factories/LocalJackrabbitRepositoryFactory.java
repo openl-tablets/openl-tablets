@@ -94,6 +94,8 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
 //            String fullPath = url.getFile();
             
             File tempRepositorySettings = File.createTempFile("jackrabbit-repository", ".xml");
+            // It could be cleaned-up on exit
+            tempRepositorySettings.deleteOnExit();
             
             String fullPath = tempRepositorySettings.getCanonicalPath();
             boolean a = tempRepositorySettings.canWrite();
