@@ -10,7 +10,7 @@
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 
-<c:if test="${studio.model.readOnly}">
+<c:if test="(studio.getCurrentProject(session)!=null && (studio.getCurrentProject(session).isCheckedOut()||studio.getCurrentProject(session).isLocalOnly()))">
     <jsp:forward page="showTable.jsp" />
 </c:if>
 
