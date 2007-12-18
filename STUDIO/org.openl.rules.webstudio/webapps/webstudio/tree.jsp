@@ -53,18 +53,14 @@ BODY {
 %>
 <a href="index.jsp?reload=true" title="Refresh Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
 
-<%if (WebStudioUtils.isLocalRequest(request)) {%>
-    <a href="jsp/uploadProjects.jsf" target="mainFrame" title="Upload projects to repository">upload</a>
-<%}%>
-
 <%if (!WebStudioUtils.isLocalRequest(request)) {%>
   <%if (studio.getCurrentProject(session)!=null && studio.getCurrentProject(session).isCheckedOut()) {%>
-    <a href="index.jsp?operation=checkIn" target="_top" title="Check In Propject"><span style="white-space: nowrap;">Check In</span></a>
+    <a class="actionButton" href="index.jsp?operation=checkIn" target="_top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/images/jcr/checkin.gif"></a>
   <%}%>
   <%if (studio.getCurrentProject(session)!=null && (!(studio.getCurrentProject(session).isCheckedOut()
           ||studio.getCurrentProject(session).isLocked()
           ||studio.getCurrentProject(session).isLocalOnly()))) {%>
-    <a href="index.jsp?operation=checkOut" target="_top" title="Check Out Propject"><span style="white-space: nowrap;">Check Out</span></a>
+    <a class="actionButton" href="index.jsp?operation=checkOut" target="_top" title="Check Out Propject"><img border="0" src="<%= request.getContextPath()%>/images/jcr/checkout.gif"></a>
   <%}%>
 <%}%>
 
