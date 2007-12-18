@@ -21,7 +21,24 @@ import com.exigen.ie.constrainer.*;
  */
 
 public class Queens {
-  public static void main(String[] args) {
+
+    static class GoalCounter extends GoalImpl
+    {  
+	public GoalCounter(Constrainer c)
+	{
+	    super(c);
+	}
+	long cnt = 0;
+	public Goal execute() throws Failure
+	{
+	    ++cnt;
+	    return null;
+	}
+	
+    }
+    
+    
+    public static void main(String[] args) {
     try {
       String arg = (args.length==0)?"24":args[0];
 
@@ -50,17 +67,30 @@ public class Queens {
       // x[i] - i != x[j] - j
       C.postConstraint (C.allDiff(xminus));
 
+      GoalCounter gc = new GoalCounter(C);
+      
       C.printInformation();
       // searching for solution
       // C.execute (new GoalGenerate(x)); // not optimized search
       // optimized search with variable selector and dichotomize
-      C.execute (new GoalGenerate(x,new IntVarSelectorMinSizeMin(x), true));
+      C.execute (
+	      new GoalAnd(
+	      new GoalGenerate(x,new IntVarSelectorMinSizeMin(x), true), 
+	      gc,
+	      new GoalFail(C))
+	      );
 
       // print the found solution
-      System.out.println(x);
+//      System.out.println(x);
+      System.out.println("Solutions: " + gc.cnt);
     } catch(Exception e) {
       System.out.println(e);
       e.printStackTrace();
     }
+
+    
+    
+    
+    
   }
 }
