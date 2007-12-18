@@ -76,9 +76,9 @@ BaseEditor.prototype = {
      */
     setTDValue : function(/* String */ value) {
         if (!value.strip()) {
-          value = "&nbsp";
-        }
-        this.td.innerHTML = value.escapeHTML().replace(/\n/g, "<br>");
+          this.td.innerHTML = "&nbsp";
+        } else
+            this.td.innerHTML = value.escapeHTML().replace(/\n/g, "<br>");
     },
 
     /** Returns if the editing was cancelled */
