@@ -70,7 +70,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
         &nbsp;
         <a target="mainFrame" href="<%= request.getContextPath()%>/html/ws-intro.html" title="Help"><img border=0 src="<%= request.getContextPath()%>/images/help.gif"></a>
                 &nbsp;
-        <a target="_top" href="<%= request.getContextPath()%>/faces/repository/jcrMain.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/jcr/tree_folder.gif" alt="repository"></a>
+        <a target="_top" href="<%= request.getContextPath()%>/faces/repository/jcrMain.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/jcr/tree_storage.gif" alt="repository"></a>
             </td>
       </table>
 
