@@ -84,7 +84,7 @@ function open_win(url)
 <%@include file="/WEB-INF/include/errorDisplay.inc"%>
 <%=studio.getModel().showErrors(elementID)%>
 
-<%if (!studio.getModel().isReadOnly()) {%><a href="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf?elementID=<%=elementID%>">Edit Table</a>&nbsp;<%}%>
+<%if (Util.isLocalRequest(request)||(studio.getCurrentProject(session)!=null && (studio.getCurrentProject(session).isCheckedOut()||studio.getCurrentProject(session).isLocalOnly()))) {%><a href="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf?elementID=<%=elementID%>">Edit Table</a>&nbsp;<%}%>
 <a href="${pageContext.request.contextPath}/jsp/copyTable.jsp?elementID=<%=elementID%>">Copy Table</a>
 
 <%@include file="/WEB-INF/include/contextMenu.inc"%>

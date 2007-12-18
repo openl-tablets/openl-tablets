@@ -216,7 +216,14 @@ function enableMenu(which){
 
   <script type="text/javascript">
       var tableEditor = new TableEditor("tableEditor", "${pageContext.request.contextPath}/faces/ajax/", "<%=elementID%>", "<%=switchParam ? "" : request.getParameter("cell")%>");
-      tableEditor.undoStateUpdated = function(hasItems) {["save_all","undo"].each(hasItems?setEnabled:setDisabled)}
+      tableEditor.undoStateUpdated = function(hasItems) {
+        ["save_all","undo"].each(hasItems?setEnabled:setDisabled);
+        if (hasItems) {
+          window.onbeforeunload = function() { return "Your changes have not been saved."; }
+        } else {
+          window.onbeforeunload = function() {}
+        }
+      }
       tableEditor.redoStateUpdated = function(hasItems) {(hasItems?setEnabled:setDisabled)("redo")}
       tableEditor.isSelectedUpdated = function(selected) {
           align_buttons.each(selected?setEnabled:setDisabled);
