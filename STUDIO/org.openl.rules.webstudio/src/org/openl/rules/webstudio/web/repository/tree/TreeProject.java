@@ -168,7 +168,8 @@ public class TreeProject extends TreeFolder {
         }
 
         if (userProject.isCheckedOut()) {
-            return "Checked-out";
+            // "Checked-out"
+            return null;
         }
 
         if (userProject.isOpened()) {
@@ -210,7 +211,7 @@ public class TreeProject extends TreeFolder {
 
         if (userProject.isOpened()) {
             if (userProject.isOpenedOtherVersion()) {
-                return "Open Version";
+                return "Old Version";
             } else {
                 return "Open";
             }
