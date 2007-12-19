@@ -29,8 +29,8 @@
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Copy" action="#{repositoryTreeController.copyDeploymentProject}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalCopyDeploymentProject');" />
-        <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
       </h:panelGrid>
+      <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
     </h:form>
   </rich:modalPanel>
 
