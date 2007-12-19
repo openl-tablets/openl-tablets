@@ -191,7 +191,7 @@ public class DependencyController {
     }
 
     public String getUpperVersion() {
-        return upperVersion;
+        return null;
     }
 
     public void setUpperVersion(String upperVersion) {
