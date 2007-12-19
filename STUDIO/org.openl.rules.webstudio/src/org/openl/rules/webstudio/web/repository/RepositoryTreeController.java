@@ -145,7 +145,7 @@ public class RepositoryTreeController {
                 UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
                 try {
                     folder.addFolder(folderName);
-                    repositoryTreeState.invalidateTreeAndSelectedNode();
+                    repositoryTreeState.invalidateTree();
                 } catch (ProjectException e) {
                     log.error("Failed to create folder '" + folderName + "'", e);
                     errorMessage = e.getMessage();
@@ -546,7 +546,7 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was uploaded successfully."));
-            repositoryTreeState.invalidateTreeAndSelectedNode();
+            repositoryTreeState.invalidateTree();
         } else {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
