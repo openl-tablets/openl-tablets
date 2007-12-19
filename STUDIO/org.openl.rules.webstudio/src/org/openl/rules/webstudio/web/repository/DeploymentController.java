@@ -275,15 +275,32 @@ public class DeploymentController {
         Map<String, VersionRange>[] projects = new Map[n];
         for (int i = 0; i < items.size(); i++) {
             DeploymentDescriptorItem ddItem = items.get(i);
+            ddItem.setMessages("");
+            
             Map<String, VersionRange> prMap = projects[i] = new HashMap<String, VersionRange>();
 
-            UserWorkspaceProject workspaceProject = workspace.getProject(ddItem.getName());
-            prMap.put(workspaceProject.getName(),
-                new VersionRange(workspaceProject.getVersion(),
-                    workspaceProject.getVersion()));
-            for (ProjectDependency dep : workspaceProject.getDependencies()) {
-                prMap.put(dep.getProjectName(),
-                    new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
+            String projectName = ddItem.getName();
+            
+            if (!workspace.hasProject(projectName)) {
+                // no such project (was deleted?)
+                prMap.put(projectName, null);
+                
+                ddItem.setMessages(new StringBuilder().append(
+                    "<span style='color:red;'>Cannot find project <b>")
+                    .append(StringEscapeUtils.escapeHtml(projectName))
+                    .append("</b> in the repository</span>.").toString());
+            } else {
+                UserWorkspaceProject workspaceProject = workspace.getProject(projectName);
+
+                prMap.put(workspaceProject.getName(),
+                    new VersionRange(workspaceProject.getVersion(),
+                        workspaceProject.getVersion()));
+
+                // fill project's dependencies
+                for (ProjectDependency dep : workspaceProject.getDependencies()) {
+                    prMap.put(dep.getProjectName(),
+                        new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
+                }
             }
         }
 
@@ -308,7 +325,6 @@ outer:
                     }
                 }
             }
-            deploymentDescriptorItem.setMessages("");
         }
     }
 
