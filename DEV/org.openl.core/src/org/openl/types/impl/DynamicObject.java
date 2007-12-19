@@ -29,6 +29,22 @@ public class DynamicObject implements IDynamicObject
     this.type = type;
   }
   
+  /*
+   *  Added to support deployment of OpenL project as web services
+   */
+  
+  public DynamicObject()
+  {
+  }
+  
+  /*
+   *  Added to support deployment of OpenL project as web services
+   */
+  
+  public void setType(IOpenClass type)
+  {
+      this.type = type;
+  }
   
   public boolean containsField(String name)
   {
