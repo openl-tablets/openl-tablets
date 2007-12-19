@@ -1,10 +1,12 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import org.openl.rules.webstudio.web.jsf.JSFConst;
+import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.util.Log;
 
 import javax.servlet.*;
@@ -33,7 +35,15 @@ public class SessionFilter implements Filter {
             HttpSession session = httpRequest.getSession(false);
 
             if (session == null) {
-                WorkspaceUser user = new WorkspaceUserImpl(remoteAddr);
+                WorkspaceUser user;
+
+                boolean isLocalUser = WebStudioUtils.isLocalRequest(httpRequest);
+                if (isLocalUser) {
+                    user = new WorkspaceUserImpl(LocalWorkspaceManagerImpl.USER_LOCAL);
+                } else {
+                    user = new WorkspaceUserImpl(remoteAddr);
+                }
+
                 RulesUserSession rulesUserSession = new RulesUserSession(user, workspaceManager);
 
                 session = httpRequest.getSession(true);
