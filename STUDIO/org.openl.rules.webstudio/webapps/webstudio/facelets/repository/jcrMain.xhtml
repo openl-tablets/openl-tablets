@@ -9,15 +9,16 @@
 
   <ui:define name="body">
     <h:panelGrid columns="2" cellspacing="10" cellpadding="0" columnClasses="columnTree, columnProps">
+      <h:panelGroup>
+        <ui:include src="search/inline.xhtml" />
+      </h:panelGroup>
+      &#160;
 
       <h:panelGroup id="tree">
         <ui:include src="/repository/tree.xhtml" />
       </h:panelGroup>
 
       <h:panelGroup id="svBrowser">
-        <ui:include src="search/inline.xhtml" />
-
-        <p />
 
         <h:panelGroup id="nodeView">
           <ui:include src="/repository/messages.xhtml" />
