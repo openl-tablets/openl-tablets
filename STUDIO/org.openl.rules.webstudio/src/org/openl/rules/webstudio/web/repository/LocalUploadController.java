@@ -5,6 +5,7 @@ import org.openl.rules.webstudio.services.upload.RProjectBuilder;
 import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.WorkspaceException;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.util.Log;
 
@@ -28,10 +29,17 @@ public class LocalUploadController {
             RulesUserSession userRules = getRules();
             WebStudio webStudio = WebStudioUtils.getWebStudio();
             if (webStudio != null && userRules != null) {
+                DesignTimeRepository dtr;
+                try {
+                    dtr = userRules.getUserWorkspace().getDesignTimeRepository();
+                } catch (Exception e) {
+                    return null;
+                } 
+
                 List<File> projects = webStudio.getLocator().listOpenLFolders();
                 for (File f : projects)
                     try {
-                        if (!userRules.getUserWorkspace().hasProject(f.getName()))
+                        if (!dtr.hasProject(f.getName()))
                             uploadBeans.add(new UploadBean(f.getName()));
                     } catch (Exception e) {
                         Log.error(e);
