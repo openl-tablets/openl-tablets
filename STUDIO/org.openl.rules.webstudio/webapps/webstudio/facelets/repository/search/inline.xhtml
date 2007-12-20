@@ -6,13 +6,9 @@
 
   <div>
     <h:panelGrid columns="7">
-      <h:commandButton styleClass="button" value="Refresh" action="${repositoryTreeController.refreshTree}" />
-      <rich:spacer width="15" rendered="false"/>
       <h:inputText id="searchText" size="40" required="false" value="openl tablets" rendered="false"/>
       <h:commandButton styleClass="button" value="Search" action="search.advanced" rendered="false"/>
       <h:commandLink value="Advanced Search..." action="search.advanced" rendered="false"/>
-      <rich:spacer width="10" />
-      <h:commandButton styleClass="button" value="Open LWS in WebStudio" action="#{studioOpener.openStudio}" immediate="true" />
     </h:panelGrid>
   </div>
 
