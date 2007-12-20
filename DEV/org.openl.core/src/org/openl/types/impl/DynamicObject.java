@@ -20,9 +20,9 @@ import org.openl.util.print.NicePrinterAdaptor;
 public class DynamicObject implements IDynamicObject
 {
 
-  IOpenClass type;
+  protected IOpenClass type;
 
-  HashMap<String, Object> fields = new HashMap<String, Object>();
+  protected HashMap<String, Object> fieldValues = new HashMap<String, Object>();
 
   public DynamicObject(IOpenClass type)
   {
@@ -48,7 +48,7 @@ public class DynamicObject implements IDynamicObject
   
   public boolean containsField(String name)
   {
-  	return fields.containsKey(name);
+  	return fieldValues.containsKey(name);
   }
   
   
@@ -63,12 +63,12 @@ public class DynamicObject implements IDynamicObject
 
   public Object getFieldValue(String name)
   {
-    return fields.get(name);
+    return fieldValues.get(name);
   }
 
   public void setFieldValue(String name, Object value)
   {
-    fields.put(name, value);
+    fieldValues.put(name, value);
   }
 
   /**
@@ -103,15 +103,12 @@ public class DynamicObject implements IDynamicObject
         DynamicObject dobj = (DynamicObject) obj;
         printReference(dobj, newID, printer);
 //        printer.getBuffer().append(shortTypeName(dobj.getType().getName()));
-        printMap(dobj.fields, null, printer);
+        printMap(dobj.fieldValues, null, printer);
         return;
       }
 
       super.printObject(obj, newID, printer);
     }
-    /* (non-Javadoc)
-     * @see org.openl.commons.print.NicePrinterAdaptor#getTypeName(java.lang.Object)
-     */
     protected String getTypeName(Object obj)
     {
       if (obj instanceof DynamicObject)
@@ -120,5 +117,10 @@ public class DynamicObject implements IDynamicObject
     }
   }
   
+  
+  protected boolean isMyField(String name)
+  {
+	return type.getField(name) != null;
+  } 
 
 }
