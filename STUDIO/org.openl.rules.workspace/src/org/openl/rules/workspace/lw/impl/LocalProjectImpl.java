@@ -153,7 +153,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
             if (artefact.isFolder()) {
                 loadAllStates((LocalProjectFolderImpl) artefact);
             } else {
-                loadState((LocalProjectArtefactImpl)artefact, new File(propFolder, artefact.getName()));
+                loadState((LocalProjectArtefactImpl)artefact, getResourcePropertiesFile(propFolder, artefact));
             }
         }
     }
@@ -167,13 +167,17 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
             if (artefact.isFolder()) {
                 saveAllStates((LocalProjectFolderImpl) artefact);
             } else {
-                saveState((LocalProjectArtefactImpl)artefact, new File(propFolder, artefact.getName()));
+                saveState((LocalProjectArtefactImpl)artefact, getResourcePropertiesFile(propFolder, artefact));
             }
         }
     }
 
     private static File getFolderPropertiesFile(File propFolder) {
         return new File(propFolder, FOLDER_PROPERTIES_FOLDER + File.separator + FOLDER_PROPERTIES_FILE);
+    }
+
+    private static File getResourcePropertiesFile(File propFolder, LocalProjectArtefact artefact) {
+        return new File(propFolder, artefact.getName() + RESOURCE_PROPERTIES_EXT);
     }
 
     private static File getPropertiesFolder(LocalProjectFolderImpl folder) {
@@ -184,20 +188,20 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         File propFolder = getPropertiesFolder(folder);
         if (propFolder.isFile()) {
             if (!propFolder.delete()) {
-                throw new ProjectException("{0} file exists in {1} directory and can not be deleted", null, PROPERTIES_FOLDER, folder.getLocation());
+                throw new ProjectException("''{0}'' file exists in ''{1}'' directory and can not be deleted", null, PROPERTIES_FOLDER, folder.getLocation());
             }
         }
 
         if (!propFolder.exists()) {
             if (!propFolder.mkdirs()) {
-                throw new ProjectException("could not create properties folder in " + folder.getLocation());
+                throw new ProjectException("Could not create properties folder in " + folder.getLocation());
             }
         }
 
         File folderPropFolder = new File(propFolder, FOLDER_PROPERTIES_FOLDER);
         if (!folderPropFolder.exists()) {
             if (!folderPropFolder.mkdirs()) {
-                throw new ProjectException("could not create " +  FOLDER_PROPERTIES_FOLDER + " folder in " + folderPropFolder);
+                throw new ProjectException("Could not create " +  FOLDER_PROPERTIES_FOLDER + " folder in " + folderPropFolder);
             }
         }
 

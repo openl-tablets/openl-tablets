@@ -77,10 +77,11 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public void refresh() {
+        // check existing
         Iterator<LocalProject> i = localProjects.values().iterator();
         while (i.hasNext()) {
             LocalProjectImpl lp = (LocalProjectImpl)i.next();
-            
+
             File location = lp.getLocation();
             if (location.exists()) {
                 // still here
@@ -88,6 +89,28 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             } else {
                 // deleted externally
                 i.remove();
+            }
+        }
+
+        // check new
+        File[] folders = location.listFiles(FolderHelper.getFoldersOnlyFilter());
+        if (folders == null) return;
+
+        for (File folder : folders) {
+            String name = folder.getName();
+            if (!localProjects.containsKey(name)) {
+                // new project detected
+                ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
+                LocalProjectImpl newlyDetected = new LocalProjectImpl(name, ap, folder, this);
+
+                try {
+                    newlyDetected.load();
+                } catch (ProjectException e) {
+                    Log.error("Error loading just detected local project ''{0}''", e, name);
+                }
+
+                // add it
+                localProjects.put(name, newlyDetected);
             }
         }
     }
@@ -158,7 +181,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             try {
                 lpi.load();
             } catch (ProjectException e) {
-                Log.error("error loading local project {0}", e, lpi.getName());
+                Log.error("Error loading local project {0}", e, lpi.getName());
             }
 
             localProjects.put(name, lpi);
