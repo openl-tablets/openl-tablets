@@ -37,7 +37,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -169,10 +168,7 @@ public class RepositoryTreeController {
                 .getDataBean();
         try {
             projectArtefact.delete();
-            repositoryTreeState.invalidateTree();
-            if (!(projectArtefact instanceof UserWorkspaceProject)) {
-                repositoryTreeState.updateSelectionAfterDelete();
-            }
+            repositoryTreeState.invalidateTreeAndSelectedNode();
         } catch (ProjectException e) {
             log.error("Failed to delete node.", e);
             FacesContext.getCurrentInstance()
@@ -192,10 +188,10 @@ public class RepositoryTreeController {
             projectArtefact.getArtefact(childName).delete();
             repositoryTreeState.invalidateTreeAndSelectedNode();
         } catch (ProjectException e) {
-            log.error("error deleting", e);
+            log.error("Error deleting element.", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error deleting.",
                         e.getMessage()));
         }
         return null;
