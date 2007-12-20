@@ -214,7 +214,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         state.parent = super.getState();
         
         state.version = version;
-        state.dependencies = new ArrayList<ProjectDependency>(dependencies);
+        state.dependencies = new ArrayList<ProjectDependency>(getDependencies());
         
         return state;
     }

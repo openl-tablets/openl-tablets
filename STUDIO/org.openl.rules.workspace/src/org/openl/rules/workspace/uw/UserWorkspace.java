@@ -31,4 +31,6 @@ public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
     void addWorkspaceListener(UserWorkspaceListener listener);
     boolean removeWorkspaceListener(UserWorkspaceListener listener);
     DesignTimeRepository getDesignTimeRepository();
+
+    void uploadLocalProject(String name) throws ProjectException;
 }
