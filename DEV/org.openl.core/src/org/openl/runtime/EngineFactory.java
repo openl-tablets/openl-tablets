@@ -22,6 +22,18 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+/**
+ * 
+ * @author snshor
+ *
+ * Class EngineFactory creates {@link Proxy} based wrappers around OpenL classes. Each wrapper implements interface T and interface {@link IEngineWrapper}.
+ * If OpenL IOpenClass does not have methods matching interface T it will produce an error. <br/>
+ * 
+ * NOTE: OpenL fieldValues will be exposed as get<Field> methods	
+ *
+ * @param <T>
+ */
+
 public class EngineFactory<T>
 {
 
@@ -29,7 +41,7 @@ public class EngineFactory<T>
 
     Map<Method, IOpenMember> methodMap = new HashMap<Method, IOpenMember>();
 
-    // / These fields may be derived from other fields, or set by constructor
+    // / These fieldValues may be derived from other fieldValues, or set by constructor
     // directly
 
     IOpenSourceCodeModule sourceCode;

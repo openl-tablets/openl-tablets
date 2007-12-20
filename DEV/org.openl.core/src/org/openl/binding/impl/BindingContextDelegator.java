@@ -8,6 +8,7 @@ package org.openl.binding.impl;
 
 import java.util.List;
 
+import org.openl.OpenL;
 import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.AmbiguousVarException;
 import org.openl.binding.DuplicatedVarException;
@@ -257,5 +258,10 @@ public class BindingContextDelegator implements IBindingContextDelegator
 		boolean strictMatch)
 	{
 	    return delegate.findFieldFor(type, fieldName, strictMatch);
+	}
+
+	public OpenL getOpenL()
+	{
+	    return delegate.getOpenL();
 	}
 }

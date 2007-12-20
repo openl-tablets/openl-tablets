@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.openl.IOpenBinder;
+import org.openl.OpenL;
 import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
@@ -33,6 +34,7 @@ public class BindingContext implements IBindingContext
 {
 
   IOpenBinder binder;
+  
   List<ISyntaxError> errors = new ArrayList<ISyntaxError>();
   
   Map<String, String> aliases = new HashMap<String, String>();
@@ -41,13 +43,23 @@ public class BindingContext implements IBindingContext
 
   LocalFrameBuilder localFrame = new LocalFrameBuilder();
 
-  public BindingContext(Binder binder, IOpenClass returnType)
+  public BindingContext(Binder binder, IOpenClass returnType, OpenL openl)
   {
     this.binder = binder;
     this.returnType = returnType;
+    this.openl = openl;
   }
+  
+  
+  OpenL openl;
 
-  /* (non-Javadoc)
+  public OpenL getOpenL()
+{
+    return openl;
+}
+
+
+/* (non-Javadoc)
    * @see org.openl.binding.IBindingContext#getBinder()
    */
   public IOpenBinder getBinder()

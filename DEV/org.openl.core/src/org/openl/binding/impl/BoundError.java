@@ -61,4 +61,11 @@ public class BoundError extends SyntaxError implements IBoundError
 		super(node, msg, null);
 	}
 
+
+	public BoundError(String msg,
+		IOpenSourceCodeModule module)
+	{
+	    super(null, msg, null, module);
+	}
+
 }

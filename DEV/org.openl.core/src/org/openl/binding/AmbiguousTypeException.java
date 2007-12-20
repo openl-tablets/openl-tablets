@@ -7,7 +7,7 @@
 package org.openl.binding;
 
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 import org.openl.types.IOpenClass;
 
@@ -23,13 +23,13 @@ public class AmbiguousTypeException extends RuntimeException
 	 * 
 	 */
 	private static final long serialVersionUID = 3432594431020887309L;
-	Vector matchingTypes; 
+	List<IOpenClass> matchingTypes; 
 	String typeName; 
 	
-	public AmbiguousTypeException( String typeName, Vector matchingFields)
+	public AmbiguousTypeException( String typeName, List<IOpenClass> matchingTypes)
 	{
 		this.typeName = typeName;
-		this.matchingTypes = matchingFields; 
+		this.matchingTypes = matchingTypes; 
 	}
 	
 	public String getMessage()
@@ -39,9 +39,9 @@ public class AmbiguousTypeException extends RuntimeException
 		buf.append("Type ").append(typeName);
 		buf.append(" is ambigous:\n").
 		append("Matching types:\n");
-		for (Iterator iter = matchingTypes.iterator(); iter.hasNext();)
+		for (Iterator<IOpenClass> iter = matchingTypes.iterator(); iter.hasNext();)
     {
-			IOpenClass type = (IOpenClass)iter.next();
+			IOpenClass type = iter.next();
 			buf.append(type.getName()).append('\n');
     }
 		
