@@ -250,6 +250,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return listeners.remove(listener);
     }
 
+    public DesignTimeRepository getDesignTimeRepository() {
+        return designTimeRepository;
+    }
+
     public UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException {
         try {
             RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
