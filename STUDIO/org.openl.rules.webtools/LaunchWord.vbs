@@ -1,5 +1,7 @@
 Dim wdPath, wdName, wdParNum
 
+
+'MsgBox "Start"
 wdPath=wscript.arguments(0)
 wdName=wscript.arguments(1)
 wdParStart=wscript.arguments(2)
@@ -46,20 +48,24 @@ Function getDocument(wordApp, wdPath, wdName)
     Dim wb
     
     For Each wd In wordApp.Documents
-'    MsgBox "path=" + wd.Path + " name=" + wd.Name
+   ' MsgBox "path=" + wd.Path + " name=" + wd.Name
     
     If wd.Name = wdName Then
         
         If wd.Path = wdPath Then
             Set getDocument = wd
+		'	MsgBox wdName + " 1 "   
             Exit Function
         Else
+        	'MsgBox wdName + " 2 "   
+        	
             MsgBox "Word can not open two Documents with the same name but in different directories!"
         End If
     
     End If
     
     Next
+'	MsgBox wdName + " 3 "   
     
     Set getDocument = wordApp.Documents.Open(wdPath + "\" + wdName)
     
@@ -74,8 +80,9 @@ Sub launch(wdPath, wdName, wdPar)
     
     Set wordApp = getWord()
     Set wdDoc = getDocument(wordApp, wdPath, wdName)
-    
-    
+
+'	MsgBox wdName + " 1 "   
+	 
 	wordApp.Windows(wdName).Activate
 	wordApp.Windows(wdName).setFocus
     
@@ -96,9 +103,10 @@ Sub launch2(wdPath, wdName, wdParStart, wdParEnd)
     
     Set wordApp = getWord()
     Set wdDoc = getDocument(wordApp, wdPath, wdName)
+ '   MsgBox wdName + " 4 "   
     
     
-	wordApp.Windows(wdName).Activate
+'	wordApp.Windows(wdName).Activate
 	'wordApp.Windows(wdName).setFocus
     
     
