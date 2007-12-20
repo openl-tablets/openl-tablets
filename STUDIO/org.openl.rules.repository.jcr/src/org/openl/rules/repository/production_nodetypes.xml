@@ -22,6 +22,23 @@
     xmlns:openl="http://www.openl.org/jcr/1.0"
     xmlns:mix="http://www.jcp.org/jcr/mix/1.0">
 
+    <!--
+        "openl:repository" is a fiction node.
+        It is used to track schema version only.
+     -->
+    <nodeType name="openl:repository" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>nt:unstructured</supertype>
+        </supertypes>
+
+        <propertyDefinition name="schema-version" requiredType="String" autoCreated="true" mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
+            <defaultValues>
+                <defaultValue>5.0.5</defaultValue>
+            </defaultValues>
+        </propertyDefinition>
+    </nodeType>
+
+
     <nodeType name="openl:deployment" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
         <supertypes>
             <supertype>nt:unstructured</supertype>
