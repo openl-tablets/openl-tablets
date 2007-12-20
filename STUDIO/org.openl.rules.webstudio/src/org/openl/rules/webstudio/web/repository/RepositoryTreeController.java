@@ -209,7 +209,7 @@ public class RepositoryTreeController {
             project.delete();
             repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
-            log.error("Cannot delete rules project " + projectName, e);
+            log.error("Cannot delete rules project '" + projectName+"'", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -226,7 +226,7 @@ public class RepositoryTreeController {
             project.delete();
             repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
-            log.error("Cannot delete deployment project " + projectName, e);
+            log.error("Cannot delete deployment project '" + projectName+"'", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -241,7 +241,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Can not undelete project " + project.getName(),
+                        "Can not undelete project '" + project.getName() + "'",
                         "project is not deleted"));
             return null;
         }
@@ -253,7 +253,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Can not undelete project " + project.getName(), e.getMessage()));
+                        "Can not undelete project '" + project.getName() + "'", e.getMessage()));
         }
         return null;
     }
@@ -265,7 +265,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                        "Can not erase project " + project.getName() + "."));
+                        "Can not erase project '" + project.getName() + "'."));
             return null;
         }
 
@@ -278,7 +278,7 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                        "Can not erase project " + project.getName() + "."));
+                        "Can not erase project '" + project.getName() + "'."));
         }
         return null;
     }
@@ -402,7 +402,7 @@ public class RepositoryTreeController {
         try {
             project = userWorkspace.getProject(projectName);
         } catch (ProjectException e) {
-            log.error("Can not obtain rules project " + projectName, e);
+            log.error("Can not obtain rules project '" + projectName+"'", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, e.getMessage()));
@@ -417,13 +417,13 @@ public class RepositoryTreeController {
             errorMessage = "Project name '" + newProjectName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
         } else if (userWorkspace.hasProject(newProjectName)) {
             boolean isLocalOnly;
-            
+
             try {
                 isLocalOnly = userWorkspace.getProject(newProjectName).isLocalOnly();
             } catch (ProjectException e) {
                 isLocalOnly = false;
             }
-            
+
             if (!isLocalOnly) {
                 errorMessage = "Project '" + newProjectName + "' already exists";
             }
@@ -459,7 +459,7 @@ public class RepositoryTreeController {
         try {
             project = userWorkspace.getDDProject(projectName);
         } catch (ProjectException e) {
-            log.error("Can not obtain deployment project " + projectName, e);
+            log.error("Can not obtain deployment project '" + projectName+"'", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, e.getMessage()));
