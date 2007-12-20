@@ -247,3 +247,17 @@ table.standard tr.odd {
 .dr-pnl-b {
   padding: 2px !important;
 }
+
+div#iconbar {
+  display: block;
+  float: right;
+  height: 16px;
+  position: absolute;
+  right: 5px;
+  top: 50px;
+}
+
+#iconbar a {
+  margin-right: 0px;
+  padding-left: 5px;
+}
