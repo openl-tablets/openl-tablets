@@ -55,6 +55,15 @@
   </h:panelGroup>
 
   <script>
+    function clearSelection() {
+      var table = document.getElementById("mainForm:descriptorTable");
+      for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
+        table.childNodes[2].childNodes[i].firstChild.firstChild.checked = false;
+      }
+    }
+
+    clearSelection();
+
     function isEmptySelection() {
       var table = document.getElementById("mainForm:descriptorTable");
       for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
