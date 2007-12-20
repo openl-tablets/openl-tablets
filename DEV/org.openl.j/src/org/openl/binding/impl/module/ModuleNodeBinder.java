@@ -33,7 +33,7 @@ public class ModuleNodeBinder extends ANodeBinder
 		// children should all have type IMemberBoundNode
 		IBoundNode[] children = bindChildren(node, bindingContext);
 		//TODO fix schema, name
-		ModuleOpenClass module = new ModuleOpenClass(null, "UndefinedType");
+		ModuleOpenClass module = new ModuleOpenClass(null, "UndefinedType", bindingContext.getOpenL());
 		ModuleBindingContext moduleContext = new ModuleBindingContext(bindingContext, module);
 		
 		for (int i = 0; i < children.length; i++)

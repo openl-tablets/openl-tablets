@@ -40,41 +40,41 @@ public class OpenLBuilder extends AOpenLBuilder
   		{
   		"literal", org.openl.binding.impl.LiteralNodeBinder.class.getName()
   		,"literal.integer",org.openl.binding.impl.IntNodeBinder.class.getName()
-  		,"literal.real","org.openl.binding.impl.DoubleNodeBinder"
-  		,"literal.percent","org.openl.binding.impl.PercentNodeBinder"
+  		,"literal.real", org.openl.binding.impl.DoubleNodeBinder.class.getName()
+  		,"literal.percent", org.openl.binding.impl.PercentNodeBinder.class.getName()
   		,"literal.string",org.openl.binding.impl.StringNodeBinder.class.getName()
-  		,"literal.char","org.openl.binding.impl.CharNodeBinder"
-  		,"array.init","org.openl.binding.impl.ArrayInitializationBinder"
+  		,"literal.char", org.openl.binding.impl.CharNodeBinder.class.getName()
+  		,"array.init",org.openl.binding.impl.ArrayInitializationBinder.class.getName()
 
-  		,"module.top","org.openl.binding.impl.module.ModuleNodeBinder"
-  		,"method.header","org.openl.binding.impl.MethodHeaderNodeBinder"
-  		,"method.parameters","org.openl.binding.impl.module.MethodParametersNodeBinder"
-  		,"method.declaration","org.openl.binding.impl.module.MethodDeclarationNodeBinder"
+  		,"module.top",org.openl.binding.impl.module.ModuleNodeBinder.class.getName()
+  		,"method.header",org.openl.binding.impl.MethodHeaderNodeBinder.class.getName()
+  		,"method.parameters",org.openl.binding.impl.module.MethodParametersNodeBinder.class.getName()
+  		,"method.declaration",org.openl.binding.impl.module.MethodDeclarationNodeBinder.class.getName()
   		,"var.declaration", org.openl.binding.impl.module.VarDeclarationNodeBinder.class.getName()
-  		,"parameter.declaration","org.openl.binding.impl.module.ParameterDeclarationNodeBinder"
+  		,"parameter.declaration", org.openl.binding.impl.module.ParameterDeclarationNodeBinder.class.getName()
 
-  		,"block","org.openl.binding.impl.BlockBinder"
-  		,"op.binary","org.openl.binding.impl.BinaryOperatorNodeBinder"
-  		,"op.binary.and","org.openl.binding.impl.BinaryOperatorAndNodeBinder"
-  		,"op.binary.or","org.openl.binding.impl.BinaryOperatorOrNodeBinder"
-  		,"op.unary","org.openl.binding.impl.UnaryOperatorNodeBinder"
-  		,"op.prefix","org.openl.binding.impl.PrefixOperatorNodeBinder"
-  		,"op.suffix","org.openl.binding.impl.SuffixOperatorNodeBinder"
-  		,"op.assign","org.openl.binding.impl.AssignOperatorNodeBinder"
-  		,"op.new.object","org.openl.binding.impl.NewNodeBinder"
-  		,"op.new.array","org.openl.binding.impl.NewArrayNodeBinder"
-  		,"op.index","org.openl.binding.impl.IndexNodeBinder"
+  		,"block", org.openl.binding.impl.BlockBinder.class.getName()
+  		,"op.binary", org.openl.binding.impl.BinaryOperatorNodeBinder.class.getName()
+  		,"op.binary.and", org.openl.binding.impl.BinaryOperatorAndNodeBinder.class.getName()
+  		,"op.binary.or", org.openl.binding.impl.BinaryOperatorOrNodeBinder.class.getName()
+  		,"op.unary", org.openl.binding.impl.UnaryOperatorNodeBinder.class.getName()
+  		,"op.prefix", org.openl.binding.impl.PrefixOperatorNodeBinder.class.getName()
+  		,"op.suffix", org.openl.binding.impl.SuffixOperatorNodeBinder.class.getName()
+  		,"op.assign", org.openl.binding.impl.AssignOperatorNodeBinder.class.getName()
+  		,"op.new.object",org.openl.binding.impl.NewNodeBinder.class.getName()
+  		,"op.new.array", org.openl.binding.impl.NewArrayNodeBinder.class.getName()
+  		,"op.index", org.openl.binding.impl.IndexNodeBinder.class.getName()
 
 
   		,"local.var.declaration",org.openl.binding.impl.LocalVarBinder.class.getName()
-  		,"type.declaration","org.openl.binding.impl.TypeBinder"
-  		,"type.cast","org.openl.binding.impl.TypeCastBinder"
+  		,"type.declaration", org.openl.binding.impl.TypeBinder.class.getName()
+  		,"type.cast", org.openl.binding.impl.TypeCastBinder.class.getName()
 
-  		,"function","org.openl.binding.impl.MethodNodeBinder"
-  		,"identifier","org.openl.binding.impl.IdentifierBinder"
-  		,"identifier.sequence","org.openl.binding.impl.IdentifierSequenceBinder"
+  		,"function",org.openl.binding.impl.MethodNodeBinder.class.getName()
+  		,"identifier",org.openl.binding.impl.IdentifierBinder.class.getName()
+  		,"identifier.sequence",org.openl.binding.impl.IdentifierSequenceBinder.class.getName()
 //  		,"chain","org.openl.binding.impl.ChainBinder"
-  		,"chain","org.openl.binding.impl.BExChainBinder"
+  		,"chain", org.openl.binding.impl.BExChainBinder.class.getName()
   		,"chain.suffix",org.openl.binding.impl.BExChainSuffixBinder.class.getName()
 
   		, "where.expression",  org.openl.binding.impl.WhereExpressionNodeBinder.class.getName()
@@ -82,10 +82,10 @@ public class OpenLBuilder extends AOpenLBuilder
   		, "list", org.openl.binding.impl.ListNodeBinder.class.getName()
   		
   		
-  		,"control.for","org.openl.binding.impl.ForNodeBinder"
-  		,"control.if","org.openl.binding.impl.IfNodeBinder"
-  		,"control.while","org.openl.binding.impl.WhileNodeBinder"
-  		,"control.return","org.openl.binding.impl.ReturnNodeBinder"
+  		,"control.for",org.openl.binding.impl.ForNodeBinder.class.getName()
+  		,"control.if", org.openl.binding.impl.IfNodeBinder.class.getName()
+  		,"control.while",org.openl.binding.impl.WhileNodeBinder.class.getName()
+  		,"control.return",org.openl.binding.impl.ReturnNodeBinder.class.getName()
   		
 
   		
@@ -105,7 +105,7 @@ public class OpenLBuilder extends AOpenLBuilder
   		 NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
   		 nslc.setNamespace("org.openl.operators");
   		 JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-  		 javalib.setClassName("org.openl.binding.impl.Operators");
+  		 javalib.setClassName(org.openl.binding.impl.Operators.class.getName());
   		 nslc.addJavalib(javalib);
   		 lfc.addConfiguredLibrary(nslc);
 
@@ -122,7 +122,7 @@ public class OpenLBuilder extends AOpenLBuilder
   		 
   		 OpenFactoryConfiguration of = new OpenFactoryConfiguration();
   		 of.setName("java.factory");
-  		 of.setImplementingClass("org.openl.types.java.JavaOpenFactory");
+  		 of.setImplementingClass(org.openl.types.java.JavaOpenFactory.class.getName());
   		 op.addConfiguredTypeFactory(of);
   		 
 /**  		 
@@ -135,10 +135,10 @@ public class OpenLBuilder extends AOpenLBuilder
   	NameSpacedTypeConfiguration nstc = new NameSpacedTypeConfiguration();
   	nstc.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
   	JavaTypeConfiguration javatype = new JavaTypeConfiguration();
-  	javatype.setClassName("org.openl.types.java.JavaPrimitiveTypeLibrary");
+  	javatype.setClassName(org.openl.types.java.JavaPrimitiveTypeLibrary.class.getName());
   	nstc.addJavaType(javatype);
   	javatype = new JavaTypeConfiguration();
-  	javatype.setClassName("org.openl.types.java.JavaLang");
+  	javatype.setClassName(org.openl.types.java.JavaLang.class.getName());
   	nstc.addJavaType(javatype);
   	JavaImportTypeConfiguration javaimport = new JavaImportTypeConfiguration();
   	JavaImportTypeConfiguration.StringHolder anImport = new JavaImportTypeConfiguration.StringHolder();
@@ -166,8 +166,8 @@ public class OpenLBuilder extends AOpenLBuilder
   	
   	TypeCastFactory typecast = op.createTypecast();
   	TypeCastFactory.JavaCastComponent javacast = new TypeCastFactory.JavaCastComponent();
-  	javacast.setLibraryClassName("org.openl.binding.impl.Operators");
-  	javacast.setClassName("org.openl.binding.impl.ACastFactory");
+  	javacast.setLibraryClassName(org.openl.binding.impl.Operators.class.getName());
+  	javacast.setClassName(org.openl.binding.impl.ACastFactory.class.getName());
   	
   	typecast.addJavaCast(javacast);
   	
