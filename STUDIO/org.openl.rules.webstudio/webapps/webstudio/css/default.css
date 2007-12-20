@@ -25,7 +25,7 @@
 
 .logo {
   position: absolute;
-  top: 8px;
+  top: 10px;
   right: 15px;
 }
 
@@ -249,13 +249,13 @@ table.standard tr.odd {
 }
 
 div#iconbar {
-  background-color: #4A75B5;
+  border: 1px solid gray;
   display: block;
   float: right;
   height: 16px;
   position: absolute;
-  right: 3px;
-  top: 50px;
+  right: 150px;
+  top: 35px;
 }
 
 #iconbar a {
