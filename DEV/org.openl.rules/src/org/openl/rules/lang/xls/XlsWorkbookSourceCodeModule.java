@@ -1,9 +1,12 @@
 package org.openl.rules.lang.xls;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.EventListener;
 import java.util.Collection;
@@ -81,7 +84,18 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 		}
 		else
 		{
-			throw new IOException("The xls source is not file based, can not save");
+			
+			
+			try
+			{
+				File f = new File(new URI(src.getUri(0)));
+				String fname = f.getCanonicalPath();
+				saveAs(fname);
+			}
+			catch(URISyntaxException me)
+			{
+				throw new IOException("The xls source is not file based, can not save");
+			}	
 		}	
 	}
 	

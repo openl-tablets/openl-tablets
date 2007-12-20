@@ -329,7 +329,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 	 * @param paramName
 	 * @param paramType
 	 */
-	private static void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType)
+	static public void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType)
 	{
 		CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramType);
 		IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);

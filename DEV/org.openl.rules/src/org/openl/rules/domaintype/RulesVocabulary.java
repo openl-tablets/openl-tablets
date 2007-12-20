@@ -11,6 +11,7 @@ import org.openl.meta.IVocabulary;
 import org.openl.meta.StringValue;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.util.StringTool;
 
 public class RulesVocabulary implements IVocabulary
 {
@@ -93,12 +94,16 @@ public class RulesVocabulary implements IVocabulary
 			
 			String baseName = attributes[i].getBase().getName();
 			
-			ModifiableOpenClass modifiedBase = (ModifiableOpenClass)newTypes.get(baseName);
+//TODO change all this			
+			
+			String xname = StringTool.lastToken(baseName, ".");
+			
+			ModifiableOpenClass modifiedBase = (ModifiableOpenClass)newTypes.get(xname);
 			
 			if (modifiedBase == null)
 			{
-				modifiedBase = new ModifiableOpenClass(attributes[i].getBase());
-				newTypes.put(baseName, modifiedBase);
+				modifiedBase = new ModifiableOpenClass(attributes[i].getBase(), xname);
+				newTypes.put(xname, modifiedBase);
 				list.add(modifiedBase);
 			}	
 			
