@@ -69,7 +69,7 @@ public class Formatter
 	}
 
 
-	public static void registerFormat(Class c, IFormat format)
+	public static void registerFormat(Class<?> c, IFormat format)
 	{
 		 CategorizedSearchContext.current().register(c, formatCategory(), format);
 	}

@@ -54,7 +54,7 @@ public class Enum<T>
 	Integer idx = indexMap.get(obj);
 	if (idx == null)
 	    throw new RuntimeException("Object " + obj
-		    + " is outside of the domain");
+		    + " is outside of a valid domain");
 	return idx.intValue();
     }
 
