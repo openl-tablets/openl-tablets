@@ -21,7 +21,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass
 {
 	
 	IDataBase dataBase = new DataBase();
-	OpenL openl;
 	
 	
 
@@ -31,9 +30,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass
 	 */
 	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl)
 	{
-		super(schema, name);
+		super(schema, name, openl);
 		this.metaInfo = metaInfo;
-		this.openl = openl;
 	}
 
 	/**
@@ -44,10 +42,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass
 		return dataBase;
 	}
 
-	public OpenL getOpenl()
-	{
-		return this.openl;
-	}
 	
 	public XlsMetaInfo getXlsMetaInfo()
 	{

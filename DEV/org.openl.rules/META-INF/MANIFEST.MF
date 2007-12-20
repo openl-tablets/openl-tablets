@@ -5,8 +5,8 @@ Bundle-SymbolicName: org.openl.rules
 Bundle-Version: 5.0.5
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
- org.openl.lib.apache.poi.modified;visibility:=reexport,
- org.openl.rules.helpers;visibility:=reexport
+ org.openl.rules.helpers;visibility:=reexport,
+ org.openl.lib.apache.poi.modified;visibility:=reexport
 Export-Package: org.openl.rules.data,
  org.openl.rules.data.binding,
  org.openl.rules.data.impl,

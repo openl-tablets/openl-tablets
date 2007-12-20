@@ -8,19 +8,20 @@ package org.openl.rules.data.impl;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
+import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
+import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.data.IColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.ITable;
+import org.openl.rules.domaintype.DomainCreator;
 import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
@@ -28,6 +29,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -128,7 +130,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 		return null;	
 		}
 	} else {
-		Vector v = new Vector();
+		List<Object> v = new ArrayList<Object>();
 		for (int i = 0; i < values.getLogicalHeight(); i++) {
 			String s = values.getGridTable().getStringValue(0, i);
 			
@@ -209,6 +211,14 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 			throw err;
 		}
 
+		Map<String, Integer> index = t.getUniqueIndex(foreignKeyIndex);
+		
+		String[] domainStrings = index.keySet().toArray(new String[0]);
+		
+		EnumDomain<String> domain = new EnumDomain<String>(domainStrings);
+		
+		DomainOpenClass domainClass = new DomainOpenClass(field.getName(), JavaOpenClass.STRING, domain, null);
+		
 		values = ALogicalTable.make1ColumnTable(values);
 
 		IOpenClass fieldType = field.getType();
@@ -227,6 +237,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 					
 					try
 					{
+						FunctionalRow.setCellMetaInfo(values, field.getName(), domainClass);
 						res = t.findObject(foreignKeyIndex, s, cxt);
 					}
 					catch(Throwable x)
@@ -266,6 +277,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 				
 				try
 				{
+					FunctionalRow.setCellMetaInfo(values, field.getName(), domainClass);
 					res = t.findObject(foreignKeyIndex, s, cxt);
 				}
 				catch(Throwable x)
@@ -395,35 +407,34 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 	if (!indexed) {
 		Object res = FunctionalRow.loadSingleParam(paramType, field == null ? "constructor" : field.getName() , null, values, ota);
 		return res;
-	} else {
-		Vector v = new Vector();
-		int h = values.getLogicalHeight();
-		for (int i = 0; i < h; i++) {
-			Object res =
-				FunctionalRow.loadSingleParam(
-					paramType,
-					field.getName(), null,
-					values.getLogicalRow(i),
-					null);
-			if (res == null)
-				break;
-
-			v.add(res);
-		}
-
-		Object ary =
-			paramType.getAggregateInfo().makeIndexedAggregate(
-				paramType,
-				new int[] { v.size()});
-
-		//Array.newInstance(cc, v.size());
-
-		for (int i = 0; i < v.size(); i++) {
-			Array.set(ary, i, v.get(i));
-		}
-
-		return ary;
 	}
+	List<Object> v = new ArrayList<Object>();
+	int h = values.getLogicalHeight();
+	for (int i = 0; i < h; i++) {
+		Object res =
+			FunctionalRow.loadSingleParam(
+				paramType,
+				field.getName(), null,
+				values.getLogicalRow(i),
+				null);
+		if (res == null)
+			break;
+
+		v.add(res);
+	}
+
+	Object ary =
+		paramType.getAggregateInfo().makeIndexedAggregate(
+			paramType,
+			new int[] { v.size()});
+
+	//Array.newInstance(cc, v.size());
+
+	for (int i = 0; i < v.size(); i++) {
+		Array.set(ary, i, v.get(i));
+	}
+
+	return ary;
 }
 	
 	
@@ -504,6 +515,16 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 	public IOpenClass getType()
 	{
 		return field.getType();
+	}
+
+	
+	Map<String, Integer> uniqueIndex = null;
+	
+	public synchronized Map<String, Integer> getUniqueIndex(ITable table, int idx) throws BoundError
+	{
+		if (uniqueIndex == null)
+			uniqueIndex = table.makeUniqueIndex(idx);
+		return uniqueIndex;
 	}
 
 }

@@ -6,7 +6,10 @@
  
 package org.openl.rules.data;
 
+import java.util.Map;
+
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BoundError;
 import org.openl.rules.table.IGridTable;
 import org.openl.types.IOpenClass;
 
@@ -25,7 +28,7 @@ public interface ITable
 	IDataTableModel getDataModel();
 
 	int getColumnIndex(String columnName);
-	Object findObject(int columnIndex, String key, IBindingContext cxt);
+	Object findObject(int columnIndex, String key, IBindingContext cxt) throws BoundError;
 
 	void populate(IDataBase db, IBindingContext cxt) throws Exception;
 	/**
@@ -66,6 +69,10 @@ public interface ITable
 	 * @return
 	 */
 	IGridTable getHeaderTable();
+	
+	
+	Map<String, Integer> makeUniqueIndex(int idx) throws BoundError;
+	public Map<String, Integer> getUniqueIndex(int columnIndex) throws BoundError;
 	
 	
 }

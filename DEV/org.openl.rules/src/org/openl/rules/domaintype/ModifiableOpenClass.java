@@ -13,9 +13,9 @@ public class ModifiableOpenClass extends OpenClassDelegator
 	
 	HashMap<String, IOpenField> modifiedFields = new HashMap<String, IOpenField>();
 	
-	public ModifiableOpenClass(IOpenClass baseClass)
+	public ModifiableOpenClass(IOpenClass baseClass, String name)
 	{
-		super(baseClass.getName(),baseClass, baseClass.getMetaInfo());
+		super(name, baseClass, baseClass.getMetaInfo());
 	}
 
 	

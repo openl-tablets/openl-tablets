@@ -98,8 +98,12 @@ public class XlsCellStyle implements ICellStyle
 	{
 		HSSFColor cc = workbook.getCustomPalette().getColor(x);
 		
+		
 		if (cc == null)
 			return null;
+
+//		if (cc == HSSFColor.AUTOMATIC.getInstance())
+//			return null;
 		
 		short[] rgb = cc.getTriplet();
 		return rgb;

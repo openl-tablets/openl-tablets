@@ -6,8 +6,11 @@
  
 package org.openl.rules.data;
 
+import java.util.Map;
+
 import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BoundError;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
 
@@ -48,5 +51,7 @@ public interface IColumnDescriptor
 	 * @return
 	 */
 	IOpenClass getType();
+	
+	Map<String, Integer> getUniqueIndex(ITable table, int idx) throws BoundError;
 
 }
