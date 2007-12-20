@@ -7,6 +7,7 @@
 package org.openl.binding.impl;
 
 import org.openl.IOpenBinder;
+import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
@@ -36,19 +37,21 @@ public class Binder implements IOpenBinder
 	ICastFactory castFactory;
 	INameSpacedVarFactory varFactory;
 	INameSpacedTypeFactory typeFactory;
+	private OpenL openl;
 
 	public Binder(
 		INodeBinderFactory nodeBinderFactory,
 		INameSpacedMethodFactory methodFactory,
 		ICastFactory castFactory,
 		INameSpacedVarFactory varFactory,
-		INameSpacedTypeFactory typeFactory)
+		INameSpacedTypeFactory typeFactory, OpenL openl)
 	{
 		this.nodeBinderFactory = nodeBinderFactory;
 		this.methodFactory = methodFactory;
 		this.castFactory = castFactory;
 		this.varFactory = varFactory;
 		this.typeFactory = typeFactory;
+		this.openl = openl;
 	}
 
 	public INameSpacedTypeFactory getTypeFactory()
@@ -58,7 +61,9 @@ public class Binder implements IOpenBinder
 
 	public IBindingContext makeBindingContext()
 	{
-		return new BindingContext(this, JavaOpenClass.VOID);
+		return new BindingContext(this, JavaOpenClass.VOID, openl);
+		
+		
 	}
 
 	public IBoundCode bind(IParsedCode parsedCode)

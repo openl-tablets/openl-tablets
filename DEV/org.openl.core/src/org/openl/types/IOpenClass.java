@@ -46,7 +46,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	public Iterator<IOpenMethod> methods();
 
 	/**
-	 * @return an iterator of all the fields
+	 * @return an iterator of all the fieldValues
 	 */
 	public Iterator<IOpenField> fields(); 
 
@@ -128,7 +128,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	 * and consider classes as java.util.Date, java.lang.String and java.lang.Class also primitive. In general,
 	 * a class is considered primitive if  
 	 * a) it can be easily serialized/deserialized to string 
-	 * b) does not have read/write fields in java.beans sense
+	 * b) does not have read/write fieldValues in java.beans sense
 	 * 
 	 * One of the use of the simple classes is that they provide "terminal" points
 	 * in object graph discovery. 

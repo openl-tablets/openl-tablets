@@ -59,7 +59,7 @@ public class OpenlTool
 		IBindingContextDelegator cxt)
 	{
 		if (cxt== null)
-		  cxt = new BindingContextDelegator(new BindingContext((Binder)openl.getBinder(), JavaOpenClass.VOID));
+		  cxt = new BindingContextDelegator(new BindingContext((Binder)openl.getBinder(), JavaOpenClass.VOID, openl));
 		
 		try
 		{

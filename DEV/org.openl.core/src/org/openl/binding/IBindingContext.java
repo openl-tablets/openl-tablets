@@ -8,6 +8,7 @@ package org.openl.binding;
 
 import java.util.List;
 
+import org.openl.OpenL;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
@@ -23,6 +24,9 @@ public interface IBindingContext extends ICastFactory
 {
 
     public void addError(ISyntaxError error);
+    
+    
+    OpenL getOpenL();
 
     // public void addAllErrors(Vector errors);
 
