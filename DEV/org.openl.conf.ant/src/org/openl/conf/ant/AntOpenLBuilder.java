@@ -149,7 +149,7 @@ public class AntOpenLBuilder implements IOpenLBuilder
 
       op.setParser(new Parser(conf));
 
-      op.setBinder(new Binder(conf, conf, conf, conf, conf));
+      op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
       op.setVm(new SimpleVM());
     } catch (Exception ex)
     {
