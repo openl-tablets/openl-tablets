@@ -5,6 +5,7 @@ import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProject;
+import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -66,6 +67,12 @@ public class JcrRulesClient {
         return ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeploymentNames();
     }
 
-    
+    public void addListener(RDeploymentListener l) throws RRepositoryException {
+        ProductionRepositoryFactoryProxy.getRepositoryInstance().addListener(l);
+    }
+
+    public void removeListener(RDeploymentListener l) throws RRepositoryException {
+        ProductionRepositoryFactoryProxy.getRepositoryInstance().removeListener(l);
+    }
 
 }
