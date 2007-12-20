@@ -235,6 +235,7 @@ public class DeploymentController {
                         + e.getMessage());
                 }
             }
+            item.setSelected(false);
         }
         return null;
     }
@@ -286,15 +287,15 @@ public class DeploymentController {
         for (int i = 0; i < items.size(); i++) {
             DeploymentDescriptorItem ddItem = items.get(i);
             ddItem.setMessages("");
-            
+
             Map<String, VersionRange> prMap = projects[i] = new HashMap<String, VersionRange>();
 
             String projectName = ddItem.getName();
-            
+
             if (!workspace.hasProject(projectName)) {
                 // no such project (was deleted?)
                 prMap.put(projectName, null);
-                
+
                 ddItem.setMessages(new StringBuilder().append(
                     "<span style='color:red;'>Cannot find project <b>")
                     .append(StringEscapeUtils.escapeHtml(projectName))
