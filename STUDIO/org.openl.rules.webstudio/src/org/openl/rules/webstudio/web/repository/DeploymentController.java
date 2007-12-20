@@ -21,6 +21,9 @@ import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
+import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryProject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,18 +49,24 @@ public class DeploymentController {
     private String projectName;
     private String version;
     private RepositoryTreeState repositoryTreeState;
+    private String cachedForProject;
 
     public synchronized List<DeploymentDescriptorItem> getItems() {
         UserWorkspaceDeploymentProject project = getSelectedProject();
         if (project == null) {
             return null;
         }
+
+        if (items != null && project.getName().equals(cachedForProject))
+            return items;
+
+        cachedForProject = project.getName();
         Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
         items = new ArrayList<DeploymentDescriptorItem>();
 
         for (ProjectDescriptor descriptor : descriptors) {
             DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor
-                        .getProjectName(), descriptor.getProjectVersion().getVersionName());
+                    .getProjectName(), descriptor.getProjectVersion());
             items.add(item);
         }
 
@@ -129,6 +138,7 @@ public class DeploymentController {
         if (newItem != null) {
             newDescriptors.add(newItem);
         }
+        items = null;
         return newDescriptors;
     }
 
@@ -234,15 +244,14 @@ public class DeploymentController {
         if (project != null) {
             try {
                 ProductionDeployer deployer = getRulesUserSession().getDeployer();
-                UserWorkspace workspace = getWorkspace();
+                DesignTimeRepository dtr = getWorkspace().getDesignTimeRepository();
 
                 Collection<ProjectDescriptor> projectDescriptors = project
                         .getProjectDescriptors();
                 Collection<Project> projects = new ArrayList<Project>();
 
                 for (ProjectDescriptor pd : projectDescriptors) {
-                    // todo: add support for version
-                    projects.add(workspace.getProject(pd.getProjectName()));
+                    projects.add(dtr.getProject(pd.getProjectName(), pd.getProjectVersion()));
                 }
 
                 DeployID id = getDeployID(project);
@@ -269,7 +278,8 @@ public class DeploymentController {
         if (items == null) {
             return;
         }
-        UserWorkspace workspace = getWorkspace();
+        final UserWorkspace workspace = getWorkspace();
+        final DesignTimeRepository dtr = workspace.getDesignTimeRepository();
 
         int n = items.size();
         Map<String, VersionRange>[] projects = new Map[n];
@@ -290,16 +300,14 @@ public class DeploymentController {
                     .append(StringEscapeUtils.escapeHtml(projectName))
                     .append("</b> in the repository</span>.").toString());
             } else {
-                UserWorkspaceProject workspaceProject = workspace.getProject(projectName);
+                RepositoryProject repositoryProject = dtr.getProject(projectName, ddItem.getVersion());
 
-                prMap.put(workspaceProject.getName(),
-                    new VersionRange(workspaceProject.getVersion(),
-                        workspaceProject.getVersion()));
+                prMap.put(repositoryProject.getName(), new VersionRange(repositoryProject.getVersion(),
+                        repositoryProject.getVersion()));
 
                 // fill project's dependencies
-                for (ProjectDependency dep : workspaceProject.getDependencies()) {
-                    prMap.put(dep.getProjectName(),
-                        new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
+                for (ProjectDependency dep : repositoryProject.getDependencies()) {
+                    prMap.put(dep.getProjectName(), new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
                 }
             }
         }

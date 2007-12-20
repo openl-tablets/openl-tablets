@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
+import org.openl.rules.repository.CommonVersion;
+
 import java.io.Serializable;
 
 
@@ -13,7 +15,9 @@ public class DeploymentDescriptorItem implements Serializable {
     private String name;
 
     /** Project version. */
-    private String version;
+    private CommonVersion version;
+
+    private String versionName;
 
     /** Messages associated with this entry. */
     private String messages;
@@ -23,14 +27,23 @@ public class DeploymentDescriptorItem implements Serializable {
 
     public DeploymentDescriptorItem() {}
 
-    public DeploymentDescriptorItem(String name, String version) {
+    public DeploymentDescriptorItem(String name, CommonVersion version) {
         this(name, version, null);
     }
 
-    public DeploymentDescriptorItem(String name, String version, String messages) {
+    public DeploymentDescriptorItem(String name, CommonVersion version, String messages) {
         this.name = name;
         this.version = version;
+        versionName = version.getVersionName();
         this.messages = messages;
+    }
+
+    public CommonVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(CommonVersion version) {
+        this.version = version;
     }
 
     public String getName() {
@@ -41,12 +54,12 @@ public class DeploymentDescriptorItem implements Serializable {
         this.name = name;
     }
 
-    public String getVersion() {
-        return version;
+    public String getVersionName() {
+        return versionName;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setVersionName(String version) {
+        versionName = version;
     }
 
     public String getMessages() {

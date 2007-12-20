@@ -7,6 +7,7 @@ import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 
 public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
     void createProject(String name) throws ProjectException;
@@ -29,4 +30,5 @@ public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
 
     void addWorkspaceListener(UserWorkspaceListener listener);
     boolean removeWorkspaceListener(UserWorkspaceListener listener);
+    DesignTimeRepository getDesignTimeRepository();
 }
