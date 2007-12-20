@@ -90,20 +90,7 @@ public class LocalUploadController {
         if (!baseFolder.isDirectory())
             throw new FileNotFoundException(baseFolder.getName());
 
-        RProjectBuilder builder = new RProjectBuilder(rulesUserSession.getUserWorkspace(), baseFolder.getName());
-
-        ArrayList<FileInputStream> openStreams = new ArrayList<FileInputStream>();
-
-        try {
-            addItems(builder, "", baseFolder, openStreams);
-            builder.checkIn();
-        } finally {
-            for (FileInputStream fis : openStreams) {
-                try {
-                    fis.close();
-                } catch (IOException e) {}
-            }
-        }
+        rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName());
 
     }
 

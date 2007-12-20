@@ -204,6 +204,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refresh();
     }
 
+    public void uploadLocalProject(String name) throws ProjectException {
+        createProject(name);
+        UserWorkspaceProjectImpl workspaceProject = (UserWorkspaceProjectImpl) getProject(name);
+        workspaceProject.checkOutLocal();
+        workspaceProject.checkIn();
+    }
+
     // --- protected
 
     protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
