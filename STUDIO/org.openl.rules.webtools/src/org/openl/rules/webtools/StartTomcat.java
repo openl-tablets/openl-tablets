@@ -140,13 +140,15 @@ public class StartTomcat {
                 } catch (ClassNotFoundException cnfe) {
                     // NOTICE: The desktop support is available beginning from JDK 1.6
                 }
+                
+                boolean isDesktopSupported = false;
 
                 if (desktop != null){
-                    Method isDesktopSupported = desktop.getMethod("isDesktopSupported", new Class[] {});
+                    Method isDesktopSupportedMethod = desktop.getMethod("isDesktopSupported", new Class[] {});
                     
-                    boolean isDesktopSupportedResult = (Boolean) isDesktopSupported.invoke(null, new Object[] {});
+                    isDesktopSupported = (Boolean) isDesktopSupportedMethod.invoke(null, new Object[] {});
                     
-                    if (isDesktopSupportedResult){
+                    if (isDesktopSupported){
                         Method getDesktop = desktop.getMethod("getDesktop", new Class[] {});
                         
                         Object desktopObject = getDesktop.invoke(null, new Object[] {});
@@ -155,7 +157,8 @@ public class StartTomcat {
                         
                         browse.invoke(desktopObject, new Object[] {new URI("http://localhost:8080/webstudio/")});
                     }
-                } else {
+                }
+                if (desktop == null || !isDesktopSupported) {
                     BrowserLauncher browserLauncher = new BrowserLauncher();
                     browserLauncher.openURLinBrowser("http://localhost:8080/webstudio/");
                 }
