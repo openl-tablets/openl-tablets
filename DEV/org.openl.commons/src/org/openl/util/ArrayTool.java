@@ -96,7 +96,7 @@ public class ArrayTool
     }
     else if(validIndexesSize>1)
     {
-      Class componentType = oldArray.getClass().getComponentType();
+      Class<?> componentType = oldArray.getClass().getComponentType();
       newArray = Array.newInstance(componentType, oldSize+validIndexesSize);
 
       for(int i=0;i<validIndexesSize;i++)
@@ -228,7 +228,7 @@ public class ArrayTool
     return newArray;
   }
 
-  public static Object zeroArray(Class c)
+  public static Object zeroArray(Class<?> c)
   {
     if(c==String.class)
       return ZERO_STRING;
@@ -249,7 +249,7 @@ public class ArrayTool
     int oldSize = Array.getLength(oldArray);
     if (oldSize >= newSize)
       return oldArray;
-    Class componentType = oldArray.getClass().getComponentType();
+    Class<?> componentType = oldArray.getClass().getComponentType();
     Object newArray = Array.newInstance(componentType, newSize);
     System.arraycopy(oldArray,0,  newArray,0, oldSize);
     return newArray;
@@ -260,7 +260,7 @@ public class ArrayTool
     int oldSize = Array.getLength(oldArray);
     if (oldSize == newSize)
       return oldArray;
-    Class componentType = oldArray.getClass().getComponentType();
+    Class<?> componentType = oldArray.getClass().getComponentType();
     Object newArray = Array.newInstance(componentType, newSize);
     System.arraycopy(oldArray,0,  newArray,0, Math.min(oldSize, newSize));
     return newArray;
@@ -311,9 +311,9 @@ public class ArrayTool
    * Returns true if array container contains all the elements of array testArray
    */
 
-  public static boolean containsAll(Object container, Object testArray )
+  public static <T> boolean containsAll(T[] container, T[] testArray )
   {
-     Iterator it = iterator(testArray);
+     Iterator<T> it = iterator(testArray);
      while(it.hasNext())
        if(!contains(container, it.next()))
          return false;
@@ -324,9 +324,9 @@ public class ArrayTool
    * Returns true if both array1 and array2 have at least one the same element
    */
 
-  public static boolean intersects(Object array1, Object array2)
+  public static <T> boolean intersects(T[] array1, T[] array2)
   {
-     Iterator it = iterator(array1);
+     Iterator<T> it = iterator(array1);
      while(it.hasNext())
        if(contains(array2, it.next()))
          return true;
@@ -337,7 +337,7 @@ public class ArrayTool
    * Returns true if containsAll(array1, array2) && containsAll(array2, array1)
    */
 
-  public static boolean haveSameElements(Object array1, Object array2)
+  public static <T> boolean haveSameElements(T[] array1, T[] array2)
   {
     return containsAll(array1, array2) && containsAll(array2, array1);
   }
@@ -371,9 +371,9 @@ public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor
     return dstArray;
   }
 
-  public static Iterator iterator(Object array)
+  public static <T> Iterator<T> iterator(T[] array)
   {
-    return new ArrayIterator(array);
+    return new ArrayIterator<T>(array);
   }
 
   public static Enumeration enumeration(Object array)
@@ -407,13 +407,13 @@ public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor
 
 
 
-  static class ArrayIterator implements Iterator<Object>
+  static class ArrayIterator<T> implements Iterator<T>
   {
     int _index = 0;
     int _size;
-    Object _array;
+    T[] _array;
 
-    ArrayIterator(Object array)
+    ArrayIterator(T[] array)
     {
       _size = Array.getLength(array);
       _array = array;
@@ -424,9 +424,9 @@ public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor
       return _index < _size;
     }
 
-    public Object next()
+    public T next()
     {
-      return Array.get(_array, _index++);
+      return _array[_index++];
     }
 
     public void remove()
@@ -438,7 +438,7 @@ public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor
 
 
 
-  static public Object[] toArray(Vector v, Class c)
+  static  public  <T> Object[] toArray(List<T> v, Class<?> c)
   {
     Object[] ary = (Object[])Array.newInstance(c, v.size());
     return v.toArray(ary);
@@ -480,7 +480,7 @@ public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor
     else if (obj instanceof String)
       buf.append('"').append(obj).append('"');
     else if (obj instanceof Class)
-      buf.append( ((Class)obj).getName() );
+      buf.append( ((Class<?>)obj).getName() );
     else if (obj.getClass().isArray())
       printArray(obj,buf,maxLength);
     else
@@ -534,7 +534,7 @@ public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor
   /**
    * Returns a class for the array of the componentType with a given dimensions.
    */
-  public static Class getArrayClass(Class componentType, int dimensions)
+  public static Class<?> getArrayClass(Class<?> componentType, int dimensions)
   {
     if(dimensions == 0)
       return componentType;
@@ -561,8 +561,8 @@ public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor
     if (obj1 == null || obj2 == null)
       return obj1 == obj2;
 
-    Class c1 = obj1.getClass();
-    Class c2 = obj2.getClass();
+    Class<?> c1 = obj1.getClass();
+    Class<?> c2 = obj2.getClass();
     if (c1 != c2)
       return false;
 
@@ -581,13 +581,12 @@ public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor
 
       return true;
     }
-    else
-      return obj1.equals(obj2);
+    return obj1.equals(obj2);
   }
   
-  public static int dimensionOfArray(Object ary, Class baseClass)
+  public static int dimensionOfArray(Object ary, Class<?> baseClass)
   {
-  	Class aryClass = ary.getClass();
+  	Class<?> aryClass = ary.getClass();
   	
   	int dim = 0;
   	while( aryClass != baseClass && aryClass.isArray())

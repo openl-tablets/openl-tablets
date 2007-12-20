@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class PropertiesProxy implements InvocationHandler
 {
-  public static Object newProxyInstance(Properties properties, Class ifc)
+  public static Object newProxyInstance(Properties properties, Class<?> ifc)
   {
     Object inst = Proxy.newProxyInstance(ifc.getClassLoader(),
         new Class[]{ifc}, new PropertiesProxy(properties));
@@ -23,12 +23,12 @@ public class PropertiesProxy implements InvocationHandler
     this.properties = properties;
   }
 
-  Object fromString(String value, Class type)
+  Object fromString(String value, Class<?> type)
   {
     return null;
   }
 
-  Object getProperty(String name, Class type)
+  Object getProperty(String name, Class<?> type)
   {
     String value = properties.getProperty(name);
 
