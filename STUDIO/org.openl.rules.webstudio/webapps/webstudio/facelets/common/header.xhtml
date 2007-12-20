@@ -4,21 +4,19 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <div class="masthead">
-    <f:verbatim>&amp;nbsp;</f:verbatim>
-  </div>
+  <div class="masthead"><!--  --></div>
 
   <h:graphicImage styleClass="logo" url="/images/print-logo.gif"/>
 
   <div id="iconbar">
     <ui:insert name="iconbar">
-    <h:commandLink class="actionButton" action="#{repositoryTreeController.refreshTree}" title="Refresh">
-      <h:graphicImage url="/images/refresh.gif" styleClass="actionImage" />
-    </h:commandLink>
+      <h:commandLink class="actionButton" action="#{repositoryTreeController.refreshTree}" title="Refresh">
+        <h:graphicImage url="/images/refresh.gif" styleClass="actionImage" />
+      </h:commandLink>
 
-    <h:commandLink class="actionButton" action="#{studioOpener.openStudio}" title="Open LWS in WebStudio">
-      <h:graphicImage url="/images/openLWSinWebStudio.gif" styleClass="actionImage" />
-    </h:commandLink>
+      <h:commandLink class="actionButton" action="#{studioOpener.openStudio}" title="Open LWS in WebStudio">
+        <h:graphicImage url="/images/openLWSinWebStudio.gif" styleClass="actionImage" />
+      </h:commandLink>
     </ui:insert>
   </div>
 
