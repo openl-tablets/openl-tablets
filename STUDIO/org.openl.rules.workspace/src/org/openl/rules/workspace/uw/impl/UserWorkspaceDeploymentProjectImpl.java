@@ -180,7 +180,9 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public boolean isOpenedOtherVersion() {
-        if (!isOpened()) return false;
+        if (isCheckedOut()) return false;
+
+        if (activeProjectVersion == dtrDProject) return false;
 
         ProjectVersion activeVersion = activeProjectVersion.getVersion();
         ProjectVersion max = dtrDProject.getVersion();
@@ -193,11 +195,23 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void open() throws ProjectException {
+        if (isOpened()) {
+            close();
+        }
+
         activeProjectVersion = dtrDProject;
         refresh();
     }
 
     public void openVersion(CommonVersion version) throws ProjectException {
+        if (isCheckedOut()) {
+            throw new ProjectException("Deployment Project ''{0}'' is checked-out", null, getName());
+        }
+
+        if (isOpened()) {
+            close();
+        }
+
         // open specified version
         activeProjectVersion = userWorkspace.getDDProjectFor(dtrDProject, version);
         refresh();
