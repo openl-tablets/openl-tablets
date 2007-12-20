@@ -13,6 +13,7 @@ import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
+import org.openl.util.Log;
 
 public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
     private String name;
@@ -76,10 +77,10 @@ public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
         File f = getLocation();
         if (!f.exists()) {
             // TODO log -- nothing to remove
-            ;
+            Log.debug("No file ''{0}'', nothing to remove.", f.getAbsolutePath());
         } else if (!f.delete()) {
             // TODO log -- cannot delete file
-            ;
+            Log.warn("Failed to remove file ''{0}''.", f.getAbsolutePath());
         }
     }
 

@@ -16,11 +16,13 @@ import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
 import org.openl.rules.workspace.lw.LocalProjectResource;
 import org.openl.rules.workspace.props.PropertyException;
+import org.openl.util.Log;
 
 public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements LocalProjectFolder {
     public static final String PROPERTIES_FOLDER = ".studioProps";
     public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
-    public static final String FOLDER_PROPERTIES_FILE = "folder.properties";
+    public static final String FOLDER_PROPERTIES_FILE = "folder.props";
+    public static final String RESOURCE_PROPERTIES_EXT = ".props";
 
     private Map<String, LocalProjectArtefact> artefacts;
 
@@ -183,6 +185,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
         if (!location.exists()) {
             if (!location.mkdirs()) {
                 // TODO exception?
+                Log.error("Cannot create folder ''{0}''.", location.getAbsolutePath());
             }
         }
 
