@@ -81,7 +81,10 @@ public class RepositoryTreeState {
         if (root != null) {
             return;
         }
-        log.debug("Starting buildTree()");
+        if (log.isDebugEnabled()) {
+            log.debug("Starting buildTree()");
+        }
+
         root = new TreeRepository("", "", "root");
 
         String rpName = "Rules Projects";
@@ -123,7 +126,9 @@ public class RepositoryTreeState {
             prj.setDataBean(project);
             deploymentRepository.add(prj);
         }
-        log.debug("Finishing buildTree()");
+        if (log.isDebugEnabled()) {
+            log.debug("Finishing buildTree()");
+        }
     }
 
     public void processSelection(NodeSelectedEvent event) {
@@ -157,19 +162,14 @@ public class RepositoryTreeState {
         root = null;
     }
 
-    public void invalidateSelectedNode() {
-        selectedNode = null;
-    }
-
-    public void invalidateTreeAndSelectedNode() {
-        root = null;
+    public void invalidateSelection() {
         selectedNode = null;
     }
 
     /**
-     * Updates repositoryTreeState.selectedNode.
+     * Refreshes repositoryTreeState.selectedNode.
      */
-    public void refreshSelection() {
+    public void refreshSelectedNode() {
         Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath()
                 .getSegments().iterator();
         TreeNode currentNode = getRulesRepository();
@@ -183,7 +183,7 @@ public class RepositoryTreeState {
     }
 
     /**
-     * Updates repositoryTreeState.selectedNode value after delete.
+     * Moves selection to the parent of the current selected node.
      */
     public void moveSelectionToParentNode() {
         Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath()

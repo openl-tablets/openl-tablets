@@ -170,18 +170,17 @@ public class RepositoryTreeController {
                 .getDataBean();
         try {
             projectArtefact.delete();
+            repositoryTreeState.invalidateTree();
             if (projectArtefact instanceof UserWorkspaceProjectImpl) {
                 UserWorkspaceProjectImpl project = (UserWorkspaceProjectImpl) projectArtefact;
                 if (project.isLocalOnly()) {
-                    repositoryTreeState.invalidateTreeAndSelectedNode();
+                    repositoryTreeState.invalidateSelection();
                     return null;
                 } else {
-                    repositoryTreeState.invalidateTree();
-                    repositoryTreeState.refreshSelection();
+                    repositoryTreeState.refreshSelectedNode();
                     return null;
                 }
             }
-            repositoryTreeState.invalidateTree();
             repositoryTreeState.moveSelectionToParentNode();
         } catch (ProjectException e) {
             log.error("Failed to delete node.", e);
@@ -200,7 +199,8 @@ public class RepositoryTreeController {
 
         try {
             projectArtefact.getArtefact(childName).delete();
-            repositoryTreeState.invalidateTreeAndSelectedNode();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.invalidateSelection();
         } catch (ProjectException e) {
             log.error("Error deleting element.", e);
             FacesContext.getCurrentInstance()
@@ -272,7 +272,8 @@ public class RepositoryTreeController {
     public String eraseProject() {
         UserWorkspaceProject project = getSelectedProject();
         if (!project.isDeleted()) {
-            repositoryTreeState.invalidateTreeAndSelectedNode();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.invalidateSelection();
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
@@ -282,10 +283,12 @@ public class RepositoryTreeController {
 
         try {
             project.erase();
-            repositoryTreeState.invalidateTreeAndSelectedNode();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.invalidateSelection();
         } catch (ProjectException e) {
             log.error("Failed to erase project.", e);
-            repositoryTreeState.invalidateTreeAndSelectedNode();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.invalidateSelection();
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
@@ -366,7 +369,7 @@ public class RepositoryTreeController {
         try {
             getSelectedProject().close();
             repositoryTreeState.invalidateTree();
-            repositoryTreeState.refreshSelection();
+            repositoryTreeState.refreshSelectedNode();
         } catch (ProjectException e) {
             log.error("Failed to close project.", e);
             FacesContext.getCurrentInstance()
@@ -513,7 +516,8 @@ public class RepositoryTreeController {
     }
 
     public String refreshTree() {
-        repositoryTreeState.invalidateTreeAndSelectedNode();
+        repositoryTreeState.invalidateTree();
+        repositoryTreeState.invalidateSelection();
         return null;
     }
 
