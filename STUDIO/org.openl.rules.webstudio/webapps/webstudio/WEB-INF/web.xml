@@ -14,10 +14,9 @@
     </description>
     <param-name>javax.faces.CONFIG_FILES</param-name>
     <param-value>
-      /WEB-INF/managed-beans.xml,
-      /WEB-INF/navigation.xml,
-      /WEB-INF/managed-beans-jcr.xml,
-      /WEB-INF/navigation-jcr.xml
+      /WEB-INF/faces/faces-config.xml,
+      /WEB-INF/faces/faces-repository.xml,
+      /WEB-INF/faces/faces-studio.xml
     </param-value>
   </context-param>
 
