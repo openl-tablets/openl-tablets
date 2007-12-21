@@ -253,9 +253,9 @@ div#iconbar {
   display: block;
   float: right;
   height: 16px;
-  position: absolute;
-  right: 150px;
-  top: 35px;
+  position: relative;
+  right: 50px;
+  top: 0px;
 }
 
 #iconbar a {
