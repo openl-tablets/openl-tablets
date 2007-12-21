@@ -72,8 +72,8 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         folder1File2.addProperty(new PropertyImpl("p6", now));
         localProject.save();
 
-        final String folderPropFolder = LocalProjectFolderImpl
-                .PROPERTIES_FOLDER + File.separator + LocalProjectFolderImpl.FOLDER_PROPERTIES_FOLDER;
+        final String folderPropFolder = FolderHelper
+                .PROPERTIES_FOLDER + File.separator + FolderHelper.FOLDER_PROPERTIES_FOLDER;
         assertTrue(folderPropFolder + " directory was not created in project root folder",
                 new File(localProject.getLocation(), folderPropFolder).isDirectory());
         assertTrue(folderPropFolder + " directory was not created in folder1",
@@ -107,7 +107,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         localProject.save();
         LocalProject project = getFreshWorkspace().getProject(PROJECT_NAME);
         try {
-            project.getArtefact(LocalProjectFolderImpl.PROPERTIES_FOLDER);
+            project.getArtefact(FolderHelper.PROPERTIES_FOLDER);
             fail("Exception not thrown");
         } catch (ProjectException e) {
             // ok
