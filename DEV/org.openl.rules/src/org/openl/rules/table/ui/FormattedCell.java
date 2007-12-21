@@ -5,6 +5,8 @@ package org.openl.rules.table.ui;
 
 import org.openl.rules.table.ICellInfo;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.xls.XlsDateFormat;
+import org.openl.util.Log;
 
 /**
  * @author snshor
@@ -62,6 +64,20 @@ public class FormattedCell  implements ICellInfo
 		public boolean isTopLeft()
 		{
 			return delegate.isTopLeft();
+		}
+
+		public void setFilter(IGridFilter filter)
+		{
+			if (filter != null)
+				Log.warn("More than one filter set on cell");
+			this.filter = filter;
+		}
+		
+		IGridFilter filter;
+
+		public IGridFilter getFilter()
+		{
+			return filter;
 		}
 	
 

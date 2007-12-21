@@ -3,6 +3,7 @@
  */
 package org.openl.rules.table.xls;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -55,8 +56,21 @@ public class XlsDateFormat extends XlsFormat
 		Date date = (Date)cell.value;
 		
 		cell.content = format.format(date);
+		cell.setFilter(this);
 		
 		return cell;
+	}
+
+	public Object parse(String value)
+	{
+		try
+		{
+			return format.parse(value);
+		} catch (ParseException e)
+		{
+			Log.warn("Could not parse Date: " + value, e);
+			return value;
+		}
 	}
 
 

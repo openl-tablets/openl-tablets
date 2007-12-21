@@ -13,6 +13,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICellInfo;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 
 public class WordGridModel implements IGrid
@@ -356,6 +357,12 @@ public class WordGridModel implements IGrid
 	public int getColumnWidth(int col)
 	{
 		return 0;
+	}
+
+	public FormattedCell getFormattedCell(int column, int row)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

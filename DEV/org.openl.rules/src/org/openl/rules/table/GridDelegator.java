@@ -5,6 +5,7 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 
 /**
@@ -135,6 +136,11 @@ public class GridDelegator implements IGrid
 	public int getColumnWidth(int col)
 	{
 		return this.delegate.getColumnWidth(col);
+	}
+
+	public FormattedCell getFormattedCell(int column, int row)
+	{
+		return delegate.getFormattedCell(column, row);
 	}
 	
 	
