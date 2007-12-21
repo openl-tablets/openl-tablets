@@ -4,6 +4,7 @@ import org.openl.util.Log;
 
 import java.io.FileFilter;
 import java.io.File;
+import java.io.FilenameFilter;
 
 /**
  * Folder (File System) Helper for Local Workspace.
@@ -12,7 +13,13 @@ import java.io.File;
  *
  */
 public class FolderHelper {
+    public static final String PROPERTIES_FOLDER = ".studioProps";
+    public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
+    public static final String FOLDER_PROPERTIES_FILE = "folder.props";
+    public static final String RESOURCE_PROPERTIES_EXT = ".props";
+
     private static FileFilter foldersOnly;
+    private static FilenameFilter localFilesFilter;
 
     public static FileFilter getFoldersOnlyFilter() {
         if (foldersOnly == null) {
@@ -20,6 +27,14 @@ public class FolderHelper {
         }
 
         return foldersOnly;
+    }
+    
+    public static FilenameFilter getLocalFilesFilter() {
+        if (localFilesFilter == null) {
+            localFilesFilter = new LocalFilesFilter();
+        }
+
+        return localFilesFilter;
     }
 
     public static boolean clearFolder(File folder) {
@@ -83,6 +98,10 @@ public class FolderHelper {
         return new File(location, name);
     }
 
+    public static File getFolderPropertiesFile(File propFolder) {
+        return new File(propFolder, FOLDER_PROPERTIES_FOLDER + File.separator + FOLDER_PROPERTIES_FILE);
+    }
+
     public static boolean checkOrCreateFolder(File location) {
         if (location.exists()) {
             // ok
@@ -96,6 +115,15 @@ public class FolderHelper {
         return child != null && (child.equals(parent) || isParent(parent, child.getParentFile()));
     }
 
+    private static boolean isSpecialName(String name) {
+        if (".svn".equals(name)) return true;
+        if ("CVS".equals(name)) return true;
+
+        if (PROPERTIES_FOLDER.equals(name)) return true;
+
+        return false;
+    }
+
     /**
      * Lists folders only.
      */
@@ -105,8 +133,7 @@ public class FolderHelper {
                 String name = pathname.getName();
 
                 // reject special directories
-                if (".svn".equalsIgnoreCase(name)) return false;
-                if (".cvs".equalsIgnoreCase(name)) return false;
+                if (isSpecialName(name)) return false;
 
                 // accept directory
                 return true;
@@ -115,4 +142,14 @@ public class FolderHelper {
             }
         }
     }
+
+    /**
+     * Lists folders and files, excluding special folders
+     */
+    private static class LocalFilesFilter implements FilenameFilter {
+        public boolean accept(File dir, String name) {
+            // reject special directories
+            return !(isSpecialName(name));
+        }
+    };
 }
