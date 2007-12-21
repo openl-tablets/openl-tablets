@@ -28,6 +28,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
+import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectImpl;
 
 import java.io.FileInputStream;
 
@@ -150,7 +151,8 @@ public class RepositoryTreeController {
                     errorMessage = e.getMessage();
                 }
             } else {
-                errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
+                errorMessage = "Folder name '" + folderName + "' is invalid. "
+                    + NameChecker.BAD_NAME_MSG;
             }
         }
 
@@ -168,6 +170,13 @@ public class RepositoryTreeController {
                 .getDataBean();
         try {
             projectArtefact.delete();
+            if (projectArtefact instanceof UserWorkspaceProjectImpl) {
+                UserWorkspaceProjectImpl project = (UserWorkspaceProjectImpl) projectArtefact;
+                if (!project.isLocalOnly()) {
+                    repositoryTreeState.invalidateTree();
+                    return null;
+                }
+            }
             repositoryTreeState.invalidateTreeAndSelectedNode();
         } catch (ProjectException e) {
             log.error("Failed to delete node.", e);
@@ -249,7 +258,8 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Cannot undelete project '" + project.getName() + "'.", e.getMessage()));
+                        "Cannot undelete project '" + project.getName() + "'.",
+                        e.getMessage()));
         }
         return null;
     }
@@ -410,7 +420,8 @@ public class RepositoryTreeController {
         } else if (StringUtils.isBlank(newProjectName)) {
             errorMessage = "Project name is empty.";
         } else if (!NameChecker.checkName(newProjectName)) {
-            errorMessage = "Project name '" + newProjectName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
+            errorMessage = "Project name '" + newProjectName + "' is invalid. "
+                + NameChecker.BAD_NAME_MSG;
         } else if (userWorkspace.hasProject(newProjectName)) {
             boolean isLocalOnly;
 
@@ -423,6 +434,7 @@ public class RepositoryTreeController {
             if (!isLocalOnly) {
                 errorMessage = "Project '" + newProjectName + "' already exists.";
             }
+
             // it is possible to copy into the repository local only project (publish it)
         }
 
@@ -467,7 +479,8 @@ public class RepositoryTreeController {
         } else if (StringUtils.isBlank(newProjectName)) {
             errorMessage = "Project name is empty.";
         } else if (!NameChecker.checkName(newProjectName)) {
-            errorMessage = "Project name '" + newProjectName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
+            errorMessage = "Project name '" + newProjectName + "' is invalid. "
+                + NameChecker.BAD_NAME_MSG;
         } else if (userWorkspace.hasDDProject(newProjectName)) {
             errorMessage = "Deployment project '" + newProjectName + "' already exists.";
         }
