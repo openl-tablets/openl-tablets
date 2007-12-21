@@ -24,6 +24,11 @@ import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.util.Log;
 
+/**
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /** Rules Repository */
     private RRepository rulesRepository;
@@ -44,8 +49,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         List<RepositoryProject> result = new LinkedList<RepositoryProject>();
 
         try {
-            for (RProject rp : rulesRepository.getProjects()) {
-                String name = rp.getName();
+            for (RProject ralProject : rulesRepository.getProjects()) {
+                String name = ralProject.getName();
                 RepositoryProject cached = projects.get(name);
 
                 if (cached != null) {
@@ -53,7 +58,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     result.add(cached);
                 } else {
                     // get from the repository
-                    RepositoryProject project = wrapProject(rp, true);
+                    RepositoryProject project = wrapProject(ralProject, true);
                     result.add(project);
                 }
             }
@@ -75,8 +80,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         try {
-            RProject rp = rulesRepository.getProject(name);
-            return wrapProject(rp, true);
+            RProject ralProject = rulesRepository.getProject(name);
+            return wrapProject(ralProject, true);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}''.", e, name);
         }
@@ -87,14 +92,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         boolean inCache = (cached != null);
 
         try {
-            boolean repHas = rulesRepository.hasProject(name);
-            if (repHas != inCache) {
-                if (!repHas) {
+            boolean inRAL = rulesRepository.hasProject(name);
+            if (inRAL != inCache) {
+                if (!inRAL) {
                     // ???
                     projects.remove(name);
                 }
             }
-            return repHas;
+            return inRAL;
         } catch (RRepositoryException e) {
             Log.error("Failed to check project ''{0}'' in the repository.", e, name);
         }
@@ -113,24 +118,26 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
-        RepositoryProject rp = getProject(projectName);
+        RepositoryProject ralProject = getProject(projectName);
 
         ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
-        return rp.getArtefactByPath(pathInProject);
+        return ralProject.getArtefactByPath(pathInProject);
     }
 
     public RepositoryProject getProject(String name, CommonVersion version) throws RepositoryException {
         try {
-            RProject rp = rulesRepository.getProject(name);
-            RProject oldProject = rp.getProjectVersion(version);
+            RProject ralProject = rulesRepository.getProject(name);
+            RProject oldProject = ralProject.getProjectVersion(version);
+
+            // do not cache old version of project
             return wrapProject(oldProject, false);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''.", e, name, version.getVersionName());
         }
     }
 
-    public void updateProject(Project project, WorkspaceUser user, int major, int minor) throws RepositoryException {
-        String name = project.getName();
+    public void updateProject(Project sourceProject, WorkspaceUser user, int major, int minor) throws RepositoryException {
+        String name = sourceProject.getName();
         RepositoryProject dest = getProject(name);
 
         if (!dest.isLocked()) {
@@ -155,7 +162,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 project4Write.riseVersion(major, minor);
             }
 
-            project4Write.commit(project, user);
+            project4Write.commit(sourceProject, user);
         } catch (Exception e) {
             throw new RepositoryException("Failed to update project ''{0}''.", e, name);
         } finally {
@@ -228,8 +235,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     public RepositoryDDProject getDDProject(String name, CommonVersion version) throws RepositoryException {
         try {
-            RDeploymentDescriptorProject p = rulesRepository.getDDProject(name);
-            RDeploymentDescriptorProject oldProject = p.getProjectVersion(version);
+            RDeploymentDescriptorProject ralDeploymentProject = rulesRepository.getDDProject(name);
+            RDeploymentDescriptorProject oldProject = ralDeploymentProject.getProjectVersion(version);
             return wrapDDProject(oldProject);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''.", e, name, version.getVersionName());
@@ -240,9 +247,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         LinkedList<RepositoryDDProject> result = new LinkedList<RepositoryDDProject>();
 
         try {
-            for (RDeploymentDescriptorProject rddp : rulesRepository.getDDProjects()) {
-                RepositoryDDProject ddp = wrapDDProject(rddp);
-                result.add(ddp);
+            for (RDeploymentDescriptorProject ralDeploymentProject : rulesRepository.getDDProjects()) {
+                RepositoryDDProject dtrDeploymentProject = wrapDDProject(ralDeploymentProject);
+                result.add(dtrDeploymentProject);
             }
         } catch (RRepositoryException e) {
             // TODO: re throw exception ?
@@ -253,19 +260,19 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     // --- private
 
-    private RepositoryProjectImpl wrapProject(RProject rp, boolean cacheIt) {
-        String name = rp.getName();
-        ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
+    private RepositoryProjectImpl wrapProject(RProject ralRulesProject, boolean cacheIt) {
+        String name = ralRulesProject.getName();
+        ArtefactPath projectPath = new ArtefactPathImpl(new String[]{name});
 
-        RepositoryProjectImpl p = new RepositoryProjectImpl(rp, ap);
+        RepositoryProjectImpl dtrRulesProject = new RepositoryProjectImpl(ralRulesProject, projectPath);
         if (cacheIt) {
-            projects.put(name, p);
+            projects.put(name, dtrRulesProject);
         }
 
-        return p;
+        return dtrRulesProject;
     }
 
-    private RepositoryDDProject wrapDDProject(RDeploymentDescriptorProject rddp) {
-        return new RepositoryDeploymentDescriptorProjectImpl(rddp);
+    private RepositoryDDProject wrapDDProject(RDeploymentDescriptorProject ralDeploymentProject) {
+        return new RepositoryDeploymentDescriptorProjectImpl(ralDeploymentProject);
     }
 }
