@@ -39,13 +39,13 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             
             return isMarked;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Check Marked4Deletion", e);
+            throw new RRepositoryException("Failed to Check Marked4Deletion.", e);
         }
     }
 
     public void delete(CommonUser user) throws RRepositoryException {
         if (isMarked4Deletion()) {
-            throw new RRepositoryException("Project is already marked for deletion", null);
+            throw new RRepositoryException("Project ''{0}'' is already marked for deletion.", null, getName());
         }
         
         try {
@@ -55,13 +55,13 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             n.setProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION, true);
             commit(user);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Mark project for Deletion", e);
+            throw new RRepositoryException("Failed to Mark project ''{0}'' for Deletion.", e, getName());
         }
     }
 
     public void undelete(CommonUser user) throws RRepositoryException {
         if (!isMarked4Deletion()) {
-            throw new RRepositoryException("Project is not marked for deletion", null);
+            throw new RRepositoryException("Project ''{0}'' is not marked for deletion.", null, getName());
         }
 
         try {
@@ -71,7 +71,7 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             n.setProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION, (Value)null, PropertyType.BOOLEAN);
             commit(user);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Unmark project from Deletion", e);
+            throw new RRepositoryException("Failed to Unmark project ''{0}'' from Deletion.", e, getName());
         }
     }
 
@@ -80,12 +80,12 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             Node parent = node().getParent();
             // ALL IS LOST
             // TODO: add logging here
-            System.out.println("! Erasing project " + getName() + " on behalf of " + user.getUserName());
+            System.out.println("! Erasing project '" + getName() + "' on behalf of " + user.getUserName());
             
             super.delete();
             commitParent(parent);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to delete project {0}", e, getName());
+            throw new RRepositoryException("Failed to delete project ''{0}''.", e, getName());
         }        
     }
     
@@ -105,7 +105,7 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             checkInAll(n, user);
             commitParent(n.getParent());
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to checkin project {0}", e, getName());
+            throw new RRepositoryException("Failed to checkin project ''{0}''.", e, getName());
         }        
     }
     

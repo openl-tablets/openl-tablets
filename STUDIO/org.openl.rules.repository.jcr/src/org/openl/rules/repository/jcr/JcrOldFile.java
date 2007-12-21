@@ -24,7 +24,7 @@ public class JcrOldFile extends JcrOldEntity implements RFile {
 
             return result;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Content", e);
+            throw new RRepositoryException("Failed to get Content.", e);
         }
     }
 

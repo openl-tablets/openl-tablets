@@ -68,10 +68,10 @@ public class JcrLock implements RLock {
             if (node.hasProperty(JcrNT.PROP_LOCKED_BY)) {
                 // already locked
                 String whoLocked = node.getProperty(JcrNT.PROP_LOCKED_BY).getString();
-                throw new RRepositoryException("Already locked by {0}", null, whoLocked);
+                throw new RRepositoryException("Already locked by ''{0}''.", null, whoLocked);
             }
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot check lock", e);
+            throw new RRepositoryException("Cannot check lock.", e);
         }        
 
         try {
@@ -79,7 +79,7 @@ public class JcrLock implements RLock {
             node.setProperty(JcrNT.PROP_LOCKED_AT, currTime());
             node.save();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to set lock", e);
+            throw new RRepositoryException("Failed to set lock.", e);
         }        
     }
     
@@ -94,10 +94,10 @@ public class JcrLock implements RLock {
             String whoUnlocks = user.getUserName();
 
             if (!whoLocked.equals(whoUnlocks)) {
-                throw new RRepositoryException("Lock that was set by {0} cannot be removed by {1}", null, whoLocked, whoUnlocks);
+                throw new RRepositoryException("Lock that was set by ''{0}'' cannot be removed by ''{1}''.", null, whoLocked, whoUnlocks);
             }
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot check lock", e);
+            throw new RRepositoryException("Cannot check lock.", e);
         }        
         
         try {
@@ -105,7 +105,7 @@ public class JcrLock implements RLock {
             node.setProperty(JcrNT.PROP_LOCKED_AT, (Calendar)null);
             node.save();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to remove lock", e);
+            throw new RRepositoryException("Failed to remove lock.", e);
         }        
     }
     

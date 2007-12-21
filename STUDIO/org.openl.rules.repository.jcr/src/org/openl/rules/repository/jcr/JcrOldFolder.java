@@ -69,7 +69,7 @@ public class JcrOldFolder extends JcrOldEntity implements RFolder {
                 }
             }
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to list nodes", e);
+            throw new RRepositoryException("Failed to list nodes.", e);
         }
     }
 }

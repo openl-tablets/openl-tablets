@@ -54,7 +54,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
         try {
             buildRelPath(sb, node());
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get relative path", e);
+            throw new RRepositoryException("Failed to get relative path.", e);
         }
 
         return sb.toString();
@@ -68,7 +68,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
         try {
             NodeUtil.smartCheckout(node(), false);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Internal error", e);
+            throw new RRepositoryException("Internal error.", e);
         }
 
         if (hasProperty(name)) {
@@ -83,20 +83,20 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
         RProperty rp = properties.get(name);
 
         if (rp == null) {
-            throw new RRepositoryException("No such property {0}", null, name);
+            throw new RRepositoryException("No such property ''{0}''.", null, name);
         }
 
         Node n = node();
         try {
             NodeUtil.smartCheckout(n, false);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Internal error", e);
+            throw new RRepositoryException("Internal error.", e);
         }
 
         try {
             n.getProperty(name).remove();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot remove property {0}", e, name);
+            throw new RRepositoryException("Cannot remove property ''{0}''.", e, name);
         }
         properties.remove(name);
     }
@@ -109,7 +109,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
         RProperty rp = properties.get(name);
 
         if (rp == null) {
-            throw new RRepositoryException("No such property {0}", null, name);
+            throw new RRepositoryException("No such property ''{0}''.", null, name);
         }
 
         return rp;
@@ -139,7 +139,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             n.setProperty(JcrNT.PROP_EFFECTIVE_DATE, c);
             effectiveDate = date;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot set effectiveDate", e);
+            throw new RRepositoryException("Cannot set effectiveDate.", e);
         }
     }
 
@@ -155,7 +155,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             n.setProperty(JcrNT.PROP_EXPIRATION_DATE, c);
             expirationDate = date;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot set expirationDate", e);
+            throw new RRepositoryException("Cannot set expirationDate.", e);
         }
     }
 
@@ -170,7 +170,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             n.setProperty(JcrNT.PROP_LINE_OF_BUSINESS, lineOfBusiness);
             this.lineOfBusiness = lineOfBusiness;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot set LOB", e);
+            throw new RRepositoryException("Cannot set LOB.", e);
         }
     }
 

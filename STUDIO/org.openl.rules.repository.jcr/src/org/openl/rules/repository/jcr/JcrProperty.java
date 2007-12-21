@@ -54,7 +54,7 @@ public class JcrProperty implements RProperty {
                 n.setProperty(name, value.toString());
             }
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot create property {0}", e, name);
+            throw new RRepositoryException("Cannot create property ''{0}''.", e, name);
         }
     }
 
@@ -92,7 +92,7 @@ public class JcrProperty implements RProperty {
             }
             this.value = value;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot set value for {0}", e, name);
+            throw new RRepositoryException("Cannot set value for ''{0}''.", e, name);
         }
     }
 

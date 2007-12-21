@@ -36,6 +36,6 @@ public class JcrOldProjectDescriptor implements RProjectDescriptor {
     // --- protected
 
     protected void notSupported() throws RRepositoryException {
-        throw new RRepositoryException("Cannot modify artefact version", null);
+        throw new RRepositoryException("Cannot modify artefact version!", null);
     }
 }

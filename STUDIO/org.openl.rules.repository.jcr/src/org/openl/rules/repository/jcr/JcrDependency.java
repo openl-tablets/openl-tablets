@@ -50,7 +50,7 @@ public class JcrDependency extends JcrCommonArtefact implements RDependency {
 
     @Override
     public List<RVersion> getVersionHistory() throws RRepositoryException {
-        throw new RRepositoryException("not supported", null);
+        throw new RRepositoryException("Not supported!", null);
     }
 
     public CommonVersion getLowerLimit() {

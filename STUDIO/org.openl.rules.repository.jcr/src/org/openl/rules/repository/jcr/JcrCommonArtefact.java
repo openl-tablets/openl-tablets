@@ -34,7 +34,7 @@ public class JcrCommonArtefact {
 
             n.remove();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Delete", e);
+            throw new RRepositoryException("Failed to Delete.", e);
         }
     }
 
@@ -66,7 +66,7 @@ public class JcrCommonArtefact {
             }
             return result;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Version History", e);
+            throw new RRepositoryException("Failed to get Version History.", e);
         }
     }
 

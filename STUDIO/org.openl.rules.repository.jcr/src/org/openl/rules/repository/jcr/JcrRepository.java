@@ -54,7 +54,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
             JcrProject p = new JcrProject(n);
             return p;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get project {0}", e, name);
+            throw new RRepositoryException("Failed to get project ''{0}''", e, name);
         }        
     }
     
@@ -63,7 +63,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         try {
             return defRulesLocation.hasNode(name);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to check project {0}", e, name);
+            throw new RRepositoryException("Failed to check project ''{0}''", e, name);
         }        
     }
 
@@ -71,7 +71,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         try {
             return defDeploymentsLocation.hasNode(name);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to check project {0}", e, name);
+            throw new RRepositoryException("Failed to check project ''{0}''", e, name);
         }        
     }
 
@@ -91,21 +91,21 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         try {
             return JcrProject.createProject(defRulesLocation, nodeName);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create Project {0}", e, nodeName);
+            throw new RRepositoryException("Failed to create Project ''{0}''.", e, nodeName);
         }
     }
 
     public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
         try {
             if (!defDeploymentsLocation.hasNode(name)) {
-                throw new RRepositoryException("Cannot find Project ''{0}''", null, name);
+                throw new RRepositoryException("Cannot find Project ''{0}''.", null, name);
             }
 
             Node n = defDeploymentsLocation.getNode(name);
             JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
             return ddp;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get DDProject {0}", e, name);
+            throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
         }        
     }
 
@@ -117,7 +117,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
         try {
             return JcrDeploymentDescriptorProject.createProject(defDeploymentsLocation, nodeName);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create DDProject {0}", e, nodeName);
+            throw new RRepositoryException("Failed to create DDProject ''{0}''.", e, nodeName);
         }        
     }
 
@@ -156,7 +156,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
 
             return result;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to run query", e);
+            throw new RRepositoryException("Failed to run query.", e);
         }
     }
 
@@ -177,7 +177,7 @@ public class JcrRepository extends BaseJcrRepository implements RRepository {
 
             return result;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to run query", e);
+            throw new RRepositoryException("Failed to run query.", e);
         }
     }
 }
