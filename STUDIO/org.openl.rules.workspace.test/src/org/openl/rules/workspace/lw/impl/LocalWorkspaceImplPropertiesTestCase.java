@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 import org.openl.SmartProps;
 import org.openl.rules.workspace.TestHelper;
 import org.openl.rules.workspace.WorkspaceException;
+import org.openl.rules.workspace.mock.MockProject;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -43,10 +44,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
 
         LocalWorkspaceImpl workspace = getFreshWorkspace();
 
-        localProject = (LocalProjectImpl) workspace.addProject(
-                new LocalProjectImpl(PROJECT_NAME, new ArtefactPathImpl("sample"),
-                        new File(TestHelper.FOLDER_TEST),
-                        workspace));
+        localProject = (LocalProjectImpl) workspace.addProject(new MockProject("sample"));
 
 //        new RepositoryProjectVersionImpl(1, 0, 0, new RepositoryVersionInfoImpl(new Date(), "test"))
         
