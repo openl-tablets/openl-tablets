@@ -147,7 +147,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     private static void loadAllStates(LocalProjectFolderImpl folder) throws ProjectException {
         File propFolder = getPropertiesFolder(folder);
         
-        loadState(folder, getFolderPropertiesFile(propFolder));
+        loadState(folder, FolderHelper.getFolderPropertiesFile(propFolder));
         
         for (LocalProjectArtefact artefact : folder.getArtefacts()) {
             if (artefact.isFolder()) {
@@ -161,7 +161,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     private static void saveAllStates(LocalProjectFolderImpl folder) throws ProjectException {
         File propFolder = createPropertiesFolder(folder);
 
-        saveState(folder, getFolderPropertiesFile(propFolder));
+        saveState(folder, FolderHelper.getFolderPropertiesFile(propFolder));
         
         for (LocalProjectArtefact artefact : folder.getArtefacts()) {
             if (artefact.isFolder()) {
@@ -172,37 +172,25 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         }
     }
 
-    private static File getFolderPropertiesFile(File propFolder) {
-        return new File(propFolder, FOLDER_PROPERTIES_FOLDER + File.separator + FOLDER_PROPERTIES_FILE);
-    }
-
     private static File getResourcePropertiesFile(File propFolder, LocalProjectArtefact artefact) {
-        return new File(propFolder, artefact.getName() + RESOURCE_PROPERTIES_EXT);
+        return new File(propFolder, artefact.getName() + FolderHelper.RESOURCE_PROPERTIES_EXT);
     }
 
     private static File getPropertiesFolder(LocalProjectFolderImpl folder) {
-        return new File(folder.getLocation(), PROPERTIES_FOLDER);
+        return new File(folder.getLocation(), FolderHelper.PROPERTIES_FOLDER);
     }
 
     private static File createPropertiesFolder(LocalProjectFolderImpl folder) throws ProjectException {
         File propFolder = getPropertiesFolder(folder);
         if (propFolder.isFile()) {
             if (!propFolder.delete()) {
-                throw new ProjectException("''{0}'' file exists in ''{1}'' directory and can not be deleted", null, PROPERTIES_FOLDER, folder.getLocation());
+                throw new ProjectException("''{0}'' is a file and can not be deleted", null, propFolder.getAbsolutePath());
             }
         }
 
-        if (!propFolder.exists()) {
-            if (!propFolder.mkdirs()) {
-                throw new ProjectException("Could not create properties folder in " + folder.getLocation());
-            }
-        }
-
-        File folderPropFolder = new File(propFolder, FOLDER_PROPERTIES_FOLDER);
-        if (!folderPropFolder.exists()) {
-            if (!folderPropFolder.mkdirs()) {
-                throw new ProjectException("Could not create " +  FOLDER_PROPERTIES_FOLDER + " folder in " + folderPropFolder);
-            }
+        File folderPropFolder = new File(propFolder, FolderHelper.FOLDER_PROPERTIES_FOLDER);
+        if (!FolderHelper.checkOrCreateFolder(folderPropFolder)) {
+            throw new ProjectException("Could not create properties folder " + folderPropFolder.getAbsolutePath());
         }
 
         return propFolder;

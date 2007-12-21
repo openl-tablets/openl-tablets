@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,20 +18,6 @@ import org.openl.rules.workspace.props.PropertyException;
 import org.openl.util.Log;
 
 public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements LocalProjectFolder {
-    public static final String PROPERTIES_FOLDER = ".studioProps";
-    public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
-    public static final String FOLDER_PROPERTIES_FILE = "folder.props";
-    public static final String RESOURCE_PROPERTIES_EXT = ".props";
-
-    private static final FilenameFilter LOCAL_FILES_FILTER = new FilenameFilter() {
-        public boolean accept(File dir, String name) {
-            // reject special directories
-            if (".svn".equalsIgnoreCase(name)) return false;
-            if (".cvs".equalsIgnoreCase(name)) return false;
-
-            return !PROPERTIES_FOLDER.equals(name);
-        }
-    };
 
     private Map<String, LocalProjectArtefact> artefacts;
 
@@ -215,7 +200,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
     private void realRefresh() {
         isPendingRefresh = false;
 
-        File[] files = getLocation().listFiles(LOCAL_FILES_FILTER);
+        File[] files = getLocation().listFiles(FolderHelper.getLocalFilesFilter());
 
         HashMap<String, File> fileMap = new HashMap<String, File>();
         for (File f : files) {
