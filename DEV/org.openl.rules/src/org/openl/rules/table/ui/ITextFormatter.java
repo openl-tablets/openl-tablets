@@ -4,7 +4,10 @@
 package org.openl.rules.table.ui;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import org.openl.util.Log;
 
 /**
  * @author snshor
@@ -13,6 +16,7 @@ import java.text.SimpleDateFormat;
 public interface ITextFormatter
 {
 	public String format(Object obj);
+	public Object parse(String value);
 	
 	static public class NumberTextFormatter implements ITextFormatter
 	{
@@ -34,6 +38,18 @@ public interface ITextFormatter
 		{
 			return format.format(obj);
 		}
+
+		public Object parse(String value)
+		{
+			try
+			{
+				return format.parse(value);
+			} catch (ParseException e)
+			{
+				Log.warn("Could not parse number: " + value, e);
+				return value;
+			}
+		}
 	}
 	
 
@@ -49,6 +65,17 @@ public interface ITextFormatter
 		public String format(Object obj)
 		{
 			return format.format(obj);
+		}
+		public Object parse(String value)
+		{
+			try
+			{
+				return format.parse(value);
+			} catch (ParseException e)
+			{
+				Log.warn("Could not parse number: " + value, e);
+				return value;
+			}
 		}
 	}
 	
@@ -66,6 +93,11 @@ public interface ITextFormatter
 		public String format(Object obj)
 		{
 			return format;
+		}
+
+		public Object parse(String value)
+		{
+			return value;
 		}
 	}
 }

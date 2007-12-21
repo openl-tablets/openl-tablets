@@ -19,12 +19,12 @@ public class FilteredGrid extends GridDelegator
 
 	IGridFilter[] formatFilters;
 	
-	HashMap formattedCells = new HashMap();
+	HashMap<CellKey, FormattedCell> formattedCells = new HashMap<CellKey, FormattedCell>();
 	
-	synchronized FormattedCell getFormattedCell(int col, int row)
+	public synchronized FormattedCell getFormattedCell(int col, int row)
 	{
 		CellKey ckey = new CellKey(col, row);
-		FormattedCell fcell = (FormattedCell)formattedCells.get(ckey);
+		FormattedCell fcell = formattedCells.get(ckey);
 		if (fcell == null)
 		{
 			fcell = new FormattedCell(delegate.getCellInfo(col, row));
@@ -80,6 +80,17 @@ public class FilteredGrid extends GridDelegator
 		return fcell.content;
 	}
 
+//	public FormattedCell getFormattedCell(int column, int row)
+//	{
+//		if (isEmpty(column, row))
+//			return null; 
+//
+//		
+//		FormattedCell fcell = getFormattedCell(column, row);		
+//		
+//		return fcell;
+//	}
+	
 
 	/**
 	 * @param delegate

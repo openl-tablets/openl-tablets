@@ -20,6 +20,11 @@ import org.openl.rules.table.xls.XlsNumberFormat.SegmentFormatter;
 public class SimpleXlsFormatter implements IGridFilter
 {
 
+	public Object parse(String value)
+	{
+		throw new UnsupportedOperationException("This format does not parse");
+	}
+
 	static final public String GENERAL_XLS_FORMAT = "General";
 
 	

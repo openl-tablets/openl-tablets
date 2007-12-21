@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -214,6 +215,13 @@ public class CompositeGrid extends AGridModel
 		Transform t = transform(column, row);
 		return t == null ?  null : t.grid().getFormattedCellValue(t.col, t.row);
 	}
+	
+	public FormattedCell getFormattedCell(int column, int row)
+	{
+		Transform t = transform(column, row);
+		return t == null ?  null : t.grid().getFormattedCell(t.col, t.row);
+	}
+	
 
 	public Object getObjectCellValue(int column, int row)
 	{

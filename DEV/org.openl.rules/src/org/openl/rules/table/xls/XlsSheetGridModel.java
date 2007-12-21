@@ -22,6 +22,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICellInfo;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.StringTool;
@@ -737,6 +738,12 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 		if (w == sheet.getDefaultColumnWidth())
 			return 79;
 		return w/29;
+	}
+
+	public FormattedCell getFormattedCell(int column, int row)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -7,4 +7,6 @@ public interface IGridFilter
 {
 	IGridSelector getGridSelector();
 	FormattedCell filterFormat(FormattedCell cell);
+	
+	Object parse(String value);
 }

@@ -53,6 +53,14 @@ public class XlsNumberFormat extends  XlsFormat
 	
 	
 	
+	public Object parse(String value)
+	{
+		return positiveFormat.parse(value);
+	}
+
+
+
+
 	static public XlsNumberFormat makeFormat(String xlsformat, Map<String, SegmentFormatter> existingFmts)
 	{
 		String[] fmts = StringTool.tokenize(xlsformat, ";");
@@ -213,7 +221,7 @@ public class XlsNumberFormat extends  XlsFormat
 		if (fcell.style.getHorizontalAlignment() == ICellStyle.ALIGN_GENERAL)
 			fcell.style.setHorizontalAlignment(sf.alignment);
 		
-		
+		fcell.setFilter(this);
 		return fcell;
 	}
 
@@ -256,6 +264,12 @@ public class XlsNumberFormat extends  XlsFormat
 			this.color = color;
 		}
 
+		public Object parse(String value)
+		{
+			return format.parse(value);
+		}
+		
+		
 		/**
 		 * 
 		 */

@@ -8,6 +8,7 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 
 
@@ -62,6 +63,8 @@ public interface IGrid
 	String getStringCellValue(int column, int row);
 	
   String getFormattedCellValue(int column, int row);
+  
+  FormattedCell getFormattedCell(int column, int row);
 	
 	Object getObjectCellValue(int column, int row);
 	
@@ -107,5 +110,7 @@ public interface IGrid
 	
 	
 	int getColumnWidth(int col);
+	
+	
 	
 }
