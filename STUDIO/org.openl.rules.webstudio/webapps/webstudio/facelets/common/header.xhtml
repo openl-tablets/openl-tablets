@@ -8,18 +8,6 @@
 
   <h:graphicImage styleClass="logo" url="/images/print-logo.gif"/>
 
-  <div id="iconbar">
-    <ui:insert name="iconbar">
-      <h:commandLink class="actionButton" action="#{repositoryTreeController.refreshTree}" title="Refresh">
-        <h:graphicImage url="/images/refresh.gif" styleClass="actionImage" />
-      </h:commandLink>
-
-      <h:commandLink class="actionButton" action="#{studioOpener.openStudio}" title="Open LWS in WebStudio">
-        <h:graphicImage url="/images/openWebStudio.gif" styleClass="actionImage" />
-      </h:commandLink>
-    </ui:insert>
-  </div>
-
   <rich:separator height="6" />
   <rich:spacer height="5" />
 
