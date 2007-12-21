@@ -101,7 +101,18 @@ public class FolderHelper {
      */
     private static class FoldersOnlyFilter implements FileFilter {
         public boolean accept(File pathname) {
-            return pathname.isDirectory();
+            if (pathname.isDirectory()) {
+                String name = pathname.getName();
+
+                // reject special directories
+                if (".svn".equalsIgnoreCase(name)) return false;
+                if (".cvs".equalsIgnoreCase(name)) return false;
+
+                // accept directory
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

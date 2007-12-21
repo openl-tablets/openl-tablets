@@ -24,6 +24,16 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
     public static final String FOLDER_PROPERTIES_FILE = "folder.props";
     public static final String RESOURCE_PROPERTIES_EXT = ".props";
 
+    private static final FilenameFilter LOCAL_FILES_FILTER = new FilenameFilter() {
+        public boolean accept(File dir, String name) {
+            // reject special directories
+            if (".svn".equalsIgnoreCase(name)) return false;
+            if (".cvs".equalsIgnoreCase(name)) return false;
+
+            return !PROPERTIES_FOLDER.equals(name);
+        }
+    };
+
     private Map<String, LocalProjectArtefact> artefacts;
 
     private boolean isPendingRefresh;
@@ -205,11 +215,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
     private void realRefresh() {
         isPendingRefresh = false;
 
-        File[] files = getLocation().listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return !PROPERTIES_FOLDER.equals(name);
-            }
-        });
+        File[] files = getLocation().listFiles(LOCAL_FILES_FILTER);
 
         HashMap<String, File> fileMap = new HashMap<String, File>();
         for (File f : files) {
