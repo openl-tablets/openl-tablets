@@ -169,7 +169,7 @@ public class RepositoryTreeState {
     /**
      * Updates repositoryTreeState.selectedNode.
      */
-    public void updateSelection() {
+    public void refreshSelection() {
         Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath()
                 .getSegments().iterator();
         TreeNode currentNode = getRulesRepository();
@@ -185,7 +185,7 @@ public class RepositoryTreeState {
     /**
      * Updates repositoryTreeState.selectedNode value after delete.
      */
-    public void updateSelectionAfterDelete() {
+    public void moveSelectionToParentNode() {
         Iterator<String> it = getSelectedNode().getDataBean().getArtefactPath()
                 .getSegments().iterator();
         TreeNode node = getRulesRepository();

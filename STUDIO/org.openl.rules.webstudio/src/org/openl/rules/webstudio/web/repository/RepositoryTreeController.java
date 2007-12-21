@@ -172,12 +172,17 @@ public class RepositoryTreeController {
             projectArtefact.delete();
             if (projectArtefact instanceof UserWorkspaceProjectImpl) {
                 UserWorkspaceProjectImpl project = (UserWorkspaceProjectImpl) projectArtefact;
-                if (!project.isLocalOnly()) {
+                if (project.isLocalOnly()) {
+                    repositoryTreeState.invalidateTreeAndSelectedNode();
+                    return null;
+                } else {
                     repositoryTreeState.invalidateTree();
+                    repositoryTreeState.refreshSelection();
                     return null;
                 }
             }
-            repositoryTreeState.invalidateTreeAndSelectedNode();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.moveSelectionToParentNode();
         } catch (ProjectException e) {
             log.error("Failed to delete node.", e);
             FacesContext.getCurrentInstance()
@@ -361,7 +366,7 @@ public class RepositoryTreeController {
         try {
             getSelectedProject().close();
             repositoryTreeState.invalidateTree();
-            repositoryTreeState.updateSelection();
+            repositoryTreeState.refreshSelection();
         } catch (ProjectException e) {
             log.error("Failed to close project.", e);
             FacesContext.getCurrentInstance()
