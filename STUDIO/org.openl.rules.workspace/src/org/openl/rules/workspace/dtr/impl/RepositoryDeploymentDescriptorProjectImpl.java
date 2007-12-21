@@ -28,36 +28,41 @@ import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.util.Log;
 
+/**
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDProject {
     private RDeploymentDescriptorProject rulesDescrProject;
 
     private String name;
     private ArtefactPath path;
-    
+
     private HashMap<String, ProjectDescriptor> descriptors;
-    
+
     public RepositoryDeploymentDescriptorProjectImpl(RDeploymentDescriptorProject rulesDescrProject) {
         this.rulesDescrProject = rulesDescrProject;
-    
+
         name = rulesDescrProject.getName();
         path = new ArtefactPathImpl(new String[]{name});
-        
+
         descriptors = new HashMap<String, ProjectDescriptor>();
-        
-        for (RProjectDescriptor pd : rulesDescrProject.getProjectDescriptors()) {
-            RepositoryProjectDescriptorImpl rpd = new RepositoryProjectDescriptorImpl(this, pd);
-            descriptors.put(rpd.getProjectName(), rpd);
+
+        for (RProjectDescriptor ralProjectDescriptor : rulesDescrProject.getProjectDescriptors()) {
+            RepositoryProjectDescriptorImpl dtrProjectDescriptor = new RepositoryProjectDescriptorImpl(this, ralProjectDescriptor);
+            descriptors.put(dtrProjectDescriptor.getProjectName(), dtrProjectDescriptor);
         }
     }
-    
-    public ProjectDescriptor addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
-        if (descriptors.get(name) != null) {
-            throw new ProjectException("Project Descriptor {0} already exists", null, name);
+
+    public ProjectDescriptor addProjectDescriptor(String projectName, CommonVersion version) throws ProjectException {
+        if (descriptors.get(projectName) != null) {
+            throw new ProjectException("Project Descriptor ''{0}'' already exists.", null, projectName);
         }
 
-        RepositoryProjectDescriptorImpl pd = new RepositoryProjectDescriptorImpl(this, name, version);
-        descriptors.put(name, pd);
-        return pd;
+        RepositoryProjectDescriptorImpl dtrProjectDescriptor = new RepositoryProjectDescriptorImpl(this, projectName, version);
+        descriptors.put(projectName, dtrProjectDescriptor);
+        return dtrProjectDescriptor;
     }
 
     public Collection<ProjectDescriptor> getProjectDescriptors() {
@@ -65,32 +70,32 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     }
 
     public void setProjectDescriptors(Collection<ProjectDescriptor> projectDescriptors) throws ProjectException {
-        HashMap<String, ProjectDescriptor> newDescr = new HashMap<String, ProjectDescriptor>();
-        
-        for (ProjectDescriptor pd : projectDescriptors) {
-            CommonVersion pv = pd.getProjectVersion();
-            RepositoryProjectVersionImpl rpv = new RepositoryProjectVersionImpl(pv, null);
-            RepositoryProjectDescriptorImpl rpd = new RepositoryProjectDescriptorImpl(this, pd.getProjectName(), rpv);
-            
-            newDescr.put(rpd.getProjectName(), rpd);
+        HashMap<String, ProjectDescriptor> newDescriptors = new HashMap<String, ProjectDescriptor>();
+
+        for (ProjectDescriptor projectDescriptor : projectDescriptors) {
+            CommonVersion projectVersion = projectDescriptor.getProjectVersion();
+            RepositoryProjectVersionImpl dtrProjectVersion = new RepositoryProjectVersionImpl(projectVersion, null);
+            RepositoryProjectDescriptorImpl dtrProjectDescriptor = new RepositoryProjectDescriptorImpl(this, projectDescriptor.getProjectName(), dtrProjectVersion);
+
+            newDescriptors.put(dtrProjectDescriptor.getProjectName(), dtrProjectDescriptor);
         }
-        
+
         descriptors.clear();
-        descriptors = newDescr;
+        descriptors = newDescriptors;
     }
 
     public String getName() {
         return name;
     }
-    
+
     protected void delete(String projectName) {
         descriptors.remove(projectName);
     }
-    
+
     public ProjectVersion getVersion() {
-        RVersion rv = rulesDescrProject.getActiveVersion();
-        RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
-        RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(rv, info);
+        RVersion ralVersion = rulesDescrProject.getActiveVersion();
+        RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(ralVersion.getCreated(), ralVersion.getCreatedBy().getUserName());
+        RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(ralVersion, info);
 
         return version;
     }
@@ -101,42 +106,42 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
     public Collection<ProjectVersion> getVersions() {
         LinkedList<ProjectVersion> vers = new LinkedList<ProjectVersion>();
-        
+
         try {
-            for (RVersion rv : rulesDescrProject.getVersionHistory()) {
-                RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
-                vers.add(new RepositoryProjectVersionImpl(rv, rvii));
+            for (RVersion ralVersion : rulesDescrProject.getVersionHistory()) {
+                RepositoryVersionInfoImpl dtrVersion = new RepositoryVersionInfoImpl(ralVersion.getCreated(), ralVersion.getCreatedBy().getUserName());
+                vers.add(new RepositoryProjectVersionImpl(ralVersion, dtrVersion));
             }
         } catch (RRepositoryException e) {
-            Log.error("Failed to get version history", e);
+            Log.error("Failed to get version history.", e);
         }
         return vers;
     }
 
-    public void update(DeploymentDescriptorProject ddp) throws ProjectException {
+    public void update(DeploymentDescriptorProject deploymentProject) throws ProjectException {
         descriptors.clear();
-        
-        for (ProjectDescriptor pd : ddp.getProjectDescriptors()) {
-            descriptors.put(pd.getProjectName(), pd);
+
+        for (ProjectDescriptor projectDescriptor : deploymentProject.getProjectDescriptors()) {
+            descriptors.put(projectDescriptor.getProjectName(), projectDescriptor);
         }
 
         Collection<RProjectDescriptor> projectDescriptors = new LinkedList<RProjectDescriptor>();
-        for (ProjectDescriptor pd : descriptors.values()) {
-            RPD2 rpd = new RPD2(pd);
-            projectDescriptors.add(rpd);
+        for (ProjectDescriptor projectDescriptor : descriptors.values()) {
+            RPD2 substituteProjectDescriptor = new RPD2(projectDescriptor);
+            projectDescriptors.add(substituteProjectDescriptor);
         }
 
         try {
             rulesDescrProject.setProjectDescriptors(projectDescriptors);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot update descriptors for {0}", e, name);
-        }        
+            throw new ProjectException("Cannot update descriptors for ''{0}''.", e, name);
+        }
     }
 
     public void update(ProjectArtefact srcArtefact) throws ProjectException {
         if (srcArtefact instanceof DeploymentDescriptorProject) {
-            DeploymentDescriptorProject ddp = (DeploymentDescriptorProject) srcArtefact;
-            update(ddp);
+            DeploymentDescriptorProject deploymentProject = (DeploymentDescriptorProject) srcArtefact;
+            update(deploymentProject);
         }
     }
 
@@ -146,28 +151,28 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             rulesDescrProject.commit(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Failed to commit changes", e);
-        }        
+            throw new ProjectException("Failed to commit changes.", e);
+        }
     }
 
     public void delete(CommonUser user) throws ProjectException {
         if (isMarkedForDeletion()) {
-            throw new ProjectException("Project ''{0}'' is already marked for deletion", null, getName());
+            throw new ProjectException("Deployment project ''{0}'' is already marked for deletion.", null, getName());
         }
 
         try {
             rulesDescrProject.delete(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot delete project {0}", e, name);
-        }        
+            throw new ProjectException("Cannot delete deployment project ''{0}''.", e, name);
+        }
     }
 
     public void erase(CommonUser user) throws ProjectException {
         try {
             rulesDescrProject.erase(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot erase project {0}", e, name);
-        }        
+            throw new ProjectException("Cannot erase deployment project ''{0}''.", e, name);
+        }
     }
 
     public boolean isLocked() {
@@ -176,7 +181,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         } catch (RRepositoryException e) {
             Log.error(e);
             return false;
-        }        
+        }
     }
 
     public LockInfo getlLockInfo() {
@@ -185,7 +190,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         } catch (RRepositoryException e) {
             Log.error(e);
             return LockInfoImpl.NO_LOCK;
-        }        
+        }
     }
 
     public boolean isMarkedForDeletion() {
@@ -199,47 +204,47 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
     public void lock(WorkspaceUser user) throws ProjectException {
         if (isLocked()) {
-            throw new ProjectException("Project ''{0}'' is already locked", null, getName());
+            throw new ProjectException("Deployment project ''{0}'' is already locked.", null, getName());
         }
 
         try {
             rulesDescrProject.lock(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot lock project: " + e.getMessage(), e);
-        }        
+            throw new ProjectException("Cannot lock deployment project: " + e.getMessage(), e);
+        }
     }
 
     public void undelete(CommonUser user) throws ProjectException {
         if (!isMarkedForDeletion()) {
-            throw new ProjectException("Cannot undelete non-marked project ''{0}''", null, getName());
+            throw new ProjectException("Cannot undelete non-marked deployment project ''{0}''.", null, getName());
         }
 
         try {
             rulesDescrProject.undelete(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot undelete project {0}", e, name);
-        }        
+            throw new ProjectException("Cannot undelete deployment project ''{0}''.", e, name);
+        }
     }
 
     public void unlock(WorkspaceUser user) throws ProjectException {
         if (!isLocked()) {
-            throw new ProjectException("Cannot unlock non-locked project ''{0}''", null, getName());
+            throw new ProjectException("Cannot unlock non-locked deployment project ''{0}''.", null, getName());
         }
 
         try {
             rulesDescrProject.unlock(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot unlock project: " + e.getMessage(), e);
-        }        
+            throw new ProjectException("Cannot unlock pdeployment roject: " + e.getMessage(), e);
+        }
     }
-    
+
     private class RPD2 implements RProjectDescriptor {
         private ProjectDescriptor pd;
-        
+
         private RPD2(ProjectDescriptor pd) {
             this.pd = pd;
         }
-        
+
         public String getProjectName() {
             return pd.getProjectName();
         }
@@ -252,10 +257,10 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
             // do nothing
         }
     }
-    
+
     private class RV2 implements RVersion {
         private CommonVersion version;
-        
+
         private RV2 (CommonVersion version) {
             this.version = version;
         }
@@ -286,7 +291,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     }
 
 
-    
+
     public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         notSupported();
         return null;
@@ -372,15 +377,15 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
     }
 
     protected void notSupported() throws ProjectException {
-        throw new ProjectException("Not supported for deployment project");
+        throw new ProjectException("Not supported for deployment project!");
     }
 
     protected void notSupportedProps() throws PropertyException {
-        throw new PropertyException("Not supported for deployment project", null);
+        throw new PropertyException("Not supported for deployment project!", null);
     }
 
     public void delete() throws ProjectException {
-        throw new ProjectException("Use delete(CommonUser) instead");
+        throw new ProjectException("Use delete(CommonUser) instead!");
     }
 
     public void riseVersion(int major, int minor) throws ProjectException {
@@ -388,6 +393,6 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
             rulesDescrProject.riseVersion(major, minor);
         } catch (RRepositoryException e) {
             throw new ProjectException(e.getMessage(), e);
-        }        
+        }
     }
 }

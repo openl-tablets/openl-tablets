@@ -1,5 +1,10 @@
 package org.openl.rules.workspace;
 
+/**
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class WorkspaceUserImpl implements WorkspaceUser {
 
     private String userId;
@@ -7,7 +12,7 @@ public class WorkspaceUserImpl implements WorkspaceUser {
 
     public WorkspaceUserImpl(String userName) {
         userId = generateUserId(userName);
-        
+
         this.userName = userName;
     }
 
@@ -19,7 +24,11 @@ public class WorkspaceUserImpl implements WorkspaceUser {
         return userName;
     }
 
-
+    /**
+     * Compare two users.
+     * <p/>
+     * Note: comparison is based on name of users, not IDs.
+     */
     public int compareTo(WorkspaceUser o) {
         return userName.compareTo(o.getUserName());
     }
@@ -27,7 +36,7 @@ public class WorkspaceUserImpl implements WorkspaceUser {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        
+
         if (obj instanceof WorkspaceUser) {
             return (0 == compareTo((WorkspaceUser)obj));
         } else {
@@ -36,22 +45,26 @@ public class WorkspaceUserImpl implements WorkspaceUser {
     }
 
     // --- protected
-    
+
+    /**
+     * Generates system safe user id.
+     */
     protected String generateUserId(String s) {
         StringBuilder sb = new StringBuilder(32);
-        
+
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            
+
             if (Character.isLetterOrDigit(c)) {
                 sb.append(c);
             } else {
+                // replace non letter or digit char with "(<hex>)"
                 sb.append('(');
                 sb.append(Integer.toHexString(c));
                 sb.append(')');
             }
         }
-        
+
         return sb.toString();
     }
 

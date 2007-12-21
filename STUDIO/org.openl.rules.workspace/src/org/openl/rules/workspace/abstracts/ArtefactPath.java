@@ -6,6 +6,8 @@ import java.util.Collection;
  * Defines path of an Artefact.
  * I.e. location of some particular artefact in a hierarchy of artefacts
  * or in a tree of artefacts.
+ * 
+ * @author Aleh Bykhavets
  */
 public interface ArtefactPath {
     /**
@@ -37,7 +39,25 @@ public interface ArtefactPath {
      */
     public String getStringValue();
 
+    /**
+     * Create new instance of ArtefactPath from base one,
+     * excluding first segment of base path.
+     * <p/>
+     * It is used to translate path of artefact in the workspace 
+     * to path in a project.
+     * 
+     * @return new instance where first segment of base path is excluded.
+     */
     public ArtefactPath withoutFirstSegment();
-    
+
+    /**
+     * Creates new instance of ArtefactPath from base one,
+     * adding one more segment.
+     * <p/>
+     * It should be used to build artefact paths recursively.
+     * 
+     * @param segment adding segment
+     * @return new instance where specified segment is appended to path
+     */
     public ArtefactPath withSegment(String segment);
 }
