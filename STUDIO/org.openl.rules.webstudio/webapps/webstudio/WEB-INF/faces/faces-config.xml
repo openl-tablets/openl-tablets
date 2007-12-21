@@ -27,18 +27,18 @@
   <!-- ====================================================================
     This two rederers were added because of migrating to Tomahawk 1.1.3.
     See http://wiki.apache.org/myfaces/Upgrading_to_Tomahawk_1.1.3
-  ===================================================================== -->
+    ===================================================================== -->
   <render-kit>
     <renderer>
-        <component-family>javax.faces.Command</component-family>
-        <renderer-type>javax.faces.Button</renderer-type>
-        <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlButtonRenderer</renderer-class>
+      <component-family>javax.faces.Command</component-family>
+      <renderer-type>javax.faces.Button</renderer-type>
+      <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlButtonRenderer</renderer-class>
     </renderer>
 
     <renderer>
-        <component-family>javax.faces.Command</component-family>
-        <renderer-type>javax.faces.Link</renderer-type>
-        <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlLinkRenderer</renderer-class>
+      <component-family>javax.faces.Command</component-family>
+      <renderer-type>javax.faces.Link</renderer-type>
+      <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlLinkRenderer</renderer-class>
     </renderer>
   </render-kit>
 
