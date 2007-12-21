@@ -24,16 +24,16 @@ import org.openl.util.Log;
 
 public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implements RepositoryProject {
     private RProject rulesProject;
-    
+
     protected RepositoryProjectImpl(RProject rulesProject, ArtefactPath path) {
         super(rulesProject, rulesProject.getRootFolder(), path);
-        
+
         this.rulesProject = rulesProject;
     }
-    
+
     public RepositoryProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         // TODO implement
-        throw new ProjectException("Failed to resolve ''{0}''", null, artefactPath.getStringValue());
+        throw new ProjectException("Failed to resolve ''{0}''.", null, artefactPath.getStringValue());
     }
 
     public ProjectVersion getVersion() {
@@ -46,29 +46,27 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
 
     public Collection<ProjectDependency> getDependencies() {
         LinkedList<ProjectDependency> result = new LinkedList<ProjectDependency>();
-        
+
         try {
             for (RDependency rDep : rulesProject.getDependencies()) {
                 String projectName = rDep.getProjectName();
 
-                ProjectVersion lowVer = new RepositoryProjectVersionImpl(rDep
-                        .getLowerLimit(), null);
-                
+                ProjectVersion lowVer = new RepositoryProjectVersionImpl(rDep.getLowerLimit(), null);
+
                 ProjectVersion upVer = null;
                 CommonVersion dependencyUpperLimit = rDep.getUpperLimit(); 
                 if (dependencyUpperLimit != null){
                     upVer = new RepositoryProjectVersionImpl(dependencyUpperLimit, null);
                 }
 
-                ProjectDependency pd = new ProjectDependencyImpl(projectName,
-                        lowVer, upVer);
-                
+                ProjectDependency pd = new ProjectDependencyImpl(projectName, lowVer, upVer);
+
                 result.add(pd);
             }
         } catch (RRepositoryException e) {
-            Log.error("Cannot get dependencies", e);
+            Log.error("Cannot get dependencies.", e);
         }
-        
+
         return result;
     }
 
@@ -78,62 +76,62 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             for (ProjectDependency pd : dependencies) {
                 newDeps.add(pd);
             }
-            
+
             rulesProject.setDependencies(newDeps);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot update dependencies", e);
+            throw new ProjectException("Cannot update dependencies.", e);
         }
     }
 
     public void lock(WorkspaceUser user) throws ProjectException {
         if (isLocked()) {
-            throw new ProjectException("Project ''{0}'' is already locked", null, getName());
+            throw new ProjectException("Project ''{0}'' is already locked.", null, getName());
         }
 
         try {
             rulesProject.lock(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot lock project: " + e.getMessage(), e);
-        }        
+            throw new ProjectException("Cannot lock project ''{0}'': " + e.getMessage(), e, getName());
+        }
     }
 
     public void unlock(WorkspaceUser user) throws ProjectException {
         if (!isLocked()) {
-            throw new ProjectException("Cannot unlock non-locked project ''{0}''", null, getName());
+            throw new ProjectException("Cannot unlock non-locked project ''{0}''.", null, getName());
         }
 
         try {
             rulesProject.unlock(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot unlock project: " + e.getMessage(), e);
-        }        
+            throw new ProjectException("Cannot unlock project ''{0}'': " + e.getMessage(), e, getName());
+        }
     }
 
     public void delete(CommonUser user) throws ProjectException {
         if (isMarkedForDeletion()) {
-            throw new ProjectException("Project ''{0}'' is already marked for deletion", null, getName());
+            throw new ProjectException("Project ''{0}'' is already marked for deletion.", null, getName());
         }
 
-//        isMarkedForDeletion = true;
-        
+//      isMarkedForDeletion = true;
+
         try {
             rulesProject.delete(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Failed to delete project ''{0}''", e, getName());
+            throw new ProjectException("Failed to delete project ''{0}''.", e, getName());
         }        
     }
 
     public void undelete(CommonUser user) throws ProjectException {
         if (!isMarkedForDeletion()) {
-            throw new ProjectException("Cannot undelete non-marked project ''{0}''", null, getName());
+            throw new ProjectException("Cannot undelete non-marked project ''{0}''.", null, getName());
         }
 
-//        isMarkedForDeletion = false;
+//      isMarkedForDeletion = false;
 
         try {
             rulesProject.undelete(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Failed to undelete project ''{0}''", e, getName());
+            throw new ProjectException("Failed to undelete project ''{0}''.", e, getName());
         }        
     }
 
@@ -141,29 +139,31 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         try {
             rulesProject.erase(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Failed to erase project ''{0}''", e, getName());
+            throw new ProjectException("Failed to erase project ''{0}''.", e, getName());
         }        
     }
 
     public void update(ProjectArtefact srcArtefact) throws ProjectException {
         Project srcProject = (Project) srcArtefact;
         super.update(srcArtefact);
-        
+
         try {
             rulesProject.setDependencies(srcProject.getDependencies());
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot update dependencies", e);
+            throw new ProjectException("Cannot update dependencies.", e);
         }        
     }
 
     public void commit(Project source, CommonUser user) throws ProjectException {
+        Log.debug("Updating project ''{0}''...", getName());
         update(source);
 
         try {
+            Log.debug("Committing project ''{0}'' by user ''{1}''...", getName(), user.getUserName());
             rulesProject.commit(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Failed to commit changes", e);
-        }        
+            throw new ProjectException("Failed to commit changes.", e);
+        }
     }
 
     public boolean isMarkedForDeletion() {
@@ -194,7 +194,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
     }
 
     public void delete() throws ProjectException {
-        throw new ProjectException("Use delete(CommonUser) instead");
+        throw new ProjectException("Use delete(CommonUser) instead!");
     }
 
     public void riseVersion(int major, int minor) throws ProjectException {
