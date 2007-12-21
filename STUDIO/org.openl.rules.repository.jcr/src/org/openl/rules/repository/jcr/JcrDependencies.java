@@ -29,7 +29,7 @@ public class JcrDependencies extends JcrCommonArtefact {
 
     @Override
     public List<RVersion> getVersionHistory() throws RRepositoryException {
-        throw new RRepositoryException("not supported", null);
+        throw new RRepositoryException("Not supported!", null);
     }
     
     public Collection<RDependency> getDependencies() throws RRepositoryException {
@@ -43,7 +43,7 @@ public class JcrDependencies extends JcrCommonArtefact {
                 result.add(new JcrDependency(n));
             }
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get dependencies", e);
+            throw new RRepositoryException("Cannot get dependencies.", e);
         }
         
         return result;
@@ -62,7 +62,7 @@ public class JcrDependencies extends JcrCommonArtefact {
 
             node().save();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot reset dependencies", e);
+            throw new RRepositoryException("Cannot reset dependencies.", e);
         }
 
         try {
@@ -73,7 +73,7 @@ public class JcrDependencies extends JcrCommonArtefact {
             
             node().save();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot set dependencies", e);
+            throw new RRepositoryException("Cannot set dependencies.", e);
         }
     }
 }

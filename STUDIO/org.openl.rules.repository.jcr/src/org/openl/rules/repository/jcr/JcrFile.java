@@ -69,7 +69,7 @@ public class JcrFile extends JcrEntity implements RFile {
 
             n.save();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to set Content", e);
+            throw new RRepositoryException("Failed to set Content.", e);
         }
     }
 
@@ -88,7 +88,7 @@ public class JcrFile extends JcrEntity implements RFile {
 
             return result;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Content for specified version", e);
+            throw new RRepositoryException("Failed to get Content for specified version.", e);
         }
     }
 
@@ -99,7 +99,7 @@ public class JcrFile extends JcrEntity implements RFile {
             // TODO check whether we need here 'false' or 'true'
             n.restore(versionName, true);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to revert to specified version", e);
+            throw new RRepositoryException("Failed to revert to specified version.", e);
         }
     }
 }

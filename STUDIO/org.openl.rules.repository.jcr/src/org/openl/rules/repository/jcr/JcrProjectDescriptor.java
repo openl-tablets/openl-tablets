@@ -45,7 +45,7 @@ public class JcrProjectDescriptor implements RProjectDescriptor {
             this.version.updateVersion(n);
             this.version.updateRevision(n);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot set project version", e);
+            throw new RRepositoryException("Cannot set project version.", e);
         }        
     }
     

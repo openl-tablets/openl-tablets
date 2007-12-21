@@ -122,7 +122,7 @@ public class NodeUtil {
         }
         
         if (result == null) {
-            throw new RepositoryException("Cannot find version " + version.getVersionName());
+            throw new RepositoryException("Cannot find version '" + version.getVersionName() + "'.");
         }
         
         return result;
@@ -205,7 +205,7 @@ public class NodeUtil {
     protected static void checkNodeType(Node node, String nodeType) throws RepositoryException {
         if (!node.isNodeType(nodeType)) {
             String actualNodeType = node.getPrimaryNodeType().getName();
-            throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects " + nodeType);
+            throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects '" + nodeType + "'.");
         }
     }
 
@@ -264,7 +264,7 @@ public class NodeUtil {
         try {
             return node.getNode ("jcr:content").getProperty("jcr:data").getStream();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Content", e);
+            throw new RRepositoryException("Failed to get Content.", e);
         }
     }
 

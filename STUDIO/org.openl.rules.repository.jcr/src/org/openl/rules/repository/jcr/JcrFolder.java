@@ -60,7 +60,7 @@ public class JcrFolder extends JcrEntity implements RFolder {
         try {
             return JcrFolder.createFolder(node(), name);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Create Sub Folder", e);
+            throw new RRepositoryException("Failed to Create Sub Folder.", e);
         }
     }
 
@@ -69,7 +69,7 @@ public class JcrFolder extends JcrEntity implements RFolder {
         try {
             return JcrFile.createFile(node(), name);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Create File", e);
+            throw new RRepositoryException("Failed to Create File.", e);
         }
     }
 
@@ -100,7 +100,7 @@ public class JcrFolder extends JcrEntity implements RFolder {
                 }
             }
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to list nodes", e);
+            throw new RRepositoryException("Failed to list nodes.", e);
         }
     }
 }

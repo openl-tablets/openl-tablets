@@ -64,7 +64,7 @@ public class JcrDeploymentDescriptorProject extends JcrCommonProject implements 
             projects.clear();
             projects = newProjects;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot set project descriptors for {0}", e, getName());
+            throw new RRepositoryException("Cannot set project descriptors for ''{0}''.", e, getName());
         }        
     }
     
@@ -73,7 +73,7 @@ public class JcrDeploymentDescriptorProject extends JcrCommonProject implements 
         try {
             return JcrProjectDescriptor.create(node, name);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot create project descriptor {0}", e, name);
+            throw new RRepositoryException("Cannot create project descriptor ''{0}''.", e, name);
         }        
     }
     
@@ -82,7 +82,7 @@ public class JcrDeploymentDescriptorProject extends JcrCommonProject implements 
             Node frozenNode = NodeUtil.getNode4Version(node(), version);
             return new JcrOldDeploymentProject(getName(), frozenNode);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get project version", e);
+            throw new RRepositoryException("Cannot get project version.", e);
         }
     }
     

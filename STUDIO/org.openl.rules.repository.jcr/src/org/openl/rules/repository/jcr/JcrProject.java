@@ -132,7 +132,7 @@ public class JcrProject extends JcrEntity implements RProject {
             Node frozenNode = NodeUtil.getNode4Version(node(), version);
             return new JcrOldProject(getName(), frozenNode, version);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get project version", e);
+            throw new RRepositoryException("Cannot get project version.", e);
         }
     }
 

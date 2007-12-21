@@ -133,7 +133,7 @@ public class JcrOldEntity implements REntity {
     }
     
     protected void notSupported() throws RRepositoryException {
-        throw new RRepositoryException("Cannot modify artefact version", null);
+        throw new RRepositoryException("Cannot modify artefact version!", null);
     }
 
     /**
@@ -155,7 +155,7 @@ public class JcrOldEntity implements REntity {
         }
         
         if (!frozenNodeType.equals(actualFrozenNodeType)) {
-            throw new RepositoryException("Invalid NodeType '" + actualFrozenNodeType + "'. Expects " + frozenNodeType);
+            throw new RepositoryException("Invalid NodeType '" + actualFrozenNodeType + "'. Expects '" + frozenNodeType + "'.");
         }
     }
 }
