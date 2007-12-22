@@ -1,4 +1,4 @@
-<%@ page import="org.openl.rules.webstudio.web.jsf.util.WebStudioUtils" %>
+<%@ page import="org.openl.rules.webstudio.web.util.WebStudioUtils" %>
 <%@ page import="org.openl.rules.webtools.XlsUrlParser" %>
 <%@ page import="java.io.File" %>
 

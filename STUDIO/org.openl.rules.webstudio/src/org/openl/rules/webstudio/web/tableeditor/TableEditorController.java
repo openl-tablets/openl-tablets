@@ -10,8 +10,8 @@ import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 import java.io.IOException;
 import java.util.Map;

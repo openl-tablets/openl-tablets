@@ -1,8 +1,8 @@
 package org.openl.rules.webstudio.web.studio;
 
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;

@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.jsf.util;
+package org.openl.rules.webstudio.web.util;
 
 import java.util.TimeZone;
 

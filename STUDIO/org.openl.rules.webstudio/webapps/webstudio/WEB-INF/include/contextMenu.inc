@@ -1,4 +1,4 @@
-<%@ page import = "org.openl.rules.webstudio.web.jsf.util.WebStudioUtils" %>
+<%@ page import = "org.openl.rules.webstudio.web.util.WebStudioUtils" %>
 <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/popup/popupmenu.js"></script>
 <script type="text/javascript">
     function cellMouseOver(td, event) {

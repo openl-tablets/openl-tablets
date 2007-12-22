@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import org.openl.rules.webstudio.application.ThreadLocalUserHolder;
-import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;

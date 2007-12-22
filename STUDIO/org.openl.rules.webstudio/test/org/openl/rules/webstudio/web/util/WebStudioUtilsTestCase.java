@@ -1,12 +1,12 @@
-package org.openl.rules.webstudio.jsf.util;
+package org.openl.rules.webstudio.web.util;
 
-import org.openl.rules.webstudio.web.jsf.util.WebStudioUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 import junit.framework.TestCase;
 
-public class UtilTestCase extends TestCase {
+public class WebStudioUtilsTestCase extends TestCase {
     public void testIsLoopbackAddressV4() {
-        assertTrue(WebStudioUtils.isLoopbackAddress("127.0.0.1"));
+        assertTrue(org.openl.rules.webstudio.web.util.WebStudioUtils.isLoopbackAddress("127.0.0.1"));
         assertFalse(WebStudioUtils.isLoopbackAddress("192.168.0.2"));
     }
 
