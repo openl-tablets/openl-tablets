@@ -14,18 +14,16 @@ import org.openl.util.Log;
 public class RulesUserSession {
     private WorkspaceUser user;
     private UserWorkspace userWorkspace;
-    ProductionDeployer deployer;
+    private ProductionDeployer deployer;
     private MultiUserWorkspaceManager workspaceManager;
-    private ProductionDeployerManager deployerManager;
+    private ProductionDeployerManager deployerManager = new ProductionDeployerManagerImpl();
 
-    public RulesUserSession(WorkspaceUser user, MultiUserWorkspaceManager workspaceManager) {
+    public void setUser(WorkspaceUser user) {
         this.user = user;
-        this.workspaceManager = workspaceManager;
-        this.deployerManager = new ProductionDeployerManagerImpl();
     }
 
-    public String getUserId() {
-        return user.getUserId();
+    public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
+        this.workspaceManager = workspaceManager;
     }
 
     public synchronized UserWorkspace getUserWorkspace() throws WorkspaceException, ProjectException {
@@ -33,7 +31,7 @@ public class RulesUserSession {
             userWorkspace = workspaceManager.getUserWorkspace(user);
             userWorkspace.activate();
         }
-        
+
         return userWorkspace;
     }
 

@@ -4,6 +4,20 @@
 <faces-config>
 
   <managed-bean>
+    <managed-bean-name>rulesUserSession</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.servlet.RulesUserSession</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>workspaceManager</property-name>
+      <value>#{workspaceManager}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>user</property-name>
+      <value>#{currentUserInfo.user}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>diff</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.DiffFormController</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
@@ -20,18 +34,12 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>uploadService</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.services.upload.UploadService</managed-bean-class>
-    <managed-bean-scope>application</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
     <managed-bean-name>repositoryTreeState</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeState</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
     <managed-property>
       <property-name>userWorkspace</property-name>
-      <value>#{sessionScope.rulesUserSession.userWorkspace}</value>
+      <value>#{rulesUserSession.userWorkspace}</value>
     </managed-property>
   </managed-bean>
 
@@ -41,7 +49,7 @@
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>userWorkspace</property-name>
-      <value>#{sessionScope.rulesUserSession.userWorkspace}</value>
+      <value>#{rulesUserSession.userWorkspace}</value>
     </managed-property>
     <managed-property>
       <property-name>uploadService</property-name>

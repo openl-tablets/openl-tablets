@@ -594,7 +594,7 @@ public class RepositoryTreeController {
         params.setUnpackZipFile(false);
 
         try {
-            params.setWorkspace(getUserWorkSpace());
+            params.setWorkspace(userWorkspace);
         } catch (Exception e) {
             log.error("Error obtaining user workspace.", e);
             return e.getMessage();
@@ -645,7 +645,7 @@ public class RepositoryTreeController {
         params.setUnpackZipFile(false);
 
         try {
-            params.setWorkspace(getUserWorkSpace());
+            params.setWorkspace(userWorkspace);
         } catch (Exception e) {
             log.error("Error obtaining user workspace.", e);
             return e.getMessage();
@@ -664,13 +664,6 @@ public class RepositoryTreeController {
         }
 
         return null;
-    }
-
-    private UserWorkspace getUserWorkSpace() throws WorkspaceException, ProjectException {
-        RulesUserSession rulesUserSession = (RulesUserSession) FacesUtils.getSessionMap()
-                .get("rulesUserSession");
-
-        return rulesUserSession.getUserWorkspace();
     }
 
     public Map<String, Object> getProperties() {

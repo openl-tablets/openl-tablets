@@ -2,29 +2,36 @@ package org.openl.rules.webstudio.services.upload;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
+import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
 import java.io.InputStream;
 
+
 public class RProjectBuilder {
     private final static Log log = LogFactory.getLog(RProjectBuilder.class);
-
     private final UserWorkspaceProject project;
-    private final UploadFilter filter = FolderUploadFilter.VCS_FILES_FILTER;
+    private final PathFilter filter;
 
-    public RProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
+    public RProjectBuilder(UserWorkspace workspace, String projectName, PathFilter filter)
+        throws ProjectException
+    {
         workspace.createProject(projectName);
         project = workspace.getProject(projectName);
         project.checkOut();
+        this.filter = filter;
     }
 
-    public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
+    public boolean addFile(String fileName, InputStream inputStream)
+        throws ProjectException
+    {
         if (!filter.accept(fileName)) {
             return false;
         }
@@ -62,25 +69,28 @@ public class RProjectBuilder {
         return true;
     }
 
-
     public void checkIn() throws ProjectException {
         project.checkIn();
     }
 
     public void cancel() {
-	// it was created it will be perish
-	try {
-	    log.debug("Canceling uploading of new project");
+        // it was created it will be perish
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Canceling uploading of new project");
+            }
 
-	    project.close();
-	    project.delete();
-	    project.erase();
-	} catch (ProjectException e) {
-	    log.error("Failed to cancel new project", e);
-	}
+            project.close();
+            project.delete();
+            project.erase();
+        } catch (ProjectException e) {
+            log.error("Failed to cancel new project", e);
+        }
     }
 
-    private UserWorkspaceProjectFolder checkPath(UserWorkspaceProject project, String fullName) throws ProjectException {
+    private UserWorkspaceProjectFolder checkPath(UserWorkspaceProject project,
+        String fullName) throws ProjectException
+    {
         ArtefactPathImpl ap = new ArtefactPathImpl(fullName);
         UserWorkspaceProjectFolder current = project;
         for (String segment : ap.getSegments()) {
@@ -88,7 +98,7 @@ public class RProjectBuilder {
                 current = (UserWorkspaceProjectFolder) current.getArtefact(segment);
             } else {
                 // throws exception if name is invalid
-        	checkName(segment);
+                checkName(segment);
 
                 current = current.addFolder(segment);
             }
@@ -98,8 +108,9 @@ public class RProjectBuilder {
     }
 
     private void checkName(String artefactName) throws ProjectException {
-	if (!NameChecker.checkName(artefactName)) {
-	    throw new ProjectException("File or folder name '" + artefactName + "' is invalid. " + NameChecker.BAD_NAME_MSG);
-	}
+        if (!NameChecker.checkName(artefactName)) {
+            throw new ProjectException("File or folder name '" + artefactName
+                + "' is invalid. " + NameChecker.BAD_NAME_MSG);
+        }
     }
 }

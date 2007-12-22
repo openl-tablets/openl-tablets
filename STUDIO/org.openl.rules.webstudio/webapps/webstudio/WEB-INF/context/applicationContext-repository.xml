@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans default-autowire="no">
+
+  <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager" />
+
+  <bean id="currentUserInfo" class="org.openl.rules.webstudio.application.CurrentUserInfo" />
+
+  <bean id="pathFilter" class="org.openl.rules.workspace.filter.CompoundFilter">
+    <constructor-arg>
+      <list>
+        <bean class="org.openl.rules.workspace.filter.FolderFilter">
+          <constructor-arg>
+            <value>.svn</value>
+          </constructor-arg>
+        </bean>
+        <bean class="org.openl.rules.workspace.filter.FolderFilter">
+          <constructor-arg>
+            <value>CVS</value>
+          </constructor-arg>
+        </bean>
+        <bean class="org.openl.rules.workspace.filter.FileFilter">
+          <constructor-arg>
+            <value>.cvsignore</value>
+          </constructor-arg>
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="uploadService" class="org.openl.rules.webstudio.services.upload.UploadService">
+    <property name="pathFilter" ref="pathFilter" />
+  </bean>
+
+</beans>

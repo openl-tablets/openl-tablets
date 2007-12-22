@@ -56,16 +56,8 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>formatPatterns</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.jsf.util.FormatPatterns</managed-bean-class>
-    <managed-bean-scope>application</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
     <managed-bean-name>localUpload</managed-bean-name>
-    <managed-bean-class>
-      org.openl.rules.webstudio.web.repository.LocalUploadController
-    </managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.LocalUploadController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
