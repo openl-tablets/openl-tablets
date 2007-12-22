@@ -5,6 +5,7 @@
 
   <application>
     <view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
+    <variable-resolver>org.springframework.web.jsf.DelegatingVariableResolver</variable-resolver>
 
     <locale-config>
       <default-locale>en</default-locale>

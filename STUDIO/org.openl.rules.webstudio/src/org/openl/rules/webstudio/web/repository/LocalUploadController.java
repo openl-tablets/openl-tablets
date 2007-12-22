@@ -34,7 +34,7 @@ public class LocalUploadController {
                     dtr = userRules.getUserWorkspace().getDesignTimeRepository();
                 } catch (Exception e) {
                     return null;
-                } 
+                }
 
                 List<File> projects = webStudio.getLocator().listOpenLFolders();
                 for (File f : projects)
@@ -62,7 +62,7 @@ public class LocalUploadController {
         RulesUserSession rulesUserSession = getRules();
 
         List<UploadBean> beans = uploadBeans;
-        uploadBeans = null; // force re-read. 
+        uploadBeans = null; // force re-read.
 
         if (beans != null) {
             for (UploadBean bean : beans)

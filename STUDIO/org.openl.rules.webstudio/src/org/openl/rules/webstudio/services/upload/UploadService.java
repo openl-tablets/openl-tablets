@@ -1,20 +1,23 @@
 package org.openl.rules.webstudio.services.upload;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.openl.rules.webstudio.services.ServiceException;
+import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.filter.PathFilter;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.rules.webstudio.services.ServiceException;
-import org.openl.rules.workspace.abstracts.ProjectException;
 
 
 /**
@@ -24,6 +27,11 @@ import org.openl.rules.workspace.abstracts.ProjectException;
  */
 public class UploadService extends BaseUploadService {
     private final static Log log = LogFactory.getLog(UploadService.class);
+    private PathFilter pathFilter;
+
+    public void setPathFilter(PathFilter pathFilter) {
+        this.pathFilter = pathFilter;
+    }
 
     /**
      * {@inheritDoc}
@@ -81,7 +89,8 @@ public class UploadService extends BaseUploadService {
     {
         RProjectBuilder builder;
         try {
-            builder = new RProjectBuilder(params.getWorkspace(), params.getProjectName());
+            builder = new RProjectBuilder(params.getWorkspace(), params.getProjectName(),
+                    pathFilter);
         } catch (ProjectException e) {
             throw new ServiceException("Error creating project: " + e.getMessage(), e);
         }
@@ -91,7 +100,8 @@ public class UploadService extends BaseUploadService {
 
         // Sort zip entries names alphabetically
         Set<String> sortedNames = new TreeSet<String>();
-        for (Enumeration<?extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+        for (Enumeration<?extends ZipEntry> items = zipFile.entries();
+                items.hasMoreElements();) {
             ZipEntry item = items.nextElement();
             sortedNames.add(item.getName());
         }
@@ -100,28 +110,31 @@ public class UploadService extends BaseUploadService {
             ZipEntry item = zipFile.getEntry(name);
 
             if (item.isDirectory()) {
-        	try {
-        	    builder.addFolder(item.getName());
-        	} catch (ProjectException e) {
-        	    builder.cancel();
-        	    throw new ServiceException("Error adding folder to user workspace: " + e.getMessage(), e);
-        	}
+                try {
+                    builder.addFolder(item.getName());
+                } catch (ProjectException e) {
+                    builder.cancel();
+                    throw new ServiceException("Error adding folder to user workspace: "
+                        + e.getMessage(), e);
+                }
             } else {
-        	InputStream zipInputStream = zipFile.getInputStream(item);
+                InputStream zipInputStream = zipFile.getInputStream(item);
 
-        	try {
-        	    builder.addFile(item.getName(), zipInputStream);
-        	} catch (ProjectException e) {
-        	    builder.cancel();
-        	    throw new ServiceException("Error adding file to user workspace: " + e.getMessage(), e);
-        	}
+                try {
+                    builder.addFile(item.getName(), zipInputStream);
+                } catch (ProjectException e) {
+                    builder.cancel();
+                    throw new ServiceException("Error adding file to user workspace: "
+                        + e.getMessage(), e);
+                }
             }
         }
 
         try {
             builder.checkIn();
         } catch (ProjectException e) {
-            throw new ServiceException("Error during project checkIn: " + e.getMessage(), e);
+            throw new ServiceException("Error during project checkIn: " + e.getMessage(),
+                e);
         }
 
         result.setResultFile(uploadDir);
