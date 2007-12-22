@@ -4,6 +4,6 @@
 
 <beans default-autowire="no">
 
-  <bean id="formatPatterns" class="org.openl.rules.webstudio.web.jsf.util.FormatPatterns"/>
+  <bean id="formatPatterns" class="org.openl.rules.webstudio.web.util.FormatPatterns"/>
 
 </beans>

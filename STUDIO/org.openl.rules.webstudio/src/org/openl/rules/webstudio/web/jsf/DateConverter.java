@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web.jsf;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.webstudio.web.jsf.util.ComponentUtils;
 
+import org.openl.rules.webstudio.web.jsf.util.ComponentUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -19,7 +19,8 @@ import javax.faces.convert.ConverterException;
 
 
 /**
- * Special date converter to suppress rich:calendar conversion errors.
+ * Special date converter to suppress rich:calendar conversion errors in manual input
+ * mode.
  *
  * @author Andrey Naumenko
  */

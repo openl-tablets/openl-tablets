@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 
 <%@page import="org.openl.rules.webstudio.web.servlet.RulesUserSession"%>
-<%@page import="org.openl.rules.webstudio.web.jsf.util.WebStudioUtils"%>
+<%@page import="org.openl.rules.webstudio.web.util.WebStudioUtils"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspace"%>
 <%@page import="org.openl.rules.ui.WebStudio"%>
 <%@page import="java.util.Set"%>

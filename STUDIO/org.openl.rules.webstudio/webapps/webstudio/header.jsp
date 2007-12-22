@@ -1,5 +1,5 @@
 <%@ page import = "org.openl.rules.ui.*" %>
-<%@ page import = "org.openl.rules.webstudio.web.jsf.util.WebStudioUtils" %>
+<%@ page import = "org.openl.rules.webstudio.web.util.WebStudioUtils" %>
 
 
 <html>
