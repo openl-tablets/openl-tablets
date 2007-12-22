@@ -264,7 +264,8 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     public String getVersionName() {
         if (dataBean instanceof UserWorkspaceProject) {
-            return ((UserWorkspaceProject)dataBean).getVersion().getVersionName();
+            ProjectVersion version = ((UserWorkspaceProject)dataBean).getVersion();
+            return (version == null) ? null : version.getVersionName();
         }
         return null;
     }
