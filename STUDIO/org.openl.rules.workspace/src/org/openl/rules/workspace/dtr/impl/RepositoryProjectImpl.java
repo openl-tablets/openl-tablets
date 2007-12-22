@@ -123,7 +123,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             rulesProject.delete(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to delete project ''{0}''.", e, getName());
-        }        
+        }
     }
 
     public void undelete(CommonUser user) throws ProjectException {
@@ -137,7 +137,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             rulesProject.undelete(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to undelete project ''{0}''.", e, getName());
-        }        
+        }
     }
 
     public void erase(CommonUser user) throws ProjectException {
@@ -145,7 +145,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             rulesProject.erase(user);
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to erase project ''{0}''.", e, getName());
-        }        
+        }
     }
 
     public void update(ProjectArtefact srcArtefact) throws ProjectException {
@@ -156,7 +156,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             rulesProject.setDependencies(srcProject.getDependencies());
         } catch (RRepositoryException e) {
             throw new ProjectException("Cannot update dependencies.", e);
-        }        
+        }
     }
 
     public void commit(Project source, CommonUser user) throws ProjectException {
@@ -175,8 +175,9 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         try {
             return rulesProject.isMarked4Deletion();
         } catch (RRepositoryException e) {
-            Log.error("isMarkedForDeletion", e);
-            return false;
+            Log.debug("isMarkedForDeletion", e);
+            // most likely project was erased
+            return true;
         }
     }
 
@@ -186,7 +187,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         } catch (RRepositoryException e) {
             Log.error(e);
             return false;
-        }        
+        }
     }
 
     public LockInfo getlLockInfo() {
@@ -195,7 +196,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         } catch (RRepositoryException e) {
             Log.error(e);
             return LockInfoImpl.NO_LOCK;
-        }        
+        }
     }
 
     public void delete() throws ProjectException {
@@ -207,6 +208,6 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             rulesProject.riseVersion(major, minor);
         } catch (RRepositoryException e) {
             throw new ProjectException(e.getMessage(), e);
-        }        
+        }
     }
 }
