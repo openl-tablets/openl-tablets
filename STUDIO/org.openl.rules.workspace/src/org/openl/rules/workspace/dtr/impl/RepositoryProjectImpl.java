@@ -38,6 +38,11 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
 
     public ProjectVersion getVersion() {
         RVersion rv = rulesProject.getActiveVersion();
+
+        if (rv == null) {
+            return null;
+        }
+
         RepositoryVersionInfoImpl info = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
         RepositoryProjectVersionImpl version = new RepositoryProjectVersionImpl(rv, info);
 
