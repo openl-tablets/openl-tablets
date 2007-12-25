@@ -27,9 +27,9 @@ public class CellEditorSelector {
         if (dataType == null) {
             return null;
         }
+        IDomain domain = dataType.getDomain();
 
         if (dataType.getInstanceClass() == int.class /*|| dataType.getInstanceClass() == IntRange.class*/) {
-            IDomain domain = dataType.getDomain();
 
             if (domain == null) {
                 return factory.makeIntEditor(Integer.MIN_VALUE,
@@ -43,7 +43,6 @@ public class CellEditorSelector {
         }
 
         if (dataType.getInstanceClass() == String.class) {
-            IDomain domain = dataType.getDomain();
 
             if (domain instanceof EnumDomain) {
                 EnumDomain enumDomain = (EnumDomain) domain;
