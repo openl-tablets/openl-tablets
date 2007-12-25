@@ -29,7 +29,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
 	private Collection<WorkbookListener> listeners = new ArrayList<WorkbookListener>();
 
-	XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, HSSFWorkbook workbook)
+	public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, HSSFWorkbook workbook)
 	{
 		super(src);
 		this.workbook = workbook;
