@@ -34,11 +34,8 @@ public class UndoableClearAction extends AUndoableCellAction
 		if (rrTo == null)
 			return;
 
-		if (rrTo != null)
-		{
-			toRestore = new GridRegion(rrTo);
-			wgrid.removeMergedRegion(toRestore);
-		}
+		toRestore = new GridRegion(rrTo);
+		wgrid.removeMergedRegion(toRestore);
 	}
 
 	public void restore(IWritableGrid wgrid, IUndoGrid undo)
@@ -47,6 +44,5 @@ public class UndoableClearAction extends AUndoableCellAction
 			wgrid.addMergedRegion(toRestore);
 		super.restore(wgrid, undo);
 	}
-	
-	
+
 }

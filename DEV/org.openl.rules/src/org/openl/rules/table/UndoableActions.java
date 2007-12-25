@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class UndoableActions 
 {
 
-	ArrayList undoableActions = new ArrayList();
+	ArrayList<IUndoableAction> undoableActions = new ArrayList<IUndoableAction>();
 	
 	int currentUndoIndex = 0;
 	int undoSize = 0;
@@ -41,13 +41,13 @@ public class UndoableActions
 	
 	public IUndoableAction undo()
 	{
-		return (IUndoableAction) undoableActions.get(--currentUndoIndex);
+		return undoableActions.get(--currentUndoIndex);
 	}
 	
 
 	public IUndoableAction redo()
 	{
-		return (IUndoableAction) undoableActions.get(currentUndoIndex++);
+		return undoableActions.get(currentUndoIndex++);
 	}
 	
 }

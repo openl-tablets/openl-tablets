@@ -293,14 +293,14 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 		// testMethodSelector);
 	}
 
-	static Comparator tableComparator = new Comparator()
+	static Comparator<TableSyntaxNode> tableComparator = new Comparator<TableSyntaxNode>()
 	{
 
-		public int compare(Object o1, Object o2)
+		public int compare(TableSyntaxNode ts1, TableSyntaxNode ts2)
 		{
-			String s1 = ((ISyntaxNode) o1).getType();
+			String s1 = ts1.getType();
 
-			String s2 = ((ISyntaxNode) o2).getType();
+			String s2 = ts2.getType();
 
 			int i1 = ITableNodeTypes.XLS_TEST_METHOD.equals(s1)
 					|| ITableNodeTypes.XLS_RUN_METHOD.equals(s1) ? 1 : 0;
@@ -328,11 +328,11 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 	 */
 	protected IBoundNode bindInternal(ISyntaxNode moduleNode, OpenL openl,
 			ModuleBindingContext moduleContext, XlsModuleOpenClass module,
-			ISelector childSelector, Comparator cmp)
+			ISelector<ISyntaxNode> childSelector, Comparator<TableSyntaxNode> cmp)
 	{
 
 		int nchildren = moduleNode.getNumberOfChildren();
-		ArrayList list = new ArrayList(nchildren);
+		ArrayList<ISyntaxNode> list = new ArrayList<ISyntaxNode>(nchildren);
 
 		for (int i = 0; i < nchildren; i++)
 		{
@@ -341,7 +341,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 				list.add(childNode);
 		}
 
-		TableSyntaxNode[] chNodes = (TableSyntaxNode[]) list
+		TableSyntaxNode[] chNodes = list
 				.toArray(new TableSyntaxNode[0]);
 
 		if (cmp != null)
@@ -394,7 +394,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 			{
 				try
 				{
-					((IMemberBoundNode) children[i]).finalizeBind(moduleContext);
+					children[i].finalizeBind(moduleContext);
 				} catch (BoundError be)
 				{
 					be.setTopLevelSyntaxNode(chNodes[i]);

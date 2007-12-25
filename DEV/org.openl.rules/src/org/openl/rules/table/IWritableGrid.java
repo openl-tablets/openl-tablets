@@ -176,6 +176,8 @@ public interface IWritableGrid extends IGrid
 		public static IUndoableGridAction setStringValue(int col, int row,
 				IGridRegion region, String value)
 		{
+			
+			
 			int gcol = region.getLeft() + col;
 			int grow = region.getTop() + row;
 

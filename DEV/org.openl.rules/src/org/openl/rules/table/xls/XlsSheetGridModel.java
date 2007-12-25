@@ -646,7 +646,26 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 
 	public void setCellValue(int col, int row, Object value)
 	{
-		// TODO Auto-generated method stub
+		if (value  == null)
+			return;
+		
+		
+		HSSFCell cell = createNewCell(col, row);
+		
+		if (value instanceof Number)
+		{
+			Number x = (Number) value;
+			cell.setCellValue(x.doubleValue());
+			
+		}
+		else
+			if (value instanceof Date)
+			{
+				Date x = (Date) value;
+				cell.setCellValue(x);
+			}
+			else 
+				cell.setCellValue(String.valueOf(value));
 
 	}
 
