@@ -75,4 +75,8 @@ public class JcrRulesClient {
         ProductionRepositoryFactoryProxy.getRepositoryInstance().removeListener(l);
     }
 
+    public void release() throws RRepositoryException {
+        ProductionRepositoryFactoryProxy.release();
+    }
+
 }
