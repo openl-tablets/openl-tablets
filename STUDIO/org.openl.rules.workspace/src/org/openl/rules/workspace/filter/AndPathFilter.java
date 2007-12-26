@@ -1,17 +1,22 @@
 package org.openl.rules.workspace.filter;
 
-import java.util.Arrays;
 import java.util.List;
 
 
-public class CompoundFilter implements PathFilter {
+/**
+ * A {@link org.openl.rules.workspace.filter.PathFilter} providing conditional AND
+ * logic across a list of file filters. This filter returns <code>true</code> if all
+ * filters in the list return <code>true</code>. Otherwise, it returns
+ * <code>false</code>. Checking of the file filter list stops when the first filter
+ * returns <code>false</code>.
+ *
+ * @author Aliaksandr Antonik
+ * @author Andrey Naumenko
+ */
+public class AndPathFilter implements PathFilter {
     private final List<PathFilter> filters;
 
-    public CompoundFilter(PathFilter... filters) {
-        this.filters = Arrays.asList(filters);
-    }
-
-    public CompoundFilter(List<PathFilter> filters) {
+    public AndPathFilter(List<PathFilter> filters) {
         this.filters = filters;
     }
 

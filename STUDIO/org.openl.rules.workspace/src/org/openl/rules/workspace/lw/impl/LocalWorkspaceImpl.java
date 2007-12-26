@@ -12,6 +12,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.util.Log;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,11 +25,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private File location;
     private Map<String, LocalProject> localProjects;
     private List<LocalWorkspaceListener> listeners = new ArrayList<LocalWorkspaceListener>();
+    private FileFilter localWorkspaceFolderFilter;
+    private FileFilter localWorkspaceFileFilter;
 
-    public LocalWorkspaceImpl(WorkspaceUser user, File location) {
+    public LocalWorkspaceImpl(WorkspaceUser user, File location, FileFilter localWorkspaceFolderFilter, FileFilter localWorkspaceFileFilter) {
         this.user = user;
         this.location = location;
-        
+        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
+        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
+
         localProjects = new HashMap<String, LocalProject>();
 
         loadProjects();
@@ -92,7 +97,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
 
         // check new
-        File[] folders = location.listFiles(FolderHelper.getFoldersOnlyFilter());
+        File[] folders = location.listFiles(localWorkspaceFolderFilter);
         if (folders == null) return;
 
         for (File folder : folders) {
@@ -100,7 +105,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             if (!localProjects.containsKey(name)) {
                 // new project detected
                 ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
-                LocalProjectImpl newlyDetected = new LocalProjectImpl(name, ap, folder, this);
+                LocalProjectImpl newlyDetected = new LocalProjectImpl(name, ap, folder, this, localWorkspaceFileFilter);
 
                 try {
                     newlyDetected.load();
@@ -160,9 +165,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
         File f = new File(location, name);
 
-        LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, this);
+        LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, this, localWorkspaceFileFilter);
         lpi.downloadArtefact(project);
-        
+
         lpi.save();
 
         // add project
@@ -171,12 +176,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     protected void loadProjects() {
-        File[] folders = location.listFiles(FolderHelper.getFoldersOnlyFilter());
+        File[] folders = location.listFiles(localWorkspaceFolderFilter);
         for (File f : folders) {
             String name = f.getName();
             ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
 
-            LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, this);
+            LocalProjectImpl lpi = new LocalProjectImpl(name, ap, f, this, localWorkspaceFileFilter);
             try {
                 lpi.load();
             } catch (ProjectException e) {

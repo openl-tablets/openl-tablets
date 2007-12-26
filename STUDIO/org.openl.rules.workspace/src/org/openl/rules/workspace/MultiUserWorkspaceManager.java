@@ -22,23 +22,25 @@ import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
  * <p/>
  * It takes care of creation and releasing of User Workspaces.
  * Also, it initializes Local Workspace Manager and Design Time Repository.
- * 
+ *
  * @author Aleh Bykhavets
  *
  */
 public class MultiUserWorkspaceManager implements UserWorkspaceListener{
     private ProductionDeployerManager deployerManager;
-    /** Manager of Local Workspaces */
-    private LocalWorkspaceManager localManager;
     /** Design Time Repository */
     private DesignTimeRepository designTimeRepository;
     /** Cache for User Workspaces */
     private Map<String, UserWorkspace> userWorkspaces;
+    /** Manager of Local Workspaces */
+    private LocalWorkspaceManager localWorkspaceManager;
+
+    public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkSpaceManager) {
+        this.localWorkspaceManager = localWorkSpaceManager;
+    }
 
     public MultiUserWorkspaceManager() throws WorkspaceException {
         userWorkspaces = new HashMap<String, UserWorkspace>();
-
-        localManager = new LocalWorkspaceManagerImpl();
         deployerManager = new ProductionDeployerManagerImpl();
         try {
             designTimeRepository = new DesignTimeRepositoryImpl();
@@ -50,12 +52,12 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener{
     /**
      * Returns .
      * <p/>
-     * It creates Workspace (including local) for specified user 
+     * It creates Workspace (including local) for specified user
      * on first request.
-     * 
+     *
      * @param user active user
      * @return new or cached instance of user workspace
-     * 
+     *
      * @throws WorkspaceException if failed
      */
     public UserWorkspace getUserWorkspace(WorkspaceUser user) throws WorkspaceException {
@@ -69,7 +71,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener{
     }
 
     protected UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
-        LocalWorkspace usersLocalWorkspace = localManager.getWorkspace(user);
+        LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
         ProductionDeployer deployer;
         try {
             deployer = deployerManager.getDeployer(user);
@@ -80,7 +82,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener{
     }
 
     /**
-     * UserWorkspace should notify manager that life cycle of 
+     * UserWorkspace should notify manager that life cycle of
      * the workspace is ended and it must be removed from cache.
      */
     public void workspaceReleased(UserWorkspace workspace) {

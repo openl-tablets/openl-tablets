@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,14 +25,14 @@ import org.openl.util.Log;
 
 public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalProject {
     private static final LinkedList<ProjectDependency> EMPTY_LIST = new LinkedList<ProjectDependency>();
-    
+
     private ProjectVersion version;
     private Collection<ProjectDependency> dependencies;
 
     private LocalWorkspaceImpl localWorkspace;
 
-    public LocalProjectImpl(String name, ArtefactPath path, File location, LocalWorkspaceImpl localWorkspace) {
-        super(name, path, location);
+    public LocalProjectImpl(String name, ArtefactPath path, File location, LocalWorkspaceImpl localWorkspace, FileFilter localWorkspaceFileFilter) {
+        super(name, path, location, localWorkspaceFileFilter);
 
         version = new RepositoryProjectVersionImpl(0, 0, 0, null);
         this.localWorkspace = localWorkspace;
@@ -61,7 +62,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
 
     public synchronized void load() throws ProjectException {
         refresh();
-        
+
         loadAllStates(this);
     }
 
@@ -76,16 +77,16 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     }
 
     public void checkedIn(ProjectVersion newVersion) {
-	// update new version
-	version = newVersion;
-	// reset all isNew & isChanged
-	resetNewAndChanged();
-	
+    // update new version
+    version = newVersion;
+    // reset all isNew & isChanged
+    resetNewAndChanged();
+
         try {
-	    save();
-	} catch (ProjectException e) {
-	    Log.error("Failed to save local project state", e);
-	}
+        save();
+    } catch (ProjectException e) {
+        Log.error("Failed to save local project state", e);
+    }
     }
 
     // --- protected
@@ -95,8 +96,8 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
 
         version = project.getVersion();
         dependencies = project.getDependencies();
-        
-	// reset all isNew & isChanged
+
+    // reset all isNew & isChanged
         resetNewAndChanged();
     }
 
@@ -120,7 +121,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
             }
         }
     }
-    
+
     private static void loadState(LocalProjectArtefactImpl artefact, File sourceFile) {
         if (!sourceFile.isFile()) return;
 
@@ -146,9 +147,9 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
 
     private static void loadAllStates(LocalProjectFolderImpl folder) throws ProjectException {
         File propFolder = getPropertiesFolder(folder);
-        
+
         loadState(folder, FolderHelper.getFolderPropertiesFile(propFolder));
-        
+
         for (LocalProjectArtefact artefact : folder.getArtefacts()) {
             if (artefact.isFolder()) {
                 loadAllStates((LocalProjectFolderImpl) artefact);
@@ -162,7 +163,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         File propFolder = createPropertiesFolder(folder);
 
         saveState(folder, FolderHelper.getFolderPropertiesFile(propFolder));
-        
+
         for (LocalProjectArtefact artefact : folder.getArtefacts()) {
             if (artefact.isFolder()) {
                 saveAllStates((LocalProjectFolderImpl) artefact);
@@ -198,19 +199,19 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
 
     public StateHolder getState() {
         ProjectStateHolder state = new ProjectStateHolder();
-        
+
         state.parent = super.getState();
-        
+
         state.version = version;
         state.dependencies = new ArrayList<ProjectDependency>(getDependencies());
-        
+
         return state;
     }
-    
+
     public void setState(StateHolder aState) throws PropertyException {
         ProjectStateHolder state = (ProjectStateHolder) aState;
         super.setState(state.parent);
-        
+
         version = state.version;
         dependencies = new ArrayList<ProjectDependency>(state.dependencies);
     }
@@ -219,7 +220,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         private static final long serialVersionUID = 1659670527173898554L;
 
         StateHolder parent;
-        
+
         ProjectVersion version;
         Collection<ProjectDependency> dependencies;
     }
