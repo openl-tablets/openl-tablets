@@ -70,4 +70,15 @@ public class CommonVersionImpl implements CommonVersion {
         
         return (revision - o.getRevision());
     }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CommonVersion)) return false;
+
+        return compareTo((CommonVersion) o) == 0;
+    }
+
+    public int hashCode() {
+        return (major << 22) ^ (minor << 11) ^ revision;
+    }
 }
