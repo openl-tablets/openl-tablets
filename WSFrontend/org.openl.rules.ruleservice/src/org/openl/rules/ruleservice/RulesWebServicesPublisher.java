@@ -27,6 +27,8 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
     private Map<String, String> deployment2Version = new HashMap<String, String>();
     private Map<String, ClassLoader> deployment2ClassLoader = new HashMap<String, ClassLoader>();
 
+    private DeployAdmin deployAdmin;
+    
     public RulesWebServicesPublisher() {
         client = new JcrRulesClient();
     }
@@ -39,14 +41,16 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
         }
     }
 
-
-    public void init() throws RRepositoryException {
-        deployRequired();
-
-        client.addListener(this);
+    public void setDeployAdmin(DeployAdmin deployAdmin) {
+        this.deployAdmin = deployAdmin;
     }
 
-    private void deployRequired() throws RRepositoryException {
+    public void init() throws RRepositoryException {
+        client.addListener(this);
+        deployRequired();
+    }
+
+    private synchronized void deployRequired() throws RRepositoryException {
         Collection<String> deployments = client.getDeploymentNames();
         for (String deployment : deployments) {
             deploy(deployment);
@@ -54,21 +58,26 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
     }
 
     private synchronized void undeploy(DeploymentInfo di) {
-        deployment2ClassLoader.remove(di.getName());
+        if (deployment2ClassLoader.remove(di.getName()) != null) {
+            deployAdmin.undeploy(di.getName());
+        }
     }
+
 
     private synchronized void deploy(String deployment) {
         DeploymentInfo di = DeploymentInfo.valueOf(deployment);
 
-        if (di.getVersion().equals(deployment2Version.get(di.getName()))) {
+        final String version = di.getVersion();
+        if (version == null || version.equals(deployment2Version.get(di.getName()))) {
             return;
         }
+        undeploy(di);
 
         try {
             File deploymentLocalFolder = downloadDeployment(di);
 
             List<File> openlWrappers = new ArrayList<File>();
-            List<String> serviceClasses = new ArrayList<String>();
+            List<WSInfo> serviceClasses = new ArrayList<WSInfo>();
             List<URL> classPathURLs = new ArrayList<URL>();
 
             for (File projectFolder : deploymentLocalFolder.listFiles()) {
@@ -86,19 +95,20 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
                         if (!new File(binFolder, FileSystemWalker.changeExtension(dif, "class")).exists()) continue;
 
                         String className = FileSystemWalker.removeExtension(dif).replaceAll("[/\\\\]", ".");
-                        serviceClasses.add(className);
+                        serviceClasses.add(new WSInfo(projectFolder, className));
                     }
 
                     addClasspathURL(classPathURLs, binFolder);
                 }
             }
 
-            URLClassLoader urlClassLoader = new URLClassLoader(classPathURLs.toArray(new URL[classPathURLs.size()]));
-
+            URLClassLoader urlClassLoader = new URLClassLoader(classPathURLs.toArray(new URL[classPathURLs.size()]),
+                    Thread.currentThread().getContextClassLoader());
+            
             deployment2ClassLoader.put(di.getName(), urlClassLoader);
             deployment2Version.put(di.getName(), di.getVersion());
 
-//            WebServicesDeployAdmin.deploy(urlClassLoader, serviceClasses);
+            deployAdmin.deploy(di.getName(), urlClassLoader, serviceClasses);
         } catch (Exception e) {
             log.error("failed to deploy project " + deployment, e);
         }
@@ -135,7 +145,7 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
     }
 
     public void destroy() throws RRepositoryException {
-        client.removeListener(this);
+        client.release();
     }
 
     public void projectsAdded() {

@@ -1,35 +1,72 @@
 package org.openl.rules.ruleservice;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.openl.rules.ruleservice.helper.CglibInstantiationStrategy;
+import org.openl.rules.ruleservice.helper.InstantiationStrategy;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
-public class WebServicesDeployAdmin {
+public class WebServicesDeployAdmin implements DeployAdmin {
+    private static Log log = LogFactory.getLog(WebServicesDeployAdmin.class);
 
-    public static void deploy(String serviceName, ClassLoader loader, List<String> serviceClasses) {
+    private Map<String, Collection<Server>> runningServices = new HashMap<String, Collection<Server>>();
+
+    public synchronized void deploy(String serviceName, ClassLoader loader, List<WSInfo> infoList) {
+        undeploy(serviceName);
+
         String address = "http://localhost:9000/" + serviceName + "/";
 
-        for (String className : serviceClasses) {
+        Collection<Server> servers = new ArrayList<Server>();
+        for (WSInfo wsInfo : infoList) {
             try {
-                deploy(address, loader, className);
+                servers.add(deploy(address, loader, wsInfo));
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("failed to create service", e);
+            }
+        }
+
+        runningServices.put(serviceName, servers);
+    }
+
+    public synchronized void undeploy(String serviceName) {
+        Collection<Server> servers = runningServices.remove(serviceName);
+        if (servers != null) {
+            for (Server server : servers) {
+                server.stop();
             }
         }
     }
 
-    private static void deploy(String baseAddress, ClassLoader loader, String className)
+    private Server deploy(String baseAddress, ClassLoader loader, WSInfo wsInfo)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Class<?> aClass = loader.loadClass(className);
+        Class<?> aClass = loader.loadClass(wsInfo.getClassName());
 
         ServerFactoryBean svrFactory = new ServerFactoryBean();
         svrFactory.setServiceClass(aClass);
-        svrFactory.setAddress(baseAddress + className);
+        svrFactory.setAddress(baseAddress + wsInfo.getClassName());
         svrFactory.getServiceFactory().setDataBinding(new AegisDatabinding());
 
-        svrFactory.setServiceBean(aClass.newInstance());
+        svrFactory.setServiceBean(getStrategy(wsInfo).instantiate(aClass));
 
-        svrFactory.create();
+        return svrFactory.create();
+    }
+
+    private InstantiationStrategy getStrategy(WSInfo wsInfo) {
+        String path = ".";
+        try {
+            path = wsInfo.getProject().getCanonicalPath();
+        } catch (IOException e) {
+            log.error("failed to get canonical path", e);
+        }
+        return new CglibInstantiationStrategy(path);
     }
 }
