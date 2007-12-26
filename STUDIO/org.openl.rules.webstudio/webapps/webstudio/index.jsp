@@ -8,6 +8,9 @@
 <%@page import="java.util.HashSet"%>
 <%@page import="org.openl.rules.workspace.abstracts.Project"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspaceProject"%>
+<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@page import="org.openl.rules.webstudio.application.CurrentUserInfo"%>
+<%@page import="org.openl.rules.workspace.MultiUserWorkspaceManager"%>
 <html>
 <head>
 <title>OpenL Web Studio</title>
@@ -19,6 +22,12 @@
 
 <%
 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
+if (rulesUserSession==null) {
+    rulesUserSession = new RulesUserSession();
+    rulesUserSession.setUser(((CurrentUserInfo)WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("currentUserInfo")).getUser());
+    rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager)WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("workspaceManager"));
+    session.setAttribute("rulesUserSession", rulesUserSession);
+}
 
 if (rulesUserSession != null && !WebStudioUtils.isLocalRequest(request) && (session.getAttribute("studio_from_userWorkspace")==null)) {
         UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
