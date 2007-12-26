@@ -2,8 +2,10 @@ package org.openl.rules.workspace.filter;
 
 import junit.framework.TestCase;
 
-import org.openl.rules.workspace.filter.FolderFilter;
+import org.openl.rules.workspace.filter.FolderNamePathFilter;
 import org.openl.rules.workspace.filter.PathFilter;
+
+import java.util.Arrays;
 
 
 public class FolderUploadFilter_VCS_FILES_FILTER_TestCase extends TestCase {
@@ -11,8 +13,9 @@ public class FolderUploadFilter_VCS_FILES_FILTER_TestCase extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        instance = new CompoundFilter(new FolderFilter(".svn"),
-                new FolderFilter("CVS"), new FileFilter(".cvsignore"));
+        instance = new AndPathFilter(Arrays.asList(
+                    new FolderNamePathFilter(Arrays.asList(".svn", "CVS")),
+                    new FileNamePathFilter(Arrays.asList(".cvsignore"))));
     }
 
     public void testAccepted() {

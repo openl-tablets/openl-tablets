@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,8 +24,12 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
 
     private boolean isPendingRefresh;
 
-    public LocalProjectFolderImpl(String name, ArtefactPath path, File location) {
+    private FileFilter localWorkSpaceFileFilter;
+
+
+    public LocalProjectFolderImpl(String name, ArtefactPath path, File location, FileFilter localWorkspaceFileFilter) {
         super(name, path, location);
+        this.localWorkSpaceFileFilter = localWorkspaceFileFilter;
 
         artefacts = new HashMap<String, LocalProjectArtefact>();
         isPendingRefresh = true;
@@ -63,7 +68,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
         }
 
         ArtefactPath ap = getArtefactPath().withSegment(name);
-        LocalProjectFolderImpl newFolder = new LocalProjectFolderImpl(name, ap, f);
+        LocalProjectFolderImpl newFolder = new LocalProjectFolderImpl(name, ap, f, localWorkSpaceFileFilter);
 
         addArtefact(newFolder);
         return newFolder;
@@ -136,7 +141,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
         LocalProjectArtefactImpl newArtefact;
         if (f.isDirectory()) {
             // folder
-            newArtefact = new LocalProjectFolderImpl(name, ap, f);
+            newArtefact = new LocalProjectFolderImpl(name, ap, f, localWorkSpaceFileFilter);
         } else {
             // file
             newArtefact = new LocalProjectResourceImpl(name, ap, f);
@@ -166,7 +171,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
             if (pa.isFolder()) {
                 ProjectFolder pf = (ProjectFolder) pa;
 
-                LocalProjectFolderImpl lpfi = new LocalProjectFolderImpl(name, ap, f);
+                LocalProjectFolderImpl lpfi = new LocalProjectFolderImpl(name, ap, f, localWorkSpaceFileFilter);
                 lpfi.downloadArtefact(pf);
 
                 artefacts.put(name, lpfi);
@@ -200,7 +205,7 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
     private void realRefresh() {
         isPendingRefresh = false;
 
-        File[] files = getLocation().listFiles(FolderHelper.getLocalFilesFilter());
+        File[] files = getLocation().listFiles(localWorkSpaceFileFilter);
 
         HashMap<String, File> fileMap = new HashMap<String, File>();
         for (File f : files) {
