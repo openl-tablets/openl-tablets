@@ -15,8 +15,6 @@ import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
-import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
@@ -145,6 +143,7 @@ public class RepositoryTreeController {
                 UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
                 try {
                     folder.addFolder(folderName);
+                    repositoryTreeState.refreshSelectedNode();
                     repositoryTreeState.invalidateTree();
                 } catch (ProjectException e) {
                     log.error("Failed to create folder '" + folderName + "'.", e);
@@ -575,6 +574,7 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage("File was uploaded successfully."));
+            repositoryTreeState.refreshSelectedNode();
             repositoryTreeState.invalidateTree();
         } else {
             FacesContext.getCurrentInstance()

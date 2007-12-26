@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.services.upload;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -7,19 +8,15 @@ import org.openl.rules.webstudio.services.Service;
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.services.ServiceParams;
 import org.openl.rules.webstudio.services.ServiceResult;
-import org.openl.rules.webstudio.util.IOUtils;
 
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import java.util.zip.ZipFile;
 
 
 /**
@@ -38,18 +35,14 @@ public abstract class BaseUploadService implements Service {
         UploadServiceResult result = null;
 
         try {
-            if (params.getFile()==null) {
+            if (params.getFile() == null) {
                 throw new ServiceException("File was not found.");
             }
             if (params.isUnpackZipFile()) {
-                if (isZipFile(params)) {
-                    result = uploadZipFile(params);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Zip file uploaded and unpacked: "
-                            + result.getResultFiles());
-                    }
-                } else {
-                    throw new NotUnzippedFileException("File is not a valid zip archive.");
+                result = uploadZipFile(params);
+                if (log.isDebugEnabled()) {
+                    log.debug("Zip file uploaded and unpacked: "
+                        + result.getResultFiles());
                 }
             } else {
                 result = uploadNonZipFile(params);
@@ -65,41 +58,6 @@ public abstract class BaseUploadService implements Service {
         return result;
     }
 
-    private boolean isZipFile(UploadServiceParams params) {
-        File tempFile = null;
-        FileInputStream is = null;
-
-        try {
-            tempFile = File.createTempFile("upload", "zip");
-            saveFile(params, tempFile);
-
-            is = new FileInputStream(tempFile);
-
-            //Check signature. We make it, because ZipFile try open big non-zip files too slow
-            boolean isZipSignatureCorrect = (is.read() == 'P') && (is.read() == 'K');
-            ZipFile zip = null;
-            try {
-                if (isZipSignatureCorrect) {
-                    zip = new ZipFile(tempFile);
-
-                    return true;
-                }
-            } finally {
-                if (zip != null) {
-                    zip.close();
-                }
-            }
-        } catch (IOException e) {
-            // ignore
-        } finally {
-            IOUtils.closeSilently(is);
-            if (tempFile != null) {
-                tempFile.delete();
-            }
-        }
-        return false;
-    }
-
     private void saveFile(UploadServiceParams params, File tempFile)
         throws FileNotFoundException, IOException
     {
@@ -109,8 +67,8 @@ public abstract class BaseUploadService implements Service {
             is = params.getFile().getInputStream();
             FileCopyUtils.copy(is, tempOS);
         } finally {
-            IOUtils.closeSilently(tempOS);
-            IOUtils.closeSilently(is);
+            IOUtils.closeQuietly(tempOS);
+            IOUtils.closeQuietly(is);
         }
     }
 

@@ -14,7 +14,7 @@
   </bean>
 
   <bean id="uploadService" class="org.openl.rules.webstudio.services.upload.UploadService">
-    <property name="pathFilter" ref="pathFilter" />
+    <property name="zipFilter" ref="zipFilter" />
   </bean>
 
 </beans>
