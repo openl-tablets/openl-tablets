@@ -2,7 +2,9 @@ package org.openl.rules.ruleservice;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.production.client.JcrRulesClient;
@@ -52,8 +54,28 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
 
     private synchronized void deployRequired() throws RRepositoryException {
         Collection<String> deployments = client.getDeploymentNames();
+
+        // computing latest versions of deployments
+        Map<String, CommonVersion> versionMap = new HashMap<String, CommonVersion>();
         for (String deployment : deployments) {
-            deploy(deployment);
+            DeploymentInfo di = DeploymentInfo.valueOf(deployment);
+            if (di == null)
+                continue;
+
+            CommonVersion version = versionMap.get(di.getName());
+
+            if (version == null || di.getVersion().compareTo(version) > 0) {
+                version = di.getVersion();
+            }
+
+            versionMap.put(di.getName(), version);
+        }
+
+        for (String deployment : deployments) {
+            DeploymentInfo di = DeploymentInfo.valueOf(deployment);
+            if (versionMap.get(di.getName()).equals(di.getVersion())) {
+                deploy(di);
+            }
         }
     }
 
@@ -64,11 +86,9 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
     }
 
 
-    private synchronized void deploy(String deployment) {
-        DeploymentInfo di = DeploymentInfo.valueOf(deployment);
-
-        final String version = di.getVersion();
-        if (version == null || version.equals(deployment2Version.get(di.getName()))) {
+    private synchronized void deploy(DeploymentInfo di) {
+        final String version = di.getVersion().getVersionName();
+        if (version.equals(deployment2Version.get(di.getName()))) {
             return;
         }
         undeploy(di);
@@ -106,11 +126,11 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
                     Thread.currentThread().getContextClassLoader());
             
             deployment2ClassLoader.put(di.getName(), urlClassLoader);
-            deployment2Version.put(di.getName(), di.getVersion());
+            deployment2Version.put(di.getName(), version);
 
             deployAdmin.deploy(di.getName(), urlClassLoader, serviceClasses);
         } catch (Exception e) {
-            log.error("failed to deploy project " + deployment, e);
+            log.error("failed to deploy project " + di.getDeployID(), e);
         }
     }
 

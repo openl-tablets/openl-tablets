@@ -1,22 +1,23 @@
 package org.openl.rules.ruleservice;
 
+import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.workspace.deploy.DeployID;
 
 public class DeploymentInfo {
     private String name;
-    private String version;
+    private CommonVersionImpl version;
     private final static char SEPARATOR = '#';
 
     public DeploymentInfo(String name, String version) {
         this.name = name;
-        this.version = version;
+        this.version = new CommonVersionImpl(version);
     }
 
     public String getName() {
         return name;
     }
 
-    public String getVersion() {
+    public CommonVersionImpl getVersion() {
         return version;
     }
 
@@ -40,7 +41,7 @@ public class DeploymentInfo {
     }
 
     public DeployID getDeployID() {
-        return new DeployID(name + SEPARATOR + version);
+        return new DeployID(name + SEPARATOR + version.getVersionName());
     }
 
     public static DeploymentInfo valueOf(String deployment) {
@@ -48,10 +49,14 @@ public class DeploymentInfo {
             throw new NullPointerException();
         }
 
-        int pos = deployment.lastIndexOf(SEPARATOR);
-        if (pos < 0) {
-            return new DeploymentInfo(deployment, null);
+        try {
+            int pos = deployment.lastIndexOf(SEPARATOR);
+            if (pos < 0) {
+                return new DeploymentInfo(deployment, null);
+            }
+            return new DeploymentInfo(deployment.substring(0, pos), deployment.substring(pos + 1));
+        } catch (Exception e) {
+            return null;
         }
-        return new DeploymentInfo(deployment.substring(0, pos), deployment.substring(pos + 1));
     }
 }
