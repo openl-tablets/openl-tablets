@@ -4,8 +4,4 @@
 
 <beans default-autowire="no">
 
-  <bean id="currentUserInfo" class="org.openl.rules.webstudio.application.CurrentUserInfo" />
-
-  <bean id="formatPatterns" class="org.openl.rules.webstudio.web.util.FormatPatterns"/>
-
 </beans>
