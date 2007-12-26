@@ -7,7 +7,8 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.commons,
  org.openl.rules.repository,
- org.junit
+ org.junit,
+ org.openl.lib.jsf
 Export-Package: org.openl,
  org.openl.rules.workspace,
  org.openl.rules.workspace.abstracts,
@@ -24,6 +25,5 @@ Export-Package: org.openl,
  org.openl.rules.workspace.props,
  org.openl.rules.workspace.props.impl,
  org.openl.rules.workspace.repository,
- org.openl.rules.workspace.util,
  org.openl.rules.workspace.uw,
  org.openl.rules.workspace.uw.impl
