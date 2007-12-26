@@ -21,7 +21,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="pathFilter" class="org.openl.rules.workspace.filter.AndPathFilter">
+  <bean id="zipFilter" class="org.openl.rules.workspace.filter.AndPathFilter">
     <constructor-arg>
       <list>
         <bean class="org.openl.rules.workspace.filter.FolderNamePathFilter">

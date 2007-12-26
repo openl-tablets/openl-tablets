@@ -27,10 +27,10 @@ import java.util.zip.ZipFile;
  */
 public class UploadService extends BaseUploadService {
     private final static Log log = LogFactory.getLog(UploadService.class);
-    private PathFilter pathFilter;
+    private PathFilter zipFilter;
 
-    public void setPathFilter(PathFilter pathFilter) {
-        this.pathFilter = pathFilter;
+    public void setZipFilter(PathFilter zipFilter) {
+        this.zipFilter = zipFilter;
     }
 
     /**
@@ -90,7 +90,7 @@ public class UploadService extends BaseUploadService {
         RProjectBuilder builder;
         try {
             builder = new RProjectBuilder(params.getWorkspace(), params.getProjectName(),
-                    pathFilter);
+                    zipFilter);
         } catch (ProjectException e) {
             throw new ServiceException("Error creating project: " + e.getMessage(), e);
         }
