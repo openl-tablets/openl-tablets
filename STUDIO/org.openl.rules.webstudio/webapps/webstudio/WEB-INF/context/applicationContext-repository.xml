@@ -4,30 +4,13 @@
 
 <beans default-autowire="no">
 
-  <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager" />
+  <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
+    <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
+    <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
+  </bean>
 
-  <bean id="currentUserInfo" class="org.openl.rules.webstudio.application.CurrentUserInfo" />
-
-  <bean id="pathFilter" class="org.openl.rules.workspace.filter.CompoundFilter">
-    <constructor-arg>
-      <list>
-        <bean class="org.openl.rules.workspace.filter.FolderFilter">
-          <constructor-arg>
-            <value>.svn</value>
-          </constructor-arg>
-        </bean>
-        <bean class="org.openl.rules.workspace.filter.FolderFilter">
-          <constructor-arg>
-            <value>CVS</value>
-          </constructor-arg>
-        </bean>
-        <bean class="org.openl.rules.workspace.filter.FileFilter">
-          <constructor-arg>
-            <value>.cvsignore</value>
-          </constructor-arg>
-        </bean>
-      </list>
-    </constructor-arg>
+  <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
+    <property name="localWorkspaceManager" ref="localWorkspaceManager" />
   </bean>
 
   <bean id="uploadService" class="org.openl.rules.webstudio.services.upload.UploadService">
