@@ -14,7 +14,7 @@
 .masthead {
   width: 100%;
   height: 70px;
-  background-image: url(/webstudio/images/header_logo.jpg);
+  background-image: url(../images/header_logo.jpg);
   background-repeat: no-repeat;
   min-width: 800px;
   max-width: 1400px;
@@ -25,8 +25,37 @@
 
 .logo {
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: 0px;
+  right: 7px;
+}
+
+span#userName {
+  background: url(../images/user.gif) no-repeat right;
+  color: black;
+  display: block;
+  font-size: 11px;
+  font-weight: bold;
+  padding-right: 17px;
+  padding-top: 2px;
+  position: absolute;
+  top: 52px;
+  right: 70px;
+}
+
+div#iconbar {
+  border: 0px solid gray;
+  display: block;
+  float: right;
+  height: 16px;
+  position: absolute;
+  top: 52px;
+  right: 11px;
+}
+
+#iconbar a {
+  text-decoration: none;
+  margin-left: 3px;
+  margin-right: 3px;
 }
 
 img.actionImage {
@@ -54,9 +83,9 @@ body {
   width: 100%;
   height: 100%;
 }
-/* ------------------------------------------- */
 
-/* form elements styles */
+/* ------------------------------------------- */
+  /* form elements styles */
 form .formfields {
   vertical-align: top;
   border: none;
@@ -246,20 +275,4 @@ table.standard tr.odd {
 /* RichFaces tree styles */
 .dr-pnl-b {
   padding: 2px !important;
-}
-
-div#iconbar {
-  border: 1px solid gray;
-  display: block;
-  float: right;
-  height: 16px;
-  position: relative;
-  right: 50px;
-  top: 0px;
-}
-
-#iconbar a {
-  text-decoration: none;
-  margin-left: 3px;
-  margin-right: 3px;
 }
