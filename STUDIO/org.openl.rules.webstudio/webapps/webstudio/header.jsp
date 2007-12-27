@@ -66,7 +66,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
       &nbsp;&nbsp;
 
 <%if (WebStudioUtils.isLocalRequest(request)) {%>
-        <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/uploadProjects.jsf" title="Upload projects to repository"><img border=0 src="<%= request.getContextPath()%>/images/jcr/upload.gif"></a>
+        <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/uploadProjects.jsf" title="Upload projects to repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/upload.gif"></a>
         &nbsp;
 <%}%>
 
@@ -76,7 +76,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
         &nbsp;
         <a target="mainFrame" href="<%= request.getContextPath()%>/html/ws-intro.html" title="Help"><img border=0 src="<%= request.getContextPath()%>/images/help.gif"></a>
                 &nbsp;
-        <a target="_top" href="<%= request.getContextPath()%>/faces/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/jcr/tree_storage.gif" alt="repository"></a>
+        <a target="_top" href="<%= request.getContextPath()%>/faces/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository"></a>
             </td>
       </table>
 

@@ -55,12 +55,12 @@ BODY {
 
 <%if (!WebStudioUtils.isLocalRequest(request)) {%>
   <%if (studio.getCurrentProject(session)!=null && studio.getCurrentProject(session).isCheckedOut()) {%>
-    <a class="actionButton" href="index.jsp?operation=checkIn" target="_top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/images/jcr/checkin.gif"></a>
+    <a class="actionButton" href="index.jsp?operation=checkIn" target="_top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkin.gif"></a>
   <%}%>
   <%if (studio.getCurrentProject(session)!=null && (!(studio.getCurrentProject(session).isCheckedOut()
           ||studio.getCurrentProject(session).isLocked()
           ||studio.getCurrentProject(session).isLocalOnly()))) {%>
-    <a class="actionButton" href="index.jsp?operation=checkOut" target="_top" title="Check Out Propject"><img border="0" src="<%= request.getContextPath()%>/images/jcr/checkout.gif"></a>
+    <a class="actionButton" href="index.jsp?operation=checkOut" target="_top" title="Check Out Propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkout.gif"></a>
   <%}%>
 <%}%>
 
