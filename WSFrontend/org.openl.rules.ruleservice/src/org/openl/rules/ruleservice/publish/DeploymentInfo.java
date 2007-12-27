@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.publish;
 
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -8,7 +8,7 @@ public class DeploymentInfo {
     private CommonVersionImpl version;
     private final static char SEPARATOR = '#';
 
-    public DeploymentInfo(String name, String version) {
+    private DeploymentInfo(String name, String version) {
         this.name = name;
         this.version = new CommonVersionImpl(version);
     }

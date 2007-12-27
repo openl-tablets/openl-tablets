@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.publish;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 public class WebServicesDeployAdmin implements DeployAdmin {
-    private static Log log = LogFactory.getLog(WebServicesDeployAdmin.class);
+    private static final Log log = LogFactory.getLog(WebServicesDeployAdmin.class);
 
     private Map<String, Collection<Server>> runningServices = new HashMap<String, Collection<Server>>();
 

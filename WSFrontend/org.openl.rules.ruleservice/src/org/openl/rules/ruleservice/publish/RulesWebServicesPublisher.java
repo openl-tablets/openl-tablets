@@ -1,16 +1,14 @@
-package org.openl.rules.ruleservice;
+package org.openl.rules.ruleservice.publish;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.production.client.JcrRulesClient;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -20,19 +18,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RulesWebServicesPublisher implements RDeploymentListener {
-    private Log log = LogFactory.getLog(getClass()); 
+public class RulesWebServicesPublisher implements Runnable {
+    private final Log log = LogFactory.getLog(getClass());
 
-    private JcrRulesClient client;
+    private JcrRulesClient rulesClient;
     private File tempFolder;
-    
+
     private Map<String, String> deployment2Version = new HashMap<String, String>();
     private Map<String, ClassLoader> deployment2ClassLoader = new HashMap<String, ClassLoader>();
 
     private DeployAdmin deployAdmin;
-    
-    public RulesWebServicesPublisher() {
-        client = new JcrRulesClient();
+
+    public void setRulesClient(JcrRulesClient rulesClient) {
+        this.rulesClient = rulesClient;
     }
 
     public void setTempFolder(File tempFolder) {
@@ -47,13 +45,8 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
         this.deployAdmin = deployAdmin;
     }
 
-    public void init() throws RRepositoryException {
-        client.addListener(this);
-        deployRequired();
-    }
-
     private synchronized void deployRequired() throws RRepositoryException {
-        Collection<String> deployments = client.getDeploymentNames();
+        Collection<String> deployments = rulesClient.getDeploymentNames();
 
         // computing latest versions of deployments
         Map<String, CommonVersion> versionMap = new HashMap<String, CommonVersion>();
@@ -73,7 +66,7 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
 
         for (String deployment : deployments) {
             DeploymentInfo di = DeploymentInfo.valueOf(deployment);
-            if (versionMap.get(di.getName()).equals(di.getVersion())) {
+            if (di != null && versionMap.get(di.getName()).equals(di.getVersion())) {
                 deploy(di);
             }
         }
@@ -124,7 +117,7 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
 
             URLClassLoader urlClassLoader = new URLClassLoader(classPathURLs.toArray(new URL[classPathURLs.size()]),
                     Thread.currentThread().getContextClassLoader());
-            
+
             deployment2ClassLoader.put(di.getName(), urlClassLoader);
             deployment2Version.put(di.getName(), version);
 
@@ -160,15 +153,11 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
     private File downloadDeployment(DeploymentInfo di) throws Exception {
         File deploymentFolder = new File(tempFolder, di.getName());
 
-        client.fetchDeployment(di.getDeployID(), deploymentFolder);
+        rulesClient.fetchDeployment(di.getDeployID(), deploymentFolder);
         return deploymentFolder;
     }
 
-    public void destroy() throws RRepositoryException {
-        client.release();
-    }
-
-    public void projectsAdded() {
+    public void run() {
         try {
             deployRequired();
         } catch (RRepositoryException e) {
@@ -177,31 +166,8 @@ public class RulesWebServicesPublisher implements RDeploymentListener {
     }
 }
 
-class ExtensionFilter implements FileFilter {
-    private final String ext;
-
-    ExtensionFilter(String ext) {
-        this.ext = "." + ext;
-    }
-
-    static ExtensionFilter CLASS_FILTER = new ExtensionFilter("class");
-    static ExtensionFilter EXCEL_FILTER = new ExtensionFilter("xls");
-
-    /**
-     * Tests whether or not the specified abstract pathname should be
-     * included in a pathname list.
-     *
-     * @param pathname The abstract pathname to be tested
-     * @return <code>true</code> if and only if <code>pathname</code>
-     *         should be included
-     */
-    public boolean accept(File pathname) {
-        return pathname.isDirectory() || pathname.getName().endsWith(ext);
-    }
-}
-
 class OpenLWrapperRecognizer implements FileSystemWalker.Walker {
-    private Collection matching;
+    private final Collection matching;
 
     OpenLWrapperRecognizer(Collection matching) {
         this.matching = matching;
