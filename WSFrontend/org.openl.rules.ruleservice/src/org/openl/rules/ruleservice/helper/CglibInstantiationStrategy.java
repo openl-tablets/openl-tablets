@@ -17,7 +17,7 @@ public class CglibInstantiationStrategy implements InstantiationStrategy {
         this.userHomeFieldValue = userHomeFieldValue;
     }
 
-    private static Log log = LogFactory.getLog(CglibInstantiationStrategy.class);
+    private static final Log log = LogFactory.getLog(CglibInstantiationStrategy.class);
 
     public Object instantiate(Class<?> clazz) {
         Enhancer enhancer = new Enhancer();
