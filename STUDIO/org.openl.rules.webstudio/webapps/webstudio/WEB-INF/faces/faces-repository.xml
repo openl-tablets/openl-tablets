@@ -72,16 +72,7 @@
   </managed-bean>
 
   <navigation-rule>
-    <from-view-id>/index-jcr.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>jcrMain</from-outcome>
-      <to-view-id>/repository/jcrMain.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
-  </navigation-rule>
-
-  <navigation-rule>
-    <from-view-id>/repository/jcrMain.xhtml</from-view-id>
+    <from-view-id>/repository/main.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>index</from-outcome>
       <to-view-id>/index-jcr.xhtml</to-view-id>
@@ -99,11 +90,11 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>success</from-outcome>
-      <to-view-id>/repository/jcrMain.xhtml</to-view-id>
+      <to-view-id>/repository/main.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>failure</from-outcome>
-      <to-view-id>/repository/jcrMain.xhtml</to-view-id>
+      <to-view-id>/repository/main.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
@@ -116,7 +107,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>cancel</from-outcome>
-      <to-view-id>/repository/jcrMain.xhtml</to-view-id>
+      <to-view-id>/repository/main.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
@@ -125,12 +116,12 @@
     <from-view-id>/repository/diff.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>jcrMain</from-outcome>
-      <to-view-id>/repository/jcrMain.xhtml</to-view-id>
+      <to-view-id>/repository/main.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{diff.revertTo}</from-action>
-      <to-view-id>/repository/jcrMain.xhtml</to-view-id>
+      <to-view-id>/repository/main.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
