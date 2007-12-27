@@ -39,7 +39,7 @@ span#userName {
   padding-top: 2px;
   position: absolute;
   top: 52px;
-  right: 70px;
+  right: 12px;
 }
 
 div#iconbar {
@@ -48,8 +48,8 @@ div#iconbar {
   float: right;
   height: 16px;
   position: absolute;
-  top: 52px;
-  right: 11px;
+  top: 74px;
+  left: 6px;
 }
 
 #iconbar a {
