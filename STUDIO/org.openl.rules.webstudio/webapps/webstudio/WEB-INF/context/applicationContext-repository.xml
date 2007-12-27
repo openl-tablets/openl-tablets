@@ -4,6 +4,8 @@
 
 <beans default-autowire="no">
 
+  <import resource="appContextInclude-repository-filters.xml" />
+
   <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
