@@ -4,7 +4,7 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:panel style="width:300px; height:518px; overflow:auto">
+  <rich:panel style="width:300px; height:515px; overflow:auto">
     <rich:tree switchType="ajax" ajaxSubmitSelection="true" nodeSelectListener="#{repositoryTreeState.processSelection}"
       reRender="modalDeleteNode, nodeView, modalOpenVersion, modalCheckIn, modalCopyProject, modalCopyDeploymentProject" value="#{repositoryTreeState.root}" var="item" nodeFace="#{item.type}"
       adviseNodeSelected="#{repositoryTreeState.adviseNodeSelected}">
