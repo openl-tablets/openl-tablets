@@ -4,7 +4,22 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:panel style="width:300px; height:515px; overflow:auto">
+  <rich:dataTable cellspacing="0px" styleClass="standard header" width="305px;">
+    <f:facet name="header">
+      <rich:columnGroup>
+        <rich:column>
+          <span style="float: left;"><h:outputText value="Repository Tree" styleClas="label" /></span>
+
+          <span style="float: right;"><h:commandLink class="actionButton"
+            action="#{repositoryTreeController.refreshTree}" title="Refresh">
+            <h:graphicImage url="/images/refresh.gif" styleClass="actionImage" />
+          </h:commandLink></span>
+        </rich:column>
+      </rich:columnGroup>
+    </f:facet>
+  </rich:dataTable>
+
+  <rich:panel style="width:300px; height:515px; overflow:auto; clear:left;">
     <rich:tree switchType="ajax" ajaxSubmitSelection="true" nodeSelectListener="#{repositoryTreeState.processSelection}"
       reRender="modalDeleteNode, nodeView, modalOpenVersion, modalCheckIn, modalCopyProject, modalCopyDeploymentProject" value="#{repositoryTreeState.root}" var="item" nodeFace="#{item.type}"
       adviseNodeSelected="#{repositoryTreeState.adviseNodeSelected}">

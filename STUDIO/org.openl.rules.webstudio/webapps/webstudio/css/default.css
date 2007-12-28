@@ -49,7 +49,7 @@ div#iconbar {
   height: 16px;
   position: absolute;
   top: 74px;
-  left: 6px;
+  right: 10px;
 }
 
 #iconbar a {
@@ -237,6 +237,10 @@ table.standard thead td {
   border-width: 1px 1px 0px 0px;
   color: #052679;
   padding: 5px 8px 6px;
+}
+
+table.header thead td {
+  padding: 1px 8px 0px;
 }
 
 table.standard thead td a {
