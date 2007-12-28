@@ -18,6 +18,13 @@
     </h:commandLink>
   </div>
 
+  <div id="colorScheme">
+    Scheme:&#160;
+    <h:selectOneMenu value="#{skinBean.skin}" onchange="submit()" required="false">
+      <f:selectItems value="#{skinBean.skins}"/>
+    </h:selectOneMenu>
+  </div>
+
   <rich:separator height="6" />
 
 </ui:composition>
