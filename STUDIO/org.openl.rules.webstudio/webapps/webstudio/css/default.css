@@ -39,7 +39,7 @@ span#userName {
   padding-top: 2px;
   position: absolute;
   top: 52px;
-  right: 12px;
+  right: 40px;
 }
 
 div#iconbar {
@@ -48,7 +48,7 @@ div#iconbar {
   float: right;
   height: 16px;
   position: absolute;
-  top: 74px;
+  top: 51px;
   right: 10px;
 }
 
@@ -56,6 +56,13 @@ div#iconbar {
   text-decoration: none;
   margin-left: 3px;
   margin-right: 3px;
+}
+
+div#colorScheme {
+  border: 0px solid gray;
+  position: absolute;
+  top: 76px;
+  right: 10px;
 }
 
 img.actionImage {
@@ -227,20 +234,12 @@ table.standard caption {
   padding: 5px;
 }
 
-table.standard thead {
-
-}
-
 table.standard thead td {
   border-color: gray white;
   border-style: solid;
   border-width: 1px 1px 0px 0px;
   color: #052679;
   padding: 5px 8px 6px;
-}
-
-table.header thead td {
-  padding: 1px 8px 0px;
 }
 
 table.standard thead td a {
@@ -274,6 +273,15 @@ table.standard tr.even {
 
 table.standard tr.odd {
   background-color: white;
+}
+
+/* Header */
+table.header {
+  border-bottom: medium none !important;
+}
+
+table.header thead td {
+  padding: 1px 8px 1px !important;
 }
 
 /* RichFaces tree styles */
