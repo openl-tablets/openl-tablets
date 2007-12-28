@@ -6,13 +6,9 @@ import java.util.Map;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.deploy.ProductionDeployerManager;
-import org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryException;
-import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
@@ -21,32 +17,30 @@ import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
  * Manager of Multiple User Workspaces.
  * <p/>
  * It takes care of creation and releasing of User Workspaces.
- * Also, it initializes Local Workspace Manager and Design Time Repository.
+ *
+ * Must be configured in spring configuration as a singleton.
  *
  * @author Aleh Bykhavets
- *
  */
 public class MultiUserWorkspaceManager implements UserWorkspaceListener{
-    private ProductionDeployerManager deployerManager;
+    private ProductionDeployerManager productionDeployerManager;
     /** Design Time Repository */
     private DesignTimeRepository designTimeRepository;
-    /** Cache for User Workspaces */
-    private Map<String, UserWorkspace> userWorkspaces;
     /** Manager of Local Workspaces */
     private LocalWorkspaceManager localWorkspaceManager;
+    /** Cache for User Workspaces */
+    private Map<String, UserWorkspace> userWorkspaces = new HashMap<String, UserWorkspace>();
 
-    public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkSpaceManager) {
-        this.localWorkspaceManager = localWorkSpaceManager;
+    public void setProductionDeployerManager(ProductionDeployerManager productionDeployerManager) {
+        this.productionDeployerManager = productionDeployerManager;
     }
 
-    public MultiUserWorkspaceManager() throws WorkspaceException {
-        userWorkspaces = new HashMap<String, UserWorkspace>();
-        deployerManager = new ProductionDeployerManagerImpl();
-        try {
-            designTimeRepository = new DesignTimeRepositoryImpl();
-        } catch (RepositoryException e) {
-            throw new WorkspaceException("Cannot init Design Time Repository", e);
-        }
+    public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
+        this.designTimeRepository = designTimeRepository;
+    }
+
+    public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkspaceManager) {
+        this.localWorkspaceManager = localWorkspaceManager;
     }
 
     /**
@@ -74,7 +68,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener{
         LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
         ProductionDeployer deployer;
         try {
-            deployer = deployerManager.getDeployer(user);
+            deployer = productionDeployerManager.getDeployer(user);
         } catch (DeploymentException e) {
             throw new WorkspaceException("can not get production deployer", e);
         }
