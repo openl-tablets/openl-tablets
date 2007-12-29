@@ -120,4 +120,5 @@ Export-Package: com.exigen.cm,
  com.exigen.cm.user,
  com.exigen.cm.utils,
  com.exigen.cm.utils.dbtest,
+ org.apache.commons.io.filefilter,
  org.springframework.util
