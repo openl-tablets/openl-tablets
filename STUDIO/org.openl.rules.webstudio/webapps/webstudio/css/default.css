@@ -63,6 +63,9 @@ div#colorScheme {
   position: absolute;
   top: 76px;
   right: 10px;
+  font-size: 10px;
+  text-align: center;
+  font-weight: bold;
 }
 
 img.actionImage {

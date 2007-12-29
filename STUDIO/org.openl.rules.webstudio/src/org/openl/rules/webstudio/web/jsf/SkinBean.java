@@ -17,7 +17,7 @@ public class SkinBean {
             "ruby", "wine", "plain"
         };
 
-    private static final String DEFAULT_SKIN = skinsArray[0];
+    private static final String DEFAULT_SKIN = skinsArray[2];
     private static final String SKIN_COOKIE = "rulesskin";
 
     private String skin;
