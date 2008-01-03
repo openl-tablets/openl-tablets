@@ -27,6 +27,7 @@ import org.openl.rules.workspace.dtr.RepositoryProject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -207,9 +208,12 @@ public class DeploymentController {
         if (projectName != null) {
             try {
                 UserWorkspaceProject project = workspace.getProject(projectName);
+                // sort project versions in descending order (1.1 -> 0.0)
+                List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
+                Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
 
                 List<SelectItem> selectItems = new ArrayList<SelectItem>();
-                for (ProjectVersion version : project.getVersions()) {
+                for (ProjectVersion version : versions) {
                     selectItems.add(new SelectItem(version.getVersionName()));
                 }
                 return selectItems.toArray(new SelectItem[selectItems.size()]);

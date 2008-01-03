@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.webstudio.web.repository.DependencyBean;
+import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
@@ -54,12 +55,6 @@ public abstract class AbstractTreeNode implements TreeNode {
      * Must be the same type as {@link #elements} is.
      */
     private static final transient Map EMPTY = new LinkedHashMap();
-    private static final Comparator<ProjectVersion> VERSIONS_REVERSE_COMPARATOR
-    = new Comparator<ProjectVersion>() {
-        public int compare(ProjectVersion o1, ProjectVersion o2) {
-            return o2.compareTo(o1);
-        }
-    };
     
 //    private static final Comparator<AbstractTreeNode> CHILD_COMPARATOR
 //    = new Comparator<AbstractTreeNode>() {
@@ -277,7 +272,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
             LinkedList<ProjectVersion> result = new LinkedList<ProjectVersion>(uwpa.getVersions());
 
-            Collections.sort(result, VERSIONS_REVERSE_COMPARATOR);
+            Collections.sort(result, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
 
             return result;
         } else {
