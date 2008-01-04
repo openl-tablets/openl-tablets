@@ -56,6 +56,8 @@ public class RulesUserSession {
     }
 
     public void sessionDestroyed() {
-        userWorkspace.release();
+        if (userWorkspace != null) {
+            userWorkspace.release();
+        }
     }
 }
