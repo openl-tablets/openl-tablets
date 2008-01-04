@@ -15,7 +15,7 @@ public class UiConst {
     public static final String TYPE_DEPLOYMENT_REPOSITORY = "drepository";
 
     // <rich:treeNode icon="..." iconLeaf="..."
-    public static final String ICON_FILE = "/images/repository/document.gif";
+    public static final String ICON_FILE = "/images/repository/file.gif";
     public static final String ICON_FOLDER = "/images/repository/folder.gif";
     public static final String ICON_REPOSITORY = "/images/repository/storage.gif";
 
