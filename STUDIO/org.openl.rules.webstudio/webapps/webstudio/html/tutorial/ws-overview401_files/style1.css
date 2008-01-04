@@ -205,13 +205,13 @@ float:left;
 h1, h2, h3
 {
 background-color:transparent;
-color:#000000; 
+color:#000000;
 }
 
 h1.att, h2.att, h3.att, hr.att
 {
 background-color:transparent;
-color:#000000; 
+color:#000000;
 }
 
 hr
@@ -273,13 +273,13 @@ a.anibutton:hover
 {
 color: #000000;
 border: 2px inset;
-background: #ffff10; 
+background: #ffff10;
 text-decoration: none;
 padding: 1px 5px 1px 10px;
 line-height: 200%;
 }
 
-/* CSS Document - SitePoint specific CSS for W3Schools */ 
+/* CSS Document - SitePoint specific CSS for W3Schools */
 #sp
 {
 	padding:10px 3px;
@@ -306,7 +306,7 @@ line-height: 200%;
 #sp p.splink a
 {
 	color:#0000FF;
-	font:bold xx-small Verdana, Arial, Helvetica, sans-serif; 
+	font:bold xx-small Verdana, Arial, Helvetica, sans-serif;
 }
 span.insert
 {
@@ -329,11 +329,11 @@ margin:20px 0px  20px 0px ;
   left: 2px;
   width: 180px;
   margin-top: 5px;
-  
+
   border-style: solid;
   border-width: 1px 1px 1px 1px;
   border-color: rgb(150, 0, 0);
-  
+
   border-left-style: none; border-top-style: none;
 }
 
@@ -343,12 +343,21 @@ margin:20px 0px  20px 0px ;
   margin-left: 190px;
   width: 900px;
   display: inline;
-  }  
-  
-  
+  }
+
+
 #rightbox {
   position: absolute;
   right: 0;
   margin-right: 0;
   width: 50px;
-  } 
+  }
+
+
+dl {
+  margin-left: 30px;
+}
+
+dt {
+  font-weight: bold;
+}

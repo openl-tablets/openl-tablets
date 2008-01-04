@@ -39,7 +39,7 @@ span#userName {
   padding-top: 2px;
   position: absolute;
   top: 52px;
-  right: 40px;
+  right: 55px;
 }
 
 div#iconbar {
@@ -54,8 +54,8 @@ div#iconbar {
 
 #iconbar a {
   text-decoration: none;
-  margin-left: 3px;
-  margin-right: 3px;
+  margin-left: 2px;
+  margin-right: 2px;
 }
 
 div#colorScheme {

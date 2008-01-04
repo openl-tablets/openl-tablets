@@ -96,9 +96,36 @@ urchinTracker();
 </p>
 <h1>Repository Browser Overview</h1>
 
-<p>The Repository Browser allows users to browse repository,
-edit projects.
-
+<p>The Repository Browser allows users to view projects stored in design time repository (<acronym title="Design Time Repository">DTR</acronym>)
+and to view and edit projects stored in local user workspace.
+There are two types of projects: rules projects and deployment projects.
+</p>
+<p>
+General repository use cases are the following:
+<ul>
+<li>Upload existing project (from WebStudio, if local mode is enabled)</li>
+<li>Close the created project</li>
+<li>Check out the project</li>
+<li>Edit properties</li>
+<li>Delete folder or file</li>
+<li>Check in the project</li>
+<li>Upload another existing project</li>
+<li>Open projects in Web studio by pressing "Open LWS in WebStudio" button</li>
+<li>Return back to Rules repository</li>
+<li>Close the second project</li>
+<li>Open Version "0.0.0" of the second project look through project content</li>
+<li>Check out the second project (it will automatically load the latest version)</li>
+<li>Add dependency for version "0.0.0" of the first project</li>
+<li>Add folder or file</li>
+<li>Check in the second project</li>
+<li>Create deployment descriptor</li>
+<li>Check it out</li>
+<li>Add the first project version "0.0.2"</li>
+<li>Add the second project version "0.0.2"</li>
+<li>Check In the deployment project.</li>
+<li>Deploy it (DD is saved for each deployment)</li>
+</ul>
+</p>
 
 
 </p><p>
@@ -109,48 +136,47 @@ This document demonstrates and briefly explains how to use OpenL Tablets Reposit
 
 <p>
 Repository Browser General View consists of the two parts:
-<a href="#rexplorer">Repository Explorer</a> and <a href="#mainarea">Project Component View</a>
+<a href="#rexplorer">Repository Tree</a> and <a href="#mainarea">Project Item View</a>
 </p>
 
 
 <img src="rb-overview_files/rb-general.png">
 
 
-<h2><a name="rexplorer">Repository Explorer</a></h2>
+<h2><a name="rexplorer">Repository Tree</a></h2>
 
 <p>
-The Repository Explorer provides tree-like view that allows users to browse projects and project elements.
+The Repository Tree provides tree-like view that allows users to browse projects and project elements.
+Each time you click a tree node only buttons corresponding to available operation are enabled.
 
 </p><h4>&nbsp;&nbsp;&nbsp;&nbsp;Project states</h4>
 <p>
-Project can be in one of the following states:
+Project can be in one of the following states, which is shown by a corresponding icon in the Repository Tree:
 
-</p><ul>
-<li>
-	<img src="rb-overview_files/checkedout.gif" border="0"> Checked out
-</li>
+</p>
 
-<li>
-	<img src="rb-overview_files/opened.gif" border="0"> Opened
-</li>
+<dl>
+  <dt><img src="rb-overview_files/checkedout.gif" border="0"> Checked out</dt>
+  <dd>Project is copied into local user workspace, can be modified by user and checked in later.</dd>
 
-<li>
-	<img src="rb-overview_files/closed.gif" border="0"> Closed
-</li>
+  <dt><img src="rb-overview_files/opened.gif" border="0"> Opened</dt>
+  <dd>Project is copied into local user workspace, is visible to WebStudio, but can not be modified by user.</dd>
 
-<li>
-	<img src="rb-overview_files/deleted.gif" border="0"> Deleted
-</li>
+  <dt><img src="rb-overview_files/closed.gif" border="0"> Closed</dt>
+  <dd>Project exists only in <acronym title="Design Time Repository">DTR</acronym>.<dd>
 
-<li>
-	<img src="rb-overview_files/local.gif" border="0"> Local
-</li>
+  <dt><img src="rb-overview_files/deleted.gif" border="0"> Deleted</dt>
+  <dd>Project is marked for deletion.</dd>
 
-<li>
-	<img src="rb-overview_files/opened-locked.gif" border="0"> Opened, locked
-</li>
-</ul>
+  <dt><img src="rb-overview_files/local.gif" border="0"> Local</dt>
+  <dd>Project exists only in local user workspace.</dd>
 
+  <dt><img src="rb-overview_files/opened-locked.gif" border="0"> Opened, locked</dt>
+  <dd>Project is opened and can not be checked out because it is checked out by another user.</dd>
+
+  <dt><img src="rb-overview_files/closed-locked.gif" border="0"> Closed, locked</dt>
+  <dd>Project is closed and can not be checked out because it is checked out by another user.</dd>
+</dl>
 
 <h4>&nbsp;&nbsp;&nbsp;&nbsp;Project elements</h4>
 <p>
@@ -161,15 +187,40 @@ Project can be in one of the following states:
 </li>
 
 <li>
-	<img src="rb-overview_files/document.gif" border="0"> Document
+	<img src="rb-overview_files/file.gif" border="0"> File
 </li>
 </ul>
+
+
+<h2><a name="mainarea">Project Item View</a></h2>
+<p>
+Project Item View allows user to execute commands against project and its elements and view information about currently selected element.
+Element information may contain from 2 to 4 tabs (Properties, Versions, Elements, Dependencies):
+</p>
+
+<table cellspacing="10">
+  <tr>
+    <td>
+      <img src="rb-overview_files/tab-properties.png" border="1">
+    </td>
+    <td>
+      <img src="rb-overview_files/tab-versions.png" border="1">
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="rb-overview_files/tab-elements.png" border="1">
+    </td>
+    <td>
+      <img src="rb-overview_files/tab-dependencies.png" border="1">
+    </td>
+  </tr>
+</table>
 
 
 
 <div class="footer">
 Copyright(c) OpenL Tablets 2006,2007
-
 </div>
 
 
