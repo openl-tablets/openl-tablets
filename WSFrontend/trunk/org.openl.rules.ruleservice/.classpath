@@ -3,9 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.openl.lib.cxf"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.openl.rules.repository"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.openl.rules.repository.jcr"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.openl.rules.workspace"/>
-	<classpathentry kind="lib" path="/org.openl.lib.jsf/spring/spring.jar"/>
+	<classpathentry kind="lib" path="/org.openl.lib.jsf/spring/spring-2.5.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

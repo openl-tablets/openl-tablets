@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.production.client.JcrRulesClient;
@@ -89,9 +88,10 @@ public class RulesWebServicesPublisher implements Runnable {
         try {
             File deploymentLocalFolder = downloadDeployment(di);
 
-            List<File> openlWrappers = new ArrayList<File>();
+            Map<String, WSEntryPoint> openlWrappers = new HashMap<String, WSEntryPoint>();
             List<WSInfo> serviceClasses = new ArrayList<WSInfo>();
             List<URL> classPathURLs = new ArrayList<URL>();
+            XlsFileRecognizer projectXls;
 
             for (File projectFolder : deploymentLocalFolder.listFiles()) {
                 if (projectFolder.isDirectory()) {
@@ -99,16 +99,18 @@ public class RulesWebServicesPublisher implements Runnable {
                     final File binFolder = new File(projectFolder, "bin");
 
                     openlWrappers.clear();
-                    FileSystemWalker.walk(projectGenFolder, new OpenLWrapperRecognizer(openlWrappers));
+                    FileSystemWalker.walk(projectGenFolder, new OpenLWrapperRecognizer(projectGenFolder, openlWrappers));
+                    FileSystemWalker.walk(new File(projectFolder, "rules"), projectXls = new XlsFileRecognizer());
 
-                    for (File wsCandidate : openlWrappers) {
-                        String dif = difference(projectGenFolder, wsCandidate);
-                        if (dif == null) continue;
+                    for (Map.Entry<String, WSEntryPoint> wsCandidate : openlWrappers.entrySet()) {
+                        WSEntryPoint wsEntryPoint = wsCandidate.getValue();
+                        String dif = wsEntryPoint.getFullFilename();
 
                         if (!new File(binFolder, FileSystemWalker.changeExtension(dif, "class")).exists()) continue;
 
                         String className = FileSystemWalker.removeExtension(dif).replaceAll("[/\\\\]", ".");
-                        serviceClasses.add(new WSInfo(projectFolder, className));
+                        serviceClasses.add(new WSInfo(projectFolder, projectXls.getFile(),
+                                className, wsCandidate.getKey(), wsEntryPoint.isInterface()));
                     }
 
                     addClasspathURL(classPathURLs, binFolder);
@@ -135,21 +137,6 @@ public class RulesWebServicesPublisher implements Runnable {
         }
     }
 
-    private static String difference(File parent, File child) {
-        try {
-            String parentStr = parent.getCanonicalPath();
-            String childStr = child.getCanonicalPath();
-
-            if (!childStr.startsWith(parentStr)) {
-                return null;
-            }
-
-            return childStr.substring(parentStr.length() + 1);
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
     private File downloadDeployment(DeploymentInfo di) throws Exception {
         File deploymentFolder = new File(tempFolder, di.getName());
 
@@ -166,16 +153,81 @@ public class RulesWebServicesPublisher implements Runnable {
     }
 }
 
-class OpenLWrapperRecognizer implements FileSystemWalker.Walker {
-    private final Collection matching;
+class WSEntryPoint {
+    private String fullFilename;
+    private boolean _interface;
 
-    OpenLWrapperRecognizer(Collection matching) {
-        this.matching = matching;
+    WSEntryPoint(String fullFilename, boolean _interface) {
+        this.fullFilename = fullFilename;
+        this._interface = _interface;
+    }
+
+    public String getFullFilename() {
+        return fullFilename;
+    }
+
+    public boolean isInterface() {
+        return _interface;
+    }
+}
+
+
+class XlsFileRecognizer implements FileSystemWalker.Walker {
+    private File file;
+    public void process(File f) {
+        if (file == null && f.isFile() && f.getName().endsWith(".xls") && !f.getPath().contains("include"))
+            file = f;
+    }
+
+    File getFile() {
+        return file;
+    }
+}
+
+class OpenLWrapperRecognizer implements FileSystemWalker.Walker {
+    private final Map<String, WSEntryPoint> entryPoints;
+    private File baseFolder;
+
+    OpenLWrapperRecognizer(File baseFolder, Map<String, WSEntryPoint> entryPoints) {
+        this.baseFolder = baseFolder;
+        this.entryPoints = entryPoints;
     }
 
     public void process(File file) {
-        if (file.isFile() && file.getName().endsWith("Wrapper.java")) {
-            matching.add(file);
+        if (!file.isFile())
+            return;
+
+        String wsname = getNameWithoutEnding(file, "Wrapper.java");
+        if (wsname != null) {
+            if (!entryPoints.containsKey(wsname)) {
+                entryPoints.put(wsname, new WSEntryPoint(difference(baseFolder, file), false));
+            }
+        } else if ((wsname = getNameWithoutEnding(file, "WrapperInterface.java")) != null) {
+            entryPoints.put(wsname, new WSEntryPoint(difference(baseFolder, file), true));
+        }
+    }
+
+    String getNameWithoutEnding(File file, String ending) {
+        String filename = file.getName();
+        if (filename.endsWith(ending)) {
+            filename = difference(baseFolder, file);
+            return filename.substring(0, filename.length() - ending.length()).replaceAll("[/\\\\]", ".");
+        }
+        return null;
+    }
+
+    static String difference(File parent, File child) {
+        try {
+            String parentStr = parent.getCanonicalPath();
+            String childStr = child.getCanonicalPath();
+
+            if (!childStr.startsWith(parentStr)) {
+                return null;
+            }
+
+            return childStr.substring(parentStr.length() + 1);
+        } catch (IOException e) {
+            return null;
         }
     }
 }
