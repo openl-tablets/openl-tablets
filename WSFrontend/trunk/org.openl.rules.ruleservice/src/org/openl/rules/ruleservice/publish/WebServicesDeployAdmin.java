@@ -7,6 +7,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.helper.CglibInstantiationStrategy;
 import org.openl.rules.ruleservice.helper.InstantiationStrategy;
+import org.openl.rules.ruleservice.helper.EngineFactoryInstantiationStrategy;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -52,7 +53,7 @@ public class WebServicesDeployAdmin implements DeployAdmin {
 
         ServerFactoryBean svrFactory = new ServerFactoryBean();
         svrFactory.setServiceClass(aClass);
-        svrFactory.setAddress(baseAddress + wsInfo.getClassName());
+        svrFactory.setAddress(baseAddress + wsInfo.getName());
         svrFactory.getServiceFactory().setDataBinding(new AegisDatabinding());
 
         svrFactory.setServiceBean(getStrategy(wsInfo).instantiate(aClass));
@@ -61,12 +62,16 @@ public class WebServicesDeployAdmin implements DeployAdmin {
     }
 
     private InstantiationStrategy getStrategy(WSInfo wsInfo) {
-        String path = ".";
-        try {
-            path = wsInfo.getProject().getCanonicalPath();
-        } catch (IOException e) {
-            log.error("failed to get canonical path", e);
+        if (wsInfo.isUsingEngineFactory()) {
+            return new EngineFactoryInstantiationStrategy(wsInfo.getXlsFile());
+        } else {
+            String path = ".";
+            try {
+                path = wsInfo.getProject().getCanonicalPath();
+            } catch (IOException e) {
+                log.error("failed to get canonical path", e);
+            }
+            return new CglibInstantiationStrategy(path);
         }
-        return new CglibInstantiationStrategy(path);
     }
 }
