@@ -1,0 +1,68 @@
+<html>
+
+<head>
+<title>OpenL Tablets - Introduction</title>
+
+<!--#include virtual="header_includes.shtml" -->
+
+
+
+
+
+<body>
+<div id="leftbox">
+
+<!--#include virtual="menuleft.html" -->
+
+</div>
+
+
+<div id="centerbox">
+
+<table cellpadding="3" class="main" width="90%">
+<tr>
+<td>
+<H1>Introduction</H1>
+<H2>What is OpenL Tablets?</H2>
+
+<h3>For Business Users</h3>
+
+<p>
+<p>
+The ability to have your business rules in familiar friendly Excel environment. Share business knowledge with colleagues, superiors and underlings in easily understandable and readable format.
+</p>
+
+<p>
+Make changes and submit them to IT department, then see them at work in just a minutes, exactly how you wanted them, nothing  being <i>lost in translation</i>  
+</p>
+
+<h3>For IT Managers</h3>
+
+<p>
+See projects that previously took months be completed in a matter of days. 
+No need to hire <i>Business Rules Experts</i>, these greedy, arrogant consultants 
+(the author used to be one of them). 
+Utilize the knowledge of your reliable Java programmers to build systems that go far beyond in complexity, 
+than standard Java techniques would allow. And keep your users happy
+</p>
+
+
+<h3>For Developers</h3>
+
+<p>
+Pure joy. Dig in, we promise it will be fun
+</p>
+
+
+<!--#include virtual="footer_includes.shtml" -->
+
+
+
+
+</td>
+</tr>
+</table>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<a href="ws-toc401.shtml">Table of Contents</a>
+
+<h1>Unit Tests</h1>
+
+<p>
+There is no need to describe here why Unit Tests are crucial to the system reliability and maintainability. 
+OpenL Tablets provides a simple and convenient facility to create Unit Tests that are easy to create, modify and execute
+for either Business Users or Developers.   
+
+
+<p>
+As you probably already know, OpenL Tablets project components are presented to the outside world as familiar to any 
+CS undergraduate class methods or attributes. Each OpenL Unit Test works on some OpenL Method using method parameters 
+as attributes of the <i>Method Test Datatype</i>. In addition to these parameters, the Datatype includes special attribute 
+<code>_res_</code> that has type equal to the return type of the method and special attribute <code>String _description_</code>.
+The special attributes were named this way to minimize the possibility of the name collision with Method parameters' names.
+
+<p>To illustrate the approach let's consider a simple example (from Tutorial 3):
+
+In Step 1 we demonstrate a Decision Table that is used to convert AM/PM hour to an hour based on 24 hours scale
+
+
+<p><img border=1 src="images/site/ws-unit-tests.dt1.png"/>
+
+<p>
+The table has a Method Signature  
+<p>
+<code><b>int ampmTo24(int ampmHr, String ampm)</b></code>.
+<p>
+The test table for this table may look like this:
+
+<p><img border=1 src="images/site/ws-unit-tests.test1.png"/>
+
+
+<p>At this point you already should be familiar with <a href="struct-data.shtml">Data Tables</a> (if not, please do),  
+and you can see a striking similarity between Data Table and Testmethod table. The only difference is that instead of 
+the Data Type the Testmethod Table uses the Method Name, in this case <code><b>ampmTo24</b></code>. OpenL Tablets uses 
+the method's signature to dynamically generate(in memory) the Data Type, based on Method Parameters and Return Type + special
+attributes _res_ and _description_.
+For all other purposes Testmethod table behaves and looks like a regular Data Table. It means, that it can use both Foregn Key
+or Aggregate notation to build  a complex Object Graph to use complex object structures for rules testing
+ 
+<p>Here is how a successful test result looks like in the Studio: 
+ 
+<p><img border=1 src="images/site/ws-unit-tests.res1.png"/>
+  
+
+
+<h2>Unit Tests in Web Studio</h2>
+
+<p>Unit Tests tables in the Web Studio are marked by the icon
+
+<p>	<img border=0 src="images/test_ok.gif"/>
+
+<p>By clicking on this icon in the Project Tree Menu you can run all the project's tests
+
+<p><img border=1 src="images/site/ws-unit-tests.res2.png"/>
+
+<p>
+Test Result View shows the total number of tests, the number of Failed Tests, the total number of 
+units(lines in Testmethod tables), the number of Failed Units, then all the test results 
+with Failed Tests shown first.
+<p>Failed Units are marked by the icon
+<p>	<img border=0 src="images/test_neq.gif"/>
+
+
+<h3>How to run a Single Unit Test</h3>
+<p>
+<li>Select an Unit Test table in the Project Explorer. Then click on the Run icon <img border=0 src="images/test.gif"/>
+ in the Table View
+<li>Select a Decision Table in the Project Explorer (the tables that have associated Unit Tests have a small 
+checkmark attached to it's icon <img border=0 src="images/dt3-check.png"/>). Then click on Test icon <img border=0 src="images/test_ok.gif"/> 
+
+ 
+<h3>Can I use Unit Tests to test Java methods?</h3>
+<p>
+Current implementation of Unit Tests allows only the testing of OpenL methods. To test Java methods you have to create
+a proxy OpenL method that would call the appropriate Java method and return the result. A Testmethod will point to the proxy method.
+<p>
+The similar approach can be used if you want for example, to test an attribute value in some business object, 
+that have been changed by some actions. You will create a proxy method that will call a Decision Table and return the value 
+of the attribute.
+
+ 
+ 
+
