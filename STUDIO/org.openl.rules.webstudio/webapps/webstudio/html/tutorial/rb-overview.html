@@ -14,9 +14,9 @@
 _uacct = "UA-856339-1";
 urchinTracker();
 </script></head><body>
+
+<!--
 <div id="leftbox">
-
-
 
 <table width="90%">
 <tbody><tr>
@@ -77,12 +77,12 @@ urchinTracker();
 </tr>
 </tbody></table>
 
-
-
 </div>
 
 
 <div id="centerbox">
+-->
+<div>
 
 <table class="main" cellpadding="3" width="90%">
 <tbody><tr>
@@ -90,8 +90,10 @@ urchinTracker();
 
 
 
-
+<!--
 <a href="http://openl-tablets.sourceforge.net/ws-toc401.shtml">Table of Contents</a>
+-->
+
 <p>
 </p>
 <h1>Repository Browser Overview</h1>
@@ -100,35 +102,29 @@ urchinTracker();
 and to view and edit projects stored in local user workspace.
 There are two types of projects: rules projects and deployment projects.
 </p>
+
+<h2>Use cases</h2>
 <p>
 General repository use cases are the following:
 <ul>
-<li>Upload existing project (from WebStudio, if local mode is enabled)</li>
-<li>Close the created project</li>
-<li>Check out the project</li>
+<li>Create new project. <br/>Description: creates new empty rules project with the given name. <p><img src="rb-overview_files/create-project.png"></p></li>
+<li>Upload project. <br/>Description: creates new project with the given name and uploads contents of a zip archive to it. <p><img src="rb-overview_files/upload-project.png"></p></li>
+
+<li>Project operations. <p><img src="rb-overview_files/project-operations1.png"></p><p><img src="rb-overview_files/project-operations2.png"></p></li>
+<li>Open project. <br/>Description: copies project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace to make it visible to WebStudio table editor.<p/></li>
+<li>Open project version. <br/>Description: opens specific version of a project.<p/></li>
+<li>Close project. <br/>Description: removes project from local user workspace. All changes made to project are lost.<p/></li>
+<li>Check out project. <br/>Description: copies project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace for modification.<p/></li>
+<li>Check in project. <br/>Description: copies project from local user workspace into <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
+<li>Copy project. <br/>Description: creates a copy of a project in <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
+<li>Delete project. <br/>Description: deletes project.<p/></li>
+<li>Undelete project. <br/>Description: undeletes project.<p/></li>
+<li>Erase project. <br/>Description: erases project.<p/></li>
 <li>Edit properties</li>
-<li>Delete folder or file</li>
-<li>Check in the project</li>
-<li>Upload another existing project</li>
-<li>Open projects in Web studio by pressing "Open LWS in WebStudio" button</li>
-<li>Return back to Rules repository</li>
-<li>Close the second project</li>
-<li>Open Version "0.0.0" of the second project look through project content</li>
-<li>Check out the second project (it will automatically load the latest version)</li>
-<li>Add dependency for version "0.0.0" of the first project</li>
-<li>Add folder or file</li>
-<li>Check in the second project</li>
-<li>Create deployment descriptor</li>
-<li>Check it out</li>
-<li>Add the first project version "0.0.2"</li>
-<li>Add the second project version "0.0.2"</li>
-<li>Check In the deployment project.</li>
-<li>Deploy it (DD is saved for each deployment)</li>
 </ul>
 </p>
 
-
-</p><p>
+<p>
 This document demonstrates and briefly explains how to use OpenL Tablets Repository Browser.
 
 </p>
