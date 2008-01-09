@@ -46,4 +46,10 @@
          install-size="0"
          version="5.0.5"/>
 
+   <plugin
+         id="org.openl.lib.springsource"
+         download-size="0"
+         install-size="0"
+         version="5.0.5"/>
+
 </feature>
