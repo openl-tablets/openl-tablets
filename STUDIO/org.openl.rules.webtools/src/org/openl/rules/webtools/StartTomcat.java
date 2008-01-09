@@ -21,6 +21,10 @@ import edu.stanford.ejalbert.BrowserLauncher;
  */
 public class StartTomcat {
 
+    private static final String BROWSER_URL_PROPERTY = "browser.url";
+    private static final String DEFAULT_BROWSER_URL = "http://localhost:8080/webstudio/";
+    
+    
     public static void main(String[] args) throws Exception {
 
         // System.out.println("OpenL Tomcat Starter, Version " +
@@ -92,7 +96,17 @@ public class StartTomcat {
 
         Method main = bootstrap.getMethod("main", new Class[] { String[].class });
 
-        new Thread(new BrowserStarter()).start();
+
+        String browserURL = System.getProperty(BROWSER_URL_PROPERTY);
+        if (browserURL == null)
+            browserURL = getProperty(args, BROWSER_URL_PROPERTY);
+        if (browserURL == null)
+        {    
+            System.out.println("Using default browser url: " + DEFAULT_BROWSER_URL);
+            browserURL = DEFAULT_BROWSER_URL;
+        }     
+        
+        new Thread(new BrowserStarter(browserURL)).start();
 
         main.invoke(null, new Object[] {new String[]{"start"}});
 
@@ -126,7 +140,16 @@ public class StartTomcat {
 
     private static class BrowserStarter implements Runnable {
 
-        public void run() {
+
+
+	private String browserURL;
+
+	public BrowserStarter(String browserURL)
+	{
+	    this.browserURL = browserURL;
+	}
+
+	public void run() {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException ex) {
@@ -140,6 +163,8 @@ public class StartTomcat {
                 } catch (ClassNotFoundException cnfe) {
                     // NOTICE: The desktop support is available beginning from JDK 1.6
                 }
+                
+                
                 
                 boolean isDesktopSupported = false;
 
@@ -155,12 +180,13 @@ public class StartTomcat {
                         
                         Method browse = desktop.getMethod("browse", new Class[] { URI.class });
                         
-                        browse.invoke(desktopObject, new Object[] {new URI("http://localhost:8080/webstudio/")});
+                        
+                        browse.invoke(desktopObject, new Object[] {new URI(browserURL)});
                     }
                 }
                 if (desktop == null || !isDesktopSupported) {
                     BrowserLauncher browserLauncher = new BrowserLauncher();
-                    browserLauncher.openURLinBrowser("http://localhost:8080/webstudio/");
+                    browserLauncher.openURLinBrowser(browserURL);
                 }
             } catch (Exception ex) {
                 Log.error("Could not start a browser. Error: {0}", ex, ex.getMessage());
