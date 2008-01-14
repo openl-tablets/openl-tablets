@@ -1,0 +1,22 @@
+<!--
+  XML file for importing apache jk status ant tasks.
+  <import file="${jkstatus.home}/lib/jkstatus-tasks.xml"/>
+-->
+
+<project name="jkstatus-tasks" >
+  <description>Apache mod_jk ant jkstatus Tasks</description>
+  <!-- set jkstatus.home if it's not already set -->
+  <dirname property="jkstatus.home.bin.dir" file="${ant.file.jkstatus-tasks}"/>
+  <property name="jkstatus.home" value="${jkstatus.home.bin.dir}/.."/>
+  <path id="jkstatus.path">
+      <pathelement location="${jkstatus.home}/bin/commons-logging-api.jar"/>
+      <pathelement location="${jkstatus.home}/lib/catalina-ant.jar"/>
+      <pathelement location="${jkstatus.home}/lib/tomcat-jkstatus-ant.jar"/>
+      <pathelement location="${jkstatus.home}/lib/tomcat-util.jar"/>
+  </path>
+
+  <taskdef resource="org/apache/jk/status/jkstatus.tasks">
+       <classpath refid="jkstatus.path"/>
+  </taskdef>
+
+</project>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="apache-tomcat-5.5.17/bin/bootstrap.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="apache-tomcat-5.5.17/common/lib/servlet-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="apache-tomcat-5.5.17/common/lib/jsp-api.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
