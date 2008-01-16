@@ -1,0 +1,18 @@
+Prerequisites:
+
+You need to checkout to the same directory projects
+
+org.openl.lib.apache.jackrabbit
+org.openl.lib.apache.tomcat
+org.openl.lib.cxf
+org.openl.lib.jsf
+org.openl.lib.springsource
+
+
+Using:
+ant start_tomcat      - starts tomcat server with webstudio and demo web applications
+ant start_ruleservice - starts ruleservice
+
+Note:
+  Start ruleservice a while after tomcat is started as it hosts a JCR production repository available through 
+RMI, to which both webstudio and ruleservice connect.
