@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.studio.root</artifactId>
+    <version>5.0.5</version>
+    <relativePath>../org.openl.rules.studio.root</relativePath>
+  </parent>
+
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
+    </repository>
+  </repositories>
+
   <properties>
     <com.exigen.common.version>7.0.1-SNAPSHOT</com.exigen.common.version>
     <com.exigen.example.solution.version>7.0.1-SNAPSHOT</com.exigen.example.solution.version>
@@ -60,6 +74,24 @@
   </dependencyManagement>
   <build>
     <defaultGoal>package</defaultGoal>
+
+    <sourceDirectory>src/main/resources</sourceDirectory>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-eclipse-plugin</artifactId>
+          <version>2.4</version>
+          <configuration>
+            <downloadSources>false</downloadSources>
+            <downloadJavadocs>false</downloadJavadocs>
+            <pde>false</pde>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
