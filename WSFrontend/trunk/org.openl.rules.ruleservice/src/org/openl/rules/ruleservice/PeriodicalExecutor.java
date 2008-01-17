@@ -14,7 +14,14 @@ import java.util.concurrent.ArrayBlockingQueue;
  * calling {@link #execute()}.
  */
 public class PeriodicalExecutor {
+    /**
+     * Action to execute periodically.
+     */
     private final Runnable action;
+    /**
+     * A helper synchronization primitive. Note that <code>ArrayBlockingQueue</code> has capacity <i>1</i> so no more
+     * than <i>1</i> object can be held by the queue.
+     */
     private BlockingQueue<Object> queue = new ArrayBlockingQueue<Object>(1);
 
     public PeriodicalExecutor(Runnable action) {
@@ -22,6 +29,12 @@ public class PeriodicalExecutor {
         signal();
     }
 
+    /**
+     * The calling thread begins infinite loop waiting for calls to  {@link #signal()} method from other threads to
+     * execute associated action's <code>run</code> method.
+     *
+     * @throws InterruptedException if the thread was interrupted
+     */
     public void execute() throws InterruptedException {
         while (true) {
             queue.take();
