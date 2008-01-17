@@ -12,7 +12,4 @@ Export-Package: org.openl.rules.webtools,
 Bundle-Vendor: OpenL Tablets
 Bundle-ClassPath: .,
  BrowserLauncher-2-1_3.jar,
- org.openl.commons-5.0.5.jar,
- org.openl.core-5.0.5.jar,
- org.openl.rules-5.0.5.jar,
  bootstrap-5.5.12.jar
