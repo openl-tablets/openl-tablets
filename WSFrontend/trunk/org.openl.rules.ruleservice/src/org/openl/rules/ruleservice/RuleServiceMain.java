@@ -9,7 +9,16 @@ import org.openl.rules.workspace.production.client.JcrRulesClient;
 
 import java.io.File;
 
+/**
+ * Application main class. Sets up other classes. 
+ */
 public class RuleServiceMain {
+    /**
+     * Gets path to temporary directory. Extract the value with key <i>ruleservice.tmp.dir</i> from configuration file.
+     * If such a key is missing returns default value <tt>/tmp/ws-deploy</tt>. 
+     *
+     * @return path to temporary directory
+     */
     private static String getTempDirectory() {
         SmartProps props = new SmartProps("rules-production.properties");
         String value = props.getStr("ruleservice.tmp.dir");
