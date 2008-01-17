@@ -16,3 +16,7 @@ ant start_ruleservice - starts ruleservice
 Note:
   Start ruleservice a while after tomcat is started as it hosts a JCR production repository available through 
 RMI, to which both webstudio and ruleservice connect.
+
+
+webstudio should available at url http://localhost:8080/webstudio
+and demo web application at url   http://localhost:8080/demo
