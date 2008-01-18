@@ -59,7 +59,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-eclipse-plugin</artifactId>
-          <version>2.5-osgi-fix</version>
+          <version>2.5-osgi_provided-fix</version>
           <configuration>
             <downloadSources>false</downloadSources>
             <downloadJavadocs>false</downloadJavadocs>
