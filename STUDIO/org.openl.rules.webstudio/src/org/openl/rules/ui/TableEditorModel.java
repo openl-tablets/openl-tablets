@@ -106,7 +106,6 @@ public class TableEditorModel
      */
     public static final String SPECIAL_CELL_TYPE = "SPECIAL_CELL_TYPE";
 
- 
     static final boolean COLUMNS = true, ROWS = false, INSERT = true,
 	    REMOVE = false;
 
@@ -114,40 +113,41 @@ public class TableEditorModel
 
     private GridRegion region;
     private GridTable[] othertables;
-    
+
     private UndoableActions actions = new UndoableActions();
 
     private XlsUndoGrid undoGrid = new XlsUndoGrid();
 
     public TableEditorModel(IGridTable table)
     {
-    this.table = table;
+	this.table = table;
 	this.region = new GridRegion(table.getRegion());
 	othertables = new GridSplitter(table.getGrid()).split();
 	removeThisTable(othertables);
     }
 
     /**
-     * @param othertables
+     * @param otherTables
      * 
      */
-    private synchronized void removeThisTable(GridTable[] othertables)
+    private synchronized void removeThisTable(GridTable[] otherTables)
     {
-	Vector v = new Vector();
-	for (int i = 0; i < othertables.length; i++)
+	Vector<GridTable> v = new Vector<GridTable>();
+	for (int i = 0; i < otherTables.length; i++)
 	{
-	    if (!IGridRegion.Tool.intersects(othertables[i], region))
+	    if (!IGridRegion.Tool.intersects(otherTables[i], region))
 	    {
-		v.add(othertables[i]);
+		v.add(otherTables[i]);
 	    }
 	}
 
-	this.othertables = (GridTable[]) v.toArray(new GridTable[0]);
+	this.othertables = v.toArray(new GridTable[0]);
     }
 
-    public void getUndoableActions(TableEditorModel other) {
-        actions = other.actions;
-        undoGrid = other.undoGrid;
+    public void getUndoableActions(TableEditorModel other)
+    {
+	actions = other.actions;
+	undoGrid = other.undoGrid;
     }
 
     IWritableGrid wgrid()
@@ -155,7 +155,6 @@ public class TableEditorModel
 	return (IWritableGrid) table.getGrid();
     }
 
-    
     public synchronized void insertRows(int nRows, int beforeRow)
     {
 	IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows,
@@ -216,23 +215,29 @@ public class TableEditorModel
 	actions.addNewAction(ra);
     }
 
-    public synchronized void setStyle(int row, int col, ICellStyle style) {
-        if (isExtendedView()) {
-            row -= 3;
-            col -= 3;
-        }
-        IUndoableGridAction ua = IWritableGrid.Tool.setStyle(col, row, region, style);
-        RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
-        ra.doSome(region, wgrid(), undoGrid);
-        actions.addNewAction(ra);
+    public synchronized void setStyle(int row, int col, ICellStyle style)
+    {
+	if (isExtendedView())
+	{
+	    row -= 3;
+	    col -= 3;
+	}
+	IUndoableGridAction ua = IWritableGrid.Tool.setStyle(col, row, region,
+		style);
+	RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
+	ra.doSome(region, wgrid(), undoGrid);
+	actions.addNewAction(ra);
     }
 
-    public ICellStyle getCellStyle(int row, int column) {
-        return IWritableGrid.Tool.getCellStyle(table.getGrid(), tX(column), tY(row));
+    public ICellStyle getCellStyle(int row, int column)
+    {
+	return IWritableGrid.Tool.getCellStyle(table.getGrid(), tX(column),
+		tY(row));
     }
 
-    public String getCellValue(int row, int column) {
-        return table.getGrid().getStringCellValue(tX(column), tY(row));
+    public String getCellValue(int row, int column)
+    {
+	return table.getGrid().getStringCellValue(tX(column), tY(row));
     }
 
     static class RegionAction implements IUndoableAction
@@ -337,18 +342,16 @@ public class TableEditorModel
 		.getBottom(), region.getRight(), table.getGrid());
 
     }
-    
-    
-    
+
     public int tX(int col)
     {
 	return region.getLeft() + col;
     }
-    
+
     public int tY(int row)
     {
 	return region.getTop() + row;
-    }    
+    }
 
     private boolean isExtendedView()
     {
@@ -384,7 +387,8 @@ public class TableEditorModel
     public boolean canAddRows(int nRows)
     {
 	GridRegion testRegion = new GridRegion(region.getBottom() + 1, region
-		.getLeft() - 1, region.getBottom() + 2, region.getRight() + 1);
+		.getLeft() - 1, region.getBottom() + 1 + nRows, region
+		.getRight() + 1);
 	for (int i = 0; i < othertables.length; i++)
 	{
 	    if (IGridRegion.Tool.intersects(testRegion, othertables[i]))
@@ -398,10 +402,11 @@ public class TableEditorModel
 	return IGridRegion.Tool.height(region) > nRows;
     }
 
-    public boolean canAddCols(int nRows)
+    public boolean canAddCols(int nCols)
     {
 	GridRegion testRegion = new GridRegion(region.getTop() - 1, region
-		.getRight() + 1, region.getBottom() + 1, region.getRight() + 2);
+		.getRight() + 1, region.getBottom() + 1, region.getRight() + 1
+		+ nCols);
 	for (int i = 0; i < othertables.length; i++)
 	{
 	    if (IGridRegion.Tool.intersects(testRegion, othertables[i]))
@@ -415,7 +420,7 @@ public class TableEditorModel
 	return IGridRegion.Tool.width(region) > nCols;
     }
 
-      /**
+    /**
      * Gets type of a specified cell
      * 
      * @param row
@@ -436,19 +441,17 @@ public class TableEditorModel
 	}
     }
 
-
-
     public CellMetaInfo getCellMetaInfo(int row, int column)
     {
 
-	CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table.getGrid(), tX(column), tY(row));
-	
-//	System.out.println("Meta:"  +  metaInfo);
+	CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table
+		.getGrid(), tX(column), tY(row));
+
+	// System.out.println("Meta:" + metaInfo);
 	return metaInfo;
 
-    }    
-    
-    
+    }
+
     /**
      * Gets editor metadata for a specified cell
      * 
@@ -459,12 +462,11 @@ public class TableEditorModel
     public Object getCellEditorMetadata(int row, int column)
     {
 
-	CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table.getGrid(), tX(column), tY(row));
-	
-	System.out.println("Meta:"  +  metaInfo);
-	
-	
-	
+	CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table
+		.getGrid(), tX(column), tY(row));
+
+	System.out.println("Meta:" + metaInfo);
+
 	// TODO
 	switch (column)
 	{

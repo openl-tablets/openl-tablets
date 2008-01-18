@@ -355,7 +355,7 @@ public class ProjectModel
 
       if (type != null)
       {
-         ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(type);
+         ILogicalTable gtx = tsn.getSubTables().get(type);
          if (gtx != null)
             gt = gtx.getGridTable();
       }
@@ -678,51 +678,48 @@ public class ProjectModel
             IOpenMethod m = getMethod(elementID);
             return benchmarkMethod(m, ms);
         }
-        else
-        {
-            final AllTestsRunResult atr = getRunMethods(elementID);
+	final AllTestsRunResult atr = getRunMethods(elementID);
 
-            final int tid = Integer.parseInt(testID);
+	final int tid = Integer.parseInt(testID);
 
-            final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-            final Object target = wrapper.getOpenClass().newInstance(env);
+	final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+	final Object target = wrapper.getOpenClass().newInstance(env);
 
-            bu  = new BenchmarkUnit()
-            {
+	bu  = new BenchmarkUnit()
+	{
 
-                public void runNtimes(int times) throws Exception
-                {
-                    try
-                    {
-                        atr.run(testName, tid, target, env, times);
-                    }
-                    catch (Throwable t)
-                    {
-                        Log.error("Error during Method run: ", t);
-                        throw RuntimeExceptionWrapper.wrap(t);
-                    }
-                }
+	    public void runNtimes(int times) throws Exception
+	    {
+	        try
+	        {
+	            atr.run(testName, tid, target, env, times);
+	        }
+	        catch (Throwable t)
+	        {
+	            Log.error("Error during Method run: ", t);
+	            throw RuntimeExceptionWrapper.wrap(t);
+	        }
+	    }
 
 
 
-                public String getName()
-                {
-                    return testDescr;
-                }
+	    public String getName()
+	    {
+	        return testDescr;
+	    }
 
-                public String[] unitName()
-                {
-                    return new String[]{testName + ":" + tid};
-                }
+	    public String[] unitName()
+	    {
+	        return new String[]{testName + ":" + tid};
+	    }
 
 
-                public void run() throws Exception
-                {
-                    throw new RuntimeException();
-                }
+	    public void run() throws Exception
+	    {
+	        throw new RuntimeException();
+	    }
 
-            };
-        }
+	};
 
         BenchmarkUnit[] buu = {bu};
         return new Benchmark(buu).runUnit(bu, ms, false);
@@ -1016,9 +1013,9 @@ public class ProjectModel
 
     }
 
-    public static Object wrapperNewInstance(Class c) throws Exception
+    public static Object wrapperNewInstance(Class<?> c) throws Exception
     {
-        Constructor ctr;
+        Constructor<?> ctr;
         try
         {
             ctr = c.getConstructor(new Class[] { boolean.class });
