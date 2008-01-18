@@ -116,7 +116,7 @@ public class TraceHelper
 
 		IGridTable gt = tsn.getTable().getGridTable();
         view = model.getTableView(view);
-		ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
+		ILogicalTable gtx =  tsn.getSubTables().get(view);
 		if (gtx != null)
 				gt = new TableEditorModel(gtx.getGridTable()).getUpdatedTable();
 
