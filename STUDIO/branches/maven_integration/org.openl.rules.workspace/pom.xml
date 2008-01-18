@@ -12,7 +12,6 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.workspace</artifactId>
   <packaging>jar</packaging>
-  <version>${project.parent.version}</version>
   <name>Exigen WebStudio Workspace</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <description>Exigen WebStudio Workspace</description>

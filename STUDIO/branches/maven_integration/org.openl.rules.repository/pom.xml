@@ -12,7 +12,6 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.repository</artifactId>
   <packaging>jar</packaging>
-  <version>${project.parent.version}</version>
   <name>Exigen WebStudio Repository</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <description>Exigen WebStudio Repository</description>
