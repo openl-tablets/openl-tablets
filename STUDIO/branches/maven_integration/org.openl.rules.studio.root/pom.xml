@@ -11,6 +11,15 @@
   <description>Exigen WebStudio Root Project</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
+  <modules>
+    <module>../org.openl.rules.repository</module>
+    <module>../org.openl.rules.repository.jcr</module>
+    <module>../org.openl.rules.workspace</module>
+    <module>../org.openl.rules.webtools</module>
+    <module>../org.openl.rules.webstudio</module>
+    <module>../com.exigen.example.solution.admin</module>
+  </modules>
+
   <scm>
     <connection>
       scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/branches/maven_integration/
@@ -30,6 +39,7 @@
       <url>file://${basedir}/m2_repo</url>
     </pluginRepository>
 
+    <!-- for maven-depgraph-plugin -->
     <pluginRepository>
       <id>elca-services</id>
       <url>http://el4.elca-services.ch/el4j/maven2repository</url>
@@ -80,6 +90,7 @@
           </executions>
         </plugin>
 
+        <!-- User for building dependency graphs -->
         <plugin>
           <groupId>ch.elca.el4j.maven.plugins</groupId>
           <artifactId>maven-depgraph-plugin</artifactId>
@@ -97,14 +108,6 @@
 
 
   </build>
-
-  <modules>
-    <module>../org.openl.rules.repository</module>
-    <module>../org.openl.rules.repository.jcr</module>
-    <module>../org.openl.rules.workspace</module>
-    <module>../org.openl.rules.webtools</module>
-    <module>../org.openl.rules.webstudio</module>
-  </modules>
 
   <dependencies>
     <dependency>
