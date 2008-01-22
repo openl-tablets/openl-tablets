@@ -63,7 +63,7 @@ public class UploadService extends BaseUploadService {
         File tempFile) throws IOException, ServiceException
     {
         if (log.isDebugEnabled()) {
-            log.debug("Unpacking zip file ");
+            log.debug("Unpacking zip file");
         }
 
         //unpack uploaded zip file
@@ -73,7 +73,7 @@ public class UploadService extends BaseUploadService {
                 zipFile = new ZipFile(tempFile);
             } catch (IOException e) {
                 throw new NotUnzippedFileException("File '" + params.getFile().getName()
-                    + "' is not a zip or it is corrupt.");
+                    + "' is not a ZIP or it is corrupted.");
             }
 
             uploadFiles(params, result, zipFile);
