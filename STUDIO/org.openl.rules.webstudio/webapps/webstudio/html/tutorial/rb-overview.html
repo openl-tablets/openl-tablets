@@ -84,7 +84,7 @@ urchinTracker();
 -->
 <div>
 
-<table class="main" cellpadding="3" width="90%">
+<table class="main" cellpadding="3" width="100%">
 <tbody><tr>
 <td>
 
@@ -98,41 +98,40 @@ urchinTracker();
 </p>
 <h1>Repository Browser Overview</h1>
 
-<p>The Repository Browser allows users to view projects stored in design time repository (<acronym title="Design Time Repository">DTR</acronym>)
-and to view and edit projects stored in local user workspace.
-There are two types of projects: rules projects and deployment projects.
+<p>The Repository Browser allows users to view and edit projects stored in design time repository (<acronym title="Design Time Repository">DTR</acronym>).
+Before a project can be viewed or edited, it must be opened or checked out. Open and check out operations create a copy of a project in local user workspace.
+When finished with editing, project must be checked in to store changes in <acronym title="Design Time Repository">DTR</acronym>.
+Local user workspace and design time repository (<acronym title="Design Time Repository">DTR</acronym>) are two main project storages, which will be in the
+center of our attention.
 </p>
 
 <h2>Use cases</h2>
 <p>
-General repository use cases are the following:
+In order to quickly get used with Repository Browser, let's list basic repository use cases:
 <ul>
 <li>Create new project. <br/>Description: creates new empty rules project with the given name. <p><img src="rb-overview_files/create-project.png"></p></li>
 <li>Upload project. <br/>Description: creates new project with the given name and uploads contents of a zip archive to it. <p><img src="rb-overview_files/upload-project.png"></p></li>
 
-<li>Project operations. <p><img src="rb-overview_files/project-operations1.png"></p><p><img src="rb-overview_files/project-operations2.png"></p></li>
-<li>Open project. <br/>Description: copies project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace to make it visible to WebStudio table editor.<p/></li>
-<li>Open project version. <br/>Description: opens specific version of a project.<p/></li>
+<li>Open project. <br/>Description: copies project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace to make it visible to WebStudio table editor.<p/><p><img src="rb-overview_files/project-operations1.png"></p></li>
+<li>Open version. <br/>Description: like open, but opens specific version of a project.<p/></li>
 <li>Close project. <br/>Description: removes project from local user workspace. All changes made to project are lost.<p/></li>
 <li>Check out project. <br/>Description: copies project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace for modification.<p/></li>
-<li>Check in project. <br/>Description: copies project from local user workspace into <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
+<li>Check in project. <br/>Description: copies project from local user workspace into <acronym title="Design Time Repository">DTR</acronym>.<p/>
+<p>Version has the following format [Major-Version]:[Minor-Version]:[Revision]</p>
+<p><img src="rb-overview_files/check-in.png"></p></li>
 <li>Copy project. <br/>Description: creates a copy of a project in <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
-<li>Delete project. <br/>Description: deletes project.<p/></li>
+<li>Delete project. <br/>Description: deletes project.<p/><p><img src="rb-overview_files/project-operations2.png"></p></li>
 <li>Undelete project. <br/>Description: undeletes project.<p/></li>
 <li>Erase project. <br/>Description: erases project.<p/></li>
-<li>Edit properties</li>
+<li>Edit properties<p><img src="rb-overview_files/edit-properties.png"></p></li>
 </ul>
 </p>
 
-<p>
-This document demonstrates and briefly explains how to use OpenL Tablets Repository Browser.
-
-</p>
 <h2>General View</h2>
 
 <p>
 Repository Browser General View consists of the two parts:
-<a href="#rexplorer">Repository Tree</a> and <a href="#mainarea">Project Item View</a>
+<a href="#rexplorer">Repository Tree</a> and <a href="#mainarea">Project Element View</a>
 </p>
 
 
@@ -188,9 +187,9 @@ Project can be in one of the following states, which is shown by a corresponding
 </ul>
 
 
-<h2><a name="mainarea">Project Item View</a></h2>
+<h2><a name="mainarea">Project Element View</a></h2>
 <p>
-Project Item View allows user to execute commands against project and its elements and view information about currently selected element.
+Project Element View allows users to execute commands against project and its elements and view information about currently selected element.
 Element information may contain from 2 to 4 tabs (Properties, Versions, Elements, Dependencies):
 </p>
 
@@ -212,6 +211,17 @@ Element information may contain from 2 to 4 tabs (Properties, Versions, Elements
     </td>
   </tr>
 </table>
+
+
+<h2>Deployment</h2>
+<p>
+Users can deploy set of projects into production time repository.
+Set of projects can be created and manipulated withing a deployment project.
+After checking in deployment project, deploy button is get enabled and clicking it deploys project into production time repository.
+</p>
+<p>
+  <img src="rb-overview_files/deployment.png">
+</p>
 
 
 
