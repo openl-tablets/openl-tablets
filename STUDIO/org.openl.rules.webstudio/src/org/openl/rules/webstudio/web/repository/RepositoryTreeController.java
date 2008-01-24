@@ -270,6 +270,9 @@ public class RepositoryTreeController {
 
     public String eraseProject() {
         UserWorkspaceProject project = getSelectedProject();
+        // EPBDS-225
+        if (project == null) return null;
+        
         if (!project.isDeleted()) {
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
