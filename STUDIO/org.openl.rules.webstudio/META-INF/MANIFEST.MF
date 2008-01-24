@@ -15,6 +15,7 @@ Require-Bundle: org.openl.lib.apache.tomcat;visibility:=reexport,
  org.openl.rules.repository;visibility:=reexport,
  org.openl.rules.repository.jcr;visibility:=reexport,
  org.openl.rules.workspace;visibility:=reexport,
- org.openl.lib.springsource
+ org.openl.lib.springsource,
+ org.openl.conf.ant
 Export-Package: org.openl.rules.ui
 
