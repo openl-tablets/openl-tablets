@@ -43,9 +43,9 @@ public interface ILaunchConstants
 
   static final String MSG_LAUNCHING_0 = "Launching{0}...";
 
-  static final String MSG_VERIFYING_LAUNCH_ATTRIBUTES = "Verifying_launch_attributes...";
+ // static final String MSG_VERIFYING_LAUNCH_ATTRIBUTES = "Verifying_launch_attributes...";
 
-  static final String MSG_CREATING_SOURCE_LOCATOR = "Creating_source_locator...";
+//  static final String MSG_CREATING_SOURCE_LOCATOR = "Creating_source_locator...";
 
   /**
    * Title of the dialog 'Launch configuration selection'. 
