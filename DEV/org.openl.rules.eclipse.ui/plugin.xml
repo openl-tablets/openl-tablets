@@ -45,8 +45,27 @@
    <extension
          point="org.eclipse.jdt.core.classpathVariableInitializer">
       <classpathVariableInitializer
-            class="org.openl.util.eclipse.PluginClasspathVariableInitializer"
+            class="org.openl.eclipse.base.PluginClasspathVariableInitializer"
             variable="org.openl.rules.eclipse_HOME"/>
    </extension>
+   <extension
+         name="Open OpenL Project in Webstudio"
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="org.openl.rules.eclipse.xls.launching.StudioLaunchShortcut"
+            icon="icons/full/ctool16/openl_app.gif"
+            id="org.openl.rules.eclipse.xls.launching.StudioLaunchShortcut"
+            label="Open OpenL Project in Webstudio"
+            modes="run, debug">
+         <perspective id="org.eclipse.jdt.ui.JavaPerspective"/>
+         <perspective id="org.eclipse.debug.ui.DebugPerspective"/>
+         <perspective id="org.eclipse.jdt.ui.JavaHierarchyPerspective"/>
+         <perspective id="org.eclipse.jdt.ui.JavaBrowsingPerspective"/>
+         <contextualLaunch>
+            <enablement/>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
+   
 
 </plugin>
