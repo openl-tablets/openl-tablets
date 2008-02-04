@@ -39,13 +39,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.repository.test"
-         download-size="0"
-         install-size="0"
-         version="5.0.5"
-         unpack="false"/>
-
-   <plugin
          id="org.openl.rules.webstudio"
          download-size="0"
          install-size="0"
@@ -66,10 +59,10 @@
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.workspace.test"
+         id="org.openl.rules.webstudio.java"
          download-size="0"
          install-size="0"
-         version="5.0.5"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
