@@ -8,6 +8,14 @@ org.openl.lib.cxf
 org.openl.lib.jsf
 org.openl.lib.springsource
 
+OR 
+
+Replace paths to libraries in build file:
+".." should be changed with path to plugin directory in eclipse where OpenL Plugins are installed.
+Also at the end of each library name the installed version should be put.
+E.g. replace <property name="project.lib.jsf" value="../org.openl.lib.jsf" />
+with: <property name="project.lib.jsf" value="C:/eclipse/plugins/org.openl.lib.jsf_5.0.5" /> 
+
 
 Using:
 ant start_tomcat      - starts tomcat server with webstudio and demo web applications
@@ -19,4 +27,4 @@ RMI, to which both webstudio and ruleservice connect.
 
 
 webstudio should available at url http://localhost:8080/webstudio
-and demo web application at url   http://localhost:8080/demo
+and demo web application (very simple) at url   http://localhost:8080/demo
