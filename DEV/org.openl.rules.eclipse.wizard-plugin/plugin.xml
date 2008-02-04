@@ -30,6 +30,14 @@
             project="true"
             id="org.openl.rules.eclipse.wizard.NewWebStudioProjectWizard">
       </wizard>
+      <wizard
+            name="Application Demo Based on Tutorial 4 - Demonstration of deployment"
+            icon="icons/full/ctool16/new_openl_rules_project_wizard.gif"
+            category="org.openl.rules.wizard.openl.rules.category/org.openl.rules.wizard.toolscategory"
+            class="org.openl.rules.eclipse.wizard.ApplicationDemoProjectWizard"
+            project="true"
+            id="org.openl.rules.eclipse.wizard.ApplicationDemoProjectWizard">
+      </wizard>
       <category
             name="Tutorials"
             parentCategory="org.openl.rules.wizard.openl.rules.category"
