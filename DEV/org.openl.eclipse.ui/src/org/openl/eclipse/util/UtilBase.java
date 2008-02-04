@@ -347,6 +347,20 @@ public class UtilBase implements IUtilBase{
             }
         };
     }
+    
+    
+   public ISelector selectIfProject()
+   {
+       return new ASelector() {
+           public boolean select(Object o) {
+               IResource resource = getResourceAdapter(o);
+               return resource == null ? false
+                       : resource instanceof IProject;
+           }
+       };
+	   
+   }
+    
 
     public ISelector selectByPath() {
         return new ASelector() {
