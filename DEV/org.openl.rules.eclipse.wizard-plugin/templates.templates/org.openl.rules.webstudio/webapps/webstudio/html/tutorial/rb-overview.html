@@ -117,7 +117,7 @@ In order to quickly get used with Repository Browser, let's list basic repositor
 <li>Close project. <br/>Description: removes project from local user workspace. All changes made to project are lost.<p/></li>
 <li>Check out project. <br/>Description: copies project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace for modification.<p/></li>
 <li>Check in project. <br/>Description: copies project from local user workspace into <acronym title="Design Time Repository">DTR</acronym>.<p/>
-<p>Version has the following format [Major-Version]:[Minor-Version]:[Revision]</p>
+<p>Version has the following format [Major-Version].[Minor-Version].[Revision]</p>
 <p><img src="rb-overview_files/check-in.png"></p></li>
 <li>Copy project. <br/>Description: creates a copy of a project in <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
 <li>Delete project. <br/>Description: deletes project.<p/><p><img src="rb-overview_files/project-operations2.png"></p></li>
@@ -215,14 +215,25 @@ Element information may contain from 2 to 4 tabs (Properties, Versions, Elements
 
 <h2>Deployment</h2>
 <p>
-Users can deploy set of projects into production time repository.
-Set of projects can be created and manipulated withing a deployment project.
+Prepared projects can be deployed into production time repository.
+It is a special project storage that makes projects available to external systems, such as Rule Service.
+Generally user creates a new deployment project, checks it out, adds rules projects to it by creating descriptors, checks in the new deployment project and
+finally deploys it to production time repository.
+Basic deployment use cases are the following:
+<ul>
+<li>Create new deployment project. <br/>Description: creates new empty deployment project with the given name. <p><img src="rb-overview_files/create-deployment-project.png"></p></li>
+<li>Deploy project. <br/>Description: copies projects from deployment set into production time repository.<p/><p><img src="rb-overview_files/deployment-project-operations.png"></p></li>
+<li>Open version. <br/>Description: opens specific version of a deployment project.<p/></li>
+<li>Close project. <br/>Description: removes project from local user workspace. All changes made to project are lost.<p/></li>
+<li>Check out project. <br/>Description: copies deployment project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace for modification.<p/></li>
+<li>Check in project. <br/>Description: copies deployment project from local user workspace into <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
+<li>Copy project. <br/>Description: creates a copy of a project in <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
+<li>Delete project. <br/>Description: deletes project.<p/></li>
+<li>Add/remove descriptors.<br/>Description: adds and removes projects to/from deployment set.<p/><p><img src="rb-overview_files/deployment.png"></p></li>
+
+</ul>
 After checking in deployment project, deploy button is get enabled and clicking it deploys project into production time repository.
 </p>
-<p>
-  <img src="rb-overview_files/deployment.png">
-</p>
-
 
 
 <div class="footer">

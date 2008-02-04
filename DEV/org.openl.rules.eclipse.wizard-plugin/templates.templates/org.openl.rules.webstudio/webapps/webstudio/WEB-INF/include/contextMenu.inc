@@ -1,3 +1,4 @@
+<%@ page import = "org.openl.rules.webstudio.web.util.WebStudioUtils" %>
 <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/popup/popupmenu.js"></script>
 <script type="text/javascript">
     function cellMouseOver(td, event) {
@@ -38,7 +39,7 @@
 
 <div id="contextMenu" style="display:none;">
     <table cellpadding="1px">
-        <%if (!studio.getModel().isReadOnly()) {%><tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr><%}%>
+        <%if (WebStudioUtils.isLocalRequest(request)||(studio.getCurrentProject(session)!=null && (studio.getCurrentProject(session).isCheckedOut()||studio.getCurrentProject(session).isLocalOnly()))) {%><tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr><%}%>
         <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
         <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
     </table>
