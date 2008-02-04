@@ -1,12 +1,14 @@
 package org.openl.rules.webtools;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.text.MessageFormat;
 
 import org.openl.main.OpenLVersion;
 import org.openl.util.Log;
+import org.openl.util.StringTool;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
@@ -37,6 +39,15 @@ public class StartTomcat {
                 + OpenLVersion.getBuild() + " " + OpenLVersion.getURL()
                 + " (c) " + OpenLVersion.getCopyrightYear() + "\n");
 
+        Class<?> bootstrap = null;
+        try {
+            bootstrap = Class.forName("org.apache.catalina.startup.Bootstrap");
+        } catch (ClassNotFoundException cnfe) {
+            throw new Exception("\n Apache Tomcat bootstrap.jar must be in classpath.");
+        }
+
+        
+        
         String whome = System.getProperty("openl.webstudio.home");
 
         if (whome == null) {
@@ -61,7 +72,8 @@ public class StartTomcat {
             chome = getProperty(args, "catalina.home");
         }
         if (chome == null) {
-            chome = "../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17";
+//            chome = "../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17";
+        	chome = findChome();
         }
         File catalinaHome = new File(chome);
 
@@ -87,12 +99,6 @@ public class StartTomcat {
 
         System.out.println("Using tomcat base: " + System.getProperty("catalina.base"));
 
-        Class<?> bootstrap = null;
-        try {
-            bootstrap = Class.forName("org.apache.catalina.startup.Bootstrap");
-        } catch (ClassNotFoundException cnfe) {
-            throw new Exception("\n Apache Tomcat bootstrap.jar must be in classpath.");
-        }
 
         Method main = bootstrap.getMethod("main", new Class[] { String[].class });
 
@@ -114,7 +120,26 @@ public class StartTomcat {
 
     }
 
-    /*
+    static public final String JAVA_CLASSPATH_PROPERTY = "java.class.path";
+
+    private static String findChome() throws IOException 
+    {
+    	String cpath = System.getProperty(JAVA_CLASSPATH_PROPERTY);
+    	
+    	String[] pathElements = StringTool.tokenize(cpath, File.pathSeparator);
+    	
+    	for (int i = 0; i < pathElements.length; i++) {
+			if (pathElements[i].endsWith("bootstrap.jar"))
+			{
+				File tomcatHome = new File(pathElements[i]).getCanonicalFile().getParentFile().getParentFile();
+				return tomcatHome.toString();
+			}	
+		}
+    	
+    	throw new RuntimeException("Could not find bootstrap.jar in " + JAVA_CLASSPATH_PROPERTY);
+	}
+
+	/*
      * C:\3p\jakarta-tomcat-5.0.25\bin>start "Tomcat"
      * "c:\j2sdk1.4.2_04\bin\java"
      * -Djava.endorsed.dirs="C:\3p\jakarta-tomcat-5.0.25\common\endorsed"
