@@ -23,12 +23,6 @@
          version="5.0.5"/>
 
    <plugin
-         id="org.openl.lib.exigen.jcr"
-         download-size="0"
-         install-size="0"
-         version="5.0.5"/>
-
-   <plugin
          id="org.openl.lib.jsf"
          download-size="0"
          install-size="0"
