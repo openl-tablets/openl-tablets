@@ -3,17 +3,19 @@
     <property name="work.dir" value="/openl" />
     <property name="rep.dtr" value="repositories/design-repository.zip" />
     <property name="rep.pr" value="repositories/production-repository.zip" />
-    <property name="tomcat.path" value="../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17" />
     <property name="tomcat.dest.dir" value="tomcat-5.5" />
     <property name="tomcat.dest.path" value="${work.dir}/tomcat-5.5" />
     <property name="webapp.studio.name" value="webstudio" />
     <property name="webapp.client.name" value="demo" />
+	
+	<property name="tomcat.path" value="../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17" />
 
     <property name="project.lib.cxf" value="../org.openl.lib.cxf" />
 	<property name="project.lib.jsf" value="../org.openl.lib.jsf" />
 	<property name="project.lib.springsource" value="../org.openl.lib.springsource" />
     <property name="project.lib.apache.jackrabbit" value="../org.openl.lib.apache.jackrabbit" />
-    <property name="project.jars" value="project.jars" />
+    
+	<property name="project.jars" value="project.jars" />
 
 
     <property name="webapps.dir" value="${tomcat.dest.path}/webapps"/>
