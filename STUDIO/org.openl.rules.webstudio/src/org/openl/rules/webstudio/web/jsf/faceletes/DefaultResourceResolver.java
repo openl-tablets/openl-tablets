@@ -38,8 +38,4 @@ public class DefaultResourceResolver implements ResourceResolver {
             throw new FacesException(e);
         }
     }
-
-    public String toString() {
-        return "jcatalog.DefaultResourceResolver";
-    }
 }
