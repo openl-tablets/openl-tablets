@@ -17,6 +17,8 @@ import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.abstracts.ProjectFolder;
+import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
@@ -63,11 +65,15 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     public synchronized void load() throws ProjectException {
         refresh();
 
-        loadAllStates(this);
+        new StatePersistance(this).load();
     }
 
     public synchronized void save() throws  ProjectException {
-        saveAllStates(this);
+        saveProjectState();
+    }
+
+    private void saveProjectState() throws ProjectException {
+        new StatePersistance(this).save();
     }
 
     public void remove() {
@@ -77,16 +83,16 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
     }
 
     public void checkedIn(ProjectVersion newVersion) {
-    // update new version
-    version = newVersion;
-    // reset all isNew & isChanged
-    resetNewAndChanged();
+        // update new version
+        version = newVersion;
+        // reset all isNew & isChanged
+        resetNewAndChanged();
 
         try {
-        save();
-    } catch (ProjectException e) {
-        Log.error("Failed to save local project state", e);
-    }
+            save();
+        } catch (ProjectException e) {
+            Log.error("Failed to save local project state", e);
+        }
     }
 
     // --- protected
@@ -101,101 +107,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         resetNewAndChanged();
     }
 
-    private static void saveState(LocalProjectArtefactImpl artefact, File destFile) {
-        StateHolder state = artefact.getState();
 
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(new FileOutputStream(destFile));
-            oos.writeObject(state);
-            oos.flush();
-        } catch (IOException e) {
-            Log.error("Could not save state into file {0}", e, destFile.getAbsolutePath());
-        } finally {
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        }
-    }
-
-    private static void loadState(LocalProjectArtefactImpl artefact, File sourceFile) {
-        if (!sourceFile.isFile()) return;
-
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(new FileInputStream(sourceFile));
-
-            StateHolder state = (StateHolder) ois.readObject();
-
-            artefact.setState(state);
-        } catch (Exception e) {
-            Log.error("Could not read state from file {0}", e, sourceFile.getAbsolutePath());
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException ignore) {
-                    // ignore
-                }
-            }
-        }
-    }
-
-    private static void loadAllStates(LocalProjectFolderImpl folder) throws ProjectException {
-        File propFolder = getPropertiesFolder(folder);
-
-        loadState(folder, FolderHelper.getFolderPropertiesFile(propFolder));
-
-        for (LocalProjectArtefact artefact : folder.getArtefacts()) {
-            if (artefact.isFolder()) {
-                loadAllStates((LocalProjectFolderImpl) artefact);
-            } else {
-                loadState((LocalProjectArtefactImpl)artefact, getResourcePropertiesFile(propFolder, artefact));
-            }
-        }
-    }
-
-    private static void saveAllStates(LocalProjectFolderImpl folder) throws ProjectException {
-        File propFolder = createPropertiesFolder(folder);
-
-        saveState(folder, FolderHelper.getFolderPropertiesFile(propFolder));
-
-        for (LocalProjectArtefact artefact : folder.getArtefacts()) {
-            if (artefact.isFolder()) {
-                saveAllStates((LocalProjectFolderImpl) artefact);
-            } else {
-                saveState((LocalProjectArtefactImpl)artefact, getResourcePropertiesFile(propFolder, artefact));
-            }
-        }
-    }
-
-    private static File getResourcePropertiesFile(File propFolder, LocalProjectArtefact artefact) {
-        return new File(propFolder, artefact.getName() + FolderHelper.RESOURCE_PROPERTIES_EXT);
-    }
-
-    private static File getPropertiesFolder(LocalProjectFolderImpl folder) {
-        return new File(folder.getLocation(), FolderHelper.PROPERTIES_FOLDER);
-    }
-
-    private static File createPropertiesFolder(LocalProjectFolderImpl folder) throws ProjectException {
-        File propFolder = getPropertiesFolder(folder);
-        if (propFolder.isFile()) {
-            if (!propFolder.delete()) {
-                throw new ProjectException("''{0}'' is a file and can not be deleted", null, propFolder.getAbsolutePath());
-            }
-        }
-
-        File folderPropFolder = new File(propFolder, FolderHelper.FOLDER_PROPERTIES_FOLDER);
-        if (!FolderHelper.checkOrCreateFolder(folderPropFolder)) {
-            throw new ProjectException("Could not create properties folder " + folderPropFolder.getAbsolutePath());
-        }
-
-        return propFolder;
-    }
 
     public StateHolder getState() {
         ProjectStateHolder state = new ProjectStateHolder();
@@ -223,5 +135,120 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
 
         ProjectVersion version;
         Collection<ProjectDependency> dependencies;
+    }
+}
+
+class StatePersistance {
+    final private LocalProjectImpl project;
+    final private File propertiesLocation;
+    
+    StatePersistance(LocalProjectImpl project) {
+        this.project = project;
+        propertiesLocation = new File(project.getLocation(), FolderHelper.PROPERTIES_FOLDER);
+    }
+
+    private void saveState(LocalProjectArtefactImpl artefact, File destFile)  {
+        File folder = destFile.getParentFile();
+        if (!FolderHelper.checkOrCreateFolder(folder)) {
+            Log.error("Could not create folder " + folder.getAbsolutePath());
+            return;
+        }
+
+        StateHolder state = artefact.getState();
+
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(new FileOutputStream(destFile));
+            oos.writeObject(state);
+            oos.flush();
+        } catch (IOException e) {
+            Log.error("Could not save state into file {0}", e, destFile.getAbsolutePath());
+        } finally {
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    private static void createFolderThrowing(File folder) throws ProjectException {
+        FolderHelper.checkOrCreateFolder(folder);
+        if (!folder.exists()) {
+            throw new ProjectException("Could not create properties folder: " + folder.getAbsolutePath());
+        }
+    }
+
+    private void loadState(LocalProjectArtefactImpl artefact, File sourceFile) {
+        if (!sourceFile.isFile()) return;
+
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(new FileInputStream(sourceFile));
+
+            StateHolder state = (StateHolder) ois.readObject();
+
+            artefact.setState(state);
+        } catch (Exception e) {
+            Log.error("Could not read state from file {0}", e, sourceFile.getAbsolutePath());
+        } finally {
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (IOException ignore) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    private void loadAllStates(LocalProjectFolderImpl folder)  {
+        loadState(folder, getPropertiesFile(folder));
+        
+        for (LocalProjectArtefact artefact : folder.getArtefacts()) {
+            if (artefact.isFolder()) {
+                LocalProjectFolderImpl localFolder = (LocalProjectFolderImpl) artefact;
+                loadAllStates(localFolder);
+            } else {
+                LocalProjectArtefactImpl localProjectArtefact = (LocalProjectArtefactImpl) artefact;
+                loadState(localProjectArtefact, getPropertiesFile((ProjectResource)localProjectArtefact));
+            }
+        }
+    }
+
+    private void saveAllStates(LocalProjectFolderImpl folder) throws ProjectException {
+        saveState(folder, getPropertiesFile(folder));
+
+        for (LocalProjectArtefact artefact : folder.getArtefacts()) {
+            if (artefact.isFolder()) {
+                LocalProjectFolderImpl localFolder = (LocalProjectFolderImpl) artefact;
+                saveAllStates(localFolder);
+            } else {
+                LocalProjectArtefactImpl localProjectArtefact = (LocalProjectArtefactImpl) artefact;
+                saveState(localProjectArtefact, getPropertiesFile((ProjectResource)localProjectArtefact));
+            }
+        }
+    }
+
+    void load() {
+        if (propertiesLocation.exists()) {
+            loadAllStates(project);
+        }
+    }
+
+    void save() throws ProjectException {
+        createFolderThrowing(propertiesLocation);
+        saveAllStates(project);
+    }
+
+
+    private File getPropertiesFile(ProjectFolder folder) {
+        return new File(propertiesLocation, folder.getArtefactPath().getStringValue(1) + ("/" + FolderHelper.FOLDER_PROPERTIES_FILE));
+    }
+
+    private File getPropertiesFile(ProjectResource resource) {
+        return new File(propertiesLocation, resource.getArtefactPath().getStringValue(1) + FolderHelper.RESOURCE_PROPERTIES_EXT);
     }
 }
