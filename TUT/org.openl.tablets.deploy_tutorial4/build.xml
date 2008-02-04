@@ -10,6 +10,9 @@
     <property name="webapp.client.name" value="demo" />
 
     <property name="project.lib.cxf" value="../org.openl.lib.cxf" />
+	<property name="project.lib.jsf" value="../org.openl.lib.jsf" />
+	<property name="project.lib.springsource" value="../org.openl.lib.springsource" />
+    <property name="project.lib.apache.jackrabbit" value="../org.openl.lib.apache.jackrabbit" />
     <property name="project.jars" value="project.jars" />
 
 
@@ -17,6 +20,7 @@
     <property name="webapps.studio.dir" value="${webapps.dir}/${webapp.studio.name}"/>
     <property name="webapps.client.dir" value="${webapps.dir}/${webapp.client.name}"/>
     <property name="ruleservice.dir" value="${work.dir}/ruleservice" />
+
 
     <target name="help">
         <echo message="deployment project" />
@@ -68,14 +72,14 @@
 
     <target name="copy_webapps_libs" depends="prepare_webapps">
         <copy todir="${webapps.studio.dir}/WEB-INF/lib" flatten="true">
-            <fileset dir="../org.openl.lib.jsf" includes="**/*.jar" />
-            <fileset dir="../org.openl.lib.springsource" includes="**/*.jar" />
-            <fileset dir="../org.openl.lib.apache.jackrabbit" includes="**/*.jar" />
+            <fileset dir="${project.lib.jsf}" includes="**/*.jar" />
+            <fileset dir="${project.lib.springsource}" includes="**/*.jar" />
+            <fileset dir="${project.lib.apache.jackrabbit}" includes="**/*.jar" />
             <fileset dir="${project.jars}" includes="**/*.jar" />
         </copy>
 
         <copy todir="${webapps.client.dir}/WEB-INF/lib" flatten="true">
-            <fileset dir="../org.openl.lib.jsf" includes="**/*.jar" />
+            <fileset dir="${project.lib.jsf}" includes="**/*.jar" />
             <fileset dir="${project.lib.cxf}" includes="**/*.jar" />
         </copy>
     </target>
@@ -89,7 +93,7 @@
         <copy todir="${ruleservice.dir}/lib" flatten="true">
             <fileset dir="${project.jars}" includes="**/*.jar" />
             <fileset dir="${project.lib.cxf}" includes="**/*.jar" />
-            <fileset dir="../org.openl.lib.apache.jackrabbit" includes="**/*.jar" />
+            <fileset dir="${project.lib.apache.jackrabbit}" includes="**/*.jar" />
         </copy>
     </target>
 
