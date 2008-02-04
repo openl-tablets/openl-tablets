@@ -14,7 +14,7 @@
 .masthead {
   width: 100%;
   height: 70px;
-  background-image: url(/webstudio/images/header_logo.jpg);
+  background-image: url(../images/header_logo.jpg);
   background-repeat: no-repeat;
   min-width: 800px;
   max-width: 1400px;
@@ -25,8 +25,47 @@
 
 .logo {
   position: absolute;
-  top: 10px;
+  top: 0px;
+  right: 7px;
+}
+
+span#userName {
+  background: url(../images/user.gif) no-repeat right;
+  color: black;
+  display: block;
+  font-size: 11px;
+  font-weight: bold;
+  padding-right: 17px;
+  padding-top: 2px;
+  position: absolute;
+  top: 52px;
+  right: 55px;
+}
+
+div#iconbar {
+  border: 0px solid gray;
+  display: block;
+  float: right;
+  height: 16px;
+  position: absolute;
+  top: 51px;
   right: 10px;
+}
+
+#iconbar a {
+  text-decoration: none;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+div#colorScheme {
+  border: 0px solid gray;
+  position: absolute;
+  top: 76px;
+  right: 10px;
+  font-size: 10px;
+  text-align: center;
+  font-weight: bold;
 }
 
 img.actionImage {
@@ -54,9 +93,9 @@ body {
   width: 100%;
   height: 100%;
 }
-/* ------------------------------------------- */
 
-/* form elements styles */
+/* ------------------------------------------- */
+  /* form elements styles */
 form .formfields {
   vertical-align: top;
   border: none;
@@ -125,7 +164,7 @@ input.disabledButton {
   color: #FFFFFF;
   text-align: center;
   height: 18px;
-  background: url(../images/buttonDisabled.gif) repeat-x center;
+  background: url(../images/disabledButton.gif) repeat-x center;
   background-color: #7c99b6;
   margin: 0;
   padding: 0px 5px 0px 5px;
@@ -178,6 +217,12 @@ form.standard table.buttonPanel {
   color: green;
 }
 
+.noEntries {
+  color: #002276;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
 /* Standard table that should be used to display any tabular data */
 table.standard {
   border: none;
@@ -190,10 +235,6 @@ table.standard caption {
   font-weight: bold;
   text-align: left;
   padding: 5px;
-}
-
-table.standard thead {
-
 }
 
 table.standard thead td {
@@ -235,6 +276,15 @@ table.standard tr.even {
 
 table.standard tr.odd {
   background-color: white;
+}
+
+/* Header */
+table.header {
+  border-bottom: medium none !important;
+}
+
+table.header thead td {
+  padding: 1px 8px 1px !important;
 }
 
 /* RichFaces tree styles */

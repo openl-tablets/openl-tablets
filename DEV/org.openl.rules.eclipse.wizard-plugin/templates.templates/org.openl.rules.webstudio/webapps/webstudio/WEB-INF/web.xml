@@ -10,14 +10,24 @@
 
   <context-param>
     <description>
+      Location of the XML file that defines the root application context
+      Applied by ContextLoaderListener.
+    </description>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+      /WEB-INF/context/applicationContext*.xml
+    </param-value>
+  </context-param>
+
+  <context-param>
+    <description>
       Comma separated list of URIs of (additional) faces config files.
     </description>
     <param-name>javax.faces.CONFIG_FILES</param-name>
     <param-value>
-      /WEB-INF/managed-beans.xml,
-      /WEB-INF/navigation.xml,
-      /WEB-INF/managed-beans-jcr.xml,
-      /WEB-INF/navigation-jcr.xml
+      /WEB-INF/faces/faces-config.xml,
+      /WEB-INF/faces/faces-repository.xml,
+      /WEB-INF/faces/faces-studio.xml
     </param-value>
   </context-param>
 
@@ -110,6 +120,10 @@
   <!-- Listeners, that does all the startup work (configuration, init). -->
   <listener>
     <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
 
   <listener>
