@@ -6,16 +6,15 @@ import org.openl.util.OpenIterator;
 import java.util.Iterator;
 import java.io.File;
 
-public class WebstudioTreeIterator extends TreeIterator {
+public class WebstudioTreeIterator extends TreeIterator<File> {
     public static final String PROPERTIES_FOLDER = ".studioProps";
 
-    public WebstudioTreeIterator(Object treeRoot, int mode) {
+    public WebstudioTreeIterator(File treeRoot, int mode) {
         super(treeRoot, new TreeAdaptor(), mode);
     }
 
-    static class TreeAdaptor implements TreeIterator.TreeAdaptor {
-        public Iterator children(Object node) {
-            File f = (File) node;
+    static class TreeAdaptor implements TreeIterator.TreeAdaptor<File> {
+        public Iterator<File> children(File f) {
             if (!f.isDirectory() || f.getName().equals(PROPERTIES_FOLDER)) {
                 return null;
             }
@@ -25,7 +24,7 @@ public class WebstudioTreeIterator extends TreeIterator {
 
     public File nextFile()
 	{
-		return (File)next();
+		return next();
 	}
 
 }
