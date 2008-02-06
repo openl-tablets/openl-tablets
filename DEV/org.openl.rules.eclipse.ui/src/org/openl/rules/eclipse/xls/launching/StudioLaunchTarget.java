@@ -82,7 +82,7 @@ public class StudioLaunchTarget extends ALaunchTarget {
 	}
 
 	public String generateUniqueLaunchConfigurationName() {
-		String prefix = resource.getName();
+		String prefix = "Open " + resource.getName() + " in WebStudio";
 		return getLaunchManager().generateUniqueLaunchConfigurationNameFrom(
 				prefix);
 	}
