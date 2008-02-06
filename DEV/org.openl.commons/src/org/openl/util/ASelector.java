@@ -8,264 +8,303 @@ package org.openl.util;
 
 /**
  * @author snshor
- *
+ * 
  */
 public abstract class ASelector<T> implements ISelector<T>
 {
 
-	static public ISelector<Object> selectClass(Class<?> c)
+    static public ISelector<Object> selectClass(Class<?> c)
+    {
+	return new ClassSelector(c);
+    }
+
+    static public <T> ISelector<T> selectObject(T obj)
+    {
+	return new ObjectSelector<T>(obj);
+    }
+
+    static public <T> ISelector<T> selectAll(@SuppressWarnings("unused")
+    T obj)
+    {
+	return new AllSelector<T>();
+    }
+
+    static public <T> ISelector<T> selectNone(@SuppressWarnings("unused")
+    T obj)
+    {
+	return new NoneSelector<T>();
+    }
+
+    static class AllSelector<T> extends ASelector<T>
+    {
+
+	public boolean select(T obj)
 	{
-		return new ClassSelector(c);
+	    return true;
 	}
 
-	static public ISelector<Object> selectObject(Object obj)
+    }
+
+    static class NoneSelector<T> extends ASelector<T>
+    {
+
+	public boolean select(T obj)
 	{
-		return new ObjectSelector(obj);
+	    return false;
 	}
 
-	public ISelector<T> or(ISelector<T> isel)
+    }
+
+    public ISelector<T> or(ISelector<T> isel)
+    {
+	return new ORSelector<T>(this, isel);
+    }
+
+    public ISelector<T> and(ISelector<T> isel)
+    {
+	return new ANDSelector<T>(this, isel);
+    }
+
+    public ISelector<T> xor(ISelector<T> isel)
+    {
+	return new XORSelector<T>(this, isel);
+    }
+
+    /**
+     * 
+     * @author snshor Base class for binary boolean operators
+     */
+    static abstract class BoolBinSelector<T> extends ASelector<T>
+    {
+	ISelector<T> sel1;
+	ISelector<T> sel2;
+
+	protected BoolBinSelector(ISelector<T> sel1, ISelector<T> sel2)
 	{
-		return new ORSelector<T>(this, isel);
+	    this.sel1 = sel1;
+	    this.sel2 = sel2;
 	}
 
-	public ISelector<T> and(ISelector<T> isel)
+	protected boolean equalsSelector(ASelector<?> sel)
 	{
-		return new ANDSelector<T>(this, isel);
+	    return sel1.equals(((BoolBinSelector<?>) sel).sel1)
+		    && sel2.equals(((BoolBinSelector<?>) sel).sel2);
 	}
 
-	public ISelector<T> xor(ISelector<T> isel)
+	protected int redefinedHashCode()
 	{
-		return new XORSelector<T>(this, isel);
+	    return sel1.hashCode() + sel2.hashCode();
 	}
 
-	/**
-	 * 
-	 * @author snshor
-	 * Base class for binary boolean operators
-	 */
-	static abstract class BoolBinSelector<T> extends ASelector<T>
+    }
+
+    static class NOTSelector<T> extends ASelector<T>
+    {
+	ISelector<T> is;
+
+	public NOTSelector(ISelector<T> is)
 	{
-		ISelector<T> sel1;
-		ISelector<T> sel2;
-		protected BoolBinSelector(ISelector<T> sel1, ISelector<T> sel2)
-		{
-			this.sel1 = sel1;
-			this.sel2 = sel2;
-		}
-
-		protected boolean equalsSelector(ASelector<?> sel)
-		{
-			return sel1.equals(((BoolBinSelector<?>) sel).sel1)
-				&& sel2.equals(((BoolBinSelector<?>) sel).sel2);
-		}
-
-		protected int redefinedHashCode()
-		{
-			return sel1.hashCode() + sel2.hashCode();
-		}
-
+	    this.is = is;
 	}
 
-	static class NOTSelector<T> extends ASelector<T>
+	public boolean select(T obj)
 	{
-		ISelector<T> is;
-		public NOTSelector(ISelector<T> is)
-		{
-			this.is = is;
-		}
-		public boolean select(T obj)
-		{
-			return !is.select(obj);
-		}
-
-		protected boolean equalsSelector(ASelector<?> sel)
-		{
-			return is.equals(((NOTSelector<?>) sel).is);
-		}
-
-		protected int redefinedHashCode()
-		{
-			return is.hashCode();
-		}
-
+	    return !is.select(obj);
 	}
 
-	static class XORSelector<T> extends BoolBinSelector<T>
+	protected boolean equalsSelector(ASelector<?> sel)
 	{
-		public XORSelector(ISelector<T> sel1, ISelector<T> sel2)
-		{
-			super(sel1, sel2);
-		}
-
-		public boolean select(T obj)
-		{
-			return sel1.select(obj) ^ sel2.select(obj);
-		}
+	    return is.equals(((NOTSelector<?>) sel).is);
 	}
 
-	static class ANDSelector<T> extends BoolBinSelector<T>
+	protected int redefinedHashCode()
 	{
-		public ANDSelector(ISelector<T> sel1, ISelector<T> sel2)
-		{
-			super(sel1, sel2);
-		}
-
-		public boolean select(T obj)
-		{
-			if (sel1.select(obj))
-				return sel2.select(obj);
-			return false;
-		}
+	    return is.hashCode();
 	}
 
-	static class ORSelector<T> extends BoolBinSelector<T>
-	{
-		public ORSelector(ISelector<T> sel1, ISelector<T> sel2)
-		{
-			super(sel1, sel2);
-		}
+    }
 
-		public boolean select(T obj)
-		{
-			if (sel1.select(obj))
-				return true;
-			return sel2.select(obj);
-		}
+    static class XORSelector<T> extends BoolBinSelector<T>
+    {
+	public XORSelector(ISelector<T> sel1, ISelector<T> sel2)
+	{
+	    super(sel1, sel2);
 	}
 
-	public static class ClassSelector extends ASelector<Object>
+	public boolean select(T obj)
 	{
-		Class<?> c;
-		public ClassSelector(Class<?> c)
-		{
-			this.c = c;
-		}
+	    return sel1.select(obj) ^ sel2.select(obj);
+	}
+    }
 
-		public boolean select(Object obj)
-		{
-			return c.isInstance(obj);
-		}
-		
-		
-		
-		
-		protected boolean equalsSelector(ASelector<?> sel)
-		{
-			return c == ((ClassSelector)sel).c;
-		}
-
-		protected int redefinedHashCode()
-		{
-			return c.hashCode();
-		}
-
+    static class ANDSelector<T> extends BoolBinSelector<T>
+    {
+	public ANDSelector(ISelector<T> sel1, ISelector<T> sel2)
+	{
+	    super(sel1, sel2);
 	}
 
-	public static class ObjectSelector extends ASelector<Object>
+	public boolean select(T obj)
 	{
-		Object myobj;
-		public ObjectSelector(Object obj)
-		{
-			this.myobj = obj;
-		}
+	    if (sel1.select(obj))
+		return sel2.select(obj);
+	    return false;
+	}
+    }
 
-		public boolean select(Object obj)
-		{
-			if (myobj == obj)
-				return true;
-			if (myobj == null)
-				return false;
-			return myobj.equals(obj);
-		}
-
-		protected boolean equalsSelector(ASelector<?> sel)
-		{
-			return select(((ObjectSelector)sel).myobj);
-		}
-
-		protected int redefinedHashCode()
-		{
-			return myobj == null ? 0 : myobj.hashCode();
-		}
-
-
+    static class ORSelector<T> extends BoolBinSelector<T>
+    {
+	public ORSelector(ISelector<T> sel1, ISelector<T> sel2)
+	{
+	    super(sel1, sel2);
 	}
 
-	public static abstract class IntValueSelector<T> extends ASelector<T>
+	public boolean select(T obj)
 	{
-		int value;
-		public IntValueSelector(int value)
-		{
-			this.value = value;
-		}
+	    if (sel1.select(obj))
+		return true;
+	    return sel2.select(obj);
+	}
+    }
 
-		public boolean select(T obj)
-		{
-			return value == getIntValue(obj);
-		}
+    public static class ClassSelector extends ASelector<Object>
+    {
+	Class<?> c;
 
-		protected abstract int getIntValue(T test);
-
-		protected boolean equalsSelector(ASelector<?> sel)
-		{
-			return ((IntValueSelector<?>)sel).value == value;
-		}
-
-		protected int redefinedHashCode()
-		{
-			return value;
-		}
-		
-		
+	public ClassSelector(Class<?> c)
+	{
+	    this.c = c;
 	}
 
-	public static class StringValueSelector<T> extends ASelector<T>
+	public boolean select(Object obj)
 	{
-		String value;
-		AStringConvertor<T> convertor;
-		
-		public StringValueSelector(String value, AStringConvertor<T> convertor)
-		{
-			this.value = value;
-			this.convertor =convertor;
-		}
-
-		public boolean select(T obj)
-		{
-			return value.equals(convertor.getStringValue(obj));
-		}
-
-        protected boolean equalsSelector(ASelector<?> sel)
-        {
-          StringValueSelector<?> svs = (StringValueSelector<?>)sel;
-          return value.equals(svs.value) && convertor.equals(svs.convertor);
-        }
-
-        protected int redefinedHashCode()
-        {
-            return value.hashCode() * 37 + convertor.hashCode();
-        }
+	    return c.isInstance(obj);
 	}
 
-	public ISelector<T> not()
+	protected boolean equalsSelector(ASelector<?> sel)
 	{
-		return new NOTSelector<T>(this);
+	    return c == ((ClassSelector) sel).c;
 	}
 
-	public boolean equals(Object obj)
+	protected int redefinedHashCode()
 	{
-		if (obj == null || obj.getClass() != this.getClass())
-			return false;
-		return equalsSelector((ASelector<?>) obj);
+	    return c.hashCode();
 	}
 
-	protected boolean equalsSelector(ASelector<?> sel){return sel == this;}
+    }
 
-	protected int redefinedHashCode(){return System.identityHashCode(this);}
+    public static class ObjectSelector<T> extends ASelector<T>
+    {
+	T myobj;
 
-	public int hashCode()
+	public ObjectSelector(T obj)
 	{
-		return redefinedHashCode();
+	    this.myobj = obj;
 	}
+
+	public boolean select(T obj)
+	{
+	    if (myobj == obj)
+		return true;
+	    if (myobj == null)
+		return false;
+	    return myobj.equals(obj);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected boolean equalsSelector(ASelector<?> sel)
+	{
+	    return select(((ObjectSelector<T>) sel).myobj);
+	}
+
+	protected int redefinedHashCode()
+	{
+	    return myobj == null ? 0 : myobj.hashCode();
+	}
+
+    }
+
+    public static abstract class IntValueSelector<T> extends ASelector<T>
+    {
+	int value;
+
+	public IntValueSelector(int value)
+	{
+	    this.value = value;
+	}
+
+	public boolean select(T obj)
+	{
+	    return value == getIntValue(obj);
+	}
+
+	protected abstract int getIntValue(T test);
+
+	protected boolean equalsSelector(ASelector<?> sel)
+	{
+	    return ((IntValueSelector<?>) sel).value == value;
+	}
+
+	protected int redefinedHashCode()
+	{
+	    return value;
+	}
+
+    }
+
+    public static class StringValueSelector<T> extends ASelector<T>
+    {
+	String value;
+	AStringConvertor<T> convertor;
+
+	public StringValueSelector(String value, AStringConvertor<T> convertor)
+	{
+	    this.value = value;
+	    this.convertor = convertor;
+	}
+
+	public boolean select(T obj)
+	{
+	    return value.equals(convertor.getStringValue(obj));
+	}
+
+	protected boolean equalsSelector(ASelector<?> sel)
+	{
+	    StringValueSelector<?> svs = (StringValueSelector<?>) sel;
+	    return value.equals(svs.value) && convertor.equals(svs.convertor);
+	}
+
+	protected int redefinedHashCode()
+	{
+	    return value.hashCode() * 37 + convertor.hashCode();
+	}
+    }
+
+    public ISelector<T> not()
+    {
+	return new NOTSelector<T>(this);
+    }
+
+    public boolean equals(Object obj)
+    {
+	if (obj == null || obj.getClass() != this.getClass())
+	    return false;
+	return equalsSelector((ASelector<?>) obj);
+    }
+
+    protected boolean equalsSelector(ASelector<?> sel)
+    {
+	return sel == this;
+    }
+
+    protected int redefinedHashCode()
+    {
+	return System.identityHashCode(this);
+    }
+
+    public int hashCode()
+    {
+	return redefinedHashCode();
+    }
 
 }
