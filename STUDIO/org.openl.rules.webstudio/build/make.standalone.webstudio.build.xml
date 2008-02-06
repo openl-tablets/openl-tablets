@@ -11,13 +11,14 @@
 
 		<echo message="Copying Webstudio Classpath" />
 
-		<!--
+<!--
 		The following parameters are required for ClasspathCopy task:
+            
 		
 		                  	  
 		The following parameters are optional for ClasspathCopy task:
 			 
-	-->
+-->
 		<cpcopy targetDir="${targetDir}" copyMode="copy.workspace" startupFileName="StartWebstudio" />
 
 		<copy preservelastmodified="true" todir="${targetDir}/${tomcat.project}">
