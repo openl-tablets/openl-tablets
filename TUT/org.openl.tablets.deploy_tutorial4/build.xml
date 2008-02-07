@@ -8,12 +8,15 @@
     <property name="webapp.studio.name" value="webstudio" />
     <property name="webapp.client.name" value="demo" />
 	
-	<property name="tomcat.path" value="../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17" />
+	<property name="plugin.base.path" value="C:/Program Files/Java/Eclipse/wtp 3.3/plugins" />
+	<property name="openl.plugin.version" value="_5.0.5" />
+	
+	<property name="tomcat.path" value="${plugin.base.path}/org.openl.lib.apache.tomcat${openl.plugin.version}/apache-tomcat-5.5.17" />
 
-    <property name="project.lib.cxf" value="../org.openl.lib.cxf" />
-	<property name="project.lib.jsf" value="../org.openl.lib.jsf" />
-	<property name="project.lib.springsource" value="../org.openl.lib.springsource" />
-    <property name="project.lib.apache.jackrabbit" value="../org.openl.lib.apache.jackrabbit" />
+    <property name="project.lib.cxf" value="${plugin.base.path}/org.openl.lib.cxf${openl.plugin.version}" />
+	<property name="project.lib.jsf" value="${plugin.base.path}/org.openl.lib.jsf${openl.plugin.version}" />
+	<property name="project.lib.springsource" value="${plugin.base.path}/org.openl.lib.springsource${openl.plugin.version}" />
+    <property name="project.lib.apache.jackrabbit" value="${plugin.base.path}/org.openl.lib.apache.jackrabbit${openl.plugin.version}" />
     
 	<property name="project.jars" value="project.jars" />
 
@@ -77,7 +80,14 @@
             <fileset dir="${project.lib.jsf}" includes="**/*.jar" />
             <fileset dir="${project.lib.springsource}" includes="**/*.jar" />
             <fileset dir="${project.lib.apache.jackrabbit}" includes="**/*.jar" />
-            <fileset dir="${project.jars}" includes="**/*.jar" />
+            <fileset dir="${plugin.base.path}">
+            	<include name="**/org.openl.commons${openl.plugin.version}.jar"/>
+            	<include name="**/org.openl.core${openl.plugin.version}.jar"/>
+            	<include name="**/org.openl.rules${openl.plugin.version}.jar"/>
+            	<include name="**/org.openl.rules.repository${openl.plugin.version}.jar"/>
+            	<include name="**/org.openl.rules.repository.jcr${openl.plugin.version}.jar"/>
+            	<include name="**/org.openl.rules.workspace${openl.plugin.version}.jar"/>
+            </fileset>
         </copy>
 
         <copy todir="${webapps.client.dir}/WEB-INF/lib" flatten="true">
@@ -92,10 +102,24 @@
             <fileset dir="ruleservice" includes="**/*" />
         </copy>
 
+    	<mkdir dir="${ruleservice.dir}/lib" />
         <copy todir="${ruleservice.dir}/lib" flatten="true">
-            <fileset dir="${project.jars}" includes="**/*.jar" />
+        	<fileset dir="${plugin.base.path}">
+        	    <include name="**/org.openl.commons${openl.plugin.version}.jar"/>
+        	    <include name="**/org.openl.core${openl.plugin.version}.jar"/>
+        	    <include name="**/org.openl.rules${openl.plugin.version}.jar"/>
+        	    <include name="**/org.openl.rules.repository${openl.plugin.version}.jar"/>
+        	    <include name="**/org.openl.rules.repository.jcr${openl.plugin.version}.jar"/>
+        	    <include name="**/org.openl.rules.workspace${openl.plugin.version}.jar"/>
+        		<include name="**/org.openl.j${openl.plugin.version}.jar"/>
+        	    <include name="**/org.openl.rules.helpers${openl.plugin.version}.jar"/>
+        	    <include name="**/org.openl.rules.validator${openl.plugin.version}.jar"/>
+        	</fileset>
             <fileset dir="${project.lib.cxf}" includes="**/*.jar" />
             <fileset dir="${project.lib.apache.jackrabbit}" includes="**/*.jar" />
+        	<fileset dir="${project.lib.jsf}">
+        		<include name="**/commons-io-1.3.2.jar"/>
+        	</fileset>
         </copy>
     </target>
 
