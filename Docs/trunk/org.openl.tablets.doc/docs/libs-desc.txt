@@ -1,0 +1,211 @@
+* antlr-2.7.5.jar
+- ANTLR 2.7.5 (http://www.antlr.org)
+- antlr.license.txt
+- required for running PetClinic (by Hibernate)
+
+* aopalliance-1.0.jar
+- AOP Alliance 1.0 (http://aopalliance.sourceforge.net)
+- required for building the framework
+- included in spring.jar and spring-aop.jar
+
+* bootstrap.jar
+
+* BrowserLauncher2-1_3.jar
+
+* c3p0-0.9.0.4.jar
+- C3P0 0.9.1.1 connection pool (http://sourceforge.net/projects/c3p0)
+- required for building the framework
+- required at runtime when using Spring's C3P0NativeJdbcExtractor
+- required for running Image Database
+
+* cglib-nodep-2.1_3.jar
+- CGLIB 2.1_3 with ObjectWeb ASM 1.5.3 (http://cglib.sourceforge.net)
+- required for building the framework
+- required at runtime when proxying full target classes via Spring AOP
+
+* commons-beanutils-1.7.0.jar
+- Commons BeanUtils 1.7 (http://jakarta.apache.org/commons/beanutils)
+- required for running JPetStore's Struts web tier
+
+* commons-collections-3.1.jar
+
+* commons-collections-3.2.jar
+- Commons Collections 3.2 (http://jakarta.apache.org/commons/collections)
+- required for building the framework
+- optional for using linked/identity maps in Spring core (on JDK < 1.4)
+- required for running PetClinic, JPetStore (by Commons DBCP, Hibernate)
+
+* commons-codec-1.2.jar
+* commons-codec-1.3.jar
+
+* commons-dbcp-1.1.jar
+- Commons DBCP 1.2.2 (http://jakarta.apache.org/commons/dbcp)
+- required for building the framework
+- required at runtime when using Spring's CommonsDbcpNativeJdbcExtractor
+- required for running JPetStore
+
+* commons-digester-1.6.jar
+- Commons Digester 1.6 (http://jakarta.apache.org/commons/digester)
+- required for running JPetStore's Struts web tier
+
+* commons-el-1.0.jar
+
+* commons-fileupload-1.1.1.jar
+
+* commons-fileupload-1.2.jar
+- Commons FileUpload 1.2 (http://jakarta.apache.org/commons/fileupload)
+- required for building the framework
+- required at runtime when using Spring's CommonsMultipartResolver
+
+* commons-httpclient-3.0.1.jar
+- Commons HttpClient 3.0.1 (http://jakarta.apache.org/commons/httpclient)
+- required for building the framework
+- required at runtime when using Spring's CommonsHttpInvokerRequestExecutor
+
+* commons-io-1.1.jar
+
+* commons-io-1.3.2.jar
+- Commons IO 1.3.2 (http://jakarta.apache.org/commons/io)
+- required at runtime when using Spring's CommonsMultipartResolver (by Commons FileUpload)
+
+* commons-lang-2.1.jar
+- Commons Lang 2.1 (http://jakarta.apache.org/commons/lang)
+- required at runtime when using Spring's OpenJPA support (by OpenJPA)
+
+* commons-logging-1.0.3.jar
+* commons-logging-1.0.4.jar
+
+* commons-logging-1.1.jar
+- Commons Logging 1.1 (http://jakarta.apache.org/commons/logging)
+- required for building the framework
+- required at runtime, as Spring uses it for all logging
+
+* commons-pool-1.3.jar
+- Commons Pool 1.3 (http://jakarta.apache.org/commons/pool)
+- required for running JPetStore and Image Database (by Commons DBCP)
+
+
+concurrent-1.3.4.jar
+cxf-2.0.3-incubator.jar
+cxf-manifest-incubator.jar
+derby-10.2.1.6.jar
+
+
+
+* el-api.jar
+- JSP 2.1's EL API (http://java.sun.com/products/jsp), as used by JSF 1.2
+- required for building the framework
+- required at runtime when using Spring's JSF 1.2 support
+
+el-ri.jar
+ewf-commons-7.0.0.023.jar
+exigen-jcr-core-7.0.1-SNAPSHOT.jar
+exigen-jcr-dialect-mssql-2005-7.0.1-SNAPSHOT.jar
+exigen-jcr-dialect-mssql-base-7.0.1-SNAPSHOT.jar
+exigen-jcr-dialect-oracle-7.0.1-SNAPSHOT.jar
+geronimo-activation_1.1_spec-1.0-M1.jar
+geronimo-annotation_1.0_spec-1.1.jar
+geronimo-javamail_1.4_spec-1.0-M1.jar
+geronimo-jta_1.0.1B_spec-1.0.1.jar
+geronimo-servlet_2.5_spec-1.1-M1.jar
+geronimo-ws-metadata_2.0_spec-1.1.1.jar
+jackrabbit-api-1.3.3.jar
+jackrabbit-core-1.3.3.jar
+jackrabbit-jcr-commons-1.3.3.jar
+jackrabbit-jcr-rmi-1.3.3.jar
+jackrabbit-text-extractors-1.3.3.jar
+jaxb-api-2.0.jar
+jaxb-impl-2.0.5.jar
+jaxb-xjc-2.0.jar
+jaxws-api-2.0.jar
+jcr-1.0.jar
+jdbc-stdext-2.0.jar
+jdom-1.0.jar
+jetty-6.1.5.jar
+jetty-util-6.1.5.jar
+jmimemagic-0.1.2.jar
+jsap-2.1.jar
+jsf-facelets-1.1.13.jar
+jsontools-core-1.5.jar
+
+
+* jsp-api.jar
+- JSP API 2.0 (http://java.sun.com/products/jsp)
+- required for building the framework
+- required at runtime when using Spring's JSP support
+
+
+
+* jstl-1.1.0.jar
+- JSP Standard Tag Library API 1.1 (http://java.sun.com/products/jstl)
+- required for building the framework
+- required at runtime when using Spring's JstlView
+
+juh-2.0.3.jar
+junit-3.8.1.jar
+jurt-2.0.3.jar
+
+* log4j-1.2.8.jar
+
+* log4j-1.2.13.jar
+- Log4J 1.2.13 (http://logging.apache.org/log4j)
+- required for building the framework
+- required at runtime when using Spring's Log4jConfigurer
+
+lucene-core-2.0.0.jar
+myfaces-api-1.1.5.jar
+myfaces-impl-1.1.5.jar
+neethi-2.0.2.jar
+nekohtml-0.9.4.jar
+odf-utils-1.0.jar
+ojdbc14-10.2.0.2.0.jar
+oro-2.0.8.jar
+pdfbox-0.6.4.jar
+pdfbox-0.7.1.jar
+
+* poi-2.5.1-final-20040804.jar
+
+* poi-3.0.1-FINAL.jar
+- Apache POI 3.0.1 (http://jakarta.apache.org/poi)
+- required for building the framework
+- required at runtime when using Spring's AbstractExcelView
+
+poi-scratchpad-3.0.1-FINAL.jar
+richfaces-api-3.1.2.GA.jar
+richfaces-impl-3.1.2.GA.jar
+richfaces-ui-3.1.2.GA.jar
+ridl-2.0.3.jar
+saaj-api-1.3.jar
+saaj-impl-1.3.jar
+simple-jndi-0.11.1.jar
+slf4j-api-1.3.0.jar
+slf4j-log4j12-1.3.0.jar
+spring-2.5.jar
+spring-beans-2.1-m2.jar
+spring-context-2.1-m2.jar
+spring-core-2.1-m2.jar
+spring-orm-2.1-m2.jar
+spring-tx-2.1-m2.jar
+sqljdbc.jar
+
+
+* standard.jar
+- Jakarta's JSTL implementation 1.1.2 (http://jakarta.apache.org/taglibs)
+- required for running JPetStore, PetClinic, Countries
+
+stax-api-1.0.1.jar
+tm-extractors-0.4.jar
+tomahawk-1.1.6.jar
+unoil-2.0.3.jar
+wsdl4j-1.6.1.jar
+wstx-asl-3.2.1.jar
+xbean-2.2.0.jar
+xercesImpl-2.4.0.jar
+xercesImpl-2.8.1.jar
+xml-apis-1.0.b2.jar
+xml-apis-1.3.02.jar
+xml-apis-1.3.03.jar
+xml-resolver-1.2.jar
+xmlParserAPIs-2.0.2.jar
+XmlSchema-1.3.2.jar
+xmlsec-1.3.0.jar
