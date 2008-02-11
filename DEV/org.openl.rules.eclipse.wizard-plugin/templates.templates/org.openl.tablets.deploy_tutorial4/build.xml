@@ -81,12 +81,7 @@
             <fileset dir="${project.lib.springsource}" includes="**/*.jar" />
             <fileset dir="${project.lib.apache.jackrabbit}" includes="**/*.jar" />
             <fileset dir="${plugin.base.path}">
-            	<include name="**/org.openl.commons${openl.plugin.version}.jar"/>
-            	<include name="**/org.openl.core${openl.plugin.version}.jar"/>
-            	<include name="**/org.openl.rules${openl.plugin.version}.jar"/>
-            	<include name="**/org.openl.rules.repository${openl.plugin.version}.jar"/>
-            	<include name="**/org.openl.rules.repository.jcr${openl.plugin.version}.jar"/>
-            	<include name="**/org.openl.rules.workspace${openl.plugin.version}.jar"/>
+            	<include name="**/org.openl.*${openl.plugin.version}.jar"/>
             </fileset>
         </copy>
 
