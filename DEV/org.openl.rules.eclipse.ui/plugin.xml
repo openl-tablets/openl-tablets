@@ -55,14 +55,29 @@
             class="org.openl.rules.eclipse.xls.launching.StudioLaunchShortcut"
             icon="icons/full/ctool16/openl_app.gif"
             id="org.openl.rules.eclipse.xls.launching.StudioLaunchShortcut"
-            label="Open OpenL Project in Webstudio"
+            label="Edit OpenL Project in Webstudio"
             modes="run, debug">
          <perspective id="org.eclipse.jdt.ui.JavaPerspective"/>
          <perspective id="org.eclipse.debug.ui.DebugPerspective"/>
          <perspective id="org.eclipse.jdt.ui.JavaHierarchyPerspective"/>
          <perspective id="org.eclipse.jdt.ui.JavaBrowsingPerspective"/>
          <contextualLaunch>
-            <enablement/>
+            <enablement>
+            
+             <with variable="selection">
+               <count value="1"/>
+               <iterate>
+               <and>
+                  <test
+                        property="org.openl.eclipse.ui.isProject">
+                  </test>
+                  <test
+                        property="org.openl.eclipse.ui.isInOpenLProject">
+                  </test>
+               </and>
+               </iterate>
+             </with>
+            </enablement>
          </contextualLaunch>
       </shortcut>
    </extension>
