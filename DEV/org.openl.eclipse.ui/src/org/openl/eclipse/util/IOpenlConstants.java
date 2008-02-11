@@ -30,7 +30,7 @@ public interface IOpenlConstants
    *
    * @see org.eclipse.core.resources.IProject#hasNature(java.lang.String)
    */
-  public static final String OPENL_NATURE_ID = OPENL_PLUGIN_ID + ".openlnature";
+  public static final String OPENL_NATURE_ID = "org.openl.base.nature";
 
   /**
    * The identifier for the OpenL builder.

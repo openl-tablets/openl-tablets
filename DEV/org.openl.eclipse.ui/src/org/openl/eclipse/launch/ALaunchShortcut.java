@@ -166,13 +166,19 @@ public abstract class ALaunchShortcut
     ILaunchTarget[] launchTargets,
     boolean multipleSelection)
   {
-    return (ILaunchTarget[])selectionDialog(
+    Object[] res = selectionDialog(
       launchTargets,
       getString(MSG_LAUNCH_TARGET_SELECTION_TITLE),
       getFormattedString(
         MSG_LAUNCH_TARGET_SELECTION_MESSAGE,
         request.getLaunchMode()),
       multipleSelection);
+    
+    ILaunchTarget[] resL = new ILaunchTarget[res.length];
+    for (int i = 0; i < res.length; i++) {
+		resL[i] = (ILaunchTarget)res[i];
+	}
+    return resL;
   }
 
   /**

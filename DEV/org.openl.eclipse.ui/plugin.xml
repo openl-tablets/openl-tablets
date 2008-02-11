@@ -64,7 +64,23 @@
          <perspective id="org.eclipse.jdt.ui.JavaHierarchyPerspective"/>
          <perspective id="org.eclipse.jdt.ui.JavaBrowsingPerspective"/>
          <contextualLaunch>
-            <enablement/>
+            <enablement>
+             <with variable="selection">
+               <count value="1"/>
+               <iterate>
+               <and>
+                  <test
+                        property="org.openl.eclipse.ui.isInOpenLProject">
+                  </test>
+                  <test
+                        args=".j,.openl,.xls,.science"
+                        property="org.openl.eclipse.ui.isOpenLExtension">
+                  </test>
+               </and>
+               </iterate>
+             </with>
+            
+            </enablement>
          </contextualLaunch>
       </shortcut>
    </extension>
@@ -84,6 +100,16 @@
             icon="icons/full/obj16/openl_obj.gif"
             id="org.openl.eclipse.editor"
             name="org.openl.eclipse.editor"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="org.openl.eclipse.launch.OpenLLaunchablePropertyTester"
+            id="org.openl.eclipse.launch.OpenLLaunchablePropertyTester"
+            namespace="org.openl.eclipse.ui"
+            properties="isInOpenLProject,isOpenLExtension,isProject"
+            type="org.eclipse.core.runtime.IAdaptable">
+      </propertyTester>
    </extension>
 
 </plugin>
