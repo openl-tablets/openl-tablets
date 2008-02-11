@@ -1,0 +1,104 @@
+<h1>OpenL Business Expression Language (BEX)</h1>
+
+OpenL language framework have been designed from the ground to allow flexible combination of grammar and semantics. 
+OpenL Business Expression language proves this statement on practice by extending existing OpenL Java grammar and semantics 
+presented in org.openl.j configuration by new grammar and semantic concepts that allow users to write "natural language" expressions.
+
+<h2>Java Business Object Model as Basis for OpenL Business Vocabulary(OBV)</h2>
+
+
+As always, OpenL minimizes the necessary effort required to build a Business Vocabulary. 
+Using of BEX does not require any special mapping, the existing Java BOM automatically becomes the basis for 
+OBV. For example, the following expressions are equivalent
+<p><code>
+driver.age  
+</code> <p>and 
+<p><code>Age <b>of the</b> Driver</code>    
+<p>
+Another example:
+<p><code>
+policy.effectiveDate  
+</code> <p>and 
+<p><code>Effective Date <b>of the</b> Policy</code> 
+
+<p>
+As you can see from these examples, if your Java model correctly reflects Business Vocabulary there is no further action needed.
+In cases where Java Model is not satisfactory you still can apply custom type-safe mapping(renaming) that always have been part
+of OpenL Framework.      
+
+<h2>New Keywords, how to avoid possible naming conflicts</h2>
+
+
+In the previous chapter we introduced new keyword <b>of the</b>. There are other (self-explanatory) keywords in BEX language:
+
+<code>
+<ul>
+  <li>is less than</li>
+  <li>is more than</li>
+  <li>is less or equal</li>
+  <li>is no more than</li>
+  <li>is more or equal</li>
+  <li>is no less than</li>
+</ul>
+</code>
+
+<p>
+We plan to add more keywords to OpenL BEX language, and there fore there is a chance of a name clash with Business Vocabulary. 
+The easiest way to avoid this clash is to use upper case notation when referring to the model attributes, because BEX grammar is
+case-sensitive and all the new keywords will be in lower case. For example, there is an attribute called 
+<code>isLessThanCoverageLimit</code>. If you refer to it as <code>is less than coverage limit</code>, 
+there is going to be a name clash with the keyword, but if you write <code>Is Less Than Coverage Limit</code>, no clash will appear.
+
+
+The possible direction in extending keywords is to add numerics, measures, measure sensitive comparisons, like <code>is longer than</code> 
+or <code>is colder than</code> etc. 
+
+ 
+<h2>Simplifying Expressions with explanatory variables</h2>
+
+
+For example, we have a (not very) complex expression: 
+
+<p>In Java:
+<p>
+<code>(vehicle.agreedValue - vehicle.marketValue) / vehicle.marketValue > limitDefinedByUser</code>
+
+<p>In BEX language you can re-write the same expression in a "business-friendly" way:  
+
+<p>
+<code>(Agreed Value of the vehicle - Market Value of the vehicle) / Market Value of the vehicle is more than  Limit Defined By User</code>
+
+<p>
+Unfortunately, the more complex is the expression, the less comprehensible the "natural language" expression becomes. OpenL BEX offers you
+an elegant solution for this problem: 
+<p>
+<code>
+(A - M) / M > X, where
+<br>&nbsp;&nbsp;A - Agreed Value of the vehicle,
+<br>&nbsp;&nbsp;M - Market Value of the vehicle,
+<br>&nbsp;&nbsp;X - Limit Defined By User
+  </code>
+
+<p>
+
+The syntax is pretty similar to the one that have been used in scientific publications and is easily understood by anybody. We believe, 
+that the syntax provides the best mix of mathematical clarity and business readability.
+
+
+<h2>Simplifying Expressions by Using "Unique in Scope" concept</h2>
+
+
+Humans differ from computers, in particular, by their ability to understand the scope of the language expression. For example, if we discuss
+an insurance policy and mention "effective date" we don't have to say every time to say "effecyive date of the policy", the context of the effective
+date is clearly understood. On another hand, if we discuss two policies, for example, the old and the new one, we have to say "the effective date of the new policy" 
+vs. "the effective date of the old policy". This is necessary, because there are 2 different policies in the context of the conversation. 
+
+<p>    
+Similarly, when humans write so called "business documents" - files that serve as a reference point to a rule developer,
+they also often use an "implied context" in mind. Therefore they often use business terms such as Effective Date, Driver, Account etc.
+that are used in 
+
+
+
+ 
+
