@@ -240,20 +240,63 @@
 - CDDL v1.0 and GPL v2
 -
 
-jaxws-api-2.0.jar
+* jaxws-api-2.0.jar
 - 2.0
 - Sun Microsystems, Inc. (http://java.sun.com/webservices/technologies/index.jsp)
 -
 
-jcr-1.0.jar
-jdbc-stdext-2.0.jar
-jdom-1.0.jar
-jetty-6.1.5.jar
-jetty-util-6.1.5.jar
-jmimemagic-0.1.2.jar
-jsap-2.1.jar
-jsf-facelets-1.1.13.jar
-jsontools-core-1.5.jar
+* jcr-1.0.jar
+- 1.0
+- Day Management AG (http://www.day.com)
+- Public, (http://www.day.com/maven/jsr170/licenses/day-spec-license.htm)
+- 
+
+* jdbc-stdext-2.0.jar
+- 2.0
+- Sun Microsystems Inc. (http://java.sun.com/products/jdbc/jdbc20.stdext.pdf)
+-
+
+* jdom-1.0.jar
+- 1.0
+- JDOM (http://www.jdom.org/)
+- Apache-style open source license, with the acknowledgment clause removed
+- 
+
+* jetty-6.1.5.jar
+- 6.1.5
+- Mort Bay Consulting (http://jetty.mortbay.org/)
+- Apache License, Version 2.0
+- 
+
+* jetty-util-6.1.5.jar
+- 6.1.5
+- Mort Bay Consulting (http://jetty.mortbay.org/)
+- Apache License, Version 2.0
+- 
+
+* jmimemagic-0.1.2.jar
+- 0.1.2
+- http://jmimemagic.sourceforge.net/
+- LGPL
+- 
+
+* jsap-2.1.jar
+- 2.1
+- Martian Inc. (http://www.martiansoftware.com/jsap/)
+- LGPL
+-
+
+* jsf-facelets-1.1.13.jar
+- 1.1.13
+- http://facelets.dev.java.net/
+- CDDL v1.0
+-
+
+* jsontools-core-1.5.jar
+- 1.5
+- S.D.I.-Consulting BVBA (http://jsontools.berlios.de/)
+- LGPL
+- 
 
 
 * jsp-api.jar
