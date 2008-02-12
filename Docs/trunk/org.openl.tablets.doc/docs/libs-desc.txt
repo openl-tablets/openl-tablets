@@ -366,38 +366,142 @@
 - Apache POI 3.0.1 (http://jakarta.apache.org/poi)
 - Apache License, Version 2.0
 
-poi-scratchpad-3.0.1-FINAL.jar
-richfaces-api-3.1.2.GA.jar
-richfaces-impl-3.1.2.GA.jar
-richfaces-ui-3.1.2.GA.jar
-ridl-2.0.3.jar
-saaj-api-1.3.jar
-saaj-impl-1.3.jar
-simple-jndi-0.11.1.jar
-slf4j-api-1.3.0.jar
-slf4j-log4j12-1.3.0.jar
-spring-2.5.jar
-spring-beans-2.1-m2.jar
-spring-context-2.1-m2.jar
-spring-core-2.1-m2.jar
-spring-orm-2.1-m2.jar
-spring-tx-2.1-m2.jar
-sqljdbc.jar
+* poi-scratchpad-3.0.1-FINAL.jar
+- 3.0.1
+- The Apache Software Foundation, The Apache POI project (http://poi.apache.org/)
+- The Apache Software License, Version 2.0
+- required at runtime by Exigen JCR
 
+* richfaces-api-3.1.2.GA.jar
+- JBoss(a division of Red Hat). Richfaces - component library for JSF (http://labs.jboss.com/jbossrichfaces/)
+- LGPL
+- required by webstudio
+
+* richfaces-impl-3.1.2.GA.jar
+- JBoss(a division of Red Hat). Richfaces - component library for JSF (http://labs.jboss.com/jbossrichfaces/)
+- LGPL
+- required by webstudio
+
+* richfaces-ui-3.1.2.GA.jar
+- JBoss(a division of Red Hat). Richfaces - component library for JSF (http://labs.jboss.com/jbossrichfaces/)
+- LGPL
+- required by webstudio
+
+* ridl-2.0.3.jar
+- Sun Microsystems, Inc. OpenOffice.org "ridl" module (http://udk.openoffice.org/java/man/ridl.html)
+- LGPL
+- required by Exigen JCR
+
+* saaj-api-1.3.jar
+- Java Community. SAAJ Standard Implementation Project (https://saaj.dev.java.net)
+- Dual license consisting of the CDDL v1.0 and GPL v2 (https://glassfish.dev.java.net/public/CDDL+GPL.html)
+- Apache CXF dependecy.
+
+* saaj-impl-1.3.jar
+- Java Community. SAAJ Standard Implementation Project (https://saaj.dev.java.net)
+- Dual license consisting of the CDDL v1.0 and GPL v2 (https://glassfish.dev.java.net/public/CDDL+GPL.html)
+- Apache CXF dependency.
+
+* simple-jndi-0.11.1.jar
+- OSJava. Simple-JNDI project (http://www.osjava.org/simple-jndi)
+- Custom licence (requires redistribution of the licence text and copyright along with the software): http://www.osjava.org/simple-jndi/license.html
+- required by Exigen JCR
+
+* slf4j-api-1.3.0.jar
+- Simple Logging Facade for Java (http://www.slf4j.org)
+- MIT Licence
+- required by Jackrabbit JCR
+
+* slf4j-log4j12-1.3.0.jar
+- Simple Logging Facade for Java (http://www.slf4j.org)
+- MIT Licence
+- required by Jackrabbit JCR
+
+* spring-2.5.jar
+- Springsource. Spring - layered Java/J2EE application framework (http://www.springframework.org)
+- Apache License Version 2.0 (http://www.apache.org/licenses)
+- required by webstudio
+
+* spring-beans-2.1-m2.jar
+- Springsource. Spring - layered Java/J2EE application framework (http://www.springframework.org)
+- Apache License Version 2.0 (http://www.apache.org/licenses)
+- required by Exigen JCR
+
+* spring-context-2.1-m2.jar
+- Springsource. Spring module (http://www.springframework.org)
+- Apache License Version 2.0 (http://www.apache.org/licenses)
+- required by Exigen JCR
+
+* spring-core-2.1-m2.jar
+- Springsource. Spring module (http://www.springframework.org)
+- Apache License Version 2.0 (http://www.apache.org/licenses)
+- required by Exigen JCR
+
+* spring-orm-2.1-m2.jar
+- Springsource. Spring module (http://www.springframework.org)
+- Apache License Version 2.0 (http://www.apache.org/licenses)
+- required by Exigen JCR
+
+* spring-tx-2.1-m2.jar
+- Springsource. Spring module (http://www.springframework.org)
+- Apache License Version 2.0 (http://www.apache.org/licenses)
+- required by Exigen JCR
+
+* sqljdbc.jar
+- Microsoft. MS SQL Server JDBC driver (http://www.microsoft.com/downloads/details.aspx?FamilyId=C47053EB-3B64-4794-950D-81E1EC91C1BA&displaylang=en)
+- Custom licence (http://download.microsoft.com/download/b/4/7/b4761c5f-2d80-40dc-aa86-0795c70893e8/Download_SQL_JDBC_Driver_12.htm)
+- required by Exigen JCR when used with MSSQL
 
 * standard.jar
 - Jakarta's JSTL implementation 1.1.2 (http://jakarta.apache.org/taglibs)
-- required for running JPetStore, PetClinic, Countries
+- Apache License, Version 2.0
+- required by webstudio
 
-stax-api-1.0.1.jar
-tm-extractors-0.4.jar
-tomahawk-1.1.6.jar
-unoil-2.0.3.jar
-wsdl4j-1.6.1.jar
-wstx-asl-3.2.1.jar
-xbean-2.2.0.jar
-xercesImpl-2.4.0.jar
-xercesImpl-2.8.1.jar
+* stax-api-1.0.1.jar
+- Codehaus. Implementation of JSR 173. The Streaming API for XML (http://stax.codehaus.org)
+- LGPL
+- Apache CXF dependency.
+
+* tm-extractors-0.4.jar
+- http://text-mining.googlecode.com/files/tm-extractors-1.0.jar
+- LGPL (since version 1.0)
+- required by Apache Jackrabbit 
+
+* tomahawk-1.1.6.jar
+- The Apache Software Foundation, The Apache MyFaces Project (http://myfaces.apache.org/tomahawk/index.html)
+- Apache License, Version 2.0
+- required by UI part of webstudio
+
+* unoil-2.0.3.jar
+- Sun Microsystems, Inc. OpenOffice.org "unoil" module (http://udk.openoffice.org/java/man/index.html)
+- LGPL
+- required by Exigen JCR
+
+* wsdl4j-1.6.1.jar
+- IBM. reference implementation of the JSR-110 specification (Java API's for WSDL) (http://sourceforge.net/projects/wsdl4j)
+- Common Public Licence
+- Apache CXF dependency.
+
+* wstx-asl-3.2.1.jar
+- Codehaus, the Fast XML-processor (http://woodstox.codehaus.org)
+- Apache License Version 2.0.
+- Apache CXF dependency.
+
+* xbean-2.2.0.jar
+- Apache Software Foundation, The Apache XML Project (http://xmlbeans.apache.org)
+- Apache License Version 2.0.
+- Apache CXF dependency.
+
+* xercesImpl-2.4.0.jar
+- Sun Microsystems Inc. (http://xerces.apache.org/xerces2-j/)
+- Apache License Version 2.0.
+- required by Exigen JCR
+
+* xercesImpl-2.8.1.jar
+- Sun Microsystems Inc. (http://xerces.apache.org/xerces2-j/)
+- Apache License Version 2.0.
+- Apache CXF dependency.
+
 xml-apis-1.0.b2.jar
 xml-apis-1.3.02.jar
 xml-apis-1.3.03.jar
