@@ -43,14 +43,14 @@ In the previous chapter we introduced new keyword <b>of the</b>. There are other
 </code>
 
 <p>
-We plan to add more keywords to OpenL BEX language, and there fore there is a chance of a name clash with Business Vocabulary. 
+We plan to add more keywords to OpenL BEX language, and therefore there is a chance of a name clash with Business Vocabulary. 
 The easiest way to avoid this clash is to use upper case notation when referring to the model attributes, because BEX grammar is
-case-sensitive and all the new keywords will be in lower case. For example, there is an attribute called 
+case-sensitive and all the new keywords will be in the lower case. For example, there is an attribute called 
 <code>isLessThanCoverageLimit</code>. If you refer to it as <code>is less than coverage limit</code>, 
 there is going to be a name clash with the keyword, but if you write <code>Is Less Than Coverage Limit</code>, no clash will appear.
 
 
-The possible direction in extending keywords is to add numerics, measures, measure sensitive comparisons, like <code>is longer than</code> 
+The possible direction in extending keywords is to add numerics, measurement units, measure sensitive comparisons, like <code>is longer than</code> 
 or <code>is colder than</code> etc. 
 
  
@@ -89,16 +89,39 @@ that the syntax provides the best mix of mathematical clarity and business reada
 
 
 Humans differ from computers, in particular, by their ability to understand the scope of the language expression. For example, if we discuss
-an insurance policy and mention "effective date" we don't have to say every time to say "effecyive date of the policy", the context of the effective
+an insurance policy and mention "effective date" we don't have to say every time to say "effective date of the policy", the context of the effective
 date is clearly understood. On another hand, if we discuss two policies, for example, the old and the new one, we have to say "the effective date of the new policy" 
 vs. "the effective date of the old policy". This is necessary, because there are 2 different policies in the context of the conversation. 
 
 <p>    
 Similarly, when humans write so called "business documents" - files that serve as a reference point to a rule developer,
-they also often use an "implied context" in mind. Therefore they often use business terms such as Effective Date, Driver, Account etc.
-that are used in 
+they also often use an "implied context" in mind. Therefore they often use in documentation business terms such as Effective Date, 
+Driver, Account etc. with implied scope in mind. The "scope resolution" is left to a so-called Rules Engineer, who has to do it by manually 
+analyzing BOM and setting appropriate paths from the root objects. 
+<p>
+OpenL BEX tries to close this semantic gap or at least make it a bit narrower by letting use "unique in scope" attributes. For example, if there is only one 
+policy in the scope, user can write just "effective date" instead of "effective date of the policy". OpenL BEX will automatically determine the uniqueness 
+of the attribute and either produce a correct path, or will emit error message in case of ambiguous statement. The level of the resolution can be modified 
+programmatically and by default equals to 1.   
 
 
+<h2>OpenL Vocabulary and OpenL BEX</h2>
+
+Since version 5.0.5 OpenL introduced the ability to augment existing Java BOM with different kind of meta-information through OpenL Vocabulary.
+As always, we made it accessible through Java API and as Excel tables, giving business users access to the Vocabulary. While Vocabulary can be used for 
+many other important  activities, it has one feature that is significant in the context of OpenL BEX - Business Object Attribute Aliasing - or in layman's 
+words, the ability to name attribute with alternative names. This gives user an ability to adopt existing Java model names to the business terminology 
+in the case when Java model does not reflect it properly. See OpenL Vocabulary for more details  
+
+
+
+<h2>Future developments, compatibility etc.</h2>
+
+
+OpenL BEX is a fairly new development, it will evolve to provide user with new convenient features. In particular,
+right now there is no other way to call methods in OpenL except for the old-fashioned Java/C++ style. Nevertheless we want
+to state that existing syntax will remain compatible with all future modifications. Also, the ability to use Java style 
+constructs together with "natural-language" extensions will stay in the language. 
 
  
 
