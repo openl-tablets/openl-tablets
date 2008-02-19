@@ -538,9 +538,9 @@ public class ProjectModel
     {
         IOpenClass oc = wrapper.getOpenClass();
 
-        for (Iterator iter = oc.methods(); iter.hasNext();)
+        for (Iterator<IOpenMethod> iter = oc.methods(); iter.hasNext();)
         {
-            IOpenMethod m = (IOpenMethod) iter.next();
+            IOpenMethod m = iter.next();
             IMemberMetaInfo mi = m.getInfo();
             if (mi != null && mi.getSyntaxNode() == tsn)
                 return m;
