@@ -27,13 +27,15 @@
 <h2>Pre-requisites</h2>
 
 <p/>
-1.	Eclipse version 3.1.0 or higher (<a href="http://www.eclipse.org/downloads/">http://www.eclipse.org/downloads/</a>) 
+1.	Eclipse version 3.1.0 or higher (<a href="http://www.eclipse.org/downloads/">http://www.eclipse.org/downloads/</a>)
+<br><b>Starting with version 5.0.5 we require Eclipse 3.3 or higher</b>  
 <p/>
 2.	JDK 1.5 or higher 
 
 <h2>OpenL Eclipse Plugin Installation</h2>
 
-If you have OpenL Tablets previously installed in your Eclipse, uninstall it by going to <b>Help | Software Updates | Manage Configuration</b>.  Locate OpenL Tablets for Eclipse … and first <b>Disable</b> it then <b>Uninstall</b> it.
+If you have OpenL Tablets previously installed in your Eclipse, uninstall it by going to <b>Help | Software Updates | Manage Configuration</b>.  
+Locate OpenL Tablets for Eclipse … and first <b>Disable</b> it then <b>Uninstall</b> it.
 
 <h3>From Sourceforge.net Remote Site(only the latest published version)</h3> 
 1.	Select Eclipse menu <b>Help | Software Updates | Find and Install</b><br/>
@@ -74,9 +76,15 @@ if you change the name of main <code>.xls</code> file or want to change the name
 
 <h2>Working With OpenL Project</h2>
 
-1.	After updating Excel file don't forget to <b>Save</b> it in Excel and <b>Refresh</b> in Eclipse. To get a description of OpenL Tablets structure and semantics go <a href="struct.shtml">here</a><br/> 
-2.	To make changes in Java classes visible to OpenL Plugin use <b>Project | Clean</b> menu and "clean" selected project. It will reload project classloader inside OpenL Plugin. Otherwise compilation results might be inconsistent<br/> 
-3.	To generate OpenL Java Wrapper run <b>Generate ${my.project} Wrapper</b> from <b>Run</b> menu and then <b>Refresh</b> the project.<br/> 
+1.	After updating Excel file don't forget to <b>Save</b> it in Excel and <b>Refresh</b> in Eclipse. 
+To get a description of OpenL Tablets structure and semantics go <a href="struct.shtml">here</a><br/> 
+2.	To make changes in Java classes visible to OpenL Plugin use <b>Project | Clean</b> menu and "clean" selected project. 
+It will reload project classloader inside OpenL Plugin. Otherwise compilation results might be inconsistent<br/> 
+3.	To generate OpenL Java Wrapper run <b>Generate ${my.project} Wrapper</b> from <b>Run</b> menu and then <b>Refresh</b> the project.
+If <b>Generate ${my.project} Wrapper</b> line does not appear in <b>Run</b> menu, locate file <b>Generate ${my.project} Wrapper.launch</b> in
+project's root folder and using right-button menu <b>Run As | 1 Generate ${my.project} Wrapper</b> run it. 
+<br/> 
+4. To Start Web Studio only for an OpenL project, select the project, use right-click menu <b>Run As | Edit OpenL Project in Web Studio</b> <i>(since 5.0.5)</i>
 
 
  <h2>Integrating OpenL Tablets with Java Application</h2>
