@@ -3,7 +3,9 @@
  */
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.openl.rules.testmethod.TestMethodHelper.TestMethodTestAll;
@@ -31,6 +33,8 @@ public class ProjectHelper
 	{
 		if (!(runner instanceof TestMethodTestAll))
 			return false;
+		if (runner == tested)
+			return true;
 		IOpenMethod toTest = ((TestMethodTestAll)runner).getTested();
 		return toTest == tested && ((TestMethodTestAll)runner).isRunmethod();
 	}
@@ -58,16 +62,16 @@ public class ProjectHelper
 	static public IOpenMethod[] runners(IOpenMethod tested)
 	{
 		
-		Vector res = new Vector();
-		for (Iterator iter = tested.getDeclaringClass().methods(); iter.hasNext();)
+		List<IOpenMethod> res = new ArrayList<IOpenMethod>();
+		for (Iterator<IOpenMethod> iter = tested.getDeclaringClass().methods(); iter.hasNext();)
 		{
-			IOpenMethod runner = (IOpenMethod) iter.next();
+			IOpenMethod runner = iter.next();
 			if (isMethodRunnedBy(tested, runner))
 				res.add(runner);
 			
 		}
 		
-		return (IOpenMethod[]) res.toArray(new IOpenMethod[0]);
+		return res.toArray(new IOpenMethod[0]);
 	}
 
 	
