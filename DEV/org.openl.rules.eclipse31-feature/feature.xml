@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.openl.rules.eclipse.feature"
-      label="OpenL Tables"
+      label="OpenL Tablets"
       version="5.0.5"
       provider-name="OpenL">
 
