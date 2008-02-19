@@ -10,16 +10,33 @@ presented in org.openl.j configuration by new grammar and semantic concepts that
 As always, OpenL minimizes the necessary effort required to build a Business Vocabulary. 
 Using of BEX does not require any special mapping, the existing Java BOM automatically becomes the basis for 
 OBV. For example, the following expressions are equivalent
-<p><code>
-driver.age  
-</code> <p>and 
-<p><code>Age <b>of the</b> Driver</code>    
+<p>
+
+<table><tr><td class="box">
+<code class="box">driver.age</code> 
+</td></tr></table>
+
+and 
+
+
+<table><tr><td class="box">
+<code class="box">Age <b>of the</b> Driver</code>    
+</td></tr></table>
+
+
 <p>
 Another example:
-<p><code>
-policy.effectiveDate  
-</code> <p>and 
-<p><code>Effective Date <b>of the</b> Policy</code> 
+<p>
+<table><tr><td class="box">
+<code class="box">policy.effectiveDate </code> 
+</td></tr></table>
+
+and 
+
+<table><tr><td class="box">
+<code>Effective Date <b>of the</b> Policy</code> 
+</td></tr></table>
+
 
 <p>
 As you can see from these examples, if your Java model correctly reflects Business Vocabulary there is no further action needed.
@@ -61,23 +78,32 @@ For example, we have a (not very) complex expression:
 
 <p>In Java:
 <p>
+<table><tr><td class="box">
 <code>(vehicle.agreedValue - vehicle.marketValue) / vehicle.marketValue > limitDefinedByUser</code>
+</td></tr></table>
+
 
 <p>In BEX language you can re-write the same expression in a "business-friendly" way:  
 
 <p>
+<table><tr><td class="box">
 <code>(Agreed Value of the vehicle - Market Value of the vehicle) / Market Value of the vehicle is more than  Limit Defined By User</code>
+</td></tr></table>
 
 <p>
 Unfortunately, the more complex is the expression, the less comprehensible the "natural language" expression becomes. OpenL BEX offers you
 an elegant solution for this problem: 
 <p>
+
+<table><tr><td class="box">
 <code>
 (A - M) / M > X, where
 <br>&nbsp;&nbsp;A - Agreed Value of the vehicle,
 <br>&nbsp;&nbsp;M - Market Value of the vehicle,
 <br>&nbsp;&nbsp;X - Limit Defined By User
   </code>
+</td></tr></table>
+
 
 <p>
 
@@ -121,7 +147,12 @@ in the case when Java model does not reflect it properly. See OpenL Vocabulary f
 OpenL BEX is a fairly new development, it will evolve to provide user with new convenient features. In particular,
 right now there is no other way to call methods in OpenL except for the old-fashioned Java/C++ style. Nevertheless we want
 to state that existing syntax will remain compatible with all future modifications. Also, the ability to use Java style 
-constructs together with "natural-language" extensions will stay in the language. 
+constructs together with "natural-language" extensions will stay in the language. And, finally, the last word about using NL 
+references in this document - BEX is NOT a NL-tool, it is just a syntax extension of a standard Java grammar that allows your 
+expressions in many cases look like normal English phrases. The result will be as good as your Java BOM is, BEX would not be able
+to fix a bad design or naming conventions. We strongly recommend that you at least try it and send us your feedback, it does not require
+any additional efforts, because BEX is now a standard part of OpenL Tablets. You can use in any place where you previously used Java expressions.
+
 
  
 
