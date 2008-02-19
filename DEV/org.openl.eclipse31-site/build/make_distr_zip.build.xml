@@ -7,7 +7,7 @@
 	 <tstamp>
 	      <format property="tstamp" pattern="MM-dd-yyyy"/>
 	  </tstamp>	
-	<property name="tmp_dir"   value="openl-tablets-site.${openl.version}.build-${openl.build}.${tstamp}"/>
+	<property name="tmp_dir"   value="openl-tablets-site.${openl.version}.b-${openl.build}"/>
 	
 	
 <target name="make_zip" depends="copy_files">
