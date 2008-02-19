@@ -19,10 +19,10 @@
           <h:outputText value="Status" />
         </rich:column>
         <rich:column>
-          <h:outputText value="Created At" />
+          <h:outputText value="Created By" />
         </rich:column>
         <rich:column>
-          <h:outputText value="Created By" />
+          <h:outputText value="Created At" />
         </rich:column>
         <rich:column>
           <h:outputText value="Actions" />
@@ -38,25 +38,25 @@
         <h:outputText value="#{prj.version}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{prj.dataBean.checkedOut ? 'checked out' : ''}" />
-      </rich:column>
-      <rich:column>
-        <h:outputText value="#{prj.createdAt}"/>
+        <h:outputText value="#{prj.status}" />
       </rich:column>
       <rich:column>
         <h:outputText value="#{prj.createdBy}" />
       </rich:column>
+      <rich:column>
+        <h:outputText value="#{prj.createdAt}"/>
+      </rich:column>
       <rich:column style="text-align:center">
         <h:panelGroup rendered="#{!prj.dataBean.deleted}">
           &#160;
-          <h:commandLink styleClass="actionButton" immediate="true" onclick="return openCopyProjectDialog('#{prj.name}');">
-            <h:graphicImage url="/images/copy.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Copy" title="Copy" />
+          <h:commandLink styleClass="actionButton" immediate="true" onclick="return openCopyProjectDialog('#{prj.name}');" title="Copy">
+            <h:graphicImage url="/images/copy.gif" styleClass="actionImage"/>
           </h:commandLink>
           &#160;
           <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteRulesProject}"
-            onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}">
+            onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}" title="Delete">
             <f:param name="projectName" value="#{prj.name}" />
-            <h:graphicImage url="/images/delete.gif" styleClass="actionImage" style="vertical-align:bottom;" alt="Delete" title="Delete" />
+            <h:graphicImage url="/images/delete.gif" styleClass="actionImage" />
           </h:commandLink>
         </h:panelGroup>
         &#160;
@@ -64,5 +64,9 @@
 
     </rich:columnGroup>
   </rich:dataTable>
+
+  <h:panelGroup rendered="#{empty repositoryTreeController.rulesProjects}" styleClass="noEntries">
+    <h:outputText value="No entries found" />
+  </h:panelGroup>
 
 </ui:composition>
