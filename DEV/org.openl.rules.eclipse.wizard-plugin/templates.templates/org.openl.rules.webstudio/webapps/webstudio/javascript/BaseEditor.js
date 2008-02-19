@@ -76,9 +76,9 @@ BaseEditor.prototype = {
      */
     setTDValue : function(/* String */ value) {
         if (!value.strip()) {
-          value = "&nbsp";
-        }
-        this.td.innerHTML = value.replace(/\n/g, "<br>");
+          this.td.innerHTML = "&nbsp";
+        } else
+            this.td.innerHTML = value.escapeHTML().replace(/\n/g, "<br>");
     },
 
     /** Returns if the editing was cancelled */
@@ -142,7 +142,7 @@ BaseEditor.prototype = {
     },
 
     /**
-     * Can be overridden in editors to clean up resources 
+     * Can be overridden in editors to clean up resources
      */
     destroy: Prototype.emptyFunction,
 

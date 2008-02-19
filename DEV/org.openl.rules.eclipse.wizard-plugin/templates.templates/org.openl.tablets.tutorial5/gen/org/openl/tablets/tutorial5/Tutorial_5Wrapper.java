@@ -14,7 +14,7 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
 {
   Object __instance;
 
-  public static org.openl.vm.IRuntimeEnv __env;
+    public org.openl.vm.IRuntimeEnv __env = new org.openl.vm.SimpleVM().getRuntimeEnv();
 
   public static org.openl.types.IOpenClass __class;
 
@@ -23,6 +23,10 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
   public static String __openlName = "org.openl.xls";
 
   public static String __src = "rules/Tutorial_5.xls";
+
+  public static String __folder = "rules";
+
+  public static String __project = "org.openl.tablets.tutorial5";
 
   public static String __userHome = ".";
 
@@ -215,24 +219,6 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod region_Method;
-  public java.lang.String region(java.lang.String state)  {
-    Object[] __params = new Object[1];
-    __params[0] = state;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = region_Method.invoke(__myInstance, __params, __env);
-   return (java.lang.String)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod ampmTo24TestTestAll_Method;
   public org.openl.rules.testmethod.TestResult ampmTo24TestTestAll()  {
     Object[] __params = new Object[0];
@@ -241,24 +227,6 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
     Object __myInstance = __instance;
     Object __res = ampmTo24TestTestAll_Method.invoke(__myInstance, __params, __env);
    return (org.openl.rules.testmethod.TestResult)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod largeTableInd_Method;
-  public int largeTableInd(int x)  {
-    Object[] __params = new Object[1];
-    __params[0] = new Integer(x);
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = largeTableInd_Method.invoke(__myInstance, __params, __env);
-   return ((Integer)__res).intValue();  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -302,15 +270,35 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod regionInd_Method;
-  public java.lang.String regionInd(java.lang.String state)  {
-    Object[] __params = new Object[1];
+  static org.openl.types.IOpenMethod driverPremium_Method;
+  public org.openl.meta.DoubleValue driverPremium(java.lang.String state, java.lang.String driverAge, java.lang.String driverMS)  {
+    Object[] __params = new Object[3];
     __params[0] = state;
+    __params[1] = driverAge;
+    __params[2] = driverMS;
     try
     {
     Object __myInstance = __instance;
-    Object __res = regionInd_Method.invoke(__myInstance, __params, __env);
-   return (java.lang.String)__res;  }
+    Object __res = driverPremium_Method.invoke(__myInstance, __params, __env);
+   return (org.openl.meta.DoubleValue)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod largeTable_Method;
+  public int largeTable(int x)  {
+    Object[] __params = new Object[1];
+    __params[0] = new Integer(x);
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = largeTable_Method.invoke(__myInstance, __params, __env);
+   return ((Integer)__res).intValue();  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -337,33 +325,15 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod ampmTo24Ind1_Method;
-  public int ampmTo24Ind1(int ampmHr, java.lang.String ampm)  {
-    Object[] __params = new Object[2];
-    __params[0] = new Integer(ampmHr);
-    __params[1] = ampm;
+  static org.openl.types.IOpenMethod regionInd_Method;
+  public java.lang.String regionInd(java.lang.String state)  {
+    Object[] __params = new Object[1];
+    __params[0] = state;
     try
     {
     Object __myInstance = __instance;
-    Object __res = ampmTo24Ind1_Method.invoke(__myInstance, __params, __env);
-   return ((Integer)__res).intValue();  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod driverPremiumIndTestTestAll_Method;
-  public org.openl.rules.testmethod.TestResult driverPremiumIndTestTestAll()  {
-    Object[] __params = new Object[0];
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = driverPremiumIndTestTestAll_Method.invoke(__myInstance, __params, __env);
-   return (org.openl.rules.testmethod.TestResult)__res;  }
+    Object __res = regionInd_Method.invoke(__myInstance, __params, __env);
+   return (java.lang.String)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -392,8 +362,25 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod driverPremium_Method;
-  public org.openl.meta.DoubleValue driverPremium(java.lang.String state, java.lang.String driverAge, java.lang.String driverMS)  {
+  static org.openl.types.IOpenMethod driverPremiumIndTestTestAll_Method;
+  public org.openl.rules.testmethod.TestResult driverPremiumIndTestTestAll()  {
+    Object[] __params = new Object[0];
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = driverPremiumIndTestTestAll_Method.invoke(__myInstance, __params, __env);
+   return (org.openl.rules.testmethod.TestResult)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod driverPremiumInd_Method;
+  public org.openl.meta.DoubleValue driverPremiumInd(java.lang.String state, java.lang.String driverAge, java.lang.String driverMS)  {
     Object[] __params = new Object[3];
     __params[0] = state;
     __params[1] = driverAge;
@@ -401,7 +388,7 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
     try
     {
     Object __myInstance = __instance;
-    Object __res = driverPremium_Method.invoke(__myInstance, __params, __env);
+    Object __res = driverPremiumInd_Method.invoke(__myInstance, __params, __env);
    return (org.openl.meta.DoubleValue)__res;  }
   catch(Throwable t)
   {
@@ -420,6 +407,24 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
     Object __myInstance = __instance;
     Object __res = largeTableIndTestTestAll_Method.invoke(__myInstance, __params, __env);
    return (org.openl.rules.testmethod.TestResult)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod region_Method;
+  public java.lang.String region(java.lang.String state)  {
+    Object[] __params = new Object[1];
+    __params[0] = state;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = region_Method.invoke(__myInstance, __params, __env);
+   return (java.lang.String)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -465,14 +470,15 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod largeTable_Method;
-  public int largeTable(int x)  {
-    Object[] __params = new Object[1];
-    __params[0] = new Integer(x);
+  static org.openl.types.IOpenMethod ampmTo24Ind1_Method;
+  public int ampmTo24Ind1(int ampmHr, java.lang.String ampm)  {
+    Object[] __params = new Object[2];
+    __params[0] = new Integer(ampmHr);
+    __params[1] = ampm;
     try
     {
     Object __myInstance = __instance;
-    Object __res = largeTable_Method.invoke(__myInstance, __params, __env);
+    Object __res = ampmTo24Ind1_Method.invoke(__myInstance, __params, __env);
    return ((Integer)__res).intValue();  }
   catch(Throwable t)
   {
@@ -483,17 +489,15 @@ public class Tutorial_5Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod driverPremiumInd_Method;
-  public org.openl.meta.DoubleValue driverPremiumInd(java.lang.String state, java.lang.String driverAge, java.lang.String driverMS)  {
-    Object[] __params = new Object[3];
-    __params[0] = state;
-    __params[1] = driverAge;
-    __params[2] = driverMS;
+  static org.openl.types.IOpenMethod largeTableInd_Method;
+  public int largeTableInd(int x)  {
+    Object[] __params = new Object[1];
+    __params[0] = new Integer(x);
     try
     {
     Object __myInstance = __instance;
-    Object __res = driverPremiumInd_Method.invoke(__myInstance, __params, __env);
-   return (org.openl.meta.DoubleValue)__res;  }
+    Object __res = largeTableInd_Method.invoke(__myInstance, __params, __env);
+   return ((Integer)__res).intValue();  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -539,7 +543,7 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
-    __env = wrapper.getEnv();
+   // __env = wrapper.getEnv();
 
     regionTest_Field = __class.getField("regionTest");
     ampmTo24Test_Field = __class.getField("ampmTo24Test");
@@ -553,45 +557,45 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     ampmTo24Ind2Test_Field = __class.getField("ampmTo24Ind2Test");
     ampmTo24Ind1TestTestAll_Method = __class.getMatchingMethod("ampmTo24Ind1TestTestAll", new IOpenClass[] {
 });
-    region_Method = __class.getMatchingMethod("region", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
     ampmTo24TestTestAll_Method = __class.getMatchingMethod("ampmTo24TestTestAll", new IOpenClass[] {
 });
-    largeTableInd_Method = __class.getMatchingMethod("largeTableInd", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(int.class)});
     driverPremiumTestTestAll_Method = __class.getMatchingMethod("driverPremiumTestTestAll", new IOpenClass[] {
 });
     regionTestTestAll_Method = __class.getMatchingMethod("regionTestTestAll", new IOpenClass[] {
 });
-    regionInd_Method = __class.getMatchingMethod("regionInd", new IOpenClass[] {
+    driverPremium_Method = __class.getMatchingMethod("driverPremium", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.lang.String.class),
+      JavaOpenClass.getOpenClass(java.lang.String.class),
       JavaOpenClass.getOpenClass(java.lang.String.class)});
+    largeTable_Method = __class.getMatchingMethod("largeTable", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(int.class)});
     regionIndTestTestAll_Method = __class.getMatchingMethod("regionIndTestTestAll", new IOpenClass[] {
 });
-    ampmTo24Ind1_Method = __class.getMatchingMethod("ampmTo24Ind1", new IOpenClass[] {
+    regionInd_Method = __class.getMatchingMethod("regionInd", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.lang.String.class)});
+    ampmTo24_Method = __class.getMatchingMethod("ampmTo24", new IOpenClass[] {
       JavaOpenClass.getOpenClass(int.class),
       JavaOpenClass.getOpenClass(java.lang.String.class)});
     driverPremiumIndTestTestAll_Method = __class.getMatchingMethod("driverPremiumIndTestTestAll", new IOpenClass[] {
 });
-    ampmTo24_Method = __class.getMatchingMethod("ampmTo24", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(int.class),
-      JavaOpenClass.getOpenClass(java.lang.String.class)});
-    driverPremium_Method = __class.getMatchingMethod("driverPremium", new IOpenClass[] {
+    driverPremiumInd_Method = __class.getMatchingMethod("driverPremiumInd", new IOpenClass[] {
       JavaOpenClass.getOpenClass(java.lang.String.class),
       JavaOpenClass.getOpenClass(java.lang.String.class),
       JavaOpenClass.getOpenClass(java.lang.String.class)});
     largeTableIndTestTestAll_Method = __class.getMatchingMethod("largeTableIndTestTestAll", new IOpenClass[] {
 });
+    region_Method = __class.getMatchingMethod("region", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.lang.String.class)});
     ampmTo24Ind2TestTestAll_Method = __class.getMatchingMethod("ampmTo24Ind2TestTestAll", new IOpenClass[] {
 });
     ampmTo24Ind2_Method = __class.getMatchingMethod("ampmTo24Ind2", new IOpenClass[] {
       JavaOpenClass.getOpenClass(int.class),
       JavaOpenClass.getOpenClass(java.lang.String.class)});
-    largeTable_Method = __class.getMatchingMethod("largeTable", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(int.class)});
-    driverPremiumInd_Method = __class.getMatchingMethod("driverPremiumInd", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.lang.String.class),
-      JavaOpenClass.getOpenClass(java.lang.String.class),
+    ampmTo24Ind1_Method = __class.getMatchingMethod("ampmTo24Ind1", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(int.class),
       JavaOpenClass.getOpenClass(java.lang.String.class)});
+    largeTableInd_Method = __class.getMatchingMethod("largeTableInd", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(int.class)});
     largeTableTestTestAll_Method = __class.getMatchingMethod("largeTableTestTestAll", new IOpenClass[] {
 });
 

@@ -14,7 +14,7 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper
 {
   Object __instance;
 
-  public static org.openl.vm.IRuntimeEnv __env;
+    public org.openl.vm.IRuntimeEnv __env = new org.openl.vm.SimpleVM().getRuntimeEnv();
 
   public static org.openl.types.IOpenClass __class;
 
@@ -23,6 +23,10 @@ public class Tutorial_1Wrapper implements org.openl.main.OpenLWrapper
   public static String __openlName = "org.openl.xls";
 
   public static String __src = "rules/Tutorial_1.xls";
+
+  public static String __folder = "rules";
+
+  public static String __project = "org.openl.tablets.tutorial1";
 
   public static String __userHome = ".";
 
@@ -90,7 +94,7 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src);
     __compiledClass = wrapper.getCompiledClass();
     __class = wrapper.getOpenClassWithErrors();
-    __env = wrapper.getEnv();
+   // __env = wrapper.getEnv();
 
     this_Field = __class.getField("this");
     hello1_Method = __class.getMatchingMethod("hello1", new IOpenClass[] {
