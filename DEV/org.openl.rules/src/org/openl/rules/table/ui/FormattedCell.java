@@ -68,7 +68,7 @@ public class FormattedCell  implements ICellInfo
 
 		public void setFilter(IGridFilter filter)
 		{
-			if (filter != null)
+			if (this.filter != null)
 				Log.warn("More than one filter set on cell");
 			this.filter = filter;
 		}

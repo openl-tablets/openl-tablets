@@ -756,7 +756,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 		int w = sheet.getColumnWidth((short)col);
 		if (w == sheet.getDefaultColumnWidth())
 			return 79;
-		return w/29;
+		return w/40;
 	}
 
 	public FormattedCell getFormattedCell(int column, int row)
