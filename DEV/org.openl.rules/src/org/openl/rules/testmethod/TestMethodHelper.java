@@ -98,7 +98,7 @@ public class TestMethodHelper
 	{
 		OpenMethodHeader mh = new OpenMethodHeader(tableName
 				+ "TestAll", JavaOpenClass.getOpenClass(TestResult.class),
-				IMethodSignature.VOID, getMethodBasedClass());
+				IMethodSignature.VOID, testedMethod.getDeclaringClass());
 		return mh;
 	}
 
