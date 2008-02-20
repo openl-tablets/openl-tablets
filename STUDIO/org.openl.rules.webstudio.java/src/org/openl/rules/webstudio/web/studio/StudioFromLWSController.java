@@ -4,14 +4,12 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
-import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.lw.LocalWorkspaceManager;
+import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
 import org.openl.util.Log;
 
 import javax.faces.context.FacesContext;
