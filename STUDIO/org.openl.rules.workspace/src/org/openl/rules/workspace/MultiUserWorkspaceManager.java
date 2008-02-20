@@ -43,6 +43,10 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener{
         this.localWorkspaceManager = localWorkspaceManager;
     }
 
+    public LocalWorkspaceManager getLocalWorkspaceManager() {
+        return localWorkspaceManager;
+    }
+
     /**
      * Returns .
      * <p/>

@@ -26,6 +26,10 @@ public class RulesUserSession {
         this.workspaceManager = workspaceManager;
     }
 
+    public MultiUserWorkspaceManager getWorkspaceManager() {
+        return workspaceManager;
+    }
+
     public synchronized UserWorkspace getUserWorkspace() throws WorkspaceException, ProjectException {
         if (userWorkspace == null) {
             userWorkspace = workspaceManager.getUserWorkspace(user);
