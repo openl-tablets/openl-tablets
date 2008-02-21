@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.openl.eclipse31_feature_all_5.0.5.jar" id="org.openl.eclipse31_feature_all" version="5.0.5">
+      <category name="OpenL Tablets"/>
+   </feature>
+   <category-def name="OpenL Tablets" label="OpenL Tablets"/>
+</site>

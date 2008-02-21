@@ -1,0 +1,89 @@
+$Id$
+
+                           Commons Logging Package
+                                Version 1.0.3
+                                Release Notes
+
+
+INTRODUCTION:
+============
+
+This document contains the release notes for this version of the Commons
+Logging package.  It is primarily a maintenance and code cleanup release,
+with minimal new features.
+
+The following paragraphs document changes since the previous release
+(version 1.0.2).
+
+
+NEW FEATURES:
+============
+
+[build.xml]        Refined build process to correctly avoid compiling classes
+                   when dependencies are not available, and to avoid name
+                   clashes over Ant properties used in different ways.
+
+[unit tests]       Added new suites of tests for the Log4J and JDK 1.4
+                   logging implementations, including tests with multiple
+                   class loaders that closely simulate the scenario of using
+                   commons-logging in a servlet container.
+
+[documentation]    Overall cleanup and correction of the JavaDoc documentation
+                   to correctly reflect the current behavior.  In particular,
+                   the default logging implementation (selected if nothing
+                   else is configured) is now SimpleLog, not NoOpLog.
+
+[LogFactory]       Add a static release(ClassLoader) method that allows,
+                   for example, a webapp to clean up all c-l references
+                   prior to being shut down.
+
+BUG FIXES:
+=========
+
+[build.xml]        Correct the META-INF/MANIFEST.MF that was embedded in the
+                   generated JAR files to properly contain the version number.
+
+[LogFactory]       Fix security violations on several ClassLoader method
+                   invocations.
+
+[SimpleLog]        Dump stack trace through logger, instead of directly to
+                   System.out, to preserve output sequence.
+
+[SimpleLog]        Avoid a security exception if system properties cannot be
+                   read (such as in an applet).
+
+[Bugzilla 10825]   NullPointerException when Logger.getClassLoader()
+                   returns null.
+
+[Bugzilla 13118]   Correct detection of JDK 1.4 that was mis-identifying on a
+                   scenario where a JDK 1.3 implementation included an
+                   implementation of JSR-47 logging.
+
+[Bugzilla 13157]   Incorrect selection of Log4J in a servlet container.
+
+[Bugzilla 13201]   Log4JLogger should not attempt to auto-configure
+                   appenders; this is out of scope for commons-logging.
+
+[Bugzilla 17561]   Attempts to override Log4J configuration.
+
+[Bugzilla 17894]   Unable to configure commons-logging SimpleLog for a webapp.
+
+[Bugzilla 18184]   Jdk14Logger should not waste the effort to create a
+                   Throwable (to extract calling class and method) if the
+                   message is not going to be logged anyway.
+
+
+DEPRECATIONS:
+============
+
+[LogSource]        Previously deprecated, replaced by LogFactory.
+
+[Log4jFactory]     A proxy instance of this class was transparently created
+                   when Log4J logging was selected, yet it serves no useful
+                   purpose.  The class is now deprecated, and the proxy
+                   instance is no longer created.
+
+[Log4JCategoryLog] This class has been replaced by Log4JLogger, which
+                   corresponds to the availability of the new Logger class
+                   in Log4J 1.2 and later.
+

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.openl.eclipse31_feature_all"
+      label="OpenL Tablets for Eclipse"
+      version="5.0.5">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.gnu.org/copyleft/lesser.html">
+      %license
+   </license>
+
+   <includes
+         id="org.openl.eclipse.feature"
+         version="5.0.5"/>
+
+   <includes
+         id="org.openl.lib.eclipse.feature"
+         version="5.0.5"/>
+
+   <includes
+         id="org.openl.rules.eclipse.feature"
+         version="5.0.5"/>
+
+   <includes
+         id="org.openl.rules.webstudio.eclipse_feature"
+         version="5.0.5"/>
+
+   <includes
+         id="org.openl.lib.webstudio.eclipse_feature"
+         version="5.0.5"/>
+
+   <includes
+         id="org.openl.lib.ruleservice.eclipse_feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.openl.rules.ruleservice.eclipse_feature"
+         version="5.0.5"/>
+
+</feature>
