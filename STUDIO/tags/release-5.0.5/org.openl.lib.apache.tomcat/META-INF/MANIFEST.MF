@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tomcat Plug-in
+Bundle-SymbolicName: org.openl.lib.apache.tomcat
+Bundle-Version: 5.0.5
+Bundle-Localization: plugin
+Export-Package: javax.servlet,
+ javax.servlet.http,
+ javax.servlet.jsp,
+ javax.servlet.jsp.el,
+ javax.servlet.jsp.tagext,
+ org.apache.catalina.launcher,
+ org.apache.catalina.loader,
+ org.apache.catalina.security,
+ org.apache.catalina.startup,
+ org.apache.naming,
+ org.apache.tomcat.util.compat
+Bundle-ClassPath: apache-tomcat-5.5.17/common/lib/servlet-api.jar,
+ apache-tomcat-5.5.17/common/lib/jsp-api.jar,
+ apache-tomcat-5.5.17/bin/bootstrap.jar
+Bundle-Vendor: OpenL Tablets

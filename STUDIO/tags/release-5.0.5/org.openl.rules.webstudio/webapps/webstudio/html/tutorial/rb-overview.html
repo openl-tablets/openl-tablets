@@ -1,0 +1,249 @@
+<html><head><title>OpenL Tablets - Web Studio</title>
+
+
+
+<link rel="stylesheet" type="text/css" href="ws-overview401_files/style1.css">
+
+<meta name="Keywords" content="Decision Table, Excel, Eclipse, Case Based Reasoning, Decision Support System, Automated Testing, Business Rules Management Systems, Business Rules, Business Logic, Enterprise Business Rules, Business Rules Engine, Rules Engine, Software, Development Tools, Software Development Kit, SDK, Application Programming Interface, Eclipse, Eclipse Plugin, Front-Office Tools, Business Process Automation, Business Logic Harvesting, Business Requirements, BPEL, Business Knowledge Management, Business Knowledge Repository">
+<meta name="Description" content="Decision Table, Excel, Eclipse, Case Based Reasoning, Decision Support System, Automated Testing, Business Rules Management Systems, Business Rules, Business Logic, Enterprise Business Rules, Business Rules Engine, Rules Engine, Software, Development Tools, Software Development Kit, SDK, Application Programming Interface, Eclipse, Eclipse Plugin, Front-Office Tools, Business Process Automation, Business Logic Harvesting, Business Requirements, BPEL, Business Knowledge Management, Business Knowledge Repository">
+<meta name="verify-v1" content="p5UOvyORuHR2nufLdSWJMsbKgQvr13obyfwKGMocNvk=">
+
+<script src="ws-overview401_files/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-856339-1";
+urchinTracker();
+</script></head><body>
+
+<!--
+<div id="leftbox">
+
+<table width="90%">
+<tbody><tr>
+<td class="content" valign="top" width="157">
+
+<img src="ws-overview401_files/openl-tablets-home.png">
+
+<br><br><br>
+<a class="left" href="http://openl-tablets.sourceforge.net/index.html"><b>Home</b></a>
+<br><br>
+
+
+<a class="left" href="http://openl-tablets.sourceforge.net/news.shtml">News (08/27/07)</a><sup style="color: red;">new</sup>
+<br><br>
+
+<b>Start Here</b><br>
+<a class="left" href="http://openl-tablets.sourceforge.net/gstart.shtml">Getting Started</a>
+<br>
+<a class="left" href="http://openl-tablets.sourceforge.net/download.shtml">Downloads</a>
+<br>
+
+
+<br><br>
+<b>Documentation</b>
+<br><br>
+
+<a class="left" href="http://openl-tablets.sourceforge.net/tutorial.shtml">Tutorials</a>
+<br>
+<a class="left" href="http://openl-tablets.sourceforge.net/struct.shtml">Tablets Structure</a>
+<br>
+<a class="left" href="http://openl-tablets.sourceforge.net/deploy.shtml">Deployment</a>
+<br>
+<a class="left" href="http://openl-tablets.sourceforge.net/ws-toc401.shtml">Web Studio (08/27/07)</a><sup style="color: red;">new</sup>
+<br>
+
+<br>
+<a class="left" href="http://www.gnu.org/licenses/lgpl.html" target="_new">LGPL License</a>
+<br>
+<a class="left" href="http://openl-tablets.sourceforge.net/changelog.shtml">Change Log</a>
+<br>
+
+<br><br>
+<b>Motivational Reading</b>
+<br><br>
+
+<a class="left" href="http://openl-tablets.sourceforge.net/apologia.shtml">OpenL Apologia</a>
+<br>
+
+<br>
+<br>
+<br>
+
+<a href="http://sourceforge.net/"><img src="ws-overview401_files/sflogo.png" alt="SourceForge.net Logo" border="0" height="31" width="88"></a>
+
+
+
+</td>
+</tr>
+</tbody></table>
+
+</div>
+
+
+<div id="centerbox">
+-->
+<div>
+
+<table class="main" cellpadding="3" width="100%">
+<tbody><tr>
+<td>
+
+
+
+<!--
+<a href="http://openl-tablets.sourceforge.net/ws-toc401.shtml">Table of Contents</a>
+-->
+
+<p>
+</p>
+<h1>Repository Browser Overview</h1>
+
+<p>The Repository Browser allows users to view and edit projects stored in design time repository (<acronym title="Design Time Repository">DTR</acronym>).
+Before a project can be viewed or edited, it must be opened or checked out. Open and check out operations create a copy of a project in local user workspace.
+When finished with editing, project must be checked in to store changes in <acronym title="Design Time Repository">DTR</acronym>.
+Local user workspace and design time repository (<acronym title="Design Time Repository">DTR</acronym>) are two main project storages, which will be in the
+center of our attention.
+</p>
+
+<h2>Use cases</h2>
+<p>
+In order to quickly get used with Repository Browser, let's list basic repository use cases:
+<ul>
+<li>Create new project. <br/>Description: creates new empty rules project with the given name. <p><img src="rb-overview_files/create-project.png"></p></li>
+<li>Upload project. <br/>Description: creates new project with the given name and uploads contents of a zip archive to it. <p><img src="rb-overview_files/upload-project.png"></p></li>
+
+<li>Open project. <br/>Description: copies project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace to make it visible to WebStudio table editor.<p/><p><img src="rb-overview_files/project-operations1.png"></p></li>
+<li>Open version. <br/>Description: like open, but opens specific version of a project.<p/></li>
+<li>Close project. <br/>Description: removes project from local user workspace. All changes made to project are lost.<p/></li>
+<li>Check out project. <br/>Description: copies project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace for modification.<p/></li>
+<li>Check in project. <br/>Description: copies project from local user workspace into <acronym title="Design Time Repository">DTR</acronym>.<p/>
+<p>Version has the following format [Major-Version].[Minor-Version].[Revision]</p>
+<p><img src="rb-overview_files/check-in.png"></p></li>
+<li>Copy project. <br/>Description: creates a copy of a project in <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
+<li>Delete project. <br/>Description: deletes project.<p/><p><img src="rb-overview_files/project-operations2.png"></p></li>
+<li>Undelete project. <br/>Description: undeletes project.<p/></li>
+<li>Erase project. <br/>Description: erases project.<p/></li>
+<li>Edit properties<p><img src="rb-overview_files/edit-properties.png"></p></li>
+</ul>
+</p>
+
+<h2>General View</h2>
+
+<p>
+Repository Browser General View consists of the two parts:
+<a href="#rexplorer">Repository Tree</a> and <a href="#mainarea">Project Element View</a>
+</p>
+
+
+<img src="rb-overview_files/rb-general.png">
+
+
+<h2><a name="rexplorer">Repository Tree</a></h2>
+
+<p>
+The Repository Tree provides tree-like view that allows users to browse projects and project elements.
+Each time you click a tree node only buttons corresponding to available operation are enabled.
+
+</p><h4>&nbsp;&nbsp;&nbsp;&nbsp;Project states</h4>
+<p>
+Project can be in one of the following states, which is shown by a corresponding icon in the Repository Tree:
+
+</p>
+
+<dl>
+  <dt><img src="rb-overview_files/checkedout.gif" border="0"> Checked out</dt>
+  <dd>Project is copied into local user workspace, can be modified by user and checked in later.</dd>
+
+  <dt><img src="rb-overview_files/opened.gif" border="0"> Opened</dt>
+  <dd>Project is copied into local user workspace, is visible to WebStudio, but can not be modified by user.</dd>
+
+  <dt><img src="rb-overview_files/closed.gif" border="0"> Closed</dt>
+  <dd>Project exists only in <acronym title="Design Time Repository">DTR</acronym>.<dd>
+
+  <dt><img src="rb-overview_files/deleted.gif" border="0"> Deleted</dt>
+  <dd>Project is marked for deletion.</dd>
+
+  <dt><img src="rb-overview_files/local.gif" border="0"> Local</dt>
+  <dd>Project exists only in local user workspace.</dd>
+
+  <dt><img src="rb-overview_files/opened-locked.gif" border="0"> Opened, locked</dt>
+  <dd>Project is opened and can not be checked out because it is checked out by another user.</dd>
+
+  <dt><img src="rb-overview_files/closed-locked.gif" border="0"> Closed, locked</dt>
+  <dd>Project is closed and can not be checked out because it is checked out by another user.</dd>
+</dl>
+
+<h4>&nbsp;&nbsp;&nbsp;&nbsp;Project elements</h4>
+<p>
+
+</p><ul>
+<li>
+	<img src="rb-overview_files/folder.gif" border="0"> Folder
+</li>
+
+<li>
+	<img src="rb-overview_files/file.gif" border="0"> File
+</li>
+</ul>
+
+
+<h2><a name="mainarea">Project Element View</a></h2>
+<p>
+Project Element View allows users to execute commands against project and its elements and view information about currently selected element.
+Element information may contain from 2 to 4 tabs (Properties, Versions, Elements, Dependencies):
+</p>
+
+<table cellspacing="10">
+  <tr>
+    <td>
+      <img src="rb-overview_files/tab-properties.png" border="1">
+    </td>
+    <td>
+      <img src="rb-overview_files/tab-versions.png" border="1">
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="rb-overview_files/tab-elements.png" border="1">
+    </td>
+    <td>
+      <img src="rb-overview_files/tab-dependencies.png" border="1">
+    </td>
+  </tr>
+</table>
+
+
+<h2>Deployment</h2>
+<p>
+Prepared projects can be deployed into production time repository.
+It is a special project storage that makes projects available to external systems, such as Rule Service.
+Generally user creates a new deployment project, checks it out, adds rules projects to it by creating descriptors, checks in the new deployment project and
+finally deploys it to production time repository.
+Basic deployment use cases are the following:
+<ul>
+<li>Create new deployment project. <br/>Description: creates new empty deployment project with the given name. <p><img src="rb-overview_files/create-deployment-project.png"></p></li>
+<li>Deploy project. <br/>Description: copies projects from deployment set into production time repository.<p/><p><img src="rb-overview_files/deployment-project-operations.png"></p></li>
+<li>Open version. <br/>Description: opens specific version of a deployment project.<p/></li>
+<li>Close project. <br/>Description: removes project from local user workspace. All changes made to project are lost.<p/></li>
+<li>Check out project. <br/>Description: copies deployment project from <acronym title="Design Time Repository">DTR</acronym> into local user workspace for modification.<p/></li>
+<li>Check in project. <br/>Description: copies deployment project from local user workspace into <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
+<li>Copy project. <br/>Description: creates a copy of a project in <acronym title="Design Time Repository">DTR</acronym>.<p/></li>
+<li>Delete project. <br/>Description: deletes project.<p/></li>
+<li>Add/remove descriptors.<br/>Description: adds and removes projects to/from deployment set.<p/><p><img src="rb-overview_files/deployment.png"></p></li>
+
+</ul>
+After checking in deployment project, deploy button is get enabled and clicking it deploys project into production time repository.
+</p>
+
+
+<div class="footer">
+Copyright(c) OpenL Tablets 2006,2007
+</div>
+
+
+</td>
+</tr>
+</tbody></table>
+
+</div>
+</body></html>

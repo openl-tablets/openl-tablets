@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configExtensions>
+		<configExtension>xml</configExtension>
+	</configExtensions>
+	<configs>
+		<config>src/main/resources/common_svc_conf.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>
