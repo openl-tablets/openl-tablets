@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.openl.lib.webstudio.eclipse_feature"
+      label="Web dependencies eclipse Feature"
+      version="5.0.5">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <plugin
+         id="org.openl.lib.apache.jackrabbit"
+         download-size="0"
+         install-size="0"
+         version="5.0.5"/>
+
+   <plugin
+         id="org.openl.lib.jsf"
+         download-size="0"
+         install-size="0"
+         version="5.0.5"/>
+
+   <plugin
+         id="org.openl.lib.apache.tomcat"
+         download-size="0"
+         install-size="0"
+         version="5.0.5"/>
+
+   <plugin
+         id="org.openl.lib.browserlauncher"
+         download-size="0"
+         install-size="0"
+         version="5.0.5"/>
+
+   <plugin
+         id="org.openl.lib.springsource"
+         download-size="0"
+         install-size="0"
+         version="5.0.5"/>
+
+</feature>
