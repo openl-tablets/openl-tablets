@@ -88,6 +88,17 @@ public class Operators
 	{
 		return x;
 	}
+	static public int autocast(byte x, int y)
+	{
+		return x;
+	}
+
+
+	static public char cast(byte x, char y)
+	{
+		return (char)x;
+	}
+	
 	
 	static public double autocast(Double D, double d)
 	{
@@ -287,8 +298,42 @@ public class Operators
 		return x + y;
 	}
 	
+	public static String add(boolean x, String y)
+	{
+		return x + y;
+	}
+
+	public static String add(byte x, String y)
+	{
+		return x + y;
+	}
 	
+	public static String add(short x, String y)
+	{
+		return x + y;
+	}
+
+	public static String add(char x, String y)
+	{
+		return x + y;
+	}
+
+	public static String add(int x, String y)
+	{
+		return x + y;
+	}
+
+	public static String add(long x, String y)
+	{
+		return x + y;
+	}
 	
+	public static String add(double x, String y)
+	{
+		return x + y;
+	}
+	
+
 	public static String add(String x, Object y)
 	{
 		return x + y;
