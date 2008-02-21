@@ -1,0 +1,390 @@
+<html>
+
+<head>
+<title>OpenL Tablets - Apologia</title>
+
+<!--#include virtual="header_includes.shtml" -->
+
+
+<body>
+<div id="leftbox">
+
+<!--#include virtual="menuleft.html" -->
+
+</div>
+
+
+<div id="centerbox">
+
+<table cellpadding="3" class="main" width="90%">
+<tr>
+<td>
+
+<i>I don't think anyone really captures their requirements as Decision tables, but many requirements are captured as Excel tables</i><br/>
+<a href="http://brmsblog.com/category/decision-tables/" target="_blank">The BRMS Blog</a>
+
+
+<h1>OpenL Tablets Apologia</h1>
+
+
+
+
+
+
+<h2>OpenL Tablets Differentiators</h2>
+
+<p>
+On the first sight one is tempted to classify OpenL Tablets as a "table processor". 
+In some sense it is a table processor. 
+It takes documents (Excel, Word or clones), extracts tables and then makes them available to access from your Java program. 
+Other programs do it too, so what features set OpenL apart from the competition?  
+</p>
+
+
+1)	OpenL Tablets removes the gap between business documents (rules and policies) and software implementation<br/>
+
+2)	OpenL Tablets makes this process transparent to Java developers. For example, Decision Tables become available as Java methods and Data Tables become accessible as Java data arrays through familiar getter/setter Java Beans mechanism. All this is done automatically without any manual effort. This feature makes integration with any Java application a snap.<br/> 
+3)	OpenL Tablets checks all data in project documents for syntax and type errors providing convenient 
+and detailed error reporting. It's ability to point to the problem directly within Word and Excel document is unique among other similar products<br/>
+4)	OpenL Tablets provide calculation explanation capabilities, making it possible to actually drill down any calculation result with showing all the source arguments within original documents<br/>
+5)	OpenL provides cross-indexing and search capabilities within all project documents<br/>
+
+
+<p>
+Critics may say, this is all nice, but other products have full-blown rule engines, 
+based on sophisticated super-fast algorithms like Rete III, and OpenL does not, all it does just process the tables. 
+This article is an attempt to explain in detail, why OpenL approach is better for real-world business applications. 
+But, in case if you already are tired of  reading, here is the brief summary of this explanation:
+</p>
+
+<li>90-95% of business logic is table-based</li>
+<li>Most of it is already maintained in Excel files</li>
+<li>Most of business logic is either Decision or Lookup Tables</li>
+
+<p>
+If you believe that above statements are correct, then should you choose the tool that takes the best care of the 90-95% 
+of your business logic or the one that handles better the remaining 5-10%? 
+And are you sure that other guys actually do a good job with the remaining 5-10%? 
+If you want to know the answer, continue reading.
+</p>
+
+<h2>OpenL Features</h2>
+
+<p>
+OpenL Tablets is built on top of OpenL - the Open Source framework for developing program languages. It brings to OpenL Tablets the following features:
+</p>
+
+<h3>1.	Type Safety</h3> 
+We consider this one of the necessary requirements for modern software tool. 
+Increased complexity of software systems implies that a programmer should get as much help as possible at development stage. 
+Compile Time type checking does its part. <br/>
+
+
+<h3>2.	Extended Type System. </h3>
+Most programming languages work nice within their semantic paradigm. 
+For example, Java and Java tools provide very nice support while you are within Object/Class world. 
+Once you step outside and start to deal with external entities like database tables or web forms, 
+you find yourself in a completely different world - you have to work through APIs that mostly understand 
+only strings and numbers. 
+OpenL allows you to extend Java type system by custom type systems, 
+that can be accessible at compile time and therefore become an integral part of your application. 
+Examples of such system could be already mentioned database schemas, XML files (schemas), 
+OWL/RDF types or (as in OpenL Tablets) Excel tables.<br/>
+
+ 
+<h3>3.	Syntax/semantic flexibility.</h3>
+ 
+OpenL makes it possible to have customized syntax for your programming needs. 
+At current stage we came to the conclusion that the optimal syntax would be somewhat limited Java syntax 
+(it makes it immediately familiar to anybody with C++ or C# background) with following extensions: 
+operator overloading, extended type syntax.<br/>
+ 
+ 
+Having Java syntax/semantics at the core of the language greatly reduces the learning curve for developers. 
+Having the ability to overload operators simplifies code for formulas. 
+Extended type system provides compile time type checking and allows to incorporate external APIs and 
+data structure directly within familiar Java syntax. 
+This is important, because business logic is independent 
+of implementing APIs.<br/> 
+
+
+
+<h2>OpenL Tablets Advantage</h2>
+
+<p>
+OpenL Tablets treat tables in Excel and Word files as a source code. 
+It means that Excel and Word documents become source code files, same as .java files for Java program. 
+This approach may be unusual, but it has it's own unique advantages, 
+in particular it allows to close the gap between business world and IT world. 
+Let's consider a typical scenario where Business Analyst (BA) creates design documents, 
+includes there business model, business rules and business processes. 
+In most cases it results in a set of Word and Excel documents. 
+Then, IT specialists, architects and data modelers translate business documents according to their 
+understanding into software artifacts - in most cases into UML model. 
+In general, there is no formal link between the original documents and resulting model. 
+Therefore, the only way to keep software consistent with the model is through tedious error-prone manual process. 
+While OpenL Tablets approach does not solve this problem completely, 
+it allows to reduce significantly the costs of this translation in following areas:
+</p>
+
+<li>Business Rules - in most information-intensive businesses (insurance, finance, banking etc.) 
+95% of business rules are either already presented in Excel (or Word) tables or can be easily presented as such</li> 
+<li>Lookup Tables</li>
+
+<li>Data Tables for reference data and test cases</li>
+<li>Finite State Machine (FSM) Event Transition Tables for business process/lifecycle modeling</li>
+
+
+<p>
+Our experience shows that these areas cover significant part of development efforts, 
+and these are the areas where OpenL Tablets indeed outshines the competition. 
+Let's imagine scenario where most of your business knowledge is presented in form of the tables mentioned above. 
+For our competitors Excel tables are just an auxiliary tool to import data, 
+their support for the tables is minimal, usually through "import" function in menu. 
+Needless to say, that this treatment of the medium where most of your business knowledge is contained 
+is neither sufficient nor acceptable. 
+OpenL Tablets provides both business user and IT specialist with a rich and comprehensive set of tools 
+to make maintenance of your business knowledge presented in Excel and Word documents a simple task. 
+Business User has a choice of working either in familiar Excel application or through the Web interface. 
+IT specialist will prefer using Eclipse Plugin that will provide it with nice error navigation display 
+during compile or run time, Java integration tools that automatically generate Java wrapper classes, 
+unit tests, debug facilities, version control etc.    
+</p>
+
+
+<h2>OpenL Tablets vs. Traditional BRMS</h2>
+
+
+<p>
+It has been a common knowledge for a while that a "real" BRMS must have
+</p>
+
+<li>Rule Engine based on Rete Algorithm</li>
+<li>Rule Language (universal and domain specific)</li>
+<li>IDE to capture rules and organize them into rule sets</li> 
+<li>Rule Storage Format - i.e. files where rules are stored</li>
+
+<p>
+Each of this "must haves" has its own implications. 
+The industry cheerleaders will tell you only about positive ones, so we will concentrate only on the negative ones.
+</p>
+
+
+<h2>Rete Algorithm</h2>
+
+<p>
+The article from <a href="http://en.wikipedia.org/wiki/Rete_algorithm">http://en.wikipedia.org/wiki/Rete_algorithm</a> 
+states that 
+Rete Algorithm provides an efficient implementation of pattern-matching algorithm for production (expert) systems. 
+It provides a significant (orders of magnitude) performance advantage over the naive implementation.    
+</p>
+<p>
+This statement is definitely true. 
+Also, the truth is that Rete algorithm provides a significant performance/memory overhead over 
+implementations that take advantage of having rules in structured form like decision or lookup tables. 
+</p>
+
+<p>
+In addition, the dynamic nature of Rete algorithm (strictly speaking, it's not the algorithm itself, 
+it is the semantics of the production systems it is built to implement) makes it difficult to debug programs 
+due to the fact that many problems become visible only in run-time. 
+You have to worry not only about business logic but also about some obscure "rule salience" factors. 
+</p>
+<p>
+It does not mean that production systems are bad, there are areas where they can be used with a great success, 
+for example to expand OWL/RDF axioms etc. Unfortunately they are less suitable and less efficient when we deal 
+with "modern business process". Modern Business Process is 
+</p>
+
+<br/>
+a)	Streamlined to the point where no "deduction" is necessary; one can come up with a few exceptions to this statement, 
+but they are definitely not mainstream   
+<br/>
+b)	Most of decisions are table based, because rules must cover all the "input space". 
+Nobody creates a single rule for 23 years old driver, instead there is a rather big decision table 
+that includes all driver age ranges usually in combination with other factors, 
+also in a range mode to cover all the possible combinations of possible input data.
+<br/>
+c)	The process itself is rather sequential, it consists of well-defined stages that follow each other in  strict order, 
+for example, insurance application processing order is <br/> 
+<b>1) data validation -> 
+2) calculation of discount/surcharge factors for individual drivers/cars -> 
+3) calculation of integral discount/surcharge factors such as multi-car discount ->
+4) calculation of the entire policy or rejection based on previous calculations
+</b>
+<p>
+It is possible to use production system for this kind of problems, but is it necessary? 
+For example, instead of explicit sequencing, people often use so called rule salience or priority to do the job. 
+Needless to say that this approach looks as transparent and fresh as line numbering in first Basic.
+</p>
+<p>
+In addition to performance overhead, you will need a very qualified "knowledge engineer" a.k.a. "business rules expert" 
+who will be able to take care of all the problems with performance, debugging and sequencing. 
+But should you have these problems in the first place?
+</p>
+
+
+<h2>Rule Language</h2>
+
+<p>
+All BRMS use some rule language to express the rule logic. 
+There is no standard for this language even though there are attempts in this direction like RuleML (it is not so much a language, rather rule-interchange format). 
+So goes your rules portability. 
+In OpenL your business logic presented as tables in Excel is platform-neutral. 
+Plus you have the following advantages over other approaches: it is easily to distribute your rules, 
+anybody who has an Excel or Open Office (and who does not??) can read them; you can easily export them to any other system 
+including PDF files or database. And, finally, if you later switch from OpenL to competition for some unknown reasons, 
+they all provide some ways to import these tables into their systems.
+</p>
+
+<p>
+So let me summarize, when you write rules as text, the logic is dependent on the rule language, 
+when you use tables, the logic is language-neutral. 
+</p>
+
+<p>
+There are some attempts to use "natural English language" to define rule logic, 
+some of them are really impressive like Haley's Authority. 
+Others chose the path of DSL or Domain Specific Languages that basically are the set of 
+parameterized language constructs that also look like natural language to the end user.
+  
+But the real question is, what is better, to have your rules in this form (a bit <i>pre-fabricated example</i>, but anyway, it demonstrates the problem):
+</p>
+
+
+<table border="1" bgcolor="#EEEEEE"><tr><td>
+<pre>
+Rule  CF1
+When
+	Driver has gender <b>"male"</b> AND Driver has age at least <b>16</b> AND at most <b>20</b> 
+	AND Car mileage is at least <b>0</b> miles AND at most <b>10000</b> miles AND Car use is <b>"pleasure"</b>
+Then
+       Set Factor with name <b>"classification"</b> for Coverage named <b>"Bodily Injury"</b> to <b>3.90</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Property Damage"</b> to <b>3.90</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Medical</b> to <b>2.10</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Collision"</b> to <b>4.45</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Comprehensive"</b> to <b>2.95</b>
+</pre>
+
+
+<pre>
+Rule  CF2
+When
+	Driver has gender <b>"male"</b> AND Driver has age at least <b>21</b> AND at most <b>24</b> 
+	AND Car mileage is at least <b>0</b> miles AND at most <b>10000</b> miles AND Car use is <b>"pleasure"</b>
+Then
+       Set Factor with name <b>"classification"</b> for Coverage named <b>"Bodily Injury"</b> to <b>2.00</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Property Damage"</b> to <b>2.00</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Medical</b> to <b>1.50</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Collision"</b> to <b>2.55</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Comprehensive"</b> to <b>2.20</b>
+</pre>
+
+
+
+<pre>
+Rule  CF3
+When
+	Driver has gender <b>"female"</b> AND Driver has age at least <b>16</b> AND at most <b>20</b> 
+	AND Car mileage is at least <b>0</b> miles AND at most <b>10000</b> miles AND Car use is <b>"pleasure"</b>
+Then
+       Set Factor with name <b>"classification"</b> for Coverage named <b>"Bodily Injury"</b> to <b>2.80</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Property Damage"</b> to <b>2.80</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Medical</b> to <b>1.90</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Collision"</b> to <b>2.90</b> 
+       AND Set Factor with name <b>"classification"</b> for Coverage named <b>"Comprehensive"</b> to <b>1.60</b>
+</pre>
+
+.....................................<br/>
+50 or more rules of similar nature
+
+</table>
+
+<p>
+Or like this: 
+</p>
+
+<img src= "images/site/apologia1.png"/>
+
+<p>
+.....................................<br/>
+50 or more rows of similar nature
+</p>
+
+<p>
+For me the answer is obvious and I rest my case.
+</p>
+
+
+<h3>Rules IDE vs. Excel</h3> 
+
+OpenL Tablets provides the programmer with Eclipse Plugin that takes care of programming needs such as compiling, 
+building, running, version control and error reporting. 
+There is also a web interface that provides project navigation, search and other advance capabilities. 
+As an editor we recommend using Excel. 
+There is a common opinion that Excel provides less control and gives end user too much freedom. 
+We agree with this statement, and our approach is to use programming tools and organizational methods to neutralize 
+possible negative effect of this "freedom" 
+and maximize benefits from Excel flexibility, features and ubiquity. 
+
+<h2>The Road Ahead</h2>
+<p>
+The following is the list of tasks OpenL team will concentrate it's efforts in a near future. 
+They will provide user with even more advanced capabilities and enhanced experience:
+</p>
+
+<li>Improve Web Admin Interface</li>
+<li>Use Tables Meta-Information to provide features like Effective/Expiration Dates</li>
+<li>Add Advanced Lookup Tables (multi-dimensional)</li>
+<li>Add Database Connectivity module</li>
+<li>Enhance Rules Data Type Library</li>
+<li>Add code-generation capability to OpenL</li>
+<li>Add generics and convenient Smalltalk-like Collection and Iterator operations</li>
+<li>Add RDF/OWL Type Library, inference engine, move configuration to OWL format</li>
+
+ 
+<h2>Conclusion</h2>
+
+At the end we recommend you to take a close look at your application. 
+If you see, that a lot of business logic is already presented as tables, or can be easily presented as one, 
+you owe to yourself to give OpenL Tablets a try.
+
+
+<h3>Origins</h3>
+
+<pre>
+Main Entry: <b>tab·let</b>
+Pronunciation: 'ta-bl&t
+Function: <i>noun</i>
+Etymology: Middle English <i>tablett</i>, from Anglo-French <i>tablet</i>, diminutive of <i>table</i>
+<b>1 a :</b> a flat slab or plaque suited for or bearing an inscription 
+  <b>b :</b> a thin slab or one of a set of portable sheets used for writing 
+<b>2 a :</b> a compressed or molded block of a solid material 
+  <b>b :</b> a small mass of medicated material "an aspirin <i>tablet</i>"
+
+We believe Webster guys are going to update the entry soon:
+ 
+<b>3</b> Tablet - executable decision or lookup  table of well-defined structure. (comp. slang). See <i>applet, servlet, pagelet</i>    
+</pre>
+
+And if they are not, there is always Wikipedia
+
+
+
+<h2>Disclaimer</h2>
+
+In all OpenL Tablets documentation you can freely substitute <i>table</i> for <i>tablet</i> and vice versa without 
+loosing any bit of useful information, we just think that <i>tablet</i> is cool and <i>table</i> is square (or rectangular).
+
+ 
+
+
+
+<!--#include virtual="footer_includes.shtml" -->
+
+</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

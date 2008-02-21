@@ -1,0 +1,145 @@
+<html>
+
+<head>
+<title>OpenL Tablets - Getting Started</title>
+
+<!--#include virtual="header_includes.shtml" -->
+
+
+
+
+
+<body>
+<div id="leftbox">
+
+<!--#include virtual="menuleft.html" -->
+
+</div>
+
+
+<div id="centerbox">
+
+<table cellpadding="3" class="main" width="90%">
+<tr>
+<td>
+<H1>Getting Started with OpenL Tablets</H1>
+
+<h2>Pre-requisites</h2>
+
+<p/>
+1.	Eclipse version 3.1.0 or higher (<a href="http://www.eclipse.org/downloads/">http://www.eclipse.org/downloads/</a>)
+<br><b>Starting with version 5.0.5 we require Eclipse 3.3 or higher</b>  
+<p/>
+2.	JDK 1.5 or higher 
+
+<h2>OpenL Eclipse Plugin Installation</h2>
+
+If you have OpenL Tablets previously installed in your Eclipse, uninstall it by going to <b>Help | Software Updates | Manage Configuration</b>.  
+Locate OpenL Tablets for Eclipse … and first <b>Disable</b> it then <b>Uninstall</b> it.
+
+<h3>From Sourceforge.net Remote Site(only the latest published version)</h3> 
+1.	Select Eclipse menu <b>Help | Software Updates | Find and Install</b><br/>
+2.	Select <b>Search for new features to install</b> radio button and press <b>Next</b><br/>
+3.	Press <b>New Remote Site</b> button<br/>
+4.	Fill dialog fields<br/><br/> 
+<code>
+<b>Name:</b> SF OpenL Tablets<br/> 
+<b>URL:</b>  http://openl-tablets.sourceforge.net/site/<br/> 
+</code>
+and press <b>OK</b><br/><br/> 
+
+5.	Press <b>Finish</b> button<br/>
+6.	Follow installation dialog windows to download and install OpenL Tablets Plugin<br/>
+7.  Restart Eclipse
+
+<h3>From Zip File</h3>
+
+1.	Download OpenL Tablets Plugin zip file from <a href="http://sourceforge.net/projects/openl-tablets/" target="_new">OpenL Sourceforge Project</a> <br/>
+2.	Unpack zip file<br/>
+3.  Follow the instructions for <b>Remote Site</b>, except create <b>New Local Site</b> instead of <b>New Remote Site</b> and point it to the location of unzipped files<br/>
+
+
+<h2>Installing and Running OpenL Examples</h2>
+
+1.	OpenL Plugin contains a small set of examples that could be installed using <b>File | New | Project</b> menu. Select one of <b>OpenL Tablets/Examples/</b> projects and create it in workspace.<br/> 
+2.	Usually example project contains some <code>Main.java</code> file that could be used to run it. OpenL Tablets files are in the <code>rules/</code> folder. If they contain <code>main()</code> method they also can be run using context menu (right-click) <b>Run As|OpenL Application</b><br/>
+3.	Successful example running will give you some assurance that installation have been done correctly<br/>
+
+<h2>Creating Your own OpenL Tablets projects</h2>
+
+
+1.	Create project using <b>File | New | Project</b> menu. Select <b>OpenL Tablets/Simple OpenL Tablets Project</b>.<br/> 
+2.	New Project is created from OpenL Template project. You may either completely replace project source files, or 
+build your project on top of existing files. Remember to modify <code>build/GenerateJavaWrapper.build.xml</code> accordingly 
+if you change the name of main <code>.xls</code> file or want to change the name of the generated Java file.<br/> 
+
+
+<h2>Working With OpenL Project</h2>
+
+1.	After updating Excel file don't forget to <b>Save</b> it in Excel and <b>Refresh</b> in Eclipse. 
+To get a description of OpenL Tablets structure and semantics go <a href="struct.shtml">here</a><br/> 
+2.	To make changes in Java classes visible to OpenL Plugin use <b>Project | Clean</b> menu and "clean" selected project. 
+It will reload project classloader inside OpenL Plugin. Otherwise compilation results might be inconsistent<br/> 
+3.	To generate OpenL Java Wrapper run <b>Generate ${my.project} Wrapper</b> from <b>Run</b> menu and then <b>Refresh</b> the project.
+If <b>Generate ${my.project} Wrapper</b> line does not appear in <b>Run</b> menu, locate file <b>Generate ${my.project} Wrapper.launch</b> in
+project's root folder and using right-button menu <b>Run As | 1 Generate ${my.project} Wrapper</b> run it. 
+<br/> 
+4. To Start Web Studio only for an OpenL project, select the project, use right-click menu <b>Run As | Edit OpenL Project in Web Studio</b> <i>(since 5.0.5)</i>
+
+
+ <h2>Integrating OpenL Tablets with Java Application</h2>
+<p>
+The recommended way of integrating OpenL with your Java code is through the use of so called Java Wrapper Class. Java Wrapper class is generated automatically by Ant script in the build/ folder of your project. You have to refresh Eclipse project each time you run Generate script. It is recommended to run Generate script every time when you:
+</p>
+<li>	Add or remove tables in OpenL Tablets document</li>
+<li>	Change signature of existing tables</li>
+
+<p>
+You don't have to run Generate script if you change data or code in OpenL Tablets or change Java classes in your project.   
+</p>
+
+<p>
+The java wrapper class mimics the structure of OpenL Tablets file using the following conventions: 
+<li>	Decision Tables become public methods</li>
+<li>	Data Tables become Java data fields accessible through standard Java Beans getter and setter methods </li> 
+</p>
+
+To access OpenL Tablets methods Java application simply creates new instance of Java Wrapper class and may call its methods. It is recommended (but not necessary) to cache Java Wrapper instance. 
+
+
+
+<p>
+For example:
+</p>
+<code>
+InsuranceRulesWrapper irw = new InsuranceRulesWrapper();<br/>
+int points = irw.calculateDriverPoints(driver); 
+</code>
+
+<h2>Runtime Operations</h2>
+
+
+OpenL Java Wrapper parses and compiles .xls file(s) only once. All instances of the Wrapper share the same parsed copy. To force re-parsing use wrapper method <code>reload()</code> or class-level method <code>reset()</code>.
+
+<h2>Tutorials</h2>
+
+Each one of the OpenL Tablets tutorials is always a working OpenL project, 
+that demonstrates different techniques using some of OpenL Tablets features. 
+It is the best place to learn OpenL Tablets. 
+The first few tutorials are included in plugin distribution. 
+You can find them among pre-installed OpenL Tablets projects. Other tutorials should be available either from project CVS or distributed as separate bundles. 
+See <a href="tutorial.shtml">OpenL Tablets Tutorial</a> for more details
+
+
+<!--#include virtual="footer_includes.shtml" -->
+
+
+
+
+</td>
+</tr>
+</table>
+
+</div>
+</body>
+</html>
