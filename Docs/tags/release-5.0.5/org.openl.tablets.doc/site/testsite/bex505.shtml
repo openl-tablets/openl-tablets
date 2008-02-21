@@ -1,0 +1,40 @@
+<html>
+
+<head>
+<title>OpenL Tablets - Business Expression Language</title>
+
+<!--#include virtual="header_includes.shtml" -->
+
+
+
+
+
+<body>
+<div id="leftbox">
+
+<!--#include virtual="menuleft.html" -->
+
+</div>
+
+
+<div id="centerbox">
+
+<table cellpadding="3" class="main" width="90%">
+<tr>
+<td>
+
+<!--#include virtual="bex505.html" -->
+
+
+<!--#include virtual="footer_includes.shtml" -->
+
+
+
+
+</td>
+</tr>
+</table>
+
+</div>
+</body>
+</html>
