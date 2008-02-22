@@ -2,9 +2,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>org.openl.rules</groupId>
-    <artifactId>org.openl.rules.studio.root</artifactId>
+    <artifactId>org.openl.rules.studio-pom</artifactId>
     <version>5.0.5</version>
-    <relativePath>../org.openl.rules.studio.root</relativePath>
+    <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
