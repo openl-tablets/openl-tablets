@@ -1,6 +1,9 @@
 package org.openl.rules.webstudio.web.studio;
 
 import org.openl.rules.ui.WebStudio;
+
+import org.openl.rules.workspace.lw.LocalWorkspaceManager;
+
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -19,6 +22,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class StudioFromLWSController {
+    private LocalWorkspaceManager localWorkspaceManager;
+
+    public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkspaceManager) {
+        this.localWorkspaceManager = localWorkspaceManager;
+    }
+
     public String openStudio() {
         HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(true);
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
@@ -54,7 +63,6 @@ public class StudioFromLWSController {
     }
 
     private boolean getUseEclipse4LocalUserFlag(RulesUserSession rulesUserSession) {
-        LocalWorkspaceManager lwm = rulesUserSession.getWorkspaceManager().getLocalWorkspaceManager();
-        return lwm instanceof LocalWorkspaceManagerImpl && ((LocalWorkspaceManagerImpl) lwm).isUseEclipse4LocalUser();
+        return localWorkspaceManager instanceof LocalWorkspaceManagerImpl && ((LocalWorkspaceManagerImpl) localWorkspaceManager).isUseEclipse4LocalUser();
     }
 }

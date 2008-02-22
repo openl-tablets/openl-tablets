@@ -25,8 +25,8 @@ public class StartTomcat {
 
     private static final String BROWSER_URL_PROPERTY = "browser.url";
     private static final String DEFAULT_BROWSER_URL = "http://localhost:8080/webstudio/";
-    
-    
+
+
     public static void main(String[] args) throws Exception {
 
         // System.out.println("OpenL Tomcat Starter, Version " +
@@ -46,8 +46,8 @@ public class StartTomcat {
             throw new Exception("\n Apache Tomcat bootstrap.jar must be in classpath.");
         }
 
-        
-        
+
+
         String whome = System.getProperty("openl.webstudio.home");
 
         if (whome == null) {
@@ -99,13 +99,6 @@ public class StartTomcat {
 
         System.out.println("Using tomcat base: " + System.getProperty("catalina.base"));
 
-        Class<?> bootstrap = null;
-        try {
-            bootstrap = Class.forName("org.apache.catalina.startup.Bootstrap");
-        } catch (ClassNotFoundException cnfe) {
-            throw new Exception("\n Apache Tomcat bootstrap.jar must be in classpath.");
-        }
-
         Method main = bootstrap.getMethod("main", new Class[] { String[].class });
 
 
@@ -113,11 +106,11 @@ public class StartTomcat {
         if (browserURL == null)
             browserURL = getProperty(args, BROWSER_URL_PROPERTY);
         if (browserURL == null)
-        {    
+        {
             System.out.println("Using default browser url: " + DEFAULT_BROWSER_URL);
             browserURL = DEFAULT_BROWSER_URL;
-        }     
-        
+        }
+
         new Thread(new BrowserStarter(browserURL)).start();
 
         main.invoke(null, new Object[] {new String[]{"start"}});
@@ -128,20 +121,20 @@ public class StartTomcat {
 
     static public final String JAVA_CLASSPATH_PROPERTY = "java.class.path";
 
-    private static String findChome() throws IOException 
+    private static String findChome() throws IOException
     {
     	String cpath = System.getProperty(JAVA_CLASSPATH_PROPERTY);
-    	
+
     	String[] pathElements = StringTool.tokenize(cpath, File.pathSeparator);
-    	
+
     	for (int i = 0; i < pathElements.length; i++) {
 			if (pathElements[i].endsWith("bootstrap.jar"))
 			{
 				File tomcatHome = new File(pathElements[i]).getCanonicalFile().getParentFile().getParentFile();
 				return tomcatHome.toString();
-			}	
+			}
 		}
-    	
+
     	throw new RuntimeException("Could not find bootstrap.jar in " + JAVA_CLASSPATH_PROPERTY);
 	}
 
@@ -155,7 +148,7 @@ public class StartTomcat {
      * -Dcatalina.home="C:\3p\jakarta-tomcat-5.0.25"
      * -Djava.io.tmpdir="C:\3p\jakarta-tomcat-5.0.25\temp"
      * org.apache.catalina.startup.Bootstrap start
-     * 
+     *
      */
 
     private static String getProperty(String[] args, String prefix) {
@@ -187,31 +180,31 @@ public class StartTomcat {
                 // Do nothing
             }
 
-            try {            
+            try {
                 Class<?> desktop = null;
                 try {
                     desktop = Class.forName("java.awt.Desktop");
                 } catch (ClassNotFoundException cnfe) {
                     // NOTICE: The desktop support is available beginning from JDK 1.6
                 }
-                
-                
-                
+
+
+
                 boolean isDesktopSupported = false;
 
                 if (desktop != null){
                     Method isDesktopSupportedMethod = desktop.getMethod("isDesktopSupported", new Class[] {});
-                    
+
                     isDesktopSupported = (Boolean) isDesktopSupportedMethod.invoke(null, new Object[] {});
-                    
+
                     if (isDesktopSupported){
                         Method getDesktop = desktop.getMethod("getDesktop", new Class[] {});
-                        
+
                         Object desktopObject = getDesktop.invoke(null, new Object[] {});
-                        
+
                         Method browse = desktop.getMethod("browse", new Class[] { URI.class });
-                        
-                        
+
+
                         browse.invoke(desktopObject, new Object[] {new URI(browserURL)});
                     }
                 }
