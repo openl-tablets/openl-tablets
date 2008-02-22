@@ -43,10 +43,6 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener{
         this.localWorkspaceManager = localWorkspaceManager;
     }
 
-    public LocalWorkspaceManager getLocalWorkspaceManager() {
-        return localWorkspaceManager;
-    }
-
     /**
      * Returns .
      * <p/>
@@ -72,6 +68,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener{
         LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
         ProductionDeployer deployer;
         try {
+        	// TODO: DO NOT initialize deployer for users who have no rights
             deployer = productionDeployerManager.getDeployer(user);
         } catch (DeploymentException e) {
             throw new WorkspaceException("can not get production deployer", e);

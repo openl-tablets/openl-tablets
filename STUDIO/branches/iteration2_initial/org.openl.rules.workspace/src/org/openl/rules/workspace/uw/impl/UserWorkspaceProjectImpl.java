@@ -2,7 +2,9 @@ package org.openl.rules.workspace.uw.impl;
 
 import java.util.Collection;
 
+import org.acegisecurity.annotation.Secured;
 import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.Project;
@@ -44,6 +46,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return project.getDependencies();
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void setDependencies(Collection<ProjectDependency> dependencies) throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot change dependencies in read only mode", null);
@@ -89,6 +92,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         updateArtefact(localProject, dtrProject);
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void checkOut() throws ProjectException {
         if (isLocalOnly()) {
             throw new ProjectException("Project ''{0}'' cannot be checked out since it is local only!", null, getName());
@@ -116,6 +120,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         dtrProject.lock(userWorkspace.getUser());
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void checkIn(int major, int minor) throws ProjectException {
         if (!isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' must be checked-out before checking-in", null, getName());
@@ -131,6 +136,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         updateArtefact(localProject, dtrProject);
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void checkIn() throws ProjectException {
         // do not rise version
         checkIn(0, 0);
@@ -198,6 +204,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return (dtrProject == null);
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void delete() throws ProjectException {
         if (isLocked() && !isLockedByMe()) {
             throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user", null, getName());
@@ -212,12 +219,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void undelete() throws ProjectException {
         if (dtrProject != null) {
             dtrProject.undelete(userWorkspace.getUser());
         }
     }
 
+	@Secured (Privileges.PRIVILEGE_ERASE)
     public void erase() throws ProjectException {
         if (dtrProject != null) {
             dtrProject.erase(userWorkspace.getUser());

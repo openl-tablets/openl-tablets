@@ -3,6 +3,8 @@ package org.openl.rules.workspace.uw.impl;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.acegisecurity.annotation.Secured;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
@@ -25,6 +27,7 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         updateArtefact(localFolder, dtrFolder);
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public UserWorkspaceProjectFolder addFolder(String name) throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot add folder ''{0}'' in read only mode", null, name);
@@ -35,6 +38,7 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         }
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public UserWorkspaceProjectResource addResource(String name, ProjectResource resource) throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot add resource ''{0}'' in read only mode", null, name);
@@ -69,6 +73,7 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         }
     }
     
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void delete() throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot delete in read only mode!", null);

@@ -1,5 +1,7 @@
 package org.openl.rules.workspace.deploy;
 
+import org.acegisecurity.annotation.Secured;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.abstracts.Project;
 
 import java.util.Collection;
@@ -16,6 +18,7 @@ public interface ProductionDeployer {
      * @return generated id for this deployment
      * @throws DeploymentException if any deployment error occures
      */
+	@Secured (Privileges.PRIVILEGE_DEPLOY)
     DeployID deploy(Collection<? extends Project> projects) throws DeploymentException;
 
     /**
@@ -26,5 +29,6 @@ public interface ProductionDeployer {
      * @return <code>id</code> parameter
      * @throws DeploymentException if any deployment error occures
      */
+	@Secured (Privileges.PRIVILEGE_DEPLOY)
     DeployID deploy(DeployID id, Collection<? extends Project> projects) throws DeploymentException;
 }
