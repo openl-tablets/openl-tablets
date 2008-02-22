@@ -8,11 +8,11 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>org.openl.rules.webstudio</artifactId>
+  <artifactId>org.openl.rules.webstudio.java</artifactId>
   <packaging>jar</packaging>
-  <name>Exigen WebStudio</name>
+  <name>Exigen WebStudio Java Sources</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
-  <description>Exigen WebStudio</description>
+  <description>Exigen WebStudio Java Sources</description>
 
   <repositories>
     <repository>
