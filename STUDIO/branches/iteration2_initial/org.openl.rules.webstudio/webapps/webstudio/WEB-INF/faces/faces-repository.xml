@@ -27,6 +27,10 @@
     <managed-bean-name>deploymentController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.DeploymentController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
+    <!-- managed-property>
+      <property-name>runtimeRepositoryDeployer</property-name>
+      <value>#{runtimeRepositoryDeployer}</value>
+    </managed-property-->
     <managed-property>
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
@@ -68,6 +72,36 @@
     <managed-property>
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>diffController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.DiffController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>userWorkspace</property-name>
+      <value>#{rulesUserSession.userWorkspace}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>path</property-name>
+      <value>#{param.id}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>designTimeRepository</property-name>
+      <value>#{designTimeRepository}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>init</property-name>
+      <value>true</value>
     </managed-property>
   </managed-bean>
 

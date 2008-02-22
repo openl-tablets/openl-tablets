@@ -9,7 +9,7 @@
 <%@page import="org.openl.rules.workspace.abstracts.Project"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspaceProject"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.openl.rules.webstudio.application.CurrentUserInfo"%>
+<%@page import="org.openl.rules.webstudio.security.CurrentUserInfo"%>
 <%@page import="org.openl.rules.workspace.MultiUserWorkspaceManager"%>
 <html>
 <head>

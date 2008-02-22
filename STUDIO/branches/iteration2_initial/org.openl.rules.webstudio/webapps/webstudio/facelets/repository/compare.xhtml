@@ -1,0 +1,86 @@
+<ui:composition xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax" xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets" template="/common/baseToolbar.xhtml">
+
+  <ui:define name="page">
+    <a4j:loadStyle src="/css/flexTree.css" />
+    <a4j:loadScript src="/javascript/flexTree/prototype-1.6.0.2.js" />
+    <a4j:loadScript src="/javascript/flexTree/dataLoader.js" />
+    <a4j:loadScript src="/javascript/flexTree/flexTree.js" />
+
+    <table>
+      <tr>
+        <td valign="top">
+
+
+        <table>
+          <tr>
+            <td>
+            Local version
+            </td>
+            <td>
+            Version 0.0.1
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+            <div id="treeboxbox_tree1"
+              style="width: 400px; height: 500px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
+            </td>
+
+            <td>
+            <div id="treeboxbox_tree2"
+              style="width: 400px; height: 500px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
+            </td>
+          </tr>
+        </table>
+        <br />
+
+        </td>
+      </tr>
+
+    </table>
+
+
+    <script>
+  function onClickHandler(key) {
+    tree2.selectItem(key);
+  }
+
+  function onOpenHandler(key, state) {
+    if (state==-1 || state==0) {
+      tree2.openItem(key);
+    } else {
+      tree2.closeItem(key);
+    }
+    return true;
+  }
+
+  var tree1=new flexTree("treeboxbox_tree1","100%","100%",1);
+  var tree2=new flexTree("treeboxbox_tree2","100%","100%",2);
+
+  tree1.setImagePath("#{contextPath}/images/flexTree/");
+  //tree.enableDragAndDrop(0);
+  //tree.enableTreeLines(false);
+  //tree.setImageArrays("plus","","","","plus.gif");
+  //tree.setImageArrays("minus","","","","minus.gif");
+  //tree.setStdImages("book.gif","books_open.gif","books_close.gif");
+  tree1.setOnClickHandler(onClickHandler);
+  tree1.setOnOpenHandler(onOpenHandler);
+  tree1.setOnDblClickHandler(onOpenHandler);
+
+  tree1.treeContainerElement.onscroll = function() { tree2.treeContainerElement.scrollTop=tree1.treeContainerElement.scrollTop; }
+
+  tree1.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree1.xhtml");
+  tree1.loadXML("#{contextPath}/faces/repository/diff/loadTree1.xhtml");
+
+  tree2.setImagePath("#{contextPath}/images/flexTree/");
+  tree2.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree2.xhtml");
+  tree2.loadXML("#{contextPath}/faces/repository/diff/loadTree2.xhtml");
+</script>
+
+
+  </ui:define>
+
+</ui:composition>
