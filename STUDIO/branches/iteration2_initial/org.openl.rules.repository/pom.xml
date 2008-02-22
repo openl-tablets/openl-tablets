@@ -4,9 +4,9 @@
 
   <parent>
     <groupId>org.openl.rules</groupId>
-    <artifactId>org.openl.rules.studio.root</artifactId>
+    <artifactId>org.openl.rules.studio-pom</artifactId>
     <version>5.0.5</version>
-    <relativePath>../org.openl.rules.studio.root</relativePath>
+    <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
   <groupId>org.openl.rules</groupId>
