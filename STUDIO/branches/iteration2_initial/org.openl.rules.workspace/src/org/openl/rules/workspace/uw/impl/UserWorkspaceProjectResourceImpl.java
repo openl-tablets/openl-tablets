@@ -2,6 +2,8 @@ package org.openl.rules.workspace.uw.impl;
 
 import java.io.InputStream;
 
+import org.acegisecurity.annotation.Secured;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.RepositoryProjectResource;
@@ -19,6 +21,7 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
         updateArtefact(localResource, dtrResource);
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void setContent(InputStream inputStream) throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot update content in read only mode!", null);
@@ -39,6 +42,7 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
         throw new ProjectException("Cannot find project artefact ''{0}''", null, name);
     }
     
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void delete() throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot delete in read only mode!", null);

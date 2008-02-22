@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 
+import org.acegisecurity.annotation.Secured;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -35,6 +37,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         return getArtefact().getName();
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void addProperty(Property property) throws PropertyException {
         // TODO check whether it can edit
         getArtefact().addProperty(property);
@@ -52,6 +55,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         return getArtefact().hasProperty(name);
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public Property removeProperty(String name) throws PropertyException {
         // TODO check whether it can edit
         return getArtefact().removeProperty(name);
@@ -81,6 +85,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         return rra.getLineOfBusiness();
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void setEffectiveDate(Date date) throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot set effectiveDate in read mode");
@@ -89,6 +94,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         }
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void setExpirationDate(Date date) throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot set expirationDate in read mode");
@@ -97,6 +103,7 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         }
     }
 
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void setLineOfBusiness(String lineOfBusiness) throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot set LOB in read mode");

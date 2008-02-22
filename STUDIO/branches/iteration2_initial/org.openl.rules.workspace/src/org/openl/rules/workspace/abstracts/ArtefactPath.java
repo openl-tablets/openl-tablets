@@ -20,8 +20,7 @@ public interface ArtefactPath {
 
     /**
      * Returns number of segments in the path
-     *
-     * @return integer number of segments
+     * @return
      */
     public int segmentCount();
 
@@ -39,16 +38,6 @@ public interface ArtefactPath {
      * @return string with the path
      */
     public String getStringValue();
-
-    /**
-     * Gets the path as a single string, omitting first <code>skip</code> elements.
-     * All segments are concatenated by special delimiter '/'.
-     *
-     * @param skip number of elements to skip
-     * 
-     * @return string with the path
-     */
-    public String getStringValue(int skip);
 
     /**
      * Create new instance of ArtefactPath from base one,

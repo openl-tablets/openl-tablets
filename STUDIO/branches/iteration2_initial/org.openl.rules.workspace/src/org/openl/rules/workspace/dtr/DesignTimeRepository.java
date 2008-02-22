@@ -2,7 +2,9 @@ package org.openl.rules.workspace.dtr;
 
 import java.util.List;
 
+import org.acegisecurity.annotation.Secured;
 import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
@@ -28,6 +30,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return specified version of rules project
      * @throws RepositoryException if failed
      */
+	@Secured (Privileges.PRIVILEGE_VIEW)
     RepositoryProject getProject(String name, CommonVersion version) throws RepositoryException;
 
     /**
@@ -45,7 +48,8 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param minor new minor version of project
      * @throws RepositoryException if failed
      */
-    void updateProject(Project project, WorkspaceUser user, int major, int minor) throws RepositoryException;
+	@Secured (Privileges.PRIVILEGE_EDIT)
+	void updateProject(Project project, WorkspaceUser user, int major, int minor) throws RepositoryException;
 
     /**
      * Copies rules project in/into Design Time Repository.
@@ -58,7 +62,8 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param user who is copies project
      * @throws RepositoryException if failed
      */
-    void copyProject(Project project, String name, WorkspaceUser user) throws ProjectException;
+	@Secured (Privileges.PRIVILEGE_EDIT)
+	void copyProject(Project project, String name, WorkspaceUser user) throws ProjectException;
 
     /**
      * Creates new rules project in the Design Time Repository.
@@ -66,6 +71,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param name name of new rules project, must be unique
      * @throws RepositoryException if failed
      */
+	@Secured (Privileges.PRIVILEGE_EDIT)
     void createProject(String name) throws RepositoryException;
 
     /**
@@ -75,6 +81,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return instance of deployment project
      * @throws RepositoryException if failed
      */
+	@Secured (Privileges.PRIVILEGE_VIEW)
     public RepositoryDDProject getDDProject(String name) throws RepositoryException;
 
     /**
@@ -85,6 +92,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return specified version of deployment project
      * @throws RepositoryException if failed
      */
+	@Secured (Privileges.PRIVILEGE_VIEW)
     public RepositoryDDProject getDDProject(String name, CommonVersion version) throws RepositoryException;
     
     /**
@@ -93,6 +101,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param name name of deployment project to be checked
      * @return <code>true</code> if deployment project with specified name exists already
      */
+	@Secured (Privileges.PRIVILEGE_VIEW)
     boolean hasDDProject(String name);
 
     /**
@@ -101,6 +110,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @return list of deployment projects
      * @throws RepositoryException if failed
      */
+	@Secured (Privileges.PRIVILEGE_VIEW)
     public List<RepositoryDDProject> getDDProjects() throws RepositoryException;
     
     /**
@@ -109,6 +119,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param name name of new deployment project, must be unique
      * @throws RepositoryException if failed
      */
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void createDDProject(String name) throws RepositoryException;
     
     /**
@@ -122,5 +133,6 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param user who is copies project
      * @throws ProjectException if failed
      */
+	@Secured (Privileges.PRIVILEGE_EDIT)
     public void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user) throws ProjectException;
 }

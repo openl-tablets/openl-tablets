@@ -12,7 +12,8 @@ import java.io.File;
  */
 public class FolderHelper {
     public static final String PROPERTIES_FOLDER = ".studioProps";
-    public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
+    public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
+    public static final String FOLDER_PROPERTIES_FILE = "folder.props";
     public static final String RESOURCE_PROPERTIES_EXT = ".props";
 
     public static boolean clearFolder(File folder) {
@@ -81,6 +82,11 @@ public class FolderHelper {
 
     public static File generateSubLocation(File location, String name) {
         return new File(location, name);
+    }
+
+    public static File getFolderPropertiesFile(File propFolder) {
+        return new File(propFolder,
+            FOLDER_PROPERTIES_FOLDER + File.separator + FOLDER_PROPERTIES_FILE);
     }
 
     public static boolean checkOrCreateFolder(File location) {

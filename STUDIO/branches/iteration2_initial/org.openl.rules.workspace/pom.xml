@@ -1,0 +1,128 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.studio.root</artifactId>
+    <version>5.0.5</version>
+    <relativePath>../org.openl.rules.studio.root</relativePath>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.workspace</artifactId>
+  <packaging>jar</packaging>
+  <name>Exigen WebStudio Workspace</name>
+  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+  <description>Exigen WebStudio Workspace</description>
+
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.0.2</version>
+          <configuration>
+            <source>1.5</source>
+            <target>1.5</target>
+            <!-- TODO: fix these tests -->
+            <testExcludes>
+              <exclude>**/*JcrProductionDeployerTestCase.java</exclude>
+              <exclude>**/*JcrRulesClientTestCase.java</exclude>
+            </testExcludes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <testResources>
+      <testResource>
+        <directory>test</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </testResource>
+    </testResources>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.commons</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.acegisecurity</groupId>
+      <artifactId>acegi-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.acegisecurity</groupId>
+      <artifactId>acegi-security-tiger</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-digester</groupId>
+      <artifactId>commons-digester</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>

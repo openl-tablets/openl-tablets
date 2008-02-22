@@ -85,7 +85,7 @@ public class ArtefactPathImpl implements ArtefactPath {
     /** {@inheritDoc} */
     public String getStringValue() {
         if (stringValue == null) {
-            StringBuilder result = new StringBuilder();
+            StringBuffer result = new StringBuffer();
 
 //            if (state == State.ABSOLUTE) {
                 result.append(SEGMENT_DELIMITER);
@@ -103,18 +103,6 @@ public class ArtefactPathImpl implements ArtefactPath {
         }
 
         return stringValue;
-    }
-
-    public String getStringValue(int skip) {
-        StringBuilder result = new StringBuilder();
-        if (skip < segmentCount()) {
-            Iterator<String> it = segments.iterator();
-            for (; skip > 0; --skip) it.next();
-            while (it.hasNext()) {
-                result.append(SEGMENT_DELIMITER).append(it.next());
-            }
-        }
-        return result.toString();
     }
 
     @Override

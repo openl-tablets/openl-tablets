@@ -107,8 +107,4 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         Log.debug("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(), eclipseWorkspacePath);
         return new LocalWorkspaceImpl(user, new File(eclipseWorkspacePath), localWorkspaceFolderFilter, localWorkspaceFileFilter);
     }
-
-    public boolean isUseEclipse4LocalUser() {
-        return useEclipse4LocalUser;
-    }
 }
