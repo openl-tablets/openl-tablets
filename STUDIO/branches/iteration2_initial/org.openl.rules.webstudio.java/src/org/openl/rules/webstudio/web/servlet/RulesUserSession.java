@@ -1,8 +1,9 @@
 package org.openl.rules.webstudio.web.servlet;
 
+import org.acegisecurity.userdetails.UserDetails;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
-import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.deploy.ProductionDeployerManager;
@@ -12,13 +13,13 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.Log;
 
 public class RulesUserSession {
-    private WorkspaceUser user;
+    private UserDetails user;
     private UserWorkspace userWorkspace;
     private ProductionDeployer deployer;
     private MultiUserWorkspaceManager workspaceManager;
     private ProductionDeployerManager deployerManager = new ProductionDeployerManagerImpl();
 
-    public void setUser(WorkspaceUser user) {
+    public void setUser(UserDetails user) {
         this.user = user;
     }
 
@@ -26,13 +27,9 @@ public class RulesUserSession {
         this.workspaceManager = workspaceManager;
     }
 
-    public MultiUserWorkspaceManager getWorkspaceManager() {
-        return workspaceManager;
-    }
-
     public synchronized UserWorkspace getUserWorkspace() throws WorkspaceException, ProjectException {
         if (userWorkspace == null) {
-            userWorkspace = workspaceManager.getUserWorkspace(user);
+            userWorkspace = workspaceManager.getUserWorkspace(new WorkspaceUserImpl(user.getUsername()));
             userWorkspace.activate();
         }
 
@@ -41,7 +38,7 @@ public class RulesUserSession {
 
     public synchronized ProductionDeployer getDeployer() throws DeploymentException {
         if (deployer == null) {
-            deployer = deployerManager.getDeployer(user);
+            deployer = deployerManager.getDeployer(new WorkspaceUserImpl(user.getUsername()));
         }
         return deployer;
     }

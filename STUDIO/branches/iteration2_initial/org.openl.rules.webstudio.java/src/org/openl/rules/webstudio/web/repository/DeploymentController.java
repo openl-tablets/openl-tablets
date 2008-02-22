@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
+//import org.openl.rules.runtime.deployer.RuntimeRepositoryDeployer;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.abstracts.Project;
@@ -16,14 +17,14 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
-import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryProject;
+import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,6 +52,7 @@ public class DeploymentController {
     private String version;
     private RepositoryTreeState repositoryTreeState;
     private String cachedForProject;
+    //private RuntimeRepositoryDeployer runtimeRepositoryDeployer;
 
     public synchronized List<DeploymentDescriptorItem> getItems() {
         UserWorkspaceDeploymentProject project = getSelectedProject();
@@ -58,8 +60,9 @@ public class DeploymentController {
             return null;
         }
 
-        if (items != null && project.getName().equals(cachedForProject))
+        if ((items != null) && project.getName().equals(cachedForProject)) {
             return items;
+        }
 
         cachedForProject = project.getName();
         Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
@@ -67,7 +70,7 @@ public class DeploymentController {
 
         for (ProjectDescriptor descriptor : descriptors) {
             DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor
-                    .getProjectName(), descriptor.getProjectVersion());
+                        .getProjectName(), descriptor.getProjectVersion());
             items.add(item);
         }
 
@@ -208,8 +211,10 @@ public class DeploymentController {
         if (projectName != null) {
             try {
                 UserWorkspaceProject project = workspace.getProject(projectName);
+
                 // sort project versions in descending order (1.1 -> 0.0)
-                List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
+                List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project
+                            .getVersions());
                 Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
 
                 List<SelectItem> selectItems = new ArrayList<SelectItem>();
@@ -256,11 +261,19 @@ public class DeploymentController {
                 Collection<Project> projects = new ArrayList<Project>();
 
                 for (ProjectDescriptor pd : projectDescriptors) {
-                    projects.add(dtr.getProject(pd.getProjectName(), pd.getProjectVersion()));
+                    projects.add(dtr.getProject(pd.getProjectName(),
+                            pd.getProjectVersion()));
                 }
 
                 DeployID id = getDeployID(project);
-                deployer.deploy(id, projects);
+
+                //TODO: Add switching between production and runtime repositories in configuration
+                //deployer.deploy(id, projects);
+                /*
+                for (Project p : projects) {
+                    runtimeRepositoryDeployer.deploy(p);
+                }
+                */
 
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
@@ -301,18 +314,21 @@ public class DeploymentController {
                 prMap.put(projectName, null);
 
                 ddItem.setMessages(new StringBuilder().append(
-                    "<span style='color:red;'>Cannot find project <b>")
-                    .append(StringEscapeUtils.escapeHtml(projectName))
-                    .append("</b> in the repository</span>.").toString());
+                        "<span style='color:red;'>Cannot find project <b>")
+                        .append(StringEscapeUtils.escapeHtml(projectName))
+                        .append("</b> in the repository</span>.").toString());
             } else {
-                RepositoryProject repositoryProject = dtr.getProject(projectName, ddItem.getVersion());
+                RepositoryProject repositoryProject = dtr.getProject(projectName,
+                        ddItem.getVersion());
 
-                prMap.put(repositoryProject.getName(), new VersionRange(repositoryProject.getVersion(),
+                prMap.put(repositoryProject.getName(),
+                    new VersionRange(repositoryProject.getVersion(),
                         repositoryProject.getVersion()));
 
                 // fill project's dependencies
                 for (ProjectDependency dep : repositoryProject.getDependencies()) {
-                    prMap.put(dep.getProjectName(), new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
+                    prMap.put(dep.getProjectName(),
+                        new VersionRange(dep.getLowerLimit(), dep.getUpperLimit()));
                 }
             }
         }
@@ -406,6 +422,13 @@ outer:
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
     }
+
+    /*
+    public void setRuntimeRepositoryDeployer(
+        RuntimeRepositoryDeployer runtimeRepositoryDeployer) {
+        this.runtimeRepositoryDeployer = runtimeRepositoryDeployer;
+    }
+    */
 
     private static class VersionRange {
         CommonVersion lower;
