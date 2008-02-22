@@ -1,13 +1,15 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenL Webtools Plug-in
-Bundle-SymbolicName: org.openl.rules.webtools
+Bundle-Name: Exigen WebTools
+Bundle-SymbolicName: org.openl.rules.webtools;singleton:=true
 Bundle-Version: 5.0.5
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.rules;visibility:=reexport,
- org.openl.lib.apache.tomcat;visibility:=reexport,
- org.openl.lib.browserlauncher;visibility:=reexport
+ org.openl.lib.apache.tomcat
 Export-Package: org.openl.rules.webtools,
  org.openl.rules.webtools.indexer
 Bundle-Vendor: OpenL Tablets
+Bundle-ClassPath: .,
+ BrowserLauncher-2-1_3.jar,
+ bootstrap-5.5.12.jar

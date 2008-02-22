@@ -99,6 +99,12 @@ public class StartTomcat {
 
         System.out.println("Using tomcat base: " + System.getProperty("catalina.base"));
 
+        Class<?> bootstrap = null;
+        try {
+            bootstrap = Class.forName("org.apache.catalina.startup.Bootstrap");
+        } catch (ClassNotFoundException cnfe) {
+            throw new Exception("\n Apache Tomcat bootstrap.jar must be in classpath.");
+        }
 
         Method main = bootstrap.getMethod("main", new Class[] { String[].class });
 
