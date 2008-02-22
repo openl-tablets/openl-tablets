@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.studio.root</artifactId>
+    <version>5.0.5</version>
+    <relativePath>../org.openl.rules.studio.root</relativePath>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>org.openl.rules.runtime.deployer</artifactId>
+  <packaging>jar</packaging>
+  <name>Common Services Deployer</name>
+  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+  <description>Deployer into Common Services (Runtime repository)</description>
+
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.workspace</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.exigen.common</groupId>
+      <artifactId>serviceaccess</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.exigen.common</groupId>
+      <artifactId>repository</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>2.5</version>
+    </dependency>
+  </dependencies>
+</project>
