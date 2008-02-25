@@ -11,7 +11,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.openl.rules.security.standalone.SecurityUtil;
+import org.openl.rules.security.SecurityUtil;
 
 import java.lang.reflect.InvocationTargetException;
 

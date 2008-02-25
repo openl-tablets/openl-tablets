@@ -1,9 +1,8 @@
-package org.openl.rules.security.standalone;
+package org.openl.rules.security;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.openl.rules.security.Privileges;
 
 /**
  * @author Aleh Bykhavets

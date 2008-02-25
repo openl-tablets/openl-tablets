@@ -22,4 +22,11 @@
     </repository>
   </repositories>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.acegisecurity</groupId>
+      <artifactId>acegi-security</artifactId>
+    </dependency>
+  </dependencies>
+
 </project>
