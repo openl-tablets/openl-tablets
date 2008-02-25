@@ -3,8 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Exigen WebStudio Java Sources
 Bundle-SymbolicName: org.openl.rules.webstudio.java;singleton:=true
 Bundle-Version: 5.0.5
-Require-Bundle: org.openl.lib.jsf,
- org.openl.lib.apache.tomcat,
+Require-Bundle: org.openl.lib.apache.tomcat,
  org.openl.core;visibility:=reexport,
  org.openl.rules;visibility:=reexport,
  org.openl.rules.repository.jcr,
