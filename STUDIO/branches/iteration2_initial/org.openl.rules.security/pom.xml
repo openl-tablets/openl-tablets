@@ -1,5 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.studio-pom</artifactId>
@@ -7,10 +10,7 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.security</artifactId>
-  <packaging>jar</packaging>
   <name>Security</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <description>Security</description>

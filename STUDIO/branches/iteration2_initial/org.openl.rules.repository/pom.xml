@@ -1,5 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -9,9 +10,7 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
-  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.repository</artifactId>
-  <packaging>jar</packaging>
   <name>Exigen WebStudio Repository</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <description>Exigen WebStudio Repository</description>
