@@ -15,13 +15,13 @@ import java.util.List;
 
 
 /**
- * Used for retrieving project trees with structured diff data.
+ * Server-side for providing JavaScript flexTree with structured diff data.
  *
  * @author Andrey Naumenko
  */
 public class DiffController {
     private static Log log = LogFactory.getLog(DiffController.class);
-    private List<ProjectDiff.DiffElement> diffElements;
+    private List<DiffElement> diffElements;
     private String path;
     private UserWorkspace userWorkspace;
     private DesignTimeRepository designTimeRepository;
@@ -29,7 +29,7 @@ public class DiffController {
     private Project project1;
     private Project project2;
 
-    public List<ProjectDiff.DiffElement> getDiffElements() {
+    public List<DiffElement> getDiffElements() {
         return diffElements;
     }
 
@@ -61,7 +61,7 @@ public class DiffController {
         }
 
         try {
-            diffElements = ProjectDiff.getDiff(project1, project2, path, path);
+            diffElements = StructuredDiff.getDiff(project1, project2, path, path);
         } catch (ProjectException e) {
             log.error("", e);
         }
