@@ -10,10 +10,28 @@
     <relativePath>../org.openl.rules.studio-pom/pom.xml</relativePath>
   </parent>
 
+  <packaging>war</packaging>
+
   <artifactId>org.openl.rules.webstudio</artifactId>
   <name>Exigen WebStudio Web Resources</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <description>Exigen WebStudio Web Resources</description>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <configuration>
+            <warSourceDirectory>webapps/webstudio</warSourceDirectory>
+          </configuration>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+  </build>
 
   <repositories>
     <repository>
