@@ -69,12 +69,7 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security.standalone</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security.integration.ipb</artifactId>
+      <artifactId>org.openl.rules.security</artifactId>
     </dependency>
 
     <dependency>
