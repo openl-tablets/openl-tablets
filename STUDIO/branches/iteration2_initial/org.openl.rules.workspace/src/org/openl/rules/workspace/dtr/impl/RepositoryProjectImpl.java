@@ -32,8 +32,11 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
     }
 
     public RepositoryProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        // TODO implement
-        throw new ProjectException("Failed to resolve ''{0}''.", null, artefactPath.getStringValue());
+        RepositoryProjectArtefact a = this;
+        for (String s : artefactPath.getSegments()) {
+            a = a.getArtefact(s);
+        }
+        return a;
     }
 
     public ProjectVersion getVersion() {
@@ -59,7 +62,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
                 ProjectVersion lowVer = new RepositoryProjectVersionImpl(rDep.getLowerLimit(), null);
 
                 ProjectVersion upVer = null;
-                CommonVersion dependencyUpperLimit = rDep.getUpperLimit(); 
+                CommonVersion dependencyUpperLimit = rDep.getUpperLimit();
                 if (dependencyUpperLimit != null){
                     upVer = new RepositoryProjectVersionImpl(dependencyUpperLimit, null);
                 }

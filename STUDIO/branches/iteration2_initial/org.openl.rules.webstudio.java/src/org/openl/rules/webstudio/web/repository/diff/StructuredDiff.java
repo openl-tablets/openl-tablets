@@ -45,14 +45,15 @@ import java.util.TreeSet;
 
 
 /**
- * Structured diff builder.
+ * Compares two projects, returning a list of the additions, deletions  and
+ * changes between them.
  *
  * @author Andrey Naumenko
  */
-public class ProjectDiff {
+public class StructuredDiff {
     private static final String SEPARATOR = "/";
     private static final String XLS_INNER_STRUCTURE_SEPARATOR = "//";
-    private static final Log log = LogFactory.getLog(ProjectDiff.class);
+    private static final Log log = LogFactory.getLog(StructuredDiff.class);
     private static final Comparator<String> pathComparator = new Comparator<String>() {
             public int compare(String path1, String path2) {
                 if (isFolder(path1) == isFolder(path2)) {
@@ -275,11 +276,11 @@ public class ProjectDiff {
 
         while ((i1 < n1) || (i2 < n2)) {
             if (i2 == n2) {
-                DiffElement de = getDiffElement(list1.get(i1), DiffType.LeftInjection);
+                DiffElement de = getDiffElement(list1.get(i1), DiffType.Addition);
                 result.add(de);
                 i1++;
             } else if (i1 == n1) {
-                DiffElement de = getDiffElement(list2.get(i2), DiffType.RightInjection);
+                DiffElement de = getDiffElement(list2.get(i2), DiffType.Deletion);
                 result.add(de);
                 i2++;
             } else {
@@ -287,21 +288,23 @@ public class ProjectDiff {
                 String path2 = list2.get(i2);
                 int v = comparator.compare(path1, path2);
                 if (v < 0) {
-                    DiffElement de = getDiffElement(path1, DiffType.LeftInjection);
+                    DiffElement de = getDiffElement(path1, DiffType.Addition);
                     result.add(de);
                     i1++;
                 } else if (v > 0) {
-                    DiffElement de = getDiffElement(path2, DiffType.RightInjection);
+                    DiffElement de = getDiffElement(path2, DiffType.Deletion);
                     result.add(de);
                     i2++;
                 } else {
                     DiffElement de = getDiffElement(path1, null);
                     if (!isFolder(path1) && !isFolder(path2)) {
                         boolean equal = compareFiles(path1, path2, p1, p2);
-                        de.diffType = equal ? DiffType.Equal : DiffType.DifferentChildren;
+                        de.setDiffType(equal ? DiffType.Equal
+                            : DiffType.EqualWithDifferentChildren);
                     } else {
                         boolean equal = compareFolders(path1, path2, p1, p2);
-                        de.diffType = equal ? DiffType.Equal : DiffType.DifferentChildren;
+                        de.setDiffType(equal ? DiffType.Equal
+                            : DiffType.EqualWithDifferentChildren);
                     }
                     result.add(de);
                     i1++;
@@ -314,20 +317,20 @@ public class ProjectDiff {
 
     private static DiffElement getDiffElement(String path, DiffType diffType) {
         DiffElement de = new DiffElement();
-        de.diffType = diffType;
+        de.setDiffType(diffType);
 
         if (isFolder(path)) {
             if (isSheetPath(path)) {
-                de.isSheet = true;
+                de.setIsSheet(true);
             }
-            de.isFolder = true;
+            de.setIsFolder(true);
             path = path.substring(0, path.length() - 1);
         } else if (isXlsFile(path)) {
             de.setIsXlsFile(true);
         }
 
-        de.path = path;
-        de.name = path.substring(path.lastIndexOf(SEPARATOR) + 1);
+        de.setPath(path);
+        de.setName(path.substring(path.lastIndexOf(SEPARATOR) + 1));
 
         return de;
     }
@@ -413,73 +416,5 @@ public class ProjectDiff {
         }
 
         return isEqual;
-    }
-
-    public static class DiffElement {
-        public boolean isSheet;
-        public String path;
-        public String name;
-        public DiffType diffType;
-        public List<DiffElement> children = new ArrayList<DiffElement>();
-        public boolean isFolder;
-        public boolean isXlsFile;
-
-        public boolean getIsSheet() {
-            return isSheet;
-        }
-
-        public void setIsSheet(boolean isSheet) {
-            this.isSheet = isSheet;
-        }
-
-        public boolean getIsXlsFile() {
-            return isXlsFile;
-        }
-
-        public void setIsXlsFile(boolean isXlsFile) {
-            this.isXlsFile = isXlsFile;
-        }
-
-        public boolean getIsFolder() {
-            return isFolder;
-        }
-
-        public void setIsFolder(boolean isFolder) {
-            this.isFolder = isFolder;
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        public void setPath(String path) {
-            this.path = path;
-        }
-
-        public DiffType getDiffType() {
-            return diffType;
-        }
-
-        public void setDiffType(DiffType diffType) {
-            this.diffType = diffType;
-        }
-
-        public List<DiffElement> getChildren() {
-            return children;
-        }
-
-        public void setChildren(List<DiffElement> children) {
-            this.children = children;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
-    public static enum DiffType {LeftInjection, RightInjection, Equal, DifferentChildren;
     }
 }

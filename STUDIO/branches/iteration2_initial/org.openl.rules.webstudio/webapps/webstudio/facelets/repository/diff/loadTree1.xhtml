@@ -12,8 +12,8 @@
         <node text="#{diffController.project1.name}" id="#{diffController.project1.name}" select="yes" open="1" child="1">
           <t:dataList var="item" value="#{diffController.diffElements}">
             <node text="#{item.name}" id="#{item.path}" child="#{(item.isFolder||item.isXlsFile||item.isSheet)?'1':'0'}"
-              open="#{item.diffType=='DifferentChildren'?'1':'0'}"
-              style="#{item.diffType=='LeftInjection'?'background-color: #c0dcc0;':(item.diffType=='RightInjection'?'text-decoration: line-through;':'')}"
+              open="#{item.diffType=='EqualWithDifferentChildren'?'1':'0'}"
+              style="#{item.diffType=='Addition'?'background-color: #c0dcc0;':(item.diffType=='Deletion'?'text-decoration: line-through;':'')}"
               im1="#{item.isXlsFile?'excel.gif':(item.isSheet?'sheet.gif':'')}"
               im2="#{item.isXlsFile?'excel.gif':(item.isSheet?'sheet.gif':'')}" />
           </t:dataList>
@@ -25,8 +25,8 @@
       <tree id="#{diffController.path}">
         <t:dataList var="item" value="#{diffController.diffElements}">
           <node text="#{item.name}" id="#{item.path}" child="#{(item.isFolder||item.isXlsFile||item.isSheet)?'1':'0'}"
-            open="#{item.diffType=='DifferentChildren'?'1':'0'}"
-            style="#{item.diffType=='LeftInjection'?'background-color: #c0dcc0;':(item.diffType=='RightInjection'?'text-decoration: line-through;':'')}"
+            open="#{item.diffType=='EqualWithDifferentChildren'?'1':'0'}"
+            style="#{item.diffType=='Addition'?'background-color: #c0dcc0;':(item.diffType=='Deletion'?'text-decoration: line-through;':'')}"
             im1="#{item.isXlsFile?'excel.gif':(item.isSheet?'sheet.gif':'')}"
             im2="#{item.isXlsFile?'excel.gif':(item.isSheet?'sheet.gif':'')}" />
         </t:dataList>
