@@ -44,15 +44,15 @@ import java.util.TreeSet;
 
 
 /**
- * Compares two projects, returning a list of the additions, deletions  and
+ * Compares two project folders, returning a list of the additions, deletions  and
  * changes between them.
  *
  * @author Andrey Naumenko
  */
 public class StructuredDiff {
+    private static final Log log = LogFactory.getLog(StructuredDiff.class);
     private static final String SEPARATOR = "/";
     private static final String XLS_INNER_STRUCTURE_SEPARATOR = "//";
-    private static final Log log = LogFactory.getLog(StructuredDiff.class);
     private static final Comparator<String> pathComparator = new Comparator<String>() {
             public int compare(String path1, String path2) {
                 if (isFolder(path1) == isFolder(path2)) {
@@ -62,18 +62,30 @@ public class StructuredDiff {
                 }
             }
         };
-        public static final Comparator<ProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<ProjectArtefact>() {
-            public int compare(ProjectArtefact o1, ProjectArtefact o2) {
-                if (o1.isFolder() == o2.isFolder()) {
-                    return o1.getName().compareTo(o2.getName());
+    public static final Comparator<ProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<ProjectArtefact>() {
+            public int compare(ProjectArtefact a1, ProjectArtefact a2) {
+                if (a1.isFolder() == a2.isFolder()) {
+                    return a1.getName().compareTo(a2.getName());
                 } else {
-                    return (o1.isFolder() ? (-1) : 1);
+                    return (a1.isFolder() ? (-1) : 1);
                 }
             }
         };
 
+    /**
+     * Returns map of {sheets => table names} for the given xls file. Path is
+     * expected to have be given in the following format
+     * "/tutorial1/rules/Tutorial_1.xls".
+     *
+     * @param project
+     * @param xlsFilePath
+     * @param project2 TODO
+     * @param xlsFilePath2 TODO
+     *
+     * @return
+     */
     private static Map<String, TreeSet<String>> getSheetsAndTables(Project project,
-        String xlsFilePath) {
+        String xlsFilePath, Project project2, String xlsFilePath2) {
         Map<String, TreeSet<String>> sheet2Tables = new TreeMap<String, TreeSet<String>>();
 
         ProjectArtefact a;
@@ -81,7 +93,15 @@ public class StructuredDiff {
             a = project.getArtefactByPath(new ArtefactPathImpl(removeProjectName(
                             xlsFilePath)));
         } catch (ProjectException e) {
-            return sheet2Tables;
+            if (project2 == null) {
+                return sheet2Tables;
+            }
+            try {
+                a = project2.getArtefactByPath(new ArtefactPathImpl(removeProjectName(
+                                xlsFilePath2)));
+            } catch (ProjectException e1) {
+                return sheet2Tables;
+            }
         }
 
         InputStream is;
@@ -126,6 +146,7 @@ public class StructuredDiff {
 
             String tableName = ((IGridTable) table.getGridTable()).getStringValue(0, 0);
             tableName = StringUtils.substring(tableName, 0, 20);
+            tableName = tableName.replace("/", "");
             tableName += "...";
 
             sheet2Tables.get(sheetName).add(tableName);
@@ -147,35 +168,69 @@ public class StructuredDiff {
         return org.springframework.util.StringUtils.endsWithIgnoreCase(path, SEPARATOR);
     }
 
-    private static TreeSet<String> getTableNames(Project project, final String path) {
-        int sheetNameStartPosition = path.indexOf(XLS_INNER_STRUCTURE_SEPARATOR);
-        String xlsFilePath = path.substring(0, sheetNameStartPosition);
-        String sheetName = path.substring(sheetNameStartPosition + 2);
+    /**
+     * Returns table paths of the given sheet of xls file. Path is expected to
+     * have the following format "/tutorial1/rules/Tutorial_1.xls//Intro".
+     *
+     * @param project
+     * @param sheetPath
+     * @param project2 TODO
+     * @param sheetPath2 TODO
+     *
+     * @return
+     */
+    private static TreeSet<String> getTablePaths(Project project, final String sheetPath,
+        Project project2, String sheetPath2) {
+        int separatorPosition = sheetPath.indexOf(XLS_INNER_STRUCTURE_SEPARATOR);
+        String xlsFilePath = sheetPath.substring(0, separatorPosition);
+        String sheetName = sheetPath.substring(separatorPosition + 2);
+        if (isFolder(sheetPath)) {
+            sheetName = sheetName.substring(0, sheetName.length() - 1);
+        }
 
-        TreeSet<String> tableNames = getSheetsAndTables(project, xlsFilePath)
-                .get(sheetName);
+        TreeSet<String> tableNames = getSheetsAndTables(project, xlsFilePath, project2,
+                xlsFilePath).get(sheetName);
+
+        if (tableNames == null) {
+            return null;
+        }
+
+        @SuppressWarnings("unchecked")
         TreeSet<String> transformedTableNames = new TreeSet<String>(CollectionUtils
                     .collect(tableNames,
                         new Transformer() {
                         public Object transform(Object obj) {
-                            String s = (String) obj;
-                            return path + SEPARATOR + s;
+                            String tableName = (String) obj;
+                            return sheetPath + SEPARATOR + tableName;
                         }
                     }));
         return transformedTableNames;
     }
 
-    private static TreeSet<String> getSheetNames(Project project, final String xlsFilePath) {
+    /**
+     * Returns sheet paths for the given xls file. Path is expected to have the
+     * following format "/tutorial1/rules/Tutorial_1.xls".
+     *
+     * @param project
+     * @param xlsFilePath
+     * @param project2 TODO
+     * @param xlsFilePath2 TODO
+     *
+     * @return
+     */
+    private static TreeSet<String> getSheetPaths(Project project,
+        final String xlsFilePath, Project project2, String xlsFilePath2) {
         TreeSet<String> sheetNames = new TreeSet<String>(getSheetsAndTables(project,
-                    xlsFilePath).keySet());
+                    xlsFilePath, project2, xlsFilePath2).keySet());
 
+        @SuppressWarnings("unchecked")
         TreeSet<String> transformedSheetNames = new TreeSet<String>(CollectionUtils
                     .collect(sheetNames,
                         new Transformer() {
                         public Object transform(Object obj) {
-                            String s = (String) obj;
-                            return xlsFilePath + XLS_INNER_STRUCTURE_SEPARATOR + s
-                                + SEPARATOR;
+                            String sheetName = (String) obj;
+                            return xlsFilePath + XLS_INNER_STRUCTURE_SEPARATOR
+                                + sheetName + SEPARATOR;
                         }
                     }));
         return transformedSheetNames;
@@ -197,11 +252,11 @@ public class StructuredDiff {
         TreeSet<String> items2;
 
         if (isSheetPath(path1)) {
-            items1 = getTableNames(p1, path1);
-            items2 = getTableNames(p2, path2);
+            items1 = getTablePaths(p1, path1, p2, path2);
+            items2 = getTablePaths(p2, path2, p1, path1);
         } else if (isXlsFile(path1)) {
-            items1 = getSheetNames(p1, path1);
-            items2 = getSheetNames(p2, path2);
+            items1 = getSheetPaths(p1, path1, p2, path2);
+            items2 = getSheetPaths(p2, path2, p1, path1);
         } else {
             items1 = new TreeSet<String>(pathComparator);
 
@@ -228,8 +283,8 @@ public class StructuredDiff {
             } catch (ProjectException e) {}
         }
 
-        List<DiffElement> elements = getDiffElements(items1, items2, pathComparator, p1,
-                p2);
+        List<DiffElement> elements = getDiffElements(p1, p2, items1, items2,
+                pathComparator);
         return elements;
     }
 
@@ -257,21 +312,21 @@ public class StructuredDiff {
 
     /**
      * Creates a list that contains differences and similarities between
-     * f1.getArtefacts() and f2.getArtefacts(). Standard merging algorithm for sorted
-     * arrays is used.
+     * f1.getArtefacts() and f2.getArtefacts(). Based on standard merging algorithm for
+     * sorted arrays.
      *
+     * @param project1
+     * @param project2
      * @param items1
      * @param items2
-     * @param comparator DOCUMENT ME!
-     * @param p1 DOCUMENT ME!
-     * @param p2 DOCUMENT ME!
+     * @param itemsComparator
      *
      * @return
      *
      * @throws ProjectException
      */
-    private static List<DiffElement> getDiffElements(TreeSet<String> items1,
-        TreeSet<String> items2, Comparator<String> comparator, Project p1, Project p2)
+    private static List<DiffElement> getDiffElements(Project project1, Project project2,
+        TreeSet<String> items1, TreeSet<String> items2, Comparator<String> itemsComparator)
         throws ProjectException
     {
         List<DiffElement> result = new ArrayList<DiffElement>();
@@ -284,35 +339,34 @@ public class StructuredDiff {
 
         while ((i1 < n1) || (i2 < n2)) {
             if (i2 == n2) {
-                DiffElement de = getDiffElement(list1.get(i1), DiffType.Addition);
+                DiffElement de = buildDiffElement(list1.get(i1), DiffType.Addition);
                 result.add(de);
                 i1++;
             } else if (i1 == n1) {
-                DiffElement de = getDiffElement(list2.get(i2), DiffType.Deletion);
+                DiffElement de = buildDiffElement(list2.get(i2), DiffType.Deletion);
                 result.add(de);
                 i2++;
             } else {
                 String path1 = list1.get(i1);
                 String path2 = list2.get(i2);
-                int v = comparator.compare(path1, path2);
+                int v = itemsComparator.compare(path1, path2);
                 if (v < 0) {
-                    DiffElement de = getDiffElement(path1, DiffType.Addition);
+                    DiffElement de = buildDiffElement(path1, DiffType.Addition);
                     result.add(de);
                     i1++;
                 } else if (v > 0) {
-                    DiffElement de = getDiffElement(path2, DiffType.Deletion);
+                    DiffElement de = buildDiffElement(path2, DiffType.Deletion);
                     result.add(de);
                     i2++;
                 } else {
-                    DiffElement de = getDiffElement(path1, null);
+                    DiffElement de = buildDiffElement(path1, null);
                     if (!isFolder(path1) && !isFolder(path2)) {
-                        boolean equal = compareFiles(path1, path2, p1, p2);
-                        de.setDiffType(equal ? DiffType.Equal
-                            : DiffType.EqualWithDifferentChildren);
+                        DiffType diffType = compareFiles(project1, project2, path1, path2);
+                        de.setDiffType(diffType);
                     } else {
-                        boolean equal = compareFolders(path1, path2, p1, p2);
-                        de.setDiffType(equal ? DiffType.Equal
-                            : DiffType.EqualWithDifferentChildren);
+                        DiffType diffType = compareFolders(project1, project2, path1,
+                                path2);
+                        de.setDiffType(diffType);
                     }
                     result.add(de);
                     i1++;
@@ -323,7 +377,7 @@ public class StructuredDiff {
         return result;
     }
 
-    private static DiffElement getDiffElement(String path, DiffType diffType) {
+    private static DiffElement buildDiffElement(String path, DiffType diffType) {
         DiffElement de = new DiffElement();
         de.setDiffType(diffType);
 
@@ -346,53 +400,62 @@ public class StructuredDiff {
     /**
      * Compares two XLS files.
      *
+     * @param project1
+     * @param project2
      * @param path1
      * @param path2
-     * @param p1 DOCUMENT ME!
-     * @param p2 DOCUMENT ME!
      *
      * @return
      */
-    private static boolean compareFiles(String path1, String path2, Project p1, Project p2) {
+    private static DiffType compareFiles(Project project1, Project project2,
+        String path1, String path2) {
         if (!isXlsFile(path1)) {
-            return true;
+            return DiffType.Equal;
         }
 
-        Map<String, TreeSet<String>> sheet2Tables1 = getSheetsAndTables(p1, path1);
-        Map<String, TreeSet<String>> sheet2Tables2 = getSheetsAndTables(p2, path2);
+        Map<String, TreeSet<String>> sheet2Tables1 = getSheetsAndTables(project1, path1,
+                null, null);
+        Map<String, TreeSet<String>> sheet2Tables2 = getSheetsAndTables(project2, path2,
+                null, null);
 
         boolean equal = sheet2Tables1.equals(sheet2Tables2);
-        return equal;
+        return equal ? DiffType.Equal : DiffType.EqualWithDifferentChildren;
     }
 
     /**
      * Compares two folders.
      *
+     * @param project1
+     * @param project2
      * @param path1
      * @param path2
-     * @param p1 DOCUMENT ME!
-     * @param p2 DOCUMENT ME!
      *
      * @return
      *
      * @throws ProjectException
      */
-    private static boolean compareFolders(String path1, String path2, Project p1,
-        Project p2) throws ProjectException
+    private static DiffType compareFolders(Project project1, Project project2,
+        String path1, String path2) throws ProjectException
     {
         if (isSheetPath(path1)) {
-            Map<String, TreeSet<String>> sheet2Tables1 = getSheetsAndTables(p1, path1);
-            Map<String, TreeSet<String>> sheet2Tables2 = getSheetsAndTables(p2, path2);
+            TreeSet<String> tableNames1 = getTablePaths(project1, path1, null, null);
+            TreeSet<String> tableNames2 = getTablePaths(project2, path2, null, null);
 
-            boolean equal = sheet2Tables1.keySet().equals(sheet2Tables2.keySet());
-            return equal;
+            if (tableNames1 == null) {
+                return DiffType.Deletion;
+            } else if (tableNames2 == null) {
+                return DiffType.Addition;
+            } else {
+                boolean equal = tableNames1.equals(tableNames2);
+                return equal ? DiffType.Equal : DiffType.EqualWithDifferentChildren;
+            }
         }
 
         Set<ProjectArtefact> s1 = new TreeSet<ProjectArtefact>(ARTEFACT_COMPARATOR);
         Set<ProjectArtefact> s2 = new TreeSet<ProjectArtefact>(ARTEFACT_COMPARATOR);
 
-        ProjectFolder f1 = getProjectFolder(p1, path1);
-        ProjectFolder f2 = getProjectFolder(p2, path2);
+        ProjectFolder f1 = getProjectFolder(project1, path1);
+        ProjectFolder f2 = getProjectFolder(project2, path2);
 
         for (ProjectArtefact a : f1.getArtefacts()) {
             s1.add(a);
@@ -403,26 +466,28 @@ public class StructuredDiff {
         }
 
         if (!s1.equals(s2)) {
-            return false;
+            return DiffType.EqualWithDifferentChildren;
         }
 
         Iterator<ProjectArtefact> it1 = s1.iterator();
         Iterator<ProjectArtefact> it2 = s2.iterator();
 
-        boolean isEqual = true;
-        while (isEqual && it1.hasNext()) {
+        DiffType diffType = DiffType.Equal;
+        while ((diffType == DiffType.Equal) && it1.hasNext()) {
             ProjectArtefact a1 = it1.next();
             ProjectArtefact a2 = it2.next();
 
             if (a1.isFolder()) {
-                isEqual = compareFolders(a1.getArtefactPath().getStringValue(),
-                        a2.getArtefactPath().getStringValue(), p1, p2);
+                diffType = compareFolders(project1, project2,
+                        a1.getArtefactPath().getStringValue(),
+                        a2.getArtefactPath().getStringValue());
             } else {
-                isEqual = compareFiles(a1.getArtefactPath().getStringValue(),
-                        a2.getArtefactPath().getStringValue(), p1, p2);
+                diffType = compareFiles(project1, project2,
+                        a1.getArtefactPath().getStringValue(),
+                        a2.getArtefactPath().getStringValue());
             }
         }
 
-        return isEqual;
+        return diffType;
     }
 }
