@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository.diff;
+package org.openl.rules.diff;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
@@ -18,7 +18,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -60,6 +59,15 @@ public class StructuredDiff {
                     return path1.compareTo(path2);
                 } else {
                     return (isFolder(path1) ? (-1) : 1);
+                }
+            }
+        };
+        public static final Comparator<ProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<ProjectArtefact>() {
+            public int compare(ProjectArtefact o1, ProjectArtefact o2) {
+                if (o1.isFolder() == o2.isFolder()) {
+                    return o1.getName().compareTo(o2.getName());
+                } else {
+                    return (o1.isFolder() ? (-1) : 1);
                 }
             }
         };
@@ -380,8 +388,8 @@ public class StructuredDiff {
             return equal;
         }
 
-        Set<ProjectArtefact> s1 = new TreeSet<ProjectArtefact>(RepositoryUtils.ARTEFACT_COMPARATOR);
-        Set<ProjectArtefact> s2 = new TreeSet<ProjectArtefact>(RepositoryUtils.ARTEFACT_COMPARATOR);
+        Set<ProjectArtefact> s1 = new TreeSet<ProjectArtefact>(ARTEFACT_COMPARATOR);
+        Set<ProjectArtefact> s2 = new TreeSet<ProjectArtefact>(ARTEFACT_COMPARATOR);
 
         ProjectFolder f1 = getProjectFolder(p1, path1);
         ProjectFolder f2 = getProjectFolder(p2, path2);

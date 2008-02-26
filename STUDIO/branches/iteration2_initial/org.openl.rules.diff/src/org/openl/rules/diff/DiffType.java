@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository.diff;
+package org.openl.rules.diff;
 
 /**
  * Difference type.

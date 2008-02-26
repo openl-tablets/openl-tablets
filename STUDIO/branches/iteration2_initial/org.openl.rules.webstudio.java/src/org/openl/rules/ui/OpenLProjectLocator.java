@@ -92,8 +92,8 @@ public class OpenLProjectLocator
     String startProject = System
         .getProperty(IRulesLaunchConstants.START_PROJECT_PROPERTY_NAME);
 
-    return startProject == null ? ASelector.selectAll("") : ASelector
-        .selectObject(startProject);
+    return null/*startProject == null ? ASelector.selectAll("") : ASelector
+        .selectObject(startProject)*/;
     }
 
     public List<File> listOpenLFolders()
