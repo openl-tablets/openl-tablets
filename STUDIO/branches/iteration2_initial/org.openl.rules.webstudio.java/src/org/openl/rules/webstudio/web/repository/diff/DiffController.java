@@ -3,6 +3,8 @@ package org.openl.rules.webstudio.web.repository.diff;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.rules.diff.DiffElement;
+import org.openl.rules.diff.StructuredDiff;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.workspace.abstracts.Project;
