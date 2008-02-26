@@ -1,0 +1,36 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <h:panelGrid columns="2" columnClasses="label,">
+    <h:outputLabel for="#{prefix}effectiveDate" value="Effective date" />
+
+    <rich:calendar id="#{prefix}effectiveDate" value="#{repositoryTreeController.effectiveDate}" popup="true" enableManualInput="true"
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
+      rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.timeZone}">
+      <f:converter converterId="org.openl.DateConverter" />
+    </rich:calendar>
+
+    <h:outputText value="#{repositoryTreeController.effectiveDate}" rendered="#{!artefact.project.checkedOut}">
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.timeZone}" />
+    </h:outputText>
+
+    <h:outputLabel for="#{prefix}expirationDate" value="Expiration date" />
+    <rich:calendar id="#{prefix}expirationDate" value="#{repositoryTreeController.expirationDate}" popup="true" enableManualInput="true"
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
+      rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.timeZone}">
+      <f:converter converterId="org.openl.DateConverter" />
+    </rich:calendar>
+    <h:outputText value="#{repositoryTreeController.expirationDate}" rendered="#{!artefact.project.checkedOut}">
+      <f:convertDateTime pattern="#{formatPatterns.datePattern}" timeZone="#{formatPatterns.timeZone}" />
+    </h:outputText>
+
+    <h:outputLabel for="#{prefix}lineOfBusiness" value="Line of business" />
+    <h:inputText id="#{prefix}lineOfBusiness" maxlength="100" size="20" value="#{artefact.lineOfBusiness}" rendered="#{artefact.project.checkedOut}"/>
+    <h:outputText value="#{repositoryTreeController.lineOfBusiness}" rendered="#{!artefact.project.checkedOut}"/>
+  </h:panelGrid>
+</ui:composition>
