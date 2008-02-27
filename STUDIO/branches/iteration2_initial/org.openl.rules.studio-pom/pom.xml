@@ -381,6 +381,26 @@
       </dependency>
 
       <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>2.5</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
         <groupId>com.sun.facelets</groupId>
         <artifactId>jsf-facelets</artifactId>
         <version>1.1.13</version>
@@ -399,7 +419,6 @@
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -421,6 +440,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-support</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
 
@@ -428,6 +451,20 @@
         <groupId>org.acegisecurity</groupId>
         <artifactId>acegi-security-tiger</artifactId>
         <version>1.0.6</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
