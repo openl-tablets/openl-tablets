@@ -68,6 +68,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void open() throws ProjectException {
+        check(PRIVILEGE_READ);
+
         if (isLocalOnly()) {
             throw new ProjectException("Project ''{0}'' cannot be opened since it is local only!", null, getName());
         }
@@ -95,7 +97,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
     public void checkOut() throws ProjectException {
         check(PRIVILEGE_EDIT);
-        
+
         if (isLocalOnly()) {
             throw new ProjectException("Project ''{0}'' cannot be checked out since it is local only!", null, getName());
         }
@@ -123,8 +125,6 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void checkIn(int major, int minor) throws ProjectException {
-        check(PRIVILEGE_EDIT);
-
         if (!isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' must be checked-out before checking-in", null, getName());
         }
@@ -140,7 +140,6 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void checkIn() throws ProjectException {
-        check(PRIVILEGE_EDIT);
         // do not rise version
         checkIn(0, 0);
     }

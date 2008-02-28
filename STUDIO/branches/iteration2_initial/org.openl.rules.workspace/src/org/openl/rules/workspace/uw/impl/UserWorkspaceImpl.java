@@ -228,8 +228,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     // --- protected
 
     protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
-        check(PRIVILEGE_READ);
-
         return localWorkspace.addProject(repositoryProject);
     }
 
