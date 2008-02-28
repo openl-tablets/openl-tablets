@@ -11,8 +11,6 @@ import org.openl.rules.workspace.abstracts.ProjectResource;
 public interface UserWorkspaceProjectFolder extends ProjectFolder, UserWorkspaceProjectArtefact {
     Collection<? extends UserWorkspaceProjectArtefact> getArtefacts();
 
-	@Secured (Privileges.PRIVILEGE_EDIT)
-    UserWorkspaceProjectFolder addFolder(String name) throws ProjectException;
-	@Secured (Privileges.PRIVILEGE_EDIT)
-    UserWorkspaceProjectResource addResource(String name, ProjectResource resource) throws ProjectException;
+	UserWorkspaceProjectFolder addFolder(String name) throws ProjectException;
+	UserWorkspaceProjectResource addResource(String name, ProjectResource resource) throws ProjectException;
 }
