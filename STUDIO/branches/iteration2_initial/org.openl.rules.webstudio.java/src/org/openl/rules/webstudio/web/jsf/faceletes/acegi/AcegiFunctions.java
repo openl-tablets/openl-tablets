@@ -11,7 +11,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.openl.rules.security.SecurityUtil;
+import org.openl.rules.security.SecurityUtils;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -82,7 +82,7 @@ public class AcegiFunctions {
 
     public static boolean isGranted(String authority) {
         try {
-            SecurityUtil.check(authority);
+            SecurityUtils.check(authority);
         } catch (AcegiSecurityException ase) {
             return false;
         }
