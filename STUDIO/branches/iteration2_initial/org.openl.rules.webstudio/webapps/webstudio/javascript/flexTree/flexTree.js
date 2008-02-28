@@ -1243,7 +1243,8 @@ flexTree.prototype.openItem = function(itemId) {
 flexTree.prototype._openItem = function(item) {
   var state = this._getOpenState(item);
   if ((state < 0) || (((this.XMLsource) && (!item.XMLload)))) {
-    if (this.onOpenHandler && !this.onOpenHandler(item.id, state)) return 0;
+    // commented due to infinite recursion
+    //if (this.onOpenHandler && !this.onOpenHandler(item.id, state)) return 0;
 
     this._HideShow(item, 2);
   }
