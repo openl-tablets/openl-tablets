@@ -2,9 +2,7 @@ package org.openl.rules.workspace.uw;
 
 import java.util.Collection;
 
-import org.acegisecurity.annotation.Secured;
 import org.openl.rules.repository.CommonVersion;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
@@ -15,12 +13,9 @@ public interface UserWorkspaceProject extends Project, UserWorkspaceProjectFolde
     void open() throws ProjectException;
     void openVersion(CommonVersion version) throws ProjectException;
 
-    @Secured (Privileges.PRIVILEGE_EDIT)
     void checkOut() throws ProjectException;
-	@Secured (Privileges.PRIVILEGE_EDIT)
-    void checkIn() throws ProjectException;
-	@Secured (Privileges.PRIVILEGE_EDIT)
-    void checkIn(int major, int minor) throws ProjectException;
+	void checkIn() throws ProjectException;
+	void checkIn(int major, int minor) throws ProjectException;
 
     Collection<ProjectVersion> getVersions();
 

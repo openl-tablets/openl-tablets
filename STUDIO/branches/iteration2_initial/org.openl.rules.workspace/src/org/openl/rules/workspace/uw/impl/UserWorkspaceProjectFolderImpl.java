@@ -3,8 +3,6 @@ package org.openl.rules.workspace.uw.impl;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.acegisecurity.annotation.Secured;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
@@ -27,8 +25,8 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         updateArtefact(localFolder, dtrFolder);
     }
 
-	@Secured (Privileges.PRIVILEGE_EDIT)
     public UserWorkspaceProjectFolder addFolder(String name) throws ProjectException {
+
         if (isReadOnly()) {
             throw new ProjectException("Cannot add folder ''{0}'' in read only mode", null, name);
         } else {
@@ -38,7 +36,6 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         }
     }
 
-	@Secured (Privileges.PRIVILEGE_EDIT)
     public UserWorkspaceProjectResource addResource(String name, ProjectResource resource) throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot add resource ''{0}'' in read only mode", null, name);
@@ -61,7 +58,7 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
                 result.add(wrapRepositoryArtefact(rpa));
             }
         }
-        
+
         return result;
     }
 
@@ -72,8 +69,7 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
             return wrapRepositoryArtefact(dtrFolder.getArtefact(name));
         }
     }
-    
-	@Secured (Privileges.PRIVILEGE_EDIT)
+
     public void delete() throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot delete in read only mode!", null);
@@ -95,22 +91,22 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
     }
 
     // --- protected
-    
+
     protected void updateArtefact(LocalProjectFolder localFolder, RepositoryProjectFolder dtrFolder) {
         super.updateArtefact(localFolder, dtrFolder);
 
         this.localFolder = localFolder;
         this.dtrFolder = dtrFolder;
     }
-    
+
     protected UserWorkspaceProjectFolder wrapFolder(LocalProjectFolder local, RepositoryProjectFolder remote) {
         return new UserWorkspaceProjectFolderImpl(getProject(), local, remote);
     }
-    
+
     protected UserWorkspaceProjectResource wrapFile(LocalProjectResource local, RepositoryProjectResource remote) {
         return new UserWorkspaceProjectResourceImpl(getProject(), local, remote);
     }
-    
+
     protected UserWorkspaceProjectArtefact wrapLocalArtefact(LocalProjectArtefact lpa) {
         RepositoryProjectArtefact rpa = null;
         boolean isRemoteFolder = false;
@@ -121,21 +117,21 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
             }
         } catch (ProjectException e) {
             // ignore
-        }        
+        }
         if (lpa.isFolder()) {
             if (!isRemoteFolder) rpa = null;
-            return wrapFolder((LocalProjectFolder)lpa, (RepositoryProjectFolder)rpa);
+            return wrapFolder((LocalProjectFolder) lpa, (RepositoryProjectFolder) rpa);
         } else {
             if (isRemoteFolder) rpa = null;
-            return wrapFile((LocalProjectResource)lpa, (RepositoryProjectResource)rpa);
+            return wrapFile((LocalProjectResource) lpa, (RepositoryProjectResource) rpa);
         }
     }
-    
+
     protected UserWorkspaceProjectArtefact wrapRepositoryArtefact(RepositoryProjectArtefact rpa) {
         if (rpa.isFolder()) {
-            return wrapFolder(null, (RepositoryProjectFolder)rpa);
+            return wrapFolder(null, (RepositoryProjectFolder) rpa);
         } else {
-            return wrapFile(null, (RepositoryProjectResource)rpa);
+            return wrapFile(null, (RepositoryProjectResource) rpa);
         }
     }
 }

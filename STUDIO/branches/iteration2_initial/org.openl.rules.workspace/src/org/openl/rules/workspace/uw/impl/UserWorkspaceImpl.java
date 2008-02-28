@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.repository.CommonVersion;
+import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.SecurityUtils.check;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
@@ -63,6 +65,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public Collection<UserWorkspaceProject> getProjects() {
+        check(PRIVILEGE_VIEW);
+
         try {
             refreshRulesProjects();
         } catch (ProjectException e) {
@@ -78,6 +82,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public UserWorkspaceProject getProject(String name) throws ProjectException {
+        check(PRIVILEGE_VIEW);
+
         refreshRulesProjects();
         UserWorkspaceProject uwp = userRulesProjects.get(name);
 
@@ -104,6 +110,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public ProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
+        check(PRIVILEGE_VIEW);
+
         String projectName = artefactPath.segment(0);
         UserWorkspaceProject uwp = getProject(projectName);
 
@@ -189,6 +197,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void deploy(DeploymentDescriptorProject deployProject) throws DeploymentException, RepositoryException {
+        check(PRIVILEGE_DEPLOY);
+
         Collection<ProjectDescriptor> projectDescriptors = deployProject.getProjectDescriptors();
         Collection<Project> projects = new ArrayList<Project>();
         for (ProjectDescriptor descriptor : projectDescriptors) {
@@ -199,12 +209,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void createProject(String name) throws ProjectException {
+        check(PRIVILEGE_CREATE_EMPTY);
+
         designTimeRepository.createProject(name);
 
         refresh();
     }
 
     public void uploadLocalProject(String name) throws ProjectException {
+        check(PRIVILEGE_CREATE);
+
         createProject(name);
         UserWorkspaceProjectImpl workspaceProject = (UserWorkspaceProjectImpl) getProject(name);
         workspaceProject.checkOutLocal();
@@ -214,20 +228,28 @@ public class UserWorkspaceImpl implements UserWorkspace {
     // --- protected
 
     protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
+        check(PRIVILEGE_READ);
+
         return localWorkspace.addProject(repositoryProject);
     }
 
     protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject, CommonVersion version) throws ProjectException {
+        check(PRIVILEGE_READ);
+
         RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
         return localWorkspace.addProject(oldRP);
     }
 
     protected RepositoryDDProject getDDProjectFor(RepositoryDDProject deploymentProject, CommonVersion version) throws ProjectException {
+        check(PRIVILEGE_VIEW_DEPLOYMENT);
+
         RepositoryDDProject oldDP = designTimeRepository.getDDProject(deploymentProject.getName(), version);
         return oldDP;
     }
 
     protected void checkInProject(LocalProject localProject, int major, int minor) throws RepositoryException {
+        check(PRIVILEGE_EDIT);
+
         designTimeRepository.updateProject(localProject, user, major, minor);
     }
 
@@ -236,15 +258,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void createDDProject(String name) throws RepositoryException {
+        check(PRIVILEGE_CREATE_DEPLOYMENT);
+
         designTimeRepository.createDDProject(name);
     }
 
     public void copyProject(UserWorkspaceProject project, String name) throws ProjectException {
+        check(PRIVILEGE_CREATE);
+
         designTimeRepository.copyProject(project, name, user);
         refresh();
     }
 
     public void copyDDProject(UserWorkspaceDeploymentProject project, String name) throws ProjectException {
+        check(PRIVILEGE_CREATE_DEPLOYMENT);
+
         designTimeRepository.copyDDProject(project, name, user);
         refresh();
     }
@@ -258,10 +286,19 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public DesignTimeRepository getDesignTimeRepository() {
+        /* todo: this method required only for deployment,
+            but it is also used by LocalUploadController to check if a project is present in DTR,
+            we should better introduce special method for this and after that
+            check PRIVILEGE_DEPLOY  
+         */
+        check(PRIVILEGE_CREATE);
+
         return designTimeRepository;
     }
 
     public UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException {
+        check(PRIVILEGE_VIEW_DEPLOYMENT);
+
         try {
             RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
 
@@ -283,6 +320,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException {
+        check(PRIVILEGE_VIEW_DEPLOYMENT);
+        
         refreshDeploymentProjects();
 
         ArrayList<UserWorkspaceDeploymentProject> result = new ArrayList<UserWorkspaceDeploymentProject>(userDProjects.values());
