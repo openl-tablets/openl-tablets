@@ -142,7 +142,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refreshDeploymentProjects();
     }
 
-    protected void refreshRulesProjects() throws RepositoryException {
+    void refreshRulesProjects() throws RepositoryException {
         localWorkspace.refresh();
 
         // add new
@@ -209,8 +209,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void createProject(String name) throws ProjectException {
-        check(PRIVILEGE_CREATE_EMPTY);
-
         designTimeRepository.createProject(name);
 
         refresh();
@@ -225,29 +223,23 @@ public class UserWorkspaceImpl implements UserWorkspace {
         workspaceProject.checkIn();
     }
 
-    // --- protected
+    // --- package private
 
-    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
+    LocalProject openLocalProjectFor(RepositoryProject repositoryProject) throws ProjectException {
         return localWorkspace.addProject(repositoryProject);
     }
 
-    protected LocalProject openLocalProjectFor(RepositoryProject repositoryProject, CommonVersion version) throws ProjectException {
-        check(PRIVILEGE_READ);
-
+    LocalProject openLocalProjectFor(RepositoryProject repositoryProject, CommonVersion version) throws ProjectException {
         RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
         return localWorkspace.addProject(oldRP);
     }
 
-    protected RepositoryDDProject getDDProjectFor(RepositoryDDProject deploymentProject, CommonVersion version) throws ProjectException {
-        check(PRIVILEGE_VIEW_DEPLOYMENT);
-
+    RepositoryDDProject getDDProjectFor(RepositoryDDProject deploymentProject, CommonVersion version) throws ProjectException {
         RepositoryDDProject oldDP = designTimeRepository.getDDProject(deploymentProject.getName(), version);
         return oldDP;
     }
 
-    protected void checkInProject(LocalProject localProject, int major, int minor) throws RepositoryException {
-        check(PRIVILEGE_EDIT);
-
+    void checkInProject(LocalProject localProject, int major, int minor) throws RepositoryException {
         designTimeRepository.updateProject(localProject, user, major, minor);
     }
 
@@ -256,8 +248,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void createDDProject(String name) throws RepositoryException {
-        check(PRIVILEGE_CREATE_DEPLOYMENT);
-
         designTimeRepository.createDDProject(name);
     }
 
@@ -269,8 +259,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void copyDDProject(UserWorkspaceDeploymentProject project, String name) throws ProjectException {
-        check(PRIVILEGE_CREATE_DEPLOYMENT);
-
         designTimeRepository.copyDDProject(project, name, user);
         refresh();
     }
@@ -284,18 +272,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public DesignTimeRepository getDesignTimeRepository() {
-        /* todo: this method required only for deployment,
-            but it is also used by LocalUploadController to check if a project is present in DTR,
-            we should better introduce special method for this and after that
-            check PRIVILEGE_DEPLOY  
-         */
-        check(PRIVILEGE_CREATE);
-
         return designTimeRepository;
     }
 
     public UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException {
-        check(PRIVILEGE_VIEW_DEPLOYMENT);
+        check(PRIVILEGE_VIEW);
 
         try {
             RepositoryDDProject ddp = designTimeRepository.getDDProject(name);
@@ -318,7 +299,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException {
-        check(PRIVILEGE_VIEW_DEPLOYMENT);
+        check(PRIVILEGE_VIEW);
         
         refreshDeploymentProjects();
 
@@ -328,7 +309,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return result;
     }
 
-    protected void refreshDeploymentProjects() throws RepositoryException {
+    void refreshDeploymentProjects() throws RepositoryException {
         List<RepositoryDDProject> dtrProjects = designTimeRepository.getDDProjects();
 
         // add new
