@@ -9,7 +9,7 @@ import org.acegisecurity.context.SecurityContextHolder;
 /**
  * @author Aliaksandr Antonik.
  */
-public final class SecurityUtil {
+public final class SecurityUtils {
     private static AccessDecisionManager accessDecisionManager;
 
     /**
