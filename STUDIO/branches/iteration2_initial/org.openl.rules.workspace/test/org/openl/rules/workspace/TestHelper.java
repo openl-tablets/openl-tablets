@@ -8,14 +8,14 @@ public class TestHelper {
     /**
      * Working folder for tests.
      */
-    public static String FOLDER_TEST = "test_work";
+    public static String FOLDER_TEST = "target/test_work";
 
     private static final WorkspaceUser USER_TEST = new WorkspaceUserImpl("test");
 
     /**
-     * After running this method {@link #FOLDER_TEST} exists inside of <i>current directory</i> and is empty. 
+     * After running this method {@link #FOLDER_TEST} exists inside of <i>current directory</i> and is empty.
      *
-     * @throws IOException if operation fails 
+     * @throws IOException if operation fails
      */
     public static void ensureTestFolderExistsAndClear() throws IOException {
         File testFolder = new File(FOLDER_TEST);

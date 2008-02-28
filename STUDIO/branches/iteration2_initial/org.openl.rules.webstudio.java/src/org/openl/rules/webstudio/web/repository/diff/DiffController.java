@@ -2,19 +2,23 @@ package org.openl.rules.webstudio.web.repository.diff;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.openl.rules.diff.DiffElement;
 import org.openl.rules.diff.StructuredDiff;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import javax.faces.model.SelectItem;
 
 /**
  * Server-side for providing JavaScript flexTree with structured diff data.
@@ -23,13 +27,21 @@ import java.util.List;
  */
 public class DiffController {
     private static Log log = LogFactory.getLog(DiffController.class);
-    private List<DiffElement> diffElements;
+    private List<DiffElement> diffElements = new ArrayList<DiffElement>();
+    private String name;
     private String path;
+    private String id;
+    private String treeId;
     private UserWorkspace userWorkspace;
     private DesignTimeRepository designTimeRepository;
     private RepositoryTreeState repositoryTreeState;
     private Project project1;
     private Project project2;
+    private DiffState diffState;
+
+    public void setDiffState(DiffState state) {
+        this.diffState = state;
+    }
 
     public List<DiffElement> getDiffElements() {
         return diffElements;
@@ -39,8 +51,27 @@ public class DiffController {
         return path;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public String getName() {
+        return name;
+    }
+
+    public String getId() {
+        if (id == null) {
+            return treeId;
+        }
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTreeId() {
+        return treeId;
+    }
+
+    public void setTreeId(String treeId) {
+        this.treeId = treeId;
     }
 
     public Project getProject1() {
@@ -55,18 +86,41 @@ public class DiffController {
         project1 = repositoryTreeState.getSelectedProject();
 
         try {
-            project2 = designTimeRepository.getProject(project1.getName(),
-                    new CommonVersionImpl("0.0.1"));
+            project2 = designTimeRepository.getProject(project1.getName(), new CommonVersionImpl(diffState.getVersion()));
         } catch (RepositoryException e) {
             log.error("Error reading project", e);
             return;
         }
 
         try {
-            diffElements = StructuredDiff.getDiff(project1, project2, path, path);
+            if (id != null) {
+                path = id;
+            } else {
+                name = project1.getName();
+                path = "/";
+            }
+            if ("1".equals(treeId)) {
+                diffElements = StructuredDiff.getDiff(project1, project2, path, path);
+            } else if ("2".equals(treeId)) {
+                diffElements = StructuredDiff.getDiff(project2, project1, path, path);
+            }
         } catch (ProjectException e) {
             log.error("", e);
         }
+    }
+
+    public SelectItem[] getVersions() {
+        UserWorkspaceProjectArtefact projectArtefact = (UserWorkspaceProjectArtefact) project1;
+        Collection<ProjectVersion> versions = projectArtefact.getVersions();
+        SelectItem[] selectItems = new SelectItem[versions.size()];
+
+        int i = 0;
+        for (ProjectVersion version : versions) {
+            selectItems[i] = new SelectItem(version.getMajor() + "." + version.getMinor() + "." + version.getRevision());
+            i++;
+        }
+
+        return selectItems;
     }
 
     public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 public class JcrProductionRepositoryTestCase extends TestCase {
-    private static final String TEST_FOLDER = "test_work";
+    private static final String TEST_FOLDER = "target/test_work";
     private JcrProductionRepository instance;
     private TransientRepository repository;
 
@@ -90,7 +90,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
 
     /**
      * Contains call to all actual test methods, that is done to speed up test execution, as creating
-     * new repository in {@link #setUp()} is time consuming. 
+     * new repository in {@link #setUp()} is time consuming.
      *
      * @throws RRepositoryException if an error occures
      */

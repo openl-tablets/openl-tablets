@@ -9,7 +9,7 @@ Require-Bundle: org.openl.rules.repository;visibility:=reexport
 Export-Package: org.openl.rules.repository.factories,
  org.openl.rules.repository.jcr
 Bundle-ClassPath: .,
- exigen-jcr-core-7.0.1-SNAPSHOT.jar,
+ exigen-jcr-core-7.0.1.007.jar,
  ewf-commons-7.0.0.023.jar,
  commons-beanutils-1.7.0.jar,
  commons-collections-3.2.jar,

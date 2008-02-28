@@ -1339,6 +1339,11 @@ flexTree.prototype.setEscapingMode = function(mode) {
   this.utfesc = mode;
 }
 
+/**
+ */
+flexTree.prototype.setShowNodeTooltips = function(mode) {
+  this.showNodeTooltips = mode;
+}
 
 /**
  * @desc: called on mouse out
