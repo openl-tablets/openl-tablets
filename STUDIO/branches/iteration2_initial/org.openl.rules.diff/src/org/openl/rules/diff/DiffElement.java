@@ -12,6 +12,7 @@ public class DiffElement {
     private boolean isSheet;
     private String path;
     private String name;
+    private String tooltip;
     private DiffType diffType;
     private List<DiffElement> children = new ArrayList<DiffElement>();
     private boolean isFolder;
@@ -71,5 +72,13 @@ public class DiffElement {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTooltip() {
+        return tooltip;
+    }
+
+    public void setTooltip(String tooltip) {
+        this.tooltip = tooltip;
     }
 }

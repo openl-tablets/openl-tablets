@@ -1,12 +1,24 @@
 <ui:composition xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax" xmlns:rich="http://richfaces.ajax4jsf.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets" template="/common/baseToolbar.xhtml">
+  xmlns:ui="http://java.sun.com/jsf/facelets" template="/common/baseToolbar.xhtml"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
 
   <ui:define name="page">
     <a4j:loadStyle src="/css/flexTree.css" />
     <a4j:loadScript src="/javascript/flexTree/prototype-1.6.0.2.js" />
     <a4j:loadScript src="/javascript/flexTree/dataLoader.js" />
     <a4j:loadScript src="/javascript/flexTree/flexTree.js" />
+
+    <h:form id="mainForm">
+      <div id="colorScheme">
+        <h:panelGrid columns="1" cellpadding="0px" cellspacing="0px">
+        <h:outputText value="Version"/>
+        <h:selectOneMenu value="#{diffState.version}" onchange="submit()" required="false">
+          <f:selectItems value="#{diffController.versions}"/>
+        </h:selectOneMenu>
+        </h:panelGrid>
+      </div>
+    </h:form>
 
     <table>
       <tr>
@@ -19,7 +31,7 @@
             Local version
             </td>
             <td>
-            Version 0.0.1
+            Version #{diffState.version}
             </td>
           </tr>
 
@@ -69,15 +81,16 @@
   tree1.setOnClickHandler(onClickHandler);
   tree1.setOnOpenHandler(onOpenHandler);
   tree1.setOnDblClickHandler(onOpenHandler);
+  tree1.setShowNodeTooltips(true);
 
   tree1.treeContainerElement.onscroll = function() { tree2.treeContainerElement.scrollTop=tree1.treeContainerElement.scrollTop; }
 
-  tree1.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree1.xhtml");
-  tree1.loadXML("#{contextPath}/faces/repository/diff/loadTree1.xhtml");
+  tree1.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=1");
+  tree1.loadXML("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=1");
 
   tree2.setImagePath("#{contextPath}/images/flexTree/");
-  tree2.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree2.xhtml");
-  tree2.loadXML("#{contextPath}/faces/repository/diff/loadTree2.xhtml");
+  tree2.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=2");
+  tree2.loadXML("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=2");
 </script>
 
 
