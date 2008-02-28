@@ -1,45 +1,59 @@
 package org.openl.rules.security;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.AccessDecisionManager;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.context.SecurityContextHolder;
 
 /**
- * @author Aleh Bykhavets
+ * @author Aliaksandr Antonik.
  */
-public class SecurityUtil {
+public final class SecurityUtil {
+    private static AccessDecisionManager accessDecisionManager;
+
     /**
-     * Checks whether current user is granted with specified authority.
-     * <p/>
-     * Simple use case:
-     * <pre>
-     *   if (SecurityUtil.isGranted(Roles.ROLE_ADMIN)) {
-     *     // user is allowed to do something
-     *   } else {
-     *     // user isn't allowed to do that
-     *   }
-     * </pre>
+     * Converts <code>privilege</code> to <code>ConfigAttributeDefinition</code> object and calls
+     * {@link #check(org.acegisecurity.ConfigAttributeDefinition)}.
      *
-     * @param authority name of authority (role)
-     * @return <code>true</code> if active user is granted with the authority;
-     *         <code>false</code> otherwise.
+     * @param privilege privilege to check.
+     * @throws AccessDeniedException if current authentication context does not hold a required authority
      */
-    public static boolean isGranted(String authority) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // no user
-        if (authentication == null) return false;
+    public static void check(String privilege) throws AccessDeniedException {
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
+        cad.addConfigAttribute(new SecurityConfig(privilege));
 
-        GrantedAuthority[] grantedAuthorities = authentication.getAuthorities();
-        if (grantedAuthorities == null) return false;
+        check(cad);
+    }
 
-        for(GrantedAuthority granted : grantedAuthorities) {
-            String s = granted.getAuthority();
-            if (authority.equals(s) || Privileges.ROLE_ADMIN.equals(s)) {
-                // has such authority or the user is admin
-                return true;
-            }
-        }
+    /**
+     * Checks that current security context authentication is authorized to access a secured object with
+     * given security attributes.
+     *
+     * @param config the configuration attributes of a secured object.
+     * @throws AccessDeniedException if current authentication context does not hold a required authority
+     */
+    public static void check(ConfigAttributeDefinition config) throws AccessDeniedException {
+        accessDecisionManager.decide(SecurityContextHolder.getContext().getAuthentication(), null, config);
+    }
 
-        return false;
+    /**
+     * Sets static <code>accessDecisionManager</code> property for further use in <code>check</code> methods. <br/>
+     * The only difference of this method from
+     * {@link #useAccessDecisionManager(org.acegisecurity.AccessDecisionManager)} that this one is not <i>static</i>.  
+     *
+     * @param accessDecisionManager <code>AccessDecisionManager</code> instance.
+     */
+    public void setStaticAccessDecisionManager(AccessDecisionManager accessDecisionManager) {
+        useAccessDecisionManager(accessDecisionManager);
+    }
+
+    /**
+     * Sets static <code>accessDecisionManager</code> property for further use in <code>check</code> methods.
+     *
+     * @param adm <code>AccessDecisionManager</code> instance.
+     */
+    public static void useAccessDecisionManager(AccessDecisionManager adm) {
+        accessDecisionManager = adm;
     }
 }

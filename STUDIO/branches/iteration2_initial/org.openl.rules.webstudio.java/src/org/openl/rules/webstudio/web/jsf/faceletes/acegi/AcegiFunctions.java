@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.jsf.faceletes.acegi;
 
 import org.acegisecurity.Authentication;
-
+import org.acegisecurity.AcegiSecurityException;
 import org.acegisecurity.context.SecurityContext;
 import org.acegisecurity.context.SecurityContextHolder;
 
@@ -81,6 +81,11 @@ public class AcegiFunctions {
     }
 
     public static boolean isGranted(String authority) {
-        return SecurityUtil.isGranted(authority);
+        try {
+            SecurityUtil.check(authority);
+        } catch (AcegiSecurityException ase) {
+            return false;
+        }
+        return true;
     }
 }
