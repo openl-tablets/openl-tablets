@@ -62,7 +62,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param user who is copies project
      * @throws RepositoryException if failed
      */
-	@Secured (Privileges.PRIVILEGE_EDIT)
+	@Secured (Privileges.PRIVILEGE_CREATE)
 	void copyProject(Project project, String name, WorkspaceUser user) throws ProjectException;
 
     /**
@@ -71,7 +71,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param name name of new rules project, must be unique
      * @throws RepositoryException if failed
      */
-	@Secured (Privileges.PRIVILEGE_EDIT)
+	@Secured (Privileges.PRIVILEGE_CREATE_EMPTY)
     void createProject(String name) throws RepositoryException;
 
     /**
@@ -119,7 +119,7 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param name name of new deployment project, must be unique
      * @throws RepositoryException if failed
      */
-	@Secured (Privileges.PRIVILEGE_EDIT)
+	@Secured (Privileges.PRIVILEGE_CREATE_DEPLOYMENT)
     public void createDDProject(String name) throws RepositoryException;
     
     /**
@@ -133,6 +133,6 @@ public interface DesignTimeRepository extends ProjectsContainer<RepositoryProjec
      * @param user who is copies project
      * @throws ProjectException if failed
      */
-	@Secured (Privileges.PRIVILEGE_EDIT)
+	@Secured (Privileges.PRIVILEGE_CREATE_DEPLOYMENT)
     public void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user) throws ProjectException;
 }

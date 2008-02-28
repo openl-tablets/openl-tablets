@@ -47,8 +47,6 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
 	public void setDependencies(Collection<ProjectDependency> dependencies) throws ProjectException {
-        check(PRIVILEGE_EDIT);
-        
         if (isReadOnly()) {
             throw new ProjectException("Cannot change dependencies in read only mode", null);
         }
@@ -68,8 +66,6 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void open() throws ProjectException {
-        check(PRIVILEGE_READ);
-
         if (isLocalOnly()) {
             throw new ProjectException("Project ''{0}'' cannot be opened since it is local only!", null, getName());
         }
@@ -77,6 +73,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' is checked-out", null, getName());
         }
+
+        check(PRIVILEGE_READ);
 
         if (isOpened()) {
             close();
@@ -91,13 +89,13 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
             close();
         }
 
+        check(PRIVILEGE_READ);
+
         localProject = userWorkspace.openLocalProjectFor(dtrProject, version);
         updateArtefact(localProject, dtrProject);
     }
 
     public void checkOut() throws ProjectException {
-        check(PRIVILEGE_EDIT);
-
         if (isLocalOnly()) {
             throw new ProjectException("Project ''{0}'' cannot be checked out since it is local only!", null, getName());
         }
@@ -110,6 +108,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
             throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''", null, getName(),
                     dtrProject.getlLockInfo().getLockedBy().getUserName(), dtrProject.getlLockInfo().getLockedAt());
         }
+
+        check(PRIVILEGE_EDIT);
 
         if (isOpened()) {
             close();
@@ -207,11 +207,11 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void delete() throws ProjectException {
-        check(PRIVILEGE_DELETE);
-
         if (isLocked() && !isLockedByMe()) {
             throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user", null, getName());
         }
+
+        check(PRIVILEGE_DELETE);
 
         if (isOpened()) {
             close();

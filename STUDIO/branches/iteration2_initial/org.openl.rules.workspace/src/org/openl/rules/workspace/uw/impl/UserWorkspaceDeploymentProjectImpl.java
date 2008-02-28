@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.openl.rules.repository.CommonVersion;
+import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.SecurityUtils.check;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -83,6 +85,8 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
             throw new ProjectException("Project ''{0}'' must be checked-out before checking-in", null, getName());
         }
 
+        check(PRIVILEGE_EDIT_DEPLOYMENT);
+
         if (major != 0 || minor != 0) {
             activeProjectVersion.riseVersion(major, minor);
         }
@@ -106,6 +110,8 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
             throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''", null, getName(),
                     activeProjectVersion.getlLockInfo().getLockedBy().getUserName(), activeProjectVersion.getlLockInfo().getLockedAt());
         }
+
+        check(PRIVILEGE_EDIT_DEPLOYMENT);
 
         if (isOpened()) {
             close();
@@ -153,10 +159,14 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
     }
 
     public void undelete() throws ProjectException {
+        check(PRIVILEGE_EDIT_DEPLOYMENT);
+
         activeProjectVersion.undelete(userWorkspace.getUser());
     }
 
     public void erase() throws ProjectException {
+        check(PRIVILEGE_ERASE_DEPLOYMENT);
+
         activeProjectVersion.erase(userWorkspace.getUser());
     }
 
@@ -199,6 +209,8 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
             close();
         }
 
+        check(PRIVILEGE_READ);
+
         activeProjectVersion = dtrDProject;
         refresh();
     }
@@ -207,6 +219,8 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         if (isCheckedOut()) {
             throw new ProjectException("Deployment Project ''{0}'' is checked-out", null, getName());
         }
+
+        check(PRIVILEGE_READ);
 
         if (isOpened()) {
             close();
@@ -221,6 +235,8 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         if (isLocked() && !isLockedByMe()) {
             throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user", null, getName());
         }
+
+        check(PRIVILEGE_DELETE_DEPLOYMENT);
 
         if (isOpened()) {
             close();

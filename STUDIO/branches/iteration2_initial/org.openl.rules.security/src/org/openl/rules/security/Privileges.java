@@ -17,6 +17,8 @@ public class Privileges {
     public static final String PRIVILEGE_CREATE_EMPTY = "CREATE_EMPTY_PROJECTS";
     public static final String PRIVILEGE_CREATE = "CREATE_PROJECTS";
 
-    public static final String PRIVILEGE_VIEW_DEPLOYMENT = "VIEW_DEPLOYMENT_PROJECTS";
+    public static final String PRIVILEGE_EDIT_DEPLOYMENT = "EDIT_DEPLOYMENT_PROJECTS";
     public static final String PRIVILEGE_CREATE_DEPLOYMENT = "CREATE_DEPLOYMENT_PROJECTS";
+    public static final String PRIVILEGE_DELETE_DEPLOYMENT = "DELETE_DEPLOYMENT_PROJECTS";
+    public static final String PRIVILEGE_ERASE_DEPLOYMENT = "ERASE_DEPLOYMENT_PROJECTS";
 }
