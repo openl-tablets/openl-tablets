@@ -12,6 +12,7 @@
       <list>
         <idref bean="designTimeRepository"/>
         <idref bean="productionDeployerManager"/>
+        <idref bean="uploadService"/>
       </list>
     </property>
     <property name="proxyTargetClass" value="true"/>
