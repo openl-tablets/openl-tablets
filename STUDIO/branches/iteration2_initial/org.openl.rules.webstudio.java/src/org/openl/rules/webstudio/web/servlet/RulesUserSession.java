@@ -29,7 +29,7 @@ public class RulesUserSession {
 
     public synchronized UserWorkspace getUserWorkspace() throws WorkspaceException, ProjectException {
         if (userWorkspace == null) {
-            userWorkspace = workspaceManager.getUserWorkspace(new WorkspaceUserImpl(user.getUsername()));
+            userWorkspace = workspaceManager.getUserWorkspace(new WorkspaceUserImpl(getUserName()));
             userWorkspace.activate();
         }
 
@@ -41,6 +41,12 @@ public class RulesUserSession {
             deployer = deployerManager.getDeployer(new WorkspaceUserImpl(user.getUsername()));
         }
         return deployer;
+    }
+
+    public String getUserName() {
+        if (user == null)
+            return null;
+        return user.getUsername();
     }
 
 

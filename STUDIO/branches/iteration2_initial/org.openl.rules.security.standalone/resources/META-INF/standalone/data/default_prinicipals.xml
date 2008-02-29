@@ -7,8 +7,8 @@
   <User UserId="4" LoginName="u2" Password="270c1b084f3f146eb5787075158d9c53" Privileges="VIEW_PROJECTS,EDIT_PROJECTS,DELETE_PROJECTS" />
   <User UserId="5" LoginName="u3" Password="532a7b8e0328a8d05a8e6258b28b9a36" Privileges="VIEW_PROJECTS,EDIT_PROJECTS,DELETE_PROJECTS,ERASE_PROJECTS" />
   <User UserId="6" LoginName="u4" Password="7b8d62fd2f0f5b2e3ba5437e5b983128" Privileges="VIEW_PROJECTS,EDIT_DEPLOYMENT_PROJECTS,CREATE_DEPLOYMENT_PROJECTS,DEPLOY_PROJECTS" />
-  <User UserId="7" LoginName="a1" Password="8a8bb7cd343aa2ad99b7d762030857a2" Privileges="[null]" />
-  <User UserId="8" LoginName="LOCAL" Password="d41d8cd98f00b204e9800998ecf8427e" Privileges="[null]" />
+  <User UserId="7" LoginName="a1" Password="8a8bb7cd343aa2ad99b7d762030857a2" Privileges="ROLE_ADMIN" />
+  <User UserId="8" LoginName="LOCAL" Password="54b4c4075463b2e02cd69f5cd139b5b2" Privileges="ROLE_ADMIN" />
 
   <UserGroup GroupId="1" GroupName="Users" Description="[null]" Privileges="VIEW_PROJECTS,EDIT_PROJECTS" />
   <UserGroup GroupId="2" GroupName="Administrators" Description="[null]" Privileges="VIEW_PROJECTS,EDIT_PROJECTS,DELETE_PROJECTS,DEPLOY_PROJECTS" />

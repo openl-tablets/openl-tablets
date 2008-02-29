@@ -70,7 +70,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            if (USER_LOCAL.equals(userId) && useEclipse4LocalUser) {
+            if (isLocalUser(userId)) {
                 lwi = createEclipseWorkspace(user);
             } else {
                 lwi = createWorkspace(user);
@@ -81,6 +81,19 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         return lwi;
     }
 
+    private boolean isLocalUser(String userId) {
+        return USER_LOCAL.equals(userId) && useEclipse4LocalUser;
+    }
+
+    public File getWorkpacePath(String userId) {
+        if (isLocalUser(userId)) {
+            String eclipseWorkspacePath = System.getProperty("openl.webstudio.home");
+            return new File(eclipseWorkspacePath == null ? ".." : eclipseWorkspacePath);
+        } else {
+            return FolderHelper.generateSubLocation(workspacesLocation, userId);
+        }
+    }
+
     public void workspaceReleased(LocalWorkspace workspace) {
         localWorkspaces.remove(((LocalWorkspaceImpl)workspace).getUser().getUserId());
     }
@@ -88,8 +101,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 // --- protected
 
     protected LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
-        String userId = user.getUserId();
-        File f = FolderHelper.generateSubLocation(workspacesLocation, userId);
+        File f = getWorkpacePath(user.getUserId());
         if (!FolderHelper.checkOrCreateFolder(f)) {
             throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace", null, f.getAbsolutePath());
         }
@@ -99,13 +111,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     }
 
     protected LocalWorkspaceImpl createEclipseWorkspace(WorkspaceUser user) throws WorkspaceException {
-        String eclipseWorkspacePath = System.getProperty("openl.webstudio.home");
-        if (eclipseWorkspacePath == null) {
-            eclipseWorkspacePath = "..";
-        }
+        File eclipseWorkspaceFile = getWorkpacePath(user.getUserId());
 
-        Log.debug("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(), eclipseWorkspacePath);
-        return new LocalWorkspaceImpl(user, new File(eclipseWorkspacePath), localWorkspaceFolderFilter, localWorkspaceFileFilter);
+        Log.debug("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(), eclipseWorkspaceFile);
+        return new LocalWorkspaceImpl(user, eclipseWorkspaceFile, localWorkspaceFolderFilter, localWorkspaceFileFilter);
     }
 
     public boolean isUseEclipse4LocalUser() {
