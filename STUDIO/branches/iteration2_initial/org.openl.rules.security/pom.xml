@@ -7,20 +7,12 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.studio-pom</artifactId>
     <version>5.0.5</version>
-    <relativePath>../org.openl.rules.studio-pom</relativePath>
+    <relativePath>../org.openl.rules.studio-pom/pom.xml</relativePath>
   </parent>
 
   <artifactId>org.openl.rules.security</artifactId>
   <name>Security</name>
-  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <description>Security</description>
-
-  <repositories>
-    <repository>
-      <id>local</id>
-      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
-    </repository>
-  </repositories>
 
   <dependencies>
     <dependency>

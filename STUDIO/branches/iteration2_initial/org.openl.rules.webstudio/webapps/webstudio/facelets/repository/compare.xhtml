@@ -107,7 +107,7 @@
       tree2.setOnClickHandler(onClickHandler2);
       tree2.setOnOpenHandler(onOpenHandler2);
       tree2.setOnDblClickHandler(onOpenHandler2);
-      tree2.treeContainerElement.onscroll = function() { tree1.treeContainerElement.scrollTop=tree2.treeContainerElement.scrollTop; }
+      //tree2.treeContainerElement.onscroll = function() { tree1.treeContainerElement.scrollTop=tree2.treeContainerElement.scrollTop; }
       tree2.setImagePath("#{contextPath}/images/flexTree/");
       tree2.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=2");
       tree2.loadXML("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=2");
