@@ -7,22 +7,28 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.studio-pom</artifactId>
     <version>5.0.5</version>
-    <relativePath>../org.openl.rules.studio-pom</relativePath>
+    <relativePath>../org.openl.rules.studio-pom/pom.xml</relativePath>
   </parent>
 
   <artifactId>org.openl.rules.security.integration.ipb</artifactId>
   <name>IPB security integration</name>
-  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <description>IPB security integration</description>
 
-  <repositories>
-    <repository>
-      <id>local</id>
-      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
-    </repository>
-  </repositories>
-
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>**/*PrivilegeDataloaderTest.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <resources>
       <resource>
         <directory>resources</directory>
@@ -39,7 +45,6 @@
   </build>
 
   <dependencies>
-
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.security</artifactId>

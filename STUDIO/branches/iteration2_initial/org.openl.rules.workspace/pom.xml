@@ -12,15 +12,7 @@
 
   <artifactId>org.openl.rules.workspace</artifactId>
   <name>Exigen WebStudio Workspace</name>
-  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <description>Exigen WebStudio Workspace</description>
-
-  <repositories>
-    <repository>
-      <id>local</id>
-      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
-    </repository>
-  </repositories>
 
   <build>
     <pluginManagement>
