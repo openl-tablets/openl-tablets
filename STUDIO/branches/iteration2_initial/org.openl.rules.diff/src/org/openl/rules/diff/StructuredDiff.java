@@ -2,7 +2,6 @@ package org.openl.rules.diff;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.IOpenSourceCodeModule;
@@ -40,7 +39,7 @@ import java.util.regex.Pattern;
 
 /**
  * Compares two project folders, returning a list of the additions, deletions,
- * similarities and changes between them.
+ * equalities and changes between them.
  *
  * <p>Compared elements are: project, folder, file, sheet, table.</p>
  *
@@ -65,6 +64,7 @@ public class StructuredDiff {
     private static final String XLS_FILE_FROM_SHEET_SEPARATOR = "//";
     private static final Pattern SHEET_PATH_PATTERN = Pattern.compile(XLS_FILE_FROM_SHEET_SEPARATOR + "[^" + SEPARATOR
             + "]+/$");
+    private static final int NODE_NAME_MAXLENGTH = 23;
 
     private static final Comparator<String> PATH_COMPARATOR = new Comparator<String>() {
         public int compare(String path1, String path2) {
@@ -86,17 +86,51 @@ public class StructuredDiff {
         }
     };
 
+    private static boolean isRoot(String path) {
+        return ("" + SEPARATOR).equals(path);
+    }
+
+    private static boolean isFolder(String path) {
+        return org.springframework.util.StringUtils.endsWithIgnoreCase(path, "" + SEPARATOR);
+    }
+
+    private static boolean isXlsFile(String path) {
+        return org.springframework.util.StringUtils.endsWithIgnoreCase(path, ".xls");
+    }
+
+    private static boolean isSheet(String path) {
+        if (path == null) {
+            return false;
+        }
+        Matcher m = SHEET_PATH_PATTERN.matcher(path);
+        return m.find();
+    }
+
+    private static String truncateIfNecessary(String s) {
+        if (s == null) {
+            return "";
+        }
+        if (s.length() > NODE_NAME_MAXLENGTH) {
+            s = s.substring(0, NODE_NAME_MAXLENGTH - 3) + "...";
+        }
+        return s;
+    }
+
+    private static String filterSeparators(String tableName) {
+        tableName = tableName.replace("" + SEPARATOR, "");
+        return tableName;
+    }
+
     /**
-     * <p>Returns map of {sheet names => table names} for xls file.</p>
+     * <p>Returns sorted map of {sheet names => table names} for xls file.</p>
      *
-     * <p> Path is expected to be given in the following format:
+     * <p> Path for xls file is expected to have the following format:
      * "/tutorial1/rules/Tutorial_1.xls".</p>
      *
      * <p>'/' symbols are removed from table names to not interfere with path
      * separators.</p>
      *
      * <p>In case of any error, empty map is returned.</p>
-     *
      *
      * @param project
      * @param xlsFilePath
@@ -143,6 +177,8 @@ public class StructuredDiff {
         for (TableSyntaxNode node : nodes) {
             IOpenSourceCodeModule sheet = node.getModule();
             String sheetName = ((XlsSheetSourceCodeModule) sheet).getSheetName();
+            // TODO: fix case when sheetName contains '/' properly
+            sheetName = filterSeparators(sheetName);
 
             if (sheet2Tables.get(sheetName) == null) {
                 sheet2Tables.put(sheetName, new TreeSet<String>());
@@ -151,7 +187,7 @@ public class StructuredDiff {
             ILogicalTable table = node.getTable();
 
             String tableName = ((IGridTable) table.getGridTable()).getStringValue(0, 0);
-            tableName = tableName.replace("" + SEPARATOR, "");
+            tableName = filterSeparators(tableName);
             sheet2Tables.get(sheetName).add(tableName);
         }
 
@@ -159,32 +195,9 @@ public class StructuredDiff {
         return sheet2Tables;
     }
 
-    private static boolean isRoot(String path) {
-        return StringUtils.equals(path, "" + SEPARATOR);
-    }
-
-    private static boolean isFolder(String path) {
-        /*
-         * if (isRoot(path)) { return false; }
-         */
-        return org.springframework.util.StringUtils.endsWithIgnoreCase(path, "" + SEPARATOR);
-    }
-
-    private static boolean isXlsFile(String path) {
-        return org.springframework.util.StringUtils.endsWithIgnoreCase(path, ".xls");
-    }
-
-    private static boolean isSheetPath(String path) {
-        if (path == null) {
-            return false;
-        }
-        Matcher m = SHEET_PATH_PATTERN.matcher(path);
-        return m.find();
-    }
-
     /**
-     * Returns table paths of the given sheet of xls file. Path is expected to
-     * have the following format:
+     * Returns sorted set of table names of excel sheet. Sheet path is expected
+     * to have the following format:
      * "/tutorial1/rules/Tutorial_1.xls//sheetname1/".
      *
      * @param project
@@ -207,10 +220,11 @@ public class StructuredDiff {
     }
 
     /**
-     * Returns sheet paths for the given xls file. Path is expected to have the
-     * following format: "/tutorial1/rules/Tutorial_1.xls".
+     * Returns sorted set of sheet names of excel file. Xls file path is
+     * expected to have the following format: "/tutorial1/rules/Tutorial_1.xls".
      *
-     * TODO: may be unnecessary TreeSet<String>() conversion.
+     * Note: TreeSet<String>() conversion is unnecessary and is left for
+     * clearness.
      *
      * @param project
      * @param xlsFilePath
@@ -229,8 +243,10 @@ public class StructuredDiff {
      * @return
      */
     private static String removeProjectName(String path) {
+        // remove project name
         path = path.substring(path.indexOf(SEPARATOR, 1) + 1);
         if (isFolder(path)) {
+            // remove slash in the end
             path = path.substring(0, path.length() - 1);
         }
         return path;
@@ -239,7 +255,7 @@ public class StructuredDiff {
     private static ProjectFolder getProjectFolder(Project project, String path) throws ProjectException {
         path = removeProjectName(path);
 
-        if (StringUtils.isEmpty(path)) {
+        if (path.length() == 0) {
             return project;
         }
 
@@ -256,27 +272,27 @@ public class StructuredDiff {
     }
 
     @SuppressWarnings("unchecked")
-    private static TreeSet<String> getChildItems(Project project1, Project project2, String path1, String path2) {
+    private static TreeSet<String> getChildItems(Project project, String path) {
         TreeSet<String> items;
 
-        if (isRoot(path1)) {
+        if (isRoot(path)) {
             items = new TreeSet<String>();
-            items.add(project1.getName() + SEPARATOR);
-        } else if (isSheetPath(path1)) {
-            items = getTableNames(project1, path1);
-        } else if (isXlsFile(path1)) {
+            items.add(project.getName() + SEPARATOR);
+        } else if (isSheet(path)) {
+            items = getTableNames(project, path);
+        } else if (isXlsFile(path)) {
             items = new TreeSet<String>(PATH_COMPARATOR);
-            items.addAll(CollectionUtils.collect(getSheetNames(project1, path1), new Transformer() {
+            items.addAll(CollectionUtils.collect(getSheetNames(project, path), new Transformer() {
                 public Object transform(Object obj) {
                     String sheetName = (String) obj;
                     return sheetName + SEPARATOR;
                 }
             }));
-        } else if (isFolder(path1)) {
+        } else if (isFolder(path)) {
             items = new TreeSet<String>(PATH_COMPARATOR);
 
             try {
-                ProjectFolder f1 = getProjectFolder(project1, path1);
+                ProjectFolder f1 = getProjectFolder(project, path);
                 items.addAll(CollectionUtils.collect(f1.getArtefacts(), new Transformer() {
                     public Object transform(Object artefact) {
                         return appendFolderSeparator(artefact);
@@ -299,17 +315,26 @@ public class StructuredDiff {
      */
     public static List<DiffElement> getDiff(Project project1, Project project2, String path1, String path2)
             throws ProjectException {
-        TreeSet<String> items1 = getChildItems(project1, project2, path1, path2);
-        TreeSet<String> items2 = getChildItems(project2, project1, path2, path1);
+        TreeSet<String> items1 = getChildItems(project1, path1);
+        TreeSet<String> items2 = getChildItems(project2, path2);
 
         List<DiffElement> elements = getDiffElements(project1, project2, path1, path2, items1, items2);
         return elements;
     }
 
+    private static String concatenatePathAndName(String pathPrefix, String name) {
+        String path = pathPrefix;
+        if (isXlsFile(pathPrefix)) {
+            path += XLS_FILE_FROM_SHEET_SEPARATOR;
+        }
+        path += name;
+        return path;
+    }
+
     /**
-     * Creates a list that contains differences and similarities between
-     * childItems1 and childItems2. Based on standard merging algorithm for
-     * sorted arrays.
+     * Creates a list that contains additions, deletions, equalities and changes
+     * between childItems1 and childItems2. Based on standard merging algorithm
+     * for sorted arrays.
      *
      * @param project1
      * @param project2
@@ -357,7 +382,7 @@ public class StructuredDiff {
                     i2++;
                 } else { // name1 equals to name2
                     DiffElement de = buildDiffElement(path1, name1, DiffType.Equal);
-                    if (isSheetPath(fullPath1)) {
+                    if (isSheet(fullPath1)) {
                         DiffType diffType = compareSheets(project1, project2, fullPath1, fullPath2);
                         de.setDiffType(diffType);
                     } else if (isXlsFile(fullPath1)) {
@@ -374,11 +399,6 @@ public class StructuredDiff {
             }
         }
         return result;
-    }
-
-    private static String concatenatePathAndName(String pathPrefix, String name) {
-        String fullPath = pathPrefix + (isXlsFile(pathPrefix) ? XLS_FILE_FROM_SHEET_SEPARATOR : "") + name;
-        return fullPath;
     }
 
     /**
@@ -411,18 +431,18 @@ public class StructuredDiff {
         if (isXlsFile(filePath1)) {
             return compareXlsFiles(project1, project2, filePath1, filePath2);
         }
-        boolean equal = PATH_COMPARATOR.compare(filePath1, filePath2) == 0;
-        return equal ? DiffType.Equal : DiffType.EqualWithDifferentChildren;
+        // TODO: implement file comparison by content
+        return DiffType.Equal;
     }
 
-    private static TreeSet<ProjectArtefact> getChildArtefacts(Project project1, String path1) throws ProjectException {
+    private static TreeSet<ProjectArtefact> getChildArtefacts(Project project, String path) throws ProjectException {
         TreeSet<ProjectArtefact> artefacts = new TreeSet<ProjectArtefact>(ARTEFACT_COMPARATOR);
-        if (isRoot(path1)) {
-            artefacts.add(project1);
+        if (isRoot(path)) {
+            artefacts.add(project);
         } else {
-            ProjectFolder folder1 = getProjectFolder(project1, path1);
+            ProjectFolder folder = getProjectFolder(project, path);
 
-            for (ProjectArtefact a : folder1.getArtefacts()) {
+            for (ProjectArtefact a : folder.getArtefacts()) {
                 artefacts.add(a);
             }
         }
@@ -476,7 +496,7 @@ public class StructuredDiff {
 
     private static DiffElement buildDiffElement(String pathPrefix, String name, DiffType diffType) {
         DiffElement de = new DiffElement();
-        de.setPath(pathPrefix + (isXlsFile(pathPrefix) ? XLS_FILE_FROM_SHEET_SEPARATOR : "") + name);
+        de.setPath(concatenatePathAndName(pathPrefix, name));
         de.setDiffType(diffType);
 
         if (isFolder(name)) {
@@ -496,13 +516,5 @@ public class StructuredDiff {
         de.setTooltip(name);
         de.setName(truncateIfNecessary(name));
         return de;
-    }
-
-    private static String truncateIfNecessary(String s) {
-        if (s.length() > 23) {
-            s = StringUtils.substring(s, 0, 20);
-            s += "...";
-        }
-        return s;
     }
 }

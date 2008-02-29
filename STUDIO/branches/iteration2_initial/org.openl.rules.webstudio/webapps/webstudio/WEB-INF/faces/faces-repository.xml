@@ -77,13 +77,13 @@
 
   <managed-bean>
     <managed-bean-name>diffState</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.DiffState</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.StructuredDiffState</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
   <managed-bean>
     <managed-bean-name>diffController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.DiffController</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.StructuredDiffController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>userWorkspace</property-name>

@@ -21,12 +21,12 @@ import java.util.List;
 import javax.faces.model.SelectItem;
 
 /**
- * Server-side for providing JavaScript flexTree with structured diff data.
+ * Supplies structured diff UI tree with data.
  *
  * @author Andrey Naumenko
  */
-public class DiffController {
-    private static Log log = LogFactory.getLog(DiffController.class);
+public class StructuredDiffController {
+    private static Log log = LogFactory.getLog(StructuredDiffController.class);
     private List<DiffElement> diffElements = new ArrayList<DiffElement>();
     private String name;
     private String path;
@@ -37,11 +37,7 @@ public class DiffController {
     private RepositoryTreeState repositoryTreeState;
     private Project project1;
     private Project project2;
-    private DiffState diffState;
-
-    public void setDiffState(DiffState state) {
-        this.diffState = state;
-    }
+    private StructuredDiffState diffState;
 
     public List<DiffElement> getDiffElements() {
         return diffElements;
@@ -86,7 +82,8 @@ public class DiffController {
         project1 = repositoryTreeState.getSelectedProject();
 
         try {
-            project2 = designTimeRepository.getProject(project1.getName(), new CommonVersionImpl(diffState.getVersion()));
+            project2 = designTimeRepository.getProject(project1.getName(),
+                    new CommonVersionImpl(diffState.getVersion()));
         } catch (RepositoryException e) {
             log.error("Error reading project", e);
             return;
@@ -133,5 +130,9 @@ public class DiffController {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public void setDiffState(StructuredDiffState state) {
+        this.diffState = state;
     }
 }
