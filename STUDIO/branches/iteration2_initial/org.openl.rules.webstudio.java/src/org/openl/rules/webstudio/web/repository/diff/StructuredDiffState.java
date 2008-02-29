@@ -4,12 +4,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * DiffController state.
+ * Holds information about structured diff in session scope.
  *
  * @author Andrey Naumenko
  */
-public class DiffState {
-    private static Log log = LogFactory.getLog(DiffState.class);
+public class StructuredDiffState {
+    private static Log log = LogFactory.getLog(StructuredDiffState.class);
     private String version = "0.0.0";
 
     public String getVersion() {
@@ -19,5 +19,4 @@ public class DiffState {
     public void setVersion(String version) {
         this.version = version;
     }
-
 }
