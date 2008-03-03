@@ -8,6 +8,7 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
+import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IUndoGrid;
@@ -15,7 +16,12 @@ import org.openl.rules.table.IUndoableAction;
 import org.openl.rules.table.IUndoableGridAction;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.UndoableActions;
+import org.openl.rules.table.ui.FilteredGrid;
+import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.table.xls.XlsFormat;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
 
@@ -124,6 +130,22 @@ public class TableEditorModel
 	this.region = new GridRegion(table.getRegion());
 	othertables = new GridSplitter(table.getGrid()).split();
 	removeThisTable(othertables);
+	makeFilteredGrid(table);
+	
+    }
+
+    FilteredGrid filteredGrid;
+    
+    private void makeFilteredGrid(IGridTable gt)
+    {
+	IGrid g =  gt.getGrid();
+	if (g instanceof FilteredGrid)
+	{
+	    filteredGrid = (FilteredGrid) g;
+	    return;
+	}
+	
+	filteredGrid = new FilteredGrid(gt.getGrid(), new IGridFilter[]{new SimpleXlsFormatter()});
     }
 
     /**
@@ -208,11 +230,23 @@ public class TableEditorModel
 	    row -= 3;
 	    col -= 3;
 	}
+	
+	
 	IUndoableGridAction ua = IWritableGrid.Tool.setStringValue(col, row,
-		region, value);
+		region, value, getFilter(col, row));
 	RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
 	ra.doSome(region, wgrid(), undoGrid);
 	actions.addNewAction(ra);
+    }
+
+    private IGridFilter getFilter(int col, int row)
+    {
+	FormattedCell fc = filteredGrid.getFormattedCell(region.getLeft() + col, region.getTop() + row);
+
+	if (fc != null)
+	    return fc.getFilter();
+	
+	return null;
     }
 
     public synchronized void setStyle(int row, int col, ICellStyle style)
