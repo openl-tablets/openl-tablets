@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.IGridFilter;
 
 /**
  * @author snshor
@@ -162,19 +163,19 @@ public interface IWritableGrid extends IGrid
 		}
 
 		public static IUndoableGridAction setStringValue(int col, int row,
-				IGridTable table, String value)
+				IGridTable table, String value, IGridFilter filter)
 		{
 			// IWritableGrid wgrid = getWritableGrid(table);
 			int gcol = table.getGridColumn(col, row);
 			int grow = table.getGridRow(col, row);
 
 			// wgrid.setCellStringValue(gcol, grow, value);
-			return new UndoableSetValueAction(gcol, grow, value);
+			return new UndoableSetValueAction(gcol, grow, value, filter);
 
 		}
 
 		public static IUndoableGridAction setStringValue(int col, int row,
-				IGridRegion region, String value)
+				IGridRegion region, String value, IGridFilter filter)
 		{
 			
 			
@@ -182,7 +183,7 @@ public interface IWritableGrid extends IGrid
 			int grow = region.getTop() + row;
 
 			// wgrid.setCellStringValue(gcol, grow, value);
-			return new UndoableSetValueAction(gcol, grow, value);
+			return new UndoableSetValueAction(gcol, grow, value, filter);
 		}
 
 		public static IUndoableGridAction setStyle(int col, int row,

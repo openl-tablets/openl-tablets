@@ -3,9 +3,11 @@
  */
 package org.openl.rules.table.ui;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.openl.util.Log;
 
@@ -47,8 +49,17 @@ public interface ITextFormatter
 			} catch (ParseException e)
 			{
 				Log.warn("Could not parse number: " + value, e);
+			}
+			
+			try
+			{
+				return DateFormat.getDateInstance().parse(value);
+			}
+			catch(ParseException pe)
+			{
 				return value;
 			}
+			
 		}
 	}
 	
