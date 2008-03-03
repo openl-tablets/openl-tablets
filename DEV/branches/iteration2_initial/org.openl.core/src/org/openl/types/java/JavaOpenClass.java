@@ -64,7 +64,7 @@ public class JavaOpenClass extends AOpenClass {
     public static final JavaOpenClass STRING = new JavaOpenClass(String.class, null, true);
     public static final JavaOpenClass OBJECT = new JavaOpenClass(Object.class, null, true);
     public static final JavaOpenClass CLASS = new JavaOpenClass(Class.class, null, true);
-    protected Class<?> instanceClass;
+    protected Class instanceClass;
     boolean simple = false;
     protected HashMap<String, IOpenField> fields = null;
     protected HashMap<MethodKey, IOpenMethod> methods = null;
