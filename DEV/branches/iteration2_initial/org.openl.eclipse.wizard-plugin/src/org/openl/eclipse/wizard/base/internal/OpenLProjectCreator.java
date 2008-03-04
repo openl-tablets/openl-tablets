@@ -2,6 +2,7 @@ package org.openl.eclipse.wizard.base.internal;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -10,6 +11,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.openl.eclipse.base.OpenlNature;
+import org.openl.eclipse.util.IOpenlConstants;
 import org.openl.eclipse.wizard.base.UtilBase;
 
 /**
@@ -47,12 +49,12 @@ public class OpenLProjectCreator {
         String[] natures = description.getNatureIds();
         String[] newNatures = new String[natures.length + 1];
         System.arraycopy(natures, 0, newNatures, 0, natures.length);
-        newNatures[natures.length] = OpenlNature.NATURE_ID;
-        IStatus status = ResourcesPlugin.getWorkspace().validateNatureSet(natures);
+        newNatures[natures.length] = IOpenlConstants.OPENL_NATURE_ID;
+        IStatus status = ResourcesPlugin.getWorkspace().validateNatureSet(newNatures);
 
         if (status.getCode() == IStatus.OK) {
             description.setNatureIds(newNatures);
-            project.setDescription(description, null);
+            project.setDescription(description, IResource.FORCE, null);
             return true;
         } else {
             UtilBase.handleException("unable to add openl nature");
