@@ -25,7 +25,7 @@
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
             icon="icons/full/ovr16/openl_ovr.gif"
-            natureId="org.openl.base.nature"
+            natureId="OpenlNature"
             id="org.eclipse.odt.ui.openlProjectNatureImage">
       </image>
    </extension>
