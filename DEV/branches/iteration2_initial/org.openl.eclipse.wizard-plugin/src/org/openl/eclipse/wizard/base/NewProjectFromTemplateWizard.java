@@ -13,8 +13,6 @@ import org.eclipse.ant.core.AntRunner;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -25,6 +23,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
+import org.openl.eclipse.wizard.base.internal.OpenLProjectCreator;
 
 /**
  * @author smesh
@@ -41,7 +40,7 @@ public class NewProjectFromTemplateWizard
 	}
 
 	/**
-	 * @see Wizard#init
+	 * @see org.eclipse.ui.wizards.newresource.BasicNewResourceWizard#init 
 	 */
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		super.init(workbench, selection);
@@ -87,29 +86,21 @@ public class NewProjectFromTemplateWizard
 	}
 
 	private IProject createNewProject() {
-		// get a project handle
-		final IProject newProjectHandle = mainPage.getProjectHandle();
+        final OpenLProjectCreator creator = new OpenLProjectCreator(mainPage.getProjectHandle(),
+                mainPage.useDefaults() ? null : mainPage.getLocationPath());
 
-		// get a project descriptor
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		final IProjectDescription description =
-			workspace.newProjectDescription(newProjectHandle.getName());
-
-		if (!mainPage.useDefaults()) {
-			description.setLocation(mainPage.getLocationPath());
-		}
-
+        
 		// create the new project operation
 		WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 			protected void execute(IProgressMonitor monitor)
 				throws CoreException {
-				createProject(description, newProjectHandle, monitor);
+				creator.createAndOpen(monitor);
 				// run ant build
 				{
 					Properties properties = new Properties();
 					customizer.setAntBuildFileProperties(properties);
-					String dstDir = newProjectHandle.getLocation().toOSString();
-					String dstProjectName = newProjectHandle.getName();
+					String dstDir = creator.getProject().getLocation().toOSString();
+					String dstProjectName = creator.getProject().getName();
 					properties.setProperty(PROP_DST_DIR, dstDir);
 					properties.setProperty(PROP_DST_PROJECT_NAME, dstProjectName);
 
@@ -123,7 +114,7 @@ public class NewProjectFromTemplateWizard
 						monitor);
 				}
 				// refresh workspace project
-				newProjectHandle.refreshLocal(
+				creator.getProject().refreshLocal(
 					IResource.DEPTH_INFINITE,
 					monitor);
 			}
@@ -136,29 +127,7 @@ public class NewProjectFromTemplateWizard
 			return null;
 		}
 
-		return newProjectHandle;
-	}
-
-	private void createProject(
-		IProjectDescription description,
-		IProject projectHandle,
-		IProgressMonitor monitor)
-		throws CoreException, OperationCanceledException {
-		try {
-			monitor.beginTask("", 2000);
-
-			projectHandle.create(
-				description,
-				new SubProgressMonitor(monitor, 1000));
-
-			if (monitor.isCanceled())
-				throw new OperationCanceledException();
-
-			projectHandle.open(new SubProgressMonitor(monitor, 1000));
-
-		} finally {
-			monitor.done();
-		}
+		return creator.getProject();
 	}
 
 	private void runAnt(
