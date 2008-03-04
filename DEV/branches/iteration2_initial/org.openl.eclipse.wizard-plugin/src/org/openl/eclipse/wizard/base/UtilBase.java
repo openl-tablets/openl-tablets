@@ -187,9 +187,11 @@ public class UtilBase {
     /**
      * Returns new CoreException with a given parameters.
      */
-    public static CoreException coreException(String message, Throwable t, int code,
-            int severity) {
-        return new CoreException(new Status(severity, OpenlWizardPlugin.getDefault().getBundle().getSymbolicName(), code, getMessage(t), t));
+    public static CoreException coreException(String message, Throwable t, int code, int severity) {
+        if (message == null) {
+            message = getMessage(t);
+        }
+        return new CoreException(new Status(severity, OpenlWizardPlugin.getDefault().getBundle().getSymbolicName(), code, message, t));
     }
 
     /**
