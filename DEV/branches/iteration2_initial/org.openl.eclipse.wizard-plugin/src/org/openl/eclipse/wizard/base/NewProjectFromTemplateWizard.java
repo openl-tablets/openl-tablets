@@ -68,7 +68,7 @@ public class NewProjectFromTemplateWizard
 			this.addPage(mainPage);
 
 		} catch (Throwable t) {
-			customizer.handleException(t);
+			UtilBase.handleException(t);
 		}
 
 	}
@@ -92,38 +92,43 @@ public class NewProjectFromTemplateWizard
         
 		// create the new project operation
 		WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
-			protected void execute(IProgressMonitor monitor)
-				throws CoreException {
-				creator.createAndOpen(monitor);
-				// run ant build
-				{
-					Properties properties = new Properties();
-					customizer.setAntBuildFileProperties(properties);
-					String dstDir = creator.getProject().getLocation().toOSString();
-					String dstProjectName = creator.getProject().getName();
-					properties.setProperty(PROP_DST_DIR, dstDir);
-					properties.setProperty(PROP_DST_PROJECT_NAME, dstProjectName);
+			protected void execute(IProgressMonitor monitor) throws CoreException {
+                try {
+                    monitor.beginTask(null, 2000);
 
-					properties.setProperty(PROP_GEN_DIR, PROP_GEN_DIR_VALUE);
-					properties.setProperty(PROP_JAVA_PKG, PROP_JAVA_PKG_VALUE);
-					
-					
-					runAnt(
-						customizer.getAntBuildFileLocation(),
-						properties,
-						monitor);
-				}
-				// refresh workspace project
-				creator.getProject().refreshLocal(
-					IResource.DEPTH_INFINITE,
-					monitor);
-			}
+                    creator.createAndOpen(monitor, 1000);
+                    // run ant build
+                    {
+                        Properties properties = new Properties();
+                        customizer.setAntBuildFileProperties(properties);
+                        String dstDir = creator.getProject().getLocation().toOSString();
+                        String dstProjectName = creator.getProject().getName();
+                        properties.setProperty(PROP_DST_DIR, dstDir);
+                        properties.setProperty(PROP_DST_PROJECT_NAME, dstProjectName);
+
+                        properties.setProperty(PROP_GEN_DIR, PROP_GEN_DIR_VALUE);
+                        properties.setProperty(PROP_JAVA_PKG, PROP_JAVA_PKG_VALUE);
+
+                        runAnt(
+                                customizer.getAntBuildFileLocation(),
+                                properties,
+                                monitor);
+                    }
+                    // refresh workspace project
+                    creator.getProject().refreshLocal(
+                            IResource.DEPTH_INFINITE,
+                            monitor);
+
+                } finally {
+                    monitor.done();
+                }
+            }
 		};
 
 		try {
 			getContainer().run(true, true, op);
 		} catch (Exception e) {
-			customizer.handleException(e);
+			UtilBase.handleException(e);
 			return null;
 		}
 
@@ -163,7 +168,7 @@ public class NewProjectFromTemplateWizard
 				monitor.worked(1);
 			}
 		} catch (Throwable e) {
-			throw customizer.handleException(e);
+			throw UtilBase.handleException(e);
 		} finally {
 			monitor.done();
 		}

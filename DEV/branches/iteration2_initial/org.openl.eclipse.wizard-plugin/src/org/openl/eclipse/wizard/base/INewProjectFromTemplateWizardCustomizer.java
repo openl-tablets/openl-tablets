@@ -19,6 +19,5 @@ public interface INewProjectFromTemplateWizardCustomizer
   /************************* from IUtilBase */
   public String getString(String key);
   public String getString(String key, String defaultValue);
-  public CoreException handleException(Throwable t);
   /************************* EOF from IUtilBase */
 }

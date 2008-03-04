@@ -149,14 +149,14 @@ public class UtilBase {
     }
 
     // TODO re-think: 'log' plugin
-    private Plugin getLogPlugin() {
+    private static Plugin getLogPlugin() {
         return OpenlWizardPlugin.getDefault();
     }
 
     /**
      * TODO re-think: logging
      */
-    public void log(IStatus status) {
+    public static void log(IStatus status) {
         getLogPlugin().getLog().log(status);
 
         //    if (needToShowEddorDialog(status))
@@ -187,7 +187,7 @@ public class UtilBase {
     /**
      * Returns new CoreException with a given parameters.
      */
-    public CoreException coreException(String message, Throwable t, int code,
+    public static CoreException coreException(String message, Throwable t, int code,
             int severity) {
         return new CoreException(new Status(severity, OpenlWizardPlugin.getDefault().getBundle().getSymbolicName(), code, getMessage(t), t));
     }
@@ -195,14 +195,14 @@ public class UtilBase {
     /**
      * Returns new CoreException with a given parameters.
      */
-    public CoreException coreException(String message) {
+    public static CoreException coreException(String message) {
         return coreException(message, null, -1, IStatus.ERROR);
     }
 
     /**
      * Returns new CoreException with a given parameters.
      */
-    public Throwable unwrapInvocationTargetException(InvocationTargetException t) {
+    public static Throwable unwrapInvocationTargetException(InvocationTargetException t) {
         Throwable cause;
 
         while ((cause = t.getCause()) instanceof InvocationTargetException) {
@@ -215,7 +215,7 @@ public class UtilBase {
     /**
      * Returns new CoreException with a given parameters.
      */
-    public CoreException coreException(Throwable t) {
+    public static CoreException coreException(Throwable t) {
         if (t instanceof CoreException)
             return (CoreException) t;
 
@@ -229,7 +229,7 @@ public class UtilBase {
     /**
      * Generic exception handler.
      */
-    public CoreException handleException(Throwable t) {
+    public static CoreException handleException(Throwable t) {
         CoreException ce = coreException(t);
         log(ce.getStatus());
         return ce;
@@ -246,7 +246,7 @@ public class UtilBase {
     /**
      * Generic exception handler.
      */
-    public CoreException handleException(String message) {
+    public static CoreException handleException(String message) {
         CoreException ce = coreException(message);
         log(ce.getStatus());
         return ce;
@@ -258,7 +258,7 @@ public class UtilBase {
         return handleException(message);
     }
 
-    protected void append(StringBuffer sb, String s) {
+    protected static void append(StringBuffer sb, String s) {
         if (s != null && s.trim().length() > 0) {
             if (sb.length() > 0)
                 sb.append(": ");
@@ -268,7 +268,7 @@ public class UtilBase {
     }
 
     // TODO re-think: unwrap exception stack
-    public String getMessage(Throwable t) {
+    public static String getMessage(Throwable t) {
         StringBuffer sb = new StringBuffer();
 
         append(sb, t.getMessage());
