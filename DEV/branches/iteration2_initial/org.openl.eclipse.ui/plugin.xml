@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension
-         id="org.openl.base.nature"
+         id="OpenlNature"
          name="OpenL Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>

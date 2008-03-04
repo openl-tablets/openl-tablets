@@ -13,8 +13,6 @@ import org.eclipse.core.runtime.CoreException;
  *  
  */
 public class OpenlNature implements IProjectNature {
-    public static final String NATURE_ID = "org.openl.base.nature";
-
     IProject openLProject = null;
 
 

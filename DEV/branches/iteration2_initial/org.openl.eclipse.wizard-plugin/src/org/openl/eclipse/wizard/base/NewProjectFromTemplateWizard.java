@@ -98,7 +98,7 @@ public class NewProjectFromTemplateWizard
 
                     creator.createAndOpen(monitor, 1000);
                     // run ant build
-                    {
+                   /* {
                         Properties properties = new Properties();
                         customizer.setAntBuildFileProperties(properties);
                         String dstDir = creator.getProject().getLocation().toOSString();
@@ -113,7 +113,11 @@ public class NewProjectFromTemplateWizard
                                 customizer.getAntBuildFileLocation(),
                                 properties,
                                 monitor);
-                    }
+                    }                    */
+
+                    creator.addProjectNature();
+                    monitor.worked(100);
+
                     // refresh workspace project
                     creator.getProject().refreshLocal(
                             IResource.DEPTH_INFINITE,
