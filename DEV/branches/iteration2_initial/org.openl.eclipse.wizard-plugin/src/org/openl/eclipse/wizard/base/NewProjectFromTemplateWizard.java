@@ -25,6 +25,7 @@ import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.openl.eclipse.util.IOpenlConstants;
 import org.openl.eclipse.wizard.base.internal.OpenLProjectCreator;
+import org.openl.eclipse.wizard.base.internal.TemplateCopier;
 
 /**
  * @author smesh
@@ -102,22 +103,35 @@ public class NewProjectFromTemplateWizard
                         throw new OperationCanceledException();
                     }
                     // run ant build
-                   /* {
+                    {
                         Properties properties = new Properties();
                         customizer.setAntBuildFileProperties(properties);
+                        
                         String dstDir = creator.getProject().getLocation().toOSString();
                         String dstProjectName = creator.getProject().getName();
+                        
                         properties.setProperty(PROP_DST_DIR, dstDir);
                         properties.setProperty(PROP_DST_PROJECT_NAME, dstProjectName);
-
                         properties.setProperty(PROP_GEN_DIR, PROP_GEN_DIR_VALUE);
                         properties.setProperty(PROP_JAVA_PKG, PROP_JAVA_PKG_VALUE);
+                        
+                        String templateLocation = properties.getProperty(PROP_SRC_DIR);
+                        
+                        TemplateCopier copier = new TemplateCopier();
+                        copier.setProject(creator.getProject());
+                        copier.setTemplateLocation(templateLocation);
+                        copier.setReplaces(properties);
 
-                        runAnt(
-                                customizer.getAntBuildFileLocation(),
-                                properties,
-                                monitor);
-                    }                    */
+                        copier.addReplace("project.name", dstProjectName);
+                        copier.addReplace("project.dir", dstDir);
+                        
+                        copier.copy(monitor);
+
+//                        runAnt(
+//                                customizer.getAntBuildFileLocation(),
+//                                properties,
+//                                monitor);
+                    }
 
                     creator.addProjectNature(JavaCore.NATURE_ID);
                     monitor.worked(100);
