@@ -53,11 +53,25 @@ public class TemplateCopier {
     }
 
     public void copy(IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Copying...", 1);
+        monitor.beginTask("Copying...", 3);
 
-        File root = new File(templateLocation);
-        if (root.exists() && root.isDirectory()) {
-            copyFiles(project, root, monitor);
+        File templateRoot = new File(templateLocation);
+        if (templateRoot.exists() && templateRoot.isDirectory()) {
+            copyFiles(project, templateRoot, monitor);
+            monitor.worked(1);
+
+            String projectName = project.getName();
+            // copy "Generate Template Wrapper.launch" -> "Generate @project.name@ Wrapper.launch"
+            copyLaunch("Generate " + projectName + " Wrapper.launch", new File(templateRoot,
+                    "Generate Template Wrapper.launch"));
+            monitor.worked(1);
+
+            // copy "WebStudio Starter.launch" -> *.*
+            copyLaunch("WebStudio Starter.launch", new File(templateRoot, "WebStudio Starter.launch"));
+            monitor.worked(1);
+        } else {
+            // invalid template folder
+            System.out.println("ERROR: invalid template folder: " + templateRoot.getPath());
         }
 
         monitor.done();
@@ -65,14 +79,14 @@ public class TemplateCopier {
 
     protected void copyFiles(IContainer dest, File srcFolder, IProgressMonitor monitor) throws CoreException {
         File[] files = srcFolder.listFiles();
-        if (files == null)
-            return;
+        if (files == null) return;
 
-        SubProgressMonitor subMonitor = new SubProgressMonitor(monitor, files.length + 1);
+        SubProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1);
+        subMonitor.beginTask(null, files.length + 1);
 
         for (File file : files) {
-            if (monitor.isCanceled())
-                throw new CancellationException();
+            if (monitor.isCanceled()) throw new CancellationException();
+            if (!isInclude(file)) continue;
 
             Path destPath = new Path(file.getName());
 
@@ -87,17 +101,26 @@ public class TemplateCopier {
                 copyFiles(destFolder, file, monitor);
             } else {
                 // file
-                if (isInclude(file)) {
-                    IFile destFile = dest.getFile(destPath);
-    
-                    copyFile(destFile, file);
-                }
+                IFile destFile = dest.getFile(destPath);
+
+                copyFile(destFile, file);
             }
 
             subMonitor.worked(1);
         }
 
         subMonitor.done();
+    }
+
+    protected void copyLaunch(String launchName, File srcFile) throws CoreException {
+        if (srcFile.exists()) {
+            Path destPath = new Path(launchName);
+            IFile destFile = project.getFile(destPath);
+            copyFile(destFile, srcFile);
+        } else {
+            // no such file
+            System.out.println("ERROR: Cannot find template file: " + srcFile.getPath());
+        }
     }
 
     protected void copyFile(IFile destFile, File srcFile) throws CoreException {
@@ -128,8 +151,7 @@ public class TemplateCopier {
 
             while (true) {
                 String s = reader.readLine();
-                if (s == null)
-                    break;
+                if (s == null) break;
 
                 sb.append(s);
                 sb.append('\n');
@@ -148,32 +170,39 @@ public class TemplateCopier {
         } catch (IOException e) {
             throw new CoreException(new Status(IStatus.ERROR, null, "Cannot update content of a template file!", e));
         } finally {
-            if (reader != null)
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // ignore
-                }
+            if (reader != null) try {
+                reader.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
     protected boolean isReplaceable(IFile destFile) {
         String ext = destFile.getFileExtension();
 
-        if ("launch".equals(ext))
-            return true;
-        if ("properties".equals(ext))
-            return true;
+        if ("properties".equalsIgnoreCase(ext)) return true;
+        if ("xml".equalsIgnoreCase(ext)) return true;
+        if ("launch".equalsIgnoreCase(ext)) return true;
+        if ("MANIFEST.MF".equalsIgnoreCase(destFile.getName())) return true;
 
         return false;
     }
-    
+
     protected boolean isInclude(File file) {
         String name = file.getName();
-        
+
         if (".project".equalsIgnoreCase(name)) return false;
         if (".classpath".equalsIgnoreCase(name)) return false;
-        
+        if (".foo".equalsIgnoreCase(name)) return false;
+
+        if (name.endsWith(".launch")) return false;
+
+        // for debug
+        if ("CVS".equals(name)) return false;
+        if (".svn".equals(name)) return false;
+        if (".cvsignore".equals(name)) return false;
+
         return true;
     }
 }
