@@ -24,21 +24,59 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
+/**
+ * Copies files from a template into an eclipse projects.
+ * <p/>
+ * Some files from the template can be ignored,
+ * some others can be processed (replace '@key@' sequences
+ * with corresponding values).
+ * <p/>
+ * Usage:
+ * <pre>
+ * TemplateCopier copier = new TemplateCopier();
+ * 
+ * copier.setProject(aProject);
+ * copier.setTemplateLocation(whereTemplateIs);
+ * 
+ * copier.copy(monitor);
+ * </pre>
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
 public class TemplateCopier {
     private IProject project;
     private String templateLocation;
     private Map<String, String> replaces;
 
+    /**
+     * Sets an eclipse project.
+     * 
+     * @param project an existing eclipse project
+     * @see #copy(IProgressMonitor)
+     */
     public void setProject(IProject project) {
         this.project = project;
     }
 
+    /**
+     * Sets location of a template folder.
+     * 
+     * @param templateLocation location where a template folder is
+     * @see #copy(IProgressMonitor)
+     */
     public void setTemplateLocation(String templateLocation) {
         this.templateLocation = templateLocation;
 
         replaces = new HashMap<String, String>();
     }
 
+    /**
+     * Adds replace records.
+     * 
+     * @param props set of properties
+     * @see #addReplace(String, String)
+     */
     public void setReplaces(Properties props) {
         for (Object k : props.keySet()) {
             String key = k.toString();
@@ -48,10 +86,30 @@ public class TemplateCopier {
         }
     }
 
+    /**
+     * Adds replace record.
+     * <p/>
+     * While copying template into an eclipse project all replaceable files will be processed.
+     * Any '@key@' sequences in them will be replaced with corresponding values.
+     * <p/>
+     * If key '@unknown-key@' wasn't added to replaces then it'll be left untouched.
+     * 
+     * @param key '@key@' sequence without '@' characters
+     * @param value replace value
+     */
     public void addReplace(String key, String value) {
         replaces.put("@" + key + "@", value);
     }
 
+    /**
+     * Copies content of a template into an eclipse project.
+     * <p/>
+     * Before invoking this method <b>project</b> and <b>template location</b> must be set.
+     * See {@link #setProject(IProject)} and {@link #setTemplateLocation(String)} methods.
+     * 
+     * @param monitor progress monitor
+     * @throws CoreException if failed
+     */
     public void copy(IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Copying...", 3);
 
@@ -77,6 +135,14 @@ public class TemplateCopier {
         monitor.done();
     }
 
+    /**
+     * Copies a template folder into an eclipse project recursively.
+     * 
+     * @param dest destination folder (eclipse project)
+     * @param srcFolder source folder (template)
+     * @param monitor progress monitor
+     * @throws CoreException if failed
+     */
     protected void copyFiles(IContainer dest, File srcFolder, IProgressMonitor monitor) throws CoreException {
         File[] files = srcFolder.listFiles();
         if (files == null) return;
@@ -112,6 +178,13 @@ public class TemplateCopier {
         subMonitor.done();
     }
 
+    /**
+     * Copies (and modifies) launch file.
+     * 
+     * @param launchName name of launch file in an eclipse project
+     * @param srcFile source file in a template
+     * @throws CoreException if failed
+     */
     protected void copyLaunch(String launchName, File srcFile) throws CoreException {
         if (srcFile.exists()) {
             Path destPath = new Path(launchName);
@@ -123,6 +196,13 @@ public class TemplateCopier {
         }
     }
 
+    /**
+     * Copies file from template into an eclipse project.
+     * 
+     * @param destFile destination file (eclipse project)
+     * @param srcFile source file (template)
+     * @throws CoreException if failed
+     */
     protected void copyFile(IFile destFile, File srcFile) throws CoreException {
         try {
             InputStream content;
@@ -141,6 +221,17 @@ public class TemplateCopier {
         }
     }
 
+    /**
+     * Creates InputStream from source file and modifies its content.
+     * Replaces '@key@' sequences with corresponding values from {@link #replaces} map.
+     * <p/>
+     * Note, it works for 'ASCII' like files.
+     * I.e. for files where each character is represented by 1 byte.
+     * 
+     * @param srcFile template source file
+     * @return new input stream (byte array)
+     * @throws CoreException if failed
+     */
     protected InputStream replaceContent(File srcFile) throws CoreException {
         BufferedReader reader = null;
 
@@ -165,6 +256,7 @@ public class TemplateCopier {
                 s = s.replace(key, value);
             }
 
+            // WARNING: works with char=byte encodings only
             byte[] buffer = s.getBytes();
             return new ByteArrayInputStream(buffer);
         } catch (IOException e) {
@@ -178,17 +270,33 @@ public class TemplateCopier {
         }
     }
 
+    /**
+     * Checks whether content of a file should be modified.
+     * I.e. whether a file can contain '@key@' sequences.
+     * 
+     * @param destFile file in an eclipse project
+     * @return true if file should be processed on copy
+     */
     protected boolean isReplaceable(IFile destFile) {
         String ext = destFile.getFileExtension();
 
         if ("properties".equalsIgnoreCase(ext)) return true;
-        if ("xml".equalsIgnoreCase(ext)) return true;
         if ("launch".equalsIgnoreCase(ext)) return true;
+
+        // TODO make them '@key@' free
+        if ("xml".equalsIgnoreCase(ext)) return true;
         if ("MANIFEST.MF".equalsIgnoreCase(destFile.getName())) return true;
 
         return false;
     }
 
+    /**
+     * Checks whether a file or a folder should be copied from template 
+     * into an eclipse project.
+     * 
+     * @param file template file
+     * @return true -- include; false -- do not copy
+     */
     protected boolean isInclude(File file) {
         String name = file.getName();
 
@@ -196,6 +304,7 @@ public class TemplateCopier {
         if (".classpath".equalsIgnoreCase(name)) return false;
         if (".foo".equalsIgnoreCase(name)) return false;
 
+        // launch files are treated separately
         if (name.endsWith(".launch")) return false;
 
         // for debug
