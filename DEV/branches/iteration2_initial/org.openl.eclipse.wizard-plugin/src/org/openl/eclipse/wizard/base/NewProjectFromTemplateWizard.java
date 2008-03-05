@@ -23,6 +23,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
+import org.eclipse.pde.internal.core.natures.PDE;
 import org.openl.eclipse.util.IOpenlConstants;
 import org.openl.eclipse.wizard.base.internal.OpenLProjectCreator;
 import org.openl.eclipse.wizard.base.internal.TemplateCopier;
@@ -98,7 +99,7 @@ public class NewProjectFromTemplateWizard
                 try {
                     monitor.beginTask(null, 2000);
 
-                    creator.createAndOpen(new SubProgressMonitor(monitor, 1000));
+                    creator.createAndOpen(new SubProgressMonitor(monitor, 800));
                     if (monitor.isCanceled()) {
                         throw new OperationCanceledException();
                     }
@@ -126,7 +127,7 @@ public class NewProjectFromTemplateWizard
                         copier.addReplace("project.dir", dstDir);
                         copier.addRename("Generate Template Wrapper.launch", "Generate " + dstProjectName + " Wrapper.launch");
 
-                        copier.copy(monitor);
+                        copier.copy(new SubProgressMonitor(monitor, 800));
 
 //                        runAnt(
 //                                customizer.getAntBuildFileLocation(),
@@ -134,13 +135,18 @@ public class NewProjectFromTemplateWizard
 //                                monitor);
                     }
 
-                    creator.addProjectNature(JavaCore.NATURE_ID);
-                    monitor.worked(100);
-                    creator.addProjectNature(IOpenlConstants.OPENL_NATURE_ID);
+                    final String[] natures = new String[] {
+                            JavaCore.NATURE_ID, IOpenlConstants.OPENL_NATURE_ID, PDE.PLUGIN_NATURE
+                    };
+
+                    for (String nature : natures) {
+                        creator.addProjectNature(nature);
+                    }
+
                     monitor.worked(100);
 
                     creator.setupClasspath();
-                    monitor.worked(800);
+                    monitor.worked(300);
 
                     // refresh workspace project
                     creator.getProject().refreshLocal(
