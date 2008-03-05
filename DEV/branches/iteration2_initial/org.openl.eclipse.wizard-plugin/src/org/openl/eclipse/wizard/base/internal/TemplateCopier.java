@@ -26,12 +26,12 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 
 /**
  * Copies files from a template into an eclipse projects.
- * <p/>
- * Some files from the template can be ignored,
- * some others can be processed (replace '@key@' sequences
- * with corresponding values).
- * <p/>
+ * <p>
+ * Some files from the template can be ignored, some others can be processed
+ * (replace '@key@' sequences with corresponding values).
+ * </p>
  * Usage:
+ * 
  * <pre>
  * TemplateCopier copier = new TemplateCopier();
  * 
@@ -42,17 +42,36 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  * </pre>
  * 
  * @author Aleh Bykhavets
- *
+ * 
  */
 public class TemplateCopier {
+    /**
+     * An eclipse project
+     */
     private IProject project;
+    /**
+     * Root folder of a template
+     */
     private String templateLocation;
+    /**
+     * Replace map: '@key@' -> 'value'
+     */
     private Map<String, String> replaces;
+    /**
+     * Rename map: old-file-name -> new-file-name
+     */
+    private Map<String, String> renames;
+
+    public TemplateCopier() {
+        replaces = new HashMap<String, String>();
+        renames = new HashMap<String, String>();
+    }
 
     /**
      * Sets an eclipse project.
      * 
-     * @param project an existing eclipse project
+     * @param project
+     *                an existing eclipse project
      * @see #copy(IProgressMonitor)
      */
     public void setProject(IProject project) {
@@ -62,19 +81,19 @@ public class TemplateCopier {
     /**
      * Sets location of a template folder.
      * 
-     * @param templateLocation location where a template folder is
+     * @param templateLocation
+     *                location where a template folder is
      * @see #copy(IProgressMonitor)
      */
     public void setTemplateLocation(String templateLocation) {
         this.templateLocation = templateLocation;
-
-        replaces = new HashMap<String, String>();
     }
 
     /**
      * Adds replace records.
      * 
-     * @param props set of properties
+     * @param props
+     *                set of properties
      * @see #addReplace(String, String)
      */
     public void setReplaces(Properties props) {
@@ -88,44 +107,53 @@ public class TemplateCopier {
 
     /**
      * Adds replace record.
-     * <p/>
-     * While copying template into an eclipse project all replaceable files will be processed.
-     * Any '@key@' sequences in them will be replaced with corresponding values.
-     * <p/>
-     * If key '@unknown-key@' wasn't added to replaces then it'll be left untouched.
+     * <p>
+     * While copying template into an eclipse project all replaceable files will
+     * be processed. Any '@key@' sequences in them will be replaced with
+     * corresponding values.
+     * </p>
+     * If key '@unknown-key@' wasn't added to replaces then it'll be left
+     * untouched.
      * 
-     * @param key '@key@' sequence without '@' characters
-     * @param value replace value
+     * @param key
+     *                '@key@' sequence without '@' characters
+     * @param value
+     *                replace value
      */
     public void addReplace(String key, String value) {
         replaces.put("@" + key + "@", value);
     }
 
     /**
-     * Copies content of a template into an eclipse project.
-     * <p/>
-     * Before invoking this method <b>project</b> and <b>template location</b> must be set.
-     * See {@link #setProject(IProject)} and {@link #setTemplateLocation(String)} methods.
+     * Adds rename record.
      * 
-     * @param monitor progress monitor
-     * @throws CoreException if failed
+     * @param templateFileName
+     *                name of file in a template
+     * @param projectFileName
+     *                name of file in a project
+     */
+    public void addRename(String templateFileName, String projectFileName) {
+        renames.put(templateFileName, projectFileName);
+    }
+
+    /**
+     * Copies content of a template into an eclipse project.
+     * <p>
+     * Before invoking this method <b>project</b> and <b>template location</b>
+     * must be set. See {@link #setProject(IProject)} and
+     * {@link #setTemplateLocation(String)} methods.
+     * 
+     * @param monitor
+     *                progress monitor
+     * @throws CoreException
+     *                 if failed
      */
     public void copy(IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Copying...", 3);
+        monitor.beginTask("Copying...", 2);
 
         File templateRoot = new File(templateLocation);
         if (templateRoot.exists() && templateRoot.isDirectory()) {
             copyFiles(project, templateRoot, monitor);
-            monitor.worked(1);
-
-            String projectName = project.getName();
-            // copy "Generate Template Wrapper.launch" -> "Generate @project.name@ Wrapper.launch"
-            copyLaunch("Generate " + projectName + " Wrapper.launch", new File(templateRoot,
-                    "Generate Template Wrapper.launch"));
-            monitor.worked(1);
-
-            // copy "WebStudio Starter.launch" -> *.*
-            copyLaunch("WebStudio Starter.launch", new File(templateRoot, "WebStudio Starter.launch"));
             monitor.worked(1);
         } else {
             // invalid template folder
@@ -138,10 +166,14 @@ public class TemplateCopier {
     /**
      * Copies a template folder into an eclipse project recursively.
      * 
-     * @param dest destination folder (eclipse project)
-     * @param srcFolder source folder (template)
-     * @param monitor progress monitor
-     * @throws CoreException if failed
+     * @param dest
+     *                destination folder (eclipse project)
+     * @param srcFolder
+     *                source folder (template)
+     * @param monitor
+     *                progress monitor
+     * @throws CoreException
+     *                 if failed
      */
     protected void copyFiles(IContainer dest, File srcFolder, IProgressMonitor monitor) throws CoreException {
         File[] files = srcFolder.listFiles();
@@ -154,7 +186,13 @@ public class TemplateCopier {
             if (monitor.isCanceled()) throw new CancellationException();
             if (!isInclude(file)) continue;
 
-            Path destPath = new Path(file.getName());
+            String destName = file.getName();
+
+            // check, whether file should be renamed
+            String s = renames.get(destName);
+            if (s != null) destName = s;
+
+            Path destPath = new Path(destName);
 
             if (file.isDirectory()) {
                 // folder
@@ -181,9 +219,12 @@ public class TemplateCopier {
     /**
      * Copies (and modifies) launch file.
      * 
-     * @param launchName name of launch file in an eclipse project
-     * @param srcFile source file in a template
-     * @throws CoreException if failed
+     * @param launchName
+     *                name of launch file in an eclipse project
+     * @param srcFile
+     *                source file in a template
+     * @throws CoreException
+     *                 if failed
      */
     protected void copyLaunch(String launchName, File srcFile) throws CoreException {
         if (srcFile.exists()) {
@@ -199,9 +240,12 @@ public class TemplateCopier {
     /**
      * Copies file from template into an eclipse project.
      * 
-     * @param destFile destination file (eclipse project)
-     * @param srcFile source file (template)
-     * @throws CoreException if failed
+     * @param destFile
+     *                destination file (eclipse project)
+     * @param srcFile
+     *                source file (template)
+     * @throws CoreException
+     *                 if failed
      */
     protected void copyFile(IFile destFile, File srcFile) throws CoreException {
         try {
@@ -222,15 +266,17 @@ public class TemplateCopier {
     }
 
     /**
-     * Creates InputStream from source file and modifies its content.
-     * Replaces '@key@' sequences with corresponding values from {@link #replaces} map.
-     * <p/>
-     * Note, it works for 'ASCII' like files.
-     * I.e. for files where each character is represented by 1 byte.
+     * Creates InputStream from source file and modifies its content. Replaces
+     * '@key@' sequences with corresponding values from {@link #replaces} map.
+     * <p>
+     * Note, it works for 'ASCII' like files. I.e. for files where each
+     * character is represented by 1 byte.
      * 
-     * @param srcFile template source file
+     * @param srcFile
+     *                template source file
      * @return new input stream (byte array)
-     * @throws CoreException if failed
+     * @throws CoreException
+     *                 if failed
      */
     protected InputStream replaceContent(File srcFile) throws CoreException {
         BufferedReader reader = null;
@@ -271,16 +317,18 @@ public class TemplateCopier {
     }
 
     /**
-     * Checks whether content of a file should be modified.
-     * I.e. whether a file can contain '@key@' sequences.
+     * Checks whether content of a file should be modified. I.e. whether a file
+     * can contain '@key@' sequences.
      * 
-     * @param destFile file in an eclipse project
+     * @param destFile
+     *                file in an eclipse project
      * @return true if file should be processed on copy
      */
     protected boolean isReplaceable(IFile destFile) {
         String ext = destFile.getFileExtension();
 
         if ("properties".equalsIgnoreCase(ext)) return true;
+        // in case of new project
         if ("launch".equalsIgnoreCase(ext)) return true;
 
         // TODO make them '@key@' free
@@ -291,10 +339,11 @@ public class TemplateCopier {
     }
 
     /**
-     * Checks whether a file or a folder should be copied from template 
-     * into an eclipse project.
+     * Checks whether a file or a folder should be copied from template into an
+     * eclipse project.
      * 
-     * @param file template file
+     * @param file
+     *                template file
      * @return true -- include; false -- do not copy
      */
     protected boolean isInclude(File file) {
@@ -303,9 +352,6 @@ public class TemplateCopier {
         if (".project".equalsIgnoreCase(name)) return false;
         if (".classpath".equalsIgnoreCase(name)) return false;
         if (".foo".equalsIgnoreCase(name)) return false;
-
-        // launch files are treated separately
-        if (name.endsWith(".launch")) return false;
 
         // for debug
         if ("CVS".equals(name)) return false;

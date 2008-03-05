@@ -124,7 +124,8 @@ public class NewProjectFromTemplateWizard
 
                         copier.addReplace("project.name", dstProjectName);
                         copier.addReplace("project.dir", dstDir);
-                        
+                        copier.addRename("Generate Template Wrapper.launch", "Generate " + dstProjectName + " Wrapper.launch");
+
                         copier.copy(monitor);
 
 //                        runAnt(
