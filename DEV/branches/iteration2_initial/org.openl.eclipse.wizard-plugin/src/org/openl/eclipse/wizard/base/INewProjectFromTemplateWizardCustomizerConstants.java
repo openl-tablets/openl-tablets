@@ -3,6 +3,8 @@
  */
 package org.openl.eclipse.wizard.base;
 
+import org.openl.eclipse.wizard.base.internal.TemplateCopier;
+
 
 /**
  * @author smesh
@@ -35,6 +37,10 @@ public interface INewProjectFromTemplateWizardCustomizerConstants
 	static public final String KEY_INITIAL_PROJECT_NAME =
 	  "initialProjectName";
 
+  /**
+   * @deprecated ant build file is no longer used.
+   * @see TemplateCopier
+   */
   static public final String KEY_BUILD_FILE = "buildFile";
 
   static public final String KEY_TEMPLATE_PROJECT_DIR = "templateProjectDir";
