@@ -11,18 +11,19 @@ import java.util.Properties;
 
 import org.eclipse.ant.core.AntRunner;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
+import org.openl.eclipse.util.IOpenlConstants;
 import org.openl.eclipse.wizard.base.internal.OpenLProjectCreator;
 
 /**
@@ -96,7 +97,10 @@ public class NewProjectFromTemplateWizard
                 try {
                     monitor.beginTask(null, 2000);
 
-                    creator.createAndOpen(monitor, 1000);
+                    creator.createAndOpen(new SubProgressMonitor(monitor, 1000));
+                    if (monitor.isCanceled()) {
+                        throw new OperationCanceledException();
+                    }
                     // run ant build
                    /* {
                         Properties properties = new Properties();
@@ -115,8 +119,13 @@ public class NewProjectFromTemplateWizard
                                 monitor);
                     }                    */
 
-                    creator.addProjectNature();
+                    creator.addProjectNature(JavaCore.NATURE_ID);
                     monitor.worked(100);
+                    creator.addProjectNature(IOpenlConstants.OPENL_NATURE_ID);
+                    monitor.worked(100);
+
+                    creator.setupClasspath();
+                    monitor.worked(800);
 
                     // refresh workspace project
                     creator.getProject().refreshLocal(
