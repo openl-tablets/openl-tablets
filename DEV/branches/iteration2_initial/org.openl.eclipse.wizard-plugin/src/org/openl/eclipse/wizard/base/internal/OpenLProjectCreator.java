@@ -82,7 +82,7 @@ public class OpenLProjectCreator {
 
         IPath outputPath = projPath.append("bin");
         IPath srcPath = projPath.append("src");
-        IPath srcGenPath = projPath.append("src");
+        IPath srcGenPath = projPath.append("gen");
 
         IClasspathEntry[] entries = new IClasspathEntry[] {
                 JavaCore.newSourceEntry(srcPath),
