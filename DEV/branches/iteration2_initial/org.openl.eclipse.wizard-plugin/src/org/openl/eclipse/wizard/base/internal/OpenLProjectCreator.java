@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.pde.internal.core.PDECore;
 import org.openl.eclipse.wizard.base.UtilBase;
 
 /**
@@ -81,10 +82,13 @@ public class OpenLProjectCreator {
 
         IPath outputPath = projPath.append("bin");
         IPath srcPath = projPath.append("src");
+        IPath srcGenPath = projPath.append("src");
 
         IClasspathEntry[] entries = new IClasspathEntry[] {
                 JavaCore.newSourceEntry(srcPath),
-                JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER"))
+                JavaCore.newSourceEntry(srcGenPath),
+                JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER")),
+                JavaCore.newContainerEntry(PDECore.REQUIRED_PLUGINS_CONTAINER_PATH)
         };
 
         setClasspath(entries, outputPath);
