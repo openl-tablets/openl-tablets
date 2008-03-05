@@ -157,7 +157,8 @@ public class TemplateCopier {
             monitor.worked(1);
         } else {
             // invalid template folder
-            System.out.println("ERROR: invalid template folder: " + templateRoot.getPath());
+            throw new CoreException(new Status(IStatus.ERROR, null, "Invalid template folder: "
+                    + templateRoot.getPath(), null));
         }
 
         monitor.done();
@@ -233,7 +234,8 @@ public class TemplateCopier {
             copyFile(destFile, srcFile);
         } else {
             // no such file
-            System.out.println("ERROR: Cannot find template file: " + srcFile.getPath());
+            throw new CoreException(new Status(IStatus.ERROR, null, "Cannot find template file: " + srcFile.getPath(),
+                    null));
         }
     }
 
@@ -252,14 +254,16 @@ public class TemplateCopier {
             InputStream content;
 
             if (isReplaceable(destFile)) {
-                System.out.println("copy & replace: " + srcFile.getPath() + " -> " + destFile.getLocation().toString());
+                // System.out.println("copy & replace: " + srcFile.getPath() + "
+                // -> " + destFile.getLocation().toString());
                 content = replaceContent(srcFile);
             } else {
-                System.out.println("copy: " + srcFile.getPath() + " -> " + destFile.getLocation().toString());
+                // System.out.println("copy: " + srcFile.getPath() + " -> " +
+                // destFile.getLocation().toString());
                 content = new FileInputStream(srcFile);
             }
 
-            destFile.create(content, false, null);
+            destFile.create(content, true, null);
         } catch (FileNotFoundException e) {
             throw new CoreException(new Status(IStatus.ERROR, null, "Cannot find file in template!", e));
         }
