@@ -12,11 +12,11 @@ public class NewSimpleOpenLRulesProjectWizard
 
   public NewSimpleOpenLRulesProjectWizard()
   {
-    super(
-        new NewProjectFromTemplateWizardCustomizer(
-                RulesWizardPlugin.getDefault().getBundle(),
-                "NewSimpleOpenLRulesProjectWizard")
-    );
+    super(new NewProjectFromTemplateWizardCustomizer(
+      RulesWizardPlugin.getDefault().getBundle(),
+      "NewSimpleOpenLRulesProjectWizard")
+    {
+    });
   }
 
 }
