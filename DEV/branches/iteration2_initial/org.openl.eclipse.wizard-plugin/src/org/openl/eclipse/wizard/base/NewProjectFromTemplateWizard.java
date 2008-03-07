@@ -3,13 +3,6 @@
  */
 package org.openl.eclipse.wizard.base;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
-import org.eclipse.ant.core.AntRunner;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -18,12 +11,12 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.pde.internal.core.natures.PDE;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
-import org.eclipse.pde.internal.core.natures.PDE;
 import org.openl.eclipse.util.IOpenlConstants;
 import org.openl.eclipse.wizard.base.internal.OpenLProjectCreator;
 import org.openl.eclipse.wizard.base.internal.TemplateCopier;
@@ -105,27 +98,8 @@ public class NewProjectFromTemplateWizard
                     }
                     // run ant build
                     {
-                        Properties properties = new Properties();
-                        customizer.setAntBuildFileProperties(properties);
-                        
-                        String dstDir = creator.getProject().getLocation().toOSString();
-                        String dstProjectName = creator.getProject().getName();
-                        
-                        properties.setProperty(PROP_DST_DIR, dstDir);
-                        properties.setProperty(PROP_DST_PROJECT_NAME, dstProjectName);
-                        properties.setProperty(PROP_GEN_DIR, PROP_GEN_DIR_VALUE);
-                        properties.setProperty(PROP_JAVA_PKG, PROP_JAVA_PKG_VALUE);
-                        
-                        String templateLocation = properties.getProperty(PROP_SRC_DIR);
-                        
-                        TemplateCopier copier = new TemplateCopier();
-                        copier.setProject(creator.getProject());
-                        copier.setTemplateLocation(templateLocation);
-                        copier.setReplaces(properties);
 
-                        copier.addReplace("project.name", dstProjectName);
-                        copier.addReplace("project.dir", dstDir);
-                        copier.addRename("Generate Template Wrapper.launch", "Generate " + dstProjectName + " Wrapper.launch");
+                        TemplateCopier copier = new TemplateCopier(creator.getProject(), customizer);
 
                         copier.copy(new SubProgressMonitor(monitor, 800));
 
