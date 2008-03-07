@@ -1,5 +1,9 @@
 package org.openl.eclipse.wizard.base.internal;
 
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -15,6 +19,8 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.pde.internal.core.PDECore;
 import org.openl.eclipse.wizard.base.UtilBase;
 
@@ -77,32 +83,75 @@ public class OpenLProjectCreator {
         }
     }
 
-    public void setupClasspath() throws CoreException {
+    public boolean removeProjectNature(String natureId) throws CoreException {
+        if (!project.hasNature(natureId)) {
+            return true;
+        }
+
+        IProjectDescription description = project.getDescription();
+        String[] natures = description.getNatureIds();
+        Collection<String> newNatures = new ArrayList<String>();
+        for (String nature : natures) {
+            if (!nature.equals(natureId)) {
+                newNatures.add(nature);
+            }
+        }
+
+        description.setNatureIds(newNatures.toArray(new String[newNatures.size()]));
+        project.setDescription(description, IResource.FORCE, null);
+        
+        return true;
+    }
+
+    public void setupClasspath(boolean isNewProject) throws CoreException {
         IPath projPath = project.getFullPath();
 
         IPath outputPath = projPath.append("bin");
         IPath srcPath = projPath.append("src");
         IPath srcGenPath = projPath.append("gen");
 
-        IClasspathEntry[] entries = new IClasspathEntry[] {
-                JavaCore.newSourceEntry(srcPath),
-                JavaCore.newSourceEntry(srcGenPath),
-                JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER")),
-                JavaCore.newContainerEntry(PDECore.REQUIRED_PLUGINS_CONTAINER_PATH)
-        };
+        IClasspathEntry[] entries;
 
-        setClasspath(entries, outputPath);
+        if (isNewProject) {
+            entries = new IClasspathEntry[]{
+                    JavaCore.newSourceEntry(srcPath),
+                    JavaCore.newSourceEntry(srcGenPath),
+                    JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER")),
+                    JavaCore.newContainerEntry(PDECore.REQUIRED_PLUGINS_CONTAINER_PATH)
+            };
+        } else {
+            entries = new IClasspathEntry[] {
+                    JavaCore.newSourceEntry(srcPath),
+                    JavaCore.newSourceEntry(srcGenPath),
+            };
+        }
+
+        IJavaProject javaProject = JavaCore.create(project);
+        entries = mergeClasspath(isNewProject ? new IClasspathEntry[0] : javaProject.getRawClasspath(), entries);
+
+        createSourceFolders(entries);
+        if (isNewProject) {
+            createFolder(outputPath);
+            javaProject.setRawClasspath(entries, outputPath, true, null);
+        } else {
+            javaProject.setRawClasspath(entries, true, null);
+        }
     }
 
-    private void setClasspath(IClasspathEntry[] entries, IPath outputLocation) throws CoreException {
+    private void createSourceFolders(IClasspathEntry[] entries) throws CoreException {
         for (IClasspathEntry e : entries) {
             if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
                 createFolder(e.getPath());
         }
+    }
 
-        createFolder(outputLocation);
+    private static IClasspathEntry[] mergeClasspath(IClasspathEntry[] sourceEntries, IClasspathEntry[] newEntries) throws JavaModelException {
+        Collection<IClasspathEntry> entries = new ArrayList<IClasspathEntry>(Arrays.asList(sourceEntries));
+        for (IClasspathEntry newEntry : newEntries)
+            if (!entries.contains(newEntry))
+                entries.add(newEntry);
 
-        JavaCore.create(project).setRawClasspath(entries, outputLocation, true, null);
+        return entries.toArray(new IClasspathEntry[entries.size()]);
     }
 
     private void createFolder(IPath folderPath) throws CoreException {
