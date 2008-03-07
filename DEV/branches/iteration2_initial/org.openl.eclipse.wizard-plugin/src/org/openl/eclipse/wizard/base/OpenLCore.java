@@ -18,9 +18,17 @@ public class OpenLCore {
 
         OpenLProjectCreator creator = new OpenLProjectCreator(project, project.getLocation());
         creator.addProjectNature(IOpenlConstants.OPENL_NATURE_ID);
-        creator.setupClasspath();
+        creator.setupClasspath(false);
 
         TemplateCopier templateCopier = new TemplateCopier(project, customizer);
         templateCopier.copy(null);
+    }
+
+    public static void removeOpenLCapabilities(IProject project) throws CoreException {
+        if (!project.hasNature(IOpenlConstants.OPENL_NATURE_ID)) {
+            return;
+        }
+
+        new OpenLProjectCreator(project, project.getLocation()).removeProjectNature(IOpenlConstants.OPENL_NATURE_ID);
     }
 }

@@ -114,7 +114,7 @@ public class NewProjectFromTemplateWizard
 
                     monitor.worked(100);
 
-                    creator.setupClasspath();
+                    creator.setupClasspath(true);
                     monitor.worked(300);
 
                     // refresh workspace project
