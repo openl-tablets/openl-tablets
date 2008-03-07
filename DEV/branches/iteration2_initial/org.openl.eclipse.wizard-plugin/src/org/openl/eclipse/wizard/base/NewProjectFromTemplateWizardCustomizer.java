@@ -44,7 +44,7 @@ public class NewProjectFromTemplateWizardCustomizer
 		return result;
 	}
 
-	public void setAntBuildFileProperties(Properties properties) {
+	public void setTemplateProperties(Properties properties) {
 		properties.setProperty(PROP_SRC_DIR, getTemplateProjectDir());
 	}
 
