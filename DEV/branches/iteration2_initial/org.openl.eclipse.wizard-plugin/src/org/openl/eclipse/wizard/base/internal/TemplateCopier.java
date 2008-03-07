@@ -70,7 +70,7 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
         renames = new HashMap<String, String>();
 
         Properties properties = new Properties();
-        customizer.setAntBuildFileProperties(properties);
+        customizer.setTemplateProperties(properties);
 
         String dstDir = project.getLocation().toOSString();
         String dstProjectName = project.getName();
@@ -86,8 +86,6 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
         setTemplateLocation(templateLocation);
         setReplaces(properties);
 
-        addReplace("project.name", dstProjectName);
-        addReplace("project.dir", dstDir);
         addRename("Generate Template Wrapper.launch", "Generate " + dstProjectName + " Wrapper.launch");
     }
 

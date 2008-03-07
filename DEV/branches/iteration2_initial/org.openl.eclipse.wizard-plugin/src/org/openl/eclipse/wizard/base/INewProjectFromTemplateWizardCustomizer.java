@@ -11,7 +11,7 @@ import java.util.Properties;
 public interface INewProjectFromTemplateWizardCustomizer
 {
 
-  public void setAntBuildFileProperties(Properties properties);
+  public void setTemplateProperties(Properties properties);
 
   /************************* from IUtilBase */
   public String getString(String key);

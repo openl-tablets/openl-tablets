@@ -13,7 +13,7 @@ public interface INewProjectFromTemplateWizardCustomizerConstants
 {
   static public final String PROP_SRC_DIR = "src.dir";
 
-  static public final String PROP_DST_DIR = "dst.dir";
+  static public final String PROP_DST_DIR = "project.dir";
 
   static public final String PROP_GEN_DIR = "project.gen.dir";
   static public final String PROP_GEN_DIR_VALUE = "gen";
@@ -24,7 +24,7 @@ public interface INewProjectFromTemplateWizardCustomizerConstants
   
   
   
-  static public final String PROP_DST_PROJECT_NAME = "dst.project.name";
+  static public final String PROP_DST_PROJECT_NAME = "project.name";
 
   static public final String KEY_NEWPROJECT_WINDOW_TITLE =
     "NewProject.windowTitle";
