@@ -27,12 +27,6 @@ public class NewProjectFromTemplateWizardCustomizer
 		this.propertyKeyPrefix = propertyKeyPrefix;
 	}
 
-	public String getAntBuildFileLocation() {
-		String buildFile = getString(KEY_BUILD_FILE);
-
-		return toCanonicalUrl(descriptor, buildFile);
-	}
-
 	public String getTemplateProjectDir() {
 		String templateProjectDir = getString(KEY_TEMPLATE_PROJECT_DIR);
 
