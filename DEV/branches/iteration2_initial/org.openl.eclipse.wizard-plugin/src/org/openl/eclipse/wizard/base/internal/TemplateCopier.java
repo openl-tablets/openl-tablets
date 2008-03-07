@@ -65,6 +65,8 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
      */
     private Map<String, String> renames;
 
+    private boolean ignoreManifect;
+
     public TemplateCopier(IProject project, INewProjectFromTemplateWizardCustomizer customizer) {
         replaces = new HashMap<String, String>();
         renames = new HashMap<String, String>();
@@ -87,6 +89,10 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
         setReplaces(properties);
 
         addRename("Generate Template Wrapper.launch", "Generate " + dstProjectName + " Wrapper.launch");
+    }
+
+    public void setIgnoreManifect(boolean ignoreManifect) {
+        this.ignoreManifect = ignoreManifect;
     }
 
     /**
@@ -387,6 +393,8 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
         if (".svn".equals(name)) return false;
         if (".cvsignore".equals(name)) return false;
 
+        if (ignoreManifect && "META-INF".equals(name)) return false;
+        
         return true;
     }
 }

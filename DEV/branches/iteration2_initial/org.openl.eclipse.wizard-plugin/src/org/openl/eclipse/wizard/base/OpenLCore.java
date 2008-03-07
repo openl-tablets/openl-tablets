@@ -21,6 +21,7 @@ public class OpenLCore {
         creator.setupClasspath(false);
 
         TemplateCopier templateCopier = new TemplateCopier(project, customizer);
+        templateCopier.setIgnoreManifect(true);
         templateCopier.copy(null);
     }
 
