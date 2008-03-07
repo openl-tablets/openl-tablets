@@ -23,6 +23,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.openl.eclipse.wizard.base.INewProjectFromTemplateWizardCustomizer;
+import org.openl.eclipse.wizard.base.INewProjectFromTemplateWizardCustomizerConstants;
 
 /**
  * Copies files from a template into an eclipse projects.
@@ -44,7 +47,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  * @author Aleh Bykhavets
  * 
  */
-public class TemplateCopier {
+public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerConstants {
     /**
      * An eclipse project
      */
@@ -62,9 +65,30 @@ public class TemplateCopier {
      */
     private Map<String, String> renames;
 
-    public TemplateCopier() {
+    public TemplateCopier(IProject project, INewProjectFromTemplateWizardCustomizer customizer) {
         replaces = new HashMap<String, String>();
         renames = new HashMap<String, String>();
+
+        Properties properties = new Properties();
+        customizer.setAntBuildFileProperties(properties);
+
+        String dstDir = project.getLocation().toOSString();
+        String dstProjectName = project.getName();
+
+        properties.setProperty(PROP_DST_DIR, dstDir);
+        properties.setProperty(PROP_DST_PROJECT_NAME, dstProjectName);
+        properties.setProperty(PROP_GEN_DIR, PROP_GEN_DIR_VALUE);
+        properties.setProperty(PROP_JAVA_PKG, PROP_JAVA_PKG_VALUE);
+
+        String templateLocation = properties.getProperty(PROP_SRC_DIR);
+
+        setProject(project);
+        setTemplateLocation(templateLocation);
+        setReplaces(properties);
+
+        addReplace("project.name", dstProjectName);
+        addReplace("project.dir", dstDir);
+        addRename("Generate Template Wrapper.launch", "Generate " + dstProjectName + " Wrapper.launch");
     }
 
     /**
@@ -74,7 +98,7 @@ public class TemplateCopier {
      *                an existing eclipse project
      * @see #copy(IProgressMonitor)
      */
-    public void setProject(IProject project) {
+    private void setProject(IProject project) {
         this.project = project;
     }
 
@@ -85,7 +109,7 @@ public class TemplateCopier {
      *                location where a template folder is
      * @see #copy(IProgressMonitor)
      */
-    public void setTemplateLocation(String templateLocation) {
+    private void setTemplateLocation(String templateLocation) {
         this.templateLocation = templateLocation;
     }
 
@@ -96,7 +120,7 @@ public class TemplateCopier {
      *                set of properties
      * @see #addReplace(String, String)
      */
-    public void setReplaces(Properties props) {
+    private void setReplaces(Properties props) {
         for (Object k : props.keySet()) {
             String key = k.toString();
             String value = props.getProperty(key);
@@ -120,7 +144,7 @@ public class TemplateCopier {
      * @param value
      *                replace value
      */
-    public void addReplace(String key, String value) {
+    private void addReplace(String key, String value) {
         replaces.put("@" + key + "@", value);
     }
 
@@ -149,6 +173,9 @@ public class TemplateCopier {
      *                 if failed
      */
     public void copy(IProgressMonitor monitor) throws CoreException {
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
         monitor.beginTask("Copying...", 2);
 
         File templateRoot = new File(templateLocation);
