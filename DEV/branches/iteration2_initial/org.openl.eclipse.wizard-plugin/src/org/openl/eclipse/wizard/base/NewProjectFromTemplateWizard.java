@@ -102,11 +102,6 @@ public class NewProjectFromTemplateWizard
                         TemplateCopier copier = new TemplateCopier(creator.getProject(), customizer);
 
                         copier.copy(new SubProgressMonitor(monitor, 800));
-
-//                        runAnt(
-//                                customizer.getAntBuildFileLocation(),
-//                                properties,
-//                                monitor);
                     }
 
                     final String[] natures = new String[] {
@@ -142,47 +137,4 @@ public class NewProjectFromTemplateWizard
 
 		return creator.getProject();
 	}
-
-//	/**
-//	 * @deprecated Use {@link TemplateCopier} instead
-//	 */
-//	private void runAnt(
-//		String buildFileLocation,
-//		Properties properties,
-//		IProgressMonitor monitor)
-//		throws CoreException {
-//		try {
-//			monitor.beginTask("", 2000);
-//
-//			AntRunner runner = new AntRunner();
-//
-//			runner.setBuildFileLocation(customizer.getAntBuildFileLocation());
-//
-//			// set arguments
-//			Collection args = new ArrayList();
-//			for (Iterator it = properties.entrySet().iterator();
-//				it.hasNext();
-//				) {
-//				Map.Entry entry = (Map.Entry) it.next();
-//				args.add("-D" + entry.getKey() + "=" + entry.getValue());
-//			}
-//			args.add("-verbose");
-//
-//			runner.setArguments(
-//				(String[]) args.toArray(new String[args.size()]));
-//
-//			runner.run(monitor);
-//
-//			// wait
-//			while (AntRunner.isBuildRunning()) {
-//				wait(1000);
-//				monitor.worked(1);
-//			}
-//		} catch (Throwable e) {
-//			throw UtilBase.handleException(e);
-//		} finally {
-//			monitor.done();
-//		}
-//	}
-//
 }

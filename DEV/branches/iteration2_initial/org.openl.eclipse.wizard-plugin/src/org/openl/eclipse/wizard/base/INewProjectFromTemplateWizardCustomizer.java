@@ -5,18 +5,11 @@ package org.openl.eclipse.wizard.base;
 
 import java.util.Properties;
 
-import org.openl.eclipse.wizard.base.internal.TemplateCopier;
-
 /**
  * @author smesh
  */
 public interface INewProjectFromTemplateWizardCustomizer
 {
-    /**
-     * @deprecated ant build file is no longer used.
-     * @see TemplateCopier
-     */
-  public String getAntBuildFileLocation();
 
   public void setAntBuildFileProperties(Properties properties);
 
