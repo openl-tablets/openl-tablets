@@ -40,4 +40,8 @@
          id="org.openl.rules.ruleservice.eclipse_feature"
          version="5.0.5"/>
 
+   <includes
+         id="org.openl.lib.ruleservice.eclipse_feature"
+         version="0.0.0"/>
+
 </feature>
