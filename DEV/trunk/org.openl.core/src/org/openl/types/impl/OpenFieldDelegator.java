@@ -153,4 +153,11 @@ public class OpenFieldDelegator implements IOpenField
 	    return super.equals(obj);
 	}
 
+
+
+	public IOpenField getField()
+	{
+	    return field;
+	}
+
 }
