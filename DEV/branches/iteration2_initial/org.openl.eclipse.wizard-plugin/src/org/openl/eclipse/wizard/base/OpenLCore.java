@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.openl.eclipse.wizard.base.internal.OpenLProjectCreator;
 import org.openl.eclipse.wizard.base.internal.TemplateCopier;
+import org.openl.eclipse.wizard.base.internal.DependenciesManifestParser;
 import org.openl.eclipse.util.IOpenlConstants;
 
 /**
@@ -56,9 +57,17 @@ public class OpenLCore {
         return s.trim().split(",");
     }
 
+    public static String[] getProjectDependencies(INewProjectFromTemplateWizardCustomizer customizer) {
+        String projectLocation = getTemplateLocation(customizer);
+        File manifestFile = new File(projectLocation, "META-INF/MANIFEST.MF");
+        return new DependenciesManifestParser(manifestFile).getDependencies();
+    }
+
     private static String getTemplateLocation(INewProjectFromTemplateWizardCustomizer customizer) {
         Properties properties = new Properties();
         customizer.setTemplateProperties(properties);
         return properties.getProperty(INewProjectFromTemplateWizardCustomizerConstants.PROP_SRC_DIR);
     }
+
+    
 }
