@@ -25,4 +25,8 @@ public class OpenLUtil {
     public static String[] getOpenLSourceDirectories() {
         return OpenLCore.getTemplateSourceDirectories(getCustomizer());
     }
+
+    public static String[] getOpenLProjectDependencies() {
+        return OpenLCore.getProjectDependencies(getCustomizer());
+    }
 }
