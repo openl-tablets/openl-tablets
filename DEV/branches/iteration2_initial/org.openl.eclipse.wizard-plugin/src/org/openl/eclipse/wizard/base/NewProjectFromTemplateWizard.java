@@ -97,8 +97,10 @@ public class NewProjectFromTemplateWizard
                         throw new OperationCanceledException();
                     }
                     // run ant build
-                    TemplateCopier copier = new TemplateCopier(creator.getProject(), customizer);
-                    copier.copy(new SubProgressMonitor(monitor, 800));
+                    {
+                        TemplateCopier copier = new TemplateCopier(creator.getProject(), customizer);
+                        copier.copy(new SubProgressMonitor(monitor, 800));
+                    }
 
                     final String[] natures = new String[] {
                             JavaCore.NATURE_ID, IOpenlConstants.OPENL_NATURE_ID, PDE.PLUGIN_NATURE
@@ -110,7 +112,7 @@ public class NewProjectFromTemplateWizard
 
                     monitor.worked(100);
 
-                    creator.setupClasspath(true, copier.getProjectProperties());
+                    creator.setupClasspath(true, OpenLCore.getTemplateSourceDirectories(customizer));
                     monitor.worked(300);
 
                     // refresh workspace project
