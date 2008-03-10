@@ -1,26 +1,27 @@
 package org.openl.eclipse.wizard.base.internal;
 
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Properties;
 import java.util.Arrays;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.pde.internal.core.PDECore;
 import org.openl.eclipse.wizard.base.UtilBase;
 
@@ -99,64 +100,68 @@ public class OpenLProjectCreator {
 
         description.setNatureIds(newNatures.toArray(new String[newNatures.size()]));
         project.setDescription(description, IResource.FORCE, null);
-        
+
         return true;
     }
 
-    public void setupClasspath(boolean isNewProject) throws CoreException {
+    public void setupClasspath(boolean isNewProject, Properties projectProperties) throws CoreException {
         IPath projPath = project.getFullPath();
-
         IPath outputPath = projPath.append("bin");
-        IPath srcPath = projPath.append("src");
-        IPath srcGenPath = projPath.append("gen");
+        Collection<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
 
-        IClasspathEntry[] entries;
-
+        for (String sourceDir : getSourceDirectories(projectProperties))
+            entries.add(JavaCore.newSourceEntry(projPath.append(sourceDir)));
+        
         if (isNewProject) {
-            entries = new IClasspathEntry[]{
-                    JavaCore.newSourceEntry(srcPath),
-                    JavaCore.newSourceEntry(srcGenPath),
-                    JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER")),
-                    JavaCore.newContainerEntry(PDECore.REQUIRED_PLUGINS_CONTAINER_PATH)
-            };
-        } else {
-            entries = new IClasspathEntry[] {
-                    JavaCore.newSourceEntry(srcPath),
-                    JavaCore.newSourceEntry(srcGenPath),
-            };
+            entries.add(JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER")));
+            entries.add(JavaCore.newContainerEntry(PDECore.REQUIRED_PLUGINS_CONTAINER_PATH));
         }
 
         IJavaProject javaProject = JavaCore.create(project);
-        entries = mergeClasspath(isNewProject ? new IClasspathEntry[0] : javaProject.getRawClasspath(), entries);
+        IClasspathEntry[] classpathEntries = mergeClasspath(isNewProject ?
+                new IClasspathEntry[0] : javaProject.getRawClasspath(), entries);
 
-        createSourceFolders(entries);
+        createSourceFolders(classpathEntries);
+
         if (isNewProject) {
             createFolder(outputPath);
-            javaProject.setRawClasspath(entries, outputPath, true, null);
+            javaProject.setRawClasspath(classpathEntries, outputPath, true, null);
         } else {
-            javaProject.setRawClasspath(entries, true, null);
+            javaProject.setRawClasspath(classpathEntries, true, null);
         }
+    }
+
+    private static String[] getSourceDirectories(Properties projectProperties) {
+        String s = projectProperties.getProperty("sources");
+        if (s == null)
+            return new String[0];
+        return s.trim().split(",");
     }
 
     private void createSourceFolders(IClasspathEntry[] entries) throws CoreException {
         for (IClasspathEntry e : entries) {
-            if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
+            if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
                 createFolder(e.getPath());
+            }
         }
     }
 
-    private static IClasspathEntry[] mergeClasspath(IClasspathEntry[] sourceEntries, IClasspathEntry[] newEntries) throws JavaModelException {
+    private static IClasspathEntry[] mergeClasspath(IClasspathEntry[] sourceEntries,
+            Collection<IClasspathEntry> newEntries) throws JavaModelException {
         Collection<IClasspathEntry> entries = new ArrayList<IClasspathEntry>(Arrays.asList(sourceEntries));
-        for (IClasspathEntry newEntry : newEntries)
-            if (!entries.contains(newEntry))
+        for (IClasspathEntry newEntry : newEntries) {
+            if (!entries.contains(newEntry)) {
                 entries.add(newEntry);
+            }
+        }
 
         return entries.toArray(new IClasspathEntry[entries.size()]);
     }
 
     private void createFolder(IPath folderPath) throws CoreException {
-        if (project.getFullPath().equals(folderPath))
+        if (project.getFullPath().equals(folderPath)) {
             return;
+        }
 
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         if (!workspaceRoot.exists(folderPath)) {

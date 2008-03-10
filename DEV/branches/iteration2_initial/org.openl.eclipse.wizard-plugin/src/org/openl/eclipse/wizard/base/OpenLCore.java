@@ -17,10 +17,11 @@ public class OpenLCore {
         }
 
         OpenLProjectCreator creator = new OpenLProjectCreator(project, project.getLocation());
-        creator.addProjectNature(IOpenlConstants.OPENL_NATURE_ID);
-        creator.setupClasspath(false);
-
         TemplateCopier templateCopier = new TemplateCopier(project, customizer);
+
+        creator.addProjectNature(IOpenlConstants.OPENL_NATURE_ID);
+        creator.setupClasspath(false, templateCopier.getProjectProperties());
+
         templateCopier.setIgnoreManifect(true);
         templateCopier.copy(null);
     }
