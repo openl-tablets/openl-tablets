@@ -1,16 +1,15 @@
 package org.openl.eclipse.wizard.base.internal;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Properties;
 import java.util.Arrays;
+import java.util.Collection;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -104,12 +103,12 @@ public class OpenLProjectCreator {
         return true;
     }
 
-    public void setupClasspath(boolean isNewProject, Properties projectProperties) throws CoreException {
+    public void setupClasspath(boolean isNewProject, String[] sourceDirectories) throws CoreException {
         IPath projPath = project.getFullPath();
         IPath outputPath = projPath.append("bin");
         Collection<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
 
-        for (String sourceDir : getSourceDirectories(projectProperties))
+        for (String sourceDir : sourceDirectories)
             entries.add(JavaCore.newSourceEntry(projPath.append(sourceDir)));
         
         if (isNewProject) {
@@ -129,13 +128,6 @@ public class OpenLProjectCreator {
         } else {
             javaProject.setRawClasspath(classpathEntries, true, null);
         }
-    }
-
-    private static String[] getSourceDirectories(Properties projectProperties) {
-        String s = projectProperties.getProperty("sources");
-        if (s == null)
-            return new String[0];
-        return s.trim().split(",");
     }
 
     private void createSourceFolders(IClasspathEntry[] entries) throws CoreException {

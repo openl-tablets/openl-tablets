@@ -10,14 +10,19 @@ import org.openl.eclipse.wizard.base.OpenLCore;
  */
 public class OpenLUtil {
     public static void addOpenLCapabilities(IProject project) throws CoreException {
-        OpenLCore.addOpenLCapabilities(project,
-                new NewProjectFromTemplateWizardCustomizer(
-                        RulesWizardPlugin.getDefault().getBundle(),
-                        "NewSimpleOpenLRulesProjectWizard") {}
-        );
+        OpenLCore.addOpenLCapabilities(project, getCustomizer());
+    }
+
+    private static NewProjectFromTemplateWizardCustomizer getCustomizer() {
+        return new NewProjectFromTemplateWizardCustomizer(RulesWizardPlugin.getDefault().getBundle(),
+                "NewSimpleOpenLRulesProjectWizard") {};
     }
 
     public static void removeOpenLCapabilities(IProject project) throws CoreException {
         OpenLCore.removeOpenLCapabilities(project);
+    }
+
+    public static String[] getOpenLSourceDirectories() {
+        return OpenLCore.getTemplateSourceDirectories(getCustomizer());
     }
 }

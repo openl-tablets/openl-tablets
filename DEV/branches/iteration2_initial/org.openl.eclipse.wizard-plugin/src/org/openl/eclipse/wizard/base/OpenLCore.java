@@ -1,5 +1,10 @@
 package org.openl.eclipse.wizard.base;
 
+import java.util.Properties;
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.IOException;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.openl.eclipse.wizard.base.internal.OpenLProjectCreator;
@@ -17,10 +22,11 @@ public class OpenLCore {
         }
 
         OpenLProjectCreator creator = new OpenLProjectCreator(project, project.getLocation());
-        TemplateCopier templateCopier = new TemplateCopier(project, customizer);
 
         creator.addProjectNature(IOpenlConstants.OPENL_NATURE_ID);
-        creator.setupClasspath(false, templateCopier.getProjectProperties());
+        creator.setupClasspath(false, getTemplateSourceDirectories(customizer));
+
+        TemplateCopier templateCopier = new TemplateCopier(project, customizer);
 
         templateCopier.setIgnoreManifect(true);
         templateCopier.copy(null);
@@ -32,5 +38,27 @@ public class OpenLCore {
         }
 
         new OpenLProjectCreator(project, project.getLocation()).removeProjectNature(IOpenlConstants.OPENL_NATURE_ID);
+    }
+
+    public static Properties getProjectProperties(INewProjectFromTemplateWizardCustomizer customizer) {
+        Properties projectProperties = new Properties();
+        try {
+            projectProperties.load(new FileInputStream(new File(getTemplateLocation(customizer), ".info")));
+        } catch (IOException no_info_file) {}
+
+        return projectProperties;
+    }
+
+    public static String[] getTemplateSourceDirectories(INewProjectFromTemplateWizardCustomizer customizer) {
+        String s = getProjectProperties(customizer).getProperty("sources");
+        if (s == null)
+            return new String[0];
+        return s.trim().split(",");
+    }
+
+    private static String getTemplateLocation(INewProjectFromTemplateWizardCustomizer customizer) {
+        Properties properties = new Properties();
+        customizer.setTemplateProperties(properties);
+        return properties.getProperty(INewProjectFromTemplateWizardCustomizerConstants.PROP_SRC_DIR);
     }
 }

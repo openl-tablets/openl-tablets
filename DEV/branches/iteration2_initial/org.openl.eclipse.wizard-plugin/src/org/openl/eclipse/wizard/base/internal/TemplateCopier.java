@@ -20,10 +20,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.openl.eclipse.wizard.base.INewProjectFromTemplateWizardCustomizer;
 import org.openl.eclipse.wizard.base.INewProjectFromTemplateWizardCustomizerConstants;
 
@@ -67,8 +67,6 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
 
     private boolean ignoreManifect;
 
-    private Properties projectProperties;
-
     public TemplateCopier(IProject project, INewProjectFromTemplateWizardCustomizer customizer) {
         replaces = new HashMap<String, String>();
         renames = new HashMap<String, String>();
@@ -91,16 +89,6 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
         setReplaces(properties);
 
         addRename("Generate Template Wrapper.launch", "Generate " + dstProjectName + " Wrapper.launch");
-    }
-
-    public synchronized Properties getProjectProperties() {
-        if (projectProperties == null) {
-            projectProperties = new Properties();
-            try {
-                projectProperties.load(new FileInputStream(new File(templateLocation, ".info")));
-            } catch (IOException no_info_file) {}
-        }
-        return projectProperties;
     }
 
     public void setIgnoreManifect(boolean ignoreManifect) {
