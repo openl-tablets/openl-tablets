@@ -67,6 +67,8 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
 
     private boolean ignoreManifect;
 
+    private Properties projectProperties;
+
     public TemplateCopier(IProject project, INewProjectFromTemplateWizardCustomizer customizer) {
         replaces = new HashMap<String, String>();
         renames = new HashMap<String, String>();
@@ -89,6 +91,16 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
         setReplaces(properties);
 
         addRename("Generate Template Wrapper.launch", "Generate " + dstProjectName + " Wrapper.launch");
+    }
+
+    public synchronized Properties getProjectProperties() {
+        if (projectProperties == null) {
+            projectProperties = new Properties();
+            try {
+                projectProperties.load(new FileInputStream(new File(templateLocation, ".info")));
+            } catch (IOException no_info_file) {}
+        }
+        return projectProperties;
     }
 
     public void setIgnoreManifect(boolean ignoreManifect) {
@@ -387,6 +399,7 @@ public class TemplateCopier implements INewProjectFromTemplateWizardCustomizerCo
         if (".project".equalsIgnoreCase(name)) return false;
         if (".classpath".equalsIgnoreCase(name)) return false;
         if (".foo".equalsIgnoreCase(name)) return false;
+        if (".info".equalsIgnoreCase(name)) return false;
 
         // for debug
         if ("CVS".equals(name)) return false;
