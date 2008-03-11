@@ -1,4 +1,5 @@
 <%@ page import = "org.openl.rules.webtools.*" %>
+<%@ page import="org.openl.rules.webstudio.web.util.WebStudioUtils" %>
 
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
