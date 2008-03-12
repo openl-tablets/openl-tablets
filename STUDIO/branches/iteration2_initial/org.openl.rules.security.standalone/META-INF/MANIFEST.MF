@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openl.rules.security.standalone;singleton:=true
 Bundle-Version: 5.0.5
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
-Require-Bundle: org.openl.rules.security;visibility:=reexport
+Require-Bundle: org.openl.rules.security;visibility:=reexport, org.openl.rules.webstudio.lib
 Export-Package: org.openl.rules.security.standalone,
  org.openl.rules.security.standalone.authentication,
  org.openl.rules.security.standalone.dao,
