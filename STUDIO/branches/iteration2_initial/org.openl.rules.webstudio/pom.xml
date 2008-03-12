@@ -16,6 +16,13 @@
   <name>Exigen WebStudio Web Resources</name>
   <description>Exigen WebStudio Web Resources</description>
 
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
+    </repository>
+  </repositories>
+
   <build>
     <pluginManagement>
       <plugins>
