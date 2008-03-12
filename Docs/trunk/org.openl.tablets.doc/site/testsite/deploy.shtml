@@ -88,6 +88,33 @@ Java deployment practices for the particular deployment target.
 
 
 
+<h2>Deploying Standalone Webstudio with a single Demo project</h2>
+
+<p>
+Note: This procedure requires that your eclipse plugins and workspace folders were
+located in the same parent eclipse folder. Otherwise required plugins can not be properly copied into 
+the new location with preserving relative paths
+
+<p>
+In project <b>org.openl.rules.webstudio</b> locate launch file <b>Make Standalone Webstudio.launch</b> and 
+run it using right-click menu <b>Run As</b>. This will copy webstudio and required plugins into location
+defined by variable <b>targetDir</b> in file <b>build/make.standalone.webstudio.build.xml</b>.
+This procedure will also generate file <b>workspace/StartWebstudio.bat</b> that can be used 
+to start the Web Studio
+
+<p> 
+To deploy the demo project with all the necessary dependencies copy file 
+<b>org.openl.rules.webstudio/Deploy ${some.project} To Standalone Webstudio.launch</b> into 
+demo project folder. Replace ${some.project} with the name of the project in file's name and all the 
+occurrences inside the file using text editor. The run the file using right-click menu. 
+
+<p>
+To run Web Studio switch to ${targetDir}/workspace and run StartWebstudio.bat. Also you can zip targetDir and deploy it
+on any other computer as a stand-alone application
+ 
+
+
+
 
 
 <!--#include virtual="footer_includes.shtml" -->
