@@ -29,6 +29,8 @@ public class ClasspathCopy extends Task
 
     protected String startupFileName;
 
+    private boolean copyTomcat = false;
+
     @Override
     public void execute() throws BuildException
     {
@@ -41,6 +43,16 @@ public class ClasspathCopy extends Task
 	    throw new BuildException(
 		    "Attribute copyMode must be defined for ClasspathCopy. Allowed modes: "
 			    + printModes());
+
+	File projectFile = new File(projectDir);
+	File wspaceDir;
+	try
+	{
+	    wspaceDir = projectFile.getCanonicalFile().getParentFile();
+	} catch (IOException e1)
+	{
+	    throw new BuildException(e1);
+	}
 
 	String[] classpathElements = StringTool.tokenize(getClasspath(),
 		pathSeparator);
@@ -67,8 +79,6 @@ public class ClasspathCopy extends Task
 	    {
 
 		File sourceFile = new File(element);
-		File projectFile = new File(projectDir);
-		File wspaceDir = projectFile.getCanonicalFile().getParentFile();
 
 		File relativeFile = FileTool.buildRelativePath(wspaceDir,
 			sourceFile);
@@ -92,6 +102,24 @@ public class ClasspathCopy extends Task
 
 	}
 
+	if (copyTomcat)
+	{
+
+	    File sourceFile, relativeFile;
+	    try
+	    {
+		sourceFile = new File(findApacheTomcatHome());
+		relativeFile = FileTool
+			.buildRelativePath(wspaceDir, sourceFile);
+	    } catch (IOException e)
+	    {
+		throw new BuildException(e);
+	    }
+
+	    cp.copyDir(targetDir, wspaceDir, relativeFile);
+
+	}
+
 	if (startupFileName != null)
 	{
 	    try
@@ -103,6 +131,26 @@ public class ClasspathCopy extends Task
 	    }
 	}
 
+    }
+
+    public static String findApacheTomcatHome() throws IOException
+    {
+	String cpath = System.getProperty(JAVA_CLASSPATH_PROPERTY);
+
+	String[] pathElements = StringTool.tokenize(cpath, File.pathSeparator);
+
+	for (int i = 0; i < pathElements.length; i++)
+	{
+	    if (pathElements[i].endsWith("bootstrap.jar"))
+	    {
+		File tomcatHome = new File(pathElements[i]).getCanonicalFile()
+			.getParentFile().getParentFile().getParentFile();
+		return tomcatHome.toString();
+	    }
+	}
+
+	throw new RuntimeException("Could not find bootstrap.jar in "
+		+ JAVA_CLASSPATH_PROPERTY);
     }
 
     private void generateStartupFile(List<File> path) throws IOException
@@ -263,7 +311,7 @@ public class ClasspathCopy extends Task
     String targetDir = null;
 
     String defaultExclude = ".*apache.ant.*|.*javacc.*|.*junit.*";
-    
+
     boolean validateThisDir;
     String projectDir = ".";
 
@@ -369,12 +417,22 @@ public class ClasspathCopy extends Task
 
     public boolean isValidateThisDir()
     {
-        return validateThisDir;
+	return validateThisDir;
     }
 
     public void setValidateThisDir(boolean validateThisDir)
     {
-        this.validateThisDir = validateThisDir;
+	this.validateThisDir = validateThisDir;
+    }
+
+    public boolean isCopyTomcat()
+    {
+	return copyTomcat;
+    }
+
+    public void setCopyTomcat(boolean copyTomcatProject)
+    {
+	this.copyTomcat = copyTomcatProject;
     }
 
 }
