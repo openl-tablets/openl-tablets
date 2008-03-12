@@ -1,4 +1,5 @@
 <%@ page import = "org.openl.rules.webtools.*" %>
+<%@ page import="org.openl.rules.webstudio.web.util.WebStudioUtils" %>
 
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
@@ -13,8 +14,13 @@
        elementID = Integer.parseInt(s_id);
        studio.setTableID(elementID);
     }
-    else
+    else {
+         if (request.getParameter("elementURI") != null) {
+             int index = studio.getModel().indexForNodeByURI(request.getParameter("elementURI"));
+             if (index >= 0) studio.setTableID(index);
+         }
       elementID = studio.getTableID();
+     }
    String url = studio.getModel().makeXlsUrl(elementID);
    String uri = studio.getModel().getUri(elementID);
    String text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);
@@ -27,8 +33,7 @@
 
 <jsp:useBean id='editorHelper' scope='session' class="org.openl.rules.ui.EditorHelper" />
 <%
-   editorHelper.setTableID(Integer.parseInt(request.getParameter("elementID")), studio.getModel(),
-           request.getParameter("view"), true);
+   editorHelper.setTableID(elementID, studio.getModel(), request.getParameter("view"), true);
 %>
 
 

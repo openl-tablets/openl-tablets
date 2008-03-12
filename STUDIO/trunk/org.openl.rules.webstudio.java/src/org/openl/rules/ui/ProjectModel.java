@@ -90,11 +90,15 @@ public class ProjectModel
 
     public TableSyntaxNode findNode(String url)
     {
+        XlsUrlParser parsedUrl = new XlsUrlParser();
+        parsedUrl.parse(url);
+
+        return findNode(parsedUrl);
+    }
+
+    public TableSyntaxNode findNode(XlsUrlParser p1) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
         TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
-
-        XlsUrlParser p1 = new XlsUrlParser();
-        p1.parse(url);
 
         for (int i = 0; i < nodes.length; i++)
         {
@@ -1058,4 +1062,17 @@ public class ProjectModel
         return wrapper != null;
     }
 
+    public int indexForNodeByURI(String uri) {
+        for (Object obj: ptr.map.getValues()) {
+            ProjectTreeElement pte = (ProjectTreeElement) obj;
+            if (pte.getObject() instanceof TableSyntaxNode) {
+                TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) pte.getObject();
+                if (uri.equals(tableSyntaxNode.getUri()))
+                    return ptr.map.getID(obj);
+
+            }
+        }
+
+        return -1;
+    }
 }
