@@ -64,7 +64,6 @@
 	<classpathentry exported="true" kind="lib" path="target/lib/jcr-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/jsf-facelets-1.1.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/jsontools-core-1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/lib/jsp-api-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/jstl-1.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/jta-1.0.1B.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/junit-3.8.1.jar"/>
@@ -83,7 +82,6 @@
 	<classpathentry exported="true" kind="lib" path="target/lib/richfaces-api-3.1.2.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/richfaces-impl-3.1.2.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/richfaces-ui-3.1.2.GA.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/lib/servlet-api-2.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/shale-remoting-1.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/shale-test-1.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/slf4j-api-1.3.0.jar"/>
