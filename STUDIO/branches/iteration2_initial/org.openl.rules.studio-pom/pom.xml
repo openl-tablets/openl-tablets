@@ -27,9 +27,7 @@
   </modules>
 
   <scm>
-    <connection>
-      scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/trunk
-    </connection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/trunk</connection>
   </scm>
 
   <repositories>
@@ -73,6 +71,8 @@
             <downloadSources>false</downloadSources>
             <downloadJavadocs>false</downloadJavadocs>
             <pde>true</pde>
+            <!-- do not touch META-INF/MANIFEST.MF -->
+            <manifest>no-manifest</manifest>
           </configuration>
         </plugin>
 
@@ -93,19 +93,6 @@
             <warSourceDirectory>${basedir}/src/main/webapps/webstudio</warSourceDirectory>
           </configuration>
         </plugin>
-
-        <!--plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>attach-sources</id>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin-->
 
         <!-- Used for building dependency graphs -->
         <plugin>
