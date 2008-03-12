@@ -5,8 +5,10 @@
 	<property name="targetDir" value="/temp/webstudio1/workspace" />
 	<property name="tomcat.project" value="org.openl.lib.apache.tomcat" />
 	<property name="webstudio.project" value="org.openl.rules.webstudio" />
+<!--
+	
 	<property name="demo.project" value="org.openl.tablets.tutorial4" />
-
+-->
 	<target name="copy_studio">
 
 		<echo message="Copying Webstudio Classpath" />
