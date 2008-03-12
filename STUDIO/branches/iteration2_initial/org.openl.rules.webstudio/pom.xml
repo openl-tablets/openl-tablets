@@ -46,6 +46,7 @@
         </includes>
       </resource>
     </resources>
+
   </build>
 
   <dependencies>
