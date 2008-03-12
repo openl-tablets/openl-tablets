@@ -169,6 +169,13 @@
         <version>5.0.5</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.lib.apache.poi.modified</artifactId>
+        <version>5.0.5</version>
+      </dependency>
+
+
       <!-- STUDIO -->
       <dependency>
         <groupId>org.openl.rules</groupId>

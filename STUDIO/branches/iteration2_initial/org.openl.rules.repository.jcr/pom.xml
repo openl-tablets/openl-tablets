@@ -14,6 +14,13 @@
   <name>Exigen WebStudio Repository Jcr</name>
   <description>Exigen WebStudio Repository Jcr</description>
 
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
+    </repository>
+  </repositories>
+
   <build>
     <testResources>
       <testResource>

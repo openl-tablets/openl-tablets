@@ -4,12 +4,18 @@ Bundle-Name: Exigen WebTools
 Bundle-SymbolicName: org.openl.rules.webtools;singleton:=true
 Bundle-Version: 5.0.5
 Bundle-Localization: plugin
-Require-Bundle: org.openl.core;visibility:=reexport,
- org.openl.rules;visibility:=reexport,
+Require-Bundle: org.openl.core,
+ org.openl.rules,
  org.openl.lib.apache.tomcat
 Export-Package: org.openl.rules.webtools,
  org.openl.rules.webtools.indexer
 Bundle-Vendor: OpenL Tablets
 Bundle-ClassPath: .,
+ avalon-framework-4.1.3.jar,
+ commons-lang-2.3.jar,
+ commons-logging-1.1.jar,
  BrowserLauncher-2-1_3.jar,
+ log4j-1.2.13.jar,
+ logkit-1.0.1.jar,
+ org.openl.rules-5.0.5.jar,
  bootstrap-5.5.12.jar

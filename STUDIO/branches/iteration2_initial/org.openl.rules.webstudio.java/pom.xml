@@ -14,6 +14,13 @@
   <name>Exigen WebStudio Java Sources</name>
   <description>Exigen WebStudio Java Sources</description>
 
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>org.openl.rules</groupId>
