@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>admin</name>
+  <name>com.exigen.example.solution.admin</name>
   <comment>This POM file packages web application that hosts administration server. Administration server is responsible for
     management of run-time repository and deployment of run-time modules into run-time repository.</comment>
   <projects/>

@@ -24,6 +24,7 @@
     <module>../org.openl.rules.security.integration.ipb</module>
     <module>../org.openl.rules.runtime.deployer</module>
     <module>../org.openl.rules.diff</module>
+    <module>../org.openl.rules.webstudio.lib</module>
   </modules>
 
   <scm>

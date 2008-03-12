@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Represents a difference.
- *
+ * 
  * @author Andrey Naumenko
  */
 public class DiffElement {

@@ -27,7 +27,7 @@ import org.openl.util.Log;
 /**
  * 
  * @author Aleh Bykhavets
- *
+ * 
  */
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /** Rules Repository */
@@ -132,11 +132,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             // do not cache old version of project
             return wrapProject(oldProject, false);
         } catch (RRepositoryException e) {
-            throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''.", e, name, version.getVersionName());
+            throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''.", e, name, version
+                    .getVersionName());
         }
     }
 
-    public void updateProject(Project sourceProject, WorkspaceUser user, int major, int minor) throws RepositoryException {
+    public void updateProject(Project sourceProject, WorkspaceUser user, int major, int minor)
+            throws RepositoryException {
         String name = sourceProject.getName();
         RepositoryProject dest = getProject(name);
 
@@ -146,7 +148,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
         WorkspaceUser lockedBy = dest.getlLockInfo().getLockedBy();
         if (!lockedBy.equals(user)) {
-            throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, lockedBy.getUserName());
+            throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, lockedBy
+                    .getUserName());
         }
 
         RRepository writeRep = null;
@@ -219,10 +222,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    public void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user) throws ProjectException {
+    public void copyDDProject(DeploymentDescriptorProject project, String name, WorkspaceUser user)
+            throws ProjectException {
         createDDProject(name);
         RepositoryDDProject newProject = getDDProject(name);
-        newProject.commit((Project)project, user);
+        newProject.commit((Project) project, user);
     }
 
     public RepositoryDDProject getDDProject(String name) throws RepositoryException {
@@ -239,7 +243,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             RDeploymentDescriptorProject oldProject = ralDeploymentProject.getProjectVersion(version);
             return wrapDDProject(oldProject);
         } catch (RRepositoryException e) {
-            throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''.", e, name, version.getVersionName());
+            throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''.", e, name, version
+                    .getVersionName());
         }
     }
 
@@ -262,7 +267,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private RepositoryProjectImpl wrapProject(RProject ralRulesProject, boolean cacheIt) {
         String name = ralRulesProject.getName();
-        ArtefactPath projectPath = new ArtefactPathImpl(new String[]{name});
+        ArtefactPath projectPath = new ArtefactPathImpl(new String[] { name });
 
         RepositoryProjectImpl dtrRulesProject = new RepositoryProjectImpl(ralRulesProject, projectPath);
         if (cacheIt) {
