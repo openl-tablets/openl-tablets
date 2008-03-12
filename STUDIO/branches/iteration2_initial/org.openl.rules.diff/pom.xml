@@ -7,7 +7,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.studio-pom</artifactId>
     <version>5.0.5</version>
-    <relativePath>../org.openl.rules.studio-pom/pom.xml</relativePath>
+    <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
   <artifactId>org.openl.rules.diff</artifactId>
