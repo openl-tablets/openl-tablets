@@ -24,6 +24,10 @@ public abstract class WebStudioUtils {
         return (WebStudio) (FacesUtils.getSessionMap().get("studio"));
     }
 
+    public static WebStudio getWebStudio(HttpSession session) {
+        return session == null ? null : (WebStudio) session.getAttribute("studio");
+    }
+
     public static RulesUserSession getRulesUserSession(HttpSession session) {
         if (session == null) {
             return null;
