@@ -17,8 +17,20 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="org.openl.lib.ruleservice.eclipse_feature"
+         version="0.0.0"/>
+
    <requires>
       <import feature="org.openl.lib.ruleservice.eclipse_feature" version="5.0.5"/>
+      <import plugin="org.junit"/>
+      <import plugin="org.openl.core"/>
+      <import plugin="org.openl.rules"/>
+      <import plugin="org.openl.rules.repository"/>
+      <import plugin="org.openl.rules.repository.jcr"/>
+      <import plugin="org.openl.rules.workspace"/>
+      <import plugin="org.openl.lib.springsource"/>
+      <import plugin="org.openl.lib.cxf"/>
    </requires>
 
    <plugin
