@@ -26,7 +26,8 @@
 
     <resources>
       <resource>
-        <directory>target/lib</directory>
+        <directory>lib</directory>
+        <targetPath>lib</targetPath>
       </resource>
     </resources>
 
@@ -52,12 +53,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2-beta-2</version>
         <configuration>
           <appendAssemblyId>false</appendAssemblyId>
           <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
           <finalName>lib</finalName>
-          <!--outputDirectory>/</outputDirectory-->
+          <outputDirectory>/</outputDirectory>
         </configuration>
 
         <executions>
