@@ -25,6 +25,7 @@
     <module>../org.openl.rules.runtime.deployer</module>
     <module>../org.openl.rules.diff</module>
     <module>../org.openl.rules.webstudio.lib</module>
+    <module>../org.openl.rules.webstudio.eclipse-feature</module>
   </modules>
 
   <scm>
@@ -104,6 +105,12 @@
           <configuration>
             <warSourceDirectory>${basedir}/src/main/webapps/webstudio</warSourceDirectory>
           </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>2.2-beta-2</version>
         </plugin>
 
         <!-- Used for building dependency graphs -->
@@ -233,6 +240,12 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.diff</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.webstudio.eclipse-feature</artifactId>
         <version>${project.version}</version>
       </dependency>
 

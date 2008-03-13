@@ -11,8 +11,6 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
-  <packaging>war</packaging>
-
   <artifactId>org.openl.rules.webstudio</artifactId>
   <name>Exigen WebStudio Web Resources</name>
   <description>Exigen WebStudio Web Resources</description>
@@ -25,18 +23,35 @@
   </repositories>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-war-plugin</artifactId>
-          <configuration>
-            <warSourceDirectory>webapps/webstudio</warSourceDirectory>
-            <warName>webstudio-${version}</warName>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>webapps/webstudio</warSourceDirectory>
+          <warName>webstudio-${version}</warName>
+        </configuration>
+        <executions>
+          <execution>
+            <id>war</id>
+            <phase>package</phase>
+            <goals>
+              <goal>war</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
 
     <resources>
       <resource>
@@ -45,6 +60,14 @@
           <include>**/*.properties</include>
           <include>**/*.xml</include>
         </includes>
+      </resource>
+      <resource>
+        <directory>conf</directory>
+        <targetPath>conf</targetPath>
+      </resource>
+      <resource>
+        <directory>webapps</directory>
+        <targetPath>webapps</targetPath>
       </resource>
     </resources>
 
@@ -69,4 +92,3 @@
   </dependencies>
 
 </project>
-
