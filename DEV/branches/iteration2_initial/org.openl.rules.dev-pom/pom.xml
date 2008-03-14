@@ -426,13 +426,7 @@
       <dependency>
         <groupId>org.eclipse.core</groupId>
         <artifactId>org.eclipse.core.runtime.compatibility</artifactId>
-        <version>3.2.100</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.runtime.compatibility</artifactId>
-        <version>3.2.100</version>
+        <version>3.1.200</version>
       </dependency>
 
       <dependency>
