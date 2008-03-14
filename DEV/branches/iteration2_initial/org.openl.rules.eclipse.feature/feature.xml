@@ -556,8 +556,7 @@ That&apos;s all there is to it!
          id="org.openl.rules.eclipse.ui.wizard"
          download-size="0"
          install-size="0"
-         version="5.0.5"
-         unpack="false"/>
+         version="5.0.5"/>
 
    <plugin
          id="org.openl.rules.helpers"
