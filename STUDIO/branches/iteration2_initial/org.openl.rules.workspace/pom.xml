@@ -68,7 +68,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.openl.rules</groupId>
+      <groupId>org.openl</groupId>
       <artifactId>org.openl.commons</artifactId>
     </dependency>
 

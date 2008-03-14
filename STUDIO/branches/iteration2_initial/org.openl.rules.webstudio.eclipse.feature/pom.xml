@@ -11,8 +11,8 @@
     <relativePath>../org.openl.rules.studio-pom/pom.xml</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.webstudio.eclipse-feature</artifactId>
-  <name></name>
+  <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
+  <name>org.openl.rules.webstudio.eclipse.feature</name>
   <description></description>
 
   <build>
