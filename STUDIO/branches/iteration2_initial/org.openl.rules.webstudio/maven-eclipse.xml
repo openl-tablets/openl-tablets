@@ -1,0 +1,11 @@
+<project default="copy-resources">
+  <target name="init"/>
+  <target name="copy-resources" depends="init">
+    <copy todir="target/classes/conf" filtering="false">
+      <fileset dir="conf"/>
+    </copy>
+    <copy todir="target/classes/webapps" filtering="false">
+      <fileset dir="webapps"/>
+    </copy>
+  </target>
+</project>

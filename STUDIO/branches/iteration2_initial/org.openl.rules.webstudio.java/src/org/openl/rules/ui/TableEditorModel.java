@@ -1,6 +1,5 @@
 /**
- *  OpenL Tablets,  2006
- *  https://sourceforge.net/projects/openl-tablets/
+ * OpenL Tablets, 2006 https://sourceforge.net/projects/openl-tablets/
  */
 package org.openl.rules.ui;
 
@@ -30,13 +29,11 @@ import java.util.Vector;
 
 /**
  * @author snshor
- *
+ * 
  */
-public class TableEditorModel
-{
-    public static enum CellType
-    {
-	TH_CELL_TYPE, CA_HEADER_CELL_TYPE, CA_ENUMERATION_CELL_TYPE
+public class TableEditorModel {
+    public static enum CellType {
+        TH_CELL_TYPE, CA_HEADER_CELL_TYPE, CA_ENUMERATION_CELL_TYPE
     }
 
     /**
@@ -112,8 +109,7 @@ public class TableEditorModel
      */
     public static final String SPECIAL_CELL_TYPE = "SPECIAL_CELL_TYPE";
 
-    static final boolean COLUMNS = true, ROWS = false, INSERT = true,
-	    REMOVE = false;
+    static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 
     private IGridTable table;
 
@@ -124,405 +120,340 @@ public class TableEditorModel
 
     private XlsUndoGrid undoGrid = new XlsUndoGrid();
 
-    public TableEditorModel(IGridTable table)
-    {
-	this.table = table;
-	this.region = new GridRegion(table.getRegion());
-	othertables = new GridSplitter(table.getGrid()).split();
-	removeThisTable(othertables);
-	makeFilteredGrid(table);
+    public TableEditorModel(IGridTable table) {
+        this.table = table;
+        region = new GridRegion(table.getRegion());
+        othertables = new GridSplitter(table.getGrid()).split();
+        removeThisTable(othertables);
+        makeFilteredGrid(table);
 
     }
 
     FilteredGrid filteredGrid;
 
-    private void makeFilteredGrid(IGridTable gt)
-    {
-	IGrid g =  gt.getGrid();
-	if (g instanceof FilteredGrid)
-	{
-	    filteredGrid = (FilteredGrid) g;
-	    return;
-	}
+    private void makeFilteredGrid(IGridTable gt) {
+        IGrid g = gt.getGrid();
+        if (g instanceof FilteredGrid) {
+            filteredGrid = (FilteredGrid) g;
+            return;
+        }
 
-	filteredGrid = new FilteredGrid(gt.getGrid(), new IGridFilter[]{new SimpleXlsFormatter()});
+        filteredGrid = new FilteredGrid(gt.getGrid(), new IGridFilter[] { new SimpleXlsFormatter() });
     }
 
     /**
      * @param otherTables
-     *
+     * 
      */
-    private synchronized void removeThisTable(GridTable[] otherTables)
-    {
-	Vector<GridTable> v = new Vector<GridTable>();
-	for (int i = 0; i < otherTables.length; i++)
-	{
-	    if (!IGridRegion.Tool.intersects(otherTables[i], region))
-	    {
-		v.add(otherTables[i]);
-	    }
-	}
+    private synchronized void removeThisTable(GridTable[] otherTables) {
+        Vector<GridTable> v = new Vector<GridTable>();
+        for (int i = 0; i < otherTables.length; i++) {
+            if (!IGridRegion.Tool.intersects(otherTables[i], region)) {
+                v.add(otherTables[i]);
+            }
+        }
 
-	this.othertables = v.toArray(new GridTable[0]);
+        othertables = v.toArray(new GridTable[0]);
     }
 
-    public void getUndoableActions(TableEditorModel other)
-    {
-	actions = other.actions;
-	undoGrid = other.undoGrid;
+    public void getUndoableActions(TableEditorModel other) {
+        actions = other.actions;
+        undoGrid = other.undoGrid;
     }
 
-    IWritableGrid wgrid()
-    {
-	return (IWritableGrid) table.getGrid();
+    IWritableGrid wgrid() {
+        return (IWritableGrid) table.getGrid();
     }
 
-    public synchronized void insertRows(int nRows, int beforeRow)
-    {
-	IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows,
-		beforeRow, region, wgrid());
-	RegionAction ra = new RegionAction(ua, ROWS, INSERT, nRows);
-	ra.doSome(region, wgrid(), undoGrid);
-	actions.addNewAction(ra);
+    public synchronized void insertRows(int nRows, int beforeRow) {
+        IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows, beforeRow, region, wgrid());
+        RegionAction ra = new RegionAction(ua, ROWS, INSERT, nRows);
+        ra.doSome(region, wgrid(), undoGrid);
+        actions.addNewAction(ra);
     }
 
-    public synchronized void insertColumns(int nCols, int beforeCol)
-    {
-	IUndoableGridAction ua = IWritableGrid.Tool.insertColumns(nCols,
-		beforeCol, region, wgrid());
-	RegionAction ra = new RegionAction(ua, COLUMNS, INSERT, nCols);
-	ra.doSome(region, wgrid(), undoGrid);
-	actions.addNewAction(ra);
+    public synchronized void insertColumns(int nCols, int beforeCol) {
+        IUndoableGridAction ua = IWritableGrid.Tool.insertColumns(nCols, beforeCol, region, wgrid());
+        RegionAction ra = new RegionAction(ua, COLUMNS, INSERT, nCols);
+        ra.doSome(region, wgrid(), undoGrid);
+        actions.addNewAction(ra);
     }
 
-    public synchronized void removeRows(int nRows, int beforeRow)
-    {
-	if (isExtendedView())
-	    beforeRow -= 3;
-	if (beforeRow < 0 || beforeRow >= IGridRegion.Tool.height(region))
-	    return;
+    public synchronized void removeRows(int nRows, int beforeRow) {
+        if (isExtendedView()) {
+            beforeRow -= 3;
+        }
+        if (beforeRow < 0 || beforeRow >= IGridRegion.Tool.height(region)) {
+            return;
+        }
 
-	IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows,
-		beforeRow, region);
-	RegionAction ra = new RegionAction(ua, ROWS, REMOVE, nRows);
-	ra.doSome(region, wgrid(), undoGrid);
-	actions.addNewAction(ra);
+        IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows, beforeRow, region);
+        RegionAction ra = new RegionAction(ua, ROWS, REMOVE, nRows);
+        ra.doSome(region, wgrid(), undoGrid);
+        actions.addNewAction(ra);
     }
 
-    public synchronized void removeColumns(int nCols, int beforeCol)
-    {
-	if (isExtendedView())
-	    beforeCol -= 3;
-	if (beforeCol < 0 || beforeCol >= IGridRegion.Tool.width(region))
-	    return;
+    public synchronized void removeColumns(int nCols, int beforeCol) {
+        if (isExtendedView()) {
+            beforeCol -= 3;
+        }
+        if (beforeCol < 0 || beforeCol >= IGridRegion.Tool.width(region)) {
+            return;
+        }
 
-	IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols,
-		beforeCol, region);
-	RegionAction ra = new RegionAction(ua, COLUMNS, REMOVE, nCols);
-	ra.doSome(region, wgrid(), undoGrid);
-	actions.addNewAction(ra);
+        IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, beforeCol, region);
+        RegionAction ra = new RegionAction(ua, COLUMNS, REMOVE, nCols);
+        ra.doSome(region, wgrid(), undoGrid);
+        actions.addNewAction(ra);
     }
 
-    public synchronized void setCellValue(int row, int col, String value)
-    {
-	if (isExtendedView())
-	{
-	    row -= 3;
-	    col -= 3;
-	}
+    public synchronized void setCellValue(int row, int col, String value) {
+        if (isExtendedView()) {
+            row -= 3;
+            col -= 3;
+        }
 
-
-	IUndoableGridAction ua = IWritableGrid.Tool.setStringValue(col, row,
-		region, value, getFilter(col, row));
-	RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
-	ra.doSome(region, wgrid(), undoGrid);
-	actions.addNewAction(ra);
+        /*IUndoableGridAction ua = IWritableGrid.Tool.setStringValue(col, row,
+            region, value, getFilter(col, row));
+        RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
+        ra.doSome(region, wgrid(), undoGrid);
+        actions.addNewAction(ra);*/
     }
 
-    private IGridFilter getFilter(int col, int row)
-    {
-	FormattedCell fc = filteredGrid.getFormattedCell(region.getLeft() + col, region.getTop() + row);
+    private IGridFilter getFilter(int col, int row) {
+        FormattedCell fc = filteredGrid.getFormattedCell(region.getLeft() + col, region.getTop() + row);
 
-	if (fc != null)
-	    return fc.getFilter();
+        if (fc != null) {
+            return fc.getFilter();
+        }
 
-	return null;
+        return null;
     }
 
-    public synchronized void setStyle(int row, int col, ICellStyle style)
-    {
-	if (isExtendedView())
-	{
-	    row -= 3;
-	    col -= 3;
-	}
-	IUndoableGridAction ua = IWritableGrid.Tool.setStyle(col, row, region,
-		style);
-	RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
-	ra.doSome(region, wgrid(), undoGrid);
-	actions.addNewAction(ra);
+    public synchronized void setStyle(int row, int col, ICellStyle style) {
+        if (isExtendedView()) {
+            row -= 3;
+            col -= 3;
+        }
+        IUndoableGridAction ua = IWritableGrid.Tool.setStyle(col, row, region, style);
+        RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
+        ra.doSome(region, wgrid(), undoGrid);
+        actions.addNewAction(ra);
     }
 
-    public ICellStyle getCellStyle(int row, int column)
-    {
-	return IWritableGrid.Tool.getCellStyle(table.getGrid(), tX(column),
-		tY(row));
+    public ICellStyle getCellStyle(int row, int column) {
+        return IWritableGrid.Tool.getCellStyle(table.getGrid(), tX(column), tY(row));
     }
 
-    public String getCellValue(int row, int column)
-    {
-	return table.getGrid().getStringCellValue(tX(column), tY(row));
+    public String getCellValue(int row, int column) {
+        return table.getGrid().getStringCellValue(tX(column), tY(row));
     }
 
-    static class RegionAction implements IUndoableAction
-    {
-	IUndoableGridAction gridAction;
+    static class RegionAction implements IUndoableAction {
+        IUndoableGridAction gridAction;
 
-	boolean isInsert;
-	boolean isColumns;
-	int nRowsOrColumns;
+        boolean isInsert;
+        boolean isColumns;
+        int nRowsOrColumns;
 
-	public RegionAction(IUndoableGridAction action, boolean isColumns,
-		boolean isInsert, int nRowsOrColumns)
-	{
-	    this.gridAction = action;
-	    this.isColumns = isColumns;
-	    this.isInsert = isInsert;
-	    this.nRowsOrColumns = nRowsOrColumns;
-	}
+        public RegionAction(IUndoableGridAction action, boolean isColumns, boolean isInsert, int nRowsOrColumns) {
+            gridAction = action;
+            this.isColumns = isColumns;
+            this.isInsert = isInsert;
+            this.nRowsOrColumns = nRowsOrColumns;
+        }
 
-	public void doSome(GridRegion r, IWritableGrid wgrid, IUndoGrid undoGrid)
-	{
-	    gridAction.doAction(wgrid, undoGrid);
-	    updateRegion(isInsert, isColumns, nRowsOrColumns, r);
-	}
+        public void doSome(GridRegion r, IWritableGrid wgrid, IUndoGrid undoGrid) {
+            gridAction.doAction(wgrid, undoGrid);
+            updateRegion(isInsert, isColumns, nRowsOrColumns, r);
+        }
 
-	/**
-	 * @param isInsert2
-	 * @param isColumns2
-	 * @param rowsOrColumns
-	 */
-	void updateRegion(boolean isInsert, boolean isColumns,
-		int rowsOrColumns, GridRegion r)
-	{
-	    int inc = isInsert ? rowsOrColumns : -rowsOrColumns;
-	    if (isColumns)
-		r.setRight(r.getRight() + inc);
-	    else
-		r.setBottom(r.getBottom() + inc);
-	}
+        /**
+         * @param isInsert2
+         * @param isColumns2
+         * @param rowsOrColumns
+         */
+        void updateRegion(boolean isInsert, boolean isColumns, int rowsOrColumns, GridRegion r) {
+            int inc = isInsert ? rowsOrColumns : -rowsOrColumns;
+            if (isColumns) {
+                r.setRight(r.getRight() + inc);
+            } else {
+                r.setBottom(r.getBottom() + inc);
+            }
+        }
 
-	public void undoSome(GridRegion r, IWritableGrid wgrid,
-		IUndoGrid undoGrid)
-	{
-	    updateRegion(!isInsert, isColumns, nRowsOrColumns, r);
-	    gridAction.undoAction(wgrid, undoGrid);
-	}
+        public void undoSome(GridRegion r, IWritableGrid wgrid, IUndoGrid undoGrid) {
+            updateRegion(!isInsert, isColumns, nRowsOrColumns, r);
+            gridAction.undoAction(wgrid, undoGrid);
+        }
     }
 
-    public synchronized boolean hasUndo()
-    {
-	return actions.hasUndo();
+    public synchronized boolean hasUndo() {
+        return actions.hasUndo();
     }
 
-    public synchronized boolean hasRedo()
-    {
-	return actions.hasRedo();
+    public synchronized boolean hasRedo() {
+        return actions.hasRedo();
     }
 
-    public synchronized void undo()
-    {
-	IUndoableAction ua = actions.undo();
-	((RegionAction) ua).undoSome(region, wgrid(), undoGrid);
+    public synchronized void undo() {
+        IUndoableAction ua = actions.undo();
+        ((RegionAction) ua).undoSome(region, wgrid(), undoGrid);
     }
 
-    public synchronized void redo()
-    {
-	IUndoableAction ua = actions.redo();
-	((RegionAction) ua).doSome(region, wgrid(), undoGrid);
+    public synchronized void redo() {
+        IUndoableAction ua = actions.redo();
+        ((RegionAction) ua).doSome(region, wgrid(), undoGrid);
     }
 
-    public synchronized void cancel()
-    {
-	while (actions.hasUndo())
-	    undo();
+    public synchronized void cancel() {
+        while (actions.hasUndo()) {
+            undo();
+        }
     }
 
-    public synchronized void save() throws IOException
-    {
-	XlsSheetGridModel xlsgrid = (XlsSheetGridModel) table.getGrid();
-	xlsgrid.getSheetSource().getWorkbookSource().save();
-	actions = new UndoableActions();
+    public synchronized void save() throws IOException {
+        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) table.getGrid();
+        xlsgrid.getSheetSource().getWorkbookSource().save();
+        actions = new UndoableActions();
     }
 
-    public synchronized void saveAs(String fname) throws IOException
-    {
-	XlsSheetGridModel xlsgrid = (XlsSheetGridModel) table.getGrid();
-	xlsgrid.getSheetSource().getWorkbookSource().saveAs(fname);
+    public synchronized void saveAs(String fname) throws IOException {
+        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) table.getGrid();
+        xlsgrid.getSheetSource().getWorkbookSource().saveAs(fname);
     }
 
     /**
      * @return
      */
-    public synchronized IGridTable getUpdatedTable()
-    {
-	if (isExtendedView())
-	{
-	    return new GridTable(region.getTop() - 3, region.getLeft() - 3,
-		    region.getBottom() + 3, region.getRight() + 3, table
-			    .getGrid());
-	}
-	return new GridTable(region.getTop(), region.getLeft(), region
-		.getBottom(), region.getRight(), table.getGrid());
+    public synchronized IGridTable getUpdatedTable() {
+        if (isExtendedView()) {
+            return new GridTable(region.getTop() - 3, region.getLeft() - 3, region.getBottom() + 3,
+                    region.getRight() + 3, table.getGrid());
+        }
+        return new GridTable(region.getTop(), region.getLeft(), region.getBottom(), region.getRight(), table.getGrid());
 
     }
 
-    public int tX(int col)
-    {
-	return region.getLeft() + col;
+    public int tX(int col) {
+        return region.getLeft() + col;
     }
 
-    public int tY(int row)
-    {
-	return region.getTop() + row;
+    public int tY(int row) {
+        return region.getTop() + row;
     }
 
-    private boolean isExtendedView()
-    {
-	// TODO will deal with it later
-	if (true)
-	    return false;
-	return !(canAddRows(1) && canAddCols(1));
+    private boolean isExtendedView() {
+        // TODO will deal with it later
+        if (true) {
+            return false;
+        }
+        return !(canAddRows(1) && canAddCols(1));
     }
 
     /**
      * Checks if cell with row/col coordinates in system of the grid returned by
      * <code>getUpdatedTable</code> methods is inside of table region.
-     *
-     * @param row
-     *                row number in coordinates of <code>getUpdatedTable</code>
+     * 
+     * @param row row number in coordinates of <code>getUpdatedTable</code>
      *                grid
-     * @param col
-     *                column number in coordinates of
-     *                <code>getUpdatedTable</code> grid
+     * @param col column number in coordinates of <code>getUpdatedTable</code>
+     *                grid
      * @return if cell belongs to the table
      */
-    public boolean updatedTableCellInsideTableRegion(int row, int col)
-    {
-	if (isExtendedView())
-	{
-	    row -= 3;
-	    col -= 3;
-	}
-	return (row >= 0 && col >= 0 && row < IGridRegion.Tool.height(region) && col < IGridRegion.Tool
-		.width(region));
+    public boolean updatedTableCellInsideTableRegion(int row, int col) {
+        if (isExtendedView()) {
+            row -= 3;
+            col -= 3;
+        }
+        return (row >= 0 && col >= 0 && row < IGridRegion.Tool.height(region) && col < IGridRegion.Tool.width(region));
     }
 
-    public boolean canAddRows(int nRows)
-    {
-	GridRegion testRegion = new GridRegion(region.getBottom() + 1, region
-		.getLeft() - 1, region.getBottom() + 1 + nRows, region
-		.getRight() + 1);
-	for (int i = 0; i < othertables.length; i++)
-	{
-	    if (IGridRegion.Tool.intersects(testRegion, othertables[i]))
-		return false;
-	}
-	return true;
+    public boolean canAddRows(int nRows) {
+        GridRegion testRegion = new GridRegion(region.getBottom() + 1, region.getLeft() - 1, region.getBottom() + 1
+                + nRows, region.getRight() + 1);
+        for (int i = 0; i < othertables.length; i++) {
+            if (IGridRegion.Tool.intersects(testRegion, othertables[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public boolean canRemoveRows(int nRows)
-    {
-	return IGridRegion.Tool.height(region) > nRows;
+    public boolean canRemoveRows(int nRows) {
+        return IGridRegion.Tool.height(region) > nRows;
     }
 
-    public boolean canAddCols(int nCols)
-    {
-	GridRegion testRegion = new GridRegion(region.getTop() - 1, region
-		.getRight() + 1, region.getBottom() + 1, region.getRight() + 1
-		+ nCols);
-	for (int i = 0; i < othertables.length; i++)
-	{
-	    if (IGridRegion.Tool.intersects(testRegion, othertables[i]))
-		return false;
-	}
-	return true;
+    public boolean canAddCols(int nCols) {
+        GridRegion testRegion = new GridRegion(region.getTop() - 1, region.getRight() + 1, region.getBottom() + 1,
+                region.getRight() + 1 + nCols);
+        for (int i = 0; i < othertables.length; i++) {
+            if (IGridRegion.Tool.intersects(testRegion, othertables[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public boolean canRemoveCols(int nCols)
-    {
-	return IGridRegion.Tool.width(region) > nCols;
+    public boolean canRemoveCols(int nCols) {
+        return IGridRegion.Tool.width(region) > nCols;
     }
 
     /**
      * Gets type of a specified cell
-     *
+     * 
      * @param row
      * @param column
      * @return cell type
      */
-    public CellType getCellType(int row, int column)
-    {
-	// TODO
-	switch (column)
-	{
-	case 0:
-	    return CellType.TH_CELL_TYPE;
-	case 3:
-	    return CellType.CA_ENUMERATION_CELL_TYPE;
-	default:
-	    return null;
-	}
+    public CellType getCellType(int row, int column) {
+        // TODO
+        switch (column) {
+        case 0:
+            return CellType.TH_CELL_TYPE;
+        case 3:
+            return CellType.CA_ENUMERATION_CELL_TYPE;
+        default:
+            return null;
+        }
     }
 
-    public CellMetaInfo getCellMetaInfo(int row, int column)
-    {
+    public CellMetaInfo getCellMetaInfo(int row, int column) {
 
-	CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table
-		.getGrid(), tX(column), tY(row));
+        CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table.getGrid(), tX(column), tY(row));
 
-	// System.out.println("Meta:" + metaInfo);
-	return metaInfo;
+        // System.out.println("Meta:" + metaInfo);
+        return metaInfo;
 
     }
 
     /**
      * Gets editor metadata for a specified cell
-     *
+     * 
      * @param row
      * @param column
      * @return editor metadata
      */
-    public Object getCellEditorMetadata(int row, int column)
-    {
+    public Object getCellEditorMetadata(int row, int column) {
 
-	CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table
-		.getGrid(), tX(column), tY(row));
+        CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table.getGrid(), tX(column), tY(row));
 
-	System.out.println("Meta:" + metaInfo);
+        System.out.println("Meta:" + metaInfo);
 
-	// TODO
-	switch (column)
-	{
-	case 3:
-	    return new String[] { "ALABAMA", "ALASKA", "AMERICAN SAMOA",
-		    "ARIZONA", "ARKANSAS", "CALIFORNIA", "COLORADO",
-		    "CONNECTICUT", "DELAWARE", "DISTRICT OF COLUMBIA",
-		    "FEDERATED STATES OF MICRONESIA", "FLORIDA", "GEORGIA",
-		    "GUAM", "HAWAII", "IDAHO", "ILLINOIS", "INDIANA", "IOWA",
-		    "KANSAS", "KENTUCKY", "LOUISIANA", "MAINE",
-		    "MARSHALL ISLANDS", "MARYLAND", "MASSACHUSETTS",
-		    "MICHIGAN", "MINNESOTA", "MISSISSIPPI", "MISSOURI",
-		    "MONTANA", "NEBRASKA", "NEVADA", "NEW HAMPSHIRE",
-		    "NEW JERSEY", "NEW MEXICO", "NEW YORK", "NORTH CAROLINA",
-		    "NORTH DAKOTA", "NORTHERN MARIANA ISLANDS", "OHIO",
-		    "OKLAHOMA", "OREGON", "PALAU", "PENNSYLVANIA",
-		    "PUERTO RICO", "RHODE ISLAND", "SOUTH CAROLINA",
-		    "SOUTH DAKOTA", "TENNESSEE", "TEXAS", "UTAH", "VERMONT",
-		    "VIRGIN ISLANDS", "VIRGINIA", "WASHINGTON",
-		    "WEST VIRGINIA", "WISCONSIN", "WYOMING" };
-	default:
-	    return null;
-	}
+        // TODO
+        switch (column) {
+        case 3:
+            return new String[] { "ALABAMA", "ALASKA", "AMERICAN SAMOA", "ARIZONA", "ARKANSAS", "CALIFORNIA",
+                    "COLORADO", "CONNECTICUT", "DELAWARE", "DISTRICT OF COLUMBIA", "FEDERATED STATES OF MICRONESIA",
+                    "FLORIDA", "GEORGIA", "GUAM", "HAWAII", "IDAHO", "ILLINOIS", "INDIANA", "IOWA", "KANSAS",
+                    "KENTUCKY", "LOUISIANA", "MAINE", "MARSHALL ISLANDS", "MARYLAND", "MASSACHUSETTS", "MICHIGAN",
+                    "MINNESOTA", "MISSISSIPPI", "MISSOURI", "MONTANA", "NEBRASKA", "NEVADA", "NEW HAMPSHIRE",
+                    "NEW JERSEY", "NEW MEXICO", "NEW YORK", "NORTH CAROLINA", "NORTH DAKOTA",
+                    "NORTHERN MARIANA ISLANDS", "OHIO", "OKLAHOMA", "OREGON", "PALAU", "PENNSYLVANIA", "PUERTO RICO",
+                    "RHODE ISLAND", "SOUTH CAROLINA", "SOUTH DAKOTA", "TENNESSEE", "TEXAS", "UTAH", "VERMONT",
+                    "VIRGIN ISLANDS", "VIRGINIA", "WASHINGTON", "WEST VIRGINIA", "WISCONSIN", "WYOMING" };
+        default:
+            return null;
+        }
     }
 }

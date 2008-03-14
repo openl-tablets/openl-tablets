@@ -25,7 +25,7 @@
     <module>../org.openl.rules.runtime.deployer</module>
     <module>../org.openl.rules.diff</module>
     <module>../org.openl.rules.webstudio.lib</module>
-    <module>../org.openl.rules.webstudio.eclipse-feature</module>
+    <module>../org.openl.rules.webstudio.eclipse.feature</module>
   </modules>
 
   <scm>
@@ -245,7 +245,7 @@
 
       <dependency>
         <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.webstudio.eclipse-feature</artifactId>
+        <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
         <version>${version}</version>
       </dependency>
 

@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.lib.apache.tomcat</artifactId>
-  <name></name>
+  <name>org.openl.lib.apache.tomcat</name>
   <description></description>
 
   <repositories>
