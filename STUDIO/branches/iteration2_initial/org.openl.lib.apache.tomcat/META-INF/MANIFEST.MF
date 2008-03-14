@@ -5,3 +5,4 @@ Bundle-SymbolicName: org.openl.lib.apache.tomcat
 Bundle-Version: 5.0.5
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL Tablets
+Bundle-ClassPath: apache-tomcat-5.5.17/bin/bootstrap.jar
