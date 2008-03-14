@@ -72,8 +72,8 @@ public class StartTomcat {
             chome = getProperty(args, "catalina.home");
         }
         if (chome == null) {
-//            chome = "../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17";
-        	chome = findChome();
+            //chome = "../org.openl.lib.apache.tomcat_5.0.5/apache-tomcat-5.5.17";
+            chome = findChome();
         }
         File catalinaHome = new File(chome);
 
