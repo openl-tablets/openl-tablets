@@ -6,9 +6,9 @@ Bundle-Version: 5.0.5
 Bundle-Activator: org.openl.rules.eclipse.wizard.RulesWizardPlugin
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui,
- org.eclipse.core.resources,
- org.openl.eclipse.ui.wizard
+Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
+ org.eclipse.ui;visibility:=reexport,
+ org.eclipse.core.resources;visibility:=reexport,
+ org.openl.eclipse.ui.wizard;visibility:=reexport
 Eclipse-LazyStart: true
 Export-Package: org.openl.rules.eclipse.wizard
