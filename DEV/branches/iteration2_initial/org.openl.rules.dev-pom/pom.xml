@@ -23,14 +23,14 @@
     <module>../org.openl.eclipse.ui</module>
     <module>../org.openl.rules.eclipse.ui</module>
     <module>../org.openl.conf.ant</module>
-    <module>../org.openl.rules.eclipse.wizard-plugin</module>
-    <module>../org.openl.eclipse.wizard-plugin</module>
+    <module>../org.openl.rules.eclipse.ui.wizard</module>
+    <module>../org.openl.eclipse.ui.wizard</module>
     <module>../org.openl.rules.validator</module>
     <module>../org.openl.lib.apache.commons</module>
-    <module>../org.openl.eclipse31-feature</module>
-    <module>../org.openl.lib.eclipse31-feature</module>
-    <module>../org.openl.rules.eclipse31-feature</module>
-    <module>../org.openl.eclipse31-site</module>
+    <module>../org.openl.eclipse.feature</module>
+    <module>../org.openl.lib.eclipse.feature</module>
+    <module>../org.openl.rules.eclipse.feature</module>
+    <module>../org.openl.eclipse.site</module>
   </modules>
 
   <scm>
@@ -160,11 +160,11 @@
         <version>${version}</version>
       </dependency>
 
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.validator</artifactId>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.validator</artifactId>
         <version>${version}</version>
-    </dependency>
+      </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
@@ -388,26 +388,26 @@
 
       <!-- Eclipse dependencies -->
       <dependency>
-      <groupId>org.eclipse.ui</groupId>
-      <artifactId>org.eclipse.ui.ide</artifactId>
+        <groupId>org.eclipse.ui</groupId>
+        <artifactId>org.eclipse.ui.ide</artifactId>
         <version>3.3.2</version>
       </dependency>
 
       <dependency>
         <groupId>org.eclipse.osgi</groupId>
-  <artifactId>org.eclipse.osgi</artifactId>
-  <version>3.3.2</version>
+        <artifactId>org.eclipse.osgi</artifactId>
+        <version>3.3.2</version>
       </dependency>
 
       <dependency>
-  <groupId>org.eclipse.osgi</groupId>
-  <artifactId>org.eclipse.osgi.services</artifactId>
+        <groupId>org.eclipse.osgi</groupId>
+        <artifactId>org.eclipse.osgi.services</artifactId>
         <version>3.1.200</version>
       </dependency>
 
       <dependency>
-  <groupId>org.eclipse.equinox</groupId>
-  <artifactId>org.eclipse.equinox.app</artifactId>
+        <groupId>org.eclipse.equinox</groupId>
+        <artifactId>org.eclipse.equinox.app</artifactId>
         <version>1.0.1</version>
       </dependency>
 
@@ -505,14 +505,14 @@
 
       <dependency>
         <groupId>org.eclipse.swt</groupId>
-  <artifactId>org.eclipse.swt</artifactId>
-  <version>3.3.2</version>
+        <artifactId>org.eclipse.swt</artifactId>
+        <version>3.3.2</version>
       </dependency>
 
       <dependency>
-  <groupId>org.eclipse.ui</groupId>
-  <artifactId>org.eclipse.ui</artifactId>
-  <version>3.3.1</version>
+        <groupId>org.eclipse.ui</groupId>
+        <artifactId>org.eclipse.ui</artifactId>
+        <version>3.3.1</version>
       </dependency>
 
       <dependency>
@@ -553,9 +553,9 @@
       </dependency>
 
       <dependency>
-  <groupId>org.eclipse.jface</groupId>
-  <artifactId>org.eclipse.jface</artifactId>
-  <version>3.3.2</version>
+        <groupId>org.eclipse.jface</groupId>
+        <artifactId>org.eclipse.jface</artifactId>
+        <version>3.3.2</version>
       </dependency>
 
       <dependency>
@@ -571,7 +571,7 @@
       </dependency>
 
       <dependency>
-  <groupId>org.eclipse.swt</groupId>
+        <groupId>org.eclipse.swt</groupId>
         <artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
         <version>3.3.3</version>
       </dependency>
@@ -582,11 +582,11 @@
         <version>3.3.100</version>
       </dependency>
 
-    <dependency>
-  <groupId>org.eclipse.pde</groupId>
-  <artifactId>org.eclipse.pde.core</artifactId>
-  <version>3.3.2</version>
-    </dependency>
+      <dependency>
+        <groupId>org.eclipse.pde</groupId>
+        <artifactId>org.eclipse.pde.core</artifactId>
+        <version>3.3.2</version>
+      </dependency>
 
     </dependencies>
   </dependencyManagement>
