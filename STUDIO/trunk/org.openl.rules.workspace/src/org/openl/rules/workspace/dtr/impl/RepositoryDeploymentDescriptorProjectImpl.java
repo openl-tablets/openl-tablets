@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProjectDescriptor;
 import org.openl.rules.repository.RVersion;
@@ -287,6 +288,10 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
         public int getRevision() {
             return version.getRevision();
+        }
+
+        public int compareTo(CommonVersion o) {
+            return new CommonVersionImpl(this).compareTo(o);
         }
     }
 
