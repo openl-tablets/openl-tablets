@@ -9,6 +9,7 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.ui;visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
- org.openl.eclipse.ui.wizard;visibility:=reexport
+ org.openl.eclipse.ui.wizard;visibility:=reexport,
+ org.openl.lib.apache.commons
 Eclipse-LazyStart: true
 Export-Package: org.openl.rules.eclipse.wizard

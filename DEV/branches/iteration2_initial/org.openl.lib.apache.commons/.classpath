@@ -2,8 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry exported="true" sourcepath="commons-lang-1.0.1/commons-lang-1.0.1-src.zip" kind="lib" path="commons-lang-1.0.1/commons-lang-1.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-logging-1.0.3/commons-logging.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-logging-1.0.3/commons-logging-api.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-api-1.0.4.jar"/>
 </classpath>

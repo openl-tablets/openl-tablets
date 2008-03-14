@@ -162,7 +162,7 @@ such a program is covered only if its contents constitute a work based
 on the Library (independent of the use of the Library in a tool for
 writing it).  Whether that is true depends on what the Library does
 and what the program that uses the Library does.
-  
+
   1. You may copy and distribute verbatim copies of the Library&apos;s
 complete source code as you receive it, in any medium, provided that
 you conspicuously and appropriately publish on each copy an
@@ -522,6 +522,11 @@ That&apos;s all there is to it!
       <import feature="org.openl.eclipse.feature" version="5.0.5"/>
       <import plugin="org.openl.core"/>
       <import plugin="org.openl.lib.apache.poi.modified"/>
+      <import plugin="org.openl.eclipse.ui"/>
+      <import plugin="org.openl.eclipse.ui.wizard"/>
+      <import plugin="org.openl.j"/>
+      <import plugin="org.openl.commons"/>
+      <import plugin="org.openl.lib.apache.commons"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.ui.console"/>
@@ -531,11 +536,6 @@ That&apos;s all there is to it!
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.openl.eclipse.ui"/>
-      <import plugin="org.openl.eclipse.ui.wizard"/>
-      <import plugin="org.openl.j"/>
-      <import plugin="org.openl.commons"/>
-      <import plugin="org.openl.lib.apache.commons"/>
    </requires>
 
    <plugin
