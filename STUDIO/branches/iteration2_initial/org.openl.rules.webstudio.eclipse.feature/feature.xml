@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.openl.rules.webstudio.eclipse_feature"
+      id="org.openl.rules.webstudio.eclipse.feature"
       label="WebStudio Eclipse Feature"
       version="5.0.5">
 
