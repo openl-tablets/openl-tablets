@@ -1,17 +1,14 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
-import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.util.Log;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -88,14 +85,8 @@ public class DependencyController {
     }
 
     public SelectItem[] getProjectVersions() {
-        UserWorkspace workspace;
-        try {
-            workspace = getRulesUserSession().getUserWorkspace();
-        } catch (Exception e) {
-            Log.error("could not get user workspace", e);
-            return new SelectItem[0];
-        }
-        if (projectName == null) {
+        UserWorkspace workspace = RepositoryUtils.getWorkspace();
+        if (workspace == null || projectName == null) {
             return new SelectItem[0];
         }
 
@@ -112,11 +103,6 @@ public class DependencyController {
 
         return new SelectItem[0];
     }
-
-    private RulesUserSession getRulesUserSession() {
-        return (RulesUserSession) FacesUtils.getSessionMap().get("rulesUserSession");
-    }
-
 
     private ProjectDependencyImpl buildDependencyObject() {
         ProjectVersion projectVersion1 = versionFromString(lowerVersion);
