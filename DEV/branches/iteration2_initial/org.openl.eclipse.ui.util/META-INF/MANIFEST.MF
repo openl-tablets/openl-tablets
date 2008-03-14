@@ -6,5 +6,6 @@ Bundle-Version: 1.0.0
 Bundle-Activator: org.openl.eclipse.ui.util.Activator
 Bundle-Vendor: OpenL
 Require-Bundle: org.eclipse.core.runtime,
- org.openl.eclipse.ui
+ org.openl.eclipse.ui,
+ org.eclipse.core.resources
 Eclipse-AutoStart: true
