@@ -29,7 +29,7 @@
          version="5.0.5"/>
 
    <includes
-         id="org.openl.rules.webstudio.eclipse-feature"
+         id="org.openl.rules.webstudio.eclipse.feature"
          version="5.0.5"/>
 
          <!--
