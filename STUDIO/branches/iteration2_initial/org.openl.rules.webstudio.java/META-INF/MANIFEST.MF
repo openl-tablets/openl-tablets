@@ -3,15 +3,16 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Exigen WebStudio Java Sources
 Bundle-SymbolicName: org.openl.rules.webstudio.java;singleton:=true
 Bundle-Version: 5.0.5
-Require-Bundle: org.openl.lib.apache.tomcat,
- org.openl.core,
- org.openl.rules,
- org.openl.rules.repository.jcr,
- org.openl.rules.workspace,
- org.openl.rules.validator,
- org.openl.rules.webtools,
- org.openl.rules.security.standalone,
- org.openl.rules.diff, org.openl.rules.webstudio.lib
+Require-Bundle: org.openl.lib.apache.tomcat;visibility:=reexport,
+ org.openl.core;visibility:=reexport,
+ org.openl.rules;visibility:=reexport,
+ org.openl.rules.repository.jcr;visibility:=reexport,
+ org.openl.rules.workspace;visibility:=reexport,
+ org.openl.rules.validator;visibility:=reexport,
+ org.openl.rules.webtools;visibility:=reexport,
+ org.openl.rules.security.standalone;visibility:=reexport,
+ org.openl.rules.diff;visibility:=reexport,
+ org.openl.rules.webstudio.lib;visibility:=reexport
 Export-Package: org.openl.rules.ui,
  org.openl.rules.webstudio.services,
  org.openl.rules.webstudio.services.upload,
