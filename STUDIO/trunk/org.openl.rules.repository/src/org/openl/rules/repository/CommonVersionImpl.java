@@ -60,15 +60,11 @@ public class CommonVersionImpl implements CommonVersion {
     }
     
     public int compareTo(CommonVersion o) {
-        int i;
-        
-        i = major - o.getMajor();
-        if (i != 0) return i;
-        
-        i = minor - o.getMinor();
-        if (i != 0) return i;
-        
-        return (revision - o.getRevision());
+        if (major != o.getMajor()) return major < o.getMajor() ? -1 : 1;
+        if (minor != o.getMinor()) return minor < o.getMinor() ? -1 : 1;
+        if (revision != o.getRevision()) return revision < o.getRevision() ? -1 : 1;
+
+        return 0;
     }
 
     public boolean equals(Object o) {
