@@ -13,7 +13,7 @@
 
   <artifactId>org.openl.rules.diff</artifactId>
   <name>Exigen WebStudio Structured Diff</name>
-  <description>Exigen WebStudio Structured Diff</description>
+  <description></description>
 
   <repositories>
     <repository>

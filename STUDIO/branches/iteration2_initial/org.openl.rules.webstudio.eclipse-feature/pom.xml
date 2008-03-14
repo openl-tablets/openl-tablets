@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>org.openl.rules.webstudio.eclipse-feature</artifactId>
-  <name>org.openl.rules.webstudio.eclipse-feature</name>
+  <name></name>
   <description></description>
 
   <build>
@@ -24,6 +24,17 @@
         </includes>
       </resource>
     </resources>
+
+    <plugins>
+      <plugin>
+        <inherited>false</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

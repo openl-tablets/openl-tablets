@@ -13,7 +13,7 @@
 
   <artifactId>org.openl.rules.security.integration.ipb</artifactId>
   <name>IPB security integration</name>
-  <description>IPB security integration</description>
+  <description></description>
 
   <repositories>
     <repository>

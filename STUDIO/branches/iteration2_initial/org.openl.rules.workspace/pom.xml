@@ -13,7 +13,7 @@
 
   <artifactId>org.openl.rules.workspace</artifactId>
   <name>Exigen WebStudio Workspace</name>
-  <description>Exigen WebStudio Workspace</description>
+  <description></description>
 
   <repositories>
     <repository>

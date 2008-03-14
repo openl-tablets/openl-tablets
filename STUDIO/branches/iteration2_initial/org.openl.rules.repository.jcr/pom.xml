@@ -13,7 +13,7 @@
 
   <artifactId>org.openl.rules.repository.jcr</artifactId>
   <name>Exigen WebStudio Repository Jcr</name>
-  <description>Exigen WebStudio Repository Jcr</description>
+  <description></description>
 
   <repositories>
     <repository>

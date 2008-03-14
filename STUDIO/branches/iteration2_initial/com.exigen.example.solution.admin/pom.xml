@@ -4,13 +4,8 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <properties>
-    <com.exigen.common.version>7.0.1-SNAPSHOT</com.exigen.common.version>
-    <com.exigen.example.solution.version>7.0.1-SNAPSHOT</com.exigen.example.solution.version>
-  </properties>
-
-  <groupId>com.exigen.example.solution</groupId>
-  <artifactId>admin</artifactId>
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.runtime-repository.server</artifactId>
   <version>7.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>Administration Server (Assembly)</name>
