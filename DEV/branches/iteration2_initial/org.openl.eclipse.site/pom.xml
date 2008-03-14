@@ -11,8 +11,8 @@
   </parent>
 
   <groupId>org.openl</groupId>
-  <artifactId>org.openl.eclipse31-site</artifactId>
-  <name>org.openl.eclipse31-site</name>
+  <artifactId>org.openl.eclipse.site</artifactId>
+  <name>org.openl.eclipse.site</name>
   <description></description>
 
   <build>
@@ -146,6 +146,11 @@
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.lib.apache.commons</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
     </dependency>
 
     <!-- STUDIO -->

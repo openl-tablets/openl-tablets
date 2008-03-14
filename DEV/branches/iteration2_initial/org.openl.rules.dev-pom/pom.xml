@@ -240,13 +240,19 @@
 
       <dependency>
         <groupId>org.openl</groupId>
-        <artifactId>org.openl.eclipse31-site</artifactId>
+        <artifactId>org.openl.eclipse.site</artifactId>
         <version>${version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib.apache.commons</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
         <version>${version}</version>
       </dependency>
 
