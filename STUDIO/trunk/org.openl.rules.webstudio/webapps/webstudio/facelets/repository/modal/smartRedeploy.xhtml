@@ -49,13 +49,19 @@
         <h:commandButton styleClass="button" value="Reset All" type="button" onclick="selectAll4SmartRedeploy(false); return false;" />
       </h:panelGrid>
 
+      <h:panelGrid id="processing" columns="2" cellpadding="4px;" cellspacing="0px;"
+        styleClass="dr-mpnl-pnl"
+        style="width:100px;height:28px;position:absolute;top:120px;left:150px;border-width:2px;visibility:hidden;" >
+        <h:graphicImage value="/images/modal/wait.gif" />
+        <h:outputText value="Processing..." />
+      </h:panelGrid>
 
       <rich:separator height="1" />
       <br/>
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton id="smartRedeployBtn" styleClass="disabledButton" value="Smart Redeploy" onclick="return startSmartRedeploy()" action="#{smartRedeployController.redeploy}" />
-        <h:commandButton styleClass="button" value="Cancel" type="button" onclick="closeSmartRedeploy();" />
+        <h:commandButton id="cancelBtn" styleClass="button" value="Cancel" type="button" onclick="closeSmartRedeploy();" />
       </h:panelGrid>
     </h:form>
   </rich:modalPanel>
@@ -79,10 +85,14 @@
     }
 
     function updateSmartRedeployBtn() {
+      if (window._smartRedeployInProgress) return;
+
       document.getElementById('smartRedeployForm:smartRedeployBtn').className = isEmptySelection4SmartRedeploy() ? 'disabledButton' : 'button';
     }
 
     function selectAll4SmartRedeploy(newState) {
+      if (window._smartRedeployInProgress) return;
+
       var table = document.getElementById('smartRedeployForm:smartRedeployTable');
       for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
         var item = table.childNodes[2].childNodes[i].firstChild.firstChild;
@@ -93,15 +103,20 @@
     }
 
     function closeSmartRedeploy() {
-        if (window._smartRedeployInProgress) return;
-        Richfaces.hideModalPanel('modalSmartRedeploy');
+      if (window._smartRedeployInProgress) return;
+      Richfaces.hideModalPanel('modalSmartRedeploy');
     }
 
     function startSmartRedeploy() {
-        if (window._smartRedeployInProgress) return false;
-        if (isEmptySelection4SmartRedeploy()) return false;
-        window._smartRedeployInProgress = true;
-        return true;
+      if (window._smartRedeployInProgress) return false;
+      if (isEmptySelection4SmartRedeploy()) return false;
+      window._smartRedeployInProgress = true;
+
+      document.getElementById('smartRedeployForm:smartRedeployBtn').className = 'disabledButton';
+      document.getElementById('smartRedeployForm:cancelBtn').className = 'disabledButton';
+      document.getElementById('smartRedeployForm:processing').style.visibility = 'visible';
+
+      return true;
     }
   </script>
 </ui:composition>
