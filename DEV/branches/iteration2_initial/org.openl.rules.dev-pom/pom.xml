@@ -31,7 +31,6 @@
     <module>../org.openl.lib.eclipse.feature</module>
     <module>../org.openl.rules.eclipse.feature</module>
     <module>../org.openl.rules.all.eclipse.feature</module>
-    <module>../org.openl.eclipse.site</module>
   </modules>
 
   <scm>
