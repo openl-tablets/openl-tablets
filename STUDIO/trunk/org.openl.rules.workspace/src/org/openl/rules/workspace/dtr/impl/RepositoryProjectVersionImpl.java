@@ -55,7 +55,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         return versionInfo;
     }
 
-    public int compareTo(ProjectVersion o) {
+    public int compareTo(CommonVersion o) {
         if (major != o.getMajor()) return major < o.getMajor() ? -1 : 1;
         if (minor != o.getMinor()) return minor < o.getMinor() ? -1 : 1;
         if (revision != o.getRevision()) return revision < o.getRevision() ? -1 : 1;

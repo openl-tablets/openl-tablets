@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.openl.rules.repository.CommonVersion;
 
-public interface ProjectVersion extends CommonVersion, Serializable, Comparable<ProjectVersion> {
+public interface ProjectVersion extends CommonVersion, Serializable {
 
     VersionInfo getVersionInfo();
 }
