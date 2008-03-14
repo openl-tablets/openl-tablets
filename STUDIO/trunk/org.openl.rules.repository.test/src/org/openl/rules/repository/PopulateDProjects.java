@@ -67,6 +67,8 @@ public class PopulateDProjects {
         public String getVersionName() {
             return version.getVersionName();
         }
-        
+        public int compareTo(CommonVersion o) {
+            return new CommonVersionImpl(this).compareTo(o);
+        }
     }
 }
