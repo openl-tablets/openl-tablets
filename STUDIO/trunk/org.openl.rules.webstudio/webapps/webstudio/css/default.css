@@ -291,3 +291,11 @@ table.header thead td {
 .dr-pnl-b {
   padding: 2px !important;
 }
+
+.text-warning {
+  color: brown;
+}
+
+.text-error {
+  color: red;
+}
