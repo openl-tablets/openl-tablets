@@ -222,7 +222,7 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webstudio.eclipse-feature</artifactId>
+      <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
       <version>${version}</version>
     </dependency>
 
@@ -233,7 +233,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.openl.rules</groupId>
+      <groupId>org.openl</groupId>
       <artifactId>org.openl.lib.apache.tomcat</artifactId>
       <version>${version}</version>
     </dependency>
