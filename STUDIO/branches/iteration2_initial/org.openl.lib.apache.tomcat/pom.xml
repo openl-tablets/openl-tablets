@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -8,11 +7,12 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.studio-pom</artifactId>
     <version>5.0.5</version>
-    <relativePath>../org.openl.rules.studio-pom</relativePath>
+    <relativePath>../org.openl.rules.studio-pom/pom.xml</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.repository</artifactId>
-  <name>Exigen WebStudio Repository</name>
+  <groupId>org.openl</groupId>
+  <artifactId>org.openl.lib.apache.tomcat</artifactId>
+  <name></name>
   <description></description>
 
   <repositories>
@@ -23,7 +23,24 @@
   </repositories>
 
   <build>
+    <defaultGoal>package</defaultGoal>
+
+    <resources>
+      <resource>
+        <directory>apache-tomcat-5.5.17</directory>
+        <targetPath>apache-tomcat-5.5.17</targetPath>
+      </resource>
+    </resources>
+
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -33,11 +50,11 @@
           </archive>
         </configuration>
       </plugin>
+
     </plugins>
   </build>
 
   <dependencies>
-
   </dependencies>
 
 </project>

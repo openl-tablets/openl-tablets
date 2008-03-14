@@ -13,7 +13,7 @@
 
   <artifactId>org.openl.rules.security.standalone</artifactId>
   <name>Security</name>
-  <description>Security</description>
+  <description></description>
 
   <repositories>
     <repository>

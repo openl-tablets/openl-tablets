@@ -13,7 +13,7 @@
 
   <artifactId>org.openl.rules.webtools</artifactId>
   <name>Exigen WebTools</name>
-  <description>Exigen WebTools</description>
+  <description></description>
 
   <repositories>
     <repository>

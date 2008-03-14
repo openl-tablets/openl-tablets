@@ -13,7 +13,7 @@
 
   <artifactId>org.openl.rules.webstudio</artifactId>
   <name>Exigen WebStudio Web Resources</name>
-  <description>Exigen WebStudio Web Resources</description>
+  <description></description>
 
   <repositories>
     <repository>
@@ -31,15 +31,6 @@
           <warSourceDirectory>webapps/webstudio</warSourceDirectory>
           <warName>webstudio-${version}</warName>
         </configuration>
-        <executions>
-          <execution>
-            <id>war</id>
-            <phase>package</phase>
-            <goals>
-              <goal>war</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -83,7 +74,6 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.security.standalone</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>org.openl.rules</groupId>
