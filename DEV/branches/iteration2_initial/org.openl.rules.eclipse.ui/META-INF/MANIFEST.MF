@@ -16,5 +16,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.workbench.texteditor,
  org.openl.eclipse.ui;visibility:=reexport,
- org.openl.rules;visibility:=reexport
+ org.openl.rules;visibility:=reexport,
+ org.openl.lib.apache.commons
 Eclipse-AutoStart: true

@@ -1,0 +1,594 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.dev-pom</artifactId>
+  <packaging>pom</packaging>
+  <version>5.0.5</version>
+  <name>Dev</name>
+  <description>Dev</description>
+  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+
+  <modules>
+    <module>../org.openl.commons</module>
+    <module>../org.openl.core</module>
+    <module>../org.openl.lib.apache.poi.modified</module>
+    <module>../org.openl.j</module>
+    <module>../org.openl.j.science</module>
+    <module>../org.openl.rules.helpers</module>
+    <module>../org.openl.rules</module>
+    <module>../com.exigen.rules.constrainer</module>
+    <module>../org.openl.eclipse.ui</module>
+    <module>../org.openl.rules.eclipse.ui</module>
+    <module>../org.openl.conf.ant</module>
+    <module>../org.openl.rules.eclipse.wizard-plugin</module>
+    <module>../org.openl.eclipse.wizard-plugin</module>
+    <module>../org.openl.rules.validator</module>
+    <module>../org.openl.lib.apache.commons</module>
+    <module>../org.openl.eclipse31-feature</module>
+    <module>../org.openl.lib.eclipse31-feature</module>
+    <module>../org.openl.rules.eclipse31-feature</module>
+    <module>../org.openl.eclipse31-site</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/trunk</connection>
+  </scm>
+
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/m2_repo</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>local</id>
+      <url>file://${basedir}/m2_repo</url>
+    </pluginRepository>
+
+    <!-- for maven-depgraph-plugin -->
+    <pluginRepository>
+      <id>elca-services</id>
+      <url>http://el4.elca-services.ch/el4j/maven2repository</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
+
+    <plugins>
+      <plugin>
+        <inherited>false</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <!--
+          Tweaked version of maven-eclipse plugin for correct
+          building of .classpath and .project files.
+        -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-eclipse-plugin</artifactId>
+          <version>2.5-osgi_provided-fix</version>
+          <configuration>
+            <downloadSources>false</downloadSources>
+            <downloadJavadocs>false</downloadJavadocs>
+            <pde>true</pde>
+            <!-- do not update MANIFEST.MF -->
+            <manifest>no-manifest</manifest>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.0.2</version>
+          <configuration>
+            <source>1.5</source>
+            <target>1.5</target>
+          </configuration>
+        </plugin>
+
+        <!-- Used for building dependency graphs -->
+        <plugin>
+          <groupId>ch.elca.el4j.maven.plugins</groupId>
+          <artifactId>maven-depgraph-plugin</artifactId>
+          <configuration>
+            <outDir>target/site/images</outDir>
+            <outFile>${pom.artifactId}.png</outFile>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- DEV -->
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.core</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.commons</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.j</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.helpers</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.validator</artifactId>
+        <version>${version}</version>
+    </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.j.science</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.lib.apache.poi.modified</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.exigen.rules</groupId>
+        <artifactId>com.exigen.rules.constrainer</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.eclipse.ui</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.eclipse.ui</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.conf.ant</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.conf.ant</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.eclipse.ui.wizard</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.eclipse.feature</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.lib.eclipse.feature</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.eclipse.feature</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.eclipse31-site</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.lib.apache.commons</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <!-- Apache Commons -->
+      <dependency>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
+        <version>1.2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.7.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>1.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>1.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-digester</groupId>
+        <artifactId>commons-digester</artifactId>
+        <version>1.6</version>
+      </dependency>
+
+      <!-- Other -->
+      <dependency>
+        <groupId>edu.stanford.ejalbert</groupId>
+        <artifactId>BrowserLauncher</artifactId>
+        <version>2-1_3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>tomcat</groupId>
+        <artifactId>bootstrap</artifactId>
+        <version>5.5.12</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring</artifactId>
+        <version>2.5.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-agent</artifactId>
+        <version>2.5.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>2.5.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>2.5</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>com.sun.facelets</groupId>
+        <artifactId>jsf-facelets</artifactId>
+        <version>1.1.13</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.sdicons.jsontools</groupId>
+        <artifactId>jsontools-core</artifactId>
+        <version>1.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.13</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>1.3.0</version>
+      </dependency>
+
+      <!-- Eclipse dependencies -->
+      <dependency>
+      <groupId>org.eclipse.ui</groupId>
+      <artifactId>org.eclipse.ui.ide</artifactId>
+        <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.osgi</groupId>
+  <artifactId>org.eclipse.osgi</artifactId>
+  <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+  <groupId>org.eclipse.osgi</groupId>
+  <artifactId>org.eclipse.osgi.services</artifactId>
+        <version>3.1.200</version>
+      </dependency>
+
+      <dependency>
+  <groupId>org.eclipse.equinox</groupId>
+  <artifactId>org.eclipse.equinox.app</artifactId>
+        <version>1.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.equinox</groupId>
+        <artifactId>org.eclipse.equinox.registry</artifactId>
+        <version>3.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>org.eclipse.core.runtime.compatibility</artifactId>
+        <version>3.2.100</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>org.eclipse.core.runtime.compatibility</artifactId>
+        <version>3.2.100</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.ui</groupId>
+        <artifactId>org.eclipse.ui.workbench.compatibility</artifactId>
+        <version>3.2.0</version>
+      </dependency>
+
+
+      <dependency>
+        <groupId>org.eclipse.ant</groupId>
+        <artifactId>org.eclipse.ant.core</artifactId>
+        <version>3.1.200</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>org.eclipse.core.commands</artifactId>
+        <version>3.3.0</version>
+      </dependency>
+
+
+      <dependency>
+        <groupId>org.eclipse.debug</groupId>
+        <artifactId>org.eclipse.debug.core</artifactId>
+        <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jdt</groupId>
+        <artifactId>org.eclipse.jdt.launching</artifactId>
+        <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.debug</groupId>
+        <artifactId>org.eclipse.debug.ui</artifactId>
+        <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jdt</groupId>
+        <artifactId>org.eclipse.jdt.core</artifactId>
+        <version>3.3.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.ant</groupId>
+        <artifactId>org.eclipse.ant.core</artifactId>
+        <version>3.1.200</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>org.eclipse.core.resources</artifactId>
+        <version>3.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.equinox</groupId>
+        <artifactId>org.eclipse.equinox.registry</artifactId>
+        <version>3.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.equinox</groupId>
+        <artifactId>org.eclipse.equinox.common</artifactId>
+        <version>3.3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.ui</groupId>
+        <artifactId>org.eclipse.ui.console</artifactId>
+        <version>3.2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.swt</groupId>
+  <artifactId>org.eclipse.swt</artifactId>
+  <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+  <groupId>org.eclipse.ui</groupId>
+  <artifactId>org.eclipse.ui</artifactId>
+  <version>3.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.ui</groupId>
+        <artifactId>org.eclipse.ui.workbench.texteditor</artifactId>
+        <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>org.eclipse.core.jobs</artifactId>
+        <version>3.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.ui</groupId>
+        <artifactId>org.eclipse.ui.editors</artifactId>
+        <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>org.eclipse.core.commands</artifactId>
+        <version>3.3.0</version>
+      </dependency>
+
+
+      <dependency>
+        <groupId>org.eclipse.text</groupId>
+        <artifactId>org.eclipse.text</artifactId>
+        <version>3.3.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jface</groupId>
+        <artifactId>org.eclipse.jface.text</artifactId>
+        <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+  <groupId>org.eclipse.jface</groupId>
+  <artifactId>org.eclipse.jface</artifactId>
+  <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.ui</groupId>
+        <artifactId>org.eclipse.ui.workbench</artifactId>
+        <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>org.eclipse.core.expressions</artifactId>
+        <version>3.3.0</version>
+      </dependency>
+
+      <dependency>
+  <groupId>org.eclipse.swt</groupId>
+        <artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
+        <version>3.3.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.core</groupId>
+        <artifactId>org.eclipse.core.runtime</artifactId>
+        <version>3.3.100</version>
+      </dependency>
+
+    <dependency>
+  <groupId>org.eclipse.pde</groupId>
+  <artifactId>org.eclipse.pde.core</artifactId>
+  <version>3.3.2</version>
+    </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+</project>
