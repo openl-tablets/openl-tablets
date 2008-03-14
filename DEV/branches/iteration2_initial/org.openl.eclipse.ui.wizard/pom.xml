@@ -36,15 +36,15 @@
     </resources>
 
     <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <configuration>
-            <archive>
-              <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-            </archive>
-          </configuration>
-        </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -95,8 +95,8 @@
     </dependency>
 
     <dependency>
-  <groupId>org.eclipse.pde</groupId>
-  <artifactId>org.eclipse.pde.core</artifactId>
+      <groupId>org.eclipse.pde</groupId>
+      <artifactId>org.eclipse.pde.core</artifactId>
     </dependency>
   </dependencies>
 
