@@ -38,8 +38,8 @@
     <rich:column style="text-align:center">
       <h:outputText value="#{item.versionName}" />
     </rich:column>
-    <rich:column style="text-align:center">
-      <h:outputText value="#{item.messages}" escape="false" />
+    <rich:column>
+      <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}" />
     </rich:column>
     <rich:column style="text-align:center">
       <h:commandLink styleClass="actionButton" action="#{deploymentController.deleteItem}" immediate="true"
