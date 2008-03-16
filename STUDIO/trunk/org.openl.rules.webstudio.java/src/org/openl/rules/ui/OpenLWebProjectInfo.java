@@ -94,6 +94,11 @@ public class OpenLWebProjectInfo
 			return ucl;
 		String classpath = projectClasspath();
 		
+		if (classpath == null)
+		{
+		    throw new IOException("Could not find project's classpath. Run \"Generate ... Wrapper\" for the project");
+		}    
+		
 		String[] files = StringTool.tokenize(classpath, File.pathSeparator);
 		
 		URL[] urls = new URL[files.length];
