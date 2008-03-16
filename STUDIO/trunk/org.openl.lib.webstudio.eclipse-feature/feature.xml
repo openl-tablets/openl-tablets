@@ -2,7 +2,7 @@
 <feature
       id="org.openl.lib.webstudio.eclipse_feature"
       label="Web dependencies eclipse Feature"
-      version="5.0.5">
+      version="5.0.6">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -20,30 +20,30 @@
          id="org.openl.lib.apache.jackrabbit"
          download-size="0"
          install-size="0"
-         version="5.0.5"/>
+         version="5.0.6"/>
 
    <plugin
          id="org.openl.lib.jsf"
          download-size="0"
          install-size="0"
-         version="5.0.5"/>
+         version="5.0.6"/>
 
    <plugin
          id="org.openl.lib.apache.tomcat"
          download-size="0"
          install-size="0"
-         version="5.0.5"/>
+         version="5.0.6"/>
 
    <plugin
          id="org.openl.lib.browserlauncher"
          download-size="0"
          install-size="0"
-         version="5.0.5"/>
+         version="5.0.6"/>
 
    <plugin
          id="org.openl.lib.springsource"
          download-size="0"
          install-size="0"
-         version="5.0.5"/>
+         version="5.0.6"/>
 
 </feature>
