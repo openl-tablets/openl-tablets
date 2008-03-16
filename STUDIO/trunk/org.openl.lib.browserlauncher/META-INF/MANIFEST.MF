@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Browser Launcher Plug-in
 Bundle-SymbolicName: org.openl.lib.browserlauncher; singleton:=true
-Bundle-Version: 5.0.5
+Bundle-Version: 5.0.6
 Bundle-ClassPath: browser-launcher2/BrowserLauncher2-1_3.jar
 Export-Package: at.jta,
  edu.stanford.ejalbert;uses:="edu.stanford.ejalbert.exceptionhandler,edu.stanford.ejalbert.launching,net.sf.wraplog",
