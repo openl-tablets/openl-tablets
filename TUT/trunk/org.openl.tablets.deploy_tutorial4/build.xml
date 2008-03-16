@@ -9,7 +9,7 @@
     <property name="webapp.client.name" value="demo" />
 	
 	<property name="plugin.base.path" value="../../plugins" />
-	<property name="openl.plugin.version" value="_5.0.5" />
+	<property name="openl.plugin.version" value="_5.0.6" />
 	
 	<property name="tomcat.path" value="${plugin.base.path}/org.openl.lib.apache.tomcat${openl.plugin.version}/apache-tomcat-5.5.17" />
 
