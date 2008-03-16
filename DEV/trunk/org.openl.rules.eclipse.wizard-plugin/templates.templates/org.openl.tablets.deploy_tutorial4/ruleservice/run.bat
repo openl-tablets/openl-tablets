@@ -1,4 +1,5 @@
 @setlocal
+@set OPENL_VERSION=5.0.6 
 @set _CP=.;^
 org.openl.rules.ruleservice.jar;^
 lib\cglib-nodep-2.1_3.jar;^
@@ -34,15 +35,15 @@ lib\log4j-1.2.13.jar;^
 lib\lucene-core-2.0.0.jar;^
 lib\neethi-2.0.2.jar;^
 lib\nekohtml-0.9.4.jar;^
-lib\org.openl.commons_5.0.5.jar;^
-lib\org.openl.core_5.0.5.jar;^
-lib\org.openl.j_5.0.5.jar;^
-lib\org.openl.rules.helpers_5.0.5.jar;^
-lib\org.openl.rules.repository.jcr_5.0.5.jar;^
-lib\org.openl.rules.repository_5.0.5.jar;^
-lib\org.openl.rules.validator_5.0.5.jar;^
-lib\org.openl.rules.workspace_5.0.5.jar;^
-lib\org.openl.rules_5.0.5.jar;^
+lib\org.openl.commons_%OPENL_VERSION%.jar;^
+lib\org.openl.core_%OPENL_VERSION%.jar;^
+lib\org.openl.j_%OPENL_VERSION%.jar;^
+lib\org.openl.rules.helpers_%OPENL_VERSION%.jar;^
+lib\org.openl.rules.repository.jcr_%OPENL_VERSION%.jar;^
+lib\org.openl.rules.repository_%OPENL_VERSION%.jar;^
+lib\org.openl.rules.validator_%OPENL_VERSION%.jar;^
+lib\org.openl.rules.workspace_%OPENL_VERSION%.jar;^
+lib\org.openl.rules_%OPENL_VERSION%.jar;^
 lib\pdfbox-0.6.4.jar;^
 lib\poi-2.5.1-final-20040804.jar;^
 lib\saaj-api-1.3.jar;^
