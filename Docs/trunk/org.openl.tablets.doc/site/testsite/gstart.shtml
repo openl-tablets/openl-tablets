@@ -28,7 +28,14 @@
 
 <p/>
 1.	Eclipse version 3.1.0 or higher (<a href="http://www.eclipse.org/downloads/">http://www.eclipse.org/downloads/</a>)
-<br><b>Starting with version 5.0.5 we require Eclipse 3.3 or higher</b>  
+<br><b>Starting with version 5.0.5 we require Eclipse 3.3 or higher</b>
+
+<br/>
+It is recommended (even though not required) that both folders <code>plugins/</code> 
+and <code>workspace/</code> are located in the same <code>eclipse/</code> folder.
+All tutorials and examples are pre-configured for this situation and this will save 
+you some time, effort and once in a while - sanity :) 
+  
 <p/>
 2.	JDK 1.5 or higher 
 
