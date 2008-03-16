@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Cxf Library Plugin
 Bundle-SymbolicName: org.openl.lib.cxf
-Bundle-Version: 5.0.5
+Bundle-Version: 5.0.6
 Bundle-ClassPath: cglib-nodep-2.1_3.jar,
  commons-lang-2.1.jar,
  commons-logging-1.1.jar,
