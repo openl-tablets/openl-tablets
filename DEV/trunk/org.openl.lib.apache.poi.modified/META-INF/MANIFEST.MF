@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Apache POI
 Bundle-SymbolicName: org.openl.lib.apache.poi.modified
-Bundle-Version: 5.0.5
+Bundle-Version: 5.0.6
 Bundle-Localization: plugin
 Require-Bundle: org.openl.lib.apache.commons
 Export-Package: org.apache.poi.ddf,
