@@ -18,6 +18,7 @@
 	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.eclipse.ui.wizard"/></antcall>	
 -->	
 	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.validator"/></antcall>	
+	<antcall target="add_source" ><param name="plugin_name" value="org.openl.rules.webstudio.java"/></antcall>	
 </target>
 	
 <target name="add_source">
