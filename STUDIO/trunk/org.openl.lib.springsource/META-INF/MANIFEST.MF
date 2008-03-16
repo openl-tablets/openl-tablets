@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Springsource Library Plug-in
 Bundle-SymbolicName: org.openl.lib.springsource
-Bundle-Version: 5.0.5
+Bundle-Version: 5.0.6
 Bundle-Vendor: OpenL Tablets
 Bundle-ClassPath: spring/spring-2.5.jar,
  .
