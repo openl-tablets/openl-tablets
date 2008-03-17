@@ -109,7 +109,6 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>1.2.3</version>
     </dependency>
 
     <!-- HSQLBD Server -->
