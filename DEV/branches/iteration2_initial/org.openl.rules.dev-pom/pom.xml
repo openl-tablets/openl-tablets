@@ -40,14 +40,14 @@
   <repositories>
     <repository>
       <id>local</id>
-      <url>file://${basedir}/m2_repo</url>
+      <url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
       <id>local</id>
-      <url>file://${basedir}/m2_repo</url>
+      <url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
     </pluginRepository>
 
     <!-- for maven-depgraph-plugin -->
