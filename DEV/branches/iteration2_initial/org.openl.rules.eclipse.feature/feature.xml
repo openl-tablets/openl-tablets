@@ -526,7 +526,7 @@ That&apos;s all there is to it!
       <import plugin="org.openl.eclipse.ui.wizard"/>
       <import plugin="org.openl.j"/>
       <import plugin="org.openl.commons"/>
-      <import plugin="org.openl.lib.apache.commons"/>
+      <import plugin="org.openl.lib"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.ui.console"/>

@@ -11,8 +11,8 @@
   </parent>
 
   <groupId>org.openl</groupId>
-  <artifactId>org.openl.lib.apache.commons</artifactId>
-  <name>org.openl.lib.apache.commons</name>
+  <artifactId>org.openl.lib</artifactId>
+  <name>org.openl.lib</name>
   <description></description>
 
   <build>

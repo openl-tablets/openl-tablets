@@ -26,7 +26,7 @@
     <module>../org.openl.rules.eclipse.ui.wizard</module>
     <module>../org.openl.eclipse.ui.wizard</module>
     <module>../org.openl.rules.validator</module>
-    <module>../org.openl.lib.apache.commons</module>
+    <module>../org.openl.lib</module>
     <module>../org.openl.eclipse.feature</module>
     <module>../org.openl.lib.eclipse.feature</module>
     <module>../org.openl.rules.eclipse.feature</module>
@@ -246,7 +246,7 @@
 
       <dependency>
         <groupId>org.openl</groupId>
-        <artifactId>org.openl.lib.apache.commons</artifactId>
+        <artifactId>org.openl.lib</artifactId>
         <version>${version}</version>
       </dependency>
 

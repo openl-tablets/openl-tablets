@@ -9,6 +9,6 @@ Require-Bundle: org.openl.commons;visibility:=reexport,
  org.openl.core;visibility:=reexport,
  org.openl.rules;visibility:=reexport,
  com.exigen.rules.constrainer;visibility:=reexport,
- org.openl.lib.apache.commons
+ org.openl.lib
 Export-Package: org.openl.rules.validator,
  org.openl.rules.validator.dt

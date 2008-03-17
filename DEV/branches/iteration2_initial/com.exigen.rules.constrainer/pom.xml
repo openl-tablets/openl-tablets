@@ -16,7 +16,6 @@
   <description></description>
 
   <build>
-    <pluginManagement>
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -33,13 +32,14 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <excludes>
-              <exclude>**/*TestExecutionControl2.java</exclude>
-              <exclude>**/*TestIntExpElementAt.java</exclude>
+              <exclude>**/TestExecutionControl.java</exclude>
+              <exclude>**/TestExecutionControl2.java</exclude>
+              <exclude>**/TestIntExpElementAt.java</exclude>
+              <exclude>**/TestIntExpArrayElement.java</exclude>
             </excludes>
           </configuration>
         </plugin>
       </plugins>
-    </pluginManagement>
   </build>
 
   <dependencies>
