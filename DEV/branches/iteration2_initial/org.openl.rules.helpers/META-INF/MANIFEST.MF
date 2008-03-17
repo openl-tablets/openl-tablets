@@ -8,4 +8,4 @@ Bundle-Localization: plugin
 Export-Package: org.openl.rules.helpers;uses:="org.openl.domain",
  org.openl.rules.java;uses:="org.openl.conf,org.openl"
 Require-Bundle: org.openl.commons;visibility:=reexport,
- org.openl.core;visibility:=reexport,org.openl.lib.apache.commons
+ org.openl.core;visibility:=reexport,org.openl.lib

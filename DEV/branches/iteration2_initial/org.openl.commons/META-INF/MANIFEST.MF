@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openl.commons;singleton:=true
 Bundle-Version: 5.0.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.openl.lib.apache.commons
+Require-Bundle: org.openl.lib
 Export-Package: org.openl.base,
  org.openl.domain,
  org.openl.util,

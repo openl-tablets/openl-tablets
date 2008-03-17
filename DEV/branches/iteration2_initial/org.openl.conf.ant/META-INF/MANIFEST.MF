@@ -7,4 +7,4 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.apache.ant;visibility:=reexport,
- org.openl.lib.apache.commons
+ org.openl.lib

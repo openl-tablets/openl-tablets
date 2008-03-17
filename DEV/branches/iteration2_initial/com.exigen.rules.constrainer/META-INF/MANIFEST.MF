@@ -14,6 +14,6 @@ Export-Package: com.exigen.ie.constrainer,
  com.exigen.ie.exigensimplex.glpkimpl,
  com.exigen.ie.scheduler,
  com.exigen.ie.simplex
-Require-Bundle: org.openl.lib.apache.commons,
+Require-Bundle: org.openl.lib,
  org.openl.commons
 Bundle-Vendor: Exigen

@@ -145,7 +145,7 @@
 
     <dependency>
       <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib.apache.commons</artifactId>
+      <artifactId>org.openl.lib</artifactId>
     </dependency>
 
     <dependency>

@@ -6,4 +6,4 @@ Bundle-Version: 5.0.5
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
- org.openl.lib.apache.commons
+ org.openl.lib
