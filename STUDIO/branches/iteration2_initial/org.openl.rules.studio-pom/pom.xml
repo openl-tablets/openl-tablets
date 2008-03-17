@@ -36,14 +36,14 @@
   <repositories>
     <repository>
       <id>local</id>
-      <url>file://${basedir}/m2_repo</url>
+      <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
       <id>local</id>
-      <url>file://${basedir}/m2_repo</url>
+      <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
     </pluginRepository>
 
     <!-- for maven-depgraph-plugin -->
@@ -282,8 +282,8 @@
         <version>3.1.2.GA</version>
         <exclusions>
           <exclusion>
-            <artifactId>jsf-api</artifactId>
             <groupId>javax.faces</groupId>
+            <artifactId>jsf-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -294,12 +294,12 @@
         <version>3.1.2.GA</version>
         <exclusions>
           <exclusion>
-            <artifactId>jsf-api</artifactId>
             <groupId>javax.faces</groupId>
+            <artifactId>jsf-api</artifactId>
           </exclusion>
           <exclusion>
-            <artifactId>jsf-impl</artifactId>
             <groupId>javax.faces</groupId>
+            <artifactId>jsf-impl</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -310,12 +310,12 @@
         <version>3.1.2.GA</version>
         <exclusions>
           <exclusion>
-            <artifactId>jsf-api</artifactId>
             <groupId>javax.faces</groupId>
+            <artifactId>jsf-api</artifactId>
           </exclusion>
           <exclusion>
-            <artifactId>jsf-impl</artifactId>
             <groupId>javax.faces</groupId>
+            <artifactId>jsf-impl</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -443,9 +443,6 @@
         <artifactId>acegi-security</artifactId>
         <version>1.0.6</version>
         <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-          </exclusion>
           <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-mock</artifactId>

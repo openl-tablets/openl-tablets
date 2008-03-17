@@ -15,13 +15,6 @@
   <name>IPB security integration</name>
   <description></description>
 
-  <repositories>
-    <repository>
-      <id>local</id>
-      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
-    </repository>
-  </repositories>
-
   <build>
     <plugins>
       <plugin>

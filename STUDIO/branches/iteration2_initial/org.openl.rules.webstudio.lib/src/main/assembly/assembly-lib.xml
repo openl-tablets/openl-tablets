@@ -9,7 +9,7 @@
       <useTransitiveDependencies>true</useTransitiveDependencies>
       <excludes>
         <exclude>org.openl.*</exclude>
-        <exclude>com.exigen.*</exclude>
+        <exclude>com.exigen.rules.constrainer.*</exclude>
         <exclude>org.eclipse.*</exclude>
       </excludes>
     </dependencySet>
