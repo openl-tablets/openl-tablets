@@ -15,13 +15,6 @@
   <name>Common Services Deployer</name>
   <description>Deployer into Common Services (Runtime repository)</description>
 
-  <repositories>
-    <repository>
-      <id>local</id>
-      <url>file://${basedir}/../${parent.artifactId}/m2_repo</url>
-    </repository>
-  </repositories>
-
   <build>
     <plugins>
       <plugin>
