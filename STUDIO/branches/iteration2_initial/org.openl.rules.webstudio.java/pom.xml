@@ -11,6 +11,7 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
+  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.webstudio.java</artifactId>
   <name>Exigen WebStudio Java Sources</name>
   <description></description>
