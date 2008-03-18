@@ -11,7 +11,6 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
-  <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.webstudio.java</artifactId>
   <name>Exigen WebStudio Java Sources</name>
   <description></description>
@@ -169,11 +168,6 @@
     <dependency>
       <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
     </dependency>
 
     <dependency>
