@@ -15,7 +15,6 @@ import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
@@ -33,10 +32,8 @@ public class SmartRedeployController {
 
     private List<DeploymentProjectItem> items;
 
-    private DeploymentManager deploymentManager;
-
-    public void setDeploymentManager(DeploymentManager deploymentManager) {
-        this.deploymentManager = deploymentManager;
+    public RepositoryTreeState getRepositoryTreeState() {
+        return repositoryTreeState;
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
@@ -56,16 +53,14 @@ public class SmartRedeployController {
 
     public String redeploy() {
         UserWorkspaceProject project = getSelectedProject();
-        if (project == null) {
+        if (project == null)
             return UiConst.OUTCOME_FAILURE;
-        }
 
         List<UserWorkspaceDeploymentProject> successfulyUpdated = new LinkedList<UserWorkspaceDeploymentProject>();
         // update selected deployment projects
         for (DeploymentProjectItem item : items) {
-            if (!item.isSelected()) {
+            if (!item.isSelected())
                 continue;
-            }
 
             UserWorkspaceDeploymentProject deploymentProject = update(item.getName(), project);
             if (deploymentProject != null) {
@@ -76,19 +71,7 @@ public class SmartRedeployController {
 
         // redeploy takes more time
         for (UserWorkspaceDeploymentProject deploymentProject : successfulyUpdated) {
-            try {
-                DeployID id = deploymentManager.deploy(deploymentProject);
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Project '" + project.getName()
-                                + "' successfully deployed with id: " + id.getName(), null));
-            } catch (Exception e) {
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to deploy '" + project.getName() + "'", e
-                                .getMessage()));
-                log.error(e);
-            }
+            DeploymentController.deploy(deploymentProject);
         }
 
         return UiConst.OUTCOME_SUCCESS;
@@ -112,14 +95,12 @@ public class SmartRedeployController {
         List<AbstractTreeNode> nodes = repositoryTreeState.getDeploymentRepository().getChildNodes();
         for (AbstractTreeNode node : nodes) {
             ProjectArtefact artefact = node.getDataBean();
-            if (!(artefact instanceof UserWorkspaceDeploymentProject)) {
+            if (!(artefact instanceof UserWorkspaceDeploymentProject))
                 continue; // should never happen
-            }
 
             UserWorkspaceDeploymentProject deploymentProject = (UserWorkspaceDeploymentProject) artefact;
-            if (deploymentProject.isDeleted()) {
+            if (deploymentProject.isDeleted())
                 continue; // don't check marked for deletion projects
-            }
 
             DeploymentDescriptorProject latestDeploymentVersion = deploymentProject;
             if (deploymentProject.isOpenedOtherVersion()) {
@@ -144,9 +125,8 @@ public class SmartRedeployController {
                 }
             }
 
-            if (projectDescriptor == null) {
+            if (projectDescriptor == null)
                 continue;
-            }
 
             // create new item
             DeploymentProjectItem item = new DeploymentProjectItem();

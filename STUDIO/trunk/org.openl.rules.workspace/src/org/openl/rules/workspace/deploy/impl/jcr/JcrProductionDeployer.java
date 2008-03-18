@@ -22,8 +22,7 @@ import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import java.util.Collection;
 
 /**
- * Implementation of <code>ProductionDeployer</code> that uses <i>JCR</i> as
- * production repository.
+ * Implementation of <code>ProductionDeployer</code>  that uses <i>JCR</i> as production repository.
  */
 public class JcrProductionDeployer implements ProductionDeployer {
     /**
@@ -36,9 +35,9 @@ public class JcrProductionDeployer implements ProductionDeployer {
     }
 
     /**
-     * Deploys a collection of <code>Project</code>s to the production
-     * repository. Generates unique ID for the deployment.
-     * 
+     * Deploys a collection of <code>Project</code>s to the production repository. Generates unique ID for the
+     * deployment.
+     *
      * @param projects projects to deploy
      * @return generated id for this deployment
      * @throws DeploymentException if any deployment error occures
@@ -52,9 +51,8 @@ public class JcrProductionDeployer implements ProductionDeployer {
         StringBuilder name = new StringBuilder();
         for (Project p : projects) {
             name.append(p.getName());
-            if (p.getVersion() != null) {
+            if (p.getVersion() != null)
                 name.append('-').append(p.getVersion().getVersionName());
-            }
             name.append('_');
         }
         name.append(System.currentTimeMillis());
@@ -62,10 +60,9 @@ public class JcrProductionDeployer implements ProductionDeployer {
     }
 
     /**
-     * Deploys a collection of <code>Project</code>s to the production
-     * repository with given ID. Overwrites deployment with given <i>id</i> if
-     * it already exists.
-     * 
+     * Deploys a collection of <code>Project</code>s to the production repository with given ID.
+     * Overwrites deployment with given <i>id</i> if it already exists.
+     *
      * @param projects projects to deploy
      * @return <code>id</code> parameter
      * @throws DeploymentException if any deployment error occures
@@ -94,15 +91,14 @@ public class JcrProductionDeployer implements ProductionDeployer {
         }
 
         if (alreadyDeployed) {
-            throw new DeploymentException("project is already deployed to production repository, id: " + id.getName(),
-                    null);
+            throw new DeploymentException("project is already deployed to production repository, id: " + id.getName(), null);
         }
 
         return id;
     }
 
-    private void deployProject(RProductionDeployment deployment, Project project) throws RRepositoryException,
-            ProjectException {
+    private void deployProject(RProductionDeployment deployment, Project project)
+            throws RRepositoryException, ProjectException {
         RProject rProject = deployment.createProject(project.getName());
 
         copy(rProject.getRootFolder(), project);
@@ -113,9 +109,9 @@ public class JcrProductionDeployer implements ProductionDeployer {
             if (artefact.isFolder()) {
                 RFolder folder = dest.createFolder(artefact.getName());
                 copyProperties(folder, (RulesRepositoryArtefact) artefact);
-                copy(folder, (ProjectFolder) artefact);
+                copy(folder, (ProjectFolder)artefact);
             } else {
-                copy(dest, (ProjectResource) artefact);
+                copy(dest, (ProjectResource)artefact);
             }
         }
     }

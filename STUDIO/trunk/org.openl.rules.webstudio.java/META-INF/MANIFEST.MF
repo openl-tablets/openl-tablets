@@ -10,8 +10,7 @@ Require-Bundle: org.openl.lib.jsf,
  org.openl.rules.repository.jcr,
  org.openl.rules.workspace,
  org.openl.rules.validator,
- org.openl.rules.webtools,
- org.openl.rules.runtime.deployer.lib
+ org.openl.rules.webtools
 Export-Package: org.openl.rules.ui,
  org.openl.rules.webstudio.application,
  org.openl.rules.webstudio.services,
