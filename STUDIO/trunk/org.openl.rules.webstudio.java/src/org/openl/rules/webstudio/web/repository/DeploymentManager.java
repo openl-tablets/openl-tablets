@@ -28,7 +28,7 @@ public class DeploymentManager {
         this.deployer = deployer;
     }
 
-    public void deploy(UserWorkspaceDeploymentProject project) throws RepositoryException, DeploymentException {
+    public DeployID deploy(UserWorkspaceDeploymentProject project) throws RepositoryException, DeploymentException {
         DesignTimeRepository dtr = RepositoryUtils.getWorkspace().getDesignTimeRepository();
 
         Collection<ProjectDescriptor> projectDescriptors = project.getProjectDescriptors();
@@ -40,5 +40,11 @@ public class DeploymentManager {
 
         DeployID id = RepositoryUtils.getDeployID(project);
         deployer.deploy(id, projects);
+        if (log.isDebugEnabled()) {
+            String msg = "Project '" + project.getName() + "' successfully deployed with id:" + id.getName();
+            log.debug(msg);
+        }
+
+        return id;
     }
 }
