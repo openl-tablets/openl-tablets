@@ -34,10 +34,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/mail-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/model-7.0.1.014.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/msv-20020414.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.openl.commons-5.0.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.openl.rules.repository-5.0.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.openl.rules.security-5.0.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.openl.rules.workspace-5.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/oro-2.0.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/relaxngDatatype-20020414.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository-7.0.1.014.jar"/>
