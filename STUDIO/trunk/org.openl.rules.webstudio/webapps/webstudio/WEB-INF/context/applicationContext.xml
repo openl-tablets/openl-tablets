@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+  default-autowire="no">
+
+  <bean id="systemProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
+      <props>
+        <!-- possible values: production, runtime -->
+        <prop key="org.openl.rules.webstudio.deployer">runtime</prop>
+
+        <prop key="org.openl.rules.webstudio.runtime-deployer.url">http://localhost:9090/admin/services/deployerSOAP</prop>
+
+      </props>
+    </property>
+  </bean>
+
+  <bean id="sysPropsPP" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreResourceNotFound" value="true" />
+    <property name="properties" ref="systemProperties" />
+    <property name="locations">
+      <list>
+        <value>WEB-INF/conf/system.properties</value>
+      </list>
+    </property>
+  </bean>
+
+</beans>
