@@ -13,11 +13,11 @@ import java.util.Map;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -188,14 +188,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace.getLocation();
     }
 
-    public void deploy(DeploymentDescriptorProject deployProject) throws DeploymentException, RepositoryException {
-        Collection<ProjectDescriptor> projectDescriptors = deployProject.getProjectDescriptors();
+    public DeployID deploy(UserWorkspaceDeploymentProject deploymentProject) throws DeploymentException, RepositoryException {
+        Collection<ProjectDescriptor> projectDescriptors = deploymentProject.getProjectDescriptors();
         Collection<Project> projects = new ArrayList<Project>();
         for (ProjectDescriptor descriptor : projectDescriptors) {
             projects.add(designTimeRepository.getProject(descriptor.getProjectName(), descriptor.getProjectVersion()));
         }
 
-        deployer.deploy(projects);
+        DeployID id = new DeployID(deploymentProject.getName() + "#" + deploymentProject.getVersion().getVersionName());
+        deployer.deploy(id, projects);
+        return id;
     }
 
     public void createProject(String name) throws ProjectException {
