@@ -32,8 +32,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <excludes>
-            <exclude>**/*JcrProductionDeployerTestCase.java</exclude>
-            <exclude>**/*JcrRulesClientTestCase.java</exclude>
+            <exclude>**/JcrProductionDeployerTestCase.java</exclude>
+            <exclude>**/JcrRulesClientTestCase.java</exclude>
           </excludes>
         </configuration>
       </plugin>

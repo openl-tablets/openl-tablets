@@ -38,6 +38,11 @@
       <id>local</id>
       <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
     </repository>
+
+    <repository>
+      <id>jboss</id>
+      <url>http://repository.jboss.com/maven2</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -261,7 +266,7 @@
     <dependency>
       <groupId>com.exigen.ipb</groupId>
       <artifactId>ipb-security</artifactId>
-      <version>1.0.0-20080317.141542-656</version>
+      <version>1.0.15</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -305,7 +310,7 @@
     <dependency>
       <groupId>com.exigen.ipb</groupId>
       <artifactId>ipb-base-core</artifactId>
-      <version>1.0.0-20080317.141542-656</version>
+      <version>1.0.15</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -469,12 +474,6 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring</artifactId>
-        <version>2.5.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
         <version>2.5.1</version>
       </dependency>
 
