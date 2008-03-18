@@ -3,11 +3,11 @@ package org.openl.rules.workspace.uw;
 import java.io.File;
 import java.util.List;
 
-import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
-import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryException;
 
 public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
     void createProject(String name) throws ProjectException;
@@ -20,7 +20,7 @@ public interface UserWorkspace extends ProjectsContainer<UserWorkspaceProject> {
 
     File getLocalWorkspaceLocation();
 
-    void deploy(DeploymentDescriptorProject deployProject) throws ProjectException;
+    DeployID deploy(UserWorkspaceDeploymentProject deploymentProject) throws ProjectException;
     UserWorkspaceDeploymentProject getDDProject(String name) throws RepositoryException;
     List<UserWorkspaceDeploymentProject> getDDProjects() throws RepositoryException;
     void createDDProject(String name) throws RepositoryException;
