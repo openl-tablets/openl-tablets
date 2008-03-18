@@ -31,7 +31,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
      */
     private final WorkspaceUser user;
 
-    public JcrProductionDeployer(WorkspaceUser user) throws DeploymentException {
+    public JcrProductionDeployer(WorkspaceUser user) {
         this.user = user;
     }
 
