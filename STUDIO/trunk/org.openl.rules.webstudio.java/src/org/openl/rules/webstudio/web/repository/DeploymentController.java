@@ -5,21 +5,16 @@ import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.deploy.DeployID;
-import org.openl.rules.workspace.deploy.DeploymentException;
-import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -224,12 +219,11 @@ public class DeploymentController {
         UserWorkspaceDeploymentProject project = getSelectedProject();
         if (project != null) {
             try {
-                deploymentManager.deploy(project);
+                DeployID id = deploymentManager.deploy(project);
                 FacesContext.getCurrentInstance().addMessage(
                         null,
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Project '" + project.getName()
-                                + "' successfully deployed with id: " + RepositoryUtils.getDeployID(project).getName(),
-                                null));
+                                + "' successfully deployed with id: " + id.getName(), null));
             } catch (Exception e) {
                 FacesContext.getCurrentInstance().addMessage(
                         null,

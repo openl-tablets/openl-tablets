@@ -15,7 +15,7 @@ import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.rules.workspace.deploy.ProductionDeployer;
+import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
@@ -37,10 +37,6 @@ public class SmartRedeployController {
 
     public void setDeploymentManager(DeploymentManager deploymentManager) {
         this.deploymentManager = deploymentManager;
-    }
-
-    public RepositoryTreeState getRepositoryTreeState() {
-        return repositoryTreeState;
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
@@ -81,12 +77,11 @@ public class SmartRedeployController {
         // redeploy takes more time
         for (UserWorkspaceDeploymentProject deploymentProject : successfulyUpdated) {
             try {
-                deploymentManager.deploy(deploymentProject);
+                DeployID id = deploymentManager.deploy(deploymentProject);
                 FacesContext.getCurrentInstance().addMessage(
                         null,
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Project '" + project.getName()
-                                + "' successfully deployed with id: "
-                                + RepositoryUtils.getDeployID(deploymentProject).getName(), null));
+                                + "' successfully deployed with id: " + id.getName(), null));
             } catch (Exception e) {
                 FacesContext.getCurrentInstance().addMessage(
                         null,
