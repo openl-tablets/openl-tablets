@@ -2,21 +2,15 @@ package demo;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.abstracts.Project;
-import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.deploy.DeployID;
-import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.deploy.ProductionDeployerManager;
 import org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl;
-import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
@@ -80,15 +74,16 @@ public class UpdateAndDeploy {
         // variant #1
         // UserWorkspaceProjectResource resource =
         // (UserWorkspaceProjectResource) rulesProject.getArtefactByPath(new
-        // ArtefactPathImpl("/rules/main/Tutorial_4.xls"));
+        // ArtefactPathImpl("/rules/Tutorial_1.xls"));
         // resource.setContent(inputStream);
 
         // variant #2
-        // File localWorkspaceLocation = workspace.getLocalWorkspaceLocation();
+        // File localWorkspaceLocation =
+        // userWorkspace.getLocalWorkspaceLocation();
         // File localProjectLocation = new File(localWorkspaceLocation,
         // rulesProjectName);
-        // File xls = new File(localProjectLocation,
-        // "rules/main/Tutorial_4.xls");
+        // File xls = new File(localProjectLocation, "rules/Tutorial_1.xls");
+        // System.out.println("> xls file exists: " + xls.exists());
     }
 
     public static void main(String[] args) {
