@@ -46,4 +46,10 @@
          install-size="0"
          version="5.0.6"/>
 
+   <plugin
+         id="org.openl.rules.runtime.deployer.lib"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"/>
+
 </feature>
