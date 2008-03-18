@@ -50,7 +50,7 @@
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();"/>
         <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog();" />
         <h:commandButton styleClass="#{(!artefact.locked || artefact.lockedByMe || artefact.localOnly) ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked || artefact.lockedByMe || artefact.localOnly} &amp;&amp; confirmDeleteNode();" />
-        <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.localOnly) ? 'button':'disabledButton'}" value="Smart Redeploy" type="button" onclick="#{!(artefact.checkedOut || artefact.localOnly)} &amp;&amp; openSmartRedeployDialog();"/>
+        <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.localOnly) ? 'button':'disabledButton'}" value="Redeploy" type="button" onclick="#{!(artefact.checkedOut || artefact.localOnly)} &amp;&amp; openSmartRedeployDialog();"/>
       </h:panelGrid>
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openNewFolderDialog();" />
