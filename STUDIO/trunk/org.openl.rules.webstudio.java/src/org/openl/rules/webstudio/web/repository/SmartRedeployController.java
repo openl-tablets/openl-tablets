@@ -16,6 +16,7 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
@@ -87,6 +88,7 @@ public class SmartRedeployController {
 
     private List<DeploymentProjectItem> getItems4Project(UserWorkspaceProject project) {
         String projectName = project.getName();
+        UserWorkspace workspace = RepositoryUtils.getWorkspace();
 
         List<DeploymentProjectItem> result = new LinkedList<DeploymentProjectItem>();
 
@@ -105,7 +107,7 @@ public class SmartRedeployController {
             DeploymentDescriptorProject latestDeploymentVersion = deploymentProject;
             if (deploymentProject.isOpenedOtherVersion()) {
                 try {
-                    latestDeploymentVersion = RepositoryUtils.getWorkspace().getDesignTimeRepository().getDDProject(
+                    latestDeploymentVersion = workspace.getDesignTimeRepository().getDDProject(
                             deploymentProject.getName());
                 } catch (RepositoryException e) {
                     log.error("Failed to get latest version for deployment project '" + deploymentProject.getName()
@@ -173,14 +175,34 @@ public class SmartRedeployController {
             result.add(item);
         }
 
+        if (!workspace.hasDDProject(projectName)) {
+            // there is no deployment project with the same name...
+            DeploymentProjectItem item = new DeploymentProjectItem();
+            item.setName(projectName);
+            item.setMessages("Create deployment project");
+            item.setStyleForName(UiConst.STYLE_WARNING);
+
+            // place it first
+            result.add(0, item);
+        }
+
         return result;
     }
 
     private UserWorkspaceDeploymentProject update(String deploymentName, UserWorkspaceProject project) {
+        UserWorkspace workspace = RepositoryUtils.getWorkspace();
         try {
+            if (deploymentName.equals(project.getName())) {
+                // the same name
+                if (!workspace.hasDDProject(deploymentName)) {
+                    // create if absent
+                    workspace.createDDProject(deploymentName);
+                    repositoryTreeState.invalidateTree();
+                }
+            }
+
             // get latest version
-            UserWorkspaceDeploymentProject deploymentProject = RepositoryUtils.getWorkspace().getDDProject(
-                    deploymentName);
+            UserWorkspaceDeploymentProject deploymentProject = workspace.getDDProject(deploymentName);
 
             if (deploymentProject.isLocked()) {
                 // someone else is locked it while we were thinking
