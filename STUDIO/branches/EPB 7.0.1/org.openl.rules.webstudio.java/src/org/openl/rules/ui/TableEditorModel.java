@@ -233,7 +233,7 @@ public class TableEditorModel
 	
 	
 	IUndoableGridAction ua = IWritableGrid.Tool.setStringValue(col, row,
-		region, value, getFilter(col, row));
+		region, value);
 	RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
 	ra.doSome(region, wgrid(), undoGrid);
 	actions.addNewAction(ra);
