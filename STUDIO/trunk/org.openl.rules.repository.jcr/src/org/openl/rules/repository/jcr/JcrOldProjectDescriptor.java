@@ -8,13 +8,13 @@ import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrOldProjectDescriptor implements RProjectDescriptor {
-    private Node node;
+//    private Node node;
     
     private String name;
     private JcrVersion version;
 
     protected JcrOldProjectDescriptor (Node node) throws RepositoryException {
-        this.node = node;
+//        this.node = node;
         
         name = node.getName();
         

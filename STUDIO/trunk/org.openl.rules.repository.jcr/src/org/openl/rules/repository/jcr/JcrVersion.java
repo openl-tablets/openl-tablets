@@ -3,9 +3,7 @@ package org.openl.rules.repository.jcr;
 import java.util.Date;
 
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
-import javax.jcr.ValueFormatException;
 import javax.jcr.version.Version;
 
 import org.openl.rules.repository.CommonUser;

@@ -8,6 +8,8 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.RCommonProject;
@@ -15,6 +17,7 @@ import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrCommonProject extends JcrCommonArtefact implements RCommonProject {
+    private static Log log = LogFactory.getLog(JcrCommonProject.class);
 
     private JcrVersion version;
     private JcrLock lock;
@@ -39,13 +42,13 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             
             return isMarked;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Check Marked4Deletion.", e);
+            throw new RRepositoryException("Failed to Check Marked4Deletion!", e);
         }
     }
 
     public void delete(CommonUser user) throws RRepositoryException {
         if (isMarked4Deletion()) {
-            throw new RRepositoryException("Project ''{0}'' is already marked for deletion.", null, getName());
+            throw new RRepositoryException("Project ''{0}'' is already marked for deletion!", null, getName());
         }
         
         try {
@@ -55,13 +58,13 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             n.setProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION, true);
             commit(user);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Mark project ''{0}'' for Deletion.", e, getName());
+            throw new RRepositoryException("Failed to Mark project ''{0}'' for Deletion!", e, getName());
         }
     }
 
     public void undelete(CommonUser user) throws RRepositoryException {
         if (!isMarked4Deletion()) {
-            throw new RRepositoryException("Project ''{0}'' is not marked for deletion.", null, getName());
+            throw new RRepositoryException("Project ''{0}'' is not marked for deletion!", null, getName());
         }
 
         try {
@@ -71,7 +74,7 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             n.setProperty(JcrNT.PROP_PRJ_MARKED_4_DELETION, (Value)null, PropertyType.BOOLEAN);
             commit(user);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to Unmark project ''{0}'' from Deletion.", e, getName());
+            throw new RRepositoryException("Failed to Unmark project ''{0}'' from Deletion!", e, getName());
         }
     }
 
@@ -80,12 +83,12 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             Node parent = node().getParent();
             // ALL IS LOST
             // TODO: add logging here
-            System.out.println("! Erasing project '" + getName() + "' on behalf of " + user.getUserName());
+            log.info("Erasing project '" + getName() + "' on behalf of " + user.getUserName());
             
             super.delete();
             commitParent(parent);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to delete project ''{0}''.", e, getName());
+            throw new RRepositoryException("Failed to delete project ''{0}''!", e, getName());
         }        
     }
     
@@ -105,7 +108,7 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             checkInAll(n, user);
             commitParent(n.getParent());
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to checkin project ''{0}''.", e, getName());
+            throw new RRepositoryException("Failed to checkin project ''{0}''!", e, getName());
         }        
     }
     
@@ -146,10 +149,10 @@ public class JcrCommonProject extends JcrCommonArtefact implements RCommonProjec
             version.updateRevision(n);
             n.setProperty(JcrNT.PROP_MODIFIED_BY, user.getUserName());
             n.save();
-            System.out.println("Checking in... " + n.getPath());
+            log.info("Checking in... " + n.getPath());
             n.checkin();
         } else if (mustBeSaved){
-            System.out.println("Saving... " + n.getPath());
+            log.info("Saving... " + n.getPath());
             n.save();
         }
     }
