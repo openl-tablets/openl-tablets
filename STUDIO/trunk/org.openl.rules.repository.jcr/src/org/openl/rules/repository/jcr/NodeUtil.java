@@ -1,5 +1,10 @@
 package org.openl.rules.repository.jcr;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
+
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
@@ -12,11 +17,6 @@ import javax.jcr.version.VersionIterator;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 /**
  * JCR Node Utility
@@ -51,7 +51,7 @@ public class NodeUtil {
      */
     protected static Node createNode(Node parentNode, String name, String type, boolean isVersionable) throws RepositoryException {
         if (parentNode.hasNode(name)) {
-            throw new RepositoryException("Node '" + name + "' exists at '" + parentNode.getPath() + "' already.");
+            throw new RepositoryException("Node '" + name + "' exists at '" + parentNode.getPath() + "' already!");
         }
 
         Node p = parentNode;
@@ -122,7 +122,7 @@ public class NodeUtil {
         }
         
         if (result == null) {
-            throw new RepositoryException("Cannot find version '" + version.getVersionName() + "'.");
+            throw new RepositoryException("Cannot find version '" + version.getVersionName() + "'!");
         }
         
         return result;
@@ -205,7 +205,7 @@ public class NodeUtil {
     protected static void checkNodeType(Node node, String nodeType) throws RepositoryException {
         if (!node.isNodeType(nodeType)) {
             String actualNodeType = node.getPrimaryNodeType().getName();
-            throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects '" + nodeType + "'.");
+            throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects '" + nodeType + "'!");
         }
     }
 
@@ -264,7 +264,7 @@ public class NodeUtil {
         try {
             return node.getNode ("jcr:content").getProperty("jcr:data").getStream();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Content.", e);
+            throw new RRepositoryException("Failed to get Content!", e);
         }
     }
 

@@ -1,15 +1,15 @@
 package org.openl.rules.repository.jcr;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+
 import org.openl.rules.repository.RProductionDeployment;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import java.util.Collection;
-import java.util.ArrayList;
 
 public class JcrProductionDeployment extends JcrProductionEntity implements RProductionDeployment {
     private Node node;
@@ -57,7 +57,7 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
 
             return result;
         } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to get projects", e);
+            throw new RRepositoryException("Failed to get projects!", e);
         }
     }
 
@@ -65,7 +65,7 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
         try {
             return JcrProductionProject.createProject(node, projectName);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to create project", e);
+            throw new RRepositoryException("Failed to create project!", e);
         }
     }
 
@@ -73,7 +73,7 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
         try {
             return node.hasNode(name);
         } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to check if project exists", e);
+            throw new RRepositoryException("Failed to check if project exists!", e);
         }
     }
 
@@ -81,7 +81,7 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
         try {
             return new JcrProductionProject(node.getNode(name));
         } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to get project " + name, e);
+            throw new RRepositoryException("Failed to get project " + name, e);
         }
     }
 
@@ -90,7 +90,7 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
             node.save();
             repositoryNotify();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to save deployment", e);
+            throw new RRepositoryException("Failed to save deployment!", e);
         }
     }
 

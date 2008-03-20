@@ -4,7 +4,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.openl.rules.repository.SmartProps;
+import org.openl.rules.common.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import com.exigen.cm.RepositoryProvider;
@@ -18,8 +18,8 @@ import com.exigen.cm.RepositoryProvider;
 public class ExigenJcrRepository extends AbstractJcrRepositoryFactory {
 
     /** {@inheritDoc} */
-    public void initialize(SmartProps props) throws RRepositoryException {
-        super.initialize(props);
+    public void initialize(ConfigSet confSet) throws RRepositoryException {
+        super.initialize(confSet);
 
         try {
             Repository repository = RepositoryProvider.getInstance().getRepository();

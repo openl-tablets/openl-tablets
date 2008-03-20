@@ -12,12 +12,15 @@ import javax.jcr.nodetype.PropertyDefinition;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.config.ConfigPropertyString;
+import org.openl.rules.common.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.SmartProps;
-import org.openl.rules.repository.jcr.JcrRepository;
-import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.jcr.JcrNT;
+import org.openl.rules.repository.jcr.JcrRepository;
 import org.xml.sax.InputSource;
 
 /**
@@ -30,19 +33,17 @@ import org.xml.sax.InputSource;
  * @author Aleh Bykhavets
  * 
  */
-public abstract class AbstractJcrRepositoryFactory implements
-        RRepositoryFactory {
-    public static final String PROP_DEF_RULES_PATH = "JCR.rules.path";
-    public static final String PROP_DEF_DEPLOYMENTS_PATH = "JCR.deployments.path";
+public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory {
+    private static final Log log = LogFactory.getLog(AbstractJcrRepositoryFactory.class);
 
-    public static final String DEF_RULES_PATH = "/rules";
-    public static final String DEF_DEPLOYMENTS_PATH = "/deployments";
+    /** Default path where new project should be created */
+    private final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString("repository.rules.path",
+            "/rules");
+    private final ConfigPropertyString confDeploymentProjectsLocation = new ConfigPropertyString(
+            "repository.deployments.path", "/deployments");
 
     private Repository repository;
     protected String repositoryName;
-    /** Default path where new project should be created */
-    private String defRulesPath;
-    private String defDeploymentsPath;
 
     /** {@inheritDoc} */
     public RRepository getRepositoryInstance() throws RRepositoryException {
@@ -50,7 +51,8 @@ public abstract class AbstractJcrRepositoryFactory implements
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
 
-            JcrRepository jri = new JcrRepository(repositoryName, session, defRulesPath, defDeploymentsPath);
+            JcrRepository jri = new JcrRepository(repositoryName, session, confRulesProjectsLocation.getValue(),
+                    confDeploymentProjectsLocation.getValue());
             return jri;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Repository Instance", e);
@@ -58,9 +60,9 @@ public abstract class AbstractJcrRepositoryFactory implements
     }
 
     /** {@inheritDoc} */
-    public void initialize(SmartProps props) throws RRepositoryException {
-        defRulesPath = props.getStr(PROP_DEF_RULES_PATH, DEF_RULES_PATH);
-        defDeploymentsPath = props.getStr(PROP_DEF_DEPLOYMENTS_PATH, DEF_DEPLOYMENTS_PATH);
+    public void initialize(ConfigSet confSet) throws RRepositoryException {
+        confSet.updateProperty(confRulesProjectsLocation);
+        confSet.updateProperty(confDeploymentProjectsLocation);
         // TODO: add default path support
         // 1. check path -- create if absent
         // 2. pass as parameter or property to JcrRepository
@@ -75,11 +77,12 @@ public abstract class AbstractJcrRepositoryFactory implements
      * Sets repository reference. Must be called before invoking
      * {@link #getRepositoryInstance()} method.
      * 
-     * @param rep implementation specific repository
-     * @throws RepositoryException if fails to check first start
+     * @param rep
+     *                implementation specific repository
+     * @throws RepositoryException
+     *                 if fails to check first start
      */
-    protected void setRepository(Repository rep, String name)
-            throws RepositoryException {
+    protected void setRepository(Repository rep, String name) throws RepositoryException {
         repository = rep;
         repositoryName = name;
 
@@ -89,10 +92,13 @@ public abstract class AbstractJcrRepositoryFactory implements
     /**
      * Creates JCR Session.
      * 
-     * @param user user id
-     * @param pass password of user
+     * @param user
+     *                user id
+     * @param pass
+     *                password of user
      * @return new JCR session
-     * @throws RepositoryException if fails or user credentials are not correct
+     * @throws RepositoryException
+     *                 if fails or user credentials are not correct
      */
     protected Session createSession(String user, String pass) throws RepositoryException {
         char[] password = pass.toCharArray();
@@ -102,18 +108,18 @@ public abstract class AbstractJcrRepositoryFactory implements
     }
 
     /**
-     * Checks whether the JCR instance is prepared for OpenL.
-     * If it is the first time, then there are no openL node types, yet.
+     * Checks whether the JCR instance is prepared for OpenL. If it is the first
+     * time, then there are no openL node types, yet.
      * 
-     * @throws RepositoryException if failed
+     * @throws RepositoryException
+     *                 if failed
      */
     protected void checkOnStart() throws RepositoryException {
         Session systemSession = null;
         try {
             // FIXME: do not hardcode system credentials
             systemSession = createSession("sys", "secret");
-            NodeTypeManager ntm = systemSession.getWorkspace()
-                    .getNodeTypeManager();
+            NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
 
             boolean initNodeTypes = false;
             try {
@@ -144,17 +150,21 @@ public abstract class AbstractJcrRepositoryFactory implements
      * <p>
      * This operation may not be supported via RMI.
      * 
-     * @param ntm node type manager
-     * @throws RepositoryException if failed
+     * @param ntm
+     *                node type manager
+     * @throws RepositoryException
+     *                 if failed
      */
     protected abstract void initNodeTypes(NodeTypeManager ntm) throws RepositoryException;
 
     /**
-     * Checks whether schema version of the repository is valid.
-     * If check failed then it throws exception.
+     * Checks whether schema version of the repository is valid. If check failed
+     * then it throws exception.
      * 
-     * @param ntm Node Type Manager
-     * @throws RepositoryException if check failed
+     * @param ntm
+     *                Node Type Manager
+     * @throws RepositoryException
+     *                 if check failed
      */
     protected void checkSchemaVersion(NodeTypeManager ntm) throws RepositoryException {
         String schemaVersion = null;
@@ -191,8 +201,8 @@ public abstract class AbstractJcrRepositoryFactory implements
         // compare expected and repository schema versions
         String expectedVersion = getExpectedSchemaVersion();
         if (!expectedVersion.equals(schemaVersion)) {
-            throw new RepositoryException("Schema version is different. Has ("
-                    + schemaVersion + ") when (" + expectedVersion + ") expected.");
+            throw new RepositoryException("Schema version is different. Has (" + schemaVersion + ") when ("
+                    + expectedVersion + ") expected.");
         }
     }
 
@@ -215,7 +225,7 @@ public abstract class AbstractJcrRepositoryFactory implements
 
             return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.debug(e);
             throw new RepositoryException("Cannot read schema version from '" + file + "': " + e.getMessage());
         }
     }

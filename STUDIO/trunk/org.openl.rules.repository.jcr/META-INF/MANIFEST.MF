@@ -8,6 +8,7 @@ Bundle-Localization: plugin
 Require-Bundle: org.openl.lib.springsource;visibility:=reexport,
  org.openl.rules.repository;visibility:=reexport,
  org.openl.lib.apache.jackrabbit;visibility:=reexport,
- org.openl.lib.exigen.jcr;resolution:=optional
+ org.openl.lib.exigen.jcr;resolution:=optional,
+ org.openl.lib.apache.commons
 Export-Package: org.openl.rules.repository.factories,
  org.openl.rules.repository.jcr
