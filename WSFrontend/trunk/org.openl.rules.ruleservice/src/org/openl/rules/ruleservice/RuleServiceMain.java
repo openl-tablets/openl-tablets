@@ -1,36 +1,40 @@
 package org.openl.rules.ruleservice;
 
-import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.SmartProps;
-import org.openl.rules.ruleservice.publish.WebServicesDeployAdmin;
-import org.openl.rules.ruleservice.publish.RulesWebServicesPublisher;
-import org.openl.rules.workspace.production.client.JcrRulesClient;
-
 import java.io.File;
 
+import org.openl.rules.common.config.ConfigPropertyString;
+import org.openl.rules.common.config.ConfigSet;
+import org.openl.rules.common.config.SysConfigManager;
+import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.ruleservice.publish.RulesWebServicesPublisher;
+import org.openl.rules.ruleservice.publish.WebServicesDeployAdmin;
+import org.openl.rules.workspace.production.client.JcrRulesClient;
+
 /**
- * Application main class. Sets up other classes. 
+ * Application main class. Sets up other classes.
  */
 public class RuleServiceMain {
     /**
-     * Gets path to temporary directory. Extract the value with key <i>ruleservice.tmp.dir</i> from configuration file.
-     * If such a key is missing returns default value <tt>/tmp/ws-deploy</tt>. 
-     *
+     * Gets path to temporary directory. Extract the value with key
+     * <i>ruleservice.tmp.dir</i> from configuration file. If such a key is
+     * missing returns default value <tt>/tmp/ws-deploy</tt>.
+     * 
      * @return path to temporary directory
      */
     private static String getTempDirectory() {
-        SmartProps props = new SmartProps("rules-production.properties");
-        String value = props.getStr("ruleservice.tmp.dir");
-        if (value == null || value.trim().length() == 0) {
-            return "/tmp/ws-deploy";
+        ConfigPropertyString confTempDirectory = new ConfigPropertyString("ruleservice.tmp.dir", "/tmp/ws-deploy");
+
+        ConfigSet confSet = SysConfigManager.getConfigManager().locate("rules-production.properties");
+        if (confSet != null) {
+            confSet.updateProperty(confTempDirectory);
         }
-        
-        return value;
+
+        return confTempDirectory.getValue();
     }
 
     public static void main(String[] args) throws RRepositoryException, InterruptedException {
-        final JcrRulesClient rulesClient = new JcrRulesClient(); 
+        final JcrRulesClient rulesClient = new JcrRulesClient();
 
         RulesWebServicesPublisher app = new RulesWebServicesPublisher();
         app.setRulesClient(rulesClient);
@@ -50,14 +54,15 @@ public class RuleServiceMain {
             public void run() {
                 try {
                     rulesClient.removeListener(listener);
-                } catch (RRepositoryException e) {}
+                } catch (RRepositoryException e) {
+                }
 
                 try {
                     rulesClient.release();
-                } catch (RRepositoryException e) {}
+                } catch (RRepositoryException e) {
+                }
             }
         }));
-
 
         executor.execute();
     }
