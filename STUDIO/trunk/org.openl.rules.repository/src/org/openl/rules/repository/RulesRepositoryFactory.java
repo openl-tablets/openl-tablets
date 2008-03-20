@@ -1,5 +1,8 @@
 package org.openl.rules.repository;
 
+import org.openl.rules.common.config.ConfigPropertyString;
+import org.openl.rules.common.config.ConfigSet;
+import org.openl.rules.common.config.SysConfigManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -12,7 +15,9 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class RulesRepositoryFactory {
     public static final String PROP_FILE = "rules-repository.properties";
-    public static final String PROP_JCR_TYPE = "JCR.type";
+
+    /** default value is <code>null</code> -- fail first */
+    private static final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString("repository.factory", null);
 
     private static RRepositoryFactory repFactory;
 
@@ -26,15 +31,16 @@ public class RulesRepositoryFactory {
     }
 
     private static void initFactory() throws RRepositoryException {
-        SmartProps props = new SmartProps(PROP_FILE);
+        ConfigSet confSet = SysConfigManager.getConfigManager().locate(PROP_FILE);
+        confSet.updateProperty(confRepositoryFactoryClass);
 
-        String className = props.getStr(PROP_JCR_TYPE);
+        String className = confRepositoryFactoryClass.getValue();
         try {
-            Class c = Class.forName(className);
+            Class<?> c = Class.forName(className);
             Object obj = c.newInstance();
             repFactory = (RRepositoryFactory) obj;
             // initialize
-            repFactory.initialize(props);
+            repFactory.initialize(confSet);
         } catch (Exception e) {
             throw new RRepositoryException("Failed to initialize Factory: " + e.getMessage(), e);
         }

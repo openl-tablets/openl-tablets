@@ -5,5 +5,6 @@ Bundle-SymbolicName: org.openl.rules.repository
 Bundle-Version: 5.0.6
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Export-Package: org.openl.rules.repository,
+Export-Package: org.openl.rules.repository;uses:="org.openl.rules.common.config",
  org.openl.rules.repository.exceptions
+Require-Bundle: org.openl.rules.common;visibility:=reexport

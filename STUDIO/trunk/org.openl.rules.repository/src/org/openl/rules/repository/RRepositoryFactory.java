@@ -1,5 +1,6 @@
 package org.openl.rules.repository;
 
+import org.openl.rules.common.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -20,10 +21,10 @@ public interface RRepositoryFactory {
     /**
      * Initialize factory.
      *
-     * @param props properties
+     * @param confSet configuration data
      * @throws RRepositoryException if failed
      */
-    public void initialize(SmartProps props) throws RRepositoryException;
+    public void initialize(ConfigSet confSet) throws RRepositoryException;
 
     void release() throws RRepositoryException;
 }
