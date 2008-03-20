@@ -1,9 +1,18 @@
 package org.openl.rules.workspace.lw.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
 import junit.framework.TestCase;
+
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.NotFileFilter;
-import org.openl.SmartProps;
+import org.openl.rules.common.config.ConfigSet;
 import org.openl.rules.workspace.TestHelper;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -18,14 +27,6 @@ import org.openl.rules.workspace.lw.LocalProjectResource;
 import org.openl.rules.workspace.mock.MockProject;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertyImpl;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * Tests correct working of <code>LocalProjectImpl</code> with properties.
@@ -158,10 +159,10 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
     }
 
     private static LocalWorkspaceImpl getFreshWorkspace() throws WorkspaceException {
-        Properties properties = new Properties();
-        properties.put(LocalWorkspaceManagerImpl.PROP_WS_LOCATION, TestHelper.FOLDER_TEST);
+        ConfigSet confSet = new ConfigSet();
+        confSet.addProperty(LocalWorkspaceManagerImpl.PROP_WS_LOCATION, TestHelper.FOLDER_TEST);
 
-        LocalWorkspaceManagerImpl workspaceManager = new LocalWorkspaceManagerImpl(new SmartProps(properties));
+        LocalWorkspaceManagerImpl workspaceManager = new LocalWorkspaceManagerImpl(confSet);
         workspaceManager.setLocalWorkspaceFileFilter(new NotFileFilter(new NameFileFilter(".studioProps")));
         return workspaceManager.createWorkspace(TestHelper.getWorkspaceUser());
     }
