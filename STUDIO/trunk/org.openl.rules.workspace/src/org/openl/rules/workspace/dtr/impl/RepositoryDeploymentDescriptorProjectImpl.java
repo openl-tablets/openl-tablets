@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
@@ -27,7 +29,6 @@ import org.openl.rules.workspace.dtr.RepositoryDDProject;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
 import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.util.Log;
 
 /**
  * 
@@ -35,6 +36,8 @@ import org.openl.util.Log;
  *
  */
 public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDProject {
+    private static final Log log = LogFactory.getLog(RepositoryDeploymentDescriptorProjectImpl.class);
+
     private RDeploymentDescriptorProject rulesDescrProject;
 
     private String name;
@@ -58,7 +61,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
     public ProjectDescriptor addProjectDescriptor(String projectName, CommonVersion version) throws ProjectException {
         if (descriptors.get(projectName) != null) {
-            throw new ProjectException("Project Descriptor ''{0}'' already exists.", null, projectName);
+            throw new ProjectException("Project Descriptor ''{0}'' already exists!", null, projectName);
         }
 
         RepositoryProjectDescriptorImpl dtrProjectDescriptor = new RepositoryProjectDescriptorImpl(this, projectName, version);
@@ -114,7 +117,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
                 vers.add(new RepositoryProjectVersionImpl(ralVersion, dtrVersion));
             }
         } catch (RRepositoryException e) {
-            Log.error("Failed to get version history.", e);
+            log.error("Failed to get version history!", e);
         }
         return vers;
     }
@@ -135,7 +138,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             rulesDescrProject.setProjectDescriptors(projectDescriptors);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot update descriptors for ''{0}''.", e, name);
+            throw new ProjectException("Cannot update descriptors for ''{0}''!", e, getName());
         }
     }
 
@@ -152,19 +155,19 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             rulesDescrProject.commit(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Failed to commit changes.", e);
+            throw new ProjectException("Failed to commit changes!", e);
         }
     }
 
     public void delete(CommonUser user) throws ProjectException {
         if (isMarkedForDeletion()) {
-            throw new ProjectException("Deployment project ''{0}'' is already marked for deletion.", null, getName());
+            throw new ProjectException("Deployment project ''{0}'' is already marked for deletion!", null, getName());
         }
 
         try {
             rulesDescrProject.delete(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot delete deployment project ''{0}''.", e, name);
+            throw new ProjectException("Cannot delete deployment project ''{0}''!", e, getName());
         }
     }
 
@@ -172,7 +175,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             rulesDescrProject.erase(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot erase deployment project ''{0}''.", e, name);
+            throw new ProjectException("Cannot erase deployment project ''{0}''!", e, getName());
         }
     }
 
@@ -180,7 +183,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             return rulesDescrProject.isLocked();
         } catch (RRepositoryException e) {
-            Log.error(e);
+            log.error(e);
             return false;
         }
     }
@@ -189,7 +192,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             return new LockInfoImpl(rulesDescrProject.getLock());
         } catch (RRepositoryException e) {
-            Log.error(e);
+            log.error(e);
             return LockInfoImpl.NO_LOCK;
         }
     }
@@ -198,14 +201,14 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             return rulesDescrProject.isMarked4Deletion();
         } catch (RRepositoryException e) {
-            Log.error("isMarkedForDeletion", e);
+            log.error("isMarkedForDeletion", e);
             return false;
         }
     }
 
     public void lock(WorkspaceUser user) throws ProjectException {
         if (isLocked()) {
-            throw new ProjectException("Deployment project ''{0}'' is already locked.", null, getName());
+            throw new ProjectException("Deployment project ''{0}'' is already locked!", null, getName());
         }
 
         try {
@@ -217,19 +220,19 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
 
     public void undelete(CommonUser user) throws ProjectException {
         if (!isMarkedForDeletion()) {
-            throw new ProjectException("Cannot undelete non-marked deployment project ''{0}''.", null, getName());
+            throw new ProjectException("Cannot undelete non-marked deployment project ''{0}''!", null, getName());
         }
 
         try {
             rulesDescrProject.undelete(user);
         } catch (RRepositoryException e) {
-            throw new ProjectException("Cannot undelete deployment project ''{0}''.", e, name);
+            throw new ProjectException("Cannot undelete deployment project ''{0}''!", e, name);
         }
     }
 
     public void unlock(WorkspaceUser user) throws ProjectException {
         if (!isLocked()) {
-            throw new ProjectException("Cannot unlock non-locked deployment project ''{0}''.", null, getName());
+            throw new ProjectException("Cannot unlock non-locked deployment project ''{0}''!", null, getName());
         }
 
         try {

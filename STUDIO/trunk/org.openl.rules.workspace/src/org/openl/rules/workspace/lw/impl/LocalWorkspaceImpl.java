@@ -1,5 +1,8 @@
 package org.openl.rules.workspace.lw.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.MsgHelper;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.Project;
@@ -9,7 +12,6 @@ import org.openl.rules.workspace.abstracts.impl.ArtefactPathImpl;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
-import org.openl.util.Log;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -21,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
+    private static final Log log = LogFactory.getLog(LocalWorkspaceImpl.class);
+
     private WorkspaceUser user;
     private File location;
     private Map<String, LocalProject> localProjects;
@@ -46,7 +50,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public LocalProject getProject(String name) throws ProjectException {
         LocalProject lp = localProjects.get(name);
         if (lp == null) {
-            throw new ProjectException("Cannot find project ''{0}''", null, name);
+            throw new ProjectException("Cannot find project ''{0}''!", null, name);
         }
 
         return lp;
@@ -110,7 +114,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 try {
                     newlyDetected.load();
                 } catch (ProjectException e) {
-                    Log.error("Error loading just detected local project ''{0}''", e, name);
+                    String msg = MsgHelper.format("Error loading just detected local project ''{0}''!", name);
+                    log.error(msg, e);
                 }
 
                 // add it
@@ -124,7 +129,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             try {
                 lp.save();
             } catch (ProjectException e) {
-                Log.error("error saving local project {0}", e, lp.getName());
+                String msg = MsgHelper.format("Error saving local project ''{0}''!", lp.getName());
+                log.error(msg, e);
             }
         }
     }
@@ -185,7 +191,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             try {
                 lpi.load();
             } catch (ProjectException e) {
-                Log.error("Error loading local project {0}", e, lpi.getName());
+                log.error(MsgHelper.format("Error loading local project ''{0}''!", lpi.getName()), e);
             }
 
             localProjects.put(name, lpi);

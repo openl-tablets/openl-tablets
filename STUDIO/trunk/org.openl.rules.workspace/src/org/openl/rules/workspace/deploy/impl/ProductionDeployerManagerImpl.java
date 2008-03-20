@@ -1,13 +1,12 @@
 package org.openl.rules.workspace.deploy.impl;
 
-import org.openl.SmartProps;
+import java.util.HashMap;
+
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.deploy.ProductionDeployerManager;
 import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
-
-import java.util.HashMap;
 
 /**
  * This class is responsible for creating <code>ProductionDeployer</code> instances for given users. 
