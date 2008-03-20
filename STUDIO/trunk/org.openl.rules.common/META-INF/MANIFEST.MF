@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Rules Commons
+Bundle-SymbolicName: org.openl.rules.common
+Bundle-Version: 5.0.6
+Bundle-Vendor: OpenL
+Require-Bundle: org.openl.lib.apache.commons
+Export-Package: org.openl.rules.common,
+ org.openl.rules.common.config
