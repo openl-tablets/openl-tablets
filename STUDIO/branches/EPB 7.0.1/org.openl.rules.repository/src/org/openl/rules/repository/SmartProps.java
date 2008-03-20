@@ -1,5 +1,8 @@
 package org.openl.rules.repository;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -22,7 +25,7 @@ public class SmartProps {
      * @param fullName full name or path in class paths to a properties file
      */
     public SmartProps(String fullName) {
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream(fullName);
+        InputStream is = getPropertyStream(fullName);
 
         if (is == null) {
             throw new IllegalArgumentException("Cannot find resource by name '" + fullName + "'");
@@ -42,6 +45,21 @@ public class SmartProps {
                 e.printStackTrace();
             }
         }
+    }
+
+    private InputStream getPropertyStream(String fullName) {
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream(fullName);
+
+        if (is == null) {
+            String catalinaBase = System.getProperty("catalina.base");
+            if (catalinaBase != null) {
+                try {
+                    return new FileInputStream(new File(catalinaBase, fullName));
+                } catch (FileNotFoundException e) {}
+            }
+        }
+        
+        return is;
     }
 
     /**
