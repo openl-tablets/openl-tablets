@@ -11,7 +11,7 @@ Require-Bundle: org.openl.lib.jsf,
  org.openl.rules.workspace,
  org.openl.rules.validator,
  org.openl.rules.webtools,
- org.openl.rules.runtime.deployer.lib
+ org.openl.rules.runtime.deployer.lib;visibility:=reexport
 Export-Package: org.openl.rules.ui,
  org.openl.rules.webstudio.application,
  org.openl.rules.webstudio.services,
