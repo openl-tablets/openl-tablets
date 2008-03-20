@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.MsgHelper;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -13,9 +16,10 @@ import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
-import org.openl.util.Log;
 
 public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
+    private static final Log log = LogFactory.getLog(LocalProjectArtefactImpl.class);
+
     private String name;
     private ArtefactPath path;
     private File location;
@@ -76,11 +80,11 @@ public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
     public void remove() {
         File f = getLocation();
         if (!f.exists()) {
-            // TODO log -- nothing to remove
-            Log.debug("No file ''{0}'', nothing to remove.", f.getAbsolutePath());
+            String msg = MsgHelper.format("No file ''{0}'', nothing to remove.", f.getAbsolutePath());
+            log.debug(msg);
         } else if (!f.delete()) {
-            // TODO log -- cannot delete file
-            Log.warn("Failed to remove file ''{0}''.", f.getAbsolutePath());
+            String msg = MsgHelper.format("Failed to remove file ''{0}''!", f.getAbsolutePath());
+            log.warn(msg);
         }
     }
 

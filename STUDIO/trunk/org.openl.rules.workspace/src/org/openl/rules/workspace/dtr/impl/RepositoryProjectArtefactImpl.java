@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProperty;
 import org.openl.rules.repository.RPropertyType;
@@ -20,9 +22,11 @@ import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
-import org.openl.util.Log;
+
 
 public abstract class RepositoryProjectArtefactImpl implements RepositoryProjectArtefact {
+    private static final Log log = LogFactory.getLog(RepositoryProjectArtefactImpl.class);
+
     private String name;
     private ArtefactPath path;
     private PropertiesContainer properties;
@@ -197,7 +201,7 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
             
             versions = vers;
         } catch (RRepositoryException e) {
-            Log.error("Failed to get version history", e);
+            log.error("Failed to get version history!", e);
         }
     }
 }

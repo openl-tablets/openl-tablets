@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.MsgHelper;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -16,9 +19,9 @@ import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
 import org.openl.rules.workspace.lw.LocalProjectResource;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.util.Log;
 
 public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements LocalProjectFolder {
+    private static final Log log = LogFactory.getLog(LocalProjectFolderImpl.class);
 
     private Map<String, LocalProjectArtefact> artefacts;
 
@@ -159,7 +162,8 @@ public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements 
         if (!location.exists()) {
             if (!location.mkdirs()) {
                 // TODO exception?
-                Log.error("Cannot create folder ''{0}''.", location.getAbsolutePath());
+                String msg = MsgHelper.format("Cannot create folder ''{0}''!", location.getAbsolutePath());
+                log.error(msg);
             }
         }
 

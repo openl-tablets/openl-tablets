@@ -7,15 +7,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectResource;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.util.Log;
 
 public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implements LocalProjectResource {
+    private static final Log log = LogFactory.getLog(LocalProjectResourceImpl.class);
     // 8 KBytes
     public static final int DOWNLOAD_BUFFER_SIZE = 8 * 1024;
     
@@ -92,20 +94,20 @@ public class LocalProjectResourceImpl extends LocalProjectArtefactImpl implement
                 fos.write(buffer, 0, readed);
             }
         } catch (IOException e) {
-            throw new ProjectException("Cannot transfer resource context", e);
+            throw new ProjectException("Cannot transfer resource context!", e);
         } finally {
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                    Log.error("Cannot close resource output stream", e);
+                    log.error("Cannot close resource output stream!", e);
                 }
             }
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    Log.error("Cannot close resource input stream", e);
+                    log.error("Cannot close resource input stream!", e);
                 }
             }
         }

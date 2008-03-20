@@ -1,25 +1,30 @@
 package org.openl.rules.workspace.lw.impl;
 
-import org.openl.SmartProps;
+import java.io.File;
+import java.io.FileFilter;
+import java.util.HashMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.MsgHelper;
+import org.openl.rules.common.config.ConfigPropertyBoolean;
+import org.openl.rules.common.config.ConfigPropertyString;
+import org.openl.rules.common.config.ConfigSet;
+import org.openl.rules.common.config.SysConfigManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
-import org.openl.util.Log;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.util.HashMap;
 
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener {
+    private static final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
+
     public static final String WS_PROPS = "workspace.properties";
-
     public static final String PROP_WS_LOCATION = "workspaces.location";
-    public static final String DEF_WS_LOCATION = "/tmp/rules-workspaces/";
 
-    public static final String PROP_WS_ECLIPSE_4_LOCAL_USER = "workspaces.useEclipseForLocalUser";
-    public static final String DEF_WS_ECLIPSE_4_LOCAL_USER = Boolean.FALSE.toString();
+    private final ConfigPropertyString confWSLocation = new ConfigPropertyString(PROP_WS_LOCATION, "/tmp/rules-workspaces/");
+    private final ConfigPropertyBoolean confUseEclipse4Localuser = new ConfigPropertyBoolean("workspaces.useEclipseForLocalUser", false);
 
     public static final String USER_LOCAL = "LOCAL";
 
@@ -46,24 +51,28 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
     }
 
-    public LocalWorkspaceManagerImpl(SmartProps props) throws WorkspaceException {
-        String wsLocation = props.getStr(PROP_WS_LOCATION, DEF_WS_LOCATION);
-        String s = props.getStr(PROP_WS_ECLIPSE_4_LOCAL_USER, DEF_WS_ECLIPSE_4_LOCAL_USER);
-        useEclipse4LocalUser = Boolean.parseBoolean(s);
+    public LocalWorkspaceManagerImpl(ConfigSet confSet) throws WorkspaceException {
+        if (confSet != null) {
+            confSet.updateProperty(confWSLocation);
+            confSet.updateProperty(confUseEclipse4Localuser);
+        }
+
+        String wsLocation = confWSLocation.getValue();
+        useEclipse4LocalUser = confUseEclipse4Localuser.getValue();
 
         workspacesLocation = new File(wsLocation);
         if (!FolderHelper.checkOrCreateFolder(workspacesLocation)) {
             throw new WorkspaceException("Cannot create workspace location ''{0}''", null, wsLocation);
         }
 
-        Log.debug("Location of Local Workspaces: ''{0}''", wsLocation);
-        Log.debug("Use eclipse for local user ''{1}'': ''{0}''", useEclipse4LocalUser, USER_LOCAL);
+        log.info(MsgHelper.format("Location of Local Workspaces: ''{0}''", wsLocation));
+        log.info(MsgHelper.format("Use eclipse for local user ''{1}'': ''{0}''", useEclipse4LocalUser, USER_LOCAL));
 
         localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
     }
 
     public LocalWorkspaceManagerImpl() throws WorkspaceException {
-        this(new SmartProps(WS_PROPS));
+        this(SysConfigManager.getConfigManager().locate(WS_PROPS));
     }
 
     public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {
@@ -91,10 +100,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         String userId = user.getUserId();
         File f = FolderHelper.generateSubLocation(workspacesLocation, userId);
         if (!FolderHelper.checkOrCreateFolder(f)) {
-            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace", null, f.getAbsolutePath());
+            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace!", null, f.getAbsolutePath());
         }
 
-        Log.debug("Creating workspace for user ''{0}'' at ''{1}''", user.getUserId(), f.getAbsolutePath());
+        log.debug(MsgHelper.format("Creating workspace for user ''{0}'' at ''{1}''", user.getUserId(), f.getAbsolutePath()));
         return new LocalWorkspaceImpl(user, f, localWorkspaceFolderFilter, localWorkspaceFileFilter);
     }
 
@@ -104,7 +113,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             eclipseWorkspacePath = "..";
         }
 
-        Log.debug("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(), eclipseWorkspacePath);
+        log.debug(MsgHelper.format("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(), eclipseWorkspacePath));
         return new LocalWorkspaceImpl(user, new File(eclipseWorkspacePath), localWorkspaceFolderFilter, localWorkspaceFileFilter);
     }
 

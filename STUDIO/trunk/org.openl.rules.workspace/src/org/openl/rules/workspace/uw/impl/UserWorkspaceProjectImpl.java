@@ -2,6 +2,9 @@ package org.openl.rules.workspace.uw.impl;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.MsgHelper;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
@@ -14,9 +17,10 @@ import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.util.Log;
 
 public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl implements UserWorkspaceProject {
+    private static final Log log = LogFactory.getLog(UserWorkspaceProjectImpl.class);
+
     private Project project;
 
     private LocalProject localProject;
@@ -46,7 +50,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
     public void setDependencies(Collection<ProjectDependency> dependencies) throws ProjectException {
         if (isReadOnly()) {
-            throw new ProjectException("Cannot change dependencies in read only mode", null);
+            throw new ProjectException("Cannot change dependencies in read only mode!", null);
         }
         project.setDependencies(dependencies);
     }
@@ -69,7 +73,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         if (isCheckedOut()) {
-            throw new ProjectException("Project ''{0}'' is checked-out", null, getName());
+            throw new ProjectException("Project ''{0}'' is checked-out!", null, getName());
         }
 
         if (isOpened()) {
@@ -95,11 +99,11 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         if (isCheckedOut()) {
-            throw new ProjectException("Project ''{0}'' is already checked-out", null, getName());
+            throw new ProjectException("Project ''{0}'' is already checked-out!", null, getName());
         }
 
         if (isLocked()) {
-            throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''", null, getName(),
+            throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''!", null, getName(),
                     dtrProject.getlLockInfo().getLockedBy().getUserName(), dtrProject.getlLockInfo().getLockedAt());
         }
 
@@ -118,7 +122,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
     public void checkIn(int major, int minor) throws ProjectException {
         if (!isCheckedOut()) {
-            throw new ProjectException("Project ''{0}'' must be checked-out before checking-in", null, getName());
+            throw new ProjectException("Project ''{0}'' must be checked-out before checking-in!", null, getName());
         }
 
         userWorkspace.checkInProject(localProject, major, minor);
@@ -200,7 +204,7 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
     public void delete() throws ProjectException {
         if (isLocked() && !isLockedByMe()) {
-            throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user", null, getName());
+            throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user!", null, getName());
         }
 
         if (isOpened()) {
@@ -248,12 +252,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
         if (isLockedByMe() && isOpened() == false) {
             // locked but no in local workspace
-            Log.warn("Project {0} is locked but not opened -- removing lock.", getName());
+            String msg = MsgHelper.format("Project ''{0}'' is locked but not opened -- removing lock.", getName());
+            log.warn(msg);
 
             try {
                 dtrProject.unlock(getUser());
             } catch (ProjectException e) {
-                Log.error("Failed to remove lock from project {0}", e, getName());
+                msg = MsgHelper.format("Failed to remove lock from project ''{0}''!", getName());
+                log.error(msg, e);
             }
         }
     }

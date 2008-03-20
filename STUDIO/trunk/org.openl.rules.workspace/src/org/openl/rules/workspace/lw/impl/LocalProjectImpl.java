@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.MsgHelper;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
@@ -23,9 +26,10 @@ import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.PropertyException;
-import org.openl.util.Log;
 
 public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalProject {
+    private static final Log log = LogFactory.getLog(LocalProjectImpl.class);
+
     private static final LinkedList<ProjectDependency> EMPTY_LIST = new LinkedList<ProjectDependency>();
 
     private ProjectVersion version;
@@ -91,7 +95,7 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
         try {
             save();
         } catch (ProjectException e) {
-            Log.error("Failed to save local project state", e);
+            log.error("Failed to save local project state!", e);
         }
     }
 
@@ -139,6 +143,8 @@ public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalPro
 }
 
 class StatePersistance {
+    private static final Log log = LogFactory.getLog(StatePersistance.class);
+
     final private LocalProjectImpl project;
     final private File propertiesLocation;
     
@@ -150,7 +156,8 @@ class StatePersistance {
     private void saveState(LocalProjectArtefactImpl artefact, File destFile)  {
         File folder = destFile.getParentFile();
         if (!FolderHelper.checkOrCreateFolder(folder)) {
-            Log.error("Could not create folder " + folder.getAbsolutePath());
+            String msg = MsgHelper.format("Could not create folder ''{0}''!", folder.getAbsolutePath());
+            log.error(msg);
             return;
         }
 
@@ -162,7 +169,8 @@ class StatePersistance {
             oos.writeObject(state);
             oos.flush();
         } catch (IOException e) {
-            Log.error("Could not save state into file {0}", e, destFile.getAbsolutePath());
+            String msg = MsgHelper.format("Could not save state into file ''{0}''!", destFile.getAbsolutePath());
+            log.error(msg, e);
         } finally {
             if (oos != null) {
                 try {
@@ -177,7 +185,7 @@ class StatePersistance {
     private static void createFolderThrowing(File folder) throws ProjectException {
         FolderHelper.checkOrCreateFolder(folder);
         if (!folder.exists()) {
-            throw new ProjectException("Could not create properties folder: " + folder.getAbsolutePath());
+            throw new ProjectException("Could not create properties folder ''{0}''!", null, folder.getAbsolutePath());
         }
     }
 
@@ -192,7 +200,8 @@ class StatePersistance {
 
             artefact.setState(state);
         } catch (Exception e) {
-            Log.error("Could not read state from file {0}", e, sourceFile.getAbsolutePath());
+            String msg = MsgHelper.format("Could not read state from file ''{0}''!", sourceFile.getAbsolutePath());
+            log.error(msg, e);
         } finally {
             if (ois != null) {
                 try {

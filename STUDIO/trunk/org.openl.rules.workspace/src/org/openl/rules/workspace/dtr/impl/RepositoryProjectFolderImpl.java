@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.RFolder;
 import org.openl.rules.repository.RProject;
@@ -16,9 +18,10 @@ import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
 import org.openl.rules.workspace.dtr.RepositoryProjectFolder;
 import org.openl.rules.workspace.dtr.RepositoryProjectResource;
-import org.openl.util.Log;
 
 public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl implements RepositoryProjectFolder {
+    private static final Log log = LogFactory.getLog(RepositoryProjectFolderImpl.class);
+
     private RFolder rulesFolder;
     
     protected RepositoryProjectFolderImpl(RFolder rulesFolder, ArtefactPath path) {
@@ -51,7 +54,7 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
             rre = e;
         }
         
-        throw new ProjectException("Cannot find project artefact ''{0}''", rre, name);
+        throw new ProjectException("Cannot find project artefact ''{0}''!", rre, name);
     }
 
     public Collection<RepositoryProjectArtefact> getArtefacts() {
@@ -70,7 +73,7 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
             }
         } catch (RRepositoryException e) {
             // TODO throw exception?
-            Log.error("Cannot get artefacts", e);
+            log.error("Cannot get artefacts!", e);
         }
         
         return result;

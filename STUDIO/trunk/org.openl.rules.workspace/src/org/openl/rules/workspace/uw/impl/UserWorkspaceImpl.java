@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
@@ -30,9 +32,9 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.util.Log;
 
 public class UserWorkspaceImpl implements UserWorkspace {
+    private static final Log log = LogFactory.getLog(UserWorkspaceImpl.class);
 
     private static final Comparator<UserWorkspaceProject> PROJECTS_COMPARATOR
     = new Comparator<UserWorkspaceProject>(){
@@ -67,7 +69,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             refreshRulesProjects();
         } catch (ProjectException e) {
             // ignore
-            Log.error("Failed to resfresh projects", e);
+            log.error("Failed to resfresh projects!", e);
         }
 
         ArrayList<UserWorkspaceProject> result = new ArrayList<UserWorkspaceProject>(userRulesProjects.values());

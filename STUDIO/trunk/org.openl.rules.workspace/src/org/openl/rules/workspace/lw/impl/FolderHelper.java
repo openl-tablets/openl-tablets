@@ -1,8 +1,10 @@
 package org.openl.rules.workspace.lw.impl;
 
-import org.openl.util.Log;
-
 import java.io.File;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.MsgHelper;
 
 
 /**
@@ -11,13 +13,15 @@ import java.io.File;
  * @author Aleh Bykhavets
  */
 public class FolderHelper {
+    private static final Log log = LogFactory.getLog(FolderHelper.class);
+
     public static final String PROPERTIES_FOLDER = ".studioProps";
     public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
     public static final String RESOURCE_PROPERTIES_EXT = ".props";
 
     public static boolean clearFolder(File folder) {
-        if (Log.isDebugEnabled()) {
-            Log.debug("Clearing folder ''{0}''", folder);
+        if (log.isDebugEnabled()) {
+            log.debug(MsgHelper.format("Clearing folder ''{0}''", folder));
         }
 
         File[] files = folder.listFiles();
@@ -33,7 +37,7 @@ public class FolderHelper {
             if (file.isFile()) {
                 if (!file.delete()) {
                     failures = true;
-                    Log.debug("Failed to delete file ''{0}''", file.getAbsolutePath());
+                    log.debug(MsgHelper.format("Failed to delete file ''{0}''!", file.getAbsolutePath()));
                 }
             } else {
                 if (!deleteFolder(file)) {
@@ -46,8 +50,8 @@ public class FolderHelper {
     }
 
     public static boolean deleteFolder(File folder) {
-        if (Log.isDebugEnabled()) {
-            Log.debug("Deleting folder ''{0}''", folder);
+        if (log.isDebugEnabled()) {
+            log.debug(MsgHelper.format("Deleting folder ''{0}''", folder));
         }
 
         boolean failures = false;
@@ -66,13 +70,13 @@ public class FolderHelper {
                     // delete file
                     if (!f.delete()) {
                         failures = true;
-                        Log.debug("Failed to delete file ''{0}''", f.getAbsolutePath());
+                        log.debug(MsgHelper.format("Failed to delete file ''{0}''!", f.getAbsolutePath()));
                     }
                 }
             }
 
             if (!folder.delete()) {
-                Log.debug("Failed to delete folder ''{0}''", folder.getAbsolutePath());
+                log.debug(MsgHelper.format("Failed to delete folder ''{0}''!", folder.getAbsolutePath()));
             }
         }
 
