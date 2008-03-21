@@ -7,7 +7,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.openl.util.Log;
 
@@ -48,7 +47,7 @@ public interface ITextFormatter
 				return format.parse(value);
 			} catch (ParseException e)
 			{
-				Log.warn("Could not parse number: " + value, e);
+				Log.warn("Could not parse number: " + value);
 			}
 			
 			try
@@ -84,7 +83,7 @@ public interface ITextFormatter
 				return format.parse(value);
 			} catch (ParseException e)
 			{
-				Log.warn("Could not parse number: " + value, e);
+				Log.warn("Could not parse date: " + value);
 				return value;
 			}
 		}
