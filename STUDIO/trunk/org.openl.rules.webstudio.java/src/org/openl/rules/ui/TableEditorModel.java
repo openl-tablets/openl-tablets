@@ -4,6 +4,9 @@
  */
 package org.openl.rules.ui;
 
+import java.io.IOException;
+import java.util.Vector;
+
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
@@ -21,12 +24,8 @@ import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
-import org.openl.rules.table.xls.XlsFormat;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
-
-import java.io.IOException;
-import java.util.Vector;
 
 /**
  * @author snshor
