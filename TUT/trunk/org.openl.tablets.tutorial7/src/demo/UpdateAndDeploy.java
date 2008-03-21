@@ -113,14 +113,8 @@ public class UpdateAndDeploy {
         ProductionDeployerManager deployerManager = new ProductionDeployerManagerImpl();
         workspaceManager.setProductionDeployerManager(deployerManager);
 
-        try {
-            DesignTimeRepository designTimeRepository = new DesignTimeRepositoryImpl();
-            workspaceManager.setDesignTimeRepository(designTimeRepository);
-        } catch (RepositoryException e) {
-            System.err.println("* Failed to initialize Design Time Repository!");
-            e.printStackTrace();
-            System.exit(1);
-        }
+        DesignTimeRepository designTimeRepository = new DesignTimeRepositoryImpl();
+        workspaceManager.setDesignTimeRepository(designTimeRepository);
 
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
