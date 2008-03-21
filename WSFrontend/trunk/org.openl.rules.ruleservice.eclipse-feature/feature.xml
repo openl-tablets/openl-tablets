@@ -2,7 +2,7 @@
 <feature
       id="org.openl.rules.ruleservice.eclipse_feature"
       label="Rule Service Feature"
-      version="5.0.5"
+      version="5.0.6"
       provider-name="OpenL Tablets">
 
    <description url="http://www.example.com/description">
@@ -22,7 +22,7 @@
          version="0.0.0"/>
 
    <requires>
-      <import feature="org.openl.lib.ruleservice.eclipse_feature" version="5.0.5"/>
+      <import feature="org.openl.lib.ruleservice.eclipse_feature" version="5.0.6" match="greaterOrEqual"/>
       <import plugin="org.junit"/>
       <import plugin="org.openl.core"/>
       <import plugin="org.openl.rules"/>
@@ -37,7 +37,7 @@
          id="org.openl.rules.ruleservice"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="5.0.6"
          unpack="false"/>
 
 </feature>
