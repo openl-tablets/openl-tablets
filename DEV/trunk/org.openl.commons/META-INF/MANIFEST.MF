@@ -7,6 +7,7 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.lib.apache.commons;visibility:=reexport
 Export-Package: org.openl.base,
+ org.openl.config,
  org.openl.domain,
  org.openl.util,
  org.openl.util.benchmark,
