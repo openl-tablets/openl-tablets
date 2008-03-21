@@ -111,7 +111,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
 
             repository = new TransientRepository(fullPath, repHome);
         } catch (IOException e) {
-            log.debug(e);
             throw new RepositoryException("Failed to init: " + e.getMessage(), e);
         }
     }
@@ -131,7 +130,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
                 }
             }
         } catch (IOException e) {
-            log.debug(e);
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
         }
     }

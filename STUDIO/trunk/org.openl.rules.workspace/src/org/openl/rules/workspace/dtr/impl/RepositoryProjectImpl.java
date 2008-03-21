@@ -193,7 +193,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         try {
             return rulesProject.isLocked();
         } catch (RRepositoryException e) {
-            log.error(e);
+            log.error("isLocked", e);
             return false;
         }
     }
@@ -202,7 +202,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         try {
             return new LockInfoImpl(rulesProject.getLock());
         } catch (RRepositoryException e) {
-            log.error(e);
+            log.error("getLockInfo", e);
             return LockInfoImpl.NO_LOCK;
         }
     }

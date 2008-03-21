@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonVersion;
+import org.openl.rules.repository.NullRepository;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepository;
@@ -39,11 +40,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /** Project Cache */
     private HashMap<String, RepositoryProjectImpl> projects;
 
-    public DesignTimeRepositoryImpl() throws RepositoryException {
+    public DesignTimeRepositoryImpl() {
         try {
             rulesRepository = RulesRepositoryFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
-            throw new RepositoryException("Cannot get Repository!", e);
+            log.error("Cannot init DTR! " + e.getMessage());
+            rulesRepository = new NullRepository();
         }
 
         projects = new HashMap<String, RepositoryProjectImpl>();
