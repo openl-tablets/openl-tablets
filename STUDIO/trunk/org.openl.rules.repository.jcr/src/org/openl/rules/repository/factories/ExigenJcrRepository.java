@@ -4,7 +4,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.openl.rules.common.config.ConfigSet;
+import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import com.exigen.cm.RepositoryProvider;

@@ -1,8 +1,8 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.common.config.ConfigPropertyString;
-import org.openl.rules.common.config.ConfigSet;
-import org.openl.rules.common.config.SysConfigManager;
+import org.openl.config.ConfigPropertyString;
+import org.openl.config.ConfigSet;
+import org.openl.config.SysConfigManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**

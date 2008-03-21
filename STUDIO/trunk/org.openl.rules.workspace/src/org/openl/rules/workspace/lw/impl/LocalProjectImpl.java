@@ -14,7 +14,6 @@ import java.util.LinkedList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.MsgHelper;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectDependency;
@@ -26,6 +25,7 @@ import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.props.PropertyException;
+import org.openl.util.MsgHelper;
 
 public class LocalProjectImpl extends LocalProjectFolderImpl implements LocalProject {
     private static final Log log = LogFactory.getLog(LocalProjectImpl.class);

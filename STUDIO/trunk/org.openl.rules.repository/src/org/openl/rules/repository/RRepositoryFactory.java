@@ -1,6 +1,6 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.common.config.ConfigSet;
+import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
