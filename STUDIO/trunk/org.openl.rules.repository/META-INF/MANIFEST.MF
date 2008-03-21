@@ -7,4 +7,4 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Export-Package: org.openl.rules.repository;uses:="org.openl.rules.common.config",
  org.openl.rules.repository.exceptions
-Require-Bundle: org.openl.rules.common;visibility:=reexport
+Require-Bundle: org.openl.commons;visibility:=reexport

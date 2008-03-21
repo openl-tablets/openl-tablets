@@ -14,8 +14,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
-import org.openl.rules.common.config.ConfigPropertyString;
-import org.openl.rules.common.config.ConfigSet;
+import org.openl.config.ConfigPropertyString;
+import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.springframework.util.FileCopyUtils;
 

@@ -8,10 +8,10 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.config.ClassPathConfigLocator;
-import org.openl.rules.common.config.ConfigLocator;
-import org.openl.rules.common.config.ConfigManager;
-import org.openl.rules.common.config.SysConfigManager;
+import org.openl.config.ClassPathConfigLocator;
+import org.openl.config.ConfigLocator;
+import org.openl.config.ConfigManager;
+import org.openl.config.SysConfigManager;
 
 /**
  * Updates system config manager.

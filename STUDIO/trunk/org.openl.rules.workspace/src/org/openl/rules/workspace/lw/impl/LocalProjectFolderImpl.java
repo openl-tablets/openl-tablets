@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.MsgHelper;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -19,6 +18,7 @@ import org.openl.rules.workspace.lw.LocalProjectArtefact;
 import org.openl.rules.workspace.lw.LocalProjectFolder;
 import org.openl.rules.workspace.lw.LocalProjectResource;
 import org.openl.rules.workspace.props.PropertyException;
+import org.openl.util.MsgHelper;
 
 public class LocalProjectFolderImpl extends LocalProjectArtefactImpl implements LocalProjectFolder {
     private static final Log log = LogFactory.getLog(LocalProjectFolderImpl.class);

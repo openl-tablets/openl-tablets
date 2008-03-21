@@ -5,7 +5,6 @@ import java.util.LinkedList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.MsgHelper;
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RDependency;
@@ -23,6 +22,7 @@ import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.LockInfo;
 import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
+import org.openl.util.MsgHelper;
 
 public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implements RepositoryProject {
     private static final Log log = LogFactory.getLog(RepositoryProjectImpl.class);

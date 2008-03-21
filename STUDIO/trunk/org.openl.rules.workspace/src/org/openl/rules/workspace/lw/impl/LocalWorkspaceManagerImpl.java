@@ -6,16 +6,16 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.MsgHelper;
-import org.openl.rules.common.config.ConfigPropertyBoolean;
-import org.openl.rules.common.config.ConfigPropertyString;
-import org.openl.rules.common.config.ConfigSet;
-import org.openl.rules.common.config.SysConfigManager;
+import org.openl.config.ConfigPropertyBoolean;
+import org.openl.config.ConfigPropertyString;
+import org.openl.config.ConfigSet;
+import org.openl.config.SysConfigManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
+import org.openl.util.MsgHelper;
 
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener {
     private static final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);

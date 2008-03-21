@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.MsgHelper;
+import org.openl.util.MsgHelper;
 
 
 /**

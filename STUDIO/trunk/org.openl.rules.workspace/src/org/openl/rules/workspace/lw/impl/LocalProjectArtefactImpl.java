@@ -7,7 +7,6 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.common.MsgHelper;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -16,6 +15,7 @@ import org.openl.rules.workspace.props.Property;
 import org.openl.rules.workspace.props.PropertyException;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
+import org.openl.util.MsgHelper;
 
 public abstract class LocalProjectArtefactImpl implements LocalProjectArtefact {
     private static final Log log = LogFactory.getLog(LocalProjectArtefactImpl.class);

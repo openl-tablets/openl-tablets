@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.NotFileFilter;
-import org.openl.rules.common.config.ConfigSet;
+import org.openl.config.ConfigSet;
 import org.openl.rules.workspace.TestHelper;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;

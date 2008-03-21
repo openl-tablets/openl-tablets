@@ -5,8 +5,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
-import org.openl.rules.common.config.ConfigPropertyString;
-import org.openl.rules.common.config.ConfigSet;
+import org.openl.config.ConfigPropertyString;
+import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
