@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository;
+package org.openl.rules.repository;
 
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RRepository;
@@ -8,11 +8,19 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DummyRepository implements RRepository {
+/**
+ * Stub to use when repository cannot be initialized.
+ * 
+ * @author Aleh Bykhavets
+ *
+ */
+public class NullRepository implements RRepository {
     private static final List<RProject> EMPTY_LIST = new LinkedList<RProject>();
 
     public RProject getProject(String name) throws RRepositoryException {
-        throw new RRepositoryException("Cannot find project {0}", null, name);
+        fail();
+        // will never reach
+        return null;
     }
 
     public boolean hasProject(String name) throws RRepositoryException {
@@ -39,20 +47,23 @@ public class DummyRepository implements RRepository {
 
     public String getName() {
         // TODO: may be put here something more consistent
-        return "Failed to init Repository";
+        return "Failed to init Repository!";
     }
 
     protected void fail() throws RRepositoryException {
-        throw new RRepositoryException("Failed to initialize repository", null);
+        throw new RRepositoryException("Failed to initialize repository!", null);
     }
 
     public RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException {
-        // TODO Auto-generated method stub
+        fail();
+        // will never reach
         return null;
     }
 
     public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
-        throw new RRepositoryException("Cannot find project {0}", null, name);
+        fail();
+        // will never reach
+        return null;
     }
 
     public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {

@@ -66,7 +66,7 @@ public class DeploymentController {
         try {
             checkConflicts(items);
         } catch (ProjectException e) {
-            log.error(e);
+            log.error("Failed to check conflicts!", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(),
@@ -103,11 +103,11 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
+            log.error("Failed to add project descriptor!", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "failed to add project descriptor", e.getMessage()));
-            log.error(e);
+                        "Failed to add project descriptor!", e.getMessage()));
         }
 
         return null;
@@ -142,11 +142,11 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
-            log.error(e);
+            log.error("Failed to delete project descriptor!", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "failed to add project descriptor", e.getMessage()));
+                        "Failed to add project descriptor!", e.getMessage()));
         }
         return null;
     }
@@ -197,7 +197,7 @@ public class DeploymentController {
                 }
                 return selectItems.toArray(new SelectItem[selectItems.size()]);
             } catch (ProjectException e) {
-                log.error(e);
+                log.error("Failed to get project versions!", e);
             }
         }
         return new SelectItem[0];
@@ -214,8 +214,7 @@ public class DeploymentController {
                         project.open();
                     }
                 } catch (ProjectException e) {
-                    log.error("Failed to open project " + projectName + " "
-                        + e.getMessage());
+                    log.error("Failed to open project '" + projectName + "'!", e);
                 }
             }
             item.setSelected(false);
@@ -265,11 +264,11 @@ public class DeploymentController {
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                         "Project '" + project.getName() + "' successfully deployed with id: " + id.getName(), null));
         } catch (Exception e) {
+            log.error("Failed to deploy!", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to deploy '" + project.getName() + "'",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to deploy '" + project.getName() + "'!",
                         e.getMessage()));
-            log.error(e);
         }
     }
 
@@ -287,10 +286,10 @@ public class DeploymentController {
             getSelectedProject().checkIn();
             items = null;
         } catch (ProjectException e) {
-            log.error(e);
+            log.error("Failed to check-in!", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check in",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to check in!",
                         e.getMessage()));
         }
 
@@ -302,11 +301,11 @@ public class DeploymentController {
             getSelectedProject().close();
             items = null;
         } catch (ProjectException e) {
-            log.error(e);
+            log.error("Failed to close!", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "failed to close deployment project", e.getMessage()));
+                        "Failed to close deployment project!", e.getMessage()));
         }
 
         return null;
@@ -317,11 +316,11 @@ public class DeploymentController {
             getSelectedProject().checkOut();
             items = null;
         } catch (ProjectException e) {
+            log.error("Failed to check-out!", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check out",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to check out!",
                         e.getMessage()));
-            log.error(e);
         }
 
         return null;

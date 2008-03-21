@@ -183,7 +183,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             return rulesDescrProject.isLocked();
         } catch (RRepositoryException e) {
-            log.error(e);
+            log.error("isLocked", e);
             return false;
         }
     }
@@ -192,7 +192,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
         try {
             return new LockInfoImpl(rulesDescrProject.getLock());
         } catch (RRepositoryException e) {
-            log.error(e);
+            log.error("getLockInfo", e);
             return LockInfoImpl.NO_LOCK;
         }
     }

@@ -1,5 +1,7 @@
 package org.openl.rules.repository;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.config.SysConfigManager;
@@ -14,6 +16,8 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class RulesRepositoryFactory {
+    private static final Log log = LogFactory.getLog(RulesRepositoryFactory.class);
+
     public static final String PROP_FILE = "rules-repository.properties";
 
     /** default value is <code>null</code> -- fail first */
@@ -42,7 +46,9 @@ public class RulesRepositoryFactory {
             // initialize
             repFactory.initialize(confSet);
         } catch (Exception e) {
-            throw new RRepositoryException("Failed to initialize Factory: " + e.getMessage(), e);
+            String msg = "Failed to initialize RulesRepositoryFactory!";
+            log.error(msg, e);
+            throw new RRepositoryException(msg, e);
         }
     }
 }

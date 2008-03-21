@@ -42,7 +42,7 @@ public class LocalUploadController {
                         if (!dtr.hasProject(f.getName()))
                             uploadBeans.add(new UploadBean(f.getName()));
                     } catch (Exception e) {
-                        Log.error(e);
+                        Log.error("Failed to list projects for upload!", e);
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
                     }
             }

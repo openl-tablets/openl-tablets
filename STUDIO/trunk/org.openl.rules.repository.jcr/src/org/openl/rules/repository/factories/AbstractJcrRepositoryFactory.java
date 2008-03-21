@@ -225,7 +225,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
             return result;
         } catch (Exception e) {
-            log.debug(e);
             throw new RepositoryException("Cannot read schema version from '" + file + "': " + e.getMessage());
         }
     }

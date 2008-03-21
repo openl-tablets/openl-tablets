@@ -87,11 +87,11 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 deployment.save();
             }
         } catch (Exception e) {
-            throw new DeploymentException("failed to deploy", e);
+            throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
         }
 
         if (alreadyDeployed) {
-            throw new DeploymentException("project is already deployed to production repository, id: " + id.getName(), null);
+            throw new DeploymentException("Project is already deployed to production repository, id: " + id.getName(), null);
         }
 
         return id;
