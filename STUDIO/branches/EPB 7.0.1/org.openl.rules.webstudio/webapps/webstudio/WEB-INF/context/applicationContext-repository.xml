@@ -58,6 +58,7 @@
         </property>
       </bean>
     </property>
+    <property name="proxyInterfaces" value="org.openl.rules.workspace.deploy.ProductionDeployer"/>
   </bean>
 
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
