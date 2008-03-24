@@ -43,6 +43,11 @@
   </context-param>
 
   <context-param>
+    <param-name>facelets.LIBRARIES</param-name>
+    <param-value>/WEB-INF/taglib/tomahawk.taglib.xml</param-value>
+  </context-param>
+
+  <context-param>
     <description>Enabling compression in MyFaces version 1.1.4 and later.</description>
     <param-name>org.apache.myfaces.COMPRESS_STATE_IN_CLIENT</param-name>
     <param-value>true</param-value>
