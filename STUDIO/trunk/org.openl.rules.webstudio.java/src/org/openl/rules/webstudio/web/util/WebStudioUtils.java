@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.util;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.JSFConst;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
@@ -61,5 +62,9 @@ public abstract class WebStudioUtils {
         // TODO: think about proper implementation
         boolean b = isLoopbackAddress(remote);// || request.getLocalAddr().equals(remote);
         return b;
+    }
+
+    public static boolean isRepositoryFailed() {
+        return RulesRepositoryFactory.isFailed();
     }
 }
