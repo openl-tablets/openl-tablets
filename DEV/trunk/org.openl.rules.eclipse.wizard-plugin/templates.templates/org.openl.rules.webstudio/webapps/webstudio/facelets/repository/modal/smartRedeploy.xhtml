@@ -7,7 +7,7 @@
 
   <rich:modalPanel id="modalSmartRedeploy" width="400" minWidth="400" height="284" minHeight="284">
     <f:facet name="header">
-      <h:outputText value="Smart Redeploy" />
+      <h:outputText value="Auto Redeploy" />
     </f:facet>
 
     <f:facet name="controls">
@@ -60,7 +60,7 @@
       <br/>
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton id="smartRedeployBtn" styleClass="disabledButton" value="Smart Redeploy" onclick="return startSmartRedeploy()" action="#{smartRedeployController.redeploy}" />
+        <h:commandButton id="smartRedeployBtn" styleClass="disabledButton" value="Redeploy" onclick="return startSmartRedeploy()" action="#{smartRedeployController.redeploy}" />
         <h:commandButton id="cancelBtn" styleClass="button" value="Cancel" type="button" onclick="closeSmartRedeploy();" />
       </h:panelGrid>
     </h:form>
