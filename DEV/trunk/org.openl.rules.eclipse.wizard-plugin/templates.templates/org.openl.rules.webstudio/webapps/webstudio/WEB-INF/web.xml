@@ -5,8 +5,8 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-  <display-name>Exigen WebStudio</display-name>
-  <description>Exigen WebStudio</description>
+  <display-name>OpenL WebStudio</display-name>
+  <description>OpenL WebStudio</description>
 
   <context-param>
     <description>
@@ -118,6 +118,10 @@
   </filter-mapping>
 
   <!-- Listeners, that does all the startup work (configuration, init). -->
+  <listener>
+    <listener-class>org.openl.rules.webstudio.web.servlet.RulesStartListener</listener-class>
+  </listener>
+
   <listener>
     <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
   </listener>
