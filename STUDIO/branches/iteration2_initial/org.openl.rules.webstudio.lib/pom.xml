@@ -73,65 +73,14 @@
 
   <dependencies>
 
-    <!-- STUDIO -->
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.repository</artifactId>
-      <version>${version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.repository.jcr</artifactId>
-      <version>${version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.workspace</artifactId>
-      <version>${version}</version>
+      <artifactId>org.openl.rules.webstudio</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.java</artifactId>
-      <version>${version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webtools</artifactId>
-      <version>${version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security</artifactId>
-      <version>${version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security.standalone</artifactId>
-      <version>${version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security.integration.ipb</artifactId>
-      <version>${version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.runtime.deployer</artifactId>
-      <version>${version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.diff</artifactId>
-      <version>${version}</version>
     </dependency>
 
   </dependencies>

@@ -27,6 +27,7 @@
     <module>../org.openl.rules.webstudio.lib</module>
     <module>../org.openl.rules.webstudio.eclipse.feature</module>
     <module>../org.openl.lib.apache.tomcat</module>
+    <module>../com.exigen.example.solution.admin</module>
   </modules>
 
   <scm>
@@ -123,6 +124,7 @@
         <plugin>
           <groupId>ch.elca.el4j.maven.plugins</groupId>
           <artifactId>maven-depgraph-plugin</artifactId>
+          <version>1.4</version>
           <configuration>
             <outDir>target/site/images</outDir>
             <outFile>${pom.artifactId}.png</outFile>
@@ -149,7 +151,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>3.8.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
