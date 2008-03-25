@@ -31,6 +31,7 @@
     <module>../org.openl.lib.eclipse.feature</module>
     <module>../org.openl.rules.eclipse.feature</module>
     <module>../org.openl.rules.all.eclipse.feature</module>
+    <module>../org.openl.eclipse.site</module>
   </modules>
 
   <scm>
@@ -134,7 +135,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>3.8.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
