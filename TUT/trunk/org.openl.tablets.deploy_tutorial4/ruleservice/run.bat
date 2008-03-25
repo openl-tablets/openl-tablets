@@ -1,7 +1,7 @@
 @setlocal
 @set OPENL_VERSION=5.0.6
 @set _CP=.;^
-org.openl.rules.ruleservice.jar;^
+lib\org.openl.rules.ruleservice_%OPENL_VERSION%.jar;^
 lib\cglib-nodep-2.1_3.jar;^
 lib\commons-collections-3.2.jar;^
 lib\commons-io-1.3.2.jar;^

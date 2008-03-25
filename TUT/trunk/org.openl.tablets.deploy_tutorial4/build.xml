@@ -118,6 +118,7 @@
         		<include name="**/org.openl.j${openl.plugin.version}.jar"/>
         	    <include name="**/org.openl.rules.helpers${openl.plugin.version}.jar"/>
         	    <include name="**/org.openl.rules.validator${openl.plugin.version}.jar"/>
+        	    <include name="**/org.openl.rules.ruleservice${openl.plugin.version}.jar"/>
         	</fileset>
             <fileset dir="${project.lib.cxf}" includes="**/*.jar" />
             <fileset dir="${project.lib.apache.jackrabbit}" includes="**/*.jar" />
