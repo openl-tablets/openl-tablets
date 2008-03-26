@@ -2,7 +2,6 @@ package org.openl.rules.ui;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -57,12 +56,37 @@ public class NavigationBean {
         XlsUrlParser parser = new XlsUrlParser();
         parser.parse(url);
 
+        if (parser.wsName == null && parser.range == null) {
+            return findMatchingWrapperByFileOnly(parser, webStudio);
+        }
+
         try {
             for (OpenLWrapperInfo w : webStudio.getWrappers()) {
                 try {
                     ProjectModel model = new ProjectModel(webStudio);
                     model.setWrapperInfo(w);
                     TableSyntaxNode syntaxNode = model.findNode(parser);
+                    if (syntaxNode != null) {
+                        return new FoundResult(syntaxNode, w);
+                    }
+                } catch (Exception e) {}
+            }
+        } catch (IOException e) {}
+
+        return null;
+    }
+
+    private FoundResult findMatchingWrapperByFileOnly(XlsUrlParser parser, WebStudio webStudio) {
+        if (parser.wbPath == null || parser.wbName == null)
+            return null;
+
+
+        try {
+            for (OpenLWrapperInfo w : webStudio.getWrappers()) {
+                try {
+                    ProjectModel model = new ProjectModel(webStudio);
+                    model.setWrapperInfo(w);
+                    TableSyntaxNode syntaxNode = model.findAnyTableNodeByLocation(parser);
                     if (syntaxNode != null) {
                         return new FoundResult(syntaxNode, w);
                     }
