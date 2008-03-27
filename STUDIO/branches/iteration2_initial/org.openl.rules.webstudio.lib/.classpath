@@ -108,6 +108,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/spring-binding-2.0-m1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-faces-2.0-m1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-mock-2.1-m3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-web-2.0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-webflow-2.0-m1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/sqlserver2005-jdbc-driver-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/standard-1.1.2.jar"/>
