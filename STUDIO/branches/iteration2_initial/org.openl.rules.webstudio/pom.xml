@@ -14,6 +14,7 @@
   <artifactId>org.openl.rules.webstudio</artifactId>
   <name>Exigen WebStudio Web Resources</name>
   <description></description>
+  <packaging>war</packaging>
 
   <build>
     <plugins>
@@ -54,23 +55,12 @@
         <targetPath>webapps</targetPath>
       </resource>
     </resources>
-
   </build>
 
   <dependencies>
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.java</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security.standalone</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.diff</artifactId>
     </dependency>
   </dependencies>
 
