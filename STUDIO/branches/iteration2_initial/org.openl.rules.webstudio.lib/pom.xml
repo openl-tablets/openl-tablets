@@ -17,12 +17,12 @@
   <build>
     <defaultGoal>process-resources</defaultGoal>
 
-    <resources>
+    <!--resources>
       <resource>
         <directory>lib</directory>
         <targetPath>lib</targetPath>
       </resource>
-    </resources>
+    </resources-->
 
     <plugins>
       <plugin>
@@ -72,17 +72,10 @@
   </build>
 
   <dependencies>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webstudio</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.java</artifactId>
     </dependency>
-
   </dependencies>
 
 </project>
