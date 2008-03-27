@@ -14,7 +14,7 @@
   <artifactId>org.openl.rules.webstudio</artifactId>
   <name>Exigen WebStudio Web Resources</name>
   <description></description>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <build>
     <plugins>
