@@ -13,7 +13,7 @@
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <properties>
-    <dev.version>5.0.5</dev.version>
+    <dev.version>5.0.6-SNAPSHOT</dev.version>
   </properties>
 
   <modules>
