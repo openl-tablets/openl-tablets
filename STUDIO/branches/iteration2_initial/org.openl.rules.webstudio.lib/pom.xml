@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.studio-pom</artifactId>
-    <version>5.0.5</version>
+    <version>5.0.6-SNAPSHOT</version>
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
@@ -16,13 +16,6 @@
 
   <build>
     <defaultGoal>process-resources</defaultGoal>
-
-    <!--resources>
-      <resource>
-        <directory>lib</directory>
-        <targetPath>lib</targetPath>
-      </resource>
-    </resources-->
 
     <plugins>
       <plugin>

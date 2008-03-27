@@ -7,10 +7,14 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.studio-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.0.5</version>
+  <version>5.0.6-SNAPSHOT</version>
   <name>Studio</name>
   <description>Exigen WebStudio Pom Project</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+
+  <properties>
+    <dev.version>5.0.5</dev.version>
+  </properties>
 
   <modules>
     <module>../org.openl.rules.repository</module>
@@ -162,43 +166,43 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.core</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.helpers</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.validator</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib.apache.poi.modified</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
 
