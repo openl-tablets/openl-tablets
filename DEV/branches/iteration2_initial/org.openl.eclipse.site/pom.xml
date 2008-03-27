@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.dev-pom</artifactId>
-    <version>5.0.5</version>
+    <version>5.0.6-SNAPSHOT</version>
     <relativePath>../org.openl.rules.dev-pom</relativePath>
   </parent>
 
@@ -15,8 +15,11 @@
   <name>org.openl.eclipse.site</name>
   <description></description>
 
-  <build>
+  <properties>
+    <studio.version>${version}</studio.version>
+  </properties>
 
+  <build>
     <defaultGoal>package</defaultGoal>
     <plugins>
 
@@ -157,85 +160,85 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository.jcr</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.workspace</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.java</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webtools</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.security</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.security.standalone</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.security.integration.ipb</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.runtime.deployer</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.diff</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.lib.apache.tomcat</artifactId>
-      <version>${version}</version>
+      <version>${studio.version}</version>
     </dependency>
 
   </dependencies>

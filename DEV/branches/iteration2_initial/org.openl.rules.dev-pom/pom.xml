@@ -6,7 +6,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.dev-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.0.5</version>
+  <version>5.0.6-SNAPSHOT</version>
   <name>Dev</name>
   <description>Dev</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
@@ -109,6 +109,7 @@
         <plugin>
           <groupId>ch.elca.el4j.maven.plugins</groupId>
           <artifactId>maven-depgraph-plugin</artifactId>
+          <version>1.4</version>
           <configuration>
             <outDir>target/site/images</outDir>
             <outFile>${pom.artifactId}.png</outFile>
