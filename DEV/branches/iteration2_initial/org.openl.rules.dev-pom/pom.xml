@@ -26,6 +26,7 @@
     <module>../org.openl.rules.eclipse.ui.wizard</module>
     <module>../org.openl.eclipse.ui.wizard</module>
     <module>../org.openl.rules.validator</module>
+    <module>../org.openl.eclipse.ui.util</module>
     <module>../org.openl.lib</module>
     <module>../org.openl.eclipse.feature</module>
     <module>../org.openl.lib.eclipse.feature</module>
@@ -38,19 +39,7 @@
     <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/trunk</connection>
   </scm>
 
-  <repositories>
-    <repository>
-      <id>local</id>
-      <url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
-    </repository>
-  </repositories>
-
   <pluginRepositories>
-    <pluginRepository>
-      <id>local</id>
-      <url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
-    </pluginRepository>
-
     <!-- for maven-depgraph-plugin -->
     <pluginRepository>
       <id>elca-services</id>
@@ -65,36 +54,8 @@
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
 
-    <plugins>
-      <plugin>
-        <inherited>false</inherited>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-    </plugins>
-
     <pluginManagement>
       <plugins>
-        <!--
-          Tweaked version of maven-eclipse plugin for correct
-          building of .classpath and .project files.
-        -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-eclipse-plugin</artifactId>
-          <version>2.5-osgi_provided-fix</version>
-          <configuration>
-            <downloadSources>false</downloadSources>
-            <downloadJavadocs>false</downloadJavadocs>
-            <pde>true</pde>
-            <!-- do not update MANIFEST.MF -->
-            <manifest>no-manifest</manifest>
-          </configuration>
-        </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>

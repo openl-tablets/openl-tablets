@@ -11,19 +11,11 @@
   </parent>
 
   <groupId>org.openl</groupId>
-  <artifactId>org.openl.j</artifactId>
-  <name>org.openl.j</name>
+  <artifactId>org.openl.eclipse.ui.util</artifactId>
+  <name>org.openl.eclipse.ui.util</name>
   <description></description>
 
   <build>
-    <resources>
-      <resource>
-        <directory>grammars</directory>
-        <includes>
-          <include>**/*.jj</include>
-        </includes>
-      </resource>
-    </resources>
 
     <plugins>
       <plugin>
@@ -35,26 +27,13 @@
           </archive>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>grammars</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>templates</directory>
+      </resource>
+    </resources>
   </build>
 
   <dependencies>
@@ -65,7 +44,17 @@
 
     <dependency>
       <groupId>org.openl</groupId>
-      <artifactId>org.openl.commons</artifactId>
+      <artifactId>org.openl.eclipse.ui.wizard</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.core</groupId>
+      <artifactId>org.eclipse.core.runtime</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.core</groupId>
+      <artifactId>org.eclipse.core.resources</artifactId>
     </dependency>
 
     <dependency>
