@@ -40,8 +40,9 @@ task :replace => :replaceSite
 
 task :replaceSite do
   replaceOnFile("site.xml", /<feature url="features.*/,
-%Q{<feature url="features/org.openl.rules.all.eclipse.feature_#{OPENL_VERSION}.jar" id="org.openl.rules.all.eclipse.feature" version="#{OPENL_VERSION}">}
-)
+%Q{<feature url="features/org.openl.rules.all.eclipse.feature_#{OPENL_VERSION}.jar" id="org.openl.rules.all.eclipse.feature" version="#{OPENL_VERSION}">})
+
+  replaceOnFile("pom.xml", /<studio.eclipse.version>.*/, "<studio.eclipse.version>#{OPENL_VERSION}</studio.eclipse.version>")
 end
 
 
