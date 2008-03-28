@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: IPB security integration
 Bundle-SymbolicName: org.openl.rules.security.integration.ipb;singleton:=true
-Bundle-Version: 5.0.5
+Bundle-Version: 5.0.6
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules.security;visibility:=reexport,
  org.openl.rules.webstudio.lib
