@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Exigen WebTools
 Bundle-SymbolicName: org.openl.rules.webtools;singleton:=true
-Bundle-Version: 5.0.5
+Bundle-Version: 5.0.6
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core,
  org.openl.rules,
