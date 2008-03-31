@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension
-         id="OpenlNature"
+         id="org.openl.base.nature"
          name="OpenL Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
@@ -25,7 +25,7 @@
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
             icon="icons/full/ovr16/openl_ovr.gif"
-            natureId="org.openl.eclipse.ui.OpenlNature"
+            natureId="org.openl.base.nature"
             id="org.eclipse.odt.ui.openlProjectNatureImage">
       </image>
    </extension>
