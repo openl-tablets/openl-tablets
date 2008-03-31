@@ -25,6 +25,15 @@
           <warSourceDirectory>webapps/webstudio</warSourceDirectory>
           <warName>webstudio-${version}</warName>
         </configuration>
+        <executions>
+          <execution>
+            <id>war</id>
+            <phase>package</phase>
+            <goals>
+              <goal>war</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
