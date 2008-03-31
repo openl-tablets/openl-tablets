@@ -36,11 +36,6 @@
   </repositories>
 
   <pluginRepositories>
-    <pluginRepository>
-      <id>local</id>
-      <url>file://${basedir}/../org.openl.rules.ruleservice-pom/m2_repo</url>
-    </pluginRepository>
-
     <!-- for maven-depgraph-plugin -->
     <pluginRepository>
       <id>elca-services</id>
@@ -68,23 +63,6 @@
 
     <pluginManagement>
       <plugins>
-        <!--
-          Tweaked version of maven-eclipse plugin for correct
-          building of .classpath and .project files.
-        -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-eclipse-plugin</artifactId>
-          <version>2.5-osgi_provided-fix</version>
-          <configuration>
-            <downloadSources>false</downloadSources>
-            <downloadJavadocs>false</downloadJavadocs>
-            <pde>true</pde>
-            <!-- do not touch META-INF/MANIFEST.MF -->
-            <manifest>no-manifest</manifest>
-          </configuration>
-        </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
