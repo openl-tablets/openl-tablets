@@ -18,7 +18,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/bootstrap-5.5.12.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/BrowserLauncher-2-1_3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cglib-2.1_3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/com.exigen.rules.constrainer-5.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/common-2.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-core-1.7.0.jar"/>

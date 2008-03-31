@@ -9,6 +9,7 @@
       <useTransitiveDependencies>true</useTransitiveDependencies>
       <excludes>
         <exclude>org.openl.*</exclude>
+        <exclude>com.exigen.rules.constrainer*</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
