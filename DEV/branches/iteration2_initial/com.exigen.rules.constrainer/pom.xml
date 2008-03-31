@@ -36,6 +36,7 @@
               <exclude>**/TestExecutionControl2.java</exclude>
               <exclude>**/TestIntExpElementAt.java</exclude>
               <exclude>**/TestIntExpArrayElement.java</exclude>
+              <exclude>**/*</exclude>
             </excludes>
           </configuration>
         </plugin>
