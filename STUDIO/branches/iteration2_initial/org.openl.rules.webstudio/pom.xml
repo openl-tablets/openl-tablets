@@ -14,11 +14,30 @@
   <artifactId>org.openl.rules.webstudio</artifactId>
   <name>Exigen WebStudio Web Resources</name>
   <description></description>
-  <packaging>jar</packaging>
+  <packaging>war</packaging>
 
   <build>
     <plugins>
-      <!--plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
@@ -36,6 +55,7 @@
         </executions>
       </plugin>
 
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -49,23 +69,14 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>webstudio-5.0.6-SNAPSHOT</file>
-                  <type>war</type>
+                  <!--file>target/webstudio-5.0.6-SNAPSHOT.war</file-->
+                  <file>target/org.openl.rules.webstudio-5.0.6-SNAPSHOT.jar</file>
+                  <!--type>jar</type-->
                 </artifact>
               </artifacts>
             </configuration>
           </execution>
         </executions>
-      </plugin-->
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
       </plugin>
     </plugins>
 
