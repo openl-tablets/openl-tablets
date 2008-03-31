@@ -6,6 +6,7 @@
  
 package org.openl.binding.impl;
 
+import java.io.PrintStream;
 import java.util.Date;
 
 import org.openl.util.ArrayTool;
@@ -490,5 +491,92 @@ public class Operators
 		return c1.compareTo(c2) >= 0;
 	}
 
+	
+	
+	static public int bitand(int x, int y)
+	{
+		return x & y;
+	}
+
+	
+	static public int bitor(int x, int y)
+	{
+		return x | y;
+	}
+	
+	static public int bitxor(int x, int y)
+	{
+		return x ^ y;
+	}
+
+	static public boolean bitxor(boolean x, boolean y)
+	{
+		return x ^ y;
+	}
+	
+	
+	static public long bitand(long x, long y)
+	{
+		return x & y;
+	}
+
+	
+	static public long bitor(long x, long y)
+	{
+		return x | y;
+	}
+	
+	static public long bitxor(long x, long y)
+	{
+		return x ^ y;
+	}
+	
+	
+	
+	
+	
+	static public int lshift(int x, int y)
+	{
+		return x << y;
+	}
+	
+	static public int rshift(int x, int y)
+	{
+		return x >> y;
+	}
+	
+	static public int rshiftu(int x, int y)
+	{
+		return x >>> y;
+	}
+	
+
+	static public long lshift(long x, int y)
+	{
+		return x << y;
+	}
+	
+	static public long rshift(long x, int y)
+	{
+		return x >> y;
+	}
+	
+	static public long rshiftu(long x, int y)
+	{
+		return x >>> y;
+	}
+	
+	
+	static public PrintStream lshift(PrintStream p, Object x)
+	{
+		p.print(x);
+		return p;
+	}
+	
+	static public PrintStream lshift(PrintStream p, long x)
+	{
+		p.print(x);
+		return p;
+	}
 	
 }

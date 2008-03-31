@@ -14,7 +14,7 @@ import org.openl.conf.OpenFactoryConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
-import org.openl.grammars.bex.BExGrammar;
+import org.openl.grammars.bexgrammar.BExGrammar;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder
@@ -54,6 +54,8 @@ public class OpenLBuilder extends AOpenLBuilder
   		,"parameter.declaration", org.openl.binding.impl.module.ParameterDeclarationNodeBinder.class.getName()
 
   		,"block", org.openl.binding.impl.BlockBinder.class.getName()
+
+  		
   		,"op.binary", org.openl.binding.impl.BinaryOperatorNodeBinder.class.getName()
   		,"op.binary.and", org.openl.binding.impl.BinaryOperatorAndNodeBinder.class.getName()
   		,"op.binary.or", org.openl.binding.impl.BinaryOperatorOrNodeBinder.class.getName()
@@ -64,11 +66,12 @@ public class OpenLBuilder extends AOpenLBuilder
   		,"op.new.object",org.openl.binding.impl.NewNodeBinder.class.getName()
   		,"op.new.array", org.openl.binding.impl.NewArrayNodeBinder.class.getName()
   		,"op.index", org.openl.binding.impl.IndexNodeBinder.class.getName()
+  		,"op.ternary.qmark", org.openl.binding.impl.QMarkNodeBinder.class.getName()
+  		,"type.cast", org.openl.binding.impl.TypeCastBinder.class.getName()
 
 
   		,"local.var.declaration",org.openl.binding.impl.LocalVarBinder.class.getName()
   		,"type.declaration", org.openl.binding.impl.TypeBinder.class.getName()
-  		,"type.cast", org.openl.binding.impl.TypeCastBinder.class.getName()
 
   		,"function",org.openl.binding.impl.MethodNodeBinder.class.getName()
   		,"identifier",org.openl.binding.impl.IdentifierBinder.class.getName()
