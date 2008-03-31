@@ -32,6 +32,7 @@
     <module>../org.openl.rules.webstudio.eclipse.feature</module>
     <module>../org.openl.lib.apache.tomcat</module>
     <module>../org.openl.eclipse.site</module>
+    <module>../org.openl.rules.all.eclipse.feature</module>
   </modules>
 
   <scm>
