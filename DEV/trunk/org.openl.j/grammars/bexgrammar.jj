@@ -13,7 +13,7 @@ options {
 
 PARSER_BEGIN(BExGrammar)
 
-package org.openl.grammars.bex;
+package org.openl.grammars.bexgrammar;
 
 //import org.openl.syntax.*;
 //import org.openl.syntax.impl.*;
@@ -294,8 +294,8 @@ TOKEN :
 | < LE: "<=" >
 | < GE: ">=" >
 | < NE: "!=" >
-| < SC_OR: "||" >
-| < SC_AND: "&&" >
+| < BOOL_OR: "||" >
+| < BOOL_AND: "&&" >
 | < INCR: "++" >
 | < DECR: "--" >
 | < PLUS: "+" >
@@ -304,7 +304,7 @@ TOKEN :
 | < SLASH: "/" >
 | < BIT_AND: "&" >
 | < BIT_OR: "|" >
-| < XOR: "^" >
+| < BIT_XOR: "^" >
 | < REM: "%" >
 | < LSHIFT: "<<" >
 | < RSIGNEDSHIFT: ">>" >
@@ -492,7 +492,7 @@ void Expression() :
 {
 	
 	
-  ConditionalExpression()
+  ConditionalTernaryExpression()
   [
 
 
@@ -514,12 +514,12 @@ void Expression() :
 }
 
 
-void ConditionalExpression() :
+void ConditionalTernaryExpression() :
 {Token x;}
 {
   ConditionalImplExpression()
-  [ x="?" ConditionalExpression() ":" ConditionalExpression()
-    { stb.nop("op.conditional.qmark", pos(x), 3); }
+  [ x="?" ConditionalTernaryExpression() ":" ConditionalTernaryExpression()
+    { stb.nop("op.ternary.qmark", pos(x), 3); }
   ]
 }
 
@@ -537,25 +537,45 @@ void ConditionalImplExpression() :
 void ConditionalOrExpression() :
 {Token x;}
 {
-  ConditionalXorExpression() ( (x=<SC_OR> | x = "or") ConditionalXorExpression() 
+  ConditionalAndExpression() ( (x=<BOOL_OR> | x = "or") ConditionalAndExpression() 
   { stb.bop("op.binary.or", pos(x)); } )*
 }
 
-void ConditionalXorExpression() :
-{Token x;}
-{
-  ConditionalAndExpression() ( 
-  x=<XOR> ConditionalAndExpression() 
-  { stb.bop("op.binary.xor", pos(x)); } )*
-}
 
 void ConditionalAndExpression() :
 {Token x;}
 {
-  EqualityExpression() 
-  ( (x=<SC_AND>| x = "and") EqualityExpression()  
+  BitwiseOrExpression() 
+  ( (x=<BOOL_AND>| x = "and") BitwiseOrExpression()  
   { stb.bop("op.binary.and", pos(x)); } )*
 }
+
+
+
+void BitwiseOrExpression() :
+{Token x;}
+{
+  BitwiseXorExpression() (LOOKAHEAD(2) (x=<BIT_OR>) BitwiseXorExpression() 
+  { stb.bop("op.binary.bitor", pos(x)); } )*
+}
+
+void BitwiseXorExpression() :
+{Token x;}
+{
+  BitwiseAndExpression() ( 
+  x=<BIT_XOR> BitwiseAndExpression() 
+  { stb.bop("op.binary.bitxor", pos(x)); } )*
+}
+
+void BitwiseAndExpression() :
+{Token x;}
+{
+  EqualityExpression() 
+  ( (x=<BIT_AND>) EqualityExpression()  
+  { stb.bop("op.binary.bitand", pos(x)); } )*
+}
+
+
 
 void EqualityExpression() :
 {
@@ -591,7 +611,7 @@ void RelationalExpression() :
 	String func = null;
 }
 {
-  AdditiveExpression()
+  ShiftExpression()
   (
     ( x = <LT> {func="lt";} | x = "is less than" {func="lt";} | 
     x = <GT> {func="gt";} | x = "is more than" {func="gt";} |
@@ -599,12 +619,28 @@ void RelationalExpression() :
     x = <GE>{func="ge";} | x = "is more or equal" {func="ge";} | x = "is no less than" {func="ge";} 
     
     )
-    AdditiveExpression()
+    ShiftExpression()
     {
     	{stb.bop("op.binary." + func, pos(x));}
     }
   )*
 }
+
+
+void ShiftExpression() :
+{
+Token x;
+String func = null;
+}
+{
+  AdditiveExpression()
+  (
+    (x=<LSHIFT> {func="lshift";}| x=<RSIGNEDSHIFT> {func="rshift";} | x=<RUNSIGNEDSHIFT> {func="rshiftu";})
+    AdditiveExpression()
+    {stb.bop("op.binary." + func, pos(x));}
+  )*
+}
+
 
 void AdditiveExpression() :
 {
@@ -701,7 +737,21 @@ void PostfixExpression() :
   ]
 }
 
-//void PrimaryExpression() ://{//  int args = 1;//  String func = "standard";//}//{//	//  PrimaryPrefix() ( LOOKAHEAD(2) PrimarySuffix() {++args;} )* //  {//  	if (args > 1)//  		stb.nop("chain", null, args);//  }//  //  //}
+//void PrimaryExpression() :
+//{
+//  int args = 1;
+//  String func = "standard";
+//}
+//{
+//	
+//  PrimaryPrefix() ( LOOKAHEAD(2) PrimarySuffix() {++args;} )* 
+//  {
+//  	if (args > 1)
+//  		stb.nop("chain", null, args);
+//  }
+//  
+//  
+//}
 
 
 
@@ -753,17 +803,38 @@ FilterExpression() IdentifierSequence()
 
   
 |
-IdentifierSequence()//|	//	  
+IdentifierSequence()
+//|	
+//	
   
-//|//  identifier()
+  
+//|
+//  identifier()
 
 //| BlockClosure()
 }
 
-//void IdentifierChain() ://{Token x1;}//{// 	//  IdentifierSequence()//  (x1="of the" IdentifierSequence())*//}
+//void IdentifierChain() :
+//{Token x1;}
+//{
+// 	
+//  IdentifierSequence()
+//  (x1="of the" IdentifierSequence())*
+//}
 
 
-//void IdentifierSequence() ://{Token x1; int args = 2;}//{//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image); ++args;})*//  {//    	if (args > 1)//  		   stb.nop("identifier.sequence", null, args);//  }		//  //}
+//void IdentifierSequence() :
+//{Token x1; int args = 2;}
+//{
+//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})
+//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})
+//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image); ++args;})*
+//  {
+//    	if (args > 1)
+//  		   stb.nop("identifier.sequence", null, args);
+//  }		
+//  
+//}
 
 void IdentifierSequence() :
 {Token x1; int args = 1;}
@@ -808,7 +879,17 @@ void Word(String type) :
 }
 
 
-//void IdentifierSequence(int limit) ://{Token x1; int args = 2;}//{//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image); ++args;})*//  {//    	if (args > 1)//  		   stb.nop("identifier.sequence", null, args);//  }		//  //}
+//void IdentifierSequence(int limit) :
+//{Token x1; int args = 2;}
+//{
+//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image);})
+//  (x1 = <IDENTIFIER> {stb.identifier("identifier.sequence.element", pos(token),token.image); ++args;})*
+//  {
+//    	if (args > 1)
+//  		   stb.nop("identifier.sequence", null, args);
+//  }		
+//  
+//}
 
 
 void PrimarySuffix() :
@@ -1101,7 +1182,8 @@ void Statement() :
   Block()
 |
   EmptyStatement()
-//|//   LOOKAHEAD(2) ExtendedWhereStatement() 	  
+//|
+//   LOOKAHEAD(2) ExtendedWhereStatement() 	  
 |
   StatementExpression() OptionalSemiColon()
 |

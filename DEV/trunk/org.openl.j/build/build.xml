@@ -16,6 +16,9 @@ basedir is eclipse.project.dir
 	<antcall target="javacc_one">
 		<param name="grammar.name" value="jgrammar"/>
 	</antcall>
+	<antcall target="javacc_one">
+		<param name="grammar.name" value="bexgrammar"/>
+	</antcall>
 <!--	
 	<antcall target="javacc_one">
 		<param name="grammar.name" value="constexpr"/>
