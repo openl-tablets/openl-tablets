@@ -4,7 +4,7 @@ OPENL_VERSION = '5.0.6'
 
 
 LOCATIONS = [".."]
-LOCATIONS << "E:/Projects/SVN/STUDIO/branches/iteration2_initial"
+LOCATIONS << "E:/Projects/SVN/DEV/branches/iteration2_initial"
 LOCATIONS << "E:/Projects/SVN/WSFrontend/branches/iteration2_initial"
 
 
