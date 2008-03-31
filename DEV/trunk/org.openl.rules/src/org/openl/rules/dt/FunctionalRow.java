@@ -314,7 +314,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 
 	private static void validateValue(Object res, IOpenClass paramType)
 	{
-		IDomain domain = paramType.getDomain();
+		IDomain<Object> domain = paramType.getDomain();
 		if (domain == null || domain.selectObject(res))
 			return;
 		
@@ -331,7 +331,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 	 */
 	static public void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType)
 	{
-		CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramType);
+		CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType);
 		IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
 	}
 

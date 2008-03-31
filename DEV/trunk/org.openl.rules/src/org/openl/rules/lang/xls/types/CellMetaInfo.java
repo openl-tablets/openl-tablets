@@ -10,11 +10,13 @@ public class CellMetaInfo
 	
 	Type type;
 	IOpenClass dataType;
+	String paramName;
 	
-	public CellMetaInfo(Type type, IOpenClass dataType)
+	public CellMetaInfo(Type type, String paramName, IOpenClass dataType)
 	{
 		this.type = type;
 		this.dataType = dataType;
+		this.paramName =paramName;
 	}
 
 	public Type getType()
@@ -25,6 +27,11 @@ public class CellMetaInfo
 	public IOpenClass getDataType()
 	{
 		return dataType;
+	}
+
+	public String getParamName()
+	{
+		return paramName;
 	}
 	
 }
