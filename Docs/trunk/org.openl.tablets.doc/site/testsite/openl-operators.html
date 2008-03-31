@@ -92,33 +92,15 @@ context of the OpenL framework. Typical examples include:
 <li>Member of surrounding class (in case of OpenL it is usually the implementation of IOpenClass called Module)
 <li>External types accessed as static, mostly Java classes that are imported into OpenL   
 <li>Fields and Methods in binding context - this is a feature that does not exist in Java; OpenL allows programmatically 
-add custom types, fields and methods into Binding Context; for different examples of how it could be done you need to investigate 
-the source code of OpenLBuilder classes in different packages. For example, <code>org.openl.j</code> automatically imports all the classes from 
+add custom types, fields and methods into Binding Context; for different examples of how it could be done you need 
+to take a good look at 
+the source code of OpenLBuilder classes in different packages.  
+For example, <code>org.openl.j</code> automatically imports all the classes from 
 the <code>java.util</code>  in addition to the standard <code>java.lang</code>. 
 
-   
-  
-     
- 
-     
 
 
-
-         
-
-
-
-
-It had been said that OpenL gives you an ability to redefine Operators. 
-In this article we will elaborate a bit on this statement. In addition, 
-we will give you insight into OpenL internals and how it can be used by 
-you for many other things.
-
-<h3>OpenL Principles</h3>
-
-OpenL has the following underlying principles at it's core:
-
-<li><b>OpenL Type System</b>
+<h3>OpenL Type System</h3>
 
 Everybody knows that Java is a type-safe language. But it's type-safety ends when 
 Java has to deal with types that lie outside of Java type system - like database tables, 
@@ -137,9 +119,60 @@ all you need is to define a class object that implements IOpenClass interface an
 type system. The implementation can vary, but access to object's attributes and methods
 will have the same syntax and provide the same type-checking in all OpenL code throughout your application.
 
-<p>
-        
 
-   
-     
+<h3>Operators</h3>
+
+Operators are just another methods with priorities defined by the grammar. 
+OpenL has 2 major types of operators: unary and binary. In addition, there are other operator types used in special cases.  
+Here is a complete list of openl operators used in <code>org.openl.j</code> Grammar - the one that is used by default in OpenL Tablets 
+product.
+
+In order of priority:
+
+
+<ol>
+<li>Assignment operators
+
+<table border=1>
+<tr><td>=</td><td><code>op.assign</code></td></tr>
+<tr><td>+=</td><td><code>op.assign.add</code></td></tr>
+<tr><td>-=</td><td><code>op.assign.subtract</code></td></tr>
+<tr><td>*=</td><td><code>op.assign.multiply</code></td></tr>
+<tr><td>/=</td><td><code>op.assign.divide</code></td></tr>
+<tr><td>%=</td><td><code>op.assign.rem</code></td></tr>
+<tr><td>&=</td><td><code>op.assign.bitand</code></td></tr>
+<tr><td>|=</td><td><code>op.assign.bitor</code></td></tr>
+<tr><td>^=</td><td><code>op.assign.bitxor</code></td></tr>
+</table>
+
+<li>Conditional 
+<table border=1>
+<tr><td>? :</td><td><code>op.conditional.qmark</code></td></tr>
+</table>
+
+<li>Implication 
+<table border=1>
+<tr><td>-></td><td><code>op.binary.impl</code></td></tr>
+</table>
+
+<li>Boolean OR 
+<table border=1>
+<tr><td>||</td><td><code>op.binary.or</code></td></tr>
+</table>
+
+<li>Boolean XOR 
+<table border=1>
+<tr><td>^</td><td><code>op.binary.or</code></td></tr>
+</table>
+
+<ul>
+<li>
+<li><code>op.binary.lt</code>
+<li><code>op.binary.gt</code>
+<li><code>op.binary.le</code>
+<li><code>op.binary.ge</code>
+<li><code>op.binary.eq</code>
+<li><code>op.binary.ne</code>
+</ul>
+</ol>
 
