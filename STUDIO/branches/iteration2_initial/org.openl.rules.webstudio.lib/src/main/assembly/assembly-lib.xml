@@ -5,11 +5,11 @@
 
   <dependencySets>
     <dependencySet>
-      <!--outputDirectory></outputDirectory>
+      <outputDirectory></outputDirectory>
       <useTransitiveDependencies>true</useTransitiveDependencies>
       <excludes>
         <exclude>org.openl.*</exclude>
-      </excludes-->
+      </excludes>
     </dependencySet>
   </dependencySets>
 
