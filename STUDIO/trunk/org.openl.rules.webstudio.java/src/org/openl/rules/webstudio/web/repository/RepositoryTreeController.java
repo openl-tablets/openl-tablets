@@ -756,7 +756,7 @@ public class RepositoryTreeController {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
                     .getDataBean()).setEffectiveDate(date);
             } catch (ProjectException e) {
-                log.error("Failed to set effective date!", e);
+                log.error(e);
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -785,7 +785,7 @@ public class RepositoryTreeController {
                 ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
                     .getDataBean()).setExpirationDate(date);
             } catch (ProjectException e) {
-                log.error("Failed to set expiration date!", e);
+                log.error(e);
                 FacesContext.getCurrentInstance()
                     .addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -817,7 +817,7 @@ public class RepositoryTreeController {
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "Can not set line of business.", e.getMessage()));
-            log.error("Failed to set LOB!", e);
+            log.error(e);
         }
     }
 

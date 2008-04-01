@@ -65,27 +65,18 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
         <a href="index.jsp?mode=developer" title="Developer View" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/developer-view.png"></a>
       &nbsp;&nbsp;
 
-<%if (WebStudioUtils.isLocalRequest(request)) {
-    if (WebStudioUtils.isRepositoryFailed()) {%>
-        <img border=0 src="<%= request.getContextPath()%>/images/repository/upload-disabled.gif">
-        &nbsp;
-<%  } else {%>
+<%if (WebStudioUtils.isLocalRequest(request)) {%>
         <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/uploadProjects.jsf" title="Upload projects to repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/upload.gif"></a>
         &nbsp;
-<%  }
-  }%>
+<%}%>
 
         <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/search/search.jsp?searchQuery=&quot;openl tablets&quot;" title="Search"><img border=0 src="<%= request.getContextPath()%>/images/search.png"></a>
         &nbsp;
         <a href="index.jsp?reload=true&select_wrapper=<%=selected%>" title="Refresh Project(s)" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
         &nbsp;
         <a target="mainFrame" href="<%= request.getContextPath()%>/html/ws-intro.html" title="Help"><img border=0 src="<%= request.getContextPath()%>/images/help.gif"></a>
-        &nbsp;
-<%if (WebStudioUtils.isRepositoryFailed()) {%>
-        <img border=0 src="<%= request.getContextPath()%>/images/repository/storage-disabled.gif" alt="repository">
-<%} else {%>
+                &nbsp;
         <a target="_top" href="<%= request.getContextPath()%>/faces/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository"></a>
-<%}%>
             </td>
       </table>
 

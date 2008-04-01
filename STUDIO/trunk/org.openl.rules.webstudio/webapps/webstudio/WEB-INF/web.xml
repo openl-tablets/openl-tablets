@@ -43,6 +43,11 @@
   </context-param>
 
   <context-param>
+    <param-name>facelets.LIBRARIES</param-name>
+    <param-value>/WEB-INF/taglib/tomahawk.taglib.xml</param-value>
+  </context-param>
+
+  <context-param>
     <description>Enabling compression in MyFaces version 1.1.4 and later.</description>
     <param-name>org.apache.myfaces.COMPRESS_STATE_IN_CLIENT</param-name>
     <param-value>true</param-value>
@@ -71,6 +76,16 @@
   <context-param>
     <param-name>org.ajax4jsf.VIEW_HANDLERS</param-name>
     <param-value>com.sun.facelets.FaceletViewHandler</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>log4jConfigLocation</param-name>
+    <param-value>/WEB-INF/conf/log4j.properties</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>log4jRefreshInterval</param-name>
+    <param-value>5000</param-value> <!-- every 5 seconds -->
   </context-param>
 
   <filter>
@@ -118,6 +133,10 @@
   </filter-mapping>
 
   <!-- Listeners, that does all the startup work (configuration, init). -->
+  <listener>
+    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+  </listener>
+
   <listener>
     <listener-class>org.openl.rules.webstudio.web.servlet.RulesStartListener</listener-class>
   </listener>
