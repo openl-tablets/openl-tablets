@@ -109,6 +109,20 @@ public class ProjectModel
         return null;
     }
 
+    public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {
+        XlsModuleSyntaxNode xsn = getXlsModuleNode();
+        TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+
+        for (int i = 0; i < nodes.length; i++)
+        {
+            if (nodes[i].getType().equals(ITableNodeTypes.XLS_DT)
+                && intersectsByLocation(p1, nodes[i].getTable().getGridTable().getUri()))
+                return nodes[i];
+        }
+
+        return null;
+    }
+
     public String showTableWithSelection(String url, String view)
     {
         TableSyntaxNode tsn = findNode(url);
@@ -182,6 +196,13 @@ public class ProjectModel
 
         return IGridRegion.Tool.intersects(XlsSheetGridModel.makeRegion(p1.range),
                 XlsSheetGridModel.makeRegion(p2.range));
+    }
+
+    static private boolean intersectsByLocation(XlsUrlParser parser, String url) {
+        XlsUrlParser p2 = new XlsUrlParser();
+        p2.parse(url);
+
+        return parser.wbPath.equals(p2.wbPath) && parser.wbName.equals(p2.wbName); 
     }
 
     // public ProjectModel(OpenLWrapper wrapper) {

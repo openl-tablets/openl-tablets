@@ -2,11 +2,11 @@ package org.openl.rules.webstudio.web.util;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.JSFConst;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.repository.RulesRepositoryFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

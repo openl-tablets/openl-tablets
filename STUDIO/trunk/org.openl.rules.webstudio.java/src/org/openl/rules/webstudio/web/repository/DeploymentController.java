@@ -5,19 +5,16 @@ import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
-import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
 import org.openl.rules.workspace.deploy.DeployID;
-import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceDeploymentProjectImpl;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectDescriptorImpl;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,10 +27,9 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-
 /**
  * Deployment controller.
- *
+ * 
  * @author Andrey Naumenko
  */
 public class DeploymentController {
@@ -43,6 +39,11 @@ public class DeploymentController {
     private String version;
     private RepositoryTreeState repositoryTreeState;
     private String cachedForProject;
+    private DeploymentManager deploymentManager;
+
+    public void setDeploymentManager(DeploymentManager deploymentManager) {
+        this.deploymentManager = deploymentManager;
+    }
 
     public synchronized List<DeploymentDescriptorItem> getItems() {
         UserWorkspaceDeploymentProject project = getSelectedProject();
@@ -50,27 +51,26 @@ public class DeploymentController {
             return null;
         }
 
-        if (items != null && project.getName().equals(cachedForProject))
+        if (items != null && project.getName().equals(cachedForProject)) {
             return items;
+        }
 
         cachedForProject = project.getName();
         Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
         items = new ArrayList<DeploymentDescriptorItem>();
 
         for (ProjectDescriptor descriptor : descriptors) {
-            DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor
-                    .getProjectName(), descriptor.getProjectVersion());
+            DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.getProjectName(), descriptor
+                    .getProjectVersion());
             items.add(item);
         }
 
         try {
             checkConflicts(items);
         } catch (ProjectException e) {
-            log.error("Failed to check conflicts!", e);
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(),
-                        e.getMessage()));
+            log.error(e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), e.getMessage()));
         }
 
         return items;
@@ -95,27 +95,23 @@ public class DeploymentController {
     public synchronized String addItem() {
         UserWorkspaceDeploymentProject project = getSelectedProject();
 
-        UserWorkspaceProjectDescriptorImpl newItem = new UserWorkspaceProjectDescriptorImpl((UserWorkspaceDeploymentProjectImpl) project,
-                projectName, new CommonVersionImpl(version));
-        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName,
-                newItem);
+        UserWorkspaceProjectDescriptorImpl newItem = new UserWorkspaceProjectDescriptorImpl(
+                (UserWorkspaceDeploymentProjectImpl) project, projectName, new CommonVersionImpl(version));
+        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
 
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
-            log.error("Failed to add project descriptor!", e);
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to add project descriptor!", e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to add project descriptor", e.getMessage()));
+            log.error(e);
         }
 
         return null;
     }
 
-    private List<ProjectDescriptor> replaceDescriptor(
-        UserWorkspaceDeploymentProject project, String projectName,
-        UserWorkspaceProjectDescriptorImpl newItem) {
+    private List<ProjectDescriptor> replaceDescriptor(UserWorkspaceDeploymentProject project, String projectName,
+            UserWorkspaceProjectDescriptorImpl newItem) {
         List<ProjectDescriptor> newDescriptors = new ArrayList<ProjectDescriptor>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {
@@ -142,11 +138,9 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
-            log.error("Failed to delete project descriptor!", e);
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to add project descriptor!", e.getMessage()));
+            log.error(e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to add project descriptor", e.getMessage()));
         }
         return null;
     }
@@ -173,8 +167,7 @@ public class DeploymentController {
         }
 
         for (UserWorkspaceProject project : workspaceProjects) {
-            if (!(project.isDeploymentProject() || existing.contains(project.getName())
-                    || project.isLocalOnly())) {
+            if (!(project.isDeploymentProject() || existing.contains(project.getName()) || project.isLocalOnly())) {
                 selectItems.add(new SelectItem(project.getName()));
             }
         }
@@ -197,7 +190,7 @@ public class DeploymentController {
                 }
                 return selectItems.toArray(new SelectItem[selectItems.size()]);
             } catch (ProjectException e) {
-                log.error("Failed to get project versions!", e);
+                log.error(e);
             }
         }
         return new SelectItem[0];
@@ -214,7 +207,7 @@ public class DeploymentController {
                         project.open();
                     }
                 } catch (ProjectException e) {
-                    log.error("Failed to open project '" + projectName + "'!", e);
+                    log.error("Failed to open project " + projectName + " " + e.getMessage());
                 }
             }
             item.setSelected(false);
@@ -225,60 +218,32 @@ public class DeploymentController {
     public String deploy() {
         UserWorkspaceDeploymentProject project = getSelectedProject();
         if (project != null) {
-            deploy(project);
+            try {
+                DeployID id = deploymentManager.deploy(project);
+                FacesContext.getCurrentInstance().addMessage(
+                        null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Project '" + project.getName()
+                                + "' successfully deployed with id: " + id.getName(), null));
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(
+                        null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to deploy '" + project.getName() + "'", e
+                                .getMessage()));
+                log.error(e);
+            }
         }
         return null;
     }
 
-    private void checkConflicts(List<DeploymentDescriptorItem> items)
-        throws ProjectException
-    {
+    private void checkConflicts(List<DeploymentDescriptorItem> items) throws ProjectException {
         if (items == null) {
             return;
         }
-        
+
         DependencyChecker checker = new DependencyChecker();
         UserWorkspaceDeploymentProject project = getSelectedProject();
         checker.addProjects(project);
         checker.check(items);
-    }
-
-    protected static void deploy(UserWorkspaceDeploymentProject project) {
-        try {
-            ProductionDeployer deployer = RepositoryUtils.getRulesUserSession().getDeployer();
-            DesignTimeRepository dtr = RepositoryUtils.getWorkspace().getDesignTimeRepository();
-
-            Collection<ProjectDescriptor> projectDescriptors = project
-                    .getProjectDescriptors();
-            Collection<Project> projects = new ArrayList<Project>();
-
-            for (ProjectDescriptor pd : projectDescriptors) {
-                projects.add(dtr.getProject(pd.getProjectName(), pd.getProjectVersion()));
-            }
-
-            DeployID id = getDeployID(project);
-            deployer.deploy(id, projects);
-
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Project '" + project.getName() + "' successfully deployed with id: " + id.getName(), null));
-        } catch (Exception e) {
-            log.error("Failed to deploy!", e);
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to deploy '" + project.getName() + "'!",
-                        e.getMessage()));
-        }
-    }
-
-    private static DeployID getDeployID(UserWorkspaceDeploymentProject ddProject) {
-        StringBuilder sb = new StringBuilder(ddProject.getName());
-        ProjectVersion projectVersion = ddProject.getVersion();
-        if (projectVersion != null) {
-            sb.append('#').append(projectVersion.getVersionName());
-        }
-        return new DeployID(sb.toString());
     }
 
     public String checkIn() {
@@ -286,11 +251,9 @@ public class DeploymentController {
             getSelectedProject().checkIn();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to check-in!", e);
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to check in!",
-                        e.getMessage()));
+            log.error(e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check in", e.getMessage()));
         }
 
         return null;
@@ -301,11 +264,12 @@ public class DeploymentController {
             getSelectedProject().close();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to close!", e);
+            log.error(e);
             FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Failed to close deployment project!", e.getMessage()));
+                    .addMessage(
+                            null,
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to close deployment project", e
+                                    .getMessage()));
         }
 
         return null;
@@ -316,11 +280,9 @@ public class DeploymentController {
             getSelectedProject().checkOut();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to check-out!", e);
-            FacesContext.getCurrentInstance()
-                .addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to check out!",
-                        e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check out", e.getMessage()));
+            log.error(e);
         }
 
         return null;

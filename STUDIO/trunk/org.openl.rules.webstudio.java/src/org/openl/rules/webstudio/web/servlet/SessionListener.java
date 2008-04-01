@@ -1,19 +1,17 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.webstudio.web.jsf.JSFConst;
+import org.openl.util.Log;
 
 import javax.servlet.http.*;
 
-public class SessionListener implements HttpSessionActivationListener, HttpSessionListener {
-    private static final Log log = LogFactory.getLog(SessionListener.class);
+public class SessionListener implements HttpSessionActivationListener, HttpSessionBindingListener, HttpSessionListener {
 
     // Session Attribute
 
     public void sessionWillPassivate(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        log.debug("sessionWillPassivate: " + session);
+        System.out.println("sessionWillPassivate: " + session);
         printSession(session);
 
         RulesUserSession rulesUserSession = getUserRules(session);
@@ -24,13 +22,27 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     public void sessionDidActivate(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        log.debug("sessionDidActivate: " + session);
+        System.out.println("sessionDidActivate: " + session);
         printSession(session);
 
         RulesUserSession rulesUserSession = getUserRules(session);
         if (rulesUserSession != null) {
             rulesUserSession.sessionDidActivate();
         }
+    }
+
+    // Session Attribute
+
+    public void valueBound(HttpSessionBindingEvent event) {
+        HttpSession session = event.getSession();
+        System.out.println("valueBound: " + session);
+        printSession(session);
+    }
+
+    public void valueUnbound(HttpSessionBindingEvent event) {
+        HttpSession session = event.getSession();
+        System.out.println("valueUnbound: " + session);
+        printSession(session);
     }
 
 // Global (one for all, in scope of web application)
@@ -43,30 +55,30 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     public void sessionCreated(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        log.debug("sessionCreated: " + session);
+        System.out.println("sessionCreated: " + session);
         printSession(session);
 
         Object obj = getUserRules(session);
         if (obj == null) {
-            log.debug("no rulesUserSession");
+            System.out.println("no rulesUserSession");
         } else {
-            log.debug("has rulesUserSession (why?)");
+            System.out.println("has rulesUserSession (why?)");
         }
     }
 
     public void sessionDestroyed(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        log.debug("sessionDestroyed: " + session);
+        System.out.println("sessionDestroyed: " + session);
         printSession(session);
 
         RulesUserSession obj = getUserRules(session);
         if (obj == null) {
-            log.debug("!!! no rulesUserSession");
+            System.out.println("!!! no rulesUserSession");
         } else {
-            log.debug("removing rulesUserSession");
+            Log.info("removing rulesUserSession");
 
             obj.sessionDestroyed();
-            log.debug("session was destroyed");
+            Log.info("session was destroyed");
         }
     }
 
@@ -75,15 +87,12 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
     }
 
     protected void printSession(HttpSession session) {
-        StringBuilder sb = new StringBuilder(256);
-        sb.append("\n  id           : " + session.getId());
-        sb.append("\n  creation time: " + session.getCreationTime());
-        sb.append("\n  accessed time: " + session.getLastAccessedTime());
-        sb.append("\n  max inactive : " + session.getMaxInactiveInterval());
+        System.out.println("  id           : " + session.getId());
+        System.out.println("  creation time: " + session.getCreationTime());
+        System.out.println("  accessed time: " + session.getLastAccessedTime());
+        System.out.println("  max inactive : " + session.getMaxInactiveInterval());
 
         Object obj = getUserRules(session);
-        sb.append("\n  has rulesUserSession? " + (obj != null));
-
-        log.debug(sb.toString());
+        System.out.println("  has rulesUserSession? " + (obj != null));
     }
 }
