@@ -232,6 +232,9 @@ public class ProjectModel
                 errMsg = new ObjectViewer().displayResult(t);
             }
 
+            if (errMsg == "" && wrapper == null)
+            	return "document.all['msg'].innerHTML = 'No OpenL Projects in the Workspace'";	
+            
             return "document.all['msg'].innerHTML = 'There was a problem opening OpenL Project."
                     + " Try to run <i>Generate Wrapper</i> procedure in Eclipse for this project."
                     + " You will have to refresh the <i>Eclipse project</i> and <a href=\"/webstudio/index.jsp?reload=true\" target=\"_top\">refresh the Web Studio</a> afterwards."
