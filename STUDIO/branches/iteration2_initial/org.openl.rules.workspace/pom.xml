@@ -34,7 +34,6 @@
           <excludes>
             <exclude>**/JcrProductionDeployerTestCase.java</exclude>
             <exclude>**/JcrRulesClientTestCase.java</exclude>
-            <exclude>**/TestMUWM*.java</exclude>
           </excludes>
         </configuration>
       </plugin>
