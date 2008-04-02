@@ -12,7 +12,6 @@ import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.ProductionDeployerManager;
 import org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -118,9 +117,9 @@ public class UpdateAndDeploy {
 
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
-            userWorkspace.release();
+            userWorkspace.refresh();
             o.setUserWorkspace(userWorkspace);
-        } catch (WorkspaceException e) {
+        } catch (Exception e) {
             System.err.println("* Failed to get User Workspace!");
             e.printStackTrace();
             System.exit(1);
