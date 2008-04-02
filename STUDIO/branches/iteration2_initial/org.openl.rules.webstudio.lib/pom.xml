@@ -15,7 +15,7 @@
   <description></description>
 
   <build>
-    <defaultGoal>process-resources</defaultGoal>
+    <defaultGoal>generate-resources</defaultGoal>
 
     <resources>
       <resource>
