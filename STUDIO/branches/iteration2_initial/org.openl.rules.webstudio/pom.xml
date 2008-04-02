@@ -14,7 +14,7 @@
   <artifactId>org.openl.rules.webstudio</artifactId>
   <name>Exigen WebStudio Web Resources</name>
   <description></description>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <build>
     <plugins>
@@ -26,15 +26,6 @@
             <manifestFile>META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
-        <executions>
-          <execution>
-            <id>jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -43,6 +34,7 @@
         <configuration>
           <warSourceDirectory>webapps/webstudio</warSourceDirectory>
           <warName>webstudio-${version}</warName>
+          <primaryArtifact>false</primaryArtifact>
         </configuration>
         <executions>
           <execution>
@@ -54,7 +46,6 @@
           </execution>
         </executions>
       </plugin>
-
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -69,15 +60,15 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <!--file>target/webstudio-5.0.6-SNAPSHOT.war</file-->
-                  <file>target/org.openl.rules.webstudio-5.0.6-SNAPSHOT.jar</file>
-                  <!--type>jar</type-->
+                  <file>target/webstudio-${version}.war</file>
+                  <type>war</type>
                 </artifact>
               </artifacts>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
     </plugins>
 
     <resources>

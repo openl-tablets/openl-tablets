@@ -45,7 +45,6 @@
               <goal>run</goal>
             </goals>
             <phase>generate-resources</phase>
-            <inherited>false</inherited>
             <configuration>
               <tasks>
                 <delete includeemptydirs="true">
