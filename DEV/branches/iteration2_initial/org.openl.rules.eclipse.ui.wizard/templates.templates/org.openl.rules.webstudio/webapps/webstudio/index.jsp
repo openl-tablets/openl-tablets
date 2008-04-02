@@ -9,8 +9,9 @@
 <%@page import="org.openl.rules.workspace.abstracts.Project"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspaceProject"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.openl.rules.webstudio.application.CurrentUserInfo"%>
+<%@page import="org.openl.rules.webstudio.security.CurrentUserInfo"%>
 <%@page import="org.openl.rules.workspace.MultiUserWorkspaceManager"%>
+<%@ page import="java.net.URLEncoder" %>
 <html>
 <head>
 <title>OpenL Web Studio</title>
@@ -72,7 +73,11 @@ String mode = request.getParameter("mode");
     <frame src="html/nothing.html" name="show_app_hidden">
 </frameset>
 
+<%if (request.getParameter("elementURI") == null ) {%>
 <frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
+<%} else { %>
+<frame src="${pageContext.request.contextPath}/jsp/tableeditor/showTable.jsf?elementURI=<%=URLEncoder.encode(request.getParameter("elementURI"), "UTF-8")%>" name="mainFrame" scrolling="auto"/>
+<%} %>
 
 
 </frameset>
