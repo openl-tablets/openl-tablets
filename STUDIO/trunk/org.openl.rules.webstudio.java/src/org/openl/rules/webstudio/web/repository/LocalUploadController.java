@@ -16,7 +16,6 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class LocalUploadController {
                         if (!dtr.hasProject(f.getName()))
                             uploadBeans.add(new UploadBean(f.getName()));
                     } catch (Exception e) {
-                        Log.error(e);
+                        Log.error("Failed to list projects for upload!", e);
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
                     }
             }
