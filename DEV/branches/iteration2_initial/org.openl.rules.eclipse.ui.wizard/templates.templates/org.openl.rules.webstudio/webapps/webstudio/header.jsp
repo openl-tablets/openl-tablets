@@ -77,6 +77,8 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
         <a target="mainFrame" href="<%= request.getContextPath()%>/html/ws-intro.html" title="Help"><img border=0 src="<%= request.getContextPath()%>/images/help.gif"></a>
                 &nbsp;
         <a target="_top" href="<%= request.getContextPath()%>/faces/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository"></a>
+        &nbsp;
+        <a target="_top" href="<%= request.getContextPath()%>/logoff.servlet?_j_acegi_logout=true" title="Logout" onclick="return confirm('Are you sure you want to log off?')"><img border=0 src="<%= request.getContextPath()%>/images/logout.gif" alt="Logout"></a>
             </td>
       </table>
 

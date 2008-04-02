@@ -25,4 +25,10 @@
     <property name="zipFilter" ref="zipFilter" />
   </bean>
 
+<!--
+  <bean id="runtimeRepositoryDeployer" class="org.openl.rules.runtime.deployer.RuntimeRepositoryDeployer">
+    <constructor-arg value="http://localhost:9090/admin/services/deployerSOAP" />
+  </bean>
+   -->
+
 </beans>
