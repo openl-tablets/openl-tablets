@@ -69,20 +69,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         }
     }
 
-    /**
-     * Shutdown local JCR Repository. Release all allocated resources.
-     * <p>
-     * Note: There is no 100% that {@link #finalize()} will be invoked by JVM
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        // TODO: close open sessions
-        if (repository != null) {
-            repository.shutdown();
-        }
-        super.finalize();
-    }
-
     // ------ private methods ------
 
     /**
@@ -110,6 +96,14 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             tempRepositorySettingsStream.close();
 
             repository = new TransientRepository(fullPath, repHome);
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    // shutdown gracefully
+                    if (repository != null)
+                        repository.shutdown();
+                }
+            });
         } catch (IOException e) {
             throw new RepositoryException("Failed to init: " + e.getMessage(), e);
         }
