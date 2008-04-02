@@ -36,6 +36,28 @@
       </plugin>
 
       <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.1</version>
+        <executions>
+          <execution>
+            <id>clean-lib</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <inherited>false</inherited>
+            <configuration>
+              <tasks>
+                <delete includeemptydirs="true">
+                  <fileset dir="lib" includes="**/*" />
+                </delete>
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
@@ -44,7 +66,6 @@
           <finalName>lib</finalName>
           <outputDirectory>/</outputDirectory>
         </configuration>
-
         <executions>
           <execution>
             <id>assembly</id>
