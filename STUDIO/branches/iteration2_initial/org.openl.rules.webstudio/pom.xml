@@ -16,6 +16,10 @@
   <description></description>
   <packaging>jar</packaging>
 
+  <properties>
+    <war.name>webstudio-${version}</war.name>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -33,7 +37,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <warSourceDirectory>webapps/webstudio</warSourceDirectory>
-          <warName>webstudio-${version}</warName>
+          <warName>${war.name}</warName>
           <primaryArtifact>false</primaryArtifact>
         </configuration>
         <executions>
@@ -60,7 +64,7 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>target/webstudio-${version}.war</file>
+                  <file>target/${war.name}.war</file>
                   <type>war</type>
                 </artifact>
               </artifacts>
