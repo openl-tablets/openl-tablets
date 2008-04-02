@@ -14,3 +14,5 @@ Export-Package: org.openl.rules.security.standalone,
  org.openl.rules.security.standalone.service,
  org.openl.rules.security.standalone.util,
  org.openl.rules.security.standalone.util.spring
+Bundle-ClassPath: resources/META-INF/,
+ .

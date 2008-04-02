@@ -24,6 +24,7 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <excludes>
         <exclude>*feature*</exclude>
+        <exclude>org.openl.rules.security.integration.ipb</exclude>
       </excludes>
     </dependencySet>
 

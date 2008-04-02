@@ -63,6 +63,18 @@
          version="5.0.6"/>
 
    <plugin
+         id="org.openl.rules.security"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"/>
+
+   <plugin
+         id="org.openl.rules.security.standalone"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"/>
+
+   <plugin
          id="org.openl.rules.webstudio.java"
          download-size="0"
          install-size="0"
