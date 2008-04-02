@@ -283,9 +283,7 @@ public class WebStudio {
                 }
                 project.checkIn();
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.error("Can not check in", e);
-                }
+                log.error("Can not check in!", e);
             }
         }
         if ("checkOut".equals(operation)) {
@@ -296,9 +294,7 @@ public class WebStudio {
                 }
                 project.checkOut();
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.error("Can not check out", e);
-                }
+                log.error("Can not check out!", e);
             }
         }
     }
