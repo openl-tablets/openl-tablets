@@ -1,10 +1,15 @@
 <h2>OpenL Programming Language Framework Design Principles</h2>
 
-
-OpenL principles are logical consequences of the simple considerations one 
-can make looking at the simple language expression
+As we all know, Business Rules consist of rules.
+Each Rule has Condition and Action. Condition is a boolean expression (the one that returns <i>true</i> or <i>false</i>).
+Action can be any sequence(usually simple) of programming statements. What kind of language is most 
+suitable for this task?    
+   
 <p>
-driver.age < 25
+Let's take a look at the expression, that probably is as ubiquitous in any BR doc as "if customer's level is GOLD "
+
+<p>
+<pre>driver.age < 25</pre>
 <p>
 
 
@@ -16,7 +21,7 @@ that the English semantic of the statement could be any of
 
 <p>
 From the programming language perspective,  the semantic part is irrelevant,
-the statement should be  
+the statement should only be  
 <li>a <i>valid</i> statement in the language grammar
 <li>a statement should be correct from the type-checking point of view
 <li>if language is compiled, the valid binary code or some other results of 
@@ -57,13 +62,14 @@ driver  age
  
 The node types of the nodes are 
 
-<li><code>op.binary.lt</code> for '&lt;'
-<li><code>literal.integer</code> for '25'
-<li><code>chain</code> for '.'
-<li><code>identifier</code> for 'driver'
-<li><code>identifier</code> for 'age'
+<li><b>op.binary.lt</b> for '&lt;'
+<li><b>literal.integer</b> for '25'
+<li><b>chain</b> for '.'
+<li><b>identifier</b> for 'driver'
+<li><b>identifier</b> for 'age'
 
-The node type names have a significance as we will see later, but at this point they have been chosen 
+<p>
+The node type names have are significant, as we will see later, but at this point they have been chosen 
 rather randomly.
 
 <p>
@@ -71,9 +77,13 @@ NOTE. It is also important to recognize that the Grammar we use in <b>org.openl.
 only to Java but to any other language in C/C++/Java/C# family. This makes OpenL easily learned and
 accepted by the huge pool of available programmers and adds to it's strength. The proliferation
 of new languages like Ruby, Groovy, multiple proprietary languages used in  different Business Rules
-Engines introduced not only the new semantics to the programming community, but also a bunch of new grammars 
-that make the acceptance of the new technologies much harder. In OpenL we made significant effort to stay as 
-close to the Java syntax as possible to make sure that the "entities should not be multiplied beyond necessity".    
+Engines, CEP Engines etc., introduced not only the new semantics to the programming community, 
+but also a bunch of new grammars that make the acceptance of the new technologies much harder.
+<p> 
+In OpenL we made significant effort to stay as close to the Java syntax as possible to make 
+sure that the "entities should not be multiplied beyond necessity". It worth mentioning that 
+some CEP Engines use SQL grammar, as the basis for their language - and for  this they 
+get a praise here.
 
      
 <h3>Context, Variables and Types</h3>
@@ -95,8 +105,8 @@ context of the OpenL framework. Typical examples include:
 add custom types, fields and methods into Binding Context; for different examples of how it could be done you need 
 to take a good look at 
 the source code of OpenLBuilder classes in different packages.  
-For example, <code>org.openl.j</code> automatically imports all the classes from 
-the <code>java.util</code>  in addition to the standard <code>java.lang</code>. 
+For example, <pre>org.openl.j</pre> automatically imports all the classes from 
+the <pre>java.util</pre>  in addition to the standard <pre>java.lang</pre>. 
 
 
 
@@ -124,55 +134,99 @@ will have the same syntax and provide the same type-checking in all OpenL code t
 
 Operators are just another methods with priorities defined by the grammar. 
 OpenL has 2 major types of operators: unary and binary. In addition, there are other operator types used in special cases.  
-Here is a complete list of openl operators used in <code>org.openl.j</code> Grammar - the one that is used by default in OpenL Tablets 
+Here is a complete list of openl operators used in <pre>org.openl.j</pre> Grammar - the one that is used by default in OpenL Tablets 
 product.
 
 In order of priority:
 
 
-<ol>
-<li>Assignment operators
+
 
 <table border=1>
-<tr><td>=</td><td><code>op.assign</code></td></tr>
-<tr><td>+=</td><td><code>op.assign.add</code></td></tr>
-<tr><td>-=</td><td><code>op.assign.subtract</code></td></tr>
-<tr><td>*=</td><td><code>op.assign.multiply</code></td></tr>
-<tr><td>/=</td><td><code>op.assign.divide</code></td></tr>
-<tr><td>%=</td><td><code>op.assign.rem</code></td></tr>
-<tr><td>&=</td><td><code>op.assign.bitand</code></td></tr>
-<tr><td>|=</td><td><code>op.assign.bitor</code></td></tr>
-<tr><td>^=</td><td><code>op.assign.bitxor</code></td></tr>
-</table>
 
-<li>Conditional 
-<table border=1>
-<tr><td>? :</td><td><code>op.conditional.qmark</code></td></tr>
-</table>
+<tr><td colspan=2>Assignment operators</td></tr>
 
-<li>Implication 
-<table border=1>
-<tr><td>-></td><td><code>op.binary.impl</code></td></tr>
-</table>
+<tr><td><pre>=</td><td><pre>op.assign</pre></td></tr>
+<tr><td><pre>+=</td><td><pre>op.assign.add</pre></td></tr>
+<tr><td><pre>-=</td><td><pre>op.assign.subtract</pre></td></tr>
+<tr><td><pre>*=</td><td><pre>op.assign.multiply</pre></td></tr>
+<tr><td><pre>/=</td><td><pre>op.assign.divide</pre></td></tr>
+<tr><td><pre>%=</td><td><pre>op.assign.rem</pre></td></tr>
+<tr><td><pre>&=</td><td><pre>op.assign.bitand</pre></td></tr>
+<tr><td><pre>|=</td><td><pre>op.assign.bitor</pre></td></tr>
+<tr><td><pre>^=</td><td><pre>op.assign.bitxor</pre></td></tr>
 
-<li>Boolean OR 
-<table border=1>
-<tr><td>||</td><td><code>op.binary.or</code></td></tr>
-</table>
+<tr><td colspan=2>Conditional Ternary</td></tr>
+ 
 
-<li>Boolean XOR 
-<table border=1>
-<tr><td>^</td><td><code>op.binary.or</code></td></tr>
-</table>
+<tr><td><pre>? :</td><td><pre>op.ternary.qmark</pre></td></tr>
 
-<ul>
-<li>
-<li><code>op.binary.lt</code>
-<li><code>op.binary.gt</code>
-<li><code>op.binary.le</code>
-<li><code>op.binary.ge</code>
-<li><code>op.binary.eq</code>
-<li><code>op.binary.ne</code>
-</ul>
-</ol>
+<tr><td colspan=2>Implication</td></tr>
+
+
+<tr><td><pre>-></td><td><pre>op.binary.impl</pre> <sup>(*)</sup></td></tr>
+
+<tr><td colspan=2>Boolean OR</td></tr>
+
+
+<tr><td><pre>|| or "or"</td><td><pre>op.binary.or</pre></td></tr>
+
+<tr><td colspan=2>Boolean AND</td></tr>
+
+<tr><td><pre>&& or "and"</td><td><pre>op.binary.and</pre></td></tr>
+
+<tr><td colspan=2>Bitwise OR</td></tr>
+
+<tr><td><pre>|</td><td><pre>op.binary.bitor</pre></td></tr>
+
+<tr><td colspan=2>Bitwise XOR</td></tr>
+
+<tr><td><pre>^</td><td><pre>op.binary.bitxor</pre></td></tr>
+
+<tr><td colspan=2>Bitwise AND</td></tr>
+
+<tr><td><pre>&</td><td><pre>op.binary.bitand</pre></td></tr>
+
+<tr><td colspan=2>Equality </td></tr>
+
+<tr><td><pre>==</td><td><pre>op.binary.eq</pre></td></tr>
+<tr><td><pre>!=</td><td><pre>op.binary.ne</pre></td></tr>
+
+
+<tr><td colspan=2>Relational</td></tr>
+
+<tr><td><pre>&lt;</td><td><pre>op.binary.lt</pre></td></tr>
+<tr><td><pre>&gt;</td><td><pre>op.binary.gt</pre></td></tr>
+<tr><td><pre>&lt;=</td><td><pre>op.binary.le</pre></td></tr>
+<tr><td><pre>&gt;=</td><td><pre>op.binary.ge</pre></td></tr>
+
+
+<tr><td colspan=2>Bitwise Shift</td></tr>
+
+<tr><td><pre>&lt;&lt;</td><td><pre>op.binary.lshift</pre></td></tr>
+<tr><td><pre>&gt;&gt;</td><td><pre>op.binary.rshift</pre></td></tr>
+<tr><td><pre>&gt;&gt;&gt;</td><td><pre>op.binary.rshiftu</pre></td></tr>
+
+<tr><td colspan=2>Additive</td></tr>
+
+<tr><td><pre>+</td><td><pre>op.binary.add</pre></td></tr>
+<tr><td><pre>-</td><td><pre>op.binary.subtract</pre></td></tr>
+
+<tr><td colspan=2>Multiplicative</td></tr>
+
+<tr><td><pre>*</td><td><pre>op.binary.multiply</pre></td></tr>
+<tr><td><pre>-</td><td><pre>op.binary.divide</pre></td></tr>
+<tr><td><pre>%</td><td><pre>op.binary.rem</pre></td></tr>
+
+
+<tr><td colspan=2>Power</td></tr>
+
+<tr><td><pre>**</td><td><pre>op.binary.pow</pre> <sup>(*)</sup></td></tr>
+
+
+<tr><td colspan=2><sup>(*)</sup> Operators do not exist in Java Standard</td></tr>
+
+
+
+</table>
 
