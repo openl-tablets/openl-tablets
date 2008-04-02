@@ -585,7 +585,7 @@ void EqualityExpression() :
 {
   RelationalExpression()
   (
-    ( x = <EQ>{func="eq";} | x = <NE> {func="ne";})
+    ( (x = <EQ> | x = "equals to" | x = "same as"){func="eq";} | (x = <NE> | x = "does not equal to" | x = "different from"){func="ne";})
     RelationalExpression()
     {stb.bop("op.binary." + func, pos(x));}
   )*
