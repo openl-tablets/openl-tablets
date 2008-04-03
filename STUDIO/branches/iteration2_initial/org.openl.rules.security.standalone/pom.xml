@@ -18,7 +18,8 @@
   <build>
     <resources>
       <resource>
-        <directory>resources</directory>
+        <directory>META-INF/standalone</directory>
+        <targetPath>META-INF/standalone</targetPath>
       </resource>
 
       <resource>
