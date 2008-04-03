@@ -15,6 +15,14 @@
       </includes>
       <outputDirectory></outputDirectory>
     </fileSet>
+
+    <fileSet>
+      <directory>target</directory>
+      <includes>
+        <include>org.openl.rules.webstudio.lib_5.0.6.jar</include>
+      </includes>
+      <outputDirectory>plugins</outputDirectory>
+    </fileSet>
   </fileSets>
 
   <dependencySets>

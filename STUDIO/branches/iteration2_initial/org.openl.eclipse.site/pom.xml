@@ -14,6 +14,7 @@
   <artifactId>org.openl.eclipse.site</artifactId>
   <name>org.openl.eclipse.site</name>
   <description></description>
+  <packaging>pom</packaging>
 
   <properties>
     <studio.eclipse.version>5.0.6</studio.eclipse.version>
@@ -22,13 +23,30 @@
   <build>
     <defaultGoal>package</defaultGoal>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
-            <id>assembly</id>
+            <id>lib</id>
+            <phase>package</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+            <configuration>
+              <finalName>org.openl.rules.webstudio.lib_5.0.6</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-lib.xml</descriptor>
+              </descriptors>
+              <archive>
+                <manifestFile>../org.openl.rules.webstudio.lib/META-INF/MANIFEST.MF</manifestFile>
+              </archive>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>site</id>
             <phase>package</phase>
             <goals>
               <goal>attached</goal>
@@ -207,10 +225,10 @@
       <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
     </dependency>
 
-    <dependency>
+    <!--dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
-    </dependency>
+    </dependency-->
 
     <dependency>
       <groupId>org.openl</groupId>

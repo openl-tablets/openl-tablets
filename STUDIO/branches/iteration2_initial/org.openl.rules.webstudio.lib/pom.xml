@@ -13,6 +13,7 @@
   <artifactId>org.openl.rules.webstudio.lib</artifactId>
   <name>org.openl.rules.webstudio.lib</name>
   <description></description>
+  <packaging>pom</packaging>
 
   <build>
     <defaultGoal>generate-resources</defaultGoal>
