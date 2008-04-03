@@ -34,7 +34,7 @@
               <goal>assembly</goal>
             </goals>
             <configuration>
-              <finalName>org.openl.rules.webstudio.lib_5.0.6</finalName>
+              <finalName>org.openl.rules.webstudio.lib_${studio.eclipse.version}</finalName>
               <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
                 <descriptor>src/main/assembly/assembly-lib.xml</descriptor>
