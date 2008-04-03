@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openl.commons
 Bundle-Version: 5.0.6
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.openl.lib.apache.commons;visibility:=reexport
+Require-Bundle: org.openl.lib;visibility:=reexport
 Export-Package: org.openl.base,
  org.openl.config,
  org.openl.domain,
