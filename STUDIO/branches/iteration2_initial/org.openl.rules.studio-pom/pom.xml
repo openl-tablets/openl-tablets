@@ -6,11 +6,11 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.studio-pom</artifactId>
-  <packaging>pom</packaging>
   <version>5.0.6-SNAPSHOT</version>
   <name>Studio</name>
   <description>Exigen WebStudio Pom Project</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+  <packaging>pom</packaging>
 
   <properties>
     <dev.version>5.0.6-SNAPSHOT</dev.version>
@@ -324,11 +324,11 @@
         <version>${version}</version>
       </dependency>
 
-    <dependency>
+    <!--dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
-        <version>${version}</version>
-    </dependency>
+      <version>${version}</version>
+    </dependency-->
 
     <!-- IPB related -->
     <dependency>
