@@ -66,13 +66,15 @@
          id="org.openl.rules.security"
          download-size="0"
          install-size="0"
-         version="5.0.6"/>
+         version="5.0.6"
+         unpack="false"/>
 
    <plugin
          id="org.openl.rules.security.standalone"
          download-size="0"
          install-size="0"
-         version="5.0.6"/>
+         version="5.0.6"
+         unpack="false"/>
 
    <plugin
          id="org.openl.rules.webstudio.java"
