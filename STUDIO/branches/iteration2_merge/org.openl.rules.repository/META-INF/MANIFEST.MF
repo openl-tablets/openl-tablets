@@ -7,4 +7,5 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Export-Package: org.openl.rules.repository;uses:="org.openl.rules.common.config",
  org.openl.rules.repository.exceptions
-Require-Bundle: org.openl.rules.webstudio.lib 
+Require-Bundle: org.openl.rules.webstudio.lib,
+ org.openl.commons;visibility:=reexport
