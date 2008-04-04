@@ -9,30 +9,10 @@
    xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
-  <c:set var="node" value="#{repositoryTreeState.selectedNode}"/>
-  <c:set var="artefact" value="#{node.dataBean}"/>
 
   <head>
     <a4j:loadStyle src="/css/default.css" />
     <a4j:loadScript src="/javascript/common.js" />
-    <script>
-      function ajaxRequestContainsErrors() {
-        return document.getElementById("severityForm:maximumSeverity").value >= 2;
-      }
-
-      var actionCallback = function() { }
-
-      function onComplete() {
-        if (!ajaxRequestContainsErrors()) {
-          actionCallback();
-        }
-      }
-
-      function submitMainForm(callback) {
-        actionCallback = callback;
-        document.getElementById('mainForm:submitButton').click();
-      }
-    </script>
     <style>
       input.button { background-image: url(#{contextPath}/images/button_#{skinBean.skin}.gif); }
       input.readonlyRowInput { background-color: #{a4jSkin.generalBackgroundColor}; }
@@ -44,18 +24,8 @@
   </head>
 
   <body>
-    <a4j:outputPanel id="severityFormPanel" ajaxRendered="true">
-      <h:form id="severityForm" style="display:none">
-        <h:inputHidden id="maximumSeverity" value="#{facesContext.maximumSeverity.ordinal}" />
-      </h:form>
-    </a4j:outputPanel>
-
-    <h:form id="mainForm">
-      <a4j:commandButton id="submitButton" reRender="severityFormPanel, nodeView" oncomplete="onComplete()"
-        ajaxSingle="false" style="display:none;"/>
-      <ui:include src="/common/header.xhtml" />
-      <ui:insert name="body" />
-    </h:form>
+    <ui:include src="/common/header.xhtml" />
+    <ui:insert name="page" />
 
     <ui:insert name="special" />
   </body>
