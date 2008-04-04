@@ -38,15 +38,6 @@ import java.util.List;
  */
 public class RepositoryTreeState {
     private final static Log log = LogFactory.getLog(RepositoryTreeState.class);
-    public static final Comparator<ProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<ProjectArtefact>() {
-            public int compare(ProjectArtefact o1, ProjectArtefact o2) {
-                if (o1.isFolder() == o2.isFolder()) {
-                    return o1.getName().compareTo(o2.getName());
-                } else {
-                    return (o1.isFolder() ? (-1) : 1);
-                }
-            }
-        };
 
     /** Root node for RichFaces's tree.  It is not displayed. */
     private TreeRepository root;
@@ -60,7 +51,7 @@ public class RepositoryTreeState {
         ProjectArtefact[] sortedArtefacts = new ProjectArtefact[artefacts.size()];
         sortedArtefacts = artefacts.toArray(sortedArtefacts);
 
-        Arrays.sort(sortedArtefacts, ARTEFACT_COMPARATOR);
+        Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
 
         for (ProjectArtefact artefact : sortedArtefacts) {
             String id = artefact.getName();
@@ -216,6 +207,14 @@ public class RepositoryTreeState {
 
     public void setSelectedNode(AbstractTreeNode selectedNode) {
         this.selectedNode = selectedNode;
+    }
+
+    public UserWorkspaceProject getSelectedProject() {
+        ProjectArtefact artefact = getSelectedNode().getDataBean();
+        if (artefact instanceof UserWorkspaceProject) {
+            return (UserWorkspaceProject) artefact;
+        }
+        return null;
     }
 
     public TreeRepository getRulesRepository() {

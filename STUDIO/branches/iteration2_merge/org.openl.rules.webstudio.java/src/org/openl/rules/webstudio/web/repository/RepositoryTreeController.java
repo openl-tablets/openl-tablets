@@ -51,7 +51,7 @@ import javax.faces.model.SelectItem;
  */
 public class RepositoryTreeController {
     private static final Date SPECIAL_DATE = new Date(0);
-    private final static Log log = LogFactory.getLog(RepositoryTreeController.class);
+    private static final Log log = LogFactory.getLog(RepositoryTreeController.class);
     private RepositoryTreeState repositoryTreeState;
     private UserWorkspace userWorkspace;
     private UploadService uploadService;
@@ -90,17 +90,9 @@ public class RepositoryTreeController {
     }
 
     private ProjectVersion getProjectVersion() {
-        UserWorkspaceProject project = getSelectedProject();
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (project != null) {
             return project.getVersion();
-        }
-        return null;
-    }
-
-    private UserWorkspaceProject getSelectedProject() {
-        ProjectArtefact artefact = repositoryTreeState.getSelectedNode().getDataBean();
-        if (artefact instanceof UserWorkspaceProject) {
-            return (UserWorkspaceProject) artefact;
         }
         return null;
     }
@@ -245,7 +237,7 @@ public class RepositoryTreeController {
     }
 
     public String undeleteProject() {
-        UserWorkspaceProject project = getSelectedProject();
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (!project.isDeleted()) {
             FacesContext.getCurrentInstance()
                 .addMessage(null,
@@ -269,7 +261,7 @@ public class RepositoryTreeController {
     }
 
     public String eraseProject() {
-        UserWorkspaceProject project = getSelectedProject();
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         // EPBDS-225
         if (project == null) return null;
         
@@ -341,7 +333,7 @@ public class RepositoryTreeController {
 
     public String openProject() {
         try {
-            getSelectedProject().open();
+            repositoryTreeState.getSelectedProject().open();
             repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
             log.error("Failed to open project.", e);
@@ -355,7 +347,7 @@ public class RepositoryTreeController {
 
     public String openProjectVersion() {
         try {
-            getSelectedProject().openVersion(new CommonVersionImpl(version));
+            repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
             repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
             log.error("Failed to open project version.", e);
@@ -369,7 +361,7 @@ public class RepositoryTreeController {
 
     public String closeProject() {
         try {
-            getSelectedProject().close();
+            repositoryTreeState.getSelectedProject().close();
             repositoryTreeState.invalidateTree();
             repositoryTreeState.refreshSelectedNode();
         } catch (ProjectException e) {
@@ -384,7 +376,7 @@ public class RepositoryTreeController {
 
     public String checkOutProject() {
         try {
-            getSelectedProject().checkOut();
+            repositoryTreeState.getSelectedProject().checkOut();
             repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
             log.error("Failed to check out project.", e);
@@ -398,7 +390,7 @@ public class RepositoryTreeController {
 
     public String checkInProject() {
         try {
-            getSelectedProject().checkIn(major, minor);
+            repositoryTreeState.getSelectedProject().checkIn(major, minor);
             repositoryTreeState.invalidateTree();
         } catch (ProjectException e) {
             log.error("Failed to check in project.", e);

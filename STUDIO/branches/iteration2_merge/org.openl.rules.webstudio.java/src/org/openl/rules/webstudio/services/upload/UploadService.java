@@ -7,6 +7,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.rules.security.Privileges;
+import org.acegisecurity.annotation.Secured;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +61,7 @@ public class UploadService extends BaseUploadService {
     /**
      * {@inheritDoc}
      */
+    @Secured(Privileges.PRIVILEGE_CREATE)
     protected void unpack(UploadServiceParams params, UploadServiceResult result,
         File tempFile) throws IOException, ServiceException
     {
