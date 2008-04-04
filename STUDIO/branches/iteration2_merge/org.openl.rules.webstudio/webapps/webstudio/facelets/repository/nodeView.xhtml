@@ -4,7 +4,8 @@
   xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:c="http://java.sun.com/jstl/core">
+  xmlns:c="http://java.sun.com/jstl/core"
+  xmlns:authz="http://rules.openl.org/taglibs/acegi">
 
   <h:panelGroup rendered="#{node.type == 'repository'}">
     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
@@ -49,7 +50,7 @@
         <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked || artefact.localOnly) ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!(artefact.checkedOut || artefact.locked || artefact.localOnly)};"/>
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();"/>
         <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog();" />
-        <h:commandButton styleClass="#{(!artefact.locked || artefact.lockedByMe || artefact.localOnly) ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked || artefact.lockedByMe || artefact.localOnly} &amp;&amp; confirmDeleteNode();" />
+        <h:commandButton styleClass="#{(!artefact.locked || artefact.lockedByMe || artefact.localOnly) &amp;&amp; authz:isGranted('ROLE_ADMIN'))? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked || artefact.lockedByMe || artefact.localOnly} &amp;&amp; confirmDeleteNode();" />
         <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.localOnly) ? 'button':'disabledButton'}" value="Redeploy" type="button" onclick="#{!(artefact.checkedOut || artefact.localOnly)} &amp;&amp; openSmartRedeployDialog();"/>
       </h:panelGrid>
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">

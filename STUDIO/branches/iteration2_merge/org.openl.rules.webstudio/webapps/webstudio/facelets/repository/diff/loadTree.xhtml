@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core"
+                xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <f:view contentType="text/xml">
+
+    <tree id="#{diffController.id}">
+      <t:dataList var="item" value="#{diffController.diffElements}">
+        <node
+          text="#{item.name}"
+          tooltip="#{item.tooltip}"
+          id="#{item.path}"
+          child="#{(item.isFolder||item.isXlsFile)?'1':'0'}"
+          open="#{item.diffType!='Equal'?'1':'0'}"
+          style="#{item.diffType=='Addition'?(diffController.treeId=='1'?'background-color: #c0dcc0;':'background-color: #b7e8ff;'):(item.diffType=='Deletion'?'display:none;':'')}"
+          im0="#{item.diffType=='Deletion'?'delete.gif':''}"
+          im1="#{item.diffType=='Deletion'?'delete.gif':(item.isXlsFile?'excel.gif':(item.isSheet?'sheet.gif':''))}"
+          im2="#{item.diffType=='Deletion'?'delete.gif':(item.isXlsFile?'excel.gif':(item.isSheet?'sheet.gif':''))}"
+          />
+      </t:dataList>
+    </tree>
+
+  </f:view>
+</ui:composition>
