@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <properties>
-    <com.exigen.common.version>7.0.1-SNAPSHOT</com.exigen.common.version>
-    <com.exigen.example.solution.version>7.0.1-SNAPSHOT</com.exigen.example.solution.version>
-  </properties>
+
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.exigen.example.solution</groupId>
-  <artifactId>admin</artifactId>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.runtime-repository.server</artifactId>
   <version>7.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>Administration Server (Assembly)</name>
@@ -15,11 +13,12 @@
     This POM file packages web application that hosts administration server. Administration server is responsible for
     management of run-time repository and deployment of run-time modules into run-time repository.
   </description>
+
   <dependencies>
     <dependency>
       <groupId>com.exigen.common</groupId>
       <artifactId>repository.db</artifactId>
-      <version>7.0.1-SNAPSHOT</version>
+      <version>7.0.1.021</version>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
@@ -35,7 +34,7 @@
     <dependency>
       <groupId>jetty</groupId>
       <artifactId>org.mortbay.jetty</artifactId>
-      <version>5.1.12</version>
+      <version>5.1.10</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
