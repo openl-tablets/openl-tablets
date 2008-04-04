@@ -25,6 +25,11 @@
     <converter-class>org.openl.rules.webstudio.web.jsf.DateConverter</converter-class>
   </converter>
 
+  <component>
+    <component-type>org.openl.rules.webstudio.web.jsf.faceletes.acegi.Authentication</component-type>
+    <component-class>org.openl.rules.webstudio.web.jsf.faceletes.acegi.AuthenticationComponent</component-class>
+  </component>
+
   <!-- ====================================================================
     This two rederers were added because of migrating to Tomahawk 1.1.3.
     See http://wiki.apache.org/myfaces/Upgrading_to_Tomahawk_1.1.3
