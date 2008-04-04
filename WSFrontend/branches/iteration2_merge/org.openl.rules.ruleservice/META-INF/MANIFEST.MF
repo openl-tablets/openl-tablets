@@ -11,7 +11,5 @@ Require-Bundle: org.junit;visibility:=reexport,
  org.openl.rules.repository;visibility:=reexport,
  org.openl.rules.repository.jcr;visibility:=reexport,
  org.openl.rules.workspace;visibility:=reexport,
- org.openl.lib.springsource,
- org.openl.lib.cxf
+ org.openl.rules.ruleservice.lib
 Export-Package: org.openl.rules.ruleservice
-

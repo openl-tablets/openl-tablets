@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.openl.lib.ruleservice.eclipse_feature"
+      id="org.openl.rules.ruleservice.lib.eclipse.feature"
       label="Rule Service Lib Feature"
       version="5.0.6"
       provider-name="OpenL Tablets">
@@ -18,7 +18,7 @@
    </license>
 
    <plugin
-         id="org.openl.lib.cxf"
+         id="org.openl.rules.ruleservice.lib"
          download-size="0"
          install-size="0"
          version="5.0.6"/>
