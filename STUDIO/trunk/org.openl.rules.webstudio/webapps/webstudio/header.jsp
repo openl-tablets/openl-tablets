@@ -46,7 +46,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
   if (wrappers.length == 0)
   {
 %>
-<option value="-- No OpenL Projects in the Workspace --"</option>
+<option value="-- No OpenL Projects in the Workspace --">-- No OpenL Projects in the Workspace --</option>
 <%  
   }	
   else
