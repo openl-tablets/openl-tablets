@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<People type="Input for OpenL">
-	<person name="Robinson" gender="F" maritalStatus="Married" age="55" />
-	<person name="Robinson" gender="M" maritalStatus="Married" age="60" />
-	<person name="Robinson" gender="M" maritalStatus="Signle" age="17" />	
-	
-</People>
