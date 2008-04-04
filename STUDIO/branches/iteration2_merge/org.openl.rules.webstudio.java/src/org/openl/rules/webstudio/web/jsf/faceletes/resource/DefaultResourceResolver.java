@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.jsf.faceletes;
+package org.openl.rules.webstudio.web.jsf.faceletes.resource;
 
 import com.sun.facelets.impl.ResourceResolver;
 import com.sun.facelets.util.Resource;
@@ -37,9 +37,5 @@ public class DefaultResourceResolver implements ResourceResolver {
         } catch (IOException e) {
             throw new FacesException(e);
         }
-    }
-
-    public String toString() {
-        return "jcatalog.DefaultResourceResolver";
     }
 }
