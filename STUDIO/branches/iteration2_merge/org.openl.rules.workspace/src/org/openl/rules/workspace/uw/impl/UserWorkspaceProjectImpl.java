@@ -76,6 +76,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
             throw new ProjectException("Project ''{0}'' is checked-out!", null, getName());
         }
 
+        check(PRIVILEGE_READ);
+
         if (isOpened()) {
             close();
         }
@@ -88,6 +90,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         if (isCheckedOut() || isOpened()) {
             close();
         }
+
+        check(PRIVILEGE_READ);
 
         localProject = userWorkspace.openLocalProjectFor(dtrProject, version);
         updateArtefact(localProject, dtrProject);
@@ -106,6 +110,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
             throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''!", null, getName(),
                     dtrProject.getlLockInfo().getLockedBy().getUserName(), dtrProject.getlLockInfo().getLockedAt());
         }
+
+        check(PRIVILEGE_EDIT);
 
         if (isOpened()) {
             close();
@@ -207,6 +213,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
             throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user!", null, getName());
         }
 
+        check(PRIVILEGE_DELETE);
+
         if (isOpened()) {
             close();
         }
@@ -217,12 +225,16 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public void undelete() throws ProjectException {
+        check(PRIVILEGE_EDIT);
+
         if (dtrProject != null) {
             dtrProject.undelete(userWorkspace.getUser());
         }
     }
 
     public void erase() throws ProjectException {
+        check(PRIVILEGE_ERASE);
+
         if (dtrProject != null) {
             dtrProject.erase(userWorkspace.getUser());
         }
