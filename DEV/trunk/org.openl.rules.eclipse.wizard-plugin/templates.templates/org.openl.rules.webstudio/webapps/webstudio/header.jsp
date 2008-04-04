@@ -43,15 +43,26 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
   OpenLWrapperInfo[] wrappers = studio.getWrappers();
 
 //	studio.select(selected);
-  for(int i = 0; i < wrappers.length; ++i)
+  if (wrappers.length == 0)
   {
-     boolean current = studio.getCurrentWrapper() == wrappers[i];
-     if (current)
-       selected = wrappers[i].getWrapperClassName();
+%>
+<option value="-- No OpenL Projects in the Workspace --">-- No OpenL Projects in the Workspace --</option>
+<%  
+  }	
+  else
+  {	
+  	for(int i = 0; i < wrappers.length; ++i)
+  	{
+    	 boolean current = studio.getCurrentWrapper() == wrappers[i];
+     	if (current)
+       		selected = wrappers[i].getWrapperClassName();
 
 %>
 <option value="<%=wrappers[i].getWrapperClassName()%>"  <%=current ? " selected='selected'" : ""%>  ><%=studio.getMode().getDisplayName(wrappers[i])%></option>
-<%}%>
+<%	
+	}
+  }	
+%>
 </select>
 </form>
 </td>
