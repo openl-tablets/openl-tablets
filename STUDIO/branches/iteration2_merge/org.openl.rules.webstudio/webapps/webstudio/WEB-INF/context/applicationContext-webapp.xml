@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
   default-autowire="no">
 
-  <bean id="currentUserInfo" class="org.openl.rules.webstudio.application.CurrentUserInfo" />
+  <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
 
   <bean id="formatPatterns" class="org.openl.rules.webstudio.web.util.FormatPatterns" />
 
