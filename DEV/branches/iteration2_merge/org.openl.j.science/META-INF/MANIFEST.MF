@@ -5,5 +5,6 @@ Bundle-SymbolicName: org.openl.j.science
 Bundle-Version: 5.0.6
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Require-Bundle: org.openl.core
+Require-Bundle: org.openl.core,
+ org.openl.lib
 Export-Package: org.openl.types.science
