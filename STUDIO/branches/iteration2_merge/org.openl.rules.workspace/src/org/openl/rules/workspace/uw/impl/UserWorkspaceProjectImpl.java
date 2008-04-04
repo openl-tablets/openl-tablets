@@ -17,6 +17,8 @@ import org.openl.rules.workspace.dtr.RepositoryProject;
 import org.openl.rules.workspace.lw.LocalProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.util.MsgHelper;
+import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.SecurityUtils.check;
 
 public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl implements UserWorkspaceProject {
     private static final Log log = LogFactory.getLog(UserWorkspaceProjectImpl.class);
@@ -27,8 +29,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     private RepositoryProject dtrProject;
     private UserWorkspaceImpl userWorkspace;
 
-
-    public UserWorkspaceProjectImpl(UserWorkspaceImpl userWorkspace, LocalProject localProject, RepositoryProject dtrProject) {
+    public UserWorkspaceProjectImpl(UserWorkspaceImpl userWorkspace, LocalProject localProject,
+            RepositoryProject dtrProject) {
         super(null, localProject, dtrProject);
         setProject(this);
 
@@ -167,7 +169,9 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public boolean isOpenedOtherVersion() {
-        if (!isOpened()) return false;
+        if (!isOpened()) {
+            return false;
+        }
 
         Collection<ProjectVersion> versions = dtrProject.getVersions();
 
@@ -198,7 +202,9 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
     }
 
     public boolean isLockedByMe() {
-        if (!isLocked()) return false;
+        if (!isLocked()) {
+            return false;
+        }
 
         WorkspaceUser lockedBy = dtrProject.getlLockInfo().getLockedBy();
         return lockedBy.equals(userWorkspace.getUser());
@@ -210,7 +216,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
     public void delete() throws ProjectException {
         if (isLocked() && !isLockedByMe()) {
-            throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user!", null, getName());
+            throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user!", null,
+                    getName());
         }
 
         check(PRIVILEGE_DELETE);

@@ -6,16 +6,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.util.MsgHelper;
 
-
 /**
  * Folder (File System) Helper for Local Workspace.
- *
+ * 
  * @author Aleh Bykhavets
  */
 public class FolderHelper {
     private static final Log log = LogFactory.getLog(FolderHelper.class);
 
     public static final String PROPERTIES_FOLDER = ".studioProps";
+    public static final String FOLDER_PROPERTIES_FOLDER = "folder-props";
     public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
     public static final String RESOURCE_PROPERTIES_EXT = ".props";
 
@@ -97,7 +97,6 @@ public class FolderHelper {
     }
 
     public static boolean isParent(File parent, File child) {
-        return (child != null)
-            && (child.equals(parent) || isParent(parent, child.getParentFile()));
+        return (child != null) && (child.equals(parent) || isParent(parent, child.getParentFile()));
     }
 }
