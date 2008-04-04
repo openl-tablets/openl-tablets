@@ -218,7 +218,7 @@
    </license>
 
    <plugin
-         id="org.openl.lib.apache.commons"
+         id="org.openl.lib"
          download-size="0"
          install-size="0"
          version="5.0.6"/>
