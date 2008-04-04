@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.openl.rules.webstudio.eclipse_feature"
+      id="org.openl.rules.webstudio.eclipse.feature"
       label="WebStudio Eclipse Feature"
       version="5.0.6">
 
@@ -18,10 +18,8 @@
 
    <requires>
       <import feature="org.openl.eclipse.feature" version="5.0.6"/>
-      <import feature="org.openl.eclipse31_feature_all" version="5.0.6"/>
       <import feature="org.openl.lib.eclipse.feature" version="5.0.6"/>
       <import feature="org.openl.rules.eclipse.feature" version="5.0.6"/>
-      <import feature="org.openl.lib.webstudio.eclipse_feature" version="5.0.6"/>
    </requires>
 
    <plugin
@@ -39,12 +37,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.openl.rules.webstudio"
-         download-size="0"
-         install-size="0"
-         version="5.0.6"/>
-
-   <plugin
          id="org.openl.rules.webtools"
          download-size="0"
          install-size="0"
@@ -59,10 +51,49 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.rules.webstudio.lib"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"/>
+
+   <plugin
+         id="org.openl.rules.webstudio"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"/>
+
+   <plugin
+         id="org.openl.rules.security"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.security.standalone"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.rules.webstudio.java"
          download-size="0"
          install-size="0"
          version="5.0.6"
          unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.diff"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.lib.apache.tomcat"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"/>
 
 </feature>
