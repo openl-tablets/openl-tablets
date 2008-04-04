@@ -59,16 +59,23 @@
 
     <target name="prepare_webapps" depends="copy_tomcat">
         <mkdir dir="${webapps.dir}" />
-
+<!--
         <unzip src="wars/org.openl.rules.webstudio.war" dest="${webapps.studio.dir}"/>
     	
     	<delete dir="${webapps.studio.dir}/WEB-INF/classes/org"/>
+-->    	
     	<copy todir="${webapps.studio.dir}" preservelastmodified="true" overwrite="true">
     		<fileset dir="../org.openl.rules.webstudio/webapps/webstudio"/>
     	</copy>	
-    	
+<!--    	
         <unzip src="wars/tutorial4_client.war" dest="${webapps.client.dir}"/>
-        <copy file="wars/jcr.war" todir="${webapps.dir}" />
+-->
+    	<copy todir="${webapps.client.dir}" preservelastmodified="true" overwrite="true">
+    		<fileset dir="webapps/demo"/>
+    	</copy>	
+
+    	
+    <copy file="wars/jcr.war" todir="${webapps.dir}" />
     </target>
 
     <target name="prepare_jackrabbit_conf" depends="copy_tomcat">
@@ -94,9 +101,13 @@
             </fileset>
         </copy>
 
-        <copy todir="${webapps.client.dir}/WEB-INF/lib" flatten="true">
+    	
+        <copy todir="${webapps.client.dir}/WEB-INF/lib" flatten="true" verbose="true">
             <fileset dir="${project.lib.jsf}" includes="**/*.jar" />
             <fileset dir="${project.lib.cxf}" includes="**/*.jar" />
+            <fileset dir="${plugin.base.path}">
+            	<include name="**/org.openl.commons*${openl.plugin.version}.jar"/>
+            </fileset>
         </copy>
     </target>
 
@@ -133,8 +144,11 @@
     <target name="deploy" depends="prepare_repositories, copy_webapps, prepare_jackrabbit_conf, copy_ruleservice"
             description="deploys all the applications" />
 
-    <target name="start_tomcat" depends="deploy" description="starts tomcat server with webstudio and demo web applications">
+    <target name="start_tomcat" description="starts tomcat server with webstudio and demo web applications">
         <exec spawn="true" executable="${tomcat.dest.path}/bin/startup.bat" dir="${tomcat.dest.path}/bin" />
+    </target>
+
+	<target name="deploy_and_start_tomcat" depends="deploy,start_tomcat" description="starts tomcat server with webstudio and demo web applications">
     </target>
 
     <target name="start_ruleservice" depends="copy_ruleservice" description="starts ruleservice">
