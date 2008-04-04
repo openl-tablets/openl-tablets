@@ -19,12 +19,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class StudioFromLWSController {
+    private LocalWorkspaceManager localWorkspaceManager;
+
+    public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkspaceManager) {
+        this.localWorkspaceManager = localWorkspaceManager;
+    }
+
     public String openStudio() {
         HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(true);
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
 
-        boolean local = WebStudioUtils.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance().
-                getExternalContext().getRequest());
+        boolean local = WebStudioUtils.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest());
 
         try {
             if (rulesUserSession != null && (!local || !getUseEclipse4LocalUserFlag(rulesUserSession))) {
