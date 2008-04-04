@@ -43,15 +43,26 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
   OpenLWrapperInfo[] wrappers = studio.getWrappers();
 
 //	studio.select(selected);
-  for(int i = 0; i < wrappers.length; ++i)
+  if (wrappers.length == 0)
   {
-     boolean current = studio.getCurrentWrapper() == wrappers[i];
-     if (current)
-       selected = wrappers[i].getWrapperClassName();
+%>
+<option value="-- No OpenL Projects in the Workspace --"></option>
+<%
+  }
+  else
+  {
+    for(int i = 0; i < wrappers.length; ++i)
+    {
+       boolean current = studio.getCurrentWrapper() == wrappers[i];
+       if (current)
+           selected = wrappers[i].getWrapperClassName();
 
 %>
 <option value="<%=wrappers[i].getWrapperClassName()%>"  <%=current ? " selected='selected'" : ""%>  ><%=studio.getMode().getDisplayName(wrappers[i])%></option>
-<%}%>
+<%
+  }
+  }
+%>
 </select>
 </form>
 </td>
@@ -85,7 +96,9 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
         <img border=0 src="<%= request.getContextPath()%>/images/repository/storage-disabled.gif" alt="repository">
 <%} else {%>
         <a target="_top" href="<%= request.getContextPath()%>/faces/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository"></a>
-<%}%>
+        &nbsp;
+        <a target="_top" href="<%= request.getContextPath()%>/logoff.servlet?_j_acegi_logout=true" title="Logout" onclick="return confirm('Are you sure you want to log off?')"><img border=0 src="<%= request.getContextPath()%>/images/logout.gif" alt="Logout"></a>
+<% } %>
             </td>
       </table>
 

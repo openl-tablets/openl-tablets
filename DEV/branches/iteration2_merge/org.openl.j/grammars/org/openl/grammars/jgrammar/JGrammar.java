@@ -189,7 +189,7 @@ public void parseTopNode(String type)
     }
   }
 
-public void ConditionalExpression() throws ParseException {
+  final public void ConditionalExpression() throws ParseException {
  Token x;
     ConditionalImplExpression();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
