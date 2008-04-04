@@ -535,7 +535,7 @@ That&apos;s all there is to it!
       <import plugin="org.openl.eclipse.ui.wizard"/>
       <import plugin="org.openl.j"/>
       <import plugin="org.openl.commons"/>
-      <import plugin="org.openl.lib.apache.commons"/>
+      <import plugin="org.openl.lib"/>
    </requires>
 
    <plugin
