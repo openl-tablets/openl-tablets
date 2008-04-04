@@ -48,7 +48,7 @@
             <phase>generate-resources</phase>
             <configuration>
               <tasks>
-                <delete includeemptydirs="true">
+                <delete includeemptydirs="true" failonerror="false">
                   <fileset dir="lib" includes="**/*" />
                 </delete>
               </tasks>
