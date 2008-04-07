@@ -103,7 +103,7 @@ public class NewProjectFromTemplateWizard
                     }
 
                     final String[] natures = new String[] {
-                            JavaCore.NATURE_ID, IOpenlConstants.OPENL_NATURE_ID, PDE.PLUGIN_NATURE
+                            JavaCore.NATURE_ID, PDE.PLUGIN_NATURE, IOpenlConstants.OPENL_NATURE_ID
                     };
 
                     for (String nature : natures) {

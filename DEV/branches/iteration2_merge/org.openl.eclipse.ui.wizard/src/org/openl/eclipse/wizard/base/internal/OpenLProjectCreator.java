@@ -78,7 +78,7 @@ public class OpenLProjectCreator {
             project.setDescription(description, IResource.FORCE, null);
             return true;
         } else {
-            UtilBase.handleException("unable to add openl nature");
+            UtilBase.handleException("unable to add openl nature " + natureId + ": " + status.getMessage());
             return false;
         }
     }
