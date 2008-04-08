@@ -30,21 +30,7 @@
     <constructor-arg value=""></constructor-arg>
   </bean>
 
-  <bean id="jcrProductionDeployerTarget" class="org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer"
-    lazy-init="true">
-    <constructor-arg ref="workspaceUser"></constructor-arg>
-  </bean>
-
-  <bean id="jcrProductionDeployer" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="targetSource">
-      <bean class="org.springframework.aop.target.LazyInitTargetSource">
-        <property name="targetBeanName">
-          <idref bean="jcrProductionDeployerTarget" />
-        </property>
-      </bean>
-    </property>
-  </bean>
-
+  <!--
   <bean id="runtimeRepositoryDeployerTarget" class="org.openl.rules.runtime.deployer.RuntimeRepositoryDeployer"
     lazy-init="true">
     <constructor-arg value="${org.openl.rules.webstudio.runtime-deployer.url}" />
@@ -60,6 +46,22 @@
     </property>
     <property name="proxyInterfaces" value="org.openl.rules.workspace.deploy.ProductionDeployer"/>
   </bean>
+  -->
+
+  <bean id="jcrProductionDeployerTarget" class="org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer"
+    lazy-init="true">
+    <constructor-arg ref="workspaceUser"></constructor-arg>
+  </bean>
+
+  <bean id="jcrProductionDeployer" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="targetSource">
+      <bean class="org.springframework.aop.target.LazyInitTargetSource">
+        <property name="targetBeanName">
+          <idref bean="jcrProductionDeployerTarget" />
+        </property>
+      </bean>
+    </property>
+  </bean>
 
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
     <property name="deployer">
@@ -68,7 +70,9 @@
         <!--  property name="defaultObject" ref="jcrProductionDeployer" /-->
         <property name="casesMap">
           <map>
+            <!--
             <entry key="runtime" value-ref="runtimeRepositoryDeployer" />
+            -->
             <entry key="production" value-ref="jcrProductionDeployer" />
           </map>
         </property>
