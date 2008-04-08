@@ -41,11 +41,10 @@
                 <artifactItem>
                   <groupId>org.openl.rules</groupId>
                   <artifactId>org.openl.rules.webstudio</artifactId>
-                  <version>5.0.6-SNAPSHOT</version>
+                  <version>${version}</version>
                   <type>zip</type>
                   <classifier>template</classifier>
-                  <overWrite>false</overWrite>
-                  <outputDirectory>templates.templates/org.openl.rules.webstudio</outputDirectory>
+                  <outputDirectory>target/org.openl.rules.webstudio-template</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -55,6 +54,11 @@
     </plugins>
 
     <resources>
+      <resource>
+        <directory>target/org.openl.rules.webstudio-template</directory>
+        <targetPath>templates.templates/org.openl.rules.webstudio</targetPath>
+      </resource>
+
       <resource>
         <directory>.</directory>
         <includes>
