@@ -31,6 +31,10 @@
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
     </managed-property>
+    <managed-property>
+      <property-name>deploymentManager</property-name>
+      <value>#{deploymentManager}</value>
+    </managed-property>
   </managed-bean>
 
   <managed-bean>
@@ -85,7 +89,7 @@
     </managed-property>
   </managed-bean>
 
-<managed-bean>
+  <managed-bean>
     <managed-bean-name>diffState</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.StructuredDiffState</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
