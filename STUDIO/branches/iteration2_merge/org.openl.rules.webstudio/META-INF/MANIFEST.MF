@@ -16,5 +16,5 @@ Require-Bundle: org.openl.lib.apache.tomcat;visibility:=reexport,
  org.openl.rules.workspace;visibility:=reexport,
  org.openl.conf.ant;visibility:=reexport,
  org.openl.rules.webstudio.java;visibility:=reexport,
- org.openl.rules.runtime.deployer;visibility:=reexport
+ org.openl.rules.runtime.deployer;visibility:=reexport,
  org.openl.j
