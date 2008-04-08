@@ -36,8 +36,11 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
     }
 
     public RepositoryProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        // TODO implement
-        throw new ProjectException("Failed to resolve ''{0}''!", null, artefactPath.getStringValue());
+        RepositoryProjectArtefact a = this;
+        for (String s : artefactPath.getSegments()) {
+            a = a.getArtefact(s);
+        }
+        return a;
     }
 
     public ProjectVersion getVersion() {
@@ -63,8 +66,8 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
                 ProjectVersion lowVer = new RepositoryProjectVersionImpl(rDep.getLowerLimit(), null);
 
                 ProjectVersion upVer = null;
-                CommonVersion dependencyUpperLimit = rDep.getUpperLimit(); 
-                if (dependencyUpperLimit != null){
+                CommonVersion dependencyUpperLimit = rDep.getUpperLimit();
+                if (dependencyUpperLimit != null) {
                     upVer = new RepositoryProjectVersionImpl(dependencyUpperLimit, null);
                 }
 
@@ -121,7 +124,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             throw new ProjectException("Project ''{0}'' is already marked for deletion!", null, getName());
         }
 
-//      isMarkedForDeletion = true;
+        // isMarkedForDeletion = true;
 
         try {
             rulesProject.delete(user);
@@ -135,7 +138,7 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
             throw new ProjectException("Cannot undelete non-marked project ''{0}''!", null, getName());
         }
 
-//      isMarkedForDeletion = false;
+        // isMarkedForDeletion = false;
 
         try {
             rulesProject.undelete(user);
@@ -171,7 +174,8 @@ public class RepositoryProjectImpl extends RepositoryProjectFolderImpl implement
         update(source);
 
         try {
-            String msg = MsgHelper.format("Committing project ''{0}'' by user ''{1}''...", getName(), user.getUserName());
+            String msg = MsgHelper.format("Committing project ''{0}'' by user ''{1}''...", getName(), user
+                    .getUserName());
             log.debug(msg);
             rulesProject.commit(user);
         } catch (RRepositoryException e) {
