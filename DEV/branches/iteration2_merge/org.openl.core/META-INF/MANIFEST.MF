@@ -6,6 +6,7 @@ Bundle-Version: 5.0.6
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.commons;visibility:=reexport,
+ org.openl.j,
  org.openl.lib
 Export-Package: org.openl,
  org.openl.binding,
