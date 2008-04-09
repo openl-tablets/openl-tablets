@@ -1,4 +1,4 @@
-package org.openl.rules.runtime.deployer;
+package com.exigen.openl.bridge;
 
 import com.exigen.common.repository.axis.DeployerSOAPStub;
 import com.exigen.common.repository.axis.Deployer_ServiceLocator;
@@ -37,13 +37,13 @@ import javax.xml.rpc.ServiceException;
  * 
  * @author Andrey Naumenko
  */
-public class RuntimeRepositoryDeployer {
-    private final static Log log = LogFactory.getLog(RuntimeRepositoryDeployer.class);
+public class ExigenRuntimeRepositoryDeployer {
+    private final static Log log = LogFactory.getLog(ExigenRuntimeRepositoryDeployer.class);
     private static final int BUFFER_SIZE = 4096;
     private Deployer deployer;
     private String deployerUrl;
 
-    public RuntimeRepositoryDeployer(String deployerUrl) throws ServiceException {
+    public ExigenRuntimeRepositoryDeployer(String deployerUrl) throws ServiceException {
         this.deployerUrl = deployerUrl;
         deployer = createDeployer();
     }
