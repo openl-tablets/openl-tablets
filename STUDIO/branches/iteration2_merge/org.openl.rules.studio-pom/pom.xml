@@ -26,13 +26,15 @@
     <module>../org.openl.rules.security</module>
     <module>../org.openl.rules.security.standalone</module>
     <module>../org.openl.rules.security.integration.ipb</module>
-    <module>../org.openl.rules.runtime.deployer</module>
     <module>../org.openl.rules.diff</module>
     <module>../org.openl.rules.webstudio.lib</module>
     <module>../org.openl.rules.webstudio.eclipse.feature</module>
     <module>../org.openl.lib.apache.tomcat</module>
     <module>../org.openl.eclipse.site</module>
     <module>../org.openl.rules.all.eclipse.feature</module>
+    <!--
+    <module>../com.exigen.openl.bridge</module>
+    -->
   </modules>
 
   <scm>
