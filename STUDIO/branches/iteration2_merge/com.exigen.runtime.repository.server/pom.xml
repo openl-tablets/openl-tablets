@@ -4,8 +4,8 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.openl.rules</groupId>
-  <artifactId>org.openl.rules.runtime-repository.server</artifactId>
+  <groupId>com.exigen</groupId>
+  <artifactId>com.exigen.runtime.repository.server</artifactId>
   <version>7.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>Administration Server (Assembly)</name>
