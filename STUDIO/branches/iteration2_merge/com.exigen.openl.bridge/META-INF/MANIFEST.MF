@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Common Services Deployer
-Bundle-SymbolicName: com.exigen.openl.bridge;singleton:=true
-Bundle-Version: 5.0.6
-Bundle-Vendor: OpenL
-Bundle-Localization: plugin
-Export-Package: com.exigen.openl.bridge
-Require-Bundle: org.openl.rules.workspace, org.openl.rules.webstudio.lib
