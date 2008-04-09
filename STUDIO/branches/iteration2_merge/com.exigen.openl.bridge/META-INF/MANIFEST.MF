@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common Services Deployer
-Bundle-SymbolicName: org.openl.rules.runtime.deployer;singleton:=true
+Bundle-SymbolicName: com.exigen.openl.bridge;singleton:=true
 Bundle-Version: 5.0.6
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin

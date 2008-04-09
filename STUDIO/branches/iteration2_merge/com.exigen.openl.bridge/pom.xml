@@ -11,7 +11,8 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.runtime.deployer</artifactId>
+  <groupId>com.exigen.openl</groupId>
+  <artifactId>com.exigen.openl.bridge</artifactId>
   <name>Common Services Deployer</name>
   <description>Deployer into Common Services (Runtime repository)</description>
 

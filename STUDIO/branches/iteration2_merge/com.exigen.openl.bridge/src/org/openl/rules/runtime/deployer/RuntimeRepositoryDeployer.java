@@ -32,10 +32,9 @@ import java.util.zip.ZipOutputStream;
 
 import javax.xml.rpc.ServiceException;
 
-
 /**
  * Deploys projects into Runtime Repository.
- *
+ * 
  * @author Andrey Naumenko
  */
 public class RuntimeRepositoryDeployer {
@@ -51,7 +50,7 @@ public class RuntimeRepositoryDeployer {
 
     /**
      * Deploys a <code>Project</code>s into the Runtime Repository.
-     *
+     * 
      * @param project project to deploy
      */
     public void deploy(Project project) {
@@ -64,9 +63,9 @@ public class RuntimeRepositoryDeployer {
             ZipEntry e = new ZipEntry("module.xml");
             out.putNextEntry(e);
             String module = "<?xml version=\"1.0\" encoding=\"ASCII\"?>"
-                + "<module:Descriptor xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:module=\"http://exigengroup.com/common/repository/module\" id=\""
-                + project.getName() + "\" version=\"1.0\">"
-                + "<packaging sourceDirectory=\"src\"/>" + "</module:Descriptor>";
+                    + "<module:Descriptor xmi:version=\"2.0\" xmlns:xmi=\"http://www.omg.org/XMI\" xmlns:module=\"http://exigengroup.com/common/repository/module\" id=\""
+                    + project.getName() + "\" version=\"1.0\">" + "<packaging sourceDirectory=\"src\"/>"
+                    + "</module:Descriptor>";
 
             out.write(module.getBytes());
             zipProject("", project, out);
@@ -80,10 +79,9 @@ public class RuntimeRepositoryDeployer {
 
         try {
             DeploymentStatus status = deployer.deployModules(new File[] { file }, true);
-            log.info("File " + file
-                + " was deployed into runtime repository with status: " + status);
-        } catch (DeploymentException e) {}
-        finally {
+            log.info("File " + file + " was deployed into runtime repository with status: " + status);
+        } catch (DeploymentException e) {
+        } finally {
             if (file != null) {
                 file.delete();
             }
@@ -92,7 +90,7 @@ public class RuntimeRepositoryDeployer {
 
     /**
      * DOCUMENT ME!
-     *
+     * 
      * @param projects
      */
     public void deploy(Collection<Project> projects) {
@@ -113,12 +111,12 @@ public class RuntimeRepositoryDeployer {
     /**
      * Copy the contents of the given InputStream to the given OutputStream.
      * Closes input stream when done.
-     *
+     * 
      * @param in the stream to copy from
      * @param out the stream to copy to
-     *
+     * 
      * @return the number of bytes copied
-     *
+     * 
      * @throws IOException in case of I/O errors
      */
     private static int copy(InputStream in, OutputStream out) throws IOException {
@@ -143,11 +141,9 @@ public class RuntimeRepositoryDeployer {
         }
     }
 
-    private static void zipProject(String path, ProjectFolder projectFolder,
-        ZipOutputStream out) throws IOException, ProjectException
-    {
-        for (Iterator<?extends ProjectArtefact> i = projectFolder.getArtefacts().iterator();
-                i.hasNext();) {
+    private static void zipProject(String path, ProjectFolder projectFolder, ZipOutputStream out) throws IOException,
+            ProjectException {
+        for (Iterator<? extends ProjectArtefact> i = projectFolder.getArtefacts().iterator(); i.hasNext();) {
             ProjectArtefact artefact = i.next();
 
             if (artefact instanceof ProjectResource) {
