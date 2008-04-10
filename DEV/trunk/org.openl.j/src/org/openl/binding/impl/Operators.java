@@ -464,6 +464,37 @@ public class Operators
 		return x.equals(y);
 	}
 	
+
+	public static int abs(int x)
+	{
+		return Math.abs(x);
+	}
+
+	public static long abs(long x)
+	{
+		return Math.abs(x);
+	}
+	
+	public static float abs(float x)
+	{
+		return Math.abs(x);
+	}
+	
+	public static double abs(double x)
+	{
+		return Math.abs(x);
+	}
+
+	public static int bitnot(int x)
+	{
+		return ~x;
+	}
+	
+	public static long bitnot(long x)
+	{
+		return ~x;
+	}
+	
 	
 	
 	public static boolean not(boolean x)
