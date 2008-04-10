@@ -186,11 +186,11 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 String type = node.getPrimaryNodeType().getName();
                 if (type.equals(JcrNT.NT_DEPLOYMENT)) {
                     result.add(new JcrProductionDeployment(node));
-                } else if (type.equals(JcrNT.NT_FOLDER)) {
+                } else if (type.equals(JcrNT.NT_PROD_FOLDER)) {
                     result.add(new JcrProductionFolder(node));
-                } else if (type.equals(JcrNT.NT_FILE)) {
+                } else if (type.equals(JcrNT.NT_PROD_FILE)) {
                     result.add(new JcrProductionFile(node));
-                } else if (type.equals(JcrNT.NT_PROJECT)) {
+                } else if (type.equals(JcrNT.NT_PROD_PROJECT)) {
                     result.add(new JcrProductionProject(node));
                 }
             }

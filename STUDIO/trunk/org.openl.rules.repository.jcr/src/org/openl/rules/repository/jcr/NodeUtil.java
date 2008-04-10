@@ -228,7 +228,11 @@ public class NodeUtil {
 
     protected static Node createFileNode(Node parentNode, String nodeName) throws RepositoryException {
         Node n = createNode(parentNode, nodeName, JcrNT.NT_FILE, true);
+        setupFileNode(n);
+        return n;
+    }
 
+    private static void setupFileNode(Node n) throws RepositoryException {
         String mimeType = "text/plain";
         String encoding = "UTF-8";
         long lastModifiedTime = System.currentTimeMillis();
@@ -243,6 +247,11 @@ public class NodeUtil {
         // TODO add real init-content
         resNode.setProperty (JcrNT.PROP_RES_DATA, new ByteArrayInputStream(new byte[0]));
         resNode.setProperty (JcrNT.PROP_RES_LASTMODIFIED, lastModified);
+    }
+
+    protected static Node createProdFileNode(Node parentNode, String nodeName) throws RepositoryException {
+        Node n = createNode(parentNode, nodeName, JcrNT.NT_PROD_FILE, false);
+        setupFileNode(n);
         return n;
     }
 

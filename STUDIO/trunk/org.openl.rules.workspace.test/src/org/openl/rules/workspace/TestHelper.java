@@ -31,7 +31,13 @@ public class TestHelper {
         }
     }
 
+    public static void deleteTestFolder() {
+        deleteFile(new File(FOLDER_TEST));
+    }
+
     public static boolean clearDirectory(File dir) {
+        if (dir == null || !dir.isDirectory())
+            return false;
         for (File file: dir.listFiles()) {
             if (!deleteFile(file)) {
                 return false;
