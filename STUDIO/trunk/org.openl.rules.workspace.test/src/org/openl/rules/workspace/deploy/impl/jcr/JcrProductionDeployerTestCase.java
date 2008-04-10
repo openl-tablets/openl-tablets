@@ -11,6 +11,7 @@ import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import static org.openl.rules.workspace.TestHelper.ensureTestFolderExistsAndClear;
 import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
+import static org.openl.rules.workspace.TestHelper.deleteTestFolder;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
@@ -58,6 +59,12 @@ public class JcrProductionDeployerTestCase extends TestCase {
         projects = new ArrayList<Project>();
         projects.add(project1);
         projects.add(project2);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        ProductionRepositoryFactoryProxy.release();
+        deleteTestFolder();
     }
 
     private Project makeProject() {

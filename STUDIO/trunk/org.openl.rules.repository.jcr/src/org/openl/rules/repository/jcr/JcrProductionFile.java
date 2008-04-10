@@ -23,7 +23,7 @@ public class JcrProductionFile extends JcrProductionEntity implements RFile {
      * @throws RepositoryException if fails
      */
     protected static JcrProductionFile createFile(Node parentNode, String nodeName) throws RepositoryException {
-        Node n = NodeUtil.createFileNode(parentNode, nodeName);
+        Node n = NodeUtil.createProdFileNode(parentNode, nodeName);
 
         parentNode.save();
         n.save();

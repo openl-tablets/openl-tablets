@@ -38,6 +38,7 @@ public class ProductionRepositoryFactoryProxy {
     public static synchronized void release() throws RRepositoryException {
         if (repFactory != null) {
             repFactory.release();
+            repFactory = null;
         }
     }
 
