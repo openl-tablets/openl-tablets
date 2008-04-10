@@ -2,10 +2,10 @@ package org.openl.rules.ruleservice;
 
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.SmartProps;
 import org.openl.rules.ruleservice.publish.WebServicesDeployAdmin;
 import org.openl.rules.ruleservice.publish.RulesWebServicesPublisher;
 import org.openl.rules.workspace.production.client.JcrRulesClient;
+import org.openl.SmartProps;
 
 import java.io.File;
 
