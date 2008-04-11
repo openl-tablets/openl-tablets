@@ -67,7 +67,7 @@ public class StaticClassLibrary  implements IOpenLibrary
   		
   		//TODO fix if necessary
   		public int redefinedHashCode(){return "static".hashCode();}
-  		public boolean equalsSelector(ASelector<?> xsel){return this == xsel;}
+  		public boolean equalsSelector(ASelector<?> xsel){return this == (Object)xsel;}
   		
   		
   	};
