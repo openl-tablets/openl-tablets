@@ -91,6 +91,24 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <profiles>
+    <profile>
+      <id>internal-deploy</id>
+      <distributionManagement>
+        <repository>
+          <id>internal-minsk</id>
+          <name>Release Repository</name>
+          <url>http://openl.star-sw.com:8080/artifactory/internal-minsk</url>
+        </repository>
+        <snapshotRepository>
+          <id>internal-minsk</id>
+          <name>Snapshot Repository</name>
+          <url>http://openl.star-sw.com:8080/artifactory/internal-minsk</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+  </profiles>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
