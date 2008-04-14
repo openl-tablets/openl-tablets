@@ -68,20 +68,18 @@
 			value="anonymousUser,ROLE_ANONYMOUS" />
 	</bean>
 
-	<bean id="exceptionTranslationFilter"
-		class="org.acegisecurity.ui.ExceptionTranslationFilter">
+	<bean id="exceptionTranslationFilter" class="org.openl.rules.security.OpenLExceptionTranslationFilter">
 		<property name="authenticationEntryPoint">
 			<bean
 				class="com.exigen.epb.security.authentication.NtlmAuthenticationEntryPoint"/>
 		</property>
-		<!--
-			<property name="accessDeniedHandler">
-			<bean class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
-			<property name="errorPage" value="/accessDenied.jsp"/>
-			</bean>
-			</property>
-		-->
-	</bean>
+
+    <property name="accessDeniedHandler">
+      <bean class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+        <property name="errorPage" value="/accessDenied.jsp"/>
+      </bean>
+    </property>
+  </bean>
 
 	<bean id="filterInvocationInterceptor"
 		class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
