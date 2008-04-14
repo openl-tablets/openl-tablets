@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<!--    ======================================================
+        This file is transformed from sun_checks.xml file
+        from standard packaging of the CheckStyle tool.
+        ====================================================== -->
+
+
+<module name="Checker">
+
+    <!-- ========================================================= -->
+    <!-- Module TreeWalker responsible for Java content parsing    -->
+    <!-- ========================================================= -->
+    <module name="TreeWalker">
+
+        <!-- ============================================================= -->
+        <!-- Checks Exigen header for source file. Regular expression used -->
+        <module name="RegexpHeader">
+                <property name="header"
+                value="/\*\n \* Copyright \(c\) \d\d\d\d Exigen Properties\, Inc\. and/or affiliates\.\n \* All Rights Reserved\.\n \*\s+\$H{1}eader: .* \$\n \*/"/>
+        </module>
+
+        <!-- ============================ -->
+        <!-- Checks for Javadoc comments: -->
+
+        <!-- JavaDoc comments for class and interface. -->
+        <module name="JavadocType">
+                <property name="scope" value="protected"/>
+                <property name="severity" value="warning"/>
+        </module>
+        <!-- Check comments for method - ensure tag exists -->
+        <module name="JavadocMethod">
+                <property name="scope" value="protected"/>
+                <property name="allowUndeclaredRTE"             value="true"/>
+                <property name="allowThrowsTagsForSubclasses"   value="true"/>
+                <property name="allowMissingParamTags"          value="false"/>
+                <property name="allowMissingThrowsTags"         value="false"/>
+                <property name="allowMissingReturnTag"          value="false"/>
+                <property name="severity" value="warning"/>
+        </module>
+        <!-- checks that variables have JavaDoc comments. -->
+        <module name="JavadocVariable">
+                <property name="scope" value="protected"/>
+                <property name="severity" value="warning"/>
+        </module>
+        <!-- Style of the JavaDoc comments. -->
+        <module name="JavadocStyle">
+                <property name="scope" value="protected"/>
+                <property name="checkFirstSentence" value="true"/>
+                <property name="checkEmptyJavadoc"  value="true"/>
+                <property name="checkHtml"          value="true"/>
+                <property name="severity" value="warning"/>
+        </module>
+
+
+        <!-- ====================== -->
+        <!-- Check for Whitespaces: -->
+
+        <!-- Disable TAB character -->
+        <module name="TabCharacter">
+                <property name="severity" value="warning"/>
+        </module>
+        <!-- Whitespace after the type-cast right parenthesis. -->
+        <module name="WhitespaceAfter">
+                <property name="tokens" value="COMMA,SEMI"/>
+                <property name="severity" value="warning"/>
+        </module>
+
+
+        <!-- ================== -->
+        <!-- Check code blocks: -->
+
+        <!-- Require statement for empty block -->
+<!--        
+        <module name="EmptyBlock">
+                <property name="option" value="stmt"/>
+                <property name="severity" value="warning"/>
+        </module>
+-->        
+        <!-- Controls placement of the left curly braces "{" in IF & Co.-->
+        <module name="LeftCurly">
+                <property name="option" value="eol"/>
+                <property name="severity" value="warning"/>
+        </module>
+        <!-- Controls braces for if () {} else {} -->
+        <module name="NeedBraces">
+                <property name="severity" value="warning"/>
+        </module>
+
+
+        <!-- ====================== -->
+        <!-- Common coding problems -->
+
+        <!-- Force implementing of equals(Object) if equals() defined. -->
+        <module name="CovariantEquals">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- Ensure the class defining equals method defines hashcode one -->
+        <module name="EqualsHashCode">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- String should not be compared using == -->
+        <module name="StringLiteralEquality">
+                <property name="severity" value="warning"/>
+        </module> 
+
+        <!-- Check that finalize() method call super.finalize() -->
+        <module name="SuperFinalize">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- Check JUnit test classes - methods naming etc. -->
+        <module name="JUnitTestCase">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- =================== -->
+        <!-- Check class design: -->
+
+        <!-- Check that class with private constructors only declared final -->
+        <module name="FinalClass">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- Class with static methods only should not have public ctor -->
+        <module name="HideUtilityClassConstructor">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- ========================== -->
+        <!-- Miscellaneous other tasks: -->
+
+        <!-- Ensure String[] args used, not String args[] -->
+        <module name="ArrayTypeStyle">
+                <property name="javaStyle" value="true"/>
+                <property name="severity" value="warning"/>
+        </module>
+
+        <module name="Indentation">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- Main method should be commented or removed -->
+        <module name="UncommentedMain">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- Uppercase for LONG constants definition character (L not l). -->
+        <module name="UpperEll">
+                <property name="severity" value="warning"/>
+        </module>
+
+        
+        <!-- ==================================================== -->
+        <!-- Additional checks (added for the Hibernator project) -->
+
+        <!-- Checks for unused imports -->
+        <module name="UnusedImports">
+                <property name="severity" value="warning"/>
+        </module>
+
+        <!-- Checks for importing java.lang, same package or duplicate -->
+        <module name="RedundantImport">
+                <property name="severity" value="warning"/>
+        </module>
+
+    </module>
+
+</module>

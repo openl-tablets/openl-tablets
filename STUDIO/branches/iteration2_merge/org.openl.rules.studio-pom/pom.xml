@@ -38,7 +38,7 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/trunk</connection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/branches/iteration2_merge</connection>
   </scm>
 
   <repositories>
@@ -106,7 +106,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <configLocation>${ews-checkstyle-settings}</configLocation>
+          <configLocation>config/exigen_checks.xml</configLocation>
         </configuration>
       </plugin>
       <plugin>
@@ -185,6 +185,10 @@
     <profile>
       <id>internal-deploy</id>
       <distributionManagement>
+        <site>
+          <id>internal-minsk</id>
+          <url>file://d:/apache-tomcat-5.5.23/webapps/openl-reports/org.openl.rules.studio</url>
+        </site>
         <repository>
           <id>internal-minsk</id>
           <name>Release Repository</name>
