@@ -83,8 +83,13 @@
 
   <!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
-  <bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
-    <property name="authenticationEntryPoint" ref="authenticationProcessingFilterEntryPoint" />
+  <bean id="exceptionTranslationFilter" class="org.openl.rules.security.OpenLExceptionTranslationFilter">
+    <property name="authenticationEntryPoint" ref="authenticationProcessingFilterEntryPoint"/>
+    <property name="accessDeniedHandler">
+      <bean class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+        <property name="errorPage" value="/accessDenied.jsp"/>
+      </bean>
+    </property>
   </bean>
 
   <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
