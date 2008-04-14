@@ -61,7 +61,7 @@ public class OpenLExceptionTranslationFilter extends ExceptionTranslationFilter 
      *
      * @param throwable Throwable to check
      * @param depth maximum depth to recurse when checking, as we want to be nice and do not generate <code>StackOverflowError</code>
-     *              when causes of the exception form a cycle.
+     *              when causes of the Throwable form a cycle.
      * @return  first <code>AccessDeniedException</code> in cause hierarchy of <code>throwable</code> or <code>null</code> if
      * not found
      */
