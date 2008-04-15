@@ -693,6 +693,9 @@ void UnaryExpression() :
   x=<MINUS> UnaryExpression() 
   {stb.uop("op.unary.negative", pos(x));}
 |
+  x=<TILDE> UnaryExpression() 
+  {stb.uop("op.unary.bitnot", pos(x));}
+|
   x=<BANG> UnaryExpression() 
   {stb.uop("op.unary.not", pos(x));}
 |
@@ -1070,7 +1073,7 @@ void AbsExpression() :
 {
   x1="|" Expression() x2="|"
   {
-    stb.uop("|.|", pos(x1,x2));
+    stb.uop("op.unary.abs", pos(x1,x2));
   }
 }
 
