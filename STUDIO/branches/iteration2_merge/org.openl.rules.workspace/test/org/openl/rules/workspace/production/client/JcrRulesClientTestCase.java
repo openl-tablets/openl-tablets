@@ -4,11 +4,13 @@ import junit.framework.TestCase;
 import org.openl.rules.workspace.TestHelper;
 import static org.openl.rules.workspace.TestHelper.ensureTestFolderExistsAndClear;
 import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
+import static org.openl.rules.workspace.TestHelper.deleteTestFolder;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
 import org.openl.rules.workspace.mock.MockProject;
+import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -34,6 +36,12 @@ public class JcrRulesClientTestCase extends TestCase{
         project = makeProject();
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        ProductionRepositoryFactoryProxy.release();
+        deleteTestFolder();
+    }
+
     private Project makeProject() {
         return (Project)
                 new MockProject(PROJECT_NAME).
@@ -57,9 +65,7 @@ public class JcrRulesClientTestCase extends TestCase{
         JcrProductionDeployer deployer = getDeployer();
         DeployID id = deployer.deploy(Collections.singletonList(project));
 
-        File destDir = new File(TestHelper.FOLDER_TEST);
-        TestHelper.clearDirectory(destDir);
-
+        File destDir = new File(TestHelper.FOLDER_TEST, "download");
         instance.fetchDeployment(id, destDir);
 
         File file1_2 = new File(destDir, PROJECT_NAME + "/" + FOLDER1 + "/" + FILE1_2);

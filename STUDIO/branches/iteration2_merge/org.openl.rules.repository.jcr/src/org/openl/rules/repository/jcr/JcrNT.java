@@ -9,9 +9,13 @@ package org.openl.rules.repository.jcr;
 public interface JcrNT {
 	// Node Types
 	public static final String NT_PROJECT = "openl:project";
+	public static final String NT_PROD_PROJECT = "openl:dproject";
 	public static final String NT_FILES = "openl:files";
+	public static final String NT_PROD_FILES = "openl:dfiles";
 	public static final String NT_FOLDER = "openl:folder";
+	public static final String NT_PROD_FOLDER = "openl:dfolder";
 	public static final String NT_FILE = "openl:file";
+	public static final String NT_PROD_FILE = "openl:dfile";
     public static final String NT_DEPLOYMENT = "openl:deployment";
     public static final String NT_RESOURCE = "nt:resource";
 
