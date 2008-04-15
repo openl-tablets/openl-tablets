@@ -69,10 +69,11 @@
           <include>plugin.xml</include>
           <include>icons/</include>
           <include>templates.build/</include>
-          <!--
           <include>templates.templates/</include>
-          -->
         </includes>
+        <excludes>
+          <exclude>templates.templates/org.openl.tablets.deploy_tutorial4</exclude>
+        </excludes>
       </resource>
 
       <resource>
