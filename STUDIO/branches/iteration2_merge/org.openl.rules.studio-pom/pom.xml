@@ -102,13 +102,13 @@
 
   <reporting>
     <plugins>
-      <!--plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
+        <!--configuration>
           <configLocation>config/exigen_checks.xml</configLocation>
-        </configuration>
-      </plugin-->
+        </configuration-->
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
@@ -124,10 +124,11 @@
           <effort>Max</effort>
         </configuration>
       </plugin>
-      <!--plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>jdepend-maven-plugin</artifactId>
-      </plugin-->
+        <version>2.0-beta-1</version>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
@@ -183,6 +184,23 @@
   <profiles>
     <profile>
       <id>internal-deploy</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>ch.elca.el4j.maven.plugins</groupId>
+            <artifactId>maven-depgraph-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>depgraph</id>
+                <phase>site</phase>
+                <goals>
+                  <goal>depgraph</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
       <distributionManagement>
         <site>
           <id>internal-minsk</id>
