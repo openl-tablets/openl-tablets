@@ -44,6 +44,7 @@ public class RunTest extends TestCase
 		
 		_runNoError("System.out << 35 << \"zzzz\" ", System.out, "org.openl.j");
 		
+		_runNoError("|-10| ", 10, "org.openl.j");
 		
 		
 		
