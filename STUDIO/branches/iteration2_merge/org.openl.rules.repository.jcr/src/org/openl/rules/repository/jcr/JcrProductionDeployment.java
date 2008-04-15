@@ -50,7 +50,7 @@ public class JcrProductionDeployment extends JcrProductionEntity implements RPro
             NodeIterator nodeIterator = node().getNodes();
             while (nodeIterator.hasNext()) {
                 Node node = nodeIterator.nextNode();
-                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_PROJECT)) {
+                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_PROD_PROJECT)) {
                     result.add(getProject(node.getName()));
                 }
             }

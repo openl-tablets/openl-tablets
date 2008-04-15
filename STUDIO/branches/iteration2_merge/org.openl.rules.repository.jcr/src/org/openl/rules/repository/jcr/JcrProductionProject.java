@@ -33,12 +33,12 @@ public class JcrProductionProject extends JcrProductionEntity implements RProjec
      * @throws RepositoryException if fails
      */
     protected static JcrProductionProject createProject(Node parentNode, String nodeName) throws RepositoryException {
-        Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_PROJECT, false);
+        Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_PROD_PROJECT, false);
 
         parentNode.save();
         n.save();
 
-        Node nodeFiles = NodeUtil.createNode(n, NODE_FILES, JcrNT.NT_FILES, false);
+        Node nodeFiles = NodeUtil.createNode(n, NODE_FILES, JcrNT.NT_PROD_FILES, false);
         n.save();
         nodeFiles.save();
 

@@ -24,7 +24,7 @@ public class JcrProductionFolder extends JcrProductionEntity implements RFolder{
      * @throws RepositoryException if fails
      */
     protected static JcrProductionFolder createFolder(Node parentNode, String nodeName) throws RepositoryException {
-        Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_FOLDER, false);
+        Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_PROD_FOLDER, false);
         parentNode.save();
         n.save();
 
@@ -100,7 +100,7 @@ public class JcrProductionFolder extends JcrProductionEntity implements RFolder{
                 Node n = ni.nextNode();
 
                 // TODO: use search? But looking through direct child nodes seems faster
-                if (n.isNodeType(JcrNT.NT_FOLDER)) {
+                if (n.isNodeType(JcrNT.NT_PROD_FOLDER)) {
                     if (!isFiles) {
                         list2add.add(new JcrProductionFolder(n));
                     }
