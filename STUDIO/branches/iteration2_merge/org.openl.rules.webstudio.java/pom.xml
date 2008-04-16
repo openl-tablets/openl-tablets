@@ -36,7 +36,7 @@
         <artifactId>javancss-maven-plugin</artifactId>
         <configuration>
           <excludes>
-          <exclude>**/*</exclude>
+            <exclude>**/*</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -98,18 +98,6 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.security.standalone</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security.integration.ipb</artifactId>
-    </dependency>
-
-    <!--
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.runtime.deployer</artifactId>
-    </dependency>
-    -->
 
     <dependency>
       <groupId>org.openl.rules</groupId>

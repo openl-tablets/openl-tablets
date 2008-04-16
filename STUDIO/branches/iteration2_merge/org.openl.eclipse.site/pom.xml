@@ -208,18 +208,6 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.security.integration.ipb</artifactId>
-    </dependency>
-
-    <!--
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.runtime.deployer</artifactId>
-    </dependency>
-    -->
-
-    <dependency>
-      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.diff</artifactId>
     </dependency>
 
