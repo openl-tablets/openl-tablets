@@ -24,8 +24,6 @@
       <import plugin="org.openl.rules.repository"/>
       <import plugin="org.openl.rules.repository.jcr"/>
       <import plugin="org.openl.rules.workspace"/>
-      <import plugin="org.openl.lib.springsource"/>
-      <import plugin="org.openl.lib.cxf"/>
    </requires>
 
    <plugin
@@ -34,11 +32,5 @@
          install-size="0"
          version="5.0.6"
          unpack="false"/>
-
-   <plugin
-         id="org.openl.lib.cxf"
-         download-size="0"
-         install-size="0"
-         version="5.0.6"/>
 
 </feature>
