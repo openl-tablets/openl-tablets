@@ -32,10 +32,12 @@
          id="org.openl.rules.webstudio.eclipse.feature"
          version="5.0.6"/>
 
-         <!--
    <includes
-         id="org.openl.rules.ruleservice.eclipse_feature"
+         id="org.openl.rules.ruleservice.lib.eclipse.feature"
          version="5.0.6"/>
-         -->
+
+   <includes
+         id="org.openl.rules.ruleservice.eclipse.feature"
+         version="5.0.6"/>
 
 </feature>

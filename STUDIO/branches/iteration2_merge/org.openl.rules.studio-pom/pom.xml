@@ -464,6 +464,32 @@
         <version>${version}</version>
         </dependency-->
 
+
+      <!-- WSFrontend -->
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice.lib</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice.lib.eclipse.feature</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
+        <version>${version}</version>
+      </dependency>
+
       <!-- IPB related -->
       <dependency>
         <groupId>com.exigen.ipb</groupId>
