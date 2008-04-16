@@ -11,10 +11,9 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
-  <name>org.openl.rules.webstudio.eclipse.feature</name>
-  <description></description>
-
+  <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
+  <name>org.openl.rules.ruleservice.eclipse.feature</name>
+  
   <build>
     <resources>
       <resource>
