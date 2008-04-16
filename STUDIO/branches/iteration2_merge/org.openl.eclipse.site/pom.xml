@@ -226,6 +226,27 @@
       <artifactId>org.openl.lib.apache.tomcat</artifactId>
     </dependency>
 
+    <!-- WSFrontend -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.lib</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.lib.eclipse.feature</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>
