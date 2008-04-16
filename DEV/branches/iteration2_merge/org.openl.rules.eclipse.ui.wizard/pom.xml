@@ -65,9 +65,6 @@
 
       <resource>
         <directory>.</directory>
-        <excludes>
-          <exclude>templates.templates/org.openl.tablets.deploy_tutorial4/</exclude>
-        </excludes>
         <includes>
           <include>plugin.xml</include>
           <include>icons/</include>
