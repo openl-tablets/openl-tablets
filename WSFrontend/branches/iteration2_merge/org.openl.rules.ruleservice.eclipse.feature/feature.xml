@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.openl.rules.ruleservice.eclipse_feature"
+      id="org.openl.rules.ruleservice.eclipse.feature"
       label="Rule Service Feature"
       version="5.0.6"
       provider-name="OpenL Tablets">
