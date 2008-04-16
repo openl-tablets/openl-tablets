@@ -1,4 +1,4 @@
-package org.openl.rules.tablets.tutorial4.client.jsf.managedbeans;
+package org.openl.rules.tablets.tutorial4.client.jsf;
 
 import org.openl.rules.tablets.tutorial4.client.Tutorial4ClientInterface;
 import org.openl.tablets.tutorial4.Driver;
