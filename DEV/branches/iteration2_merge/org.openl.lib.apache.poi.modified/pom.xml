@@ -56,7 +56,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <excludePackageNames>org.apache.poi.*</excludePackageNames>
+          <excludePackageNames>org.apache.poi.hpsf.*</excludePackageNames>
+          <excludePackageNames>org.apache.poi.hssf.*</excludePackageNames>
         </configuration>
       </plugin>
     </plugins>
