@@ -6,7 +6,7 @@
 	
 <target name="build.test">
   <antcall target="build.dst.project">
-    <param name="src.dir" value="../templates.templates/openl.rules.examples.hello" />
+    <param name="src.dir" value="../templates/openl.rules.examples.hello" />
     <param name="dst.dir" value="../temp/hello" />
     <param name="dst.project.name" value="hello" />
   </antcall>

@@ -59,7 +59,7 @@
       <!--
       <resource>
         <directory>target/org.openl.rules.webstudio-template</directory>
-        <targetPath>templates.templates/org.openl.rules.webstudio</targetPath>
+        <targetPath>templates/org.openl.rules.webstudio</targetPath>
       </resource>
       -->
 
@@ -69,7 +69,7 @@
           <include>plugin.xml</include>
           <include>icons/</include>
           <include>templates.build/</include>
-          <include>templates.templates/</include>
+          <include>templates/</include>
         </includes>
       </resource>
 
