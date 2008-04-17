@@ -5,7 +5,7 @@
 <target name="build.default">
   <antcall target="build.all">
     <param name="src.dir" value="../templates" />
-    <param name="dst.dir" value="./templates.templates" />
+    <param name="dst.dir" value="./templates" />
   </antcall>
 </target>
 

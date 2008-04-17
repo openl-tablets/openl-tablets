@@ -2,10 +2,10 @@
 
 <project name="build" default="copy.demo.project" basedir="..">
 
-<property name="project_name" value="org.openl.tablets.deploy_tutorial4"/>
+<property name="project_name" value="org.openl.tablets.deploy"/>
 	
 <property name="project.in.the.same.wspace" value="../${project_name}"/>
-<property name="dst_root" value="templates.templates/${project_name}"/>
+<property name="dst_root" value="templates/${project_name}"/>
 
 <target name = "copy.demo.project">
 	

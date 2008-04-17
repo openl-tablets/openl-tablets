@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.openl.tablets.deploy_tutorial4</name>
+	<name>org.openl.tablets.deploy</name>
 	<comment></comment>
 	<buildSpec>
 		<buildCommand>
