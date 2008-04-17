@@ -39,14 +39,23 @@
     </connection>
   </scm>
 
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
+    </repository>
+  </repositories>
+
   <pluginRepositories>
+    <pluginRepository>
+      <id>local</id>
+      <url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
+    </pluginRepository>
+
     <!-- for maven-depgraph-plugin -->
     <pluginRepository>
       <id>elca-services</id>
       <url>http://el4.elca-services.ch/el4j/maven2repository</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
     </pluginRepository>
   </pluginRepositories>
 
@@ -159,7 +168,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>javancss-maven-plugin</artifactId>
-        <version>2.0-beta-2</version>
+        <version>2.0-beta-2-fix</version>
       </plugin>
     </plugins>
   </reporting>
