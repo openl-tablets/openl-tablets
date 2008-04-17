@@ -29,20 +29,6 @@
     </plugins>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>javancss-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/*</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
   <dependencies>
     <dependency>
       <groupId>org.openl.rules</groupId>
