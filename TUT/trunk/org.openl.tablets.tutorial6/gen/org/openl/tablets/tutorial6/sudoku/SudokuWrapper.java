@@ -22,7 +22,7 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
 
   public static String __openlName = "org.openl.xls";
 
-  public static String __src = "rules/SudokuRules.xls";
+  public static String __src = "rules/SudokuRules3.xls";
 
   public static String __folder = "rules";
 
@@ -142,6 +142,40 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
   }
 
 
+  static org.openl.types.IOpenMethod s1_Method;
+  public void s1(java.util.Vector v)  {
+    Object[] __params = new Object[1];
+    __params[0] = v;
+    try
+    {
+    Object __myInstance = __instance;
+    s1_Method.invoke(__myInstance, __params, __env);  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod s3_Method;
+  public void s3(java.util.Vector v)  {
+    Object[] __params = new Object[1];
+    __params[0] = v;
+    try
+    {
+    Object __myInstance = __instance;
+    s3_Method.invoke(__myInstance, __params, __env);  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
   static org.openl.types.IOpenMethod s2_Method;
   public void s2(java.util.Vector v)  {
     Object[] __params = new Object[1];
@@ -159,14 +193,16 @@ public class SudokuWrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod s1_Method;
-  public void s1(java.util.Vector v)  {
-    Object[] __params = new Object[1];
+  static org.openl.types.IOpenMethod solve_Method;
+  public int[][] solve(java.util.Vector v, java.lang.String sname)  {
+    Object[] __params = new Object[2];
     __params[0] = v;
+    __params[1] = sname;
     try
     {
     Object __myInstance = __instance;
-    s1_Method.invoke(__myInstance, __params, __env);  }
+    Object __res = solve_Method.invoke(__myInstance, __params, __env);
+   return (int[][])__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -224,10 +260,15 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       JavaOpenClass.getOpenClass(int.class)});
     runSudokuTestAll_Method = __class.getMatchingMethod("runSudokuTestAll", new IOpenClass[] {
 });
-    s2_Method = __class.getMatchingMethod("s2", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(java.util.Vector.class)});
     s1_Method = __class.getMatchingMethod("s1", new IOpenClass[] {
       JavaOpenClass.getOpenClass(java.util.Vector.class)});
+    s3_Method = __class.getMatchingMethod("s3", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.util.Vector.class)});
+    s2_Method = __class.getMatchingMethod("s2", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.util.Vector.class)});
+    solve_Method = __class.getMatchingMethod("solve", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(java.util.Vector.class),
+      JavaOpenClass.getOpenClass(java.lang.String.class)});
     display_Method = __class.getMatchingMethod("display", new IOpenClass[] {
       JavaOpenClass.getOpenClass(int.class)});
 
