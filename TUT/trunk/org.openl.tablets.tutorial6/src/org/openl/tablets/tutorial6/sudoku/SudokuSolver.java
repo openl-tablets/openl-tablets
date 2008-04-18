@@ -1,7 +1,5 @@
 package org.openl.tablets.tutorial6.sudoku;
 
-import org.openl.tablets.tutorial6.sudoku.Sudoku.SaveResult;
-
 import com.exigen.ie.constrainer.Constrainer;
 import com.exigen.ie.constrainer.Failure;
 import com.exigen.ie.constrainer.Goal;
@@ -13,209 +11,228 @@ import com.exigen.ie.constrainer.IntVar;
 import com.exigen.ie.constrainer.impl.ConstraintAllDiff;
 import com.exigen.ie.constrainer.impl.IntVarImpl;
 
-public class SudokuSolver
-{
-    
-    
-    int h_size, v_size;
-    int[][] data;
-    
-    Constrainer c= new Constrainer("Sudoku");
-    
-    
-    // it is 3 for classic SUDOKU
-  //  int SIZE;
 
-    public SudokuSolver(int h_size, int v_size, int[][] data)
-    {
-	this.h_size = h_size;
-	this.v_size = v_size;
-	this.data = data;
-    }
+/**
+ * 
+ * @author snshor
+ *
+ * SudokuSolver solves different kinds of the Sudoku-family problems by applying straightforward
+ * constraints that exactly match Sudoku rules - i.e no duplicates in any row, columns or small rectangle. 
+ * 
+ * In addition to the traditional 3x3(or you may say it is 9x9 large square) Sudoku, the
+ * Solver is capable of solving other sizes like 3x4, 3x5, 4x4 etc.   
+ *
+ */
 
-    final int SQ_SIZE()
-    {
-	return h_size * v_size;
-    }
+public class SudokuSolver {
 
-    final int TOTAL_SIZE()
-    {
-	return SQ_SIZE() * SQ_SIZE();
-    }
-    
-    
-    static public int[][] solve(int h_size, int v_size, int[][] data) throws Failure
-    {
-	return new SudokuSolver(h_size, v_size, data).solve();
+	int 
+		H, // height of the small rectangle(square)   
+		W; // width of the small rectangle(square)
+	int[][] data;
+
+	Constrainer c = new Constrainer("Sudoku");
+
+	// it is 3 x 3 for classic SUDOKU
+
+	public SudokuSolver(int H, int W, int[][] data) {
+		this.H = H;
+		this.W = W;
+		this.data = data;
+	}
+
 	
-    }
-    
-    int[][] solve() throws Failure{
 	
-	initialize();
+	
+	
+	/**
+	 * 
+	 * @return the number of cells in the single rectangle, the number coincides 
+	 * with the large square side length
+	 */
+	final int RECT_SIZE() {
+		return H * W;
+	}
 
-	IntExpArray allValues = allValues();
-
-	Goal search_goal = new GoalGenerate(allValues);
-	GoalSaveArrayResult save_goal = new GoalSaveArrayResult(c, allValues);
-
-	Goal goal = new GoalAnd(search_goal, save_goal);
-	c.execute(goal);
-
-	return  convert2d(save_goal.getFirstResult());
-
-    }
-    
-    private int[][] convert2d(int[] firstResult)
-    {
-	int sq_size = SQ_SIZE();
-	int[][] res = new int[sq_size][sq_size];
-	for (int i = 0; i < sq_size; i++)
-	{
-	    for (int j = 0; j < sq_size; j++)
-	    {
-		res[i][j] = firstResult[i*sq_size + j];
-		
-	    }
+	final int SIDE() {
+		return RECT_SIZE();
 	}
 	
-	return res;
-    }
+	final int TOTAL_SQUARE_SIZE() {
+		return RECT_SIZE() * RECT_SIZE();
+	}
 
-    private IntExpArray allValues()
-    {
-	IntExpArray ary = new IntExpArray(c, TOTAL_SIZE());
-	for (int i = 0; i < SQ_SIZE(); i++)
-	{
-	    for (int j = 0; j < SQ_SIZE(); j++)
-	    {
-		ary.set(values[i][j], i * SQ_SIZE() + j);
-	    }
+	static public int[][] solve(int H, int W, int[][] data)
+			throws Failure {
+		return new SudokuSolver(H, W, data).solve();
 
 	}
 
-	return ary;
-    }
-    
-    
-    IntVar[][] values; 
-    
-    void initialize() throws Failure
-    {
-	values = new IntVar[SQ_SIZE()][SQ_SIZE()];
+	public int[][] solve() throws Failure {
 
-	for (int i = 0; i < SQ_SIZE(); i++)
-	{
-	    for (int j = 0; j < SQ_SIZE(); j++)
-	    {
-		values[i][j] = new IntVarImpl(c, 1, SQ_SIZE());
-		if (data[i][j] > 0)
-		{
-		    c.postConstraint(values[i][j].equals(data[i][j]));
+		initialize();
+
+		IntExpArray allCells = populateAllCells();
+
+		Goal search_goal = new GoalGenerate(allCells);
+		GoalSaveArrayResult save_goal = new GoalSaveArrayResult(c, allCells);
+
+		Goal goal = new GoalAnd(search_goal, save_goal);
+		c.execute(goal);
+
+		return convert2d(save_goal.getFirstResult());
+
+	}
+
+	/**
+	 * 
+	 * Converts one-dimensional result into 2d matrix
+	 * 
+	 * @param resultAry
+	 * @return
+	 */
+	
+	private int[][] convert2d(int[] resultAry) {
+		int side = SIDE();
+		int[][] res = new int[side][side];
+		for (int i = 0; i < side; i++) {
+			for (int j = 0; j < side; j++) {
+				res[i][j] = resultAry[i * side + j];
+
+			}
 		}
-	    }
+
+		return res;
 	}
 
-	// add column constraints
+	
+    /**
+     * 
+     * @return all the values in array. Converts IntVar[][] matrix into  IntExpArray
+     */	
+	private IntExpArray populateAllCells() {
+		IntExpArray ary = new IntExpArray(c, TOTAL_SQUARE_SIZE());
+		for (int i = 0; i < SIDE(); i++) {
+			for (int j = 0; j < SIDE(); j++) {
+				ary.set(values[i][j], i * SIDE() + j);
+			}
 
-	for (int column = 0; column < SQ_SIZE(); column++)
-	{
+		}
 
-	    IntExpArray ary = makeColumn(column);
-
-	    try
-	    {
-		c.postConstraint(new ConstraintAllDiff(ary));
-	    } catch (Failure f)
-	    {
-		throw new RuntimeException("Duplicated Values in Column "
-			+ (column + 1));
-	    }
+		return ary;
 	}
 
-	// square constraints
-	for (int square = 0; square < SQ_SIZE(); square++)
-	{
+	IntVar[][] values;
 
-	    IntExpArray ary = makeRect(square);
+	void initialize() throws Failure {
+		
+		//create matrix
+		values = new IntVar[SIDE()][SIDE()];
 
-	    try
-	    {
-		c.postConstraint(new ConstraintAllDiff(ary));
+		//First we post equality constraints for all non-zero values in the data matrix
+		
+		for (int i = 0; i < SIDE(); i++) {
+			for (int j = 0; j < SIDE(); j++) {
+				values[i][j] = new IntVarImpl(c, 1, SIDE());
+				if (data[i][j] > 0) {
+					c.postConstraint(values[i][j].equals(data[i][j]));
+				}
+			}
+		}
 
-	    } catch (Failure f)
-	    {
-		throw new RuntimeException("Duplicated Values in Square "
-			+ (square + 1));
-	    }
+		
+		// Now we apply ConstraintAllDiff to all the columns, rows and rectangles  
+		
+		
+		// add columns constraints
+		
+
+		for (int column = 0; column < SIDE(); column++) {
+
+			IntExpArray ary = makeColumn(column);
+
+			try {
+				c.postConstraint(new ConstraintAllDiff(ary));
+			} catch (Failure f) {
+				throw new RuntimeException("Duplicated Values in Column "
+						+ (column + 1));
+			}
+		}
+
+		// square(rectangle) constraints
+		for (int rect = 0; rect < RECT_SIZE(); rect++) {
+
+			IntExpArray ary = makeRect(rect);
+
+			try {
+				c.postConstraint(new ConstraintAllDiff(ary));
+
+			} catch (Failure f) {
+				throw new RuntimeException("Duplicated Values in Rectangle "
+						+ (rect + 1));
+			}
+		}
+
+		// row constraints
+		for (int row = 0; row < SIDE(); row++) {
+
+			IntExpArray ary = makeRow(row);
+
+			try {
+				c.postConstraint(new ConstraintAllDiff(ary));
+			} catch (Failure f) {
+				throw new RuntimeException("Duplicated Values in Row "
+						+ (row + 1));
+			}
+		}
+
+	}
+	
+	
+
+	private IntExpArray makeColumn(int col) {
+		IntExpArray ary = new IntExpArray(c, SIDE());
+		for (int i = 0; i < SIDE(); i++) {
+			ary.set(values[i][col], i);
+		}
+		return ary;
 	}
 
-	// square constraints
-	for (int row = 0; row < SQ_SIZE(); row++)
-	{
-
-	    IntExpArray ary = makeRow(row);
-
-	    try
-	    {
-		c.postConstraint(new ConstraintAllDiff(ary));
-	    } catch (Failure f)
-	    {
-		throw new RuntimeException("Duplicated Values in Row "
-			+ (row + 1));
-	    }
+	private IntExpArray makeRow(int row) {
+		IntExpArray ary = new IntExpArray(c, SIDE());
+		for (int i = 0; i < SIDE(); i++) {
+			ary.set(values[row][i], i);
+		}
+		return ary;
 	}
 
-    }   
-    IntExpArray makeColumn(int col)
-    {
-	IntExpArray ary = new IntExpArray(c, SQ_SIZE());
-	for (int i = 0; i < SQ_SIZE(); i++)
-	{
-	    ary.set(values[i][col], i);
+	/**
+	 * There are as many rectangles in Sudoku large square as there are cells in the rectangle itself;
+	 * 
+	 * For example, if rectangle  HxW == 5x3 there are 5 rectangles in the row and 3 rows 
+	 * of rectangles - total 15  
+	 * 
+	 * 
+	 * @param rect
+	 * @return
+	 */
+
+	IntExpArray makeRect(int rect) {
+		IntExpArray ary = new IntExpArray(c, SIDE());
+
+		int rect_row_size = H;
+
+		int startRow = rect / rect_row_size * H;
+
+		int startCol = rect % rect_row_size * W;
+
+		for (int row = 0; row < H; row++) {
+			for (int col = 0; col < W; ++col) {
+				ary.set(values[startRow + row][startCol + col], row * W
+						+ col);
+			}
+		}
+		return ary;
 	}
-	return ary;
-    }    
-    
-    IntExpArray makeRow(int row)
-    {
-	IntExpArray ary = new IntExpArray(c, SQ_SIZE());
-	for (int i = 0; i < SQ_SIZE(); i++)
-	{
-	    ary.set(values[row][i], i);
-	}
-	return ary;
-    }
-    
-  /**
-   * There is as many rectangles in Sudoku as cells in the rectangle itself
-   * @param rect
-   * @return
-   */
-    
-    IntExpArray makeRect(int rect)
-    {
-	IntExpArray ary = new IntExpArray(c, SQ_SIZE());
-	
-	int rect_row_size = v_size;
-	
-	
-	
-	int startRow = rect/rect_row_size * v_size;
-	
-	int startCol = rect % rect_row_size * h_size;
-	
-	
-	
-	for (int row =0 ; row < v_size; row++)
-	{
-	    for (int col = 0; col < h_size; ++col)
-	    {	
-		ary.set(values[startRow + row][startCol + col], row * h_size + col);
-	    } 
-	}
-	return ary;
-    }
-    
-    
+
 }
