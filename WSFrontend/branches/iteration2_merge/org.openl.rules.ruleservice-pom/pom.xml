@@ -101,7 +101,13 @@
               <tasks>
                 <taskdef resource="tasks.properties" />
 
-                <cobertura-report datafile="..\org.openl.rules.ruleservice\target\cobertura\cobertura.ser"
+                <cobertura-merge datafile="target\cobertura-merged-file.ser">
+                  <fileset dir="..">
+                    <include name="org.openl.rules.ruleservice\target\cobertura\cobertura.ser" />
+                  </fileset>
+                </cobertura-merge>
+
+                <cobertura-report datafile="target\cobertura-merged-file.ser"
                   destdir="target\site\cobertura-summary">
                   <fileset dir="..\org.openl.rules.ruleservice\src\">
                     <include name="**\*.java" />
