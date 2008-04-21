@@ -134,7 +134,7 @@
                 </cobertura-merge>
 
                 <cobertura-report datafile="target\cobertura-merged-file.ser"
-                  destdir="target\cobertura-report\html">
+                  destdir="target\site\cobertura-summary">
                   <fileset dir="..\org.openl.rules.repository\src\">
                     <include name="**\*.java" />
                   </fileset>
