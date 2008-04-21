@@ -1,0 +1,24 @@
+<project name="Proficio">
+  <bannerLeft>
+    <name>OpenL</name>
+    <src>images/header_logo.jpg</src>
+  </bannerLeft>
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-stylus-skin</artifactId>
+    <version>1.0</version>
+  </skin>
+  <publishDate format="dd MMM yyyy" />
+  <body>
+    <head>
+      <meta name="faq" content="WebStudio" />
+    </head>
+    <menu name="Quick Links">
+      <item name="Features" href="/maven-features.html" />
+    </menu>
+    <menu name="About WebStudio">
+      <item name="What is WebStudio?" href="/what-is-maven.html" />
+    </menu>
+    ${reports}
+  </body>
+</project>
