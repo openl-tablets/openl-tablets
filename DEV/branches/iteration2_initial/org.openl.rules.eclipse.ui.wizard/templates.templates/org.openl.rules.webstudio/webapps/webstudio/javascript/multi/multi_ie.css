@@ -1,3 +1,0 @@
-.multi_choice_container {
-    height:expression(this.scrollHeight > 250 ? '250px': 'auto');
-}
