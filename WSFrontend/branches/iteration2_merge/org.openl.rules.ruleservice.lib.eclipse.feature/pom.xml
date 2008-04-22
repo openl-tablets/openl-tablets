@@ -5,9 +5,9 @@
 
   <parent>
     <groupId>org.openl.rules</groupId>
-    <artifactId>org.openl.rules.dev-pom</artifactId>
+    <artifactId>org.openl.rules.ruleservice-pom</artifactId>
     <version>5.0.6-SNAPSHOT</version>
-    <relativePath>../org.openl.rules.dev-pom</relativePath>
+    <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
   </parent>
 
   <groupId>org.openl.rules</groupId>
