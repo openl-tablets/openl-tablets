@@ -1,25 +1,26 @@
 package org.openl.rules.webstudio.web.repository;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.services.upload.RProjectBuilder;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.abstracts.ProjectException;
-import org.openl.util.Log;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LocalUploadController {
+    private final static Log log = LogFactory.getLog(LocalUploadController.class);
+
     private List<UploadBean> uploadBeans;
 
     public List<UploadBean> getProjects4Upload() {
@@ -41,7 +42,7 @@ public class LocalUploadController {
                         if (!dtr.hasProject(f.getName()))
                             uploadBeans.add(new UploadBean(f.getName()));
                     } catch (Exception e) {
-                        Log.error("Failed to list projects for upload!", e);
+                        log.error("Failed to list projects for upload!", e);
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
                     }
             }
@@ -73,6 +74,7 @@ public class LocalUploadController {
                                                             " was uploaded succesfully", null
                         ));
                     } catch (Exception e) {
+                        log.error("Failed to upload local project!", e);
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
                                 "could not upload project: " + bean.getProjectName(), e.getMessage()
                         ));
@@ -91,23 +93,6 @@ public class LocalUploadController {
 
         rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName());
 
-    }
-
-    private void addItems(RProjectBuilder builder, String folderPath, File folder,
-            ArrayList<FileInputStream> openStreams) throws ProjectException, FileNotFoundException {
-        File[] files = folder.listFiles();
-        for (File f : files) {
-            if (f.isDirectory()) {
-                String nextFolderPath = folderPath + f.getName() + "/";
-                builder.addFolder(nextFolderPath);
-                addItems(builder, nextFolderPath, f, openStreams);
-            } else {
-                FileInputStream inputStream = new FileInputStream(f);
-                openStreams.add(inputStream);
-
-                builder.addFile(folderPath + f.getName(), inputStream);
-            }
-        }
     }
 
     public static class UploadBean {
