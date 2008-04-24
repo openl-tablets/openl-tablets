@@ -85,11 +85,9 @@ public class SmartRedeployController {
                                 + "' successfully deployed with id: " + id.getName(), null));
             } catch (Exception e) {
                 String msg = "Failed to deploy '" + project.getName() + "'";
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e
-                                .getMessage()));
                 log.error(msg, e);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
             }
         }
 
@@ -247,10 +245,10 @@ public class SmartRedeployController {
                 return deploymentProject;
             }
         } catch (ProjectException e) {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to update deployment project '"
-                            + deploymentName + "'", null));
+            String msg = "Failed to update deployment project '" + deploymentName + "'";
+            log.error(msg, e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null));
         }
 
         return null;

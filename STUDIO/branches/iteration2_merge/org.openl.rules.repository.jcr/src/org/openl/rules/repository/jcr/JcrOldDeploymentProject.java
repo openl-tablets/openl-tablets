@@ -20,7 +20,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public class JcrOldDeploymentProject implements RDeploymentDescriptorProject {
 
     private String name;
-    private Node node;
     private JcrVersion version;
     
     private HashMap<String, RProjectDescriptor> projects;
@@ -114,11 +113,7 @@ public class JcrOldDeploymentProject implements RDeploymentDescriptorProject {
     }
 
     // --- protected
-    
-    protected Node node() {
-        return node;
-    }
-    
+
     protected void notSupported() throws RRepositoryException {
         throw new RRepositoryException("Cannot modify artefact version!", null);
     }

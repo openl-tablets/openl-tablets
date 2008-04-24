@@ -84,6 +84,7 @@ public class AcegiFunctions {
         try {
             SecurityUtils.check(authority);
         } catch (AcegiSecurityException ase) {
+            if (log.isDebugEnabled()) log.debug("isGranted", ase);
             return false;
         }
         return true;

@@ -44,6 +44,11 @@ public class WorkspaceUserImpl implements WorkspaceUser {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return userName.hashCode();
+    }
+
     // --- protected
 
     /**

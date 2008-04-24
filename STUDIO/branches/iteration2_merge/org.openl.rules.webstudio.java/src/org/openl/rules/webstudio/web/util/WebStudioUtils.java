@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.JSFConst;
@@ -21,6 +23,8 @@ import javax.servlet.http.HttpSession;
  * @author Aliaksandr Antonik
  */
 public abstract class WebStudioUtils {
+    private static final Log log = LogFactory.getLog(WebStudioUtils.class);
+
     public static WebStudio getWebStudio() {
         return (WebStudio) (FacesUtils.getSessionMap().get("studio"));
     }
@@ -52,6 +56,7 @@ public abstract class WebStudioUtils {
             InetAddress addr = InetAddress.getByName(ip);
             return (addr != null) && addr.isLoopbackAddress();
         } catch (UnknownHostException e) {
+            log.info("Cannot check '" + ip + "'.", e);
             return false;
         }
     }

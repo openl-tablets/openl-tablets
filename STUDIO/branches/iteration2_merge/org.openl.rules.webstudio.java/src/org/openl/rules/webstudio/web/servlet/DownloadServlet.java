@@ -12,11 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.ui.WebStudio;
 import org.openl.syntax.impl.FileSourceCodeModule;
 
 public class DownloadServlet extends HttpServlet {
+    private static final Log log = LogFactory.getLog(DownloadServlet.class);
+
     private static final long serialVersionUID = -5102656998760586960L;
 
     @Override
@@ -60,7 +64,9 @@ public class DownloadServlet extends HttpServlet {
             FileSourceCodeModule fileSourceCodeModule = (FileSourceCodeModule) module;
             try {
                 return file.getParentFile().equals(fileSourceCodeModule.getFile().getParentFile().getCanonicalFile());
-            } catch (IOException e) {}
+            } catch (IOException e) {
+                log.error("", e);
+            }
         }
         return false;
     }

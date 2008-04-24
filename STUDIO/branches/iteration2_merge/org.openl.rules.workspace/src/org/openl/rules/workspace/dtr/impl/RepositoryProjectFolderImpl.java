@@ -26,13 +26,13 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
     
     protected RepositoryProjectFolderImpl(RFolder rulesFolder, ArtefactPath path) {
         super(rulesFolder, path);
-        
+
         this.rulesFolder = rulesFolder;
     }
 
     RepositoryProjectFolderImpl(RProject rulesProject, RFolder rulesFolder, ArtefactPath path) {
         super(rulesProject, path);
-        
+
         this.rulesFolder = rulesFolder;
     }
 
@@ -53,7 +53,7 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
         } catch (RRepositoryException e) {
             rre = e;
         }
-        
+
         throw new ProjectException("Cannot find project artefact ''{0}''!", rre, name);
     }
 
@@ -75,23 +75,21 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
             // TODO throw exception?
             log.error("Cannot get artefacts!", e);
         }
-        
+
         return result;
-        
-//        return new LinkedList<RepositoryProjectArtefact>();
     }
-    
+
     public void update(ProjectArtefact srcArtefact) throws ProjectException {
         ProjectFolder srcFolder = (ProjectFolder) srcArtefact;
         super.update(srcArtefact);
-        
+
         // remove absent
         for (RepositoryProjectArtefact rpa : getArtefacts()) {
             String name = rpa.getName();
 
             if (!srcFolder.hasArtefact(name)) {
-        	// was deleted
-        	rpa.delete();
+                // was deleted
+                rpa.delete();
             } else {
                 ProjectArtefact artefact = srcFolder.getArtefact(name);
 
@@ -104,11 +102,11 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
                 }
             }
         }
-        
+
         // add new
         for (ProjectArtefact pa : srcFolder.getArtefacts()) {
             String name = pa.getName();
-            
+
             if (!hasArtefact(name)) {
                 // absent ?
                 addArtefact(pa);
@@ -121,7 +119,7 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
             rulesFolder.delete();
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to delete project folder ''{0}''", e, getArtefactPath().getStringValue());
-        }        
+        }
     }
 
     public boolean hasArtefact(String name) {
@@ -129,8 +127,9 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
             getArtefact(name);
             return true;
         } catch (ProjectException e) {
+            if (log.isDebugEnabled()) log.debug("hasArtefact", e);
             return false;
-        }        
+        }
     }
 
     public boolean isFolder() {
@@ -138,19 +137,19 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
     }
 
     // --- private
-    
+
     private RepositoryProjectFolder wrapFolder(RFolder folder) {
         ArtefactPath ap = getArtefactPath().withSegment(folder.getName());
-        
+
         return new RepositoryProjectFolderImpl(folder, ap);
     }
 
     private RepositoryProjectResource wrapFile(RFile file) {
         ArtefactPath ap = getArtefactPath().withSegment(file.getName());
-        
+
         return new RepositoryProjectResourceImpl(file, ap);
     }
-    
+
     private void addArtefact(ProjectArtefact artefact) throws ProjectException {
         try {
             if (artefact.isFolder()) {
@@ -166,6 +165,6 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
             }
         } catch (RRepositoryException e) {
             throw new ProjectException("Failed to update artefact ''{0}''", e, getArtefactPath().getStringValue());
-        }        
+        }
     }
 }
