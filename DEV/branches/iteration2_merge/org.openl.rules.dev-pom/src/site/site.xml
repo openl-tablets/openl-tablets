@@ -13,6 +13,8 @@
     <menu name="Summary reports">
       <item name="Cobertura" href="/cobertura-summary/index.html" />
     </menu>
-    ${reports}
+    <menu ref="parent" />
+    <menu ref="modules" />
+    <menu ref="reports" />
   </body>
 </project>
