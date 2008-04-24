@@ -3,6 +3,8 @@ package org.openl.rules.workspace.uw.impl;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.dtr.RepositoryProjectArtefact;
@@ -16,6 +18,8 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 
 public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefactImpl implements UserWorkspaceProjectFolder {
+    private static final Log log = LogFactory.getLog(UserWorkspaceProjectFolderImpl.class);
+
     private LocalProjectFolder localFolder;
     private RepositoryProjectFolder dtrFolder;
     
@@ -116,7 +120,8 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
             }
         } catch (ProjectException e) {
             // ignore
-        }        
+            log.error("wrapLocalArtefact", e);
+        }
         if (lpa.isFolder()) {
             if (!isRemoteFolder) rpa = null;
             return wrapFolder((LocalProjectFolder)lpa, (RepositoryProjectFolder)rpa);

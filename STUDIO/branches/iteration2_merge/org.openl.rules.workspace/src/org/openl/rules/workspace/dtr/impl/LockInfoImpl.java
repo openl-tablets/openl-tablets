@@ -15,7 +15,7 @@ import org.openl.rules.workspace.dtr.LockInfo;
 public class LockInfoImpl implements LockInfo {
 
     /** nil object to avoid NullPointer exceptions */
-    public static LockInfoImpl NO_LOCK = new LockInfoImpl();
+    public static final LockInfoImpl NO_LOCK = new LockInfoImpl();
 
     private boolean isLocked;
     private Date lockedAt;

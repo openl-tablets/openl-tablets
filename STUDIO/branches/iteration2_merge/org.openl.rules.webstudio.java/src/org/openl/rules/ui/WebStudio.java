@@ -7,11 +7,9 @@ package org.openl.rules.ui;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
-import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 
@@ -34,8 +32,9 @@ import javax.servlet.http.HttpSession;
  */
 public class WebStudio {
     private final static Log log = LogFactory.getLog(WebStudio.class);
+
     private final String workspacePath;
-    ArrayList benchmarks = new ArrayList();
+    ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
     List<StudioListener> listeners = new ArrayList<StudioListener>();
     int tableID = -1;
     ProjectModel model = new ProjectModel(this);
@@ -258,7 +257,7 @@ public class WebStudio {
     }
 
     public BenchmarkInfo[] getBenchmarks() {
-        return (BenchmarkInfo[]) this.benchmarks.toArray(new BenchmarkInfo[0]);
+        return benchmarks.toArray(new BenchmarkInfo[0]);
     }
 
     public UserWorkspaceProject getCurrentProject(HttpSession session)

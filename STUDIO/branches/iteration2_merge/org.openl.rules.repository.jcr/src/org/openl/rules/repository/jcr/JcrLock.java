@@ -6,21 +6,24 @@ import java.util.Date;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonUserImpl;
 import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrLock implements RLock {
+    private static final Log log = LogFactory.getLog(JcrLock.class);
 
     private Node node;
-    
+
     protected JcrLock(Node projectNode) throws RepositoryException {
         String projectName = projectNode.getName();
         Node parent = projectNode.getParent();
-        
+
         String lockNode = "lock~" + projectName;
-        
+
         if (parent.hasNode(lockNode)) {
             node = parent.getNode(lockNode);
         } else {
@@ -28,15 +31,15 @@ public class JcrLock implements RLock {
             parent.save();
         }
     }
-    
+
     public Date getLockedAt() {
         try {
             if (node.hasProperty(JcrNT.PROP_LOCKED_AT)) {
                 return node.getProperty(JcrNT.PROP_LOCKED_AT).getDate().getTime();
             }
         } catch (RepositoryException e) {
-            // TODO log exception
-        }        
+            log.info("getLockedAt", e);
+        }
 
         return null;
     }
@@ -48,8 +51,8 @@ public class JcrLock implements RLock {
                 return new CommonUserImpl(whoLocked);
             }
         } catch (RepositoryException e) {
-            // TODO log exception
-        }        
+            log.info("getLockedBy", e);
+        }
 
         return null;
     }
@@ -58,9 +61,9 @@ public class JcrLock implements RLock {
         try {
             return (node.hasProperty(JcrNT.PROP_LOCKED_BY));
         } catch (RepositoryException e) {
-            // TODO log exception
+            log.info("isLocked", e);
             return false;
-        }        
+        }
     }
 
     protected void lock(CommonUser user) throws RRepositoryException {
@@ -72,7 +75,7 @@ public class JcrLock implements RLock {
             }
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot check lock.", e);
-        }        
+        }
 
         try {
             node.setProperty(JcrNT.PROP_LOCKED_BY, user.getUserName());
@@ -80,7 +83,7 @@ public class JcrLock implements RLock {
             node.save();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to set lock.", e);
-        }        
+        }
     }
     
     protected void unlock(CommonUser user) throws RRepositoryException {
@@ -98,17 +101,17 @@ public class JcrLock implements RLock {
             }
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot check lock.", e);
-        }        
-        
+        }
+
         try {
             node.setProperty(JcrNT.PROP_LOCKED_BY, (String)null);
             node.setProperty(JcrNT.PROP_LOCKED_AT, (Calendar)null);
             node.save();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to remove lock.", e);
-        }        
+        }
     }
-    
+
     protected Calendar currTime() {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());

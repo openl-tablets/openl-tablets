@@ -118,6 +118,7 @@ public class RepositoryDeploymentDescriptorProjectImpl implements RepositoryDDPr
             }
         } catch (RRepositoryException e) {
             log.error("Failed to get version history!", e);
+            // empty or partial list will be returned
         }
         return vers;
     }

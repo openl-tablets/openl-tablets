@@ -149,6 +149,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     lp = localWorkspace.getProject(name);
                 } catch (ProjectException e) {
                     // ignore
+                    log.error("refreshRulesProjects", e);
                 }
             }
 

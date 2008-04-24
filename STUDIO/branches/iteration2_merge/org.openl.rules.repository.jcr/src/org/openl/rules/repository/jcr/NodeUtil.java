@@ -14,6 +14,8 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -25,6 +27,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class NodeUtil {
+    private static final Log log = LogFactory.getLog(NodeUtil.class);
 
     /**
      * Inquire whether given version is 'root'.
@@ -64,7 +67,7 @@ public class NodeUtil {
                     break;
                 }
             }
-            
+
             p = p.getParent();
         }
 
@@ -92,19 +95,19 @@ public class NodeUtil {
 
         if (openParent) {
             Node parentNode = node.getParent();
-            
+
             if (!parentNode.isCheckedOut()) {
                 parentNode.checkout();
             }
         }
     }
-    
+
     protected static Node getNode4Version(Node node, CommonVersion version) throws RepositoryException {
         Node result = null;
 
         VersionHistory vh = node.getVersionHistory();
         VersionIterator vi = vh.getAllVersions();
-        
+
         while (vi.hasNext()) {
             Version jcrVersion = vi.nextVersion();
 
@@ -113,32 +116,32 @@ public class NodeUtil {
             } else {
                 JcrVersion jvi = new JcrVersion(jcrVersion);
                 CommonVersionImpl cv = new CommonVersionImpl(jvi.getMajor(), jvi.getMinor(), jvi.getRevision());
-                
+
                 if (cv.compareTo(version) == 0) {
                     result = jcrVersion.getNode(JcrNT.FROZEN_NODE);
                     break;
                 }
             }
         }
-        
+
         if (result == null) {
             throw new RepositoryException("Cannot find version '" + version.getVersionName() + "'!");
         }
-        
+
         return result;
     }
-    
+
     protected static Node normalizeOldNode(Node node, CommonVersion version) throws RepositoryException {
         if (node.isNodeType(JcrNT.NT_FROZEN_NODE)) {
             // all is OK
             return node;
         }
-        
+
         if (!node.isNodeType("nt:versionedChild")) {
             // ??? unknown
             return node;
         }
-        
+
         Node versionHistoryNode = node.getProperty("jcr:childVersionHistory").getNode();
 
         int projectRevision = version.getRevision();
@@ -169,17 +172,17 @@ public class NodeUtil {
                 }
             }
         }
-        
+
         return correctVNode;
     }
-    
+
     protected static void printNode(Node node) throws RepositoryException {
         System.out.println("Node: " + node.getName());
-        
+
         PropertyIterator pi = node.getProperties();
         while (pi.hasNext()) {
             Property p = pi.nextProperty();
-            
+
             boolean isProtected = p.getDefinition().isProtected();
             boolean isMultiple = p.getDefinition().isMultiple();
 
@@ -187,7 +190,7 @@ public class NodeUtil {
             if (isProtected) {
                 status = "protected";
             }
-            
+
             if (isMultiple) {
                 System.out.println(" p " + p.getName() + " multiple " + status);
             } else {
@@ -262,7 +265,7 @@ public class NodeUtil {
             Node resNode = node.getNode ("jcr:content");
             result = resNode.getProperty("jcr:data").getLength();
         } catch (RepositoryException e) {
-            // TODO: log exception
+            log.warn("getFileNodeSize", e);
             result = -1;
         }
 
@@ -276,6 +279,4 @@ public class NodeUtil {
             throw new RRepositoryException("Failed to get Content!", e);
         }
     }
-
-
 }

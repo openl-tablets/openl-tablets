@@ -6,6 +6,8 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonUser;
 import org.openl.rules.repository.CommonUserImpl;
 import org.openl.rules.repository.CommonVersion;
@@ -19,6 +21,7 @@ import org.openl.rules.repository.RVersion;
  *
  */
 public class JcrVersion implements RVersion {
+    private static final Log log = LogFactory.getLog(JcrVersion.class);
 
     private Date lastModified;
     private String modifiedBy;
@@ -94,15 +97,15 @@ public class JcrVersion implements RVersion {
             major = i >> 16;
             minor = i & (0xFFFF);
         } catch (RepositoryException e) {
-            // TODO: add logging
+            // ignore
         }
 
         try {
             revision = node.getProperty(JcrNT.PROP_REVISION).getLong();
         } catch (RepositoryException e) {
-            // TODO: add logging
+            // ignore
         }
-        
+
         version = new CommonVersionImpl(major, minor, (int)revision);
 
         if (node.hasProperty(JcrNT.PROP_MODIFIED_BY)) { 
@@ -138,5 +141,13 @@ public class JcrVersion implements RVersion {
 
     public int compareTo(CommonVersion o) {
         return version.compareTo(o);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof JcrVersion)) return false;
+
+        return compareTo((JcrVersion) obj) == 0;
     }
 }

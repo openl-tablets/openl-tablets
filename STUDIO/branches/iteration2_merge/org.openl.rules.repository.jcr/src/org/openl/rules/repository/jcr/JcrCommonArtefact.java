@@ -9,10 +9,14 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrCommonArtefact {
+    private final static Log log = LogFactory.getLog(JcrCommonArtefact.class);
+
     private String name;
     private Node node;
     
@@ -44,7 +48,7 @@ public class JcrCommonArtefact {
             RVersion result = new JcrVersion(v);
             return result;
         } catch (RepositoryException e) {
-            e.printStackTrace();
+            log.info("getActiveVersion", e);
             return null;
         }
     }

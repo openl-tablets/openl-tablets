@@ -5,11 +5,14 @@ import java.io.InputStream;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.repository.RFile;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrOldFile extends JcrOldEntity implements RFile {
+    private static final Log log = LogFactory.getLog(JcrOldFile.class);
 
     public JcrOldFile(JcrOldEntity parent, String name, Node node) throws RepositoryException {
         super(parent, name, node);
@@ -45,7 +48,7 @@ public class JcrOldFile extends JcrOldEntity implements RFile {
             Node resNode = n.getNode ("jcr:content");
             result = resNode.getProperty("jcr:data").getLength();
         } catch (RepositoryException e) {
-            // TODO: log exception
+            log.info("getSize", e);
             result = -1;
         }
 

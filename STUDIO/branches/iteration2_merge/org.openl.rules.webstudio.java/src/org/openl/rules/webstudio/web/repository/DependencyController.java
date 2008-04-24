@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -11,7 +13,6 @@ import org.openl.rules.workspace.abstracts.impl.ProjectDependencyImpl;
 import org.openl.rules.workspace.dtr.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.util.Log;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -23,6 +24,8 @@ import java.util.Set;
 
 
 public class DependencyController {
+    private final static Log log = LogFactory.getLog(DependencyController.class);
+
     /** A controller which contains pre-built UI object tree. */
     private RepositoryTreeState repositoryTreeState;
     private String projectName;
@@ -78,6 +81,7 @@ public class DependencyController {
                 return null;
             }
         } catch (ProjectException e) {
+            log.error("Failed to add dependency!", e);
             FacesContext.getCurrentInstance()
                 .addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
@@ -92,7 +96,7 @@ public class DependencyController {
         try {
             workspace = getRulesUserSession().getUserWorkspace();
         } catch (Exception e) {
-            Log.error("could not get user workspace", e);
+            log.error("Failed to get user workspace!", e);
             return new SelectItem[0];
         }
         if (projectName == null) {
@@ -107,6 +111,7 @@ public class DependencyController {
             }
             return selectItems.toArray(new SelectItem[selectItems.size()]);
         } catch (ProjectException e) {
+            log.error("Cannot get project versions", e);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
         }
 
@@ -170,6 +175,7 @@ public class DependencyController {
 
             return new RepositoryProjectVersionImpl(major, minor, rev, null);
         } catch (Exception e) {
+            // ignore exception
             return null;
         }
     }

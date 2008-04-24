@@ -1,6 +1,8 @@
 package org.openl.rules.repository.jcr;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.REntity;
 import org.openl.rules.repository.RProductionDeployment;
@@ -24,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository, EventListener {
+    private static final Log log = LogFactory.getLog(JcrProductionRepository.class);
+
     private Node deployLocation;
     private List<RDeploymentListener> listeners =new ArrayList<RDeploymentListener>();
 
@@ -49,7 +53,9 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     public void release() {
         try {
             session.getWorkspace().getObservationManager().removeEventListener(this);
-        } catch (RepositoryException e) {}
+        } catch (RepositoryException e) {
+            if (log.isDebugEnabled()) log.debug("release", e);
+        }
         super.release();
     }
 
@@ -194,7 +200,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                     result.add(new JcrProductionProject(node));
                 }
             }
-                                  
+
             return result;
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to run query", e);
@@ -239,7 +245,9 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                     hasInterestingEvents = true;
                     break;
                 }
-            } catch (RepositoryException e) {}
+            } catch (RepositoryException e) {
+                if (log.isDebugEnabled()) log.debug("onEvent-1", e);
+            }
         }
 
         if (hasInterestingEvents) {
@@ -247,7 +255,9 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             for (RDeploymentListener l : listenersCopy) {
                 try {
                     l.projectsAdded();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    if (log.isDebugEnabled()) log.debug("onEvent-2", e);
+                }
             }
 
         }

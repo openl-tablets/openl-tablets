@@ -30,17 +30,6 @@ public class ExigenJcrRepository extends AbstractJcrRepositoryFactory {
         }
     }
 
-    /**
-     * Release all allocated resources.
-     * <p>
-     * Note: There is no 100% that {@link #finalize()} will be invoked by JVM
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        // TODO: close open sessions
-        super.finalize();
-    }
-
     /** {@inheritDoc} */
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {
         throw new RepositoryException("Nodetypes can be initialized by this program."

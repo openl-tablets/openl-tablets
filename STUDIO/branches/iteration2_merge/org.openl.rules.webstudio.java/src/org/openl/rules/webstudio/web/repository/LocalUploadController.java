@@ -33,6 +33,7 @@ public class LocalUploadController {
                 try {
                     dtr = userRules.getUserWorkspace().getDesignTimeRepository();
                 } catch (Exception e) {
+                    log.error("Cannot get DTR!", e);
                     return null;
                 }
 
@@ -70,13 +71,14 @@ public class LocalUploadController {
                     try {
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession);
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
-                                FacesMessage.SEVERITY_INFO, "project " + bean.getProjectName() +
+                                FacesMessage.SEVERITY_INFO, "Project " + bean.getProjectName() +
                                                             " was uploaded succesfully", null
                         ));
                     } catch (Exception e) {
-                        log.error("Failed to upload local project!", e);
+                        String msg = "Failed to upload local project '" + bean.getProjectName()+ "'!";
+                        log.error(msg, e);
                         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
-                                "could not upload project: " + bean.getProjectName(), e.getMessage()
+                                FacesMessage.SEVERITY_ERROR, msg, e.getMessage()
                         ));
                     }
                 }
