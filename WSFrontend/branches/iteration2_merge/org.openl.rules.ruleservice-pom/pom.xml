@@ -234,7 +234,7 @@
       <distributionManagement>
         <site>
           <id>internal-minsk</id>
-          <url>file://d:/reports</url>
+          <url>file://d:/reports/org.openl.rules.ruleservice-pom</url>
         </site>
         <repository>
           <id>internal-minsk</id>

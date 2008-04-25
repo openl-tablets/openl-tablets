@@ -1,1 +1,1 @@
-mvn -P build-site
+mvn package -P build-site
