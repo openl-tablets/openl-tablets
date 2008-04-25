@@ -14,7 +14,7 @@
   <artifactId>org.openl.rules.webstudio</artifactId>
   <name>Exigen WebStudio Web Resources</name>
   <description></description>
-  <packaging>jar</packaging>
+  <packaging>war</packaging>
 
   <properties>
     <war.name>${artifactId}-${version}</war.name>
@@ -24,35 +24,85 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>webapps/webstudio</warSourceDirectory>
+          <warName>${war.name}</warName>
+          <primaryArtifact>false</primaryArtifact>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
             <manifestFile>META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
+        <executions>
+          <execution>
+            <id>jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/${artifactId}-${version}.jar</file>
+                  <type>jar</type>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-          <finalName>${artifactId}</finalName>
-        </configuration>
         <executions>
           <execution>
-            <id>assembly</id>
+            <id>assembly-template</id>
             <phase>package</phase>
             <goals>
               <goal>attached</goal>
             </goals>
             <configuration>
+              <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+              <finalName>${artifactId}</finalName>
               <descriptors>
                 <descriptor>src/main/assembly/assembly-template.xml</descriptor>
               </descriptors>
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>tomcat-maven-plugin</artifactId>
+        <configuration>
+          <url>http://openl.star-sw.com:8081/manager</url>
+          <server>openl-tomcat-server</server>
+          <path>/webstudio</path>
+          <warFile>${project.build.directory}/${war.name}-tomcat6.war</warFile>
+        </configuration>
       </plugin>
     </plugins>
 
@@ -77,25 +127,13 @@
 
   <profiles>
     <profile>
-      <id>build-war</id>
+      <id>build-tomcat6-war</id>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-war-plugin</artifactId>
             <executions>
-              <execution>
-                <id>war</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>war</goal>
-                </goals>
-                <configuration>
-                  <warSourceDirectory>webapps/webstudio</warSourceDirectory>
-                  <warName>${war.name}</warName>
-                  <primaryArtifact>false</primaryArtifact>
-                </configuration>
-              </execution>
               <execution>
                 <id>tomcat6-war</id>
                 <phase>package</phase>
@@ -125,11 +163,7 @@
                 <configuration>
                   <artifacts>
                     <artifact>
-                      <file>target/${war.name}.war</file>
-                      <type>war</type>
-                    </artifact>
-                    <artifact>
-                      <file>target/${war.name}-tomcat6.war</file>
+                      <file>${project.build.directory}/${war.name}-tomcat6.war</file>
                       <classifier>tomcat6</classifier>
                       <type>war</type>
                     </artifact>

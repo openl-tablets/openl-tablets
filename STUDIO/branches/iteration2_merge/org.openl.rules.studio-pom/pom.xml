@@ -281,7 +281,7 @@
       <distributionManagement>
         <site>
           <id>internal-minsk</id>
-          <url>file://d:/reports</url>
+          <url>file://d:/reports/org.openl.rules.studio-pom</url>
         </site>
         <repository>
           <id>internal-minsk</id>

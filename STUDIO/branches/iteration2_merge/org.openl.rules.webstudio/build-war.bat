@@ -1,1 +1,1 @@
-mvn -P build-war
+mvn package
