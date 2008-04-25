@@ -1,0 +1,1 @@
+mvn -P build-war

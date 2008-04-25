@@ -234,7 +234,7 @@
       <distributionManagement>
         <site>
           <id>internal-minsk</id>
-          <url>file://d:/apache-tomcat-5.5.23/webapps/reports/org.openl.rules.ruleservice-pom</url>
+          <url>file://d:/reports</url>
         </site>
         <repository>
           <id>internal-minsk</id>
