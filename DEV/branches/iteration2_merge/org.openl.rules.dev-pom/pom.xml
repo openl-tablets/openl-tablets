@@ -94,94 +94,7 @@
       </plugins>
     </pluginManagement>
 
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>post-site</phase>
-            <configuration>
-              <tasks>
-                <taskdef resource="tasks.properties" />
-
-                <cobertura-merge datafile="target\cobertura-merged-file.ser">
-                  <fileset dir="..">
-                    <include name="com.exigen.rules.constrainer\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.commons\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.conf.ant\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.core\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.eclipse.ui\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.eclipse.ui.util\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.j\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.j.science\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.eclipse.ui\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.helpers\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.validator\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.j\target\cobertura\cobertura.ser" />
-                  </fileset>
-                </cobertura-merge>
-
-                <cobertura-report datafile="target\cobertura-merged-file.ser"
-                  destdir="target\site\cobertura-summary">
-                  <fileset dir="..\com.exigen.rules.constrainer\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.commons\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.conf.ant\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.core\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.eclipse.ui\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.eclipse.ui.wizard\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.j\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.j.science\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.eclipse.ui\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.eclipse.ui.wizard\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.helpers\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.validator\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.j\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                </cobertura-report>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>net.sourceforge.cobertura</groupId>
-            <artifactId>cobertura</artifactId>
-            <version>1.9</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
+    <plugins></plugins>
   </build>
 
   <reporting>
@@ -314,6 +227,91 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>cobertura-summary-report</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <configuration>
+              <tasks>
+                <taskdef resource="tasks.properties" />
+
+                <cobertura-merge datafile="target\cobertura-merged-file.ser">
+                  <fileset dir="..">
+                    <include name="com.exigen.rules.constrainer\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.commons\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.conf.ant\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.core\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.eclipse.ui\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.eclipse.ui.util\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.j\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.j.science\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.eclipse.ui\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.helpers\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.validator\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.j\target\cobertura\cobertura.ser" />
+                  </fileset>
+                </cobertura-merge>
+
+                <cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
+                  <fileset dir="..\com.exigen.rules.constrainer\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.commons\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.conf.ant\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.core\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.eclipse.ui\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.eclipse.ui.wizard\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.j\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.j.science\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.eclipse.ui\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.eclipse.ui.wizard\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.helpers\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.validator\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.j\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                </cobertura-report>
+              </tasks>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>net.sourceforge.cobertura</groupId>
+                <artifactId>cobertura</artifactId>
+                <version>1.9</version>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>
