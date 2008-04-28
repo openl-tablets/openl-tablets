@@ -27,6 +27,23 @@ public final class SecurityUtils {
     }
 
     /**
+     * Inquires whether current user has specified privilege.
+     *
+     * @param privilege privilege to check.
+     * @return <code>true</code> if current user has the privilege; <code>false</code> otherwise.
+     */
+    public static boolean isGranted(String privilege) {
+        try {
+            check(privilege);
+        } catch (AccessDeniedException e) {
+            // not granted
+            return false;
+        }
+        // seem OK
+        return true;
+    }
+
+    /**
      * Checks that current security context authentication is authorized to access a secured object with
      * given security attributes.
      *
