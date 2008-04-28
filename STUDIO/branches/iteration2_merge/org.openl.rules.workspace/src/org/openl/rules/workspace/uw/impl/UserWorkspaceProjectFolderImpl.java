@@ -114,7 +114,7 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         RepositoryProjectArtefact rpa = null;
         boolean isRemoteFolder = false;
         try {
-            if (dtrFolder != null) {
+            if (dtrFolder != null && dtrFolder.hasArtefact(lpa.getName())) {
                 rpa = dtrFolder.getArtefact(lpa.getName());
                 isRemoteFolder = rpa.isFolder();
             }
@@ -122,6 +122,7 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
             // ignore
             log.error("wrapLocalArtefact", e);
         }
+
         if (lpa.isFolder()) {
             if (!isRemoteFolder) rpa = null;
             return wrapFolder((LocalProjectFolder)lpa, (RepositoryProjectFolder)rpa);

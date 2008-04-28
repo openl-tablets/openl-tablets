@@ -19,6 +19,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.util.MsgHelper;
 import static org.openl.rules.security.Privileges.*;
 import static org.openl.rules.security.SecurityUtils.check;
+import static org.openl.rules.security.SecurityUtils.isGranted;
 
 public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl implements UserWorkspaceProject {
     private static final Log log = LogFactory.getLog(UserWorkspaceProjectImpl.class);
@@ -57,6 +58,10 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         project.setDependencies(dependencies);
     }
 
+    public boolean getCanClose() {
+        return (!isLocalOnly() && isOpened());
+    }
+
     public void close() throws ProjectException {
         if (isLockedByMe()) {
             dtrProject.unlock(userWorkspace.getUser());
@@ -67,6 +72,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         updateArtefact(null, dtrProject);
+    }
+
+    public boolean getCanOpen() {
+        if (isLocalOnly() || isCheckedOut()) {
+            return false;
+        }
+
+        return isGranted(PRIVILEGE_READ);
     }
 
     public void open() throws ProjectException {
@@ -97,6 +110,14 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
         localProject = userWorkspace.openLocalProjectFor(dtrProject, version);
         updateArtefact(localProject, dtrProject);
+    }
+
+    public boolean getCanCheckOut() {
+        if (isLocalOnly() || isCheckedOut() || isLocked()) {
+            return false;
+        }
+
+        return isGranted(PRIVILEGE_EDIT);
     }
 
     public void checkOut() throws ProjectException {
@@ -214,6 +235,15 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return (dtrProject == null);
     }
 
+    public boolean getCanDelete() {
+        if (isLocalOnly()) {
+            // any user can delete own local project
+            return true;
+        }
+
+        return (!isLocked() || isLockedByMe()) && isGranted(PRIVILEGE_DELETE);
+    }
+
     public void delete() throws ProjectException {
         if (isLocked() && !isLockedByMe()) {
             throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user!", null,
@@ -231,12 +261,20 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
     }
 
+    public boolean getCanUndelete() {
+        return (isDeleted() && isGranted(PRIVILEGE_EDIT));
+    }
+
     public void undelete() throws ProjectException {
         check(PRIVILEGE_EDIT);
 
         if (dtrProject != null) {
             dtrProject.undelete(userWorkspace.getUser());
         }
+    }
+
+    public boolean getCanErase() {
+        return (isDeleted() && isGranted(PRIVILEGE_ERASE));
     }
 
     public void erase() throws ProjectException {
@@ -303,5 +341,13 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         return dtrProject.getlLockInfo();
+    }
+
+    public boolean getCanRedeploy() {
+        if (isLocalOnly() || isCheckedOut()) {
+            return false;
+        }
+
+        return isGranted(PRIVILEGE_DEPLOY);
     }
 }

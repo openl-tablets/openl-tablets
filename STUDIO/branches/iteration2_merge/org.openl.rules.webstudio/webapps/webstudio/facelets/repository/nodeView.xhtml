@@ -38,20 +38,20 @@
   <h:panelGroup rendered="#{node.type == 'project'}">
     <h:panelGroup rendered="#{artefact.deleted}">
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Undelete" type="button" onclick="confirmUndeleteProject();" />
-        <h:commandButton styleClass="button" value="Erase" type="button" onclick="confirmEraseProject();" />
+        <h:commandButton styleClass="#{artefact.canUndelete ? 'button':'disabledButton'}" value="Undelete" type="button" onclick="#{artefact.canUndelete} &amp;&amp; confirmUndeleteProject();" />
+        <h:commandButton styleClass="#{artefact.canErase ? 'button':'disabledButton'}" value="Erase" type="button" onclick="#{artefact.canErase} &amp;&amp; confirmEraseProject();" />
       </h:panelGrid>
     </h:panelGroup>
     <h:panelGroup rendered="#{!artefact.deleted}">
       <h:panelGrid columns="9" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="#{!artefact.opened ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{!artefact.opened};"/>
-        <h:commandButton styleClass="#{!artefact.opened ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{!artefact.opened} &amp;&amp; openOpenVersionDialog();" />
-        <h:commandButton styleClass="#{artefact.opened &amp;&amp; !artefact.localOnly ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{artefact.opened &amp;&amp; !artefact.localOnly};"/>
-        <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked || artefact.localOnly) ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{!(artefact.checkedOut || artefact.locked || artefact.localOnly)};"/>
+        <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open" action="#{repositoryTreeController.openProject}" onclick="return #{artefact.canOpen};"/>
+        <h:commandButton styleClass="#{artefact.canOpen ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{artefact.canOpen} &amp;&amp; openOpenVersionDialog();" />
+        <h:commandButton styleClass="#{artefact.canClose ? 'button':'disabledButton'}" value="Close" action="#{repositoryTreeController.closeProject}" onclick="return #{artefact.canClose};"/>
+        <h:commandButton styleClass="#{artefact.canCheckOut ? 'button':'disabledButton'}" value="Check Out" action="#{repositoryTreeController.checkOutProject}" onclick="return #{artefact.canCheckOut};"/>
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openCheckInDialog();"/>
         <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog();" />
-        <h:commandButton styleClass="#{((!artefact.locked || artefact.lockedByMe || artefact.localOnly) &amp;&amp; authz:isGranted('ROLE_ADMIN'))? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked || artefact.lockedByMe || artefact.localOnly} &amp;&amp; confirmDeleteNode();" />
-        <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.localOnly) ? 'button':'disabledButton'}" value="Redeploy" type="button" onclick="#{!(artefact.checkedOut || artefact.localOnly)} &amp;&amp; openSmartRedeployDialog();"/>
+        <h:commandButton styleClass="#{artefact.canDelete ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{artefact.canDelete} &amp;&amp; confirmDeleteNode();" />
+        <h:commandButton styleClass="#{artefact.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" type="button" onclick="#{artefact.canRedeploy} &amp;&amp; openSmartRedeployDialog();"/>
         <h:commandButton styleClass="button" value="Compare" type="button" onclick="window.open('#{contextPath}/faces/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
       </h:panelGrid>
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
