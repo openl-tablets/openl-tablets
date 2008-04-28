@@ -89,7 +89,7 @@
   </rich:tabPanel>
 
   <h:panelGroup rendered="#{node.type == 'drepository'}">
-    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+    <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
       <h:commandButton styleClass="button" value="Create New Deployment Project" type="button" onclick="openNewDeploymentProjectDialog();" />
     </h:panelGrid>
 
@@ -101,7 +101,33 @@
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'deployment'}">
-    <ui:include src="node/deployment.xhtml" />
+    <h:panelGroup rendered="#{artefact.deleted}">
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Undelete" type="button" onclick="confirmUndeleteProject();" />
+        <h:commandButton styleClass="button" value="Erase" type="button" onclick="confirmEraseProject();" />
+      </h:panelGrid>
+    </h:panelGroup>
+    <h:panelGrid columns="7" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not artefact.deleted}">
+      <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked) ? 'button' : 'disabledButton'}" value="Deploy" action="#{deploymentController.deploy}" onclick="return #{!(artefact.checkedOut || artefact.locked)}"/>
+      <h:commandButton styleClass="#{!artefact.checkedOut ? 'button':'disabledButton'}" value="Open Version" type="button" onclick="#{!artefact.checkedOut} &amp;&amp; openOpenVersionDialog();" />
+      <h:commandButton styleClass="#{artefact.opened ? 'button':'disabledButton'}" value="Close" action="#{deploymentController.close}" onclick="return #{artefact.opened};"/>
+      <h:commandButton styleClass="#{!(artefact.checkedOut || artefact.locked) ? 'button' : 'disabledButton'}" value="Check Out" action="#{deploymentController.checkOut}" onclick="return #{!(artefact.checkedOut || artefact.locked)};" />
+      <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Check In" action="#{deploymentController.checkIn}" onclick="return #{artefact.checkedOut};" />
+      <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyDeploymentProjectDialog();" />
+      <h:commandButton styleClass="#{!artefact.locked ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{!artefact.locked} &amp;&amp; confirmDeleteNode();"/>
+    </h:panelGrid>
+
+    <rich:tabPanel switchType="client" style="height:425px; margin-top:5px;">
+      <rich:tab label="Properties">
+        <ui:include src="node/deployment.xhtml" />
+      </rich:tab>
+      <rich:tab label="Versions">
+        <ui:include src="/repository/node/versions.xhtml" />
+      </rich:tab>
+      <rich:tab label="Descriptors">
+        <ui:include src="/repository/node/descriptors.xhtml" />
+      </rich:tab>
+    </rich:tabPanel>
   </h:panelGroup>
 
 </ui:composition>
