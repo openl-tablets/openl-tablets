@@ -110,72 +110,7 @@
       </plugins>
     </pluginManagement>
 
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>post-site</phase>
-            <configuration>
-              <tasks>
-                <taskdef resource="tasks.properties" />
-
-                <cobertura-merge datafile="target\cobertura-merged-file.ser">
-                  <fileset dir="..">
-                    <include name="org.openl.rules.repository\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.repository.jcr\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.workspace\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.diff\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.security\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.security.standalone\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.webstudio.java\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.webtools\target\cobertura\cobertura.ser" />
-                  </fileset>
-                </cobertura-merge>
-
-                <cobertura-report datafile="target\cobertura-merged-file.ser"
-                  destdir="target\site\cobertura-summary">
-                  <fileset dir="..\org.openl.rules.repository\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.repository.jcr\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.workspace\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.diff\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.security\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.security.standalone\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.webstudio.java\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.webtools\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                </cobertura-report>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>net.sourceforge.cobertura</groupId>
-            <artifactId>cobertura</artifactId>
-            <version>1.9</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
+    <plugins></plugins>
   </build>
 
   <reporting>
@@ -308,6 +243,69 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>cobertura-summary-report</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <configuration>
+              <tasks>
+                <taskdef resource="tasks.properties" />
+
+                <cobertura-merge datafile="target\cobertura-merged-file.ser">
+                  <fileset dir="..">
+                    <include name="org.openl.rules.repository\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.repository.jcr\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.workspace\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.diff\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.security\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.security.standalone\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.webstudio.java\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules.webtools\target\cobertura\cobertura.ser" />
+                  </fileset>
+                </cobertura-merge>
+
+                <cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
+                  <fileset dir="..\org.openl.rules.repository\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.repository.jcr\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.workspace\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.diff\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.security\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.security.standalone\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.webstudio.java\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules.webtools\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                </cobertura-report>
+              </tasks>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>net.sourceforge.cobertura</groupId>
+                <artifactId>cobertura</artifactId>
+                <version>1.9</version>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>

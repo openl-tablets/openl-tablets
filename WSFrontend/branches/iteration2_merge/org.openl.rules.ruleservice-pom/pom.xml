@@ -91,44 +91,7 @@
       </plugins>
     </pluginManagement>
 
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>post-site</phase>
-            <configuration>
-              <tasks>
-                <taskdef resource="tasks.properties" />
-
-                <cobertura-merge datafile="target\cobertura-merged-file.ser">
-                  <fileset dir="..">
-                    <include name="org.openl.rules.ruleservice\target\cobertura\cobertura.ser" />
-                  </fileset>
-                </cobertura-merge>
-
-                <cobertura-report datafile="target\cobertura-merged-file.ser"
-                  destdir="target\site\cobertura-summary">
-                  <fileset dir="..\org.openl.rules.ruleservice\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                </cobertura-report>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>net.sourceforge.cobertura</groupId>
-            <artifactId>cobertura</artifactId>
-            <version>1.9</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
+    <plugins></plugins>
   </build>
 
   <reporting>
@@ -261,6 +224,42 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>cobertura-summary-report</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <tasks>
+                <taskdef resource="tasks.properties" />
+
+                <cobertura-merge datafile="target\cobertura-merged-file.ser">
+                  <fileset dir="..">
+                    <include name="org.openl.rules.ruleservice\target\cobertura\cobertura.ser" />
+                  </fileset>
+                </cobertura-merge>
+
+                <cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
+                  <fileset dir="..\org.openl.rules.ruleservice\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                </cobertura-report>
+              </tasks>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>net.sourceforge.cobertura</groupId>
+                <artifactId>cobertura</artifactId>
+                <version>1.9</version>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>
