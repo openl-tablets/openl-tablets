@@ -259,7 +259,6 @@
                     <include name="org.openl.rules.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules.helpers\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules.validator\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.j\target\cobertura\cobertura.ser" />
                   </fileset>
                 </cobertura-merge>
 
@@ -279,6 +278,9 @@
                   <fileset dir="..\org.openl.eclipse.ui\src\">
                     <include name="**\*.java" />
                   </fileset>
+                  <fileset dir="..\org.openl.eclipse.ui.util\src\">
+                    <include name="**\*.java" />
+                  </fileset>
                   <fileset dir="..\org.openl.eclipse.ui.wizard\src\">
                     <include name="**\*.java" />
                   </fileset>
@@ -286,6 +288,9 @@
                     <include name="**\*.java" />
                   </fileset>
                   <fileset dir="..\org.openl.j.science\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules\src\">
                     <include name="**\*.java" />
                   </fileset>
                   <fileset dir="..\org.openl.rules.eclipse.ui\src\">
@@ -298,9 +303,6 @@
                     <include name="**\*.java" />
                   </fileset>
                   <fileset dir="..\org.openl.rules.validator\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.j\src\">
                     <include name="**\*.java" />
                   </fileset>
                 </cobertura-report>
