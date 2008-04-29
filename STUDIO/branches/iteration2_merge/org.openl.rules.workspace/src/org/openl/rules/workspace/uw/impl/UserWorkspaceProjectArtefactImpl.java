@@ -1,5 +1,8 @@
 package org.openl.rules.workspace.uw.impl;
 
+import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT;
+import static org.openl.rules.security.SecurityUtils.isGranted;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -79,6 +82,10 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
     public String getLineOfBusiness() {
         RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
         return rra.getLineOfBusiness();
+    }
+
+    public boolean getCanModify() {
+        return (!isReadOnly() && isGranted(PRIVILEGE_EDIT));
     }
 
     public void setEffectiveDate(Date date) throws ProjectException {

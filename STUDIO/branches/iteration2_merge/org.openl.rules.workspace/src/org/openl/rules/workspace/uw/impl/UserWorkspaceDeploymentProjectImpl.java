@@ -1,5 +1,9 @@
 package org.openl.rules.workspace.uw.impl;
 
+import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.SecurityUtils.check;
+import static org.openl.rules.security.SecurityUtils.isGranted;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -97,6 +101,14 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         checkIn(0, 0);
     }
 
+    public boolean getCanCheckOut() {
+        if (isCheckedOut() || isLocked()) {
+            return false;
+        }
+
+        return isGranted(PRIVILEGE_EDIT_DEPLOYMENT);
+    }
+
     public void checkOut() throws ProjectException {
         if (isCheckedOut()) {
             throw new ProjectException("Project ''{0}'' is already checked-out", null, getName());
@@ -106,6 +118,8 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
             throw new ProjectException("Project ''{0}'' is locked by ''{1}'' since ''{2}''", null, getName(),
                     activeProjectVersion.getlLockInfo().getLockedBy().getUserName(), activeProjectVersion.getlLockInfo().getLockedAt());
         }
+
+        check(PRIVILEGE_EDIT_DEPLOYMENT);
 
         if (isOpened()) {
             close();
@@ -152,11 +166,23 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         return true;
     }
 
+    public boolean getCanUndelete() {
+        return (isDeleted() && isGranted(PRIVILEGE_EDIT_DEPLOYMENT));
+    }
+
     public void undelete() throws ProjectException {
+        check(PRIVILEGE_EDIT_DEPLOYMENT);
+
         activeProjectVersion.undelete(userWorkspace.getUser());
     }
 
+    public boolean getCanErase() {
+        return (isDeleted() && isGranted(PRIVILEGE_ERASE_DEPLOYMENT));
+    }
+
     public void erase() throws ProjectException {
+        check(PRIVILEGE_ERASE_DEPLOYMENT);
+
         activeProjectVersion.erase(userWorkspace.getUser());
     }
 
@@ -194,7 +220,17 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         return false;
     }
 
+    public boolean getCanOpen() {
+        return (!isCheckedOut() && isGranted(PRIVILEGE_READ));
+    }
+
     public void open() throws ProjectException {
+        if (isCheckedOut()) {
+            throw new ProjectException("Project ''{0}'' is checked-out!", null, getName());
+        }
+
+        check(PRIVILEGE_READ);
+
         if (isOpened()) {
             close();
         }
@@ -217,10 +253,16 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         refresh();
     }
 
+    public boolean getCanDelete() {
+        return (!isLocked() || isLockedByMe()) && isGranted(PRIVILEGE_DELETE_DEPLOYMENT);
+    }
+
     public void delete() throws ProjectException {
         if (isLocked() && !isLockedByMe()) {
             throw new ProjectException("Cannot delete project ''{0}'' while it is locked by other user", null, getName());
         }
+
+        check(PRIVILEGE_DELETE_DEPLOYMENT);
 
         if (isOpened()) {
             close();
@@ -386,5 +428,9 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         }
 
         return dtrDProject.getlLockInfo();
+    }
+
+    public boolean getCanDeploy() {
+        return (!isCheckedOut() && isGranted(PRIVILEGE_DEPLOY));
     }
 }

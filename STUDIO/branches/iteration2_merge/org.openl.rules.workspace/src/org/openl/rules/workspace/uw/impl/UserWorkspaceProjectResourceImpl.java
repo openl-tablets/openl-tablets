@@ -23,7 +23,9 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
         if (isReadOnly()) {
             throw new ProjectException("Cannot update content in read only mode!", null);
         }
-        
+
+//      check(PRIVILEGE_EDIT);
+
         localResource.setContent(inputStream);
     }
 
@@ -38,11 +40,13 @@ public class UserWorkspaceProjectResourceImpl extends UserWorkspaceProjectArtefa
     public UserWorkspaceProjectArtefact getArtefact(String name) throws ProjectException {
         throw new ProjectException("Cannot find project artefact ''{0}''", null, name);
     }
-    
+
     public void delete() throws ProjectException {
         if (isReadOnly()) {
             throw new ProjectException("Cannot delete in read only mode!", null);
         }
+
+//        check(PRIVILEGE_EDIT);
 
         localResource.remove();
     }

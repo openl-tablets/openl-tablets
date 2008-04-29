@@ -33,6 +33,8 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         if (isReadOnly()) {
             throw new ProjectException("Cannot add folder ''{0}'' in read only mode", null, name);
         } else {
+//          check(PRIVILEGE_EDIT);
+
             LocalProjectFolder local = localFolder.addFolder(name);
             // remote ?
             return wrapFolder(local, null);
@@ -43,6 +45,8 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         if (isReadOnly()) {
             throw new ProjectException("Cannot add resource ''{0}'' in read only mode", null, name);
         } else {
+//          check(PRIVILEGE_EDIT);
+
             LocalProjectResource local = localFolder.addResource(name, resource);
             // remote ?
             return wrapFile(local, null);
@@ -77,6 +81,8 @@ public class UserWorkspaceProjectFolderImpl extends UserWorkspaceProjectArtefact
         if (isReadOnly()) {
             throw new ProjectException("Cannot delete in read only mode!", null);
         }
+
+//      check(PRIVILEGE_EDIT);
 
         localFolder.remove();
     }
