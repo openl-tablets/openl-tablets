@@ -130,11 +130,6 @@
   <navigation-rule>
     <from-view-id>/repository/main.xhtml</from-view-id>
     <navigation-case>
-      <from-outcome>index</from-outcome>
-      <to-view-id>/index-jcr.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
-    <navigation-case>
       <from-outcome>search.advanced</from-outcome>
       <to-view-id>/repository/search/advanced.xhtml</to-view-id>
       <redirect />
@@ -151,11 +146,6 @@
 
   <navigation-rule>
     <from-view-id>/repository/search/advanced.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>index</from-outcome>
-      <to-view-id>/index-jcr.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
     <navigation-case>
       <from-outcome>cancel</from-outcome>
       <to-view-id>/repository/main.xhtml</to-view-id>
