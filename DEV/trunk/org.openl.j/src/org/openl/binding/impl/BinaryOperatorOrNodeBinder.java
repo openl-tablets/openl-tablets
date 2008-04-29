@@ -19,9 +19,6 @@ import org.openl.types.IOpenClass;
 public class BinaryOperatorOrNodeBinder extends BinaryOperatorNodeBinder
 {
 
-	/* (non-Javadoc)
-	 * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv, org.openl.binding.IBindingContext)
-	 */
 	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
 		throws Exception
 	{
@@ -34,13 +31,17 @@ public class BinaryOperatorOrNodeBinder extends BinaryOperatorNodeBinder
 				null);
 		}
 
-		int index = node.getType().lastIndexOf('.');
-
-		String methodName = node.getType().substring(index + 1);
 
 		IBoundNode[] children = bindChildren(node, bindingContext);
 
 		IOpenClass[] types = getTypes(children);
+		
+		if ((types[0].getInstanceClass() == boolean.class || types[0].getInstanceClass() == Boolean.class) && (types[1].getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)  )
+			return new BinaryOpNodeOr(node, children);
+			
+		int index = node.getType().lastIndexOf('.');
+
+		String methodName = node.getType().substring(index + 1);
 
 		IMethodCaller om =
 			findBinaryOperatorMethodCaller(methodName, types, bindingContext);
@@ -50,7 +51,7 @@ public class BinaryOperatorOrNodeBinder extends BinaryOperatorNodeBinder
 				node,
 				errorMsg(methodName, types[0], types[1]));
 
-		return new BinaryOpNodeOr(node, children, om);
+		return new BinaryOpNode(node, children, om);
 
 	}
 
