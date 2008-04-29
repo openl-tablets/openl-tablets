@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>org.openl.rules.validator</artifactId>
-  <name>org.openl.rules.validator</name>
+  <name>OpenL - DEV - Rules - Validator</name>
   <description></description>
 
   <build>

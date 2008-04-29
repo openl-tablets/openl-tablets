@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>org.openl.rules.ruleservice.lib</artifactId>
-  <name>org.openl.rules.ruleservice.lib</name>
+  <name>OpenL - RuleService - Libraries</name>
   <description></description>
 
   <build>

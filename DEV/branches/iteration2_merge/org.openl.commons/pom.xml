@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.commons</artifactId>
-  <name>org.openl.commons</name>
+  <name>OpenL - DEV - Commons</name>
   <description></description>
 
   <build>

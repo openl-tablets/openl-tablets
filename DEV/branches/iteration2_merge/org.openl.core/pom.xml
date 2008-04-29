@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.core</artifactId>
-  <name>org.openl.core</name>
+  <name>OpenL - DEV - Core</name>
   <description></description>
 
   <build>

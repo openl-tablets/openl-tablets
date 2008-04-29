@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.conf.ant</artifactId>
-  <name>org.openl.conf.ant</name>
+  <name>OpenL - DEV - Conf Ant</name>
   <description></description>
 
   <build>

@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.lib.apache.poi.modified</artifactId>
-  <name>org.openl.lib.apache.poi.modified</name>
+  <name>OpenL - DEV - POI Modified</name>
   <description></description>
 
   <build>

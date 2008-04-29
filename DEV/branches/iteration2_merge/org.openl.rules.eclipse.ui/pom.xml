@@ -12,6 +12,7 @@
 
   <artifactId>org.openl.rules.eclipse.ui</artifactId>
   <name>org.openl.rules.eclipse.ui</name>
+  <name>OpenL - DEV - Rules - Eclipse UI</name>
   <description></description>
 
   <build>

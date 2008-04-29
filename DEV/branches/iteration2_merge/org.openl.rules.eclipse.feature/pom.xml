@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>org.openl.rules.eclipse.feature</artifactId>
-  <name>org.openl.rules.eclipse.feature</name>
+  <name>OpenL - DEV - Rules - Eclipse Feature</name>
   <description></description>
 
   <build>

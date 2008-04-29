@@ -7,7 +7,7 @@
   <artifactId>org.openl.rules.dev-pom</artifactId>
   <packaging>pom</packaging>
   <version>5.0.6-SNAPSHOT</version>
-  <name>Dev</name>
+  <name>OpenL - DEV</name>
   <description>Dev</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
@@ -238,6 +238,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>false</inherited>
             <configuration>
               <tasks>
                 <taskdef resource="tasks.properties" />
