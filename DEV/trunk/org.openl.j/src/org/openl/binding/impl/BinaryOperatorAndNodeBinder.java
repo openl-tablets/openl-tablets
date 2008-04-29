@@ -28,13 +28,18 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder
 	    throw new BoundError(node, "Binary node must have 2 subnodes", null);
 	}
 
-	int index = node.getType().lastIndexOf('.');
-
-	String methodName = node.getType().substring(index + 1);
 
 	IBoundNode[] children = bindChildren(node, bindingContext);
 
 	IOpenClass[] types = getTypes(children);
+
+	if ((types[0].getInstanceClass() == boolean.class || types[0].getInstanceClass() == Boolean.class) && (types[1].getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)  )
+		return new BinaryOpNodeAnd(node, children);
+	
+
+	int index = node.getType().lastIndexOf('.');
+
+	String methodName = node.getType().substring(index + 1);
 
 	IMethodCaller om = findBinaryOperatorMethodCaller(methodName, types,
 		bindingContext);
@@ -42,7 +47,7 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder
 	if (om == null)
 	    throw new BoundError(node, errorMsg(methodName, types[0], types[1]));
 
-	return new BinaryOpNodeAnd(node, children, om);
+	return new BinaryOpNode(node, children, om);
 
     }
 
