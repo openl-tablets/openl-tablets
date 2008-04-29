@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.lib.apache.tomcat</artifactId>
-  <name>org.openl.lib.apache.tomcat</name>
+  <name>OpenL - STUDIO - Tomcat</name>
   <description></description>
 
   <build>

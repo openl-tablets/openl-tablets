@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>org.openl.rules.webstudio.java</artifactId>
-  <name>Exigen WebStudio Java Sources</name>
+  <name>OpenL - STUDIO - WebStudio Java Sources</name>
   <description></description>
 
   <build>

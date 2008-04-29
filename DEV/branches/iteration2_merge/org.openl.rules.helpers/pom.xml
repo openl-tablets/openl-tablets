@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>org.openl.rules.helpers</artifactId>
-  <name>org.openl.rules.helpers</name>
+  <name>OpenL - DEV - Rules - Helpers</name>
   <description></description>
 
   <build>

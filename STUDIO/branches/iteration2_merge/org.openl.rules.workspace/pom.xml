@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>org.openl.rules.workspace</artifactId>
-  <name>Exigen WebStudio Workspace</name>
+  <name>OpenL - STUDIO - Workspace</name>
   <description></description>
 
   <build>

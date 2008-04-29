@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>org.openl.rules.ruleservice</artifactId>
-  <name>org.openl.rules.ruleservice</name>
+  <name>OpenL - RuleService - RuleService</name>
   <description></description>
 
   <build>

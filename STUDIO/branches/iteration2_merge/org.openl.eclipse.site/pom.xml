@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.eclipse.site</artifactId>
-  <name>org.openl.eclipse.site</name>
+  <name>OpenL - STUDIO - Eclipse Site</name>
   <description></description>
   <packaging>pom</packaging>
 

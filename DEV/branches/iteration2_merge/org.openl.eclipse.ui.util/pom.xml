@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.eclipse.ui.util</artifactId>
-  <name>org.openl.eclipse.ui.util</name>
+  <name>OpenL - DEV - Eclipse UI Util</name>
   <description></description>
 
   <build>

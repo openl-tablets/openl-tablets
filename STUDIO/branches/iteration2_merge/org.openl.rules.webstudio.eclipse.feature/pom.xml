@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
-  <name>org.openl.rules.webstudio.eclipse.feature</name>
+  <name>OpenL - STUDIO - WebStudio Eclipse Feature</name>
   <description></description>
 
   <build>

@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.lib</artifactId>
-  <name>org.openl.lib</name>
+  <name>OpenL - DEV - Libraries</name>
   <description></description>
 
   <build>

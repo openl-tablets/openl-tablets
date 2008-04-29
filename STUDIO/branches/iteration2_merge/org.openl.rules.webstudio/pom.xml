@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>org.openl.rules.webstudio</artifactId>
-  <name>Exigen WebStudio Web Resources</name>
+  <name>OpenL - STUDIO - WebStudio Web Resources</name>
   <description></description>
   <packaging>war</packaging>
 

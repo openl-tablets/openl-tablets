@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
-  <name>org.openl.rules.eclipse.ui.wizard</name>
+  <name>OpenL - DEV - Rules - Eclipse UI Wizard</name>
   <description></description>
 
   <build>

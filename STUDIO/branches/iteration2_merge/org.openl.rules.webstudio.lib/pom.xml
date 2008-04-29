@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>org.openl.rules.webstudio.lib</artifactId>
-  <name>org.openl.rules.webstudio.lib</name>
+  <name>OpenL - STUDIO - WebStudio Libraries</name>
   <description></description>
   <packaging>pom</packaging>
 

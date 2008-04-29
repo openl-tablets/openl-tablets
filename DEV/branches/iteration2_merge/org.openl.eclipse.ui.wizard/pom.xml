@@ -12,7 +12,7 @@
 
   <groupId>org.openl</groupId>
   <artifactId>org.openl.eclipse.ui.wizard</artifactId>
-  <name>org.openl.eclipse.ui.wizard</name>
+  <name>OpenL - DEV - Eclipse UI Wizard</name>
   <description></description>
 
   <build>

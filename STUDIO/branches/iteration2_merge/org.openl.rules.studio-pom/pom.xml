@@ -7,7 +7,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.studio-pom</artifactId>
   <version>5.0.6-SNAPSHOT</version>
-  <name>Studio</name>
+  <name>OpenL - STUDIO</name>
   <description>Exigen WebStudio Pom Project</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <packaging>pom</packaging>
@@ -254,6 +254,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>false</inherited>
             <configuration>
               <tasks>
                 <taskdef resource="tasks.properties" />

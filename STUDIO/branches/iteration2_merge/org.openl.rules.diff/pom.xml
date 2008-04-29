@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>org.openl.rules.diff</artifactId>
-  <name>Exigen WebStudio Structured Diff</name>
+  <name>OpenL - STUDIO - Structured Diff</name>
   <description></description>
 
   <build>
