@@ -37,7 +37,7 @@ public class OpenLLaunchablePropertyTester extends PropertyTester implements
 
 		if (PROPERTY_IS_IN_OPENL_PROJECT.equals(property)) {
 			try {
-				return isProjectNature(project, OPENL_NATURE_ID);
+				return isProjectNature(project, OPENL_NATURE_ID) || isProjectNature(project, OLD_OPENL_NATURE_ID);
 			} catch (CoreException e) {
 				return false;
 			}
