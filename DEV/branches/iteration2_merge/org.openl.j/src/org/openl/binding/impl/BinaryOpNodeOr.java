@@ -9,14 +9,15 @@ package org.openl.binding.impl;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IMethodCaller;
+import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
  *
  */
-public class BinaryOpNodeOr extends BinaryOpNode
+public class BinaryOpNodeOr extends ATargetBoundNode
 {
   /**
    * @param syntaxNode
@@ -25,24 +26,23 @@ public class BinaryOpNodeOr extends BinaryOpNode
    */
   public BinaryOpNodeOr(
     ISyntaxNode syntaxNode,
-    IBoundNode[] child,
-    IMethodCaller method)
+    IBoundNode[] child)
   {
-    super(syntaxNode, child, method);
+    super(syntaxNode, child);
   }
 
 	public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException
 	{
 		
-		if (children[0].getType().getInstanceClass() == boolean.class)
-		{
 			Boolean b1 = (Boolean)children[0].evaluate(env);
 			if (!b1.booleanValue())
-				return children[1].evaluate(env);
+				return (Boolean)children[1].evaluate(env);
 			return Boolean.TRUE; 
-		}	
-		
-		return super.evaluateRuntime(env);
+	}
+
+	public IOpenClass getType() {
+
+		return JavaOpenClass.BOOLEAN;
 	}
 
 
