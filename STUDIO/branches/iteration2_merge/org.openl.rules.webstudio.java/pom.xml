@@ -67,6 +67,11 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.workspace</artifactId>
     </dependency>
 

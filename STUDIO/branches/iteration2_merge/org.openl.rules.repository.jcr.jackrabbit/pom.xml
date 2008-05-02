@@ -11,8 +11,8 @@
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.repository.jcr</artifactId>
-  <name>OpenL - STUDIO - Repository Jcr</name>
+  <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+  <name>OpenL - STUDIO - Repository JackRabbit Jcr implementation</name>
   <description></description>
 
   <build>
@@ -27,26 +27,6 @@
         </configuration>
       </plugin>
     </plugins>
-
-    <testResources>
-      <testResource>
-        <directory>test</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </testResource>
-    </testResources>
-
-    <resources>
-      <resource>
-        <directory>src</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
   </build>
 
   <dependencies>
@@ -55,12 +35,15 @@
       <artifactId>org.openl.rules.repository</artifactId>
     </dependency>
 
-    <!--
     <dependency>
-      <groupId>com.exigen.cm.jcr.runtime</groupId>
-      <artifactId>exigen-jcr-core</artifactId>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository</artifactId>
     </dependency>
-    -->
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>

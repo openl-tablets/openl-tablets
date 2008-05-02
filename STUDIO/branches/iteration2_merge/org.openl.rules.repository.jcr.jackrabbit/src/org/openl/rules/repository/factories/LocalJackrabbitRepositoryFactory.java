@@ -22,14 +22,12 @@ import org.springframework.util.FileCopyUtils;
 /**
  * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit
  * repository.
- * 
+ *
  * @author Aleh Bykhavets
- * 
+ *
  */
 public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
     private static Log log = LogFactory.getLog(LocalJackrabbitRepositoryFactory.class);
-
-    public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString("repository.jackrabbit.local.home",
             "../local-repository");
@@ -74,7 +72,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     /**
      * Starts Jackrabbit repository. If there was no repository it will be
      * created automatically. (this is how Jacrabbit works)
-     * 
+     *
      * @throws RepositoryException
      *                 if failed
      */
