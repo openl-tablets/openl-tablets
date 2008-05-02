@@ -37,6 +37,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.rules.repository.jcr.jackrabbit"
+         download-size="0"
+         install-size="0"
+         version="5.0.6"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.rules.webtools"
          download-size="0"
          install-size="0"
