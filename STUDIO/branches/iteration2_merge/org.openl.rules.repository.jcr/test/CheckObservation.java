@@ -15,20 +15,24 @@ import javax.jcr.observation.ObservationManager;
 
 import org.apache.jackrabbit.core.TransientRepository;
 
+/*
 import com.exigen.cm.RepositoryProvider;
+*/
 
 
 public class CheckObservation {
     public static final String TEST_PATH = "test-CheckObservation";
-    
+
     private Repository repository;
     private Session session;
 
+    /*
     protected void startExigen() throws RepositoryException {
 	out.println(">> Starting Exigne JCR");
         repository = RepositoryProvider.getInstance().getRepository();
     }
-    
+    */
+
     protected void startJackrabbit() throws RepositoryException {
 	out.println(">> Starting Jackrabbit JCR");
         try {
@@ -42,30 +46,30 @@ public class CheckObservation {
             throw new RepositoryException("Failed to init: " + e.getMessage(), e);
         }
     }
-    
+
     protected void stopJackrabbit() {
 	out.println(">> Stopping Jackrabbit JCR");
 	TransientRepository jackrabbit = (TransientRepository) repository;
 	jackrabbit.shutdown();
     }
-    
+
     protected void createSession(String user, String pass) throws RepositoryException {
         char[] password = pass.toCharArray();
         SimpleCredentials sc = new SimpleCredentials(user, password);
         session = repository.login(sc);
     }
-    
+
     protected void checkPath() throws RepositoryException {
 	Node root = session.getRootNode();
-	
+
 	ObservationManager om = session.getWorkspace().getObservationManager();
-	om.addEventListener(new EL(), 
-		Event.NODE_ADDED | Event.NODE_REMOVED, 
+	om.addEventListener(new EL(),
+		Event.NODE_ADDED | Event.NODE_REMOVED,
 		"/" + TEST_PATH, false, null, null, false);
-	om.addEventListener(new EL(), 
-		Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, 
+	om.addEventListener(new EL(),
+		Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED,
 		"/" + TEST_PATH + "/project", false, null, null, false);
-	
+
 	out.println("> Checking '" + TEST_PATH + "' ...");
 	if (root.hasNode(TEST_PATH)) {
 	    out.println("Exists. Re-creating...");
@@ -84,22 +88,22 @@ public class CheckObservation {
     protected void createNodes(int count) throws RepositoryException {
 	Node root = session.getRootNode();
 	Node path = root.getNode(TEST_PATH);
-	
+
 	out.println("> Creating project...");
 	Node project = path.addNode("project");
 	path.save();
-	
+
 	out.println("> Creating " + count + " folders in project...");
 	for (int i = 0; i < count; i++) {
 	    String name = "f-" + i;
 
 	    out.println("+ folder " + name + "...");
-	    
+
 	    Node n = project.addNode(name);
 	    n.setProperty("prop-count", i);
 	    project.save();
 	}
-	
+
 	out.println("> Setting project's revision (property)...");
 	project.setProperty("revision", 103);
 	project.save();
@@ -107,28 +111,30 @@ public class CheckObservation {
 	project.setProperty("revision", 105);
 	project.save();
     }
-    
+
     protected void run() throws RepositoryException {
 	checkPath();
 	createNodes(10);
-	
+
 	try {
 	    Thread.sleep(10000);
 	} catch (Exception e) {
 	    // TODO: handle exception
 	}
     }
-    
+
     public static final void main(String[] args) {
 	out.println(">> Start");
 
 	CheckObservation test = new CheckObservation();
-	
+
 	try {
+	    /*
 	    test.startExigen();
 	    test.createSession("user", "pass");
 	    test.run();
-	    
+            */
+
 //	    test.startJackrabbit();
 //	    test.createSession("user", "pass");
 //	    test.run();
@@ -136,20 +142,20 @@ public class CheckObservation {
 	} catch (Exception e) {
 	    e.printStackTrace(out);
 	}
-	
+
 	if (!eventFired) {
 	    out.println("* WARNING: No events were fired!!!");
 	}
-	
+
 	out.println(">> Done");
     }
 
     private static boolean eventFired;
-    
+
     private class EL implements EventListener {
 	public void onEvent(EventIterator ei) {
 	    eventFired = true;
-	    
+
 	    while (ei.hasNext()) {
 		Event e = ei.nextEvent();
 		String path;

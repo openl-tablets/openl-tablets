@@ -29,12 +29,14 @@ import org.xml.sax.InputSource;
  * <p>
  * It performs basic insanity checks. For example, it verifies that OpenL node
  * types are registered in using JCR.
- * 
+ *
  * @author Aleh Bykhavets
- * 
+ *
  */
 public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory {
     private static final Log log = LogFactory.getLog(AbstractJcrRepositoryFactory.class);
+
+    public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     /** Default path where new project should be created */
     private final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString("repository.rules.path",
@@ -76,7 +78,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     /**
      * Sets repository reference. Must be called before invoking
      * {@link #getRepositoryInstance()} method.
-     * 
+     *
      * @param rep
      *                implementation specific repository
      * @throws RepositoryException
@@ -91,7 +93,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /**
      * Creates JCR Session.
-     * 
+     *
      * @param user
      *                user id
      * @param pass
@@ -110,7 +112,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     /**
      * Checks whether the JCR instance is prepared for OpenL. If it is the first
      * time, then there are no openL node types, yet.
-     * 
+     *
      * @throws RepositoryException
      *                 if failed
      */
@@ -149,7 +151,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * Usually it can be done on local JCR instance.
      * <p>
      * This operation may not be supported via RMI.
-     * 
+     *
      * @param ntm
      *                node type manager
      * @throws RepositoryException
@@ -160,7 +162,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     /**
      * Checks whether schema version of the repository is valid. If check failed
      * then it throws exception.
-     * 
+     *
      * @param ntm
      *                Node Type Manager
      * @throws RepositoryException
@@ -213,7 +215,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         XPathFactory factory = XPathFactory.newInstance();
         XPath xPath = factory.newXPath();
 
-        String file = LocalJackrabbitRepositoryFactory.DEFAULT_NODETYPE_FILE;
+        String file = DEFAULT_NODETYPE_FILE;
         try {
 
             InputSource source = new InputSource(this.getClass().getResourceAsStream(file));

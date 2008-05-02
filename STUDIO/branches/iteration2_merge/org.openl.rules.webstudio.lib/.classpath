@@ -29,8 +29,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/ejb3-persistence-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/el-api-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/el-ri-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ewf-commons-7.0.0.023.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/exigen-jcr-core-7.0.1.007.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-3.2.5.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-annotations-3.3.0.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-commons-annotations-3.3.0.ga.jar"/>

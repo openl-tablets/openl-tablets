@@ -13,19 +13,23 @@ import javax.jcr.SimpleCredentials;
 
 import org.apache.jackrabbit.core.TransientRepository;
 
+/*
 import com.exigen.cm.RepositoryProvider;
+*/
 
 public class BigNodes {
     public static final String TEST_PATH = "test-BigNodes";
-    
+
     private Repository repository;
     private Session session;
 
+    /*
     protected void startExigen() throws RepositoryException {
 	out.println(">> Starting Exigne JCR");
         repository = RepositoryProvider.getInstance().getRepository();
     }
-    
+    */
+
     protected void startJackrabbit() throws RepositoryException {
 	out.println(">> Starting Jackrabbit JCR");
         try {
@@ -39,22 +43,22 @@ public class BigNodes {
             throw new RepositoryException("Failed to init: " + e.getMessage(), e);
         }
     }
-    
+
     protected void stopJackrabbit() {
 	out.println(">> Stopping Jackrabbit JCR");
 	TransientRepository jackrabbit = (TransientRepository) repository;
 	jackrabbit.shutdown();
     }
-    
+
     protected void createSession(String user, String pass) throws RepositoryException {
         char[] password = pass.toCharArray();
         SimpleCredentials sc = new SimpleCredentials(user, password);
         session = repository.login(sc);
     }
-    
+
     protected void checkPath() throws RepositoryException {
 	Node root = session.getRootNode();
-	
+
 	out.println("> Checking '" + TEST_PATH + "' ...");
 	if (root.hasNode(TEST_PATH)) {
 	    out.println("Exists. Re-creating...");
@@ -73,52 +77,54 @@ public class BigNodes {
     protected void createNodes(int count) throws RepositoryException {
 	Node root = session.getRootNode();
 	Node path = root.getNode(TEST_PATH);
-	
+
 	out.println("> Creating project...");
 	Node project = path.addNode("project");
 	path.save();
-	
+
 	out.println("> Creating " + count + " folders in project...");
 	for (int i = 0; i < count; i++) {
 	    String name = "f-" + i;
 
 	    out.println("+ folder " + name + "... \t" + memStats());
-	    
+
 	    Node n = project.addNode(name);
 	    project.save();
 	}
     }
-    
+
     protected void run() throws RepositoryException {
 	checkPath();
 	createNodes(200);
     }
-    
+
     private static final long _1M = 1024 * 1024;
-    
+
     public static final String memStats() {
 	long free = Runtime.getRuntime().freeMemory();
 	long total = Runtime.getRuntime().totalMemory();
 	long max = Runtime.getRuntime().maxMemory();
-	
+
 	long f = free / _1M;
 	long t = total / _1M;
 	long m = max / _1M;
-	
-	
+
+
 	return ("mem=" + f + "/" + t + "/" + m + " M");
     }
-    
+
     public static final void main(String[] args) {
 	out.println(">> Start");
 
 	BigNodes test = new BigNodes();
-	
+
 	try {
+	    /*
 	    test.startExigen();
 	    test.createSession("user", "pass");
 	    test.run();
-	    
+            */
+
 //	    test.startJackrabbit();
 //	    test.createSession("user", "pass");
 //	    test.run();
@@ -126,7 +132,7 @@ public class BigNodes {
 	} catch (Exception e) {
 	    e.printStackTrace(out);
 	}
-	
+
 	out.println(">> Done");
     }
 }

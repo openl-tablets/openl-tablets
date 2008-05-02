@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Exigen WebStudio Repository Jcr
+Bundle-Name: Repository Jcr
 Bundle-SymbolicName: org.openl.rules.repository.jcr;singleton:=true
 Bundle-Version: 5.0.6
 Bundle-Vendor: OpenL
