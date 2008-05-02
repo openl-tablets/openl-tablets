@@ -8,8 +8,7 @@ import java.io.File;
 /**
  * A utility class.
  */
-class FileSystemWalker {
-
+public class FileSystemWalker {
     private static final Log log = LogFactory.getLog(FileSystemWalker.class);
 
     public static void walk(File root, Walker walker) {

@@ -37,6 +37,8 @@
         </includes>
       </resource>
     </resources>
+
+    <testSourceDirectory>test</testSourceDirectory>
   </build>
 
   <dependencies>
