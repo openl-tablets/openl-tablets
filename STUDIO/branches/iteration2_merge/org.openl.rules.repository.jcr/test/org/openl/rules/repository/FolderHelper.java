@@ -1,7 +1,5 @@
 package org.openl.rules.repository;
 
-import sun.rmi.runtime.Log;
-
 import java.io.File;
 import java.io.FileFilter;
 
