@@ -21,12 +21,7 @@
   </properties>
 
   <build>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>build-site</id>
-      <build>
+    <defaultGoal>package</defaultGoal>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -65,9 +60,7 @@
             </executions>
           </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+  </build>
 
   <dependencies>
     <!-- DEV -->
@@ -221,11 +214,6 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
     </dependency>
-
-    <!--dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webstudio.lib</artifactId>
-    </dependency-->
 
     <dependency>
       <groupId>org.openl</groupId>

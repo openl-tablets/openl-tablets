@@ -26,9 +26,6 @@
       <directory>conf</directory>
     </fileSet>
     <fileSet>
-      <directory>src</directory>
-    </fileSet>
-    <fileSet>
       <directory>webapps</directory>
     </fileSet>
     <fileSet>
