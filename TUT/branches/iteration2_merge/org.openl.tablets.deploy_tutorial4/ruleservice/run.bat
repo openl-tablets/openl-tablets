@@ -60,6 +60,7 @@ lib\neethi-2.0.2.jar;^
 lib\org.openl.commons_5.0.6.jar;^
 lib\org.openl.core_5.0.6.jar;^
 lib\org.openl.j_5.0.6.jar;^
+lib\org.openl.lib.apache.poi.modified_5.0.6.jar;^
 lib\org.openl.rules.diff_5.0.6.jar;^
 lib\org.openl.rules.eclipse.ui_5.0.6.jar;^
 lib\org.openl.rules.helpers_5.0.6.jar;^
@@ -75,7 +76,6 @@ lib\org.openl.rules.webtools_5.0.6.jar;^
 lib\org.openl.rules.workspace_5.0.6.jar;^
 lib\org.openl.rules_5.0.6.jar;^
 lib\oro-2.0.8.jar;^
-lib\poi-2.5.1-final-20040804.jar;^
 lib\saaj-api-1.3.jar;^
 lib\saaj-impl-1.3.jar;^
 lib\servlet-api-2.3.jar;^
