@@ -18,9 +18,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
 
-
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
-
 <%
 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
 if (rulesUserSession==null) {
@@ -29,7 +26,13 @@ if (rulesUserSession==null) {
     rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager)WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("workspaceManager"));
     session.setAttribute("rulesUserSession", rulesUserSession);
 }
+%>
 
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio">
+    <%studio.init(session);%>
+</jsp:useBean>
+
+<%
 if (rulesUserSession != null && !WebStudioUtils.isLocalRequest(request) && (session.getAttribute("studio_from_userWorkspace")==null)) {
         UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
         String path = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
