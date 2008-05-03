@@ -21,6 +21,7 @@
   </properties>
 
   <build>
+    <defaultGoal>package</defaultGoal>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -28,52 +29,10 @@
         <configuration>
           <warSourceDirectory>webapps/webstudio</warSourceDirectory>
           <warName>${war.name}</warName>
-          <!--primaryArtifact>false</primaryArtifact-->
         </configuration>
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <id>jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!--plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/${artifactId}-${version}.jar</file>
-                  <type>jar</type>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin-->
-
-      <!--plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -85,14 +44,36 @@
             </goals>
             <configuration>
               <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-              <finalName>${artifactId}</finalName>
               <descriptors>
                 <descriptor>src/main/assembly/assembly-template.xml</descriptor>
               </descriptors>
             </configuration>
           </execution>
         </executions>
-      </plugin-->
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>assembly-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+            <configuration>
+              <archive>
+                <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+              </archive>
+              <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-jar.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -101,28 +82,10 @@
           <url>http://openl.star-sw.com:8081/manager</url>
           <server>openl-tomcat-server</server>
           <path>/webstudio</path>
-          <warFile>${project.build.directory}/${war.name}-tomcat6.war</warFile>
+          <warFile>target/${war.name}.war</warFile>
         </configuration>
       </plugin>
     </plugins>
-
-    <resources>
-      <resource>
-        <directory>src</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>conf</directory>
-        <targetPath>conf</targetPath>
-      </resource>
-      <resource>
-        <directory>webapps</directory>
-        <targetPath>webapps</targetPath>
-      </resource>
-    </resources>
   </build>
 
   <profiles>

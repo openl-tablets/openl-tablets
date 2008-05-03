@@ -1,1 +1,1 @@
-mvn package
+mvn
