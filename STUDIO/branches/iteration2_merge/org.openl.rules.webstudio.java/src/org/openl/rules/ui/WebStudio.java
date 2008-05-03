@@ -11,8 +11,9 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.benchmark.BenchmarkInfo;
 
 import java.io.IOException;
@@ -21,9 +22,9 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Set;
-
+import java.util.HashSet;
 import javax.servlet.http.HttpSession;
-
+import javax.faces.context.FacesContext;
 
 /**
  * DOCUMENT ME!
@@ -33,12 +34,12 @@ import javax.servlet.http.HttpSession;
 public class WebStudio {
     private final static Log log = LogFactory.getLog(WebStudio.class);
 
-    private final String workspacePath;
+    private String workspacePath;
     ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
     List<StudioListener> listeners = new ArrayList<StudioListener>();
     int tableID = -1;
     ProjectModel model = new ProjectModel(this);
-    final OpenLProjectLocator locator;
+    private OpenLProjectLocator locator;
     OpenLWrapperInfo[] wrappers = null;
     WebStudioMode mode = WebStudioMode.BUSINESS1;
     private Set<String> writableProjects;
@@ -59,8 +60,16 @@ public class WebStudio {
     WebStudioMode[] developerModes = { WebStudioMode.DEVELOPER };
 
     public WebStudio() {
-        this((System.getProperty("openl.webstudio.home") == null) ? ".."
-            : System.getProperty("openl.webstudio.home"));
+        boolean initialized = false;
+        try {
+            HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+            initialized = init(session);
+        } catch (Exception e) {}
+
+        if (!initialized) {
+            workspacePath = System.getProperty("openl.webstudio.home") == null ? ".." : System.getProperty("openl.webstudio.home");
+            locator = new OpenLProjectLocator(workspacePath);
+        }
     }
 
     public WebStudio(String workspacePath) {
@@ -296,6 +305,35 @@ public class WebStudio {
                 log.error("Can not check out!", e);
             }
         }
+    }
+
+    public boolean init(HttpSession session) {
+        UserWorkspace userWorkspace;
+        try {
+            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
+            userWorkspace = rulesUserSession.getUserWorkspace();
+        } catch (WorkspaceException e) {
+            log.error("Failed to get user workspace", e);
+            return false;
+        } catch (ProjectException e) {
+            log.error("Failed to get user workspace", e);
+            return false;
+        }
+        if (userWorkspace == null) {
+            return false;
+        }
+
+        workspacePath = userWorkspace.getLocalWorkspaceLocation().getAbsolutePath();
+        Set<String> writableProjects = new HashSet<String>();
+        for (Project project : userWorkspace.getProjects()) {
+            UserWorkspaceProject workspaceProject = (UserWorkspaceProject) project;
+            if (workspaceProject.isCheckedOut() || workspaceProject.isLocalOnly()) {
+                writableProjects.add(workspaceProject.getName());
+            }
+        }
+        setWritableProjects(writableProjects);
+        locator = new OpenLProjectLocator(workspacePath);
+        return true;
     }
 
     static interface StudioListener extends EventListener {
