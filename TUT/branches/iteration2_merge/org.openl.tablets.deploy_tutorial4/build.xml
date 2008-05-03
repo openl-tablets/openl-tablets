@@ -118,6 +118,7 @@
         	    <include name="**/org.openl.core${openl.plugin.version}.jar"/>
         	    <include name="**/org.openl.rules*${openl.plugin.version}.jar"/>
         		<include name="**/org.openl.j${openl.plugin.version}.jar"/>
+        		<include name="**/org.openl.lib.apache.poi.modified${openl.plugin.version}.jar"/>
         		<include name="org.openl.rules.ruleservice.lib${openl.plugin.version}/lib/*.jar" />
         	</fileset>
         </copy>
