@@ -6,5 +6,5 @@ Bundle-Version: 1.0.0
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL Tablets
 Require-Bundle: org.openl.commons,
- org.openl.lib.cxf,
- org.openl.lib.jsf
+ org.openl.rules.ruleservice.lib,
+ org.openl.rules.webstudio.lib
