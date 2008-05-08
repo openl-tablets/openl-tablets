@@ -20,10 +20,10 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -323,8 +323,10 @@ public class UtilBase {
      */
     public String toCanonicalUrl(Bundle pd, String path) {
         try {
-            URL url = Platform.find(pd, new Path(path));
-            url = Platform.asLocalURL(url);
+//            URL url = Platform.find(pd, new Path(path));
+            URL url = FileLocator.find(pd, new Path(path), null);
+//            url = Platform.asLocalURL(url);
+            url = FileLocator.toFileURL(url);
             if (url == null) {
                 return null;
             }
@@ -434,9 +436,9 @@ public class UtilBase {
 
     public String[] getTokens(String s, String delimiters) {
         StringTokenizer t = new StringTokenizer(s, delimiters);
-        Collection result = new ArrayList(t.countTokens());
-        while (t.hasMoreElements()) {
-            result.add(t.nextElement());
+        Collection<String> result = new ArrayList<String>(t.countTokens());
+        while (t.hasMoreTokens()) {
+            result.add(t.nextToken());
         }
 
         return (String[]) result.toArray(new String[0]);

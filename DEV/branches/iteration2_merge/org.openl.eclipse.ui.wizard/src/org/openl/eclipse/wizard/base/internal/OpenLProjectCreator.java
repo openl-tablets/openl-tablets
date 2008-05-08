@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.pde.internal.core.PDECore;
 import org.openl.eclipse.wizard.base.UtilBase;
 
 /**
@@ -113,7 +112,8 @@ public class OpenLProjectCreator {
         
         if (isNewProject) {
             entries.add(JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER")));
-            entries.add(JavaCore.newContainerEntry(PDECore.REQUIRED_PLUGINS_CONTAINER_PATH));
+//            entries.add(JavaCore.newContainerEntry(PDECore.REQUIRED_PLUGINS_CONTAINER_PATH));
+            entries.add(JavaCore.newContainerEntry(new Path("org.eclipse.pde.core.requiredPlugins")));
         }
 
         IJavaProject javaProject = JavaCore.create(project);

@@ -3,9 +3,6 @@
  */
 package org.openl.eclipse.wizard.base;
 
-import org.openl.eclipse.wizard.base.internal.TemplateCopier;
-
-
 /**
  * @author smesh
  */

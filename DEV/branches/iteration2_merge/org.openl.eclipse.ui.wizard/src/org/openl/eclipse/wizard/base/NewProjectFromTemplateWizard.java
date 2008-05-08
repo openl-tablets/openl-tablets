@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.pde.internal.core.natures.PDE;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
@@ -103,7 +102,8 @@ public class NewProjectFromTemplateWizard
                     }
 
                     final String[] natures = new String[] {
-                            IOpenlConstants.OPENL_NATURE_ID, JavaCore.NATURE_ID, PDE.PLUGIN_NATURE
+//                            IOpenlConstants.OPENL_NATURE_ID, JavaCore.NATURE_ID, PDE.PLUGIN_NATURE
+                            IOpenlConstants.OPENL_NATURE_ID, JavaCore.NATURE_ID, "org.eclipse.pde.PluginNature"
                     };
 
                     for (String nature : natures) {
