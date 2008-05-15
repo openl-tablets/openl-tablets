@@ -154,7 +154,7 @@ for(int i= 0; i < columnElements.length; ++i)
 
 
 <td>
-  <input class="search-input" id="<%=colValue2ID%>"  name="<%=colValue2ID%>" value="<%=colValue2value%>" onClick="jscleanAny('<%=colValue2ID%>', '<%=ISearchConstants.ANY%>')" 
+  <input class="search-input" id="<%=colValue2ID%>"  name="<%=colValue2ID%>" value="<%=colValue2value%>" onClick="jscleanAny('<%=colValue2ID%>', '<%=ISearchConstants.ANY%>')" >
 </td>
 
 

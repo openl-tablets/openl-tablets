@@ -29,5 +29,5 @@
 %>
 
 
-<%@include file="displayResults.jsp"%>
+<%@include file="displayResults.jspf"%>
 

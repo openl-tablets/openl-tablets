@@ -91,7 +91,7 @@ function expandIt(whichEl,tab,image) {
 		<td class="data">&nbsp;</td></tr>
 	<tr>
 		<td>
-<%@include file="showProperties.jsp"%>
+<%@include file="showProperties.jspf"%>
 		</td>
 	</tr>
 	<tr><td height="5"><img src="../images/s.gif" width="1" height="23"></td></tr>

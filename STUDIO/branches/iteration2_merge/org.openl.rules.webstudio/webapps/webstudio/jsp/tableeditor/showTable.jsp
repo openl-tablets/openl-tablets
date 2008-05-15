@@ -5,7 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
-<%@include file="../checkTimeout.jsp"%>
+<%@include file="../checkTimeout.jspf"%>
 <%
   String s_id = request.getParameter("elementID");
      int elementID;
@@ -104,6 +104,6 @@ function open_win(url)
 </div>
 </f:view>
 
-<%@include file="../showRuns.jsp"%>
+<%@include file="../showRuns.jspf"%>
 </body>
 </html>

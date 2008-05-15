@@ -42,7 +42,7 @@
 
 <H2><%=value%></H2><p/>
 
-<%@include file="displayResults.jsp"%>
+<%@include file="displayResults.jspf"%>
 
 
 

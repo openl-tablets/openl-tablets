@@ -2,7 +2,7 @@
 <jsp:useBean id='editor' scope='session' class="org.openl.rules.ui.EditorHelper" />
 
 
-<%@include file="checkTimeout.jsp"%>
+<%@include file="checkTimeout.jspf"%>
 
 
 <%

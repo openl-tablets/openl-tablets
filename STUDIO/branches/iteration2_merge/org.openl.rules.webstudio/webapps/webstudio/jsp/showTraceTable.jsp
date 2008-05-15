@@ -6,7 +6,7 @@
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
 
-<%@include file="checkTimeoutClose.jsp"%>
+<%@include file="checkTimeoutClose.jspf"%>
 
 
 <%
@@ -91,7 +91,7 @@ document.getElementById(elmnt).style.visibility="hidden"
 <a class="left" href="showLinks.jsp?<%=ti.getUrl()%>" target="show_app_hidden" title="<%=ti.getUri()%>">
       &nbsp;<%=ti.getText()+ " : " + ti.getDisplayName()%></a>
 </td>
-<%@include file="tableViewMenu.jsp"%>
+<%@include file="tableViewMenu.jspf"%>
  </tr>
 </table>
 
