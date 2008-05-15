@@ -2,7 +2,7 @@
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
 
-<%@include file="checkTimeout.jsp"%>
+<%@include file="checkTimeout.jspf"%>
 
 <% 
 	String s_id = request.getParameter("elementID"); 
@@ -36,7 +36,7 @@
 <title><%=text%></title>
 <link href="../css/style1.css" rel="stylesheet" type="text/css"/>
 
-<%@include file="common.jsp"%>
+<%@include file="common.jspf"%>
 
 </head>
 

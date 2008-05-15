@@ -1,8 +1,13 @@
+<%--
+
+// TODO check whether it is used or not. Delete?
+
+--%>
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
 
-<%@include file="checkTimeout.jsp"%>
+<%@include file="checkTimeout.jspf"%>
 
 
 <% 

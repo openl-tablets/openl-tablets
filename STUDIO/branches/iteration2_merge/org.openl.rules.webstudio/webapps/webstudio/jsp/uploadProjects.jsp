@@ -9,7 +9,7 @@
 
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
-<%@include file="checkTimeout.jsp"%>
+<%@include file="checkTimeout.jspf"%>
 
 <%if (!WebStudioUtils.isLocalRequest(request)) {%>
 <script type="text/javascript">alert("This action is available only from the machine server runs at.")</script>

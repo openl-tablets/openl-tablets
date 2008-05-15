@@ -95,6 +95,4 @@ String mode = request.getParameter("mode");
 </body>
 </noframes>
 
-</frameset>
-
 </html>

@@ -2,6 +2,9 @@
 
 
 <%
+
+// TODO -- not used anymore, can deleted?
+
 String[] typeButtons = searchBean.getTypeButtons();
 for(int i=0; i < typeButtons.length; ++i)
 {

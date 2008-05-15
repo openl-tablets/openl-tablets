@@ -35,7 +35,7 @@ BODY {
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
 
-<%@include file="jsp/checkTimeout.jsp"%>
+<%@include file="jsp/checkTimeout.jspf"%>
 
 
 <% 

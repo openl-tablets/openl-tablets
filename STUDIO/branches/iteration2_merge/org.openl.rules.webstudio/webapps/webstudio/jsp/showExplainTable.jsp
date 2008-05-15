@@ -8,7 +8,7 @@
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
 
-<%@include file="checkTimeoutClose.jsp"%>
+<%@include file="checkTimeoutClose.jspf"%>
 
 
 <%
@@ -96,7 +96,7 @@ if (ti != null)
       &nbsp;<%=ti.getText()+ " : " + ti.getDisplayName()%> : <%=text%></a>
 
 </td>
-<%@include file="tableViewMenu.jsp"%>
+<%@include file="tableViewMenu.jspf"%>
  
  </tr>
 </table>
