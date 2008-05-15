@@ -17,9 +17,11 @@
     <param-value>5000</param-value><!-- every 5 seconds -->
   </context-param>
 
+  <!-- TODO: solve problem with Log4jConfigListeners enabled both in webstudio and demo apps.
   <listener>
     <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
   </listener>
+  -->
 
   <servlet>
     <servlet-name>Faces Servlet</servlet-name>
