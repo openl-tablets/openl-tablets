@@ -3,6 +3,7 @@
 <%@ page import="org.openl.rules.ui.Explanation" %>
 <%@ page import="org.openl.rules.ui.OpenLWrapperInfo" %>
 <%@ page import="org.openl.rules.webtools.ExcelLauncher" %>
+<%@ page import="org.openl.rules.util.net.NetUtils" %>
 
 
 <html>
@@ -53,7 +54,7 @@ BODY {
 %>
 <a href="index.jsp?reload=true" title="Refresh Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
 
-<%if (!WebStudioUtils.isLocalRequest(request)) {%>
+<%if (!NetUtils.isLocalRequest(request)) {%>
   <%if (studio.getCurrentProject(session)!=null && studio.getCurrentProject(session).isCheckedOut()) {%>
     <a class="actionButton" href="index.jsp?operation=checkIn" target="_top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkin.gif"></a>
   <%}%>
