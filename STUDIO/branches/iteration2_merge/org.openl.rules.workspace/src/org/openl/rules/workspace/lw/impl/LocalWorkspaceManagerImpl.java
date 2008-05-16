@@ -19,27 +19,22 @@ import org.openl.util.MsgHelper;
 
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener {
     private static final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
-
     public static final String WS_PROPS = "workspace.properties";
     public static final String PROP_WS_LOCATION = "workspaces.location";
-
-    private final ConfigPropertyString confWSLocation = new ConfigPropertyString(PROP_WS_LOCATION, "/tmp/rules-workspaces/");
-    private final ConfigPropertyBoolean confUseEclipse4Localuser = new ConfigPropertyBoolean("workspaces.useEclipseForLocalUser", false);
-
+    private final ConfigPropertyString confWSLocation = new ConfigPropertyString(PROP_WS_LOCATION,
+            "/tmp/rules-workspaces/");
+    private final ConfigPropertyBoolean confUseEclipse4Localuser = new ConfigPropertyBoolean(
+            "workspaces.useEclipseForLocalUser", false);
     public static final String USER_LOCAL = "LOCAL";
-
     /**
      * Root folder where all workspaces are.
      */
     private File workspacesLocation;
-
     private boolean useEclipse4LocalUser;
-
     /**
      * User name -> User Workspace.
      */
     private HashMap<String, LocalWorkspaceImpl> localWorkspaces;
-
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
 
@@ -56,18 +51,14 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             confSet.updateProperty(confWSLocation);
             confSet.updateProperty(confUseEclipse4Localuser);
         }
-
         String wsLocation = confWSLocation.getValue();
         useEclipse4LocalUser = confUseEclipse4Localuser.getValue();
-
         workspacesLocation = new File(wsLocation);
         if (!FolderHelper.checkOrCreateFolder(workspacesLocation)) {
             throw new WorkspaceException("Cannot create workspace location ''{0}''", null, wsLocation);
         }
-
         log.info(MsgHelper.format("Location of Local Workspaces: ''{0}''", wsLocation));
         log.info(MsgHelper.format("Use eclipse for local user ''{1}'': ''{0}''", useEclipse4LocalUser, USER_LOCAL));
-
         localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
     }
 
@@ -81,29 +72,28 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         if (lwi == null) {
             if (USER_LOCAL.equals(userId) && useEclipse4LocalUser) {
                 lwi = createEclipseWorkspace(user);
-            } else {
+            }
+            else {
                 lwi = createWorkspace(user);
             }
             localWorkspaces.put(userId, lwi);
         }
-
         return lwi;
     }
 
     public void workspaceReleased(LocalWorkspace workspace) {
-        localWorkspaces.remove(((LocalWorkspaceImpl)workspace).getUser().getUserId());
+        localWorkspaces.remove(((LocalWorkspaceImpl) workspace).getUser().getUserId());
     }
 
-// --- protected
-
+    // --- protected
     protected LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
         File f = FolderHelper.generateSubLocation(workspacesLocation, userId);
         if (!FolderHelper.checkOrCreateFolder(f)) {
             throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace!", null, f.getAbsolutePath());
         }
-
-        log.debug(MsgHelper.format("Creating workspace for user ''{0}'' at ''{1}''", user.getUserId(), f.getAbsolutePath()));
+        log.debug(MsgHelper.format("Creating workspace for user ''{0}'' at ''{1}''", user.getUserId(), f
+                .getAbsolutePath()));
         return new LocalWorkspaceImpl(user, f, localWorkspaceFolderFilter, localWorkspaceFileFilter);
     }
 
@@ -112,9 +102,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         if (eclipseWorkspacePath == null) {
             eclipseWorkspacePath = "..";
         }
-
-        log.debug(MsgHelper.format("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(), eclipseWorkspacePath));
-        return new LocalWorkspaceImpl(user, new File(eclipseWorkspacePath), localWorkspaceFolderFilter, localWorkspaceFileFilter);
+        log.debug(MsgHelper.format("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(),
+                eclipseWorkspacePath));
+        return new LocalWorkspaceImpl(user, new File(eclipseWorkspacePath), localWorkspaceFolderFilter,
+                localWorkspaceFileFilter);
     }
 
     public boolean isUseEclipse4LocalUser() {
