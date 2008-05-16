@@ -3,6 +3,7 @@
 <%@ page import="org.openl.rules.ui.Explanation" %>
 <%@ page import="org.openl.rules.ui.OpenLWrapperInfo" %>
 <%@ page import="org.openl.rules.webtools.ExcelLauncher" %>
+<%@ page import="org.openl.rules.util.net.NetUtils" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich" %>
@@ -11,7 +12,7 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <%@include file="checkTimeout.jsp"%>
 
-<%if (!WebStudioUtils.isLocalRequest(request)) {%>
+<%if (!NetUtils.isLocalRequest(request)) {%>
 <script type="text/javascript">alert("This action is available only from the machine server runs at.")</script>
 <%  return;} %>
 
