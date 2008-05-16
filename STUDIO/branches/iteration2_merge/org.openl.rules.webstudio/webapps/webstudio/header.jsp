@@ -1,6 +1,6 @@
 <%@ page import = "org.openl.rules.ui.*" %>
 <%@ page import = "org.openl.rules.webstudio.web.util.WebStudioUtils" %>
-
+<%@ page import = "org.openl.rules.util.net.NetUtils" %>
 
 <html>
 <head>
@@ -76,7 +76,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
         <a href="index.jsp?mode=developer" title="Developer View" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/developer-view.png"></a>
       &nbsp;&nbsp;
 
-<%if (WebStudioUtils.isLocalRequest(request)) {
+<%if (NetUtils.isLocalRequest(request)) {
     if (WebStudioUtils.isRepositoryFailed()) {%>
         <img border=0 src="<%= request.getContextPath()%>/images/repository/upload-disabled.gif">
         &nbsp;
