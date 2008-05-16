@@ -1,5 +1,6 @@
 <%@ page import = "org.openl.rules.webtools.*" %>
 <%@ page import="org.openl.rules.webstudio.web.util.WebStudioUtils" %>
+<%@ page import="org.openl.rules.util.net.NetUtils" %>
 
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
@@ -89,7 +90,7 @@ function open_win(url)
 <%@include file="/WEB-INF/include/errorDisplay.inc"%>
 <%=studio.getModel().showErrors(elementID)%>
 
-<%if (WebStudioUtils.isLocalRequest(request)||(studio.getCurrentProject(session)!=null && (studio.getCurrentProject(session).isCheckedOut()||studio.getCurrentProject(session).isLocalOnly()))) {%>
+<%if (NetUtils.isLocalRequest(request)||(studio.getCurrentProject(session)!=null && (studio.getCurrentProject(session).isCheckedOut()||studio.getCurrentProject(session).isLocalOnly()))) {%>
 <a href="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf?elementID=<%=elementID%>">Edit Table</a>&nbsp;<%}%>
 
 <!--
