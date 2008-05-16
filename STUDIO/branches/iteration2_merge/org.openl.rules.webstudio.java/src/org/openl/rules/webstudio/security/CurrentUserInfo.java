@@ -12,7 +12,7 @@ import org.acegisecurity.userdetails.UserDetails;
  * @author Andrey Naumenko
  */
 public class CurrentUserInfo {
-    /**h
+    /**
      * Currently logged in user.
      *
      * @return userInfo

@@ -16,6 +16,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.indexer.FileIndexer;
+import org.openl.rules.util.net.NetUtils;
 
 import java.io.IOException;
 
@@ -23,7 +24,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import javax.servlet.http.HttpServletRequest;
-
 
 public class TableViewController {
     protected int elementID;
@@ -35,7 +35,8 @@ public class TableViewController {
     public void setElementID(String elementID) {
         try {
             this.elementID = Integer.parseInt(elementID);
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             this.elementID = -1;
         }
     }
@@ -49,7 +50,6 @@ public class TableViewController {
         if (gt == null) {
             return null;
         }
-
         IGrid htmlGrid = gt.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
             int N = 2;
@@ -58,14 +58,13 @@ public class TableViewController {
             f1[1] = new SimpleHtmlFilter();
             htmlGrid = new FilteredGrid(gt.getGrid(), f1);
         }
-
         TableViewer tv = new TableViewer(htmlGrid, gt.getRegion());
         return tv.buildModel(gt);
     }
 
     protected IGridTable getGridTable(int elementID) {
-        return new TableEditorModel(WebStudioUtils.getWebStudio().getModel()
-                .getTableWithMode(elementID, view)).getUpdatedTable();
+        return new TableEditorModel(WebStudioUtils.getWebStudio().getModel().getTableWithMode(elementID, view))
+                .getUpdatedTable();
     }
 
     public String getResponse() {
@@ -78,10 +77,11 @@ public class TableViewController {
 
     /**
      * Returns html view of current table as a string. It is just a sequence of
-     * calls to <code>render()</code> and <code>getResponse()</code> methdods.
-     *
+     * calls to <code>render()</code> and <code>getResponse()</code>
+     * methdods.
+     * 
      * @return html representation of current table
-     *
+     * 
      * @throws Exception if an error building response occurres
      */
     public String getTableView() throws Exception {
@@ -93,7 +93,8 @@ public class TableViewController {
     private int getElementId() {
         try {
             return Integer.valueOf(FacesUtils.getRequestParameter("elementID"));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return WebStudioUtils.getWebStudio().getTableID();
         }
     }
@@ -134,7 +135,8 @@ public class TableViewController {
         if (elementID != -1) {
             TableModel tableModel = initializeTableModel(elementID);
             response = new TableRenderer(tableModel).renderWithMenu();
-        } else {
+        }
+        else {
             response = "";
         }
         return null;
@@ -163,8 +165,8 @@ public class TableViewController {
     }
 
     public boolean isLocalRequest() {
-        boolean b = WebStudioUtils.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance()
-                    .getExternalContext().getRequest());
+        boolean b = NetUtils.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
+                .getRequest());
         return b;
     }
 
@@ -173,8 +175,8 @@ public class TableViewController {
         OpenLWrapperInfo[] wrappers = studio.getWrappers();
         SelectItem[] selectItems = new SelectItem[wrappers.length];
         for (int i = 0; i < wrappers.length; i++) {
-            selectItems[i] = new SelectItem(wrappers[i].getWrapperClassName(),
-                    studio.getMode().getDisplayName(wrappers[i]));
+            selectItems[i] = new SelectItem(wrappers[i].getWrapperClassName(), studio.getMode().getDisplayName(
+                    wrappers[i]));
         }
         return selectItems;
     }
