@@ -40,35 +40,6 @@ public abstract class WebStudioUtils {
         return (RulesUserSession) session.getAttribute(JSFConst.RULES_USER_SESSION_ATTR);
     }
 
-    /**
-     * Checks if given ip address is loopback.
-     *
-     * @param ip ip address to check
-     *
-     * @return <code>true</code> if <code>ip</code> represents loopback address,
-     *         <code>false</code> otherwise.
-     */
-    public static boolean isLoopbackAddress(String ip) {
-        if (StringUtils.isEmpty(ip)) {
-            return false;
-        }
-        try {
-            InetAddress addr = InetAddress.getByName(ip);
-            return (addr != null) && addr.isLoopbackAddress();
-        } catch (UnknownHostException e) {
-            log.info("Cannot check '" + ip + "'.", e);
-            return false;
-        }
-    }
-
-    public static boolean isLocalRequest(HttpServletRequest request) {
-        String remote = request.getRemoteAddr();
-
-        // TODO: think about proper implementation
-        boolean b = isLoopbackAddress(remote);// || request.getLocalAddr().equals(remote);
-        return b;
-    }
-
     public static boolean isRepositoryFailed() {
         return RulesRepositoryFactory.isFailed();
     }
