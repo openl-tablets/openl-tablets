@@ -6,6 +6,7 @@ import com.exigen.ie.constrainer.Goal;
 import com.exigen.ie.constrainer.GoalAnd;
 import com.exigen.ie.constrainer.GoalGenerate;
 import com.exigen.ie.constrainer.GoalSaveArrayResult;
+import com.exigen.ie.constrainer.IntExp;
 import com.exigen.ie.constrainer.IntExpArray;
 import com.exigen.ie.constrainer.IntVar;
 import com.exigen.ie.constrainer.impl.ConstraintAllDiff;
@@ -32,13 +33,27 @@ public class SudokuSolver {
 	int[][] data;
 
 	Constrainer c = new Constrainer("Sudoku");
-
-	// it is 3 x 3 for classic SUDOKU
-
-	public SudokuSolver(int H, int W, int[][] data) {
+	IAreaResolver area;
+	
+	public SudokuSolver(int H, int W, int[][] data, IAreaResolver res) 
+	{
 		this.H = H;
 		this.W = W;
 		this.data = data;
+		this.area = res;
+	}
+	
+	static interface IAreaResolver
+	{
+		IntExp find(int nArea, IntExp[][] matrix, int nExp);
+	}
+	
+
+	// it is 3 x 3 for classic SUDOKU
+
+	public SudokuSolver(int H, int W, int[][] data) 
+	{
+		this(H, W, data, null);
 	}
 
 	
@@ -104,6 +119,9 @@ public class SudokuSolver {
 
 		return res;
 	}
+	
+	
+	
 
 	
     /**
@@ -159,19 +177,6 @@ public class SudokuSolver {
 			}
 		}
 
-		// square(rectangle) constraints
-		for (int rect = 0; rect < RECT_SIZE(); rect++) {
-
-			IntExpArray ary = makeRect(rect);
-
-			try {
-				c.postConstraint(new ConstraintAllDiff(ary));
-
-			} catch (Failure f) {
-				throw new RuntimeException("Duplicated Values in Rectangle "
-						+ (rect + 1));
-			}
-		}
 
 		// row constraints
 		for (int row = 0; row < SIDE(); row++) {
@@ -186,6 +191,30 @@ public class SudokuSolver {
 			}
 		}
 
+		
+		//
+		// square(rectangle) constraints
+		
+		if (area == null)
+			area = new RectAreaResolver();
+		
+		for (int rect = 0; rect < RECT_SIZE(); rect++) {
+
+			IntExpArray ary = new IntExpArray(c, SIDE());
+//			IntExpArray ary = makeRect(rect);
+			
+			for (int k = 0; k < ary.size(); k++) {
+				ary.set(area.find(rect, values, k), k);
+			}
+
+			try {
+				c.postConstraint(new ConstraintAllDiff(ary));
+
+			} catch (Failure f) {
+				throw new RuntimeException("Duplicated Values in Rectangle(Area) "
+						+ (rect + 1));
+			}
+		}
 	}
 	
 	
@@ -235,4 +264,22 @@ public class SudokuSolver {
 		return ary;
 	}
 
+	
+	class RectAreaResolver implements IAreaResolver
+	{
+
+		public IntExp find(int area, IntExp[][] matrix, int exp) {
+			int rect_row_size = H;
+
+			int startRow = area / rect_row_size * H;
+
+			int startCol = area % rect_row_size * W;
+			int row = exp / W;
+			int col = exp % W;
+
+			return matrix[startRow + row][startCol + col];
+		}
+		
+	}
+	
 }
