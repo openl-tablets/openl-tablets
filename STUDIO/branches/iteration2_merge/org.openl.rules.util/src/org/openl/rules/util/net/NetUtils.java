@@ -3,7 +3,7 @@ package org.openl.rules.util.net;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -20,7 +20,8 @@ public final class NetUtils {
      * 
      * @param ip address to check
      * 
-     * @return <code>true</code> if <code>ip</code> represents loopback address, or <code>false</code> otherwise.
+     * @return <code>true</code> if <code>ip</code> represents loopback
+     *         address, or <code>false</code> otherwise.
      */
     public static boolean isLoopbackAddress(String ip) {
         if (StringUtils.isEmpty(ip)) {
@@ -36,11 +37,11 @@ public final class NetUtils {
         }
     }
 
-    public static boolean isLocalRequest(HttpServletRequest request) {
+    public static boolean isLocalRequest(ServletRequest request) {
         String remote = request.getRemoteAddr();
-
         // TODO: think about proper implementation
-        boolean b = isLoopbackAddress(remote);// || request.getLocalAddr().equals(remote);
+        boolean b = isLoopbackAddress(remote);// ||
+        // request.getLocalAddr().equals(remote);
         return b;
     }
 }

@@ -3,77 +3,50 @@ package org.openl.rules.workspace.lw.impl;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.config.ConfigPropertyBoolean;
-import org.openl.config.ConfigPropertyString;
-import org.openl.config.ConfigSet;
-import org.openl.config.SysConfigManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.util.MsgHelper;
+import org.springframework.beans.factory.InitializingBean;
 
-public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener {
+/**
+ * LocalWorkspaceManager implementation.
+ * 
+ * @author Aleh Bykhavets
+ */
+public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener, InitializingBean {
     private static final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
-    public static final String WS_PROPS = "workspace.properties";
-    public static final String PROP_WS_LOCATION = "workspaces.location";
-    private final ConfigPropertyString confWSLocation = new ConfigPropertyString(PROP_WS_LOCATION,
-            "/tmp/rules-workspaces/");
-    private final ConfigPropertyBoolean confUseEclipse4Localuser = new ConfigPropertyBoolean(
-            "workspaces.useEclipseForLocalUser", false);
-    public static final String USER_LOCAL = "LOCAL";
-    /**
-     * Root folder where all workspaces are.
-     */
-    private File workspacesLocation;
-    private boolean useEclipse4LocalUser;
-    /**
-     * User name -> User Workspace.
-     */
-    private HashMap<String, LocalWorkspaceImpl> localWorkspaces;
+    public static final String LOCAL_USER_ID = "LOCAL";
+
+    private String workspacesRoot = "/tmp/rules-workspaces/";
+    private boolean allowLocalUser = true;
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
 
-    public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
-        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
-    }
+    // User name -> user workspace
+    private Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
 
-    public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
-        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
-    }
-
-    public LocalWorkspaceManagerImpl(ConfigSet confSet) throws WorkspaceException {
-        if (confSet != null) {
-            confSet.updateProperty(confWSLocation);
-            confSet.updateProperty(confUseEclipse4Localuser);
+    public void afterPropertiesSet() throws Exception {
+        if (!FolderHelper.checkOrCreateFolder(new File(workspacesRoot))) {
+            throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspacesRoot);
         }
-        String wsLocation = confWSLocation.getValue();
-        useEclipse4LocalUser = confUseEclipse4Localuser.getValue();
-        workspacesLocation = new File(wsLocation);
-        if (!FolderHelper.checkOrCreateFolder(workspacesLocation)) {
-            throw new WorkspaceException("Cannot create workspace location ''{0}''", null, wsLocation);
-        }
-        log.info(MsgHelper.format("Location of Local Workspaces: ''{0}''", wsLocation));
-        log.info(MsgHelper.format("Use eclipse for local user ''{1}'': ''{0}''", useEclipse4LocalUser, USER_LOCAL));
-        localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
-    }
-
-    public LocalWorkspaceManagerImpl() throws WorkspaceException {
-        this(SysConfigManager.getConfigManager().locate(WS_PROPS));
+        log.info("Location of Local Workspaces: " + workspacesRoot);
+        log.info("Allow local user:" + allowLocalUser);
     }
 
     public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            if (USER_LOCAL.equals(userId) && useEclipse4LocalUser) {
+            if (allowLocalUser && LOCAL_USER_ID.equals(userId)) {
                 lwi = createEclipseWorkspace(user);
-            }
-            else {
+            } else {
                 lwi = createWorkspace(user);
             }
             localWorkspaces.put(userId, lwi);
@@ -85,10 +58,9 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         localWorkspaces.remove(((LocalWorkspaceImpl) workspace).getUser().getUserId());
     }
 
-    // --- protected
     protected LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
-        File f = FolderHelper.generateSubLocation(workspacesLocation, userId);
+        File f = FolderHelper.generateSubLocation(new File(workspacesRoot), userId);
         if (!FolderHelper.checkOrCreateFolder(f)) {
             throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace!", null, f.getAbsolutePath());
         }
@@ -108,7 +80,19 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
                 localWorkspaceFileFilter);
     }
 
-    public boolean isUseEclipse4LocalUser() {
-        return useEclipse4LocalUser;
+    public void setAllowLocalUser(boolean allowLocalUser) {
+        this.allowLocalUser = allowLocalUser;
+    }
+
+    public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
+        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
+    }
+
+    public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
+        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
+    }
+
+    public void setWorkspacesRoot(String workspacesRoot) {
+        this.workspacesRoot = workspacesRoot;
     }
 }

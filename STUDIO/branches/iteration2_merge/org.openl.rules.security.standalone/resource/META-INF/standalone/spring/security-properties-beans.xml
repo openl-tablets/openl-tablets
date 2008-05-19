@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
-       default-autowire="no">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+  default-autowire="no">
 
-  <bean id="systemProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+  <bean id="securityProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <property name="properties">
       <props>
         <prop key="security.standalone.db.driver">org.hsqldb.jdbcDriver</prop>
         <!-- prop key="security.standalone.db.url">jdbc:hsqldb:mem:webstudio</prop-->
         <prop key="security.standalone.db.url">jdbc:hsqldb:hsql://localhost:9102/webstudiodb</prop>
         <prop key="security.standalone.db.user">sa</prop>
-        <prop key="security.standalone.db.password"/>
-        <prop key="security.standalone.db.schema"/>
+        <prop key="security.standalone.db.password" />
+        <prop key="security.standalone.db.schema" />
         <prop key="security.standalone.db.hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
         <prop key="security.standalone.db.hibernate.show_sql">false</prop>
         <prop key="security.standalone.db.hibernate.format_sql">false</prop>
@@ -34,4 +33,5 @@
       </props>
     </property>
   </bean>
+
 </beans>
