@@ -127,7 +127,10 @@ public class RepositoryProjectFolderImpl extends RepositoryProjectArtefactImpl i
             getArtefact(name);
             return true;
         } catch (ProjectException e) {
-            if (log.isDebugEnabled()) log.debug("hasArtefact", e);
+            if (log.isTraceEnabled()) {
+                // if there is no artefact with such name it will catch exception
+                log.trace("hasArtefact", e);
+            }
             return false;
         }
     }
