@@ -39,6 +39,8 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
     private final String PROJECT_NAME = "sample";
 
     // TODO: fix
+
+    public void testFake() {}
     /*
     @Override
     protected void setUp() throws Exception {
