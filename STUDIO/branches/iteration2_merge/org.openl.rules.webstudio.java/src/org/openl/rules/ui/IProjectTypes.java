@@ -7,5 +7,7 @@ public interface IProjectTypes
 		PT_WORKSHEET = "worksheet",
 		PT_WORKBOOK = "workbook",
 		PT_WORDDOC = "word document",
-		PT_TABLE = "table";
+		PT_TABLE = "table",
+		PT_PROBLEM = "problem",
+		PT_FOLDER = "folder";
 }

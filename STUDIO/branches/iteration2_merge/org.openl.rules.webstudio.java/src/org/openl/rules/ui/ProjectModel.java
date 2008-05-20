@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.dt.IDecisionTableConstants;
@@ -46,7 +47,7 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.Tracer;
 
-public class ProjectModel {
+public class ProjectModel  implements IProjectTypes{
 
 	OpenLWrapper wrapper;
 
@@ -235,18 +236,18 @@ public class ProjectModel {
 		// return buf.toString();
 	}
 
-	public void renderElement(ProjectTreeElement parent,
-			ProjectTreeElement pte, String targetJsp, StringBuffer buf) {
-		DTreeModel dtm = new DTreeModel();
-
-		dtm.renderElement(parent, pte, targetJsp, buf);
-		for (Iterator iter = pte.getChildren(); iter.hasNext();) {
-			ProjectTreeElement element = (ProjectTreeElement) iter.next();
-
-			renderElement(pte, element, targetJsp, buf);
-
-		}
-	}
+//	public void renderElement(ProjectTreeElement parent,
+//			ProjectTreeElement pte, String targetJsp, StringBuffer buf) {
+//		DTreeModel dtm = new DTreeModel();
+//
+//		dtm.renderElement(parent, pte, targetJsp, buf);
+//		for (Iterator iter = pte.getChildren(); iter.hasNext();) {
+//			ProjectTreeElement element = (ProjectTreeElement) iter.next();
+//
+//			renderElement(pte, element, targetJsp, buf);
+//
+//		}
+//	}
 
 	public ProjectTreeElement makeProjectTree() {
 		if (wrapper == null)
@@ -262,6 +263,12 @@ public class ProjectModel {
 				name, name }, "root", null, null, 0, null);
 
 		XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
+		
+		CompiledOpenClass comp = wrapper.getCompiledOpenClass();
+		
+		if (comp.hasErrors())
+			addErrors(comp, root);
+		
 
 		XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
@@ -277,7 +284,7 @@ public class ProjectModel {
 				folder = new ProjectTreeElement(folders[k], "folder", null,
 						null, 0, null);
 				root.getElements().put(
-						new ATableTreeSorter.Key(k, folder.getDisplayName()),
+						new ATableTreeSorter.Key(k+1, folder.getDisplayName()),
 						folder);
 			}
 			ATableTreeSorter[] ts = sorters[k];
@@ -302,6 +309,29 @@ public class ProjectModel {
 		}
 
 		return root;
+	}
+
+	private void addErrors(CompiledOpenClass comp, ProjectTreeElement root) 
+	{
+		String[] errName= {"Problems","Problems","Problems"};
+		
+		ProjectTreeElement errorFolder = new ProjectTreeElement(errName, "folder", null, null, 0, null);
+		root.getElements().put(new ATableTreeSorter.Key(0, errName), errorFolder);
+		
+		int pn = comp.getParsingErrors().length;
+		for (int i = 0; i < pn; i++) 
+		{
+			String name = comp.getParsingErrors()[i].getMessage();
+			String[] names = {name,name, name};
+			errorFolder.getElements().put(new ATableTreeSorter.Key(i, names ), new ProjectTreeElement(names,PT_PROBLEM, null,  comp.getParsingErrors()[i], 0, null));
+		}
+
+		for (int i = 0; i < comp.getBindingErrors().length; i++) 
+		{
+			String name = comp.getBindingErrors()[i].getMessage();
+			String[] names = {name,name, name};
+			errorFolder.getElements().put(new ATableTreeSorter.Key(i+pn, names ), new ProjectTreeElement(names,PT_PROBLEM, null,  comp.getBindingErrors()[i], 0, null));
+		}
 	}
 
 	ProjectTreeElement projectRoot = null;
@@ -366,6 +396,18 @@ public class ProjectModel {
 
 		return tsn == null ? null : tsn.getTable().getGridTable();
 
+	}
+	
+	public Object showError(int elementID)
+	{
+		ProjectTreeElement pte = ptr.getElement(elementID);
+		if (pte == null)
+			return null;
+
+		Object error = pte.getProblem();
+		
+		return new ObjectViewer().displayResult(error);
+		
 	}
 
 	public TableSyntaxNode getNode(int elementID) {
