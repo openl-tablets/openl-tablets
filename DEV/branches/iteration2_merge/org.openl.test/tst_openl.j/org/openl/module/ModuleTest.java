@@ -211,7 +211,7 @@ public class ModuleTest extends TestCase
 	/**
 	 * Sample arithmetic expressions
 	 */
-	public final static String MATH_ONGL = "10 + price * quantity / 1.05";
+	public final static String MATH_OGNL = "10 + price * quantity / 1.05";
 
 	public final static String MATH_OPENL = "10 + context.price * context.quantity / 1.05";
 
@@ -297,6 +297,23 @@ public class ModuleTest extends TestCase
 		assertEquals(orderValue, value, 0.00001);
 	}
 
+	
+	public void testOpenLOGNLMath()
+	{
+		/*
+		 * This invocation does not work with primitive values, e.g. in arithemtic
+		 * expressions
+		 */
+		// Object obj = executeOpenLGetExpression(order, MATH_OPENL);
+		// XXX: workaround: have to specify expected return type for arithmetic
+		// expressions - not good for BLS engine
+		Object obj = executeOpenLOGNLExprression(order, MATH_OGNL); // <-- problematic, we have to know
+		// expresion return type before we invoke it
+		// thats something we dont know (and can't) in BLS
+		double value = ((Double) obj).doubleValue();
+		assertEquals(orderValue, value, 0.00001);
+	}
+	
 	/**
 	 * Execute boolean OpenL expression
 	 * 
@@ -324,6 +341,28 @@ public class ModuleTest extends TestCase
 		return executeOpenLExprression(context, expr, retType);
 	}
 
+	private Object executeOpenLOGNLExprression(Object context, String expr)
+	{
+		IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
+		OpenL op = OpenL.getInstance("org.openl.j");
+
+		JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
+		IMethodSignature signature = new MethodSignature(
+				new IOpenClass[] { openClass }, new String[] { "context" });
+
+		OpenMethodHeader methodHeader = new OpenMethodHeader("foo", JavaOpenClass.VOID,
+				signature, null);
+
+		BindingContext cxt = new BindingContext((Binder) op.getBinder(), null, op);
+
+		IOpenMethod method = OpenlTool.makeMethod(src, op, methodHeader, cxt);
+
+		IRuntimeEnv env = op.getVm().getRuntimeEnv();
+
+		return method.invoke(null, new Object[] { context }, env);
+	}
+	
+	
 	/**
 	 * Execute specified OpenL expression within given context object. Note:
 	 * context object must be refence by "contex." pefrix from expressions
