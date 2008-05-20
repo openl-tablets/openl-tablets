@@ -8,7 +8,7 @@
     <property name="properties">
       <props>
         <prop key="webstudio.allowLocalUser">false</prop>
-        <prop key="webstudio.workspacesRoot">/openl/rules-workspaces/</prop>
+        <prop key="webstudio.workspacesRoot">/openl/user-workspaces/</prop>
       </props>
     </property>
   </bean>
