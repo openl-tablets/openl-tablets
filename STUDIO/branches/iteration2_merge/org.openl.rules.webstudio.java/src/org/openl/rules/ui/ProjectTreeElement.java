@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.util.ITreeElement;
 import org.openl.util.TreeElement;
 
 public class ProjectTreeElement extends TreeElement implements INamedThing

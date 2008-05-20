@@ -46,6 +46,10 @@ public class ProjectTreeRenderer extends DTreeRenderer implements IProjectTypes,
 		if (element.getType().startsWith(PT_TABLE + "."))
 			return targetJsp + "?elementID=" + map.getID(element);
 		
+		if (element.getType().startsWith(PT_PROBLEM))
+			return "jsp/showError.jsp" + "?elementID=" + map.getID(element);
+
+		
 		return null;
 	}
 

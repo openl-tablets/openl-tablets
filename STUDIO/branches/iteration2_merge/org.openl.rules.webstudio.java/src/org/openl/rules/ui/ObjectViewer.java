@@ -640,7 +640,11 @@ public class ObjectViewer
 			try
 			{
 				src = module.getCode();
-			} catch (UnsupportedOperationException e)
+			} 
+			catch (NullPointerException e)
+			{
+			}
+			catch (UnsupportedOperationException e)
 			{
 			}
 			if (src == null || src.trim().length() == 0)
@@ -687,7 +691,7 @@ public class ObjectViewer
 		displayNonOpenlException(tt, buf).append("<p/>\n");
 		String uri = SourceCodeURLTool.makeSourceLocationURL(srcLocation, module,
 				"");
-		String url = WebTool.makeXlsOrDocUrl(uri);
+		String url = uri == null || "NO_MODULE".equals(uri) ? "NO+URL" : WebTool.makeXlsOrDocUrl(uri);
 
 		buf.append("\n" + "<table><tr><td class='javacode'>");
 
