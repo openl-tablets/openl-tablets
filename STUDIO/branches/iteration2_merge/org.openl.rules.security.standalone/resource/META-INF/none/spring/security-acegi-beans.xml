@@ -11,7 +11,7 @@
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         PATTERN_TYPE_APACHE_ANT
-        /**=httpSessionContextIntegrationFilter,autoLoginAuthenticationFilter
+        /**=httpSessionContextIntegrationFilter,autoLoginAuthenticationFilter,logoutFilter
       </value>
     </property>
   </bean>
@@ -21,21 +21,33 @@
     <property name="context" value="org.acegisecurity.context.SecurityContextImpl"/>
   </bean>
 
-  <bean id="autoLoginAuthenticationFilter" class="org.openl.rules.security.none.authentication.AuthenticationFilter" />
+  <bean id="autoLoginAuthenticationFilter" class="org.openl.rules.security.none.authentication.AuthenticationFilter"/>
 
 
-  <bean id="authenticationManager" class="org.acegisecurity.MockAuthenticationManager" />
-  <bean id="accessDecisionManager" class="org.openl.rules.security.none.AllowAllAccessDecisionManager" />
+  <bean id="authenticationManager" class="org.acegisecurity.MockAuthenticationManager"/>
+  <bean id="accessDecisionManager" class="org.openl.rules.security.none.AllowAllAccessDecisionManager"/>
 
   <bean id="attributes" class="org.acegisecurity.annotation.SecurityAnnotationAttributes"/>
   <bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes">
-    <property name="attributes"><ref local="attributes"/></property>
+    <property name="attributes">
+      <ref local="attributes"/>
+    </property>
   </bean>
   <bean id="openlManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
     <property name="validateConfigAttributes" value="false"/>
     <property name="authenticationManager" ref="authenticationManager"/>
     <property name="accessDecisionManager" ref="accessDecisionManager"/>
     <property name="objectDefinitionSource" ref="objectDefinitionSource"/>
+  </bean>
+
+  <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+    <constructor-arg value="/"/>
+    <constructor-arg>
+      <list>
+        <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
+      </list>
+    </constructor-arg>
+    <property name="filterProcessesUrl" value="/logoff.servlet"/>
   </bean>
 
 

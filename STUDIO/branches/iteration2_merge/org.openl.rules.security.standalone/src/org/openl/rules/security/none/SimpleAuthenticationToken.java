@@ -8,7 +8,7 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
 /**
  * @author Aliaksandr Antonik.
  */
-public class IPAuthentication extends AbstractAuthenticationToken {
+public class SimpleAuthenticationToken extends AbstractAuthenticationToken {
     private final UserDetails principal;
 
     /**
@@ -20,11 +20,11 @@ public class IPAuthentication extends AbstractAuthenticationToken {
      *                    granted (pursuant to the interface contract specified by {@link
      *                    org.acegisecurity.Authentication#getAuthorities()}<code>null</code> should only be
      *                    presented if the principal has not been authenticated).
-     * @param id IP address that represents a user
+     * @param userName user name
      */
-    public IPAuthentication(GrantedAuthority[] authorities, String id) {
+    public SimpleAuthenticationToken(GrantedAuthority[] authorities, String userName) {
         super(authorities);
-        this.principal = new User(id, "", true, true, true, true, authorities);
+        this.principal = new User(userName, "", true, true, true, true, authorities);
     }
 
     /**
