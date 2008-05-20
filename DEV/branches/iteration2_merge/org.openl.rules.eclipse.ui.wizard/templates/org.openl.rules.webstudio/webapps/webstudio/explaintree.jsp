@@ -35,7 +35,7 @@ BODY {
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
-<%@include file="jsp/checkTimeoutClose.jsp"%>
+<%@include file="jsp/checkTimeoutClose.jspf"%>
 
 
 <%
@@ -49,13 +49,13 @@ BODY {
 	
 	if (header != null)
 	{
+	    // TODO check or remove it
 %>
 <title>
 	<%=header%>
 </title>
 
 <%}%>
-</head>
 
 
 <p/><p/>

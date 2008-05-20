@@ -5,7 +5,7 @@
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
 
-<%@include file="checkTimeout.jsp"%>
+<%@include file="checkTimeout.jspf"%>
 
 
 
@@ -63,7 +63,7 @@ function jssetchecked(id,value)
 
 </script>
 
-<%@include file="common.jsp"%>
+<%@include file="common.jspf"%>
 
 </head>
 

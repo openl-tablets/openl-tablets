@@ -4,4 +4,8 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
   default-autowire="no">
 
+  <bean id="autoLogin" class="java.lang.Boolean">
+    <constructor-arg value="${security.autoLogin}"/>
+  </bean>
+
 </beans>

@@ -30,7 +30,7 @@ BODY {
 </style>
 
 
-<%@include file="checkTimeoutClose.jsp"%>
+<%@include file="checkTimeoutClose.jspf"%>
 
 
 
