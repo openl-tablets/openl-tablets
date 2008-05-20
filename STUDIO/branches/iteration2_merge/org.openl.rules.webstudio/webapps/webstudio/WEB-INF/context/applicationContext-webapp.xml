@@ -8,4 +8,14 @@
 
   <bean id="formatPatterns" class="org.openl.rules.webstudio.web.util.FormatPatterns" />
 
+  <bean id="contextExporter" class="org.springframework.web.context.support.ServletContextAttributeExporter">
+    <property name="attributes">
+      <map>
+        <entry key="allowLocalUser">
+          <ref bean="allowLocalUser"/>
+        </entry>
+      </map>
+    </property>
+  </bean>
+
 </beans>

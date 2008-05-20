@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.security.SecurityUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -22,10 +23,9 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener, InitializingBean {
     private static final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
-    public static final String LOCAL_USER_ID = "LOCAL";
 
     private String workspacesRoot = "/tmp/rules-workspaces/";
-    private boolean allowLocalUser = true;
+    private boolean allowLocalUser = false;
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
 
@@ -44,7 +44,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            if (allowLocalUser && LOCAL_USER_ID.equals(userId)) {
+            if (allowLocalUser && SecurityUtils.LOCAL_USER_ID.equals(userId)) {
                 lwi = createEclipseWorkspace(user);
             } else {
                 lwi = createWorkspace(user);
