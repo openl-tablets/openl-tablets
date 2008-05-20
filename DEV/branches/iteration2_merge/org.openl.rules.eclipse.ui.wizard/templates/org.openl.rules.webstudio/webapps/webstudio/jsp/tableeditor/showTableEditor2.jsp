@@ -21,7 +21,7 @@
            request.getParameter("view"), !switchParam);
 %>
 
-<%@include file="../checkTimeout.jsp"%>
+<%@include file="../checkTimeout.jspf"%>
 
 <%
             FacesContext fc = FacesContext.getCurrentInstance();

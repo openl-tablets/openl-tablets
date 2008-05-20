@@ -11,7 +11,7 @@
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.openl.rules.webstudio.security.CurrentUserInfo"%>
 <%@page import="org.openl.rules.workspace.MultiUserWorkspaceManager"%>
-<%@ page import="org.openl.rules.util.net.NetUtils" %>
+<%@page import = "org.openl.rules.util.net.NetUtils" %>
 <%@ page import="java.net.URLEncoder" %>
 <html>
 <head>
@@ -95,7 +95,5 @@ String mode = request.getParameter("mode");
     <p>To view content you need frames capable browser
 </body>
 </noframes>
-
-</frameset>
 
 </html>

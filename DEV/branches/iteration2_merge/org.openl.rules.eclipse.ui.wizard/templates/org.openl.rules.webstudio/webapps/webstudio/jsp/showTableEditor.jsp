@@ -4,7 +4,7 @@
 <jsp:useBean id='editor' scope='session' class="org.openl.rules.ui.EditorHelper" />
 
 
-<%@include file="checkTimeout.jsp"%>
+<%@include file="checkTimeout.jspf"%>
 
 
 <%
@@ -77,7 +77,7 @@ function clickCell(x,y,event)
 
 </head>
 
-<%@include file="tableEditorForm.jsp"%>
+<%@include file="tableEditorForm.jspf"%>
 
       
 

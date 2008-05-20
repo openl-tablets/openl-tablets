@@ -236,7 +236,7 @@ for(int i= 0; i < tableElements.length; ++i)
 
 
 <td>
-  <input class="search-input" id="<%=value2ID%>"  name="<%=value2ID%>" value="<%=value2value%>" onClick="jscleanAny('<%=value2ID%>', '<%=ISearchConstants.ANY%>')" 
+  <input class="search-input" id="<%=value2ID%>"  name="<%=value2ID%>" value="<%=value2value%>" onClick="jscleanAny('<%=value2ID%>', '<%=ISearchConstants.ANY%>')" >
 </td>
 
 
@@ -260,7 +260,7 @@ for(int i= 0; i < tableElements.length; ++i)
 
 
 
-<%@include file="advColumnSearch.jsp"%>
+<%@include file="advColumnSearch.jspf"%>
 
 
 

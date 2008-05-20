@@ -4,9 +4,23 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
   default-autowire="no">
 
-  <bean id="sysPropsPP" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="ignoreResourceNotFound" value="true"/>
-    <property name="properties" ref="systemProperties"/>
+  <bean id="webstudioProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
+      <props>
+        <prop key="webstudio.workspacesRoot">/openl/user-workspaces/</prop>
+        <prop key="webstudio.deployer">production</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="systemPropertiesPlaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreResourceNotFound" value="true" />
+    <property name="propertiesArray">
+      <list>
+        <ref bean="securityProperties" />
+        <ref bean="webstudioProperties" />
+      </list>
+    </property>
     <property name="locations">
       <list>
         <value>WEB-INF/conf/system.properties</value>
