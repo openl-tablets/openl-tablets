@@ -7,8 +7,8 @@
   <bean id="webstudioProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <property name="properties">
       <props>
-        <prop key="webstudio.allowLocalUser">false</prop>
         <prop key="webstudio.workspacesRoot">/openl/user-workspaces/</prop>
+        <prop key="webstudio.deployer">production</prop>
       </props>
     </property>
   </bean>

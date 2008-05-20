@@ -23,7 +23,8 @@
   <build>
     <defaultGoal>package</defaultGoal>
         <plugins>
-          <plugin>
+
+          <!--plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
             <executions>
@@ -57,8 +58,41 @@
                   </descriptors>
                 </configuration>
               </execution>
+
             </executions>
-          </plugin>
+          </plugin-->
+
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.openl.rules</groupId>
+                  <artifactId>org.openl.rules.webstudio.lib</artifactId>
+                  <version>${version}</version>
+                  <type>jar</type>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${project.build.directory}/alternateLocation</outputDirectory>
+                  <destFileName>optional-new-name.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/wars</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
         </plugins>
   </build>
 

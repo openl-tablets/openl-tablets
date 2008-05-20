@@ -11,8 +11,8 @@
   <bean id="contextExporter" class="org.springframework.web.context.support.ServletContextAttributeExporter">
     <property name="attributes">
       <map>
-        <entry key="allowLocalUser">
-          <ref bean="allowLocalUser"/>
+        <entry key="autoLogin">
+          <ref bean="autoLogin"/>
         </entry>
       </map>
     </property>
