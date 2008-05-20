@@ -20,7 +20,7 @@
 
   <bean id="localUserFilter" class="org.openl.rules.security.LocalUserFilter">
     <property name="userDetailsService" ref="userDetailsService"/>
-    <property name="allowLocalUser" value="${webstudio.allowLocalUser}"/>  
+    <property name="allowLocalUser" value="${webstudio.allowLocalUser}"/>
   </bean>
 
   <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
@@ -31,7 +31,7 @@
       </list>
     </property>
   </bean>
-  
+
   <bean id="passwordEncoder" class="org.acegisecurity.providers.encoding.Md5PasswordEncoder"/>
 
   <bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
