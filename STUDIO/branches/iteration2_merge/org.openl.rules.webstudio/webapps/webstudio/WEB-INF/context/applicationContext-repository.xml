@@ -7,8 +7,8 @@
   <import resource="appContextInclude-repository-filters.xml" />
 
   <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
-    <property name="workspacesRoot" value="${webstudio.workspacesRoot}" />    
-    <property name="allowLocalUser" value="${webstudio.allowLocalUser}" />
+    <property name="workspacesRoot" value="${webstudio.workspacesRoot}" />
+    <property name="autoLogin" value="${security.autoLogin}" />
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
   </bean>
@@ -68,7 +68,7 @@
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
     <property name="deployer">
       <bean class="org.openl.rules.webstudio.util.ChooseObjectFactoryBean">
-        <property name="testValue" value="${org.openl.rules.webstudio.deployer}" />
+        <property name="testValue" value="${webstudio.deployer}" />
         <!--  property name="defaultObject" ref="jcrProductionDeployer" /-->
         <property name="casesMap">
           <map>

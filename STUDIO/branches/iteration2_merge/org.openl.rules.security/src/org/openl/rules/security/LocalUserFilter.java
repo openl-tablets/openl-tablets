@@ -23,7 +23,7 @@ import org.openl.rules.util.net.NetUtils;
  * conditions are satisfied:
  * 
  * <pre>
- * 1. allowLocalUser is set to true 
+ * 1. autoLogin is set to true
  * 2. NetUtils.isLocalRequest(request) == true
  * 3. no other user is currently logged in
  * </pre>
@@ -33,7 +33,7 @@ import org.openl.rules.util.net.NetUtils;
 public class LocalUserFilter implements Filter {
     private static final Log log = LogFactory.getLog(LocalUserFilter.class);
     private UserDetailsService userDetailsService;
-    private boolean allowLocalUser;
+    private boolean autoLogin;
 
     /**
      * Does nothing - we rely on IoC lifecycle services instead.
@@ -43,7 +43,7 @@ public class LocalUserFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
-        if (allowLocalUser && NetUtils.isLocalRequest(request)
+        if (autoLogin && NetUtils.isLocalRequest(request)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(SecurityUtils.LOCAL_USER_ID);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails
@@ -67,7 +67,7 @@ public class LocalUserFilter implements Filter {
         this.userDetailsService = userDetailsService;
     }
 
-    public void setAllowLocalUser(boolean allowLocalUser) {
-        this.allowLocalUser = allowLocalUser;
+    public void setAutoLogin(boolean autoLogin) {
+        this.autoLogin = autoLogin;
     }
 }

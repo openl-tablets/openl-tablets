@@ -54,10 +54,10 @@
           <h:graphicImage url="/images/openWebStudio.gif" styleClass="actionImage" />
         </h:commandLink>
 
-        <a href="#{contextPath}#{allowLocalUser?'/faces/login.xhtml':'/logoff.servlet?_j_acegi_logout=true'}" class="actionButton"
+        <a href="#{contextPath}#{autoLogin?'/faces/login.xhtml':'/logoff.servlet?_j_acegi_logout=true'}" class="actionButton"
           title="Logout" onclick="return confirm('Are you sure you want to log off?')">
           <h:graphicImage url="/images/logout.gif" styleClass="actionImage" />
-        </a>        
+        </a>
       </div>
 
       <div id="colorScheme">

@@ -25,7 +25,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     private static final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
 
     private String workspacesRoot = "/tmp/rules-workspaces/";
-    private boolean allowLocalUser = false;
+    private boolean autoLogin = false;
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
 
@@ -37,14 +37,14 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspacesRoot);
         }
         log.info("Location of Local Workspaces: " + workspacesRoot);
-        log.info("Allow local user:" + allowLocalUser);
+        log.info("Allow local user:" + autoLogin);
     }
 
     public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            if (allowLocalUser && SecurityUtils.LOCAL_USER_ID.equals(userId)) {
+            if (autoLogin && SecurityUtils.LOCAL_USER_ID.equals(userId)) {
                 lwi = createEclipseWorkspace(user);
             } else {
                 lwi = createWorkspace(user);
@@ -80,8 +80,8 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
                 localWorkspaceFileFilter);
     }
 
-    public void setAllowLocalUser(boolean allowLocalUser) {
-        this.allowLocalUser = allowLocalUser;
+    public void setAutoLogin(boolean autoLogin) {
+        this.autoLogin = autoLogin;
     }
 
     public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
