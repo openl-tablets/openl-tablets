@@ -12,8 +12,10 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.openl.rules.security.none.IPAuthentication;
+import org.openl.rules.security.none.SimpleAuthenticationToken;
 import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SecurityUtils;
+import org.openl.rules.util.net.NetUtils;
 
 /**
  * @author Aliaksandr Antonik.
@@ -54,7 +56,7 @@ public class AuthenticationFilter implements Filter {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            authentication = new IPAuthentication(authorities, req.getRemoteAddr());
+            authentication = new SimpleAuthenticationToken(authorities, nameFromRequest(req));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
@@ -72,5 +74,21 @@ public class AuthenticationFilter implements Filter {
      * with the filter's current state in memory.
      */
     public void destroy() {
+    }
+
+
+	/**
+	 * Composes user name from a <code>ServletRequest</code>. If the request comes from local computer, that is <code>NetUtils.isLocalRequest(req)</code>
+	 * returns <code>true</code> than a special value denoting local user is returned, otherwise user name is IP address  the request came from.
+	 *
+	 * @param req servlet request object
+	 * @return user name
+	**/
+    private static String nameFromRequest(ServletRequest req) {
+        if (NetUtils.isLocalRequest(req)) {
+			return SecurityUtils.LOCAL_USER_ID;
+		}
+		
+		return req.getRemoteAddr();
     }
 }
