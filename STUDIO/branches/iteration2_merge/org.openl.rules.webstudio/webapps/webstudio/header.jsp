@@ -99,7 +99,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
 <% } %>
 <%if (!(Boolean)application.getAttribute("hideLogout")) {%>
         &nbsp;
-        <a target="_top" href='<%=request.getContextPath()%><%= (Boolean)application.getAttribute("autoLogin") ? "/faces/login.xhtml":"/logoff.servlet?_j_acegi_logout=true"%>' title="Logout" onclick="return confirm('Are you sure you want to log off?')"><img border=0 src="<%= request.getContextPath()%>/images/logout.gif" alt="Logout"></a>
+        <a target="_top" href='<%=request.getContextPath()%><%= "/logoff.servlet?_j_acegi_logout=true"%>' title="Logout" onclick="return confirm('Are you sure you want to log off?')"><img border=0 src="<%= request.getContextPath()%>/images/logout.gif" alt="Logout"></a>
 <% } %>          
       </td>
       </table>

@@ -18,9 +18,18 @@
 
   <!-- ======================== AUTHENTICATION ======================= -->
 
+  <bean id="logoffUrl" class="java.lang.String"><constructor-arg value="/logoff.servlet" /></bean>
+  <bean id="loginUrl" class="java.lang.String"><constructor-arg value="/faces/login.xhtml" /></bean>
+
   <bean id="localUserFilter" class="org.openl.rules.security.LocalUserFilter">
     <property name="userDetailsService" ref="userDetailsService"/>
     <property name="autoLogin" value="${security.autoLogin}"/>
+    <property name="ignoredUrls">
+      <list>
+        <ref bean="logoffUrl" />
+        <ref bean="loginUrl" />
+      </list>
+    </property>
   </bean>
 
   <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
@@ -99,7 +108,7 @@
 
   <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
     <property name="authenticationManager" ref="authenticationManager" />
-    <property name="authenticationFailureUrl" value="/faces/login.xhtml" />
+    <property name="authenticationFailureUrl" ref="loginUrl" />
     <property name="alwaysUseDefaultTargetUrl" value="false" />
     <property name="defaultTargetUrl" value="/" />
     <property name="filterProcessesUrl" value="/j_acegi_security_check" />
@@ -108,7 +117,7 @@
 
   <bean id="authenticationProcessingFilterEntryPoint"
     class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
-    <property name="loginFormUrl" value="/faces/login.xhtml" />
+    <property name="loginFormUrl" ref="loginUrl" />
     <property name="forceHttps" value="false" />
   </bean>
 
@@ -149,14 +158,14 @@
 
   <!-- ======================== Logout ========================== -->
   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
-    <constructor-arg value="/" />
+    <constructor-arg ref="loginUrl" />
     <constructor-arg>
       <list>
         <ref bean="rememberMeServices" />
         <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
       </list>
     </constructor-arg>
-    <property name="filterProcessesUrl" value="/logoff.servlet" />
+    <property name="filterProcessesUrl" ref="logoffUrl" />
   </bean>
 
 
