@@ -44,7 +44,7 @@ public class LocalUserFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
         if (autoLogin && NetUtils.isLocalRequest(request)
-                && SecurityContextHolder.getContext().getAuthentication() == null && !isLogoutRequest(request)) {
+                && SecurityContextHolder.getContext().getAuthentication() == null && !isIgnoredRequest(request)) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(SecurityUtils.LOCAL_USER_ID);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails
                     .getAuthorities());
@@ -53,7 +53,7 @@ public class LocalUserFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    protected boolean isLogoutRequest(ServletRequest req) {
+    protected boolean isIgnoredRequest(ServletRequest req) {
         HttpServletRequest request = (HttpServletRequest) req;
         String uri = request.getRequestURI();
         
