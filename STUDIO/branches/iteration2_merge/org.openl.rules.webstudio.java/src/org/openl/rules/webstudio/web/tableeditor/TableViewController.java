@@ -13,7 +13,7 @@ import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
 import org.openl.rules.ui.TableViewer;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.indexer.FileIndexer;
 import org.openl.rules.util.net.NetUtils;
@@ -35,8 +35,7 @@ public class TableViewController {
     public void setElementID(String elementID) {
         try {
             this.elementID = Integer.parseInt(elementID);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             this.elementID = -1;
         }
     }
@@ -93,8 +92,7 @@ public class TableViewController {
     private int getElementId() {
         try {
             return Integer.valueOf(FacesUtils.getRequestParameter("elementID"));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return WebStudioUtils.getWebStudio().getTableID();
         }
     }
@@ -135,8 +133,7 @@ public class TableViewController {
         if (elementID != -1) {
             TableModel tableModel = initializeTableModel(elementID);
             response = new TableRenderer(tableModel).renderWithMenu();
-        }
-        else {
+        } else {
             response = "";
         }
         return null;

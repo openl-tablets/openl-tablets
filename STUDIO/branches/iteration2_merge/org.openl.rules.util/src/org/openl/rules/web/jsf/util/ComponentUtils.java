@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.jsf.util;
+package org.openl.rules.web.jsf.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -21,10 +21,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.ConverterException;
 import javax.faces.el.ValueBinding;
 
-
 /**
  * Utils for working with JSF components and components' trees.
- *
+ * 
  * @author Andrey Naumenko
  */
 public class ComponentUtils {
@@ -33,13 +32,14 @@ public class ComponentUtils {
     /**
      * This method return object property value irrespective of the fact that
      * it's expression(value binding) or not.
-     *
+     * 
      * @param component component
      * @param value property value from component.
      * @param name name of property in value binding map.
-     *
-     * @return <code>value</code> - if it isn't null, otherwise - return value with name
-     *         <code>name</code> from value binding of component <code>component</code>.
+     * 
+     * @return <code>value</code> - if it isn't null, otherwise - return value
+     *         with name <code>name</code> from value binding of component
+     *         <code>component</code>.
      */
     public static Object getObjectValue(UIComponent component, Object value, String name) {
         if (value != null) {
@@ -52,13 +52,14 @@ public class ComponentUtils {
     /**
      * This method return string property value irrespective of the fact that
      * it's expression(value binding) or not.
-     *
+     * 
      * @param component component
      * @param value property value from component.
      * @param name name of property in value binding map.
-     *
-     * @return <code>value</code> - if it isn't null, otherwise - return value with name
-     *         <code>name</code> from value binding of component <code>component</code>.
+     * 
+     * @return <code>value</code> - if it isn't null, otherwise - return value
+     *         with name <code>name</code> from value binding of component
+     *         <code>component</code>.
      */
     public static String getStringValue(UIComponent component, String value, String name) {
         return (String) getObjectValue(component, value, name);
@@ -67,43 +68,43 @@ public class ComponentUtils {
     /**
      * This method return integer property value irrespective of the fact that
      * it's expression(value binding) or not.
-     *
+     * 
      * @param component component
      * @param value property value from component.
      * @param name name of property in value binding map.
-     *
-     * @return <code>value</code> - if it isn't null, otherwise - return value with name
-     *         <code>name</code> from value binding of component <code>component</code>.
+     * 
+     * @return <code>value</code> - if it isn't null, otherwise - return value
+     *         with name <code>name</code> from value binding of component
+     *         <code>component</code>.
      */
-    public static Integer getIntegerValue(UIComponent component, Integer value,
-        String name) {
+    public static Integer getIntegerValue(UIComponent component, Integer value, String name) {
         return (Integer) getObjectValue(component, value, name);
     }
 
     /**
      * This method return boolean property value irrespective of the fact that
      * it's expression(value binding) or not.
-     *
+     * 
      * @param component component
      * @param value property value from component.
      * @param name name of property in value binding map.
-     *
-     * @return <code>value</code> - if it isn't null, otherwise - return value with name
-     *         <code>name</code> from value binding of component <code>component</code>.
+     * 
+     * @return <code>value</code> - if it isn't null, otherwise - return value
+     *         with name <code>name</code> from value binding of component
+     *         <code>component</code>.
      */
-    public static Boolean getBooleanValue(UIComponent component, Boolean value,
-        String name) {
+    public static Boolean getBooleanValue(UIComponent component, Boolean value, String name) {
         return (Boolean) getObjectValue(component, value, name);
     }
 
     /**
      * Return Object value by name from <code>_valueBindingMap</code>.
-     *
+     * 
      * @param component <code>UIComponent</code> object
      * @param name property name
-     *
-     * @return Object value from  <code>_valueBindingMap</code> if such item exist,
-     *         <code>null</code> - otherwise.
+     * 
+     * @return Object value from <code>_valueBindingMap</code> if such item
+     *         exist, <code>null</code> - otherwise.
      */
     public static Object getObjectFromValueBinding(UIComponent component, String name) {
         ValueBinding vb = component.getValueBinding(name);
@@ -112,12 +113,12 @@ public class ComponentUtils {
 
     /**
      * Return String value by name from <code>_valueBindingMap</code>.
-     *
+     * 
      * @param component <code>UIComponent</code> object
      * @param name property name
-     *
-     * @return String value from  <code>_valueBindingMap</code> if such item exist,
-     *         <code>null</code> - otherwise.
+     * 
+     * @return String value from <code>_valueBindingMap</code> if such item
+     *         exist, <code>null</code> - otherwise.
      */
     public static String getStringFromValueBinding(UIComponent component, String name) {
         return (String) getObjectFromValueBinding(component, name);
@@ -125,26 +126,25 @@ public class ComponentUtils {
 
     /**
      * Return Throwable value by name from <code>_valueBindingMap</code>.
-     *
+     * 
      * @param component <code>UIComponent</code> object
      * @param name property name
-     *
-     * @return Throwable value from  <code>_valueBindingMap</code> if such item exist,
-     *         <code>null</code> - otherwise.
+     * 
+     * @return Throwable value from <code>_valueBindingMap</code> if such item
+     *         exist, <code>null</code> - otherwise.
      */
-    public static Throwable getThrowableFromValueBinding(UIComponent component,
-        String name) {
+    public static Throwable getThrowableFromValueBinding(UIComponent component, String name) {
         return (Throwable) getObjectFromValueBinding(component, name);
     }
 
     /**
      * Return Integer value by name from <code>_valueBindingMap</code>.
-     *
+     * 
      * @param component <code>UIComponent</code> object
      * @param name property name
-     *
-     * @return Integer value from  <code>_valueBindingMap</code> if such item exist,
-     *         <code>null</code> - otherwise.
+     * 
+     * @return Integer value from <code>_valueBindingMap</code> if such item
+     *         exist, <code>null</code> - otherwise.
      */
     public static Integer getIntegerFromValueBinding(UIComponent component, String name) {
         return (Integer) getObjectFromValueBinding(component, name);
@@ -152,12 +152,12 @@ public class ComponentUtils {
 
     /**
      * Return Boolean value by name from <code>_valueBindingMap</code>.
-     *
+     * 
      * @param component <code>UIComponent</code> object
      * @param name property name
-     *
-     * @return Boolean value from  <code>_valueBindingMap</code> if such item exist,
-     *         <code>null</code> - otherwise.
+     * 
+     * @return Boolean value from <code>_valueBindingMap</code> if such item
+     *         exist, <code>null</code> - otherwise.
      */
     public static Boolean getBooleanFromValueBinding(UIComponent component, String name) {
         return (Boolean) getObjectFromValueBinding(component, name);
@@ -165,11 +165,11 @@ public class ComponentUtils {
 
     /**
      * Search UIForm component among parent components.
-     *
+     * 
      * @param component current component
-     *
-     * @return <code>UIForm</code> component if its exist in parents, <code>null</code> -
-     *         otherwise.
+     * 
+     * @return <code>UIForm</code> component if its exist in parents,
+     *         <code>null</code> - otherwise.
      */
     public static UIForm getParentForm(UIComponent component) {
         // find UIForm parent
@@ -183,9 +183,9 @@ public class ComponentUtils {
 
     /**
      * Get parameters (defined using f:param) for component.
-     *
+     * 
      * @param component UIComponent.
-     *
+     * 
      * @return parameters map (maps String to Object).
      */
     @SuppressWarnings("unchecked")
@@ -208,10 +208,10 @@ public class ComponentUtils {
     /**
      * Searches for a component with a specified id in specified component and
      * all its children.
-     *
+     * 
      * @param component start point.
      * @param id identifier of the target component.
-     *
+     * 
      * @return UIComponent or <code>null</code>.
      */
     @SuppressWarnings("unchecked")
@@ -245,15 +245,14 @@ public class ComponentUtils {
 
     /**
      * Find all UIComponents with specified class <code>componentClass</code>.
-     *
+     * 
      * @param component start point.
      * @param componentClass class of searched UIComponents.
-     *
+     * 
      * @return list of all components.
      */
     @SuppressWarnings("unchecked")
-    public static List findAllComponentsByClass(UIComponent component,
-        Class componentClass) {
+    public static List findAllComponentsByClass(UIComponent component, Class componentClass) {
         if (component == null) {
             component = getFacesContext().getViewRoot();
         }
@@ -269,8 +268,7 @@ public class ComponentUtils {
                 result.add(childComponent);
             }
             if (component.getChildCount() > 0) {
-                result.addAll(findAllComponentsByClass((UIComponent) childComponent,
-                        componentClass));
+                result.addAll(findAllComponentsByClass((UIComponent) childComponent, componentClass));
             }
         }
         return result;
@@ -278,14 +276,14 @@ public class ComponentUtils {
 
     /**
      * Get parameter value for component.
-     *
+     * 
      * @param component input component.
      * @param parameterName name of parameter.
-     *
+     * 
      * @return parameter value with specified name for this component.
-     *
-     * @throws IllegalArgumentException when incorrect parameter name for component
-     *         specified
+     * 
+     * @throws IllegalArgumentException when incorrect parameter name for
+     *         component specified
      */
     @SuppressWarnings("unchecked")
     public static Object getParameter(UIComponent component, String parameterName) {
@@ -293,8 +291,8 @@ public class ComponentUtils {
         Map params = ComponentUtils.getComponentParameters(component);
         if (!params.containsKey(parameterName)) {
             // parameter not found
-            throw new IllegalArgumentException("Parameter " + parameterName + " for "
-                + component.getId() + " not found.");
+            throw new IllegalArgumentException("Parameter " + parameterName + " for " + component.getId()
+                    + " not found.");
         }
 
         return params.get(parameterName);
@@ -302,24 +300,23 @@ public class ComponentUtils {
 
     /**
      * Get converted value from component with id = <code>value</code> if
-     * <code>value</code> is string, otherwise return not modified <code>value</code>.
-     * <code>value</code> - must not be null.
-     *
-     * @param component component for other component(if <code>value</code> - is
-     *        component id) search.
+     * <code>value</code> is string, otherwise return not modified
+     * <code>value</code>. <code>value</code> - must not be null.
+     * 
+     * @param component component for other component(if <code>value</code> -
+     *        is component id) search.
      * @param value it is object value(already converted) or component id.
-     *
+     * 
      * @return converted(if necessary) object value.
-     *
+     * 
      * @throws IllegalArgumentException null value specified
      */
     public static Object getParameterObjectValue(UIComponent component, Object value) {
         Object result = value;
 
         if (value == null) {
-            throw new IllegalArgumentException(
-                "Parameter value(from expression string) for " + component.getId()
-                + " must not be null.");
+            throw new IllegalArgumentException("Parameter value(from expression string) for " + component.getId()
+                    + " must not be null.");
         } else if (value instanceof String) {
             result = getValueFromComponentById(component, (String) value);
         }
@@ -329,35 +326,31 @@ public class ComponentUtils {
 
     /**
      * Get value from component with specified id.
-     *
+     * 
      * @param convertedComponent component for search component by id.
      * @param componentId target compoennt id.
-     *
+     * 
      * @return converted component value.
-     *
+     * 
      * @throws IllegalArgumentException specified component not exists
      */
-    public static Object getValueFromComponentById(UIComponent convertedComponent,
-        String componentId) {
+    public static Object getValueFromComponentById(UIComponent convertedComponent, String componentId) {
         // find component
         UIComponent component = convertedComponent.findComponent(componentId);
         Object convertedValue = null;
 
         if (component == null) {
-            throw new IllegalArgumentException("Can't find component with id = "
-                + componentId);
+            throw new IllegalArgumentException("Can't find component with id = " + componentId);
         }
 
         if (component != null) {
             // get submitted value
-            String value = FacesUtils.getRequestParameter(component.getClientId(
-                        FacesContext.getCurrentInstance()));
+            String value = FacesUtils.getRequestParameter(component.getClientId(FacesContext.getCurrentInstance()));
             if (StringUtils.isNotEmpty(value)) {
                 try {
                     // get converted value from input field
-                    convertedValue = ((UIInput) component).getConverter()
-                            .getAsObject(FacesContext.getCurrentInstance(), component,
-                                value);
+                    convertedValue = ((UIInput) component).getConverter().getAsObject(
+                            FacesContext.getCurrentInstance(), component, value);
                 } catch (ConverterException e) {
                     log.error("Failed conversion for component " + componentId);
                 }

@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.jsf.faceletes.resource;
+package org.openl.rules.webstudio.web.jsf.facelets.resource;
 
 import com.sun.facelets.impl.ResourceResolver;
 import com.sun.facelets.util.Resource;
@@ -10,12 +10,12 @@ import java.net.URL;
 import javax.faces.FacesException;
 import javax.faces.context.FacesContext;
 
-
 /**
- * Convenient implementation of resource resolver that allows to store all facelets
- * templates in "facelets" folder of web application instead of placing it in root
- * folder. Also it provides possibility to load resources from classpath.
- *
+ * Convenient implementation of resource resolver that allows to store all
+ * facelets templates in "facelets" folder of web application instead of placing
+ * it in root folder. Also it provides possibility to load resources from
+ * classpath.
+ * 
  * @author Andrey Naumenko
  */
 public class DefaultResourceResolver implements ResourceResolver {

@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -227,8 +227,7 @@ public class DeploymentController {
             } catch (Exception e) {
                 String msg = "Failed to deploy '" + project.getName() + "'";
                 log.error(msg, e);
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
+                FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
             }
         }

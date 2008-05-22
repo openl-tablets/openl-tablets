@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.jsf.faceletes.acegi;
+package org.openl.rules.web.jsf.facelets.acegi;
 
 import java.io.IOException;
 
@@ -7,16 +7,15 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 
-
 /**
- * Component that displayes user info. See javadocs for AuthenticationTag from Acegi
- * library for more information.
- *
+ * Component that displayes user info. See javadocs for AuthenticationTag from
+ * Acegi library for more information.
+ * 
  * @author Andrey Naumenko
  */
 public class AuthenticationComponent extends UIComponentBase {
-    public static final String COMPONENT_TYPE = "org.openl.rules.webstudio.web.jsf.faceletes.acegi.Authentication";
-    public static final String COMPONENT_FAMILY = "org.openl.rules.webstudio.web.jsf.faceletes.acegi";
+    public static final String COMPONENT_TYPE = "org.openl.rules.web.jsf.facelets.acegi.Authentication";
+    public static final String COMPONENT_FAMILY = "org.openl.rules.web.jsf.facelets.acegi";
     private String operation;
 
     public AuthenticationComponent() {
