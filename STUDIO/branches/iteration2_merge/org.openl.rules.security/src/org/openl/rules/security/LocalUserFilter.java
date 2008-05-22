@@ -19,19 +19,15 @@ import org.openl.rules.util.net.NetUtils;
 /**
  * Acegi filter, that automatically logins local user if the following
  * conditions are satisfied:
- * 
+ *
  * <pre>
  * 1. autoLogin is set to true
  * 2. NetUtils.isLocalRequest(request) == true
  * 3. no other user is currently logged in
- * 4. the urls we come from is not in 'blacklist' defined by property
- * <code>
- * ignoredUrls
- * </code>
- * ,
+ * 4. the urls we come from is not in 'blacklist' defined by property <code>ignoredUrls</code>,
  * it allows to ignore auto login when processing login/logout requests.
  * </pre>
- * 
+ *
  * @author Andrey Naumenko
  */
 public class LocalUserFilter implements Filter {
@@ -79,9 +75,9 @@ public class LocalUserFilter implements Filter {
 
     /**
      * Does nothing - we rely on IoC lifecycle services instead.
-     * 
+     *
      * @param ignored not used
-     * 
+     *
      * @throws ServletException
      */
     public void init(FilterConfig ignored) throws ServletException {
