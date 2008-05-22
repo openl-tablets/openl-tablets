@@ -9,7 +9,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
-import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -17,8 +17,9 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Table editor controller. It should be a managed bean with <b>request</b> scope.
- *
+ * Table editor controller. It should be a managed bean with <b>request</b>
+ * scope.
+ * 
  * @author Andrey Naumenko
  */
 public class TableEditorController extends TableViewController implements JSTableEditor {
@@ -32,9 +33,8 @@ public class TableEditorController extends TableViewController implements JSTabl
         readRequestParams();
         render();
         IGridTable gridTable = getGridTable(elementID);
-        response = pojo2json(new LoadResponse(response, gridTable.getGrid()
-                .getCellUri(gridTable.getGridColumn(0, 0), gridTable.getGridRow(0, 0)),
-                getHelper(elementID).getModel()));
+        response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCellUri(gridTable.getGridColumn(0, 0),
+                gridTable.getGridRow(0, 0)), getHelper(elementID).getModel()));
         return OUTCOME_SUCCESS;
     }
 
@@ -49,7 +49,7 @@ public class TableEditorController extends TableViewController implements JSTabl
 
     /**
      * Handles request saving new cell value.
-     *
+     * 
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
      */
     public String save() {
@@ -63,41 +63,40 @@ public class TableEditorController extends TableViewController implements JSTabl
         }
         return OUTCOME_SUCCESS;
     }
-    
+
     /**
      * Generates JSON response for cell type: editor type and editor specific
      * setup javascript object.
      * 
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
      * 
-     * Modified by snshor to reflect new Cell Editor creation/selection framework
+     * Modified by snshor to reflect new Cell Editor creation/selection
+     * framework
      */
 
-    public String getCellType()
-    {
-	readRequestParams();
+    public String getCellType() {
+        readRequestParams();
 
-	response = "";
+        response = "";
 
-	EditorHelper editorHelper = getHelper(elementID);
-	if (editorHelper != null)
-	{
-	    TableEditorModel model = editorHelper.getModel();
-	    ICellEditor editor = selector.selectEditor(row, col, model);
-	    EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
-	    response = pojo2json(typeResponse);
-	}
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            TableEditorModel model = editorHelper.getModel();
+            ICellEditor editor = selector.selectEditor(row, col, model);
+            EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
+            response = pojo2json(typeResponse);
+        }
 
-	return OUTCOME_SUCCESS;
+        return OUTCOME_SUCCESS;
 
     }
-    
 
     /**
-     * Generates JSON response for cell type: editor type and editor specific setup javascript object.
-     *
+     * Generates JSON response for cell type: editor type and editor specific
+     * setup javascript object.
+     * 
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
-     *
+     * 
      * todo: remove
      */
     public String getCellTypeOld() {
@@ -163,7 +162,7 @@ public class TableEditorController extends TableViewController implements JSTabl
             }
             response = pojo2json(tmResponse);
         }
-        return OUTCOME_SUCCESS; 
+        return OUTCOME_SUCCESS;
     }
 
     public String redo() throws Exception {
@@ -184,29 +183,34 @@ public class TableEditorController extends TableViewController implements JSTabl
     }
 
     public String addRowColBefore() throws Exception {
-       readRequestParams();
+        readRequestParams();
 
-       EditorHelper editorHelper = getHelper(elementID);
-       if (editorHelper != null) {
-           TableEditorModel editorModel = editorHelper.getModel();
+        EditorHelper editorHelper = getHelper(elementID);
+        if (editorHelper != null) {
+            TableEditorModel editorModel = editorHelper.getModel();
 
-           TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
-           try {
-               if (row >= 0)
-                   if (editorModel.canAddRows(1)) editorModel.insertRows(1, row); else tmResponse.setStatus("Can not add row");
-               else
-                   if (editorModel.canAddCols(1)) editorModel.insertColumns(1, col); else tmResponse.setStatus("Can not add column");
-           } catch (Exception e) {
-               tmResponse.setStatus("Internal server error");
-               e.printStackTrace();
-           }
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
+            try {
+                if (row >= 0)
+                    if (editorModel.canAddRows(1))
+                        editorModel.insertRows(1, row);
+                    else
+                        tmResponse.setStatus("Can not add row");
+                else if (editorModel.canAddCols(1))
+                    editorModel.insertColumns(1, col);
+                else
+                    tmResponse.setStatus("Can not add column");
+            } catch (Exception e) {
+                tmResponse.setStatus("Internal server error");
+                e.printStackTrace();
+            }
 
-           render();
-           tmResponse.setResponse(response);
-           response = pojo2json(tmResponse);
-       }
-       return OUTCOME_SUCCESS;
-   }
+            render();
+            tmResponse.setResponse(response);
+            response = pojo2json(tmResponse);
+        }
+        return OUTCOME_SUCCESS;
+    }
 
     public String removeRowCol() throws Exception {
         readRequestParams();
@@ -216,11 +220,15 @@ public class TableEditorController extends TableViewController implements JSTabl
             boolean move = Boolean.valueOf(FacesUtils.getRequestParameter("move"));
 
             if (row >= 0) {
-                if (move) ;
-                else editorModel.removeRows(1, row);
+                if (move)
+                    ;
+                else
+                    editorModel.removeRows(1, row);
             } else {
-                if (move) ;
-                else editorModel.removeColumns(1, col);
+                if (move)
+                    ;
+                else
+                    editorModel.removeColumns(1, col);
             }
             render();
             response = pojo2json(new TableModificationResponse(response, editorHelper.getModel()));
@@ -268,22 +276,35 @@ public class TableEditorController extends TableViewController implements JSTabl
     }
 
     private void readRequestParams() {
-       Map<String, String> paramMap = FacesUtils.getRequestParameterMap();
-       row = col = elementID = -1;
+        Map<String, String> paramMap = FacesUtils.getRequestParameterMap();
+        row = col = elementID = -1;
 
-       try {row = Integer.parseInt(paramMap.get("row")) - 1;} catch (NumberFormatException e) {}
-       try {col = Integer.parseInt(paramMap.get("col")) - 1;} catch (NumberFormatException e) {}
-       try {elementID = Integer.parseInt(paramMap.get("elementID"));} catch (NumberFormatException e) {}
-   }
+        try {
+            row = Integer.parseInt(paramMap.get("row")) - 1;
+        } catch (NumberFormatException e) {
+        }
+        try {
+            col = Integer.parseInt(paramMap.get("col")) - 1;
+        } catch (NumberFormatException e) {
+        }
+        try {
+            elementID = Integer.parseInt(paramMap.get("elementID"));
+        } catch (NumberFormatException e) {
+        }
+    }
 
     /**
-     * Returns <code>EditorHelper</code> instance from http session or creates new one if not present there. Checks
-     * that <code>elementId</code> matches id in this helper. If it does not the method prepares response which notifies
-     * a client of the mismatch and returns <code>null</code>. In the latter case calling method may just do nothing as
-     * corresponding response is already prepared.
+     * Returns <code>EditorHelper</code> instance from http session or creates
+     * new one if not present there. Checks that <code>elementId</code>
+     * matches id in this helper. If it does not the method prepares response
+     * which notifies a client of the mismatch and returns <code>null</code>.
+     * In the latter case calling method may just do nothing as corresponding
+     * response is already prepared.
+     * 
      * @param elementId table id
-     * @return <code>EditorHelper</code> instance or <code>null</code> if <code>elementId</code> does not match element
-     * id in an existing helper.
+     * @return <code>EditorHelper</code> instance or <code>null</code> if
+     *         <code>elementId</code> does not match element id in an existing
+     *         helper.
      */
     protected EditorHelper getHelper(int elementId) {
         Map sessionMap = FacesUtils.getSessionMap();
@@ -310,13 +331,12 @@ public class TableEditorController extends TableViewController implements JSTabl
     }
 
     private static String pojo2json(Object pojo) {
-       try {
-           return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")")
-                   .toString();
-       } catch (MapperException e) {
-           return null;
-       }
-   }
+        try {
+            return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")").toString();
+        } catch (MapperException e) {
+            return null;
+        }
+    }
 
     public static class EditorTypeResponse {
         private String editor;
@@ -379,15 +399,17 @@ public class TableEditorController extends TableViewController implements JSTabl
             return model != null && model.hasUndo();
         }
 
-        @SuppressWarnings({"UnusedDeclaration"})
-        public void setHasUndo(boolean hasUndo) {}
+        @SuppressWarnings( { "UnusedDeclaration" })
+        public void setHasUndo(boolean hasUndo) {
+        }
 
         public boolean isHasRedo() {
             return model != null && model.hasRedo();
         }
 
-        @SuppressWarnings({"UnusedDeclaration"})
-        public void setHasRedo(boolean hasRedo) {}
+        @SuppressWarnings( { "UnusedDeclaration" })
+        public void setHasRedo(boolean hasRedo) {
+        }
     }
 
     public static class RangeParam {
@@ -472,15 +494,17 @@ public class TableEditorController extends TableViewController implements JSTabl
             return model != null && model.hasUndo();
         }
 
-        @SuppressWarnings({"UnusedDeclaration"})
-        public void setHasUndo(boolean hasUndo) {}
+        @SuppressWarnings( { "UnusedDeclaration" })
+        public void setHasUndo(boolean hasUndo) {
+        }
 
         public boolean isHasRedo() {
             return model != null && model.hasRedo();
         }
 
-        @SuppressWarnings({"UnusedDeclaration"})
-        public void setHasRedo(boolean hasRedo) {}
+        @SuppressWarnings( { "UnusedDeclaration" })
+        public void setHasRedo(boolean hasRedo) {
+        }
     }
 
 }

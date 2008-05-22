@@ -1,4 +1,4 @@
-package org.openl.rules.security.standalone.util;
+package org.openl.rules.util.database;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;

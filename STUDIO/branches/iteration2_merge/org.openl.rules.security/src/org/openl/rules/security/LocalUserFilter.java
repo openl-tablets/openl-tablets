@@ -24,8 +24,12 @@ import org.openl.rules.util.net.NetUtils;
  * 1. autoLogin is set to true
  * 2. NetUtils.isLocalRequest(request) == true
  * 3. no other user is currently logged in
- * 4. the urls we come from is not in 'blacklist' defined by property <code>ignoredUrls</code>,
- * it allows to ignore auto login when processing login/logout requests. 
+ * 4. the urls we come from is not in 'blacklist' defined by property
+ * <code>
+ * ignoredUrls
+ * </code>
+ * ,
+ * it allows to ignore auto login when processing login/logout requests.
  * </pre>
  * 
  * @author Andrey Naumenko
@@ -56,7 +60,7 @@ public class LocalUserFilter implements Filter {
     protected boolean isIgnoredRequest(ServletRequest req) {
         HttpServletRequest request = (HttpServletRequest) req;
         String uri = request.getRequestURI();
-        
+
         int queryParamIndex = uri.indexOf('?');
         if (queryParamIndex > 0) {
             // strip everything from the first question mark

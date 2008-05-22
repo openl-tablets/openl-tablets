@@ -7,4 +7,8 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.webstudio.lib,
  org.openl.lib.apache.tomcat
-Export-Package: org.openl.rules.util.net
+Export-Package: org.openl.rules.util.net,
+ org.openl.rules.util.spring,
+ org.openl.rules.web.jsf.facelets.acegi,
+ org.openl.rules.web.jsf.facelets.fn,
+ org.openl.rules.web.jsf.util

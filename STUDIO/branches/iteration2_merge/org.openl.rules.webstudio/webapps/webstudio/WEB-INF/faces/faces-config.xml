@@ -26,8 +26,8 @@
   </converter>
 
   <component>
-    <component-type>org.openl.rules.webstudio.web.jsf.faceletes.acegi.Authentication</component-type>
-    <component-class>org.openl.rules.webstudio.web.jsf.faceletes.acegi.AuthenticationComponent</component-class>
+    <component-type>org.openl.rules.web.jsf.facelets.acegi.Authentication</component-type>
+    <component-class>org.openl.rules.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
   </component>
 
   <!-- ====================================================================

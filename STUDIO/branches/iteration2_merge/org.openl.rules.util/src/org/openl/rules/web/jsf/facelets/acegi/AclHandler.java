@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.jsf.faceletes.acegi;
+package org.openl.rules.web.jsf.facelets.acegi;
 
 import com.sun.facelets.FaceletContext;
 import com.sun.facelets.FaceletException;

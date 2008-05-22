@@ -14,6 +14,4 @@ Export-Package: org.openl.rules.security.standalone,
  org.openl.rules.security.standalone.dao,
  org.openl.rules.security.standalone.model,
  org.openl.rules.security.standalone.persistence,
- org.openl.rules.security.standalone.service,
- org.openl.rules.security.standalone.util,
- org.openl.rules.security.standalone.util.spring
+ org.openl.rules.security.standalone.service

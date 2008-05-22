@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.jsf.faceletes.acegi;
+package org.openl.rules.web.jsf.facelets.acegi;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AcegiSecurityException;
@@ -11,16 +11,13 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.openl.rules.security.SecurityUtils;
-
 import java.lang.reflect.InvocationTargetException;
 
-
 /**
- * As part of the EL Specification, you can incorporate static Java methods into your
- * documents. Just add new function here and it will be registered within Acegi taglib
- * {@link AcegiTaglib#NAMESPACE}
- *
+ * As part of the EL Specification, you can incorporate static Java methods into
+ * your documents. Just add new function here and it will be registered within
+ * Acegi taglib {@link AcegiTaglib#NAMESPACE}
+ * 
  * @author Andrey Naumenko
  */
 public class AcegiFunctions {
@@ -57,36 +54,25 @@ public class AcegiFunctions {
 
                 return property;
             } catch (IllegalAccessException e) {
-                log.warn("Error when trying to get property " + operation + " of "
-                    + principal + ". Empty string will be returned");
+                log.warn("Error when trying to get property " + operation + " of " + principal
+                        + ". Empty string will be returned");
                 return "";
             } catch (InvocationTargetException e) {
-                log.warn("Error when trying to get property " + operation + " of "
-                    + principal + ". Empty string will be returned");
+                log.warn("Error when trying to get property " + operation + " of " + principal
+                        + ". Empty string will be returned");
                 return "";
             } catch (NoSuchMethodException e) {
-                log.warn("Error when trying to get property " + operation + " of "
-                    + principal + ". Empty string will be returned");
+                log.warn("Error when trying to get property " + operation + " of " + principal
+                        + ". Empty string will be returned");
                 return "";
             }
         } else if (auth.getPrincipal() != null) {
             return auth.getPrincipal().toString();
         }
         if (log.isDebugEnabled()) {
-            log.debug(
-                "Authentication has no principal. Or its principal is not an instanceof acegi UserDetails");
+            log.debug("Authentication has no principal. Or its principal is not an instanceof acegi UserDetails");
         }
 
         return "";
-    }
-
-    public static boolean isGranted(String authority) {
-        try {
-            SecurityUtils.check(authority);
-        } catch (AcegiSecurityException ase) {
-            if (log.isDebugEnabled()) log.debug("isGranted", ase);
-            return false;
-        }
-        return true;
     }
 }

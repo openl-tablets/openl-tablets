@@ -1,13 +1,12 @@
-package org.openl.rules.webstudio.web.jsf.faceletes.acegi;
+package org.openl.rules.web.jsf.facelets.acegi;
 
 import com.sun.facelets.tag.AbstractTagLibrary;
 
 import java.lang.reflect.Method;
 
-
 /**
- * Facelets taglib that provides support for Acegi.
- *
+ * Facelets taglib that provides support for Aceg *
+ * 
  * @author Andrey Naumenko
  */
 public class AcegiTaglib extends AbstractTagLibrary {

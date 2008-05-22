@@ -5,12 +5,12 @@ import javax.servlet.http.HttpSession;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.JSFConst;
-import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 
 /**
  * Contains utility methods, which can be used from any class.
- *
+ * 
  * @author Aliaksandr Antonik
  */
 public abstract class WebStudioUtils {

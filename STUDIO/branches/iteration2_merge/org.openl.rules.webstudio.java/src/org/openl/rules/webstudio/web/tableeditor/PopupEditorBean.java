@@ -5,7 +5,7 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import org.openl.rules.ui.EditorHelper;
-import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.richfaces.component.html.HtmlModalPanel;
 
@@ -24,36 +24,47 @@ public class PopupEditorBean {
     public int getElementID() {
         return elementID;
     }
+
     public void setElementID(int elementID) {
         this.elementID = elementID;
     }
+
     public String getCellTitle() {
         return cellTitle;
     }
+
     public void setCellTitle(String cellTitle) {
         this.cellTitle = cellTitle;
     }
+
     public int getRow() {
         return row;
     }
+
     public void setRow(int row) {
         this.row = row;
     }
+
     public int getColumn() {
         return column;
     }
+
     public void setColumn(int column) {
         this.column = column;
     }
+
     public int getX() {
         return x;
     }
+
     public void setX(int x) {
         this.x = x;
     }
+
     public int getY() {
         return y;
     }
+
     public void setY(int y) {
         this.y = y;
     }
@@ -61,6 +72,7 @@ public class PopupEditorBean {
     public String getValue() {
         return value;
     }
+
     public void setValue(String value) {
         this.value = value;
     }
@@ -68,12 +80,15 @@ public class PopupEditorBean {
     public int getWidth() {
         return width;
     }
+
     public void setWidth(int width) {
         this.width = width;
     }
+
     public int getHeight() {
         return height;
     }
+
     public void setHeight(int height) {
         this.height = height;
     }
@@ -83,9 +98,9 @@ public class PopupEditorBean {
         if (!FacesUtils.getSessionMap().containsKey("editor")) {
             EditorHelper result = new EditorHelper();
             result.setTableID(elementID, WebStudioUtils.getWebStudio().getModel());
-            FacesUtils.getSessionMap().put("editor",result);
+            FacesUtils.getSessionMap().put("editor", result);
         }
-        return (EditorHelper)(FacesUtils.getSessionMap().get("editor"));
+        return (EditorHelper) (FacesUtils.getSessionMap().get("editor"));
     }
 
     public void activatePopupEditor() {
@@ -95,7 +110,7 @@ public class PopupEditorBean {
         UIComponent pe = root.findComponent("popup_editor");
 
         @SuppressWarnings("unused")
-	int i = root.getChildren().indexOf(pe);
+        int i = root.getChildren().indexOf(pe);
 
         HtmlModalPanel hmp = new HtmlModalPanel();
         hmp.setLeft(String.valueOf(getX()));

@@ -6,9 +6,8 @@ import javax.faces.context.FacesContext;
 
 import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
-import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-
 
 public class EditorBean {
 
@@ -25,7 +24,7 @@ public class EditorBean {
         this.value = value;
     }
 
-    protected HtmlOutputText createText(String text,String id,boolean escape) {
+    protected HtmlOutputText createText(String text, String id, boolean escape) {
         //
         HtmlOutputText result = new HtmlOutputText();
         result.setId(id);
@@ -33,7 +32,6 @@ public class EditorBean {
         result.setEscape(escape);
         return result;
     }
-
 
     protected String cellTitle;
 
@@ -46,21 +44,21 @@ public class EditorBean {
     }
 
     public void beginEditing() {
-        TableWriterBean twb = (TableWriterBean)(FacesContext.getCurrentInstance().
-                getApplication().getVariableResolver().resolveVariable(
-                        FacesContext.getCurrentInstance(),"tableWriterBean"));
+        TableWriterBean twb = (TableWriterBean) (FacesContext.getCurrentInstance().getApplication()
+                .getVariableResolver().resolveVariable(FacesContext.getCurrentInstance(), "tableWriterBean"));
         twb.ajaxrequest = true;
 
         FacesContext fc = FacesContext.getCurrentInstance();
         UIComponent spr = fc.getViewRoot().findComponent("spreadsheet");
         //
-        HtmlAjaxCommandButton button = (HtmlAjaxCommandButton)(fc.getViewRoot().findComponent("editor_form").findComponent("begin_editing"));
+        HtmlAjaxCommandButton button = (HtmlAjaxCommandButton) (fc.getViewRoot().findComponent("editor_form")
+                .findComponent("begin_editing"));
         button.setReRender(getCellTitle() + "text");
         //
-        HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
-        
+        HtmlOutputText hot = (HtmlOutputText) (spr.findComponent(getCellTitle() + "text"));
+
         @SuppressWarnings("unused")
-	int i = spr.getChildren().indexOf(hot);
+        int i = spr.getChildren().indexOf(hot);
         //
         /*String cellType = getEditorHelper().getModel().getCellType(row-1, column-1);
         if (null != cellType) {
@@ -88,11 +86,11 @@ public class EditorBean {
         }                */
     }
 
-    public void printComponent(UIComponent comp,String prefix) {
+    public void printComponent(UIComponent comp, String prefix) {
         if (null != comp) {
             System.out.println(prefix + comp.getClass() + ";id=" + comp.getId());
-            for (int i=0; i < comp.getChildren().size(); i++) {
-                printComponent((UIComponent)(comp.getChildren().get(i)), prefix + prefix);
+            for (int i = 0; i < comp.getChildren().size(); i++) {
+                printComponent((UIComponent) (comp.getChildren().get(i)), prefix + prefix);
             }
         }
     }
@@ -102,9 +100,9 @@ public class EditorBean {
         if (!FacesUtils.getSessionMap().containsKey("editor")) {
             EditorHelper result = new EditorHelper();
             result.setTableID(elementID, WebStudioUtils.getWebStudio().getModel());
-            FacesUtils.getSessionMap().put("editor",result);
+            FacesUtils.getSessionMap().put("editor", result);
         }
-        return (EditorHelper)(FacesUtils.getSessionMap().get("editor"));
+        return (EditorHelper) (FacesUtils.getSessionMap().get("editor"));
     }
 
     public Integer getElementID() {

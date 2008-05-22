@@ -6,8 +6,9 @@ import javax.faces.context.FacesContext;
 
 import org.ajax4jsf.component.html.HtmlAjaxCommandButton;
 import org.openl.rules.ui.EditorHelper;
-import org.openl.rules.webstudio.web.jsf.util.FacesUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+
 public class TopEditorBean {
 
     protected String test2 = "IT IS TEST2";
@@ -23,9 +24,9 @@ public class TopEditorBean {
         if (!FacesUtils.getSessionMap().containsKey("editor")) {
             EditorHelper result = new EditorHelper();
             result.setTableID(elementID, WebStudioUtils.getWebStudio().getModel());
-            FacesUtils.getSessionMap().put("editor",result);
+            FacesUtils.getSessionMap().put("editor", result);
         }
-        return (EditorHelper)(FacesUtils.getSessionMap().get("editor"));
+        return (EditorHelper) (FacesUtils.getSessionMap().get("editor"));
     }
 
     public Integer getRow() {
@@ -81,44 +82,43 @@ public class TopEditorBean {
         editor.getModel().cancel();
       */
 
-
     public void save() {
-        TableWriterBean twb = (TableWriterBean)(FacesContext.getCurrentInstance().
-                getApplication().getVariableResolver().resolveVariable(
-                        FacesContext.getCurrentInstance(),"tableWriterBean"));
+        TableWriterBean twb = (TableWriterBean) (FacesContext.getCurrentInstance().getApplication()
+                .getVariableResolver().resolveVariable(FacesContext.getCurrentInstance(), "tableWriterBean"));
         twb.ajaxrequest = true;
 
         FacesContext fc = FacesContext.getCurrentInstance();
         UIComponent spr = fc.getViewRoot().findComponent("spreadsheet");
-        HtmlAjaxCommandButton button = (HtmlAjaxCommandButton)(fc.getViewRoot().findComponent("top_editor_form").findComponent("save_button"));
+        HtmlAjaxCommandButton button = (HtmlAjaxCommandButton) (fc.getViewRoot().findComponent("top_editor_form")
+                .findComponent("save_button"));
         button.setReRender(getCellTitle() + "text");
-        HtmlOutputText hot = (HtmlOutputText)(spr.findComponent(getCellTitle()+"text"));
+        HtmlOutputText hot = (HtmlOutputText) (spr.findComponent(getCellTitle() + "text"));
         hot.setValue(getText());
-        getEditorHelper().getModel().setCellValue(getRow()-1, getColumn()-1, text);
+        getEditorHelper().getModel().setCellValue(getRow() - 1, getColumn() - 1, text);
     }
 
     public void addRowBefore() {
-        getEditorHelper().getModel().insertRows(1, getRow()-1);
+        getEditorHelper().getModel().insertRows(1, getRow() - 1);
     }
 
     public void addRowAfter() {
-//		getEditorHelper().getModel().insertRows(1, getRow());
+        // getEditorHelper().getModel().insertRows(1, getRow());
     }
 
     public void removeRow() {
-//		getEditorHelper().getModel().removeRows(1, getRow()-1);
+        // getEditorHelper().getModel().removeRows(1, getRow()-1);
     }
 
     public void addColumnBefore() {
-//		getEditorHelper().getModel().insertColumns(1, getColumn()-1);
+        // getEditorHelper().getModel().insertColumns(1, getColumn()-1);
     }
 
     public void addColumnAfter() {
-//		getEditorHelper().getModel().insertColumns(1, getColumn());
+        // getEditorHelper().getModel().insertColumns(1, getColumn());
     }
 
     public void removeColumn() {
-//		getEditorHelper().getModel().removeColumns(1, getColumn()-1);
+        // getEditorHelper().getModel().removeColumns(1, getColumn()-1);
     }
 
     public String getTest2() {
