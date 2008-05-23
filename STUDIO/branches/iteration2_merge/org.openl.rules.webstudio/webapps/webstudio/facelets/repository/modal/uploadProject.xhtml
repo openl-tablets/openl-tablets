@@ -20,7 +20,7 @@
         <h:outputLabel for="file" styleClass="required" value="File" />
         <t:inputFileUpload id="file" size="30" storage="file" value="#{repositoryTreeController.file}" required="true" />
         <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-        <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" required="true" />
+        <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" required="true" onkeypress="return modalInputKeyPress(event, this)"/>
       </h:panelGrid>
 
       <br />
@@ -28,7 +28,7 @@
       <br/>
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Upload" action="#{repositoryTreeController.upload}" />
+        <h:commandButton styleClass="button" id="sbt" value="Upload" action="#{repositoryTreeController.upload}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalUploadProject');" />
       </h:panelGrid>
     </h:form>

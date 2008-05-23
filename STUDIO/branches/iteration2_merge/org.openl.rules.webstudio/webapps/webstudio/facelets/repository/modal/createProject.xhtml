@@ -17,7 +17,7 @@
     <h:form id="newProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}"/>
+        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}" onkeypress="return modalInputKeyPress(event, this)"/>
       </h:panelGrid>
 
       <br />
@@ -25,7 +25,7 @@
       <br/>
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Create" action="#{repositoryTreeController.createRulesProject}" />
+        <h:commandButton styleClass="button" id="sbt" value="Create" action="#{repositoryTreeController.createRulesProject}" />
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalNewProject');" />
       </h:panelGrid>
     </h:form>
@@ -34,7 +34,7 @@
   <script>
     function openNewProjectDialog() {
       Richfaces.showModalPanel('modalNewProject');
-      // focusElement("newProjectForm:projectName");
+      focusElement("newProjectForm:projectName");
     }
   </script>
 </ui:composition>
