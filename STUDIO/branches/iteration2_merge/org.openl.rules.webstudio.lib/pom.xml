@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!--
-   TODO: extract jackrabbit libraries into single lib-project
+    TODO: extract jackrabbit libraries into single lib-project
   -->
 
   <modelVersion>4.0.0</modelVersion>
@@ -17,82 +17,52 @@
   <artifactId>org.openl.rules.webstudio.lib</artifactId>
   <name>OpenL - STUDIO - WebStudio Libraries</name>
   <description></description>
-  <packaging>pom</packaging>
 
   <build>
-    <defaultGoal>generate-resources</defaultGoal>
 
-    <resources>
-      <resource>
-        <directory>lib</directory>
-        <targetPath>lib</targetPath>
-      </resource>
-    </resources>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>1.1</version>
+          <configuration>
+            <tasks>
+              <delete includeemptydirs="true" failonerror="false">
+                <fileset dir="lib" includes="**/*" />
+              </delete>
+            </tasks>
+          </configuration>
+        </plugin>
 
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
+        <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>maven-libsupport-plugin</artifactId>
+          <version>1.0-SNAPSHOT</version>
 
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.1</version>
-        <executions>
-          <execution>
-            <id>clean-lib</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <tasks>
-                <delete includeemptydirs="true" failonerror="false">
-                  <fileset dir="lib" includes="**/*" />
-                </delete>
-              </tasks>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+          <configuration>
+            <artifactItems>
+              <artifactItem>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.webstudio.java</artifactId>
+                <version>5.0.6-SNAPSHOT</version>
+              </artifactItem>
+            </artifactItems>
+            <outputDirectory>${project.build.directory}/../lib</outputDirectory>
+            <excludeArtifactIds>org\.open.*,com\.exigen\.rules.*</excludeArtifactIds>
+          </configuration>
+        </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <appendAssemblyId>false</appendAssemblyId>
-          <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-          <finalName>lib</finalName>
-          <outputDirectory>/</outputDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <id>assembly</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>directory-inline</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/assembly-lib.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+            </archive>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webstudio.java</artifactId>
-    </dependency>
-  </dependencies>
 
 </project>
