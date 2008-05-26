@@ -9,7 +9,7 @@
 
   <fileSets>
     <fileSet>
-      <directory>../org.openl.rules.webstudio.lib/lib</directory>
+      <directory>target/org.openl.rules.webstudio.lib/lib</directory>
       <outputDirectory>lib</outputDirectory>
     </fileSet>
   </fileSets>

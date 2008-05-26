@@ -22,44 +22,99 @@
 
   <build>
     <defaultGoal>package</defaultGoal>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>lib</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>assembly</goal>
-                </goals>
-                <configuration>
-                  <finalName>org.openl.rules.webstudio.lib_${studio.eclipse.version}</finalName>
-                  <appendAssemblyId>false</appendAssemblyId>
-                  <descriptors>
-                    <descriptor>src/main/assembly/assembly-lib.xml</descriptor>
-                  </descriptors>
-                  <archive>
-                    <manifestFile>../org.openl.rules.webstudio.lib/META-INF/MANIFEST.MF</manifestFile>
-                  </archive>
-                </configuration>
-              </execution>
+    <plugins>
 
-              <execution>
-                <id>site</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>attached</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>src/main/assembly/assembly-site.xml</descriptor>
-                  </descriptors>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
+      <plugin>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>maven-libsupport-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>lib</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-lib</goal>
+            </goals>
+
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.openl.rules</groupId>
+                  <artifactId>org.openl.rules.webstudio.java</artifactId>
+                  <version>5.0.6-SNAPSHOT</version>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/org.openl.rules.webstudio.lib/lib</outputDirectory>
+              <excludeArtifactIds>org\.open.*,com\.exigen\.rules.*</excludeArtifactIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-manifest</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.openl.rules</groupId>
+                  <artifactId>org.openl.rules.webstudio.lib</artifactId>
+                  <version>${version}</version>
+                  <type>jar</type>
+                  <overWrite>false</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/org.openl.rules.webstudio.lib</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>webstudio-lib</id>
+            <phase>package</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+            <configuration>
+              <finalName>org.openl.rules.webstudio.lib_${studio.eclipse.version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-lib.xml</descriptor>
+              </descriptors>
+              <archive>
+                <manifestFile>../org.openl.rules.webstudio.lib/META-INF/MANIFEST.MF</manifestFile>
+              </archive>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>site</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-site.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
   <dependencies>
