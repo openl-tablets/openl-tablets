@@ -72,12 +72,12 @@
 
   <context-param>
     <param-name>facelets.RESOURCE_RESOLVER</param-name>
-    <param-value>org.openl.rules.webstudio.web.jsf.faceletes.resource.DefaultResourceResolver</param-value>
+    <param-value>org.openl.rules.webstudio.web.jsf.facelets.resource.DefaultResourceResolver</param-value>
   </context-param>
 
   <context-param>
     <param-name>facelets.LIBRARIES</param-name>
-    <param-value>/WEB-INF/taglib/acegi.taglib.xml; /WEB-INF/taglib/tomahawk.taglib.xml</param-value>
+    <param-value>/WEB-INF/taglib/jsffn.taglib.xml;/WEB-INF/taglib/acegi.taglib.xml;/WEB-INF/taglib/tomahawk.taglib.xml</param-value>
   </context-param>
 
   <context-param>
