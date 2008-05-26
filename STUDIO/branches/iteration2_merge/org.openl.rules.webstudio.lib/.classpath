@@ -43,7 +43,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jsontools-core-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jstl-1.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jta-1.0.1B.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/junit-3.8.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-addons-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/logkit-1.0.1.jar"/>
