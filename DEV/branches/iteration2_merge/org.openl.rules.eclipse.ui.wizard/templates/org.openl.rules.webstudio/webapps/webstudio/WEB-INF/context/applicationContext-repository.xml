@@ -67,14 +67,10 @@
 
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
     <property name="deployer">
-      <bean class="org.openl.rules.webstudio.util.ChooseObjectFactoryBean">
+      <bean class="org.openl.rules.util.spring.ChooseObjectFactoryBean">
         <property name="testValue" value="${webstudio.deployer}" />
-        <!--  property name="defaultObject" ref="jcrProductionDeployer" /-->
         <property name="casesMap">
           <map>
-            <!--
-            <entry key="runtime" value-ref="runtimeRepositoryDeployer" />
-            -->
             <entry key="production" value-ref="jcrProductionDeployer" />
           </map>
         </property>
