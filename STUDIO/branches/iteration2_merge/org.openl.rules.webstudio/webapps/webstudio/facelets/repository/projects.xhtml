@@ -32,7 +32,9 @@
 
     <rich:columnGroup>
       <rich:column>
-        <h:outputText value="#{prj.name}" />
+        <h:commandLink styleClass="actionButton" value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
+          <f:param name="projectName" value="#{prj.name}" /> 
+        </h:commandLink>
       </rich:column>
       <rich:column>
         <h:outputText value="#{prj.version}" />

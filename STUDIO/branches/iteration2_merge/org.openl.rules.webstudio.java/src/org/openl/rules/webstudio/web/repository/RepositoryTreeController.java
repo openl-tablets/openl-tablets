@@ -15,6 +15,8 @@ import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
@@ -205,6 +207,28 @@ public class RepositoryTreeController {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to delete rules project.", e.getMessage()));
         }
         return null;
+    }
+
+    public String selectRulesProject() {
+        String projectName = FacesUtils.getRequestParameter("projectName");
+        selectProject(projectName, repositoryTreeState.getRulesRepository());
+        return null;
+    }
+
+    public String selectDeploymentProject() {
+        String projectName = FacesUtils.getRequestParameter("projectName");
+        selectProject(projectName, repositoryTreeState.getDeploymentRepository());
+        return null;
+    }
+
+    private void selectProject(String projectName, TreeRepository root) {
+        for (AbstractTreeNode node :  root.getChildNodes()) {
+            if (node.getName().equals(projectName)) {
+                repositoryTreeState.setSelectedNode(node);
+                repositoryTreeState.refreshSelectedNode();
+                break;
+            }
+        }
     }
 
     public String deleteDeploymentProject() {
