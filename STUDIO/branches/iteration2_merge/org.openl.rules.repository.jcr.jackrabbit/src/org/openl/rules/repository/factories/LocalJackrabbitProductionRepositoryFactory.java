@@ -22,12 +22,4 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             throw new RRepositoryException("Failed to get Repository Instance", e);
         }
     }
-
-    @Override
-    public void release() throws RRepositoryException {
-        if (repository != null) {
-            repository.shutdown();
-            repository = null;
-        }
-    }
 }
