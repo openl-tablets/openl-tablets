@@ -36,10 +36,11 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     private final ConfigPropertyString confRepositoryName = new ConfigPropertyString("repository.name", "Local Jackrabbit");
 
     /** Jackrabbit local repository */
-    protected TransientRepository repository;
+    private TransientRepository repository;
     private String repHome;
     private String nodeTypeFile;
-
+    private ShutDownHook shutDownHook;
+    
     /** {@inheritDoc} */
     public void initialize(ConfigSet confSet) throws RRepositoryException {
         super.initialize(confSet);
@@ -95,13 +96,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
 
             repository = new TransientRepository(fullPath, repHome);
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    // shutdown gracefully
-                    if (repository != null)
-                        repository.shutdown();
-                }
-            });
+            // Register shut down hook
+            ShutDownHook shutDownHook = new ShutDownHook(this);
+            Runtime.getRuntime().addShutdownHook(shutDownHook);
         } catch (IOException e) {
             throw new RepositoryException("Failed to init: " + e.getMessage(), e);
         }
@@ -123,6 +120,27 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             }
         } catch (IOException e) {
             throw new RepositoryException("Failed to init NodeTypes: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void release() throws RRepositoryException {
+        if (repository != null) {
+            repository.shutdown();
+            repository = null;
+        }
+    }
+
+    @Override
+    protected void finalize() {
+        try {
+            release();
+        } catch (RRepositoryException e) {
+            log.error("finalize", e);
+        }
+
+        if (shutDownHook != null) {
+            Runtime.getRuntime().removeShutdownHook(shutDownHook);
         }
     }
 }
