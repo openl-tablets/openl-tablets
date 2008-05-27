@@ -30,7 +30,7 @@
         <version>1.0-SNAPSHOT</version>
         <executions>
           <execution>
-            <id>lib</id>
+            <id>copy-webstudio-lib</id>
             <phase>package</phase>
             <goals>
               <goal>copy-lib</goal>
@@ -41,10 +41,37 @@
                 <artifactItem>
                   <groupId>org.openl.rules</groupId>
                   <artifactId>org.openl.rules.webstudio.java</artifactId>
-                  <version>5.0.6-SNAPSHOT</version>
+                  <version>${version}</version>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/org.openl.rules.webstudio.lib/lib</outputDirectory>
+              <excludeArtifactIds>org\.open.*,com\.exigen\.rules.*</excludeArtifactIds>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>copy-ruleservice-lib</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-lib</goal>
+            </goals>
+
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.openl.rules</groupId>
+                  <artifactId>org.openl.rules.ruleservice</artifactId>
+                  <version>${version}</version>
+                </artifactItem>
+              </artifactItems>
+              <dependencyExclusion>
+                <artifactItem>
+                  <groupId>org.openl.rules</groupId>
+                  <artifactId>org.openl.rules.webstudio.java</artifactId>
+                  <version>${version}</version>
+                </artifactItem>
+              </dependencyExclusion>
+              <outputDirectory>${project.build.directory}/org.openl.rules.ruleservice.lib/lib</outputDirectory>
               <excludeArtifactIds>org\.open.*,com\.exigen\.rules.*</excludeArtifactIds>
             </configuration>
           </execution>
@@ -56,7 +83,7 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
-            <id>unpack-manifest</id>
+            <id>unpack-webstudio-manifest</id>
             <phase>package</phase>
             <goals>
               <goal>unpack</goal>
@@ -74,9 +101,28 @@
               <outputDirectory>${project.build.directory}/org.openl.rules.webstudio.lib</outputDirectory>
             </configuration>
           </execution>
+
+          <execution>
+            <id>unpack-ruleservice-manifest</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.openl.rules</groupId>
+                  <artifactId>org.openl.rules.ruleservice.lib</artifactId>
+                  <version>${version}</version>
+                  <type>jar</type>
+                  <overWrite>false</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/org.openl.rules.ruleservice.lib</outputDirectory>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
-
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -92,10 +138,28 @@
               <finalName>org.openl.rules.webstudio.lib_${studio.eclipse.version}</finalName>
               <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
-                <descriptor>src/main/assembly/assembly-lib.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-webstudio-lib.xml</descriptor>
               </descriptors>
               <archive>
-                <manifestFile>../org.openl.rules.webstudio.lib/META-INF/MANIFEST.MF</manifestFile>
+                <manifestFile>target/org.openl.rules.webstudio.lib/META-INF/MANIFEST.MF</manifestFile>
+              </archive>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>ruleservice-lib</id>
+            <phase>package</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+            <configuration>
+              <finalName>org.openl.rules.ruleservice.lib_${studio.eclipse.version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-ruleservice-lib.xml</descriptor>
+              </descriptors>
+              <archive>
+                <manifestFile>target/org.openl.rules.ruleservice.lib/META-INF/MANIFEST.MF</manifestFile>
               </archive>
             </configuration>
           </execution>
@@ -286,11 +350,6 @@
     </dependency>
 
     <!-- WSFrontend -->
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.ruleservice.lib</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.lib.eclipse.feature</artifactId>
