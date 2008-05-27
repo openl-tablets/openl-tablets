@@ -602,7 +602,7 @@ public class RepositoryTreeController {
     public String updateFile() {
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("File was successfully uploaded."));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("File was successfully updated."));
             repositoryTreeState.invalidateTree();
         } else {
             FacesContext.getCurrentInstance()
