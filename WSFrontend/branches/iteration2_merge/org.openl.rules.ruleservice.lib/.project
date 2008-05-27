@@ -14,7 +14,7 @@
     </buildCommand>
     <buildCommand>
     	<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-    	<triggers>full,</triggers>
+    	<triggers>clean,full,</triggers>
     	<arguments>
     		<dictionary>
     			<key>LaunchConfigHandle</key>
