@@ -34,5 +34,21 @@ public class ArrayOfNamedValues
 	{
 		return values[i];
 	}
+
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		int size = size();
+		
+		for (int i = 0; i < size; i++)
+		{
+			if (i > 0)
+				sb.append(',');
+			sb.append(getName(i)).append("=").append(getValue(i));
+			
+		}
+		
+		return sb.toString();
+	}
 	
 }
