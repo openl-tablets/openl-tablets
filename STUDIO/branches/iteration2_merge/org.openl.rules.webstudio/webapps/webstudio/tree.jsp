@@ -52,6 +52,10 @@ BODY {
 <%
   }
 %>
+
+<a href="index.jsp?validate=true&reload=true" title="Validate Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/validateAll.png"></a>
+
+
 <a href="index.jsp?reload=true" title="Refresh Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
 
 <%if (!NetUtils.isLocalRequest(request)) {%>
