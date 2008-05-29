@@ -23,7 +23,7 @@ public interface IConditionTransformer
 	 * @param parameterDirection
 	 * @return
 	 */
-	IOpenClass transformSignatureType(IOpenClass class1, String parameterName, int parameterDirection);
+	IOpenClass transformSignatureType(IParameterDeclaration pd);
 
 	/**
 	 * @param declaration

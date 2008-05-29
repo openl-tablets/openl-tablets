@@ -3,6 +3,8 @@
  */
 package org.openl.rules.validator.dt;
 
+import java.util.Arrays;
+
 import org.openl.rules.dt.DTOverlapping;
 import org.openl.rules.dt.DTUncovered;
 import org.openl.rules.dt.DecisionTable;
@@ -102,5 +104,16 @@ public class DTValidationResult implements IDTValidationResult
 	{
 		return uncovered;
 	}
+
+	public String toString() {
+		return "Uncovered: " + Arrays.asList(getUncovered()) + "\n" + "Overlapped: " + Arrays.asList(getOverlappings());
+	}
+	
+	
+	public boolean hasProblems()
+	{
+		return overlappings != null && overlappings.length > 0 || uncovered != null && uncovered.length > 0;
+	}
+	
 
 }

@@ -8,12 +8,14 @@ package org.openl.rules.validator.dt;
  *
  */
 
-public interface IDomainDescriptor
+public interface IDomainAdaptor
 {
-	int size();
+	//int size();
 	int getIndex(Object value);
 	Object getValue(int index);
 	int getMin();
 	int getMax();
+	
+	int getIntVarDomainType();
 	
 }
