@@ -3,17 +3,26 @@
  */
 package org.openl.rules.validator.dt;
 
+import org.openl.domain.EnumDomain;
+
+import com.exigen.ie.constrainer.IntVar;
+
 /**
  * @author snshor
  *
  */
-public class EnumObjectDomain implements IDomainDescriptor
+public class EnumDomainAdaptor implements IDomainAdaptor
 {
 	Object[] values;
 
-	public EnumObjectDomain(Object[] values)
+	public EnumDomainAdaptor(Object[] values)
 	{
 		this.values = values;
+	}
+	
+	public EnumDomainAdaptor(EnumDomain<?> d)
+	{
+		this.values = d.getEnum().getAllObjects(); 
 	}
 
 	public Object[] getValues()
@@ -54,6 +63,10 @@ public class EnumObjectDomain implements IDomainDescriptor
 	public int getMax()
 	{
 		return values.length-1;
+	}
+
+	public int getIntVarDomainType() {
+		return IntVar.DOMAIN_BIT_FAST;
 	}
 	
 	
