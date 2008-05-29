@@ -242,10 +242,10 @@ public class TraceHelper
 	
 
 	
-	public String printTraceMethod(IOpenMethodHeader header, Object[] params, StringBuffer buf)
+	public String printTraceMethod(IOpenMethodHeader header, Object[] params, StringBuffer buf, ProjectModel model)
 	{
 		buf.append(header.getName()).append('(');
-		ObjectViewer viewer = new ObjectViewer();
+		ObjectViewer viewer = new ObjectViewer(model);
 		
 		for (int i = 0; i < params.length; i++)
 		{

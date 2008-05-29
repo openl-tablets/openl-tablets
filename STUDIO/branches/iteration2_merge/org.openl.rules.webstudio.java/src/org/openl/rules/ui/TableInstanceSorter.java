@@ -136,14 +136,11 @@ public class TableInstanceSorter extends ATableTreeSorter implements IProjectTyp
 	}
 
 
-	/* (non-Javadoc)
-	 * @see org.openl.rules.ui.ATableTreeSorter#getProblems(java.lang.Object)
-	 */
 	public Object getProblems(Object sorterObject)
 	{
 		TableSyntaxNode tsn  = (TableSyntaxNode)sorterObject;
 		
-		return tsn.getErrors();
+		return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
 	}
 
 }
