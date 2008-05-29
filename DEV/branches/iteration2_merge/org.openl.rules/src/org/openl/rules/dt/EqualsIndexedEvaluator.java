@@ -7,9 +7,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNodeBuilder;
+import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -167,5 +169,13 @@ public class EqualsIndexedEvaluator implements IDTConditionEvaluator
 	public boolean isIndexed()
 	{
 		return true;
+	}
+
+
+
+
+	public IOpenSourceCodeModule getFormalSourceCode(IDTCondition condition) {
+		IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
+		return new StringSourceCodeModule("(" + condSource.getCode() + ") == " + condition.getParams()[0].getName(), condSource.getUri(0) );
 	}
 }

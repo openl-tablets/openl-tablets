@@ -561,6 +561,13 @@ public class DTOptimizedAlgorithm
 		// TODO Auto-generated method stub
 		
 	}
+
+
+
+
+	public IDTConditionEvaluator[] getEvaluators() {
+		return evaluators;
+	}
 	
 	
 	

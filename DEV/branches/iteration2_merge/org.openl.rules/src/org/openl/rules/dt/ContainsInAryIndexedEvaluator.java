@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNodeBuilder;
@@ -177,4 +178,11 @@ public class ContainsInAryIndexedEvaluator implements IDTConditionEvaluator
 	{
 		return true;
 	}
+	
+	//TODO fix
+	public IOpenSourceCodeModule getFormalSourceCode(IDTCondition condition) {
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+		
+	
 }
