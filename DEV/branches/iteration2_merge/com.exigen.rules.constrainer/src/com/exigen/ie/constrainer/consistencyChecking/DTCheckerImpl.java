@@ -9,7 +9,8 @@ package com.exigen.ie.constrainer.consistencyChecking;
  * @author unascribed
  * @version 1.0
  */
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.exigen.ie.constrainer.Constrainer;
 import com.exigen.ie.constrainer.Constraint;
@@ -28,8 +29,8 @@ public class DTCheckerImpl implements DTChecker
   private CDecisionTable _dt = null;
   private CompletenessChecker _cpChecker = new CompletenessCheckerImpl();
   private OverlappingChecker _opChecker= new OverlappingCheckerImpl();
-  private Vector _uncoveredRegions = new Vector();
-  private Vector _overlappingRules = new Vector();
+  private List<Uncovered> _uncoveredRegions = new ArrayList<Uncovered>();
+  private List<Overlapping> _overlappingRules = new ArrayList<Overlapping>();
 
 
 
@@ -37,14 +38,15 @@ public class DTCheckerImpl implements DTChecker
     private Constrainer C = null;
 
     private class GoalSaveSolutions extends GoalImpl{
-      public GoalSaveSolutions(Constrainer c){super(c);}
+ 		private static final long serialVersionUID = -4747909482843265994L;
+	public GoalSaveSolutions(Constrainer c){super(c);}
       public Goal execute() throws Failure{
         _uncoveredRegions.add(new Uncovered(_dt.getVars()));
         return null;
       }
     }
 
-    public Vector check() {
+    public List<Uncovered> check() {
       IntBoolExp[] rules = _dt.getRules();
       C = rules[0].constrainer();
       IntExpArray ruleArray = new IntExpArray(C, rules.length);
@@ -78,7 +80,7 @@ public class DTCheckerImpl implements DTChecker
       }
     }
 
-    public Vector check(){
+    public List<Overlapping> check(){
       IntBoolExp[] rules = _dt.getRules();
       C = rules[0].constrainer();
       IntExpArray ruleArray = new IntExpArray(C, rules.length);
@@ -132,10 +134,10 @@ public class DTCheckerImpl implements DTChecker
 
   public void setDT(CDecisionTable dtable){_dt = dtable;}
   public CDecisionTable getDT(){return _dt;}
-  public Vector checkCompleteness(){
+  public List<Uncovered> checkCompleteness(){
     return _cpChecker.check();
   }
-  public Vector checkOverlappings(){
+  public List<Overlapping> checkOverlappings(){
     return _opChecker.check();
   }
 

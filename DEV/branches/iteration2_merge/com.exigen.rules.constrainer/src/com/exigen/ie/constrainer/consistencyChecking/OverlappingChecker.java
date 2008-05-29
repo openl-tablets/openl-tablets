@@ -8,8 +8,8 @@ package com.exigen.ie.constrainer.consistencyChecking;
  * @author unascribed
  * @version 1.0
  */
-import java.util.Vector;
+import java.util.List;
 public interface OverlappingChecker
 {
-  public Vector check();
+  public List<Overlapping> check();
 }
