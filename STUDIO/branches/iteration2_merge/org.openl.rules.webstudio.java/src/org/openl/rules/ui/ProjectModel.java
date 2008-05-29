@@ -3,13 +3,17 @@ package org.openl.rules.ui;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
+import org.openl.binding.OpenLRuntimeException;
 import org.openl.main.OpenLWrapper;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.TableProperties;
@@ -29,11 +33,16 @@ import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult.Test;
+import org.openl.rules.validator.dt.DTValidatedObject;
+import org.openl.rules.validator.dt.DTValidationResult;
+import org.openl.rules.validator.dt.DTValidator;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.SyntaxErrorException;
+import org.openl.syntax.impl.SyntaxError;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -47,7 +56,7 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.Tracer;
 
-public class ProjectModel  implements IProjectTypes{
+public class ProjectModel implements IProjectTypes {
 
 	OpenLWrapper wrapper;
 
@@ -213,7 +222,7 @@ public class ProjectModel  implements IProjectTypes{
 				} catch (Exception e) {
 				}
 
-				errMsg = new ObjectViewer().displayResult(t);
+				errMsg = new ObjectViewer(this).displayResult(t);
 			}
 
 			if (errMsg == "" && wrapper == null)
@@ -236,18 +245,18 @@ public class ProjectModel  implements IProjectTypes{
 		// return buf.toString();
 	}
 
-//	public void renderElement(ProjectTreeElement parent,
-//			ProjectTreeElement pte, String targetJsp, StringBuffer buf) {
-//		DTreeModel dtm = new DTreeModel();
-//
-//		dtm.renderElement(parent, pte, targetJsp, buf);
-//		for (Iterator iter = pte.getChildren(); iter.hasNext();) {
-//			ProjectTreeElement element = (ProjectTreeElement) iter.next();
-//
-//			renderElement(pte, element, targetJsp, buf);
-//
-//		}
-//	}
+	// public void renderElement(ProjectTreeElement parent,
+	// ProjectTreeElement pte, String targetJsp, StringBuffer buf) {
+	// DTreeModel dtm = new DTreeModel();
+	//
+	// dtm.renderElement(parent, pte, targetJsp, buf);
+	// for (Iterator iter = pte.getChildren(); iter.hasNext();) {
+	// ProjectTreeElement element = (ProjectTreeElement) iter.next();
+	//
+	// renderElement(pte, element, targetJsp, buf);
+	//
+	// }
+	// }
 
 	public ProjectTreeElement makeProjectTree() {
 		if (wrapper == null)
@@ -263,12 +272,12 @@ public class ProjectModel  implements IProjectTypes{
 				name, name }, "root", null, null, 0, null);
 
 		XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
-		
+
 		CompiledOpenClass comp = wrapper.getCompiledOpenClass();
-		
-		if (comp.hasErrors())
+
+		if (comp.hasErrors() || validationExceptions != null
+				&& validationExceptions.size() > 0)
 			addErrors(comp, root);
-		
 
 		XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
@@ -283,9 +292,10 @@ public class ProjectModel  implements IProjectTypes{
 			if (folders != null && folders[k] != null) {
 				folder = new ProjectTreeElement(folders[k], "folder", null,
 						null, 0, null);
-				root.getElements().put(
-						new ATableTreeSorter.Key(k+1, folder.getDisplayName()),
-						folder);
+				root.getElements()
+						.put(
+								new ATableTreeSorter.Key(k + 1, folder
+										.getDisplayName()), folder);
 			}
 			ATableTreeSorter[] ts = sorters[k];
 
@@ -298,7 +308,7 @@ public class ProjectModel  implements IProjectTypes{
 			}
 
 			if (cnt == 0) // no selection have been made (usually in a
-							// business mode)
+			// business mode)
 			{
 				for (int i = 0; i < nodes.length; i++) {
 					if (!nodes[i].getType().equals(ITableNodeTypes.XLS_OTHER))
@@ -311,26 +321,48 @@ public class ProjectModel  implements IProjectTypes{
 		return root;
 	}
 
-	private void addErrors(CompiledOpenClass comp, ProjectTreeElement root) 
-	{
-		String[] errName= {"Problems","Problems","Problems"};
-		
-		ProjectTreeElement errorFolder = new ProjectTreeElement(errName, "folder", null, null, 0, null);
-		root.getElements().put(new ATableTreeSorter.Key(0, errName), errorFolder);
-		
+	private void addError(Throwable se, ProjectTreeElement errorFolder, int i) {
+
+		String name = se.getMessage();
+		String[] names = { name, name, name };
+		errorFolder.getElements().put(new ATableTreeSorter.Key(i, names),
+				new ProjectTreeElement(names, PT_PROBLEM, null, se, 0, null));
+
+	}
+
+	private void addErrors(CompiledOpenClass comp, ProjectTreeElement root) {
+		String[] errName = { "Problems", "Problems", "Problems" };
+
+		ProjectTreeElement errorFolder = new ProjectTreeElement(errName,
+				"folder", null, null, 0, null);
+		root.getElements().put(new ATableTreeSorter.Key(0, errName),
+				errorFolder);
+
 		int pn = comp.getParsingErrors().length;
-		for (int i = 0; i < pn; i++) 
-		{
-			String name = comp.getParsingErrors()[i].getMessage();
-			String[] names = {name,name, name};
-			errorFolder.getElements().put(new ATableTreeSorter.Key(i, names ), new ProjectTreeElement(names,PT_PROBLEM, null,  comp.getParsingErrors()[i], 0, null));
+		for (int i = 0; i < pn; i++) {
+			addError((SyntaxError) comp.getParsingErrors()[i], errorFolder, i);
 		}
 
-		for (int i = 0; i < comp.getBindingErrors().length; i++) 
-		{
-			String name = comp.getBindingErrors()[i].getMessage();
-			String[] names = {name,name, name};
-			errorFolder.getElements().put(new ATableTreeSorter.Key(i+pn, names ), new ProjectTreeElement(names,PT_PROBLEM, null,  comp.getBindingErrors()[i], 0, null));
+		for (int i = 0; i < comp.getBindingErrors().length; i++) {
+			addError((SyntaxError) comp.getBindingErrors()[i], errorFolder, i
+					+ pn);
+		}
+		pn += comp.getBindingErrors().length;
+		int k = pn;
+		for (int i = 0; i < validationExceptions.size(); ++i) {
+			Throwable t = validationExceptions.get(i);
+
+			if (t instanceof SyntaxErrorException) {
+				SyntaxErrorException se = (SyntaxErrorException) t;
+				ISyntaxError[] errors = se.getSyntaxErrors();
+
+				for (int j = 0; j < errors.length; j++) {
+					addError((SyntaxError) errors[j], errorFolder, ++k);
+				}
+
+			} else
+				addError(t, errorFolder, ++k);
+
 		}
 	}
 
@@ -349,6 +381,7 @@ public class ProjectModel  implements IProjectTypes{
 		} else if (wrapper != null)
 			wrapper.reload();
 
+		validationExceptions = null;
 		projectRoot = null;
 	}
 
@@ -397,17 +430,16 @@ public class ProjectModel  implements IProjectTypes{
 		return tsn == null ? null : tsn.getTable().getGridTable();
 
 	}
-	
-	public Object showError(int elementID)
-	{
+
+	public Object showError(int elementID) {
 		ProjectTreeElement pte = ptr.getElement(elementID);
 		if (pte == null)
 			return null;
 
 		Object error = pte.getProblem();
-		
-		return new ObjectViewer().displayResult(error);
-		
+
+		return new ObjectViewer(this).displayResult(error);
+
 	}
 
 	public TableSyntaxNode getNode(int elementID) {
@@ -441,8 +473,17 @@ public class ProjectModel  implements IProjectTypes{
 		TableSyntaxNode tsn = getNode(elementID);
 		ISyntaxError[] se = tsn.getErrors();
 		if (se != null)
-			return new ObjectViewer().displayResult(se);
+			return new ObjectViewer(this).displayResult(se);
+		if (tsn.getValidationResult() != null)
+			return new ObjectViewer(this).displayResult(tsn.getValidationResult());
 		return "";
+	}
+
+	public boolean hasErrors(int elementID) {
+		TableSyntaxNode tsn = getNode(elementID);
+		ISyntaxError[] se = tsn.getErrors();
+		return se != null || tsn.getValidationResult() != null;
+
 	}
 
 	ProjectTreeRenderer ptr;
@@ -628,6 +669,48 @@ public class ProjectModel  implements IProjectTypes{
 
 		return new AllTestsRunResult(testers, names);
 
+	}
+
+	List<Throwable> validationExceptions;
+
+	public void validateAll() {
+		if (wrapper == null)
+			return;
+
+		List<Throwable> ve = new ArrayList<Throwable>();
+		XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
+
+		XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
+
+		TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+
+		for (int i = 0; i < nodes.length; i++) {
+			validateNode(nodes[i], ve);
+		}
+
+		validationExceptions = ve;
+	}
+
+	public void validateNode(TableSyntaxNode tsn, List<Throwable> ve) {
+		if (tsn.getType() != ITableNodeTypes.XLS_DT)
+			return;
+		if (tsn.getErrors() != null)
+			return;
+
+		DecisionTable dt = (DecisionTable) tsn.getMember();
+
+		try {
+			DTValidationResult dtr = DTValidator.validateDT(dt, null, wrapper
+					.getOpenClass());
+
+			if (dtr.hasProblems())
+				tsn.setValidationResult(dtr);
+			else
+				tsn.setValidationResult(null);
+		} 
+		catch (Throwable t) {
+			tsn.setValidationResult(t);
+		}
 	}
 
 	public AllTestsRunResult getAllTestMethods() {
@@ -923,6 +1006,7 @@ public class ProjectModel  implements IProjectTypes{
 		indexer = new ProjectIndexer(wrapperInfo.getProjectInfo().projectHome());
 		Class<?> c = null;
 		ClassLoader cl = null;
+		this.validationExceptions = null;
 		wrapper = null;
 		projectRoot = null;
 		projectProblem = null;

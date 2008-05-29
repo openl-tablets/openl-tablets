@@ -64,7 +64,7 @@ public class ObjectViewer
         this.projectModel = projectModel;
     }
 
-    public ObjectViewer() {}
+//    public ObjectViewer() {}
 
     /**
 	 * @param res
@@ -350,7 +350,7 @@ public class ObjectViewer
 					"<b>Table is Complete and has no Overlappings</b>", buf).toString();
 		}
 
-		makeExcelLink(gt, "Show Table In Excel", buf);
+//		makeExcelLink(gt, "Show Table In Excel", buf);
 
 		buf.append("<p/>");
 
@@ -445,8 +445,11 @@ public class ObjectViewer
 			regions[i] = dt.getRuleTable(rules[i]).getGridTable().getRegion();
 		}
 
-		return ColorGridFilter.makeTransparentFilter(new RegionGridSelector(
-				regions, true), 0.7, 0x00ff00);
+		return    new ColorGridFilter(new RegionGridSelector(
+				regions, true), projectModel.getFilterHolder().makeFilter())  ;
+		
+//		return ColorGridFilter.makeTransparentFilter(new RegionGridSelector(
+//				regions, true), 0.7, 0x00ff00);
 
 		// return new RuleTracerCellFilter(rtt);
 
