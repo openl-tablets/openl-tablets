@@ -23,6 +23,7 @@ import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.types.IOpenMember;
+import org.openl.validate.IValidationResult;
 
 
 /**
@@ -194,6 +195,20 @@ public class TableSyntaxNode  extends ASyntaxNode implements IIndexElement
 	{
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	
+	
+	Object validationResult;
+
+
+	public Object getValidationResult() {
+		return validationResult;
+	}
+
+
+	public void setValidationResult(Object validationResult) {
+		this.validationResult = validationResult;
 	}
 	
 }

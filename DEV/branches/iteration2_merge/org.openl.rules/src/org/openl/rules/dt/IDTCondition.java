@@ -26,6 +26,10 @@ public interface IDTCondition extends IDecisionRow
 	IMethodCaller getEvaluator();
 	
 	
+	IDTConditionEvaluator getConditionEvaluator();
+	
+	
+	
 
 
 }

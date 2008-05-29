@@ -28,4 +28,9 @@ public class DTUncovered
 		return this.values;
 	}
 
+	public String toString() 
+	{
+		return values.toString();
+	}
+
 }

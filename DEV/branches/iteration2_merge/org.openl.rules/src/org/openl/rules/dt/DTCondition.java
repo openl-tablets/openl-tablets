@@ -73,14 +73,14 @@ public class DTCondition extends FunctionalRow implements IDTCondition
 				throw new Exception(
 						"Condition must have boolean type if it depends on it's parameters");
 
-			return new DefaultConditionEvaluator();
+			return  conditionEvaluator = new DefaultConditionEvaluator();
 		}
 
 		evaluator = makeOptimizedConditionMethodEvaluator(signature);
 		IDTConditionEvaluator dtcev = DTOptimizedAlgorithm.makeEvaluator(this,
 				methodType);
 
-		return dtcev;
+		return conditionEvaluator = dtcev;
 
 	}
 
@@ -96,8 +96,13 @@ public class DTCondition extends FunctionalRow implements IDTCondition
 		}
 		return f;
 	}
+	
+	
+	
 
-	boolean isDependentOnAnyParams()
+	
+	
+	public boolean isDependentOnAnyParams()
 	{
 		IParameterDeclaration[] params = getParams();
 
@@ -105,10 +110,10 @@ public class DTCondition extends FunctionalRow implements IDTCondition
 
 		method.updateDependency(deps);
 
-		for (Iterator iter = deps.getFieldsMap().values().iterator(); iter
+		for (Iterator<IOpenField> iter = deps.getFieldsMap().values().iterator(); iter
 				.hasNext();)
 		{
-			IOpenField f = (IOpenField) iter.next();
+			IOpenField f = iter.next();
 			
 			f = getLocalField(f);
 
@@ -147,5 +152,12 @@ public class DTCondition extends FunctionalRow implements IDTCondition
 	{
 		return evaluator == null ? method : evaluator;
 	}
+	
+	IDTConditionEvaluator conditionEvaluator;
+
+	public IDTConditionEvaluator getConditionEvaluator() {
+		return conditionEvaluator;
+	}
+
 
 }

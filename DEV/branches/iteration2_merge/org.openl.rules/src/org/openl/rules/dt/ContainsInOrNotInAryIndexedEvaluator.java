@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntArrayIterator;
@@ -253,4 +254,10 @@ public class ContainsInOrNotInAryIndexedEvaluator implements IDTConditionEvaluat
 	{
 		return true;
 	}
+	
+	//TODO fix
+	public IOpenSourceCodeModule getFormalSourceCode(IDTCondition condition) {
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+	
 }

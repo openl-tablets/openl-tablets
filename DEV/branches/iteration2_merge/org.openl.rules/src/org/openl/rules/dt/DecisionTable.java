@@ -107,6 +107,8 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 
 		for (int i = 0; i < conditionRows.length; i++)
 		{
+			
+			
 			evs[i] = conditionRows[i].prepareCondition(signature, openl,
 					dtModule, cxtd, ruleRow);
 		}
@@ -646,6 +648,10 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 	public String getDisplayName(int mode)
 	{
 		return header.getInfo().getDisplayName(mode);
+	}
+
+	public DTOptimizedAlgorithm getAlgorithm() {
+		return algorithm;
 	}
 
 

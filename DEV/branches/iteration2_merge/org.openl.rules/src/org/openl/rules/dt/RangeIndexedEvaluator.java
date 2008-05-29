@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNode;
@@ -24,6 +25,9 @@ import org.openl.vm.IRuntimeEnv;
 public class RangeIndexedEvaluator implements IDTConditionEvaluator
 {
 
+	
+	
+	
 	IRangeAdaptor<Object, Object> adaptor = null;
 
 	public RangeIndexedEvaluator(IRangeAdaptor<Object, Object> adaptor)
@@ -197,5 +201,12 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator
 	{
 		return true;
 	}
+	
+	
+	//TODO fix
+	public IOpenSourceCodeModule getFormalSourceCode(IDTCondition condition) {
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+	
 
 }

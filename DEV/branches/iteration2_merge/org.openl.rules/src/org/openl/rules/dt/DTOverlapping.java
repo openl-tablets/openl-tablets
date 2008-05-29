@@ -4,6 +4,7 @@
 package org.openl.rules.dt;
 
 import org.openl.util.ArrayOfNamedValues;
+import org.openl.util.ArrayTool;
 
 /**
  * @author snshor
@@ -11,6 +12,13 @@ import org.openl.util.ArrayOfNamedValues;
  */
 public class DTOverlapping
 {
+	
+	public String toString() 
+	{
+		
+		return "Rules #" + ArrayTool.asString(rules) + " overlap for {" + value + '}';
+	}
+
 	int[] rules;
 	
 	ArrayOfNamedValues value;
