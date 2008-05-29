@@ -16,6 +16,7 @@ package com.exigen.ie.constrainer.consistencyChecking;
  * @version 1.0
  */
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import com.exigen.ie.constrainer.IntExpArray;
@@ -34,13 +35,13 @@ public interface DTChecker
     * are represented by objects of type <code>Uncovered</code>
     * @see Uncovered
     */
-  public Vector checkCompleteness();
+  public List<Uncovered> checkCompleteness();
   /**
    * Looks for overlapping rules
    * @return Vector of <code>Overlapping</code>
    * @see Overlapping
    */
-  public Vector checkOverlappings();
+  public List<Overlapping> checkOverlappings();
   /**
    *Appoints an object of type {@link CompletenessChecker} to be responsible for handling
    *overlappings monitoring problem.

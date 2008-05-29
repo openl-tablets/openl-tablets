@@ -8,12 +8,12 @@ package com.exigen.ie.constrainer.consistencyChecking;
  * @author unascribed
  * @version 1.0
  */
-import java.util.Vector;
+import java.util.List;
 public interface CompletenessChecker
 {
  /**
   *  returns Vector of uncovered regions in the space of states
   */
 
-  public Vector check();
+  public List<Uncovered> check();
 }
