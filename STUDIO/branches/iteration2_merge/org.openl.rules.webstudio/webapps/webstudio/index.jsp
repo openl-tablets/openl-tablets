@@ -59,6 +59,11 @@ String mode = request.getParameter("mode");
   if (reload != null)
     studio.reset();
 
+  String validate = request.getParameter("validate");
+  if (validate != null)
+    studio.getModel().validateAll();
+
+
     String operation = request.getParameter("operation");
     if (operation != null)
       studio.executeOperation(operation, session);

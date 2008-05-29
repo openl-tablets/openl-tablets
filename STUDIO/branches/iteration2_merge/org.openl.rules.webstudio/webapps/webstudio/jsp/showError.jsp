@@ -5,7 +5,7 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 
 
-<%@include file="checkTimeoutClose.jsp"%>
+<%@include file="checkTimeoutClose.jspf"%>
 
 
 <%
