@@ -11,6 +11,7 @@ public class DTParamDescription
 	{
 		this.originalDeclaration = parameterDeclaration;
 		this.newType = newType;
+		domain = originalDeclaration.getType().getDomain();
 	}
 	IParameterDeclaration originalDeclaration;
 	IDomain<?> domain;

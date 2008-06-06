@@ -50,7 +50,8 @@ import com.exigen.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTabl
 public class DTValidator implements IDTValidator {
 
 	public static DTValidationResult validateDT(String dtname,
-			Map<String, IDomainAdaptor> domains, IOpenClass type) throws Exception {
+			Map<String, IDomainAdaptor> domains, IOpenClass type)
+			throws Exception {
 		DecisionTable dt = (DecisionTable) AOpenClass.getSingleMethod(dtname,
 				type.methods());
 
@@ -58,8 +59,8 @@ public class DTValidator implements IDTValidator {
 	}
 
 	public static DTValidationResult validateDT(DecisionTable dt,
-			Map<String, IDomainAdaptor> domains, IOpenClass type) throws Exception 
-	{
+			Map<String, IDomainAdaptor> domains, IOpenClass type)
+			throws Exception {
 
 		return new DTValidator().validateDT(new DTValidatedObject(dt, domains),
 				((XlsModuleOpenClass) type).getOpenl());
@@ -118,7 +119,7 @@ public class DTValidator implements IDTValidator {
 			}
 
 			vars = makeVars(dtan);
-			IntBoolExp[][] exp = makeExpressions();
+			IntBoolExp[][] exp = makeExpressions(dtan);
 
 			CDecisionTableImpl cdt = new CDecisionTableImpl(exp, vars);
 			DTCheckerImpl dtc = new DTCheckerImpl(cdt);
@@ -131,13 +132,13 @@ public class DTValidator implements IDTValidator {
 
 			return new DTValidationResult(dtvo.getDT(), overlappings
 					.toArray(new Overlapping[0]), completeness
-					.toArray(new Uncovered[0]), dtvo.getTransformer());
+					.toArray(new Uncovered[0]), dtvo.getTransformer(), dtan);
 		}
 
 		/**
 		 * @return
 		 */
-		private IntBoolExp[][] makeExpressions() {
+		private IntBoolExp[][] makeExpressions(DTAnalyzer dtan) {
 			int nrules = dtvo.getDT().getNumberOfRules();
 			IntBoolExp[][] ary = new IntBoolExp[nrules][cmethods.length];
 
@@ -146,7 +147,7 @@ public class DTValidator implements IDTValidator {
 				ary[i] = ruleExp;
 
 				for (int j = 0; j < cmethods.length; j++) {
-					ruleExp[j] = makeExpression(i, j);
+					ruleExp[j] = makeExpression(i, j, dtan);
 				}
 
 			}
@@ -159,7 +160,7 @@ public class DTValidator implements IDTValidator {
 		 * @param j
 		 * @return
 		 */
-		private IntBoolExp makeExpression(int rule, int cnum) {
+		private IntBoolExp makeExpression(int rule, int cnum, DTAnalyzer dtan) {
 			IDTCondition cond = cc[cnum];
 
 			Object[] values = cond.getParamValues()[rule];
@@ -168,20 +169,21 @@ public class DTValidator implements IDTValidator {
 				return new IntBoolExpConst(C, true);
 
 			int nargs = cmethods[cnum].getSignature().getNumberOfArguments();
+
 			// /make params from vars and values
 
 			Object[] args = new Object[nargs];
 
-			int ndtArgs = dtvo.getDT().getSignature().getNumberOfArguments();
+			// int ndtArgs = dtvo.getDT().getSignature().getNumberOfArguments();
+			int ndtArgs = nargs - values.length;
 
 			for (int i = 0; i < nargs; i++) {
 				String name = cmethods[cnum].getSignature().getParameterName(i);
 				if (i < ndtArgs) {
 					args[i] = findVar(vars, name);
 				} else {
-					Object[][] params = cond.getParamValues();
-					args[i] = transformValue(name, cc[cnum], params[rule][i
-							- ndtArgs]);
+					args[i] = transformValue(name, cc[cnum],
+							values[i - ndtArgs], dtan);
 				}
 
 			}
@@ -206,9 +208,9 @@ public class DTValidator implements IDTValidator {
 		 * @return
 		 */
 		private Object transformValue(String name, IDTCondition condition,
-				Object value) {
+				Object value, DTAnalyzer dtan) {
 			return dtvo.getTransformer().transformParameterValue(name,
-					condition, value, C);
+					condition, value, C, dtan);
 		}
 
 		/**
@@ -241,13 +243,14 @@ public class DTValidator implements IDTValidator {
 				DTParamDescription dtp = iterator.next();
 
 				String vname = dtp.getOriginalDeclaration().getName();
-				
+
 				IntVar var = dtvo.getTransformer().makeSignatureVar(vname,
 						dtp.getOriginalDeclaration().getType(), C);
 				if (var != null)
 					v.add(var);
 				else
-					throw new RuntimeException("Could not create domain for " + vname);
+					throw new RuntimeException("Could not create domain for "
+							+ vname);
 			}
 
 			IntExpArray iary = new IntExpArray(C, v);
@@ -280,7 +283,7 @@ public class DTValidator implements IDTValidator {
 
 			IOpenClass declaringClass = dtan.getDt().getDeclaringClass();
 
-			OpenMethodHeader methodHeader = new OpenMethodHeader(null,
+			OpenMethodHeader methodHeader = new OpenMethodHeader(condition.getName(),
 					methodType, newSignature, declaringClass);
 
 			IBindingContext cxt = new ModuleBindingContext(openl.getBinder()
@@ -317,12 +320,12 @@ public class DTValidator implements IDTValidator {
 			return new MethodSignature(pdd);
 		}
 
-		/**
-		 * @param pd
-		 * @param dtsignature
-		 * @return
-		 * @deprecated
-		 */
+		// /**
+		// * @param pd
+		// * @param dtsignature
+		// * @return
+		// * @deprecated
+		// */
 		// private IMethodSignature makeNewSignature(IParameterDeclaration[] pd,
 		// IMethodSignature dtsignature) {
 		// IOpenClass[] dttypes = dtsignature.getParameterTypes();
