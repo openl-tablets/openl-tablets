@@ -8,6 +8,7 @@ package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.IBoundNodeVisitor;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.impl.ControlSignal;
 import org.openl.syntax.ISyntaxNode;
@@ -19,6 +20,22 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class ABoundNode implements IBoundNode
 {
+
+	public boolean visit(IBoundNodeVisitor visitor) 
+	{
+		if (!visitor.visit(this))
+			return false;
+		if (children == null)
+			return true;
+		for (int i = 0; i < children.length; i++) 
+		{
+			if (!children[i].visit(visitor))
+				return false;
+		}
+		return true;
+	}
+
+
 
 	protected ISyntaxNode syntaxNode;
 	protected IBoundNode[] children;
