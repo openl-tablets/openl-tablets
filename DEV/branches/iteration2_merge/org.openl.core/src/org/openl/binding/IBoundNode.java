@@ -47,6 +47,8 @@ public interface IBoundNode
 	public void updateAssignFieldDependency(BindingDependencies dependencies);
 
 
+	public boolean visit(IBoundNodeVisitor visitor);
+	
 	
 	//TODO generate code
 //	public void generateCode(Writer writer, CodeGenSchema cgSchema);
