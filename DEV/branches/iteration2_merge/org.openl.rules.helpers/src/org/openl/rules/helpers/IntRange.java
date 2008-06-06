@@ -80,6 +80,10 @@ public class IntRange extends IntRangeDomain implements INumberRange
 	}
 
 
+	public IntRange(int min, int max)
+	{
+	    super(min, max);
+	}
 
 	
 	
