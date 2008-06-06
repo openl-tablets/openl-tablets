@@ -43,11 +43,12 @@ public interface IConditionTransformer
 	 * @param name
 	 * @param condition
 	 * @param value
+	 * @param dtan 
 	 * @return
 	 */
-	Object transformParameterValue(String name, IDTCondition condition, Object value, Constrainer C);
+	Object transformParameterValue(String name, IDTCondition condition, Object value, Constrainer C, DTAnalyzer dtan);
 
-	Object transformSignatureValueBack(String name, int i);
+	Object transformSignatureValueBack(String name, int intValue, DTAnalyzer dtan);
 
 	
 }

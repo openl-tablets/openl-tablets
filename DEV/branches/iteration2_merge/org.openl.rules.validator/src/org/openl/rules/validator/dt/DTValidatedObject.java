@@ -11,6 +11,7 @@ import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IDTCondition;
+import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
@@ -67,9 +68,12 @@ public class DTValidatedObject implements IDTValidatedObject,
 	}
 
 	public IOpenClass transformParameterType(IParameterDeclaration pd) {
-		if (pd.getType() == JavaOpenClass.STRING) {
+		if (pd.getType().getInstanceClass() == String.class) {
 			return JavaOpenClass.INT;
 		}
+		
+		if (pd.getType().getInstanceClass() == IntRange.class)
+			return JavaOpenClass.getOpenClass(CtrIntRange.class);
 		return null;
 	}
 
@@ -107,24 +111,45 @@ public class DTValidatedObject implements IDTValidatedObject,
 	
 
 	public Object transformParameterValue(String name, IDTCondition condition,
-			Object value, Constrainer C) {
-		IDomainAdaptor domain = getDomains().get(name);
+			Object value, Constrainer C, DTAnalyzer dtan) 
+	{
+		
+		if (value instanceof IntRange) {
+			IntRange intr = (IntRange) value;
+			return new CtrIntRange(intr.getMin(), intr.getMax());
+			
+		}
+		
+		 IDomain<?> domain = dtan.getParameterDomain(name, condition);
+		 if (domain == null)
+		 {
+			 throw new RuntimeException("Domain is not defined for " + condition.getName() + ":" + name);
+//			 return null;
+		 } 
+		
+		IDomainAdaptor domainAsaptor = makeDomain(domain) ;
 
 		if (domain != null) {
-			return new Integer(domain.getIndex(value));
+			return new Integer(domainAsaptor.getIndex(value));
 		}
 
 		return value;
 	}
 
-	public Object transformSignatureValueBack(String name, int i) {
-		IDomainAdaptor domain = getDomains().get(name);
+	public Object transformSignatureValueBack(String name, int intValue, DTAnalyzer dtan) 
+	{
+		IDomain<?> domain = dtan.getSignatureParameterDomain(name);
+		
+		if (domain == null)
+			return intValue;
+		
+		IDomainAdaptor domainAdaptor = makeDomain(domain);
 
 		if (domain != null) {
-			return domain.getValue(i);
+			return domainAdaptor.getValue(intValue);
 		}
 
-		return new Integer(i);
+		return intValue;
 	}
 
 	public synchronized Map<String, IDomainAdaptor> getDomains() {

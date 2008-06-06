@@ -8,7 +8,9 @@ import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.ILocalVar;
+import org.openl.domain.IDomain;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IDTCondition;
 import org.openl.rules.dt.IDecisionRow;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -24,7 +26,27 @@ public class DTAnalyzer {
 
 	public DTAnalyzer(DecisionTable dt) {
 		this.dt = dt;
+		cdanMap = new HashMap<IDecisionRow, ConditionAnalyzer>();
+		IDTCondition[] dtcc = dt.getConditionRows();
+		for (int i = 0; i < dtcc.length; i++) {
+			cdanMap.put(dtcc[i], new ConditionAnalyzer(dtcc[i]));
+		}
 	}
+	
+	
+	Map<IDecisionRow, ConditionAnalyzer> cdanMap;
+	
+	
+	public IDomain<?> getParameterDomain(String parameterName, IDecisionRow condition)
+	{
+		return cdanMap.get(condition).getParameterDomain(parameterName);
+	}
+	
+	public IDomain<?> getSignatureParameterDomain(String parameterName)
+	{
+		return  usedDTParams.get(parameterName).getDomain();
+	}
+	
 
 	public boolean containsFormula(IDecisionRow row) {
 		Object[][] values = row.getParamValues();
