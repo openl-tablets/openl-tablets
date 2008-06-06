@@ -349,21 +349,22 @@ public class ProjectModel implements IProjectTypes {
 		}
 		pn += comp.getBindingErrors().length;
 		int k = pn;
-		for (int i = 0; i < validationExceptions.size(); ++i) {
-			Throwable t = validationExceptions.get(i);
+		if (validationExceptions != null)
+			for (int i = 0; i < validationExceptions.size(); ++i) {
+				Throwable t = validationExceptions.get(i);
 
-			if (t instanceof SyntaxErrorException) {
-				SyntaxErrorException se = (SyntaxErrorException) t;
-				ISyntaxError[] errors = se.getSyntaxErrors();
+				if (t instanceof SyntaxErrorException) {
+					SyntaxErrorException se = (SyntaxErrorException) t;
+					ISyntaxError[] errors = se.getSyntaxErrors();
 
-				for (int j = 0; j < errors.length; j++) {
-					addError((SyntaxError) errors[j], errorFolder, ++k);
-				}
+					for (int j = 0; j < errors.length; j++) {
+						addError((SyntaxError) errors[j], errorFolder, ++k);
+					}
 
-			} else
-				addError(t, errorFolder, ++k);
+				} else
+					addError(t, errorFolder, ++k);
 
-		}
+			}
 	}
 
 	ProjectTreeElement projectRoot = null;
@@ -475,7 +476,8 @@ public class ProjectModel implements IProjectTypes {
 		if (se != null)
 			return new ObjectViewer(this).displayResult(se);
 		if (tsn.getValidationResult() != null)
-			return new ObjectViewer(this).displayResult(tsn.getValidationResult());
+			return new ObjectViewer(this).displayResult(tsn
+					.getValidationResult());
 		return "";
 	}
 
@@ -707,8 +709,7 @@ public class ProjectModel implements IProjectTypes {
 				tsn.setValidationResult(dtr);
 			else
 				tsn.setValidationResult(null);
-		} 
-		catch (Throwable t) {
+		} catch (Throwable t) {
 			tsn.setValidationResult(t);
 		}
 	}
