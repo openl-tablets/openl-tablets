@@ -16,7 +16,6 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
@@ -88,6 +87,14 @@ public class RepositoryTreeController {
 
     public void setMinor(int minor) {
         this.minor = minor;
+    }
+
+    public int getRevision() {
+        ProjectVersion v = getProjectVersion();
+        if (v != null) {
+            return v.getRevision();
+        }
+        return 0;
     }
 
     private ProjectVersion getProjectVersion() {
