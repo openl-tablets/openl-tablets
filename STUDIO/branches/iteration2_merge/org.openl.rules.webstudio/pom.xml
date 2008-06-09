@@ -84,7 +84,7 @@
           <url>http://openl.star-sw.com:8081/manager</url>
           <server>openl-tomcat-server</server>
           <path>/webstudio</path>
-          <warFile>target/${war.name}.war</warFile>
+          <warFile>target/${war.name}-tomcat6.war</warFile>
         </configuration>
       </plugin>
     </plugins>
