@@ -10,10 +10,12 @@
         <rich:column>
           <span style="float: left; font-weight: bold;"><h:outputText value="Repository Tree" styleClas="label" /></span>
 
-          <span style="float: right;"><h:commandLink class="actionButton"
-            action="#{repositoryTreeController.refreshTree}" title="Refresh">
-            <h:graphicImage url="/images/refresh.gif" styleClass="actionImage" />
-          </h:commandLink></span>
+          <span style="float: right;">
+            <h:commandButton styleClass="button" value="Filter" type="button" onclick="showRepFilterDialog();"/> 
+            <h:commandLink class="actionButton" title="Refresh" action="#{repositoryTreeController.refreshTree}">
+              <h:graphicImage url="/images/refresh.gif" styleClass="actionImage" />
+            </h:commandLink>
+          </span>
         </rich:column>
       </rich:columnGroup>
     </f:facet>
