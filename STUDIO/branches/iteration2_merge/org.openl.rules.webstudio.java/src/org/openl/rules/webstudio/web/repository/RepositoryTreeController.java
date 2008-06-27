@@ -16,6 +16,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
@@ -28,6 +29,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectArtefact;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectImpl;
+import org.openl.util.filter.OpenLFilter;
 
 import java.io.FileInputStream;
 
@@ -64,6 +66,8 @@ public class RepositoryTreeController {
     private String version;
     private int major;
     private int minor;
+
+    private String filterString;
 
     public int getMajor() {
         ProjectVersion v = getProjectVersion();
@@ -156,6 +160,15 @@ public class RepositoryTreeController {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to create folder.", errorMessage));
         }
+        return null;
+    }
+
+    public String filter() {
+        OpenLFilter filter = null;
+        if (!StringUtils.isEmpty(filterString)) {
+            filter = new RepositoryFileExtensionFilter(filterString);
+        }
+        repositoryTreeState.setFilter(filter);
         return null;
     }
 
@@ -672,6 +685,14 @@ public class RepositoryTreeController {
 
     public void setFolderName(String folderName) {
         this.folderName = folderName;
+    }
+
+    public String getFilterString() {
+        return filterString;
+    }
+
+    public void setFilterString(String filterString) {
+        this.filterString = filterString;
     }
 
     public String getNewProjectName() {
