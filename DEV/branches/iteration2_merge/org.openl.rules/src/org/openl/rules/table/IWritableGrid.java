@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.xls.XlsSheetGridExporter;
+import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.util.export.IExporter;
 
 /**
  * @author snshor
@@ -31,7 +34,17 @@ public interface IWritableGrid extends IGrid
 
 	CellMetaInfo getCellMetaInfo(int col, int row);
 
-	static public class Tool
+    /**
+     * Finds a rectangular area of given width and height on the grid that can be used for writing.
+     * The returned region should not intersect with or touch existing not empty cells.   
+     *
+     * @param width rectangle width
+     * @param height rectangle height
+     * @return region representing required rectangle or <code>null</code> if not found
+     */
+    IGridRegion findEmptyRect(int width, int height);
+
+    static public class Tool
 	{
 		public static IWritableGrid getWritableGrid(IGridTable table)
 		{
@@ -237,7 +250,15 @@ public interface IWritableGrid extends IGrid
 
 			return new UndoableCompositeAction(actions);
 		}
-	}
+
+        public static IExporter createExporter(IWritableGrid wGrid) {
+            if (wGrid instanceof XlsSheetGridModel) {
+                return new XlsSheetGridExporter((XlsSheetGridModel) wGrid);
+            }
+
+            return null;
+        }
+    }
 
 	/**
 	 * @param to
@@ -247,6 +268,6 @@ public interface IWritableGrid extends IGrid
 	/**
 	 * @param reg
 	 */
-	void addMergedRegion(IGridRegion reg);
+	int addMergedRegion(IGridRegion reg);
 
 }
