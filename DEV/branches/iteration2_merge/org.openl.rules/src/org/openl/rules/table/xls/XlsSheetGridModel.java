@@ -605,7 +605,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 	 * @param rowTo
 	 * @return
 	 */
-	private HSSFCell createNewCell(int colTo, int rowTo)
+	HSSFCell createNewCell(int colTo, int rowTo)
 	{
 		HSSFRow row = sheet.getRow(rowTo);
 		if (row == null)
@@ -736,9 +736,16 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 
 	}
 
-	public void addMergedRegion(IGridRegion reg)
+    public IGridRegion findEmptyRect(int width, int height) {
+        int lastRow = sheet.getLastRowNum();
+        int top = lastRow + 2, left = 1;
+
+        return new GridRegion(top, left, top + height - 1, left + width - 1);
+    }
+
+    public int addMergedRegion(IGridRegion reg)
 	{
-		sheet.addMergedRegion(new Region(reg.getTop(), (short) reg.getLeft(), reg
+		return sheet.addMergedRegion(new Region(reg.getTop(), (short) reg.getLeft(), reg
 				.getBottom(), (short) reg.getRight()));
 	}
 
