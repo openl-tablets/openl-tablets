@@ -40,7 +40,7 @@ public class XlsSheetGridExporter implements IExporter {
         gridModel.addMergedRegion(new GridRegion(region.getTop(), region.getLeft(), region.getTop(), region.getRight()));
 
         persistHeader(region, "Persistent " + exportable.getClass().getName());
-        persist(region.getLeft(), region.getTop() + 1, exportSection);
+        persist(region.getLeft(), region.getTop() + 1, exportSection, width);
     }
 
     private void persistHeader(IGridRegion region, String text) {
@@ -99,17 +99,19 @@ public class XlsSheetGridExporter implements IExporter {
      * @param col column to write to
      * @param row row to write to
      * @param section section to persist
+     * @param widthToFill number of columns not filled yet in current row
      * @return height of the section
      */
-    private int persist(int col, int row, IExportSection section) {
+    private int persist(int col, int row, IExportSection section, int widthToFill) {
         int height = 0;
         ++col;
+        --widthToFill;
 
         // saving subsections
         IExportSection[] subSections = section.getSubSections();
         if (subSections != null) {
             for (IExportSection subSection : subSections) {
-                height += persist(col, row + height, subSection);
+                height += persist(col, row + height, subSection, widthToFill);
             }
         }
 
@@ -117,7 +119,7 @@ public class XlsSheetGridExporter implements IExporter {
         IExportRow[] rows = section.getRows();
         if (rows != null) {
             for (IExportRow expRrow : rows) {
-                persistRow(col, row + height++, expRrow);
+                persistRow(col, row + height++, expRrow, widthToFill);
             }
         }
 
@@ -138,9 +140,31 @@ public class XlsSheetGridExporter implements IExporter {
             gridModel.createNewCell(col, row + r).setCellStyle(style);
     }
 
-    private void persistRow(int col, int row, IExportRow expRrow) {
-        for (String cell : expRrow.record()) {
-            fillCell(col++, row, 1, cell);
+    private void fillCellStretchHorizontally(int col, int row, int width, String value) {
+        if (width == 1)
+            fillCell(col, row, 1, value);
+        else {
+            gridModel.setCellValue(col, row, value);
+            HSSFCellStyle style = getStyle();
+
+            for (int c = 0; c < width; ++c)
+                gridModel.createNewCell(col + c, row).setCellStyle(style);
+        }
+    }
+
+    private void persistRow(int col, int row, IExportRow expRrow, int widthToFill) {
+        if (expRrow.size() >= widthToFill)
+            for (String cell : expRrow.record()) {
+                fillCell(col++, row, 1, cell);
+            }
+        else {
+            String[] cells = expRrow.record();
+            for (int i = 0; i < cells.length - 1; ++i)
+                fillCell(col++, row, 1, cells[i]);
+
+            int width = widthToFill - cells.length + 1;
+            gridModel.addMergedRegion(new GridRegion(row, col, row, col + width - 1));
+            fillCellStretchHorizontally(col, row, width, cells[cells.length-1]);
         }
     }
 
