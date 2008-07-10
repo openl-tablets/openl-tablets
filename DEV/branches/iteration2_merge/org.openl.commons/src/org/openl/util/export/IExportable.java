@@ -11,4 +11,6 @@ public interface IExportable<T> {
      * @return IExportSection
      */
     IExportSection<T> mainSection();
+
+    T restore(IImporter importer);
 }

@@ -30,7 +30,7 @@ public interface IXlsTableNames
 		ENVIRONMENT_TABLE = "Environment",
 		
 		TEST_METHOD_TABLE = "Testmethod",
-		RUN_METHOD_TABLE = "Runmethod";
-		
+		RUN_METHOD_TABLE = "Runmethod",
+		PERSISTENCE_TABLE = "Persistent";
 
 }

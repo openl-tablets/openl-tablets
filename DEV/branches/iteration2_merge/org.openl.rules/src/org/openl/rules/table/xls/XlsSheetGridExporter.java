@@ -7,6 +7,8 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.util.export.ExportException;
 import org.openl.util.export.IExportRow;
 import org.openl.util.export.IExportSection;
@@ -39,7 +41,7 @@ public class XlsSheetGridExporter implements IExporter {
 
         gridModel.addMergedRegion(new GridRegion(region.getTop(), region.getLeft(), region.getTop(), region.getRight()));
 
-        persistHeader(region, "Persistent " + exportable.getClass().getName());
+        persistHeader(region, IXlsTableNames.PERSISTENCE_TABLE + " " + exportable.getClass().getName());
         persist(region.getLeft(), region.getTop() + 1, exportSection, width);
     }
 

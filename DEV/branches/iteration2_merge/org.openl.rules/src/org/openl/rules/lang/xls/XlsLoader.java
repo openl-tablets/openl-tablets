@@ -196,7 +196,8 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 			{ METHOD_TABLE, XLS_METHOD }, { METHOD_TABLE2, XLS_METHOD },
 			{ ENVIRONMENT_TABLE, XLS_ENVIRONMENT },
 			{ TEST_METHOD_TABLE, XLS_TEST_METHOD },
-			{ RUN_METHOD_TABLE, XLS_RUN_METHOD } };
+			{ RUN_METHOD_TABLE, XLS_RUN_METHOD },
+			{ PERSISTENCE_TABLE, XLS_PERSISTENT } };
 
 	static public Map<String, String> tableHeaders()
 	{
