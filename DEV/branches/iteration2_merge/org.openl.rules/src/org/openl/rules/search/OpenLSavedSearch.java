@@ -5,6 +5,8 @@ import org.openl.util.export.IExportSection;
 import org.openl.util.export.IExportable;
 import org.openl.util.export.ExportRow;
 import org.openl.util.export.ExportSectionSingleRow;
+import org.openl.util.export.IImporter;
+import org.openl.util.export.IImportedSection;
 
 /**
  * @author Aliaksandr Antonik.
@@ -61,6 +63,35 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
      */
     public IExportSection<OpenLSavedSearch> mainSection() {
         return this;
+    }
+
+    public OpenLSavedSearch restore(IImporter importer) {
+        IImportedSection mainSection = importer.readSections(null)[0];
+        IImportedSection[] subSections = importer.readSections(mainSection.getId());
+
+        IImportedSection tableTypeSection = subSections[0];
+        tableTypes = importer.readRows(tableTypeSection.getId())[0][0];
+
+        tableElements = readSearchElementSection(importer, subSections[1]);
+        columnElements = readSearchElementSection(importer, subSections[2]);
+
+        return this;
+    }
+
+    private static SearchElement[] readSearchElementSection(IImporter importer, IImportedSection section) {
+        String[][] rows = importer.readRows(section.getId());
+        SearchElement[] searchElements = new SearchElement[rows.length];
+        for (int i = 0; i < searchElements.length; i++) {
+            String[] row = rows[i];
+            SearchElement searchElement = searchElements[i] = new SearchElement(row[0]);
+            searchElement.setNotFlag(Boolean.valueOf(row[1]));
+            searchElement.setOperator(GroupOperator.find(row[2]));
+            searchElement.setOpType1(row[3]);
+            searchElement.setValue1(row[4]);
+            searchElement.setOpType2(row[5]);
+            searchElement.setValue2(row[6]);
+        }
+        return searchElements;
     }
 
     /**

@@ -28,6 +28,7 @@ public interface ITableNodeTypes
 	  XLS_OPENL = "xls.openl",
 	  XLS_TABLE = "xls.table",
 	  XLS_ENVIRONMENT = "xls.environment",
+	  XLS_PERSISTENT = "xls.persistent",
 	  XLS_OTHER = "xls.other";
 
 }
