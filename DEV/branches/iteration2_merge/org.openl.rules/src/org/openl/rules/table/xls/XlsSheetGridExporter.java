@@ -7,7 +7,6 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.util.export.ExportException;
 import org.openl.util.export.IExportRow;
@@ -50,9 +49,7 @@ public class XlsSheetGridExporter implements IExporter {
         HSSFCellStyle hstyle = getHeaderStyle();
 
         for (int col = region.getLeft(); col <= region.getRight(); ++col) {
-            for (int row = region.getTop(); row <= region.getBottom(); ++row) {
-                gridModel.createNewCell(col, row).setCellStyle(hstyle);
-            }
+            gridModel.createNewCell(col, region.getTop()).setCellStyle(hstyle);
         }
     }
 

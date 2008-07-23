@@ -34,7 +34,7 @@ import org.openl.vm.IRuntimeEnv;
 public class TestMethodHelper
 {
 
-	static final String EXPECTED_RESULT_NAME = "_res_";
+	public static final String EXPECTED_RESULT_NAME = "_res_";
 
 	static final String DESCRIPTION_NAME = "_description_";
 

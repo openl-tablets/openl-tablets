@@ -605,7 +605,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 	 * @param rowTo
 	 * @return
 	 */
-	HSSFCell createNewCell(int colTo, int rowTo)
+	public HSSFCell createNewCell(int colTo, int rowTo)
 	{
 		HSSFRow row = sheet.getRow(rowTo);
 		if (row == null)
