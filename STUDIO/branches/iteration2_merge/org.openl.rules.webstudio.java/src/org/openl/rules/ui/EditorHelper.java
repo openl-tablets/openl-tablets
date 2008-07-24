@@ -19,6 +19,14 @@ public class EditorHelper implements WebStudio.StudioListener
         if (webStudio != null) webStudio.addEventListener(this);
     }
 
+    public EditorHelper(WebStudio webStudio) {
+        if (webStudio != null) {
+        	webStudio.addEventListener(this);
+        }else{
+        	new EditorHelper();
+        }
+    }
+
     public void setTableID(int elementID, ProjectModel prj, String mode, boolean cancel)
     {
         if (model != null && (cancel || elementID != this.elementID)) model.cancel();
