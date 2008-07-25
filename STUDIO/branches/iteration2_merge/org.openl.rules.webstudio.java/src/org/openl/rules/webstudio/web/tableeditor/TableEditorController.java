@@ -22,7 +22,7 @@ import java.util.Map;
  * 
  * @author Andrey Naumenko
  */
-public class TableEditorController extends TableViewController implements JSTableEditor {
+public class TableEditorController extends JSFTableViewController implements JSTableEditor {
     private int row, col;
 
     private CellEditorSelector selector = new CellEditorSelector();
