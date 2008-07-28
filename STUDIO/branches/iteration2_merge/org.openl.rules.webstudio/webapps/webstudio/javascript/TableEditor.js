@@ -70,8 +70,8 @@ TableEditor.prototype = {
         }
 
         this.baseUrl = url;
-        this.saveUrl = url + "save";
-        this.loadData(url + "load?elementID=" + tableid);
+        this.saveUrl = this.buildUrl("save");
+        this.loadData(this.buildUrl("load", "elementID=" + tableid));
 
         var self = this;
 
@@ -178,7 +178,7 @@ TableEditor.prototype = {
      */
     save: function() {
         var self = this;
-        new Ajax.Request(this.baseUrl + "saveTable", {
+        new Ajax.Request(this.buildUrl("saveTable"), {
             onSuccess  : function(response) {
                 response = eval(response.responseText);
                 if (response.status)
@@ -220,7 +220,7 @@ TableEditor.prototype = {
         var typedText = undefined;
         if (keyCode) typedText = String.fromCharCode(keyCode);
 
-        new Ajax.Request(this.baseUrl + "getCellType", {
+        new Ajax.Request(this.buildUrl("getCellType"), {
             onSuccess  : function(response) {
                 self.editBegin(cell, eval(response.responseText), typedText)
             },
@@ -283,6 +283,13 @@ TableEditor.prototype = {
             this.selectElement(elt);
             Event.stop(e);
         }
+    },
+
+    buildUrl: function(action, paramString) {
+        var url = this.baseUrl + action;
+        if (paramString)
+            url = url + "?" + paramString;
+        return url
     },
 
 
@@ -431,7 +438,7 @@ TableEditor.prototype = {
 
     undoredo: function(redo) {
         if (Ajax.activeRequestCount > 0) return;
-        new Ajax.Request(this.baseUrl + (redo ? "redo" : "undo"), {
+        new Ajax.Request(this.buildUrl((redo ? "redo" : "undo")), {
             onSuccess: this.modFuncSuccess,
             parameters: {elementID: this.tableid}
         })
@@ -466,7 +473,7 @@ TableEditor.prototype = {
             col : this.selectionPos[1],
             align: _align
         }
-        new Ajax.Request(this.baseUrl + "setAlign", {
+        new Ajax.Request(this.buildUrl("setAlign"), {
             onSuccess: function(response) {
                 response = eval(response.responseText);
                 if (response.status)
@@ -501,7 +508,7 @@ TableEditor.prototype = {
             params.up = true
         }
 
-        new Ajax.Request(this.baseUrl + ([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? "removeRowCol" : "addRowColBefore"), {
+        new Ajax.Request(this.buildUrl(([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? "removeRowCol" : "addRowColBefore")), {
             onSuccess : this.modFuncSuccess,
             parameters : params
         });
