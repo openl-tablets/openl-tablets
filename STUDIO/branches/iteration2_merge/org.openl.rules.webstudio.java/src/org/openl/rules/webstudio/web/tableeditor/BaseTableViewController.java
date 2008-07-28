@@ -21,12 +21,18 @@ import org.openl.rules.webtools.indexer.FileIndexer;
 import org.openl.rules.util.net.NetUtils;
 import org.apache.commons.lang.StringUtils;
 
-public abstract class BaseTableViewController {
+public class BaseTableViewController {
     protected int elementID;
     protected String response;
     private String view;
     private String mode;
     private String wrapper;
+
+    private final TableEditorEnvironment environment;
+
+    public BaseTableViewController(TableEditorEnvironment environment) {
+        this.environment = environment;
+    }
 
     public void setElementID(String elementID) {
         try {
@@ -74,7 +80,9 @@ public abstract class BaseTableViewController {
         return getWebstudio().getModel().getTableView(view);
     }
 
-    protected abstract WebStudio getWebstudio();
+    protected WebStudio getWebstudio() {
+        return environment.getWebstudio();
+    }
 
     /**
      * Returns html view of current table as a string. It is just a sequence of
@@ -91,7 +99,9 @@ public abstract class BaseTableViewController {
         return getResponse();
     }
 
-    protected abstract int getElementId();
+    protected int getElementId() {
+        return environment.getElementId();
+    }
 
     public String getUrl() {
         elementID = getElementId();
@@ -180,5 +190,9 @@ public abstract class BaseTableViewController {
 
     public void setWrapper(String wrapper) {
         this.wrapper = wrapper;
+    }
+
+    public TableEditorEnvironment getEnvironment() {
+        return environment;
     }
 }

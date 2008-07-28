@@ -9,9 +9,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.TableEditorModel;
 import org.openl.rules.ui.TableModel;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 import java.io.IOException;
 import java.util.Map;
@@ -22,12 +20,20 @@ import java.util.Map;
  * 
  * @author Andrey Naumenko
  */
-public class TableEditorController extends JSFTableViewController implements JSTableEditor {
+public class TableEditorController extends BaseTableViewController implements JSTableEditor {
     private int row, col;
 
     private CellEditorSelector selector = new CellEditorSelector();
 
     public static final String OUTCOME_SUCCESS = "tableEditor_success";
+
+    public TableEditorController(TableEditorEnvironment environment) {
+        super(environment);
+    }
+
+    public TableEditorController() {
+        super(new JSFTableEditorEnvironment());
+    }
 
     public String load() throws Exception {
         readRequestParams();
@@ -54,7 +60,7 @@ public class TableEditorController extends JSFTableViewController implements JST
      */
     public String save() {
         readRequestParams();
-        String value = FacesUtils.getRequestParameter("value");
+        String value = getRequestParameter("value");
 
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
@@ -217,7 +223,7 @@ public class TableEditorController extends JSFTableViewController implements JST
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
             TableEditorModel editorModel = editorHelper.getModel();
-            boolean move = Boolean.valueOf(FacesUtils.getRequestParameter("move"));
+            boolean move = Boolean.valueOf(getRequestParameter("move"));
 
             if (row >= 0) {
                 if (move)
@@ -250,7 +256,7 @@ public class TableEditorController extends JSFTableViewController implements JST
         readRequestParams();
         EditorHelper editorHelper = getHelper(elementID);
         if (editorHelper != null) {
-            String align = FacesUtils.getRequestParameter("align");
+            String align = getRequestParameter("align");
             int halign = -1;
             if ("left".equalsIgnoreCase(align)) {
                 halign = ICellStyle.ALIGN_LEFT;
@@ -275,8 +281,12 @@ public class TableEditorController extends JSFTableViewController implements JST
         return OUTCOME_SUCCESS;
     }
 
+    private String getRequestParameter(String name) {
+        return (String) getEnvironment().getParameterMap().get(name);
+    }
+
     private void readRequestParams() {
-        Map<String, String> paramMap = FacesUtils.getRequestParameterMap();
+        Map<String, String> paramMap = getEnvironment().getParameterMap(); 
         row = col = elementID = -1;
 
         try {
@@ -307,10 +317,11 @@ public class TableEditorController extends JSFTableViewController implements JST
      *         helper.
      */
     protected EditorHelper getHelper(int elementId) {
-        Map sessionMap = FacesUtils.getSessionMap();
-        synchronized (sessionMap) {
-            if (sessionMap.containsKey("editorHelper")) {
-                EditorHelper editorHelper = (EditorHelper) sessionMap.get("editorHelper");
+        TableEditorEnvironment env = getEnvironment();
+        synchronized (env.getSessionObject()) {
+            Object helperObject = env.getSessionAttribute("editorHelper");
+            if (helperObject != null) {
+                EditorHelper editorHelper = (EditorHelper) helperObject;
                 if (editorHelper.getElementID() != elementId) {
                     response = TableEditorController.pojo2json(new TableModificationResponse(null,
                             "You started editing another table, this table changes are lost", null));
@@ -319,8 +330,8 @@ public class TableEditorController extends JSFTableViewController implements JST
                 return editorHelper;
             }
             EditorHelper editorHelper = new EditorHelper();
-            editorHelper.setTableID(elementId, WebStudioUtils.getWebStudio().getModel());
-            sessionMap.put("editorHelper", editorHelper);
+            editorHelper.setTableID(elementId, getEnvironment().getWebstudio().getModel());
+            env.setSessionAttribute("editorHelper", editorHelper);
             return editorHelper;
         }
     }
