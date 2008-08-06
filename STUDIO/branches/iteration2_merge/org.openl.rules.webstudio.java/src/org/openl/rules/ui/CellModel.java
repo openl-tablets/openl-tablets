@@ -227,7 +227,7 @@ public class CellModel implements ICellModel {
         for (int i = 0; i < borderStyle.length; i++) {
             int w = (borderStyle[i] == null) ? 0 : borderStyle[i].width;
 
-            buf.append(' ').append(w);
+            buf.append(' ').append(w).append("px");
         }
         buf.append(';');
 
