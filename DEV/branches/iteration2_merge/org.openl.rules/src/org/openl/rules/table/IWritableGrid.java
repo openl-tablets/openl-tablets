@@ -6,11 +6,15 @@ package org.openl.rules.table;
 import java.util.ArrayList;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.xls.XlsSheetGridExporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
 import org.openl.util.export.IExporter;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 /**
  * @author snshor
@@ -257,6 +261,19 @@ public interface IWritableGrid extends IGrid
             }
 
             return null;
+        }
+
+        public static IExporter createExporter(XlsWorkbookSourceCodeModule workbookModule) {
+            HSSFWorkbook workbook = workbookModule.getWorkbook();
+            HSSFSheet sheet;
+            synchronized (workbook) {
+                sheet = workbook.getSheet(SHEET_NAME);
+                if (sheet == null) {
+                    sheet = workbook.createSheet(SHEET_NAME);
+                }
+            }
+
+            return new XlsSheetGridExporter(workbook, new XlsSheetGridModel(sheet));
         }
     }
 

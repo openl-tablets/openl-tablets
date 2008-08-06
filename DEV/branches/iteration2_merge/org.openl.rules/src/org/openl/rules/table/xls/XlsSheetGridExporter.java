@@ -21,12 +21,20 @@ public class XlsSheetGridExporter implements IExporter {
     private final XlsSheetGridModel gridModel;
     private HSSFCellStyle headerStyle;
     private HSSFCellStyle style;
+    private final HSSFWorkbook workbook;
+    public static final String SHEET_NAME = "Saved Searches";
 
     public XlsSheetGridExporter(XlsSheetGridModel gridModel) {
         if (gridModel == null) {
             throw new NullPointerException("gridModel is null");
         }
         this.gridModel = gridModel;
+        workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+    }
+
+    public XlsSheetGridExporter(HSSFWorkbook workbook, XlsSheetGridModel xlsSheetGridModel) {
+        this.workbook = workbook;
+        gridModel = xlsSheetGridModel;
     }
 
     public void persist(IExportable exportable) throws ExportException {
@@ -55,7 +63,6 @@ public class XlsSheetGridExporter implements IExporter {
 
     HSSFCellStyle getHeaderStyle() {
         if (headerStyle == null) {
-            HSSFWorkbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             HSSFCellStyle cellStyle = workbook.createCellStyle();
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
@@ -78,7 +85,6 @@ public class XlsSheetGridExporter implements IExporter {
 
     private HSSFCellStyle getStyle() {
         if (style == null) {
-            HSSFWorkbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             HSSFCellStyle cellStyle = workbook.createCellStyle();
 
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
