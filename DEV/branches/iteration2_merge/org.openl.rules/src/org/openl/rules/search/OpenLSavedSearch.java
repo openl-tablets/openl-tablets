@@ -7,14 +7,23 @@ import org.openl.util.export.ExportRow;
 import org.openl.util.export.ExportSectionSingleRow;
 import org.openl.util.export.IImporter;
 import org.openl.util.export.IImportedSection;
+import org.apache.commons.lang.StringUtils;
 
 /**
+ * Represents a persistable search. It is intended that instances of <code>OpenLAdvancedSearch</code> are converted to
+ * instances of this class to be saved say to an Excel sheet, and in the reverse case after being loaded from persistent
+ * storage instances of this class are converted into <code>OpenLAdvancedSearch</code> objects.
+ *
  * @author Aliaksandr Antonik.
  */
 public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportSection<OpenLSavedSearch> {
     private SearchElement[] tableElements;
     private SearchElement[] columnElements;
     private String tableTypes;
+    /**
+     * A logical name of the saved search.
+     */
+    private String name;
 
     public OpenLSavedSearch(SearchElement[] columnElements, SearchElement[] tableElements, String[] tableType) {
         this.columnElements = columnElements;
@@ -58,6 +67,7 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
         return tableTypes;
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -97,10 +107,19 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
     /**
      * Returns section name.
      *
-     * @return name
+     * @return name of this search
      */
     public String getName() {
-        return "OpenL Search";
+        return StringUtils.isEmpty(name) ? "OpenL Search" : name;
+    }
+
+    /**
+     * Sets the name of the search.
+     *
+     * @param name any string
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -140,7 +159,7 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
         }
 
         public String getName() {
-            return name; 
+            return name;
         }
 
         public Class<SearchElement> getExportedClass() {
