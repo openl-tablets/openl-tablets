@@ -18,6 +18,11 @@ public abstract class WebStudioUtils {
         return (WebStudio) (FacesUtils.getSessionMap().get("studio"));
     }
 
+    public static boolean isStudioReady() {
+        WebStudio webStudio = getWebStudio();
+        return webStudio != null && webStudio.getModel().isReady();
+    }
+
     public static WebStudio getWebStudio(HttpSession session) {
         return session == null ? null : (WebStudio) session.getAttribute("studio");
     }
