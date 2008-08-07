@@ -77,6 +77,7 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
 
     public OpenLSavedSearch restore(IImporter importer) {
         IImportedSection mainSection = importer.readSections(null)[0];
+        setName(mainSection.getName());
         IImportedSection[] subSections = importer.readSections(mainSection.getId());
 
         IImportedSection tableTypeSection = subSections[0];
