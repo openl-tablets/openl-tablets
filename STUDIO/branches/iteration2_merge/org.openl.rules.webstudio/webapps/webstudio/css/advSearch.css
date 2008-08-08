@@ -8,6 +8,23 @@ select.search-group {
   font-size: 120%;
 }
 
+td.search {
+  background-color:#cbdd34;
+  vertical-align:top;
+  padding:5px;
+}
+
+ul.search {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.search li {
+  margin:5px;
+  list-style:none;
+}
+
 .search-element {
   font-family: arial, sans-serif;
   font-size: 90%;

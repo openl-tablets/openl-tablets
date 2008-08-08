@@ -2,10 +2,15 @@ package org.openl.rules.ui.search;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.search.GroupOperator;
 import org.openl.rules.search.OpenLAdvancedSearch;
+import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.search.SearchElement;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -17,7 +22,7 @@ import org.openl.util.AStringBoolOperator;
  * JSF managed bean, session scope.
  */
 public class OpenLAdvancedSearchBean {
-    //private final static Log log = LogFactory.getLog(OpenLAdvancedSearchBean.class);
+    private final static Log log = LogFactory.getLog(OpenLAdvancedSearchBean.class);
 
     private static final SelectItem[] tableTypes;
     private static final SelectItem[] columnTypeValues;
@@ -28,6 +33,7 @@ public class OpenLAdvancedSearchBean {
     private static final Map<String, Integer> tableType2Index;
 
     private String[] selectedTableTypes;
+    private String newSearchName;
     private SearchElementBean[] tableElements;
     private SearchElementBean[] columnElements;
     private final OpenLAdvancedSearch search = new OpenLAdvancedSearch();
@@ -153,8 +159,12 @@ public class OpenLAdvancedSearchBean {
             return null;
         }
 
+        public boolean isSearching() {
+            return needSearch;
+        }
+
         public String getSearchResult() {
-            if (!needSearch || !advancedSearchBean.isReady()) {
+            if (!isSearching() || !advancedSearchBean.isReady()) {
                 return "";
             }
 
@@ -214,6 +224,60 @@ public class OpenLAdvancedSearchBean {
         }
     }
 
+    public String save() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
+        if (webStudio != null) {
+            try {
+                OpenLSavedSearch savedSearch = new OpenLSavedSearch(search.getColumnElements(), search.getTableElements(), selectedTableTypes);
+                savedSearch.setName(getNewSearchName());
+                webStudio.getModel().saveSearch(savedSearch);
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Failed to save search", e.getMessage()));
+                log.error("failed to save search", e);
+            }
+        }
+        return null;
+    }
+
+    public OpenLSavedSearch[] getSavedSearches() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
+        if (webStudio != null) {
+            return webStudio.getModel().getSavedSearches();
+        }
+        return null;
+    }
+
+    public boolean isShowSearches() {
+        OpenLSavedSearch[] savedSearches = getSavedSearches();
+        return savedSearches != null && savedSearches.length > 0;
+    }
+
+    public String applySearch() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
+        if (webStudio != null) {
+            int index = -1;
+            try {
+                index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
+            } catch (NumberFormatException e) {}
+
+            OpenLSavedSearch[] savedSearches = webStudio.getModel().getSavedSearches();
+            if (savedSearches != null && index >= 0 && index < savedSearches.length) {
+                applySearch(savedSearches[index]);
+            }
+        }
+
+        return null;
+    }
+
+    private void applySearch(OpenLSavedSearch savedSearch) {
+        search.setTableElements(savedSearch.getTableElements());
+        search.setColumnElements(savedSearch.getColumnElements());
+        updateColumnElements();
+        updateTableElements();
+        String types = savedSearch.getTableTypes();
+        setSelectedTableTypes(types.trim().split(", *"));
+    }
+
     public SelectItem[] getTableTypes() {
         return tableTypes;
     }
@@ -230,11 +294,11 @@ public class OpenLAdvancedSearchBean {
         return typeValues;
     }
 
-    public SearchElementBean[] getTableElements() {
+    public synchronized SearchElementBean[] getTableElements() {
         return tableElements;
     }
 
-    public SearchElementBean[] getColumnElements() {
+    public synchronized SearchElementBean[] getColumnElements() {
         return columnElements;
     }
 
@@ -242,25 +306,25 @@ public class OpenLAdvancedSearchBean {
         return opTypeValues;
     }
 
-    public String addCondition() {
+    public synchronized String addCondition() {
         search.editAction(OpenLAdvancedSearch.ADD_ACTION + FacesUtils.getRequestParameter("index"));
         updateTableElements();
         return null;
     }
 
-    public String deleteCondition() {
+    public synchronized String deleteCondition() {
         search.editAction(OpenLAdvancedSearch.DELETE_ACTION + FacesUtils.getRequestParameter("index"));
         updateTableElements();
         return null;
     }
 
-    public String addColCondition() {
+    public synchronized String addColCondition() {
         search.editAction(OpenLAdvancedSearch.COL_ADD_ACTION + FacesUtils.getRequestParameter("index"));
         updateColumnElements();
         return null;
     }
 
-    public String deleteColCondition() {
+    public synchronized String deleteColCondition() {
         search.editAction(OpenLAdvancedSearch.COL_DELETE_ACTION + FacesUtils.getRequestParameter("index"));
         updateColumnElements();
         return null;
@@ -278,5 +342,13 @@ public class OpenLAdvancedSearchBean {
     public String getStudioView() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         return studio == null ? null : studio.getModel().getTableView(FacesUtils.getRequestParameter("view"));
+    }
+
+    public String getNewSearchName() {
+        return newSearchName;
+    }
+
+    public void setNewSearchName(String newSearchName) {
+        this.newSearchName = newSearchName;
     }
 }

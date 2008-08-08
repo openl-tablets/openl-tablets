@@ -11,34 +11,38 @@ import java.util.Vector;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
-import org.openl.binding.OpenLRuntimeException;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.search.OpenLAdvancedSearch;
+import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.XlsSheetGridImporter;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult.Test;
-import org.openl.rules.validator.dt.DTValidatedObject;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.validator.dt.DTValidator;
+import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
-import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
@@ -49,6 +53,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.export.IExporter;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -70,7 +75,9 @@ public class ProjectModel implements IProjectTypes {
 
 	ColorFilterHolder filterHolder = new ColorFilterHolder();
 
-	private boolean readOnly;
+    private OpenLSavedSearch[] savedSearches;
+
+    private boolean readOnly;
 
 	public ProjectModel(WebStudio studio) {
 		this.studio = studio;
@@ -383,7 +390,8 @@ public class ProjectModel implements IProjectTypes {
 			wrapper.reload();
 
 		validationExceptions = null;
-		projectRoot = null;
+        savedSearches = null;
+        projectRoot = null;
 	}
 
 	public void redraw() throws Exception {
@@ -464,7 +472,7 @@ public class ProjectModel implements IProjectTypes {
 		return -1;
 	}
 
-	public ISyntaxError[] getErrors(int elementID) {
+    public ISyntaxError[] getErrors(int elementID) {
 		TableSyntaxNode tsn = getNode(elementID);
 		ISyntaxError[] se = tsn.getErrors();
 		return se == null ? ISyntaxError.EMPTY : se;
@@ -994,7 +1002,7 @@ public class ProjectModel implements IProjectTypes {
 
 	public void setWrapperInfo(OpenLWrapperInfo wrapperInfo) throws Exception {
 		setWrapperInfo(wrapperInfo, false);
-	}
+    }
 
 	// String errorMsg = null;
 
@@ -1011,8 +1019,9 @@ public class ProjectModel implements IProjectTypes {
 		wrapper = null;
 		projectRoot = null;
 		projectProblem = null;
+        savedSearches = null;
 
-		try {
+        try {
 
 			cl = wrapperInfo.getProjectInfo().getClassLoader(
 					this.getClass().getClassLoader(), reload);
@@ -1033,19 +1042,24 @@ public class ProjectModel implements IProjectTypes {
 			throw new RuntimeException("Field " + f.getName()
 					+ " is not static in " + c.getName());
 
-		Thread.currentThread().setContextClassLoader(cl);
+        ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
 
-		try {
-			wrapper = (OpenLWrapper) wrapperNewInstance(c);
-			if (reload)
-				wrapper.reload();
+        try {
+            Thread.currentThread().setContextClassLoader(cl);
+            try {
+                wrapper = (OpenLWrapper) wrapperNewInstance(c);
+                if (reload)
+                    wrapper.reload();
 
-		} catch (Throwable t) {
-			Log.error("Problem Loading OpenLWrapper", t);
-			projectProblem = t;
-		}
+            } catch (Throwable t) {
+                Log.error("Problem Loading OpenLWrapper", t);
+                projectProblem = t;
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(threadClassLoader);
+        }
 
-	}
+    }
 
 	public static Object wrapperNewInstance(Class<?> c) throws Exception {
 		Constructor<?> ctr;
@@ -1077,10 +1091,55 @@ public class ProjectModel implements IProjectTypes {
 		XlsModuleSyntaxNode xsn = getXlsModuleNode();
 
 		return searchBean.search(xsn);
-
 	}
 
-	public boolean isReady() {
+    private XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {
+        if (wrapper != null) {
+            TableSyntaxNode[] nodes = ((XlsMetaInfo) wrapper.getOpenClass().getMetaInfo()).getXlsModuleNode().getXlsTableSyntaxNodes();
+            for (TableSyntaxNode node : nodes) {
+                if (node.getType().equals(ITableNodeTypes.XLS_DT)) {
+                    return ((XlsSheetSourceCodeModule) node.getModule()).getWorkbookSource();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public void saveSearch(OpenLSavedSearch search) throws Exception {
+        XlsWorkbookSourceCodeModule module = getWorkbookSourceCodeModule();
+        if (module != null) {
+            IExporter iExporter = IWritableGrid.Tool.createExporter(module);
+            iExporter.persist(search);
+            module.save();
+            reset();
+        }
+    }
+
+    public OpenLSavedSearch[] getSavedSearches() {
+        if (savedSearches == null && isReady()) {
+            XlsModuleSyntaxNode xsn = getXlsModuleNode();
+		    TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+
+            List<OpenLSavedSearch> savedSearches = new ArrayList<OpenLSavedSearch>();
+
+            for (TableSyntaxNode node : nodes) {
+                if (node.getType().equals(ITableNodeTypes.XLS_PERSISTENT)) {
+                    String code = node.getHeader().getModule().getCode();
+                    if ((IXlsTableNames.PERSISTENCE_TABLE + " " + OpenLSavedSearch.class.getName()).equals(code)) {
+                        OpenLSavedSearch savedSearch = new OpenLSavedSearch().restore(
+                                new XlsSheetGridImporter((XlsSheetGridModel) node.getTable().getGridTable().getGrid(), node));
+                        savedSearches.add(savedSearch);
+                    }
+                }
+            }
+
+            this.savedSearches = savedSearches.toArray(new OpenLSavedSearch[savedSearches.size()]);
+        }
+        return savedSearches;
+    }
+
+    public boolean isReady() {
 		return wrapper != null;
 	}
 
