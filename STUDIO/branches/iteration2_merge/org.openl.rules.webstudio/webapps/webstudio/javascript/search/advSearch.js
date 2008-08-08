@@ -43,6 +43,17 @@ function jsSetTableTypes(checked) {
             elements[i].checked = value;
 }
 
+function inputSearchName() {
+    var name = prompt("Enter saved search name", "");
+    if (name == null) return false;
+    name = name.replace(/\s+/g, "");
+    if (name == '') return false;
+
+    document.getElementById('saveAdvSearchForm:searchName').value = name;
+    
+    return true;
+}
+
 function alignGop(el)
 {
     var tdel = el;

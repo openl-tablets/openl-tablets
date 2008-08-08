@@ -13,6 +13,7 @@
 
   <ui:define name="page">
 
+<table><tr><td>
 <h:form id="advSearchForm">
   <h:panelGrid columns="3" cellspacing="5" >
     <h:selectManyCheckbox value="#{advancedSearch.selectedTableTypes}" layout="lineDirection" id="tableType" style="display:inline">
@@ -55,7 +56,7 @@
         </td>
 
         <td>
-          <h:inputText value="#{se.value1}" id="v1_#{status.index}" styleClass="search-input" onclick="jscleanAny(this)"/> 
+          <h:inputText value="#{se.value1}" id="v1_#{status.index}" styleClass="search-input" onclick="jscleanAny(this)"/>
         </td>
 
         <td>
@@ -82,7 +83,7 @@
             </h:commandLink>
           </c:if>
         </td>
-        
+
       </tr>
     </c:forEach>
 
@@ -157,7 +158,7 @@
         </c:if>
       </td>
   </tr>
-  
+
 </c:forEach>
 </table>
 
@@ -166,13 +167,36 @@
 
 
 <h:commandButton value="Search" action="#{advancedSearchRequest.search}"/>
-</h:form>
+</h:form></td>
+<c:if test="#{advancedSearch.showSearches}"><td class="search"><h:form>
+    <h2><u>Saved Searches</u></h2>
+    <ul class="search">
+      <c:forEach items="#{advancedSearch.savedSearches}" var="ss" varStatus="status">
+        <li>
+          <h:commandLink value="#{ss.name}" action="#{advancedSearch.applySearch}">
+            <f:param name="index" value="#{status.index}"/>
+          </h:commandLink>
+        </li>
+      </c:forEach>
+    </ul>
+</h:form></td></c:if>
+</tr></table>
+
+
+<h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
 
 <c:if test="#{not advancedSearch.ready}">
   <p class="warning">There is no valid projects in workspace. Or your session have expired and you need to reload project</p>
 </c:if>
 
-<h:outputText value="#{advancedSearchRequest.searchResult}" escape="false" />
+<c:if test="#{advancedSearchRequest.searching}">
+  <h:form id="saveAdvSearchForm">
+    <h:inputHidden value="#{advancedSearch.newSearchName}" id="searchName" />
+    <h:commandLink value="Save this search" action="#{advancedSearch.save}" onclick="if (!inputSearchName()) return false"/>
+  </h:form>
+
+  <h:outputText value="#{advancedSearchRequest.searchResult}" escape="false" />
+</c:if>
 
 <script>
   function fixValue1Enabled() {
