@@ -57,6 +57,7 @@ public class JavaWrapperAntTask extends Task
 		    userClassPath, this.getClass().getClassLoader(), ucxt);
 
 	    ucxt = new UserContext(cl, userHome);
+	    Thread.currentThread().setContextClassLoader(cl);
 	}
 	OpenClassJavaWrapper jwrapper = OpenClassJavaWrapper.createWrapper(
 		openlName, ucxt, srcFile);
