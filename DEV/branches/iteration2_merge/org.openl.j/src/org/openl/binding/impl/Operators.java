@@ -428,7 +428,7 @@ public class Operators
 
 	public static boolean ne(long x, long y)
 	{
-		return x == y;
+		return x != y;
 	}
 	
 
@@ -446,7 +446,7 @@ public class Operators
 	
 	public static boolean ne(double x, double y)
 	{
-		return x == y;
+		return x != y;
 	}
 	
 
