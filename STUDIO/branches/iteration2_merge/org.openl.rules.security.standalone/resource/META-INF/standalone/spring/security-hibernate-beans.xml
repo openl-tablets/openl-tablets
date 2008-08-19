@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
        default-autowire="no">
 
-  <bean id="dataSource"
+  <bean id="openlDataSource"
     class="org.apache.commons.dbcp.BasicDataSource">
       <property name="driverClassName" value="${security.standalone.db.driver}"/>
       <property name="url" value="${security.standalone.db.url}"/>
@@ -50,8 +50,8 @@
       </property>
     </bean>
 
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" depends-on="dataBase">
-      <property name="dataSource" ref="dataSource"/>
+    <bean id="openlSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" depends-on="dataBase">
+      <property name="dataSource" ref="openlDataSource"/>
       <property name="configLocation" value="classpath:/org/openl/rules/security/standalone/persistence/hibernate.cfg.xml"/>
       <property name="hibernateProperties">
         <props>
@@ -77,8 +77,8 @@
 
     <!-- Populate database with demo data  -->
     <bean id="databasePopulator" class="org.openl.rules.util.database.DbUnitDatabasePopulator"
-          depends-on="sessionFactory">
-      <property name="dataSource" ref="dataSource"/>
+          depends-on="openlSessionFactory">
+      <property name="dataSource" ref="openlDataSource"/>
       <property name="enabled" value="${security.standalone.db.populateDatabase}"/>
       <property name="ordered" value="false"/>
       <!-- for DBMS that support multiple schemata like Oracle -->
@@ -121,6 +121,6 @@
     </bean>
 
     <bean name="aclService" class="org.openl.rules.security.standalone.service.DefaultAclService">
-      <property name="sessionFactory" ref="sessionFactory"/>
+      <property name="sessionFactory" ref="openlSessionFactory"/>
     </bean>
 </beans>

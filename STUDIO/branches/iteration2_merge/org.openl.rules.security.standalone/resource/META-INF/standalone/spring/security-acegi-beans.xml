@@ -50,7 +50,7 @@
   </bean>
 
   <bean id="userDetailsService" class="org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl">
-    <property name="userDao" ref="userDao"/>
+    <property name="userDao" ref="openlUserDao"/>
   </bean>
 
   <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">

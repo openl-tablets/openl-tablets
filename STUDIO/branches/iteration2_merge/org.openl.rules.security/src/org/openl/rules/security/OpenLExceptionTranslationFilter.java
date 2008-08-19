@@ -23,20 +23,23 @@ public class OpenLExceptionTranslationFilter extends ExceptionTranslationFilter 
     private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+            ServletException {
         try {
             super.doFilter(request, response, chain);
         } catch (ServletException e) {
+            logger.debug("Exception in OpenLExceptionTranslationFilter", e);
             AccessDeniedException ade = extractAccessDeniedExeption(e.getRootCause(), 50);
             if (ade != null) {
-                if (getAuthenticationTrustResolver().isAnonymous(SecurityContextHolder.getContext().getAuthentication())) {
+                if (getAuthenticationTrustResolver()
+                        .isAnonymous(SecurityContextHolder.getContext().getAuthentication())) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point", e);
+                        logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
+                                e);
                     }
 
-                    sendStartAuthentication(request, response, chain, new InsufficientAuthenticationException
-                            ("Full authentication is required to access this resource"));
+                    sendStartAuthentication(request, response, chain, new InsufficientAuthenticationException(
+                            "Full authentication is required to access this resource"));
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler", e);
@@ -66,6 +69,9 @@ public class OpenLExceptionTranslationFilter extends ExceptionTranslationFilter 
      * not found
      */
     private AccessDeniedException extractAccessDeniedExeption(Throwable throwable, int depth) {
+        if (throwable == null) {
+            return null;
+        }
         if (throwable instanceof AccessDeniedException) {
             return (AccessDeniedException) throwable;
         }
