@@ -4,8 +4,6 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
   default-autowire="no">
 
-  <import resource="appContextInclude-repository-filters.xml" />
-
   <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
     <property name="workspacesRoot" value="${webstudio.workspacesRoot}" />
     <property name="autoLogin" value="${security.autoLogin}" />

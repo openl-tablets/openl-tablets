@@ -29,8 +29,25 @@
     </property>
   </bean>
 
+  <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
+
+  <bean id="formatPatterns" class="org.openl.rules.webstudio.web.util.FormatPatterns" />
+
+  <bean id="contextExporter" class="org.springframework.web.context.support.ServletContextAttributeExporter">
+    <property name="attributes">
+      <map>
+        <entry key="autoLogin" value-ref="autoLogin"/>
+        <entry key="hideLogout" value-ref="hideLogout"/>
+      </map>
+    </property>
+  </bean>
+
   <bean id="hideLogout" class="java.lang.Boolean">
     <constructor-arg value="${webstudio.hideLogout}" />
   </bean>
-  
+
+  <bean id="autoLogin" class="java.lang.Boolean">
+    <constructor-arg value="${security.autoLogin}"/>
+  </bean>
+
 </beans>
