@@ -71,13 +71,14 @@
               <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
               <descriptors>
                 <descriptor>src/main/assembly/assembly-jar.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-ipb-jar.xml</descriptor>
               </descriptors>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <plugin>
+      <!--plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -98,7 +99,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin-->
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
