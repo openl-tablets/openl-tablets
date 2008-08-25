@@ -15,7 +15,7 @@
     </description>
     <param-name>contextConfigLocation</param-name>
     <param-value>
-      /WEB-INF/context/applicationContext*.xml <!-- always present -->
+      /WEB-INF/spring/*-beans.xml <!-- always present -->
 
       <!--+++++++++++++ IPB security +++++++++++++-->
       <!--classpath*:META-INF/spring/*-beans.xml-->
@@ -26,8 +26,6 @@
 
       <!--+++++++++++++ No actual security +++++++++++++-->
       <!--classpath:META-INF/none/spring/security-*-beans.xml-->
-
-      /WEB-INF/context/appContext-properties.xml   <!-- always present -->
     </param-value>
   </context-param>
 
