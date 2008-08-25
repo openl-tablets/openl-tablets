@@ -7,8 +7,8 @@
         template="/common/webstudioBase.xhtml">
 
   <ui:define name="header">
-    <link href="../../css/advSearch.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="../../javascript/search/advSearch.js"></script>
+    <a4j:loadStyle src="resource:///css/advSearch.css" />
+    <a4j:loadScript src="resource:///javascript/search/advSearch.js" />
   </ui:define>
 
   <ui:define name="page">
@@ -209,8 +209,9 @@
   fixValue1Enabled();
 </script>
 
-<script type="text/javascript" src="../../javascript/popup/popupmenu.js"></script>
-<script type="text/javascript" src="../../javascript/prototype/prototype-1.5.1.js"></script>
+<a4j:loadScript src="resource:///javascript/popup/popupmenu.js" />
+<a4j:loadScript src="resource:///javascript/prototype/prototype-1.5.1.js" />
+
 <f:verbatim>
 <script type="text/javascript">
   function cellMouseOver(td, event) {
@@ -253,13 +254,13 @@
 </form>
 <form name="searchForm" action="../../jsp/search/search.jsp">
     <input type="hidden" name="searchQuery" value=""> </input>
-</form>  
+</form>
 
 </f:verbatim>
 
 <div id="contextMenu" style="display:none;">
   <table cellpadding="1px">
-      <c:if test="#{not advancedSearch.studioReadOnly}"><tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr></c:if> 
+      <c:if test="#{not advancedSearch.studioReadOnly}"><tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr></c:if>
       <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
       <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
   </table>
