@@ -13,7 +13,7 @@ public class IntRangeDomainAdaptor implements IDomainAdaptor {
 	}
 
 	public int getIndex(Object value) {
-		return ((Integer)value) - irange.getMin();
+		return ((Integer)value);// - irange.getMin();
 	}
 
 	public int getIntVarDomainType() {
@@ -29,7 +29,7 @@ public class IntRangeDomainAdaptor implements IDomainAdaptor {
 	}
 
 	public Object getValue(int index) {
-		return irange.getMin() + index;
+		return index; //irange.getMin();// + index;
 	}
 
 }
