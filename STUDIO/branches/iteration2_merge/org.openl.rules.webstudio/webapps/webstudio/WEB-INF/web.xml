@@ -68,10 +68,12 @@
     <param-value>false</param-value>
   </context-param>
 
+  <!--
   <context-param>
     <param-name>facelets.RESOURCE_RESOLVER</param-name>
     <param-value>org.openl.rules.webstudio.web.jsf.facelets.resource.DefaultResourceResolver</param-value>
   </context-param>
+   -->
 
   <context-param>
     <param-name>facelets.LIBRARIES</param-name>
