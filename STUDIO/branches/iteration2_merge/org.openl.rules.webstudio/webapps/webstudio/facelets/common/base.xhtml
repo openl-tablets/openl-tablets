@@ -11,8 +11,8 @@
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
   <head>
-    <a4j:loadStyle src="/css/default.css" />
-    <a4j:loadScript src="/javascript/common.js" />
+    <a4j:loadStyle src="resource:///css/default.css" />
+    <a4j:loadScript src="resource:///javascript/common.js" />
     <style>
       input.button { background-image: url(#{contextPath}/images/button_#{skinBean.skin}.gif); }
       input.readonlyRowInput { background-color: #{a4jSkin.generalBackgroundColor}; }
