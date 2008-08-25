@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk"
-  template="/common/baseToolbar.xhtml">
+  template="/facelets/common/baseToolbar.xhtml">
 
   <ui:define name="title">Structured Diff</ui:define>
 
@@ -101,16 +101,16 @@
       tree1.setOnDblClickHandler(onOpenHandler1);
       tree1.setShowNodeTooltips(true);
       tree1.treeContainerElement.onscroll = function() { tree2.treeContainerElement.scrollTop=tree1.treeContainerElement.scrollTop; }
-      tree1.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=1");
-      tree1.loadXML("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=1");
+      tree1.setXMLAutoLoading("#{contextPath}/faces/facelets/repository/diff/loadTree.xhtml?treeId=1");
+      tree1.loadXML("#{contextPath}/faces/facelets/repository/diff/loadTree.xhtml?treeId=1");
 
       tree2.setOnClickHandler(onClickHandler2);
       tree2.setOnOpenHandler(onOpenHandler2);
       tree2.setOnDblClickHandler(onOpenHandler2);
       //tree2.treeContainerElement.onscroll = function() { tree1.treeContainerElement.scrollTop=tree2.treeContainerElement.scrollTop; }
       tree2.setImagePath("#{contextPath}/images/flexTree/");
-      tree2.setXMLAutoLoading("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=2");
-      tree2.loadXML("#{contextPath}/faces/repository/diff/loadTree.xhtml?treeId=2");
+      tree2.setXMLAutoLoading("#{contextPath}/faces/facelets/repository/diff/loadTree.xhtml?treeId=2");
+      tree2.loadXML("#{contextPath}/faces/facelets/repository/diff/loadTree.xhtml?treeId=2");
     </script>
 
   </ui:define>
