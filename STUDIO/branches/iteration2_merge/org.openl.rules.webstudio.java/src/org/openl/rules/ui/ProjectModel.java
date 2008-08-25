@@ -706,6 +706,9 @@ public class ProjectModel implements IProjectTypes {
 			return;
 		if (tsn.getErrors() != null)
 			return;
+		
+		if (!"on".equals(tsn.getProperty("validate")))
+			return;
 
 		DecisionTable dt = (DecisionTable) tsn.getMember();
 
