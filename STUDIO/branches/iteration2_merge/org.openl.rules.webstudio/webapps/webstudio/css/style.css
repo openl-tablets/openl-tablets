@@ -8,16 +8,16 @@
 }
 
 td.logo-bgr {
-	background-image : url(/webresource/images/Logobgr2.gif);
+	background-image : url(../webresource/images/Logobgr2.gif);
 }
 
 td.repeat {
-	background-image : url(/webresource/images/Header_Right_Side_r.gif);
+	background-image : url(../webresource/images/Header_Right_Side_r.gif);
 	background-repeat : repeat-x;
 }
 
 .repeats {
-	background-image : url(/webresource/images/bg_header_1.gif);
+	background-image : url(../webresource/images/bg_header_1.gif);
 	background-repeat : repeat-x;
 	font-family: Tahoma, san-serif;
 	font-size: 12px;
@@ -27,7 +27,7 @@ td.repeat {
 }
 
 td.norepeat {
-	background-image : url(/webresource/images/Headerbgr.gif);
+	background-image : url(../webresource/images/Headerbgr.gif);
 }
 
 .gray {
@@ -38,7 +38,7 @@ td.norepeat {
 }
 
 td.tab {
-	background-image : url(/webresource/images/Tab_bcgr1.gif);
+	background-image : url(../webresource/images/Tab_bcgr1.gif);
 }
 
 td.title {
@@ -50,7 +50,7 @@ td.title {
 }
 
 .column {
-	background-image : url(/webresource/images/separator2.gif);
+	background-image : url(../webresource/images/separator2.gif);
 	background-repeat : repeat-x;
 	height : 20px;
 	border-right : 1px solid #646464;
@@ -62,7 +62,7 @@ td.title {
 
 
 .column1 {
-	background-image : url(/webresource/images/separator3.gif);
+	background-image : url(../webresource/images/separator3.gif);
 	background-repeat : repeat-x;
 	border-right : 1px solid #646464;
 	font-family : Arial, Helvetica, sans-serif;
