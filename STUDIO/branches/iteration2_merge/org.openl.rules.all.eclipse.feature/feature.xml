@@ -5,7 +5,7 @@
       version="5.0.6">
 
    <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+      %releaseNotes
    </description>
 
    <copyright url="http://www.example.com/copyright">
