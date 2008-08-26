@@ -72,14 +72,14 @@
         <td>
           <h:commandLink title="Add Condition" action="#{advancedSearch.addCondition}">
             <f:param name="index" value="#{status.index}" />
-            <h:graphicImage url="/images/add_obj.gif" />
+            <h:graphicImage url="/webresource/images/add_obj.gif" />
           </h:commandLink>
 
           <c:if test="#{status.index > 0}">
             <rich:spacer />
             <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteCondition}">
               <f:param name="index" value="#{status.index}" />
-              <h:graphicImage url="/images/delete.gif"/>
+              <h:graphicImage url="/webresource/images/delete.gif"/>
             </h:commandLink>
           </c:if>
         </td>
@@ -146,14 +146,14 @@
      <td>
         <h:commandLink title="Add Condition" action="#{advancedSearch.addColCondition}">
           <f:param name="index" value="#{status.index}" />
-          <h:graphicImage url="/images/add_obj.gif" />
+          <h:graphicImage url="/webresource/images/add_obj.gif" />
         </h:commandLink>
 
         <c:if test="#{status.index > 0}">
             <rich:spacer />
             <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteColCondition}">
               <f:param name="index" value="#{status.index}" />
-              <h:graphicImage url="/images/delete.gif"/>
+              <h:graphicImage url="/webresource/images/delete.gif"/>
             </h:commandLink>
         </c:if>
       </td>

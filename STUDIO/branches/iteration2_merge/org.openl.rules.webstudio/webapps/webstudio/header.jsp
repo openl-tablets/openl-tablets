@@ -95,7 +95,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
 <%if (WebStudioUtils.isRepositoryFailed()) {%>
         <img border=0 src="<%= request.getContextPath()%>/images/repository/storage-disabled.gif" alt="repository">
 <%} else {%>
-        <a target="_top" href="<%= request.getContextPath()%>/facelets/faces/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository"></a>
+        <a target="_top" href="<%= request.getContextPath()%>/faces/facelets/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository"></a>
 <% } %>
 <%if (!(Boolean)application.getAttribute("hideLogout")) {%>
         &nbsp;

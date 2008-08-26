@@ -13,7 +13,7 @@
 <h1>Access Denied.</h1>
 
 <p>
-<a target="_top" href="<%= request.getContextPath()%>/facelets/faces/repository/main.xhtml" title="Rules Repository">
+<a target="_top" href="<%= request.getContextPath()%>/faces/facelets/repository/main.xhtml" title="Rules Repository">
 Back to repository
 <img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository">
 </a>
