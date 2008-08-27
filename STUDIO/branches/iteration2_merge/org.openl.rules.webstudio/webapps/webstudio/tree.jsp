@@ -53,19 +53,19 @@ BODY {
   }
 %>
 
-<a href="index.jsp?validate=true&reload=true" title="Validate Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/validateAll.png"></a>
+<a href="index.jsp?validate=true&reload=true" title="Validate Project" target="top"><img border=0 src="<%= request.getContextPath()%>/images/validateAll.png"></a>
 
 
-<a href="index.jsp?reload=true" title="Refresh Project" target="_top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
+<a href="index.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
 
 <%if (!NetUtils.isLocalRequest(request)) {%>
   <%if (studio.getCurrentProject(session)!=null && studio.getCurrentProject(session).isCheckedOut()) {%>
-    <a class="actionButton" href="index.jsp?operation=checkIn" target="_top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkin.gif"></a>
+    <a class="actionButton" href="index.jsp?operation=checkIn" target="top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkin.gif"></a>
   <%}%>
   <%if (studio.getCurrentProject(session)!=null && (!(studio.getCurrentProject(session).isCheckedOut()
           ||studio.getCurrentProject(session).isLocked()
           ||studio.getCurrentProject(session).isLocalOnly()))) {%>
-    <a class="actionButton" href="index.jsp?operation=checkOut" target="_top" title="Check Out Propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkout.gif"></a>
+    <a class="actionButton" href="index.jsp?operation=checkOut" target="top" title="Check Out Propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkout.gif"></a>
   <%}%>
 <%}%>
 

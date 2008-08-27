@@ -37,11 +37,10 @@ public class WebResourceFilter implements Filter {
                 path = path.substring(path.indexOf(WEBRESOURCE_PREFIX) + WEBRESOURCE_PREFIX.length());
                 InputStream stream = WebResourceFilter.class.getResourceAsStream(path);
                 if (stream == null) {
-                    System.out.println(filterConfig.getServletContext().getRealPath(path));
                     stream = new FileInputStream(new File(filterConfig.getServletContext().getRealPath(path)));
                 }
                 OutputStream out = response.getOutputStream();
-                int z = IOUtils.copy(stream, out);
+                IOUtils.copy(stream, out);
                 stream.close();
             } else {
                 chain.doFilter(request, response);
