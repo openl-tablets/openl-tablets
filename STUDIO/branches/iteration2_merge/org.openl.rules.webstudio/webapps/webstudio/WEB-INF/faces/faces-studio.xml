@@ -93,7 +93,8 @@
     <from-view-id>/facelets/repository/main.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>webstudio</from-outcome>
-      <to-view-id>/jsp/index_jsf.jsp</to-view-id>
+      <to-view-id>/index.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
   </navigation-rule>
 </faces-config>

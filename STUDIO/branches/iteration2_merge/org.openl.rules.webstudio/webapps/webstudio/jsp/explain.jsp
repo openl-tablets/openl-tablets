@@ -19,9 +19,9 @@ BODY {
 	background: #eceef8;
 	}
 
-	
+
 #tree {
-	text-overflow: ellipsis; 
+	text-overflow: ellipsis;
 	overflow : hidden
 	width: 100%;
 	height: 100%;
@@ -59,9 +59,9 @@ if (header != null)
 <FORM>
 
 <table width=95% cellpadding=0 cellspacing=0 style="border-style: solid; border-width: 1;">
-<tr><td> 
-<a href="../explaintree.jsp?rootID=<%=rootID%>" title="Tree View"><img border=0 src="../images/treeview.gif"></a>
-<a href="javascript: top.close()" title="Close Window"><img border=0 src="../images/close.gif"></a>
+<tr><td>
+<a href="../explaintree.jsp?rootID=<%=rootID%>" title="Tree View"><img border=0 src="webresource/images/treeview.gif"></a>
+<a href="javascript: top.close()" title="Close Window"><img border=0 src="webresource/images/close.gif"></a>
 
 </td>
 <td align=right>
@@ -83,15 +83,15 @@ if (header != null)
 
 </tr>
 
-<% 
+<%
    Explanation expl = explanator.getExplanation(rootID);
-   expl.setShowNamesInFormula(showNames != null);	
-   expl.setShowValuesInFormula(showValues != null);	
+   expl.setShowNamesInFormula(showNames != null);
+   expl.setShowValuesInFormula(showValues != null);
    expl.setHeader(header);
    String expandID = request.getParameter("expandID");
    if (expandID != null)
    		expl.expand(expandID);
-   String[] cc = expl.htmlTable(expl.getRoot());		
+   String[] cc = expl.htmlTable(expl.getRoot());
 %>
 
 <tr>
@@ -126,12 +126,12 @@ if (header != null)
 	String wbName = request.getParameter("wbName");
 	if (wbName != null)
 		ExcelLauncher.launch(
-		"LaunchExcel.vbs", 
+		"LaunchExcel.vbs",
 		request.getParameter("wbPath"),
 		wbName,
 		request.getParameter("wsName"),
 		request.getParameter("range")
-		
+
 		);
-	
+
 %>

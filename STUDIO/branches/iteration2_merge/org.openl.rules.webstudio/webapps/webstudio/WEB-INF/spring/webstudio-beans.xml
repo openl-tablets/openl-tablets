@@ -43,7 +43,7 @@
   </bean>
 
   <bean id="hideLogout" class="java.lang.Boolean">
-    <constructor-arg value="false" />
+    <constructor-arg value="true" />
   </bean>
 
   <bean id="autoLogin" class="java.lang.Boolean">
