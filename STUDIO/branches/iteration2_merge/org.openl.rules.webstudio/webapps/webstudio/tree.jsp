@@ -53,7 +53,7 @@ BODY {
   }
 %>
 
-<a href="index.jsp?validate=true&reload=true" title="Validate Project" target="top"><img border=0 src="<%= request.getContextPath()%>/images/validateAll.png"></a>
+<a href="index.jsp?validate=true&reload=true" title="Validate Project" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/validateAll.png"></a>
 
 
 <a href="index.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>

@@ -71,9 +71,9 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
       <td align="right">
       <table style="border-style: solid; border-width: 1; border-color: black" cellspacing="0" cellpadding="2" >
       <td>
-        <a href="index.jsp?mode=business" title="Business View" target="top"><img border=0 src="<%= request.getContextPath()%>/images/business-view.png"></a>
+        <a href="index.jsp?mode=business" title="Business View" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/business-view.png"></a>
         &nbsp;
-        <a href="index.jsp?mode=developer" title="Developer View" target="top"><img border=0 src="<%= request.getContextPath()%>/images/developer-view.png"></a>
+        <a href="index.jsp?mode=developer" title="Developer View" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/developer-view.png"></a>
       &nbsp;&nbsp;
 
 <%if (NetUtils.isLocalRequest(request)) {
@@ -86,7 +86,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
 <%  }
   }%>
 
-        <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/search/search.jsp?searchQuery=&quot;openl tablets&quot;" title="Search"><img border=0 src="<%= request.getContextPath()%>/images/search.png"></a>
+        <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/search/search.jsp?searchQuery=&quot;openl tablets&quot;" title="Search"><img border=0 src="<%= request.getContextPath()%>/webresource/images/search.png"></a>
         &nbsp;
         <a href="index.jsp?reload=true&select_wrapper=<%=selected%>" title="Refresh Project(s)" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>
         &nbsp;
