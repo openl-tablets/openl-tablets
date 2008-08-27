@@ -18,7 +18,7 @@
 <table>
 <tr>
 <td rowspan=2>
-<img src="../../images/openl-search.png">
+<img src="webresource/images/openl-search.png">
 </td>
 
 <td valign=bottom><a href="allIndexFrame.jsp"><font size=-1>&nbsp;Index</font></a></td>
