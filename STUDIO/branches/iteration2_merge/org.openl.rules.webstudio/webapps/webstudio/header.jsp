@@ -78,28 +78,28 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
 
 <%if (NetUtils.isLocalRequest(request)) {
     if (WebStudioUtils.isRepositoryFailed()) {%>
-        <img border=0 src="<%= request.getContextPath()%>/images/repository/upload-disabled.gif">
+        <img border=0 src="<%= request.getContextPath()%>/webresource/images/repository/upload-disabled.gif">
         &nbsp;
 <%  } else {%>
-        <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/uploadProjects.jsf" title="Upload projects to repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/upload.gif"></a>
+        <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/uploadProjects.jsf" title="Upload projects to repository"><img border=0 src="<%= request.getContextPath()%>/webresource/images/repository/upload.gif"></a>
         &nbsp;
 <%  }
   }%>
 
         <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/search/search.jsp?searchQuery=&quot;openl tablets&quot;" title="Search"><img border=0 src="<%= request.getContextPath()%>/images/search.png"></a>
         &nbsp;
-        <a href="index.jsp?reload=true&select_wrapper=<%=selected%>" title="Refresh Project(s)" target="top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
+        <a href="index.jsp?reload=true&select_wrapper=<%=selected%>" title="Refresh Project(s)" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>
         &nbsp;
-        <a target="mainFrame" href="<%= request.getContextPath()%>/html/ws-intro.html" title="Help"><img border=0 src="<%= request.getContextPath()%>/images/help.gif"></a>
+        <a target="mainFrame" href="<%= request.getContextPath()%>/html/ws-intro.html" title="Help"><img border=0 src="<%= request.getContextPath()%>/webresource/images/help.gif"></a>
         &nbsp;
 <%if (WebStudioUtils.isRepositoryFailed()) {%>
-        <img border=0 src="<%= request.getContextPath()%>/images/repository/storage-disabled.gif" alt="repository">
+        <img border=0 src="<%= request.getContextPath()%>/webresource/images/repository/storage-disabled.gif" alt="repository">
 <%} else {%>
-        <a target="top" href="<%= request.getContextPath()%>/faces/facelets/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository"></a>
+        <a target="top" href="<%= request.getContextPath()%>/faces/facelets/repository/main.xhtml" title="Rules Repository"><img border=0 src="<%= request.getContextPath()%>/webresource/images/repository/storage.gif" alt="repository"></a>
 <% } %>
 <%if (!(Boolean)application.getAttribute("hideLogout")) {%>
         &nbsp;
-        <a target="top" href='<%=request.getContextPath()%><%= "/logoff.servlet?_j_acegi_logout=true"%>' title="Logout" onclick="return confirm('Are you sure you want to log off?')"><img border=0 src="<%= request.getContextPath()%>/images/logout.gif" alt="Logout"></a>
+        <a target="top" href='<%=request.getContextPath()%><%= "/logoff.servlet?_j_acegi_logout=true"%>' title="Logout" onclick="return confirm('Are you sure you want to log off?')"><img border=0 src="<%= request.getContextPath()%>/webresource/images/logout.gif" alt="Logout"></a>
 <% } %>
       </td>
       </table>

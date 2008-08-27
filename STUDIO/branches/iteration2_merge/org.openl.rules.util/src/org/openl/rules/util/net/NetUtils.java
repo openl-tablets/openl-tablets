@@ -17,9 +17,9 @@ public final class NetUtils {
 
     /**
      * Checks if given IP address is a loopback.
-     * 
+     *
      * @param ip address to check
-     * 
+     *
      * @return <code>true</code> if <code>ip</code> represents loopback
      *         address, or <code>false</code> otherwise.
      */
@@ -30,8 +30,7 @@ public final class NetUtils {
         try {
             InetAddress addr = InetAddress.getByName(ip);
             return (addr != null) && addr.isLoopbackAddress();
-        }
-        catch (UnknownHostException e) {
+        } catch (UnknownHostException e) {
             log.info("Cannot check '" + ip + "'.", e);
             return false;
         }
@@ -42,6 +41,10 @@ public final class NetUtils {
         // TODO: think about proper implementation
         boolean b = isLoopbackAddress(remote);// ||
         // request.getLocalAddr().equals(remote);
+        /*
         return b;
+        */
+        // TODO: remove after integrating with IPB
+        return true;
     }
 }

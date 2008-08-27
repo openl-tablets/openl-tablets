@@ -6,12 +6,12 @@
 
 <%
    	String[] tableTypeButtons = searchBean.getTypeButtons();
-	
+
 	String[] typeValues = searchBean.typeValues;
 	boolean[] typeNeedValue1 = searchBean.typeNeedValue1;
 
 	String img_action = request.getParameter("img_action");
-	
+
 	for(int i = 0; i < 20; ++i)
 	{
 		String gopID = "gop"+i;
@@ -20,7 +20,7 @@
 		String value1ID = "value1_"+i;
 		String opTypeID = "opType"+i;
 		String value2ID = "value2_"+i;
-	
+
 		if (request.getParameter(typeID) != null)
 		{
 		  searchBean.fillTableElement(i
@@ -31,10 +31,10 @@
 			,request.getParameter(opTypeID)
 			,request.getParameter(value2ID)
 			);
-		}	
-	
+		}
+
 	}
-	
+
 
 	for(int i = 0; i < 20; ++i)
 	{
@@ -45,7 +45,7 @@
 		String colValue1ID = "colValue1_"+i;
 		String colOpType2ID = "colOpType2"+i;
 		String colValue2ID = "colValue2_"+i;
-	
+
 		if (request.getParameter(colTypeID) != null)
 		{
 		  searchBean.fillColumnElement(i
@@ -57,14 +57,14 @@
 			,request.getParameter(colOpType2ID)
 			,request.getParameter(colValue2ID)
 			);
-		}	
-	
+		}
+
 	}
 
 
 	if (img_action != null)
 	{
-		searchBean.editAction(img_action);			
+		searchBean.editAction(img_action);
 	}
 
 
@@ -98,14 +98,14 @@ for(int i=0; i < tableTypeButtons.length; ++i)
   searchBean.selectType(i, "true".equals(value));
 %>
 
-	<input type="checkbox" id="<%=id%>" name="<%=id%>" value="true" <%= searchBean.selectType(i) ? "checked='checked'" : ""%> /> 
+	<input type="checkbox" id="<%=id%>" name="<%=id%>" value="true" <%= searchBean.selectType(i) ? "checked='checked'" : ""%> />
 	<span class="search-table-type"><%=tableTypeButtons[i]%></span>
 <%
 }
 %>
 
-<a href="javascript:jssetAllTypes()">Set All</a> 
-<a href="javascript:jsclearAllTypes()">Clear All</a> 
+<a href="javascript:jssetAllTypes()">Set All</a>
+<a href="javascript:jsclearAllTypes()">Clear All</a>
 
 
 <p/>
@@ -137,24 +137,24 @@ for(int i= 0; i < tableElements.length; ++i)
 	<select name="<%=gopID%>"  id="<%=gopID%>" onchange="alignGop('<%=gopID%>')" class="<%=gop.isGroup()?"search-group":"search-element"%>">
 	<%
 	for(int j=0; j < gopValues.length; ++j)
-	{	
+	{
 	%>
 	<option value="<%=gopValues[j]%>" <%=gopValues[j].equals(gop.getName())? "selected='selected'":""%> ><%=gopValues[j]%></option>
 	<%
 	}
 	%>
 </select>
-	
+
 	</td>
 </tr>
 <%
 	}//if
-	
+
 	boolean isNotFlag = tableElements[i].isNotFlag();
 	String nfID = "nf"+i;
 	String[] nfValues = searchBean.nfValues;
-	
-%> 
+
+%>
 <tr>
 
 <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
@@ -163,7 +163,7 @@ for(int i= 0; i < tableElements.length; ++i)
 	<select name="<%=nfID%>"  id="<%=nfID%>">
 	<%
 	for(int j=0; j < nfValues.length; ++j)
-	{	
+	{
 	%>
 	<option value="<%=nfValues[j]%>"  <%=isNotFlag && (j == 1) ? "selected='selected'":""%> > <%=nfValues[j]%> </option>
 	<%
@@ -177,15 +177,15 @@ for(int i= 0; i < tableElements.length; ++i)
 	String typeValue = tableElements[i].getType();
 	String value1ID = "value1_"+i;
 	String value2ID = "value2_"+i;
-	
-	
+
+
 %>
 
 <td>
 	<select name="<%=typeID%>"  id="<%=typeID%>" onChange="makeValue1Visible('<%=typeID%>', '<%=value1ID%>')">
 	<%
 	for(int j=0; j < typeValues.length; ++j)
-	{	
+	{
 	%>
 	<option value="<%=typeValues[j]%>"  <%=typeValues[j].equals(typeValue) ? "selected='selected'":""%>> <%=typeValues[j]%> </option>
 	<%
@@ -201,7 +201,7 @@ for(int i= 0; i < tableElements.length; ++i)
 
 
 <td>
-  <input class="search-input" id="<%=value1ID%>"  name="<%=value1ID%>" value="<%=value1value%>" 
+  <input class="search-input" id="<%=value1ID%>"  name="<%=value1ID%>" value="<%=value1value%>"
   <%=searchBean.showValue1(typeValue) ? "" : "disabled='true'"%>  onClick="jscleanAny('<%=value1ID%>', '<%=ISearchConstants.ANY%>')"  />
 </td>
 
@@ -210,15 +210,15 @@ for(int i= 0; i < tableElements.length; ++i)
 	String opTypeID = "opType"+i;
 	String opTypeValue = tableElements[i].getOpType2();
 	String[] opTypeValues = searchBean.opTypeValues();
-	
-	
+
+
 %>
 
 <td>
 	<select name="<%=opTypeID%>"  id="<%=opTypeID%>">
 	<%
 	for(int j=0; j < opTypeValues.length; ++j)
-	{	
+	{
 	%>
 	<option value="<%=opTypeValues[j]%>"  <%=opTypeValues[j].equals(opTypeValue) ? "selected='selected'":""%> > <%=opTypeValues[j]%> </option>
 	<%
@@ -227,10 +227,10 @@ for(int i= 0; i < tableElements.length; ++i)
 </td>
 
 <%
-	
+
 	String value2value = tableElements[i].getValue2();
-	
-	
+
+
 %>
 
 
@@ -241,10 +241,10 @@ for(int i= 0; i < tableElements.length; ++i)
 
 
 <td>
-	<a href="javascript:img_action_click('add<%=i%>')" title="Add Condition"><img src="../../images/add_obj.gif" onClick=""></a>
-<%if(i > 0){%>	
-	<a href="javascript:img_action_click('delete<%=i%>')" title="Remove Condition"><img src="../../images/delete.gif" onClick=""></a>
-<%}%>	
+	<a href="javascript:img_action_click('add<%=i%>')" title="Add Condition"><img src="webresource/images/add_obj.gif" onClick=""></a>
+<%if(i > 0){%>
+	<a href="javascript:img_action_click('delete<%=i%>')" title="Remove Condition"><img src="webresource/images/delete.gif" onClick=""></a>
+<%}%>
 </td>
 
 
@@ -276,15 +276,15 @@ for(int i= 0; i < tableElements.length; ++i)
 
 	if (studio.getModel() == null || !studio.getModel().isReady())
 	{
-%>		
+%>
 		<p class="warning">There is no valid projects in workspace. Or your session have expired and you need to reload project</p>
-			  
-<%			
+
+<%
 	}
 	else if (request.getParameter("Search") != null)
 	{
    		Object res =  studio.getModel().runSearch(searchBean);
-	
+
 %>
   		<%=studio.getModel().displayResult(res)%>
     <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/popup/popupmenu.js"></script>
@@ -334,7 +334,7 @@ for(int i= 0; i < tableElements.length; ++i)
         <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
     </table>
 </div>
-<%	
+<%
 	}
 %>
 

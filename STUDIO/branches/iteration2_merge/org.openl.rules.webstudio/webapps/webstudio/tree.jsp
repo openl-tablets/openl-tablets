@@ -47,7 +47,7 @@ BODY {
   if (studio.getModel().getAllTestMethods() != null && studio.getModel().getAllTestMethods().getTests().length > 0)
   {
 %>
-<a href="jsp/runAllTests.jsp" target="mainFrame" title="Run All Tests"><img border="0" src="images/test_ok.gif"/></a>
+<a href="jsp/runAllTests.jsp" target="mainFrame" title="Run All Tests"><img border="0" src="webresource/images/test_ok.gif"/></a>
 
 <%
   }
@@ -56,24 +56,24 @@ BODY {
 <a href="index.jsp?validate=true&reload=true" title="Validate Project" target="top"><img border=0 src="<%= request.getContextPath()%>/images/validateAll.png"></a>
 
 
-<a href="index.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="<%= request.getContextPath()%>/images/refresh.gif"></a>
+<a href="index.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>
 
 <%if (!NetUtils.isLocalRequest(request)) {%>
   <%if (studio.getCurrentProject(session)!=null && studio.getCurrentProject(session).isCheckedOut()) {%>
-    <a class="actionButton" href="index.jsp?operation=checkIn" target="top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkin.gif"></a>
+    <a class="actionButton" href="index.jsp?operation=checkIn" target="top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/webresource/images/repository/checkin.gif"></a>
   <%}%>
   <%if (studio.getCurrentProject(session)!=null && (!(studio.getCurrentProject(session).isCheckedOut()
           ||studio.getCurrentProject(session).isLocked()
           ||studio.getCurrentProject(session).isLocalOnly()))) {%>
-    <a class="actionButton" href="index.jsp?operation=checkOut" target="top" title="Check Out Propject"><img border="0" src="<%= request.getContextPath()%>/images/repository/checkout.gif"></a>
+    <a class="actionButton" href="index.jsp?operation=checkOut" target="top" title="Check Out Propject"><img border="0" src="<%= request.getContextPath()%>/webresource/images/repository/checkout.gif"></a>
   <%}%>
 <%}%>
 
 </td>
 
 <td align=right >
-<a href="javascript: d.openAll(); d.o(0);" title="Expand All"><img border="0" src="images/expandall.gif"/></a>
-<a href="javascript: d.closeAll()" title="Collapse All" > <img border="0" src="images/collapseall.gif"/></a>
+<a href="javascript: d.openAll(); d.o(0);" title="Expand All"><img border="0" src="webresource/images/expandall.gif"/></a>
+<a href="javascript: d.closeAll()" title="Collapse All" > <img border="0" src="webresource/images/collapseall.gif"/></a>
 
 </td>
 </tr></table>

@@ -15,7 +15,7 @@
 <p>
 <a target="top" href="<%= request.getContextPath()%>/faces/facelets/repository/main.xhtml" title="Rules Repository">
 Back to repository
-<img border=0 src="<%= request.getContextPath()%>/images/repository/storage.gif" alt="repository">
+<img border=0 src="<%= request.getContextPath()%>/webresource/images/repository/storage.gif" alt="repository">
 </a>
 </p>
 </body>

@@ -73,17 +73,17 @@ window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, me
                  if (isRunnable && se.length == 0) {
                  String tgtUrl = "../../treeview.jsp?title=Trace&treejsp=tracetree.jsp&relwidth=70&mainjsp=jsp/showTraceTable.jsp&elementID="
                          + elementID + "&first=true";
- %> &nbsp;<a href="../runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="../../images/test.gif" /></a> &nbsp;<a
-      onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#" title="Trace"><img border=0 src="../../images/trace.gif" /></a> &nbsp;<a
-      href="../benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="../../images/clock-icon.png" /></a> <%
+ %> &nbsp;<a href="../runMethod.jsp?elementID=<%=elementID%>" title="Run"><img border=0 src="webresource/images/test.gif" /></a> &nbsp;<a
+      onClick="open_win('<%=tgtUrl%>', 800, 600)" href="#" title="Trace"><img border=0 src="webresource/images/trace.gif" /></a> &nbsp;<a
+      href="../benchmarkMethod.jsp?elementID=<%=elementID%>" title="Benchmark"><img border=0 src="webresource/images/clock-icon.png" /></a> <%
              }
           if (isTestable && (se==null || se.length == 0)) {
-                  %> &nbsp;<a href="../runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="../../images/test_ok.gif" /></a>
+                  %> &nbsp;<a href="../runAllTests.jsp?elementID=<%=elementID%>" title="Test"><img border=0 src="/webresource/images/test_ok.gif" /></a>
         <%}%>
     </td>
-    <td>&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business&switch=true"><img border=0 src="../../images/business-view.png"
+    <td>&nbsp;<a class="image2" href="?<%=parsView%>&view=view.business&switch=true"><img border=0 src="webresource/images/business-view.png"
       title="Business View" /></a> &nbsp;<a class="image2" href="?<%=parsView%>&view=view.developer&switch=true"><img border=0
-      src="../../images/developer-view.png" title="Developer (Full) View" /></a></td>
+      src="webresource/images/developer-view.png" title="Developer (Full) View" /></a></td>
   </tr>
 </table>
 
@@ -96,67 +96,67 @@ window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, me
     <br />
     <br />
     <rich:toolBar itemSeparator="square"><rich:toolBarGroup style="padding: 2px;">
-      <h:panelGroup style="display:block;"><h:graphicImage id="save_all" style="vertical-align:bottom;" value="/images/editor/Save.gif" onclick="tableEditor.save()"/></h:panelGroup>
-      <h:panelGroup style="display:block;"><h:graphicImage id="validate" value="/images/editor/Validation.gif" /></h:panelGroup>
+      <h:panelGroup style="display:block;"><h:graphicImage id="save_all" style="vertical-align:bottom;" value="webresource/images/editor/Save.gif" onclick="tableEditor.save()"/></h:panelGroup>
+      <h:panelGroup style="display:block;"><h:graphicImage id="validate" value="webresource/images/editor/Validation.gif" /></h:panelGroup>
    </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
-     <h:panelGroup style="display:block;"><h:graphicImage id="undo" value="/images/editor/Undo.gif" onclick="tableEditor.undoredo()"/></h:panelGroup>
-     <h:panelGroup style="display:block;"><h:graphicImage id="redo" value="/images/editor/Redo.gif" onclick="tableEditor.undoredo(true)"/></h:panelGroup>
+     <h:panelGroup style="display:block;"><h:graphicImage id="undo" value="webresource/images/editor/Undo.gif" onclick="tableEditor.undoredo()"/></h:panelGroup>
+     <h:panelGroup style="display:block;"><h:graphicImage id="redo" value="webresource/images/editor/Redo.gif" onclick="tableEditor.undoredo(true)"/></h:panelGroup>
    </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
      <rich:dropDownMenu>
      <f:facet name="label">
          <h:panelGrid cellpadding="0" cellspacing="0" columns="3" style="vertical-align:middle">
-             <h:graphicImage value="/images/editor/b_row_ins.gif" />
+             <h:graphicImage value="webresource/images/editor/b_row_ins.gif" />
              <rich:spacer width="5" height="5" title=""/>
              <h:outputText value="Rows" style="font-weight:bold;"/>
          </h:panelGrid>
      </f:facet>
        <rich:menuItem submitMode="none"  id="add_row_before_button" value="Add row" onclick="tableEditor.doRowOperation(TableEditor.Constants.ADD_BEFORE)" >
-         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
        <rich:menuItem  submitMode="none" id="remove_row_button" onclick="tableEditor.doRowOperation(TableEditor.Constants.REMOVE)"  value="Remove row" >
-         <f:facet name="icon"><h:graphicImage value="/images/editor/row_del.gif" /></f:facet>
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/row_del.gif" /></f:facet>
        </rich:menuItem>
         <rich:menuItem submitMode="none"  id="move_row_down_button" value="Move row down" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_DOWN)" >
-         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
        <rich:menuItem submitMode="none"  id="move_row_up_button" value="Move row up" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_UP)" >
-         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
      </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
      <rich:dropDownMenu>
      <f:facet name="label">
          <h:panelGrid cellpadding="0" cellspacing="0" columns="3" style="vertical-align:middle">
-             <h:graphicImage value="/images/editor/b_col_ins.gif"/>
+             <h:graphicImage value="webresource/images/editor/b_col_ins.gif"/>
              <rich:spacer width="5" height="5" title=""/>
              <h:outputText value="Columns" style="font-weight:bold;"/>
          </h:panelGrid>
      </f:facet>
        <rich:menuItem submitMode="none" id="add_column_before_button" value="Add column" onclick="tableEditor.doColOperation(TableEditor.Constants.ADD_BEFORE)">
-         <f:facet name="icon"><h:graphicImage value="/images/editor/b_col_ins.gif" /></f:facet>
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_col_ins.gif" /></f:facet>
        </rich:menuItem>
        <rich:menuItem  submitMode="none" id="remove_column_button" value="Remove column" onclick="tableEditor.doColOperation(TableEditor.Constants.REMOVE)">
-         <f:facet name="icon"><h:graphicImage value="/images/editor/col_del.gif" /></f:facet>
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/col_del.gif" /></f:facet>
        </rich:menuItem>
         <rich:menuItem submitMode="none"  id="move_column_right_button" value="Move column right" onclick="tableEditor.doColOperation(TableEditor.Constants.MOVE_DOWN)" >
-         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
        <rich:menuItem submitMode="none"  id="move_column_left_button" value="Move column left" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_UP)" >
-         <f:facet name="icon"><h:graphicImage value="/images/editor/b_row_ins.gif" /></f:facet>
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
        </rich:menuItem>
        </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
-        <h:panelGroup style="display:block;"><h:graphicImage id="align_left" value="/images/editor/alLeft.gif" onclick="tableEditor.setAlignment('left')"/></h:panelGroup>
-        <h:panelGroup style="display:block;"><h:graphicImage id="align_center" value="/images/editor/alCenter.gif" onclick="tableEditor.setAlignment('center')"/></h:panelGroup>
-        <h:panelGroup style="display:block;"><h:graphicImage id="align_right" value="/images/editor/alRight.gif" onclick="tableEditor.setAlignment('right')"/></h:panelGroup>
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_left" value="webresource/images/editor/alLeft.gif" onclick="tableEditor.setAlignment('left')"/></h:panelGroup>
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_center" value="webresource/images/editor/alCenter.gif" onclick="tableEditor.setAlignment('center')"/></h:panelGroup>
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_right" value="webresource/images/editor/alRight.gif" onclick="tableEditor.setAlignment('right')"/></h:panelGroup>
        </rich:toolBarGroup><rich:toolBarGroup location="right"><h:panelGroup>
-        <f:verbatim><a href="../../docs/editor.html" title="editor help"><img style="border:0;" src="../../images/help.gif" alt="help"></a></f:verbatim>
+        <f:verbatim><a href="webresource/docs/editor.html" title="editor help"><img style="border:0;" src="webresource/images/help.gif" alt="help"></a></f:verbatim>
     </h:panelGroup></rich:toolBarGroup>
    </rich:toolBar>
   </a4j:form>
   <br />
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/prototype/prototype-1.5.1.js"></script>
-<script type="text/javascript">var jsPath = '../../javascript/';</script>
-<script type="text/javascript" src="../../javascript/studio.js"></script>
+<script type="text/javascript">var jsPath = 'webresource/javascript/';</script>
+<script type="text/javascript" src="webresource/javascript/studio.js"></script>
 <script type="text/javascript">
     var im = new IconManager('dr-menu-label dr-menu-label-unselect rich-ddmenu-label rich-ddmenu-label-unselect',
           'dr-menu-label dr-menu-label-select rich-ddmenu-label rich-ddmenu-label-select', 'bt_disabled');
