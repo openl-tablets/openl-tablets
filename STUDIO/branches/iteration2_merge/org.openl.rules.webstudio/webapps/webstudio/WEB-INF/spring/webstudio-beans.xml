@@ -43,11 +43,11 @@
   </bean>
 
   <bean id="hideLogout" class="java.lang.Boolean">
-    <constructor-arg value="${webstudio.hideLogout}" />
+    <constructor-arg value="false" />
   </bean>
 
   <bean id="autoLogin" class="java.lang.Boolean">
-    <constructor-arg value="${security.autoLogin}"/>
+    <constructor-arg value="true"/>
   </bean>
 
 </beans>
