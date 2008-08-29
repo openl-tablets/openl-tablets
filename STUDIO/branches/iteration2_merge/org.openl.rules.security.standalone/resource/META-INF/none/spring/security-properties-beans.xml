@@ -6,7 +6,9 @@
 
   <bean id="securityProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <property name="properties">
-      <props />
+      <props>
+      	<prop key="security.autoLogin">false</prop>
+      </props>
     </property>
   </bean>
 </beans>
