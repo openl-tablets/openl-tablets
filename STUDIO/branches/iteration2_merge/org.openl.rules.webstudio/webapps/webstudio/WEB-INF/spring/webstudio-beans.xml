@@ -15,6 +15,7 @@
   </bean>
 
   <bean id="systemPropertiesPlaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="placeholderPrefix" value="@{" />
     <property name="ignoreResourceNotFound" value="true" />
     <property name="propertiesArray">
       <list>
@@ -43,11 +44,11 @@
   </bean>
 
   <bean id="hideLogout" class="java.lang.Boolean">
-    <constructor-arg value="true" />
+    <constructor-arg value="@{webstudio.hideLogout}" />
   </bean>
 
   <bean id="autoLogin" class="java.lang.Boolean">
-    <constructor-arg value="true"/>
+    <constructor-arg value="@{security.autoLogin}"/>
   </bean>
 
 </beans>
