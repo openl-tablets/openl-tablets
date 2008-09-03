@@ -405,4 +405,5 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar
     }
   } // ~UndoIntBoolVarValue
 
+
 } // ~IntBoolVarImpl

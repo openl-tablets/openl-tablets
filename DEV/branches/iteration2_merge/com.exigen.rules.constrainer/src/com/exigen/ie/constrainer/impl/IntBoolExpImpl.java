@@ -94,6 +94,12 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp
   {
     return not().or(value);
   }
+  
+  public IntBoolExp eq(boolean b) 
+  {
+  	return this.eq(b ? 1 : 0);
+  }
+  
 
   public Constraint asConstraint()
   {
