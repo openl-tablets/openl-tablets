@@ -22,7 +22,11 @@ package com.exigen.ie.constrainer;
  */
 public class IntBoolExpConst extends IntExpConst implements IntBoolExp
 {
-  /**
+  public IntBoolExp eq(boolean b) 
+  {
+		return this.eq(b ? 1 : 0);
+  }
+/**
    * Constructs an IntBoolExpConst and initializes "boolean_const" (Wrapped
    * boolean value) with value.
    */

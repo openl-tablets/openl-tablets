@@ -80,6 +80,9 @@ public interface IntBoolExp extends IntExp
    * Returns the boolean expression: <code>(this -> value)</code>
    */
   public IntBoolExp implies(boolean value);
+  
+  
+  public IntBoolExp eq(boolean b);
 
   /**
    * Returns the Constraint that corresponds to this expression.
