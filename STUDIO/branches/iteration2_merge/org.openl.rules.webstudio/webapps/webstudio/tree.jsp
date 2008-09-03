@@ -90,11 +90,9 @@ BODY {
 <div class="dtree" id="tree">
 </div>
 
-
 <script language="JavaScript" defer="defer">
 d = new dTree('d');
-
-<%=studio.getModel().renderTree("jsp/tableeditor/showTable.jsf")%>
+<%=studio.getModel().renderTree(request.getContextPath() + "/faces/facelets/tableeditor/showTable.xhtml")%>
 
 
 document.getElementById('tree').innerHTML = d;
