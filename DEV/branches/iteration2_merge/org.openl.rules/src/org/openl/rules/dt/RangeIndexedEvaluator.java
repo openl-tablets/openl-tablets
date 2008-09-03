@@ -14,6 +14,7 @@ import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNode;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNodeBuilder;
+import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.IntervalMap;
 import org.openl.util.OpenIterator;
 import org.openl.vm.IRuntimeEnv;
@@ -203,9 +204,10 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator
 	}
 	
 	
-	//TODO fix
+
 	public IOpenSourceCodeModule getFormalSourceCode(IDTCondition condition) {
-		throw new UnsupportedOperationException("Not implemented yet");
+		IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
+		return new StringSourceCodeModule(condition.getParams()[1].getName() + "<=" +"(" + condSource.getCode() + ") && (" + condSource.getCode() + ") < " + condition.getParams()[1].getName(), condSource.getUri(0) );
 	}
 	
 
