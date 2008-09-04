@@ -117,15 +117,15 @@
     }
 </script>
 
-<form name="editForm" action="../../jsp/tableeditor/showTableEditor2.jsf">
+<form name="editForm" action="../tableeditor/showTableEditor.xhtml">
 <input type="hidden" name="elementID" value="#{showTableBean.elementID}"> </input>
 <input type="hidden" name="cell" value=""> </input>
 <input type="hidden" name="view" value="#{showTableBean.view}" />
 </form>
-<form name="editFormXls" action="../../jsp/showLinks.jsp" target="show_app_hidden">
+<form name="editFormXls" action="#{contextPath}/jsp/showLinks.jsp" target="show_app_hidden">
     <input type="hidden" name="uri" value=""> </input>
 </form>
-<form name="searchForm" action="../../jsp/search/search.jsp">
+<form name="searchForm" action="#{contextPath}/jsp/search/search.jsp">
     <input type="hidden" name="searchQuery" value=""> </input>
 </form>
 </f:verbatim>
