@@ -91,7 +91,7 @@
   <navigation-rule>
     <navigation-case>
       <from-outcome>tableEditor_success</from-outcome>
-      <to-view-id>/jsp/tableeditor/tableEditorResponse.jsp</to-view-id>
+      <to-view-id>/facelets/tableeditor/tableEditorResponse.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
