@@ -18,8 +18,11 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 
 import com.exigen.ie.constrainer.Constrainer;
+import com.exigen.ie.constrainer.IntBoolVar;
 import com.exigen.ie.constrainer.IntExp;
+import com.exigen.ie.constrainer.IntValueSelector;
 import com.exigen.ie.constrainer.IntVar;
+import com.exigen.ie.constrainer.impl.IntBoolVarImpl;
 
 /**
  * @author snshor
@@ -63,6 +66,11 @@ public class DTValidatedObject implements IDTValidatedObject,
 		if (c == int.class || c == Integer.class) {
 			return JavaOpenClass.getOpenClass(IntExp.class);
 		}
+		
+		if (c == boolean.class || c == Boolean.class) {
+			return JavaOpenClass.getOpenClass(IntBoolVar.class);
+		}
+		
 
 		return null;
 	}
@@ -83,6 +91,8 @@ public class DTValidatedObject implements IDTValidatedObject,
 		if (domain == null)
 			if (class1.getDomain() != null)
 				domain = makeDomain(class1.getDomain());
+			else if (class1.getInstanceClass() == boolean.class || class1.getInstanceClass() == Boolean.class)
+			  return   c.addIntBoolVar(parameterName); 	
 
 		if (domain != null) {
 			return c.addIntVar(domain.getMin(), domain.getMax(), parameterName);
@@ -121,16 +131,16 @@ public class DTValidatedObject implements IDTValidatedObject,
 		}
 		
 		 IDomain<?> domain = dtan.getParameterDomain(name, condition);
-		 if (domain == null)
-		 {
-			 throw new RuntimeException("Domain is not defined for " + condition.getName() + ":" + name);
-//			 return null;
-		 } 
+//		 if (domain == null)
+//		 {
+//			 throw new RuntimeException("Domain is not defined for " + condition.getName() + ":" + name);
+////			 return null;
+//		 } 
 		
-		IDomainAdaptor domainAsaptor = makeDomain(domain) ;
 
 		if (domain != null) {
-			return new Integer(domainAsaptor.getIndex(value));
+			IDomainAdaptor domainAdaptor = makeDomain(domain) ;
+			return new Integer(domainAdaptor.getIndex(value));
 		}
 
 		return value;
@@ -138,6 +148,16 @@ public class DTValidatedObject implements IDTValidatedObject,
 
 	public Object transformSignatureValueBack(String name, int intValue, DTAnalyzer dtan) 
 	{
+		
+		DTParamDescription pd = dtan.usedDTParams.get(name);
+		
+		
+		Class<?> c = pd.getOriginalDeclaration().getType().getInstanceClass();
+		
+		
+		if (c == boolean.class ||c == Boolean.class)
+			return intValue == 1 ? "true" : "false"; 
+		
 		IDomain<?> domain = dtan.getSignatureParameterDomain(name);
 		
 		if (domain == null)
