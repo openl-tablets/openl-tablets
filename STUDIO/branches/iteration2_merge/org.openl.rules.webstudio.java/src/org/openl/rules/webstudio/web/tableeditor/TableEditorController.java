@@ -13,6 +13,8 @@ import org.openl.rules.webstudio.web.tableeditor.js.JSTableEditor;
 
 import java.io.IOException;
 import java.util.Map;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Table editor controller. It should be a managed bean with <b>request</b>
@@ -334,6 +336,14 @@ public class TableEditorController extends BaseTableViewController implements JS
             env.setSessionAttribute("editorHelper", editorHelper);
             return editorHelper;
         }
+    }
+
+    public String getResponseAndSetHeaders() {
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+        return getResponse();
     }
 
     @Override
