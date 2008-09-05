@@ -682,33 +682,53 @@ public class ProjectModel implements IProjectTypes {
 	}
 
 	List<Throwable> validationExceptions;
-
-	public void validateAll() {
-		if (wrapper == null)
-			return;
-
-		List<Throwable> ve = new ArrayList<Throwable>();
+	
+	public List<TableSyntaxNode> getAllValidatedNodes()
+	{
 		XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
 
 		XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
 		TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
-
+		
+		List<TableSyntaxNode> list = new ArrayList<TableSyntaxNode>();
+		
 		for (int i = 0; i < nodes.length; i++) {
-			validateNode(nodes[i], ve);
+			TableSyntaxNode tsn = nodes[i];
+			
+			if (tsn.getType() != ITableNodeTypes.XLS_DT)
+				continue;
+			if (tsn.getErrors() != null)
+				continue;
+			
+			if (!"on".equals(tsn.getProperty("validate")))
+				continue;
+			
+			list.add(tsn);
+			
 		}
-
-		validationExceptions = ve;
+		
+		return list;
+		
 	}
 
-	public void validateNode(TableSyntaxNode tsn, List<Throwable> ve) {
-		if (tsn.getType() != ITableNodeTypes.XLS_DT)
-			return;
-		if (tsn.getErrors() != null)
-			return;
+	public List<Object> validateAll() {
+
+		List<Object> ve = new ArrayList<Object>();
+		if (wrapper == null)
+			return ve;
 		
-		if (!"on".equals(tsn.getProperty("validate")))
-			return;
+		List<TableSyntaxNode> nodes = getAllValidatedNodes();
+
+		for (int i = 0; i < nodes.size(); i++) {
+			validateNode(nodes.get(i), ve);
+		}
+
+//		validationExceptions = ve;
+		return ve;
+	}
+
+	public void validateNode(TableSyntaxNode tsn, List<Object> ve) {
 
 		DecisionTable dt = (DecisionTable) tsn.getMember();
 
@@ -717,11 +737,15 @@ public class ProjectModel implements IProjectTypes {
 					.getOpenClass());
 
 			if (dtr.hasProblems())
+			{	
 				tsn.setValidationResult(dtr);
+				ve.add(dtr);
+			}	
 			else
 				tsn.setValidationResult(null);
 		} catch (Throwable t) {
 			tsn.setValidationResult(t);
+			ve.add(t);
 		}
 	}
 
