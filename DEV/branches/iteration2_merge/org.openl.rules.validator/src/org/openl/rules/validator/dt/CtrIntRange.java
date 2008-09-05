@@ -25,4 +25,24 @@ public class CtrIntRange extends IntRange
 		return exp.ge(getMin()).and(exp.le(getMax()));
 	}
 
+
+
+	@Override
+	public int getMax() {
+		int max = super.getMax();
+		if (max == Integer.MAX_VALUE)
+			return Integer.MAX_VALUE - 1;
+		return max;
+	}
+
+
+
+	@Override
+	public int getMin() {
+		int min = super.getMin();
+		if (min == Integer.MIN_VALUE)
+			return Integer.MIN_VALUE + 1;
+		return min;
+	}
+
 }
