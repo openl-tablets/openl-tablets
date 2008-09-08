@@ -17,8 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Servlet filter to load web resources (images, html, etc) from classpath.
- *
+ * Servlet filter to load web resources (images, html, etc). First, attempt is
+ * made to load resource from classpath and then from web application root.
+ * 
  * @author Andrey Naumenko
  */
 public class WebResourceFilter implements Filter {
