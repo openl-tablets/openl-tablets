@@ -68,7 +68,7 @@ BaseEditor.prototype = {
     /** Obtains current value from HTML editor control */
     getValue : function() {
         var node = this.getInputElement();
-        return node ? node.value : null;
+        return node ? node.value.replace(/\u00A0/g, ' ') : null;
     },
 
     /**
