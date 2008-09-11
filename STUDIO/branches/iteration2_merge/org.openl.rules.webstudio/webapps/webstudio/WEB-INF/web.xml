@@ -37,7 +37,8 @@
     <param-value>
       /WEB-INF/faces/faces-config.xml,
       /WEB-INF/faces/faces-repository.xml,
-      /WEB-INF/faces/faces-studio.xml
+      /WEB-INF/faces/faces-studio.xml,
+      /WEB-INF/faces/faces-wizard.xml
     </param-value>
   </context-param>
 

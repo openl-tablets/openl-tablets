@@ -30,7 +30,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
 
 <div id="container">
   <div id="masthead">
-    <div id="search">
+     
 <table width="97%" cellspacing="0" cellpadding="1">
 <tr><td align="right" style="font-size: 40%;">
     <form target="top" action="index.jsp">

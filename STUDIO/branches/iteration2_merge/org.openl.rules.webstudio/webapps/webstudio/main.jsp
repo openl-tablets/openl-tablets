@@ -68,13 +68,13 @@ String mode = request.getParameter("mode");
     if (operation != null)
       studio.executeOperation(operation, session);
 
-    String selected = request.getParameter("select_wrapper");
+    String selected = request.getParameter("headerForm:select_wrapper");
 
   studio.select(selected);
 %>
 
 <frameset rows="70,*">
-<frame src="header.jsp" name="header" scrolling="no"  noresize resize="no" />
+<frame src="${pageContext.request.contextPath}/faces/facelets/studio/header.xhtml" name="header" scrolling="no"  noresize resize="no" />
 
 <frameset cols="*,80%" framespacing="0" frameborder="1" resize="resize"  scrolling="auto" >
 <frameset rows="*,1" framespacing="0"  scrolling="auto" >

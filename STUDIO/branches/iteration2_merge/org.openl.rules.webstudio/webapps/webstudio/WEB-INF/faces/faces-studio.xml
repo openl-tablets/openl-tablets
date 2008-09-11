@@ -88,6 +88,16 @@
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
+  <managed-bean>
+    <managed-bean-name>headerBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.HeaderBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>hideLogout</property-name>
+      <value>#{applicationScope.hideLogout}</value>
+    </managed-property>
+  </managed-bean>
+
   <navigation-rule>
     <navigation-case>
       <from-outcome>tableEditor_success</from-outcome>
