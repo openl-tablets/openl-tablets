@@ -1,25 +1,26 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 
-import org.openl.rules.ui.TableModel;
-import org.openl.rules.ui.TableViewer;
-import org.openl.rules.ui.TableEditorModel;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.OpenLWrapperInfo;
-import org.openl.rules.table.IGridTable;
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.IGrid;
-import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.SimpleHtmlFilter;
-import org.openl.rules.web.jsf.util.FacesUtils;
-import org.openl.rules.webtools.indexer.FileIndexer;
+import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.ui.OpenLWrapperInfo;
+import org.openl.rules.ui.TableEditorModel;
+import org.openl.rules.ui.TableModel;
+import org.openl.rules.ui.TableViewer;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.util.net.NetUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.webtools.indexer.FileIndexer;
 
 public class BaseTableViewController {
     protected int elementID;
@@ -152,8 +153,7 @@ public class BaseTableViewController {
     public void setInit(boolean init) throws Exception {
         WebStudio studio = getWebstudio();
         if (studio == null) {
-            studio = new WebStudio();
-            FacesUtils.getSessionMap().put("studio", studio);
+            studio = WebStudioUtils.getWebStudio(true);
             if (studio.getWrappers().length > 0) {
                 studio.select(studio.getWrappers()[0].getWrapperClassName());
             }
@@ -168,9 +168,7 @@ public class BaseTableViewController {
     }
 
     public boolean isLocalRequest() {
-        boolean b = NetUtils.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-                .getRequest());
-        return b;
+        return NetUtils.isLocalRequest((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());
     }
 
     public SelectItem[] getWrappers() throws IOException {
