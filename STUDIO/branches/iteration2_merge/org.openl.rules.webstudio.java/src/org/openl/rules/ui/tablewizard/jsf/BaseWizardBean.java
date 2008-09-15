@@ -7,6 +7,7 @@ import javax.faces.component.html.HtmlInputHidden;
  */
 public abstract class BaseWizardBean {
     private int step = -1; //not started
+    private int maxVisitedStep;
     private HtmlInputHidden hiddenStep;
 
     protected String getName() {
@@ -19,7 +20,7 @@ public abstract class BaseWizardBean {
     }
 
     public String start() {
-        step = 0;
+        maxVisitedStep = step = 0;
         onStart();
         return getName();
     }
@@ -40,12 +41,22 @@ public abstract class BaseWizardBean {
         this.hiddenStep = hidden;
         try{
             step = Integer.parseInt((String) hidden.getValue());
+            maxVisitedStep = Math.max(step, maxVisitedStep);
         } catch (NumberFormatException nfe) {}
     }
 
+    public int getMaxVisitedStep() {
+        return maxVisitedStep;
+    }
+
     public String next() {
+        if (getStep() == getMaxVisitedStep()) {
+            onStepFirstVisit(getStep() + 1);
+        }
         return "next";
     }
+
+    protected void onStepFirstVisit(int step) {}
 
     public String prev() {
         return "prev";
