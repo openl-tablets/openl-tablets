@@ -290,8 +290,22 @@ public class WizardBean extends BaseWizardBean {
                 break;
         }
 
-        
         return super.next();
+    }
+
+    @Override
+    protected void onStepFirstVisit(int step) {
+        switch (step) {
+            case 1:
+                parameters.add(new TypeNamePair());
+                break;
+            case 2:
+                addCondition();
+                break;
+            case 3:
+                addAction();
+                break;
+        }
     }
 
     private boolean validateAfterStep1() {
