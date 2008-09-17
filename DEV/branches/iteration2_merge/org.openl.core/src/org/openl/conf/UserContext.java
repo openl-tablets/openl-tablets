@@ -7,6 +7,7 @@
 package org.openl.conf;
 
 import java.util.Properties;
+import java.util.Stack;
 
 /**
  * @author snshor
@@ -14,7 +15,54 @@ import java.util.Properties;
  */
 public class UserContext extends AUserContext
 {
+	
+	
+	
+ static ThreadLocal<Stack<IUserContext>> contextStack = new ThreadLocal<Stack<IUserContext>>();
+ 
+ 
+ public static IUserContext currentContext()
+ {
+	 Stack<IUserContext> stack = contextStack.get();
+	 if (stack == null || stack.size() == 0)
+		 return null;
+	 return stack.peek();
+ }
+ 
+ 
+ public static void pushCurrentContext(IUserContext cxt)
+ {
+	 Stack<IUserContext> stack = contextStack.get();
+	 if (stack == null)
+	 {	 
+		 stack = new Stack<IUserContext>();
+		 contextStack.set(stack);
+	 }	 
+	 stack.push(cxt);
+ } 
 
+
+ public static void popCurrentContext()
+ {
+	 contextStack.get().pop();
+ } 
+ 
+ 
+ public Object execute(Executable exe)
+ {
+	 try
+	 {
+		 pushCurrentContext(this);
+		 return exe.execute();
+	 }
+	 finally
+	 {
+		 popCurrentContext();
+	 }
+ }
+ 
+ 
+ 
   protected ClassLoader userClassLoader;
 
   protected String userHome;
@@ -70,6 +118,15 @@ public class UserContext extends AUserContext
 	public String toString()
 	{
 		return "home=" + userHome + " cl=" + userClassLoader;
+	}
+
+
+	public static IUserContext makeOrLoadContext(ClassLoader cl, String home) 
+	{
+		IUserContext cxt = currentContext();
+		if (cxt != null)
+			return cxt;
+		return new UserContext(cl, home);
 	}
 
 }

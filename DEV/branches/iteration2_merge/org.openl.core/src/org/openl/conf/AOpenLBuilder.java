@@ -22,26 +22,26 @@ public abstract class AOpenLBuilder implements IOpenLBuilder
   
   boolean inheritExtendedConfigurationLoader = false;
 
-  static class UserContextStack extends ThreadLocal
+  static class UserContextStack extends ThreadLocal<Stack<IUserContext>>
   {
 
     /**
      *  
      */
 
-    protected Object initialValue()
+    protected Stack<IUserContext> initialValue()
     {
-      return new Stack();
+      return new Stack<IUserContext>();
     }
 
     public IUserContext top()
     {
-      return (IUserContext) stack().peek();
+      return stack().peek();
     }
 
     public IUserContext pop()
     {
-      return (IUserContext) stack().pop();
+      return stack().pop();
     }
 
     public void push(IUserContext ucxt)
@@ -49,9 +49,9 @@ public abstract class AOpenLBuilder implements IOpenLBuilder
       stack().push(ucxt);
     }
 
-    protected Stack stack()
+    protected Stack<IUserContext> stack()
     {
-      return (Stack) get();
+      return get();
     }
 
   }
