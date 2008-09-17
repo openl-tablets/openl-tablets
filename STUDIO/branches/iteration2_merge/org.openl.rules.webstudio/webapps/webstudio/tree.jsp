@@ -43,6 +43,9 @@ BODY {
 <table width=95% style="border-style: solid; border-width: 1;">
 <tr>
 <td>
+
+<a href="index.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>
+
 <%
   if (studio.getModel().getAllTestMethods() != null && studio.getModel().getAllTestMethods().getTests().length > 0)
   {
@@ -53,10 +56,16 @@ BODY {
   }
 %>
 
+<%
+  if (studio.getModel().getAllValidatedNodes().size() > 0)
+  {
+%>
 <a href="index.jsp?validate=true&reload=true" title="Validate Project" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/validateAll.png"></a>
+<%
+  }
+%>
 
 
-<a href="index.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>
 
 <%if (!NetUtils.isLocalRequest(request)) {%>
   <%if (studio.getCurrentProject(session)!=null && studio.getCurrentProject(session).isCheckedOut()) {%>
