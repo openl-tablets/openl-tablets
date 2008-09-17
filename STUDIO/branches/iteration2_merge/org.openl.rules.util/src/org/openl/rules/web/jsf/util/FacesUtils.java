@@ -1,9 +1,9 @@
 package org.openl.rules.web.jsf.util;
 
 import java.util.Map;
-
+import java.util.Collection;
 import javax.faces.context.FacesContext;
-
+import javax.faces.model.SelectItem;
 
 /**
  * Various generic helpful methods to simplify common operations with JSF.
@@ -53,4 +53,34 @@ public abstract class FacesUtils {
     public static String getRequestParameter(String parameterName) {
         return (String) getRequestParameterMap().get(parameterName);
     }
+
+    /**
+     * Creates an array of <code>SelectItem</code>s from array of <code>String</code>s;
+     *
+     * @param values an array of <code>SelectItem</code> values.
+     * @return array of JSF objects representing items.
+     */
+    public static SelectItem[] createSelectItems(String[] values) {
+        SelectItem[] items = new SelectItem[values.length];
+        for (int i = 0; i < items.length; ++i) {
+            items[i] = new SelectItem(values[i]);
+        }
+        return items;
+    }
+
+    /**
+     * Creates an array of <code>SelectItem</code>s from collection of <code>String</code>s;
+     *
+     * @param values an array of <code>SelectItem</code> values.
+     * @return array of JSF objects representing items.
+     */
+    public static SelectItem[] createSelectItems(Collection<String> values) {
+        SelectItem[] items = new SelectItem[values.size()];
+        int index = 0;
+        for (String value : values) {
+            items[index++] = new SelectItem(value);
+        }
+        return items;
+    }
+
 }

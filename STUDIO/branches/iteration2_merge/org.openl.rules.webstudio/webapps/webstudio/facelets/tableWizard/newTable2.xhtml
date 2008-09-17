@@ -4,6 +4,8 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:c="http://java.sun.com/jstl/core"
+                xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+                xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
                 template="/facelets/common/webstudioBase.xhtml"
         >
 
@@ -53,7 +55,6 @@
           <c:set var="paramNames" value="#{cond.paramNames}" />
           <c:set var="foo" value="#{counter.reset}" />
 
-
           <h:dataTable var="row" value="#{logicClauses}">
             <h:column>
               <h:selectOneMenu value="#{row.paramName}" onchange="this.form.submit()">
@@ -65,6 +66,10 @@
               <h:selectOneMenu value="#{row.variantId}">
                 <f:selectItems value="#{row.variantOptions}"/>
               </h:selectOneMenu>
+            </h:column>
+
+            <h:column>
+              <h:inputText value="#{row.conditionExpression}"/>
             </h:column>
           </h:dataTable>
         </h:panelGroup>
@@ -87,7 +92,7 @@
           <h:column>
             <f:facet name="header"><h:outputText value="Type"/></f:facet>
             <h:selectOneMenu value="#{p.type}" style="width:90%;" id="type">
-              <f:selectItems value="#{OpenLTypes.items}"/>
+              <f:selectItems value="#{tableWizard.domainTypes}"/>
             </h:selectOneMenu>
           </h:column>
           <h:column>

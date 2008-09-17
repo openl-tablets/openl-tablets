@@ -6,6 +6,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.openl.rules.web.jsf.util.FacesUtils;
+
 /**
  * The container of current skin.
  *
@@ -53,10 +55,6 @@ public class SkinBean {
     }
 
     public SelectItem[] getSkins() {
-        SelectItem[] selectItems = new SelectItem[skinsArray.length];
-        for (int i = 0; i < skinsArray.length; i++) {
-            selectItems[i] = new SelectItem(skinsArray[i]);
-        }
-        return selectItems;
+        return FacesUtils.createSelectItems(skinsArray);
     }
 }
