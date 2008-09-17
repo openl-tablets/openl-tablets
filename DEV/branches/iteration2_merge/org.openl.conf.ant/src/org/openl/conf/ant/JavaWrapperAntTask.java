@@ -264,6 +264,8 @@ public class JavaWrapperAntTask extends Task
     String userHome, deplUserHome;
 
     String srcFile, deplSrcFile;
+    
+    String srcModuleClass;
 
     String openlName;
 
@@ -317,9 +319,9 @@ public class JavaWrapperAntTask extends Task
     {
 	int cnt = 0;
 
-	for (Iterator iter = ioc.methods(); iter.hasNext();)
+	for (Iterator<IOpenMethod> iter = ioc.methods(); iter.hasNext();)
 	{
-	    IOpenMethod method = (IOpenMethod) iter.next();
+	    IOpenMethod method = iter.next();
 	    if (!isMethodGenerated(method))
 		continue;
 	    ++cnt;
@@ -351,6 +353,7 @@ public class JavaWrapperAntTask extends Task
 	}
 
 	addImport(buf, "org.openl.types.IOpenClass");
+	addImport(buf, "org.openl.conf.IUserContext");
 	addImport(buf, "org.openl.conf.UserContext");
 
 	addImport(buf, "org.openl.impl.OpenClassJavaWrapper");
@@ -371,6 +374,9 @@ public class JavaWrapperAntTask extends Task
 
 	buf.append("  public static String __src = \""
 		+ (deplSrcFile == null ? srcFile : deplSrcFile) + "\";\n\n");
+
+	buf.append("  public static String __srcModuleClass = " +( srcModuleClass == null ? null :  "\""
+			+ srcModuleClass  + "\"") + ";\n\n");
 
 	buf.append("  public static String __folder = \""
 		+ rulesFolder + "\";\n\n");
@@ -408,9 +414,9 @@ buf.append("");
 	    addFieldModifier(field, buf);
 	}
 
-	for (Iterator iter = ioc.methods(); iter.hasNext();)
+	for (Iterator<IOpenMethod> iter = ioc.methods(); iter.hasNext();)
 	{
-	    IOpenMethod method = (IOpenMethod) iter.next();
+	    IOpenMethod method =  iter.next();
 	    if (!isMethodGenerated(method))
 		continue;
 	    addMethodFieldInitializer(method);
@@ -566,8 +572,9 @@ buf.append("");
 		+ "      return;\n\n"
 		+
 
-		"    UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), __userHome);\n"
-		+ "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src);\n"
+		
+		  "    IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);\n"
+		+ "    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, __srcModuleClass);\n"
 
 		+ "    __compiledClass = wrapper.getCompiledClass();\n"
 		+ "    __class = wrapper.getOpenClassWithErrors();\n"
@@ -817,7 +824,7 @@ buf.append("");
 	IOpenClass type = method.getSignature().getParameterTypes()[i];
 	String name = getParamName(method.getSignature().getParameterName(i), i);
 
-	Class instanceClass = type.getInstanceClass();
+	Class<?> instanceClass = type.getInstanceClass();
 	if (instanceClass.isPrimitive())
 	    return wrapIfPrimitive(name, instanceClass);
 
@@ -829,7 +836,7 @@ buf.append("");
      * @param instanceClass
      * @return
      */
-    public String wrapIfPrimitive(String name, Class instanceClass)
+    public String wrapIfPrimitive(String name, Class<?> instanceClass)
     {
 	if (instanceClass == int.class)
 	    return "new Integer(" + name + ")";
@@ -905,7 +912,7 @@ buf.append("");
      * @param instanceClass
      * @return
      */
-    public String getClassName(Class instanceClass)
+    public String getClassName(Class<?> instanceClass)
     {
 	StringBuffer buf = new StringBuffer(30);
 	while (instanceClass.isArray())
@@ -918,7 +925,7 @@ buf.append("");
 	return buf.toString();
     }
 
-    public String getScalarClassName(Class instanceClass)
+    public String getScalarClassName(Class<?> instanceClass)
     {
 	return instanceClass.getName();
     }
@@ -1173,5 +1180,13 @@ buf.append("");
     {
         this.rulesFolder = rulesFolder;
     }
+
+	public String getSrcModuleClass() {
+		return srcModuleClass;
+	}
+
+	public void setSrcModuleClass(String srcModuleClass) {
+		this.srcModuleClass = srcModuleClass;
+	}
 
 }
