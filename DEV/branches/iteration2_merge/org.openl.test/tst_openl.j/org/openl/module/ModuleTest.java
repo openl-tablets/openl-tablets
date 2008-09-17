@@ -341,6 +341,17 @@ public class ModuleTest extends TestCase
 		return executeOpenLExprression(context, expr, retType);
 	}
 
+	
+	/**
+	 *	1) You don't have to specify return type(use JavaOpenClass.VOID instead, in this case openl returns the value of the last expression)
+	 *  2) New OpenL bex grammar can access attributes of the parameters(actually you can even regulate the depth of the search, if nested attributes need to be accessed, the only limitation is that
+	 *     the name has to be unique in the context, otherwise, the chain syntax still is required)
+	 *  @see http://openl-tablets.sourceforge.net/bex505.shtml
+	 *  
+	 *  3) Once method is created it can be used multiple times(the instance of IRuntimeEnv need to be created each time or once per thread, but it does not have significant performance overhead)   
+	 * 
+	 */
+	
 	private Object executeOpenLOGNLExprression(Object context, String expr)
 	{
 		IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
