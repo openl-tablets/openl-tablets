@@ -183,7 +183,7 @@ public abstract class ASelector<T> implements ISelector<T>
 
 	protected boolean equalsSelector(ASelector<?> sel)
 	{
-	    return c == ((ClassSelector) (ASelector<Object>)sel).c;
+	    return c == ((ClassSelector)sel).c;
 	}
 
 	protected int redefinedHashCode()
@@ -285,11 +285,12 @@ public abstract class ASelector<T> implements ISelector<T>
 	return new NOTSelector<T>(this);
     }
 
-    public boolean equals(Object obj)
+    @SuppressWarnings("unchecked")
+	public boolean equals(Object obj)
     {
 	if (obj == null || obj.getClass() != this.getClass())
 	    return false;
-	return equalsSelector((ASelector<?>) obj);
+	return equalsSelector((ASelector<T>) obj);
     }
 
     protected boolean equalsSelector(ASelector<?> sel)
