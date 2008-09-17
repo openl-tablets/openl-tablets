@@ -7,15 +7,25 @@ import javax.faces.model.SelectItem;
  * @author Aliaksandr Antonik.
  */
 public class OpenLTypes {
-    private SelectItem[] items;
+    private SelectItem[] returnTypes;
+    private SelectItem[] paramTypes;
 
     public void setOptions(List<String> options) {
-        items = new SelectItem[options.size()];
+        returnTypes = new SelectItem[options.size()];
         int pos = 0;
-        for (String s : options) items[pos++] = new SelectItem(s, s);
+        for (String s : options) returnTypes[pos++] = new SelectItem(s, s);
+
+        options.remove("void");
+        paramTypes = new SelectItem[options.size()];
+        pos = 0;
+        for (String s : options) paramTypes[pos++] = new SelectItem(s, s);
     }
 
-    public SelectItem[] getItems() {
-        return items;
+    public SelectItem[] getReturnTypes() {
+        return returnTypes;
+    }
+
+    public SelectItem[] getParamTypes() {
+        return paramTypes;
     }
 }

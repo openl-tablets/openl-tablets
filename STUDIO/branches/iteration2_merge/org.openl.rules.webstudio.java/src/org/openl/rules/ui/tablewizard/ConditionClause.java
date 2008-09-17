@@ -7,8 +7,18 @@ import javax.faces.model.SelectItem;
  */
 public class ConditionClause {
     private final TableCondition tableCondition;
+    /**
+     * If there is condition <i>t.equals(driver.age)</i> then
+     * <ul>
+     * <li><b><i>t</i></b> - is paramName</li>
+     * <li><b><i>.equals</i></b> - is identified by variantId</li>
+     * <li><b><i>driver.age</i></b> - is conditionExpression</li>
+     * </ul>
+     *
+     */
     private String paramName;
     private long variantId;
+    private String conditionExpression;
 
     ConditionClause(TableCondition tableCondition) {
         this.tableCondition = tableCondition;
@@ -33,6 +43,14 @@ public class ConditionClause {
     public String getType() {
         Parameter p = tableCondition.getParameterByName(paramName);
         return p == null ? null : p.getType();
+    }
+
+    public String getConditionExpression() {
+        return conditionExpression;
+    }
+
+    public void setConditionExpression(String conditionExpression) {
+        this.conditionExpression = conditionExpression;
     }
 
     public SelectItem[] getVariantOptions() {

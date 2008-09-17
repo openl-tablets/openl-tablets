@@ -15,6 +15,7 @@ import org.openl.rules.search.SearchElement;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import static org.openl.rules.web.jsf.util.FacesUtils.createSelectItems;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.AStringBoolOperator;
 
@@ -190,14 +191,6 @@ public class OpenLAdvancedSearchBean {
         for (int i = 0; i < columnElements.length; ++i) {
             columnElements[i] = new ColumnSearchElementBean(i);
         }
-    }
-
-    private static SelectItem[] createSelectItems(String[] values) {
-        SelectItem[] items = new SelectItem[values.length];
-        for (int i = 0; i < items.length; ++i) {
-            items[i] = new SelectItem(values[i]);
-        }
-        return items;
     }
 
     public String[] getSelectedTableTypes() {

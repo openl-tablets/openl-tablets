@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.domaintree.DomainTree;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * @author Aliaksandr Antonik.
@@ -28,10 +31,11 @@ public class WizardBean extends BaseWizardBean {
     private ListWithSelection<TableCondition> conditions = new ListWithSelection<TableCondition>();
     private ListWithSelection<TableArtifact> actions = new ListWithSelection<TableArtifact>();
     private TableArtifact returnValue = new TableArtifact();
+    private DomainTree domainTree;
 
-    public WizardBean() {
-        start();
-    }
+    private SelectItem[] domainTypes;
+
+    public WizardBean() {}
 
     @Override
     protected String getName() {
@@ -44,6 +48,9 @@ public class WizardBean extends BaseWizardBean {
 
     protected void onStart() {
         reset();
+
+        domainTree = DomainTree.buildTree(WebStudioUtils.getWebStudio().getModel().getWrapper().getOpenClass().getMetaInfo());
+        domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
     }
 
     private void reset() {
@@ -53,6 +60,8 @@ public class WizardBean extends BaseWizardBean {
         actions = new ListWithSelection<TableArtifact>();
         returnValue = new TableArtifact();
         vertical = false;
+        domainTree = null;
+        domainTypes = null;
     }
 
     public String getTableName() {
@@ -158,6 +167,10 @@ public class WizardBean extends BaseWizardBean {
         if (cond != null) {
             cond.getParameters().add(new Parameter());
         }
+    }
+
+    public SelectItem[] getDomainTypes() {
+        return domainTypes;
     }
 
     public void addActionParameter() {

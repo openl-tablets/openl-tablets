@@ -18,7 +18,7 @@
 
           <h:outputLabel value="Return value" for="ret_type"/>
           <h:selectOneMenu id="ret_type" value="#{tableWizard.returnType}" style="width:90%;">
-            <f:selectItems value="#{OpenLTypes.items}"/>
+            <f:selectItems value="#{OpenLTypes.returnTypes}"/>
           </h:selectOneMenu>
 
           <h:outputLabel value="Orientation" for="t_or"/>
@@ -35,7 +35,7 @@
           <h:column>
             <f:facet name="header"><h:outputText value="Type"/></f:facet>
             <h:selectOneMenu value="#{row.type}" id="type">
-              <f:selectItems value="#{OpenLTypes.items}"/>
+              <f:selectItems value="#{tableWizard.domainTypes}"/>
             </h:selectOneMenu>
           </h:column>
           <h:column>
