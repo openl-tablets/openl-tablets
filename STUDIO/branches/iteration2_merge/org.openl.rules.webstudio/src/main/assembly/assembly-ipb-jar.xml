@@ -15,6 +15,14 @@
         <include>**/*</include>
       </includes>
     </fileSet>
+
+    <fileSet>
+      <directory>webapps/webstudio/WEB-INF/faces</directory>
+      <outputDirectory>META-INF</outputDirectory>
+      <includes>
+        <include>faces-config.xml</include>
+      </includes>
+    </fileSet>
   </fileSets>
 
 </assembly>
