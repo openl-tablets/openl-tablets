@@ -6,7 +6,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:t="http://myfaces.apache.org/tomahawk">
 
-  <rich:modalPanel id="modalCheckIn" width="400" minWidth="400" height="195" minHeight="195">
+  <rich:modalPanel id="modalCheckIn" width="400" minWidth="400" height="220" minHeight="220">
     <f:facet name="header">
       <h:outputText value="Check In" />
     </f:facet>
@@ -21,10 +21,14 @@
         <input value="#{artefact.name}" class="readonlyRowInput" type="text" size="35" readonly="true" title="#{artefact.name}"/>
         <h:outputText value="Current Version" />
         <h:outputText value="#{node.versionName}"/>
+        <h:outputText value="Next version Version" />
+        <h:outputText value="#{repositoryTreeController.major}.#{repositoryTreeController.minor}.#{repositoryTreeController.revision+1}" id="nextVersion"/>
         <h:outputLabel for="major" styleClass="required" value="Major Version" />
-        <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="32000" value="#{repositoryTreeController.major}" inputSize="4" cycled="false" />
+        <rich:inputNumberSpinner id="major" minValue="#{repositoryTreeController.major}" maxValue="32000" value="#{repositoryTreeController.major}"
+                                 inputSize="4" cycled="false" onchange="checkinDlgAdjustNextVersion();"/>
         <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
-        <rich:inputNumberSpinner id="minor" minValue="0" maxValue="32000" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false" />
+        <rich:inputNumberSpinner id="minor" minValue="0" maxValue="32000" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false"
+                 onchange="checkinDlgAdjustNextVersion()"/>
       </h:panelGrid>
 
       <br />
@@ -36,6 +40,15 @@
         <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalCheckIn');" />
       </h:panelGrid>
     </h:form>
+
+    <script>
+      function checkinDlgAdjustNextVersion() {
+        var major = $('checkInForm:majorEdit').down().value;
+        var minor = $('checkInForm:minorEdit').down().value;
+        var rev = #{repositoryTreeController.revision+1};
+        $("checkInForm:nextVersion").innerHTML = major + "." + minor + "." + rev;
+      }
+    </script>
   </rich:modalPanel>
 
   <script>

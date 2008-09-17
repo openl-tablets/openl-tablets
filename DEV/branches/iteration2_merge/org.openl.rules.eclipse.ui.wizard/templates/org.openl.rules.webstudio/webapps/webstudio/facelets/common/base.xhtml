@@ -11,10 +11,10 @@
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
   <head>
-    <a4j:loadStyle src="/css/default.css" />
-    <a4j:loadScript src="/javascript/common.js" />
+    <a4j:loadStyle src="resource:///css/default.css" />
+    <a4j:loadScript src="resource:///javascript/common.js" />
     <style>
-      input.button { background-image: url(#{contextPath}/images/button_#{skinBean.skin}.gif); }
+      input.button { background-image: url(#{contextPath}/webresource/images/button_#{skinBean.skin}.gif); }
       input.readonlyRowInput { background-color: #{a4jSkin.generalBackgroundColor}; }
       table.standard { border-bottom: 1px solid #{a4jSkin.headerBackgroundColor}; }
       table.standard td { border-right-color: #{a4jSkin.generalBackgroundColor}; }
@@ -24,7 +24,7 @@
   </head>
 
   <body>
-    <ui:include src="/common/header.xhtml" />
+    <ui:include src="/facelets/common/header.xhtml" />
     <ui:insert name="page" />
 
     <ui:insert name="special" />

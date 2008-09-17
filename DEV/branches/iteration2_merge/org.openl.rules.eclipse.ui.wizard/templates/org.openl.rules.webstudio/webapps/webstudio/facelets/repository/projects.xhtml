@@ -32,7 +32,9 @@
 
     <rich:columnGroup>
       <rich:column>
-        <h:outputText value="#{prj.name}" />
+        <h:commandLink styleClass="actionButton" value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
+          <f:param name="projectName" value="#{prj.name}" />
+        </h:commandLink>
       </rich:column>
       <rich:column>
         <h:outputText value="#{prj.version}" />
@@ -50,13 +52,13 @@
         <h:panelGroup rendered="#{!prj.dataBean.deleted}">
           &#160;
           <h:commandLink styleClass="actionButton" immediate="true" onclick="return openCopyProjectDialog('#{prj.name}');" title="Copy">
-            <h:graphicImage url="/images/copy.gif" styleClass="actionImage"/>
+            <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage"/>
           </h:commandLink>
           &#160;
           <h:commandLink styleClass="actionButton" immediate="true" action="#{repositoryTreeController.deleteRulesProject}"
             onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}" title="Delete">
             <f:param name="projectName" value="#{prj.name}" />
-            <h:graphicImage url="/images/delete.gif" styleClass="actionImage" />
+            <h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" />
           </h:commandLink>
         </h:panelGroup>
         &#160;
