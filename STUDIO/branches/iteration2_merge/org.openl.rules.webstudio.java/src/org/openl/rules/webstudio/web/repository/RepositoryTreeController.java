@@ -145,8 +145,8 @@ public class RepositoryTreeController {
                 UserWorkspaceProjectFolder folder = (UserWorkspaceProjectFolder) projectArtefact;
                 try {
                     folder.addFolder(folderName);
-                    repositoryTreeState.refreshSelectedNode();
                     repositoryTreeState.invalidateTree();
+                    repositoryTreeState.refreshSelectedNode();
                 } catch (ProjectException e) {
                     log.error("Failed to create folder '" + folderName + "'.", e);
                     errorMessage = e.getMessage();
