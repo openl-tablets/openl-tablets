@@ -8,9 +8,13 @@ package org.openl.rules.data;
 
 import java.util.Map;
 
+import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
+import org.openl.rules.data.impl.OpenlBasedDataTableModel;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
 
 /**
@@ -19,11 +23,14 @@ import org.openl.types.IOpenClass;
  */
 public interface ITable
 {
+	
+	String getName();
+	TableSyntaxNode getTableSyntaxNode();
 
 	Object getDataArray();
 	Object getData(int row);
 	int getSize();	
-	Object getFirst(Object primaryKey);
+//	Object getFirst(Object primaryKey);
 
 	IDataTableModel getDataModel();
 
@@ -73,6 +80,12 @@ public interface ITable
 	
 	Map<String, Integer> makeUniqueIndex(int idx) throws BoundError;
 	public Map<String, Integer> getUniqueIndex(int columnIndex) throws BoundError;
+	void setModel(OpenlBasedDataTableModel dataModel);
+	void setData(ILogicalTable dataWithHeader);
+	void preLoad(OpenlToolAdaptor ota)throws Exception ;
+	int getRowIndex(Object target);
+	String getPrimaryIndexKey(int row);
+	void setPrimaryIndexKey(int row, String value);
 	
 	
 }

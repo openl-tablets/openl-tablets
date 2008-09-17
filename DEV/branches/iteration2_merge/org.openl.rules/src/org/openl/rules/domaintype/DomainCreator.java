@@ -48,7 +48,7 @@ public class DomainCreator
 		return new DomainOpenClass(name, type, range, null);
 	}
 	
-	static public EnumDomain makeEnum(Object data)
+	static public EnumDomain<?> makeEnum(Object data)
 	{
 		
 		Class<?> clazz = data.getClass();
@@ -63,7 +63,7 @@ public class DomainCreator
 			throw new RuntimeException("Enum can not be created from primitives (temporary limitation)");
 		}	
 		
-		EnumDomain ed = new EnumDomain((Object[]) data);
+		EnumDomain<?> ed = new EnumDomain<Object>((Object[]) data);
 		
 		return ed;
 		

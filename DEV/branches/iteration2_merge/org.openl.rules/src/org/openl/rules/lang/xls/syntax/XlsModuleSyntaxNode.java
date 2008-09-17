@@ -10,7 +10,6 @@ import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.NaryNode;
-import org.openl.syntax.impl.TerminalNode;
 
 /**
  * @author snshor

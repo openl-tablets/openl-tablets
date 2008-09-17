@@ -18,10 +18,12 @@ import org.openl.rules.data.IColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.IDataTableModel;
 import org.openl.rules.data.ITable;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.types.IOpenClass;
+import org.openl.util.BiMap;
 
 /**
  * @author snshor
@@ -30,28 +32,25 @@ import org.openl.types.IOpenClass;
 public class DataBase implements IDataBase
 {
 
-	boolean validationOccured = false;
+//	boolean validationOccured = false;
 
 	Map<String, ITable> tables = new HashMap<String, ITable>();
 
 	public DataBase()
 	{
 	}
+	
+	
 
-	public synchronized ITable addTable(IDataTableModel dataModel,
-			ILogicalTable data, OpenlToolAdaptor ota) throws Exception
-	{
-		if (validationOccured)
-			throw new RuntimeException("Trying to add table after validation");
-		Table t = (Table) tables.get(dataModel.getName());
-		if (t != null)
-			throw new DuplicatedTableException(t.dataModel, dataModel);
-		t = new Table(dataModel, data);
-		tables.put(dataModel.getName(), t);
+	public void preLoadTable(ITable t, OpenlBasedDataTableModel dataModel,
+			ILogicalTable dataWithHeader, OpenlToolAdaptor ota) throws Exception {
+		t.setModel(dataModel);
+		t.setData (dataWithHeader);
 		t.preLoad(ota);
-		return t;
 	}
 
+	
+	
 	/**
 	 * 
 	 */
@@ -106,8 +105,10 @@ public class DataBase implements IDataBase
 	static class Table implements ITable
 	{
 		ILogicalTable data;
-
 		IDataTableModel dataModel;
+		
+		String tableName; 
+		TableSyntaxNode tsn;
 
 		Object ary;
 
@@ -120,7 +121,13 @@ public class DataBase implements IDataBase
 			this.data = data;
 		}
 
-		void preLoad(OpenlToolAdaptor ota) throws Exception
+		public Table(String tableName, TableSyntaxNode tsn) 
+		{
+			this.tableName = tableName;
+			this.tsn = tsn;
+		}
+
+		public void preLoad(OpenlToolAdaptor ota) throws Exception 
 		{
 			int rows = data.getLogicalHeight();
 			int startRow = 1;
@@ -145,7 +152,15 @@ public class DataBase implements IDataBase
 
 			for (int i = startRow; i < rows; i++)
 			{
-				Object target = isConstructor ? null : dataModel.newInstance();
+				Object target = null;
+				int rowIndex = i - startRow;
+				if (!isConstructor)
+				{ 
+					target = dataModel.newInstance();
+					
+					addToRowIndex(rowIndex, target);
+					
+				}	
 
 				int columns = data.getLogicalWidth();
 
@@ -170,6 +185,14 @@ public class DataBase implements IDataBase
 
 			}
 
+		}
+		
+		BiMap<Integer, Object> rowIndexMap = new BiMap<Integer, Object>();
+
+		private void addToRowIndex(int rowIndex, Object target) 
+		{
+			rowIndexMap.put(rowIndex, target);
+			
 		}
 
 		public void populate(IDataBase db, IBindingContext cxt) throws Exception
@@ -224,11 +247,10 @@ public class DataBase implements IDataBase
 		 * 
 		 */
 
-		public Object getFirst(Object primaryKey)
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		public Object getFirst(Object primaryKey)
+//		{
+//			return null;
+//		}
 
 		/**
 		 * 
@@ -394,6 +416,57 @@ public class DataBase implements IDataBase
 			
 			return index;
 		}
+
+		public String getName() {
+			return null;
+		}
+
+		public TableSyntaxNode getTableSyntaxNode() {
+			return tsn;
+		}
+
+		public void setData(ILogicalTable dataWithHeader) 
+		{
+			data = dataWithHeader;
+			
+		}
+
+		public void setModel(OpenlBasedDataTableModel dataModel) 
+		{
+			this.dataModel = dataModel;
+		}
+
+		public String getPrimaryIndexKey(int row) {
+			return primaryIndexMap.get(row);
+		}
+
+		public int getRowIndex(Object target) {
+			return rowIndexMap.getKey(target);
+		}
+
+		
+		BiMap<Integer, String> primaryIndexMap = new BiMap<Integer, String>();   
+		
+		public synchronized void setPrimaryIndexKey(int row, String value) 
+		{
+			Integer oldRow =  primaryIndexMap.getKey(value);
+			if (oldRow != null)
+				throw new RuntimeException("Duplicated key: " + value + "in rows " + oldRow + "," + row);
+			primaryIndexMap.put(row, value);
+		}
 	}
+
+	public ITable addNewTable(String tableName, TableSyntaxNode tsn) {
+		ITable t = (ITable) tables.get(tableName);
+		if (t != null)
+			throw new DuplicatedTableException(tableName, t.getTableSyntaxNode(), tsn);
+		t = new Table(tableName, tsn);
+		tables.put(tableName, t);
+		return t;
+	}
+
+
+
+
 
 }

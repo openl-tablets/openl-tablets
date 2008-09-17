@@ -23,6 +23,6 @@ public interface IDataTableModel
 	
 	public Object newInstance();
 	
-	public Class getInstanceClass();
+	public Class<?> getInstanceClass();
 	
 }

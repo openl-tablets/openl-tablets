@@ -65,6 +65,8 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 	
 	public static final String CONSTRUCTOR_FIELD = "this";
 
+	private static final String FPK = "_PK_";
+
 	
 	
 	protected String getErrMsgFormat()
@@ -155,9 +157,11 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 		ILogicalTable descriptorRows = dataTable.rows(0, hasIndexRow ? 1 : 0);
 
 		ILogicalTable dataWithHeader = dataTable.rows(hasIndexRow ? 2 : 1);
+		
+		ITable t = xlsOpenClass.getDataBase().addNewTable(tableName, tsn);
 
 		IColumnDescriptor[] descriptors = makeDescriptors(descriptorRows, cxt,
-				tableType, openl, hasIndexRow, dataWithHeader);
+				tableType, openl, hasIndexRow, dataWithHeader, t);
 
 		OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(
 				tableName, tableType, openl, descriptors);
@@ -166,7 +170,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 		
 		OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, cxt);
 		
-		ITable t = xlsOpenClass.getDataBase().addTable(dataModel, dataWithHeader, ota);
+		xlsOpenClass.getDataBase().preLoadTable(t, dataModel, dataWithHeader, ota);
 		
 
 
@@ -232,17 +236,26 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 					.getStringValue(0, 0);
 			if (fieldName == null)
 				continue;
-			IOpenField of = tableType.getField(fieldName, true);
+			IOpenField of = findField(fieldName, null, tableType);
 			if (of != null)
 				++cnt;
 		}
 		return cnt;
 	}
 
+	
+	IOpenField findField(String fieldName, ITable table, IOpenClass tableType)
+	{
+		if (FPK.equals(fieldName))
+			return new PrimaryKeyField(FPK, table); 
+		return tableType.getField(fieldName, true);
+	}
+	
+	
 	IColumnDescriptor[] makeDescriptors(ILogicalTable descriptorRows,
 			@SuppressWarnings("unused")
 			IBindingContext cxt, IOpenClass type, OpenL openl,
-			boolean hasIndexRow, ILogicalTable dataWithHeader) throws Exception
+			boolean hasIndexRow, ILogicalTable dataWithHeader, ITable table) throws Exception
 	{
 
 		int width = descriptorRows.getLogicalWidth();
@@ -276,7 +289,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 				   //targetType = targetType;
 					break;
 				}
-				IOpenField field = targetType.getField(fieldName, true);
+				IOpenField field = findField(fieldName, table, type);
 
 				if (field == null)
 				{
