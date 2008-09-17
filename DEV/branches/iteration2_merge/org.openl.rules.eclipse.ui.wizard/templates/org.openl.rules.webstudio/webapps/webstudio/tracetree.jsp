@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" type="text/css" href="css/dtree.css"></link>
 <link rel="stylesheet" type="text/css" href="css/style1.css"></link>
-<script language="JavaScript" type="text/JavaScript" src="dtree.js"></script>
+<script language="JavaScript" type="text/JavaScript" src="webresource/dtree.js"></script>
 
 
 <style type="text/css">
@@ -18,9 +18,9 @@ BODY {
 	background: #eceef8;
 	}
 
-	
+
 #tree {
-	text-overflow: ellipsis; 
+	text-overflow: ellipsis;
 	overflow : hidden
 	width: 100%;
 	height: 100%;
@@ -38,19 +38,19 @@ BODY {
 <%@include file="jsp/checkTimeout.jspf"%>
 
 
-<% 
-	String s_id = request.getParameter("elementID"); 
-	
-   	
-   	 	
-   	int elementID = -100;	
+<%
+	String s_id = request.getParameter("elementID");
+
+
+
+   	int elementID = -100;
    	if (s_id != null)
    	{
      	elementID = Integer.parseInt(s_id);
      	studio.setTableID(elementID);
 	   	String url = studio.getModel().makeXlsUrl(elementID);
 	   	String uri = studio.getModel().getUri(elementID);
-	   	String text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);   
+	   	String text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);
 //	   	String name = studio.getModel().getDisplayNameFull(elementID);
 //	   	tracer.setName(name);
 	   	org.openl.vm.Tracer t =  studio.getModel().traceElement(elementID);
@@ -60,7 +60,7 @@ BODY {
     {
 %>
 	<h1>elementID not found</h1>
-<%    	
+<%
     }
 %>
 
@@ -70,14 +70,14 @@ BODY {
 
 <table width=95% style="border-style: solid; border-width: 1;">
 <tr>
-<td> 
-<a href="javascript: top.close()" title="Close Window"><img border=0 src="images/close.gif"></a>
+<td>
+<a href="javascript: top.close()" title="Close Window"><img border=0 src="webresource/images/close.gif"></a>
 </td>
 
 <td align=right >
-<a href="javascript: d.openAll(); d.o(0);" title="Expand All"><img border="0" src="images/expandall.gif"/></a>
+<a href="javascript: d.openAll(); d.o(0);" title="Expand All"><img border="0" src="webresource/images/expandall.gif"/></a>
 
-<a href="javascript: d.closeAll()" title="Collapse All" > <img border="0" src="images/collapseall.gif"/></a>
+<a href="javascript: d.closeAll()" title="Collapse All" > <img border="0" src="webresource/images/collapseall.gif"/></a>
 
 </td>
 </tr></table>
@@ -105,7 +105,7 @@ d = new dTree('d');
 
 
 document.all['tree'].innerHTML = d;
-</script>              
+</script>
 
 
 

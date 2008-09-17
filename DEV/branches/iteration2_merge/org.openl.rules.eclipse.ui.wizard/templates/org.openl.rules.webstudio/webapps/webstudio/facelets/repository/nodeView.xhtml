@@ -15,7 +15,7 @@
 
     <rich:tabPanel style="height:500px;">
       <rich:tab label="Rules Projects">
-        <ui:include src="/repository/projects.xhtml" />
+        <ui:include src="/facelets/repository/projects.xhtml" />
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>
@@ -52,7 +52,7 @@
         <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog();" />
         <h:commandButton styleClass="#{artefact.canDelete ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{artefact.canDelete} &amp;&amp; confirmDeleteNode();" />
         <h:commandButton styleClass="#{artefact.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" type="button" onclick="#{artefact.canRedeploy} &amp;&amp; openSmartRedeployDialog();"/>
-        <h:commandButton styleClass="button" value="Compare" type="button" onclick="window.open('#{contextPath}/faces/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
+        <h:commandButton styleClass="button" value="Compare" type="button" onclick="window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
       </h:panelGrid>
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openNewFolderDialog();" />
@@ -68,23 +68,23 @@
    &amp;&amp; node.type != 'deployment'}">
     <rich:tab label="Properties">
       <h:panelGroup rendered="#{node.type == 'file'}">
-        <ui:include src="/repository/node/fileProps.xhtml" />
+        <ui:include src="/facelets/repository/node/fileProps.xhtml" />
       </h:panelGroup>
       <h:panelGroup rendered="#{node.type == 'folder'}">
-        <ui:include src="/repository/node/folderProps.xhtml" />
+        <ui:include src="/facelets/repository/node/folderProps.xhtml" />
       </h:panelGroup>
       <h:panelGroup rendered="#{node.type == 'project'}">
-        <ui:include src="/repository/node/projectProps.xhtml" />
+        <ui:include src="/facelets/repository/node/projectProps.xhtml" />
       </h:panelGroup>
     </rich:tab>
     <rich:tab label="Versions">
-      <ui:include src="/repository/node/versions.xhtml" />
+      <ui:include src="/facelets/repository/node/versions.xhtml" />
     </rich:tab>
     <rich:tab label="Elements" rendered="#{node.type != 'file'}">
-      <ui:include src="/repository/node/elements.xhtml" />
+      <ui:include src="/facelets/repository/node/elements.xhtml" />
     </rich:tab>
     <rich:tab label="Dependencies" rendered="#{node.type == 'project'}">
-      <ui:include src="/repository/node/dependency.xhtml" />
+      <ui:include src="/facelets/repository/node/dependency.xhtml" />
     </rich:tab>
   </rich:tabPanel>
 
@@ -95,7 +95,7 @@
 
     <rich:tabPanel style="height:500px;">
       <rich:tab label="Deployment Projects">
-        <ui:include src="/repository/projectsD.xhtml" />
+        <ui:include src="/facelets/repository/projectsD.xhtml" />
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>
@@ -122,10 +122,10 @@
         <ui:include src="node/deployment.xhtml" />
       </rich:tab>
       <rich:tab label="Versions">
-        <ui:include src="/repository/node/versions.xhtml" />
+        <ui:include src="/facelets/repository/node/versions.xhtml" />
       </rich:tab>
       <rich:tab label="Descriptors">
-        <ui:include src="/repository/node/descriptors.xhtml" />
+        <ui:include src="/facelets/repository/node/descriptors.xhtml" />
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>

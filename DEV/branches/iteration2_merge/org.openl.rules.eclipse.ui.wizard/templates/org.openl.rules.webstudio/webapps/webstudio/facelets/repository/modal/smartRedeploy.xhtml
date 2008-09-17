@@ -52,7 +52,7 @@
       <h:panelGrid id="processing" columns="2" cellpadding="4px;" cellspacing="0px;"
         styleClass="dr-mpnl-pnl"
         style="width:100px;height:28px;position:absolute;top:120px;left:150px;border-width:2px;visibility:hidden;" >
-        <h:graphicImage value="/images/modal/wait.gif" />
+        <h:graphicImage value="/webresource/images/modal/wait.gif" />
         <h:outputText value="Processing..." />
       </h:panelGrid>
 
@@ -96,7 +96,7 @@
       var table = document.getElementById('smartRedeployForm:smartRedeployTable');
       for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
         var item = table.childNodes[2].childNodes[i].firstChild.firstChild;
-        
+
         if (!item.disabled) item.checked = newState;
       }
       updateSmartRedeployBtn();

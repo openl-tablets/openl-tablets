@@ -14,7 +14,7 @@
 .masthead {
   width: 100%;
   height: 70px;
-  background-image: url(../images/header_logo.jpg);
+  background-image: url(../webresource/images/header_logo.jpg);
   background-repeat: no-repeat;
   min-width: 800px;
   max-width: 1400px;
@@ -30,7 +30,7 @@
 }
 
 span#userName {
-  background: url(../images/user.gif) no-repeat right;
+  background: url(../webresource/images/user.gif) no-repeat right;
   color: black;
   display: block;
   font-size: 11px;
@@ -114,7 +114,7 @@ form .formfields {
 
 .required {
   color: #002276;
-  background: url(../images/required.gif) top right no-repeat;
+  background: url(../webresource/images/required.gif) top right no-repeat;
   padding-right: 5px;
 }
 
@@ -146,7 +146,7 @@ input.button {
   color: #FFFFFF;
   text-align: center;
   height: 18px;
-  background: url(../images/button_DEFAULT.gif) repeat-x center;
+  background: url(../webresource/images/button_DEFAULT.gif) repeat-x center;
   background-color: #7c99b6;
   margin: 0;
   padding: 0px 5px;
@@ -164,7 +164,7 @@ input.disabledButton {
   color: #FFFFFF;
   text-align: center;
   height: 18px;
-  background: url(../images/disabledButton.gif) repeat-x center;
+  background: url(../webresource/images/disabledButton.gif) repeat-x center;
   background-color: #7c99b6;
   margin: 0;
   padding: 0px 5px 0px 5px;

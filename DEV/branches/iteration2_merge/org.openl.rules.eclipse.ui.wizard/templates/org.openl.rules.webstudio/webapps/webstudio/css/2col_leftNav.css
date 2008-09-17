@@ -18,7 +18,7 @@ div#container
 #masthead {
 	width: 100%;
 	height: 70px;
-	background-image: url(../images/header_logo.jpg);
+	background-image: url(../webresource/images/header_logo.jpg);
 	background-repeat: no-repeat;
 	border-bottom: 1px solid #CCCCCC;
 	min-width: 800px;
@@ -91,7 +91,7 @@ div#container
 	min-width: 5px;
 	width: 5px;
 	cursor: e-resize;
-	background: url(../images/ddots-vertical.gif) repeat-y 100% 0;
+	background: url(../webresource/images/ddots-vertical.gif) repeat-y 100% 0;
 	height: 600px;
 }
 
@@ -147,7 +147,7 @@ div#container
 }
 
 #tree {
-	text-overflow: ellipsis; 
+	text-overflow: ellipsis;
 	margin-top: 5px;
 	overflow: auto;
 	width: 100%;
