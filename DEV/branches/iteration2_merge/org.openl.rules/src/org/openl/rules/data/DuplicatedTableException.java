@@ -6,25 +6,30 @@
  
 package org.openl.rules.data;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+
 /**
  * @author snshor
  *
  */
-public class DuplicatedTableException extends Exception
+public class DuplicatedTableException extends RuntimeException
+//TODO - make it syntax error
 {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6269440215951548170L;
-	IDataTableModel existingTable; 
-	IDataTableModel duplicatedTable;
+	
+	TableSyntaxNode existingTable; 
+	TableSyntaxNode duplicatedTable;
+	String tableName;
+	
+	
 
-	/**
-	 * 
-	 */
-	public DuplicatedTableException(IDataTableModel existingTable, IDataTableModel duplicatedTable)
-	{
+	public DuplicatedTableException(String tableName,
+			TableSyntaxNode existingTable, TableSyntaxNode duplicatedTable) {
+		this.tableName = tableName;
 		this.existingTable = existingTable;
 		this.duplicatedTable = duplicatedTable;
 	}
@@ -32,7 +37,7 @@ public class DuplicatedTableException extends Exception
 	/**
 	 * @return
 	 */
-	public IDataTableModel getDuplicatedTable()
+	public TableSyntaxNode getDuplicatedTable()
 	{
 		return duplicatedTable;
 	}
@@ -40,7 +45,7 @@ public class DuplicatedTableException extends Exception
 	/**
 	 * @return
 	 */
-	public IDataTableModel getExistingTable()
+	public TableSyntaxNode getExistingTable()
 	{
 		return existingTable;
 	}
@@ -53,7 +58,7 @@ public class DuplicatedTableException extends Exception
 
 	public String getMessage()
 	{
-		return "The table already exists: " + existingTable.getName();
+		return "The table already exists: " + tableName;
 	}
 
 }

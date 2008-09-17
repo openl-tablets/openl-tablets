@@ -54,6 +54,7 @@ import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.AStringConvertor;
@@ -143,22 +144,37 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 	public IVocabulary makeVocabulary(XlsModuleSyntaxNode moduleNode) throws BoundError
 	{
-
-		if (moduleNode.getVocabularyNode() == null)
+		final IdentifierNode vocNode = moduleNode.getVocabularyNode(); 
+		if (vocNode == null)
 			return null;
 
-		ClassLoader cl = ucxt.getUserClassLoader();
+		final ClassLoader cl = ucxt.getUserClassLoader();
+		IVocabulary ivoc = null;
 
 		try
 		{
-			Class vClass = cl.loadClass(moduleNode.getVocabularyNode()
-					.getIdentifier());
-			IVocabulary voc = (IVocabulary) vClass.newInstance();
-			return voc;
+			Thread.currentThread().setContextClassLoader(cl);
+			
+			ivoc = (IVocabulary)ucxt.execute(new IUserContext.Executable(){
 
+				public Object execute() {
+					IVocabulary voc;
+					try {
+						Class<?> vClass = cl.loadClass(vocNode
+								.getIdentifier());
+						voc = (IVocabulary) vClass.newInstance();
+						return voc;
+					} catch (Throwable t) {
+						throw RuntimeExceptionWrapper.wrap(t);
+					}
+				}
+				
+			});
+			
+			return ivoc;
 		} catch (Throwable t)
 		{
-			throw new BoundError(t,null);
+			throw new BoundError(vocNode, "Can't Load Vocabulary", t);
 		}
 
 	}
@@ -277,7 +293,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 				}
 		}
 
-		ASelector dataTypeSelector = new ASelector.StringValueSelector(
+		ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(
 				ITableNodeTypes.XLS_DATATYPE, new SyntaxConvertor());
 
 		// ASelector testMethodSelector = new ASelector.StringValueSelector(
@@ -312,12 +328,12 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 	};
 
-	static class SyntaxConvertor extends AStringConvertor
+	static class SyntaxConvertor extends AStringConvertor<ISyntaxNode>
 	{
 
-		public String getStringValue(Object test)
+		public String getStringValue(ISyntaxNode test)
 		{
-			return ((ISyntaxNode) test).getType();
+			return  test.getType();
 		}
 	}
 
@@ -452,19 +468,19 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 		throw new UnsupportedOperationException("XlsBinder is top level Binder");
 	}
 
-	static Map binderFactory;
+	static Map<String, AXlsTableBinder> binderFactory;
 
-	static synchronized public Map binderFactory()
+	static synchronized public Map<String, AXlsTableBinder> binderFactory()
 	{
 		if (binderFactory == null)
 		{
-			binderFactory = new HashMap();
+			binderFactory = new HashMap<String, AXlsTableBinder>();
 
 			for (int i = 0; i < binders.length; i++)
 			{
 				try
 				{
-					binderFactory.put(binders[i][0], Class.forName(binders[i][1])
+					binderFactory.put(binders[i][0], (AXlsTableBinder)Class.forName(binders[i][1])
 							.newInstance());
 				} catch (Exception ex)
 				{

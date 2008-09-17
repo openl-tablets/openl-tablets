@@ -23,7 +23,6 @@ import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.types.IOpenMember;
-import org.openl.validate.IValidationResult;
 
 
 /**

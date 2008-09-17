@@ -63,7 +63,7 @@ public abstract class AXlsTableBinder extends ANodeBinder
 
 		ILogicalTable propValues = propTable.columns(1);
 
-		ArrayList properties = new ArrayList();
+		ArrayList<TableProperties.Property> properties = new ArrayList<TableProperties.Property>();
 
 		int h = propValues.getLogicalHeight();
 		for (int i = 0; i < h; i++)
@@ -95,7 +95,7 @@ public abstract class AXlsTableBinder extends ANodeBinder
 			properties.add(p);
 		}
 
-		return new TableProperties(propValues, (TableProperties.Property[])properties.toArray(new TableProperties.Property[0]));
+		return new TableProperties(propValues, properties.toArray(new TableProperties.Property[0]));
 
 	}
 }

@@ -21,7 +21,6 @@ import org.openl.rules.data.IColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.ITable;
-import org.openl.rules.domaintype.DomainCreator;
 import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;

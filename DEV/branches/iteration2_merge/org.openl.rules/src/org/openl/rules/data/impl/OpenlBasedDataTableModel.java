@@ -65,7 +65,7 @@ public class OpenlBasedDataTableModel implements IDataTableModel
 	 *
 	 */
 
-	public Class getInstanceClass()
+	public Class<?> getInstanceClass()
 	{
 		return type.getInstanceClass();
 	}
