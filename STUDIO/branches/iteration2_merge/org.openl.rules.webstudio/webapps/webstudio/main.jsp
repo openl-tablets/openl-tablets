@@ -4,8 +4,7 @@
 <%@page import="org.openl.rules.webstudio.web.util.WebStudioUtils"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspace"%>
 <%@page import="org.openl.rules.ui.WebStudio"%>
-<%@page import="java.util.Set"%>
-<%@page import="java.util.HashSet"%>
+<%@page import="java.util.*"%>
 <%@page import="org.openl.rules.workspace.abstracts.Project"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspaceProject"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
@@ -60,8 +59,11 @@ String mode = request.getParameter("mode");
     studio.reset();
 
   String validate = request.getParameter("validate");
+  List validateErrors = null; 
   if (validate != null)
-    studio.getModel().validateAll();
+  {
+    validateErrors = studio.getModel().validateAll();
+  }  
 
 
     String operation = request.getParameter("operation");
@@ -82,10 +84,14 @@ String mode = request.getParameter("mode");
     <frame src="html/nothing.html" name="show_app_hidden">
 </frameset>
 
-<%if (request.getParameter("elementURI") == null ) {%>
-<frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
-<%} else { %>
+<%if (request.getParameter("elementURI") != null ) {%>
 <frame src="${pageContext.request.contextPath}/jsp/tableeditor/showTable.jsf?elementURI=<%=URLEncoder.encode(request.getParameter("elementURI"), "UTF-8")%>" name="mainFrame" scrolling="auto"/>
+<%} else if (validateErrors != null) { if (validateErrors.size() > 0){%>
+<frame src="${pageContext.request.contextPath}/html/yesValidateErrors.html" name="mainFrame" scrolling="auto"/>
+<%} else { %>
+<frame src="${pageContext.request.contextPath}/html/noValidateErrors.html" name="mainFrame" scrolling="auto"/>
+<%}} else { %>
+<frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
 <%} %>
 
 
