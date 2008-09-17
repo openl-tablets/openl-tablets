@@ -11,13 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Properties;
 
 import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IConfigurableResourceContext;
-import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor

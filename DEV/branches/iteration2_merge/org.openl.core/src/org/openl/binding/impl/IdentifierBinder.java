@@ -30,17 +30,19 @@ public class IdentifierBinder extends ANodeBinder
 
 	String fieldName = ((IdentifierNode) node).getIdentifier();
 
+	IOpenClass type = bindingContext.findType(
+			ISyntaxConstants.THIS_NAMESPACE, fieldName);
+
+		if (type != null)
+		    return new TypeBoundNode(node, type);
+	
+	
 	IOpenField om = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE,
 		fieldName, strictMatch);
 
 	if (om != null)
 	    return new FieldBoundNode(node, om);
 
-	IOpenClass type = bindingContext.findType(
-		ISyntaxConstants.THIS_NAMESPACE, fieldName);
-
-	if (type != null)
-	    return new TypeBoundNode(node, type);
 
 	throw new BoundError(node, "Field not found: " + fieldName, null);
 

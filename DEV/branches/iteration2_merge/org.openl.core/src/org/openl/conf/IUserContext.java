@@ -20,4 +20,12 @@ public interface IUserContext
   public String getUserHome();
 
   public Properties getUserProperties();
+  
+  public Object execute(Executable run);
+  
+  public interface Executable
+  {
+	  public Object execute();
+  }
+  
 }

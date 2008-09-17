@@ -16,7 +16,7 @@ import org.openl.main.SourceCodeURLConstants;
 public class Tracer
 {
 	
-	static ThreadLocal tracer = new ThreadLocal();
+	static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
 	
 	static public boolean isTracerOn()
 	{
@@ -25,7 +25,7 @@ public class Tracer
 	
 	static public Tracer getTracer()
 	{
-		return (Tracer)tracer.get();
+		return tracer.get();
 	}
 	
 	static public void setTracer(Tracer t)
@@ -33,7 +33,7 @@ public class Tracer
 		tracer.set(t);
 	}
 
-	Stack stack = new Stack();
+	Stack<ITracerObject> stack = new Stack<ITracerObject>();
 	
 
 	public void push(ITracerObject obj)
