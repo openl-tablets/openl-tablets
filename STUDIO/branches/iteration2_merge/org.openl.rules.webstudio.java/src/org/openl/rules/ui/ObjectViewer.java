@@ -423,14 +423,14 @@ public class ObjectViewer {
             buf.append("<td  class=\"testtable\">");
             switch (tt.getCompareResult(i)) {
             case TestResult.TR_OK:
-                buf.append("<img src='/webresource/images/test_ok.gif'/>").append(displayResult(tt.getResult(i)));
+                buf.append("<img src='webresource/images/test_ok.gif'/>").append(displayResult(tt.getResult(i)));
                 break;
             case TestResult.TR_EXCEPTION:
                 // buf.append("<img src='/webresource/images/test_exception.gif'>");
                 displayException((Throwable) tt.getResult(i), buf);
                 break;
             case TestResult.TR_NEQ:
-                buf.append("<img src='/webresource/images/test_neq.gif'/>").append(displayResult(tt.getResult(i)));
+                buf.append("<img src='webresource/images/test_neq.gif'/>").append(displayResult(tt.getResult(i)));
                 break;
             }
 
