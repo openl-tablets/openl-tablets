@@ -39,7 +39,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title><%=text%></title>
-<link href="../css/style1.css" rel="stylesheet" type="text/css"/>
+<link href="../css/openl/style1.css" rel="stylesheet" type="text/css"/>
 
 <script type="text/javascript">
 

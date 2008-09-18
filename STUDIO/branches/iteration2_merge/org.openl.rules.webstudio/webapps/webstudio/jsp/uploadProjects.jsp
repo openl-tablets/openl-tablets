@@ -19,8 +19,8 @@
 <html>
   <head>
       <title>Simple jsp page</title>
-      <link href="../css/style1.css" rel="stylesheet" type="text/css">
-      <link href="../css/default.css" rel="stylesheet" type="text/css">
+      <link href="../css/openl/style1.css" rel="stylesheet" type="text/css">
+      <link href="../css/openl/default.css" rel="stylesheet" type="text/css">
   </head>
   <body style="padding-left:5px;">
   <f:view>
