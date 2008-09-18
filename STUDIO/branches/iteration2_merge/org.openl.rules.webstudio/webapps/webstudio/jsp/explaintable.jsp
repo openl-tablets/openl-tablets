@@ -8,7 +8,7 @@
 
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="css/style1.css"></link>
+<link rel="stylesheet" type="text/css" href="css/openl/style1.css"></link>
 
 <% 
 	if (studio.getModel().getWrapper() == null)

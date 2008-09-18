@@ -9,8 +9,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" type="text/css" href="css/dtree.css"></link>
-<link href="../css/style1.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="webresource/css/openl/dtree.css"></link>
+<link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
 <style type="text/css">
 
 BODY {

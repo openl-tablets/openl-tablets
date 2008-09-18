@@ -6,8 +6,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>OpenL Web Studio</title>
-<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style1.css"></link>
-<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/2col_leftNav.css"></link>
+<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/openl/style1.css"></link>
+<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/openl/2col_leftNav.css"></link>
 
 
 

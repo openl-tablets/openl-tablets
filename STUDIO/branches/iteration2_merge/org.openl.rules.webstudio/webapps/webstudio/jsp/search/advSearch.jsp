@@ -73,9 +73,9 @@
 
 
 <head>
-<link href="../../css/style1.css" rel="stylesheet" type="text/css"/>
+<link href="../../css/openl/style1.css" rel="stylesheet" type="text/css"/>
 
-<%@include file="advSearch.css"%>
+<%@include file="openl/advSearch.css"%>
 
 <%@include file="advSearch.js"%>
 <script type="text/javascript" src="../../javascript/prototype/prototype-1.5.1.js"></script>
