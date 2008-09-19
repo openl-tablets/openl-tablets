@@ -380,7 +380,8 @@ public class ObjectViewer {
             regions[i] = dt.getRuleTable(rules[i]).getGridTable().getRegion();
         }
 
-        return new ColorGridFilter(new RegionGridSelector(regions, true), projectModel.getFilterHolder().makeFilter());
+        ColorFilterHolder cf = projectModel == null ? new ColorFilterHolder() : projectModel.getFilterHolder();
+        return new ColorGridFilter(new RegionGridSelector(regions, true), cf.makeFilter());
 
         //		return ColorGridFilter.makeTransparentFilter(new RegionGridSelector(
         //				regions, true), 0.7, 0x00ff00);
