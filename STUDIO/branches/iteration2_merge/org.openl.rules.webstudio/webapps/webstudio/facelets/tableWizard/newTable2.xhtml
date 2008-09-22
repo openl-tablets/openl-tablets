@@ -70,6 +70,7 @@
 
             <h:column>
               <h:inputText value="#{row.conditionExpression}"/>
+              <a href="#" onclick="showDomainTree(this)">..</a>
             </h:column>
           </h:dataTable>
         </h:panelGroup>
@@ -119,6 +120,43 @@
       <h:commandButton value="Cancel" action="#{tableWizard.cancel}"/>
     </h:form>
 
+<rich:modalPanel id="modalDomainTreePanel" minHeight="350">
+  <f:facet name="header"><h:outputText value="Compose expression"/></f:facet>
+
+  <f:facet name="controls">
+    <h:graphicImage value="/webresource/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalDomainTreePanel');"/>
+  </f:facet>
+
+  <a4j:outputPanel id="domainTreePanel">
+    <a4j:form id="dtForm">
+      Dot path: <f:verbatim>&amp;nbsp;</f:verbatim><h:outputText value="#{domainTreePath.dotExpression}" styleClass="treeOptionsText"/>
+      <f:verbatim>&amp;nbsp;</f:verbatim>
+      <a href="javascript: void(0);" onclick="removeLastDotPart()"><h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" rendered="#{not empty domainTreePath.dotExpression}"/></a>
+      <h:inputHidden id="currentExpression" value="#{domainTreePath.dotExpression}"/>
+      <h:inputHidden id="newDotPart" value="#{domainTreePath.newDotPart}"/>
+      <div style="display:none;"><a4j:commandLink value="update" reRender="domainTreePanel" id="dtLink"/>
+      <a4j:commandLink value="init" reRender="domainTreePanel" id="dtLink2" oncomplete="Richfaces.showModalPanel('modalDomainTreePanel');"/></div>
+    </a4j:form>
+
+    <div style="height:200px;">
+    <ul class="treeOptions">
+      <h:dataTable value="#{domainTreePath.subExpressions}"  var="t">
+        <h:column><h:commandLink value="#{t}" onclick="addDotPart('#{t}'); return false" /></h:column>
+      </h:dataTable>
+    </ul>
+    </div>
+  </a4j:outputPanel>
+
+  <br />
+  <rich:separator height="1" />
+  <br />
+
+  <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+    <h:commandButton styleClass="button" value="Select" type="button" onclick="hideDomainTree();" />
+    <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalDomainTreePanel');" />
+  </h:panelGrid>
+</rich:modalPanel>
+
     <script type="text/javascript">
       var wiz_ids = ['pname', 'tname','type']
       var baseId = "newTableWiz2:paramTable:";
@@ -128,6 +166,33 @@
         var base1 = baseId+pos+":", base2 = baseId+(pos-1)+":"
         for (var i=0; i &lt; wiz_ids.length; ++i) wiz_swap(document.getElementById(base1 + wiz_ids[i]), document.getElementById(base2 + wiz_ids[i]))
       }
+
+      var destInputElement;
+      function showDomainTree(anchorElement) {
+        destInputElement  = $(anchorElement).up().down('INPUT');
+        $('dtForm:currentExpression').value = destInputElement.value.gsub(' ', '').sub(/\.+$/, '');
+        $('dtForm:newDotPart').value = '';
+        $('dtForm:dtLink2').onclick();
+      }
+
+      function addDotPart(text) {
+        $('dtForm:newDotPart').value = text;
+        $('dtForm:dtLink').onclick();
+      }
+
+      function removeLastDotPart() {
+        var parts = $('dtForm:currentExpression').value.split('.');
+        parts.pop();
+        $('dtForm:currentExpression').value = parts.join('.');
+        $('dtForm:newDotPart').value = '';
+        $('dtForm:dtLink').onclick();
+      }
+
+      function hideDomainTree() {
+        Richfaces.hideModalPanel('modalDomainTreePanel');
+        destInputElement.value = $('dtForm:currentExpression').value; 
+      }
+
     </script>
   </ui:define>
 </ui:composition>

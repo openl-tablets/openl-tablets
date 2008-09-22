@@ -348,6 +348,21 @@
     </managed-property>
   </managed-bean>
 
+  <managed-bean>
+    <managed-bean-name>domainTreePath</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.tablewizard.DomainTreePath</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+
+    <managed-property>
+      <property-name>domainTree</property-name>
+      <value>#{tableWizard.domainTree}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>parameters</property-name>
+      <value>#{tableWizard.parameters}</value>
+    </managed-property>
+  </managed-bean>
+
   <navigation-rule>
     <navigation-case>
       <from-outcome>newTable</from-outcome>
