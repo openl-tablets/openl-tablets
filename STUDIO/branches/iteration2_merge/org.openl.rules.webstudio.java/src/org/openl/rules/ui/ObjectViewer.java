@@ -427,7 +427,7 @@ public class ObjectViewer {
                 buf.append("<img src='webresource/images/test_ok.gif'/>").append(displayResult(tt.getResult(i)));
                 break;
             case TestResult.TR_EXCEPTION:
-                // buf.append("<img src='/webresource/images/test_exception.gif'>");
+                // buf.append("<img src='webresource/images/test_exception.gif'>");
                 displayException((Throwable) tt.getResult(i), buf);
                 break;
             case TestResult.TR_NEQ:
@@ -636,7 +636,7 @@ public class ObjectViewer {
         String uri = table.getUri();
         String url = WebTool.makeXlsOrDocUrl(table.getUri());
 
-        buf.append("<img src='/webresource/images/excel-workbook.png'/>");
+        buf.append("<img src='webresource/images/excel-workbook.png'/>");
         buf.append("<a class='left' href='showLinks.jsp?" + url + "' target='show_app_hidden' title='" + uri + "'>"
                 + "&nbsp;" + text + "</a>");
 
