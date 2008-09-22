@@ -356,6 +356,10 @@ public class WizardBean extends BaseWizardBean {
         return res;
     }
 
+    public DomainTree getDomainTree() {
+        return domainTree;
+    }
+
     public int getActionCount() {
         return actions.size();
     }
