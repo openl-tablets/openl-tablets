@@ -24,6 +24,13 @@ public class ConditionClause {
         this.tableCondition = tableCondition;
     }
 
+    public void initParamName(String paramName) {
+        this.paramName = paramName;
+        SelectItem[] variants = getVariantOptions();
+        if (variants.length > 0)
+            variantId = (Long)variants[0].getValue();
+    }
+
     public String getParamName() {
         return paramName;
     }
