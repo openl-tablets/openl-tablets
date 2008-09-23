@@ -2,8 +2,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Access Denied</title>
-<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/openl/style1.css"></link>
-<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/openl/2col_leftNav.css"></link>
+<link rel="stylesheet" type="text/css" href="webresource/css/openl/style1.css"></link>
+<link rel="stylesheet" type="text/css" href="webresource/css/openl/2col_leftNav.css"></link>
 </head>
 
 <body>
