@@ -28,7 +28,7 @@
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
-<link href="../css/openl/style1.css" rel="stylesheet" type="text/css"/>
+<link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
 
 <%@include file="common.jspf"%>
 

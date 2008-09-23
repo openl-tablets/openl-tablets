@@ -43,8 +43,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title><%=text%></title>
-<link href="../../css/openl/style1.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="../../javascript/prototype/prototype-1.5.1.js"></script>
+<link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="webresource/javascript/prototype/prototype-1.5.1.js"></script>
 <script type="text/javascript">
 function open_win(url)
 {

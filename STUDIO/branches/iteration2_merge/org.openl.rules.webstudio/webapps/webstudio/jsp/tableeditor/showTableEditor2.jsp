@@ -154,7 +154,7 @@ window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, me
   </a4j:form>
   <br />
 
-<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/prototype/prototype-1.5.1.js"></script>
+<script type="text/javascript" src="webresource/javascript/prototype/prototype-1.5.1.js"></script>
 <script type="text/javascript">var jsPath = 'webresource/javascript/';</script>
 <script type="text/javascript" src="webresource/javascript/studio.js"></script>
 <script type="text/javascript">
@@ -201,16 +201,16 @@ function enableMenu(which){
     menu_items.each(disableMenu);
 </script>
 
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TableEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/BaseEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/TextEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/DropdownEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/SuggestEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/MultiLineEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/DateEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/PriceEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/NumericEditor.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/MultipleChoiceEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/TableEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/BaseEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/TextEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/DropdownEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/SuggestEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/MultiLineEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/DateEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/PriceEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/NumericEditor.js"></script>
+  <script type="text/javascript" src="webresource/javascript/MultipleChoiceEditor.js"></script>
 
   <div id="tableEditor"/>
 

@@ -73,12 +73,12 @@
 
 
 <head>
-<link href="../../css/openl/style1.css" rel="stylesheet" type="text/css"/>
+<link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
 
 <%@include file="openl/advSearch.css"%>
 
 <%@include file="advSearch.js"%>
-<script type="text/javascript" src="../../javascript/prototype/prototype-1.5.1.js"></script>
+<script type="text/javascript" src="webresource/javascript/prototype/prototype-1.5.1.js"></script>
 
 </head>
 
@@ -287,7 +287,7 @@ for(int i= 0; i < tableElements.length; ++i)
 
 %>
   		<%=studio.getModel().displayResult(res)%>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/popup/popupmenu.js"></script>
+    <script type="text/javascript" src="webresource/javascript/popup/popupmenu.js"></script>
 <script type="text/javascript">
     function cellMouseOver(td, event) {
         PopupMenu.sheduleShowMenu('contextMenu', event, 700);
