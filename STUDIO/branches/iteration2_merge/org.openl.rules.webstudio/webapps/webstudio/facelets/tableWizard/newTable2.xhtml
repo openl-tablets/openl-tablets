@@ -44,17 +44,20 @@
         <h3>Condition Logic: <h:outputText value=" " />
           <h:commandLink value="Use editor" action="#{tableWizard.useEditorLogicCondition}" rendered="#{not cond.logicEditor}"/>
           <h:commandLink value="Enter manually" action="#{tableWizard.useManualLogicCondition}" rendered="#{cond.logicEditor}"/>
+          
+          <h:commandLink action="#{tableWizard.addConditionClause}" rendered="#{cond.logicEditor}">
+            <h:graphicImage value="/images/add_obj.gif" alt="add clause" />
+          </h:commandLink>
         </h3>
 
         <h:panelGroup rendered="#{not cond.logicEditor}">
           <h:inputTextarea value="#{cond.logic}"/>
         </h:panelGroup>
 
-        <h:panelGroup rendered="#{cond.logicEditor}">
+        <h:panelGroup rendered="#{cond.logicEditor and counter.reset}">
           <c:set var="logicClauses" value="#{cond.logicClauses}" />
           <c:set var="paramNames" value="#{cond.paramNames}" />
-          <c:set var="foo" value="#{counter.reset}" />
-
+          
           <h:dataTable var="row" value="#{logicClauses}">
             <h:column>
               <h:selectOneMenu value="#{row.paramName}" onchange="this.form.submit()">
@@ -70,7 +73,11 @@
 
             <h:column>
               <h:inputText value="#{row.conditionExpression}"/>
-              <a href="#" onclick="showDomainTree(this)">..</a>
+              <a href="#" onclick="showDomainTree(this)">..</a><f:verbatim>&amp;nbsp;</f:verbatim>
+              <h:commandLink action="#{tableWizard.removeConditionClause}" rendered="#{cond.logicClauseCount > 1}">
+                <f:param name="index" value="#{counter.count}"/>
+                <h:graphicImage value="/images/delete.gif"/>
+              </h:commandLink>
             </h:column>
           </h:dataTable>
         </h:panelGroup>

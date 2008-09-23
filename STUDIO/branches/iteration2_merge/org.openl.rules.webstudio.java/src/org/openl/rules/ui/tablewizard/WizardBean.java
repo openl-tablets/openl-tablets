@@ -169,6 +169,22 @@ public class WizardBean extends BaseWizardBean {
         }
     }
 
+    public void addConditionClause() {
+        TableCondition cond = getCurrentCondition();
+        if (cond != null) {
+            ConditionClause newClause = new ConditionClause(cond);
+            cond.getLogicClauses().add(newClause);
+            if (cond.getParamsCount() > 0)
+                newClause.initParamName(cond.getParameters().get(0).getName());
+        }
+    }
+
+    public void removeConditionClause() {
+        TableCondition cond = getCurrentCondition();
+        if (cond != null && cond.getLogicClauseCount() > 1)
+            removeByIndex(cond.getLogicClauses());
+    }
+
     public SelectItem[] getDomainTypes() {
         return domainTypes;
     }

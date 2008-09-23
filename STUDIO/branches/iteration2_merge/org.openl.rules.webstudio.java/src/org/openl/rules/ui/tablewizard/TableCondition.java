@@ -37,6 +37,10 @@ public class TableCondition extends TableArtifact {
         return logicClauses;
     }
 
+    public int getLogicClauseCount() {
+        return logicClauses.size();
+    }
+
     public Parameter getParameterByName(String name) {
         if (name == null) {
             return null;
