@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.EditorHelper;
+import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
@@ -160,5 +161,57 @@ public class ShowTableBean {
         if (switchParam)
             return "";
         return FacesUtils.getRequestParameter("cell");
+    }
+
+    public TestRunsResultBean getTestRunResults() {
+        AllTestsRunResult atr = WebStudioUtils.getWebStudio().getModel().getRunMethods(elementID);
+        AllTestsRunResult.Test[] tests = null;
+        if (atr != null)
+            tests = atr.getTests();
+        return new TestRunsResultBean(tests);
+    }
+
+    public static class TestRunsResultBean {
+        private AllTestsRunResult.Test[] tests;
+        private TestProxy[] proxies;
+
+        public class TestProxy {
+            int index;
+
+            public TestProxy(int index) {
+                this.index = index;
+            }
+
+            public String[] getDescriptions() {
+                AllTestsRunResult.Test test = getTest();
+                String[] descriptions = new String[test.ntests()];
+                for (int i = 0; i < descriptions.length; i++) {
+                    descriptions[i] = test.getTestDescription(i);
+                }
+                return descriptions;
+            }
+            public String getTestName() {return WebTool.encodeURL(getTest().getTestName());}
+
+            private AllTestsRunResult.Test getTest() {return tests[index];}
+        }
+
+        public TestRunsResultBean(AllTestsRunResult.Test[] tests) {
+            this.tests = tests;
+            if (tests == null)
+                proxies = new TestProxy[0];
+            else
+                proxies = new TestProxy[tests.length];
+
+            for (int i = 0; i < proxies.length; i++)
+                proxies[i] = new TestProxy(i);
+        }
+
+        public TestProxy[] getTests() {
+            return proxies;
+        }
+
+        public boolean isNotEmpty() {
+            return tests != null && tests.length > 0;
+        }
     }
 }
