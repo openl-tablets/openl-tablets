@@ -199,7 +199,24 @@ public class DomainTree {
     }
 
     public String getTypename(DomainTreeContext context, String path) {
+        if (path == null)
+            return null;
         String[] parts = path.split("\\.");
-        return null;
+        if (parts.length == 0)
+            return null;
+        String rootClassname = context.getObjectType(parts[0]);
+        if (rootClassname == null)
+            return null;
+        IOpenClass openClass = treeElements.get(rootClassname);
+        if (openClass == null)
+            return null;
+
+        for (int i = 1; i < parts.length; ++i) {
+            IOpenField field = openClass.getField(parts[i]);
+            if (field == null)
+                return null;
+            openClass = field.getType();
+        }
+        return openClass.getName();
     }
 }
