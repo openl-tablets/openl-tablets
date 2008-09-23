@@ -48,7 +48,7 @@
               </artifactItem>
             </artifactItems>
             <outputDirectory>${project.build.directory}/../lib</outputDirectory>
-            <excludeArtifactIds>org\.open.*,com\.exigen\.rules.*</excludeArtifactIds>
+            <excludeArtifactIds>org\.openl.*,com\.exigen\.rules.*</excludeArtifactIds>
           </configuration>
         </plugin>
 
