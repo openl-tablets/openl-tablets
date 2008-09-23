@@ -45,7 +45,7 @@
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/org.openl.rules.webstudio.lib/lib</outputDirectory>
-              <excludeArtifactIds>org\.open.*,com\.exigen\.rules.*</excludeArtifactIds>
+              <excludeArtifactIds>org\.openl.*,com\.exigen\.rules.*</excludeArtifactIds>
             </configuration>
           </execution>
 
@@ -64,13 +64,13 @@
                   <version>${version}</version>
                 </artifactItem>
               </artifactItems>
-              <dependencyExclusion>
+              <transitivelyExcludedArtifactItems>
                 <artifactItem>
                   <groupId>org.openl.rules</groupId>
                   <artifactId>org.openl.rules.webstudio.java</artifactId>
                   <version>${version}</version>
                 </artifactItem>
-              </dependencyExclusion>
+              </transitivelyExcludedArtifactItems>
               <outputDirectory>${project.build.directory}/org.openl.rules.ruleservice.lib/lib</outputDirectory>
               <excludeArtifactIds>org\.open.*,com\.exigen\.rules.*</excludeArtifactIds>
             </configuration>
