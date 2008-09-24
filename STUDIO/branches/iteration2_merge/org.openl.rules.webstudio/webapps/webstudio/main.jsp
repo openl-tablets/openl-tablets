@@ -76,7 +76,7 @@ String mode = request.getParameter("mode");
 %>
 
 <frameset rows="70,*">
-<frame src="${pageContext.request.contextPath}/faces/facelets/studio/header.xhtml" name="header" scrolling="no"  noresize resize="no" />
+<frame src="${pageContext.request.contextPath}/header.jsp" name="header" scrolling="no"  noresize resize="no" />
 
 <frameset cols="*,80%" framespacing="0" frameborder="1" resize="resize"  scrolling="auto" >
 <frameset rows="*,1" framespacing="0"  scrolling="auto" >
