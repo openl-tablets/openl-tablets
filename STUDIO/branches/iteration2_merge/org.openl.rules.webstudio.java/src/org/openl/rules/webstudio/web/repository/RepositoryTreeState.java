@@ -250,4 +250,5 @@ public class RepositoryTreeState {
     public void setUserWorkspace(UserWorkspace userWorkspace) {
         this.userWorkspace = userWorkspace;
     }
+
 }

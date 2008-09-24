@@ -127,5 +127,20 @@ public class JcrProductionDeployer implements ProductionDeployer {
         rEntity.setEffectiveDate(artefact.getEffectiveDate());
         rEntity.setExpirationDate(artefact.getExpirationDate());
         rEntity.setLineOfBusiness(artefact.getLineOfBusiness());
+        rEntity.setAttribute1(artefact.getAttribute1());
+        rEntity.setAttribute2(artefact.getAttribute2());
+        rEntity.setAttribute3(artefact.getAttribute3());
+        rEntity.setAttribute4(artefact.getAttribute4());
+        rEntity.setAttribute5(artefact.getAttribute5());
+        rEntity.setAttribute6(artefact.getAttribute6());
+        rEntity.setAttribute7(artefact.getAttribute7());
+        rEntity.setAttribute8(artefact.getAttribute8());
+        rEntity.setAttribute9(artefact.getAttribute9());
+        rEntity.setAttribute10(artefact.getAttribute10());
+        rEntity.setAttribute11(artefact.getAttribute11());
+        rEntity.setAttribute12(artefact.getAttribute12());
+        rEntity.setAttribute13(artefact.getAttribute13());
+        rEntity.setAttribute14(artefact.getAttribute14());
+        rEntity.setAttribute15(artefact.getAttribute15());
     }
 }
