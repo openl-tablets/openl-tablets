@@ -12,11 +12,7 @@
       <directory>.</directory>
       <outputDirectory></outputDirectory>
       <includes>
-        <include>StartStudio.bat</include>
-        <include>runstudio.html</include>
-        <include>StartTomcat WebStudio.launch</include>
-        <include>build.properties</include>
-        <include>plugin.xml</include>
+        <include>*.*</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -30,6 +26,9 @@
     </fileSet>
     <fileSet>
       <directory>META-INF</directory>
+    </fileSet>
+    <fileSet>
+      <directory>scripts</directory>
     </fileSet>
   </fileSets>
 
