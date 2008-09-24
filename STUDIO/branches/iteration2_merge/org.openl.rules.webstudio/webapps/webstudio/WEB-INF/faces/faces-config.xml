@@ -87,6 +87,12 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>repositoryArtefactPropsHolder</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryArtefactPropsHolder</managed-bean-class>
+    <managed-bean-scope>none</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>repositoryTreeController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
@@ -101,6 +107,10 @@
     <managed-property>
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>repositoryArtefactPropsHolder</property-name>
+      <value>#{repositoryArtefactPropsHolder}</value>
     </managed-property>
   </managed-bean>
 

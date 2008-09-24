@@ -24,6 +24,22 @@ public class JcrOldEntity implements REntity {
     private Date effectiveDate;
     private Date expirationDate;
     private String lineOfBusiness;
+    
+    private String attribute1;
+    private String attribute2;
+    private String attribute3;
+    private String attribute4;
+    private String attribute5;
+    private Date attribute6;
+    private Date attribute7;
+    private Date attribute8;
+    private Date attribute9;
+    private Date attribute10;
+    private Double attribute11;
+    private Double attribute12;
+    private Double attribute13;
+    private Double attribute14;
+    private Double attribute15;
 
     public JcrOldEntity(JcrOldEntity parent, String name, Node node) throws RepositoryException {
         this.parent = parent;
@@ -40,6 +56,52 @@ public class JcrOldEntity implements REntity {
         }
         if (node.hasProperty(JcrNT.PROP_LINE_OF_BUSINESS)) {
             lineOfBusiness = node.getProperty(JcrNT.PROP_LINE_OF_BUSINESS).getString();
+        }
+        
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE1)) {
+            attribute1 = node.getProperty(JcrNT.PROP_ATTRIBUTE1).getString();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE2)) {
+            attribute2 = node.getProperty(JcrNT.PROP_ATTRIBUTE2).getString();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE3)) {
+            attribute3 = node.getProperty(JcrNT.PROP_ATTRIBUTE3).getString();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE4)) {
+            attribute4 = node.getProperty(JcrNT.PROP_ATTRIBUTE4).getString();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE5)) {
+            attribute5 = node.getProperty(JcrNT.PROP_ATTRIBUTE5).getString();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE6)) {
+            attribute6 = new Date(node.getProperty(JcrNT.PROP_ATTRIBUTE6).getLong());
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE7)) {
+            attribute7 = new Date(node.getProperty(JcrNT.PROP_ATTRIBUTE7).getLong());
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE8)) {
+            attribute8 = new Date(node.getProperty(JcrNT.PROP_ATTRIBUTE8).getLong());
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE9)) {
+            attribute9 = new Date(node.getProperty(JcrNT.PROP_ATTRIBUTE9).getLong());
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE10)) {
+            attribute10 = new Date(node.getProperty(JcrNT.PROP_ATTRIBUTE10).getLong());
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE11)) {
+            attribute11 = node.getProperty(JcrNT.PROP_ATTRIBUTE11).getDouble();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE12)) {
+            attribute12 = node.getProperty(JcrNT.PROP_ATTRIBUTE12).getDouble();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE13)) {
+            attribute13 = node.getProperty(JcrNT.PROP_ATTRIBUTE13).getDouble();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE14)) {
+            attribute14 = node.getProperty(JcrNT.PROP_ATTRIBUTE14).getDouble();
+        }
+        if (node.hasProperty(JcrNT.PROP_ATTRIBUTE15)) {
+            attribute15 = node.getProperty(JcrNT.PROP_ATTRIBUTE15).getDouble();
         }
     }
     
@@ -69,6 +131,66 @@ public class JcrOldEntity implements REntity {
 
     public String getName() {
         return name;
+    }
+
+    public String getAttribute1() {
+        return attribute1;
+    }
+
+    public String getAttribute2() {
+        return attribute2;
+    }
+
+    public String getAttribute3() {
+        return attribute3;
+    }
+
+    public String getAttribute4() {
+        return attribute4;
+    }
+
+    public String getAttribute5() {
+        return attribute5;
+    }
+
+    public Date getAttribute6() {
+        return attribute6;
+    }
+
+    public Date getAttribute7() {
+        return attribute7;
+    }
+
+    public Date getAttribute8() {
+        return attribute8;
+    }
+
+    public Date getAttribute9() {
+        return attribute9;
+    }
+
+    public Date getAttribute10() {
+        return attribute10;
+    }
+
+    public Double getAttribute11() {
+        return attribute11;
+    }
+
+    public Double getAttribute12() {
+        return attribute12;
+    }
+
+    public Double getAttribute13() {
+        return attribute13;
+    }
+
+    public Double getAttribute14() {
+        return attribute14;
+    }
+
+    public Double getAttribute15() {
+        return attribute15;
     }
 
     public String getPath() throws RRepositoryException {
@@ -123,6 +245,66 @@ public class JcrOldEntity implements REntity {
     }
 
     public void setLineOfBusiness(String lineOfBusiness) throws RRepositoryException {
+        notSupported();
+    }
+
+    public void setAttribute1(String attribute1) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute2(String attribute2) throws RRepositoryException {
+        notSupported();
+    }
+
+    public void setAttribute3(String attribute3) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute4(String attribute4) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute5(String attribute5) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute6(Date attribute6) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute7(Date attribute7) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute8(Date attribute8) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute9(Date attribute9) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute10(Date attribute10) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute11(Double attribute11) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute12(Double attribute12) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute13(Double attribute13) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute14(Double attribute14) throws RRepositoryException {
+        notSupported();
+    }
+    
+    public void setAttribute15(Double attribute15) throws RRepositoryException {
         notSupported();
     }
 

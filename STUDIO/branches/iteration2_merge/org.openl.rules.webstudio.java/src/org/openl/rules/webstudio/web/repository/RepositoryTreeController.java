@@ -57,6 +57,7 @@ public class RepositoryTreeController {
     private RepositoryTreeState repositoryTreeState;
     private UserWorkspace userWorkspace;
     private UploadService uploadService;
+    private RepositoryArtefactPropsHolder repositoryArtefactPropsHolder;
     private String projectName;
     private String folderName;
     private UploadedFile file;
@@ -807,7 +808,337 @@ public class RepositoryTreeController {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set line of business.", e.getMessage()));
         }
     }
+    
+    public String getAttribute1() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute1();
+        }
+        return null;
+    }
 
+    public void setAttribute1(String attribute1) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute1(attribute1);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute1!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute1.", e.getMessage()));
+        }
+    }
+    
+    public String getAttribute2() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute2();
+        }
+        return null;
+    }
+
+    public void setAttribute2(String attribute2) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute2(attribute2);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute2!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute2.", e.getMessage()));
+        }
+    }
+    
+    public String getAttribute3() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute3();
+        }
+        return null;
+    }
+
+    public void setAttribute3(String attribute3) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute3(attribute3);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute3!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute3.", e.getMessage()));
+        }
+    }
+    
+    public String getAttribute4() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute4();
+        }
+        return null;
+    }
+
+    public void setAttribute4(String attribute4) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute4(attribute4);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute4!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute4.", e.getMessage()));
+        }
+    }
+    
+    public String getAttribute5() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute5();
+        }
+        return null;
+    }
+    
+    public void setAttribute5(String attribute5) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute5(attribute5);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute5!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute5.", e.getMessage()));
+        }
+    }
+
+    public Date getAttribute6() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute6();
+        }
+        return null;
+    }
+
+    public void setAttribute6(Date attribute6) {
+        if (!SPECIAL_DATE.equals(attribute6)) {
+            try {
+                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute6(attribute6);
+            } catch (ProjectException e) {
+                log.error("Failed to set attribute6!", e);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute6.", e.getMessage()));
+            }
+        } else {
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                            "Specified attribute6 value is not a valid date."));
+        }
+    }
+    
+    public Date getAttribute7() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute7();
+        }
+        return null;
+    }
+
+    public void setAttribute7(Date attribute7) {
+        if (!SPECIAL_DATE.equals(attribute7)) {
+            try {
+                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute7(attribute7);
+            } catch (ProjectException e) {
+                log.error("Failed to set attribute7!", e);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute7.", e.getMessage()));
+            }
+        } else {
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                            "Specified attribute7 value is not a valid date."));
+        }
+    }
+    
+    public Date getAttribute8() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute8();
+        }
+        return null;
+    }
+
+    public void setAttribute8(Date attribute8) {
+        if (!SPECIAL_DATE.equals(attribute8)) {
+            try {
+                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute8(attribute8);
+            } catch (ProjectException e) {
+                log.error("Failed to set attribute8!", e);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute8.", e.getMessage()));
+            }
+        } else {
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                            "Specified attribute8 value is not a valid date."));
+        }
+    }
+    
+    public Date getAttribute9() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute9();
+        }
+        return null;
+    }
+
+    public void setAttribute9(Date attribute9) {
+        if (!SPECIAL_DATE.equals(attribute9)) {
+            try {
+                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute9(attribute9);
+            } catch (ProjectException e) {
+                log.error("Failed to set attribute9!", e);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute9.", e.getMessage()));
+            }
+        } else {
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                            "Specified attribute9 value is not a valid date."));
+        }
+    }
+    
+    public Date getAttribute10() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute10();
+        }
+        return null;
+    }
+
+    public void setAttribute10(Date attribute10) {
+        if (!SPECIAL_DATE.equals(attribute10)) {
+            try {
+                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute10(attribute10);
+            } catch (ProjectException e) {
+                log.error("Failed to set attribute10!", e);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute10.", e.getMessage()));
+            }
+        } else {
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                            "Specified attribute10 value is not a valid date."));
+        }
+    }
+    
+    public Double getAttribute11() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute11();
+        }
+        return null;
+    }
+    
+    public void setAttribute11(Double attribute11) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute11(attribute11);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute11!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute11.", e.getMessage()));
+        }
+    }
+    
+    public Double getAttribute12() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute12();
+        }
+        return null;
+    }
+    
+    public void setAttribute12(Double attribute12) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute12(attribute12);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute12!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute12.", e.getMessage()));
+        }
+    }
+    
+    public Double getAttribute13() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute13();
+        }
+        return null;
+    }
+    
+    public void setAttribute13(Double attribute13) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute13(attribute13);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute13!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute13.", e.getMessage()));
+        }
+    }
+    
+    public Double getAttribute14() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute14();
+        }
+        return null;
+    }
+    
+    public void setAttribute14(Double attribute14) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute14(attribute14);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute14!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute14.", e.getMessage()));
+        }
+    }
+    
+    public Double getAttribute15() {
+        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
+                .getDataBean());
+        if (dataBean != null) {
+            return dataBean.getAttribute15();
+        }
+        return null;
+    }
+    
+    public void setAttribute15(Double attribute15) {
+        try {
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setAttribute15(attribute15);
+        } catch (ProjectException e) {
+            log.error("Failed to set attribute15!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute15.", e.getMessage()));
+        }
+    }
+    
     public void setUploadService(UploadService uploadService) {
         this.uploadService = uploadService;
     }
@@ -818,5 +1149,14 @@ public class RepositoryTreeController {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+    
+    public void setRepositoryArtefactPropsHolder(
+            RepositoryArtefactPropsHolder repositoryArtefactPropsHolder) {
+        this.repositoryArtefactPropsHolder = repositoryArtefactPropsHolder;
+    }
+    
+    public Map<String, String> getProps() {
+        return repositoryArtefactPropsHolder.getProps();
     }
 }

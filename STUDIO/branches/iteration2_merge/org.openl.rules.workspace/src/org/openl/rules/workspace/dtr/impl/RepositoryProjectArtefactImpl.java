@@ -84,6 +84,22 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
                 rulesEntity.setEffectiveDate(rra.getEffectiveDate());
                 rulesEntity.setExpirationDate(rra.getExpirationDate());
                 rulesEntity.setLineOfBusiness(rra.getLineOfBusiness());
+                
+                rulesEntity.setAttribute1(rra.getAttribute1());
+                rulesEntity.setAttribute2(rra.getAttribute2());
+                rulesEntity.setAttribute3(rra.getAttribute3());
+                rulesEntity.setAttribute4(rra.getAttribute4());
+                rulesEntity.setAttribute5(rra.getAttribute5());
+                rulesEntity.setAttribute6(rra.getAttribute6());
+                rulesEntity.setAttribute7(rra.getAttribute7());
+                rulesEntity.setAttribute8(rra.getAttribute8());
+                rulesEntity.setAttribute9(rra.getAttribute9());
+                rulesEntity.setAttribute10(rra.getAttribute10());
+                rulesEntity.setAttribute11(rra.getAttribute11());
+                rulesEntity.setAttribute12(rra.getAttribute12());
+                rulesEntity.setAttribute13(rra.getAttribute13());
+                rulesEntity.setAttribute14(rra.getAttribute14());
+                rulesEntity.setAttribute15(rra.getAttribute15());
             } catch (RRepositoryException e) {
                 throw new ProjectException("Failed to update rules properties", e);
             }            
@@ -155,15 +171,75 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     public Date getEffectiveDate() {
         return rulesEntity.getEffectiveDate();
     }
-    
+
     public Date getExpirationDate() {
         return rulesEntity.getExpirationDate();
     }
-    
+
     public String getLineOfBusiness() {
         return rulesEntity.getLineOfBusiness();
     }
-    
+
+    public String getAttribute1() {
+        return rulesEntity.getAttribute1();
+    }
+
+    public String getAttribute2() {
+        return rulesEntity.getAttribute2();
+    }
+
+    public String getAttribute3() {
+        return rulesEntity.getAttribute3();
+    }
+
+    public String getAttribute4() {
+        return rulesEntity.getAttribute4();
+    }
+
+    public String getAttribute5() {
+        return rulesEntity.getAttribute5();
+    }
+
+    public Date getAttribute6() {
+        return rulesEntity.getAttribute6();
+    }
+
+    public Date getAttribute7() {
+        return rulesEntity.getAttribute7();
+    }
+
+    public Date getAttribute8() {
+        return rulesEntity.getAttribute8();
+    }
+
+    public Date getAttribute9() {
+        return rulesEntity.getAttribute9();
+    }
+
+    public Date getAttribute10() {
+        return rulesEntity.getAttribute10();
+    }
+
+    public Double getAttribute11() {
+        return rulesEntity.getAttribute11();
+    }
+
+    public Double getAttribute12() {
+        return rulesEntity.getAttribute12();
+    }
+
+    public Double getAttribute13() {
+        return rulesEntity.getAttribute13();
+    }
+
+    public Double getAttribute14() {
+        return rulesEntity.getAttribute14();
+    }
+
+    public Double getAttribute15() {
+        return rulesEntity.getAttribute15();
+    }
+
     public void setEffectiveDate(Date date) throws ProjectException {
         try {
             rulesEntity.setEffectiveDate(date);
@@ -183,6 +259,126 @@ public abstract class RepositoryProjectArtefactImpl implements RepositoryProject
     public void setLineOfBusiness(String lineOfBusiness) throws ProjectException {
         try {
             rulesEntity.setLineOfBusiness(lineOfBusiness);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+    
+    public void setAttribute1(String attribute1) throws ProjectException {
+        try {
+            rulesEntity.setAttribute1(attribute1);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+    
+    public void setAttribute2(String attribute2) throws ProjectException {
+        try {
+            rulesEntity.setAttribute1(attribute2);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+    
+    public void setAttribute3(String attribute3) throws ProjectException {
+        try {
+            rulesEntity.setAttribute3(attribute3);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute4(String attribute4) throws ProjectException {
+        try {
+            rulesEntity.setAttribute4(attribute4);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute5(String attribute5) throws ProjectException {
+        try {
+            rulesEntity.setAttribute5(attribute5);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute6(Date attribute6) throws ProjectException {
+        try {
+            rulesEntity.setAttribute6(attribute6);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute7(Date attribute7) throws ProjectException {
+        try {
+            rulesEntity.setAttribute7(attribute7);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute8(Date attribute8) throws ProjectException {
+        try {
+            rulesEntity.setAttribute8(attribute8);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute9(Date attribute9) throws ProjectException {
+        try {
+            rulesEntity.setAttribute9(attribute9);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute10(Date attribute10) throws ProjectException {
+        try {
+            rulesEntity.setAttribute10(attribute10);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute11(Double attribute11) throws ProjectException {
+        try {
+            rulesEntity.setAttribute11(attribute11);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute12(Double attribute12) throws ProjectException {
+        try {
+            rulesEntity.setAttribute12(attribute12);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute13(Double attribute13) throws ProjectException {
+        try {
+            rulesEntity.setAttribute13(attribute13);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute14(Double attribute14) throws ProjectException {
+        try {
+            rulesEntity.setAttribute14(attribute14);
+        } catch (RRepositoryException e) {
+            throw new ProjectException(null, e);
+        }        
+    }
+
+    public void setAttribute15(Double attribute15) throws ProjectException {
+        try {
+            rulesEntity.setAttribute15(attribute15);
         } catch (RRepositoryException e) {
             throw new ProjectException(null, e);
         }        
