@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Collections;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
@@ -60,6 +61,7 @@ import org.openl.util.benchmark.BenchmarkUnit;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.Tracer;
+import org.hsqldb.lib.Collection;
 
 public class ProjectModel implements IProjectTypes {
 
@@ -685,7 +687,9 @@ public class ProjectModel implements IProjectTypes {
 	
 	public List<TableSyntaxNode> getAllValidatedNodes()
 	{
-		XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
+        if (wrapper == null)
+            return Collections.EMPTY_LIST;
+        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
 
 		XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
