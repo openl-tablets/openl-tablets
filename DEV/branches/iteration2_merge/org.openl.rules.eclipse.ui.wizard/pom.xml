@@ -27,6 +27,7 @@
       </plugin>
 
       <!--
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -52,16 +53,15 @@
           </execution>
         </executions>
       </plugin>
-      -->
     </plugins>
 
     <resources>
       <!--
+      -->
       <resource>
         <directory>target/org.openl.rules.webstudio-template</directory>
         <targetPath>templates/org.openl.rules.webstudio</targetPath>
       </resource>
-      -->
 
       <resource>
         <directory>.</directory>
