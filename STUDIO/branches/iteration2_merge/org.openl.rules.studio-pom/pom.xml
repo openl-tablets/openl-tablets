@@ -4,7 +4,7 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.studio-pom</artifactId>
-  <version>5.0.6</version>
+  <version>5.0.7-SNAPSHOT</version>
   <name>OpenL - STUDIO</name>
   <description>Exigen WebStudio Pom Project</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
@@ -33,7 +33,7 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/tags/release-5.0.6</connection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/branches/iteration2_merge</connection>
   </scm>
 
   <repositories>
@@ -452,68 +452,68 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <!-- STUDIO -->
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.util</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.repository</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.repository.jcr</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.workspace</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.webstudio</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.webstudio.java</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.webtools</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.security</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.security.standalone</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
@@ -531,19 +531,19 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.diff</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib.apache.tomcat</artifactId>
-        <version>5.0.6</version>
+        <version>5.0.7-SNAPSHOT</version>
       </dependency>
 
       <!--dependency>
