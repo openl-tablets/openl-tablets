@@ -445,11 +445,24 @@
     <from-view-id>/facelets/tableWizard/newTable5.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>next</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
+      <to-view-id>/facelets/tableWizard/newTable6.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable4.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable6.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>done</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
