@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+                template="/facelets/common/webstudioBase.xhtml"
+        >
+  <ui:define name="page">
+    <h2>Select destination</h2>
+
+    <h:form>
+      <h:panelGrid columns="2">
+      <h:outputText value="Workbook:" />
+        <a4j:region>
+      <h:selectOneMenu value="#{tableWizard.workbook}">
+        <a4j:support event="onchange" reRender="sheet" ajaxSingle="true" />
+        <f:selectItems value="#{tableWizard.workbooks}"/>
+      </h:selectOneMenu> </a4j:region>
+      <h:outputText value="Worksheet:" />
+      <h:selectOneMenu value="#{tableWizard.worksheetIndex}" id="sheet">
+        <f:selectItems value="#{tableWizard.worksheets}"/>
+      </h:selectOneMenu>
+    </h:panelGrid>
+
+      <hr/>
+      <h:inputHidden value="5" id="step" binding="#{tableWizard.hiddenStep}"/>
+      <h:commandButton value="Prev" action="#{tableWizard.prev}"/>
+      <h:commandButton value="Next" action="#{tableWizard.next}"/>
+      <h:commandButton value="Cancel" action="#{tableWizard.cancel}"/>
+    </h:form>
+  </ui:define>
+</ui:composition>
