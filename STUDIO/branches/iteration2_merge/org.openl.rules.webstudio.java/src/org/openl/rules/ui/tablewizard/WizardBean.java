@@ -480,7 +480,7 @@ public class WizardBean extends BaseWizardBean {
         return items;
     }
 
-    public String save() {
+    /*public String save() {
         try {
             doSave();
             return "done";
@@ -540,6 +540,6 @@ public class WizardBean extends BaseWizardBean {
 
             builder.writeElement(artifact.getName(), artifact.getLogic(), names, signatures);
         }
-    }
+    }*/
 
 }
