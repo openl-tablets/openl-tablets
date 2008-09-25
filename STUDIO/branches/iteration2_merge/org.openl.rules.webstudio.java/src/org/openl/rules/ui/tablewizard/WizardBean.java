@@ -2,6 +2,10 @@ package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import java.io.IOException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -9,10 +13,20 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.table.xls.builder.DecisionTableBuilder;
+import org.openl.rules.table.xls.builder.CreateTableException;
+import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.meta.IMetaInfo;
 
 /**
  * @author Aliaksandr Antonik.
@@ -35,6 +49,10 @@ public class WizardBean extends BaseWizardBean {
 
     private SelectItem[] domainTypes;
 
+    private String workbook;
+    private int worksheetIndex;
+    private Map<String, XlsWorkbookSourceCodeModule> workbooks;
+
     public WizardBean() {}
 
     @Override
@@ -49,8 +67,12 @@ public class WizardBean extends BaseWizardBean {
     protected void onStart() {
         reset();
 
-        domainTree = DomainTree.buildTree(WebStudioUtils.getWebStudio().getModel().getWrapper().getOpenClass().getMetaInfo());
+        domainTree = DomainTree.buildTree(getMetaInfo());
         domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
+    }
+
+    private IMetaInfo getMetaInfo() {
+        return WebStudioUtils.getWebStudio().getModel().getWrapper().getOpenClass().getMetaInfo();
     }
 
     private void reset() {
@@ -59,9 +81,12 @@ public class WizardBean extends BaseWizardBean {
         conditions = new ListWithSelection<TableCondition>();
         actions = new ListWithSelection<TableArtifact>();
         returnValue = new TableArtifact();
+        returnValue.setName("RET1");
         vertical = false;
         domainTree = null;
         domainTypes = null;
+        worksheetIndex = 0;
+        workbooks = null;
     }
 
     public String getTableName() {
@@ -334,6 +359,19 @@ public class WizardBean extends BaseWizardBean {
             case 3:
                 addAction();
                 break;
+            case 4:
+                workbooks = new HashMap<String, XlsWorkbookSourceCodeModule>();
+
+                TableSyntaxNode[] syntaxNodes = ((XlsMetaInfo) getMetaInfo()).getXlsModuleNode().getXlsTableSyntaxNodes();
+                for (TableSyntaxNode node : syntaxNodes) {
+                    XlsWorkbookSourceCodeModule module = ((XlsSheetSourceCodeModule) node.getModule()).getWorkbookSource();
+                    workbooks.put(module.getUri(), module);
+                }
+
+                if (workbooks.size() > 0)
+                    workbook = workbooks.keySet().iterator().next();        
+
+                break;
         }
     }
 
@@ -399,4 +437,109 @@ public class WizardBean extends BaseWizardBean {
     private void reportError(String clientId, String detail) {
         FacesContext.getCurrentInstance().addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error: ", detail));
     }
+
+    public String getWorkbook() {
+        return workbook;
+    }
+
+    public void setWorkbook(String workbook) {
+        this.workbook = workbook;
+    }
+
+    public int getWorksheetIndex() {
+        return worksheetIndex;
+    }
+
+    public void setWorksheetIndex(int worksheetIndex) {
+        this.worksheetIndex = worksheetIndex;
+    }
+
+    public List<SelectItem> getWorkbooks() {
+        List<SelectItem> items = new ArrayList<SelectItem>(workbooks.size());
+        for (String wbURI : workbooks.keySet()) {
+            String[] parts = wbURI.split("/");
+            items.add(new SelectItem(wbURI, parts[parts.length - 1]));
+        }
+
+        return items;
+    }
+
+    public List<SelectItem> getWorksheets() {
+        if (workbook == null || workbooks == null)
+            return Collections.EMPTY_LIST;
+
+        XlsWorkbookSourceCodeModule currentSheet = workbooks.get(workbook);
+        if (currentSheet == null)
+            return Collections.EMPTY_LIST;
+
+        HSSFWorkbook hssfWorkbook = currentSheet.getWorkbook();
+        List<SelectItem> items = new ArrayList<SelectItem>(hssfWorkbook.getNumberOfSheets());
+        for (int i = 0; i < hssfWorkbook.getNumberOfSheets(); ++i) {
+            items.add(new SelectItem(i, hssfWorkbook.getSheetName(i)));
+        }
+        return items;
+    }
+
+    public String save() {
+        try {
+            doSave();
+            return "done";
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not create table: ",  e.getMessage()));
+        }
+        return null;
+    }
+
+    private void doSave() throws CreateTableException, IOException {
+        XlsWorkbookSourceCodeModule module = workbooks.get(workbook);
+        HSSFSheet sheet = module.getWorkbook().getSheetAt(worksheetIndex);
+        XlsSheetSourceCodeModule sourceCodeModule = new XlsSheetSourceCodeModule(sheet, module.getWorkbook().getSheetName(worksheetIndex), module);
+        DecisionTableBuilder builder = new DecisionTableBuilder(new XlsSheetGridModel(sourceCodeModule));
+
+        // compute table dimensions
+        int tableWidth = returnValue.getParameters().size();
+        for (TableArtifact artifact : conditions) tableWidth += artifact.getParameters().size();
+        for (TableArtifact artifact : actions) tableWidth += artifact.getParameters().size();
+        int tableHeight = DecisionTableBuilder.HEADER_HEIGHT + 3; // let it be three extra empty rows
+
+        // start writing finally
+        builder.beginTable(tableWidth, tableHeight);
+
+        // make up header
+        StringBuilder sbHeader = new StringBuilder(returnType).append(" ").append(tableName).append("(");
+        boolean first = true;
+        for (TypeNamePair typeNamePair : parameters) {
+            if (first)
+                first = false;
+            else
+                sbHeader.append(", ");
+            sbHeader.append(typeNamePair.getType()).append(" ").append(typeNamePair.getName());
+        }
+        sbHeader.append(")");
+        builder.writeHeader(sbHeader.toString());
+
+        // writing conditions, actions and return section
+        doSaveWriteArtifacts(builder, conditions);
+        doSaveWriteArtifacts(builder, actions);
+        doSaveWriteArtifacts(builder, Collections.singletonList(returnValue));
+
+        builder.endTable();
+    }
+
+    private void doSaveWriteArtifacts(DecisionTableBuilder builder, List<? extends TableArtifact> tableArtifacts) {
+        for (TableArtifact artifact : tableArtifacts) {
+            List<Parameter> params = artifact.getParameters();
+            String[] names = new String[params.size()];
+            String[] signatures = new String[params.size()];
+            int index = 0;
+            for (Parameter param : params) {
+                names[index] = param.getBusinessName();
+                signatures[index++] = param.getType() + " " + param.getName();
+            }
+
+            builder.writeElement(artifact.getName(), artifact.getLogic(), names, signatures);
+        }
+    }
+
 }
