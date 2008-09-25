@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+   <!--      
+      <category
+            name="OpenL"
+            id="org.openl.wizard.openlcategory">
+      </category>
+      <category
+            name="Examples"
+            parentCategory="org.openl.wizard.openlcategory"
+            id="org.openl.wizard.examplescategory">
+      </category>
+      <wizard
+            name="Simple OpenL Project"
+            icon="icons/full/ctool16/new_openl_project_wizard.gif"
+            category="org.openl.wizard.openlcategory"
+            class="org.openl.eclipse.wizard.NewSimpleOpenlProjectWizard"
+            project="true"
+            id="org.openl.eclipse.wizard.NewSimpleOpenlProjectWizard">
+      </wizard>
+      <wizard
+            name="OpenL Examples"
+            icon="icons/full/ctool16/new_openl_project_wizard.gif"
+            category="org.openl.wizard.openlcategory/org.openl.wizard.examplescategory"
+            class="org.openl.eclipse.wizard.NewOpenlExamplesProjectWizard"
+            project="true"
+            id="org.openl.eclipse.wizard.NewOpenlExamplesProjectWizard">
+      </wizard>
+
+      <category
+            name="Configurations" 
+            parentCategory="org.openl.wizard.openlcategory"
+            id="org.openl.wizard.configscategory">
+      </category>
+      <wizard
+            name="Configuration Project"
+            icon="icons/full/ctool16/new_openl_project_wizard.gif"
+            category="org.openl.wizard.openlcategory/org.openl.wizard.configscategory"
+            class="org.openl.eclipse.wizard.NewConfigProjectWizard"
+            project="true"
+            id="org.openl.eclipse.wizard.NewConfigProjectWizard">
+      </wizard>
+      -->
+   </extension>
+
+</plugin>
