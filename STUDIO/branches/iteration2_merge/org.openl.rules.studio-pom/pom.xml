@@ -13,7 +13,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <dev.version>5.0.6-SNAPSHOT</dev.version>
+    <dev.version>${version}</dev.version>
   </properties>
 
   <modules>
