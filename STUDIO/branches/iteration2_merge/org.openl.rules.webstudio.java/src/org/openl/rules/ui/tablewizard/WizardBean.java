@@ -1,11 +1,10 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import java.io.IOException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -14,19 +13,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
-import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.meta.IMetaInfo;
 import org.openl.rules.domaintree.DomainTree;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.table.xls.builder.DecisionTableBuilder;
-import org.openl.rules.table.xls.builder.CreateTableException;
-import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.meta.IMetaInfo;
+import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
+import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * @author Aliaksandr Antonik.
