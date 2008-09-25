@@ -128,7 +128,9 @@ public class JcrProductionDeployerTestCase extends TestCase {
                                 ._setAttribute12(ATTRIBUTE12)
                                 ._setAttribute13(ATTRIBUTE13)
                                 ._setAttribute14(ATTRIBUTE14)
-                                ._setAttribute15(ATTRIBUTE15);
+                                ._setAttribute15(ATTRIBUTE15)
+                            .up()
+                        .up();
     }
 
     public void testDeploy() throws DeploymentException, RRepositoryException, IOException {
@@ -175,10 +177,6 @@ public class JcrProductionDeployerTestCase extends TestCase {
         theFile1 = (RFile)getEntityByName(folder1.getFiles(),FILE1_1);
 
         assertNotNull(theFile1);
-        
-        assertNull(theFile2.getEffectiveDate());
-        assertNull(theFile2.getExpirationDate());
-        assertNull(theFile2.getLineOfBusiness());
         
         assertEquals(ATTRIBUTE1, theFile1.getAttribute1());
         assertEquals(ATTRIBUTE2, theFile1.getAttribute2());
