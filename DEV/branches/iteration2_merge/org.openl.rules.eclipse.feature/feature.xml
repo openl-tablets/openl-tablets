@@ -2,7 +2,7 @@
 <feature
       id="org.openl.rules.eclipse.feature"
       label="OpenL Tablets"
-      version="5.0.6"
+      version="5.1.0"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -162,7 +162,7 @@ such a program is covered only if its contents constitute a work based
 on the Library (independent of the use of the Library in a tool for
 writing it).  Whether that is true depends on what the Library does
 and what the program that uses the Library does.
-  
+
   1. You may copy and distribute verbatim copies of the Library&apos;s
 complete source code as you receive it, in any medium, provided that
 you conspicuously and appropriately publish on each copy an
@@ -519,7 +519,7 @@ That&apos;s all there is to it!
    </license>
 
    <requires>
-      <import feature="org.openl.eclipse.feature" version="5.0.6"/>
+      <import feature="org.openl.eclipse.feature" version="5.1.0"/>
       <import plugin="org.openl.core"/>
       <import plugin="org.openl.lib.apache.poi.modified"/>
       <import plugin="org.eclipse.ui"/>
@@ -542,41 +542,41 @@ That&apos;s all there is to it!
          id="org.openl.rules"
          download-size="0"
          install-size="0"
-         version="5.0.6"
+         version="5.1.0"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui"
          download-size="0"
          install-size="0"
-         version="5.0.6"
+         version="5.1.0"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui.wizard"
          download-size="0"
          install-size="0"
-         version="5.0.6"/>
+         version="5.1.0"/>
 
    <plugin
          id="org.openl.rules.helpers"
          download-size="0"
          install-size="0"
-         version="5.0.6"
+         version="5.1.0"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.validator"
          download-size="0"
          install-size="0"
-         version="5.0.6"
+         version="5.1.0"
          unpack="false"/>
 
    <plugin
          id="com.exigen.rules.constrainer"
          download-size="0"
          install-size="0"
-         version="5.0.6"
+         version="5.1.0"
          unpack="false"/>
 
 </feature>
