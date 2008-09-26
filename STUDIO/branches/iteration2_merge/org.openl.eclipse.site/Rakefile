@@ -1,6 +1,6 @@
 require 'rake'
 
-OPENL_VERSION = '5.1.0'
+OPENL_VERSION = '5.1.1'
 
 
 LOCATIONS = [".."]
