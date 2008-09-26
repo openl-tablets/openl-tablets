@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.studio-pom</artifactId>
-    <version>5.1.0-SNAPSHOT</version>
+    <version>5.1.1-SNAPSHOT</version>
     <relativePath>../org.openl.rules.studio-pom</relativePath>
   </parent>
 
@@ -17,7 +17,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <studio.eclipse.version>5.1.0</studio.eclipse.version>
+    <studio.eclipse.version>5.1.1</studio.eclipse.version>
   </properties>
 
   <build>
