@@ -1,6 +1,6 @@
 require 'rake'
 
-OPENL_VERSION = '5.0.6'
+OPENL_VERSION = '5.1.0'
 
 
 LOCATIONS = [".."]
@@ -67,4 +67,3 @@ def replaceOnFile(file, regex, replacement)
     FileUtils.remove_file(tmpFile, true)
   end
 end
-
