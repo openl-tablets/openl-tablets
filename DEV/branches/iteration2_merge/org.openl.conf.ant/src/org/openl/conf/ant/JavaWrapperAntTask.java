@@ -221,7 +221,7 @@ public class JavaWrapperAntTask extends Task
 		    vocabularyClass);
 	}
 
-	new OpenLProjectPropertiesLoader().saveProperties(".", p, false);
+	new OpenLProjectPropertiesLoader().saveProperties(classpathPropertiesOutputDir, p, false);
     }
 
     String classpathExclude = ".*apache.ant.*|.*apache.commons.*|.*apache.tomcat.*|.*javacc.*";
@@ -284,6 +284,11 @@ public class JavaWrapperAntTask extends Task
     String s_class;
 
     String extendsClass = null;
+    
+    /*
+     * Full or relative path to directory where properties will be saved 
+     */
+    String classpathPropertiesOutputDir = ".";
 
     String implementsInterfaces = OpenLWrapper.class.getName();
 
@@ -1120,6 +1125,22 @@ buf.append("");
 	this.extendsClass = extendsClass;
     }
 
+    /*
+     * Get full or relative path to directory where classpath properties will be save
+     */
+    public String getClasspathPropertiesOutputDir()
+    {
+        return classpathPropertiesOutputDir;
+    }
+
+    /*
+     * Set full or relative path to directory where classpath properties will be save
+     */
+    public void setClasspathPropertiesOutputDir(String classpathPropertiesOutputDir)
+    {
+        this.classpathPropertiesOutputDir = classpathPropertiesOutputDir;
+    }
+    
     public String getImplementsInterfaces()
     {
 	return implementsInterfaces;
