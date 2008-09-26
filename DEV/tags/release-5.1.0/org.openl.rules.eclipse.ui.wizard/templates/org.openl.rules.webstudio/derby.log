@@ -1,0 +1,32 @@
+----------------------------------------------------------------
+2008-05-03 13:33:24.435 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance c013800d-0119-aefc-a9c6-00000e9f2e78
+on database directory D:\openl\design-repository\version\db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2008-05-03 13:33:26.451 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance d89d8024-0119-aefc-a9c6-00000e9f2e78
+on database directory D:\openl\design-repository\workspaces\default\db  
+
+Database Class Loader started - derby.database.classpath=''
+
+2008-05-03 13:33:28.607 GMT:
+Shutting down instance d89d8024-0119-aefc-a9c6-00000e9f2e78
+----------------------------------------------------------------
+
+2008-05-03 13:33:28.670 GMT:
+Shutting down instance c013800d-0119-aefc-a9c6-00000e9f2e78
+----------------------------------------------------------------
+----------------------------------------------------------------
+2008-05-03 13:33:28.748 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance 21abc03b-0119-aefc-a9c6-00000e9f2e78
+on database directory D:\openl\design-repository\version\db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2008-05-03 13:33:29.029 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.2.1.6 - (452058): instance 0b3e4052-0119-aefc-a9c6-00000e9f2e78
+on database directory D:\openl\design-repository\workspaces\default\db  
+
+Database Class Loader started - derby.database.classpath=''
