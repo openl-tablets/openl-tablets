@@ -1,0 +1,245 @@
+/* Main stylesheet */
+
+.navigation {
+	font-family: Arial, san-serif;
+	font-size: 12px;
+	text-align: right;
+	font-weight : bold;
+}
+
+td.logo-bgr {
+	background-image : url(../webresource/images/Logobgr2.gif);
+}
+
+td.repeat {
+	background-image : url(../webresource/images/Header_Right_Side_r.gif);
+	background-repeat : repeat-x;
+}
+
+.repeats {
+	background-image : url(../webresource/images/bg_header_1.gif);
+	background-repeat : repeat-x;
+	font-family: Tahoma, san-serif;
+	font-size: 12px;
+	text-shadow: Red;
+	text-align: center;
+	font-weight : bold;
+}
+
+td.norepeat {
+	background-image : url(../webresource/images/Headerbgr.gif);
+}
+
+.gray {
+	background-color : #c2c5ca;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-weight : bold;
+}
+
+td.tab {
+	background-image : url(../webresource/images/Tab_bcgr1.gif);
+}
+
+td.title {
+	font-family : "Times New Roman", Times, serif;
+	font-size : 20px;
+	font-weight : bold;
+	background-color: #c2c5ca;
+	color: #224E76;
+}
+
+.column {
+	background-image : url(../webresource/images/separator2.gif);
+	background-repeat : repeat-x;
+	height : 20px;
+	border-right : 1px solid #646464;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-style : normal;
+	font-weight : bold;
+}
+
+
+.column1 {
+	background-image : url(../webresource/images/separator3.gif);
+	background-repeat : repeat-x;
+	border-right : 1px solid #646464;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-style : normal;
+	font-weight : bold;
+	height : 24px;
+}
+
+.columnNOdd {
+	background-color: #f7f8fd;
+	border-right : 1px solid #646464;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-style : normal;
+	font-weight : bold;
+}
+
+.columnNEven {
+	background-color: #eceef8;
+	border-right : 1px solid #646464;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-style : normal;
+	font-weight : bold;
+}
+
+
+.data {
+	text-indent : 5px;
+}
+
+.small-title {
+	text-indent : 5px;
+	padding-top : 5px;
+	text-align : left;
+	font-weight : bold;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+.info {
+	text-indent : 5px;
+	padding-top : 5px;
+	text-align : left;
+	font-weight : normal;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+
+}
+
+.section {
+	background-color : #c2c5ca;
+	font-size : small;
+	text-align : center;
+	font-weight : bold;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	color: #224E76;
+}
+
+.section-half {
+	background-color : #c2c5ca;
+	font-size : small;
+	text-align : center;
+	font-weight : bold;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	color: #224E76;
+	border-left : 1px solid #646464;
+}
+
+.button72 {
+	width : 72px;
+	height : 20px;
+	font-family: Arial, san-serif;
+	font-size: 11px;
+}
+
+.button96 {
+	width : 96px;
+	height : 20px;
+	font-family: Arial, san-serif;
+	font-size: 11px;
+}
+
+.left {
+	padding-left : 10px;
+	padding-top : 10px;
+}
+
+.outer {
+	border-top : 1px solid Black;
+	border-left : 1px solid Black;
+	border-bottom : 1px solid Black;
+	border-right : 1px solid Black;
+}
+
+.rowHeightOdd {
+	background-color: #f7f8fd;
+	text-align : left;
+	text-indent : 5px;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	font-style : normal;
+	font-weight : normal;
+}
+
+.rowHeightEven {
+	background-color: #eceef8;
+	text-align : left;
+	text-indent : 5px;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	font-style : normal;
+	font-weight : normal;
+}
+
+.rowHeightOddLast {
+	background-color: #f7f8fd;
+	text-align : left;
+	text-indent : 5px;
+	border-bottom : 1px solid #646464;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	font-style : normal;
+	font-weight : normal;
+}
+
+.rowHeightEvenLast {
+	background-color: #eceef8;
+	text-align : left;
+	text-indent : 5px;
+	border-bottom : 1px solid #646464;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	font-style : normal;
+	font-weight : normal;
+}
+
+.rowLast {
+	background-color: #f7f8fd;
+	border-bottom : 1px solid #646464;
+}
+
+body {
+	margin-top: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	padding : 0px;
+	color : black;
+ 	background : #FFF;
+}
+
+.data-half {
+	text-indent : 5px;
+	border-left : 1px solid #646464;
+}
+
+.indent {
+	padding: 0;
+	margin-left : 13 px;
+}
+
+.indent1 {
+	padding: 0;
+	margin-left : 8 px;
+}
+
+.indent2 {
+	padding: 0;
+	margin-left : 0 px;
+	margin-top: 0 px;
+}
+
+.indent3 {
+	padding: 0;
+	margin-left : 0 px;
+	margin-top: 0 px;
+}
