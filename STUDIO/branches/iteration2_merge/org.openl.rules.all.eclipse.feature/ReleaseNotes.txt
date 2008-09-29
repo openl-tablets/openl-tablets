@@ -33,12 +33,29 @@ SECTION 3: Previously released
 ---------------------------------------------------------------------------
 SECTION 1: New in this release
 ---------------------------------------------------------------------------
-Release %version% Build %build_number% 
+Release 5.1.0 Build 44 
+
+[+] EPB Integration	Integrated to Exigen Web Studio
+[+] Development	Create automated maven based build process
+[!] OpenL 	More advanced validation.
+[+] IPB Integration	New artifacts for easier integration (webstudio ipb-ui jar, ipb-security integration)
+[+] OpenL	Structured difference (compare functionality on file level)
+[+] OpenL	Fast deployment in Rules repository
+[+] OpenL	Saved search queries in advanced search
+[!] OpenL	Improvements in Rules repository: added filtering, next version displayed, added custom metadata to repository
+[+] OpenL	Added Vocabulary support
+[!] OpenL	Fixed minor bugs (see jira for details)
 
 
 ---------------------------------------------------------------------------
 SECTION 2: Known problems and workarounds
 ---------------------------------------------------------------------------
+Release 5.1.0 Build 44 
+
+ - Structured Diff is working unstable
+ - Custom metadata in repository is not saved using OpenL Web Studio
+
+Do not use this features till next release
 
 
 ---------------------------------------------------------------------------
