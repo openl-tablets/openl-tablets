@@ -42,3 +42,9 @@ insDoc(aux1, gLnk("R", "Creating a Project", "Ref_CreatingAProject.html#creating
 aux2 = insFld(aux1, gFld("Generating a Wrapper", "Ref_GeneratingAWrapper.html#generating_a_wrapper41"));
 insDoc(aux2, gLnk("R", "Configuring the Ant Task File", "Ref_ConfiguringTheAntTaskFile.html#configuring_the_ant_task_file42"));
 insDoc(aux2, gLnk("R", "Executing the Ant Task File", "Ref_ExecutingTheAntTaskFile.html#executing_the_ant_task_file43"));
+aux1 = insFld(foldersTree, gFld("Appendix A: BEX Language Overview", "Ref_BEXLanguageOverview.html#appendix_a_bex_language_overview44"));
+insDoc(aux1, gLnk("R", "Introduction to BEX", "Ref_IntroductionToBEX.html#introduction_to_bex45"));
+insDoc(aux1, gLnk("R", "Keywords", "Ref_Keywords.html#keywords46"));
+aux2 = insFld(aux1, gFld("Simplifying Expressions", "Ref_SimplifyingExpressions.html#simplifying_expressions47"));
+insDoc(aux2, gLnk("R", "Notation of Explanatory Variables", "Ref_NotationOfExplanatoryVariables.html#notation_of_explanatory_variables48"));
+insDoc(aux2, gLnk("R", "Uniqueness of Scope", "Ref_UniquenessOfScope.html#uniqueness_of_scope49"));

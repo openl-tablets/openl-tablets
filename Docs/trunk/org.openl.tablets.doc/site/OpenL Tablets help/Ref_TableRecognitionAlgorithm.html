@@ -22,7 +22,7 @@ var file_name="Ref_TableRecognitionAlgorithm.html"
  
 
     <p class="MsoBodyText">
-This section describes the algorithm how the OpenL Tablets engine looks for supported tables in Excel or Word files. It is
+This section describes the algorithm of how the OpenL Tablets engine looks for supported tables in Excel or Word files. It is
 important to build tables according to requirements of this algorithm;
 otherwise the tables will not be correctly
 recognized.
@@ -58,7 +58,7 @@ tables.
       <p class="listcontinue">
 Logical tables must be separated by at least one empty row or column or
 start at the very first row or column. Table parsing is performed from
-left to right and from top to bottom. The first non-empty cell that does
+left to right and from top to bottom. The first populated cell that does
 not belong to a previously parsed table becomes the top-left corner of a
 new logical
 table.
@@ -163,7 +163,7 @@ Table type
  
 
             <p class="Tabletext">
-<span class="SpellE"><code>Datatype</code></span><code></code>
+<code>Datatype</code>
             </p>
  
           </td> 
@@ -182,7 +182,7 @@ Table type
  
 
             <p class="Tabletext">
-<span class="SpellE"><code>Testmethod</code></span><code></code>
+<code>Testmethod</code>
             </p>
  
           </td> 
@@ -201,7 +201,7 @@ Table type
  
 
             <p class="Tabletext">
-<span class="SpellE"><code>Runmethod</code></span><code></code>
+<code>Runmethod</code>
             </p>
  
           </td> 
@@ -263,7 +263,7 @@ files.
       <li value=3>
 
         <p>
-The engine determines the width and height of the table using non-empty
+The engine determines the width and height of the table using populated
 cells as
 clues.
         </p>
