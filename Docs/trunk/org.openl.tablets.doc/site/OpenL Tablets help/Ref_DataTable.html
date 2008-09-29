@@ -31,7 +31,7 @@ OpenL Tablets data types. For information on data types, see <a href="Ref_DataTy
  
 
     <p class="MsoBodyText">
-The following topics are described in this section:
+The following topics are included in this section:
     </p>
  
 
@@ -110,14 +110,14 @@ all primitive Java types
       <li>
 
         <p>
-class <span class="SpellE"><code>java.lang.String</code></span>
+class <code>java.lang.String</code>
         </p>
 
       </li>
       <li>
 
         <p>
-class <span class="SpellE"><code>java.util.Date</code></span>
+class <code>java.util.Date</code>
         </p>
 
       </li>
@@ -140,17 +140,17 @@ example:
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">int</span></span><span class="GramE">[</span>] num = <span class="SpellE">tableWrapper.getNumbers</span>();
+<span class="GramE">int[</span>] num = tableWrapper.getNumbers();
     </p>
   
 
     <p class="codelines">
-<span class="GramE">for</span> (<span class="SpellE">int</span> <span class="SpellE">i</span> = 0; <span class="SpellE">i</span> &lt; <span class="SpellE">num.length</span>; <span class="SpellE">i</span>++) {
+<span class="GramE">for</span> (int i = 0; i &lt; num.length; i++) {
     </p>
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">System.out.println</span></span><span class="GramE">(</span>num[<span class="SpellE">i</span>]);
+<span class="GramE">System.out.println(</span>num[i]);
     </p>
  
 
@@ -160,7 +160,7 @@ example:
  
 
     <p class="MsoBodyText">
-<span class="GramE">where</span> <span class="SpellE"><code>tableWrapper</code></span> is an instance of the wrapper class of the Excel or Word file. For
+<span class="GramE">where</span> <code>tableWrapper</code> is an instance of the wrapper class of the Excel or Word file. For
 information on wrappers, see
 <a href="Ref_Wrappers.html#_Wrappers">Wrappers</a>.
     </p>
@@ -235,12 +235,12 @@ String name;
  
 
     <p class="codelines">
-String <span class="SpellE">ssn</span>;
+String ssn;
     </p>
   
 
     <p class="codelines">
-<span class="GramE">public</span> String <span class="SpellE">getName</span>() {
+<span class="GramE">public</span> String getName() {
     </p>
  
 
@@ -255,12 +255,12 @@ String <span class="SpellE">ssn</span>;
  
 
     <p class="codelines">
-<span class="GramE">public</span> void <span class="SpellE">setName</span>(String name) {
+<span class="GramE">public</span> void setName(String name) {
     </p>
  
 
     <p class="codelines">
-<span class="SpellE">this.name</span> = name;
+this.name = name;
     </p>
  
 
@@ -270,12 +270,12 @@ String <span class="SpellE">ssn</span>;
   
 
     <p class="codelines">
-<span class="GramE">public</span> String <span class="SpellE">getSsn</span>() {
+<span class="GramE">public</span> String getSsn() {
     </p>
  
 
     <p class="codelines">
-<span class="GramE">return</span> <span class="SpellE">ssn</span>;
+<span class="GramE">return</span> ssn;
     </p>
  
 
@@ -285,12 +285,12 @@ String <span class="SpellE">ssn</span>;
  
 
     <p class="codelines">
-<span class="GramE">public</span> void <span class="SpellE">setSsn</span>(String <span class="SpellE">ssn</span>) {
+<span class="GramE">public</span> void setSsn(String ssn) {
     </p>
  
 
     <p class="codelines">
-<span class="SpellE">this.ssn</span> = <span class="SpellE">ssn</span>;
+this.ssn = ssn;
     </p>
  
 
@@ -318,17 +318,17 @@ In Java code, the data table <code>p1</code> can be accessed as follows:
  
 
     <p class="codelines">
-<span class="GramE">Person[</span>] <span class="SpellE">persArr</span> = tableWrapper.getP1();
+<span class="GramE">Person[</span>] persArr = tableWrapper.getP1();
     </p>
   
 
     <p class="codelines">
-<span class="GramE">for</span> (<span class="SpellE">int</span> <span class="SpellE">i</span> = 0; <span class="SpellE">i</span> &lt; <span class="SpellE">persArr.length</span>; <span class="SpellE">i</span>++) {
+<span class="GramE">for</span> (int i = 0; i &lt; persArr.length; i++) {
     </p>
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">System.out.println</span></span><span class="GramE">(</span><span class="SpellE">persArr</span>[<span class="SpellE">i</span>].<span class="SpellE">getName</span>() + ' <span class="SpellE">'</span> + <span class="SpellE">persArr</span>[<span class="SpellE">i</span>].<span class="SpellE">getSsn</span>());
+<span class="GramE">System.out.println(</span>persArr[i].getName() + ' ' + persArr[i].getSsn());
     </p>
  
 
@@ -338,7 +338,7 @@ In Java code, the data table <code>p1</code> can be accessed as follows:
  
 
     <p class="MsoBodyText">
-<span class="GramE">where</span> <span class="SpellE"><code>tableWrapper</code></span> is an instance of the Excel or Word file wrapper. For information on
+<span class="GramE">where</span> <code>tableWrapper</code> is an instance of the Excel or Word file wrapper. For information on
 wrappers, see
 <a href="Ref_Wrappers.html#_Wrappers">Wrappers</a>.
     </p>
@@ -352,10 +352,10 @@ wrappers, see
     <p class="MsoBodyText">
 If a data table contains values defined in another data table, it is
 important to specify this relationship so that
-OpenL Tablets can check data integrity during compilation. Relationship between two
-data tables is defined using foreign keys, a concept that is used in
+OpenL Tablets can check data integrity during compilation. The relationship between
+two data tables is defined using foreign keys, a concept that is used in
 database management systems. Reference to another data table must be
-specified in additional row below the row where attribute names are
+specified in an additional row below the row where attribute names are
 entered. The following format must be
 used:
     </p>
@@ -369,7 +369,7 @@ table&gt;</code>
  
 
     <p class="MsoNormal">
-In the following diagram, the data table <span class="GramE"><b>cities</b> contains</span> values from table <b>states.</b> To ensure users enter correct values, a reference to the <b>code</b> column in the <b>states</b> table is defined.
+In the following diagram, the data table <span class="GramE"><b>cities</b> contains</span> values from the table <b>states.</b> To ensure users enter correct values, a reference to the <b>code</b> column in the <b>states</b> table is defined.
     </p>
  
 
@@ -379,7 +379,7 @@ In the following diagram, the data table <span class="GramE"><b>cities</b> conta
  
 
     <p class="MsoBodyText">
-In case user enters invalid state abbreviation in table <b>cities,</b> OpenL Tablets reports an error.
+In case user enters invalid state abbreviation in the table <b>cities,</b> OpenL Tablets reports an error.
     </p>
  
 
@@ -387,7 +387,7 @@ In case user enters invalid state abbreviation in table <b>cities,</b> OpenL Tab
 The target column does not have to be specified if it is the first
 column in the referenced data table. For example, if a reference was
 made to the column
-<b>name</b> in table <b>states,</b> the following simplified reference could be used:
+<b>name</b> in the table <b>states,</b> the following simplified reference could be used:
     </p>
  
 
@@ -423,12 +423,12 @@ names:
  
 
     <p class="MsoBodyText">
-To illustrate this approach, <span class="GramE">lets</span> assume there are two Java classes <span class="SpellE"><code>ZipCode</code></span> and <code>Address</code> defined:
+To illustrate this approach, assume there are two Java classes <code>ZipCode</code> and <code>Address</code> defined:
     </p>
  
 
     <p class="codelines">
-<span class="GramE">public</span> class <span class="SpellE">ZipCode</span> {
+<span class="GramE">public</span> class ZipCode {
     </p>
   
 
@@ -523,12 +523,12 @@ String city;
  
 
     <p class="codelines">
-<span class="SpellE">ZipCode</span> zip;
+ZipCode zip;
     </p>
   
 
     <p class="codelines">
-<span class="GramE">public</span> String <span class="SpellE">getCity</span>() {
+<span class="GramE">public</span> String getCity() {
     </p>
  
 
@@ -543,12 +543,12 @@ String city;
  
 
     <p class="codelines">
-<span class="GramE">public</span> void <span class="SpellE">setCity</span>(String city) {
+<span class="GramE">public</span> void setCity(String city) {
     </p>
  
 
     <p class="codelines">
-<span class="SpellE">this.city</span> = city;
+this.city = city;
     </p>
  
 
@@ -558,7 +558,7 @@ String city;
  
 
     <p class="codelines">
-<span class="GramE">public</span> String <span class="SpellE">getStreet</span>() {
+<span class="GramE">public</span> String getStreet() {
     </p>
  
 
@@ -573,12 +573,12 @@ String city;
  
 
     <p class="codelines">
-<span class="GramE">public</span> void <span class="SpellE">setStreet</span>(String street) {
+<span class="GramE">public</span> void setStreet(String street) {
     </p>
  
 
     <p class="codelines">
-<span class="SpellE">this.street</span> = street;
+this.street = street;
     </p>
  
 
@@ -588,7 +588,7 @@ String city;
  
 
     <p class="codelines">
-<span class="GramE">public</span> <span class="SpellE">ZipCode</span> <span class="SpellE">getZip</span>() {
+<span class="GramE">public</span> ZipCode getZip() {
     </p>
  
 
@@ -598,17 +598,17 @@ String city;
  
 
     <p class="codelines">
-<span lang="NL">}</span>
+}
     </p>
  
 
     <p class="codelines">
-<span lang="NL">public void setZip(ZipCode zip) {</span>
+<span class="GramE">public</span> void setZip(ZipCode zip) {
     </p>
  
 
     <p class="codelines">
-<span lang="NL"></span><span class="SpellE">this.zip</span> = zip;
+this.zip = zip;
     </p>
  
 
@@ -623,9 +623,9 @@ String city;
  
 
     <p class="MsoBodyText">
-As can be seen from the code, the <code>Address</code> class contains a reference to the <span class="SpellE"><code>ZipCode</code></span> class. A data table can be created that specifies values for both
-classes at the same time, for example, as
-follows:
+As can be seen from the code, the <code>Address</code> class contains a reference to the <code>ZipCode</code> class. A data table can be created that specifies values for both
+classes at the same time, for
+example:
     </p>
  
 
@@ -635,7 +635,7 @@ follows:
  
 
     <p class="MsoBodyText">
-In the preceding example, columns <b>Zip1</b> and <b>Zip2</b> contain values for class <span class="SpellE"><code>ZipCode</code></span> referenced by class <code>Address</code>.
+In the preceding example, columns <b>Zip1</b> and <b>Zip2</b> contain values for class <code>ZipCode</code> referenced by class <code>Address</code>.
     </p>
  
 
@@ -647,7 +647,7 @@ configuration table as described in
  
 
     <p class="Note">
-<b>Note:</b> The reference path can be of any arbitrary depth, for example <span class="SpellE"><code>account.person.address.street</code></span>.
+<b>Note:</b> The reference path can be of any arbitrary depth, for example <code>account.person.address.street</code>.
     </p>
  <br clear="all">
   </body>

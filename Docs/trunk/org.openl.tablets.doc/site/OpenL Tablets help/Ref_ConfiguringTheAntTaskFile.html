@@ -22,7 +22,7 @@ var file_name="Ref_ConfiguringTheAntTaskFile.html"
  
 
     <p class="MsoBodyText">
-When a new OpenL Tablets project is created, it already contains an Ant task file <span class="SpellE"><code>GenerateJavaWrapper.build.xml</code></span> located in the <code>build</code> folder. When the file is executed, it automatically creates wrapper
+When a new OpenL Tablets project is created, it already contains an Ant task file <code>GenerateJavaWrapper.build.xml</code> located in the <code>build</code> folder. When the file is executed, it automatically creates wrapper
 Java classes for specified Excel or Word files. The Ant task file must
 be adjusted to match contents of the specific
 project.
@@ -30,14 +30,14 @@ project.
  
 
     <p class="MsoBodyText">
-For each Excel or Word file, an individual <code>&lt;<span class="SpellE">openlgen</span>&gt;</code> section must be added between the <code>&lt;target&gt;</code> and <code>&lt;/target&gt;</code> tags.
+For each Excel or Word file, an individual <code>&lt;openlgen&gt;</code> section must be added between the <code>&lt;target&gt;</code> and <code>&lt;/target&gt;</code> tags.
     </p>
  
 
     <p class="MsoBodyText">
-Each <code>&lt;<span class="SpellE">openlgen</span>&gt;</code> section has a number of parameters that must be adjusted. The following
+Each <code>&lt;openlgen&gt;</code> section has a number of parameters that must be adjusted. The following
 table describes
-<code>&lt;<span class="SpellE">openlgen</span>&gt;</code> section parameters:
+<code>&lt;openlgen&gt;</code> section parameters:
     </p>
  
 
@@ -51,7 +51,7 @@ table describes
  
 
             <p>
-Parameters in the &lt;<span class="SpellE">openlgen</span>&gt; section
+Parameters in the &lt;openlgen&gt; section
             </p>
  
           </th> 
@@ -82,7 +82,7 @@ Description
  
 
           <p class="Tabletext">
-<span class="SpellE"><code>openlName</code></span><code></code>
+<code>openlName</code>
           </p>
  
         </td> 
@@ -106,7 +106,7 @@ OpenL configuration to be used. For OpenL Tablets, the following value must alwa
  
 
           <p class="Tabletext">
-<span class="SpellE"><code>userHome</code></span><code></code>
+<code>userHome</code>
           </p>
  
         </td> 
@@ -125,7 +125,7 @@ Location of user defined resources relative to the current OpenL Tablets project
  
 
           <p class="Tabletext">
-<span class="SpellE"><code>srcFile</code></span><code></code>
+<code>srcFile</code>
           </p>
  
         </td> 
@@ -145,7 +145,7 @@ generated.
  
 
           <p class="Tabletext">
-<span class="SpellE"><code>targetClass</code></span><code></code>
+<code>targetClass</code>
           </p>
  
         </td> 
@@ -172,7 +172,7 @@ OpenL Web Studio.
  
 
           <p class="Tabletext">
-<span class="SpellE"><code>displayName</code></span><code></code>
+<code>displayName</code>
           </p>
  
         </td> 
@@ -191,7 +191,7 @@ End user oriented title of the file that appears in OpenL Web Studio.
  
 
           <p class="Tabletext">
-<span class="SpellE"><code>targetSrcDir</code></span><code></code>
+<code>targetSrcDir</code>
           </p>
  
         </td> 
@@ -208,17 +208,19 @@ Folder where the generated wrapper class must be placed.
  
 
     <p class="MsoBodyText">
-The following is an example of the <span class="SpellE"><code>GenerateJavaWrapper.build.xml</code></span> file:
+The following is an example of the <code>GenerateJavaWrapper.build.xml</code> file:
     </p>
  
 
     <p class="codelines">
-&lt;project name=&quot;<span class="SpellE">GenJavaWrapper</span>&quot; default=&quot;generate&quot; <span class="SpellE">basedir</span>=&quot;<span class="GramE">..</span>/&quot;&gt;
+&lt;project name=&quot;GenJavaWrapper&quot; default=&quot;generate&quot;
+basedir=&quot;<span class="GramE">..</span>/&quot;&gt;
     </p>
  
 
     <p class="codelines">
-&lt;<span class="SpellE">taskdef</span> name=&quot;<span class="SpellE">openlgen</span>&quot; <span class="SpellE">classname</span>=&quot;<span class="SpellE">org.openl.conf.ant.JavaWrapperAntTask</span>&quot;/&gt;
+&lt;taskdef name=&quot;openlgen&quot;
+classname=&quot;org.openl.conf.ant.JavaWrapperAntTask&quot;/&gt;
     </p>
   
 
@@ -238,22 +240,22 @@ The following is an example of the <span class="SpellE"><code>GenerateJavaWrappe
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">srcFile</span></span>=&quot;rules/Rules.xls&quot;
+<span class="GramE">srcFile</span>=&quot;rules/Rules.xls&quot;
     </p>
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">targetClass</span></span>=&quot;<span class="SpellE">com.exigen.claims.RulesWrapper</span>&quot;
+<span class="GramE">targetClass</span>=&quot;com.exigen.claims.RulesWrapper&quot;
     </p>
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">displayName</span></span>=&quot;Rule table wrapper&quot;
+<span class="GramE">displayName</span>=&quot;Rule table wrapper&quot;
     </p>
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">targetSrcDir</span></span>=&quot;gen&quot;
+<span class="GramE">targetSrcDir</span>=&quot;gen&quot;
     </p>
  
 
@@ -278,22 +280,22 @@ The following is an example of the <span class="SpellE"><code>GenerateJavaWrappe
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">srcFile</span></span>=&quot;rules/Data.xls&quot;
+<span lang="NL">srcFile=&quot;rules/Data.xls&quot;</span>
     </p>
  
 
     <p class="codelines">
-<span class="SpellE">targetClass</span>=&quot; <span class="SpellE">com.exigen.claims.DataWrapper</span>&quot;
+<span lang="NL">targetClass=&quot; com.exigen.claims.DataWrapper&quot;</span>
     </p>
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">displayName</span></span>=&quot;Data table wrapper&quot;
+<span class="GramE">displayName</span>=&quot;Data table wrapper&quot;
     </p>
  
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">targetSrcDir</span></span>=&quot;gen&quot;
+<span class="GramE">targetSrcDir</span>=&quot;gen&quot;
     </p>
  
 
@@ -303,7 +305,7 @@ The following is an example of the <span class="SpellE"><code>GenerateJavaWrappe
  
 
     <p class="codelines">
-&lt;/<span class="SpellE">openlgen</span>&gt;
+&lt;/openlgen&gt;
     </p>
   
 

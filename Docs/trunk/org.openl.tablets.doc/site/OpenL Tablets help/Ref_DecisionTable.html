@@ -30,7 +30,7 @@ It is the basic table type used in
  
 
     <p class="MsoBodyText">
-The following topics are described in this section:
+The following topics are included in this section:
     </p>
  
 
@@ -195,7 +195,7 @@ follows:
  
 
           <p class="Tabletext">
-<span class="SpellE"><code>HelloWrapper</code></span><code> <span class="SpellE">tableWrapper</span> = new <span class="SpellE">HelloWrapper</span>();</code>
+<code>HelloWrapper tableWrapper = new HelloWrapper();</code>
           </p>
  
 
@@ -205,7 +205,7 @@ follows:
  
 
           <p class="Tabletext">
-<span class="GramE">where</span> <span class="SpellE"><code>HelloWrapper</code></span> is the wrapper class of the Excel or Word file. For general information
+<span class="GramE">where</span> <code>HelloWrapper</code> is the wrapper class of the Excel or Word file. For general information
 on wrappers, see
 <a href="Ref_Wrappers.html#_Wrappers">Wrappers</a>.
           </p>
@@ -251,8 +251,8 @@ OpenL Web Studio.
  
 
           <p class="Tabletext">
-Although the provided decision table example contained two property
-rows, there can be any number of property rows in a
+Although the provided decision table example contains two property rows,
+there can be any number of property rows in a
 table.
           </p>
  
@@ -415,7 +415,7 @@ All other cells in this row are ignored and can be used as comments.
  
 
           <p class="Tabletext">
-<b>Important:</b> If a table contains action columns, the engine executes actions for all
+If a table contains action columns, the engine executes actions for all
 rules whose conditions are true. If a table has a return column, the
 engine stops processing rules after the first executed rule. If a return
 column has a blank cell and the rule is executed, the engine does not
@@ -454,7 +454,9 @@ Yes
           <p class="Tabletext">
 Row containing cells with code statements for condition, action, and
 return value column headers.
-OpenL Tablets supports Java grammar enhanced with BEX grammar features.
+OpenL Tablets supports Java grammar enhanced with OpenL Business Expression (BEX)
+grammar features. For information on the BEX language, see
+<a href="Ref_BEXLanguageOverview.html#_Appendix_A:_BEX">Appendix A: BEX Language Overview</a>.
           </p>
  
 
@@ -766,14 +768,16 @@ correctly.
  
 
     <p class="MsoBodyText">
-If parameter is an array type, there are two ways how its values can be
+If a parameter is an array type, there are two ways its values can be
 entered in a
 table.
     </p>
  
 
     <p class="MsoBodyText">
-The first option is arrange array values horizontally using multiple <span class="SpellE">subcolumns</span>. The following is an example of this approach:
+The first option is to arrange array values horizontally using multiple
+subcolumns. The following is an example of this
+approach:
     </p>
  
 
@@ -811,14 +815,14 @@ In both cases, empty cells are not added to the array.
  
 
     <p class="MsoBodyText">
-To facilitate work with arrays, OpenL Tablets provides the following method, which allows determining whether a
-particular element is included in an
+To facilitate work with arrays, OpenL Tablets provides the following method, which determines whether a particular
+element is included in an
 array:
     </p>
  
 
     <p class="MsoBodyText">
-<span class="GramE"><code>contains(</code></span><code>Object[] <span class="SpellE">ary</span>, Object <span class="SpellE">ojb</span>)</code>
+<span class="GramE"><code>contains(</code></span><code>Object[] ary, Object ojb)</code>
     </p>
  
 
@@ -929,12 +933,12 @@ The following decision table demonstrates calculations in table cells:
     <p class="MsoBodyText">
 The table transforms a 12 hour time format into a 24 hour time format.
 The column
-<code>RET1</code> contains two cells that perform calculations with the input parameter <span class="SpellE"><code>ampmHr</code></span>.
+<code>RET1</code> contains two cells that perform calculations with the input parameter <code>ampmHr</code>.
     </p>
  
 
     <p class="MsoBodyText">
-Calculations use regular Java syntax similar to what is used in
+Calculations use regular Java syntax, similar to what is used in
 conditions and
 actions.
     </p>

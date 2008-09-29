@@ -65,14 +65,15 @@ The first row is the table header, which has the following format:
       </li>
 
       <p class="listcontinue">
-<span class="SpellE"><code>Testmethod</code></span><code> &lt;method name&gt; &lt;test table name&gt;</code>
+<code>Testmethod &lt;method name&gt; &lt;test table name&gt;</code>
       </p>
 
       <p class="listcontinue">
-'<span class="SpellE">Testmethod</span>' is a keyword that identifies a test table. The second parameter is the
-name of the decision table method or any other Java method that must be
-tested. The third parameter is the name of the test table, which is also
-the name of the method by which the test table can be executed from Java
+'Testmethod' is a keyword that identifies a test table. The second
+parameter is the name of the decision table method or any other Java
+method to be tested. The third parameter is the name of the test table,
+which is also the name of the method by which the test table can be
+executed from Java
 code.
       </p>
 
@@ -113,22 +114,22 @@ it.
 Test results can be accessed through the test table API. For example,
 the following code fragment executes all test runs in a test table
 called
-<span class="SpellE"><b>insuranceTest</b></span> and displays the number of failed test runs:
+<b>insuranceTest</b> and displays the number of failed test runs:
     </p>
  
 
     <p class="codelines">
-<span class="SpellE">TableWrapper</span> <span class="SpellE">tableWrapper</span> = new <span class="SpellE"><span class="GramE">TableWrapper</span></span><span class="GramE">(</span>);
+TableWrapper tableWrapper = new <span class="GramE">TableWrapper(</span>);
     </p>
   
 
     <p class="codelines">
-<span class="SpellE">TestResult</span> <span class="SpellE">tr</span> = <span class="SpellE"><span class="GramE">tableWrapper.insuranceTestTestAll</span></span><span class="GramE">(</span>);
+TestResult tr = <span class="GramE">tableWrapper.insuranceTestTestAll(</span>);
     </p>
   
 
     <p class="codelines">
-<span class="SpellE"><span class="GramE">System.out.println</span></span><span class="GramE">(</span>&quot;Number of failed test runs: &quot;+<span class="SpellE">tr.getNumberOfFailures</span>());
+<span class="GramE">System.out.println(</span>&quot;Number of failed test runs: &quot;+tr.getNumberOfFailures());
     </p>
  
 
