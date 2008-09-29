@@ -36,6 +36,8 @@ public class WizardBean extends BaseWizardBean {
 
     private static final String ORIENTATATION_HORIZONTAL="hor";
     private static final String ORIENTATATION_VERTICAL="ver";
+    private static final String SHEET_EXSISTING ="existing";
+    private static final String SHEET_NEW="new";
 
     private String tableName;
     private String returnType;
@@ -52,6 +54,8 @@ public class WizardBean extends BaseWizardBean {
     private String workbook;
     private int worksheetIndex;
     private Map<String, XlsWorkbookSourceCodeModule> workbooks;
+    private boolean newWorksheet;
+    private String newWorksheetName;
 
     public WizardBean() {}
 
@@ -87,6 +91,8 @@ public class WizardBean extends BaseWizardBean {
         domainTypes = null;
         worksheetIndex = 0;
         workbooks = null;
+        newWorksheet = false;
+        newWorksheetName = StringUtils.EMPTY;
     }
 
     public String getTableName() {
@@ -480,6 +486,22 @@ public class WizardBean extends BaseWizardBean {
         return items;
     }
 
+    public String getNewWorksheet() {
+        return newWorksheet ? SHEET_NEW : SHEET_EXSISTING;
+    }
+
+    public void setNewWorksheet(String value) {
+        newWorksheet = SHEET_NEW.equals(value);
+    }
+
+    public String getNewWorksheetName() {
+        return newWorksheetName;
+    }
+
+    public void setNewWorksheetName(String newWorksheetName) {
+        this.newWorksheetName = newWorksheetName;
+    }
+
     public String save() {
         try {
             doSave();
@@ -492,9 +514,15 @@ public class WizardBean extends BaseWizardBean {
     }
 
     private void doSave() throws CreateTableException, IOException {
+        XlsSheetSourceCodeModule sourceCodeModule;
         XlsWorkbookSourceCodeModule module = workbooks.get(workbook);
-        HSSFSheet sheet = module.getWorkbook().getSheetAt(worksheetIndex);
-        XlsSheetSourceCodeModule sourceCodeModule = new XlsSheetSourceCodeModule(sheet, module.getWorkbook().getSheetName(worksheetIndex), module);
+        if (newWorksheet) {
+            HSSFSheet sheet = module.getWorkbook().createSheet(newWorksheetName);
+            sourceCodeModule = new XlsSheetSourceCodeModule(sheet, newWorksheetName, module);
+        } else {
+            HSSFSheet sheet = module.getWorkbook().getSheetAt(worksheetIndex);
+            sourceCodeModule = new XlsSheetSourceCodeModule(sheet, module.getWorkbook().getSheetName(worksheetIndex), module);
+        }
         DecisionTableBuilder builder = new DecisionTableBuilder(new XlsSheetGridModel(sourceCodeModule));
 
         // compute table dimensions
