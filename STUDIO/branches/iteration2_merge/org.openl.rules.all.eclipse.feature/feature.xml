@@ -4,8 +4,8 @@
       label="OpenL Tablets for Eclipse"
       version="5.1.1">
 
-   <description url="http://www.example.com/description">
-      %releaseNotes
+   <description url="%descriptionURL">
+      %description
    </description>
 
    <copyright url="http://www.example.com/copyright">
