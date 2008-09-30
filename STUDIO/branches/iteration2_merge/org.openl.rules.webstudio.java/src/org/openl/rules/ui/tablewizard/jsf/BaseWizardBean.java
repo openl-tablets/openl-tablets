@@ -1,22 +1,14 @@
 package org.openl.rules.ui.tablewizard.jsf;
 
-import javax.faces.component.html.HtmlInputHidden;
-
 /**
  * @author Aliaksandr Antonik.
  */
 public abstract class BaseWizardBean {
-    private int step = -1; //not started
+    private int step;
     private int maxVisitedStep;
-    private HtmlInputHidden hiddenStep;
 
     protected String getName() {
         return "page";
-    }
-
-    public synchronized void finish() {
-        step = -1;
-        onFinish(false);
     }
 
     public String start() {
@@ -33,16 +25,9 @@ public abstract class BaseWizardBean {
         return step;
     }
 
-    public HtmlInputHidden getHiddenStep() {
-        return hiddenStep;
-    }
-
-    public void setHiddenStep(HtmlInputHidden hidden) {
-        this.hiddenStep = hidden;
-        try{
-            step = Integer.parseInt((String) hidden.getValue());
-            maxVisitedStep = Math.max(step, maxVisitedStep);
-        } catch (NumberFormatException nfe) {}
+    public void setStep(int step) {
+        this.step = step;
+        maxVisitedStep = Math.max(step, maxVisitedStep);
     }
 
     public int getMaxVisitedStep() {
@@ -62,8 +47,7 @@ public abstract class BaseWizardBean {
         return "prev";
     }
 
-    public String cancel() {
+    public void cancel() {
         onFinish(true);
-        return getName() +"Cancel";
     }
 }

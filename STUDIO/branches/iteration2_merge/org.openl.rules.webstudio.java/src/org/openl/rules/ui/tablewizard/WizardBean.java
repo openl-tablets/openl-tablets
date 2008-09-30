@@ -33,11 +33,10 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
  */
 public class WizardBean extends BaseWizardBean {
     private static final Log log = LogFactory.getLog(WizardBean.class);
-
-    private static final String ORIENTATATION_HORIZONTAL="hor";
-    private static final String ORIENTATATION_VERTICAL="ver";
-    private static final String SHEET_EXSISTING ="existing";
-    private static final String SHEET_NEW="new";
+    private static final String ORIENTATATION_HORIZONTAL = "hor";
+    private static final String ORIENTATATION_VERTICAL = "ver";
+    private static final String SHEET_EXSISTING = "existing";
+    private static final String SHEET_NEW = "new";
 
     private String tableName;
     private String returnType;

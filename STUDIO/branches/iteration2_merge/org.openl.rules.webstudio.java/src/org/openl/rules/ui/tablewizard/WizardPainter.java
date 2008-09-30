@@ -12,21 +12,16 @@ import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
  */
 public class WizardPainter {
     private WizardBean wizardBean;
-    private int conditionsWidth;
-    private int actionsWidth;
-    private int returnWidth;
     private TableModel tableModel;
 
     public void setWizardBean(WizardBean wizardBean) {
         this.wizardBean = wizardBean;
     }
 
-
-
     public String getTableHTML() {
-        conditionsWidth = countColumns(wizardBean.getConditions());
-        actionsWidth = countColumns(wizardBean.getActions());
-        returnWidth = wizardBean.getReturn().getParamsCount();
+        int conditionsWidth = countColumns(wizardBean.getConditions());
+        int actionsWidth = countColumns(wizardBean.getActions());
+        int returnWidth = wizardBean.getReturn().getParamsCount();
         int width =  conditionsWidth + actionsWidth + returnWidth;
         int height = 4 + 1 + 3; // technical info + columns headers + data rows
 
