@@ -6,7 +6,7 @@
                 xmlns:c="http://java.sun.com/jstl/core"
                 xmlns:rich="http://richfaces.ajax4jsf.org/rich"
                 xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-                template="/facelets/common/webstudioBase.xhtml"
+                template="/facelets/common/wizardBase.xhtml"
         >
 
   <ui:define name="page">
@@ -121,10 +121,10 @@
       <hr/>
 
 
-      <h:inputHidden value="2" id="step" binding="#{tableWizard.hiddenStep}"/>
-      <h:commandButton value="Prev" action="#{tableWizard.prev}"/>
-      <h:commandButton value="Next" action="#{tableWizard.next}"/>
-      <h:commandButton value="Cancel" action="#{tableWizard.cancel}"/>
+      <h:inputHidden value="2" id="step" binding="#{tableWizardManager.hiddenStep}"/>
+      <h:commandButton value="Prev" action="#{tableWizardManager.prev}"/>
+      <h:commandButton value="Next" action="#{tableWizardManager.next}"/>
+      <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}"/>
     </h:form>
 
 <rich:modalPanel id="modalDomainTreePanel" minHeight="350">
