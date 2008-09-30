@@ -1,27 +1,7 @@
 ---------------------------------------------------------------------------
                                  Release Notes
                                  OpenL Tablets
-			          %month_year%
-   
-             © 2007-%year% Exigen Properties, Inc. All rights reserved.
-                              www.exigengroup.com
-                            support@exigengroup.com
-                    -------------------------------------
-                         North America: 1-866-4EXIGEN 
-        	     All other countries: 1-506-674-4025      
-	       Australia (within Australia only): 1-800-508-192
-	     New Zealand (within New Zealand only): 0-800-448-898
-                    -------------------------------------
-
-This package and all its contents are protected by copyright.
-
-Exigen and Exigen Process Backbone are registered trademarks and
-trademarks of Exigen Properties, Inc. in the United States and/or other
-countries.
-
-All other trademarks, service marks, or registered trademarks are the
-property of their respective companies.
-
+			         October 2008   
 
 -----------------
 TABLE OF CONTENTS
@@ -33,29 +13,32 @@ SECTION 3: Previously released
 ---------------------------------------------------------------------------
 SECTION 1: New in this release
 ---------------------------------------------------------------------------
-Release 5.1.0 Build 44 
+Release 5.1.0 
 
-[+] EPB Integration	Integrated to Exigen Web Studio
-[+] Development	Create automated maven based build process
-[!] OpenL 	More advanced validation.
-[+] IPB Integration	New artifacts for easier integration (webstudio ipb-ui jar, ipb-security integration)
-[+] OpenL	Structured difference (compare functionality on file level)
-[+] OpenL	Fast deployment in Rules repository
-[+] OpenL	Saved search queries in advanced search
-[!] OpenL	Improvements in Rules repository: added filtering, next version displayed, added custom metadata to repository
-[+] OpenL	Added Vocabulary support
-[!] OpenL	Fixed minor bugs (see jira for details)
+Integration with Exigen Web Studio is implemented.
+
+Automated build process based on Maven is added.
+
+Decision table validation is improved.
+
+File level differences between two project versions can be displayed.
+
+Fast redeployment of an individual rule project is introduced.
+
+Advanced search queries can be saved for future use.
+
+File filtering can be applied to the design time repository tree.
+
+Vocabulary support is added.
 
 
 ---------------------------------------------------------------------------
 SECTION 2: Known problems and workarounds
 ---------------------------------------------------------------------------
-Release 5.1.0 Build 44 
+- Project version comparison is an unstable operation. It is recommended
+  not to use this function in the current release.
 
- - Structured Diff is working unstable
- - Custom metadata in repository is not saved using OpenL Web Studio
-
-Do not use this features till next release
+- OpenL Web Studio does not save custom metadata in the repository.
 
 
 ---------------------------------------------------------------------------
@@ -63,4 +46,4 @@ SECTION 3: Previously released
 ---------------------------------------------------------------------------
 
 
-Document number: TP_EPB_7.0.2_OpenLTablets_RNote_0.1_JO
+Document number: TP_OpenLTablets_5.1.0_RNote_1.0_JO
