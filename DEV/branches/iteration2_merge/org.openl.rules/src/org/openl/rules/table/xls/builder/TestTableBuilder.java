@@ -2,6 +2,7 @@ package org.openl.rules.table.xls.builder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.IOException;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -150,6 +151,15 @@ public class TestTableBuilder {
                 writeCell(col, row, "");
             }
         }
+    }
+
+    /**
+     * Saves the changes to excel sheet.
+     *
+     * @throws java.io.IOException if an exception occurred when saving.
+     */
+    public void endTable() throws IOException {
+        gridModel.getSheetSource().getWorkbookSource().save();
     }
 
     private void writeHeader(IGridRegion region, String text) {
