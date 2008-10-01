@@ -6,6 +6,7 @@ import static org.openl.rules.security.SecurityUtils.isGranted;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -84,79 +85,9 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         return rra.getLineOfBusiness();
     }
 
-    public String getAttribute1() {
+    public Map<String, Object> getProps() {
         RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute1();
-    }
-   
-    public String getAttribute2() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute2();
-    }
-    
-    public String getAttribute3() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute3();
-    }
-    
-    public String getAttribute4() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute4();
-    }
-    
-    public String getAttribute5() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute5();
-    }
-    
-    public Date getAttribute6() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute6();
-    }
-    
-    public Date getAttribute7() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute7();
-    }
-    
-    public Date getAttribute8() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute8();
-    }
-    
-    public Date getAttribute9() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute9();
-    }
-    
-    public Date getAttribute10() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute10();
-    }
-    
-    public Double getAttribute11() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute11();
-    }
-    
-    public Double getAttribute12() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute12();
-    }
-    
-    public Double getAttribute13() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute13();
-    }
-        
-    public Double getAttribute14() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute14();
-    }
-
-    public Double getAttribute15() {
-        RulesRepositoryArtefact rra = (RulesRepositoryArtefact) getArtefact();
-        return rra.getAttribute15();
+        return rra.getProps();
     }
     
     public boolean getCanModify() {
@@ -187,123 +118,11 @@ public abstract class UserWorkspaceProjectArtefactImpl implements UserWorkspaceP
         }
     }
 
-    public void setAttribute1(String attribute1) throws ProjectException {
+    public void setProps(Map<String, Object> props) throws ProjectException {
         if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute1 in read mode");
+            throw new ProjectException("Cannot set properties in read mode");
         } else {
-            localArtefact.setAttribute1(attribute1);
-        }
-    }
-    
-    public void setAttribute2(String attribute2) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute2 in read mode");
-        } else {
-            localArtefact.setAttribute2(attribute2);
-        }
-    }
-    
-    public void setAttribute3(String attribute3) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute3 in read mode");
-        } else {
-            localArtefact.setAttribute3(attribute3);
-        }
-    }
-    
-    public void setAttribute4(String attribute4) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute4 in read mode");
-        } else {
-            localArtefact.setAttribute4(attribute4);
-        }
-    }
-    
-    public void setAttribute5(String attribute5) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute5 in read mode");
-        } else {
-            localArtefact.setAttribute5(attribute5);
-        }
-    }
-    
-    public void setAttribute6(Date attribute6) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute6 in read mode");
-        } else {
-            localArtefact.setAttribute6(attribute6);
-        }
-    }
-    
-    public void setAttribute7(Date attribute7) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute7 in read mode");
-        } else {
-            localArtefact.setAttribute7(attribute7);
-        }
-    }
-    
-    public void setAttribute8(Date attribute8) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute8 in read mode");
-        } else {
-            localArtefact.setAttribute8(attribute8);
-        }
-    }
-    
-    public void setAttribute9(Date attribute9) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute9 in read mode");
-        } else {
-            localArtefact.setAttribute9(attribute9);
-        }
-    }
-    
-    public void setAttribute10(Date attribute10) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute10 in read mode");
-        } else {
-            localArtefact.setAttribute10(attribute10);
-        }
-    }
-    
-    public void setAttribute11(Double attribute11) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute11 in read mode");
-        } else {
-            localArtefact.setAttribute11(attribute11);
-        }
-    }
-    
-    public void setAttribute12(Double attribute12) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute12 in read mode");
-        } else {
-            localArtefact.setAttribute12(attribute12);
-        }
-    }
-    
-    public void setAttribute13(Double attribute13) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute13 in read mode");
-        } else {
-            localArtefact.setAttribute13(attribute13);
-        }
-    }
-    
-    public void setAttribute14(Double attribute14) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute14 in read mode");
-        } else {
-            localArtefact.setAttribute14(attribute14);
-        }
-    }
-    
-    public void setAttribute15(Double attribute15) throws ProjectException {
-        if (isReadOnly()) {
-            throw new ProjectException("Cannot set attribute15 in read mode");
-        } else {
-            localArtefact.setAttribute15(attribute15);
+            localArtefact.setProps(props);
         }
     }
     

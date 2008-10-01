@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
 import org.openl.rules.repository.CommonVersionImpl;
+import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.webstudio.services.ServiceException;
 import org.openl.rules.webstudio.services.upload.FileProjectResource;
 import org.openl.rules.webstudio.services.upload.UploadService;
@@ -36,6 +37,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -810,335 +812,265 @@ public class RepositoryTreeController {
     }
     
     public String getAttribute1() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute1();
-        }
-        return null;
-    }
-
-    public void setAttribute1(String attribute1) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute1(attribute1);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute1!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute1.", e.getMessage()));
-        }
+        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 1);
     }
     
     public String getAttribute2() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute2();
-        }
-        return null;
-    }
-
-    public void setAttribute2(String attribute2) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute2(attribute2);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute2!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute2.", e.getMessage()));
-        }
+        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 2);
     }
     
     public String getAttribute3() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute3();
-        }
-        return null;
-    }
-
-    public void setAttribute3(String attribute3) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute3(attribute3);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute3!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute3.", e.getMessage()));
-        }
+        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 3);
     }
     
     public String getAttribute4() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute4();
-        }
-        return null;
-    }
-
-    public void setAttribute4(String attribute4) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute4(attribute4);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute4!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute4.", e.getMessage()));
-        }
+        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 4);
     }
     
     public String getAttribute5() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute5();
-        }
-        return null;
+        return (String) getProperty(JcrNT.PROP_ATTRIBUTE + 5);
     }
     
-    public void setAttribute5(String attribute5) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute5(attribute5);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute5!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute5.", e.getMessage()));
-        }
-    }
-
     public Date getAttribute6() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute6();
-        }
-        return null;
-    }
-
-    public void setAttribute6(Date attribute6) {
-        if (!SPECIAL_DATE.equals(attribute6)) {
-            try {
-                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute6(attribute6);
-            } catch (ProjectException e) {
-                log.error("Failed to set attribute6!", e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute6.", e.getMessage()));
-            }
-        } else {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                            "Specified attribute6 value is not a valid date."));
-        }
+        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 6);
     }
     
     public Date getAttribute7() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute7();
-        }
-        return null;
-    }
-
-    public void setAttribute7(Date attribute7) {
-        if (!SPECIAL_DATE.equals(attribute7)) {
-            try {
-                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute7(attribute7);
-            } catch (ProjectException e) {
-                log.error("Failed to set attribute7!", e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute7.", e.getMessage()));
-            }
-        } else {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                            "Specified attribute7 value is not a valid date."));
-        }
+        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 7);
     }
     
     public Date getAttribute8() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute8();
-        }
-        return null;
-    }
-
-    public void setAttribute8(Date attribute8) {
-        if (!SPECIAL_DATE.equals(attribute8)) {
-            try {
-                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute8(attribute8);
-            } catch (ProjectException e) {
-                log.error("Failed to set attribute8!", e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute8.", e.getMessage()));
-            }
-        } else {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                            "Specified attribute8 value is not a valid date."));
-        }
+        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 8);
     }
     
     public Date getAttribute9() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute9();
-        }
-        return null;
-    }
-
-    public void setAttribute9(Date attribute9) {
-        if (!SPECIAL_DATE.equals(attribute9)) {
-            try {
-                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute9(attribute9);
-            } catch (ProjectException e) {
-                log.error("Failed to set attribute9!", e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute9.", e.getMessage()));
-            }
-        } else {
-            FacesContext.getCurrentInstance().addMessage(
-                    null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                            "Specified attribute9 value is not a valid date."));
-        }
+        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 9);
     }
     
     public Date getAttribute10() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute10();
+        return getDateProperty(JcrNT.PROP_ATTRIBUTE + 10);
+    }
+    
+    public String getAttribute11() {
+        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 11);
+    }
+    
+    public String getAttribute12() {
+        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 12);
+    }
+    
+    public String getAttribute13() {
+        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 13);
+    }
+    
+    public String getAttribute14() {
+        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 14);
+    }
+    
+    public String getAttribute15() {
+        return getNumberProperty(JcrNT.PROP_ATTRIBUTE + 15);
+    }
+    
+    public void setAttribute1(String attribute1) {
+        setProperty(JcrNT.PROP_ATTRIBUTE + 1, attribute1);
+    }
+    
+    public void setAttribute2(String attribute2) {
+        setProperty(JcrNT.PROP_ATTRIBUTE + 2, attribute2);
+    }
+
+    public void setAttribute3(String attribute3) {
+        setProperty(JcrNT.PROP_ATTRIBUTE + 3, attribute3);
+    }
+    
+    public void setAttribute4(String attribute4) {
+        setProperty(JcrNT.PROP_ATTRIBUTE + 4, attribute4);
+    }
+    
+    public void setAttribute5(String attribute5) {
+        setProperty(JcrNT.PROP_ATTRIBUTE + 5, attribute5);
+    }
+    
+    public void setAttribute6(Date attribute6) {
+        setDateProperty(JcrNT.PROP_ATTRIBUTE + 6, attribute6);
+    }
+    
+    public void setAttribute7(Date attribute7) {
+        setDateProperty(JcrNT.PROP_ATTRIBUTE + 7, attribute7);
+    }
+    
+    public void setAttribute8(Date attribute8) {
+        setDateProperty(JcrNT.PROP_ATTRIBUTE + 8, attribute8);
+    }
+    
+    public void setAttribute9(Date attribute9) {
+        setDateProperty(JcrNT.PROP_ATTRIBUTE + 9, attribute9);
+    }
+    
+    public void setAttribute10(Date attribute10) {
+        setDateProperty(JcrNT.PROP_ATTRIBUTE + 10, attribute10);
+    }
+    
+    public void setAttribute11(String attribute11) {
+        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 11, attribute11);
+    }
+    
+    public void setAttribute12(String attribute12) {
+        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 12, attribute12);
+    }
+    
+    public void setAttribute13(String attribute13) {
+        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 13, attribute13);
+    }
+    
+    public void setAttribute14(String attribute14) {
+        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 14, attribute14);
+    }
+    
+    public void setAttribute15(String attribute15) {
+        setNumberProperty(JcrNT.PROP_ATTRIBUTE + 15, attribute15);
+    }
+    
+    /**
+     * Gets property from a rules repository.
+     * 
+     * @param propName name of property
+     * @return value of property 
+     */
+    private Object getProperty(String propName) {
+        Map<String, Object> props = getProps();
+        if (props != null) {
+            return props.get(propName);
         }
         return null;
     }
 
-    public void setAttribute10(Date attribute10) {
-        if (!SPECIAL_DATE.equals(attribute10)) {
-            try {
-                ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean()).setAttribute10(attribute10);
-            } catch (ProjectException e) {
-                log.error("Failed to set attribute10!", e);
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute10.", e.getMessage()));
+    /**
+     * Gets date type property from a rules repository.
+     * 
+     * @param propName name of property
+     * @return value of property
+     */
+    private Date getDateProperty(String propName) {
+        Object prop = getProperty(propName);
+        if (prop instanceof Date) {
+            return (Date) prop;
+        } else if (prop instanceof Long) {
+            return new Date((Long) prop);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Gets number type property from a rules repository.
+     * 
+     * @param propName name of property
+     * @return value of property 
+     */
+    private String getNumberProperty(String propName) {
+        Object prop = getProperty(propName);
+        if (prop instanceof Double) {
+            return String.valueOf(prop);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Sets property to rules repository.
+     * 
+     * @param propName name of property
+     * @param propValue value of property
+     */
+    private void setProperty(String propName, Object propValue) {
+        try {
+            Map<String, Object> props = getProps();
+            if (props == null) {
+                props = new HashMap<String, Object>();
+            } else {
+                props = new HashMap<String, Object>(props);
             }
+            props.put(propName, propValue);
+            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
+                    .setProps(props);
+        } catch (ProjectException e) {
+            String propUIName = getPropUIName(propName);
+            log.error("Failed to set " + propUIName + "!", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set "
+                            + propUIName + ".", e.getMessage()));
+        }
+    }
+
+    /**
+     * Sets date type property to rules repository.
+     * 
+     * @param propName name of property
+     * @param propValue value of property
+     */
+    public void setDateProperty(String propName, Date propValue) {
+        if (!SPECIAL_DATE.equals(propValue)) {
+            setProperty(propName, propValue);
         } else {
             FacesContext.getCurrentInstance().addMessage(
                     null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
-                            "Specified attribute10 value is not a valid date."));
+                            "Specified " + getPropUIName(propName)
+                            + " value is not a valid date."));
         }
     }
-    
-    public Double getAttribute11() {
+
+    /**
+     * Sets number type property to rules repository.
+     * 
+     * @param propName name of property
+     * @param propValue value of property
+     */
+    public void setNumberProperty(String propName, String propValue) {
+        Double numberValue = null;
+        try {
+            if (StringUtils.isNotBlank(propValue)) {
+                numberValue = Double.valueOf(propValue);
+            }
+            setProperty(propName, numberValue);
+        } catch (NumberFormatException e) {
+            FacesContext.getCurrentInstance().addMessage(
+                    null, new FacesMessage(FacesMessage.SEVERITY_ERROR, null,
+                            "Specified " + getPropUIName(propName)
+                            + " value is not a number."));
+        }
+    }
+
+    /**
+     * Gets UI name of property.
+     * 
+     * @param propName name of property
+     * @return UI name of property
+     */
+    private String getPropUIName(String propName) {
+        if (propName == null) return StringUtils.EMPTY;
+        String propUIName = getPropUINames().get(propName);
+        if (StringUtils.isBlank(propUIName)) {
+            propUIName = propName;
+        }
+        return propUIName;
+    }
+
+    /**
+     * Gets all properties from a rules repository.
+     * 
+     * @return map of properties 
+     */
+    private Map<String, Object> getProps() {
         RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
                 .getDataBean());
         if (dataBean != null) {
-            return dataBean.getAttribute11();
+            return dataBean.getProps();
         }
         return null;
     }
-    
-    public void setAttribute11(Double attribute11) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute11(attribute11);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute11!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute11.", e.getMessage()));
-        }
-    }
-    
-    public Double getAttribute12() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute12();
-        }
-        return null;
-    }
-    
-    public void setAttribute12(Double attribute12) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute12(attribute12);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute12!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute12.", e.getMessage()));
-        }
-    }
-    
-    public Double getAttribute13() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute13();
-        }
-        return null;
-    }
-    
-    public void setAttribute13(Double attribute13) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute13(attribute13);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute13!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute13.", e.getMessage()));
-        }
-    }
-    
-    public Double getAttribute14() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute14();
-        }
-        return null;
-    }
-    
-    public void setAttribute14(Double attribute14) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute14(attribute14);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute14!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute14.", e.getMessage()));
-        }
-    }
-    
-    public Double getAttribute15() {
-        RulesRepositoryArtefact dataBean = ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode()
-                .getDataBean());
-        if (dataBean != null) {
-            return dataBean.getAttribute15();
-        }
-        return null;
-    }
-    
-    public void setAttribute15(Double attribute15) {
-        try {
-            ((RulesRepositoryArtefact) repositoryTreeState.getSelectedNode().getDataBean())
-                    .setAttribute15(attribute15);
-        } catch (ProjectException e) {
-            log.error("Failed to set attribute15!", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Can not set attribute15.", e.getMessage()));
-        }
-    }
-    
+
     public void setUploadService(UploadService uploadService) {
         this.uploadService = uploadService;
     }
@@ -1156,7 +1088,7 @@ public class RepositoryTreeController {
         this.repositoryArtefactPropsHolder = repositoryArtefactPropsHolder;
     }
     
-    public Map<String, String> getProps() {
+    public Map<String, String> getPropUINames() {
         return repositoryArtefactPropsHolder.getProps();
     }
 }

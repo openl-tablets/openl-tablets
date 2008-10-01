@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.openl.rules.repository.CommonVersion;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -363,81 +364,11 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         return null;
     }
 
-    public String getAttribute1() {
+    public Map<String, Object> getProps() {
         // not supported
         return null;
     }
-    
-    public String getAttribute2() {
-        // not supported
-        return null;
-    }
-    
-    public String getAttribute3() {
-        // not supported
-        return null;
-    }
-    
-    public String getAttribute4() {
-        // not supported
-        return null;
-    }
-    
-    public String getAttribute5() {
-        // not supported
-        return null;
-    }
-    
-    public Date getAttribute6() {
-        // not supported
-        return null;
-    }
-    
-    public Date getAttribute7() {
-        // not supported
-        return null;
-    }
-    
-    public Date getAttribute8() {
-        // not supported
-        return null;
-    }
-    
-    public Date getAttribute9() {
-        // not supported
-        return null;
-    }
-    
-    public Date getAttribute10() {
-        // not supported
-        return null;
-    }
-    
-    public Double getAttribute11() {
-        // not supported
-        return null;
-    }
-    
-    public Double getAttribute12() {
-        // not supported
-        return null;
-    }
-    
-    public Double getAttribute13() {
-        // not supported
-        return null;
-    }
-    
-    public Double getAttribute14() {
-        // not supported
-        return null;
-    }
-    
-    public Double getAttribute15() {
-        // not supported
-        return null;
-    }
-    
+
     public void setEffectiveDate(Date date) throws ProjectException {
         notSupported();
     }
@@ -450,63 +381,7 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
         notSupported();
     }
 
-    public void setAttribute1(String attribute1) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute2(String attribute2) throws ProjectException {
-        notSupported();
-    }
-
-    public void setAttribute3(String attribute3) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute4(String attribute4) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute5(String attribute5) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute6(Date attribute6) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute7(Date attribute7) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute8(Date attribute8) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute9(Date attribute9) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute10(Date attribute10) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute11(Double attribute11) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute12(Double attribute12) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute13(Double attribute13) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute14(Double attribute14) throws ProjectException {
-        notSupported();
-    }
-    
-    public void setAttribute15(Double attribute15) throws ProjectException {
+    public void setProps(Map<String, Object> props) throws ProjectException {
         notSupported();
     }
     

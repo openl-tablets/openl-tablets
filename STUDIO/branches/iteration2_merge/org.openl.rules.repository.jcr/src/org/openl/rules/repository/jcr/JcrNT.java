@@ -45,21 +45,8 @@ public interface JcrNT {
     public static final String PROP_LINE_OF_BUSINESS = "LOB";
 
     // Node properties
-    public static final String PROP_ATTRIBUTE1 = "attribute1";
-    public static final String PROP_ATTRIBUTE2 = "attribute2";
-    public static final String PROP_ATTRIBUTE3 = "attribute3";
-    public static final String PROP_ATTRIBUTE4 = "attribute4";
-    public static final String PROP_ATTRIBUTE5 = "attribute5";
-    public static final String PROP_ATTRIBUTE6 = "attribute6";
-    public static final String PROP_ATTRIBUTE7 = "attribute7";
-    public static final String PROP_ATTRIBUTE8 = "attribute8";
-    public static final String PROP_ATTRIBUTE9 = "attribute9";
-    public static final String PROP_ATTRIBUTE10 = "attribute10";
-    public static final String PROP_ATTRIBUTE11 = "attribute11";
-    public static final String PROP_ATTRIBUTE12 = "attribute12";
-    public static final String PROP_ATTRIBUTE13 = "attribute13";
-    public static final String PROP_ATTRIBUTE14 = "attribute14";
-    public static final String PROP_ATTRIBUTE15 = "attribute15";
+    public static final int PROPS_COUNT = 15;
+    public static final String PROP_ATTRIBUTE = "attribute";
 
 	// Properties for File->Resource
 	public static final String PROP_RES_CONTENT = "jcr:content";
