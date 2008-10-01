@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JcrProductionDeployerTestCase extends TestCase {
     /**
@@ -37,21 +39,13 @@ public class JcrProductionDeployerTestCase extends TestCase {
     private static final Date EXPIRATION_DATE = new Date(EFFECTIVE_DATE.getTime() + 2*60*60*1000);
     private static final String LOB = "management";
     
-    private static final String ATTRIBUTE1 = "attribute1";
-    private static final String ATTRIBUTE2 = "attribute2";
-    private static final String ATTRIBUTE3 = "attribute3";
-    private static final String ATTRIBUTE4 = "attribute4";
-    private static final String ATTRIBUTE5 = "attribute5";
-    private static final Date ATTRIBUTE6 = new Date(6);
-    private static final Date ATTRIBUTE7 = new Date(7);
-    private static final Date ATTRIBUTE8 = new Date(8);
-    private static final Date ATTRIBUTE9 = new Date(9);
-    private static final Date ATTRIBUTE10 = new Date(10);
-    private static final Double ATTRIBUTE11 = 11d;
-    private static final Double ATTRIBUTE12 = 12d;
-    private static final Double ATTRIBUTE13 = 13d;
-    private static final Double ATTRIBUTE14 = 14d;
-    private static final Double ATTRIBUTE15 = 15d;
+    private static final String ATTRIBUTE = "attribute";
+    private static final Object[] propData = {
+        "attr1", "attr2", "attr3", "attr4", "attr5",
+        new Date(6), new Date(7), new Date(8), new Date(9), new Date(10),
+        11D, 12D, 13D, 14D, 15D, 
+        };
+    private Map<String, Object> props;
 
     private Project project1;
     private Project project2;
@@ -111,24 +105,14 @@ public class JcrProductionDeployerTestCase extends TestCase {
     }
     
     private Project makeProject3() {
+        props = new HashMap<String, Object>();
+        for (int i = 0; i < propData.length; i++) {
+            props.put(ATTRIBUTE + i + 1, propData[i]);
+        }
         return (Project)
                 new MockProject(PROJECT3_NAME).
                         addFolder(FOLDER1)
-                            .addFile(FILE1_1)._setAttribute1(ATTRIBUTE1)
-                                ._setAttribute2(ATTRIBUTE2)
-                                ._setAttribute3(ATTRIBUTE3)
-                                ._setAttribute4(ATTRIBUTE4)
-                                ._setAttribute5(ATTRIBUTE5)
-                                ._setAttribute6(ATTRIBUTE6)
-                                ._setAttribute7(ATTRIBUTE7)
-                                ._setAttribute8(ATTRIBUTE8)
-                                ._setAttribute9(ATTRIBUTE9)
-                                ._setAttribute10(ATTRIBUTE10)
-                                ._setAttribute11(ATTRIBUTE11)
-                                ._setAttribute12(ATTRIBUTE12)
-                                ._setAttribute13(ATTRIBUTE13)
-                                ._setAttribute14(ATTRIBUTE14)
-                                ._setAttribute15(ATTRIBUTE15)
+                            .addFile(FILE1_1)._setProps(props)
                             .up()
                         .up();
     }
@@ -177,22 +161,17 @@ public class JcrProductionDeployerTestCase extends TestCase {
         theFile1 = (RFile)getEntityByName(folder1.getFiles(),FILE1_1);
 
         assertNotNull(theFile1);
-        
-        assertEquals(ATTRIBUTE1, theFile1.getAttribute1());
-        assertEquals(ATTRIBUTE2, theFile1.getAttribute2());
-        assertEquals(ATTRIBUTE3, theFile1.getAttribute3());
-        assertEquals(ATTRIBUTE4, theFile1.getAttribute4());
-        assertEquals(ATTRIBUTE5, theFile1.getAttribute5());
-        assertEquals(ATTRIBUTE6, theFile1.getAttribute6());
-        assertEquals(ATTRIBUTE7, theFile1.getAttribute7());
-        assertEquals(ATTRIBUTE8, theFile1.getAttribute8());
-        assertEquals(ATTRIBUTE9, theFile1.getAttribute9());
-        assertEquals(ATTRIBUTE10, theFile1.getAttribute10());
-        assertEquals(ATTRIBUTE11, theFile1.getAttribute11());
-        assertEquals(ATTRIBUTE12, theFile1.getAttribute12());
-        assertEquals(ATTRIBUTE13, theFile1.getAttribute13());
-        assertEquals(ATTRIBUTE14, theFile1.getAttribute14());
-        assertEquals(ATTRIBUTE15, theFile1.getAttribute15());
+
+        final Map<String, Object> fileProps = theFile1.getProps();
+
+        if (props != null) {
+            assertNotNull(fileProps);
+            assertTrue(!fileProps.isEmpty());
+            assertTrue(fileProps.size() == props.size());
+            for (int i = 1; i <= propData.length; i++) {
+                assertEquals(fileProps.get(ATTRIBUTE + i), props.get(ATTRIBUTE + i));
+            }
+        }
     }
 
     private static REntity getEntityByName(Iterable<? extends REntity> collection, String name) {

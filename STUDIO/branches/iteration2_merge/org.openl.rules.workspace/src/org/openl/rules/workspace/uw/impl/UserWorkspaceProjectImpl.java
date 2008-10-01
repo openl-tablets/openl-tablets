@@ -160,7 +160,8 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
 
         // update version, reset & persist states
         localProject.checkedIn(dtrProject.getVersion());
-
+    
+        dtrProject.update(localProject);
         updateArtefact(localProject, dtrProject);
     }
 
