@@ -579,8 +579,8 @@ public class RepositoryTreeController {
         String errorMessage = uploadAndAddFile();
         if (errorMessage == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("File was uploaded successfully."));
-            repositoryTreeState.refreshSelectedNode();
             repositoryTreeState.invalidateTree();
+            repositoryTreeState.refreshSelectedNode();
         } else {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, null, errorMessage));
