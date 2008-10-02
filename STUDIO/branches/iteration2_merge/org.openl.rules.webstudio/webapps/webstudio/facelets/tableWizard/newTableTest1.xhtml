@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  <head>
-    <title>hi</title>
-  </head>
-  <body>
-    Hi
-  </body>
-</html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core"
+                template="/facelets/common/wizardBase.xhtml">
+
+  <ui:define name="page">
+    <h2>Select decision table</h2>
+    <h:form>
+
+      <h:selectOneMenu value="#{tableWizard.selectedTable}">
+        <f:selectItems value="#{tableWizard.decisionTables}"/>
+      </h:selectOneMenu>
+
+      <hr/>
+      <h:inputHidden value="1" id="step" binding="#{tableWizardManager.hiddenStep}"/>
+      <h:commandButton value="Prev" action="#{tableWizardManager.prev}"/>
+      <h:commandButton value="Next" action="#{tableWizardManager.next}"/>
+      <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}"/>
+    </h:form>
+  </ui:define>
+
+</ui:composition>

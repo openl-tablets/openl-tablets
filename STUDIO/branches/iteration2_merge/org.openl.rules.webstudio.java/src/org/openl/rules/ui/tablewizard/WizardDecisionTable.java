@@ -1,11 +1,9 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.io.IOException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -13,31 +11,24 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
-import org.openl.rules.web.jsf.util.FacesUtils;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.table.xls.builder.DecisionTableBuilder;
-import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.builder.CreateTableException;
+import org.openl.rules.table.xls.builder.DecisionTableBuilder;
+import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
+import org.openl.rules.web.jsf.util.FacesUtils;
 
 /**
  * @author Aliaksandr Antonik.
  */
-public class WizardBean extends BaseWizardBean {
-    private static final Log log = LogFactory.getLog(WizardBean.class);
+public class WizardDecisionTable extends WizardBase {
+    private static final Log log = LogFactory.getLog(WizardDecisionTable.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
-    private static final String SHEET_EXSISTING = "existing";
-    private static final String SHEET_NEW = "new";
-
+    
     private String tableName;
     private String returnType;
     private boolean vertical;
@@ -50,16 +41,10 @@ public class WizardBean extends BaseWizardBean {
 
     private SelectItem[] domainTypes;
 
-    private String workbook;
-    private int worksheetIndex;
-    private Map<String, XlsWorkbookSourceCodeModule> workbooks;
-    private boolean newWorksheet;
-    private String newWorksheetName;
-
-    public WizardBean() {}
+    public WizardDecisionTable() {}
 
     @Override
-    protected String getName() {
+    public String getName() {
         return "newTable";
     }
 
@@ -74,11 +59,7 @@ public class WizardBean extends BaseWizardBean {
         domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
     }
 
-    private IMetaInfo getMetaInfo() {
-        return WebStudioUtils.getWebStudio().getModel().getWrapper().getOpenClass().getMetaInfo();
-    }
-
-    private void reset() {
+    protected void reset() {
         tableName = returnType = null;
         parameters = new ArrayList<TypeNamePair>();
         conditions = new ListWithSelection<TableCondition>();
@@ -88,10 +69,8 @@ public class WizardBean extends BaseWizardBean {
         vertical = false;
         domainTree = null;
         domainTypes = null;
-        worksheetIndex = 0;
-        workbooks = null;
-        newWorksheet = false;
-        newWorksheetName = StringUtils.EMPTY;
+
+        super.reset();
     }
 
     public String getTableName() {
@@ -365,17 +344,7 @@ public class WizardBean extends BaseWizardBean {
                 addAction();
                 break;
             case 4:
-                workbooks = new HashMap<String, XlsWorkbookSourceCodeModule>();
-
-                TableSyntaxNode[] syntaxNodes = ((XlsMetaInfo) getMetaInfo()).getXlsModuleNode().getXlsTableSyntaxNodes();
-                for (TableSyntaxNode node : syntaxNodes) {
-                    XlsWorkbookSourceCodeModule module = ((XlsSheetSourceCodeModule) node.getModule()).getWorkbookSource();
-                    workbooks.put(module.getUri(), module);
-                }
-
-                if (workbooks.size() > 0)
-                    workbook = workbooks.keySet().iterator().next();        
-
+                initWorkbooks();
                 break;
         }
     }
@@ -443,64 +412,6 @@ public class WizardBean extends BaseWizardBean {
         FacesContext.getCurrentInstance().addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error: ", detail));
     }
 
-    public String getWorkbook() {
-        return workbook;
-    }
-
-    public void setWorkbook(String workbook) {
-        this.workbook = workbook;
-    }
-
-    public int getWorksheetIndex() {
-        return worksheetIndex;
-    }
-
-    public void setWorksheetIndex(int worksheetIndex) {
-        this.worksheetIndex = worksheetIndex;
-    }
-
-    public List<SelectItem> getWorkbooks() {
-        List<SelectItem> items = new ArrayList<SelectItem>(workbooks.size());
-        for (String wbURI : workbooks.keySet()) {
-            String[] parts = wbURI.split("/");
-            items.add(new SelectItem(wbURI, parts[parts.length - 1]));
-        }
-
-        return items;
-    }
-
-    public List<SelectItem> getWorksheets() {
-        if (workbook == null || workbooks == null)
-            return Collections.EMPTY_LIST;
-
-        XlsWorkbookSourceCodeModule currentSheet = workbooks.get(workbook);
-        if (currentSheet == null)
-            return Collections.EMPTY_LIST;
-
-        HSSFWorkbook hssfWorkbook = currentSheet.getWorkbook();
-        List<SelectItem> items = new ArrayList<SelectItem>(hssfWorkbook.getNumberOfSheets());
-        for (int i = 0; i < hssfWorkbook.getNumberOfSheets(); ++i) {
-            items.add(new SelectItem(i, hssfWorkbook.getSheetName(i)));
-        }
-        return items;
-    }
-
-    public String getNewWorksheet() {
-        return newWorksheet ? SHEET_NEW : SHEET_EXSISTING;
-    }
-
-    public void setNewWorksheet(String value) {
-        newWorksheet = SHEET_NEW.equals(value);
-    }
-
-    public String getNewWorksheetName() {
-        return newWorksheetName;
-    }
-
-    public void setNewWorksheetName(String newWorksheetName) {
-        this.newWorksheetName = newWorksheetName;
-    }
-
     public String save() {
         try {
             doSave();
@@ -513,15 +424,7 @@ public class WizardBean extends BaseWizardBean {
     }
 
     private void doSave() throws CreateTableException, IOException {
-        XlsSheetSourceCodeModule sourceCodeModule;
-        XlsWorkbookSourceCodeModule module = workbooks.get(workbook);
-        if (newWorksheet) {
-            HSSFSheet sheet = module.getWorkbook().createSheet(newWorksheetName);
-            sourceCodeModule = new XlsSheetSourceCodeModule(sheet, newWorksheetName, module);
-        } else {
-            HSSFSheet sheet = module.getWorkbook().getSheetAt(worksheetIndex);
-            sourceCodeModule = new XlsSheetSourceCodeModule(sheet, module.getWorkbook().getSheetName(worksheetIndex), module);
-        }
+        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
         DecisionTableBuilder builder = new DecisionTableBuilder(new XlsSheetGridModel(sourceCodeModule));
 
         // compute table dimensions

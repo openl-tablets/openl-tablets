@@ -17,15 +17,14 @@
     <h2>Select table type</h2>
 <h:form>
     <div align="left">
-      <h:selectOneRadio value="#{tableWizardManager.tableType}">
+      <h:selectOneRadio value="#{tableWizardManager.tableType}" layout="pageDirection">
         <f:selectItem itemValue="DECISION" itemLabel="Decision Table"/>
-        <f:selectItem itemValue="DATA" itemLabel="Data Table"/>
+        <f:selectItem itemValue="DATA" itemLabel="Data Table" itemDisabled="true"/>
         <f:selectItem itemValue="TEST" itemLabel="Test Method"/>
       </h:selectOneRadio>
       <hr/>
     </div>
-</h:form>  
-  <h:form>
+
     <h:commandButton value="Next" action="#{tableWizardManager.startWizard}"/>
     <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}"/>
   </h:form>
