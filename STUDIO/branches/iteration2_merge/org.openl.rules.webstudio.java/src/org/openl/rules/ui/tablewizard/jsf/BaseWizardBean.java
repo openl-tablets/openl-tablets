@@ -7,7 +7,7 @@ public abstract class BaseWizardBean {
     private int step;
     private int maxVisitedStep;
 
-    protected String getName() {
+    public String getName() {
         return "page";
     }
 

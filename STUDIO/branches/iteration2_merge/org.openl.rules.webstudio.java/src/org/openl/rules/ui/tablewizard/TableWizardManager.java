@@ -19,18 +19,19 @@ public class TableWizardManager {
     public String startWizard() {
         switch (tableType) {
             case DECISION:
-                wizard = new WizardBean();
+                wizard = new WizardDecisionTable();
                 break;
             case TEST:
-                wizard = new WizardBean();
+                wizard = new WizardTestTable();
                 break;
             default:
                 return null;
         }
 
 
-        wizard.start();
-        return wizard.next();
+        String ret = wizard.start();
+        wizard.next();
+        return ret;
     }
 
     public String start() {

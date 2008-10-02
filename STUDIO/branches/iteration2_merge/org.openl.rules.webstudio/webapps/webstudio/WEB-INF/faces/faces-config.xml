@@ -388,11 +388,16 @@
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTable0.xhtml</from-view-id>
     <navigation-case>
-      <from-outcome>next</from-outcome>
+      <from-outcome>newTable</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable1.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>newTestTable</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest1.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
+  <!-- Decision table wizard -->
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTable1.xhtml</from-view-id>
     <navigation-case>
@@ -466,4 +471,29 @@
     </navigation-case>
   </navigation-rule>
 
+  <!-- Test method table wizard -->
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTableTest1.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest2.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable0.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTableTest2.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>done</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest1.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
 </faces-config>

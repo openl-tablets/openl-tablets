@@ -11,17 +11,17 @@ import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
  * @author Aliaksandr Antonik.
  */
 public class WizardPainter {
-    private WizardBean wizardBean;
+    private WizardDecisionTable wizardDecisionTable;
     private TableModel tableModel;
 
-    public void setWizardBean(WizardBean wizardBean) {
-        this.wizardBean = wizardBean;
+    public void setWizardBean(WizardDecisionTable wizardDecisionTable) {
+        this.wizardDecisionTable = wizardDecisionTable;
     }
 
     public String getTableHTML() {
-        int conditionsWidth = countColumns(wizardBean.getConditions());
-        int actionsWidth = countColumns(wizardBean.getActions());
-        int returnWidth = wizardBean.getReturn().getParamsCount();
+        int conditionsWidth = countColumns(wizardDecisionTable.getConditions());
+        int actionsWidth = countColumns(wizardDecisionTable.getActions());
+        int returnWidth = wizardDecisionTable.getReturn().getParamsCount();
         int width =  conditionsWidth + actionsWidth + returnWidth;
         int height = 4 + 1 + 3; // technical info + columns headers + data rows
 
@@ -29,7 +29,7 @@ public class WizardPainter {
         addCell(0, 0, width, getTableTitle());
 
         int col = 0;
-        for (TableCondition cond : wizardBean.getConditions()) {
+        for (TableCondition cond : wizardDecisionTable.getConditions()) {
             int colSpan = cond.getParamsCount();
             addCell(1, col, colSpan, cond.getName());
             addCell(2, col, colSpan, cond.getLogic());
@@ -38,7 +38,7 @@ public class WizardPainter {
                 addCell(4, col++, 1, p.getBusinessName());
             }
         }
-        for (TableArtifact action : wizardBean.getActions()) {
+        for (TableArtifact action : wizardDecisionTable.getActions()) {
             int colSpan = action.getParamsCount();
             addCell(1, col, colSpan, action.getName());
             addCell(2, col, colSpan, action.getLogic());
@@ -48,8 +48,8 @@ public class WizardPainter {
             }
         }
         addCell(1, col, returnWidth, "RET1");
-        addCell(2, col, returnWidth, wizardBean.getReturn().getLogic());
-        for (Parameter p : wizardBean.getReturn().getParameters()) {
+        addCell(2, col, returnWidth, wizardDecisionTable.getReturn().getLogic());
+        for (Parameter p : wizardDecisionTable.getReturn().getParameters()) {
             addCell(3, col, 1, p.getType() + " " + p.getName());
             addCell(4, col++, 1, p.getBusinessName());
         }
@@ -88,8 +88,8 @@ public class WizardPainter {
 
     private String getTableTitle() {
         StringBuilder sb = new StringBuilder("Rules ");
-        sb.append(wizardBean.getReturnType()).append(" ").append(wizardBean.getTableName());
-        appendParams(sb, wizardBean.getParameters());
+        sb.append(wizardDecisionTable.getReturnType()).append(" ").append(wizardDecisionTable.getTableName());
+        appendParams(sb, wizardDecisionTable.getParameters());
         return sb.toString();
     }
 
