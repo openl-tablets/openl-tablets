@@ -17,7 +17,7 @@ Release 5.1.0
 
 Integration with Exigen Web Studio is implemented.
 
-Automated build process based on Maven is added.
+Automated build process based on Maven is implemented.
 
 Decision table validation is improved.
 
@@ -35,8 +35,8 @@ Vocabulary support is added.
 ---------------------------------------------------------------------------
 SECTION 2: Known problems and workarounds
 ---------------------------------------------------------------------------
-- Project version comparison is an unstable operation. It is recommended
-  not to use this function in the current release.
+- Project version comparison is an unstable operation. Using this function
+  in the current release is not recommended.
 
 - OpenL Web Studio does not save custom metadata in the repository.
 
