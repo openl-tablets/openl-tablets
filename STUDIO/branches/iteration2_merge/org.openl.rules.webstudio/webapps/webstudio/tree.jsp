@@ -50,7 +50,7 @@ BODY {
   if (studio.getModel().getAllTestMethods() != null && studio.getModel().getAllTestMethods().getTests().length > 0)
   {
 %>
-<a href="jsp/runAllTests.jsp" target="mainFrame" title="Run All Tests"><img border="0" src="webresource/images/test_ok.gif"/></a>
+<a href="<%= request.getContextPath()%>/jsp/runAllTests.jsp" target="mainFrame" title="Run All Tests"><img border="0" src="webresource/images/test_ok.gif"/></a>
 
 <%
   }
