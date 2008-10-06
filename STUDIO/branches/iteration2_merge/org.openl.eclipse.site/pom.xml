@@ -234,6 +234,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.util</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.eclipse.ui</artifactId>
     </dependency>
