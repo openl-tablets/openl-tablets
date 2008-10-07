@@ -446,6 +446,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.eclipse.ui.util</artifactId>
+        <version>5.1.1-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
         <version>5.1.0</version>
