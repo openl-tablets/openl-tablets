@@ -57,6 +57,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.eclipse.ui.util"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.j.science"
          download-size="0"
          install-size="0"
