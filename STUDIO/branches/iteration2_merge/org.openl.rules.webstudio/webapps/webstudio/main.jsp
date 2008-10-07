@@ -91,7 +91,7 @@ String mode = request.getParameter("mode");
 <%} else { %>
 <frame src="${pageContext.request.contextPath}/html/noValidateErrors.html" name="mainFrame" scrolling="auto"/>
 <%}} else { %>
-<frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "webstudio/html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
+<frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "webresource/html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
 <%} %>
 
 
