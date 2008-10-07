@@ -240,6 +240,11 @@
 
     <dependency>
       <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.util</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
       <artifactId>org.openl.conf.ant</artifactId>
     </dependency>
 
