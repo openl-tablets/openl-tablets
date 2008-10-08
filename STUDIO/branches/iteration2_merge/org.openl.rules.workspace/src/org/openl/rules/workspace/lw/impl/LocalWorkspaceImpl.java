@@ -3,6 +3,7 @@ package org.openl.rules.workspace.lw.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -31,6 +32,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private List<LocalWorkspaceListener> listeners = new ArrayList<LocalWorkspaceListener>();
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
+    private UserWorkspace userWorkspace;
 
     public LocalWorkspaceImpl(WorkspaceUser user, File location, FileFilter localWorkspaceFolderFilter, FileFilter localWorkspaceFileFilter) {
         this.user = user;
@@ -125,13 +127,24 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public void saveAll() {
-        for (LocalProject lp : localProjects.values()) {
-            try {
-                lp.save();
-            } catch (ProjectException e) {
-                String msg = MsgHelper.format("Error saving local project ''{0}''!", lp.getName());
-                log.error(msg, e);
+        for (LocalProject lp : localProjects.values())
+            if (!isLocalOnly(lp)) {
+                try {
+                    lp.save();
+                } catch (ProjectException e) {
+                    String msg = MsgHelper.format("Error saving local project ''{0}''!", lp.getName());
+                    log.error(msg, e);
+                }
             }
+    }
+
+    private boolean isLocalOnly(LocalProject lp) {
+        if (userWorkspace == null)
+            return false;
+        try {
+            return userWorkspace.getProject(lp.getName()).isLocalOnly();
+        } catch (ProjectException e) {
+            return false;
         }
     }
 
@@ -139,6 +152,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         saveAll();
         localProjects.clear();
 
+        userWorkspace = null;
         for (LocalWorkspaceListener lwl : listeners)
             lwl.workspaceReleased(this);
     }
@@ -153,6 +167,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {
         return listeners.remove(listener);
+    }
+
+    public void setUserWorkspace(UserWorkspace userWorkspace) {
+        this.userWorkspace = userWorkspace;
     }
 
 // --- protected

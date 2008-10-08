@@ -62,6 +62,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         userRulesProjects = new HashMap<String, UserWorkspaceProject>();
         userDProjects = new HashMap<String, UserWorkspaceDeploymentProject>();
+
+        localWorkspace.setUserWorkspace(this);
     }
 
     public Collection<UserWorkspaceProject> getProjects() {
