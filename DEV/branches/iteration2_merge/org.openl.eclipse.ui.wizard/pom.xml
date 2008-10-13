@@ -22,7 +22,7 @@
           <include>plugin.xml</include>
           <include>icons/</include>
           <include>templates.build/</include>
-          <include>templates/</include>
+          <include>templates.templates/</include>
         </includes>
       </resource>
       <resource>
