@@ -30,9 +30,19 @@
 
     <resources>
       <resource>
-        <directory>templates</directory>
+        <directory>.</directory>
+        <includes>
+          <include>templates/</include>
+        </includes>
       </resource>
-    </resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+
   </build>
 
   <dependencies>
