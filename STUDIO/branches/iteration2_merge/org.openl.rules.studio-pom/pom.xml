@@ -216,12 +216,12 @@
         <repository>
           <id>internal-minsk</id>
           <name>Release Repository</name>
-          <url>http://openl.internal.corp:8080/artifactory/internal-minsk</url>
+          <url>dav:http://openl.internal.corp:8083/archiva/repository/internal/</url>
         </repository>
         <snapshotRepository>
           <id>internal-minsk</id>
           <name>Snapshot Repository</name>
-          <url>http://openl.internal.corp:8080/artifactory/internal-minsk</url>
+          <url>dav:http://openl.internal.corp:8083/archiva/repository/internal/</url>
         </snapshotRepository>
       </distributionManagement>
       <build>
