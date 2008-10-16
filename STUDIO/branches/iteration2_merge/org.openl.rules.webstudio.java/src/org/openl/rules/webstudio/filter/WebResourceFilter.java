@@ -35,7 +35,10 @@ public class WebResourceFilter implements Filter {
             String path = httpRequest.getRequestURI();
 
             if (path != null && path.indexOf(WEBRESOURCE_PREFIX) != -1) {
-                path = path.substring(path.indexOf(WEBRESOURCE_PREFIX) + WEBRESOURCE_PREFIX.length());
+            	// When "webresource/**" is requested from html page which was loaded via "webresource/**" itself
+            	// the path will contain 2 "webresource" strings.
+            	// "lastIndexOf" cuts off all prefixes at once.
+                path = path.substring(path.lastIndexOf(WEBRESOURCE_PREFIX) + WEBRESOURCE_PREFIX.length());
                 InputStream stream = WebResourceFilter.class.getResourceAsStream(path);
                 if (stream == null) {
                     stream = new FileInputStream(new File(filterConfig.getServletContext().getRealPath(path)));
