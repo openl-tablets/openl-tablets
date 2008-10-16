@@ -30,6 +30,11 @@ public class HeaderBean {
         return selectItems;
     }
 
+    public boolean isProjectsExist() throws IOException {
+        OpenLWrapperInfo[] wrappers = getWebStudio().getWrappers();
+        return wrappers.length > 0;
+    }
+
     public String getSelectedProject() {
         OpenLWrapperInfo current = getWebStudio().getCurrentWrapper();
         if (current != null)
@@ -58,4 +63,5 @@ public class HeaderBean {
     public void setHideLogout(boolean hideLogout) {
         this.hideLogout = hideLogout;
     }
+
 }
