@@ -23,7 +23,7 @@ public abstract class WizardBase extends BaseWizardBean {
     private static final String SHEET_EXSISTING = "existing";
     private static final String SHEET_NEW = "new";
     private String workbook;
-    private int worksheetIndex;
+    private Integer worksheetIndex;
     private Map<String, XlsWorkbookSourceCodeModule> workbooks;
     private boolean newWorksheet;
     private String newWorksheetName;
@@ -57,11 +57,11 @@ public abstract class WizardBase extends BaseWizardBean {
         this.workbook = workbook;
     }
 
-    public int getWorksheetIndex() {
+    public Integer getWorksheetIndex() {
         return worksheetIndex;
     }
 
-    public void setWorksheetIndex(int worksheetIndex) {
+    public void setWorksheetIndex(Integer worksheetIndex) {
         this.worksheetIndex = worksheetIndex;
     }
 

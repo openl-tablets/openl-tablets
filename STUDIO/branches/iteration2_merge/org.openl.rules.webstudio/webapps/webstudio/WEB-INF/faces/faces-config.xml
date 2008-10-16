@@ -373,6 +373,12 @@
     </managed-property>
   </managed-bean>
 
+  <managed-bean>
+    <managed-bean-name>tableCopier</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.TableCopier</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
   <navigation-rule>
     <navigation-case>
       <from-outcome>wizardSelect</from-outcome>
