@@ -166,6 +166,9 @@ public class XlsCellStyle implements ICellStyle
 	{
 		return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getVerticalAlignment();
 	}
-	
-	
+
+	public HSSFCellStyle getXlsStyle() {
+	    return xlsStyle;
+	}
+
 }
