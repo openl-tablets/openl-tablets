@@ -584,7 +584,7 @@ public class ObjectViewer {
 
         String url = WebTool.makeXlsOrDocUrl(uri);
         buf.append("href=\"/webstudio/jsp/showLinks.jsp?").append(url).append('"');
-        buf.append("' target='show_app_hidden'");
+        buf.append(" target='show_app_hidden'");
     }
 
     private void displayErrorAndCode(Throwable tt, ILocation srcLocation, IOpenSourceCodeModule module, StringBuffer buf) {
