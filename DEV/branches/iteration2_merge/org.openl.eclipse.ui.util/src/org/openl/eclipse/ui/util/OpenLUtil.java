@@ -15,7 +15,7 @@ public class OpenLUtil {
 
     private static NewProjectFromTemplateWizardCustomizer getCustomizer() {
         return new NewProjectFromTemplateWizardCustomizer(Activator.getDefault().getBundle(),
-                "NewSimpleOpenLRulesProject") {};
+                "MavenSimpleOpenLRulesProject") {};
     }
 
     public static void removeOpenLCapabilities(IProject project) throws CoreException {
