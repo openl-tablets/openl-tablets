@@ -15,6 +15,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.util.net.NetUtils;
 import org.openl.rules.workspace.abstracts.ProjectException;
+import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.syntax.ISyntaxError;
 
@@ -126,30 +127,36 @@ public class ShowTableBean {
         return notViewParams;
     }
 
-    public boolean isEditable() {
+    UserWorkspaceProject getCurrentProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         HttpSession session = request.getSession();
+        
         try {
-            return NetUtils.isLocalRequest(request)||(studio.getCurrentProject(session)!=null && (studio.getCurrentProject(session).isCheckedOut()||studio.getCurrentProject(session).isLocalOnly()));
+            return studio.getCurrentProject(session);
         } catch (ProjectException e) {
-            return false;
+            return null;
         } catch (WorkspaceException e) {
+            return null;
+        }
+    }
+
+    boolean canModifyCurrentProject() {
+        UserWorkspaceProject currentProject = getCurrentProject();
+
+        if (currentProject != null) {
+            return (currentProject.isCheckedOut() || currentProject.isLocalOnly());
+        } else {
             return false;
         }
     }
 
+    public boolean isEditable() {
+        return canModifyCurrentProject();
+    }
+
     public boolean isCopyable() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        HttpSession session = request.getSession();
-        try {
-            return studio.getCurrentProject(session)!=null && (studio.getCurrentProject(session).isCheckedOut()||studio.getCurrentProject(session).isLocalOnly());
-        } catch (ProjectException e) {
-            return false;
-        } catch (WorkspaceException e) {
-            return false;
-        }
+        return canModifyCurrentProject();
     }
 
     public String getView() {
