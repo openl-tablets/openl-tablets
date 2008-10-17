@@ -27,10 +27,19 @@
 <tr>
   <td>
     <img src="#{contextPath}/webresource/images/excel-workbook.png"/>
-    <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}" title="#{showTableBean.uri}"
-                  target="show_app_hidden">
+    <h:outputLink
+      value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}"
+      title="#{showTableBean.uri}"
+      target="show_app_hidden"
+      rendered="#{showTableBean.editable}"
+    >
       <h:outputText value="#{showTableBean.text}:#{showTableBean.name}"/>
     </h:outputLink>
+
+    <h:outputText
+      rendered="#{not showTableBean.editable}" 
+      value="#{showTableBean.text}:#{showTableBean.name}"
+    />
 
     <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
       <h:outputLink value="#{contextPath}/jsp/runMethod.jsp?elementID=#{showTableBean.elementID}" title="Run">
@@ -130,11 +139,17 @@
 </form>
 </f:verbatim>
 <div id="contextMenu" style="display:none;">
-    <table cellpadding="1px">
-        <c:if test="#{showTableBean.editable}"><tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr></c:if>
-        <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
-        <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
-    </table>
+  <table cellpadding="1px">
+    <c:if test="#{showTableBean.editable}">
+    <tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr>
+    <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
+    </c:if>
+    <c:if test="#{not showTableBean.editable}">
+    <tr><td class="da">Edit</td></tr>
+    <tr><td class="da">Edit in Excel</td></tr>
+    </c:if>
+    <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
+  </table>
 </div>
 
 <p/><div><h:outputText value="#{tableViewController.tableView}" escape="false"/></div>

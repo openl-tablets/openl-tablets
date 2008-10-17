@@ -44,7 +44,7 @@ BODY {
 <tr>
 <td>
 
-<a href="index.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>
+<a href="index.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="webresource/images/refresh.gif"></a>
 
 <%
   if (studio.getModel().getAllTestMethods() != null && studio.getModel().getAllTestMethods().getTests().length > 0)
@@ -60,21 +60,19 @@ BODY {
   if (studio.getModel().getAllValidatedNodes().size() > 0)
   {
 %>
-<a href="index.jsp?validate=true&reload=true" title="Validate Project" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/validateAll.png"></a>
+<a href="index.jsp?validate=true&reload=true" title="Validate Project" target="top"><img border=0 src="webresource/images/validateAll.png"></a>
 <%
   }
 %>
 
 
 
-<%if (!NetUtils.isLocalRequest(request)) {%>
-  <%if (studio.getCurrentProject(session)!=null && studio.getCurrentProject(session).isCheckedOut()) {%>
-    <a class="actionButton" href="index.jsp?operation=checkIn" target="top" title="Check in propject"><img border="0" src="<%= request.getContextPath()%>/webresource/images/repository/checkin.gif"></a>
-  <%}%>
-  <%if (studio.getCurrentProject(session)!=null && (!(studio.getCurrentProject(session).isCheckedOut()
-          ||studio.getCurrentProject(session).isLocked()
-          ||studio.getCurrentProject(session).isLocalOnly()))) {%>
-    <a class="actionButton" href="index.jsp?operation=checkOut" target="top" title="Check Out Propject"><img border="0" src="<%= request.getContextPath()%>/webresource/images/repository/checkout.gif"></a>
+<%if (studio.getCurrentProject(session)!=null) {%>
+  <%if (studio.getCurrentProject(session).isCheckedOut()) {%>
+    <a class="actionButton" href="index.jsp?operation=checkIn" target="top" title="Check in Project"><img border="0" src="webresource/images/repository/checkin.gif"></a>
+  <%} else if (!studio.getCurrentProject(session).isLocalOnly() 
+            && !studio.getCurrentProject(session).isLocked()) {%>
+    <a class="actionButton" href="index.jsp?operation=checkOut" target="top" title="Check Out Project"><img border="0" src="webresource/images/repository/checkout.gif"></a>
   <%}%>
 <%}%>
 
