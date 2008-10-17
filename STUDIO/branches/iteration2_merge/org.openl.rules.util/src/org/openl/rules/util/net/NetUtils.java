@@ -41,10 +41,6 @@ public final class NetUtils {
         // TODO: think about proper implementation
         boolean b = isLoopbackAddress(remote);// ||
         // request.getLocalAddr().equals(remote);
-        /*
         return b;
-        */
-        // TODO: remove after integrating with IPB
-        return true;
     }
 }
