@@ -21,6 +21,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMember;
 import org.openl.types.IParameterDeclaration;
 import static org.openl.types.java.JavaOpenClass.*;
 
@@ -76,7 +77,10 @@ public class DomainTree {
             XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) projectInfo;
             for (TableSyntaxNode node : xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes()) {
                 if (node.getType().equals(ITableNodeTypes.XLS_DT)) {
-                    domainTree.scanTable((DecisionTable) node.getMember());
+                    IOpenMember table = node.getMember();
+                    if (table != null) {
+                        domainTree.scanTable((DecisionTable) table);
+                    }
                 }
             }
 

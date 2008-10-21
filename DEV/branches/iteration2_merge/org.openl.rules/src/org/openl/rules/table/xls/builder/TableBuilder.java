@@ -19,29 +19,32 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 
 /**
  * Class that allows creating tables in specified excel sheet.
+ * 
+ * @author Aliaksandr Antonik
+ * @author Andrei Astrouski
  */
 public class TableBuilder {
 
     public static final String TABLE_PROPERTIES = "properties";
     public static final String TABLE_PROPERTIES_NAME = "name";
 
-    /**
-     * The sheet to write tables to.
-     */
+    /** The sheet to write tables to. */
     private final XlsSheetGridModel gridModel;
-    /**
-     * Current table region in excel sheet.
-     */
+    /** Current table region in excel sheet. */
     private IGridRegion region;
+    /** Table width. */
     private int width;
+    /** Table height. */
     private int height;
-    private int startRow = 0;
-    private HSSFCellStyle defaultStyle;
+    /** Current table row to write. */
+    private int currentRow;
+    /**Default cell style. */
+    private HSSFCellStyle defaultCellStyle;
 
     /**
      * Creates new instance.
      *
-     * @param gridModel represents interface for operations with excel sheets.
+     * @param gridModel represents interface for operations with excel sheets
      */
     public TableBuilder(XlsSheetGridModel gridModel) {
         if (gridModel == null)
@@ -57,11 +60,31 @@ public class TableBuilder {
         return region;
     }
 
+    protected int getWidth() {
+        return width;
+    }
+
+    protected int getHeight() {
+        return height;
+    }
+
+    protected int getCurrentRow() {
+        return currentRow;
+    }
+
+    protected void incCurrentRow() {
+        incCurrentRow(1);
+    }
+
+    protected void incCurrentRow(int increment) {
+        currentRow += increment;
+    }
+
     /**
      * Begins writing a table.
      * 
      * @param width table width in cells
-     * @param height tablel height in cells
+     * @param height table height in cells
      * 
      * @throws CreateTableException if unable to create table
      * @throws IllegalStateException if <code>beginTable()</code> has already been called without subsequent
@@ -80,8 +103,8 @@ public class TableBuilder {
             throw new CreateTableException(
                     "could not find appropriate region for writing");
         }
-        
-        initStyle();
+
+        currentRow = 0;
     }
 
     /**
@@ -89,8 +112,8 @@ public class TableBuilder {
      * 
      * @return cell style
      */
-    private HSSFCellStyle initStyle() {
-        if (defaultStyle == null) {
+    protected HSSFCellStyle getDefaultCellStyle() {
+        if (defaultCellStyle == null) {
             HSSFWorkbook workbook = gridModel.getSheetSource()
                     .getWorkbookSource().getWorkbook();
             HSSFCellStyle cellStyle = workbook.createCellStyle();
@@ -100,15 +123,15 @@ public class TableBuilder {
             cellStyle.setBorderLeft(ICellStyle.BORDER_THIN);
             cellStyle.setBorderRight(ICellStyle.BORDER_THIN);
 
-            defaultStyle = cellStyle;
+            defaultCellStyle = cellStyle;
         }
-        return defaultStyle;
+        return defaultCellStyle;
     }
 
     /**
      * Writes table header.
      * 
-     * @param header header signature for the table
+     * @param header header text for the table
      * @param style header style
      * 
      * @throws IllegalStateException if method is called without
@@ -118,7 +141,7 @@ public class TableBuilder {
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
-        writeCell(0, startRow++, width, 1, header, style);
+        writeCell(0, currentRow++, width, 1, header, style);
     }
 
     /**
@@ -130,8 +153,6 @@ public class TableBuilder {
      * @throws IllegalArgumentException if properties is null
      * @throws IllegalStateException if method is called without
      * prior <code>beginTable()</code> call
-     * @throws IllegalStateException if method is called without
-     * prior <code>writeHeader()</code> call
      */
     public void writeProperties(Map<String, String> properties,
             ICellStyle style) {
@@ -140,18 +161,15 @@ public class TableBuilder {
         }
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
-        } else if (startRow == 0) {
-            throw new IllegalStateException(
-                    "writeProperties() call without prior writeHeader() call");
         }
-        writeCell(0, startRow, 1, properties.size(), TABLE_PROPERTIES, style);
+        writeCell(0, currentRow, 1, properties.size(), TABLE_PROPERTIES, style);
         Set<String> keys = properties.keySet();
         for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
             String key = iterator.next();
-            writeCell(1, startRow, 1, 1, key, style);
+            writeCell(1, currentRow, 1, 1, key, style);
             String value = properties.get(key);
-            writeCell(2, startRow, 1, 1, value, style);
-            startRow++;
+            writeCell(2, currentRow, 1, 1, value, style);
+            currentRow++;
         }
     }
 
@@ -177,10 +195,22 @@ public class TableBuilder {
                 int cellHeight = table.getCellHeight(i, j);
                 Object cellValue = table.getObjectValue(i, j);
                 ICellStyle style = table.getCellStyle(i, j);
-                writeCell(i, startRow + j, cellWidth, cellHeight,
+                writeCell(i, currentRow + j, cellWidth, cellHeight,
                         cellValue, style);
             }
         }
+        currentRow += table.getGridHeight();
+    }
+
+    /**
+     * Writes cell.
+     * 
+     * @param x cell x coordinate
+     * @param y cell y coordinate
+     * @param value cell value
+     */
+    protected void writeCell(int x, int y, Object value) {
+        writeCell(x, y, 1, 1, value, null);
     }
 
     /**
@@ -212,7 +242,7 @@ public class TableBuilder {
         if (style != null) {
             cellStyle = ((XlsCellStyle) style).getXlsStyle();
         } else {
-            cellStyle = this.defaultStyle; 
+            cellStyle = getDefaultCellStyle();
         }
         x += region.getLeft();
         y += region.getTop();
@@ -245,13 +275,17 @@ public class TableBuilder {
             throw new IllegalStateException(
                     "endTable() call without prior beginTable() call");
         }
-        region = null;
-        
+        for (int y = currentRow; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                writeCell(x, y, 1, 1, "");
+            }
+        }
         try {
             gridModel.getSheetSource().getWorkbookSource().save();
         } catch (IOException e) {
             throw new CreateTableException ("could not save table");
         }
+        region = null;
     }
 
 }
