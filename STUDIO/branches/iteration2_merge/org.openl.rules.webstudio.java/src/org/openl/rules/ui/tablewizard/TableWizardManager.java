@@ -76,7 +76,9 @@ public class TableWizardManager {
     }
 
     public String cancel() {
-        wizard.cancel();
+        if (wizard != null) {
+            wizard.cancel();
+        }
         return "newTableCancel";
     }
 }
