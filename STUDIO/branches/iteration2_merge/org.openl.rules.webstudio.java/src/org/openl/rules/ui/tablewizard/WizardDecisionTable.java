@@ -11,10 +11,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
@@ -28,7 +26,7 @@ public class WizardDecisionTable extends WizardBase {
     private static final Log log = LogFactory.getLog(WizardDecisionTable.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
-    
+
     private String tableName;
     private String returnType;
     private boolean vertical;
@@ -431,7 +429,7 @@ public class WizardDecisionTable extends WizardBase {
         int tableWidth = returnValue.getParameters().size();
         for (TableArtifact artifact : conditions) tableWidth += artifact.getParameters().size();
         for (TableArtifact artifact : actions) tableWidth += artifact.getParameters().size();
-        int tableHeight = DecisionTableBuilder.HEADER_HEIGHT + 3; // let it be three extra empty rows
+        int tableHeight = DecisionTableBuilder.LOGIC_ELEMENT_HEIGHT + 4; // let it be 1-3 extra empty rows
 
         // start writing finally
         builder.beginTable(tableWidth, tableHeight);

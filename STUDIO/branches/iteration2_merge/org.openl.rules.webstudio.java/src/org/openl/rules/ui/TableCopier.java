@@ -1,6 +1,6 @@
 package org.openl.rules.ui;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
@@ -212,8 +212,8 @@ public class TableCopier extends WizardBase {
      */
     private String buildHeader(String header, String tableType) {
         String tableOldTechnicalName = parseTechnicalName(header, tableType);
-        return header.replaceFirst(tableOldTechnicalName,
-                tableTechnicalName.trim());
+        String repl = "\\b" + tableOldTechnicalName + "(?=\\s*(\\(.*\\))?$)";
+        return header.trim().replaceFirst(repl, tableTechnicalName.trim());
     }
 
     /**
@@ -223,7 +223,7 @@ public class TableCopier extends WizardBase {
      * @return new properties
      */
     private Map<String, String> buildProperties(Property[] properties) {
-        Map<String, String> newProperties = new HashMap<String, String>();
+        Map<String, String> newProperties = new LinkedHashMap<String, String>();
         if (properties != null) {
             for (int i = 0; i < properties.length; i++) {
                 String key = properties[i].getKey().getValue();

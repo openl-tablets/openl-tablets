@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.io.IOException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -12,8 +13,8 @@ import javax.faces.model.SelectItem;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
-import org.openl.rules.table.xls.builder.TestTableBuilder;
 import org.openl.rules.table.xls.builder.CreateTableException;
+import org.openl.rules.table.xls.builder.TestTableBuilder;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
 /**
@@ -93,8 +94,15 @@ public class WizardTestTable extends WizardBase {
         if (selectedTable < 0 || selectedTable >= nodes.length)
             throw new IllegalStateException("not table is selected");
 
-        TestTableBuilder builder = TestTableBuilder.fromDecisionTableNode(new XlsSheetGridModel(getDestinationSheet()), nodes[selectedTable]);
-        builder.create();
+        TableSyntaxNode node = nodes[selectedTable];
+        String header = TestTableBuilder.getHeader(node);
+        Map<String, String> params = TestTableBuilder.getParams(node);
+
+        TestTableBuilder builder = new TestTableBuilder(
+                new XlsSheetGridModel(getDestinationSheet()));
+        builder.beginTable(params.size() + 1, 4);
+        builder.writeHeader(header, null);
+        builder.writeParams(params, null);
         builder.endTable();
     }
 }
