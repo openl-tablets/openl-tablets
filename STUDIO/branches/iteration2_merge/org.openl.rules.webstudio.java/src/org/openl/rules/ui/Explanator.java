@@ -8,11 +8,11 @@ import org.openl.meta.DoubleValue;
 public class Explanator
 {
 
-	static ThreadLocal current = new ThreadLocal();
+	static ThreadLocal<Explanator> current = new ThreadLocal<Explanator>();
 	
 	public static Explanator getCurrent()
 	{
-		return (Explanator)current.get();
+		return current.get();
 	}
 
 	
