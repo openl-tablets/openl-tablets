@@ -27,19 +27,10 @@
 <tr>
   <td>
     <img src="#{contextPath}/webresource/images/excel-workbook.png"/>
-    <h:outputLink
-      value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}"
-      title="#{showTableBean.uri}"
-      target="show_app_hidden"
-      rendered="#{showTableBean.editable}"
-    >
+    <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}" title="#{showTableBean.uri}"
+                  target="show_app_hidden">
       <h:outputText value="#{showTableBean.text}:#{showTableBean.name}"/>
     </h:outputLink>
-
-    <h:outputText
-      rendered="#{not showTableBean.editable}" 
-      value="#{showTableBean.text}:#{showTableBean.name}"
-    />
 
     <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
       <h:outputLink value="#{contextPath}/jsp/runMethod.jsp?elementID=#{showTableBean.elementID}" title="Run">
@@ -49,7 +40,7 @@
       <c:set var="tgUrl" value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=tracetree.jsp&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;elementID=#{showTableBean.elementID}&amp;first=true" />
       <a onClick="open_win('#{tgUrl}', 800, 600)" href="#"  title="Trace"><img border="0" src="webresource/images/trace.gif" alt="trace"/></a>
 
-      <h:outputLink value="#{contextPath}/jsp/benchmarkMethod.jsp?elementID=#{showTableBean.elementID}" title="Benchmark">
+      <h:outputLink value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml?elementID=#{showTableBean.elementID}" title="Benchmark">
         <h:graphicImage url="/webresource/images/clock-icon.png" alt="benchmark" style="padding-left:5px;"/>
       </h:outputLink>
     </c:if>
@@ -92,7 +83,7 @@
   <f:verbatim>&amp;nbsp;</f:verbatim>
   
   <c:if test="#{showTableBean.copyable}">
-    <h:outputLink value="#{contextPath}/faces/facelets/tableCopier/copyTable.xhtml">
+    <h:outputLink value="#{contextPath}/jsp/copyTable.jsf">
       <f:param name="elementID" value="#{showTableBean.elementID}" />
       Copy Table
     </h:outputLink>
@@ -139,17 +130,11 @@
 </form>
 </f:verbatim>
 <div id="contextMenu" style="display:none;">
-  <table cellpadding="1px">
-    <c:if test="#{showTableBean.editable}">
-    <tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr>
-    <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
-    </c:if>
-    <c:if test="#{not showTableBean.editable}">
-    <tr><td class="da">Edit</td></tr>
-    <tr><td class="da">Edit in Excel</td></tr>
-    </c:if>
-    <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
-  </table>
+    <table cellpadding="1px">
+        <c:if test="#{showTableBean.editable}"><tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr></c:if>
+        <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
+        <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
+    </table>
 </div>
 
 <p/><div><h:outputText value="#{tableViewController.tableView}" escape="false"/></div>
@@ -168,7 +153,7 @@
         <h:graphicImage url="/webresource/images/test.gif" alt="test"/>
       </h:outputLink>
       <f:verbatim>&amp;nbsp;</f:verbatim>
-      <h:outputLink value="#{contextPath}/jsp/benchmarkMethod.jsp" title="Benchmark">
+      <h:outputLink value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml" title="Benchmark">
         <f:param value="#{showTableBean.elementID}" name="elementID"/>
         <f:param value="#{test.testName}" name="testName"/>
         <f:param value="#{status.index}" name="testID"/>
