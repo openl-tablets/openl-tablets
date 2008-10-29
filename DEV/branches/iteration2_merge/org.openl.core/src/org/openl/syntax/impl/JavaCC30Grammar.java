@@ -18,6 +18,15 @@ import org.openl.util.text.TextInfo;
  */
 public abstract class JavaCC30Grammar extends Grammar
 {
+	
+	
+	
+
+	public void parse(Reader r, String parseType) {
+		ReInit(r);
+		parseTopNode(parseType);
+		
+	}
 
 	public void parseAsMethod(Reader r)
 	{
