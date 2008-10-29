@@ -104,6 +104,10 @@ public void parseTopNode(String type)
 	       parseModuleInternal(); 
         else if (type.equals("type"))
                 Type();
+               
+        else if (type.equals("range.literal"))
+                RangeLiteral();
+               
 	       
 	}
 	catch (ParseException pe)
@@ -259,7 +263,19 @@ TOKEN :
 | < VOID: "void" >
 | < VOLATILE: "volatile" >
 | < WHILE: "while" >
+}
+
+/* EXTENDED RESERVED WORDS */
+
+TOKEN :
+{
+  < OF: "of" >
+| < THE: "the" >
 | < WHERE: "where" >
+| < IS: "is" >
+| < LESS: "less" >
+| < THAN: "than" >
+
 }
 
 
@@ -350,15 +366,14 @@ TOKEN :
   >
 |
   < BUSINESS_INTEGER_LITERAL:
-  		(["$"])? (["0"-"9"])+ ("." ["0"-"9"] ["0"-"9"] )?  (["M","K", "B"])?
-  		
-//"." (["0"-"9"])*  		
+  	("$")?	(["0"-"9"])+ ("." (["0"-"9"])+ )?  (["M","K", "B"])?
+  				
   >
 
 |
 	<PERCENT_LITERAL:
 	
-		(["0"-"9"])+ ("." ["0"-"9"] ["0"-"9"] )? "%"		
+	 	(["0"-"9"])+ ("." ["0"-"9"] ["0"-"9"] )? "%"		
 	>
   		
 	  
@@ -598,7 +613,7 @@ void OfTheExpression() :
 {
   Expression()
   (
-    ( x = "of the")
+    ( x = <OF>    <THE>)
     Expression()
     {stb.bop("of.the" , pos(x));}
   )
@@ -719,7 +734,7 @@ void PreIncrementExpression() :
 void OfTheExpressionSuffix() :
 {Token x;}
 {
-  x="of the" PrimaryExpression() {stb.bop("chain.suffix.of.the",null);}
+  x=<OF> <THE> PrimaryExpression() {stb.bop("chain.suffix.of.the",null);}
 }
 
 
@@ -1085,9 +1100,7 @@ void Literal() :
   <INTEGER_LITERAL>         
   { stb.literal("literal.integer", pos(token), token.image); }
   |
-  LOOKAHEAD(LiteralBI() "-")
-  RangeLiteralBinary()
-  |
+//  LOOKAHEAD(LiteralBI() "-")//  RangeLiteralBinary()//  |
   <BUSINESS_INTEGER_LITERAL>         
   { stb.literal("literal.integer.business", pos(token), token.image); }
   |
@@ -1112,20 +1125,32 @@ void Literal() :
 void LiteralBI() :
 {}
 {
+  <INTEGER_LITERAL>         
+  { stb.literal("literal.integer", pos(token), token.image); }
+  |
   <BUSINESS_INTEGER_LITERAL>         
-  { stb.literal("literal.integer.business", pos(token), token.image); }
+  { stb.literal("literal.number.business", pos(token), token.image); }
 }
 
-void RangeLiteralBinary() :
-{Token x;}
+void RangeLiteral() :
 {
+	Token x; 
+	String op;
+}
+{
+	LOOKAHEAD(LiteralBI()  "-")
 	LiteralBI()
 	x="-"
 	LiteralBI()
 	{stb.bop("literal.range.binary", pos(x));}
 	|
-	x="<" | x = "<=" | x = ">" | x =">="
-	Literal()
+	(x="<" {op="lt";} | x = "<=" {op="le";} | x = ">" {op="gt";} | x =">=" {op="ge";})
+	LiteralBI()
+	{stb.uop("literal.range.unary.prefix." + op, pos(x));}	
+	| 
+	LiteralBI()
+	(x="<" {op="lt";} | x = "<=" {op="le";} | x = ">" {op="gt";} | x =">=" {op="ge";} | x ="+" {op="plus";})
+	{stb.uop("literal.range.unary.suffix."+op, pos(x));}
 }
 
 
