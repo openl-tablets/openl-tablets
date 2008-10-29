@@ -183,7 +183,7 @@ public abstract class ASelector<T> implements ISelector<T>
 
 	protected boolean equalsSelector(ASelector<?> sel)
 	{
-	    return c == ((ClassSelector) (ASelector<Object>)sel).c;
+	    return c == ((ClassSelector) sel).c;
 	}
 
 	protected int redefinedHashCode()
