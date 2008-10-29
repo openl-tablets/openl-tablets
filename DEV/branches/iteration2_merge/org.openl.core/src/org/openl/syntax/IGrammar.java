@@ -33,4 +33,7 @@ public interface IGrammar
 	 */
 	public void parseAsType(Reader reader);
 
+
+	public void parse(Reader characterStream, String parseType);
+
 }

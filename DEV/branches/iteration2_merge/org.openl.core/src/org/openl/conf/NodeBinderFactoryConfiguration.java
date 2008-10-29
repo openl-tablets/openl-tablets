@@ -27,6 +27,7 @@ public class NodeBinderFactoryConfiguration extends AConfigurationElement
   {
   	SingleBinderFactory factory = (SingleBinderFactory)map.get(node.getType());
   	
+  	
     return factory == null ? null : (INodeBinder)factory.getResource(cxt);
   }
   

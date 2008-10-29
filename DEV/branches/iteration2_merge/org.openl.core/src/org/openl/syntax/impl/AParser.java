@@ -93,5 +93,16 @@ public abstract class AParser implements IOpenParser
 
 		return makeParsedCode(g, src);
 	}
+	
+	
+	public IParsedCode parse(IOpenSourceCodeModule src, String parseType)
+	{
+		IGrammar g = getGrammarFactory().getGrammar();
+		g.setModule(src);
+		g.parse(src.getCharacterStream(), parseType);
+
+		return makeParsedCode(g, src);
+		
+	}
 
 }

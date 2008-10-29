@@ -29,6 +29,9 @@ public interface IOpenParser
 	 */
 	IParsedCode parseAsType(IOpenSourceCodeModule src); 
 	
+	IParsedCode parse(IOpenSourceCodeModule src, String parseType);
+	
+	
 //	IParsedCode parseAsMethod(String code);
 //
 //	IParsedCode parseAsModule(String code);
