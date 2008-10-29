@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.openl.binding.IBindingContext;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -26,6 +27,23 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class String2DataConvertorFactory
 {
+	
+	static Locale locale = null;
+	static final String localeCountry = "US", localeLang = "en";
+	
+	
+	static Locale getLocale()
+	{
+		if (locale == null)
+		{	
+			String country =  System.getProperty("org.openl.locale.country");
+			String lang = System.getProperty("org.openl.locale.lang");
+			
+			locale = new Locale(lang == null ? localeLang : lang, country == null ? localeCountry : country);
+		}	
+		
+		return locale;
+	}
 
 	static HashMap<Class<?>,IString2DataConvertor> convertors;
 
@@ -379,6 +397,7 @@ public class String2DataConvertorFactory
 	static public class String2DateConvertor implements IString2DataConvertor
 	{
 		
+		DateFormat defaultFormat = DateFormat.getDateInstance(DateFormat.SHORT, getLocale());
 		
 		
 		public Object parse(String data, String format,  IBindingContext cxt)
@@ -389,7 +408,7 @@ public class String2DataConvertorFactory
 		public Date parseDate(String data, String format)
 		{
 			
-			DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT): new SimpleDateFormat(format);
+			DateFormat df = format == null ? defaultFormat : new SimpleDateFormat(format, getLocale());
 			
 			
 			try

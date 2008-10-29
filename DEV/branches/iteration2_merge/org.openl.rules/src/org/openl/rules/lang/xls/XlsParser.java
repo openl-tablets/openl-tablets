@@ -142,4 +142,9 @@ public class XlsParser implements IOpenParser
 
   }
 
+public IParsedCode parse(IOpenSourceCodeModule src, String parseType) {
+    throw new UnsupportedOperationException(
+    		".xls files should only be parsed as Modules");
+}
+
 }
