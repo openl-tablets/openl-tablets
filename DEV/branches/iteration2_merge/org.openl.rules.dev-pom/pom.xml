@@ -209,7 +209,7 @@
         <snapshotRepository>
           <id>internal-minsk</id>
           <name>Snapshot Repository</name>
-          <url>http://openl.internal.corp:8083/archiva/repository/internal/</url>
+          <url>http://openl.internal.corp:8083/archiva/repository/snapshots/</url>
         </snapshotRepository>
       </distributionManagement>
       <build>
