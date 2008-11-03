@@ -220,6 +220,12 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>benchmarkMethodBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.BenchmarkMethodBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>tableViewController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.JSFTableViewController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
