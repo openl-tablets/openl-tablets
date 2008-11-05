@@ -3,7 +3,7 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
-                template="/facelets/common/webstudioBase.xhtml"
+                template="/facelets/common/wizardBase.xhtml"
         >
 
   <ui:define name="page">
@@ -60,10 +60,10 @@
       </h:panelGroup>
 
       <hr/>
-      <h:inputHidden value="1" id="step" binding="#{tableWizard.hiddenStep}"/>
-      <h:commandButton value="Prev" action="#{tableWizard.prev}"/>
-      <h:commandButton value="Next" action="#{tableWizard.next}"/>
-      <h:commandButton value="Cancel" action="#{tableWizard.cancel}"/>
+      <h:inputHidden value="1" id="step" binding="#{tableWizardManager.hiddenStep}"/>
+      <h:commandButton value="Prev" action="#{tableWizardManager.prev}"/>
+      <h:commandButton value="Next" action="#{tableWizardManager.next}"/>
+      <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}"/>
     </h:form>
 
     <script type="text/javascript">
