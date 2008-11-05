@@ -46,9 +46,9 @@
       </span>
 
       <div id="iconbar">
-        <h:commandLink class="actionButton" onclick="window.open('#{contextPath}/webresource/html/tutorial/rb-overview.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" title="Help">
+        <a class="actionButton" href="#" onclick="window.open('#{contextPath}/webresource/html/tutorial/rb-overview.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;" title="Help">
           <h:graphicImage url="/webresource/images/help.gif" styleClass="actionImage" />
-        </h:commandLink>
+        </a>
 
         <h:commandLink class="actionButton" action="#{studioOpener.openStudio}" title="Open LWS in WebStudio">
           <h:graphicImage url="/webresource/images/openWebStudio.gif" styleClass="actionImage" />
@@ -56,7 +56,7 @@
 
         <c:if test="#{not hideLogout}">
         <a href="#{contextPath}/logoff.servlet?_j_acegi_logout=true" class="actionButton"
-          title="Logout" onclick="return confirm('Are you sure you want to log off?')">
+          title="Log out" onclick="return confirm('Are you sure you want to Log out?')">
           <h:graphicImage url="/webresource/images/logout.gif" styleClass="actionImage" />
         </a>
         </c:if>
