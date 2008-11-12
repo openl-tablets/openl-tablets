@@ -6,6 +6,9 @@
     xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
     xmlns:rich="http://richfaces.ajax4jsf.org/rich"
     template="/facelets/common/webstudioBase.xhtml">
+    <ui:define name="header">
+        <a4j:loadScript src="resource:///javascript/validator.js" />
+    </ui:define>
     <ui:define name="page">
         <h:messages errorClass="error" infoStyle="color:green" />
 
@@ -16,7 +19,8 @@
                 <h:outputText value="Business Name" />
                 <h:inputText value="#{tableCopier.tableBusinessName}" />
                 <h:outputText value="Technical Name" />
-                <h:inputText value="#{tableCopier.tableTechnicalName}" />
+                <h:inputText id="technicalName"
+                    value="#{tableCopier.tableTechnicalName}" />
             </h:panelGrid>
  
             <br />
@@ -57,11 +61,27 @@
             </fieldset>
 
             <hr />
-            <h:commandButton value="Copy" action="#{tableCopier.copy}" />
+            <h:commandButton value="Copy" action="#{tableCopier.copy}"
+                onclick="return validateForm();" />
         </h:form>
 
         <f:verbatim>
             <script type="text/javascript">
+              function validateForm() {
+                valid = validateRequired('copyTableForm:technicalName', true);
+                valid = validateNewSheetName() &amp;&amp; valid;
+                return valid;
+              }
+            
+              function validateNewSheetName() {
+                var e = document.forms['copyTableForm']['copyTableForm:newSheet'][0];
+                var newSheet = e.value == 'new' ? e.checked : !e.checked;
+                if (newSheet) {
+                  return validateRequired('copyTableForm:newSheetName', true);
+                }
+                return true;
+              }            
+
               function updateControls() {
                 var e = document.forms['copyTableForm']['copyTableForm:newSheet'][0];
                 var newSheet = e.value == 'new' ? e.checked : !e.checked;

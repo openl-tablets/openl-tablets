@@ -9,7 +9,7 @@
   <ui:define name="controlButtons">
     <h:inputHidden value="5" id="step" binding="#{tableWizardManager.hiddenStep}"/>
     <h:commandButton value="Prev" action="#{tableWizardManager.prev}" onclick="enableControls()"/>
-    <h:commandButton value="Next" action="#{tableWizardManager.next}" onclick="enableControls()"/>
+    <h:commandButton value="Next" action="#{tableWizardManager.next}" onclick="return validateForm();enableControls()"/>
     <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}" immediate="true"/>
   </ui:define>
 

@@ -6,7 +6,10 @@
                 xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
                 template="/facelets/common/wizardBase.xhtml"
         >
-
+    <ui:define name="header">
+        <a4j:loadScript src="resource:///javascript/validator.js" />
+    </ui:define>
+  
   <ui:define name="page">
     <h:messages errorClass="error" showSummary="true" showDetail="true"/>
 
@@ -43,6 +46,19 @@
 
     <f:verbatim>
     <script type="text/javascript">
+      function validateForm() {
+        return validateNewSheetName();
+      }
+            
+      function validateNewSheetName() {
+        var e = document.forms['destForm']['destForm:newSheet'][0];
+        var newSheet = e.value == 'new' ? e.checked : !e.checked;
+        if (newSheet) {
+          return validateRequired('destForm:newSheetName', true);
+        }
+        return true;
+      }
+
       function updateControls() {
         var e = document.forms['destForm']['destForm:newSheet'][0];
         var newSheet = e.value == 'new' ? e.checked : !e.checked;

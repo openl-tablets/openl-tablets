@@ -11,7 +11,7 @@
     <h:commandButton value="Prev" action="#{tableWizardManager.prev}" onclick="enableControls()"/>
     <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}" immediate="true"/>
 
-    <h:commandButton value="Save" action="#{tableWizard.save}" onclick="enableControls()"/>
+    <h:commandButton value="Save" action="#{tableWizard.save}" onclick="return validateForm();enableControls()"/>
   </ui:define>
 
 </ui:composition>
