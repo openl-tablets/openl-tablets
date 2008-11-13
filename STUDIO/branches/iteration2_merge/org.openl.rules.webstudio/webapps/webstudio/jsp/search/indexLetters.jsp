@@ -8,6 +8,7 @@
 
 <html>
 <head>
+    <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <table width ="80%">
