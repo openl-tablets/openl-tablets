@@ -7,6 +7,8 @@
 package org.openl.binding.impl;
 
 import java.io.PrintStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 
 import org.openl.util.ArrayTool;
@@ -17,6 +19,8 @@ import org.openl.util.ArrayTool;
  */
 public class Operators
 {
+	
+	
 	
 	static public int add(int x, int y)
 	{
@@ -457,6 +461,8 @@ public class Operators
 	}
 	
 
+	
+
 	public static boolean eq(String x, String y)
 	{
 		if (x == null)
@@ -609,5 +615,55 @@ public class Operators
 		p.print(x);
 		return p;
 	}
+	
+	static public BigDecimal autocast(int x, BigDecimal y)
+	{
+		return new BigDecimal(x);
+	}
+	
+	static public BigDecimal autocast(double x, BigDecimal y)
+	{
+		return new BigDecimal(x);
+	}
+
+
+	static public BigDecimal autocast(long x, BigDecimal y)
+	{
+		return new BigDecimal(x);
+	}
+
+	static public BigDecimal autocast(BigInteger x, BigDecimal y)
+	{
+		return new BigDecimal(x);
+	}
+
+	
+	static public boolean eq(BigDecimal x, BigDecimal y)
+	{
+		return x.equals(y);
+	}
+
+	static public boolean ne(BigDecimal x, BigDecimal y)
+	{
+		return !x.equals(y);
+	}
+	
+	static public boolean lt(BigDecimal x, BigDecimal y)
+	{
+		return x.compareTo(y) < 0;
+	}
+
+	static public BigInteger autocast(int x, BigInteger y)
+	{
+		return new BigInteger(String.valueOf(x), 10);
+	}
+	
+	static public BigInteger autocast(long x, BigInteger y)
+	{
+		return new BigInteger(String.valueOf(x), 10);
+	}
+	
+	
+	
 	
 }
