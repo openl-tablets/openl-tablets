@@ -873,63 +873,70 @@ public class ProjectModel implements IProjectTypes {
 		final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
 		final Object target = wrapper.getOpenClass().newInstance(env);
 
-		Thread.currentThread().setContextClassLoader(
-				wrapper.getClass().getClassLoader());
+        ClassLoader currentContextClassLoader = Thread.currentThread()
+        		.getContextClassLoader();
+        try {
+    		Thread.currentThread().setContextClassLoader(
+    				wrapper.getClass().getClassLoader());
 
-		final Object[] params = {};
+    		final Object[] params = {};
 
-		// Object res = null;
-		BenchmarkUnit bu = null;
+    		// Object res = null;
+    		BenchmarkUnit bu = null;
 
-		try {
+    		try {
 
-			if (m instanceof IBenchmarkableMethod) {
-				final IBenchmarkableMethod bm = (IBenchmarkableMethod) m;
-				bu = new BenchmarkUnit() {
-					protected void run() throws Exception {
-						throw new RuntimeException();
-					}
+    			if (m instanceof IBenchmarkableMethod) {
+    				final IBenchmarkableMethod bm = (IBenchmarkableMethod) m;
+    				bu = new BenchmarkUnit() {
+    					protected void run() throws Exception {
+    						throw new RuntimeException();
+    					}
 
-					public void runNtimes(int times) throws Exception {
-						bm.invokeBenchmark(target, params, env, times);
-					}
+    					public void runNtimes(int times) throws Exception {
+    						bm.invokeBenchmark(target, params, env, times);
+    					}
 
-					public String getName() {
-						return bm.getBenchmarkName();
-					}
+    					public String getName() {
+    						return bm.getBenchmarkName();
+    					}
 
-					public int nUnitRuns() {
-						return bm.nUnitRuns();
-					}
+    					public int nUnitRuns() {
+    						return bm.nUnitRuns();
+    					}
 
-					public String[] unitName() {
-						return bm.unitName();
-					}
+    					public String[] unitName() {
+    						return bm.unitName();
+    					}
 
-				};
+    				};
 
-			} else {
-				bu = new BenchmarkUnit() {
+    			} else {
+    				bu = new BenchmarkUnit() {
 
-					protected void run() throws Exception {
-						m.invoke(target, params, env);
-					}
+    					protected void run() throws Exception {
+    						m.invoke(target, params, env);
+    					}
 
-					public String getName() {
-						return m.getName();
-					}
+    					public String getName() {
+    						return m.getName();
+    					}
 
-				};
+    				};
 
-			}
+    			}
 
-			BenchmarkUnit[] buu = { bu };
-			return new Benchmark(buu).runUnit(bu, ms, false);
+    			BenchmarkUnit[] buu = { bu };
+    			return new Benchmark(buu).runUnit(bu, ms, false);
 
-		} catch (Throwable t) {
-			Log.error("Run Error:", t);
-			return new BenchmarkInfo(t, bu, bu.getName());
-		}
+    		} catch (Throwable t) {
+    			Log.error("Run Error:", t);
+    			return new BenchmarkInfo(t, bu, bu.getName());
+    		}
+        } finally {
+            Thread.currentThread().setContextClassLoader(
+                    currentContextClassLoader);
+        }
 
 	}
 
@@ -937,19 +944,26 @@ public class ProjectModel implements IProjectTypes {
 		IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
 		Object target = wrapper.getOpenClass().newInstance(env);
 
-		Thread.currentThread().setContextClassLoader(
-				wrapper.getClass().getClassLoader());
+		ClassLoader currentContextClassLoader = Thread.currentThread()
+        		.getContextClassLoader();
+		try{
+			Thread.currentThread().setContextClassLoader(
+					wrapper.getClass().getClassLoader());
 
-		Object res = null;
+			Object res = null;
 
-		try {
-			res = m.invoke(target, new Object[] {}, env);
+			try {
+				res = m.invoke(target, new Object[] {}, env);
 
-		} catch (Throwable t) {
-			Log.error("Run Error:", t);
-			return t;
-		}
-		return res;
+			} catch (Throwable t) {
+				Log.error("Run Error:", t);
+				return t;
+			}
+			return res;
+        } finally {
+            Thread.currentThread().setContextClassLoader(
+                    currentContextClassLoader);
+        }
 	}
 
 	/**
@@ -981,17 +995,23 @@ public class ProjectModel implements IProjectTypes {
 		Tracer t = new Tracer();
 		Tracer.setTracer(t);
 
-		Thread.currentThread().setContextClassLoader(
-				wrapper.getClass().getClassLoader());
-		try {
-			IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-			Object target = wrapper.getOpenClass().newInstance(env);
+		ClassLoader currentContextClassLoader = Thread.currentThread()
+			.getContextClassLoader();
+		try{
+			Thread.currentThread().setContextClassLoader(
+					wrapper.getClass().getClassLoader());
+			try {
+				IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+				Object target = wrapper.getOpenClass().newInstance(env);
 
-			m.invoke(target, new Object[] {}, env);
-		} finally {
-			Tracer.setTracer(null);
-		}
-
+				m.invoke(target, new Object[] {}, env);
+			} finally {
+				Tracer.setTracer(null);
+			}
+        } finally {
+            Thread.currentThread().setContextClassLoader(
+                    currentContextClassLoader);
+        }
 		return t;
 	}
 
