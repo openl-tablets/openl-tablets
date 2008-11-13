@@ -2,6 +2,9 @@
 <%@include file="header.jsp"%>
 -->
 
+<head>
+    <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
+</head>
 
 <%
 	String searchQuery = request.getParameter("searchQuery");
