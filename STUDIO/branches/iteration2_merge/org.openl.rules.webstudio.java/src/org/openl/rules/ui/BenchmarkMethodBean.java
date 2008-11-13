@@ -100,7 +100,7 @@ public class BenchmarkMethodBean {
 
     public List<BenchmarkInfo> getBenchmarks() {
         studio = WebStudioUtils.getWebStudio();
-        if (FacesUtils.getRequestParameter("testName") != null) {
+        if (FacesUtils.getRequestParameter("elementID") != null) {
             addLastBenchmark();
         }
         BenchmarkInfo[] benchmarks = studio.getBenchmarks();
