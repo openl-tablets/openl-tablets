@@ -4,6 +4,7 @@
 <TITLE>
 IDAT
 </TITLE>
+    <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
 </HEAD>
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
