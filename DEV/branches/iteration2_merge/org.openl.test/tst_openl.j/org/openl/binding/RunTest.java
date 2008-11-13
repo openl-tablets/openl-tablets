@@ -1,5 +1,8 @@
 package org.openl.binding;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import org.openl.OpenL;
 import org.openl.rules.helpers.IntRange;
 import org.openl.syntax.impl.StringSourceCodeModule;
@@ -84,6 +87,22 @@ public class RunTest extends TestCase
 		
 	}
 
+	public void testBig()
+	{
+		_runNoError("Vector x = new Vector(); x.size()", 0, "org.openl.j");
+		
+		
+		_runNoError("BigDecimal x = 10, y = 20; x > y", false, "org.openl.j");
+		_runNoError("BigDecimal x = 10, y = 20; x < y", true, "org.openl.j");
+		_runNoError("BigDecimal x = 10, y = 20; x + y == 30", true, "org.openl.j");
+		_runNoError("BigDecimal x = 10, y = 20; x + y  - 5", new BigDecimal(25), "org.openl.j");
+
+		_runNoError("BigInteger x = 10; BigDecimal y = x; x + x  - 5", new BigInteger("15",10), "org.openl.j");
+		_runNoError("BigInteger x = 10; BigDecimal y = x; x == y", true, "org.openl.j");
+		_runNoError("BigInteger x = 10; BigDecimal y = x; y == x", true, "org.openl.j");
+		
+	
+	}
 
 	
 	public static void main(String[] args)
