@@ -12,6 +12,8 @@
 
   <properties>
     <dev.version>5.2.0-SNAPSHOT</dev.version>
+    <!-- Remove WSFrontend dependencies at all while refactoring -->
+    <wsf.version>5.2.0-SNAPSHOT</wsf.version>
   </properties>
 
   <modules>
@@ -535,7 +537,7 @@
       </dependency>
 
       <!-- Integration Projects -->
-<!-- temporarily disabled for release: do not required
+<!-- temporarily disabled: TODO: are they not required?
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.security.integration.ipb</artifactId>
@@ -550,8 +552,6 @@
 -->
 
       <!-- WSFrontend -->
-<!-- temporarily disabled for release: do not required
-
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice.lib</artifactId>
@@ -575,7 +575,6 @@
         <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
         <version>${wsf.version}</version>
       </dependency>
--->
 
       <!-- IPB related -->
 <!-- temporarily disabled for release: do not required
