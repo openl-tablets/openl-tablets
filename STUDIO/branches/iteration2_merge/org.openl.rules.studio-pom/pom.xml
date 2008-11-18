@@ -11,7 +11,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <dev.version>5.1.1</dev.version>
+    <dev.version>5.2.0-SNAPSHOT</dev.version>
   </properties>
 
   <modules>
