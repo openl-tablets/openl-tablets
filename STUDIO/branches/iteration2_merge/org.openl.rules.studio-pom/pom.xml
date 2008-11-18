@@ -10,6 +10,10 @@
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
   <packaging>pom</packaging>
 
+  <properties>
+    <dev.version>5.1.1</dev.version>
+  </properties>
+
   <modules>
     <module>../org.openl.rules.util</module>
     <module>../org.openl.rules.repository</module>
@@ -328,109 +332,103 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.core</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.helpers</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.validator</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j.science</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib.apache.poi.modified</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>com.exigen.rules</groupId>
         <artifactId>com.exigen.rules.constrainer</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.ui</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.eclipse.ui</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.conf.ant</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl</groupId>
-        <artifactId>org.openl.conf.ant</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.ui.wizard</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.feature</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib.eclipse.feature</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.eclipse.feature</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
@@ -442,13 +440,13 @@
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.ui.util</artifactId>
-        <version>${version}</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
@@ -520,18 +518,6 @@
 
       <dependency>
         <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.security.integration.ipb</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.runtime.deployer</artifactId>
-        <version>${version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.diff</artifactId>
         <version>${version}</version>
       </dependency>
@@ -548,32 +534,52 @@
         <version>${version}</version>
       </dependency>
 
+      <!-- Integration Projects -->
+<!-- temporarily disabled for release: do not required
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.security.integration.ipb</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.runtime.deployer</artifactId>
+        <version>${version}</version>
+      </dependency>
+-->
+
       <!-- WSFrontend -->
+<!-- temporarily disabled for release: do not required
+
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice.lib</artifactId>
-        <version>${version}</version>
+        <version>${wsf.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice.lib.eclipse.feature</artifactId>
-        <version>${version}</version>
+        <version>${wsf.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice</artifactId>
-        <version>${version}</version>
+        <version>${wsf.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
-        <version>${version}</version>
+        <version>${wsf.version}</version>
       </dependency>
+-->
 
       <!-- IPB related -->
+<!-- temporarily disabled for release: do not required
+
       <dependency>
         <groupId>com.exigen.ipb</groupId>
         <artifactId>ipb-security</artifactId>
@@ -633,6 +639,7 @@
           </exclusion>
         </exclusions>
       </dependency>
+-->
 
       <!-- MyFaces -->
       <dependency>
