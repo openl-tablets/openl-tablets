@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Ruleservice Plug-in
+Bundle-SymbolicName: org.openl.rules.ruleservice;singleton:=true
+Bundle-Version: 5.1.1
+Bundle-Vendor: OpenL Tablets
+Bundle-Localization: plugin
+Require-Bundle: org.junit;visibility:=reexport,
+ org.openl.core;visibility:=reexport,
+ org.openl.rules;visibility:=reexport,
+ org.openl.rules.repository;visibility:=reexport,
+ org.openl.rules.repository.jcr;visibility:=reexport,
+ org.openl.rules.workspace;visibility:=reexport,
+ org.openl.rules.ruleservice.lib
+Export-Package: org.openl.rules.ruleservice
