@@ -12,6 +12,7 @@
 
   <properties>
     <dev.version>5.1.1</dev.version>
+    <wsf.version>5.1.1</wsf.version>
   </properties>
 
   <modules>
@@ -550,7 +551,6 @@
 -->
 
       <!-- WSFrontend -->
-<!-- temporarily disabled for release: do not required
 
       <dependency>
         <groupId>org.openl.rules</groupId>
@@ -575,7 +575,6 @@
         <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
         <version>${wsf.version}</version>
       </dependency>
--->
 
       <!-- IPB related -->
 <!-- temporarily disabled for release: do not required
