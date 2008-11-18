@@ -10,6 +10,12 @@
   <description>Rules Service Pom Project</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
+
+  <properties>
+    <dev.version>5.1.1</dev.version>
+    <studio.version>5.1.1</studio.version>
+  </properties>
+
   <modules>
     <module>../org.openl.rules.ruleservice</module>
     <module>../org.openl.rules.ruleservice.eclipse.feature</module>
@@ -280,13 +286,13 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <version>5.1.1-SNAPSHOT</version>
+        <version>${dev.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.core</artifactId>
-        <version>5.1.1-SNAPSHOT</version>
+        <version>${dev.version}</version>
       </dependency>
 
 
@@ -294,19 +300,19 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.repository</artifactId>
-        <version>5.1.1-SNAPSHOT</version>
+        <version>${studio.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.repository.jcr</artifactId>
-        <version>5.1.1-SNAPSHOT</version>
+        <version>${studio.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.workspace</artifactId>
-        <version>5.1.1-SNAPSHOT</version>
+        <version>${studio.version}</version>
       </dependency>
 
 
