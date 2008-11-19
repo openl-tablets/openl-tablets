@@ -220,6 +220,12 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>benchmarkMethodBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.BenchmarkMethodBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>tableViewController</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.JSFTableViewController</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
@@ -342,8 +348,8 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>tableWizard</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.tablewizard.WizardBean</managed-bean-class>
+    <managed-bean-name>tableWizardManager</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.tablewizard.TableWizardManager</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
@@ -354,7 +360,7 @@
 
     <managed-property>
       <property-name>wizardBean</property-name>
-      <value>#{tableWizard}</value>
+      <value>#{tableWizardManager.wizard}</value>
     </managed-property>
   </managed-bean>
 
@@ -365,17 +371,23 @@
 
     <managed-property>
       <property-name>domainTree</property-name>
-      <value>#{tableWizard.domainTree}</value>
+      <value>#{tableWizardManager.wizard.domainTree}</value>
     </managed-property>
     <managed-property>
       <property-name>parameters</property-name>
-      <value>#{tableWizard.parameters}</value>
+      <value>#{tableWizardManager.wizard.parameters}</value>
     </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>tableCopier</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.TableCopier</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
   <navigation-rule>
     <navigation-case>
-      <from-outcome>newTable</from-outcome>
+      <from-outcome>wizardSelect</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable0.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
@@ -388,11 +400,16 @@
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTable0.xhtml</from-view-id>
     <navigation-case>
-      <from-outcome>next</from-outcome>
+      <from-outcome>newTable</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable1.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>newTestTable</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest1.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
+  <!-- Decision table wizard -->
   <navigation-rule>
     <from-view-id>/facelets/tableWizard/newTable1.xhtml</from-view-id>
     <navigation-case>
@@ -445,7 +462,7 @@
     <from-view-id>/facelets/tableWizard/newTable5.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>next</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
+      <to-view-id>/facelets/tableWizard/newTable6.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>prev</from-outcome>
@@ -453,4 +470,42 @@
     </navigation-case>
   </navigation-rule>
 
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable6.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>done</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <!-- Test method table wizard -->
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTableTest1.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest2.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable0.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTableTest2.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>done</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableTest1.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
 </faces-config>

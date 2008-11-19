@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.openl.eclipse.feature"
+      id="org.openl.eclipse.ui.eclipse.feature"
       label="OpenL Core"
-      version="5.1.1"
+      version="5.2.0"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -18,40 +18,41 @@
    </license>
 
    <requires>
-      <import feature="org.openl.lib.eclipse.feature" version="5.1.1"/>
+      <import plugin="org.openl.lib"/>
+      <import plugin="org.openl.lib.apache.poi.modified"/>
    </requires>
 
    <plugin
          id="org.openl.eclipse.ui"
          download-size="0"
          install-size="0"
-         version="5.1.1"
+         version="5.2.0"
          unpack="false"/>
 
    <plugin
          id="org.openl.eclipse.ui.util"
          download-size="0"
          install-size="0"
-         version="5.1.1"
+         version="5.2.0"
          unpack="false"/>
 
    <plugin
          id="org.openl.eclipse.ui.wizard"
          download-size="0"
          install-size="0"
-         version="5.1.1"/>
+         version="5.2.0"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui"
          download-size="0"
          install-size="0"
-         version="5.1.1"
+         version="5.2.0"
          unpack="false"/>
 
    <plugin
          id="org.openl.rules.eclipse.ui.wizard"
          download-size="0"
          install-size="0"
-         version="5.1.1"/>
+         version="5.2.0"/>
 
 </feature>

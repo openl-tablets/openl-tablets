@@ -58,6 +58,8 @@
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <a target="mainFrame" href="#{contextPath}/html/ws-intro.html" title="Help"><img border='0' src="#{contextPath}/webresource/images/help.gif" alt="help"/></a>
   <f:verbatim>&amp;nbsp;</f:verbatim>
+  <h:commandLink target="mainFrame" action="#{tableWizardManager.start}" title="Create new table" rendered="#{headerBean.projectsExist}"><img border='0' src="#{contextPath}/webresource/images/newtable.gif" alt="new table"/></h:commandLink>
+  <f:verbatim>&amp;nbsp;</f:verbatim>
   <c:if test="#{headerBean.repositoryFailed}">
     <img border='0' src="#{contextPath}/webresource/images/repository/storage-disabled.gif" alt="repo failed"/>
   </c:if>
@@ -66,7 +68,7 @@
   </c:if>
   <c:if test="#{not headerBean.hideLogout}">
     <f:verbatim>&amp;nbsp;</f:verbatim>
-    <a target="top" href='#{contextPath}/logoff.servlet?_j_acegi_logout=true' title="Logout" onclick="return confirm('Are you sure you want to log off?')"><img border='0' src="#{contextPath}/webresource/images/logout.gif" alt="Logout"/></a>
+    <a target="top" href='#{contextPath}/logoff.servlet?_j_acegi_logout=true' title="Log out" onclick="return confirm('Are you sure you want to Log out?')"><img border='0' src="#{contextPath}/webresource/images/logout.gif" alt="Log out"/></a>
   </c:if>
   
 </td></tr></table>

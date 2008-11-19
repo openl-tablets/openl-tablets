@@ -49,7 +49,7 @@
     <c:set var="tgUrl" value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=tracetree.jsp&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;elementID=#{showTableBean.elementID}&amp;first=true" />
     <a onClick="open_win('#{tgUrl}', 800, 600)" href="#"  title="Trace"><img border="0" src="webresource/images/trace.gif" alt="trace"/></a>
 
-    <h:outputLink value="#{contextPath}/jsp/benchmarkMethod.jsp?elementID=#{showTableBean.elementID}" title="Benchmark">
+    <h:outputLink value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml?elementID=#{showTableBean.elementID}" title="Benchmark">
       <h:graphicImage url="/webresource/images/clock-icon.png" alt="benchmark" style="padding-left:5px;"/>
     </h:outputLink>
   </c:if>

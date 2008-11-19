@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.eclipse-pom</artifactId>
-    <version>5.1.1-SNAPSHOT</version>
+    <version>5.2.0-SNAPSHOT</version>
     <relativePath>../org.openl.rules.eclipse-pom</relativePath>
   </parent>
 
@@ -52,14 +52,14 @@
       <artifactId>org.openl.core</artifactId>
     </dependency>
 
+	<dependency>
+	  <groupId>org.openl</groupId>
+	  <artifactId>org.openl.commons</artifactId>
+	</dependency>
+
     <dependency>
       <groupId>org.eclipse.core</groupId>
       <artifactId>org.eclipse.core.resources</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.ui</groupId>
-      <artifactId>org.eclipse.ui</artifactId>
     </dependency>
 
     <dependency>
@@ -70,11 +70,6 @@
     <dependency>
       <groupId>org.eclipse.debug</groupId>
       <artifactId>org.eclipse.debug.ui</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.jface</groupId>
-      <artifactId>org.eclipse.jface.text</artifactId>
     </dependency>
 
     <dependency>
@@ -93,17 +88,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>org.eclipse.core.jobs</artifactId>
-    </dependency>
-
-
-    <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>org.eclipse.core.commands</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.eclipse.ui</groupId>
       <artifactId>org.eclipse.ui.editors</artifactId>
     </dependency>
@@ -111,11 +95,6 @@
     <dependency>
       <groupId>org.eclipse.jdt</groupId>
       <artifactId>org.eclipse.jdt.launching</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.swt</groupId>
-      <artifactId>org.eclipse.swt</artifactId>
     </dependency>
 
     <dependency>
@@ -168,10 +147,6 @@
       <artifactId>org.eclipse.core.expressions</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
   </dependencies>
 
 </project>
