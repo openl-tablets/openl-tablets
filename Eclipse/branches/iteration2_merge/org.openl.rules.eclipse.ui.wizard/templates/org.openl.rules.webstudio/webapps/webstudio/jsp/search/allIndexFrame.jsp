@@ -6,6 +6,14 @@ IDAT
 </TITLE>
 </HEAD>
 
+<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
+<%
+    org.openl.rules.ui.ProjectIndexer indexer = studio.getModel().getIndexer();
+    boolean hasLetters = (indexer != null) && (indexer.getLetters().length > 0);
+
+    if (hasLetters) {
+%>
+
 <FRAMESET rows="37,*" title="" onLoad="top.loadFrames()">
 <FRAME src="indexLetters.jsp" name="letters" title="Index Letters">
 <FRAME src="allIndex.jsp" name="allIndex" title="Search Index">
@@ -21,3 +29,13 @@ This document is designed to be viewed using the frames feature. If you see this
 Link to<A HREF="overview-summary.html">Non-frame version.</A>
 </NOFRAMES>
 
+<%
+    } else {
+%>
+<BODY>
+<P>
+There are no available index results.
+</BODY>
+<%
+    }
+%>

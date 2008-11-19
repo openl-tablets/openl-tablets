@@ -438,6 +438,11 @@ font-style: italic;
     font-size:larger;
 }
 
+.menuholderdiv .da {
+    cursor: default;
+    color: gray;
+}
+
 .treeOptionsText  {
   text-decoration:underline;
   font-weight:bold;
