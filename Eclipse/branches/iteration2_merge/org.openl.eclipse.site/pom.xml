@@ -265,11 +265,6 @@
 
     <dependency>
       <groupId>org.openl</groupId>
-      <artifactId>org.openl.eclipse.feature</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
       <artifactId>org.openl.lib.eclipse.feature</artifactId>
     </dependency>
 
@@ -278,6 +273,11 @@
       <artifactId>org.openl.rules.eclipse.feature</artifactId>
     </dependency>
 
+    <dependency>
+  	  <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
+    </dependency>
+  
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.lib</artifactId>
