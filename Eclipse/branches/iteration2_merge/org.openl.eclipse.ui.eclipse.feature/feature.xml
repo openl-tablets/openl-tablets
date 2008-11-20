@@ -18,8 +18,7 @@
    </license>
 
    <requires>
-      <import plugin="org.openl.lib"/>
-      <import plugin="org.openl.lib.apache.poi.modified"/>
+      <import feature="org.openl.lib.eclipse.feature" version="5.2.0"/>
    </requires>
 
    <plugin
