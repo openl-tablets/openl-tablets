@@ -11,6 +11,37 @@
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
 
+  <distributionManagement>
+    <repository>
+      <id>exigen-repo-release</id>
+      <name>Exigen Release Repository</name>
+      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
+    </repository>
+    <snapshotRepository>
+      <id>exigen-repo-snapshot</id>
+      <name>Exigen Snapshot Repository</name>
+      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-snapshot</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <profiles>
+    <profile>
+      <id>internal-deploy</id>
+      <distributionManagement>
+        <repository>
+          <id>internal-minsk</id>
+          <name>Release Repository</name>
+          <url>http://openl.internal.corp:8080/artifactory/internal-minsk</url>
+        </repository>
+        <snapshotRepository>
+          <id>internal-minsk</id>
+          <name>Snapshot Repository</name>
+          <url>http://openl.internal.corp:8080/artifactory/internal-minsk</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+  </profiles>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
