@@ -188,19 +188,6 @@
     </plugins>
   </reporting>
 
-  <distributionManagement>
-    <repository>
-      <id>exigen-repo-release</id>
-      <name>Exigen Release Repository</name>
-      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
-    </repository>
-    <snapshotRepository>
-      <id>exigen-repo-snapshot</id>
-      <name>Exigen Snapshot Repository</name>
-      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-snapshot</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <profiles>
     <profile>
       <id>internal-deploy</id>
@@ -209,16 +196,6 @@
           <id>internal-minsk</id>
           <url>file://d:/reports/org.openl.rules.ruleservice-pom</url>
         </site>
-        <repository>
-          <id>internal-minsk</id>
-          <name>Release Repository</name>
-          <url>http://openl.internal.corp:8083/archiva/repository/internal/</url>
-        </repository>
-        <snapshotRepository>
-          <id>internal-minsk</id>
-          <name>Snapshot Repository</name>
-          <url>http://openl.internal.corp:8083/archiva/repository/snapshots/</url>
-        </snapshotRepository>
       </distributionManagement>
       <build>
         <plugins>
