@@ -2,6 +2,12 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.base-pom</artifactId>
+    <version>5.2.0-SNAPSHOT</version>
+  </parent>
+
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.dev-pom</artifactId>
   <packaging>pom</packaging>
@@ -19,17 +25,11 @@
     <module>../org.openl.rules.helpers</module>
     <module>../org.openl.rules</module>
     <module>../com.exigen.rules.constrainer</module>
-    <module>../org.openl.eclipse.ui</module>
-    <module>../org.openl.rules.eclipse.ui</module>
     <module>../org.openl.conf.ant</module>
-    <module>../org.openl.rules.eclipse.ui.wizard</module>
-    <module>../org.openl.eclipse.ui.wizard</module>
     <module>../org.openl.rules.validator</module>
-    <module>../org.openl.eclipse.ui.util</module>
     <module>../org.openl.lib</module>
-    <module>../org.openl.eclipse.feature</module>
-    <module>../org.openl.lib.eclipse.feature</module>
     <module>../org.openl.rules.eclipse.feature</module>
+    <module>../org.openl.lib.eclipse.feature</module>
   </modules>
 
   <scm>
@@ -180,19 +180,6 @@
     </plugins>
   </reporting>
 
-  <distributionManagement>
-    <repository>
-      <id>exigen-repo-release</id>
-      <name>Exigen Release Repository</name>
-      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
-    </repository>
-    <snapshotRepository>
-      <id>exigen-repo-snapshot</id>
-      <name>Exigen Snapshot Repository</name>
-      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-snapshot</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <profiles>
     <profile>
       <id>internal-deploy</id>
@@ -201,16 +188,6 @@
           <id>internal-minsk</id>
           <url>file://d:/reports/org.openl.rules.dev-pom</url>
         </site>
-        <repository>
-          <id>internal-minsk</id>
-          <name>Release Repository</name>
-          <url>http://openl.internal.corp:8083/archiva/repository/internal/</url>
-        </repository>
-        <snapshotRepository>
-          <id>internal-minsk</id>
-          <name>Snapshot Repository</name>
-          <url>http://openl.internal.corp:8083/archiva/repository/snapshots/</url>
-        </snapshotRepository>
       </distributionManagement>
       <build>
         <plugins>
@@ -248,14 +225,9 @@
                     <include name="org.openl.commons\target\cobertura\cobertura.ser" />
                     <include name="org.openl.conf.ant\target\cobertura\cobertura.ser" />
                     <include name="org.openl.core\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.eclipse.ui\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.eclipse.ui.util\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
                     <include name="org.openl.j\target\cobertura\cobertura.ser" />
                     <include name="org.openl.j.science\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.eclipse.ui\target\cobertura\cobertura.ser" />
-                    <include name="org.openl.rules.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules.helpers\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules.validator\target\cobertura\cobertura.ser" />
                   </fileset>
@@ -274,15 +246,6 @@
                   <fileset dir="..\org.openl.core\src\">
                     <include name="**\*.java" />
                   </fileset>
-                  <fileset dir="..\org.openl.eclipse.ui\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.eclipse.ui.util\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.eclipse.ui.wizard\src\">
-                    <include name="**\*.java" />
-                  </fileset>
                   <fileset dir="..\org.openl.j\src\">
                     <include name="**\*.java" />
                   </fileset>
@@ -296,12 +259,6 @@
                     <include name="**\*.java" />
                   </fileset>
                   <fileset dir="..\org.openl.rules\poi\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.eclipse.ui\src\">
-                    <include name="**\*.java" />
-                  </fileset>
-                  <fileset dir="..\org.openl.rules.eclipse.ui.wizard\src\">
                     <include name="**\*.java" />
                   </fileset>
                   <fileset dir="..\org.openl.rules.helpers\src\">
@@ -463,338 +420,6 @@
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
         <version>${version}</version>
-      </dependency>
-
-      <!-- Apache Commons -->
-      <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>1.2.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
-        <version>3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>1.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <version>1.7.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-fileupload</groupId>
-        <artifactId>commons-fileupload</artifactId>
-        <version>1.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>1.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-digester</groupId>
-        <artifactId>commons-digester</artifactId>
-        <version>1.6</version>
-      </dependency>
-
-      <!-- Other -->
-      <dependency>
-        <groupId>edu.stanford.ejalbert</groupId>
-        <artifactId>BrowserLauncher</artifactId>
-        <version>2-1_3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>tomcat</groupId>
-        <artifactId>bootstrap</artifactId>
-        <version>5.5.12</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring</artifactId>
-        <version>2.5.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-agent</artifactId>
-        <version>2.5.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <version>2.5.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <version>2.5</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>com.sun.facelets</groupId>
-        <artifactId>jsf-facelets</artifactId>
-        <version>1.1.13</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.sdicons.jsontools</groupId>
-        <artifactId>jsontools-core</artifactId>
-        <version>1.5</version>
-      </dependency>
-
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>1.2.13</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.3.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.3.0</version>
-      </dependency>
-
-      <!-- Eclipse dependencies -->
-      <dependency>
-        <groupId>org.eclipse.ui</groupId>
-        <artifactId>org.eclipse.ui.ide</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.osgi</groupId>
-        <artifactId>org.eclipse.osgi</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.osgi</groupId>
-        <artifactId>org.eclipse.osgi.services</artifactId>
-        <version>3.1.200</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.equinox</groupId>
-        <artifactId>org.eclipse.equinox.app</artifactId>
-        <version>1.0.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.equinox</groupId>
-        <artifactId>org.eclipse.equinox.registry</artifactId>
-        <version>3.3.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.runtime.compatibility</artifactId>
-        <version>3.1.200</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.ui</groupId>
-        <artifactId>org.eclipse.ui.workbench.compatibility</artifactId>
-        <version>3.2.0</version>
-      </dependency>
-
-
-      <dependency>
-        <groupId>org.eclipse.ant</groupId>
-        <artifactId>org.eclipse.ant.core</artifactId>
-        <version>3.1.200</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.commands</artifactId>
-        <version>3.3.0</version>
-      </dependency>
-
-
-      <dependency>
-        <groupId>org.eclipse.debug</groupId>
-        <artifactId>org.eclipse.debug.core</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.jdt</groupId>
-        <artifactId>org.eclipse.jdt.launching</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.debug</groupId>
-        <artifactId>org.eclipse.debug.ui</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.jdt</groupId>
-        <artifactId>org.eclipse.jdt.core</artifactId>
-        <version>3.3.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.ant</groupId>
-        <artifactId>org.eclipse.ant.core</artifactId>
-        <version>3.1.200</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.resources</artifactId>
-        <version>3.3.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.equinox</groupId>
-        <artifactId>org.eclipse.equinox.registry</artifactId>
-        <version>3.3.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.equinox</groupId>
-        <artifactId>org.eclipse.equinox.common</artifactId>
-        <version>3.3.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.ui</groupId>
-        <artifactId>org.eclipse.ui.console</artifactId>
-        <version>3.2.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.swt</groupId>
-        <artifactId>org.eclipse.swt</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.ui</groupId>
-        <artifactId>org.eclipse.ui</artifactId>
-        <version>3.3.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.ui</groupId>
-        <artifactId>org.eclipse.ui.workbench.texteditor</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.jobs</artifactId>
-        <version>3.3.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.ui</groupId>
-        <artifactId>org.eclipse.ui.editors</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.commands</artifactId>
-        <version>3.3.0</version>
-      </dependency>
-
-
-      <dependency>
-        <groupId>org.eclipse.text</groupId>
-        <artifactId>org.eclipse.text</artifactId>
-        <version>3.3.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.jface</groupId>
-        <artifactId>org.eclipse.jface.text</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.jface</groupId>
-        <artifactId>org.eclipse.jface</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.ui</groupId>
-        <artifactId>org.eclipse.ui.workbench</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.expressions</artifactId>
-        <version>3.3.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.swt</groupId>
-        <artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
-        <version>3.3.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.core</groupId>
-        <artifactId>org.eclipse.core.runtime</artifactId>
-        <version>3.3.100</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.pde</groupId>
-        <artifactId>org.eclipse.pde.core</artifactId>
-        <version>3.3.2</version>
       </dependency>
 
     </dependencies>
