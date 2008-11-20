@@ -519,9 +519,7 @@ That&apos;s all there is to it!
    </license>
 
    <requires>
-      <import feature="org.openl.eclipse.feature" version="5.2.0"/>
-      <import plugin="org.openl.core"/>
-      <import plugin="org.openl.lib.apache.poi.modified"/>
+      <import feature="org.openl.lib.eclipse.feature" version="5.2.0"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.ui.console"/>
@@ -533,9 +531,6 @@ That&apos;s all there is to it!
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.openl.eclipse.ui"/>
       <import plugin="org.openl.eclipse.ui.wizard"/>
-      <import plugin="org.openl.j"/>
-      <import plugin="org.openl.commons"/>
-      <import plugin="org.openl.lib"/>
    </requires>
 
    <plugin
@@ -544,19 +539,6 @@ That&apos;s all there is to it!
          install-size="0"
          version="5.2.0"
          unpack="false"/>
-
-   <plugin
-         id="org.openl.rules.eclipse.ui"
-         download-size="0"
-         install-size="0"
-         version="5.2.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.openl.rules.eclipse.ui.wizard"
-         download-size="0"
-         install-size="0"
-         version="5.2.0"/>
 
    <plugin
          id="org.openl.rules.helpers"
@@ -579,4 +561,39 @@ That&apos;s all there is to it!
          version="5.2.0"
          unpack="false"/>
 
+   <plugin
+         id="org.openl.conf.ant"
+         download-size="0"
+         install-size="0"
+         version="5.2.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.core"
+         download-size="0"
+         install-size="0"
+         version="5.2.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.j"
+         download-size="0"
+         install-size="0"
+         version="5.2.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.commons"
+         download-size="0"
+         install-size="0"
+         version="5.2.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.j.science"
+         download-size="0"
+         install-size="0"
+         version="5.2.0"
+         unpack="false"/>
+   
 </feature>
