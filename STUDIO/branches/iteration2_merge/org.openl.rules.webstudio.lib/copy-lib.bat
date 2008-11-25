@@ -1,1 +1,1 @@
-mvn antrun:run org.openl.rules:maven-libsupport-plugin:copy-lib
+mvn antrun:run dependency:copy-dependencies
