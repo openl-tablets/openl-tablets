@@ -13,6 +13,11 @@
     <menu name="Summary reports">
       <item name="Cobertura" href="/cobertura-summary/index.html" />
     </menu>
+    <menu name="Other reports">
+      <item name="DEV" href="../org.openl.rules.dev-pom/" />
+      <item name="STUDIO" href="../org.openl.rules.studio-pom/" />
+      <item name="Eclipse" href="../org.openl.rules.eclipse-pom/" />
+    </menu>
     <menu ref="parent" />
     <menu ref="modules" />
     <menu ref="reports" />
