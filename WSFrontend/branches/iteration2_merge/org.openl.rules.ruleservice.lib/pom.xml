@@ -14,10 +14,55 @@
   <description />
 
   <dependencies>
+<!--
+
+True dependency
+
+Commented out to stop huge heap of transient dependencies
+
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice</artifactId>
       <version>${version}</version>
+    </dependency>
+-->
+<!--
+
+copy from org.openl.rules.ruleservice/pom.xml
+
+-->
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-bundle</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-distribution-manifest</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
+    </dependency>
+
+<!-- 
+
+extra dependencies
+
+Do we need them???
+
+-->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.3</version>
     </dependency>
   </dependencies>
 
@@ -31,6 +76,11 @@
             <delete includeemptydirs="true" failonerror="false">
               <fileset dir="lib" includes="**/*" />
             </delete>
+<!--
+
+DO ALL VIA ANT
+
+Left just in case...
 
             <typedef resource="org/apache/maven/artifact/ant/antlib.xml">
               <classpath refid="maven.dependency.classpath"/>
@@ -82,8 +132,13 @@
             </copy>
 
             <delete dir="target/deps"/>
+-->
           </tasks>
         </configuration>
+<!--
+
+DO ALL VIA ANT
+
         <dependencies>
           <dependency>
             <groupId>org.apache.maven</groupId>
@@ -91,6 +146,7 @@
             <version>2.0.4</version>
           </dependency>
         </dependencies>
+-->
       </plugin>
 
       <plugin>
@@ -98,11 +154,9 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <configuration>
           <outputDirectory>${project.build.directory}/../lib</outputDirectory>
-          <excludeGroupIds>com.exigen.rules,org.openl,org.openl.rules,org.acegisecurity,org.apache.jackrabbit</excludeGroupIds>
-          <excludeArtifactIds>junit,dbunit,commons-beanutils,commons-codec,commons-collections,commons-digester,commons-el,commons-fileupload,commons-io,commons-lang,commons-logging</excludeArtifactIds>
           <overWriteReleases>true</overWriteReleases>
           <overWriteSnapshots>true</overWriteSnapshots>
-          <type>jar</type>
+          <excludeArtifactIds>junit,commons-lang,commons-logging</excludeArtifactIds>
         </configuration>
       </plugin>
 
