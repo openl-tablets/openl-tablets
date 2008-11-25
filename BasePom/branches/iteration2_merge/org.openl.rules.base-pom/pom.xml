@@ -134,6 +134,9 @@
             </reports>
           </reportSet>
         </reportSets>
+        <configuration>
+          <dependencyLocationEnabled>false</dependencyLocationEnabled>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
