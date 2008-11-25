@@ -81,7 +81,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
-            <inherited>false</inherited>
+            <inherited>true</inherited>
             <configuration>
               <tasks>
                 <taskdef resource="tasks.properties" />
