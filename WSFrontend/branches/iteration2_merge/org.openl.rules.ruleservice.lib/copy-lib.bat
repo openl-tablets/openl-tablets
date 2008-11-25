@@ -1,1 +1,1 @@
-mvn antrun:run
+mvn antrun:run dependency:copy-dependencies
