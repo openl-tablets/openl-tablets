@@ -52,6 +52,16 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.core</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.j</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.conf.ant</artifactId>
+    </dependency>
 
 
     <!-- STUDIO -->
@@ -64,7 +74,12 @@
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository.jcr</artifactId>
     </dependency>
-
+    
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.workspace</artifactId>
