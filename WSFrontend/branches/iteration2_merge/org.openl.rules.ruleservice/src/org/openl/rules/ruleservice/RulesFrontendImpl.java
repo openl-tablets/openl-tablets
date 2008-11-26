@@ -50,6 +50,7 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
             }
         });
 
+        frontendExecutor.setDaemon(true);
         frontendExecutor.start();
     }
 
