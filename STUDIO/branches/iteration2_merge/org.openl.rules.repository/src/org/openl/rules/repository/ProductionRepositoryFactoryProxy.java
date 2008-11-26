@@ -48,6 +48,7 @@ public class ProductionRepositoryFactoryProxy {
         confSet.updateProperty(confRepositoryFactoryClass);
 
         String className = confRepositoryFactoryClass.getValue();
+        // TODO: check that className is not null otherwise throw meaningful exception
         try {
             Class c = Class.forName(className);
             Object obj = c.newInstance();
