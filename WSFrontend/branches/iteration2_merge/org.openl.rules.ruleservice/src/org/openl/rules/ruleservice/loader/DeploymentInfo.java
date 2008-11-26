@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish;
+package org.openl.rules.ruleservice.loader;
 
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -15,6 +15,7 @@ public class DeploymentInfo {
      * Deployment version.
      */
     private CommonVersionImpl version;
+    
     private final static char SEPARATOR = '#';
 
     /**

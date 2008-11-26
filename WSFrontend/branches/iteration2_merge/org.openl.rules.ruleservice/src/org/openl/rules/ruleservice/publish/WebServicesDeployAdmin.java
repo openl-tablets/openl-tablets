@@ -6,8 +6,9 @@ import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.helper.CglibInstantiationStrategy;
-import org.openl.rules.ruleservice.helper.InstantiationStrategy;
 import org.openl.rules.ruleservice.helper.EngineFactoryInstantiationStrategy;
+import org.openl.rules.ruleservice.helper.InstantiationStrategy;
+import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -16,18 +17,18 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-public class WebServicesDeployAdmin implements DeployAdmin {
+public class WebServicesDeployAdmin implements DeploymentAdmin {
     private static final Log log = LogFactory.getLog(WebServicesDeployAdmin.class);
 
     private Map<String, Collection<Server>> runningServices = new HashMap<String, Collection<Server>>();
 
-    public synchronized void deploy(String serviceName, ClassLoader loader, List<WSInfo> infoList) {
+    public synchronized void deploy(String serviceName, ClassLoader loader, List<RuleServiceInfo> infoList) {
         undeploy(serviceName);
 
         String address = "http://localhost:9000/" + serviceName + "/";
 
         Collection<Server> servers = new ArrayList<Server>();
-        for (WSInfo wsInfo : infoList) {
+        for (RuleServiceInfo wsInfo : infoList) {
             try {
                 servers.add(deploy(address, loader, wsInfo));
             } catch (Exception e) {
@@ -47,7 +48,7 @@ public class WebServicesDeployAdmin implements DeployAdmin {
         }
     }
 
-    private Server deploy(String baseAddress, ClassLoader loader, WSInfo wsInfo)
+    private Server deploy(String baseAddress, ClassLoader loader, RuleServiceInfo wsInfo)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Class<?> aClass = loader.loadClass(wsInfo.getClassName());
 
@@ -60,8 +61,8 @@ public class WebServicesDeployAdmin implements DeployAdmin {
 
         return svrFactory.create();
     }
-
-    private InstantiationStrategy getStrategy(WSInfo wsInfo) {
+    
+    private InstantiationStrategy getStrategy(RuleServiceInfo wsInfo) {
         if (wsInfo.isUsingEngineFactory()) {
             return new EngineFactoryInstantiationStrategy(wsInfo.getXlsFile());
         } else {
@@ -74,4 +75,5 @@ public class WebServicesDeployAdmin implements DeployAdmin {
             return new CglibInstantiationStrategy(path);
         }
     }
+
 }

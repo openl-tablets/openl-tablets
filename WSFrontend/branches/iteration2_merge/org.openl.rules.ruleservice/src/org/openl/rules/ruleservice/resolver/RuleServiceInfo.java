@@ -1,12 +1,13 @@
-package org.openl.rules.ruleservice.publish;
+package org.openl.rules.ruleservice.resolver;
 
 import java.io.File;
 
 /**
  * Holds information required to expose a an OpenL wrapper class or interface as a web service. 
  */
-class WSInfo {
+public class RuleServiceInfo {
     private File project;
+    private File projectBin;
     private File xlsFile;
     private String className;
     private String name;
@@ -21,8 +22,9 @@ class WSInfo {
      * @param name name of the webservice
      * @param usingEngineFactory if use <code>EngineFactory</code> to create engine instance
      */
-    WSInfo(File project, File xlsFile, String className, String name, boolean usingEngineFactory) {
+    public RuleServiceInfo(File project, File projectBin, File xlsFile, String className, String name, boolean usingEngineFactory) {
         this.project = project;
+        this.projectBin = projectBin;
         this.xlsFile = xlsFile;
         this.className = className;
         this.name = name;
@@ -35,6 +37,10 @@ class WSInfo {
 
     public File getProject() {
         return project;
+    }
+    
+    public File getProjectBin() {
+        return projectBin;
     }
 
     public String getClassName() {
