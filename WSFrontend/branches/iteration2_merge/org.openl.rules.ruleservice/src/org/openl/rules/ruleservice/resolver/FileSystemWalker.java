@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish;
+package org.openl.rules.ruleservice.resolver;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

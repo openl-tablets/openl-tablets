@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import junit.framework.TestCase;
-import static org.openl.rules.ruleservice.publish.FileSystemWalker.*;
+import static org.openl.rules.ruleservice.resolver.FileSystemWalker.*;
 
 /**
  * @author Aliaksandr Antonik.
