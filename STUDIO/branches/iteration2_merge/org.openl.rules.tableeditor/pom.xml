@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.studio-pom</artifactId>
+        <version>5.1.1-SNAPSHOT</version>
+        <relativePath>../org.openl.rules.studio-pom</relativePath>
+    </parent>
+
+    <artifactId>org.openl.rules.tableeditor</artifactId>
+    <name>OpenL - STUDIO - TableEditor</name>
+    <description>TableEditor JSF Component</description>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>.</directory>
+                <includes>
+                    <include>META-INF/*</include>
+                    <include>js/**</include>
+                    <include>img/**</include>
+                    <include>css/**</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>
+                            META-INF/MANIFEST.MF
+                        </manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
