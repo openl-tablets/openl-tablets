@@ -1,1 +1,1 @@
-mvn antrun:run dependency:copy-dependencies
+mvn clean package
