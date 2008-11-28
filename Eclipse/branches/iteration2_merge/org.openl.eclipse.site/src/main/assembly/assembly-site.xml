@@ -15,15 +15,6 @@
       </includes>
       <outputDirectory></outputDirectory>
     </fileSet>
-
-    <fileSet>
-      <directory>target</directory>
-      <includes>
-        <include>org.openl.rules.webstudio.lib_${studio.eclipse.version}.jar</include>
-        <include>org.openl.rules.ruleservice.lib_${studio.eclipse.version}.jar</include>
-      </includes>
-      <outputDirectory>plugins</outputDirectory>
-    </fileSet>
   </fileSets>
 
   <dependencySets>

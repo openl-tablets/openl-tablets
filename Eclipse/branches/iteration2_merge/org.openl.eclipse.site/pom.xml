@@ -23,147 +23,10 @@
   <build>
     <defaultGoal>package</defaultGoal>
     <plugins>
-
-      <plugin>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>maven-libsupport-plugin</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <id>copy-webstudio-lib</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy-lib</goal>
-            </goals>
-
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.openl.rules</groupId>
-                  <artifactId>org.openl.rules.webstudio.java</artifactId>
-                  <version>${version}</version>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}/org.openl.rules.webstudio.lib/lib</outputDirectory>
-              <excludeArtifactIds>org\.openl.*,com\.exigen\.rules.*</excludeArtifactIds>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>copy-ruleservice-lib</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy-lib</goal>
-            </goals>
-
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.openl.rules</groupId>
-                  <artifactId>org.openl.rules.ruleservice</artifactId>
-                  <version>${version}</version>
-                </artifactItem>
-              </artifactItems>
-              <transitivelyExcludedArtifactItems>
-                <artifactItem>
-                  <groupId>org.openl.rules</groupId>
-                  <artifactId>org.openl.rules.webstudio.java</artifactId>
-                  <version>${version}</version>
-                </artifactItem>
-              </transitivelyExcludedArtifactItems>
-              <outputDirectory>${project.build.directory}/org.openl.rules.ruleservice.lib/lib</outputDirectory>
-              <excludeArtifactIds>org\.open.*,com\.exigen\.rules.*</excludeArtifactIds>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack-webstudio-manifest</id>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.openl.rules</groupId>
-                  <artifactId>org.openl.rules.webstudio.lib</artifactId>
-                  <version>${version}</version>
-                  <type>jar</type>
-                  <overWrite>false</overWrite>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}/org.openl.rules.webstudio.lib</outputDirectory>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>unpack-ruleservice-manifest</id>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.openl.rules</groupId>
-                  <artifactId>org.openl.rules.ruleservice.lib</artifactId>
-                  <version>${version}</version>
-                  <type>jar</type>
-                  <overWrite>false</overWrite>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}/org.openl.rules.ruleservice.lib</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
-          <execution>
-            <id>webstudio-lib</id>
-            <phase>package</phase>
-            <goals>
-              <goal>assembly</goal>
-            </goals>
-            <configuration>
-              <finalName>org.openl.rules.webstudio.lib_${studio.eclipse.version}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-              <descriptors>
-                <descriptor>src/main/assembly/assembly-webstudio-lib.xml</descriptor>
-              </descriptors>
-              <archive>
-                <manifestFile>target/org.openl.rules.webstudio.lib/META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>ruleservice-lib</id>
-            <phase>package</phase>
-            <goals>
-              <goal>assembly</goal>
-            </goals>
-            <configuration>
-              <finalName>org.openl.rules.ruleservice.lib_${studio.eclipse.version}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-              <descriptors>
-                <descriptor>src/main/assembly/assembly-ruleservice-lib.xml</descriptor>
-              </descriptors>
-              <archive>
-                <manifestFile>target/org.openl.rules.ruleservice.lib/META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-            </configuration>
-          </execution>
-
           <execution>
             <id>site</id>
             <phase>package</phase>
@@ -368,6 +231,19 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
+    </dependency>
+
+    <!-- LIBs -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.webstudio.lib</artifactId>
+      <version>${version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.lib</artifactId>
+      <version>${version}</version>
     </dependency>
 
   </dependencies>
