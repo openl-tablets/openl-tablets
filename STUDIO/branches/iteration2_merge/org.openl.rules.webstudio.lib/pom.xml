@@ -28,28 +28,38 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.1</version>
+        <artifactId>maven-clean-plugin</artifactId>
         <configuration>
-          <tasks>
-            <delete includeemptydirs="true" failonerror="false">
-              <fileset dir="lib" includes="**/*" />
-            </delete>
-          </tasks>
+          <filesets>
+            <fileset>
+              <directory>${project.build.directory}/../lib</directory>
+              <includes>
+                <include>**/*.jar</include>
+              </includes>
+            </fileset>
+          </filesets>
         </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <configuration>
-          <outputDirectory>${project.build.directory}/../lib</outputDirectory>
-          <excludeGroupIds>com.exigen.rules,org.openl,org.openl.rules</excludeGroupIds>
-          <excludeArtifactIds>junit,servlet-api</excludeArtifactIds>
-          <overWriteReleases>true</overWriteReleases>
-          <overWriteSnapshots>true</overWriteSnapshots>
-          <type>jar</type>
-        </configuration>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/../lib</outputDirectory>
+              <excludeGroupIds>com.exigen.rules,org.openl,org.openl.rules</excludeGroupIds>
+              <excludeArtifactIds>junit,servlet-api</excludeArtifactIds>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <type>jar</type>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -62,6 +72,15 @@
         </configuration>
       </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>${project.build.directory}/..</directory>
+        <includes>
+          <include>lib/**/*.jar</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 
 </project>
