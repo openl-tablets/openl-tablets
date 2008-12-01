@@ -30,28 +30,7 @@
         </configuration>
       </plugin>
 
-      <!--
-      -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>assembly-template</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-            <configuration>
-              <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-              <descriptors>
-                <descriptor>src/main/assembly/assembly-template.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -70,34 +49,13 @@
               <descriptors>
                 <descriptor>src/main/assembly/assembly-jar.xml</descriptor>
                 <descriptor>src/main/assembly/assembly-ipb-jar.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-template.xml</descriptor>
               </descriptors>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <!--plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>assembly-ipb-jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-            <configuration>
-              <archive>
-                <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-              <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-              <descriptors>
-                <descriptor>src/main/assembly/assembly-ipb-jar.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin-->
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
