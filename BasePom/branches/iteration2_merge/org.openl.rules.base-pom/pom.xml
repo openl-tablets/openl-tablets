@@ -16,6 +16,12 @@
       <id>elca-services</id>
       <url>http://el4.elca-services.ch/el4j/maven2repository</url>
     </pluginRepository>
+    <!-- for maven-buildnumber-plugin -->
+    <pluginRepository>
+        <id>tlc</id>
+        <name>TLC Repository</name>
+        <url>http://commons.ucalgary.ca/pub/m2</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <distributionManagement>
