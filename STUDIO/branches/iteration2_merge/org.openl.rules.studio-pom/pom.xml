@@ -41,6 +41,7 @@
 
   <scm>
     <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/branches/iteration2_merge</connection>
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/branches/iteration2_merge</developerConnection>
   </scm>
 
   <repositories>
@@ -79,8 +80,12 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
-    <plugins />
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>maven-buildnumber-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 
   <reporting>

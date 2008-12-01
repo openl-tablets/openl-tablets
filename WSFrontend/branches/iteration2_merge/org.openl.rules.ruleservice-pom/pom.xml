@@ -31,6 +31,9 @@
 
   <scm>
     <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/WSFrontend/branches/iteration2_merge</connection>
+
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/WSFrontend/branches/iteration2_merge</developerConnection>
+
   </scm>
 
   <repositories>
@@ -51,6 +54,15 @@
       <url>file://${basedir}/../org.openl.rules.ruleservice-pom/m2_repo</url>
     </pluginRepository>
   </pluginRepositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>maven-buildnumber-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
   <reporting>
     <plugins>
