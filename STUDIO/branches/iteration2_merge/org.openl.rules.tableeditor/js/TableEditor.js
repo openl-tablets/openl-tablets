@@ -55,8 +55,7 @@ TableEditor.prototype = {
     editCell : null,
 
     /** Constructor */
-    initialize : function(id, url, tableid, editCell) {
-        this.tableid = tableid;
+    initialize : function(id, url, editCell) {
         if (editCell) this.editCell = editCell;
 
         this.tableContainer = $(id);
@@ -71,7 +70,7 @@ TableEditor.prototype = {
 
         this.baseUrl = url;
         this.saveUrl = this.buildUrl("save");
-        this.loadData(this.buildUrl("load", "elementID=" + tableid));
+        this.loadData(this.buildUrl("load"));
 
         var self = this;
 
@@ -190,8 +189,7 @@ TableEditor.prototype = {
             },
             onFailure : function() {
                 alert("Server failed to save your changes");
-            },
-            parameters : {elementID : self.tableid}
+            }
         });
     },
 
@@ -226,8 +224,7 @@ TableEditor.prototype = {
             },
             parameters : {
                 row : self.selectionPos[0],
-                col : self.selectionPos[1],
-                elementID : self.tableid
+                col : self.selectionPos[1]
             }
         });
     },
@@ -262,8 +259,7 @@ TableEditor.prototype = {
                     parameters: {
                         row : self.selectionPos[0],
                         col : self.selectionPos[1],
-                        value: val,
-                        elementID : this.tableid
+                        value: val
                     }
                 });
             }
@@ -439,8 +435,7 @@ TableEditor.prototype = {
     undoredo: function(redo) {
         if (Ajax.activeRequestCount > 0) return;
         new Ajax.Request(this.buildUrl((redo ? "redo" : "undo")), {
-            onSuccess: this.modFuncSuccess,
-            parameters: {elementID: this.tableid}
+            onSuccess: this.modFuncSuccess
         })
     },
 
@@ -468,7 +463,6 @@ TableEditor.prototype = {
         var cell = this.currentElement;
         var self = this;
         var params = {
-            elementID : this.tableid,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             align: _align
@@ -500,7 +494,7 @@ TableEditor.prototype = {
             return;
         }
 
-        var params = {elementID : this.tableid}
+        var params = [];
         params[["row", "col"][index]] = (op == TableEditor.Constants.ADD_AFTER ? 1 : 0) + this.selectionPos[index];
         if (op == TableEditor.Constants.MOVE_DOWN) params.move = true;
         if (op == TableEditor.Constants.MOVE_UP) {

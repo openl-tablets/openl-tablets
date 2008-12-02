@@ -147,7 +147,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
         writer.write("<div id='_tableEditor' />");
         writer.write("<script type='text/javascript'>"
                 + "var tableEditor = new TableEditor('_tableEditor', '"
-                + WebUtil.internalPath("ajax/") + "', 3, '" + cellToEdit + "');"
+                + WebUtil.internalPath("ajax/") + "', '" + cellToEdit + "');"
                 + "</script>");
         encodeJS(component, writer, "js/initTableEditor.js");
     }
