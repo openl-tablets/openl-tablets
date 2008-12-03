@@ -80,12 +80,6 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>maven-buildnumber-plugin</artifactId>
-      </plugin>
-    </plugins>
   </build>
 
   <reporting>
