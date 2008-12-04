@@ -6,7 +6,7 @@ import org.openl.rules.tableeditor.util.Constants;
 
 public class TableEditorTag extends TableViewerTag  {
     
-    private String readonly = null;
+    private String editable = null;
     
     @Override
     public String getComponentType() {
@@ -18,25 +18,25 @@ public class TableEditorTag extends TableViewerTag  {
         return Constants.TABLE_EDITOR_TYPE;
     }
     
-    public String getReadonly() {
-        return readonly;
+    public String getEditable() {
+        return editable;
     }
 
-    public void setReadonly(String readonly) {
-        this.readonly = readonly;
+    public void setEditable(String editable) {
+        this.editable = editable;
     }
 
     @Override
     public void setProperties(UIComponent component) {
         // always call the superclass method
         super.setProperties(component);
-        setBoolean(component, "readonly", readonly);
+        setBoolean(component, "editable", editable);
     }
 
     @Override
     public void release() {
         // always call the superclass method
         super.release();
-        readonly = null;
+        editable = null;
     }
 }

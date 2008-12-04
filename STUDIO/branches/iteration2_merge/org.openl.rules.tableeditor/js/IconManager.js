@@ -15,15 +15,14 @@ IconManager.prototype = {
         this.enabledClass = enabledClass;
 
         this.onMouseOver = function() {
-            this.className = overClass
+            this.className = overClass;
         }
         this.onMouseOut = function() {
-            this.className = enabledClass
+            this.className = enabledClass;
         }
     },
 
     init: function(img) {
-        img = $(img);
         this.disable(img);
     },
 

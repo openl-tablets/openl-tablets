@@ -1,9 +1,11 @@
 package org.openl.rules.tableeditor.renderkit;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlOutputLink;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
@@ -26,34 +28,54 @@ public class TableEditorRenderer extends TableViewerRenderer {
     public void encodeBegin(FacesContext context, UIComponent component)
             throws IOException {
         ResponseWriter writer = context.getResponseWriter();
-        writer.write("<div class='_te'>");
+        writer.write("<form id='_te_form' class='_te'>");
         encodeCSS(component, writer, "css/common.css");
-        Boolean readonly = new Boolean((String) component.getAttributes()
-                .get("readonly"));
-        if (readonly != null && readonly) {
-            super.encodeTableViewer(component, writer);
+        Boolean editable = getBooleanParam(
+                component.getAttributes().get("editable"));
+        if (editable == null || !editable) {
+            if (!hasActionLinks(component)) {
+                super.encodeTableViewer(component, writer);
+            } else {
+                encodeTableViewer(context, component, writer, false);
+            }
         } else {
             ExternalContext externalContext = context.getExternalContext();
-            initEditorHelper(externalContext, component);
-            
             Map<String, String> requestMap = externalContext.getRequestParameterMap();
             String mode = (String) requestMap.get("mode");
             if (StringUtils.isNotBlank(mode) && mode.equals("edit")) {
                 String cellToEdit = (String) requestMap.get("cell");
-                encodeTableEditor(cellToEdit, component, writer);
+                encodeTableEditor(cellToEdit, externalContext, component, writer);
             } else if (StringUtils.isNotBlank(mode) && mode.equals("editExcel")) {
                 boolean local = NetUtils.isLocalRequest(
                         (ServletRequest) externalContext.getRequest());
                 String cellUri = (String) requestMap.get("cellUri");
                 encodeXlsEditor(cellUri, local, writer);
-                encodeTableViewer(component, writer);
+                encodeTableViewer(context, component, writer, true);
             } else {
-                encodeTableViewer(component, writer);
+                encodeTableViewer(context, component, writer, true);
             }
         }
-        writer.write("</div>");
+        writer.write("</form>");
     }
 
+    /**
+     * Convert Object to Boolean.
+     * Temporary method. Will be removed.
+     * 
+     * @deprecated
+     * @param param Object param
+     * @return Boolean param
+     */
+    private Boolean getBooleanParam(Object param) {
+        Boolean bParam = null;
+        if (param instanceof String) {
+            bParam = new Boolean((String)param);
+        } else if (param instanceof Boolean) {
+            bParam = (Boolean) param;
+        }
+        return bParam;
+    }
+    
     @SuppressWarnings("unchecked")
     private void initEditorHelper (ExternalContext externalContext,
             UIComponent component) {
@@ -93,8 +115,8 @@ public class TableEditorRenderer extends TableViewerRenderer {
         }
     }
 
-    @Override
-    protected void encodeTableViewer(UIComponent component, ResponseWriter writer) throws IOException {
+    protected void encodeTableViewer(FacesContext context, UIComponent component,
+            ResponseWriter writer, boolean editable) throws IOException {
         encodeCSS(component, writer, "css/menu.css");
         encodeJS(component, writer, "js/prototype/prototype-1.5.1.js");
         encodeJS(component, writer, "js/popup/popupmenu.js");
@@ -110,22 +132,63 @@ public class TableEditorRenderer extends TableViewerRenderer {
             String htmlTable = new TableRenderer(tableModel).renderWithMenu();
             writer.write(htmlTable);
         }
-        encodeEditMenu(writer);
+        encodeActionMenu(context, component, writer, editable);
     }
 
-    protected void encodeEditMenu(ResponseWriter writer) throws IOException {
-        String htmlMenu =
+    protected void encodeActionMenu(FacesContext context, UIComponent component,
+            ResponseWriter writer, boolean editable) throws IOException {
+        String editLinks = "<tr><td><a href='javascript:triggerEdit(document.forms._te_form)'>Edit</a></td></tr>"
+            + "<tr><td><a href='javascript:triggerEditXls(document.forms._te_form)'>Edit in Excel</a></td></tr>";
+        
+        String menuBegin =
             "<div id='contextMenu' style='display:none;'>"
                 + "<table cellpadding='1px'>"
-                    + "<tr><td><a href='javascript:triggerEdit()'>Edit</a></td></tr>"
-                    + "<tr><td><a href='javascript:triggerEditXls()'>Edit in Excel</a></td></tr>"
-                + "</table>"
-          + "</div>";
-        writer.write(htmlMenu);
+                    + (editable ? editLinks : "");
+        String menuEnd = "</table>" + "</div>";
+
+        writer.write(menuBegin);
+        encodeActionLinks(context, component);
+        writer.write(menuEnd);
     }
 
-    protected void encodeTableEditor(String cellToEdit, UIComponent component,
-            ResponseWriter writer) throws IOException {
+    @SuppressWarnings("unchecked")
+    protected void encodeActionLinks(FacesContext context, UIComponent component)
+            throws IOException {
+        List children = component.getChildren();
+        for (Object child : children) {
+            if (child instanceof HtmlOutputLink) {
+                HtmlOutputLink link = (HtmlOutputLink) child;
+                ResponseWriter writer = context.getResponseWriter();
+                if (!link.isRendered()) {
+                    continue;
+                }
+                writer.write("<tr><td>");
+                link.encodeBegin(context);
+                if (link.getRendersChildren()) {
+                    link.encodeChildren(context);
+                }
+                link.encodeEnd(context);
+                writer.write("</td></tr>");
+                link.setRendered(false);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected boolean hasActionLinks(UIComponent component) {
+        List children = component.getChildren();
+        for (Object child : children) {
+            if (child instanceof HtmlOutputLink) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    protected void encodeTableEditor(String cellToEdit,
+            ExternalContext externalContext,
+            UIComponent component, ResponseWriter writer) throws IOException {
+        initEditorHelper(externalContext, component);
 
         writer.write("<script type='text/javascript'>var jsPath = '"
                 + WebUtil.internalPath("js/") + "';</script>");
@@ -153,7 +216,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
     }
 
     protected void encodeTableEditorToolbar(UIComponent component, ResponseWriter writer) throws IOException {
-        final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarItemTile.gif") + " class='item_separator'></img>";
+        final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif") + " class='item_separator'></img>";
         
         encodeCSS(component, writer, "css/toolbar.css");
 
@@ -175,6 +238,8 @@ public class TableEditorRenderer extends TableViewerRenderer {
         writer.write(buildTableEditorToolbarItemHtml("align_left", "img/alLeft.gif", "tableEditor.setAlignment('left')", "Align left"));
         writer.write(buildTableEditorToolbarItemHtml("align_center", "img/alCenter.gif", "tableEditor.setAlignment('center')", "Align center"));
         writer.write(buildTableEditorToolbarItemHtml("align_right", "img/alRight.gif", "tableEditor.setAlignment('right')", "Align right"));
+        writer.write(toolbarItemSeparator);
+        writer.write(buildTableEditorToolbarItemHtml("help", "img/help.gif", "window.open('" + WebUtil.internalPath("docs/help.html") + "');", "Help"));
         writer.write("</div>");
 
         encodeJS(component, writer, "js/initIconManager.js");
