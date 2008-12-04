@@ -46,7 +46,7 @@
             <description>The table grid</description>
         </attribute>
         <attribute>
-            <name>readonly</name>
+            <name>editable</name>
             <description>If true the table is editable</description>
         </attribute>
     </tag>

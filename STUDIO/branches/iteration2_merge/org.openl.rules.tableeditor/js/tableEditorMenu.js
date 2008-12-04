@@ -8,7 +8,6 @@ function cellMouseOut(td) {
 }
 
 function triggerEdit(f) {
-    if (!f) f = document.forms[0];
     f.mode.value = "edit";
     var cellUri = $(PopupMenu.lastTarget).down("input").value;
     f.cell.value = cellUri.toQueryParams().cell;
@@ -16,7 +15,6 @@ function triggerEdit(f) {
 }
 
 function triggerEditXls(f) {
-    if (!f) f = document.forms[0];
     f.mode.value = "editExcel";
     f.cellUri.value = $(PopupMenu.lastTarget).down("input").value;
     f.submit();

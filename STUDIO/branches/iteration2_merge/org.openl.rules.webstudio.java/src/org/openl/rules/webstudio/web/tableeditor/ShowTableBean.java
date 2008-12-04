@@ -7,13 +7,13 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.EditorHelper;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
-import org.openl.rules.util.net.NetUtils;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.WorkspaceException;
@@ -34,6 +34,7 @@ public class ShowTableBean {
     private String notViewParams;
     private boolean switchParam;
 
+    @SuppressWarnings("unchecked")
     public ShowTableBean() {
         String s_id = FacesUtils.getRequestParameter("elementID");
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -41,16 +42,6 @@ public class ShowTableBean {
         if (s_id != null) {
             elementID = Integer.parseInt(s_id);
             switchParam = Boolean.valueOf(FacesUtils.getRequestParameter("switch"));
-
-            Map sessionMap = FacesUtils.getSessionMap();
-            EditorHelper editorHelper;
-            synchronized (sessionMap) {
-                editorHelper = (EditorHelper) sessionMap.get("editorHelper");
-                if (editorHelper == null) {
-                    sessionMap.put("editorHelper", editorHelper = new EditorHelper(studio));
-                }
-            }
-            editorHelper.setTableID(elementID, studio.getModel(), getView(), !switchParam);
             studio.setTableID(elementID);
         } else {
             String s_uri = FacesUtils.getRequestParameter("elementURI");
@@ -60,13 +51,14 @@ public class ShowTableBean {
             }
             elementID = studio.getTableID();
         }
-        url = studio.getModel().makeXlsUrl(elementID);
-        uri = studio.getModel().getUri(elementID);
+        final ProjectModel model = studio.getModel();
+        url = model.makeXlsUrl(elementID);
+        uri = model.getUri(elementID);
         text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);
-        name = studio.getModel().getDisplayNameFull(elementID);
-        runnable = studio.getModel().isRunnable(elementID);
-        testable = studio.getModel().isTestable(elementID);
-        se = studio.getModel().getErrors(elementID);
+        name = model.getDisplayNameFull(elementID);
+        runnable = model.isRunnable(elementID);
+        testable = model.isTestable(elementID);
+        se = model.getErrors(elementID);
 
         Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());
         for (Map.Entry entry : (Set<Map.Entry>) paramMap.entrySet()) {
@@ -176,6 +168,13 @@ public class ShowTableBean {
         if (atr != null)
             tests = atr.getTests();
         return new TestRunsResultBean(tests);
+    }
+
+    public IGridTable getTable() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        IGridTable table = studio.getModel().getTableWithMode(
+                elementID == -1 ? studio.getTableID() : elementID, getView());
+        return table;
     }
 
     public static class TestRunsResultBean {
