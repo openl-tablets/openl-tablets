@@ -368,8 +368,6 @@ public class JavaWrapperAntTask extends Task
 
 	buf.append("  Object __instance;\n\n");
 
-	buf.append("    public org.openl.vm.IRuntimeEnv __env = new org.openl.vm.SimpleVM().getRuntimeEnv();\n\n");
-
 	buf.append("  public static org.openl.types.IOpenClass __class;\n\n");
 
 	buf
@@ -394,6 +392,8 @@ public class JavaWrapperAntTask extends Task
 	buf.append("  public static String __userHome = \""
 		+ StringEscapeUtils.escapeJava(deplUserHome == null ? userHome : deplUserHome) + "\";\n\n");
 
+	addEnvVariable(buf);
+	
 	buf.append("  public " + s_class + "(){\n" + "    this(false);\n"
 		+ "  }\n\n");
 
@@ -403,7 +403,7 @@ public class JavaWrapperAntTask extends Task
 			+ "(boolean ignoreErrors){\n"
 			+ "    __init();\n"
 			+ "    if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();\n"
-			+ "    __instance = __class.newInstance(__env);\n"
+			+ "    __instance = __class.newInstance(__env.get());\n"
 			+ "  }\n\n");
 
 buf.append("");	
@@ -435,6 +435,23 @@ buf.append("");
 	buf.append("}");
 
 	return buf.toString();
+    }
+    private void addEnvVariable(StringBuffer buf){
+    	//declaration
+    	buf.append("  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n"
+    			+"    @Override\n"
+    			+"    protected org.openl.vm.IRuntimeEnv initialValue() {\n"
+    			+"      this.set(new org.openl.vm.SimpleVM().getRuntimeEnv());\n"
+    			+"      return this.get();\n"
+    			+"    }\n"
+    			+"  };\n\n");
+    	//getter and setter
+    	buf.append("  public org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {\n"
+    			+"    return __env.get();\n"
+    			+"  }\n\n"
+    			+"  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv __env) {\n"
+    			+"    this.__env.set(__env);\n"
+    			+"  }\n\n");
     }
 
     private String getRulesProject()
@@ -501,7 +518,7 @@ buf.append("");
 	// public int getAbc()
 	// {
 	//
-	// Object __res = abc_Field.get(__instance, __env);
+	// Object __res = abc_Field.get(__instance, __env.get());
 	//
 	// return ((Integer) __res).intValue();
 	// }
@@ -513,7 +530,7 @@ buf.append("");
 	buf.append("\n  public ").append(className).append(" get").append(
 		fieldMethodPart(field)).append("()").append("\n  {\n").append(
 		"   Object ").append(resName).append(" = ").append(
-		getFieldFieldName(field)).append(".get(__instance, __env);\n")
+		getFieldFieldName(field)).append(".get(__instance, __env.get());\n")
 		.append("   return ").append(
 			castAndUnwrap(type.getInstanceClass(), resName))
 		.append(";\n").append("  }\n\n");
@@ -525,7 +542,7 @@ buf.append("");
 	// public void setAbc(int x)
 	// {
 	//
-	// abc_Field.set(__instance, new Integer(x) , __env);
+	// abc_Field.set(__instance, new Integer(x) , __env.get());
 	// }
 	//    
 	String varname = "__var";
@@ -538,7 +555,7 @@ buf.append("");
 		.append(")").append("\n  {\n").append("   ").append(
 			getFieldFieldName(field)).append(".set(__instance, ")
 		.append(wrapIfPrimitive(varname, type.getInstanceClass()))
-		.append(", __env);\n").append("  }\n\n");
+		.append(", __env.get());\n").append("  }\n\n");
 
     }
 
@@ -570,7 +587,7 @@ buf.append("");
 
 		+ "public org.openl.CompiledOpenClass getCompiledOpenClass(){return __compiledClass;}\n\n"
 
-		+ "public synchronized void  reload(){reset();__init();__instance = __class.newInstance(__env);}\n\n"
+		+ "public synchronized void  reload(){reset();__init();__instance = __class.newInstance(__env.get());}\n\n"
 
 		+ "  static synchronized protected void __init()\n"
 		+ "  {\n"
@@ -585,7 +602,7 @@ buf.append("");
 		+ "    __compiledClass = wrapper.getCompiledClass();\n"
 		+ "    __class = wrapper.getOpenClassWithErrors();\n"
 
-		+ "   // __env = wrapper.getEnv();\n\n";
+		+ "   // __env.set(wrapper.getEnv());\n\n";
 
 	buf.append(initStart).append(initBuf.toString()).append(
 		"\n    __initialized=true;\n  }\n");
@@ -727,7 +744,7 @@ buf.append("");
 
 	buf.append(returnMethodVar(method, resName)).append(
 		getMethodFieldName(method)).append(
-		".invoke(__myInstance, __params, __env);");
+		".invoke(__myInstance, __params, __env.get());");
 	//    
 	// return ((Double)res).doubleValue();
 
