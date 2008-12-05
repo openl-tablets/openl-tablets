@@ -1,10 +1,12 @@
 package org.openl.rules.workspace;
 
+import org.junit.Ignore;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 
+@Ignore("Manual test")
 public class TestCreateDelete {
     public static void main(String[] args) throws WorkspaceException, ProjectException {
         MultiUserWorkspaceManager muwm = new MultiUserWorkspaceManager();

@@ -1,5 +1,6 @@
 package org.openl.rules.workspace;
 
+import org.junit.Ignore;
 import org.openl.rules.repository.CommonVersionImpl;
 import org.openl.rules.workspace.abstracts.DeploymentDescriptorProject;
 import org.openl.rules.workspace.abstracts.ProjectDescriptor;
@@ -7,6 +8,7 @@ import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
 
+@Ignore("Manual test")
 public class TestDDP {
     public static void main(String[] args) throws WorkspaceException, ProjectException {
         MultiUserWorkspaceManager muwm = new MultiUserWorkspaceManager();
