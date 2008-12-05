@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.junit.Ignore;
 import org.openl.rules.workspace.abstracts.ArtefactPath;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -19,6 +20,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 
+@Ignore("Manual test")
 public class TestMUWM {
     public static void main(String[] args) throws WorkspaceException, ProjectException {
         MultiUserWorkspaceManager muwm = new MultiUserWorkspaceManager();
@@ -80,7 +82,8 @@ public class TestMUWM {
         System.out.println("Done.");
     }
     
-    private static class PR implements ProjectResource {
+    @Ignore("Auxiliary class")
+    public static class PR implements ProjectResource {
 
         public InputStream getContent() throws ProjectException {
             String s = "Generated at " + System.currentTimeMillis();

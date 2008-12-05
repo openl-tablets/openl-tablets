@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.junit.Ignore;
+
+@Ignore("Manual test")
 public class TestHelper {
     /**
      * Working folder for tests.
