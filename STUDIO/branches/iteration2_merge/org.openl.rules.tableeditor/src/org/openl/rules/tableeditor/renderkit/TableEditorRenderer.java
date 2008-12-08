@@ -44,6 +44,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
             String mode = (String) requestMap.get("mode");
             if (StringUtils.isNotBlank(mode) && mode.equals("edit")) {
                 String cellToEdit = (String) requestMap.get("cell");
+                encodeActionLinks(context, component, false);
                 encodeTableEditor(cellToEdit, externalContext, component, writer);
             } else if (StringUtils.isNotBlank(mode) && mode.equals("editExcel")) {
                 boolean local = NetUtils.isLocalRequest(
@@ -147,28 +148,30 @@ public class TableEditorRenderer extends TableViewerRenderer {
         String menuEnd = "</table>" + "</div>";
 
         writer.write(menuBegin);
-        encodeActionLinks(context, component);
+        encodeActionLinks(context, component, true);
         writer.write(menuEnd);
     }
 
     @SuppressWarnings("unchecked")
-    protected void encodeActionLinks(FacesContext context, UIComponent component)
-            throws IOException {
+    protected void encodeActionLinks(FacesContext context, UIComponent component,
+            boolean rendered) throws IOException {
         List children = component.getChildren();
         for (Object child : children) {
             if (child instanceof HtmlOutputLink) {
                 HtmlOutputLink link = (HtmlOutputLink) child;
-                ResponseWriter writer = context.getResponseWriter();
-                if (!link.isRendered()) {
-                    continue;
+                if (rendered) {
+                    ResponseWriter writer = context.getResponseWriter();
+                    if (!link.isRendered()) {
+                        continue;
+                    }
+                    writer.write("<tr><td>");
+                    link.encodeBegin(context);
+                    if (link.getRendersChildren()) {
+                        link.encodeChildren(context);
+                    }
+                    link.encodeEnd(context);
+                    writer.write("</td></tr>");
                 }
-                writer.write("<tr><td>");
-                link.encodeBegin(context);
-                if (link.getRendersChildren()) {
-                    link.encodeChildren(context);
-                }
-                link.encodeEnd(context);
-                writer.write("</td></tr>");
                 link.setRendered(false);
             }
         }
