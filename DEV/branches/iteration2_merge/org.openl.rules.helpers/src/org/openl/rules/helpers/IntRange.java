@@ -91,6 +91,8 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         // [<, <=, >, >=]<number> or <number>+
         // Any symbols at the end are allowed to support expressions like 
         // ">=2 km", "2+ M", "6-8 km^2"
+        // format: <number>
+        private final String rangeJustNumberFormat = "^(\\$?[\\+|\\-]?[0-9]+[KMBkmb]?).*";
         // format: <min number> - <max number>
         private final String rangeMinMaxFormat = "(\\$?[\\+|\\-]?[0-9]+[KMBkmb]?)\\-(\\$?[\\+|\\-]?[0-9]+[KMBkmb]?).*";
         // format: [<, <=, >, >=]<number>
@@ -98,6 +100,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         // format: <number>+
         private final String rangePlusFormat = "(\\$?[\\+|\\-]?[0-9]+[KMBkmb]?)\\+.*";
 
+        private Pattern justNumberFormatPattern = Pattern.compile(rangeJustNumberFormat);
         private Pattern minMaxFormatPattern = Pattern.compile(rangeMinMaxFormat);
         private Pattern moreLessFormatPattern = Pattern.compile(rangeMoreLessFormat);
         private Pattern plusFormatPattern = Pattern.compile(rangePlusFormat);
@@ -110,29 +113,46 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         public void parse(String range) {
             String rangeWithoutSpaces = range.replaceAll("\\s", "");
 
+            Matcher justNumberFormatMatcher = justNumberFormatPattern.matcher(rangeWithoutSpaces);
             Matcher minMaxFormatMatcher = minMaxFormatPattern.matcher(rangeWithoutSpaces);
             Matcher moreLessFormatMatcher = moreLessFormatPattern.matcher(rangeWithoutSpaces);
             Matcher plusFormatMatcher = plusFormatPattern.matcher(rangeWithoutSpaces);
 
-            if (!minMaxFormatMatcher.matches() && !moreLessFormatMatcher.matches() && !plusFormatMatcher.matches()) {
+            if (!justNumberFormatMatcher.matches() && !minMaxFormatMatcher.matches() && !moreLessFormatMatcher.matches() && !plusFormatMatcher.matches()) {
                 throw new IllegalArgumentException(
                         "Range Format Error - format should be: <min number> - <max number> or [<, <=, >, >=]<number> or <number>+");
             }
 
+            // Notice: more specific formats should be applied at the end
+            // TODO: refactore to eliminate side effects and simultaneous processing of several formats
+            processJustNumber(justNumberFormatMatcher);
+            processPlus(plusFormatMatcher);
             processMinMax(minMaxFormatMatcher);
             processMoreLess(moreLessFormatMatcher);
-            processPlus(plusFormatMatcher);
 
             applyParsedValues();
+        }
+
+        private void processJustNumber(Matcher justNumberFormatMatcher) {
+            if (justNumberFormatMatcher.matches()) {
+                lowerBound = (int) parseNumber(justNumberFormatMatcher.group(1));
+                upperBound = (int) parseNumber(justNumberFormatMatcher.group(1));
+                lowerBoundType = BoundType.CLOSED;
+                upperBoundType = BoundType.CLOSED;
+
+            }
         }
 
         /**
          * @param plusFormatMatcher
          */
         private void processPlus(Matcher plusFormatMatcher) {
-            if (plusFormatMatcher.matches()) {
+             if (plusFormatMatcher.matches()) {
                 lowerBound = (int) parseNumber(plusFormatMatcher.group(1));
                 lowerBoundType = BoundType.CLOSED;
+                
+                upperBound = Integer.MAX_VALUE;
+                upperBoundType = BoundType.CLOSED;
             }
         }
 
@@ -147,21 +167,33 @@ public class IntRange extends IntRangeDomain implements INumberRange {
                 if (operation.equals(">")) {
                     lowerBound = number;
                     lowerBoundType = BoundType.OPEN;
+                    
+                    upperBound = Integer.MAX_VALUE;
+                    upperBoundType = BoundType.CLOSED;
                 }
 
                 if (operation.equals(">=")) {
                     lowerBound = number;
                     lowerBoundType = BoundType.CLOSED;
+                    
+                    upperBound = Integer.MAX_VALUE;
+                    upperBoundType = BoundType.CLOSED;
                 }
 
                 if (operation.equals("<=")) {
                     upperBound = number;
                     upperBoundType = BoundType.CLOSED;
+                    
+                    lowerBound = Integer.MIN_VALUE;
+                    lowerBoundType = BoundType.CLOSED;
                 }
 
                 if (operation.equals("<")) {
                     upperBound = number;
                     upperBoundType = BoundType.OPEN;
+                    
+                    lowerBound = Integer.MIN_VALUE;
+                    lowerBoundType = BoundType.CLOSED;
                 }
             }
         }
