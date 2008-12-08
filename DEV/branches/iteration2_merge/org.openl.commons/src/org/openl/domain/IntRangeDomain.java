@@ -125,5 +125,29 @@ public class IntRangeDomain extends IFiniteDomain.FixedSizeDomain<Integer> imple
     {
 	return "[" + min + ".." + max + "]";
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || !(obj instanceof IntRangeDomain)) {
+            return false;
+        }
+
+        IntRangeDomain other = (IntRangeDomain) obj;
+        
+        return min == other.min && max == other.max;
+    }
+    
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        
+        hashCode = 31 * hashCode + min;
+        hashCode = 31 * hashCode + max;
+
+        return hashCode;
+    }
 
 }
