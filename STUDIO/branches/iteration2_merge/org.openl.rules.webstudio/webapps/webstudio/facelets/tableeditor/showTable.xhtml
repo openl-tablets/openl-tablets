@@ -96,8 +96,8 @@
             <p />
         </c:if>
 
-        <p />
-        <c:if test="#{showTableBean.editable}">
+        <c:if test="#{showTableBean.editable and param.mode != 'edit'}">
+            <p />
             <h:outputLink
                 value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml?mode=edit">
                 <f:param name="elementID"
@@ -108,16 +108,17 @@
 
         <f:verbatim>&amp;nbsp;</f:verbatim>
 
-        <c:if test="#{showTableBean.copyable}">
+        <c:if test="#{showTableBean.copyable and param.mode != 'edit'}">
             <h:outputLink
                 value="#{contextPath}/faces/facelets/tableCopier/copyTable.xhtml">
                 <f:param name="elementID"
                     value="#{showTableBean.elementID}" />
                 Copy Table
             </h:outputLink>
+            <br />
         </c:if>
 
-        <br /><br />
+        <br />
 
         <script type="text/javascript">
             function triggerSearch(f) {
