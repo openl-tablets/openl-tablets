@@ -154,6 +154,11 @@
     <!-- STUDIO -->
     <dependency>
       <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.tableeditor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.util</artifactId>
     </dependency>
 
