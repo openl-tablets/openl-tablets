@@ -96,15 +96,6 @@
          version="5.2.0"
          unpack="false"/>
 
-   <!--
-   <plugin
-         id="org.openl.rules.runtime.deployer"
-         download-size="0"
-         install-size="0"
-         version="5.2.0"
-         unpack="false"/>
-   -->
-
    <plugin
          id="org.openl.rules.util"
          download-size="0"
@@ -117,5 +108,12 @@
          download-size="0"
          install-size="0"
          version="5.2.0"/>
+
+   <plugin
+         id="org.openl.rules.tableeditor"
+         download-size="0"
+         install-size="0"
+         version="5.2.0"
+         unpack="false"/>
 
 </feature>
