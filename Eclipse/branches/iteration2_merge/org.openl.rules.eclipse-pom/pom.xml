@@ -273,6 +273,12 @@
 <!-- STUDIO -->
     <dependency>
       <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.tableeditor</artifactId>
+      <version>${version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.util</artifactId>
         <version>${version}</version>
     </dependency>
