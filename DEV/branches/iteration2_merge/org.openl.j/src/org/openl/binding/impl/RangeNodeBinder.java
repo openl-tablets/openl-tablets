@@ -9,10 +9,6 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.RangeWithBounds;
 
@@ -34,9 +30,21 @@ public class RangeNodeBinder extends ANodeBinder
 
     	
     	if (type.contains("binary"))
+    	{	
+    		int val2 = ((Number)((LiteralBoundNode)children[1]).getValue()).intValue();
+    		if (val > val2)
+    			throw new BoundError(node, val2 + " must be more or equal than " + val);
+    		
     		return new LiteralBoundNode(node, 
-    				new RangeWithBounds((Number)val,(Number)((LiteralBoundNode)children[1]).getValue()), 
+    				new RangeWithBounds(val, val2), 
     						JavaOpenClass.getOpenClass(RangeWithBounds.class));
+    	}	
+    	
+    	if (type.contains("number"))
+    		return new LiteralBoundNode(node, 
+    				new RangeWithBounds((Number)val,(Number)val), 
+    						JavaOpenClass.getOpenClass(RangeWithBounds.class));
+    		
 
     	if (type.contains("unary.prefix"))
     	{	
