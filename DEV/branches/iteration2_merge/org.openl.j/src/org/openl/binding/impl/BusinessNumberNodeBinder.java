@@ -54,7 +54,12 @@ public class BusinessNumberNodeBinder extends ANodeBinder
 
 private static IBoundNode makeNum(String s, int mul, ISyntaxNode node) throws SyntaxError 
 {
-	if (s.contains("."))
+	if (s.indexOf(',') >= 0)
+	{
+		s = s.replace(",", "");
+	}	
+	
+	if (s.indexOf('.') >= 0)
 	{
 		Double x = Double.parseDouble(s) * mul;
 		if (x > Integer.MAX_VALUE || x < Integer.MIN_VALUE)
