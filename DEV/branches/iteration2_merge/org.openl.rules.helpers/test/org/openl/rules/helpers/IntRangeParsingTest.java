@@ -40,7 +40,7 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(37, 37), new IntRange("37"));
     }
     
-    @Test(expected=SyntaxErrorException.class)
+    @Test(expected=IllegalArgumentException.class)
     public void testFailureParse(){
         new IntRange("--1");
     }
@@ -48,7 +48,7 @@ public class IntRangeParsingTest {
     @Test
     public void testKMB(){
         assertEquals(new IntRange(1000000, Integer.MAX_VALUE), new IntRange("1M+"));
-        assertEquals(new IntRange(2100000000, 2100000000), new IntRange("2.1B"));
+        assertEquals(new IntRange(2000000000, 2000000000), new IntRange("2B"));
         assertEquals(new IntRange(1000, 36000000), new IntRange("1K - 36M"));
         assertEquals(new IntRange(Integer.MIN_VALUE, 24000), new IntRange("<=24K"));
     }
