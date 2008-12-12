@@ -1,9 +1,30 @@
 pwd
+
+
+
+
+
 cd /home/groups/o/op/openl-tablets/htdocs
 lcd ../org.openl.tablets.doc/site
 
 
 lcd testsite
+
+mkdir docs
+cd docs
+lcd docs
+
+mkdir ctr
+cd ctr
+lcd ctr
+
+mput *.pdf
+mput *.doc
+mput *.txt
+
+cd ../..
+lcd ../..
+
 
 put index.html
 
@@ -44,5 +65,9 @@ lcd site
 
 mput *.png
 mput *.jpg
+
+
+
+
 
 quit

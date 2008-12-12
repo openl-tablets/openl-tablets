@@ -1,6 +1,7 @@
 
-cd ../workspace/sf.web
+cd workspace/sf.web
 
-ftp -s:sf-upload.ftp
- 
+psftp -b sf-upload.ftp snshor@frs.sourceforge.net 
 pause
+
+

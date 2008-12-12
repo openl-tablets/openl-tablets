@@ -1,6 +1,9 @@
 
-cd ../workspace/sf.web
+cd workspace\sf.web
 
-psftp -b sf-site.ftp -bc snshor@shell.sourceforge.net
+rem psftp -b sf-site.ftp -bc snshor@shell.sourceforge.net
+psftp -b sf-site.ftp snshor,openl-tablets@web.sourceforge.net
+
+
  
 pause

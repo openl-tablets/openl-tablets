@@ -1,6 +1,3 @@
-open  upload.sourceforge.net
-anonymous
-snshor@hotmail.com
-cd /incoming
-bin
-put openl-tablets-site.5.0.6.b-28.zip
+cd uploads
+put openl-tablets-site.5.1.1.zip
+exit
