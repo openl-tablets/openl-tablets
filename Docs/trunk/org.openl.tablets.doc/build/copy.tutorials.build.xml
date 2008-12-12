@@ -1,6 +1,6 @@
 <project name="copy_files" default="copy_all" basedir="..">
 	
-<property name="wizard_plugin" value="../org.openl.rules.eclipse.wizard-plugin"></property>	
+<property name="wizard_plugin" value="../org.openl.rules.eclipse.ui.wizard"></property>	
 
 <target name="copy_all" depends="copy_tutorials">
 
@@ -9,14 +9,14 @@
 	
 <target name="copy_tutorials">
 	<copy preservelastmodified="true" flatten="true" todir="site/testsite/xls">
-		<fileset dir="${wizard_plugin}/templates.templates">
+		<fileset dir="${wizard_plugin}/templates">
 			 <include name="**/*tutorial*/**/*.xls"/>	
 		</fileset>
 		
 	</copy>
 	<copy preservelastmodified="true" flatten="true" todir="site/testsite/java">
-		<fileset dir="${wizard_plugin}/templates.templates">
-			 <include name="**/Tutorial*Main.java"/>	
+		<fileset dir="${wizard_plugin}/templates">
+			 <include name="**/*tutorial*/**/*.java"/>	
 		</fileset>
 		
 	</copy>

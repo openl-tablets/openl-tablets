@@ -1,6 +1,63 @@
 <h1>OpenL Tablets Change Log</h1>
 
-<h2>Version 5.0.6 Build 28</h2>
+<h2>Version 5.1.1</h2>
+
+This release contains several new features, improvements in the build process
+and, as always, bug fixes. 
+
+<p>
+<b>IMPORTANT NOTE. </b> Due to the change in the Rules Repository Schema, you would have to scrap 
+the old version of the repository. Don't forget to save your rules somewhere else before doing this.
+
+<p>
+
+<h3>The Formal Introduction of the OpenL Constrainer</h3>
+
+While Constrainer have been a part of the OpenL Tablets distribution for a while, now is a good time
+to introduce it formally. This is an exciting piece of the technology that definitely deserves it's own project, 
+but we have made the decision to keep it under OpenL Tablets umbrella. There are a few reasons for this
+
+<li>OpenL Constrainer is the main technology behind our <i>almost patented</i> 
+Decision Table Consistency Checking algorithm (see below)   
+
+<li>Reversely, the Constrainer benefits from other OpenL technologies, for example, mathematical constraints formulas look nicer with 
+operator overloading, logical problems often look better in the table form, as our new Tutorial 6 conspicuously called Sudoku Puzzle may demonstrate
+  
+
+
+<h3>New Features</h3>
+
+<li>Decision Table Consistency Checking for under-coverage and overlapping between rules
+<li>OpenL Repository now supports user-defined tags
+
+
+<h3>Improvements</h3>
+
+<li>OpenL language now supports BigDecimal and BigInteger arithmetic
+<li>Build process have been streamlined to work with Maven2
+<li>Data Tables now allow to enter the Fake Primary Key for the types that do not have a primary key field. 
+
+<h3>Bug Fixes</h3>
+
+<p>
+In this release a lot of efforts have been spent on streamlining build process, improving compatibility with
+other products and platforms etc. Therefore most fixed bugs and issues had internal nature. 
+<p>
+Here are a couple of bugs that may be of interest to users:
+
+
+<li><b>JIRA-257</b> Firefox 3 inserts an extra wrong symbol in Table Editor
+<li><b>JIRA-339</b> Bug in Decision Table in formulas like '=1
+
+
+<p>
+
+For more details on new features and improvements see documentation
+
+<p>
+
+
+<h2>Version 5.0.6</h2>
 
 This is mostly a maintenance release with several bugs fixed
 
@@ -11,7 +68,7 @@ This is mostly a maintenance release with several bugs fixed
 <li>Optimized decision tables had problems when variable names were misspelled (wrong case) 
 
 
-<h2>Version 5.0.5 Build 34</h2>
+<h2>Version 5.0.5</h2>
 
 <h3>New Functionality</h3>
 
