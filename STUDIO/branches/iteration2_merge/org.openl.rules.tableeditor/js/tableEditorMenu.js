@@ -14,8 +14,12 @@ function triggerEdit(f) {
     f.submit();
 }
 
-function triggerEditXls(f) {
-    f.mode.value = "editExcel";
-    f.cellUri.value = $(PopupMenu.lastTarget).down("input").value;
-    f.submit();
+function triggerEditXls(url) {
+    var cellUri = $(PopupMenu.lastTarget).down("input").value;
+    new Ajax.Request(url, {
+        method: "get",
+        parameters: {
+            cellUri: cellUri
+        }
+    });
 }

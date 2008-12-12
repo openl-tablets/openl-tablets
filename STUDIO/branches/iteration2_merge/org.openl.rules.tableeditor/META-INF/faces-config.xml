@@ -54,7 +54,7 @@
 
     <render-kit>
         <renderer>
-            <component-family>javax.faces.Input</component-family>
+            <component-family>javax.faces.Output</component-family>
             <renderer-type>
                 org.openl.rules.tableeditor.TableEditor
             </renderer-type>

@@ -13,11 +13,17 @@ import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.MultiChoiceCellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
-import org.openl.rules.tableeditor.model.ui.TableRenderer;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.tableeditor.util.Constants;
+import org.openl.rules.util.net.NetUtils;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webtools.XlsUrlParser;
 
 import java.io.IOException;
 import java.util.Map;
+
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletRequest;
 
 /**
  * Table editor controller. It should be a managed bean with <b>request</b>
@@ -41,7 +47,7 @@ public class TableEditorController extends BaseTableViewController implements JS
 
     private void render() {
         TableModel tableModel = initializeTableModel();
-        response = new TableRenderer(tableModel).render();
+        response = new HTMLRenderer.TableRenderer(tableModel).render();
     }
 
     /**
@@ -51,7 +57,7 @@ public class TableEditorController extends BaseTableViewController implements JS
      */
     public String save() {
         readRequestParams();
-        String value = getRequestParameter("value");
+        String value = getRequestParameter(Constants.REQUEST_PARAM_VALUE);
 
         EditorHelper editorHelper = getHelper();
         if (editorHelper != null) {
@@ -59,6 +65,30 @@ public class TableEditorController extends BaseTableViewController implements JS
             response = pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
         }
         return response;
+    }
+
+    public String editXls() {
+        String cellUri = getRequestParameter(Constants.REQUEST_PARAM_CELL_URI);
+        boolean local = NetUtils.isLocalRequest(
+                (ServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());
+        boolean wantURI = (cellUri == null || cellUri.equals("")) ? false : true;
+        if (local) {
+            if (wantURI) {
+                XlsUrlParser parser = new XlsUrlParser();
+                parser.parse(cellUri);
+                try {
+                    org.openl.rules.webtools.ExcelLauncher.launch("LaunchExcel.vbs",
+                            parser.wbPath, parser.wbName, parser.wsName, parser.range);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (wantURI) {
+            return "<script type='text/javascript'>"
+                + "alert('This action is available only from the machine server runs at.')</script>";
+        }
+        
+        return null;
     }
 
     /**
@@ -214,7 +244,8 @@ public class TableEditorController extends BaseTableViewController implements JS
         EditorHelper editorHelper = getHelper();
         if (editorHelper != null) {
             TableEditorModel editorModel = editorHelper.getModel();
-            boolean move = Boolean.valueOf(getRequestParameter("move"));
+            boolean move = Boolean.valueOf(getRequestParameter(
+                    Constants.REQUEST_PARAM_MOVE));
 
             if (row >= 0) {
                 if (move)
@@ -247,7 +278,7 @@ public class TableEditorController extends BaseTableViewController implements JS
         readRequestParams();
         EditorHelper editorHelper = getHelper();
         if (editorHelper != null) {
-            String align = getRequestParameter("align");
+            String align = getRequestParameter(Constants.REQUEST_PARAM_ALIGN);
             int halign = -1;
             if ("left".equalsIgnoreCase(align)) {
                 halign = ICellStyle.ALIGN_LEFT;
@@ -282,11 +313,11 @@ public class TableEditorController extends BaseTableViewController implements JS
         row = col = -1;
 
         try {
-            row = Integer.parseInt(paramMap.get("row")) - 1;
+            row = Integer.parseInt(paramMap.get(Constants.REQUEST_PARAM_ROW)) - 1;
         } catch (NumberFormatException e) {
         }
         try {
-            col = Integer.parseInt(paramMap.get("col")) - 1;
+            col = Integer.parseInt(paramMap.get(Constants.REQUEST_PARAM_COL)) - 1;
         } catch (NumberFormatException e) {
         }
     }

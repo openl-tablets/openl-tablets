@@ -4,7 +4,7 @@ import javax.faces.component.UIComponent;
 
 import org.openl.rules.tableeditor.util.Constants;
 
-public class TableEditorTag extends TableViewerTag  {
+public class TableEditorTag extends TableViewerTag {
     
     private String editable = null;
     
@@ -30,7 +30,7 @@ public class TableEditorTag extends TableViewerTag  {
     public void setProperties(UIComponent component) {
         // always call the superclass method
         super.setProperties(component);
-        setBoolean(component, "editable", editable);
+        setBoolean(component, Constants.ATTRIBUTE_EDITABLE, editable);
     }
 
     @Override

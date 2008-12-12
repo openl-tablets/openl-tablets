@@ -30,7 +30,7 @@ public class TableViewerTag extends BaseTag  {
     public void setProperties(UIComponent component) {
         // always call the superclass method
         super.setProperties(component);
-        setObject(component, "table", table);
+        setObject(component, Constants.ATTRIBUTE_TABLE, table);
     }
 
     @Override

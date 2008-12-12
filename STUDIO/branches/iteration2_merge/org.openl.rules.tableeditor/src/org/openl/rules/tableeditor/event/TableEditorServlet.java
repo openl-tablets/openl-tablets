@@ -46,9 +46,10 @@ public class TableEditorServlet extends HttpServlet {
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
             PrintWriter writer = response.getWriter();
-            writer.write(res);
+            if (res != null) {
+                writer.write(res);
+            }
             writer.close();
-
         } else {
             ClassLoader cl = getClass().getClassLoader();
             InputStream is = cl.getResourceAsStream(path);
