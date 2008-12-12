@@ -1,9 +1,13 @@
 pwd
+
+quit
+
 cd /home/groups/o/op/openl-tablets/htdocs
 
 
 cd site
-lcd ../org.openl.eclipse31-site
+lcd ../org.openl.eclipse.site
+
 rm site.xml
 put site.xml
 cd  features
