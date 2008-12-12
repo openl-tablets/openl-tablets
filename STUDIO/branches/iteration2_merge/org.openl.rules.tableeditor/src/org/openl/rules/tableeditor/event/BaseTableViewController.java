@@ -5,7 +5,7 @@ import java.util.Map;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.EditorHelper;
 import org.openl.rules.tableeditor.model.ui.TableModel;
-import org.openl.rules.tableeditor.model.ui.TableRenderer;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.web.jsf.util.FacesUtils;
 
@@ -75,7 +75,7 @@ public class BaseTableViewController {
 
     private String render() throws Exception {
         TableModel tableModel = initializeTableModel();
-        response = new TableRenderer(tableModel).renderWithMenu();
+        response = new HTMLRenderer.TableRenderer(tableModel).renderWithMenu();
         return null;
     }
 
