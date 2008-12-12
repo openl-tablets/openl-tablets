@@ -105,13 +105,23 @@ Similarly for Zip Code use <code>address.zip</code>
 <img src="images/site/Data4.png"/>
 
 
+<h3>Fake Primary Keys(since 5.1.1)</h3>
+
+This feature comes handy when you create a table based on  Java class that does not have a suitable primary key field, 
+but needs to be referred from another table through the foreign key mechanism.In this case you use fake primary key <b>_PK_</b>. 
+The data that you enter for this column will be interpreted as String, the only "limitation" is that it must be unique and 
+match the corresponding value in the foreign key column of the second table. 
+
+
+
 
 <h3>Summary</h3>
 The Data Tablets can be viewed as a way of having a compact read-only database with data stored in Excel tables. 
 It can be used for any kind of application data like reference data or storing test case data. 
 The Data Tablets provide automatic binding of foreign keys to link data objects from different tables 
 and ability to enter aggregate data objects (objects made of other objects) within a single table. 
-And we repeat, you don't have to write a single line of code to make this data available to your application.
+And you don't have to write a single line of code to make this data available to your application!!!
+
 
 
 

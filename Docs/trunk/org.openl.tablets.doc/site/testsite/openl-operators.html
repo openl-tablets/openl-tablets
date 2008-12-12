@@ -1,4 +1,4 @@
-<h2>OpenL Programming Language Framework Design Principles</h2>
+<h2>OpenL Programming Language Framework</h2>
 
 As we all know, Business Rules consist of rules.
 Each Rule has Condition and Action. Condition is a boolean expression (the one that returns <i>true</i> or <i>false</i>).
@@ -25,31 +25,32 @@ the statement should only be
 <li>a <i>valid</i> statement in the language grammar
 <li>a statement should be correct from the type-checking point of view
 <li>if language is compiled, the valid binary code or some other results of 
-compilation(for example bytecode, or code in some target language might be considered
-also the results of compiling) 
-should be produced form this statement
-<li>some kind of runtime system, interpreter or Virtual Machine should be able to execute 
-this statement's compiled form and produce the result   
+compiling (for example bytecode, or even code in some other target language might also be considered
+as possible results of the compiling) 
+should be produced from the statement
+<li>some kind of runtime system, interpreter or Virtual Machine should be able to execute (interpret) 
+this statement's compiled code and produce a resulting object   
 
 
 
 
 <h3>OpenL Grammars</h3>
 
-When OpenL parser parses an OpenL expression it produces the Syntax Tree. 
-Each Tree Node has a node type, a literal value, reference to the source code
-for displaying errors and debugging and may contain children nodes. This is similar 
-to what other parsers do, with one notable exception - OpenL Grammar is not hard-coded,
-it can be configured, and different can be used. Having said this, we also must say that
-for the paractical purposes, as of today, we have the following grammars implemented in 
+When OpenL parser parses an OpenL expression it produces a Syntax Tree. 
+Each Tree Node has a node type, a literal value, a reference to the source code
+for displaying errors and debugging, and also may contain children nodes. This is similar 
+to what other parsers do, with one notable exception - the OpenL Grammar is not hard-coded,
+it can be configured, and different can be used. Having said this, we also must admit that
+for all the practical purposes, as of today, we distribute only the following grammars implemented in 
 OpenL: <b>org.openl.j</b>  - based on "classic" Java 1.3 grammar (no templates and exception handling) and 
 <b>org.openl.bex</b> - which is basically org.openl.j grammar with "business natural language"
 extensions. The latter is used by default in OpenL Tablets business rules product.
 <p>
-We have experimental <b>org.openl.n3</b> grammar and we may add <b>org.openl.sql</b> grammar in the future.
+We also have experimental <b>org.openl.n3</b> grammar and we may add <b>org.openl.sql</b> 
+grammar in the future.
 <p>
 
-The Syntax Tree produced by the <b>org.openl.j</b> grammar will look like this:
+The Syntax Tree produced by the <b>org.openl.j</b> grammar for the expression we started with will look like this:
 
 <pre>
         &lt;
@@ -69,21 +70,20 @@ The node types of the nodes are
 <li><b>identifier</b> for 'age'
 
 <p>
-The node type names have are significant, as we will see later, but at this point they have been chosen 
-rather randomly.
+Node type names are significant, as we will see later, but at this point they look 
+rather like random names.
 
 <p>
 NOTE. It is also important to recognize that the Grammar we use in <b>org.openl.j</b> is similar not
 only to Java but to any other language in C/C++/Java/C# family. This makes OpenL easily learned and
-accepted by the huge pool of available programmers and adds to it's strength. The proliferation
+accepted by the huge pool of available Java/Cxx programmers and adds to it's strength. The proliferation
 of new languages like Ruby, Groovy, multiple proprietary languages used in  different Business Rules
 Engines, CEP Engines etc., introduced not only the new semantics to the programming community, 
 but also a bunch of new grammars that make the acceptance of the new technologies much harder.
 <p> 
-In OpenL we made significant effort to stay as close to the Java syntax as possible to make 
-sure that the "entities should not be multiplied beyond necessity". It worth mentioning that 
-some CEP Engines use SQL grammar, as the basis for their language - and for  this they 
-get a praise here.
+We at OpenL work day and night to stay as close to the Java syntax as possible to make 
+sure that the "entities would not be multiplied beyond necessity". 
+Let's keep the world's linguistic entropy down, folks. 
 
      
 <h3>Context, Variables and Types</h3>
@@ -106,7 +106,8 @@ add custom types, fields and methods into Binding Context; for different example
 to take a good look at 
 the source code of OpenLBuilder classes in different packages.  
 For example, <b>org.openl.j</b> automatically imports all the classes from 
-the <b>java.util</b>  in addition to the standard <b>java.lang</b> package. 
+the <b>java.util</b> in addition to the standard <b>java.lang</b> package.
+Since version 5.1.1 <b>java.math</b> is also being imported automatically  
 
 
 
@@ -123,86 +124,106 @@ also introduce an extra building step and is dependent on particular generator, 
 the part where names and name spaces are converted into Java names and packages. Often, 
 the generators introduce dependencies with runtime libraries that also affect the portability 
 of the code. Finally, generators usually require full conversion from external data into 
-Java objects, that may incur performance penalty in case where you need to access only few
-attributes. OpenL Open Type system gives the simple way to add new types into OpenL language,
+Java objects that may incur an unnecessary performance penalty in the case where you need to access 
+only a few attributes. OpenL Open Type system gives you the simple way to add new types into OpenL language,
 all you need is to define a class object that implements IOpenClass interface and add it to OpenL 
-type system. The implementation can vary, but access to object's attributes and methods
-will have the same syntax and provide the same type-checking in all OpenL code throughout your application.
+type system. The implementations can vary, but access to object's attributes and methods
+will have the same syntax and will provide the same type-checking in all OpenL code throughout your 
+application.
+
+<h3>OpenL Tablets as OpenL Type extension</h3>
+
+OpenL Tablets is built on top of OpenL type system, and this allows it to integrate naturally into
+any Java or OpenL environment. Using OpenL methodology, Decision Tables become Methods, and Data Tables
+become Fields. The similar conversion happens to all the other project artefacts. It allows for easy modular access
+to any project's component through Java or OpenL code. An OpenL Tablets project itself becomes a 
+"class" and easy Java access to it is provided through a generated JavaWrapper class.     
+
 
 
 <h3>Operators</h3>
 
-Operators are just another methods with priorities defined by the grammar. 
+Operators are just another methods with priorities defined by the Grammar. 
 OpenL has 2 major types of operators: unary and binary. 
 In addition, there are other operator types used in special cases.  
 
-Here is a <a href="#oplist">complete list</a> of openl operators used in org.openl.j Grammar - the one that 
-is used by default in OpenL Tablets 
-product.
+Here is a <a href="#oplist">complete list</a> of OpenL operators used in org.openl.j Grammar - 
+the one that is used by default in OpenL Tablets product.
 <p>
 When we say that OpenL has a modular structure, we not only refer to the fact that 
 OpenL has configurable, high-level separate components like Parser and Binder, it as also,
 that each node type can have it's own NodeBinder. At the same time, we can assign the single
-NodeBinder to a group of operators, like we do in case of <b>op.binary</b>.
+NodeBinder to a group of operators, like we do in the case of the prefix <b>op.binary</b>.
  
-<p><b>NOTE</b>.(op.binary.or '||' and op.binary.and '&&' have separate NodeBinders to provide short-circuiting).
+<p><b>NOTE</b>.(op.binary.or '||' and op.binary.and '&&' have separate NodeBinders to provide short-circuiting for boolean operands).
 
 
-For all other binary operators OpenL uses simple algorithm,based on the type name. For example, if node type
-is 'op.binary.add', algorithm looks for the method named 'add' in the following order:
+For all other binary operators OpenL uses a simple algorithm, based on the operator's node type name. 
+For example, if the node type is 'op.binary.add', the algorithm looks for the method named 'add()' in the following order:
 <p>
 <ul>
-<li><code>T? add(T1 p1, T2 p2)</code> in namespace <b>org.openl.operators</b> in the BindingContext 
-<li><code>public T? T1.add(T2 p2)</code> in T1
-<li><code>static public T? T1.add(T1 p1, T2 p2)</code> in T1
-<li><code>static public T? T2.add(T1 p1, T2 p2)</code> in T2
+<li><code>Tx add(T1 p1, T2 p2)</code> in the namespace <b>org.openl.operators</b> in the BindingContext 
+<li><code>public Tx T1.add(T2 p2)</code> in T1
+<li><code>static public Tx T1.add(T1 p1, T2 p2)</code> in T1
+<li><code>static public Tx T2.add(T1 p1, T2 p2)</code> in T2
 </ul>
 
 <p>
-The found method is then being executed in runtime. So, if you need to to override binary operator t1 X t2
+The found method is then being executed in the runtime. So, if you need to 
+override binary operator t1 OP t2
 (where t1, t2 are objects of classes T1, T2 ), you need to do
 the following steps:
 <p>
 <ol>
-<li>Check <a href="oplist">Operators Table</a> and find the operator's type name.
+<li>Check the <a href="#oplist">Operators Table</a> and find the operator's type name.
 <li>The last part of the type name will give you the name of the method that you need to implement
 <li>Now you have the following options for implementing operators:
 <ul> 
 <li>put it into some class YourCustomOperators as the static method and register the class as the library in 
 <b>org.openl.operators</b> namespace (see OpenLBuilder code for more details).
-<li>implement as method in T1: <code>public T? name(T2 p2)</code>
-<li>implement as method in T1: <code>static public T? name(T1 p1,T2 p2)</code>
-<li>implement as method in T2: <code>static public T? name(T1 p1,T2 p2)</code>
+<li>implement as method in T1: <code>public Tx name(T2 p2)</code>
+<li>implement as method in T1: <code>static public Tx name(T1 p1,T2 p2)</code>
+<li>implement as method in T2: <code>static public Tx name(T1 p1,T2 p2)</code>
 </ul>
-The list is asymmetric with regard to T1 and T2 because most of the binary operators are asymmetric. It means, that
-if T1 and T2 are different, you need to define both X(T1, T2) and X(T2, T1), if both are used.
- 
 </ol>
 
 <p>
-For unary operators, the same approach applies,  the only difference is that there is only one parameter to deal with.
+Usually, if T1 and T2 are different, you need to define both OP(T1, T2) and OP(T2, T1), unless you can rely on autocast() 
+operator or Binary Operators' Semantic Map. Autocast can help you skip implementation when you already have an operator implemented for 
+the autocasted type. For example, if you have OP(T1, double), you don't have to implement OP(T1, int), because int is autocasted to double.
+You may incur some performance penalty by doing this though. Binary Operator Semantic Map is described next.  
+
+
+
+<h3>Binary Operators' Semantic Map</h3>
+Since the version 5.1.1 there is one convenience feature that we call Operator Semantic Map. It makes
+implementing of some of the operators easier by <a href="#opprops">describing properties</a>( <i>symmetrical</i> and <i>inverse</i>) 
+for some operators.
+
+
+ 
+<h3>Unary Operators</h3>
+For unary operators, the same method resolution algorithm is being applied,  
+the only difference is that there is only one parameter to deal with.
 
 <p>
+
 
 <h3>Cast Operators</h3>
 
 Cast Operators in general correspond to Java guidelines and come in 2 types: <b>cast</b> and <b>autocast</b>.
-<b>T2 autocast(T1 from, T2 to)</b> methods used to overload implicit cast operators (like from int to long, so that actually no cast operators are required in code), 
+<b>T2 autocast(T1 from, T2 to)</b> methods used to overload implicit cast operators (like from int to long, 
+so that actually no cast operators are required in code), 
 T2 cast(T1 from, T2 to) methods are used with explicit cast operators.
-<p><b>NOTE</b>It is important to remember that while both cast and autocast methods require 2 parameters, only <b>T1 from</b>
-parameter will be actually used. The second parameter is needed to avoid ambiguity in Java method resolution 
+<p><b>NOTE</b>It is important to remember that while both cast() and autocast() methods require 2 parameters, 
+only <b>T1 from</b> parameter will be actually used. The second parameter is needed to avoid 
+ambiguity in Java method resolution 
   
 
 
 
- 
-
-
-
 <a name="oplist"/>
-<h3>Appendix</h3> 
-
-<h3>A. The List of org.openl.j Operators</h3>
+<h3>Appendix A. The List of org.openl.j Operators</h3>
 
 In the order of priority:
 
@@ -308,3 +329,25 @@ overload them at will</i></b></td></tr>
 
 </table>
 
+<a name="opprops"/>
+<h3>Appendix B. The List of org.openl.j Operator Properties</h3>
+
+<h4>Symmetrical</h4>
+
+<p>
+<code><pre>
+eq(T1,T2) <=> eq(T2, T1)
+add(T1,T2) <=> add(T2, T1)
+</pre></code> 
+
+<h4>Inverse</h4>
+
+<p>
+<code><pre>
+le(T1,T2) <=> gt(T2, T1)
+lt(T1,T2) <=> ge(T2, T1)
+ge(T1,T2) <=> lt(T2, T1)
+gt(T1,T2) <=> le(T2, T1)
+</pre></code>
+
+ 
