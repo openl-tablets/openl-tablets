@@ -27,17 +27,10 @@ public abstract class AMethod implements IOpenMethod
 	
 	
 
-	
-	
-
 	public String getDisplayName(int mode)
 	{
 		return MethodUtil.printMethod(this, mode, false);
 	}
-
-
-
-
 
 
 	/**
