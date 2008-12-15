@@ -48,7 +48,7 @@ public class OpenSchemaDelegator implements IOpenSchema
   /**
    * @return
    */
-  public Iterator typeNames()
+  public Iterator<String> typeNames()
   {
     return delegate.typeNames();
   }

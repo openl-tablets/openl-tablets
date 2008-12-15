@@ -34,9 +34,6 @@ public abstract class AOpenSchema implements IOpenSchema
 	
 	protected abstract Map<String, IOpenClassHolder> buildAllClasses();
 	
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenSchema#allClasses()
-   */
   public synchronized Iterator<String> typeNames()
   {
     return allClasses().keySet().iterator();
@@ -53,17 +50,11 @@ public abstract class AOpenSchema implements IOpenSchema
   }
   
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenSchema#getFactory()
-   */
   public IOpenFactory getFactory()
   {
     return factory;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.types.IOpenSchema#getOpenClass(java.lang.String)
-   */
   public  synchronized IOpenClass getType(String name)
   {
   	IOpenClassHolder holder = allClasses().get(name);

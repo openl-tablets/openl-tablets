@@ -21,7 +21,7 @@ import org.openl.util.OpenIterator;
 public class OpenSchemaSelector extends OpenSchemaDelegator
 {
 
-	ISelector selector;
+	ISelector<String> selector;
 
   /**
    * @param delegate
@@ -46,7 +46,7 @@ public class OpenSchemaSelector extends OpenSchemaDelegator
   /* (non-Javadoc)
    * @see org.openl.types.ITypeLibrary#types()
    */
-  public Iterator typeNames()
+  public Iterator<String> typeNames()
   {
     return  OpenIterator.select(super.typeNames(), selector);
   }
