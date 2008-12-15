@@ -190,10 +190,14 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 	static Map<String, String> tableHeaders;
 
-	static final String[][] headerMapping = { { DECISION_TABLE, XLS_DT },
-			{ DECISION_TABLE2, XLS_DT }, { DATA_TABLE, XLS_DATA },
+	static final String[][] headerMapping = { 
+		    { DECISION_TABLE, XLS_DT },
+			{ DECISION_TABLE2, XLS_DT },
+			{SPREADSHEET_TABLE, XLS_SPREADSHEET},
+			{ DATA_TABLE, XLS_DATA },
 			{ DATATYPE_TABLE, XLS_DATATYPE }, 
-			{ METHOD_TABLE, XLS_METHOD }, { METHOD_TABLE2, XLS_METHOD },
+			{ METHOD_TABLE, XLS_METHOD }, 
+			{ METHOD_TABLE2, XLS_METHOD },
 			{ ENVIRONMENT_TABLE, XLS_ENVIRONMENT },
 			{ TEST_METHOD_TABLE, XLS_TEST_METHOD },
 			{ RUN_METHOD_TABLE, XLS_RUN_METHOD },

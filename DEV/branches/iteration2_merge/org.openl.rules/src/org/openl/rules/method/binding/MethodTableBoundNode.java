@@ -12,12 +12,9 @@ import org.openl.OpenlTool;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.IBoundNode;
-import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.lang.xls.binding.ATableBoundNode;
+import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -25,152 +22,111 @@ import org.openl.rules.table.openl.GridTableSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.vm.IRuntimeEnv;
-
 
 /**
  * @author snshor
- *
+ * 
  */
-public class MethodTableBoundNode
-	extends ATableBoundNode
-	implements IMemberBoundNode
-{
+public class MethodTableBoundNode extends AMethodBasedNode {
 
-	OpenL openl;
-	IOpenMethodHeader header;
-
-	TableMethod method;
-
-	ModuleOpenClass module;
+	TableMethod xx;
 
 	/**
 	 * @param syntaxNode
 	 * @param children
 	 */
-	public MethodTableBoundNode(
-		TableSyntaxNode methodNode,
-		OpenL openl,
-		IOpenMethodHeader header,
-		ModuleOpenClass module)
-	{
-		super(methodNode, IBoundNode.EMPTY);
-		this.header = header;
-		this.openl = openl;
-		this.module = module;
+	public MethodTableBoundNode(TableSyntaxNode methodNode, OpenL openl,
+			IOpenMethodHeader header, ModuleOpenClass module) {
+		super(methodNode, openl, header, module);
+
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.binding.IMemberBoundNode#addTo(org.openl.binding.impl.module.ModuleOpenClass)
-	 */
-	public void addTo(ModuleOpenClass openClass)
-	{
-		openClass.addMethod(method = new TableMethod(header, null));
-		getTableSyntaxNode().setMember(method);
+	@Override
+	protected IOpenMethod createMethodShell() {
+		return new TableMethod(header, null);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.binding.IMemberBoundNode#finalizeBind(org.openl.binding.IBindingContext)
-	 */
-	public void finalizeBind(IBindingContext cxt) throws Exception
-	{
+	public void finalizeBind(IBindingContext cxt) throws Exception {
 
 		TableSyntaxNode tsn = getTableSyntaxNode();
 
-
 		ILogicalTable lt = tsn.getTable();
-		
+
 		int expectedHeight = tsn.getTableProperties() == null ? 2 : 3;
 
 		if (lt.getLogicalHeight() != expectedHeight)
 			throw new BoundError(
-				null,
-				"Method table must have 2 row cells, and one optional property row: <header> [properties] <body>",
-				null,
-				new GridTableSourceCodeModule(lt.getGridTable()));
+					null,
+					"Method table must have 2 row cells, and one optional property row: <header> [properties] <body>",
+					null, new GridTableSourceCodeModule(lt.getGridTable()));
 
-		
+		IOpenSourceCodeModule src = new GridCellSourceCodeModule(lt
+				.getLogicalRow(expectedHeight - 1).getGridTable());
 
-		IOpenSourceCodeModule src =
-			new GridCellSourceCodeModule(lt.getLogicalRow(expectedHeight-1).getGridTable());
+		OpenlTool.compileMethod(src, openl, getTableMethod(), cxt);
 
-
-			OpenlTool.compileMethod(src, openl, method, cxt);
-			
-			
-//		method.setMethodBodyBoundNode(methodBody.getMethodBodyBoundNode());		
+		// method.setMethodBodyBoundNode(methodBody.getMethodBodyBoundNode());
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.binding.IBoundNode#evaluateRuntime(org.openl.vm.IRuntimeEnv)
-	 */
-	public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openl.binding.IBoundNode#getType()
-	 */
-	public IOpenClass getType()
-	{
+	public IOpenClass getType() {
 		return header.getType();
 	}
-
-	public void updateDependency(BindingDependencies dependencies)
+	
+	
+	final public TableMethod getTableMethod()
 	{
-		method.getMethodBodyBoundNode().updateDependency(dependencies);
+		return (TableMethod)method;
 	}
 	
-	
-	class TableMethod extends CompositeMethod implements IMemberMetaInfo
-	{
 
-		
-		public IMemberMetaInfo getInfo()
-		{
+	public void updateDependency(BindingDependencies dependencies) {
+		getTableMethod().getMethodBodyBoundNode().updateDependency(dependencies);
+	}
+
+	class TableMethod extends CompositeMethod implements IMemberMetaInfo {
+
+		public IMemberMetaInfo getInfo() {
 			return this;
 		}
-		
-		
+
 		/**
 		 * @param header
 		 * @param methodBodyBoundNode
 		 */
-		public TableMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode)
-		{
+		public TableMethod(IOpenMethodHeader header,
+				IBoundMethodNode methodBodyBoundNode) {
 			super(header, methodBodyBoundNode);
 		}
 
-		public ISyntaxNode getSyntaxNode()
-		{
+		public ISyntaxNode getSyntaxNode() {
 			return MethodTableBoundNode.this.getSyntaxNode();
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see org.openl.types.IMemberMetaInfo#getDependencies()
 		 */
-		public BindingDependencies getDependencies()
-		{
+		public BindingDependencies getDependencies() {
 			BindingDependencies bd = new BindingDependencies();
 			updateDependency(bd);
 			return bd;
 		}
 
-
-
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see org.openl.meta.IMetaInfo#getSourceUrl()
 		 */
-		public String getSourceUrl()
-		{
+		public String getSourceUrl() {
 			return getTableSyntaxNode().getUri();
 		}
-		
+
 	}
-	
+
+
 }
