@@ -322,11 +322,6 @@ public class TableEditorController extends BaseTableViewController implements JS
         }
     }
 
-    @Override
-    protected IGridTable getGridTable() {
-        return getHelper().getModel().getUpdatedTable();
-    }
-
     private static String pojo2json(Object pojo) {
         try {
             return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")").toString();

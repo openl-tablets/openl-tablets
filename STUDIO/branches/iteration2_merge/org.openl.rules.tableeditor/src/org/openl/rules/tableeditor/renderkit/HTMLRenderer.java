@@ -3,6 +3,7 @@ package org.openl.rules.tableeditor.renderkit;
 import java.util.List;
 
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.ICellModel;
@@ -47,27 +48,22 @@ public class HTMLRenderer {
     protected String renderViewer(IGridTable table, List<ActionLink> actionLinks,
             boolean editable) {
         StringBuilder result = new StringBuilder();
-
-        if (editable || (actionLinks != null && !actionLinks.isEmpty())) {
-            result.append(renderCSS("css/menu.css"))
-                .append(renderJS("js/popup/popupmenu.js"))
-                .append(renderJS("js/tableEditorMenu.js"));
-        }
-
-        TableModel tableModel = TableModel.initializeTableModel(table);
-        if (tableModel != null) {
-            TableRenderer tableRenderer = new TableRenderer(tableModel);
-            if (editable || (actionLinks != null && !actionLinks.isEmpty())) {
-                result.append(tableRenderer.renderWithMenu());
-            } else {
-                result.append(tableRenderer.render());
+        if (table != null) {
+            TableModel tableModel = TableModel.initializeTableModel(
+                    new TableEditorModel(table).getUpdatedTable());
+            if (tableModel != null) {
+                TableRenderer tableRenderer = new TableRenderer(tableModel);
+                if (editable || (actionLinks != null && !actionLinks.isEmpty())) {
+                    result.append(renderCSS("css/menu.css"))
+                        .append(renderJS("js/popup/popupmenu.js"))
+                        .append(renderJS("js/tableEditorMenu.js"))
+                        .append(tableRenderer.renderWithMenu())
+                        .append(renderActionMenu(editable, actionLinks));
+                } else {
+                    result.append(tableRenderer.render());
+                }
             }
         }
-
-        if (editable || (actionLinks != null && !actionLinks.isEmpty())) {
-            result.append(renderActionMenu(editable, actionLinks));
-        }
-
         return result.toString();
     }
 
@@ -75,17 +71,19 @@ public class HTMLRenderer {
             boolean editable, String cellToEdit) {
         StringBuilder result = new StringBuilder();
         final String formId = "_te_form";
-        result.append("<form id=\"").append(formId).append("\" class='_te'>")
-            .append("<input type=\"hidden\" name=\"mode\" value=\"\" />")
-            .append("<input type=\"hidden\" name=\"cell\" value=\"\" />")
+        result.append("<div class='_te'>")
             .append(renderCSS("css/common.css"))
             .append(renderJS("js/prototype/prototype-1.5.1.js"));
         if (mode == null || mode.equals(Constants.MODE_VIEW)) {
-            result.append(renderViewer(table, actionLinks, editable));
+            result.append("<form id=\"").append(formId).append("\">")
+                .append("<input type=\"hidden\" name=\"mode\" value=\"\"></input>")
+                .append("<input type=\"hidden\" name=\"cell\" value=\"\"></input>")
+                .append("</form>")
+                .append(renderViewer(table, actionLinks, editable));
         } else if (mode.equals(Constants.MODE_EDIT)) {
             result.append(renderEditor(cellToEdit));
         }
-        result.append("</form>");
+        result.append("</div>");
         return result.toString();
     }
 
@@ -269,7 +267,7 @@ public class HTMLRenderer {
 
                     s.append(" id=\"").append(id).append("\">");
                     if (embedCellURI) {
-                        s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(table.getUri(j, i)).append("\">");
+                        s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(table.getUri(j, i)).append("\"></input>");
                     }
                     s.append(cell.getContent()).append("</td>\n");
                 }
@@ -284,7 +282,7 @@ public class HTMLRenderer {
         }
 
         public String renderWithMenu() {
-            return render("onmouseover=\"try {cellMouseOver(this,event)} catch (e){}\" onmouseout='try {cellMouseOut(this)} catch(e){}'", true);
+            return render("onmouseover=\"try {cellMouseOver(this,event)} catch (e){}\" onmouseout=\"try {cellMouseOut(this)} catch(e){}\"", true);
         }
     }
 
