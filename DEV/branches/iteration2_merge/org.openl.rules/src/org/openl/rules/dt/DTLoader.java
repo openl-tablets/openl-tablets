@@ -6,7 +6,8 @@
 
 package org.openl.rules.dt;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
@@ -170,12 +171,12 @@ public class DTLoader implements IDecisionTableConstants
 		return dt;
 	}
 
-	Vector actions = new Vector();
+	List<DTAction> actions = new ArrayList<DTAction>();
 	
 	
 
 	int columns;
 
-	Vector conditions = new Vector();
+	List<DTCondition>  conditions = new ArrayList<DTCondition>();
 
 }

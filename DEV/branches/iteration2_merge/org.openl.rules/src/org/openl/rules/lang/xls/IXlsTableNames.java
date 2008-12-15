@@ -14,10 +14,14 @@ public interface IXlsTableNames
 {
 	static final String 
 		DECISION_TABLE = "DT",
-	  DECISION_TABLE2 = "Rules",
+		DECISION_TABLE2 = "Rules",
+		SPREADSHEET_TABLE ="Spreadsheet",
+		
+		
 		PROPERTY_TABLE = "Properties",
 		METHOD_TABLE = "Code",
-	  METHOD_TABLE2 = "Method",
+	    METHOD_TABLE2 = "Method",
+	  
 		
 		DATA_TABLE = "Data",
 		DATATYPE_TABLE = "Datatype",
