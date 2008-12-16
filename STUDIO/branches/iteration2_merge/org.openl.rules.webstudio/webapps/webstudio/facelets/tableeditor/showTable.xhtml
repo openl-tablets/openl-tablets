@@ -7,6 +7,14 @@
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
     template="/facelets/common/webstudioBase.xhtml">
 
+    <ui:define name="header">
+        <script type="text/javascript">
+            function open_win(url) {
+                window.open(url, "_blank", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+            }
+        </script>
+    </ui:define>
+
     <ui:define name="page">
         <table>
             <tr>
