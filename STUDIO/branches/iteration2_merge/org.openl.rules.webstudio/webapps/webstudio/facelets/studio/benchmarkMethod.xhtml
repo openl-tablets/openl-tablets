@@ -12,16 +12,16 @@
             //<![CDATA[
         	function toggleSelectAll(N)
         	{
-        	 sa=document.getElementById("BMForm:BMTable:selectAll");
+        	 selectAllCheckBox=document.getElementById("BMForm:BMTable:selectAll");
         	 for(i = 0; i < N; i++)
-        	   jssetchecked("BMForm:BMTable:"+i+":BM", sa.checked);
+        	   setElementChecked("BMForm:BMTable:"+i+":BM", selectAllCheckBox.checked);
         	}
         
         
-        	function jssetchecked(id,value)
+        	function setElementChecked(id,value)
         	{
-        	 el=document.getElementById(id);
-        	   el.checked=value;
+        	 element=document.getElementById(id);
+        	   element.checked=value;
         	}
             //]]>
         </script>
@@ -88,7 +88,7 @@
                 <h:column>
                     <f:facet name="header">
                         <h:selectBooleanCheckbox id="selectAll"
-                            onchange="toggleSelectAll('#{benchmarkMethodBean.benchmarkCount}')" />
+                            onclick="toggleSelectAll('#{benchmarkMethodBean.benchmarkCount}')" />
                     </f:facet>
                     <h:selectBooleanCheckbox id="BM"
                         value="#{benchmarkMethodBean.bencmarkSelected}" />
