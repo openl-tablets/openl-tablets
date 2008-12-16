@@ -209,5 +209,15 @@ public class TableSyntaxNode  extends ASyntaxNode implements IIndexElement
 	public void setValidationResult(Object validationResult) {
 		this.validationResult = validationResult;
 	}
+
+
+	public ILogicalTable getTableBody() {
+		int startRow = tableProperties == null ? 1 : 2;
+		
+		if (table.getLogicalHeight() <= startRow)
+			return null;
+		ILogicalTable tableBody = table.rows(startRow);
+		return tableBody;
+	}
 	
 }

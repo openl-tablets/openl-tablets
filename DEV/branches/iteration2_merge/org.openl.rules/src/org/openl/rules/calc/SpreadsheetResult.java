@@ -45,7 +45,7 @@ public class SpreadsheetResult implements IDynamicObject
 		if (f == null)
 			throw new RuntimeException("Spreadsheet field " + name + " not found");
 		
-		SpreadsheetField sfield = (SpreadsheetField)f;
+		ASpreadsheetField sfield = (ASpreadsheetField)f;
 		
 		return sfield.calculate(this, targetModule, params, env);
 		
