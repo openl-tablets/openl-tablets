@@ -7,7 +7,7 @@ var PopupMenu = {
 	menu_ie: !!(window.attachEvent && !window.opera),
 	menu_ns6: document.getElementById && !document.all,
 	menuON: false,
-	_te_menu : undefined,
+	te_menu : undefined,
 	delayedFunction: undefined,
 	disappearFunction: undefined,
 	disappearInterval1: 5000,
@@ -62,11 +62,11 @@ var PopupMenu = {
 		var scrollXY = this.getScrollXY();
 		var windowSizeXY = this.getWindowSize();
 
-		this._te_menu.style.visibility = "hidden";
-		this._te_menu.innerHTML = document.getElementById(contentElement).innerHTML;
-		this._te_menu.style.display = "inline";
-		var divWidth = this._te_menu.clientWidth;
-		var divHeight = this._te_menu.clientHeight;
+		this.te_menu.style.visibility = "hidden";
+		this.te_menu.innerHTML = document.getElementById(contentElement).innerHTML;
+		this.te_menu.style.display = "inline";
+		var divWidth = this.te_menu.clientWidth;
+		var divHeight = this.te_menu.clientHeight;
 
 		var posX = event.clientX + 5; var delta = 25;
 		if (posX + delta + divWidth > windowSizeXY[0]) posX = windowSizeXY[0] - delta - divWidth;
@@ -81,18 +81,18 @@ var PopupMenu = {
 
 		posX += scrollXY[0];posY += scrollXY[1];
 		if (this.menu_ns6) {
-			this._te_menu.style.left = posX + "px";
-			this._te_menu.style.top = posY + "px";
+			this.te_menu.style.left = posX + "px";
+			this.te_menu.style.top = posY + "px";
 		} else {
-			this._te_menu.style.pixelLeft = posX;
-			this._te_menu.style.pixelTop = posY;
+			this.te_menu.style.pixelLeft = posX;
+			this.te_menu.style.pixelTop = posY;
 		}
 		if (extraClass)
-			this._te_menu.className = "_te_menu " + extraClass;
+			this.te_menu.className = "te_menu " + extraClass;
 		else
-			this._te_menu.className = "_te_menu";
+			this.te_menu.className = "te_menu";
 
-		this._te_menu.style.visibility = "visible";
+		this.te_menu.style.visibility = "visible";
 		this.menuON = true;
 		this.disappearFunction = setTimeout("PopupMenu.closeMenu()", this.disappearInterval1);
 
@@ -107,13 +107,13 @@ var PopupMenu = {
 	closeMenu: function () {
 		this.cancelDisappear();
 		if (this.menuON) {
-			this._te_menu.style.display = "none";
+			this.te_menu.style.display = "none";
 		}
 	},
 
 	inMenuDiv: function (el) {
 		if (el == undefined) return false;
-		if (el == this._te_menu) return true;
+		if (el == this.te_menu) return true;
 		if (el.tagName && el.tagName.toLowerCase() == 'a') return false;
 		return this.inMenuDiv(el.parentNode);
 	},
@@ -139,28 +139,28 @@ var PopupMenu = {
 		}
 
 		try {
-			this._te_menu = document.createElement('<div id="divmenu" class="_te_menu" style="display:none; float:none;z-index:5; position:absolute;">');
+			this.te_menu = document.createElement('<div id="divmenu" class="te_menu" style="display:none; float:none;z-index:5; position:absolute;">');
 		} catch (e) {
-			this._te_menu = document.createElement("div");
-			this._te_menu.setAttribute("class", "_te_menu");
-			this._te_menu.setAttribute("id", "divmenu");
-			this._te_menu.style.display = "none";
-			this._te_menu.style.cssFloat = "none";
-			this._te_menu.style.zIndex = "5";
-			this._te_menu.style.position = "absolute";
+			this.te_menu = document.createElement("div");
+			this.te_menu.setAttribute("class", "te_menu");
+			this.te_menu.setAttribute("id", "divmenu");
+			this.te_menu.style.display = "none";
+			this.te_menu.style.cssFloat = "none";
+			this.te_menu.style.zIndex = "5";
+			this.te_menu.style.position = "absolute";
 		}
 
-		this._te_menu.onmouseout = function(e) {
-			if (PopupMenu.getTarget(e) == PopupMenu._te_menu) {
+		this.te_menu.onmouseout = function(e) {
+			if (PopupMenu.getTarget(e) == PopupMenu.te_menu) {
 				PopupMenu.cancelDisappear();
 				PopupMenu.disappearFunction = setTimeout("PopupMenu.closeMenu()", PopupMenu.disappearInterval2);
 			}
 		}
-		this._te_menu.onmouseover = function(e) {
+		this.te_menu.onmouseover = function(e) {
 			PopupMenu.cancelDisappear();
 		}
 
-		document.body.appendChild(this._te_menu);
+		document.body.appendChild(this.te_menu);
 		this.showPopupMenu = this._showPopupMenu;
 		this.sheduleShowMenu = this._sheduleShowMenu;
 	},
@@ -171,7 +171,7 @@ var PopupMenu = {
 	},
 
 	showAfterDelay : function() {
-		this._te_menu.style.display = "none";
+		this.te_menu.style.display = "none";
 		this._showPopupMenu(this.delayedState.contentElement, this.delayedState.evt, this.delayedState.extraClass);
     },
 

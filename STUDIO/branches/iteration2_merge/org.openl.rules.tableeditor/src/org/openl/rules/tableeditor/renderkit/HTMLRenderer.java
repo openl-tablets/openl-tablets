@@ -71,7 +71,7 @@ public class HTMLRenderer {
             boolean editable, String cellToEdit) {
         StringBuilder result = new StringBuilder();
         final String formId = "_te_form";
-        result.append("<div class='_te'>")
+        result.append("<div class='te_'>")
             .append(renderCSS("css/common.css"))
             .append(renderJS("js/prototype/prototype-1.5.1.js"));
         if (mode == null || mode.equals(Constants.MODE_VIEW)) {
@@ -170,7 +170,7 @@ public class HTMLRenderer {
             + " class=\"item_separator\"></img>";
         
         result.append(renderCSS("css/toolbar.css"))
-            .append("<div class=\"_te_toolbar\">")
+            .append("<div class=\"te_toolbar\">")
             .append(renderEditorToolbarItem("save_all", "img/Save.gif", "tableEditor.save()", "Save"))
             .append(renderEditorToolbarItem("undo", "img/Undo.gif", "tableEditor.undoredo()", "Undo"))
             .append(renderEditorToolbarItem("redo", "img/Redo.gif", "tableEditor.undoredo(true)", "Redo"))
