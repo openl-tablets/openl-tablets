@@ -13,6 +13,11 @@
                 window.open(url, "_blank", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
             }
         </script>
+        <style>
+            form {
+                margin: 0px;
+            }
+        </style>
     </ui:define>
 
     <ui:define name="page">
@@ -45,8 +50,7 @@
                         <a onClick="open_win('#{tgUrl}', 800, 600)"
                             href="#" title="Trace"><img border="0"
                                 src="webresource/images/trace.gif"
-                                alt="trace" />
-                        </a>
+                                alt="trace" /></a>
 
                         <h:outputLink
                             value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml?elementID=#{showTableBean.elementID}"
@@ -101,32 +105,24 @@
                     </td>
                 </tr>
             </table>
-            <p />
-        </c:if>
-
-        <c:if test="#{showTableBean.editable and param.mode != 'edit'}">
-            <p />
-            <h:outputLink
-                value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml?mode=edit">
-                <f:param name="elementID"
-                    value="#{showTableBean.elementID}" />
-                Edit Table
-            </h:outputLink>
-        </c:if>
-
-        <f:verbatim>&amp;nbsp;</f:verbatim>
-
-        <c:if test="#{showTableBean.copyable and param.mode != 'edit'}">
-            <h:outputLink
-                value="#{contextPath}/faces/facelets/tableCopier/copyTable.xhtml">
-                <f:param name="elementID"
-                    value="#{showTableBean.elementID}" />
-                Copy Table
-            </h:outputLink>
-            <br />
         </c:if>
 
         <br />
+
+        <h:panelGroup rendered="#{(showTableBean.editable or showTableBean.copyable) and param.mode != 'edit'}">
+            <h:outputLink rendered="#{showTableBean.editable}"
+                value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml?mode=edit">
+                <f:param name="elementID" value="#{showTableBean.elementID}" />
+                Edit Table
+            </h:outputLink>
+            <f:verbatim>&amp;nbsp;</f:verbatim>
+            <h:outputLink rendered="#{showTableBean.copyable}"
+                value="#{contextPath}/faces/facelets/tableCopier/copyTable.xhtml">
+                <f:param name="elementID" value="#{showTableBean.elementID}" />
+                Copy Table
+            </h:outputLink>
+            <br /><br />
+        </h:panelGroup>
 
         <script type="text/javascript">
             function triggerSearch(f) {
