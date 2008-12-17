@@ -19,3 +19,5 @@ tableEditor.isSelectedUpdated = function (selected) {
     align_items.each(selected ? setEnabled : setDisabled);
     addremove_items.each(selected ? setEnabled : setDisabled);
 };
+
+tableEditor.loadData();

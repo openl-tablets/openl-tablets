@@ -70,7 +70,6 @@ TableEditor.prototype = {
 
         this.baseUrl = url;
         this.saveUrl = this.buildUrl("save");
-        this.loadData(this.buildUrl("load"));
 
         var self = this;
 
@@ -110,6 +109,7 @@ TableEditor.prototype = {
      * @type: private
      */
     loadData : function(url) {
+        if (!url) url = this.buildUrl("load");
         var self = this;
         new Ajax.Request(url, {
             method      : "get",
@@ -125,7 +125,7 @@ TableEditor.prototype = {
                     var t = TableEditor.parseXlsCell(data.topLeftCell);
                     if (s && t) {
                         s[0] -= t[0]-1; s[1] -= t[1]-1;
-                        var cell = self.$cell(s)
+                        var cell = self.$cell(s);
                         if (cell) self.editBeginRequest(cell, null, true);
                     }
                 }
@@ -213,6 +213,7 @@ TableEditor.prototype = {
     editBeginRequest : function(cell, keyCode, ignoreAjaxRequestCount) {
         if (!ignoreAjaxRequestCount && Ajax.activeRequestCount > 0) return;
         var self = this;
+
         this.selectElement(cell);
 
         var typedText = undefined;
