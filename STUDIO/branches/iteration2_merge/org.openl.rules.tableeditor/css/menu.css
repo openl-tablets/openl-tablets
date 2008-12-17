@@ -5,7 +5,7 @@
     font-size: 110%;
 }
 
-.te_menu a {
+.te_menu a, .te_menu a:visited {
     text-decoration: underline;
     color: rgb(75,105,195);
 }

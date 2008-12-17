@@ -155,7 +155,7 @@ public class HTMLRenderer {
             .append(renderJS("js/PriceEditor.js"))
             .append(renderJS("js/NumericEditor.js"))
             .append(renderJS("js/MultipleChoiceEditor.js"))
-            .append("<div id=\"").append(editorDataId).append("\" />")
+            .append("<div id=\"").append(editorDataId).append("\"></div>")
             .append(renderJSContent("var tableEditor = new TableEditor(\"" + editorDataId + "\", \""
                 + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\");"))
             .append(renderJS("js/initTableEditor.js"));
