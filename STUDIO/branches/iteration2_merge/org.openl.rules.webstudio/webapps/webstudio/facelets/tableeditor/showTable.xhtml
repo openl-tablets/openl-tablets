@@ -93,7 +93,9 @@
             </tr>
         </table>
 
-        <ui:include src="/WEB-INF/include/facelets/errorDisplay.xhtml" />
+        <ui:include src="/WEB-INF/include/facelets/errorDisplay.xhtml">
+            <ui:param name="tableID" value="#{showTableBean.elementID}" />
+        </ui:include>
 
         <c:if test="#{showTableBean.tsnHasErrors}">
             <h3>Problems</h3>
