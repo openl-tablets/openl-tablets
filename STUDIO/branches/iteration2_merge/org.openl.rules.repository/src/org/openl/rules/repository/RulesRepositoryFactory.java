@@ -39,6 +39,10 @@ public class RulesRepositoryFactory {
 
     private static void initFactory() throws RRepositoryException {
         ConfigSet confSet = SysConfigManager.getConfigManager().locate(PROP_FILE);
+        if (confSet == null){
+            throw new RRepositoryException(MSG_FAILED, new NullPointerException());
+        }
+        
         confSet.updateProperty(confRepositoryFactoryClass);
 
         String className = confRepositoryFactoryClass.getValue();
