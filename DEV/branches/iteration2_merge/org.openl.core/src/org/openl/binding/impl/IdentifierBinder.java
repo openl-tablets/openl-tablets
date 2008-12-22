@@ -19,65 +19,58 @@ import org.openl.types.IOpenField;
  * @author snshor
  */
 
-public class IdentifierBinder extends ANodeBinder
-{
+public class IdentifierBinder extends ANodeBinder {
 
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-	    throws Exception
-    {
+	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
+			throws Exception {
 
-	boolean strictMatch = isStrictMatch(node);
+		boolean strictMatch = isStrictMatch(node);
 
-	String fieldName = ((IdentifierNode) node).getIdentifier();
+		String fieldName = ((IdentifierNode) node).getIdentifier();
 
-	IOpenClass type = bindingContext.findType(
-			ISyntaxConstants.THIS_NAMESPACE, fieldName);
+		IOpenClass type = bindingContext.findType(
+				ISyntaxConstants.THIS_NAMESPACE, fieldName);
 
 		if (type != null)
-		    return new TypeBoundNode(node, type);
-	
-	
-	IOpenField om = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE,
-		fieldName, strictMatch);
+			return new TypeBoundNode(node, type);
 
-	if (om != null)
-	    return new FieldBoundNode(node, om);
+		IOpenField om = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE,
+				fieldName, strictMatch);
 
+		if (om != null)
+			return new FieldBoundNode(node, om);
 
-	throw new BoundError(node, "Field not found: " + fieldName, null);
+		throw new BoundError(node, "Field not found: " + fieldName, null);
 
-    }
-
-    public IBoundNode bindTarget(ISyntaxNode node,
-	    IBindingContext bindingContext, IBoundNode target)
-    {
-
-	try
-	{
-
-	    boolean strictMatch = isStrictMatch(node);
-
-	    String fieldName = ((IdentifierNode) node).getIdentifier();
-
-	    IOpenField of =  bindingContext.findFieldFor(target.getType(), fieldName, false);
-
-	    if (of == null)
-		throw new FieldNotFoundException("Identifier: ", fieldName,
-			target.getType());
-
-	    return new FieldBoundNode(node, of, target);
-
-	} catch (Throwable t)
-	{
-	    bindingContext.addError(new BoundError(node, "Identifier:", t));
-	    return new ErrorBoundNode(node);
 	}
 
-    }
+	public IBoundNode bindTarget(ISyntaxNode node,
+			IBindingContext bindingContext, IBoundNode target) {
 
-    static boolean isStrictMatch(ISyntaxNode node)
-    {
-	return !node.getType().contains(".nostrict");
-    }
+		try {
+			// TODO define better use for strictmatch
+			// boolean strictMatch = isStrictMatch(node);
+
+			String fieldName = ((IdentifierNode) node).getIdentifier();
+
+			IOpenField of = bindingContext.findFieldFor(target.getType(),
+					fieldName, false);
+
+			if (of == null)
+				throw new FieldNotFoundException("Identifier: ", fieldName,
+						target.getType());
+
+			return new FieldBoundNode(node, of, target);
+
+		} catch (Throwable t) {
+			bindingContext.addError(new BoundError(node, "Identifier:", t));
+			return new ErrorBoundNode(node);
+		}
+
+	}
+
+	static boolean isStrictMatch(ISyntaxNode node) {
+		return !node.getType().contains(".nostrict");
+	}
 
 }

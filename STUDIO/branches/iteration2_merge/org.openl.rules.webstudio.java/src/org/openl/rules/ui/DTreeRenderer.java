@@ -45,18 +45,18 @@ public abstract class DTreeRenderer {
         return String.valueOf(obj);
     }
 
-    protected abstract String makeURL(ITreeElement element);
+    protected abstract String makeURL(ITreeElement<?> element);
 
-    public String renderRoot(ITreeElement element) {
+    public String renderRoot(ITreeElement<?> element) {
         StringBuffer buf = new StringBuffer(1000);
         renderElement(null, element, buf);
         return buf.toString();
     }
 
-    public void renderElement(ITreeElement parent, ITreeElement element, StringBuffer buf) {
+    public void renderElement(ITreeElement<?> parent, ITreeElement<?> element, StringBuffer buf) {
         renderSingleElement(parent, element, buf);
         for (Iterator iter = element.getChildren(); iter.hasNext();) {
-            ITreeElement child = (ITreeElement) iter.next();
+            ITreeElement<?> child = (ITreeElement) iter.next();
             renderElement(element, child, buf);
         }
     }

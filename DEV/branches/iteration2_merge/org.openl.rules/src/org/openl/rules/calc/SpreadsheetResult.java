@@ -7,6 +7,7 @@ import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DynamicObject;
+import org.openl.util.print.NicePrinter;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetResult implements IDynamicObject 
@@ -17,7 +18,7 @@ public class SpreadsheetResult implements IDynamicObject
 	SpreadsheetType type;
 	Spreadsheet calc;
 	
-	DynamicObject targetModule; // OpenL module
+	IDynamicObject targetModule; // OpenL module
 	Object[] params;  // copy of the spreadsheet call params
 	
 	IRuntimeEnv env; //copy of the call environment
@@ -27,6 +28,16 @@ public class SpreadsheetResult implements IDynamicObject
 	
 	
 	
+	public SpreadsheetResult(Spreadsheet calc, IDynamicObject targetModule,
+			Object[] params, IRuntimeEnv env) {
+		super();
+		this.calc = calc;
+		this.type = calc.getSpreadsheetType();
+		this.targetModule = targetModule;
+		this.params = params;
+		this.env = env;
+	}
+
 	public Object getFieldValue(String name) 
 	{
 		if (cacheResult)
@@ -61,6 +72,26 @@ public class SpreadsheetResult implements IDynamicObject
 		
 	}
 
-	
+	public Object getColumn(int column, IRuntimeEnv env2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object getRow(int row, IRuntimeEnv env2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	  public String toString()
+	  {
+	    NicePrinter printer = new NicePrinter();
+	    printer.print(this, DynamicObject.getNicePrinterAdaptor());
+	    return printer.getBuffer().toString();
+	  }
+
+	public Map<String, Object> getFieldValues() {
+		return results;
+	}
+
 	
 }

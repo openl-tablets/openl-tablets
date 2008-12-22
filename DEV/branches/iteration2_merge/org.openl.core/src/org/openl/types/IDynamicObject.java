@@ -6,6 +6,8 @@
  
 package org.openl.types;
 
+import java.util.Map;
+
 /**
  * @author snshor
  *
@@ -17,5 +19,7 @@ public interface IDynamicObject
 	
 	Object getFieldValue(String name);
 	void setFieldValue(String name, Object value);
+
+	Map<String, Object> getFieldValues();
 
 }

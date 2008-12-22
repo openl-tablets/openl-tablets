@@ -82,7 +82,7 @@ public class DynamicObject implements IDynamicObject
     return printer.getBuffer().toString();
   }
 
-  public NicePrinterAdaptor getNicePrinterAdaptor()
+  static public NicePrinterAdaptor getNicePrinterAdaptor()
   {
     return new DONIcePrinterAdaptor();	
   }
@@ -98,12 +98,12 @@ public class DynamicObject implements IDynamicObject
      */
     public void printObject(Object obj, int newID, NicePrinter printer)
     {
-      if (obj instanceof DynamicObject)
+      if (obj instanceof IDynamicObject)
       {
-        DynamicObject dobj = (DynamicObject) obj;
+        IDynamicObject dobj = (IDynamicObject) obj;
         printReference(dobj, newID, printer);
 //        printer.getBuffer().append(shortTypeName(dobj.getType().getName()));
-        printMap(dobj.fieldValues, null, printer);
+        printMap(dobj.getFieldValues(), null, printer);
         return;
       }
 
@@ -121,6 +121,10 @@ public class DynamicObject implements IDynamicObject
   protected boolean isMyField(String name)
   {
 	return type.getField(name) != null;
-  } 
+  }
+
+public HashMap<String, Object> getFieldValues() {
+	return fieldValues;
+} 
 
 }

@@ -58,9 +58,6 @@ public class MethodSignature implements IMethodSignature
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public MethodSignature(IParameterDeclaration[] parameters)
 	{
 		this.parameters = parameters;
@@ -72,9 +69,6 @@ public class MethodSignature implements IMethodSignature
 			(IParameterDeclaration[]) ArrayTool.merge(parameters, extraParams));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IMethodSignature#getParameterTypes()
-	 */
 	public IOpenClass[] getParameterTypes()
 	{
 		IOpenClass[] parameterTypes = new IOpenClass[parameters.length];
@@ -86,25 +80,16 @@ public class MethodSignature implements IMethodSignature
 		return parameterTypes;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IMethodSignature#getParameterName(int)
-	 */
 	public String getParameterName(int i)
 	{
 		return parameters[i].getName();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IMethodSignature#getParameterDirection(int)
-	 */
 	public int getParameterDirection(int i)
 	{
 		return parameters[i].getDirection();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openl.types.IMethodSignature#getNumberOfParameters()
-	 */
 	public int getNumberOfArguments()
 	{
 		return parameters.length;

@@ -20,7 +20,7 @@ public class IdentifierNode extends TerminalNode
 	public IdentifierNode(String type, ILocation pos, String identifier, IOpenSourceCodeModule module)
 	{
 		super(type, pos, module);
-		this.identifier = identifier;
+		this.identifier = identifier.intern();
 	}
 
   /**

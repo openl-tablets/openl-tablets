@@ -316,10 +316,10 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable
 		int right = topColumnsRegion.getRight();
 		int bottom = leftRowsRegion.getBottom();
 		
-		if (right <= left)
+		if (right < left)
 			throw new RuntimeException("Invalid horizontal dimension");
 		
-		if (bottom <= top)
+		if (bottom < top)
 			throw new RuntimeException("Invalid vertical dimension");
 		
 		IGridTable gt = new GridTable(top, left, bottom, right, leftRowsGrid.getGrid());

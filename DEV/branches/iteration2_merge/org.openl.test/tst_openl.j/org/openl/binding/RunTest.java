@@ -26,6 +26,10 @@ public class RunTest extends TestCase {
 
 	public void testRun() {
 
+		_runNoError("String $x$y=null; $x$y == null || $x$y.length() < 10", true,
+				"org.openl.j");
+		
+		
 		_runNoError("String x=null; x == null || x.length() < 10", true,
 				"org.openl.j");
 		_runNoError("String x=null; x != null && x.length() < 10", false,
@@ -106,10 +110,10 @@ public class RunTest extends TestCase {
 				new RangeWithBounds(2100000000, Integer.MAX_VALUE),
 				"org.openl.j", "range.literal");
 
-		_runWithError("10-2", SyntaxErrorException.class,
-				"org.openl.j", "range.literal");
-		_runNoError("10-12,599", new RangeWithBounds(10, 12599),
-				"org.openl.j", "range.literal");
+		_runWithError("10-2", SyntaxErrorException.class, "org.openl.j",
+				"range.literal");
+		_runNoError("10-12,599", new RangeWithBounds(10, 12599), "org.openl.j",
+				"range.literal");
 		_runNoError("$10,222 .. 12,599   ", new RangeWithBounds(10222, 12599),
 				"org.openl.j", "range.literal");
 	}

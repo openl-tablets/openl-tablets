@@ -291,8 +291,9 @@ public abstract class FunctionalRow implements IDecisionRow,
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void validateValue(Object res, IOpenClass paramType) {
-		IDomain<Object> domain = paramType.getDomain();
+		IDomain domain = paramType.getDomain();
 		if (domain == null || domain.selectObject(res))
 			return;
 
@@ -380,7 +381,7 @@ public abstract class FunctionalRow implements IDecisionRow,
 	IParameterDeclaration[] getParams(IBindingContext cxt) throws Exception {
 		if (params == null) {
 
-			Set paramNames = new HashSet();
+			Set<String> paramNames = new HashSet<String>();
 			int len = paramsTable.getLogicalHeight();
 			params = new IParameterDeclaration[len];
 
