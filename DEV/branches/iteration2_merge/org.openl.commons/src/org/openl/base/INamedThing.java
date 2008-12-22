@@ -30,9 +30,10 @@ public interface INamedThing
 
   
   
-	public static final NameConverter NAME_CONVERTOR = new NameConverter();
+  public static final NameConverter<INamedThing> NAME_CONVERTOR = new NameConverter<INamedThing>();
   
-  static class NameConverter extends AStringConvertor<INamedThing>
+  
+  static class NameConverter<T extends INamedThing> extends AStringConvertor<INamedThing>
   {
       
     public String getStringValue(INamedThing nt)

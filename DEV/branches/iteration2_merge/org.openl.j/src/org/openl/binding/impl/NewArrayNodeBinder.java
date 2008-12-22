@@ -6,6 +6,8 @@
  
 package org.openl.binding.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import org.openl.binding.IBindingContext;
@@ -51,7 +53,7 @@ public class NewArrayNodeBinder extends ANodeBinder
 				indexChild = indexChild.getChild(0);
 			}
 			
-			Vector expressions = new Vector();
+			List<ISyntaxNode> expressions = new ArrayList<ISyntaxNode>();
 			
 			while(indexChild.getType().equals("array.index.expression"))
 			{
@@ -66,7 +68,7 @@ public class NewArrayNodeBinder extends ANodeBinder
 			
 			for (int i = 0; i < exprAry.length; i++)
       {
-        exprAry[i] = bindTypeNode((ISyntaxNode)expressions.elementAt(i), bindingContext, JavaOpenClass.INT);
+        exprAry[i] = bindTypeNode(expressions.get(i), bindingContext, JavaOpenClass.INT);
       }
 			
 			

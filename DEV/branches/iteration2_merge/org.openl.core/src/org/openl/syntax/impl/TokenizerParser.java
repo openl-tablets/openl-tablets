@@ -8,9 +8,10 @@ package org.openl.syntax.impl;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -28,7 +29,7 @@ public class TokenizerParser
 
     static final int EOF = -1;
 
-    static Map tokenizers = new HashMap();
+    static Map<String, TokenizerParser> tokenizers = new HashMap<String, TokenizerParser>();
 
     static synchronized TokenizerParser getTokenizer(String delim)
     {
@@ -141,7 +142,7 @@ public class TokenizerParser
     {
 	try
 	{
-	    Vector nodes = new Vector();
+	    List<IdentifierNode> nodes = new ArrayList<IdentifierNode>();
 	    Reader reader = src.getCharacterStream();
 
 	    int c;
@@ -161,7 +162,7 @@ public class TokenizerParser
 				"token",
 				new TextInterval(new AbsolutePosition(
 					startToken), new AbsolutePosition(pos)),
-				buf.toString(), src);
+				buf.toString().trim(), src);
 			nodes.add(node);
 			buf = null;
 		    }

@@ -9,7 +9,7 @@ import org.openl.base.INamedThing;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ITreeElement;
 
-public class DoubleValue extends Number implements IMetaHolder, Comparable, ITreeElement, INamedThing
+public class DoubleValue extends Number implements IMetaHolder, Comparable<Number>, ITreeElement<DoubleValue>, INamedThing
 {
 	private static final long serialVersionUID = -4594250562069599646L;
 
@@ -19,7 +19,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable, ITre
 	
 	String format = "#0.##";
 	
-	public int compareTo(Object o)
+	public int compareTo(Number o)
 	{
 		return Double.compare(value, ((Number)o).doubleValue());
 	}
@@ -392,7 +392,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable, ITre
 		}
 
 
-		public Object getObject()
+		public DoubleValue getObject()
 		{
 			return this;
 		}

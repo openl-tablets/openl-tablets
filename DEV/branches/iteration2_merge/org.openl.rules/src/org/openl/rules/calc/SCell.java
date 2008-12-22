@@ -33,6 +33,38 @@ public class SCell
 	public IOpenMethod getMethod() {
 		return method;
 	}
+
+	public CellKind getKind() {
+		return kind;
+	}
+
+	public void setKind(CellKind kind) {
+		this.kind = kind;
+	}
+
+	public void setValue(Object value) 
+	{
+		if (value == null)
+			this.kind = CellKind. EMPTY;
+		else if (value instanceof IOpenMethod)
+		{
+			this.kind = CellKind. METHOD;
+			this.method = (IOpenMethod)value;
+		}	
+		else
+		{	
+			this.value = value;
+			this.kind = CellKind.VALUE;
+		}	
+	}
+
+	public void setType(IOpenClass type) {
+		this.type = type;
+	}
+
+	public void setMethod(IOpenMethod method) {
+		this.method = method;
+	}
 	
 
 }

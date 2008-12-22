@@ -1,6 +1,6 @@
 package org.openl.rules.calc;
 
-import org.openl.meta.StringValue;
+import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -18,22 +18,34 @@ public class Spreadsheet extends AMethod
 	}
 
 	public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-		// TODO Auto-generated method stub
-		return null;
+
+		return new SpreadsheetResult(this, (IDynamicObject)target, params, env);
 	}
 	
 	
 	
 	SCell[][] cells;
 
+	
+	
+	SpreadsheetType spreadsheetType; 
+	
 
 
-	public void addRowName(int row, StringValue sv, int cxtLevel) 
-	{
-		
-		
-		// TODO Auto-generated method stub
-		
+	public SCell[][] getCells() {
+		return cells;
+	}
+
+	public void setCells(SCell[][] cells) {
+		this.cells = cells;
+	}
+
+	public SpreadsheetType getSpreadsheetType() {
+		return spreadsheetType;
+	}
+
+	public void setSpreadsheetType(SpreadsheetType spreadsheetType) {
+		this.spreadsheetType = spreadsheetType;
 	}
 	
 //	SHeader[] horizontalHeaders;

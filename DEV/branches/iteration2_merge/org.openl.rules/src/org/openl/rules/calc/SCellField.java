@@ -3,9 +3,9 @@ package org.openl.rules.calc;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class ASCellField extends ASpreadsheetField {
+public class SCellField extends ASpreadsheetField {
 
-	public ASCellField(IOpenClass declaringClass, String name, SCell cell) {
+	public SCellField(IOpenClass declaringClass, String name, SCell cell) {
 		super(declaringClass, name, cell.getType());
 		this.cell = cell;
 	}

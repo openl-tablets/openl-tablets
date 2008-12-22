@@ -30,7 +30,7 @@ public class OpenLRuntimeException extends RuntimeException
 	Throwable cause;
 	IBoundNode node;
 
-	Stack openlCallStack = new Stack();
+	Stack<IBoundNode> openlCallStack = new Stack<IBoundNode>();
 
 	public OpenLRuntimeException(Throwable cause, IBoundNode node)
 	{
@@ -62,7 +62,7 @@ public class OpenLRuntimeException extends RuntimeException
 	/**
 	 * @return
 	 */
-	public Stack getOpenlCallStack()
+	public Stack<IBoundNode> getOpenlCallStack()
 	{
 		return openlCallStack;
 	}
@@ -94,11 +94,11 @@ public class OpenLRuntimeException extends RuntimeException
 			syntaxNode.getModule(),
 			stream);
 
-		Stack nodes = getOpenlCallStack();
+		Stack<IBoundNode> nodes = getOpenlCallStack();
 
 		for (int i = 0; i < nodes.size(); i++)
 		{
-			IBoundNode node = (IBoundNode) nodes.elementAt(i);
+			IBoundNode node = nodes.elementAt(i);
 			SourceCodeURLTool.printSourceLocation(
 				node.getSyntaxNode().getSourceLocation(),
 				node.getSyntaxNode().getModule(),

@@ -10,6 +10,7 @@ import java.util.Map;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.rules.dt.ADTRuleIndex.DTRuleNode;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNodeBuilder;
 import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
@@ -27,9 +28,9 @@ public class EqualsIndexedEvaluator implements IDTConditionEvaluator
 		
 		
 		
-		HashMap valueNodes = new HashMap();
+		HashMap<Object, DTRuleNode> valueNodes = new HashMap<Object, DTRuleNode>();
 
-		public EqualsIndex(DTRuleNode emptyOrFormulaNodes, HashMap valueNodes)
+		public EqualsIndex(DTRuleNode emptyOrFormulaNodes, HashMap<Object, DTRuleNode> valueNodes)
 		{
 			super(emptyOrFormulaNodes);
 			this.valueNodes = valueNodes;
@@ -40,7 +41,7 @@ public class EqualsIndexedEvaluator implements IDTConditionEvaluator
 		{
 			if (value != null)
 			{
-				DTRuleNode node = (DTRuleNode)valueNodes.get(value);
+				DTRuleNode node = valueNodes.get(value);
 				return node;
 			}	
 			
@@ -48,7 +49,7 @@ public class EqualsIndexedEvaluator implements IDTConditionEvaluator
 		}
 
 
-		public Iterator nodes()
+		public Iterator<DTRuleNode> nodes()
 		{
 			return valueNodes.values().iterator();
 		}
@@ -60,7 +61,7 @@ public class EqualsIndexedEvaluator implements IDTConditionEvaluator
 		if (it.size() < 1)
 			return null;
 		
-		HashMap map = new HashMap();
+		HashMap<Object, DTRuleNodeBuilder> map = new HashMap<Object, DTRuleNodeBuilder>();
 		DTRuleNodeBuilder emptyBuilder =  new DTRuleNodeBuilder();
 
 		
@@ -72,7 +73,7 @@ public class EqualsIndexedEvaluator implements IDTConditionEvaluator
 			{
 				emptyBuilder.addRule(i);
 				
-				for (Iterator iter = map.values().iterator(); iter.hasNext();)
+				for (Iterator<DTRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();)
 				{
 					DTRuleNodeBuilder dtrnb = (DTRuleNodeBuilder) iter.next();
 					dtrnb.addRule(i);
@@ -94,13 +95,13 @@ public class EqualsIndexedEvaluator implements IDTConditionEvaluator
 		}
 		
 
-		HashMap nodeMap = new HashMap();
+		HashMap<Object, DTRuleNode> nodeMap = new HashMap<Object, DTRuleNode>();
 		
-		for (Iterator iter = map.entrySet().iterator(); iter.hasNext();)
+		for (Iterator<Map.Entry<Object, DTRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();)
 		{
-			Map.Entry element = (Map.Entry) iter.next();
+			Map.Entry<Object, DTRuleNodeBuilder> element = iter.next();
 			
-			nodeMap.put(element.getKey(), ((DTRuleNodeBuilder)element.getValue()).makeNode());
+			nodeMap.put(element.getKey(), element.getValue().makeNode());
 		}
 		
 		

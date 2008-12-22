@@ -18,13 +18,13 @@ import org.openl.types.IOpenMethodHeader;
 public class MethodUtil
 {
 
-	static public String printMethod(String name, Class[] params)
+	static public String printMethod(String name, Class<?>[] params)
 	{
 		return printMethod(name, params, new StringBuffer()).toString();
 	}
 
 
-	static public StringBuffer printMethod(String name, Class[] params, StringBuffer buf)
+	static public StringBuffer printMethod(String name, Class<?>[] params, StringBuffer buf)
 	{
 		buf.append(name).append("(");
 		for (int i = 0; i < params.length; i++)
