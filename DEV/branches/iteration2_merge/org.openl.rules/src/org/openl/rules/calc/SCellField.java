@@ -16,13 +16,16 @@ public class SCellField extends ASpreadsheetField {
 	public Object calculate(SpreadsheetResult spreadsheetResult,
 			Object targetModule, Object[] params, IRuntimeEnv env) 
 	{
-		if (cell.isValueCell())
-			return cell.getValue();
-		
-		if (cell.isMethodCell())
-			return cell.getMethod().invoke(spreadsheetResult, params, env);
-		
-		return null;
+		return cell.calculate(spreadsheetResult, targetModule, params, env);
+	}
+
+	@Override
+	public IOpenClass getType() {
+		return cell.getType();
+	}
+
+	public SCell getCell() {
+		return cell;
 	}
 	
 }

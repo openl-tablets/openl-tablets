@@ -1,13 +1,13 @@
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 import org.openl.meta.DoubleValue;
 import org.openl.meta.DoubleValueFormula;
 import org.openl.meta.DoubleValueFunction;
 import org.openl.meta.IMetaInfo;
-import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.util.OpenIterator;
@@ -19,7 +19,7 @@ public class Explanation
 {
 	DoubleValue root;
 
-	Vector expandedValues = new Vector();
+	List<DoubleValue> expandedValues = new ArrayList<DoubleValue>();
 	
 //	String pname;
 //	String period;
@@ -40,7 +40,7 @@ public class Explanation
 	{
 		String text = value.printValue();
 		String url = findUrl(value, null);
-		ValueMetaInfo mi = (ValueMetaInfo) value.getMetaInfo();
+		IMetaInfo mi = value.getMetaInfo();
 		String name = mi != null ?  mi.getDisplayName(IMetaInfo.LONG) : null ;
 		
 		if (url != null)
@@ -117,7 +117,7 @@ public class Explanation
 	
 	static String getName(DoubleValue value )
 	{
-		ValueMetaInfo mi = (ValueMetaInfo) value.getMetaInfo();
+		IMetaInfo mi =  value.getMetaInfo();
 		String name = mi != null ?  mi.getDisplayName(IMetaInfo.LONG) : null ;
 		return name;
 	}
@@ -211,7 +211,7 @@ public class Explanation
 
 	public String findUrl(DoubleValue value, String parentUrl)
 	{
-		ValueMetaInfo mi = (ValueMetaInfo) value.getMetaInfo(); 
+		IMetaInfo mi =  value.getMetaInfo(); 
 		
 		String url = mi != null ? mi.getSourceUrl() : null;
 		if (url == null)
@@ -240,7 +240,7 @@ public class Explanation
 	
 
 
-	public Vector getExpandedValues()
+	public List<DoubleValue> getExpandedValues()
 	{
 		return expandedValues;
 	}
@@ -253,7 +253,7 @@ public class Explanation
 	}
 
 
-	public void setExpandedValues(Vector expandedValues)
+	public void setExpandedValues(List<DoubleValue> expandedValues)
 	{
 		this.expandedValues = expandedValues;
 	}

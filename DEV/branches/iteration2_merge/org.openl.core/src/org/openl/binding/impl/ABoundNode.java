@@ -77,9 +77,6 @@ public abstract class ABoundNode implements IBoundNode
     return syntaxNode;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBoundNode#getChild()
-   */
   public IBoundNode[] getChildren()
   {
     return children;
@@ -91,25 +88,16 @@ public abstract class ABoundNode implements IBoundNode
   }
 
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBoundNode#assign(java.lang.Object)
-   */
   public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException
   {
 		throw new UnsupportedOperationException();
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBoundNode#isLvalue()
-   */
   public boolean isLvalue()
   {
     return false;
   }
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-   */
   public Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException
   {
   	try

@@ -2,9 +2,14 @@ package org.openl.rules.calc;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.vm.IRuntimeEnv;
 
 public class SCell 
 {
+	
+	int row, column;
+	
+
 
 	public enum CellKind{VALUE, METHOD, EMPTY};
 	
@@ -64,6 +69,39 @@ public class SCell
 
 	public void setMethod(IOpenMethod method) {
 		this.method = method;
+	}
+
+	public int getRow() {
+		return row;
+	}
+
+	public int getColumn() {
+		return column;
+	}
+
+	public SCell(int row, int column) {
+		super();
+		this.row = row;
+		this.column = column;
+	}
+	
+	
+	public Object calculate(SpreadsheetResult spreadsheetResult,
+			Object targetModule, Object[] params, IRuntimeEnv env) 
+	{
+		if (isValueCell())
+		{	
+			Object value = getValue();
+			if (value instanceof AnyCellValue)
+				return ((AnyCellValue)value).getValue();
+			return value;
+		}	
+		
+		else if (isMethodCell())
+			return getMethod().invoke(spreadsheetResult, params, env);
+		
+		else 
+			return null;
 	}
 	
 

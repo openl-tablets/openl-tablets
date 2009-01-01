@@ -4,6 +4,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -11,7 +12,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
 public class SSheetBoundNode   extends AMethodBasedNode
-		implements IMemberBoundNode
+		implements IMemberBoundNode, IXlsTableNames
 {
 
 	
@@ -31,6 +32,7 @@ public class SSheetBoundNode   extends AMethodBasedNode
 		
 		
 		ILogicalTable tableBody = this.getTableSyntaxNode().getTableBody();
+		getTableSyntaxNode().getSubTables().put(VIEW_BUSINESS, tableBody);
 		builder.build(tableBody);
 		
 	}
@@ -42,7 +44,7 @@ public class SSheetBoundNode   extends AMethodBasedNode
 
 	@Override
 	protected IOpenMethod createMethodShell() {
-		return Spreadsheet.createSpreadsheet(header);
+		return Spreadsheet.createSpreadsheet(header, this);
 	}
 	
 	public Spreadsheet getSpreadsheet()

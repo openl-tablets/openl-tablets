@@ -145,7 +145,7 @@ public class ProjectModel implements IProjectTypes {
 		IGridRegion region = XlsSheetGridModel.makeRegion(p1.range);
 
 		if (view == null)
-			view = IDecisionTableConstants.VIEW_BUSINESS;
+			view = IXlsTableNames.VIEW_BUSINESS;
 		ILogicalTable gtx = (ILogicalTable) tsn.getSubTables().get(view);
 		IGridTable gt = tsn.getTable().getGridTable();
 		if (gtx != null)

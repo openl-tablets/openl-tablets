@@ -49,6 +49,18 @@ public class SpreadsheetHeaderDefinition
 	public void setVars(List<SymbolicTypeDef> vars) {
 		this.vars = vars;
 	}
+	
+	
+	public String getFirstname()
+	{
+		for(SymbolicTypeDef sd: vars)
+		{
+			if (sd != null && sd.name != null)
+				return sd.name.getIdentifier();
+				
+		}	
+		return null;
+	}
 
 
 }

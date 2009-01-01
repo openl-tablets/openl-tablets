@@ -3,7 +3,7 @@ package org.openl.meta;
 
 import java.text.DecimalFormat;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 import org.openl.base.INamedThing;
 import org.openl.util.AOpenIterator;
@@ -13,7 +13,8 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 {
 	private static final long serialVersionUID = -4594250562069599646L;
 
-	ValueMetaInfo metaInfo;
+//	ValueMetaInfo metaInfo;
+	IMetaInfo metaInfo;
 	
 	double value;
 	
@@ -50,29 +51,33 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 	public DoubleValue(double value, String name)
 	{
 		this.value = value;
-		metaInfo = new ValueMetaInfo();
-		metaInfo.setShortName(name);
+		ValueMetaInfo mi = new ValueMetaInfo(); 
+		mi.setShortName(name);
+		metaInfo = mi;
 	}
 	
 	public void setName(String name)
 	{
 		if (metaInfo == null)
 			metaInfo = new ValueMetaInfo();
-		metaInfo.setShortName(name);
+		if (metaInfo instanceof ValueMetaInfo)
+			((ValueMetaInfo)metaInfo).setShortName(name);
 	}
 
 	public void setSourceUri(String uri)
 	{
 		if (metaInfo == null)
 			metaInfo = new ValueMetaInfo();
-		metaInfo.setSourceUrl(uri);
+		if (metaInfo instanceof ValueMetaInfo)
+			((ValueMetaInfo)metaInfo).setSourceUrl(uri);
 	}
 
 	public void setFullName(String name)
 	{
 		if (metaInfo == null)
 			metaInfo = new ValueMetaInfo();
-		metaInfo.setFullName(name);
+		if (metaInfo instanceof ValueMetaInfo)
+			((ValueMetaInfo)metaInfo).setFullName(name);
 	}
 	
 	public String getName()
@@ -96,7 +101,7 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 
 	public void setMetaInfo(IMetaInfo metaInfo)
 	{
-		this.metaInfo = (ValueMetaInfo)metaInfo;
+		this.metaInfo = metaInfo;
 	}
 	
 	static public final int VALUE = 0x01, SHORT_NAME = 0x02, LONG_NAME = 0x04, 
@@ -274,11 +279,11 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 		return new DoubleValueFunction(Math.round (dv1.getValue()), "round", new DoubleValue[]{dv1});
 	}
 	
-	public String printExplanation(int mode, boolean fromMultiplicativeExpr, Vector urls)
+	public String printExplanation(int mode, boolean fromMultiplicativeExpr, List<String> urls)
 	{
 		
 		if (urls != null && metaInfo != null && metaInfo.getSourceUrl() != null)
-			urls.add(""+ metaInfo.getDisplayName(IMetaInfo.LONG) + " -> "+ metaInfo.sourceUrl);
+			urls.add(""+ metaInfo.getDisplayName(IMetaInfo.LONG) + " -> "+ metaInfo.getSourceUrl());
 		return printExplanationLocal(mode, fromMultiplicativeExpr);
 	}
 	
