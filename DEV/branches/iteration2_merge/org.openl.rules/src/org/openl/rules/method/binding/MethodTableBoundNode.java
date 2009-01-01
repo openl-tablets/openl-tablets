@@ -106,22 +106,12 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 			return MethodTableBoundNode.this.getSyntaxNode();
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.openl.types.IMemberMetaInfo#getDependencies()
-		 */
 		public BindingDependencies getDependencies() {
 			BindingDependencies bd = new BindingDependencies();
 			updateDependency(bd);
 			return bd;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.openl.meta.IMetaInfo#getSourceUrl()
-		 */
 		public String getSourceUrl() {
 			return getTableSyntaxNode().getUri();
 		}

@@ -380,7 +380,7 @@ public void parseTopNode(String type)
           jj_consume_token(-1);
           throw new ParseException();
         }
-                                                   func="eq";
+                                                      func="eq";
         break;
       case NE:
       case 129:
@@ -400,7 +400,7 @@ public void parseTopNode(String type)
           jj_consume_token(-1);
           throw new ParseException();
         }
-                                                                                                                             func="ne";
+                                                                                                                                   func="ne";
         break;
       default:
         jj_la1[12] = jj_gen;
@@ -3052,6 +3052,19 @@ String func = null;
     return false;
   }
 
+  final private boolean jj_3R_154() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(77)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(129)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(130)) return true;
+    }
+    }
+    return false;
+  }
+
   final private boolean jj_3R_76() {
     if (jj_3R_41()) return true;
     return false;
@@ -3068,19 +3081,6 @@ String func = null;
     while (true) {
       xsp = jj_scanpos;
       if (jj_3R_178()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_154() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(77)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(129)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(130)) return true;
-    }
     }
     return false;
   }

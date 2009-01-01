@@ -6,6 +6,7 @@ package org.openl.rules.ui;
 import org.openl.base.INamedThing;
 import org.openl.base.NamedThing;
 import org.openl.rules.dt.IDecisionTableConstants;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.StringTool;
@@ -85,7 +86,7 @@ public abstract class WebStudioMode extends NamedThing
 
 		public String getTableMode()
 		{
-			return IDecisionTableConstants.VIEW_DEVELOPER;
+			return IXlsTableNames.VIEW_DEVELOPER;
 		}
 
 		public boolean showTableGrid()
@@ -195,7 +196,7 @@ public abstract class WebStudioMode extends NamedThing
 				name = tp.getPropertyValue("name");
 			}	
 			
-			return name != null && (view == null || view.indexOf(IDecisionTableConstants.VIEW_BUSINESS) >= 0)  || tsn.getErrors() != null;
+			return name != null && (view == null || view.indexOf(IXlsTableNames.VIEW_BUSINESS) >= 0)  || tsn.getErrors() != null;
 		}
 
 //		static ATableTreeSorter[][] sorters = { {
@@ -212,7 +213,7 @@ public abstract class WebStudioMode extends NamedThing
 
 		public String getTableMode()
 		{
-			return IDecisionTableConstants.VIEW_BUSINESS;
+			return IXlsTableNames.VIEW_BUSINESS;
 		}
 
 		public boolean showTableGrid()

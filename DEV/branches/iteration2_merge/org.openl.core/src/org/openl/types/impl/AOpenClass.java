@@ -232,7 +232,7 @@ public abstract class AOpenClass implements IOpenClass
 	{
 	    IOpenField f = iterator.next();
 	    
-	    String lname = f.getName().toLowerCase();
+	    String lname = f.getName().toLowerCase().replace(" ", "");
 	    
 	    if (uniqueLowerCaseFieldMap.containsKey(lname))
 	    {

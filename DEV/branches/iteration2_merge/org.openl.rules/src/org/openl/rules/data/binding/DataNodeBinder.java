@@ -166,7 +166,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 		OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(
 				tableName, tableType, openl, descriptors);
 
-		tsn.getSubTables().put(IDecisionTableConstants.VIEW_BUSINESS, dataWithHeader);
+		tsn.getSubTables().put(VIEW_BUSINESS, dataWithHeader);
 		
 		OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, cxt);
 		

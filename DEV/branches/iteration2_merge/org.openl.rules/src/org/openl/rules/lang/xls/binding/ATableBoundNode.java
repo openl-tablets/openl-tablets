@@ -3,6 +3,7 @@
  */
 package org.openl.rules.lang.xls.binding;
 
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ABoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -23,5 +24,16 @@ public abstract class ATableBoundNode extends ABoundNode
 	{
 		return (TableSyntaxNode)syntaxNode;
 	}
+
+	public void parseComponents(IBindingContext cxt)
+	{
+//TODO make abstract, implement in specific nodes		
+	}
+	
+	
+	
+	
+	
+	
 
 }

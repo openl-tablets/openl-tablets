@@ -36,5 +36,9 @@ public interface IXlsTableNames
 		TEST_METHOD_TABLE = "Testmethod",
 		RUN_METHOD_TABLE = "Runmethod",
 		PERSISTENCE_TABLE = "Persistent";
+	
+	static public final String VIEW_BUSINESS = "view.business";
+	static public final String VIEW_DEVELOPER = "view.developer";
+
 
 }

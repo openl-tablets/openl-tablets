@@ -37,7 +37,7 @@ public class TableValueFilter extends AGridFilter
 		return cell;
 	}
 
-	private Object getCellValue(int column, int row)
+	public Object getCellValue(int column, int row)
 	{
 		Object v = model.getValue(column - startX, row - startY);
 

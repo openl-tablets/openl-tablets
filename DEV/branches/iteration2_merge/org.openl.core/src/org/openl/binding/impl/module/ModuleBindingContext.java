@@ -41,10 +41,10 @@ public class ModuleBindingContext extends BindingContextDelegator
 	this.module = module;
     }
 
-    public void addMethod(DeferredMethod dm)
-    {
-	module.addMethod(dm);
-    }
+//    public void addMethod(DeferredMethod dm)
+//    {
+//	module.addMethod(dm);
+//    }
 
     /*
      * (non-Javadoc)

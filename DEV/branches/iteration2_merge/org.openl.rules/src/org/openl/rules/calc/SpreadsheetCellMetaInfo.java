@@ -1,17 +1,26 @@
 package org.openl.rules.calc;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.meta.IMetaInfo;
 
-public class SpreadsheetCellMetaInfo implements IMetaInfo {
+public class SpreadsheetCellMetaInfo implements IMetaInfo 
+{
+
+	String name;
+	IOpenSourceCodeModule src;
+	
+	public SpreadsheetCellMetaInfo(String name, IOpenSourceCodeModule src) {
+		super();
+		this.name = name;
+		this.src = src;
+	}
 
 	public String getDisplayName(int mode) {
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 
 	public String getSourceUrl() {
-		// TODO Auto-generated method stub
-		return null;
+		return src.getUri(0);
 	}
 
 }

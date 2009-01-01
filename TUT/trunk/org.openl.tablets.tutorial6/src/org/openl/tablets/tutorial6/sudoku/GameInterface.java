@@ -1,7 +1,7 @@
 package org.openl.tablets.tutorial6.sudoku;
 
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.IDecisionTableConstants;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
@@ -33,7 +33,7 @@ public class GameInterface
 		TableSyntaxNode tsn = dt.getTableSyntaxNode();
 
 		IGridTable gt = (IGridTable) tsn.getSubTables().get(
-				IDecisionTableConstants.VIEW_BUSINESS);
+				IXlsTableNames.VIEW_BUSINESS);
 		return gt;
 	}
 	

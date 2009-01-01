@@ -12,6 +12,7 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 
@@ -20,7 +21,7 @@ import org.openl.rules.table.ILogicalTable;
  * @author snshor
  *  
  */
-public class DTLoader implements IDecisionTableConstants
+public class DTLoader implements IDecisionTableConstants, IXlsTableNames
 {
 
 	void addCondition(String name, int row, ILogicalTable table)

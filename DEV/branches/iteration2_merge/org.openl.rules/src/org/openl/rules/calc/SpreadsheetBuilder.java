@@ -3,11 +3,13 @@ package org.openl.rules.calc;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.base.INamedThing;
 import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
+import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
 import org.openl.rules.data.IString2DataConvertor;
@@ -210,34 +212,63 @@ public class SpreadsheetBuilder
 		SpreadsheetType stype = spreadsheet.getSpreadsheetType();
 		ModuleBindingContext scxt = new ModuleBindingContext(cxt, stype);
 		
+		SCell[][] cells = new SCell[h][w];
+		
+		spreadsheet.setCells(cells);
+
+		for (int row = 0; row < h; row++) 
+		{
+			for (int col = 0; col < w; col++) {
+				SCell scell = new SCell(row, col);
+				cells[row][col] =scell;
+				for( SymbolicTypeDef coldef :  columnHeaders.get(col).getVars())
+				{	
+				
+					for( SymbolicTypeDef rowdef :  rowHeaders.get(row).getVars())
+						
+					{
+						String fieldname = "$"+coldef.name.getIdentifier() + "$"+rowdef.name.getIdentifier();
+						stype.addField(new SCellField(stype,fieldname , scell));
+//						System.out.println("$"+coldef.name.getIdentifier() + "$"+rowdef.name.getIdentifier());
+					}
+				}
+			}	
+		}
+		
 		for (int row = 0; row < h; row++) 
 		{
 			for (int col = 0; col < w; col++) {
 				
 				ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable.getLogicalColumn(col));
 				
-				SCell scell = new SCell();
+				SCell scell = cells[row][col];
 				
-				deriveCellType(scell, cell, columnHeaders.get(col), rowHeaders.get(row));
+				IOpenClass type = deriveCellType(scell, cell, columnHeaders.get(col), rowHeaders.get(row), cell.getGridTable().getStringValue(0,0));
 				
 				
-				IMetaInfo meta = new SpreadsheetCellMetaInfo();
+				scell.setType(type);
+				
+				IOpenSourceCodeModule src = new GridCellSourceCodeModule(cell.getGridTable());
+				String name = "$" + columnHeaders.get(col).getFirstname() + '$' + rowHeaders.get(row).getFirstname();
+				
+				IMetaInfo meta = new SpreadsheetCellMetaInfo(name, src);
 				CellLoader loader = new CellLoader(scxt, makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheet.getHeader(), scell.getType()), makeConvertor(scell.getType()) );
 				
-				for( SymbolicTypeDef coldef :  columnHeaders.get(col).getVars())
-				{	
-				
-					for( SymbolicTypeDef rowdef :  rowHeaders.get(row).getVars())
-					{
-						stype.addField(new SCellField(stype, "$"+coldef.name.getIdentifier() + "$"+rowdef.name.getIdentifier(), scell));
-					}
-				}	
+//				for( SymbolicTypeDef coldef :  columnHeaders.get(col).getVars())
+//				{	
+//				
+//					for( SymbolicTypeDef rowdef :  rowHeaders.get(row).getVars())
+//					{
+//						stype.addField(new SCellField(stype, "$"+coldef.name.getIdentifier() + "$"+rowdef.name.getIdentifier(), scell));
+//						System.out.println("$"+coldef.name.getIdentifier() + "$"+rowdef.name.getIdentifier());
+//					}
+//				}	
 				
 				
 				
 				
 				try {
-					Object cellvalue = loader.loadSingleParam(new GridCellSourceCodeModule(cell.getGridTable()), meta);
+					Object cellvalue = loader.loadSingleParam(src, meta);
 					scell.setValue(cellvalue);
 				} catch (BoundError e) {
 					tsn.addError(e);
@@ -263,17 +294,27 @@ public class SpreadsheetBuilder
 
 	static final IOpenClass DEFAULT_CELL_TYPE = JavaOpenClass.getOpenClass(AnyCellValue.class);  
 
-	private void deriveCellType(SCell scell,
+	private IOpenClass deriveCellType(SCell scell,
 			ILogicalTable cell, SpreadsheetHeaderDefinition colHeader,
-			SpreadsheetHeaderDefinition rowHeader) 
+			SpreadsheetHeaderDefinition rowHeader, String cellvalue) 
 	{
 		if (colHeader.getType() != null)
-			scell.setType( colHeader.getType());
+			return colHeader.getType();
 		
 		else if (rowHeader.getType() != null)
-			scell.setType( rowHeader.getType());
+			return rowHeader.getType();
 		else
-			scell.setType(DEFAULT_CELL_TYPE);
+		{	
+			try
+			{
+				new String2DataConvertorFactory.String2DoubleConvertor().parse(cellvalue, null, null);
+				return JavaOpenClass.getOpenClass(DoubleValue.class);
+			}
+			catch(Throwable t)
+			{
+				return JavaOpenClass.getOpenClass(StringValue.class);
+			}
+		}	
 		
 		
 	}

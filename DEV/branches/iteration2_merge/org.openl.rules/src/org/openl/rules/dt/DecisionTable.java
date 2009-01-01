@@ -11,6 +11,7 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IIntIterator;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.ISyntaxNode;
@@ -31,7 +32,7 @@ import org.openl.vm.Tracer;
  * 
  */
 public class DecisionTable implements IOpenMethod, IDecisionTable,
-		IDecisionTableConstants, IMemberMetaInfo
+		IDecisionTableConstants, IMemberMetaInfo, IXlsTableNames
 {
 	IOpenMethodHeader header;
 

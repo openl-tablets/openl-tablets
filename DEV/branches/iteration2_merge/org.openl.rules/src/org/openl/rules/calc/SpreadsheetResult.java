@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.types.IDynamicObject;
@@ -15,8 +14,7 @@ public class SpreadsheetResult implements IDynamicObject
 	
 	boolean cacheResult = true;
 
-	SpreadsheetType type;
-	Spreadsheet calc;
+	Spreadsheet spreadsheet;
 	
 	IDynamicObject targetModule; // OpenL module
 	Object[] params;  // copy of the spreadsheet call params
@@ -24,47 +22,39 @@ public class SpreadsheetResult implements IDynamicObject
 	IRuntimeEnv env; //copy of the call environment
 	
 	
-	Map<String, Object> results = new HashMap<String, Object>();
+	Object[][] results;
 	
 	
 	
-	public SpreadsheetResult(Spreadsheet calc, IDynamicObject targetModule,
+	public SpreadsheetResult(Spreadsheet spreadsheet, IDynamicObject targetModule,
 			Object[] params, IRuntimeEnv env) {
 		super();
-		this.calc = calc;
-		this.type = calc.getSpreadsheetType();
+		this.spreadsheet = spreadsheet;
+		
 		this.targetModule = targetModule;
 		this.params = params;
 		this.env = env;
+		results = new Object[spreadsheet.height()][spreadsheet.width()];
 	}
 
 	public Object getFieldValue(String name) 
 	{
-		if (cacheResult)
-		{
-			Object result = results.get(name);
-			if (result != null)
-				return result;
-			result = targetModule.getFieldValue(name);
-			if (result != null)
-				return result;
-		}	
-
 		
-		IOpenField f = type.getField(name);
+		IOpenField f = spreadsheet.getSpreadsheetType().getField(name);
 		
 		if (f == null)
-			throw new RuntimeException("Spreadsheet field " + name + " not found");
+			return targetModule.getFieldValue(name);
+
+		SCellField sfield = (SCellField)f;
 		
-		ASpreadsheetField sfield = (ASpreadsheetField)f;
+		int row = sfield.getCell().getRow();
+		int column = sfield.getCell().getColumn();
 		
-		return sfield.calculate(this, targetModule, params, env);
-		
-		
+		return getValue(row, column);
 	}
 
 	public IOpenClass getType() {
-		return type;
+		return spreadsheet.getSpreadsheetType();
 	}
 
 	public void setFieldValue(String name, Object value) {
@@ -77,7 +67,7 @@ public class SpreadsheetResult implements IDynamicObject
 		return null;
 	}
 
-	public Object getRow(int row, IRuntimeEnv env2) {
+	public Object getRow(int row, IRuntimeEnv env) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -89,8 +79,39 @@ public class SpreadsheetResult implements IDynamicObject
 	    return printer.getBuffer().toString();
 	  }
 
-	public Map<String, Object> getFieldValues() {
-		return results;
+	public Map<String, Object> getFieldValues() 
+	{
+		throw new UnsupportedOperationException("Should not be called, this is only used in NicePrinter");
+	}
+
+	public Spreadsheet getSpreadsheet() {
+		return spreadsheet;
+	}
+
+	public final int width() {
+		return spreadsheet.width();
+	}
+	public final int height() {
+		return spreadsheet.height();
+	}
+
+	public Object getValue(int row, int column) {
+		Object result = null;
+		if (cacheResult)
+		{
+			
+			result = results[row][column];
+			if (result != null)
+				return result;
+		}	
+
+		
+		
+		result = spreadsheet.cells[row][column].calculate(this, targetModule, params, env);
+		
+		results[row][column] = result;
+		
+		return result;
 	}
 
 	

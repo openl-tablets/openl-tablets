@@ -35,8 +35,6 @@ public interface IDecisionTableConstants
 		REPEAT_VALUE = 5;  //same as previous non-special cell 	
 
 
-	static public final String VIEW_BUSINESS = "view.business";
-	static public final String VIEW_DEVELOPER = "view.developer";
 
 
 }
