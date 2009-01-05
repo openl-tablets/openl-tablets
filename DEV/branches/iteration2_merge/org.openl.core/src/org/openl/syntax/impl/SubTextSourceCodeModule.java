@@ -6,21 +6,27 @@
  
 package org.openl.syntax.impl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
 
 import org.openl.IOpenSourceCodeModule;
 
 /**
  * @author snshor
+ * 
+ * Contains substring of the base code between start and end positions. End position can have either positive or negative values. If positive, it
+ * is the absolute end position from the beginning of the base code, if negative it is the relative position from the end o fthe base code 
  *
  */
 public class SubTextSourceCodeModule implements IOpenSourceCodeModule
 {
+	
+	
 
 	IOpenSourceCodeModule baseModule; 
 	int startPosition;
+	int endPosition = 0;
 
 
 	
@@ -35,6 +41,12 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule
 		this.startPosition = startPosition;
 	}
 	
+	public SubTextSourceCodeModule(IOpenSourceCodeModule baseModule, int startPosition, int endPosition)
+	{
+		this.baseModule = baseModule;
+		this.startPosition = startPosition;
+		this.endPosition = endPosition;
+	}
 	
 	
 
@@ -52,23 +64,7 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule
 
 	public Reader getCharacterStream()
 	{
-		Reader r = baseModule.getCharacterStream();
-		if (!skipStart)
-		{
-			
-			for (int i = 0; i < startPosition; i++)
-			{
-				try
-				{
-					r.read();
-				}
-				catch (IOException e)
-				{
-				}
-			}
-			skipStart = true;
-		}
-		return r;
+		return new StringReader(getCode()); 
 	}
 
 	/**
@@ -77,7 +73,10 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule
 
 	public String getCode()
 	{
-		return baseModule.getCode().substring(startPosition);
+		String code = baseModule.getCode();
+		
+		int end = endPosition <= 0 ? code.length() + endPosition : endPosition;
+		return code.substring(startPosition, end);
 	}
 
 	/**

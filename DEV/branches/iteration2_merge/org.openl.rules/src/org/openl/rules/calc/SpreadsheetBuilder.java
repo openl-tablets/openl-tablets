@@ -1,6 +1,8 @@
 package org.openl.rules.calc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.IOpenSourceCodeModule;
@@ -9,6 +11,7 @@ import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
@@ -138,8 +141,8 @@ public class SpreadsheetBuilder
 
 
 	public void build(ILogicalTable tableBody) {
-		ILogicalTable rowNamesTable = tableBody.getLogicalColumn(0).rows(1);
-		ILogicalTable columnNamesTable = tableBody.getLogicalRow(0).columns(1);
+		rowNamesTable = tableBody.getLogicalColumn(0).rows(1);
+		columnNamesTable = tableBody.getLogicalRow(0).columns(1);
 		
 		
 		for (int row = 0; row < rowNamesTable.getLogicalHeight(); row++) 
@@ -153,7 +156,7 @@ public class SpreadsheetBuilder
 		}
 		
 		buildType();
-		buildCells(rowNamesTable, columnNamesTable);
+		buildCells();
 		
 	}
 	
@@ -200,9 +203,10 @@ public class SpreadsheetBuilder
 		
 	}
 
+	ILogicalTable rowNamesTable; 
+	ILogicalTable columnNamesTable;
 
-
-	private void buildCells(ILogicalTable rowNamesTable, ILogicalTable columnNamesTable) 
+	private void buildCells() 
 	{
 //		ILogicalTable cellTable = LogicalTable.mergeBounds(rowNamesTable, columnNamesTable);
 		
@@ -218,6 +222,7 @@ public class SpreadsheetBuilder
 
 		for (int row = 0; row < h; row++) 
 		{
+			
 			for (int col = 0; col < w; col++) {
 				SCell scell = new SCell(row, col);
 				cells[row][col] =scell;
@@ -237,32 +242,32 @@ public class SpreadsheetBuilder
 		
 		for (int row = 0; row < h; row++) 
 		{
+			IBindingContext rowCxt = getRowContext(row, scxt);
+			
 			for (int col = 0; col < w; col++) {
+				IBindingContext colCxt = getColContext(col, rowCxt);
+				
 				
 				ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable.getLogicalColumn(col));
 				
 				SCell scell = cells[row][col];
+				IOpenSourceCodeModule src = new GridCellSourceCodeModule(cell.getGridTable());
+				String srcStr = src.getCode();
 				
-				IOpenClass type = deriveCellType(scell, cell, columnHeaders.get(col), rowHeaders.get(row), cell.getGridTable().getStringValue(0,0));
+				if (CellLoader.isFormula(srcStr))
+					formulaCells.add(scell);
+				
+				
+				IOpenClass type = deriveCellType(scell, cell, columnHeaders.get(col), rowHeaders.get(row), srcStr);
 				
 				
 				scell.setType(type);
 				
-				IOpenSourceCodeModule src = new GridCellSourceCodeModule(cell.getGridTable());
 				String name = "$" + columnHeaders.get(col).getFirstname() + '$' + rowHeaders.get(row).getFirstname();
 				
 				IMetaInfo meta = new SpreadsheetCellMetaInfo(name, src);
-				CellLoader loader = new CellLoader(scxt, makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheet.getHeader(), scell.getType()), makeConvertor(scell.getType()) );
+				CellLoader loader = new CellLoader(colCxt, makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheet.getHeader(), scell.getType()), makeConvertor(scell.getType()) );
 				
-//				for( SymbolicTypeDef coldef :  columnHeaders.get(col).getVars())
-//				{	
-//				
-//					for( SymbolicTypeDef rowdef :  rowHeaders.get(row).getVars())
-//					{
-//						stype.addField(new SCellField(stype, "$"+coldef.name.getIdentifier() + "$"+rowdef.name.getIdentifier(), scell));
-//						System.out.println("$"+coldef.name.getIdentifier() + "$"+rowdef.name.getIdentifier());
-//					}
-//				}	
 				
 				
 				
@@ -279,6 +284,78 @@ public class SpreadsheetBuilder
 			
 		}
 	}
+
+	Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
+	
+	private IBindingContext getRowContext(int row, IBindingContext scxt) 
+	{
+		IBindingContext cxt = rowContexts.get(row);
+		if (cxt == null)
+		{
+			cxt = makeRowContext(row, scxt);
+			rowContexts.put(row, cxt);
+		}	
+		
+		return cxt;
+	}
+
+	Map<Integer, IBindingContext> colContexts = new HashMap<Integer, IBindingContext>();
+	
+	private IBindingContext getColContext(int col, IBindingContext scxt) 
+	{
+		IBindingContext cxt = colContexts.get(col);
+		if (cxt == null)
+		{
+			cxt = makeColContext(col, scxt);
+			colContexts.put(col, cxt);
+		}	
+		
+		return cxt;
+	}
+
+
+
+	private IBindingContext makeRowContext(int row, IBindingContext scxt) 
+	{
+		int w = spreadsheet.width();
+		
+		ModuleOpenClass rtype = new ModuleOpenClass(null, spreadsheet.getName()+ "RowType" + row, cxt.getOpenL());
+		
+		ModuleBindingContext rcxt = new ModuleBindingContext(scxt, rtype);
+		
+		for (int col = 0; col < w; col++) {
+			SpreadsheetHeaderDefinition h = columnHeaders.get(col);
+			SCell scell = spreadsheet.getCells()[row][col];
+			for (SymbolicTypeDef coldef :  h.getVars()) {
+				String fieldname = "$"+coldef.name.getIdentifier();
+				rtype.addField(new SCellField(rtype, fieldname , scell));
+			}
+			
+		}
+		return rcxt;
+	}
+
+	private IBindingContext makeColContext(int col, IBindingContext scxt) 
+	{
+		int h = spreadsheet.height();
+		
+		ModuleOpenClass rtype = new ModuleOpenClass(null, spreadsheet.getName()+ "ColType" + col, cxt.getOpenL());
+		
+		ModuleBindingContext ccxt = new ModuleBindingContext(scxt, rtype);
+		
+		for (int row = 0; row < h; row++) {
+			SpreadsheetHeaderDefinition rh = rowHeaders.get(row);
+			SCell scell = spreadsheet.getCells()[row][col];
+			for (SymbolicTypeDef rowdef :  rh.getVars()) {
+				String fieldname = "$"+rowdef.name.getIdentifier();
+				rtype.addField(new SCellField(rtype, fieldname , scell));
+			}
+			
+		}
+		return ccxt;
+	}
+	
+
 
 	private IString2DataConvertor makeConvertor(IOpenClass type) {
 		return String2DataConvertorFactory.getConvertor(type.getInstanceClass());
@@ -307,6 +384,8 @@ public class SpreadsheetBuilder
 		{	
 			try
 			{
+				if (CellLoader.isFormula(cellvalue))
+					return JavaOpenClass.getOpenClass(DoubleValue.class);
 				new String2DataConvertorFactory.String2DoubleConvertor().parse(cellvalue, null, null);
 				return JavaOpenClass.getOpenClass(DoubleValue.class);
 			}
@@ -318,6 +397,9 @@ public class SpreadsheetBuilder
 		
 		
 	}
+	
+	
+	List<SCell> formulaCells = new ArrayList<SCell>(); 
 
 
 

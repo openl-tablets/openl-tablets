@@ -27,5 +27,23 @@ public class SCellField extends ASpreadsheetField {
 	public SCell getCell() {
 		return cell;
 	}
+
+	@Override
+	public Object get(Object target, IRuntimeEnv env) {
+		SpreadsheetResult res = (SpreadsheetResult)target;
+		
+		return res.getValue(cell.row, cell.column);
+	}
+
+	@Override
+	public void set(Object target, Object value, IRuntimeEnv env) 
+	{
+		throw new UnsupportedOperationException("Can not write to spreadsheet cell");
+	}
+
+	@Override
+	public boolean isWritable() {
+		return false;
+	}
 	
 }
