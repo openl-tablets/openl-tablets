@@ -5,7 +5,7 @@ import java.io.File;
 import org.openl.SmartProps;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.ruleservice.loader.DeploymentInfo;
+import org.openl.rules.ruleservice.loader.LoadingEventObject;
 import org.openl.rules.ruleservice.loader.LoadingListener;
 import org.openl.rules.ruleservice.loader.RulesLoader;
 import org.openl.rules.ruleservice.publish.DeploymentAdmin;
@@ -52,12 +52,12 @@ public class RuleServiceBase {
         
         loader.addLoadingListener(new LoadingListener (){
 
-            public void afterLoading(DeploymentInfo di, File deploymentLocalFolder) {
-                publisher.deploy(di, deploymentLocalFolder);
+            public void onAfterLoading(LoadingEventObject loadedDeployment) {
+                publisher.deploy(loadedDeployment.getDeploymentInfo(), loadedDeployment.getDeploymentLocalFolder());
             }
 
-            public void beforeLoading(DeploymentInfo di) {
-                publisher.undeploy(di);
+            public void onBeforeLoading(LoadingEventObject loadingDeployment) {
+                publisher.undeploy(loadingDeployment.getDeploymentInfo());
             }
             
         });

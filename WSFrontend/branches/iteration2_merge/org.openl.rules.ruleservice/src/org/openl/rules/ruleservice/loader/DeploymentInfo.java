@@ -15,14 +15,20 @@ public class DeploymentInfo {
      * Deployment version.
      */
     private CommonVersionImpl version;
-    
+
+    /**
+     * Separator between deployment name and its version in
+     * <code>DeployID</code> object.
+     */
     private final static char SEPARATOR = '#';
 
     /**
      * Creates a deployment info from name and string representation of version.
-     *
-     * @param name    deployment name
-     * @param version deployment version
+     * 
+     * @param name
+     *            deployment name
+     * @param version
+     *            deployment version
      */
     private DeploymentInfo(String name, String version) {
         this.name = name;
@@ -31,7 +37,7 @@ public class DeploymentInfo {
 
     /**
      * Returns deployment name.
-     *
+     * 
      * @return deployment name
      */
     public String getName() {
@@ -46,26 +52,32 @@ public class DeploymentInfo {
     }
 
     /**
-     * <code>DeploymentInfo</code>s are equal iff their names and versions are equal.
-     *
-     * @param o object to compare with
+     * <code>DeploymentInfo</code>s are equal if their names and versions are
+     * equal.
+     * 
+     * @param o
+     *            object to compare with
      * @return if objects are equal
      */
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DeploymentInfo)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof DeploymentInfo))
+            return false;
 
         DeploymentInfo that = (DeploymentInfo) o;
 
-        if (!name.equals(that.name)) return false;
-        if (version != null ? !version.equals(that.version) : that.version != null) return false;
+        if (!name.equals(that.name))
+            return false;
+        if (version != null ? !version.equals(that.version) : that.version != null)
+            return false;
 
         return true;
     }
 
     /**
      * Computing hash code consistent with {@link #equals(Object)}
-     *
+     * 
      * @return hash code
      */
     @Override
@@ -77,8 +89,9 @@ public class DeploymentInfo {
     }
 
     /**
-     * Returns <code>DeployID</code> object corresponding to this <code>DeploymentInfo</code>
-     *
+     * Returns <code>DeployID</code> object corresponding to this
+     * <code>DeploymentInfo</code>
+     * 
      * @return DeployID instance
      */
     public DeployID getDeployID() {
@@ -87,23 +100,26 @@ public class DeploymentInfo {
 
     /**
      * Parses string representation of deployment.
-     *
-     * @param deployment string representing deployment
-     * @return DeploymentInfo or <code>null</code> if <code>deployment</code> has invalid format.
+     * 
+     * @param deployment
+     *            string representing deployment
+     * @return DeploymentInfo or <code>null</code> if <code>deployment</code>
+     *         has invalid format.
      */
     public static DeploymentInfo valueOf(String deployment) {
-        if (deployment == null) {
-            throw new NullPointerException();
+        DeploymentInfo parsedDeploymentInfo = null;
+
+        if (deployment != null) {
+            int separatorPosition = deployment.lastIndexOf(SEPARATOR);
+
+            if (separatorPosition < 0) {
+                parsedDeploymentInfo = new DeploymentInfo(deployment, null);
+            } else {
+                parsedDeploymentInfo = new DeploymentInfo(deployment.substring(0, separatorPosition), deployment
+                        .substring(separatorPosition + 1));
+            }
         }
 
-        try {
-            int pos = deployment.lastIndexOf(SEPARATOR);
-            if (pos < 0) {
-                return new DeploymentInfo(deployment, null);
-            }
-            return new DeploymentInfo(deployment.substring(0, pos), deployment.substring(pos + 1));
-        } catch (Exception e) {
-            return null;
-        }
+        return parsedDeploymentInfo;
     }
 }
