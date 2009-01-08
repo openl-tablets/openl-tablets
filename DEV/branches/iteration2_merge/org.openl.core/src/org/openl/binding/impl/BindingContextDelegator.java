@@ -264,4 +264,12 @@ public class BindingContextDelegator implements IBindingContextDelegator
 	{
 	    return delegate.getOpenL();
 	}
+
+	public IBindingContext getDelegate() {
+		return delegate;
+	}
+
+	public void setDelegate(IBindingContext delegate) {
+		this.delegate = delegate;
+	}
 }
