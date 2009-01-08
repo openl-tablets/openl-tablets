@@ -13,5 +13,6 @@ package org.openl.binding;
 public interface IBindingContextDelegator extends IBindingContext
 {
 	public void setTopDelegate(IBindingContext delegate);
+	public void setDelegate(IBindingContext delegate);
 
 }

@@ -9,5 +9,5 @@
 <form name="errorForm" action="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf">
 <input type="hidden" name="elementID" value="<%=elementID%>">
 <input type="hidden" name="cell" value="">
-<input type="hidden" name="view" value="<%=org.openl.rules.dt.IDecisionTableConstants.VIEW_DEVELOPER%>" />
+<input type="hidden" name="view" value="<%=org.openl.rules.lang.xls.IXlsTableNames.VIEW_DEVELOPER%>" />
 </form>

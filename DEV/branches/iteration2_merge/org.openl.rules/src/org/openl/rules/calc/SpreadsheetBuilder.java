@@ -9,6 +9,7 @@ import org.openl.IOpenSourceCodeModule;
 import org.openl.base.INamedThing;
 import org.openl.binding.DuplicatedVarException;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -226,6 +227,14 @@ public class SpreadsheetBuilder
 			for (int col = 0; col < w; col++) {
 				SCell scell = new SCell(row, col);
 				cells[row][col] =scell;
+				ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable.getLogicalColumn(col));
+				IOpenSourceCodeModule src = new GridCellSourceCodeModule(cell.getGridTable());
+				String srcStr = src.getCode();
+				IOpenClass type = deriveCellType(scell, cell, columnHeaders.get(col), rowHeaders.get(row), srcStr);
+				
+				
+				scell.setType(type);
+
 				for( SymbolicTypeDef coldef :  columnHeaders.get(col).getVars())
 				{	
 				
@@ -258,17 +267,11 @@ public class SpreadsheetBuilder
 					formulaCells.add(scell);
 				
 				
-				IOpenClass type = deriveCellType(scell, cell, columnHeaders.get(col), rowHeaders.get(row), srcStr);
-				
-				
-				scell.setType(type);
 				
 				String name = "$" + columnHeaders.get(col).getFirstname() + '$' + rowHeaders.get(row).getFirstname();
 				
 				IMetaInfo meta = new SpreadsheetCellMetaInfo(name, src);
 				CellLoader loader = new CellLoader(colCxt, makeHeader(meta.getDisplayName(INamedThing.SHORT), spreadsheet.getHeader(), scell.getType()), makeConvertor(scell.getType()) );
-				
-				
 				
 				
 				
@@ -299,23 +302,24 @@ public class SpreadsheetBuilder
 		return cxt;
 	}
 
-	Map<Integer, IBindingContext> colContexts = new HashMap<Integer, IBindingContext>();
+	Map<Integer, IBindingContextDelegator> colContexts = new HashMap<Integer, IBindingContextDelegator>();
 	
 	private IBindingContext getColContext(int col, IBindingContext scxt) 
 	{
-		IBindingContext cxt = colContexts.get(col);
+		IBindingContextDelegator cxt = colContexts.get(col);
 		if (cxt == null)
 		{
 			cxt = makeColContext(col, scxt);
 			colContexts.put(col, cxt);
 		}	
+		else cxt.setDelegate(scxt);
 		
 		return cxt;
 	}
 
 
 
-	private IBindingContext makeRowContext(int row, IBindingContext scxt) 
+	private IBindingContextDelegator makeRowContext(int row, IBindingContext scxt) 
 	{
 		int w = spreadsheet.width();
 		
@@ -335,7 +339,7 @@ public class SpreadsheetBuilder
 		return rcxt;
 	}
 
-	private IBindingContext makeColContext(int col, IBindingContext scxt) 
+	private IBindingContextDelegator makeColContext(int col, IBindingContext scxt) 
 	{
 		int h = spreadsheet.height();
 		
