@@ -3,6 +3,8 @@ package org.openl.rules.ruleservice;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.ruleservice.loader.RulesLoader;
@@ -17,6 +19,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.SimpleVM;
 
 public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend {
+    private static final Log log = LogFactory.getLog(RulesFrontendImpl.class);
 
     private Thread frontendExecutor;
 
@@ -87,10 +90,12 @@ public class RulesFrontendImpl extends RuleServiceBase implements RulesFrontend 
 
     protected void unregisterProjects(String deploymentName) {
         runningDeployments.remove(deploymentName);
+        log.info(String.format("Stoped exposing deployment \"{1}\" ", deploymentName));
     }
 
     protected void registerProjects(String deploymentName, Map<String, OpenLWrapper> ruleModules) {
         runningDeployments.put(deploymentName, ruleModules);
+        log.info(String.format("Started exposing deployment \"{1}\" with rules modules {2}", deploymentName, ruleModules.keySet().toString()));
     }
 
     public Object execute(String deployment, String ruleModule, String ruleName, Object... params) {

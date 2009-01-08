@@ -3,16 +3,16 @@
  */
 package org.openl.rules.ruleservice.loader;
 
-import java.io.File;
+import java.util.EventListener;
 
 /**
  * @author Sergey Zyrianov
  *
  */
-public interface LoadingListener {
+public interface LoadingListener extends EventListener {
 
-    public void beforeLoading(DeploymentInfo di);
+    public void onBeforeLoading(LoadingEventObject loadingDeployment);
 
-    public void afterLoading(DeploymentInfo di, File deploymentLocalFolder);
+    public void onAfterLoading(LoadingEventObject loadedDeployment);
 
 }

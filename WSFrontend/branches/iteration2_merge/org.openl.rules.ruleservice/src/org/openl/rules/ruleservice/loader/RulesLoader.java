@@ -17,16 +17,18 @@ import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.production.client.JcrRulesClient;
 
 /**
+ * Loads deployments from runtime repository.
+ * 
  * @author Sergey Zyrianov
  * 
  */
 public class RulesLoader implements Runnable {
-    private final Log log = LogFactory.getLog(getClass());
+    private static final Log log = LogFactory.getLog(RulesLoader.class);
 
     private JcrRulesClient rulesClient;
     private File tempFolder;
 
-    Collection<LoadingListener> loadingListeners = new ArrayList<LoadingListener>();
+    private ArrayList<LoadingListener> loadingListeners = new ArrayList<LoadingListener>();
 
     private Map<String, String> deployment2Version = new HashMap<String, String>();
 
@@ -94,6 +96,7 @@ public class RulesLoader implements Runnable {
     }
 
     public synchronized void load(DeploymentInfo di) throws Exception {
+        log.debug(String.format("Start loading deployment \"{1}\"", di.getName()));
         onBeforeLoading(di);
 
         try {
@@ -101,6 +104,8 @@ public class RulesLoader implements Runnable {
 
             deployment2Version.put(di.getName(), di.getVersion().getVersionName());
 
+            log.info(String.format("Loaded deployment \"{1}\" at {2}", di.getName(), deploymentLocalFolder.getAbsolutePath()));
+            
             onAfterLoading(di, deploymentLocalFolder);
         } catch (Exception e) {
             log.error("failed to load deployment project " + di.getDeployID(), e);
@@ -169,15 +174,21 @@ public class RulesLoader implements Runnable {
         return deploymentsToLoad;
     }
 
+    @SuppressWarnings("unchecked")
     private void onBeforeLoading(DeploymentInfo di) {
-        for (LoadingListener loadingListener : loadingListeners) {
-            loadingListener.beforeLoading(di);
+        Collection<LoadingListener> localCopyOfListeners = (Collection<LoadingListener>) loadingListeners.clone();
+        
+        for (LoadingListener loadingListener : localCopyOfListeners) {
+            loadingListener.onBeforeLoading(new LoadingEventObject(this, di));
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void onAfterLoading(DeploymentInfo di, File deploymentLocalFolder) {
-        for (LoadingListener loadingListener : loadingListeners) {
-            loadingListener.afterLoading(di, deploymentLocalFolder);
+        Collection<LoadingListener> localCopyOfListeners = (Collection<LoadingListener>) loadingListeners.clone();
+        
+        for (LoadingListener loadingListener : localCopyOfListeners) {
+            loadingListener.onAfterLoading(new LoadingEventObject(this, di, deploymentLocalFolder));
         }
     }
 

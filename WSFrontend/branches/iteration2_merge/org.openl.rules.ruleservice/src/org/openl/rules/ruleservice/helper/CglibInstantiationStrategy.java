@@ -18,7 +18,6 @@ public class CglibInstantiationStrategy implements InstantiationStrategy {
     }
 
     private static final Log log = LogFactory.getLog(CglibInstantiationStrategy.class);
-
     public Object instantiate(Class<?> clazz) {
         Enhancer enhancer = new Enhancer();
 		enhancer.setSuperclass(clazz);
