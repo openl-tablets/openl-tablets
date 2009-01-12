@@ -67,6 +67,12 @@ public class TableEditorController extends BaseTableViewController implements JS
         return response;
     }
 
+    public String edit() {
+        String cellToEdit = getRequestParameter(Constants.REQUEST_PARAM_CELL);
+        String result = new HTMLRenderer().render("edit", null, null, false, cellToEdit, true);
+        return result;
+    }
+
     public String editXls() {
         String cellUri = getRequestParameter(Constants.REQUEST_PARAM_CELL_URI);
         boolean local = NetUtils.isLocalRequest(
@@ -87,7 +93,6 @@ public class TableEditorController extends BaseTableViewController implements JS
             return "<script type='text/javascript'>"
                 + "alert('This action is available only from the machine server runs at.')</script>";
         }
-        
         return null;
     }
 

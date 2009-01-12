@@ -7,11 +7,20 @@ function cellMouseOut(td) {
     PopupMenu.cancelShowMenu();
 }
 
-function triggerEdit(f) {
-    f.mode.value = "edit";
+function triggerEdit(url) {
     var cellUri = $(PopupMenu.lastTarget).down("input").value;
-    f.cell.value = cellUri.toQueryParams().cell;
-    f.submit();
+    new Ajax.Request(url, {
+        method: "get",
+        encoding: "utf-8",
+        contentType: "text/html",
+        parameters: {
+            cell: cellUri.toQueryParams().cell
+        },
+        onSuccess: function(data) {
+            $('te_').innerHTML = data.responseText.stripScripts();
+            new ScriptLoader().evalScripts(data.responseText);
+        }
+    });
 }
 
 function triggerEditXls(url) {

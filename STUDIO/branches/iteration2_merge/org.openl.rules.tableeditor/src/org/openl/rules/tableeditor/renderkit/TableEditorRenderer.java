@@ -35,7 +35,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
         List<ActionLink> actionLinks = getActionLinks(component);
         String cellToEdit = (String) requestMap.get(Constants.REQUEST_PARAM_CELL);
         writer.write(
-                new HTMLRenderer().render(mode, table, actionLinks, editable, cellToEdit));
+                new HTMLRenderer().render(mode, table, actionLinks, editable, cellToEdit, false));
     }
 
     /**
