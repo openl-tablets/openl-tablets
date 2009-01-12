@@ -72,7 +72,11 @@ public class OpenLBuilder extends AOpenLBuilder
 		javaimport3.setAll("org.openl.rules.helpers.scope");
 		typelibrary.addJavaImport(javaimport3);
 		
+		JavaImportTypeConfiguration javaimport4 = new JavaImportTypeConfiguration();
+		javaimport4.setAll("org.openl.rules.calc");
+		typelibrary.addJavaImport(javaimport4);
 		
+
 		types.addConfiguredTypeLibrary(typelibrary);
 		
 		
