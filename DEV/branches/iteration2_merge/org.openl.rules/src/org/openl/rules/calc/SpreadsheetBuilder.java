@@ -235,6 +235,10 @@ public class SpreadsheetBuilder
 				
 				scell.setType(type);
 
+				
+				if (columnHeaders.get(col) == null || rowHeaders.get(row) == null)
+					continue;
+				
 				for( SymbolicTypeDef coldef :  columnHeaders.get(col).getVars())
 				{	
 				
@@ -254,7 +258,11 @@ public class SpreadsheetBuilder
 			IBindingContext rowCxt = getRowContext(row, scxt);
 			
 			for (int col = 0; col < w; col++) {
+				if (columnHeaders.get(col) == null || rowHeaders.get(row) == null)
+					continue;
+				
 				IBindingContext colCxt = getColContext(col, rowCxt);
+				
 				
 				
 				ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable.getLogicalColumn(col));
@@ -329,6 +337,8 @@ public class SpreadsheetBuilder
 		
 		for (int col = 0; col < w; col++) {
 			SpreadsheetHeaderDefinition h = columnHeaders.get(col);
+			if (h == null)
+				continue;
 			SCell scell = spreadsheet.getCells()[row][col];
 			for (SymbolicTypeDef coldef :  h.getVars()) {
 				String fieldname = "$"+coldef.name.getIdentifier();
@@ -343,12 +353,15 @@ public class SpreadsheetBuilder
 	{
 		int h = spreadsheet.height();
 		
+		
 		ModuleOpenClass rtype = new ModuleOpenClass(null, spreadsheet.getName()+ "ColType" + col, cxt.getOpenL());
 		
 		ModuleBindingContext ccxt = new ModuleBindingContext(scxt, rtype);
 		
 		for (int row = 0; row < h; row++) {
 			SpreadsheetHeaderDefinition rh = rowHeaders.get(row);
+			if (rh == null)
+				continue;
 			SCell scell = spreadsheet.getCells()[row][col];
 			for (SymbolicTypeDef rowdef :  rh.getVars()) {
 				String fieldname = "$"+rowdef.name.getIdentifier();
@@ -379,10 +392,10 @@ public class SpreadsheetBuilder
 			ILogicalTable cell, SpreadsheetHeaderDefinition colHeader,
 			SpreadsheetHeaderDefinition rowHeader, String cellvalue) 
 	{
-		if (colHeader.getType() != null)
+		if (colHeader != null && colHeader.getType() != null)
 			return colHeader.getType();
 		
-		else if (rowHeader.getType() != null)
+		else if (rowHeader != null && rowHeader.getType() != null)
 			return rowHeader.getType();
 		else
 		{	

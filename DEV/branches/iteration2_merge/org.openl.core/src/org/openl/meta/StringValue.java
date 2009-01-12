@@ -6,7 +6,7 @@ import org.openl.syntax.impl.StringSourceCodeModule;
 public class StringValue implements IMetaHolder, CharSequence,
 	Comparable<StringValue>
 {
-    ValueMetaInfo metaInfo;
+    IMetaInfo metaInfo;
     String value;
 
     @Override
@@ -40,7 +40,7 @@ public class StringValue implements IMetaHolder, CharSequence,
 
     public void setMetaInfo(IMetaInfo metaInfo)
     {
-	this.metaInfo = (ValueMetaInfo) metaInfo;
+	this.metaInfo = metaInfo;
     }
 
     public StringValue(String value)
