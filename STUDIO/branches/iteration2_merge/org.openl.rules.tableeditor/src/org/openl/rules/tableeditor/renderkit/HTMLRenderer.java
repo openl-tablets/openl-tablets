@@ -23,16 +23,16 @@ public class HTMLRenderer {
 
     public String renderJS(String jsPath) {
         StringBuilder result = new StringBuilder();
-        result.append("<script language=\"javascript\" type=\"text/javascript\" src=\"")
+        result.append("<script type=\"text/javascript\" src=\"")
             .append(WebUtil.internalPath(jsPath))
             .append("\"></script>");
         return result.toString();
     }
 
-    public String renderJSContent(String jsContent) {
+    public String renderJSBody(String jsBody) {
         StringBuilder result = new StringBuilder();
-        result.append("<script language=\"javascript\" type=\"text/javascript\">")
-            .append(jsContent)
+        result.append("<script type=\"text/javascript\">")
+            .append(jsBody)
             .append("</script>");
         return result.toString();
     }
@@ -68,31 +68,31 @@ public class HTMLRenderer {
     }
 
     public String render(String mode, IGridTable table, List<ActionLink> actionLinks,
-            boolean editable, String cellToEdit) {
+            boolean editable, String cellToEdit, boolean inner) {
         StringBuilder result = new StringBuilder();
-        final String formId = "_te_form";
-        result.append("<div class='te_'>")
-            .append(renderCSS("css/common.css"))
-            .append(renderJS("js/prototype/prototype-1.5.1.js"));
+            result.append("<div>");
+            if (!inner) {
+                result.append(renderCSS("css/common.css"))
+                    .append(renderCSS("css/toolbar.css"))
+                    .append(renderJS("js/prototype/prototype-1.5.1.js"))
+                    .append(renderJS("js/ScriptLoader.js"))
+                    .append("<div id='te_' class='te_'>");
+        }
         if (mode == null || mode.equals(Constants.MODE_VIEW)) {
-            result.append("<form id=\"").append(formId).append("\">")
-                .append("<input type=\"hidden\" name=\"mode\" value=\"\"></input>")
-                .append("<input type=\"hidden\" name=\"cell\" value=\"\"></input>")
-                .append("</form>")
-                .append(renderViewer(table, actionLinks, editable));
+            result.append(renderViewer(table, actionLinks, editable));
         } else if (mode.equals(Constants.MODE_EDIT)) {
-            result.append(renderEditor(cellToEdit));
+            result.append(renderEditor(cellToEdit))
+                .append("<div id='contextMenu'></div>");
+        }
+        if (!inner) {
+            result.append("</div>");
         }
         result.append("</div>");
         return result.toString();
     }
 
-    public String render(IGridTable table, List<ActionLink> actionLinks) {
-          return render(null, table, actionLinks, false, null);
-    }
-
     public String render(IGridTable table) {
-        return render(null, table, null, false, null);
+        return render(null, table, null, false, null, false);
     }
 
     protected String renderViewer(IGridTable table, List<ActionLink> actionLinks) {
@@ -106,10 +106,11 @@ public class HTMLRenderer {
     protected String renderActionMenu(boolean editable, List<ActionLink> actionLinks) {
         StringBuilder result = new StringBuilder();
         
-        String editLinks = "<tr><td><a href=\"javascript:triggerEdit(document.forms._te_form)\">Edit</a></td></tr>"
+        String editLinks = "<tr><td><a href=\"javascript:triggerEdit('" + WebUtil.internalPath("ajax/edit")
+            + "')\">Edit</a></td></tr>"
             + "<tr><td><a href=\"javascript:triggerEditXls('" + WebUtil.internalPath("ajax/editXls")
             + "')\">Edit in Excel</a></td></tr>";
-         String menuBegin =
+        String menuBegin =
             "<div id=\"contextMenu\" style=\"display:none;\">"
                 + "<table cellpadding=\"1px\">"
                     + (editable ? editLinks : "");
@@ -142,24 +143,24 @@ public class HTMLRenderer {
         StringBuilder result = new StringBuilder();
         cellToEdit = cellToEdit == null ? "" : cellToEdit;
         final String editorDataId = "_te_data"; 
-        result.append(renderJS("js/TableEditor.js"))
-            .append(renderJSContent("var jsPath = \"" + WebUtil.internalPath("js/") + "\""))
-            .append(renderJS("js/IconManager.js"))
+        result
+            .append(renderJS("js/TableEditor.js"))
+            .append(renderJSBody("var jsPath = \"" + WebUtil.internalPath("js/") + "\""))
             .append(renderEditorToolbar())
             .append(renderJS("js/BaseEditor.js"))
             .append(renderJS("js/TextEditor.js"))
-            .append(renderJS("js/DropdownEditor.js"))
-            .append(renderJS("js/SuggestEditor.js"))
             .append(renderJS("js/MultiLineEditor.js"))
-            .append(renderJS("js/DateEditor.js"))
-            .append(renderJS("js/PriceEditor.js"))
             .append(renderJS("js/NumericEditor.js"))
-            .append(renderJS("js/MultipleChoiceEditor.js"))
+            .append(renderJS("js/DropdownEditor.js"))
+            //.append(renderJS("js/SuggestEditor.js"))
+            //.append(renderJS("js/DateEditor.js"))
+            //.append(renderJS("js/PriceEditor.js"))
+            //.append(renderJS("js/MultipleChoiceEditor.js"))
             .append("<div id=\"").append(editorDataId).append("\"></div>")
-            .append(renderJSContent("var tableEditor = new TableEditor(\"" + editorDataId + "\", \""
-                + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\");"))
-            .append(renderJS("js/initTableEditor.js"));
-            
+            .append(renderJS("js/initTableEditor.js"))
+            .append(renderJSBody("setTimeout(function(){initTableEditor(\"" //setTimeout for IE
+                + editorDataId + "\", \""
+                + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\")},10);"));
         return result.toString();
     }
 
@@ -169,7 +170,7 @@ public class HTMLRenderer {
         final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif")
             + " class=\"item_separator\"></img>";
         
-        result.append(renderCSS("css/toolbar.css"))
+        result.append(renderJS("js/IconManager.js"))
             .append("<div class=\"te_toolbar\">")
             .append(renderEditorToolbarItem("save_all", "img/Save.gif", "tableEditor.save()", "Save"))
             .append(renderEditorToolbarItem("undo", "img/Undo.gif", "tableEditor.undoredo()", "Undo"))
