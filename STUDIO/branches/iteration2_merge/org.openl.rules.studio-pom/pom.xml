@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.base-pom</artifactId>
-    <version>5.2.0-SNAPSHOT</version>
+    <version>5.2.0.001</version>
   </parent>
 
   <groupId>org.openl.rules</groupId>
@@ -17,9 +17,9 @@
   <packaging>pom</packaging>
 
   <properties>
-    <dev.version>5.2.0-SNAPSHOT</dev.version>
+    <dev.version>5.2.0.001</dev.version>
     <!-- Remove WSFrontend dependencies at all while refactoring -->
-    <wsf.version>5.2.0-SNAPSHOT</wsf.version>
+    <wsf.version>5.2.0.001</wsf.version>
   </properties>
 
   <modules>
