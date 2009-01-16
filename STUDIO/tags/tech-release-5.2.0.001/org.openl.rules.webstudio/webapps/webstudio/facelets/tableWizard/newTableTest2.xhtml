@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+                template="partSelectSheet.xhtml">
+
+  <ui:define name="controlButtons">
+    <h:inputHidden value="2" id="step" binding="#{tableWizardManager.hiddenStep}"/>
+    <h:commandButton value="Prev" action="#{tableWizardManager.prev}" onclick="enableControls()"/>
+    <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}" immediate="true"/>
+
+    <h:commandButton value="Save" action="#{tableWizard.save}" onclick="return validateForm();enableControls()"/>
+  </ui:define>
+
+</ui:composition>
