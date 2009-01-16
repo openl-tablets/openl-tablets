@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.helper;
+package org.openl.rules.ruleservice.instantiation;
 
 import org.openl.runtime.EngineFactory;
 

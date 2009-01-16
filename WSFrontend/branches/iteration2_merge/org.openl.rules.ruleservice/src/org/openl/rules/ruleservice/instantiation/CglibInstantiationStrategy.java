@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.helper;
+package org.openl.rules.ruleservice.instantiation;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -35,7 +35,7 @@ public class CglibInstantiationStrategy implements InstantiationStrategy {
             String sourcePath = (String) field.get(null);
             field.set(null, userHomeFieldValue + '/' + sourcePath);
         } catch (Exception e) {
-            log.error("failed to set up __userHome", e);
+            log.error("failed to set up __src", e);
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();

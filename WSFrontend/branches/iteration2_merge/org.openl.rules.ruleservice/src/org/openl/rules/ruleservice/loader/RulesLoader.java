@@ -120,7 +120,7 @@ public class RulesLoader implements Runnable {
         return deploymentFolder;
     }
 
-    private Collection<DeploymentInfo> parseDeloyments(Collection<String> deploymentNames) {
+    public static Collection<DeploymentInfo> parseDeloyments(Collection<String> deploymentNames) {
         Collection<DeploymentInfo> deployments = new ArrayList<DeploymentInfo>();
 
         for (String deploymentName : deploymentNames) {
@@ -136,7 +136,7 @@ public class RulesLoader implements Runnable {
      * @param deployments
      * @return
      */
-    private Map<String, CommonVersion> computeLatestVersions(Collection<DeploymentInfo> deployments) {
+    public static Map<String, CommonVersion> computeLatestVersions(Collection<DeploymentInfo> deployments) {
         Map<String, CommonVersion> versionMap = new HashMap<String, CommonVersion>();
 
         for (DeploymentInfo deployment : deployments) {

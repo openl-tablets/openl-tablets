@@ -5,9 +5,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.openl.rules.ruleservice.helper.CglibInstantiationStrategy;
-import org.openl.rules.ruleservice.helper.EngineFactoryInstantiationStrategy;
-import org.openl.rules.ruleservice.helper.InstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.CglibInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.InstantiationStrategy;
 import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
 
 import java.io.IOException;
