@@ -18,46 +18,50 @@ import org.openl.rules.ruleservice.loader.DeploymentInfo;
  */
 public class RulesProjectResolver {
     private final Log log = LogFactory.getLog(getClass());
-
+    private File xlsFile;
+    private Map<String, WSEntryPoint> openlWrappers;
     // TODO: rewrite resolving: there are logical issues
     public synchronized List<RuleServiceInfo> resolve(DeploymentInfo di, File deploymentLocalFolder) {
-        
         List<RuleServiceInfo> serviceClasses = new ArrayList<RuleServiceInfo>();
-
         try {
-            Map<String, WSEntryPoint> openlWrappers = new HashMap<String, WSEntryPoint>();
-            XlsFileRecognizer projectXls;
-
             for (File projectFolder : deploymentLocalFolder.listFiles()) {
                 if (projectFolder.isDirectory()) {
-                    final File projectGenFolder = new File(projectFolder, "gen");
-                    final File binFolder = new File(projectFolder, "bin");
-                    projectXls = new XlsFileRecognizer();
-
-                    openlWrappers.clear();
-                    FileSystemWalker.walk(projectGenFolder, new OpenLWrapperRecognizer(projectGenFolder, openlWrappers));
-                    FileSystemWalker.walk(new File(projectFolder, "rules"), projectXls);
-
+                    openlWrappers = findAllWrappersInProject(projectFolder);
+                    xlsFile = findXlsFileInProject(projectFolder);
                     for (Map.Entry<String, WSEntryPoint> wsCandidate : openlWrappers.entrySet()) {
-                        WSEntryPoint wsEntryPoint = wsCandidate.getValue();
-                        String dif = wsEntryPoint.getFullFilename();
-
-                        if (!new File(binFolder, FileSystemWalker.changeExtension(dif, "class")).exists()) continue;
-
-                        String className = FileSystemWalker.removeExtension(dif).replaceAll("[/\\\\]", ".");
-                        serviceClasses.add(new RuleServiceInfo(projectFolder, binFolder, projectXls.getFile(),
-                                className, wsCandidate.getKey(), wsEntryPoint.isInterface()));
+                        addWrapperIfValid(serviceClasses, wsCandidate, projectFolder);
                     }
-
                 }
             }
         } catch (Exception e) {
             log.error("failed to deploy project " + di.getDeployID(), e);
         }
-        
         return serviceClasses;
     }
 
+    public static Map<String, WSEntryPoint> findAllWrappersInProject(File projectFolder){
+        final File projectGenFolder = new File(projectFolder, "gen");
+        Map<String, WSEntryPoint> openlWrappers = new HashMap<String, WSEntryPoint>();
+        FileSystemWalker.walk(projectGenFolder, new OpenLWrapperRecognizer(projectGenFolder, openlWrappers));
+        return openlWrappers;
+    }
+    
+    public static File findXlsFileInProject(File projectFolder){
+        XlsFileRecognizer projectXls = new XlsFileRecognizer();
+        FileSystemWalker.walk(new File(projectFolder, "rules"), projectXls);
+        return projectXls.getFile();
+    }
+    
+    private void addWrapperIfValid(List<RuleServiceInfo> serviceClasses, Map.Entry<String, WSEntryPoint> wsCandidate, File projectFolder){
+        final File binFolder = new File(projectFolder, "bin");
+        WSEntryPoint wsEntryPoint = wsCandidate.getValue();
+        String dif = wsEntryPoint.getFullFilename();
+        if (new File(binFolder, FileSystemWalker.changeExtension(dif, "class")).exists()){
+            String className = FileSystemWalker.removeExtension(dif).replaceAll("[/\\\\]", ".");
+            serviceClasses.add(new RuleServiceInfo(projectFolder, binFolder, xlsFile,
+                    className, wsCandidate.getKey(), wsEntryPoint.isInterface()));
+        }
+    }
 
 }
 

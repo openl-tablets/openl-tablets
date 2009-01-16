@@ -10,9 +10,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.main.OpenLWrapper;
-import org.openl.rules.ruleservice.helper.CglibInstantiationStrategy;
-import org.openl.rules.ruleservice.helper.EngineFactoryInstantiationStrategy;
-import org.openl.rules.ruleservice.helper.InstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.CglibInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.InstantiationStrategy;
 import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
 
 public class JavaClassDeploymentAdmin implements DeploymentAdmin {

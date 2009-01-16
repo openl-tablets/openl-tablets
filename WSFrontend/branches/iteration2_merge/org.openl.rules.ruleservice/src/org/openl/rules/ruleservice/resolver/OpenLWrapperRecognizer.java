@@ -18,26 +18,26 @@ public class OpenLWrapperRecognizer implements FileSystemWalker.Walker {
         if (!file.isFile())
             return;
 
-        String wsname = getNameWithoutEnding(file, "Wrapper.java");
+        String wsname = getNameWithoutPostfix(file, "Wrapper.java");
         if (wsname != null) {
             if (!entryPoints.containsKey(wsname)) {
-                entryPoints.put(wsname, new WSEntryPoint(difference(baseFolder, file), false));
+                entryPoints.put(wsname, new WSEntryPoint(subtractFilePathes(baseFolder, file), false));
             }
-        } else if ((wsname = getNameWithoutEnding(file, "WrapperInterface.java")) != null) {
-            entryPoints.put(wsname, new WSEntryPoint(difference(baseFolder, file), true));
+        } else if ((wsname = getNameWithoutPostfix(file, "WrapperInterface.java")) != null) {
+            entryPoints.put(wsname, new WSEntryPoint(subtractFilePathes(baseFolder, file), true));
         }
     }
 
-    String getNameWithoutEnding(File file, String ending) {
+    String getNameWithoutPostfix(File file, String postfix) {
         String filename = file.getName();
-        if (filename.endsWith(ending)) {
-            filename = difference(baseFolder, file);
-            return filename.substring(0, filename.length() - ending.length()).replaceAll("[/\\\\]", ".");
+        if (filename.endsWith(postfix)) {
+            filename = subtractFilePathes(baseFolder, file);
+            return filename.substring(0, filename.length() - postfix.length()).replaceAll("[/\\\\]", ".");
         }
         return null;
     }
 
-    static String difference(File parent, File child) {
+    static String subtractFilePathes(File parent, File child) {
         try {
             String parentStr = parent.getCanonicalPath();
             String childStr = child.getCanonicalPath();
