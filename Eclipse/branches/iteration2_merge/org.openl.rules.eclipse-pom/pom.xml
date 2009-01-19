@@ -28,7 +28,7 @@
   </modules>
 
   <properties>
-    <dep.version>5.2.0.001</dev.version>
+    <dep.version>5.2.0.001</dep.version>
   </properties>
 
   <scm>
