@@ -289,7 +289,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames
 				   //targetType = targetType;
 					break;
 				}
-				IOpenField field = findField(fieldName, table, type);
+				IOpenField field = findField(fieldName, table, targetType);
 
 				if (field == null)
 				{
