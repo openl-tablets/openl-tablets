@@ -17,7 +17,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <studio.eclipse.version>5.2.0</studio.eclipse.version>
+    <studio.eclipse.version>5.2.0.001</studio.eclipse.version>
   </properties>
 
   <build>
@@ -242,13 +242,13 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
-      <version>${version}</version>
+      <version>${studio.eclipse.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.lib</artifactId>
-      <version>${version}</version>
+      <version>${studio.eclipse.version}</version>
     </dependency>
 
   </dependencies>
