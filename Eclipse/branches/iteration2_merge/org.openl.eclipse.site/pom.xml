@@ -16,7 +16,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <studio.eclipse.version>5.2.0.001</studio.eclipse.version>
+    <studio.eclipse.version>5.2.0-SNAPSHOT</studio.eclipse.version>
   </properties>
 
   <build>
