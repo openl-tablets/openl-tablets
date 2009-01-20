@@ -40,6 +40,7 @@ TableEditor.parseXlsCell = function (s) {
     return null
 }
 TableEditor.prototype = {
+    editorId : -1,    
     tableContainer : null,
     currentElement : null,
     editor : null,
@@ -55,10 +56,9 @@ TableEditor.prototype = {
     editCell : null,
 
     /** Constructor */
-    initialize : function(id, url, editCell) {
-        if (editCell) this.editCell = editCell;
-
-        this.tableContainer = $(id);
+    initialize : function(editorId, url, editCell) {
+        this.editorId = editorId;
+        this.tableContainer = $(editorId + "_table");
         this.tableContainer.style.cursor = 'default';
         // Suppress text selection
         this.tableContainer.onselectstart = function() {
@@ -67,6 +67,8 @@ TableEditor.prototype = {
         this.tableContainer.onmousedown = function() {
             return false;
         }
+        
+        if (editCell) this.editCell = editCell;
 
         this.baseUrl = url;
         this.saveUrl = this.buildUrl("save");
@@ -80,11 +82,11 @@ TableEditor.prototype = {
         if (Prototype.Browser.IE || Prototype.Browser.Opera) {
             document.onkeypress = function(e) {self.handleKeyPress(e || window.event)}
         } else
-             Event.observe(/*Prototype.Browser.IE ? document.body : window */document, "keypress", function(e) {
+            Event.observe(/*Prototype.Browser.IE ? document.body : window */document, "keypress", function(e) {
                 self.handleKeyPress(e)
             }, false);
 
-        $(document.body).observe("click", function(e) {
+        this.tableContainer.observe("click", function(e) {
             self.handleClick(e);
         }, false);
 
@@ -115,6 +117,9 @@ TableEditor.prototype = {
             method      : "get",
             encoding    : "utf-8",
             contentType : "text/javascript",
+            parameters : {
+                editorId: this.editorId
+            },
             onSuccess   : function(data) {
                 data = eval(data.responseText);
                 self.renderTable(data.tableHTML.strip());
@@ -178,6 +183,9 @@ TableEditor.prototype = {
     save: function() {
         var self = this;
         new Ajax.Request(this.buildUrl("saveTable"), {
+            parameters : {
+                editorId: this.editorId
+            },
             onSuccess  : function(response) {
                 response = eval(response.responseText);
                 if (response.status)
@@ -224,6 +232,7 @@ TableEditor.prototype = {
                 self.editBegin(cell, eval(response.responseText), typedText)
             },
             parameters : {
+                editorId: this.editorId,
                 row : self.selectionPos[0],
                 col : self.selectionPos[1]
             }
@@ -258,6 +267,7 @@ TableEditor.prototype = {
                         self.processCallbacks(data, "do");
                     },
                     parameters: {
+                        editorId: this.editorId,
                         row : self.selectionPos[0],
                         col : self.selectionPos[1],
                         value: val
@@ -329,11 +339,11 @@ TableEditor.prototype = {
     },
 
     $cell: function(pos) {
-        var cell = $("cell-" + pos[0] + ":" + pos[1]);
+        var cell = $(this.editorId + "_cell-" + pos[0] + ":" + pos[1]);
         if (!cell) return cell;
         if (!cell.rowSpan) cell.rowSpan = 1;
         if (!cell.colSpan) cell.colSpan = 1;
-        return cell
+        return cell;
     },
 
     handleKeyPress:  function(event) {
@@ -436,6 +446,9 @@ TableEditor.prototype = {
     undoredo: function(redo) {
         if (Ajax.activeRequestCount > 0) return;
         new Ajax.Request(this.buildUrl((redo ? "redo" : "undo")), {
+            parameters: {
+                editorId: this.editorId
+            },
             onSuccess: this.modFuncSuccess
         })
     },
@@ -464,6 +477,7 @@ TableEditor.prototype = {
         var cell = this.currentElement;
         var self = this;
         var params = {
+            editorId: this.editorId,    
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             align: _align
@@ -496,11 +510,12 @@ TableEditor.prototype = {
         }
 
         var params = [];
+        params.editorId = this.editorId;
         params[["row", "col"][index]] = (op == TableEditor.Constants.ADD_AFTER ? 1 : 0) + this.selectionPos[index];
         if (op == TableEditor.Constants.MOVE_DOWN) params.move = true;
         if (op == TableEditor.Constants.MOVE_UP) {
             params.move = true;
-            params.up = true
+            params.up = true;
         }
 
         new Ajax.Request(this.buildUrl(([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? "removeRowCol" : "addRowColBefore")), {

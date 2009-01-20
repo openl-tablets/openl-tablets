@@ -4,28 +4,28 @@ import java.util.Map;
 
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.EditorHelper;
+import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.web.jsf.util.FacesUtils;
 
 public class BaseTableViewController {
-    protected String response;
 
     public BaseTableViewController() {
     }
 
-    protected TableModel initializeTableModel() {
-        IGridTable table = getGridTable();
+    protected TableModel initializeTableModel(String editorId) {
+        IGridTable table = getGridTable(editorId);
         return TableModel.initializeTableModel(table); 
     }
 
-    public IGridTable getTable() {
-        return getGridTable();
+    protected IGridTable getGridTable(String editorId) {
+        return getHelper(editorId).getModel().getUpdatedTable();
     }
 
-    protected IGridTable getGridTable() {
-        return getHelper().getModel().getUpdatedTable();
+    protected TableEditorModel getEditorModel(String editorId) {
+        return getHelper(editorId).getModel();
     }
 
     /**
@@ -42,41 +42,21 @@ public class BaseTableViewController {
      *         helper.
      */
     @SuppressWarnings("unchecked")
-    protected EditorHelper getHelper() {
+    protected EditorHelper getHelper(String editorId) {
         Map sessionMap = FacesUtils.getSessionMap();
-        synchronized (sessionMap) {
-            Object helperObject = sessionMap.get(
-                    Constants.TABLE_EDITOR_HELPER_NAME);
-            if (helperObject != null) {
-                EditorHelper editorHelper = (EditorHelper) helperObject;
-                return editorHelper;
-            }
-            return null;
+        Map editorHelperMap = (Map) sessionMap.get(
+                Constants.TABLE_EDITOR_HELPER_NAME);
+        if (editorHelperMap != null) {
+            return (EditorHelper) editorHelperMap.get(editorId);
         }
-    }
-
-    public String getResponse() {
-        return response;
-    }
-
-    /**
-     * Returns html view of current table as a string. It is just a sequence of
-     * calls to <code>render()</code> and <code>getResponse()</code>
-     * methdods.
-     *
-     * @return html representation of current table
-     *
-     * @throws Exception if an error building response occurres
-     */
-    public String getTableView() throws Exception {
-        render();
-        return getResponse();
-    }
-
-    private String render() throws Exception {
-        TableModel tableModel = initializeTableModel();
-        response = new HTMLRenderer.TableRenderer(tableModel).renderWithMenu();
         return null;
+    }
+
+    protected String render(String editorId) {
+        TableModel tableModel = initializeTableModel(editorId);
+        HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(tableModel);
+        tableRenderer.setCellIdPrefix(editorId + "_cell-");
+        return tableRenderer.render();
     }
 
 }
