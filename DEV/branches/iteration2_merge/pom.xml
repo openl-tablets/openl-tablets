@@ -25,7 +25,8 @@
           <artifactId>maven-release-plugin</artifactId>
           <version>2.0-beta-8</version>
           <configuration>
-            <workingDirectory>c:\tmp\mvn-release</workingDirectory>
+            <tagBase>https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/tags</tagBase>
+            <workingDirectory>c:\tmp\mvn-dev-release</workingDirectory>
           </configuration>
         </plugin>
         <plugin>
