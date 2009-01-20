@@ -151,6 +151,10 @@ public class ShowTableBean {
         return canModifyCurrentProject();
     }
 
+    public String getMode() {
+        return FacesUtils.getRequestParameter("mode");
+    }
+    
     public String getView() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         return studio.getModel().getTableView(FacesUtils.getRequestParameter("view"));

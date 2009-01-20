@@ -12,7 +12,6 @@ import org.openl.rules.tableeditor.model.EditorHelper;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.MultiChoiceCellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.util.net.NetUtils;
@@ -20,7 +19,6 @@ import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webtools.XlsUrlParser;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletRequest;
@@ -32,22 +30,39 @@ import javax.servlet.ServletRequest;
  * @author Andrey Naumenko
  */
 public class TableEditorController extends BaseTableViewController implements JSTableEditor {
-    private int row, col;
 
-    private CellEditorSelector selector = new CellEditorSelector();
-
-    public String load() throws Exception {
-        readRequestParams();
-        render();
-        IGridTable gridTable = getGridTable();
-        response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCellUri(gridTable.getGridColumn(0, 0),
-                gridTable.getGridRow(0, 0)), getHelper().getModel()));
-        return response;
+    private String getRequestParam(String name) {
+        return FacesUtils.getRequestParameter(name);
     }
 
-    private void render() {
-        TableModel tableModel = initializeTableModel();
-        response = new HTMLRenderer.TableRenderer(tableModel).render();
+    private int getRequestIntParam(String name) {
+        int param = -1;
+        try {
+            param = Integer.parseInt(getRequestParam(name)) - 1;
+        } catch (NumberFormatException e) {
+        }
+        return param;
+    }
+
+    private String getEditorId() {
+        return getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
+    }
+
+    private int getRow() {
+        return getRequestIntParam(Constants.REQUEST_PARAM_ROW);
+    }
+
+    private int getCol() {
+        return getRequestIntParam(Constants.REQUEST_PARAM_COL);
+    }
+
+    public String load() throws Exception {
+        String editorId = getEditorId();
+        String response = render(editorId);
+        IGridTable gridTable = getGridTable(editorId);
+        response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCellUri(gridTable.getGridColumn(0, 0),
+                gridTable.getGridRow(0, 0)), getEditorModel(editorId)));
+        return response;
     }
 
     /**
@@ -56,25 +71,23 @@ public class TableEditorController extends BaseTableViewController implements JS
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
      */
     public String save() {
-        readRequestParams();
-        String value = getRequestParameter(Constants.REQUEST_PARAM_VALUE);
-
-        EditorHelper editorHelper = getHelper();
+        String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
+        EditorHelper editorHelper = getHelper(getEditorId());
         if (editorHelper != null) {
-            editorHelper.getModel().setCellValue(row, col, value);
-            response = pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
+            editorHelper.getModel().setCellValue(getRow(), getCol(), value);
+            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
         }
-        return response;
+        return null;
     }
 
     public String edit() {
-        String cellToEdit = getRequestParameter(Constants.REQUEST_PARAM_CELL);
-        String result = new HTMLRenderer().render("edit", null, null, false, cellToEdit, true);
-        return result;
+        String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
+        String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
+        return new HTMLRenderer().render("edit", null, null, false, cellToEdit, true, editorId);
     }
 
     public String editXls() {
-        String cellUri = getRequestParameter(Constants.REQUEST_PARAM_CELL_URI);
+        String cellUri = getRequestParam(Constants.REQUEST_PARAM_CELL_URI);
         boolean local = NetUtils.isLocalRequest(
                 (ServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());
         boolean wantURI = (cellUri == null || cellUri.equals("")) ? false : true;
@@ -107,20 +120,14 @@ public class TableEditorController extends BaseTableViewController implements JS
      */
 
     public String getCellType() {
-        readRequestParams();
-
-        response = "";
-
-        EditorHelper editorHelper = getHelper();
+        EditorHelper editorHelper = getHelper(getEditorId());
         if (editorHelper != null) {
             TableEditorModel model = editorHelper.getModel();
-            ICellEditor editor = selector.selectEditor(row, col, model);
+            ICellEditor editor = new CellEditorSelector().selectEditor(getRow(), getCol(), model);
             EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
-            response = pojo2json(typeResponse);
+            return pojo2json(typeResponse);
         }
-
-        return response;
-
+        return "";
     }
 
     /**
@@ -132,10 +139,9 @@ public class TableEditorController extends BaseTableViewController implements JS
      * todo: remove
      */
     public String getCellTypeOld() {
-        readRequestParams();
-
-        response = "";
-        EditorHelper editorHelper = getHelper();
+        int row = getRow();
+        int col = getCol();
+        EditorHelper editorHelper = getHelper(getEditorId());
         if (editorHelper != null) {
             EditorTypeResponse typeResponse = new EditorTypeResponse("text");
             TableEditorModel editorModel = editorHelper.getModel();
@@ -173,51 +179,49 @@ public class TableEditorController extends BaseTableViewController implements JS
                     String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
                     typeResponse = new MultiChoiceCellEditor(metadata, metadata).getEditorTypeAndMetadata();
                 }
-
-                response = pojo2json(typeResponse);
+                return pojo2json(typeResponse);
             }
         }
-        return response;
+        return "";
     }
 
     public String undo() throws Exception {
-        readRequestParams();
-        EditorHelper editorHelper = getHelper();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
             if (editorHelper.getModel().hasUndo()) {
                 editorHelper.getModel().undo();
-                render();
-                tmResponse.setResponse(response);
+                tmResponse.setResponse(render(editorId));
             } else {
                 tmResponse.setStatus("No actions to undo");
             }
-            response = pojo2json(tmResponse);
+            return pojo2json(tmResponse);
         }
-        return response;
+        return null;
     }
 
     public String redo() throws Exception {
-        readRequestParams();
-        EditorHelper editorHelper = getHelper();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
             if (editorHelper.getModel().hasRedo()) {
                 editorHelper.getModel().redo();
-                render();
-                tmResponse.setResponse(response);
+                tmResponse.setResponse(render(editorId));
             } else {
                 tmResponse.setStatus("No actions to redo");
             }
-            response = pojo2json(tmResponse);
+            return pojo2json(tmResponse);
         }
-        return response;
+        return null;
     }
 
     public String addRowColBefore() throws Exception {
-        readRequestParams();
-
-        EditorHelper editorHelper = getHelper();
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
             TableEditorModel editorModel = editorHelper.getModel();
 
@@ -237,19 +241,20 @@ public class TableEditorController extends BaseTableViewController implements JS
                 e.printStackTrace();
             }
 
-            render();
-            tmResponse.setResponse(response);
-            response = pojo2json(tmResponse);
+            tmResponse.setResponse(render(editorId));
+            return pojo2json(tmResponse);
         }
-        return response;
+        return null;
     }
 
     public String removeRowCol() throws Exception {
-        readRequestParams();
-        EditorHelper editorHelper = getHelper();
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
             TableEditorModel editorModel = editorHelper.getModel();
-            boolean move = Boolean.valueOf(getRequestParameter(
+            boolean move = Boolean.valueOf(getRequestParam(
                     Constants.REQUEST_PARAM_MOVE));
 
             if (row >= 0) {
@@ -263,27 +268,29 @@ public class TableEditorController extends BaseTableViewController implements JS
                 else
                     editorModel.removeColumns(1, col);
             }
-            render();
-            response = pojo2json(new TableModificationResponse(response, editorHelper.getModel()));
+            return pojo2json(
+                    new TableModificationResponse(render(editorId), editorHelper.getModel()));
         }
-        return response;
+        return null;
     }
 
     public String saveTable() throws IOException {
-        readRequestParams();
-        EditorHelper editorHelper = getHelper();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
             editorHelper.getModel().save();
-            response = pojo2json(new TableModificationResponse("", editorHelper.getModel()));
+            return pojo2json(new TableModificationResponse("", editorHelper.getModel()));
         }
-        return response;
+        return null;
     }
 
     public String setAlign() throws Exception {
-        readRequestParams();
-        EditorHelper editorHelper = getHelper();
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
-            String align = getRequestParameter(Constants.REQUEST_PARAM_ALIGN);
+            String align = getRequestParam(Constants.REQUEST_PARAM_ALIGN);
             int halign = -1;
             if ("left".equalsIgnoreCase(align)) {
                 halign = ICellStyle.ALIGN_LEFT;
@@ -303,28 +310,9 @@ public class TableEditorController extends BaseTableViewController implements JS
                     editorHelper.getModel().setStyle(row, col, newStyle);
                 }
             }
-            response = pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
+            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
         }
-        return response;
-    }
-
-    private String getRequestParameter(String name) {
-        return FacesUtils.getRequestParameter(name);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void readRequestParams() {
-        Map<String, String> paramMap = FacesUtils.getRequestParameterMap(); 
-        row = col = -1;
-
-        try {
-            row = Integer.parseInt(paramMap.get(Constants.REQUEST_PARAM_ROW)) - 1;
-        } catch (NumberFormatException e) {
-        }
-        try {
-            col = Integer.parseInt(paramMap.get(Constants.REQUEST_PARAM_COL)) - 1;
-        } catch (NumberFormatException e) {
-        }
+        return null;
     }
 
     private static String pojo2json(Object pojo) {

@@ -1,23 +1,25 @@
 
-function cellMouseOver(td, event) {
-    PopupMenu.sheduleShowMenu("contextMenu", event, 700);
+function openMenu(menuId, td, event) {
+    PopupMenu.sheduleShowMenu(menuId, event, 400);
 }
 
-function cellMouseOut(td) {
+function closeMenu(td) {
     PopupMenu.cancelShowMenu();
 }
 
-function triggerEdit(url) {
+function triggerEdit(editorId, url) {
     var cellUri = $(PopupMenu.lastTarget).down("input").value;
+    var editor = $(editorId);
     new Ajax.Request(url, {
         method: "get",
         encoding: "utf-8",
-        contentType: "text/html",
+        contentType: "text/javascript",
         parameters: {
-            cell: cellUri.toQueryParams().cell
+            cell: cellUri.toQueryParams().cell,
+            editorId: editor.id.replace('te_comp','')
         },
         onSuccess: function(data) {
-            $('te_').innerHTML = data.responseText.stripScripts();
+            editor.innerHTML = data.responseText.stripScripts();
             new ScriptLoader().evalScripts(data.responseText);
         }
     });

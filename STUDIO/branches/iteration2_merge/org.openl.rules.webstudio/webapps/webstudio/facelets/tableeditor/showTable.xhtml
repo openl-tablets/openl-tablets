@@ -111,20 +111,20 @@
 
         <br />
 
-        <h:panelGroup rendered="#{(showTableBean.editable or showTableBean.copyable) and param.mode != 'edit'}">
-            <h:outputLink rendered="#{showTableBean.editable}"
-                value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml?mode=edit">
-                <f:param name="elementID" value="#{showTableBean.elementID}" />
-                Edit Table
-            </h:outputLink>
-            <f:verbatim>&amp;nbsp;</f:verbatim>
-            <h:outputLink rendered="#{showTableBean.copyable}"
-                value="#{contextPath}/faces/facelets/tableCopier/copyTable.xhtml">
-                <f:param name="elementID" value="#{showTableBean.elementID}" />
-                Copy Table
-            </h:outputLink>
-            <br /><br />
-        </h:panelGroup>
+        <h:outputLink rendered="#{showTableBean.editable}"
+            value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+            <f:param name="elementID" value="#{showTableBean.elementID}" />
+            <f:param name="mode" value="edit" />
+            <f:param name="view" value="#{showTableBean.view}" />
+            Edit Table
+        </h:outputLink>
+        <f:verbatim>&amp;nbsp;</f:verbatim>
+        <h:outputLink rendered="#{showTableBean.copyable}"
+            value="#{contextPath}/faces/facelets/tableCopier/copyTable.xhtml">
+            <f:param name="elementID" value="#{showTableBean.elementID}" />
+            Copy Table
+        </h:outputLink>
+        <br /><br />
 
         <script type="text/javascript">
             function triggerSearch(f) {
@@ -139,7 +139,8 @@
             <input type="hidden" name="searchQuery" value="" />
         </form>
 
-        <rules:tableEditor table="#{showTableBean.table}" editable="#{showTableBean.editable}">
+        <rules:tableEditor table="#{showTableBean.table}" mode="#{showTableBean.mode}"
+            editable="#{showTableBean.editable}">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 

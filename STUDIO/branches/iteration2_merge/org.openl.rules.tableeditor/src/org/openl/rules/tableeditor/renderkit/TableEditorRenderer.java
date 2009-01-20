@@ -2,6 +2,7 @@ package org.openl.rules.tableeditor.renderkit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,18 +25,20 @@ public class TableEditorRenderer extends TableViewerRenderer {
     public void encodeBegin(FacesContext context, UIComponent component)
             throws IOException {
         ResponseWriter writer = context.getResponseWriter();
-        Boolean editable = getBooleanParam(
-                component.getAttributes().get(Constants.ATTRIBUTE_EDITABLE));
+        Map editorParams = component.getAttributes();
+        Boolean editable = getBooleanParam(editorParams.get(Constants.ATTRIBUTE_EDITABLE));
         ExternalContext externalContext = context.getExternalContext();
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
-        String mode = (String) requestMap.get(Constants.REQUEST_PARAM_MODE);
-        IGridTable table = (IGridTable) component.getAttributes().get(
-                Constants.ATTRIBUTE_TABLE);
-        initEditorHelper(externalContext, component);
+        String mode = (String) editorParams.get(Constants.ATTRIBUTE_MODE);
+        String editorId = component.getClientId(context);
+        IGridTable table = (IGridTable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
         List<ActionLink> actionLinks = getActionLinks(component);
         String cellToEdit = (String) requestMap.get(Constants.REQUEST_PARAM_CELL);
+        if (editable) {
+            initEditorHelper(externalContext, editorId, table);
+        }
         writer.write(
-                new HTMLRenderer().render(mode, table, actionLinks, editable, cellToEdit, false));
+                new HTMLRenderer().render(mode, table, actionLinks, editable, cellToEdit, false, editorId));
     }
 
     /**
@@ -58,20 +61,19 @@ public class TableEditorRenderer extends TableViewerRenderer {
 
     @SuppressWarnings("unchecked")
     private void initEditorHelper(ExternalContext externalContext,
-            UIComponent component) {
+            String editorId, IGridTable table) {
         Map sessionMap = externalContext.getSessionMap();
-        EditorHelper editorHelper;
         synchronized (sessionMap) {
-            editorHelper = (EditorHelper) sessionMap.get(
+            Map helperMap = (Map) sessionMap.get(
                     Constants.TABLE_EDITOR_HELPER_NAME);
-            if (editorHelper == null) {
-                sessionMap.put(Constants.TABLE_EDITOR_HELPER_NAME,
-                        editorHelper = new EditorHelper());
+            if (helperMap == null) {
+                helperMap = new HashMap<String, EditorHelper>();
+                sessionMap.put(Constants.TABLE_EDITOR_HELPER_NAME, helperMap);
             }
+            EditorHelper editorHelper = new EditorHelper();
+            editorHelper.init(table);
+            helperMap.put(editorId, editorHelper);
         }
-        final Map attributes = component.getAttributes();
-        IGridTable table = (IGridTable) attributes.get("table");
-        editorHelper.init(table);
     }
 
     @SuppressWarnings("unchecked")

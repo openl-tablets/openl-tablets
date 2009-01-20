@@ -46,6 +46,10 @@
             <description>The table grid</description>
         </attribute>
         <attribute>
+            <name>mode</name>
+            <description>"view" or "edit" mode of representation</description>
+        </attribute>
+        <attribute>
             <name>editable</name>
             <description>If true the table is editable</description>
         </attribute>

@@ -2,8 +2,15 @@ package org.openl.rules.web.jsf.util;
 
 import java.util.Map;
 import java.util.Collection;
+
+import javax.faces.FactoryFinder;
 import javax.faces.context.FacesContext;
+import javax.faces.context.FacesContextFactory;
+import javax.faces.lifecycle.Lifecycle;
+import javax.faces.lifecycle.LifecycleFactory;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Various generic helpful methods to simplify common operations with JSF.
@@ -34,6 +41,11 @@ public abstract class FacesUtils {
     @SuppressWarnings("unchecked")
     public static Map getSessionMap() {
         return FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Map getRequestMap() {
+        return FacesContext.getCurrentInstance().getExternalContext().getRequestMap();
     }
 
     @SuppressWarnings("unchecked")
@@ -81,6 +93,22 @@ public abstract class FacesUtils {
             items[index++] = new SelectItem(value);
         }
         return items;
+    }
+
+    public static FacesContext getFacesContext(HttpServletRequest request,
+            HttpServletResponse response) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext == null) {
+            FacesContextFactory contextFactory = (FacesContextFactory) FactoryFinder
+                    .getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
+            LifecycleFactory lifecycleFactory = (LifecycleFactory) FactoryFinder
+                    .getFactory(FactoryFinder.LIFECYCLE_FACTORY);
+            Lifecycle lifecycle = lifecycleFactory
+                    .getLifecycle(LifecycleFactory.DEFAULT_LIFECYCLE);
+            facesContext = contextFactory.getFacesContext(request.getSession()
+                    .getServletContext(), request, response, lifecycle);
+        }
+        return facesContext;
     }
 
 }

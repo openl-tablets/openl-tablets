@@ -171,6 +171,7 @@ var PopupMenu = {
 	},
 
 	showAfterDelay : function() {
+        if (!document.getElementById(this.delayedState.contentElement)) return;
 		this.te_menu.style.display = "none";
 		this._showPopupMenu(this.delayedState.contentElement, this.delayedState.evt, this.delayedState.extraClass);
     },

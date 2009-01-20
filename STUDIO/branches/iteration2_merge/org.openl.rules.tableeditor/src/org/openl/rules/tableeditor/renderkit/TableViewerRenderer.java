@@ -3,6 +3,7 @@ package org.openl.rules.tableeditor.renderkit;
 import java.io.IOException;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
 import org.openl.rules.table.IGridTable;
@@ -15,7 +16,8 @@ public class TableViewerRenderer extends BaseRenderer {
             throws IOException {
         IGridTable table = (IGridTable) component.getAttributes().get(
                 Constants.ATTRIBUTE_TABLE);
-        new HTMLRenderer().render(table);
+        String editorId = new HtmlOutputText().getClientId(context);
+        new HTMLRenderer().render(table, editorId);
     }
 
     @Override
