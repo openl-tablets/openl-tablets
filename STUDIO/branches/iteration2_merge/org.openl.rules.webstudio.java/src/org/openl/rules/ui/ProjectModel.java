@@ -14,7 +14,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -39,6 +38,7 @@ import org.openl.rules.table.xls.XlsSheetGridImporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult.Test;
+import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.validator.dt.DTValidator;
 import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
@@ -1027,6 +1027,10 @@ public class ProjectModel implements IProjectTypes {
 	public String displayResult(Object res) {
 		return new ObjectViewer(this).displayResult(res);
 	}
+
+	public List<TableSearch> getSearchList(Object obj) {
+	    return new ObjectViewer(this).getSearchList(obj);
+    }
 
 	// /**
 	// * @return Returns the folders.
