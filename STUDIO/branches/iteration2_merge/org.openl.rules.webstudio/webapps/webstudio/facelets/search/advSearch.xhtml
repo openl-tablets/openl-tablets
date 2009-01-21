@@ -5,6 +5,7 @@
         xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
         xmlns:ui="http://java.sun.com/jsf/facelets"
         xmlns:c="http://java.sun.com/jstl/core"
+        xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
         template="/facelets/common/webstudioBase.xhtml">
 
   <ui:define name="header">
@@ -191,12 +192,30 @@
 </c:if>
 
 <c:if test="#{advancedSearchRequest.searching}">
-  <h:form id="saveAdvSearchForm">
-    <h:inputHidden value="#{advancedSearch.newSearchName}" id="searchName" />
-    <h:commandLink value="Save this search" action="#{advancedSearch.save}" onclick="if (!inputSearchName()) return false"/>
-  </h:form>
+    <h:form id="saveAdvSearchForm">
+        <h:inputHidden value="#{advancedSearch.newSearchName}" id="searchName" />
+        <h:commandLink value="Save this search" action="#{advancedSearch.save}" onclick="if (!inputSearchName()) return false"/>
+     </h:form>
 
-  <h:outputText value="#{advancedSearchRequest.searchResult}" escape="false" />
+    <c:forEach items="#{advancedSearchRequest.searchResults}" var="tableSearch">
+        <br />
+        <img src="#{contextPath}/webresource/images/excel-workbook.png" />
+        <h:outputText value="#{tableSearch.xlsLink}" escape="false" />
+        <f:verbatim>&amp;nbsp;</f:verbatim>
+            <h:panelGroup rendered="#{not advancedSearch.studioReadOnly and tableSearch.tableId > -1}">
+                <br /><br />
+                <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                    <f:param name="elementID" value="#{tableSearch.tableId}" />
+                    <f:param name="mode" value="edit" />
+                    <h:outputText value="Edit table" />
+                </h:outputLink>
+        </h:panelGroup>
+        <br /><br />
+        <rules:tableEditor table="#{tableSearch.table}" editable="false" rendered="#{tableSearch.table != null}">
+            <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
+        </rules:tableEditor>
+        <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{tableSearch.table == null}" escape="false" />
+     </c:forEach>
 </c:if>
 
 <script>
@@ -210,66 +229,23 @@
   fixValue1Enabled();
 </script>
 
-<a4j:loadScript src="resource:///javascript/popup/popupmenu.js" />
-
 <f:verbatim>
-<script type="text/javascript">
-  function cellMouseOver(td, event) {
-    PopupMenu.sheduleShowMenu('contextMenu', event, 700);
-  }
+    <script type="text/javascript">
+        function triggerSearch(f) {
+            f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {
+                return s.nodeName == "#text"
+            }).nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "").split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
+                .reject(function(s) {
+                    return !s
+                }).join(" ");
+            f.submit();
+        }
+    </script>
 
-  function cellMouseOut(td) {
-    PopupMenu.cancelShowMenu();
-  }
-  function triggerEdit(f) {
-    var lastTarget = $(PopupMenu.lastTarget)
-    var uri = lastTarget.down('input').value;
-    f.elementID.value = lastTarget.id.split("-")[1];
-    f.cell.value = uri.toQueryParams().cell;
-    f.submit();
-  }
-  function triggerEditXls(f) {
-    f.uri.value = $(PopupMenu.lastTarget).down('input').value;
-    f.submit();
-  }
-  function triggerSearch(f) {
-    f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {
-      return s.nodeName == "#text"
-    })
-            .nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "").split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
-            .reject(function(s) {
-      return !s
-    }).join(" ");
-    f.submit();
-  }
-</script>
-
-<form name="editForm" action="../tableeditor/showTableEditor.xhtml">
-<input type="hidden" name="elementID" value=""> </input>
-<input type="hidden" name="cell" value=""> </input>
-<input type="hidden" name="view" value="#{advancedSearch.studioView}" />
-</form>
-<form name="editFormXls" action="../../jsp/showLinks.jsp" target="show_app_hidden">
-    <input type="hidden" name="uri" value=""> </input>
-</form>
-<form name="searchForm" action="../../jsp/search/search.jsp">
-    <input type="hidden" name="searchQuery" value=""> </input>
-</form>
-
+    <form name="searchForm" action="#{contextPath}/jsp/search/search.jsp">
+        <input type="hidden" name="searchQuery" value="" />
+    </form>
 </f:verbatim>
 
-<div id="contextMenu" style="display:none;">
-  <table cellpadding="1px">
-    <c:if test="#{advancedSearch.studioReadOnly}">
-    <tr><td class="da">Edit</td></tr>
-    <tr><td class="da">Edit in Excel</td></tr>
-    </c:if>
-    <c:if test="#{not advancedSearch.studioReadOnly}">
-    <tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr>
-    <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
-    </c:if>
-    <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
-  </table>
-</div>
   </ui:define>
 </ui:composition>

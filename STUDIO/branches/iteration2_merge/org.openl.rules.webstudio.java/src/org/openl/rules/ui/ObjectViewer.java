@@ -6,6 +6,8 @@ package org.openl.rules.ui;
 import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.IOpenSourceCodeModule;
@@ -24,6 +26,7 @@ import org.openl.rules.dt.DTRule;
 import org.openl.rules.dt.DTUncovered;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.search.ISearchTableRow;
@@ -45,6 +48,7 @@ import org.openl.rules.table.ui.SimpleHtmlFilter;
 import org.openl.rules.table.ui.TableValueFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.testmethod.TestResult;
+import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.rules.webtools.WebTool;
@@ -242,31 +246,54 @@ public class ObjectViewer {
         TableAndRows[] tr = searchRes.tablesAndRows();
 
         Object[] res = new Object[tr.length * 2];
-
         OpenLAdvancedSearchResultViewer sviewer = new OpenLAdvancedSearchResultViewer(searchRes);
 
         for (int i = 0; i < tr.length; i++) {
             TableSyntaxNode tsn = tr[i].getTsn();
 
-            StringValue tname = null;
-            Property prop = null;
-            if (tsn.getTableProperties() != null && (prop = tsn.getTableProperties().getProperty("name")) != null) {
-                tname = prop.getValue();
-            } else {
-                tname = tr[i].getTsn().getHeaderLineValue();
-            }
-
+            StringValue tname = getTableName(tsn);
             res[2 * i] = tname;
 
             ISearchTableRow[] trows = tr[i].getRows();
-
             CompositeGrid cg = sviewer.makeGrid(trows);
-
             res[2 * i + 1] = cg != null ? new GridWithNode(cg.asGridTable(), tsn) : "No rows selected";
-
         }
 
         return displayResult(res);
+    }
+
+    public List<TableSearch> getSearchList(Object searchRes) {
+        List<TableSearch> tableSearchList = new ArrayList<TableSearch>();
+        if (searchRes instanceof OpenLAdvancedSearchResult) {
+            TableAndRows[] tr = ((OpenLAdvancedSearchResult) searchRes).tablesAndRows();
+            OpenLAdvancedSearchResultViewer sviewer = new OpenLAdvancedSearchResultViewer(
+                    (OpenLAdvancedSearchResult) searchRes);
+            for (int i = 0; i < tr.length; i++) {
+                TableSyntaxNode tsn = tr[i].getTsn();
+                StringValue tableName = getTableName(tsn);
+                int tableId = projectModel.indexForNode(tsn);
+                CompositeGrid cg = sviewer.makeGrid(tr[i].getRows());
+                IGridTable table = cg != null ? cg.asGridTable() : null;
+                TableSearch tableSearch = new TableSearch();
+                tableSearch.setTableId(tableId);
+                tableSearch.setTable(table);
+                tableSearch.setXlsLink((displayResult(tableName)));
+                tableSearchList.add(tableSearch);
+            }
+        }
+        return tableSearchList;
+    }
+
+    public StringValue getTableName(TableSyntaxNode tsn) {
+        StringValue name = null;
+        Property prop = null;
+        TableProperties tableProperties = tsn.getTableProperties();
+        if (tableProperties != null && (prop = tableProperties.getProperty("name")) != null) {
+            name = prop.getValue();
+        } else {
+            name = tsn.getHeaderLineValue();
+        }
+        return name;
     }
 
     /**
