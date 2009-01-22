@@ -16,10 +16,6 @@
 
   <modules>
     <module>org.openl.rules.base-pom</module>
-    <module>../../../DEV/branches/iteration2_merge/</module>
-    <module>../../../STUDIO/branches/iteration2_merge/</module>
-    <module>../../../WSFrontend/branches/iteration2_merge/</module>
-    <module>../../../Eclipse/branches/iteration2_merge/</module>
   </modules>
 
   <build>

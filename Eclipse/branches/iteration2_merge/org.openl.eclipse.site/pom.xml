@@ -15,10 +15,6 @@
   <description />
   <packaging>pom</packaging>
 
-  <properties>
-    <studio.eclipse.version>5.2.0-SNAPSHOT</studio.eclipse.version>
-  </properties>
-
   <build>
     <defaultGoal>package</defaultGoal>
     <plugins>
@@ -241,13 +237,11 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
-      <version>${studio.eclipse.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.lib</artifactId>
-      <version>${studio.eclipse.version}</version>
     </dependency>
 
   </dependencies>
