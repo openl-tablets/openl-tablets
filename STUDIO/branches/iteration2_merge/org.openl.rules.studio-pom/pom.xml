@@ -17,9 +17,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <dev.version>5.2.0-SNAPSHOT</dev.version>
-    <!-- Remove WSFrontend dependencies at all while refactoring -->
-    <wsf.version>5.2.0-SNAPSHOT</wsf.version>
+    <dep.version>5.2.0-SNAPSHOT</dep.version>
   </properties>
 
   <modules>
@@ -186,79 +184,79 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.core</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.helpers</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.validator</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j.science</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib.apache.poi.modified</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>com.exigen.rules</groupId>
         <artifactId>com.exigen.rules.constrainer</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.conf.ant</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib.eclipse.feature</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.eclipse.feature</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib</artifactId>
-        <version>${dev.version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <!-- STUDIO -->
