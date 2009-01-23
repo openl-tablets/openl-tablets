@@ -15,7 +15,9 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.RegionGridSelector;
-import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
+import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.ITracerObject;
 
@@ -121,7 +123,7 @@ public class TraceHelper
 				gt = new TableEditorModel(gtx.getGridTable()).getUpdatedTable();
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[]{makeFilter(rtt, model)});
-        return new TableRenderer(tableModel).renderWithMenu();
+        return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null);
 	}
 
     public int getProjectNodeIndex(int id, ProjectModel model) {

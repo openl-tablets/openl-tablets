@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web;
+package org.openl.rules.webstudio.web.tableeditor;
 
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.web.jsf.util.FacesUtils;

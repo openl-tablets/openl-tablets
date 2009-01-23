@@ -47,10 +47,11 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.SimpleHtmlFilter;
 import org.openl.rules.table.ui.TableValueFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
+import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.validator.dt.DTValidationResult;
-import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.rules.webtools.WebTool;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
@@ -202,9 +203,9 @@ public class ObjectViewer {
                 int index = projectModel.indexForNode(((GridWithNode) res).tableSyntaxNode);
                 if (index >= 0) {
                     TableModel tableModel = ProjectModel.buildModel(((GridWithNode) res).gridTable, null);
-                    TableRenderer renderer = new TableRenderer(tableModel);
+                    HTMLRenderer.TableRenderer renderer = new HTMLRenderer.TableRenderer(tableModel);
                     renderer.setCellIdPrefix("cell-" + index + "-");
-                    return renderer.renderWithMenu();
+                    return renderer.renderWithMenu(null);
                 }
             }
 

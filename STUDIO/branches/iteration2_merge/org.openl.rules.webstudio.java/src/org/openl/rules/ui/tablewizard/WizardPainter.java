@@ -2,10 +2,10 @@ package org.openl.rules.ui.tablewizard;
 
 import java.util.List;
 
-import org.openl.rules.ui.BorderStyle;
-import org.openl.rules.ui.CellModel;
-import org.openl.rules.ui.TableModel;
-import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
+import org.openl.rules.tableeditor.model.ui.BorderStyle;
+import org.openl.rules.tableeditor.model.ui.CellModel;
+import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 
 /**
  * @author Aliaksandr Antonik.
@@ -60,7 +60,7 @@ public class WizardPainter {
             }
         }
 
-        return new TableRenderer(tableModel).render();
+        return new HTMLRenderer.TableRenderer(tableModel).render();
     }
 
     static final BorderStyle BORDER_SOLID = new BorderStyle(1, "solid",null);

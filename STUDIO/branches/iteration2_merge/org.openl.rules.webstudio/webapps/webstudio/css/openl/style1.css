@@ -428,14 +428,19 @@ font-style: italic;
 
 .menuholderdiv {
     background-color: white;
-    border: 1px dotted black;
-    padding:4px;
+    border: 1px solid rgb(155,175,255);
+    padding: 4px;
+    font-size: 110%;
 }
 
-.menuholderdiv a {
+.menuholderdiv a, .menuholderdiv a:visited {
     text-decoration: underline;
-    color: green;
-    font-size:larger;
+    color: rgb(75,105,195);
+}
+
+.menuholderdiv a:hover {
+    text-decoration: underline;
+    color: rgb(215,125,0);
 }
 
 .menuholderdiv .da {

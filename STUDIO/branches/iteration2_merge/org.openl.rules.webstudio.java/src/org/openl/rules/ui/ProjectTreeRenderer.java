@@ -3,9 +3,9 @@
  */
 package org.openl.rules.ui;
 
-import org.openl.binding.impl.BoundError;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.syntax.impl.SyntaxError;
 import org.openl.util.ITreeElement;
 
 /**
@@ -83,7 +83,7 @@ public class ProjectTreeRenderer extends DTreeRenderer implements
             return targetJsp + "?elementID=" + map.getID(element);
 
         if (element.getType().startsWith(PT_PROBLEM)) {
-            final BoundError problem = (BoundError) ((ProjectTreeElement) element).getProblem();
+            final SyntaxError problem = (SyntaxError) ((ProjectTreeElement) element).getProblem();
             final TableSyntaxNode tsn = (TableSyntaxNode) problem.getTopLevelSyntaxNode();
             int tableId = project.indexForNode(tsn);
             return "faces/facelets/tableeditor/showError.xhtml"
