@@ -315,6 +315,7 @@ public class HTMLRenderer {
         }
 
         public String renderWithMenu(String menuId) {
+            menuId = menuId == null ? "" : menuId;
             return render("onmouseover=\"openMenu('" + menuId
                     + "',this,event)\" onmouseout=\"closeMenu(this)\"", true);
         }

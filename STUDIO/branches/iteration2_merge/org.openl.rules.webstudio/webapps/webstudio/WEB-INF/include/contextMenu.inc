@@ -2,32 +2,37 @@
 <%@ page import="org.openl.rules.util.net.NetUtils" %>
 <script type="text/javascript" src="${pageContext.request.contextPath}/javascript/popup/popupmenu.js"></script>
 <script type="text/javascript">
-    function cellMouseOver(td, event) {
-        PopupMenu.sheduleShowMenu('contextMenu', event, 700);
+    function openMenu(menuId, td, event) {
+        if (!menuId) menuId = 'contextMenu';
+        PopupMenu.sheduleShowMenu(menuId, event, 400);
     }
 
-    function cellMouseOut(td) {
+    function closeMenu(td) {
         PopupMenu.cancelShowMenu();
     }
+
     function triggerEdit(f) {
         var uri = $(PopupMenu.lastTarget).down('input').value;
         f.cell.value = uri.toQueryParams().cell;
         f.submit();
     }
+
     function triggerEditXls(f) {
         f.uri.value = $(PopupMenu.lastTarget).down('input').value;
         f.submit();
     }
+
     function triggerSearch(f) {
         f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {return s.nodeName == "#text"})
                 .nodeValue.sub(/^[.;,! \t\n()^&*%=?\-'"+<>]+/, "").split(/[.;,! \t\n()^&*%=?\-'"+<>]+/, 3)
                 .reject(function(s) {return !s}).join(" ");
-       f.submit();
+        f.submit();
     }
 </script>
 
-<form name="editForm" action="${pageContext.request.contextPath}/jsp/tableeditor/showTableEditor2.jsf">
+<form name="editForm" action="${pageContext.request.contextPath}/faces/facelets/tableeditor/showTable.xhtml">
 <input type="hidden" name="elementID" value="<%=elementID%>">
+<input type="hidden" name="mode" value="edit">
 <input type="hidden" name="cell" value="">
 <input type="hidden" name="view" value="<%=studio.getModel().getTableView(request.getParameter("view"))%>" />
 </form>

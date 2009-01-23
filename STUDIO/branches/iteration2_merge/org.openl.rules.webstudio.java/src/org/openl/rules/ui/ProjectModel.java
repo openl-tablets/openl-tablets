@@ -41,9 +41,11 @@ import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.validator.dt.DTValidator;
-import org.openl.rules.webstudio.web.tableeditor.TableRenderer;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
+import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.tableeditor.model.ui.TableViewer;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
@@ -154,7 +156,7 @@ public class ProjectModel implements IProjectTypes {
 		TableModel tableModel = buildModel(gt,
 				new IGridFilter[] { new ColorGridFilter(new RegionGridSelector(
 						region, true), filterHolder.makeFilter()) });
-		return new TableRenderer(tableModel).renderWithMenu();
+		return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null);
 	}
 
 	public static String showTable(IGridTable gt, IGridFilter filter,

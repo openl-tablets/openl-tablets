@@ -209,56 +209,10 @@
   </navigation-rule>
 
   <!-- studio config -->
-  <lifecycle>
-    <phase-listener>org.openl.rules.webstudio.web.tableeditor.TableEditorAjaxDispatcher</phase-listener>
-  </lifecycle>
-
-  <managed-bean>
-    <managed-bean-name>tableEditorController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TableEditorController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-
   <managed-bean>
     <managed-bean-name>benchmarkMethodBean</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.BenchmarkMethodBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>tableViewController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.JSFTableViewController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-    <managed-property>
-      <property-name>elementID</property-name>
-      <value>#{param.elementID}</value>
-    </managed-property>
-    <managed-property>
-      <property-name>view</property-name>
-      <value>#{param.view}</value>
-    </managed-property>
-  </managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>tableWriterBean</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TableWriterBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>editorBean</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.EditorBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>topEditorBean</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TopEditorBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>popupEditorBean</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.PopupEditorBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
   <managed-bean>
@@ -302,26 +256,19 @@
 
   <managed-bean>
     <managed-bean-name>showTableErrorBean</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.ShowTableErrorBean</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.ShowTableErrorBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
   <managed-bean>
     <managed-bean-name>headerBean</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.HeaderBean</managed-bean-class>
+    <managed-bean-class>org.openl.rules.webstudio.web.HeaderBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
     <managed-property>
       <property-name>hideLogout</property-name>
       <value>#{applicationScope.hideLogout}</value>
     </managed-property>
   </managed-bean>
-
-  <navigation-rule>
-    <navigation-case>
-      <from-outcome>tableEditor_success</from-outcome>
-      <to-view-id>/facelets/tableeditor/tableEditorResponse.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
 
   <navigation-rule>
     <from-view-id>/facelets/repository/main.xhtml</from-view-id>

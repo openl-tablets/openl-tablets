@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.tableeditor;
+package org.openl.rules.webstudio.web;
 
 import java.io.IOException;
 import javax.faces.context.FacesContext;
