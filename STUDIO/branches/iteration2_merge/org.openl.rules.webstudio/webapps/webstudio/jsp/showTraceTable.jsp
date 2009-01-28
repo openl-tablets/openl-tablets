@@ -5,10 +5,6 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
-
-<%@include file="checkTimeoutClose.jspf"%>
-
-
 <%
 
     if (request.getParameter("first") != null)

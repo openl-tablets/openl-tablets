@@ -172,6 +172,25 @@
     <url-pattern>*.xhtml</url-pattern>
   </filter-mapping>
 
+  <filter>
+    <filter-name>SessionTimeoutFilter</filter-name>
+    <filter-class>org.openl.rules.webstudio.filter.SessionTimeoutFilter</filter-class>
+    <init-param>
+        <param-name>redirectPage</param-name>
+        <param-value>/faces/facelets/sessionExpired.xhtml</param-value>
+    </init-param>
+    <init-param>
+        <description>Comma separated list of urls</description>
+        <param-name>excludePages</param-name>
+        <param-value>/faces/facelets/login.xhtml</param-value>
+    </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>SessionTimeoutFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
   <!-- Listeners, that does all the startup work (configuration, init). -->
   <listener>
     <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
@@ -232,4 +251,5 @@
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
+
 </web-app>

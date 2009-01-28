@@ -29,11 +29,6 @@ BODY {
 
 </style>
 
-
-<%@include file="checkTimeoutClose.jspf"%>
-
-
-
 <%
 String header = request.getParameter("header");
 

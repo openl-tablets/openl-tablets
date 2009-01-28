@@ -34,10 +34,6 @@ BODY {
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
-
-<%@include file="jsp/checkTimeout.jspf"%>
-
-
 <%
 	String s_id = request.getParameter("elementID");
 
