@@ -14,6 +14,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.SyntaxError;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 
 
 
@@ -236,8 +237,12 @@ public abstract class ANodeBinder implements INodeBinder
 	static public IOpenCast getCast(IBoundNode bnode, IOpenClass to, IBindingContext bindingContext)
 	  throws Exception
 	{
+		
 		IOpenClass from = bnode.getType();
 		
+		if (from == null)
+			throw new TypeCastError(bnode.getSyntaxNode(), NullOpenClass.the, to);
+			
 		if(from.equals(to))
 		  return null;
 
