@@ -15,14 +15,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class SessionTimeoutFilter implements Filter {
-
     private static final Log log = LogFactory.getLog(SessionTimeoutFilter.class);
 
     private FilterConfig config;
     private String redirectPage;
     private String[] excludePages;
 
-    @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         config = filterConfig;
         redirectPage = config.getInitParameter("redirectPage");
@@ -36,10 +34,9 @@ public class SessionTimeoutFilter implements Filter {
         }
     }
 
-    @Override
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
+        throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         if (excludePages != null && excludePages.length > 0) {
             for (String excludePage : excludePages) {
@@ -60,9 +57,7 @@ public class SessionTimeoutFilter implements Filter {
         }
     }
 
-    @Override
     public void destroy() {
-        //destroy
+        //destroy 
     }
-
 }
