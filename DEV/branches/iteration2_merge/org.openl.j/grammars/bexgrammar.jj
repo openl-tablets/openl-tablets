@@ -460,6 +460,14 @@ TOKEN :
   >
 }
 
+
+TOKEN :
+{
+  < LABEL: <IDENTIFIER> <COLON> >
+}
+
+
+
 /* COMMENTS */
 
 MORE :
@@ -892,7 +900,7 @@ void SimpleFilter() :
 void SimpleNotFilter() :
 {}
 {
-	"not" Word("identifier.filter")
+	"not" Word("identifier.filter.not")
 }
 
 
