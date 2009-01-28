@@ -1,9 +1,6 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
-
-<%@include file="checkTimeout.jspf"%>
-
 <% 
 	String s_id = request.getParameter("elementID"); 
    	int elementID = -100; 	
