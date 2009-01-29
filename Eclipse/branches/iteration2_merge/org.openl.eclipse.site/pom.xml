@@ -15,6 +15,10 @@
   <description />
   <packaging>pom</packaging>
 
+  <properties>
+    <studio.eclipse.version>5.2.0</studio.eclipse.version>
+  </properties>
+
   <build>
     <defaultGoal>package</defaultGoal>
     <plugins>
