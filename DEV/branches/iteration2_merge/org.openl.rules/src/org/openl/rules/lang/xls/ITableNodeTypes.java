@@ -20,7 +20,8 @@ public interface ITableNodeTypes
 	public static final String
 	  XLS_MODULE = "xls.module",
 	  XLS_DT = "xls.dt",
-	  XLS_SPREADSHEET="xls.spreadsheet",
+	  XLS_SPREADSHEET = "xls.spreadsheet",
+	  XLS_ALGORITHM = "xls.algorithm",
 	  
 	  XLS_METHOD = "xls.method",
 	  XLS_DATA = "xls.data",
