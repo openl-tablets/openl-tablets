@@ -36,6 +36,7 @@ import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.meta.IVocabulary;
+import org.openl.rules.algorithm.AlgorithmNodeBinder;
 import org.openl.rules.calc.SSheetNodeBinder;
 import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
@@ -500,6 +501,8 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 			{ XLS_METHOD, MethodTableNodeBinder.class.getName() },
 			{ XLS_TEST_METHOD, TestMethodNodeBinder.class.getName() },
 			{ XLS_RUN_METHOD, TestMethodNodeBinder.class.getName() },
-			{ XLS_TABLE, StructureTableNodeBinder.class.getName() }, };
+			{ XLS_TABLE, StructureTableNodeBinder.class.getName() }, 
+			{ XLS_ALGORITHM, AlgorithmNodeBinder.class.getName() },
+			};
 
 }
