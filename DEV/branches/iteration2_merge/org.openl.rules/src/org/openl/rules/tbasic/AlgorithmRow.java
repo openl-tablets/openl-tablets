@@ -12,10 +12,6 @@ public class AlgorithmRow {
     private StringValue after;
     private int operationLevel;
 
-    public void set(String column, StringValue sv) {
-        ;
-    }
-    
     public StringValue getLabel() {
         return label;
     }
@@ -50,5 +46,33 @@ public class AlgorithmRow {
 
     public void setOperationLevel(int operationLevel) {
         this.operationLevel = operationLevel;
+    }
+
+    public void setLabel(StringValue label) {
+        this.label = label;
+    }
+
+    public void setDescription(StringValue description) {
+        this.description = description;
+    }
+
+    public void setOperation(StringValue operation) {
+        this.operation = operation;
+    }
+
+    public void setCondition(StringValue condition) {
+        this.condition = condition;
+    }
+
+    public void setAction(StringValue action) {
+        this.action = action;
+    }
+
+    public void setBefore(StringValue before) {
+        this.before = before;
+    }
+
+    public void setAfter(StringValue after) {
+        this.after = after;
     }
 }

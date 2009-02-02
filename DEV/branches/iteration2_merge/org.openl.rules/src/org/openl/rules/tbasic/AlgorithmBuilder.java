@@ -1,7 +1,5 @@
 package org.openl.rules.tbasic;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,41 +22,69 @@ public class AlgorithmBuilder {
     }
 
     public void build(ILogicalTable tableBody) {
-        IGridTable grid = tableBody.getGridTable();
-
         Map<String, AlgorithmColumn> columns = new HashMap<String, AlgorithmColumn>();
+        
+        ILogicalTable ids = tableBody.getLogicalRow(0);
+        
         // parse ids, row=0
-        for (int c = 0; c < grid.getLogicalWidth(); c++) {
-            String id = grid.getStringValue(c, 0);
+        for (int c = 0; c < ids.getLogicalWidth(); c++) {
+            String id = ids.getGridTable().getStringValue(c, 0);
+            id = id.toLowerCase();
 
             if (columns.get(id) != null) {
                 // duplicate ids
+                throw new IllegalStateException("Duplicate column '" + id + "'!");
             }
 
             columns.put(id, new AlgorithmColumn(id, c));
         }
 
         // parse data, row=2..*
+        IGridTable grid = tableBody.rows(2).getGridTable();
         for (int r = 0; r < grid.getLogicalHeight(); r++) {
-            
+
             AlgorithmRow aRow = new AlgorithmRow();
             // parse data row
             for (AlgorithmColumn column : columns.values()) {
                 int c = column.columnIndex;
-                
+
                 String value = grid.getStringValue(c, r);
                 String uri = grid.getUri(c, r);
 
+                if (value == null) {
+                    value = "";
+                }
+
                 StringValue sv = new StringValue(value, "cell" + r + "_" + c, null, uri);
-                
-                aRow.set(column.id, sv);
+
+                setRowField(aRow, column.id, sv);
                 if ("Operation".equalsIgnoreCase(column.id)) {
                     int i = grid.getCellStyle(c, r).getIdent();
                     aRow.setOperationLevel(i);
                 }
             }
-            
+
             algorithm.addRow(aRow);
+        }
+    }
+
+    private void setRowField(AlgorithmRow row, String column, StringValue sv) {
+        if ("section".equalsIgnoreCase(column)) {
+            row.setLabel(sv);
+        } else if ("description".equalsIgnoreCase(column)) {
+            row.setDescription(sv);
+        } else if ("operation".equalsIgnoreCase(column)) {
+            row.setOperation(sv);
+        } else if ("condition".equalsIgnoreCase(column)) {
+            row.setCondition(sv);
+        } else if ("action".equalsIgnoreCase(column)) {
+            row.setAction(sv);
+        } else if ("before".equalsIgnoreCase(column)) {
+            row.setBefore(sv);
+        } else if ("after".equalsIgnoreCase(column)) {
+            row.setAfter(sv);
+        } else {
+            throw new IllegalArgumentException("Invalid column id '" + column + "'!");
         }
     }
 
