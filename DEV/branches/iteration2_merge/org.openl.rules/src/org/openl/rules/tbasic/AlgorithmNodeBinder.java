@@ -1,4 +1,4 @@
-package org.openl.rules.algorithm;
+package org.openl.rules.tbasic;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;

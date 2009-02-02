@@ -36,7 +36,7 @@ import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.meta.IVocabulary;
-import org.openl.rules.algorithm.AlgorithmNodeBinder;
+import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.calc.SSheetNodeBinder;
 import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
