@@ -1,4 +1,4 @@
-package org.openl.rules.tbasic;
+package org.openl.rules.tbasic.runtime;
 
 import org.openl.vm.IRuntimeEnv;
 

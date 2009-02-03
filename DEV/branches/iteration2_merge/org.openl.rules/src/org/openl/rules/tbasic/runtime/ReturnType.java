@@ -1,4 +1,4 @@
-package org.openl.rules.tbasic;
+package org.openl.rules.tbasic.runtime;
 
 public enum ReturnType {
     Next,
