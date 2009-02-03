@@ -2,17 +2,30 @@ package org.openl.rules.tbasic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.tbasic.runtime.RuntimeOperation;
+import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
+import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
 public class Algorithm extends AMethod implements IMemberMetaInfo {
     private final AlgorithmBoundNode node;
+        
+    /**************************************************
+     * Comple artifacts
+     *************************************************/
+    private IOpenClass thisClass;
+    private List<RuntimeOperation> algorithmSteps;
+    private Map<String, RuntimeOperation> labels;
 
     private final List<AlgorithmRow> rows;
 
@@ -28,9 +41,10 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return null;
-        // return new AlgorithmResult(this, (IDynamicObject) target, params,
-        // env);
+        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject (thisClass, (IDynamicObject)target);
+
+        TBasicVM algorithmVM = new TBasicVM(algorithmSteps, labels);
+        return algorithmVM.run(thisInstance, target, params, env);
     }
 
     public BindingDependencies getDependencies() {
@@ -59,3 +73,4 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
         return rows;
     }
 }
+
