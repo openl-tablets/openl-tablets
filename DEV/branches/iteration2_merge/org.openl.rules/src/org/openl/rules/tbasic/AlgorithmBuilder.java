@@ -22,14 +22,21 @@ public class AlgorithmBuilder {
     }
 
     public void build(ILogicalTable tableBody) {
+        if (tableBody.getLogicalHeight() < 2) {
+            throw new IllegalArgumentException("Unsufficient rows. Must be more than 2!");
+        }
+
         Map<String, AlgorithmColumn> columns = new HashMap<String, AlgorithmColumn>();
         
         ILogicalTable ids = tableBody.getLogicalRow(0);
         
         // parse ids, row=0
         for (int c = 0; c < ids.getLogicalWidth(); c++) {
-            String id = ids.getGridTable().getStringValue(c, 0);
-            id = id.toLowerCase();
+            String id = safeId(ids.getGridTable().getStringValue(c, 0));
+            if (id.length() == 0) {
+                // ignore column with NO ID
+                continue;
+            }
 
             if (columns.get(id) != null) {
                 // duplicate ids
@@ -40,6 +47,8 @@ public class AlgorithmBuilder {
         }
 
         // parse data, row=2..*
+        if (tableBody.getLogicalHeight() <= 2) return;
+        
         IGridTable grid = tableBody.rows(2).getGridTable();
         for (int r = 0; r < grid.getLogicalHeight(); r++) {
 
@@ -86,6 +95,11 @@ public class AlgorithmBuilder {
         } else {
             throw new IllegalArgumentException("Invalid column id '" + column + "'!");
         }
+    }
+
+    private String safeId(String s) {
+        if (s == null) return "";
+        return (s.trim().toLowerCase());
     }
 
     // Section Description Operation Condition Action Before After
