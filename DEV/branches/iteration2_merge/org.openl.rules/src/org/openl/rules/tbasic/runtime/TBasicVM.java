@@ -1,12 +1,22 @@
 package org.openl.rules.tbasic.runtime;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 import org.openl.vm.IRuntimeEnv;
 
 public class TBasicVM {
 
-    private List<RuntimeOperation> operations;
+    private ArrayList<RuntimeOperation> operations;
+    private Map<String, RuntimeOperation> labels;
+    
+    
+
+    public TBasicVM(ArrayList<RuntimeOperation> operations,
+            Map<String, RuntimeOperation> labels) {
+        this.operations = operations;
+        this.labels = labels;
+    }
 
     public Object run(Object target, Object[] params, IRuntimeEnv environment) {
         TBasicContext context = new TBasicContext(target, params, environment);
@@ -43,12 +53,12 @@ public class TBasicVM {
 
     private RuntimeOperation getNextOperation(RuntimeOperation operation) {
         // TODO Auto-generated method stub
-        return null;
+        int indexOfNext = operations.indexOf(operation)+1;
+        return operations.get(indexOfNext);
     }
 
-    private RuntimeOperation getLabeledOperation(String previousStepResult) {
-        // TODO Auto-generated method stub
-        return null;
+    private RuntimeOperation getLabeledOperation(String label) {
+        return labels.get(label);
     }
 
 }
