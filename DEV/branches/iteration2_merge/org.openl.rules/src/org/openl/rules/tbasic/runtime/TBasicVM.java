@@ -1,25 +1,26 @@
 package org.openl.rules.tbasic.runtime;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
 public class TBasicVM {
 
-    private ArrayList<RuntimeOperation> operations;
+    private List<RuntimeOperation> operations;
     private Map<String, RuntimeOperation> labels;
     
     
 
-    public TBasicVM(ArrayList<RuntimeOperation> operations,
+    public TBasicVM(List<RuntimeOperation> operations,
             Map<String, RuntimeOperation> labels) {
         this.operations = operations;
         this.labels = labels;
     }
 
-    public Object run(Object target, Object[] params, IRuntimeEnv environment) {
-        TBasicContext context = new TBasicContext(target, params, environment);
+    public Object run(DelegatedDynamicObject thisTarget, Object target, Object[] params, IRuntimeEnv environment) {
+        TBasicContext context = new TBasicContext(thisTarget, target, params, environment);
 
         RuntimeOperation operation = getFirstOperation();
         Object previousStepResult = null;
