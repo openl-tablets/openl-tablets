@@ -8,12 +8,17 @@ import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.syntax.impl.SyntaxError;
 
 public class AlgorithmBuilder {
+
+    private static final String OPERATION = "Operation";
 
     private final IBindingContext cxt;
     private final Algorithm algorithm;
     private final TableSyntaxNode tsn;
+
+    private Map<String, AlgorithmColumn> columns;
 
     public AlgorithmBuilder(IBindingContext cxt, Algorithm algorithm, TableSyntaxNode tsn) {
         this.cxt = cxt;
@@ -21,15 +26,24 @@ public class AlgorithmBuilder {
         this.tsn = tsn;
     }
 
-    public void build(ILogicalTable tableBody) {
+    public void build(ILogicalTable tableBody) throws SyntaxError {
         if (tableBody.getLogicalHeight() < 2) {
-            throw new IllegalArgumentException("Unsufficient rows. Must be more than 2!");
+            throw new SyntaxError(tsn, "Unsufficient rows. Must be more than 2!", null);
         }
 
-        Map<String, AlgorithmColumn> columns = new HashMap<String, AlgorithmColumn>();
-        
+        prepareColumns(tableBody);
+
+        // parse data, row=2..*
+        if (tableBody.getLogicalHeight() > 2) {
+            buildRows(tableBody);
+        }
+    }
+
+    private void prepareColumns(ILogicalTable tableBody) throws SyntaxError {
+        columns = new HashMap<String, AlgorithmColumn>();
+
         ILogicalTable ids = tableBody.getLogicalRow(0);
-        
+
         // parse ids, row=0
         for (int c = 0; c < ids.getLogicalWidth(); c++) {
             String id = safeId(ids.getGridTable().getStringValue(c, 0));
@@ -40,15 +54,14 @@ public class AlgorithmBuilder {
 
             if (columns.get(id) != null) {
                 // duplicate ids
-                throw new IllegalStateException("Duplicate column '" + id + "'!");
+                throw new SyntaxError(tsn, "Duplicate column '" + id + "'!", null);
             }
 
             columns.put(id, new AlgorithmColumn(id, c));
         }
+    }
 
-        // parse data, row=2..*
-        if (tableBody.getLogicalHeight() <= 2) return;
-        
+    private void buildRows(ILogicalTable tableBody) throws SyntaxError {
         IGridTable grid = tableBody.rows(2).getGridTable();
         for (int r = 0; r < grid.getLogicalHeight(); r++) {
 
@@ -67,7 +80,7 @@ public class AlgorithmBuilder {
                 StringValue sv = new StringValue(value, "cell" + r + "_" + c, null, uri);
 
                 setRowField(aRow, column.id, sv);
-                if ("Operation".equalsIgnoreCase(column.id)) {
+                if (OPERATION.equalsIgnoreCase(column.id)) {
                     int i = grid.getCellStyle(c, r).getIdent();
                     aRow.setOperationLevel(i);
                 }
@@ -77,7 +90,7 @@ public class AlgorithmBuilder {
         }
     }
 
-    private void setRowField(AlgorithmRow row, String column, StringValue sv) {
+    private void setRowField(AlgorithmRow row, String column, StringValue sv) throws SyntaxError {
         if ("section".equalsIgnoreCase(column)) {
             row.setLabel(sv);
         } else if ("description".equalsIgnoreCase(column)) {
@@ -93,12 +106,13 @@ public class AlgorithmBuilder {
         } else if ("after".equalsIgnoreCase(column)) {
             row.setAfter(sv);
         } else {
-            throw new IllegalArgumentException("Invalid column id '" + column + "'!");
+            throw new SyntaxError(tsn, "Invalid column id '" + column + "'!", null);
         }
     }
 
     private String safeId(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         return (s.trim().toLowerCase());
     }
 
