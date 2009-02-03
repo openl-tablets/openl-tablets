@@ -1,4 +1,4 @@
-package org.openl.rules.tbasic;
+package org.openl.rules.tbasic.runtime;
 
 import java.util.List;
 
@@ -11,23 +11,34 @@ public class TBasicVM {
     public Object run(Object target, Object[] params, IRuntimeEnv environment) {
         TBasicContext context = new TBasicContext(target, params, environment);
 
-        RuntimeOperation operation = operations.get(0);
+        RuntimeOperation operation = getFirstOperation();
         Object previousStepResult = null;
+        Object returnResult = null;
+        
         while (operation != null) {
             Result result = operation.execute(context, previousStepResult);
 
-            previousStepResult = result.getValue();
             if (result.getReturnType() == ReturnType.Goto) {
                 // TODO: goto required operation
-                operation = getLabeledOperation((String) previousStepResult);
+                operation = getLabeledOperation((String) result.getValue());
                 continue;
             } else if (result.getReturnType() == ReturnType.Return) {
+                returnResult = result.getValue();
                 break;
             }
+            
             operation = getNextOperation(operation);
+            previousStepResult = result.getValue();
         }
 
-        return previousStepResult;
+        return returnResult;
+    }
+
+    /**
+     * @return
+     */
+    private RuntimeOperation getFirstOperation() {
+        return operations.get(0);
     }
 
     private RuntimeOperation getNextOperation(RuntimeOperation operation) {

@@ -1,4 +1,5 @@
-package org.openl.rules.tbasic;
+package org.openl.rules.tbasic.runtime;
+
 
 public class Result {
 
@@ -19,8 +20,7 @@ public class Result {
     }
 
     /**
-     * @param returnType
-     *            the returnType to set
+     * @param returnType the returnType to set
      */
     public void setReturnType(ReturnType returnType) {
         type = returnType;
