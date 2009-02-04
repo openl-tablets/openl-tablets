@@ -12,10 +12,6 @@ import org.openl.types.IMethodCaller;
 public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation<ResultValueType> {
     private boolean hasReturnValue;
     
-    public ReturnOperation(){
-        this(null);
-    }
-    
     public ReturnOperation(IMethodCaller openLStatement){
         super(openLStatement);
         hasReturnValue = openLStatement != null;

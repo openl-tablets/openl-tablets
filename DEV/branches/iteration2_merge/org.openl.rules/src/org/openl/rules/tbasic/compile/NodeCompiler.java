@@ -1,4 +1,4 @@
-package org.openl.rules.tbasic.compiler;
+package org.openl.rules.tbasic.compile;
 
 import java.util.List;
 
