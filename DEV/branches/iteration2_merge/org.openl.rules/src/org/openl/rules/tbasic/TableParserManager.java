@@ -12,18 +12,19 @@ import org.openl.runtime.EngineFactory;
  */
 public class TableParserManager implements ITableParserManager {
     private static TableParserManager instance = new TableParserManager();
-    public static TableParserManager instance(){
+
+    public static TableParserManager instance() {
         return instance;
     }
-    
+
     private EngineFactory<ITableParserManager> engineFactory;
-    
-    public TableParserManager(){
-        engineFactory = new EngineFactory<ITableParserManager>("org.openl.xls",
-                TableParserManager.class.getResource("TableParserSpecifications.xls"), ITableParserManager.class);
+
+    public TableParserManager() {
+        engineFactory = new EngineFactory<ITableParserManager>("org.openl.xls", TableParserManager.class
+                .getResource("TableParserSpecifications.xls"), ITableParserManager.class);
 
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -35,9 +36,15 @@ public class TableParserManager implements ITableParserManager {
 
         return result;
     }
-    
+
     public ConversionRuleBean[] getConversionRules() {
         ConversionRuleBean[] result = engineFactory.newInstance().getConversionRules();
+
+        return result;
+    }
+
+    public String[] whatOperationsToGroup(String keyword) {
+        String[] result = engineFactory.newInstance().whatOperationsToGroup(keyword);
 
         return result;
     }
@@ -47,10 +54,15 @@ public class TableParserManager implements ITableParserManager {
         for (TableParserSpecificationBean bean : result) {
             System.out.println(bean.getKeyword());
         }
-        
+
         ConversionRuleBean[] conversionRules = TableParserManager.instance().getConversionRules();
         for (ConversionRuleBean bean : conversionRules) {
             System.out.println(bean.getOperation());
+        }
+        
+        String[] operationNames = TableParserManager.instance().whatOperationsToGroup("IF");
+        for (String operationName : operationNames) {
+            System.out.println(operationName);
         }
     }
 

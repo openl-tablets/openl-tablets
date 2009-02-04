@@ -4,7 +4,8 @@ import org.openl.rules.tbasic.compile.ConversionRuleBean;
 
 public interface ITableParserManager {
 
-    public abstract TableParserSpecificationBean[] getStructuredAlgorithmSpecification();
-    public abstract ConversionRuleBean[] getConversionRules();
+    TableParserSpecificationBean[] getStructuredAlgorithmSpecification();
+    ConversionRuleBean[] getConversionRules();
+    String[] whatOperationsToGroup(String keyword);
 
 }

@@ -1,9 +1,10 @@
 package org.openl.rules.tbasic.compile;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 
 import org.openl.IOpenSourceCodeModule;
@@ -12,15 +13,16 @@ import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.meta.StringValue;
+import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TableParserManager;
-import org.openl.rules.tbasic.runtime.OperationConstructorInfo;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
-import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.DelegatedDynamicObject;
+import org.openl.types.java.JavaOpenClass;
+
 
 public class AlgorithmCompiler {
     /********************************
@@ -40,7 +42,43 @@ public class AlgorithmCompiler {
      ********************************/
     private List<RuntimeOperation> operations;
     private IOpenClass thisTarget;
+ 
+    /*********************************
+     * Properties
+     ********************************/
     
+    /**
+     * @return the operations
+     */
+    public List<RuntimeOperation> getOperations() {
+        return operations;
+    }
+
+    /**
+     * @param operations the operations to set
+     */
+    public void setOperations(List<RuntimeOperation> operations) {
+        this.operations = operations;
+    }
+
+    /**
+     * @return the thisTarget
+     */
+    public IOpenClass getThisTarget() {
+        return thisTarget;
+    }
+
+    /**
+     * @param thisTarget the thisTarget to set
+     */
+    public void setThisTarget(IOpenClass thisTarget) {
+        this.thisTarget = thisTarget;
+    }
+    
+    /*********************************
+     * Constructors
+     ********************************/
+
     public AlgorithmCompiler(OpenL openl, IOpenMethodHeader header, List<AlgorithmTreeNode> parsedNodes){
         this (openl, header, parsedNodes, true);
     }
@@ -54,6 +92,10 @@ public class AlgorithmCompiler {
         }
     }
     
+    /*********************************
+     * Methods
+     ********************************/
+    
     public void compile(){
         operations = new ArrayList<RuntimeOperation>();
         thisTarget = new ModuleOpenClass(null, generateOpenClassName(), openl); 
@@ -64,28 +106,38 @@ public class AlgorithmCompiler {
         process();
         
     }
-
-    private void process() {
-        for (int i = 0; i < parsedNodes.size(); i++){
-            // get nodes to generate code from         
-            
-            AlgorithmTreeNode parsedNode = parsedNodes.get(i);
-            ArrayList operationsToGroupWithCurrent;// = Collection.; new ArrayList<AlgorithmTreeNode>(new String[] {});
-            int shiftToNextToGroupOperation = 1;
-            for (;shiftToNextToGroupOperation < parsedNodes.size() - i; shiftToNextToGroupOperation++){
-                AlgorithmTreeNode groupCandidateNode = parsedNodes.get(i + shiftToNextToGroupOperation);
-//                if (!operationsToGroupWithCurrent.contains(groupCandidateNode.getSpecification().getKeyword())){
-//                    break;
-//                }
-            }
-            
-            List<AlgorithmTreeNode> nodesToCompile = null;
-            
-            compileLinkedNodes(nodesToCompile);
-      }
+    private void process(){
+        operations.addAll(process(parsedNodes));
     }
 
-    private void compileLinkedNodes(List<AlgorithmTreeNode> nodesToCompile) {
+    private List<RuntimeOperation> process(List<AlgorithmTreeNode> nodes) {
+        List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
+        
+        for (int i = 0; i < nodes.size(); i++){
+            // get nodes to generate code from         
+            
+            AlgorithmTreeNode parsedNode = nodes.get(i);
+            
+            String[] operationNamesToGroup = TableParserManager.instance().whatOperationsToGroup(parsedNode.getSpecification().getKeyword());
+            List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
+            
+            int shiftToNextToGroupOperation = 1;
+            for (;shiftToNextToGroupOperation < nodes.size() - i; shiftToNextToGroupOperation++){
+                AlgorithmTreeNode groupCandidateNode = nodes.get(i + shiftToNextToGroupOperation);
+                if (!operationsToGroupWithCurrent.contains(groupCandidateNode.getSpecification().getKeyword())){
+                    break;
+                }
+            }
+            
+            List<AlgorithmTreeNode> nodesToCompile = nodes.subList(i, i + shiftToNextToGroupOperation);
+            
+            emittedOperations.addAll(compileLinkedNodes(nodesToCompile));
+        }
+        
+        return emittedOperations;
+    }
+
+    private List<RuntimeOperation> compileLinkedNodes(List<AlgorithmTreeNode> nodesToCompile) {
         List<RuntimeOperation> emitedOperations = new ArrayList<RuntimeOperation>();
         
         ConversionRuleBean conversionRule = getConvertionRule(nodesToCompile);
@@ -96,12 +148,75 @@ public class AlgorithmCompiler {
             String operationParam2 = conversionRule.getOperationParam2()[i];
             String label = conversionRule.getLabel()[i];
             
-            RuntimeOperation emmitedOperation = createOperation(nodesToCompile, operationType, operationParam1, operationParam2);
-            emitedOperations.add(emmitedOperation);
+            RuntimeOperation emmitedOperation = null;
+            
+            // TODO
+            if (!operationType.startsWith("!")){
+                emmitedOperation = createOperation(nodesToCompile, operationType, operationParam1, operationParam2);
+                emitedOperations.add(emmitedOperation);
+            } else if (operationType.equals("!Compile")){
+                List<AlgorithmTreeNode> nodesToProcess;
+                nodesToProcess = getNestedInstructionsBlock(nodesToCompile, operationParam1);
+                emitedOperations.addAll(process(nodesToProcess));
+            } else {
+                // TODO perform other operations
+            }
+            
         }
-        //invoke;
+
+        return emitedOperations;
+    }
+
+    /**
+     * @param nodesToCompile
+     * @return
+     */
+    private List<AlgorithmTreeNode> getNestedInstructionsBlock(List<AlgorithmTreeNode> candidateNodes, String operationToGetFrom) {
+               
+        String operationName = extractOperationName(operationToGetFrom);
+        // We won't extract the field name as it's always the same
         
-        operations.addAll(emitedOperations);
+        AlgorithmTreeNode executionNode = getNodeWithResult(candidateNodes, operationName);
+        
+        return executionNode.getChildren();
+    }
+
+    /**
+     * @param operationToGetFrom
+     */
+    private String extractOperationName(String operationToGetFrom) {
+        // TODO
+        // Get the first token before ".", it will be the name of operation
+        return operationToGetFrom.split(".")[0];
+    }
+    
+    /**
+     * @param operationToGetFrom
+     */
+    private String extractFieldName(String operationToGetFrom) {
+        // TODO
+        // Get the first token after ".", it will be the field name
+        return operationToGetFrom.split(".")[1];
+    }
+
+    /**
+     * @param candidateNodes
+     * @param operationToGetFrom
+     * @return
+     */
+    private AlgorithmTreeNode getNodeWithResult(List<AlgorithmTreeNode> candidateNodes, String operationName) {
+        AlgorithmTreeNode executionNode = null;
+        
+        for (AlgorithmTreeNode node : candidateNodes){
+            if (operationName.equals(node.getAlgorithmRow().getOperation())){
+                executionNode = node;
+            }
+        }
+        
+        if (executionNode == null){
+            throw new RuntimeException("Compilation strange. Couldn't find......");
+        }
+        return executionNode;
     }
 
     private RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile, String operationType, String operationParam1, String operationParam2) {
@@ -133,6 +248,7 @@ public class AlgorithmCompiler {
         } catch (InstantiationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            
         } catch (IllegalAccessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -148,26 +264,38 @@ public class AlgorithmCompiler {
             // FIXME
             return operationParam;
         } else if (clazz.equals(boolean.class)) {
-            // FIXME
             return Boolean.parseBoolean(operationParam);
         } else if (clazz.equals(IMethodCaller.class)){
             
-            return OpenlTool.makeMethod(createSourceCode(operationParam), openl, createMethodHeader(), createBindingContext());
+            return OpenlTool.makeMethod(createSourceCode(nodesToCompile, operationParam), openl, createMethodHeader(), createBindingContext());
         } else {
             // FIXME
             throw new RuntimeException("Unknown type");
         }
     }
 
-    private IOpenSourceCodeModule createSourceCode(String operationParam) {
-        StringValue openLCodeValue = getOpenLCode(operationParam);
+    private IOpenSourceCodeModule createSourceCode(List<AlgorithmTreeNode> nodesToCompile, String operationParam) {
+        StringValue openLCodeValue = getOpenLCode(nodesToCompile, operationParam);
         
         return openLCodeValue.asSourceCodeModule();
     }
 
-    private StringValue getOpenLCode(String operationParam) {
-        // TODO Auto-generated method stub
-        return null;
+    private StringValue getOpenLCode(List<AlgorithmTreeNode> candidateNodes, String operationParam) {
+        String operationName = extractOperationName(operationParam);
+        String fieldName = extractFieldName(operationParam);
+        
+        AlgorithmTreeNode executionNode = getNodeWithResult(candidateNodes, operationName);
+        
+        IOpenField codeField = JavaOpenClass.getOpenClass(AlgorithmRow.class).getField(fieldName);
+
+        if (codeField == null){
+            // TODO
+            throw new RuntimeException("Instruction wrong....");
+        }
+
+        StringValue openLCode = (StringValue) codeField.get(executionNode.getAlgorithmRow(), null);
+        
+        return openLCode;
     }
 
     private IBindingContext createBindingContext() {
@@ -193,16 +321,6 @@ public class AlgorithmCompiler {
      * 
      */
     private void preProcess() {
-//        for (int i = 0; i < parsedNodes.size(); i++){
-//            AlgorithmTreeNode parsedNode = parsedNodes.get(i);
-//            ArrayList operationsToGroupWithCurrent;// = Collection.; new ArrayList<AlgorithmTreeNode>(new String[] {});
-//            int shiftToNextToGroupOperation = 1;
-//            for (;shiftToNextToGroupOperation < parsedNodes.size() - i; shiftToNextToGroupOperation++){
-//                AlgorithmTreeNode groupCandidateNode = parsedNodes.get(i + shiftToNextToGroupOperation);
-//                if (!operationsToGroupWithCurrent.contains(groupCandidateNode.getSpecification().getKeyword())){
-//                    break;
-//                }
-//            }
-//        }
+
     }
 }
