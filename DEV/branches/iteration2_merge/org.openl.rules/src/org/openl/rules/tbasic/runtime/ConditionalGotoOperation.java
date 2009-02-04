@@ -11,10 +11,6 @@ public class ConditionalGotoOperation extends GotoOperation {
 
     protected boolean expectedCondition;
 
-    public ConditionalGotoOperation(String label) {
-        this(label, true);
-    }
-
     public ConditionalGotoOperation(String label, boolean expectedCondition) {
         super(label);
         this.expectedCondition = expectedCondition;
