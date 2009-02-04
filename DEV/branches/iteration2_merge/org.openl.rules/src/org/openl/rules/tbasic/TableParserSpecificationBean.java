@@ -10,12 +10,12 @@ package org.openl.rules.tbasic;
 public class TableParserSpecificationBean {
     private String keyword;
     private String description;
-    private boolean canHaveIdents;
     private boolean multiLine;
-    private boolean condition;
-    private boolean action;
-    private boolean label;
-    private boolean beforeAndAfter;
+    private boolean canHaveIdents;
+    private boolean mustHaveCondition;
+    private boolean mustHaveAction;
+    private boolean obligatoryLabel;
+    private boolean canHaveBeforeAndAfter;
     private boolean canBeOnlyTopLevel;
 
     /**
@@ -79,63 +79,59 @@ public class TableParserSpecificationBean {
     }
 
     /**
-     * @return the condition
+     * @return the mustHaveCondition
      */
-    public boolean isCondition() {
-        return condition;
+    public boolean isMustHaveCondition() {
+        return mustHaveCondition;
     }
 
     /**
-     * @param condition
-     *            the condition to set
+     * @param mustHaveCondition the mustHaveCondition to set
      */
-    public void setCondition(boolean condition) {
-        this.condition = condition;
+    public void setMustHaveCondition(boolean mustHaveCondition) {
+        this.mustHaveCondition = mustHaveCondition;
     }
 
     /**
-     * @return the action
+     * @return the mustHaveAction
      */
-    public boolean isAction() {
-        return action;
+    public boolean isMustHaveAction() {
+        return mustHaveAction;
     }
 
     /**
-     * @param action
-     *            the action to set
+     * @param mustHaveAction the mustHaveAction to set
      */
-    public void setAction(boolean action) {
-        this.action = action;
+    public void setMustHaveAction(boolean mustHaveAction) {
+        this.mustHaveAction = mustHaveAction;
     }
 
     /**
-     * @return the label
+     * @return the obligatoryLabel
      */
-    public boolean isLabel() {
-        return label;
+    public boolean isObligatoryLabel() {
+        return obligatoryLabel;
     }
 
     /**
-     * @param label
-     *            the label to set
+     * @param obligatoryLabel the obligatoryLabel to set
      */
-    public void setLabel(boolean label) {
-        this.label = label;
+    public void setObligatoryLabel(boolean obligatoryLabel) {
+        this.obligatoryLabel = obligatoryLabel;
     }
 
     /**
-     * @return the beforeAndAfter
+     * @return the canHaveBeforeAndAfter
      */
-    public boolean isBeforeAndAfter() {
-        return beforeAndAfter;
+    public boolean isCanHaveBeforeAndAfter() {
+        return canHaveBeforeAndAfter;
     }
 
     /**
-     * @param beforeAndAfter
-     *            the beforeAndAfter to set
+     * @param canHaveBeforeAndAfter the canHaveBeforeAndAfter to set
      */
-    public void setBeforeAndAfter(boolean beforeAndAfter) {
-        this.beforeAndAfter = beforeAndAfter;
+    public void setCanHaveBeforeAndAfter(boolean canHaveBeforeAndAfter) {
+        this.canHaveBeforeAndAfter = canHaveBeforeAndAfter;
     }
 
     /**
