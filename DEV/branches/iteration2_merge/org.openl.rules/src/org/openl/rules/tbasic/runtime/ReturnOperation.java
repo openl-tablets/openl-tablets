@@ -3,6 +3,8 @@
  */
 package org.openl.rules.tbasic.runtime;
 
+import org.openl.types.IMethodCaller;
+
 /**
  * @author User
  *
@@ -14,7 +16,7 @@ public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation<R
         this(null);
     }
     
-    public ReturnOperation(String openLStatement){
+    public ReturnOperation(IMethodCaller openLStatement){
         super(openLStatement);
         hasReturnValue = openLStatement != null;
     }
@@ -27,7 +29,7 @@ public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation<R
         ResultValueType resultValue = null;
         
         if (hasReturnValue){
-            resultValue = evaluateStatement();
+            resultValue = evaluateStatement(context);
         }
         
         return new Result(ReturnType.Return, resultValue);

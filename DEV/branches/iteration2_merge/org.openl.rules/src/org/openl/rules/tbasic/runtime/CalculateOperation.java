@@ -3,13 +3,15 @@
  */
 package org.openl.rules.tbasic.runtime;
 
+import org.openl.types.IMethodCaller;
+
 /**
  * @author User
  *
  */
 public class CalculateOperation<ResultValueType> extends OpenLEvaluationOperation<ResultValueType> {
    
-    public CalculateOperation(String openLStatement) {
+    public CalculateOperation(IMethodCaller openLStatement) {
         super(openLStatement);
     }
     
@@ -19,7 +21,7 @@ public class CalculateOperation<ResultValueType> extends OpenLEvaluationOperatio
     @Override
     public Result execute(TBasicContext context, Object param) {
         // TODO Auto-generated method stub
-        ResultValueType resultValue = evaluateStatement();
+        ResultValueType resultValue = evaluateStatement(context);
         return new Result(ReturnType.Next, resultValue);
     }
 
