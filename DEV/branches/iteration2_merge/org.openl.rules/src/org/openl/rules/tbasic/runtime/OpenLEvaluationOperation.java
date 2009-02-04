@@ -3,20 +3,22 @@
  */
 package org.openl.rules.tbasic.runtime;
 
+import org.openl.types.IMethodCaller;
+
 /**
  * @author User
  *
  */
 public abstract class OpenLEvaluationOperation<ResultValueType> extends RuntimeOperation {
-    protected Object openLStatement;
+    protected IMethodCaller openLStatement;
     
-    public OpenLEvaluationOperation(Object openLStatement){
+    public OpenLEvaluationOperation(IMethodCaller openLStatement){
         this.openLStatement = openLStatement;
     }
     
-    public ResultValueType evaluateStatement(){
+    public ResultValueType evaluateStatement(TBasicContext context){
         ResultValueType resultValue = null;
-        //resultValue = openLStatement.evaluate();
+        resultValue = (ResultValueType)openLStatement.invoke(context.getThisTarget(), context.getOpenLParams(), context.getOpenLEnvironment());
         return resultValue;
     }
 

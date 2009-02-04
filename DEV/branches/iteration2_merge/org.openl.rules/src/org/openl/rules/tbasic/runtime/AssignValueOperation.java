@@ -21,7 +21,9 @@ public class AssignValueOperation extends RuntimeOperation {
     @Override
     public Result execute(TBasicContext context, Object param) {
         context.assignValueToVariable(variableName, param);
-        return null;
+        
+        // Return variable value to allow multiple concurrent assignments   
+        return new Result(ReturnType.Next, param);
     }
 
 }
