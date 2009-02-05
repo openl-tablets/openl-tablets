@@ -37,14 +37,16 @@ public class LabelManager {
             currentLabels = labelsStack.pop();
         }
     }
+    
+    public void generateAllLabels(String[] labelInstructions) {
+        for (String labelInstruction : labelInstructions){
+            LabelType labelType = getLabelType(labelInstruction);
+            generateLabel(labelType.getName());
+        }
+    }
 
     public String getLabelByInstruction(String labelInstruction) {
-        if (!isLabelInstruction(labelInstruction)){
-            // FIXME
-            throw new RuntimeException("Smth wrong.........");
-        }
-        
-        LabelType labelType = getLabelTypeByInstruction(labelInstruction);
+        LabelType labelType = getLabelType(labelInstruction);
         
         String label = getExistingLabel(currentLabels, labelType);
      
@@ -53,6 +55,21 @@ public class LabelManager {
         }
         
         return label;
+    }
+
+    /**
+     * @param labelInstruction
+     * @return
+     */
+    private LabelType getLabelType(String labelInstruction) {
+        if (!isLabelInstruction(labelInstruction)){
+            // FIXME
+            throw new RuntimeException("Smth wrong.........");
+        }
+        
+        LabelType labelType = getLabelTypeByInstruction(labelInstruction);
+        
+        return labelType;
     }
     
     private String getExistingLabel(Map<LabelType, String> existingLabels, LabelType labelType) {
