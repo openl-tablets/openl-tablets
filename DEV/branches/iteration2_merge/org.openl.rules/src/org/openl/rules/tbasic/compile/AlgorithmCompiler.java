@@ -12,6 +12,7 @@ import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.Algorithm;
@@ -20,6 +21,7 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TableParserManager;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
 import org.openl.types.IMethodCaller;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -29,7 +31,7 @@ public class AlgorithmCompiler {
     /********************************
      * Initial data
      *******************************/
-    private OpenL openl;
+    private IBindingContext context;
     private IOpenMethodHeader header;
     private List<AlgorithmTreeNode> parsedNodes;
 
@@ -43,7 +45,7 @@ public class AlgorithmCompiler {
      * Compiler output
      ********************************/
     private List<RuntimeOperation> operations;
-    private IOpenClass thisTarget;
+    private ModuleOpenClass thisTargetClass;
     private Map<String, RuntimeOperation> labelsRegister;
 
     /*********************************
@@ -68,24 +70,20 @@ public class AlgorithmCompiler {
     /**
      * @return the thisTarget
      */
-    public IOpenClass getThisTarget() {
-        return thisTarget;
+    public IOpenClass getThisTargetClass() {
+        return thisTargetClass;
     }
 
-    /**
-     * @param thisTarget
-     *            the thisTarget to set
-     */
-    public void setThisTarget(IOpenClass thisTarget) {
-        this.thisTarget = thisTarget;
-    }
+
+
 
     /*********************************
      * Constructors
      ********************************/
 
-    public AlgorithmCompiler(OpenL openl, IOpenMethodHeader header, List<AlgorithmTreeNode> parsedNodes) {
-        this.openl = openl;
+
+    public AlgorithmCompiler(IBindingContext context, IOpenMethodHeader header, List<AlgorithmTreeNode> parsedNodes){
+        this.context = context;
         this.header = header;
         this.parsedNodes = parsedNodes;
     }
@@ -96,7 +94,7 @@ public class AlgorithmCompiler {
 
     public void compile(Algorithm algorithm) {
         operations = new ArrayList<RuntimeOperation>();
-        thisTarget = new ModuleOpenClass(null, generateOpenClassName(), openl);
+        thisTargetClass = new ModuleOpenClass(null, generateOpenClassName(), context.getOpenL()); 
         labelsRegister = new HashMap<String, RuntimeOperation>();
         conversionRules = TableParserManager.instance().getConversionRules();
         labelManager = new LabelManager();
@@ -104,7 +102,7 @@ public class AlgorithmCompiler {
         preProcess();
         process();
 
-        algorithm.setThisClass(getThisTarget());
+        algorithm.setThisClass(getThisTargetClass());
         algorithm.setAlgorithmSteps(getOperations());
         algorithm.setLabels(getLabels());
     }
@@ -300,10 +298,20 @@ public class AlgorithmCompiler {
             }
         } else if (clazz.equals(boolean.class)) {
             return Boolean.parseBoolean(operationParam);
-        } else if (clazz.equals(IMethodCaller.class)) {
-
-            return OpenlTool.makeMethod(createSourceCode(nodesToCompile, operationParam), openl, createMethodHeader(),
-                    createBindingContext());
+        } else if (clazz.equals(IMethodCaller.class)){
+            
+            IOpenSourceCodeModule src = createSourceCode(nodesToCompile, operationParam);
+            
+            OpenL openl = context.getOpenL();
+            
+            AlgorithmTreeNode executionNode = getNodeWithResult(nodesToCompile, operationParam);
+            String methodName = operationParam.replace('.', '_') + executionNode.getAlgorithmRow().getRowNumber();
+            
+            IMethodSignature signature = header.getSignature();
+            
+            IBindingContext cxt = createBindingContext();
+            
+            return OpenlTool.makeMethodWithUnknownType(src, openl, methodName, signature, thisTargetClass, cxt);
         } else {
             // FIXME
             throw new RuntimeException("Unknown type");
@@ -334,14 +342,12 @@ public class AlgorithmCompiler {
         return openLCode;
     }
 
+    private IBindingContext thisContext;
     private IBindingContext createBindingContext() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    private IOpenMethodHeader createMethodHeader() {
-        // TODO Auto-generated method stub
-        return null;
+        if (thisContext == null){
+            thisContext = new ModuleBindingContext(context, thisTargetClass);
+        }
+        return thisContext;
     }
 
     private String generateOpenClassName() {

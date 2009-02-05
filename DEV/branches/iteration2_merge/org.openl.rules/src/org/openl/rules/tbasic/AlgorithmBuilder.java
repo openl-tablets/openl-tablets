@@ -44,7 +44,7 @@ public class AlgorithmBuilder {
 
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
 
-        AlgorithmCompiler compiler = new AlgorithmCompiler(bindingContext.getOpenL(), algorithm.getHeader(), parsedNodes);
+        AlgorithmCompiler compiler = new AlgorithmCompiler(bindingContext, algorithm.getHeader(), parsedNodes);
         compiler.compile(algorithm);
     }
 
@@ -77,6 +77,10 @@ public class AlgorithmBuilder {
         for (int r = 0; r < grid.getLogicalHeight(); r++) {
 
             AlgorithmRow aRow = new AlgorithmRow();
+            
+            // set sequential number of the row in table
+            aRow.setRowNumber(r + 1);
+            
             // parse data row
             for (AlgorithmColumn column : columns.values()) {
                 int c = column.columnIndex;

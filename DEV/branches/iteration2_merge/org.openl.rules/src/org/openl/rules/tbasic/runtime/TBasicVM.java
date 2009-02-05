@@ -10,13 +10,12 @@ public class TBasicVM {
 
     private List<RuntimeOperation> operations;
     private Map<String, RuntimeOperation> labels;
-    
-    
 
-    public TBasicVM(List<RuntimeOperation> operations,
-            Map<String, RuntimeOperation> labels) {
-        // TODO: not very good that we receive 2 separate collections with the same items:
-        // operations - list of all operations to execute, labels - register of (label, operation) (operation is the same as in operations)
+    public TBasicVM(List<RuntimeOperation> operations, Map<String, RuntimeOperation> labels) {
+        // TODO: not very good that we receive 2 separate collections with the
+        // same items:
+        // operations - list of all operations to execute, labels - register of
+        // (label, operation) (operation is the same as in operations)
         this.operations = operations;
         this.labels = labels;
     }
@@ -27,7 +26,7 @@ public class TBasicVM {
         RuntimeOperation operation = getFirstOperation();
         Object previousStepResult = null;
         Object returnResult = null;
-        
+
         while (operation != null) {
             Result result = operation.execute(context, previousStepResult);
 
@@ -39,7 +38,7 @@ public class TBasicVM {
                 returnResult = result.getValue();
                 break;
             }
-            
+
             operation = getNextOperation(operation);
             previousStepResult = result.getValue();
         }
@@ -56,13 +55,13 @@ public class TBasicVM {
 
     private RuntimeOperation getNextOperation(RuntimeOperation operation) {
         RuntimeOperation nextOperation = null;
-        
+
         int indexOfNext = operations.indexOf(operation) + 1;
-        
-        if (indexOfNext < operations.size()){
+
+        if (indexOfNext < operations.size()) {
             nextOperation = operations.get(indexOfNext);
         }
-        
+
         return nextOperation;
     }
 
