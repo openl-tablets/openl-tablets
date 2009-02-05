@@ -96,7 +96,7 @@ public class AlgorithmCompiler {
         operations = new ArrayList<RuntimeOperation>();
         thisTargetClass = new ModuleOpenClass(null, generateOpenClassName(), context.getOpenL()); 
         labelsRegister = new HashMap<String, RuntimeOperation>();
-        conversionRules = TableParserManager.instance().getConversionRules();
+        conversionRules = fixBrokenValues(TableParserManager.instance().getConversionRules());
         labelManager = new LabelManager();
 
         preProcess();
@@ -105,6 +105,25 @@ public class AlgorithmCompiler {
         algorithm.setThisClass(getThisTargetClass());
         algorithm.setAlgorithmSteps(getOperations());
         algorithm.setLabels(getLabels());
+    }
+
+    private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {
+        for (ConversionRuleBean conversionRule : conversionRules){
+            fixBrokenValues(conversionRule.getOperationType());
+            fixBrokenValues(conversionRule.getOperationParam1());
+            fixBrokenValues(conversionRule.getOperationParam2());
+            fixBrokenValues(conversionRule.getLabel());
+        }
+        return conversionRules;
+    }
+
+    private void fixBrokenValues(String[] label) {
+        for (int i = 0; i < label.length; i++){
+            if (label[i].toUpperCase().equals("N/A")){
+                label[i] = null;
+            }
+        }
+        
     }
 
     private void process() {
@@ -121,13 +140,17 @@ public class AlgorithmCompiler {
 
             String[] operationNamesToGroup = TableParserManager.instance().whatOperationsToGroup(
                     parsedNode.getSpecification().getKeyword());
-            List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
-
+            
             int shiftToNextToGroupOperation = 1;
-            for (; shiftToNextToGroupOperation < nodes.size() - i; shiftToNextToGroupOperation++) {
-                AlgorithmTreeNode groupCandidateNode = nodes.get(i + shiftToNextToGroupOperation);
-                if (!operationsToGroupWithCurrent.contains(groupCandidateNode.getSpecification().getKeyword())) {
-                    break;
+            
+            if (operationNamesToGroup != null){
+                List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
+
+                for (; shiftToNextToGroupOperation < nodes.size() - i; shiftToNextToGroupOperation++) {
+                    AlgorithmTreeNode groupCandidateNode = nodes.get(i + shiftToNextToGroupOperation);
+                    if (!operationsToGroupWithCurrent.contains(groupCandidateNode.getSpecification().getKeyword())) {
+                        break;
+                    }
                 }
             }
 
@@ -304,7 +327,7 @@ public class AlgorithmCompiler {
             
             OpenL openl = context.getOpenL();
             
-            AlgorithmTreeNode executionNode = getNodeWithResult(nodesToCompile, operationParam);
+            AlgorithmTreeNode executionNode = getNodeWithResult(nodesToCompile, extractOperationName(operationParam));
             String methodName = operationParam.replace('.', '_') + executionNode.getAlgorithmRow().getRowNumber();
             
             IMethodSignature signature = header.getSignature();
