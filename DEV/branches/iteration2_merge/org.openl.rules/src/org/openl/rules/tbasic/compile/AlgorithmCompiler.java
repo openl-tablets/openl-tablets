@@ -148,6 +148,8 @@ public class AlgorithmCompiler {
         labelManager.startOperationsSet(getOperationsType(nodesToCompile));
         
         ConversionRuleBean conversionRule = getConvertionRule(nodesToCompile);
+        
+        labelManager.generateAllLabels(conversionRule.getLabel());
 
         for (int i = 0; i < conversionRule.getOperationType().length; i++){
             String operationType = conversionRule.getOperationType()[i];
@@ -338,14 +340,35 @@ public class AlgorithmCompiler {
         // TODO Auto-generated method stub
         return null;
     }
-
-    private ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
+    
     private String generateOpenClassName() {
         return header.getName();
+    }
+
+    private ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile) {
+        // TODO rewrite to be rule
+        String operationName;
+        
+        // add first operation name
+        operationName = nodesToCompile.get(0).getSpecification().getKeyword();
+        // add the second if it is ELSE
+        String secondKeyword = nodesToCompile.get(1).getSpecification().getKeyword();
+        if (secondKeyword.equals("ELSE")){
+            operationName += secondKeyword;
+        }
+        
+        boolean isMultilineOperation;
+        // we assume that all the operations are either all multiline or not
+        isMultilineOperation = nodesToCompile.get(0).getSpecification().isMultiLine();
+        
+        for (ConversionRuleBean conversionRule : conversionRules){
+            if (conversionRule.getOperation().equals(operationName) && (conversionRule.isMultiLine() == isMultilineOperation)){
+                return conversionRule;
+            }
+        }
+        
+        // TODO
+        throw new RuntimeException("Smth wrong. didn't find convertion rule");
     }
 
     /**
