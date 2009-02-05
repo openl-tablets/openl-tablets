@@ -103,8 +103,8 @@ public class AlgorithmCompiler {
         operations = new ArrayList<RuntimeOperation>();
         thisTarget = new ModuleOpenClass(null, generateOpenClassName(), openl); 
         labelsRegister = new HashMap<String, RuntimeOperation>();
-        
         conversionRules = TableParserManager.instance().getConversionRules();
+        labelManager = new LabelManager();
         
         preProcess();
         process();
@@ -141,13 +141,14 @@ public class AlgorithmCompiler {
         return emittedOperations;
     }
 
-    private List<RuntimeOperation> compileLinkedNodes(List<AlgorithmTreeNode> nodesToCompile) {
+    List<RuntimeOperation> compileLinkedNodes(List<AlgorithmTreeNode> nodesToCompile) {
         List<RuntimeOperation> emitedOperations = new ArrayList<RuntimeOperation>();
         
         // FIXME 
+        ConversionRuleBean conversionRule = getConvertionRule(nodesToCompile);
+
         labelManager.startOperationsSet(getOperationsType(nodesToCompile));
         
-        ConversionRuleBean conversionRule = getConvertionRule(nodesToCompile);
         
         labelManager.generateAllLabels(conversionRule.getLabel());
 
@@ -213,7 +214,7 @@ public class AlgorithmCompiler {
     private String extractOperationName(String operationToGetFrom) {
         // TODO
         // Get the first token before ".", it will be the name of operation
-        return operationToGetFrom.split(".")[0];
+        return operationToGetFrom.split("\\.")[0];
     }
     
     /**
@@ -222,7 +223,7 @@ public class AlgorithmCompiler {
     private String extractFieldName(String operationToGetFrom) {
         // TODO
         // Get the first token after ".", it will be the field name
-        return operationToGetFrom.split(".")[1];
+        return operationToGetFrom.split("\\.")[1];
     }
 
     /**
@@ -234,7 +235,7 @@ public class AlgorithmCompiler {
         AlgorithmTreeNode executionNode = null;
         
         for (AlgorithmTreeNode node : candidateNodes){
-            if (operationName.equals(node.getAlgorithmRow().getOperation())){
+            if (operationName.equals(node.getAlgorithmRow().getOperation().getValue())){
                 executionNode = node;
             }
         }
@@ -352,11 +353,13 @@ public class AlgorithmCompiler {
         // add first operation name
         operationName = nodesToCompile.get(0).getSpecification().getKeyword();
         // add the second if it is ELSE
-        String secondKeyword = nodesToCompile.get(1).getSpecification().getKeyword();
-        if (secondKeyword.equals("ELSE")){
-            operationName += secondKeyword;
-        }
         
+        if (nodesToCompile.size()>1){
+            String secondKeyword = nodesToCompile.get(1).getSpecification().getKeyword();
+            if (secondKeyword.equals("ELSE")){
+                operationName += secondKeyword;
+            }
+        }
         boolean isMultilineOperation;
         // we assume that all the operations are either all multiline or not
         isMultilineOperation = nodesToCompile.get(0).getSpecification().isMultiLine();
