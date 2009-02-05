@@ -11,6 +11,7 @@ public class AlgorithmRow {
     private StringValue before;
     private StringValue after;
     private int operationLevel;
+    private int rowNumber;
 
     public StringValue getLabel() {
         return label;
@@ -74,5 +75,19 @@ public class AlgorithmRow {
 
     public void setAfter(StringValue after) {
         this.after = after;
+    }
+
+    /**
+     * @param rowNumber the rowNumber to set
+     */
+    public void setRowNumber(int rowNumber) {
+        this.rowNumber = rowNumber;
+    }
+
+    /**
+     * @return the rowNumber
+     */
+    public int getRowNumber() {
+        return rowNumber;
     }
 }
