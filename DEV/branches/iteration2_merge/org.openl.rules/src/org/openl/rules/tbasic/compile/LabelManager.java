@@ -40,8 +40,10 @@ public class LabelManager {
     
     public void generateAllLabels(String[] labelInstructions) {
         for (String labelInstruction : labelInstructions){
-            LabelType labelType = getLabelType(labelInstruction);
-            generateLabel(labelType.getName());
+            if (labelInstruction != null){
+                LabelType labelType = getLabelType(labelInstruction);
+                generateLabel(labelType.getName());
+            }
         }
     }
 
