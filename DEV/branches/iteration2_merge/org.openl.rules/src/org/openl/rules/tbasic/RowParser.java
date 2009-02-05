@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.IOpenSourceCodeModule;
+import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
 
 public class RowParser implements IRowParser {
@@ -28,6 +30,7 @@ public class RowParser implements IRowParser {
             StringValue label = row.getLabel();
             if (operation.isEmpty()) {
                 topLabel = !label.isEmpty() ? label : null;
+                i++;
                 continue;
             }
             if (topLabel != null && label.isEmpty()) {
@@ -35,7 +38,7 @@ public class RowParser implements IRowParser {
                 topLabel = null;
             }
             int indent = row.getOperationLevel();
-            boolean multiline = isMultiline(i);
+            boolean multiline = isMultiline(i, indent);
             TableParserSpecificationBean specification = getSpecification(operation.getValue(), multiline);
             if (validateRow(row, multiline, specification)) {
                 AlgorithmTreeNode node = createAlgorithmNode(specification, null, row);
@@ -57,17 +60,25 @@ public class RowParser implements IRowParser {
         return treeNodes;
     }
 
-    private boolean isMultiline(int rowIndex) {
+    private boolean isMultiline(int rowIndex, int rowIndent) {
         boolean multiline = false;
         if (rowIndex < rows.size() - 1) {
-            multiline = rows.get(rowIndex + 1).getOperationLevel() > 0;
+            int nextRowIndent = rows.get(rowIndex + 1).getOperationLevel();
+            multiline = nextRowIndent > rowIndent;
         }
         return multiline;
     }
 
-    private void checkError(boolean errorCondition, String errorMessage) throws Exception {
+    private void checkError(boolean errorCondition, String errorMessage) throws BoundError {
         if (errorCondition) {
-            throw new Exception(errorMessage == null ? "" : errorMessage);
+            throw new BoundError(null, errorMessage == null ? "" : errorMessage, null);
+        }
+    }
+
+    private void checkError(boolean errorCondition, IOpenSourceCodeModule srcModule,
+            String errorMessage) throws BoundError {
+        if (errorCondition) {
+            throw new BoundError(errorMessage == null ? "" : errorMessage, srcModule);
         }
     }
 
@@ -82,15 +93,15 @@ public class RowParser implements IRowParser {
     }
 
     private boolean validateRow(AlgorithmRow row,
-            boolean multiline, TableParserSpecificationBean specification) throws Exception {
-        /*checkError(specification == null, "");
+            boolean multiline, TableParserSpecificationBean specification) throws BoundError {
+        checkError(specification == null, "");
         checkError(specification.isObligatoryLabel() && row.getLabel().isEmpty(), "");
         checkError(specification.isMustHaveCondition() == row.getCondition().isEmpty(), "");
         checkError(specification.isMustHaveAction() == row.getAction().isEmpty(), "");
         checkError(!specification.isCanHaveBeforeAndAfter()
                 && (!row.getBefore().isEmpty() || !row.getAfter().isEmpty()), "");
         checkError(specification.isCanBeOnlyTopLevel() && row.getOperationLevel() > 0, "");
-        checkError(!specification.isCanHaveIdents() && multiline, "");*/
+        checkError(!specification.isCanHaveIdents() && multiline, "");
         return true;
     }
 
