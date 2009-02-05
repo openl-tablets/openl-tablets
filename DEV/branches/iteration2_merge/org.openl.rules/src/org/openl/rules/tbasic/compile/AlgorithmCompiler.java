@@ -1,11 +1,12 @@
 package org.openl.rules.tbasic.compile;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
@@ -36,12 +37,14 @@ public class AlgorithmCompiler {
      * Intermediate values
      *******************************/
     private ConversionRuleBean[] conversionRules;
+    private LabelManager labelManager;
     
     /*********************************
      * Compiler output
      ********************************/
     private List<RuntimeOperation> operations;
     private IOpenClass thisTarget;
+    private Map<String, RuntimeOperation> labelsRegister;
  
     /*********************************
      * Properties
@@ -99,6 +102,7 @@ public class AlgorithmCompiler {
     public void compile(){
         operations = new ArrayList<RuntimeOperation>();
         thisTarget = new ModuleOpenClass(null, generateOpenClassName(), openl); 
+        labelsRegister = new HashMap<String, RuntimeOperation>();
         
         conversionRules = TableParserManager.instance().getConversionRules();
         
@@ -140,15 +144,23 @@ public class AlgorithmCompiler {
     private List<RuntimeOperation> compileLinkedNodes(List<AlgorithmTreeNode> nodesToCompile) {
         List<RuntimeOperation> emitedOperations = new ArrayList<RuntimeOperation>();
         
+        // FIXME 
+        labelManager.startOperationsSet(getOperationsType(nodesToCompile));
+        
         ConversionRuleBean conversionRule = getConvertionRule(nodesToCompile);
 
         for (int i = 0; i < conversionRule.getOperationType().length; i++){
             String operationType = conversionRule.getOperationType()[i];
             String operationParam1 = conversionRule.getOperationParam1()[i];
             String operationParam2 = conversionRule.getOperationParam2()[i];
-            String label = conversionRule.getLabel()[i];
+            String labelInstruction = conversionRule.getLabel()[i];
             
+            String label = null;
             RuntimeOperation emmitedOperation = null;
+            
+            if (labelInstruction != null){
+                label = labelManager.getLabelByInstruction(labelInstruction);
+            }
             
             // TODO
             if (!operationType.startsWith("!")){
@@ -162,9 +174,21 @@ public class AlgorithmCompiler {
                 // TODO perform other operations
             }
             
+            if (emmitedOperation != null && label != null){
+                labelsRegister.put(label, emmitedOperation);
+            }
         }
+        
+        labelManager.finishOperationsSet();
 
         return emitedOperations;
+    }
+
+    private boolean getOperationsType(List<AlgorithmTreeNode> nodesToCompile) {
+        // FIXME add the field to operation definition
+        final List<String> loopOperations = Arrays.asList(new String []{"WHILE", "FOR EACH"}); 
+        String operationsKeyword = nodesToCompile.get(0).getSpecification().getKeyword();
+        return loopOperations.contains(operationsKeyword);
     }
 
     /**
@@ -234,6 +258,8 @@ public class AlgorithmCompiler {
                 params[1] = convertParam(nodesToCompile, constructor.getParameterTypes()[1], operationParam2);
             }
             
+            // FIXME put source reference
+            
             return (RuntimeOperation)constructor.newInstance(params);
             
         } catch (ClassNotFoundException e) {
@@ -260,9 +286,14 @@ public class AlgorithmCompiler {
     }
 
     private Object convertParam(List<AlgorithmTreeNode> nodesToCompile, Class clazz, String operationParam) {
+        // FIXME !!!!
+        
         if (clazz.equals(String.class)){
-            // FIXME
-            return operationParam;
+            if (labelManager.isLabelInstruction(operationParam)){
+                return labelManager.getLabelByInstruction(operationParam);
+            } else {
+                return operationParam;
+            }
         } else if (clazz.equals(boolean.class)) {
             return Boolean.parseBoolean(operationParam);
         } else if (clazz.equals(IMethodCaller.class)){
