@@ -1,6 +1,8 @@
 package org.openl.rules.tbasic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
@@ -8,6 +10,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.tbasic.compile.AlgorithmCompiler;
 import org.openl.syntax.impl.SyntaxError;
 
 public class AlgorithmBuilder {
@@ -26,17 +29,26 @@ public class AlgorithmBuilder {
         this.tsn = tsn;
     }
 
-    public void build(ILogicalTable tableBody) throws SyntaxError {
-        if (tableBody.getLogicalHeight() < 2) {
+    public void build(ILogicalTable tableBody) throws Exception {
+        if (tableBody.getLogicalHeight() <= 2) {
             throw new SyntaxError(tsn, "Unsufficient rows. Must be more than 2!", null);
         }
 
         prepareColumns(tableBody);
 
         // parse data, row=2..*
-        if (tableBody.getLogicalHeight() > 2) {
-            buildRows(tableBody);
-        }
+        List<AlgorithmRow> algorithmRows = buildRows(tableBody);
+
+        RowParser rowParser = new RowParser(algorithmRows, TableParserManager.instance()
+                .getStructuredAlgorithmSpecification());
+
+        List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
+
+        AlgorithmCompiler compiler = new AlgorithmCompiler(cxt.getOpenL(), algorithm.getHeader(), parsedNodes);
+
+        algorithm.setThisClass(compiler.getThisTarget());
+        algorithm.setAlgorithmSteps(compiler.getOperations());
+        algorithm.setLabels(compiler.getLabels());
     }
 
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxError {
@@ -61,7 +73,9 @@ public class AlgorithmBuilder {
         }
     }
 
-    private void buildRows(ILogicalTable tableBody) throws SyntaxError {
+    protected List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxError {
+        List<AlgorithmRow> result = new ArrayList<AlgorithmRow>();
+
         IGridTable grid = tableBody.rows(2).getGridTable();
         for (int r = 0; r < grid.getLogicalHeight(); r++) {
 
@@ -86,8 +100,10 @@ public class AlgorithmBuilder {
                 }
             }
 
-            algorithm.addRow(aRow);
+            result.add(aRow);
         }
+
+        return result;
     }
 
     private void setRowField(AlgorithmRow row, String column, StringValue sv) throws SyntaxError {

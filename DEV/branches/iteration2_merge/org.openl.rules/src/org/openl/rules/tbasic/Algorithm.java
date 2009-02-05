@@ -1,6 +1,5 @@
 package org.openl.rules.tbasic;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class Algorithm extends AMethod implements IMemberMetaInfo {
     private final AlgorithmBoundNode node;
-        
+
     /**************************************************
      * Comple artifacts
      *************************************************/
@@ -27,13 +26,11 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
     private List<RuntimeOperation> algorithmSteps;
     private Map<String, RuntimeOperation> labels;
 
-    private final List<AlgorithmRow> rows;
+    private List<AlgorithmRow> rows;
 
     public Algorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         super(header);
         this.node = node;
-
-        rows = new ArrayList<AlgorithmRow>();
     }
 
     public static Algorithm createAlgorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
@@ -41,7 +38,7 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject (thisClass, (IDynamicObject)target);
+        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(thisClass, (IDynamicObject) target);
 
         TBasicVM algorithmVM = new TBasicVM(algorithmSteps, labels);
         return algorithmVM.run(thisInstance, target, params, env);
@@ -65,12 +62,15 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
         return this;
     }
 
-    public void addRow(AlgorithmRow row) {
-        rows.add(row);
+    public void setThisClass(IOpenClass thisClass) {
+        this.thisClass = thisClass;
     }
 
-    public List<AlgorithmRow> getRows() {
-        return rows;
+    public void setAlgorithmSteps(List<RuntimeOperation> algorithmSteps) {
+        this.algorithmSteps = algorithmSteps;
+    }
+
+    public void setLabels(Map<String, RuntimeOperation> labels) {
+        this.labels = labels;
     }
 }
-
