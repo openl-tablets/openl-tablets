@@ -17,14 +17,14 @@ public class AlgorithmBuilder {
 
     private static final String OPERATION = "Operation";
 
-    private final IBindingContext cxt;
+    private final IBindingContext bindingContext;
     private final Algorithm algorithm;
     private final TableSyntaxNode tsn;
 
     private Map<String, AlgorithmColumn> columns;
 
-    public AlgorithmBuilder(IBindingContext cxt, Algorithm algorithm, TableSyntaxNode tsn) {
-        this.cxt = cxt;
+    public AlgorithmBuilder(IBindingContext ctx, Algorithm algorithm, TableSyntaxNode tsn) {
+        this.bindingContext = ctx;
         this.algorithm = algorithm;
         this.tsn = tsn;
     }
@@ -44,11 +44,8 @@ public class AlgorithmBuilder {
 
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
 
-        AlgorithmCompiler compiler = new AlgorithmCompiler(cxt.getOpenL(), algorithm.getHeader(), parsedNodes);
-
-        algorithm.setThisClass(compiler.getThisTarget());
-        algorithm.setAlgorithmSteps(compiler.getOperations());
-        algorithm.setLabels(compiler.getLabels());
+        AlgorithmCompiler compiler = new AlgorithmCompiler(bindingContext.getOpenL(), algorithm.getHeader(), parsedNodes);
+        compiler.compile(algorithm);
     }
 
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxError {

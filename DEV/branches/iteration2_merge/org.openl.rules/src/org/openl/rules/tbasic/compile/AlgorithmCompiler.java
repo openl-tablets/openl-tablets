@@ -14,6 +14,7 @@ import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.meta.StringValue;
+import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TableParserManager;
@@ -84,24 +85,16 @@ public class AlgorithmCompiler {
      ********************************/
 
     public AlgorithmCompiler(OpenL openl, IOpenMethodHeader header, List<AlgorithmTreeNode> parsedNodes) {
-        this(openl, header, parsedNodes, true);
-    }
-
-    public AlgorithmCompiler(OpenL openl, IOpenMethodHeader header, List<AlgorithmTreeNode> parsedNodes,
-            boolean compileImmediately) {
         this.openl = openl;
         this.header = header;
         this.parsedNodes = parsedNodes;
-        if (compileImmediately) {
-            compile();
-        }
     }
 
     /*********************************
      * Methods
      ********************************/
 
-    public void compile() {
+    public void compile(Algorithm algorithm) {
         operations = new ArrayList<RuntimeOperation>();
         thisTarget = new ModuleOpenClass(null, generateOpenClassName(), openl);
         labelsRegister = new HashMap<String, RuntimeOperation>();
@@ -111,6 +104,9 @@ public class AlgorithmCompiler {
         preProcess();
         process();
 
+        algorithm.setThisClass(getThisTarget());
+        algorithm.setAlgorithmSteps(getOperations());
+        algorithm.setLabels(getLabels());
     }
 
     private void process() {
