@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.IOpenSourceCodeModule;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
 
@@ -14,34 +13,35 @@ public class RowParser implements IRowParser {
     TableParserSpecificationBean[] specifications;
 
     public RowParser(List<AlgorithmRow> rows, TableParserSpecificationBean[] specifications) {
+        assert rows != null;
+        assert specifications != null;
+
         this.rows = rows;
         this.specifications = specifications;
     }
 
     public List<AlgorithmTreeNode> parse() throws Exception {
-        checkError(rows == null || rows.isEmpty() || specifications == null || specifications.length == 0, "");
         List<AlgorithmTreeNode> treeNodes = new ArrayList<AlgorithmTreeNode>();
         Map<Integer, AlgorithmTreeNode> parentTree = new HashMap<Integer, AlgorithmTreeNode>();
         int i = 0;
         int prevIndent = 0;
-        StringValue topLabel = null;
+        List<StringValue> topLabels = new ArrayList<StringValue>();
         for (AlgorithmRow row : rows) {
             StringValue operation = row.getOperation();
             StringValue label = row.getLabel();
             if (operation.isEmpty()) {
-                topLabel = !label.isEmpty() ? label : null;
+                if (!label.isEmpty()) {
+                    topLabels.add(label);
+                }
                 i++;
                 continue;
-            }
-            if (topLabel != null && label.isEmpty()) {
-                row.setLabel(topLabel);
-                topLabel = null;
             }
             int indent = row.getOperationLevel();
             boolean multiline = isMultiline(i, indent);
             TableParserSpecificationBean specification = getSpecification(operation.getValue(), multiline);
             if (validateRow(row, multiline, specification)) {
-                AlgorithmTreeNode node = createAlgorithmNode(specification, null, row);
+                StringValue[] nodeLabels = asNodeLabels(topLabels, label);
+                AlgorithmTreeNode node = createAlgorithmNode(row, nodeLabels, specification, null);
                 if (indent == 0) {
                     treeNodes.add(node);
                     if (parentTree.size() > 1) {
@@ -60,6 +60,21 @@ public class RowParser implements IRowParser {
         return treeNodes;
     }
 
+    private StringValue[] asNodeLabels(List<StringValue> topLabels, StringValue currentLabel) {
+        StringValue[] nodeLabels = null;
+        if (!topLabels.isEmpty()) {
+            if (!currentLabel.isEmpty()) {
+                topLabels.add(currentLabel);
+            }
+            nodeLabels = new StringValue[topLabels.size()];
+            nodeLabels = topLabels.toArray(nodeLabels);
+        } else {
+            nodeLabels = new StringValue[] { currentLabel };
+        }
+        topLabels.clear();
+        return nodeLabels;
+    }
+
     private boolean isMultiline(int rowIndex, int rowIndent) {
         boolean multiline = false;
         if (rowIndex < rows.size() - 1) {
@@ -71,14 +86,15 @@ public class RowParser implements IRowParser {
 
     private void checkError(boolean errorCondition, String errorMessage) throws BoundError {
         if (errorCondition) {
-            throw new BoundError(null, errorMessage == null ? "" : errorMessage, null);
+            throw new BoundError(errorMessage == null ? "" : errorMessage, null);
         }
     }
 
-    private void checkError(boolean errorCondition, IOpenSourceCodeModule srcModule,
+    private void checkError(boolean errorCondition, StringValue srcValue,
             String errorMessage) throws BoundError {
         if (errorCondition) {
-            throw new BoundError(errorMessage == null ? "" : errorMessage, srcModule);
+            throw new BoundError(errorMessage == null ? "" : errorMessage,
+                    srcValue.asSourceCodeModule());
         }
     }
 
@@ -105,12 +121,12 @@ public class RowParser implements IRowParser {
         return true;
     }
 
-    private AlgorithmTreeNode createAlgorithmNode(
-            TableParserSpecificationBean specification,
-            List<AlgorithmTreeNode> children, AlgorithmRow row) {
+    private AlgorithmTreeNode createAlgorithmNode(AlgorithmRow row, StringValue[] labels,
+            TableParserSpecificationBean specification, List<AlgorithmTreeNode> children) {
         AlgorithmTreeNode node = new AlgorithmTreeNode();
-        node.setSpecification(specification);
         node.setAlgorithmRow(row);
+        node.setLabels(labels);
+        node.setSpecification(specification);
         node.setChildren(children);
         return node;
     }
