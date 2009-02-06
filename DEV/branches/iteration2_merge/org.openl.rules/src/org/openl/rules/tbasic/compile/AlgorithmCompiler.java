@@ -19,6 +19,7 @@ import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TableParserManager;
+import org.openl.rules.tbasic.runtime.PerformOperation;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -164,8 +165,22 @@ public class AlgorithmCompiler {
         return emittedOperations;
     }
 
+    private RuntimeOperation compileBefore(List<AlgorithmTreeNode> nodesToCompile) {
+        IMethodCaller openLStatement = (IMethodCaller) convertParam(nodesToCompile, IMethodCaller.class,
+                nodesToCompile.get(0).getAlgorithmRow().getOperation() + ".before");
+        RuntimeOperation beforeOperation = new PerformOperation(openLStatement);
+        return beforeOperation;
+    }
+
+    private RuntimeOperation compileAfter(List<AlgorithmTreeNode> nodesToCompile) {
+        IMethodCaller openLStatement = (IMethodCaller) convertParam(nodesToCompile, IMethodCaller.class, 
+                nodesToCompile.get(0).getAlgorithmRow().getOperation() + ".after");
+        RuntimeOperation afterOperation = new PerformOperation(openLStatement);
+        return afterOperation;
+    }
+
     List<RuntimeOperation> compileLinkedNodes(List<AlgorithmTreeNode> nodesToCompile) {
-        List<RuntimeOperation> emitedOperations = new ArrayList<RuntimeOperation>();
+        List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
 
         // FIXME
         ConversionRuleBean conversionRule = getConvertionRule(nodesToCompile);
@@ -174,9 +189,8 @@ public class AlgorithmCompiler {
 
         labelManager.generateAllLabels(conversionRule.getLabel());
         
-        boolean isAppliedLabel = false;
-        String userDefinedLabel = getUserDefinedLabel(nodesToCompile);
-
+        emittedOperations.add(compileBefore(nodesToCompile));
+        
         for (int i = 0; i < conversionRule.getOperationType().length; i++) {
             String operationType = conversionRule.getOperationType()[i];
             String operationParam1 = conversionRule.getOperationParam1()[i];
@@ -184,7 +198,7 @@ public class AlgorithmCompiler {
             String labelInstruction = conversionRule.getLabel()[i];
 
             String label = null;
-            RuntimeOperation emmitedOperation = null;
+            RuntimeOperation emittedOperation = null;
 
             if (labelInstruction != null) {
                 label = labelManager.getLabelByInstruction(labelInstruction);
@@ -192,40 +206,42 @@ public class AlgorithmCompiler {
 
             // TODO
             if (!operationType.startsWith("!")) {
-                emmitedOperation = createOperation(nodesToCompile, operationType, operationParam1, operationParam2);
-                emitedOperations.add(emmitedOperation);
+                emittedOperation = createOperation(nodesToCompile, operationType, operationParam1, operationParam2);
+                emittedOperations.add(emittedOperation);
             } else if (operationType.equals("!Compile")) {
                 List<AlgorithmTreeNode> nodesToProcess;
                 nodesToProcess = getNestedInstructionsBlock(nodesToCompile, operationParam1);
-                emitedOperations.addAll(process(nodesToProcess));
+                emittedOperations.addAll(process(nodesToProcess));
             } else {
                 // TODO perform other operations
             }
 
-            if (emmitedOperation != null && label != null) {
-                labelsRegister.put(label, emmitedOperation);
+            if (emittedOperation != null && label != null) {
+                labelsRegister.put(label, emittedOperation);
             }
             
-            // TODO: complex tricky implemented logic:
-            // apply user defined label to the first emitted operation
-            if (userDefinedLabel != null && emmitedOperation != null && !isAppliedLabel){
-                labelsRegister.put(userDefinedLabel, emmitedOperation);
-                isAppliedLabel = true;
-            }
+        }
+        emittedOperations.add(compileAfter(nodesToCompile));
 
+        // TODO: complex tricky implemented logic:
+        // apply user defined label to the first emitted operation
+        StringValue[] userDefinedLabels = getUserDefinedLabel(nodesToCompile);
+        if (userDefinedLabels.length > 0 && emittedOperations.size()>0){
+            for(StringValue userDefinedLabel : userDefinedLabels){
+                labelsRegister.put(userDefinedLabel.getValue(), emittedOperations.get(0));
+                
+            }
         }
 
         labelManager.finishOperationsSet();
 
-        return emitedOperations;
+        return emittedOperations;
     }
 
-    private String getUserDefinedLabel(List<AlgorithmTreeNode> nodesToCompile) {
+    private StringValue[] getUserDefinedLabel(List<AlgorithmTreeNode> nodesToCompile) {
         AlgorithmTreeNode allowedToBeLabeledNode = nodesToCompile.get(0);
         
-        String labelValue = allowedToBeLabeledNode.getAlgorithmRow().getLabel().getValue();
-
-        return labelValue;
+        return allowedToBeLabeledNode.getLabels();
     }
 
     private boolean getOperationsType(List<AlgorithmTreeNode> nodesToCompile) {
