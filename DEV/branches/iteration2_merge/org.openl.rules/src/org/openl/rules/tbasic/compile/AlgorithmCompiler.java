@@ -133,7 +133,9 @@ public class AlgorithmCompiler {
     private List<RuntimeOperation> process(List<AlgorithmTreeNode> nodes) {
         List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
 
-        for (int i = 0; i < nodes.size(); i++) {
+        int shiftToNextToGroupOperation = 1;
+        
+        for (int i = 0; i < nodes.size(); i += shiftToNextToGroupOperation) {
             // get nodes to generate code from
 
             AlgorithmTreeNode parsedNode = nodes.get(i);
@@ -141,7 +143,7 @@ public class AlgorithmCompiler {
             String[] operationNamesToGroup = TableParserManager.instance().whatOperationsToGroup(
                     parsedNode.getSpecification().getKeyword());
             
-            int shiftToNextToGroupOperation = 1;
+            shiftToNextToGroupOperation = 1;
             
             if (operationNamesToGroup != null){
                 List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
@@ -171,6 +173,9 @@ public class AlgorithmCompiler {
         labelManager.startOperationsSet(getOperationsType(nodesToCompile));
 
         labelManager.generateAllLabels(conversionRule.getLabel());
+        
+        boolean isAppliedLabel = false;
+        String userDefinedLabel = getUserDefinedLabel(nodesToCompile);
 
         for (int i = 0; i < conversionRule.getOperationType().length; i++) {
             String operationType = conversionRule.getOperationType()[i];
@@ -200,11 +205,27 @@ public class AlgorithmCompiler {
             if (emmitedOperation != null && label != null) {
                 labelsRegister.put(label, emmitedOperation);
             }
+            
+            // TODO: complex tricky implemented logic:
+            // apply user defined label to the first emitted operation
+            if (userDefinedLabel != null && emmitedOperation != null && !isAppliedLabel){
+                labelsRegister.put(userDefinedLabel, emmitedOperation);
+                isAppliedLabel = true;
+            }
+
         }
 
         labelManager.finishOperationsSet();
 
         return emitedOperations;
+    }
+
+    private String getUserDefinedLabel(List<AlgorithmTreeNode> nodesToCompile) {
+        AlgorithmTreeNode allowedToBeLabeledNode = nodesToCompile.get(0);
+        
+        String labelValue = allowedToBeLabeledNode.getAlgorithmRow().getLabel().getValue();
+
+        return labelValue;
     }
 
     private boolean getOperationsType(List<AlgorithmTreeNode> nodesToCompile) {
@@ -317,7 +338,9 @@ public class AlgorithmCompiler {
             if (labelManager.isLabelInstruction(operationParam)) {
                 return labelManager.getLabelByInstruction(operationParam);
             } else {
-                return operationParam;
+                StringValue content = getCellContent(nodesToCompile, operationParam);
+                
+                return content.getValue();
             }
         } else if (clazz.equals(boolean.class)) {
             return Boolean.parseBoolean(operationParam);
@@ -342,12 +365,12 @@ public class AlgorithmCompiler {
     }
 
     private IOpenSourceCodeModule createSourceCode(List<AlgorithmTreeNode> nodesToCompile, String operationParam) {
-        StringValue openLCodeValue = getOpenLCode(nodesToCompile, operationParam);
+        StringValue openLCodeValue = getCellContent(nodesToCompile, operationParam);
 
         return openLCodeValue.asSourceCodeModule();
     }
 
-    private StringValue getOpenLCode(List<AlgorithmTreeNode> candidateNodes, String operationParam) {
+    private StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String operationParam) {
         String operationName = extractOperationName(operationParam);
         String fieldName = extractFieldName(operationParam);
 

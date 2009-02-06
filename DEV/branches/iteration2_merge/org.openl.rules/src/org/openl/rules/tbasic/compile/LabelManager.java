@@ -42,7 +42,7 @@ public class LabelManager {
         for (String labelInstruction : labelInstructions){
             if (labelInstruction != null){
                 LabelType labelType = getLabelType(labelInstruction);
-                generateLabel(labelType.getName());
+                generateLabel(labelType);
             }
         }
     }
@@ -53,7 +53,7 @@ public class LabelManager {
         String label = getExistingLabel(currentLabels, labelType);
      
         if (label == null) {
-            label = generateLabel(labelType.getName());
+            label = generateLabel(labelType);
         }
         
         return label;
@@ -127,8 +127,14 @@ public class LabelManager {
     }
 
     private int nextLabelNumber;
-    public String generateLabel(String namePrefix){
-        return namePrefix + "Label" + nextLabelNumber++;
+    public String generateLabel(LabelType labelType){
+        String namePrefix = labelType.getName();
+        String label = namePrefix + "Label" + nextLabelNumber++;
+        
+        // TODO register label in cash, code mess
+        currentLabels.put(labelType, label);
+        
+        return label;
     }
     
     private class LabelType{
