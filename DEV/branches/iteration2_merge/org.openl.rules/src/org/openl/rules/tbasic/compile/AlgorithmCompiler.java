@@ -26,6 +26,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.java.JavaOpenClass;
 
 public class AlgorithmCompiler {
@@ -212,6 +213,14 @@ public class AlgorithmCompiler {
                 List<AlgorithmTreeNode> nodesToProcess;
                 nodesToProcess = getNestedInstructionsBlock(nodesToCompile, operationParam1);
                 emittedOperations.addAll(process(nodesToProcess));
+            } else if (operationType.equals("!Declare")){
+                declareVariable(nodesToCompile, operationParam1, operationParam2);
+            } else if (operationType.equals("!Subroutine")){
+                // declare subroutine
+                // switch context to subroutine
+            } else if (operationType.equals("!Function")){
+                // declare function
+                // switch context to function
             } else {
                 // TODO perform other operations
             }
@@ -229,13 +238,28 @@ public class AlgorithmCompiler {
         if (userDefinedLabels.length > 0 && emittedOperations.size()>0){
             for(StringValue userDefinedLabel : userDefinedLabels){
                 labelsRegister.put(userDefinedLabel.getValue(), emittedOperations.get(0));
-                
             }
         }
 
         labelManager.finishOperationsSet();
 
         return emittedOperations;
+    }
+
+    private void declareVariable(List<AlgorithmTreeNode> nodesToCompile, String operationParam1, String operationParam2) {
+        // FIXME check logic to create Field
+        
+        // FIXME rewrite logic to detect type 
+        
+        StringValue variableName = getCellContent(nodesToCompile, operationParam1);
+        
+        // TODO null values check
+        IMethodCaller assignmentStatement = (IMethodCaller) convertParam(nodesToCompile, IMethodCaller.class, operationParam2);
+        IOpenClass variableType = assignmentStatement.getMethod().getType();
+        
+        IOpenField field = new DynamicObjectField(thisTargetClass, variableName.getValue(), variableType);
+        
+        thisTargetClass.addField(field);
     }
 
     private StringValue[] getUserDefinedLabel(List<AlgorithmTreeNode> nodesToCompile) {
