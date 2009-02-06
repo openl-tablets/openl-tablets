@@ -21,7 +21,7 @@ public interface ITableNodeTypes
 	  XLS_MODULE = "xls.module",
 	  XLS_DT = "xls.dt",
 	  XLS_SPREADSHEET = "xls.spreadsheet",
-	  XLS_ALGORITHM = "xls.algorithm",
+	  XLS_TBASIC = "xls.tbasic",
 	  
 	  XLS_METHOD = "xls.method",
 	  XLS_DATA = "xls.data",

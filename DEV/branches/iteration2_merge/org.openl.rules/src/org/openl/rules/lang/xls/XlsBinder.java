@@ -502,7 +502,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 			{ XLS_TEST_METHOD, TestMethodNodeBinder.class.getName() },
 			{ XLS_RUN_METHOD, TestMethodNodeBinder.class.getName() },
 			{ XLS_TABLE, StructureTableNodeBinder.class.getName() }, 
-			{ XLS_ALGORITHM, AlgorithmNodeBinder.class.getName() },
+			{ XLS_TBASIC, AlgorithmNodeBinder.class.getName() },
 			};
 
 }

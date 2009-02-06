@@ -16,7 +16,8 @@ public interface IXlsTableNames
 		DECISION_TABLE = "DT",
 		DECISION_TABLE2 = "Rules",
 		SPREADSHEET_TABLE ="Spreadsheet",
-		ALGORITHM_TABLE = "Algorithm",
+		TBASIC_TABLE = "TBasic",
+        TBASIC_TABLE2 = "Algorithm",
 		
 		PROPERTY_TABLE = "Properties",
 		METHOD_TABLE = "Code",
