@@ -38,7 +38,7 @@ public class RowParser implements IRowParser {
             }
             int indent = row.getOperationLevel();
             boolean multiline = isMultiline(i, indent);
-            TableParserSpecificationBean specification = getSpecification(operation.getValue(), multiline);
+            TableParserSpecificationBean specification = getSpecification(operation, multiline);
             if (validateRow(row, multiline, specification)) {
                 StringValue[] nodeLabels = asNodeLabels(topLabels, label);
                 AlgorithmTreeNode node = createAlgorithmNode(row, nodeLabels, specification, null);
@@ -48,8 +48,10 @@ public class RowParser implements IRowParser {
                         parentTree.clear();
                     }
                 } else {
-                    checkError(indent > (prevIndent + 1), "");
-                    checkError(parentTree.isEmpty(), "");
+                    checkError(indent > (prevIndent + 1), operation,
+                            "Incorrect operation indention. Expected indention is " + (prevIndent + 1));
+                    checkError(parentTree.isEmpty(), operation,
+                            "Incorrect operation indention. Could not find parent operation with 0 indention");
                     addChild(parentTree.get(indent - 1), node);
                 }
                 parentTree.put(indent, node);
@@ -84,12 +86,6 @@ public class RowParser implements IRowParser {
         return multiline;
     }
 
-    private void checkError(boolean errorCondition, String errorMessage) throws BoundError {
-        if (errorCondition) {
-            throw new BoundError(errorMessage == null ? "" : errorMessage, null);
-        }
-    }
-
     private void checkError(boolean errorCondition, StringValue srcValue,
             String errorMessage) throws BoundError {
         if (errorCondition) {
@@ -110,14 +106,18 @@ public class RowParser implements IRowParser {
 
     private boolean validateRow(AlgorithmRow row,
             boolean multiline, TableParserSpecificationBean specification) throws BoundError {
-        checkError(specification == null, "");
-        checkError(specification.isObligatoryLabel() && row.getLabel().isEmpty(), "");
-        checkError(specification.isMustHaveCondition() == row.getCondition().isEmpty(), "");
-        checkError(specification.isMustHaveAction() == row.getAction().isEmpty(), "");
-        checkError(!specification.isCanHaveBeforeAndAfter()
-                && (!row.getBefore().isEmpty() || !row.getAfter().isEmpty()), "");
-        checkError(specification.isCanBeOnlyTopLevel() && row.getOperationLevel() > 0, "");
-        checkError(!specification.isCanHaveIdents() && multiline, "");
+        checkError(specification.isObligatoryLabel() && row.getLabel().isEmpty(), row.getLabel(),
+                "Label is empty. Label is obligatory for this operation");
+        checkError(specification.isMustHaveCondition() == row.getCondition().isEmpty(), row.getCondition(),
+                "Operation must " + (specification.isMustHaveCondition() ? "" : "not ") + "have Condition value");
+        checkError(specification.isMustHaveAction() == row.getAction().isEmpty(), row.getAction(),
+                "Operation must " + (specification.isMustHaveAction() ? "" : "not ") + "have Action value");
+        checkError(!specification.isCanHaveBeforeAndAfter() && !row.getBefore().isEmpty(), row.getBefore(),
+                "Operation can not have Before value");
+        checkError(!specification.isCanHaveBeforeAndAfter() && !row.getAfter().isEmpty(), row.getAfter(),
+                "Operation can not have After value");
+        checkError(specification.isCanBeOnlyTopLevel() && row.getOperationLevel() > 0, row.getOperation(),
+                "Operation can be only a top level, i.e. can not be nested");
         return true;
     }
 
@@ -132,15 +132,21 @@ public class RowParser implements IRowParser {
     }
 
     private TableParserSpecificationBean getSpecification(
-            String keyword, boolean multiline) {
+            StringValue operation, boolean multiline) throws BoundError {
+        boolean found = false;
         for (TableParserSpecificationBean specification : specifications) {
             String specKeyword = specification.getKeyword();
-            boolean specMultiline = specification.isMultiLine();
-            if (keyword.equalsIgnoreCase(specKeyword)
-                    && multiline == specMultiline) {
-                return specification;
+            if (operation.getValue().equalsIgnoreCase(specKeyword)) {
+                boolean specMultiline = specification.isMultiLine();
+                if (specMultiline == multiline) {
+                    return specification;
+                }
+                found = true;
             }
         }
+        checkError(found, operation,
+                "Operation can not be multiline, i.e. can not have nested operations");
+        checkError(true, operation, "No such operation: " + operation.getValue());
         return null;
     }
 
