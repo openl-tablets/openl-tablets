@@ -28,7 +28,7 @@ import org.openl.types.IOpenField;
 public class ModuleBindingContext extends BindingContextDelegator
 {
 
-    DeferredMethod[] method;
+//    DeferredMethod[] method;
 
     ModuleOpenClass module;
 
