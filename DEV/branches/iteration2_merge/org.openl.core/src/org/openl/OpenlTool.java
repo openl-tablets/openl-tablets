@@ -285,7 +285,10 @@ public class OpenlTool {
 			}
 
 			
-			header.setTypeClass(mbc.getReturnType());
+			IOpenClass retType = mbc.getReturnType();
+			if (retType == NullOpenClass.the)
+				retType = bc.getTopNode().getType();
+			header.setTypeClass(retType);
 			
 			IBoundMethodNode ibmn = null;
 			try {
