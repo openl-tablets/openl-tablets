@@ -3,6 +3,7 @@
  */
 package org.openl.rules.dt;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -25,9 +26,6 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class RangeIndexedEvaluator implements IDTConditionEvaluator
 {
-
-	
-	
 	
 	IRangeAdaptor<Object, Object> adaptor = null;
 
@@ -97,6 +95,8 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator
 		IntervalMap<Object, Integer> map = new IntervalMap<Object, Integer>();
 		DTRuleNodeBuilder emptyBuilder = new DTRuleNodeBuilder();
 
+		List<Integer> firstEmptyRules = new ArrayList<Integer>();
+		
 		for (; it.hasNext();)
 		{
 			int i = it.nextInt();
@@ -104,14 +104,19 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator
 			if (indexedparams[i] == null || indexedparams[i][0] == null)
 			{
 				emptyBuilder.addRule(i);
-
+				
+				
+				boolean mapHasAnyValue = false;
 				for (Iterator<List<Integer>> iter = map.treeMap().values().iterator(); iter
 						.hasNext();)
 				{
 					List<Integer> list = iter.next();
 					list.add(i);
+					mapHasAnyValue = true;
 				}
-
+				if (!mapHasAnyValue)
+					firstEmptyRules.add(i);
+				
 				continue;
 			}
 
@@ -128,35 +133,48 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator
 				vFrom = adaptor.getMin(indexedparams[i][0]);
 				vTo = adaptor.getMax(indexedparams[i][0]);
 			}
+			for(Integer fe : firstEmptyRules)
+			{
+				map.putInterval(vFrom, vTo, fe);
+			}	
+				
 			map.putInterval(vFrom, vTo, new Integer(i));
 
 		}
 
 		TreeMap<Comparable<Object>, List<Integer>> tm = map.treeMap();
 
-		int n = tm.size();
-
-		Comparable<Object>[] index = new Comparable[n];
-		DTRuleNode[] rules = new DTRuleNode[n];
+//		int n = tm.size();
+		
+//		Comparable<Object>[] index = new Comparable[n];
+//		DTRuleNode[] rules = new DTRuleNode[n];
+		
+		List<Comparable<?>> index = new ArrayList<Comparable<?>>();
+		List<DTRuleNode>  rules = new ArrayList<DTRuleNode>();
 
 		int i = 0;
 		for (Iterator<Map.Entry<Comparable<Object>, List<Integer>>> iter = tm
 				.entrySet().iterator(); iter.hasNext(); ++i)
 		{
 			Map.Entry<Comparable<Object>, List<Integer>> element = iter.next();
-			index[i] = element.getKey();
+			Comparable<?> indexObj = element.getKey();
 
 			List<Integer> list = element.getValue();
+			
 			int[] idxAry = new int[list.size()];
 			for (int j = 0; j < idxAry.length; j++)
 			{
 				idxAry[j] = list.get(j);
 			}
-
-			rules[i] = new DTRuleNode(idxAry);
+			
+			if (idxAry.length > 0)
+			{	
+				rules.add( new DTRuleNode(idxAry));
+				index.add(indexObj);
+			}	
 		}
 
-		RangeIndex rix = new RangeIndex(emptyBuilder.makeNode(), index, rules);
+		RangeIndex rix = new RangeIndex(emptyBuilder.makeNode(), index.toArray(new Comparable[0]), rules.toArray(new DTRuleNode[0]));
 
 		return rix;
 

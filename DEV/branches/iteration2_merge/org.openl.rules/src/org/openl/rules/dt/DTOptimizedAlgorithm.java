@@ -426,7 +426,7 @@ public class DTOptimizedAlgorithm
 
 		if (allowConditionReordering)
 			reorderConditions();
-		ArrayList params = new ArrayList();
+		ArrayList<Object[][]> params = new ArrayList<Object[][]>();
 		
 		for (int i = 0; i < evaluators.length; i++)
 		{
@@ -443,7 +443,7 @@ public class DTOptimizedAlgorithm
 
 		if (nIndexedCond == 0)
 			return;
-		Object[][] params0 = (Object[][])params.get(0);
+		Object[][] params0 = params.get(0);
 		indexRoot = evaluators[0].makeIndex(params0, new IntRangeDomain(0, params0.length-1).intIterator());
 		
 		indexNodes(indexRoot, params, 1);
@@ -459,7 +459,7 @@ public class DTOptimizedAlgorithm
 	 * @param params
 	 * @param i
 	 */
-	void indexNodes(ADTRuleIndex index, ArrayList params, int level)
+	void indexNodes(ADTRuleIndex index, ArrayList<Object[][]> params, int level)
 	{
 		if (index == null)
 			return;
@@ -477,7 +477,7 @@ public class DTOptimizedAlgorithm
 	}
 
 
-	void indexNode(DTRuleNode node, ArrayList params, int level)
+	void indexNode(DTRuleNode node, ArrayList<Object[][]> params, int level)
 	{
 		ADTRuleIndex nodeIndex = evaluators[level].makeIndex((Object[][])params.get(level), node.getRulesIterator());
 		node.nextIndex = nodeIndex;
