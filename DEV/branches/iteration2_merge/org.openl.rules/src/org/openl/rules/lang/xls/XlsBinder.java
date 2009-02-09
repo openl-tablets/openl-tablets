@@ -38,6 +38,7 @@ import org.openl.conf.OpenLBuilderImpl;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.calc.SSheetNodeBinder;
+import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.dt.binding.DTNodeBinder;
@@ -503,6 +504,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 			{ XLS_RUN_METHOD, TestMethodNodeBinder.class.getName() },
 			{ XLS_TABLE, StructureTableNodeBinder.class.getName() }, 
 			{ XLS_TBASIC, AlgorithmNodeBinder.class.getName() },
+			{ XLS_COLUMN_MATCH, ColumnMatchNodeBinder.class.getName()},
 			};
 
 }

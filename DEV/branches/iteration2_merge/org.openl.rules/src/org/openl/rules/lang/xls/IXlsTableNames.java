@@ -18,6 +18,7 @@ public interface IXlsTableNames
 		SPREADSHEET_TABLE ="Spreadsheet",
 		TBASIC_TABLE = "TBasic",
         TBASIC_TABLE2 = "Algorithm",
+        COLUMN_MATCH = "ColumnMatch",
 		
 		PROPERTY_TABLE = "Properties",
 		METHOD_TABLE = "Code",
