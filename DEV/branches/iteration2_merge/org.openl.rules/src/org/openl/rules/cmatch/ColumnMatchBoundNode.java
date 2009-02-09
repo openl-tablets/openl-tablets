@@ -12,8 +12,12 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
 public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBoundNode, IXlsTableNames {
-    public ColumnMatchBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
+    private final ColumnMatchAlgorithm algorithm;
+
+    public ColumnMatchBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module, ColumnMatchAlgorithm algorithm) {
         super(tsn, openl, header, module);
+        
+        this.algorithm = algorithm;
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
@@ -24,6 +28,7 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
         getTableSyntaxNode().getSubTables().put(VIEW_BUSINESS, tableBody.columns(1));
         builder.build(tableBody);
 
+        // TODO algorithm?
     }
 
     @Override
