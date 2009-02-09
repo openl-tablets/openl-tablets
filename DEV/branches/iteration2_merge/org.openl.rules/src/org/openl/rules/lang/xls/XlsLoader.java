@@ -196,6 +196,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 			{ SPREADSHEET_TABLE, XLS_SPREADSHEET },
 			{ TBASIC_TABLE, XLS_TBASIC },
             { TBASIC_TABLE2, XLS_TBASIC },
+            { COLUMN_MATCH, XLS_COLUMN_MATCH},
 			{ DATA_TABLE, XLS_DATA },
 			{ DATATYPE_TABLE, XLS_DATATYPE }, 
 			{ METHOD_TABLE, XLS_METHOD }, 
