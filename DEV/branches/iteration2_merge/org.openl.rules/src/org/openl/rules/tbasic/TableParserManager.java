@@ -12,40 +12,68 @@ import org.openl.runtime.EngineFactory;
  */
 public class TableParserManager implements ITableParserManager {
     private static TableParserManager instance = new TableParserManager();
+    private ITableParserManager rulesWrapperInstance;
 
     public static TableParserManager instance() {
         return instance;
     }
 
-    private EngineFactory<ITableParserManager> engineFactory;
-
     public TableParserManager() {
-        engineFactory = new EngineFactory<ITableParserManager>("org.openl.xls", TableParserManager.class
+        EngineFactory<ITableParserManager> engineFactory = new EngineFactory<ITableParserManager>("org.openl.xls", TableParserManager.class
                 .getResource("TableParserSpecifications.xls"), ITableParserManager.class);
-
+        rulesWrapperInstance = engineFactory.newInstance();
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @seeorg.openl.rules.tbasic.ITableParserManager#
+     * @see org.openl.rules.tbasic.ITableParserManager#
      * getStructuredAlgorithmSpecification()
      */
     public TableParserSpecificationBean[] getStructuredAlgorithmSpecification() {
-        TableParserSpecificationBean[] result = engineFactory.newInstance().getStructuredAlgorithmSpecification();
+        TableParserSpecificationBean[] result = rulesWrapperInstance.getStructuredAlgorithmSpecification();
 
         return result;
     }
 
     public ConversionRuleBean[] getConversionRules() {
-        ConversionRuleBean[] result = engineFactory.newInstance().getConversionRules();
+        ConversionRuleBean[] result = rulesWrapperInstance.getConversionRules();
 
         return result;
     }
+    
+    public ConversionRuleBean[] getFixedConversionRules() {
+        ConversionRuleBean[] draftConvertionRules = getConversionRules();
+        return fixBrokenValues(draftConvertionRules);
+    }
+    
+    private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {
+        for (ConversionRuleBean conversionRule : conversionRules){
+            fixBrokenValues(conversionRule.getOperationType());
+            fixBrokenValues(conversionRule.getOperationParam1());
+            fixBrokenValues(conversionRule.getOperationParam2());
+            fixBrokenValues(conversionRule.getLabel());
+        }
+        return conversionRules;
+    }
+
+    private void fixBrokenValues(String[] label) {
+        for (int i = 0; i < label.length; i++){
+            if (label[i].toUpperCase().equals("N/A")){
+                label[i] = null;
+            }
+        }
+        
+    }
 
     public String[] whatOperationsToGroup(String keyword) {
-        String[] result = engineFactory.newInstance().whatOperationsToGroup(keyword);
+        String[] result = rulesWrapperInstance.whatOperationsToGroup(keyword);
 
+        return result;
+    }
+    
+    public String whatIsOperationsGroupName(String[] groupedOperationNames){
+        String result = rulesWrapperInstance.whatIsOperationsGroupName(groupedOperationNames);
         return result;
     }
 
