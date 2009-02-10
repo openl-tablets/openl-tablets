@@ -1,5 +1,7 @@
 package org.openl.rules.cmatch;
 
+import java.util.List;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
@@ -11,6 +13,9 @@ import org.openl.vm.IRuntimeEnv;
 public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     private final ColumnMatchBoundNode node;
 
+    private List<TableColumn> columns;
+    private List<TableRow> rows;
+
     public ColumnMatch(IOpenMethodHeader header, ColumnMatchBoundNode node) {
         super(header);
         this.node = node;
@@ -18,6 +23,7 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         // FIXME
+        node.getAlgorithm().compile(this);
         return null;
     }
 
@@ -37,5 +43,21 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     @Override
     public IMemberMetaInfo getInfo() {
         return this;
+    }
+
+    public List<TableColumn> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<TableColumn> columns) {
+        this.columns = columns;
+    }
+
+    public List<TableRow> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<TableRow> rows) {
+        this.rows = rows;
     }
 }
