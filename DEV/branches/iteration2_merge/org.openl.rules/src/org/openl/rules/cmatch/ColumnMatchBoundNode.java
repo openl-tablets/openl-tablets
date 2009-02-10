@@ -39,4 +39,8 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
     public ColumnMatch getColumnMatch() {
         return (ColumnMatch) method;
     }
+
+    public ColumnMatchAlgorithm getAlgorithm() {
+        return algorithm;
+    }
 }
