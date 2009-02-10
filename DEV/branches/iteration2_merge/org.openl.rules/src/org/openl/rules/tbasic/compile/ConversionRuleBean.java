@@ -3,6 +3,9 @@
  */
 package org.openl.rules.tbasic.compile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author User
  *
@@ -14,6 +17,33 @@ public class ConversionRuleBean {
     private String[] operationType;
     private String[] operationParam1;
     private String[] operationParam2;
+    private List<ConversionRuleStep> convertionSteps;
+    
+    public List<ConversionRuleStep> getConvertionSteps(){
+        // TODO: check synchronization logic
+        if (convertionSteps == null){
+            synchronized (this) {
+                if (convertionSteps == null){
+                    convertionSteps = new ArrayList<ConversionRuleStep>();
+                    for (int i = 0; i < operationType.length; i++){
+                        convertionSteps.add(extractConversionStep(i));
+                    }
+                }
+            }
+        }
+        
+        return convertionSteps;
+    }
+    
+    private ConversionRuleStep extractConversionStep(int i) {
+        String operationType = this.operationType[i];
+        String operationParam1 = this.operationParam1[i];
+        String operationParam2 = this.operationParam2[i];
+        String labelInstruction = this.label[i];
+        
+        return new ConversionRuleStep(operationType, operationParam1, operationParam2, labelInstruction);
+    }
+    
     
     /**
      * @return the operation

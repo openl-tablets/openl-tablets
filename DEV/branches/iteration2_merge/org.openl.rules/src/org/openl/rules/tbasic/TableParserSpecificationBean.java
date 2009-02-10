@@ -17,6 +17,8 @@ public class TableParserSpecificationBean {
     private boolean obligatoryLabel;
     private boolean canHaveBeforeAndAfter;
     private boolean canBeOnlyTopLevel;
+    private boolean loopOperation;
+    private String[] predecessorOperations;
 
     /**
      * @return the keyword
@@ -147,6 +149,34 @@ public class TableParserSpecificationBean {
      */
     public void setCanBeOnlyTopLevel(boolean canBeOnlyTopLevel) {
         this.canBeOnlyTopLevel = canBeOnlyTopLevel;
+    }
+    
+    /**
+     * @return the loopOperation
+     */
+    public boolean isLoopOperation() {
+        return loopOperation;
+    }
+
+    /**
+     * @param loopOperation the loopOperation to set
+     */
+    public void setLoopOperation(boolean loopOperation) {
+        this.loopOperation = loopOperation;
+    }
+
+    /**
+     * @return the predecessorOperations
+     */
+    public String[] getPredecessorOperations() {
+        return predecessorOperations;
+    }
+
+    /**
+     * @param predecessorOperations the predecessorOperations to set
+     */
+    public void setPredecessorOperations(String[] predecessorOperations) {
+        this.predecessorOperations = predecessorOperations;
     }
 
 }

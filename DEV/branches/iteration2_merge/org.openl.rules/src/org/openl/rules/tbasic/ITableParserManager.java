@@ -7,5 +7,6 @@ public interface ITableParserManager {
     TableParserSpecificationBean[] getStructuredAlgorithmSpecification();
     ConversionRuleBean[] getConversionRules();
     String[] whatOperationsToGroup(String keyword);
+    String whatIsOperationsGroupName(String[] groupedOperationNames);
 
 }
