@@ -1,13 +1,12 @@
 package org.openl.rules.cmatch;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -39,6 +38,9 @@ public class ColumnMatchBuilder {
 
         columnMatch.setColumns(columns);
         columnMatch.setRows(rows);
+
+        ModuleOpenClass thisTargetClass = new ModuleOpenClass(null, columnMatch.getHeader().getName(), bindingContext.getOpenL());
+        columnMatch.setThisClass(thisTargetClass);
 
         // TODO compile
     }

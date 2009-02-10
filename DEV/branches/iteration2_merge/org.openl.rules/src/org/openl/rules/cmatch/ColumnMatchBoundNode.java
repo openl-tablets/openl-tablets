@@ -21,14 +21,11 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
-
         ColumnMatchBuilder builder = new ColumnMatchBuilder(cxt, getColumnMatch(), getTableSyntaxNode());
 
         ILogicalTable tableBody = this.getTableSyntaxNode().getTableBody();
         getTableSyntaxNode().getSubTables().put(VIEW_BUSINESS, tableBody.columns(1));
         builder.build(tableBody);
-
-        // TODO algorithm?
     }
 
     @Override
