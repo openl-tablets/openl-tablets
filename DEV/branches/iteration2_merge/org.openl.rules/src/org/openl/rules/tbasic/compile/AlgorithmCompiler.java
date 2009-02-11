@@ -24,6 +24,7 @@ import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TableParserManager;
+import org.openl.rules.tbasic.runtime.ReturnOperation;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -411,19 +412,22 @@ public class AlgorithmCompiler {
         } else if (clazz.equals(boolean.class)) {
             return Boolean.parseBoolean(operationParam);
         } else if (clazz.equals(IMethodCaller.class)) {
+            if (operationParam == null){
+                return null;
+            }else{
+                IOpenSourceCodeModule src = createSourceCode(nodesToCompile, operationParam);
 
-            IOpenSourceCodeModule src = createSourceCode(nodesToCompile, operationParam);
+                OpenL openl = context.getOpenL();
 
-            OpenL openl = context.getOpenL();
+                AlgorithmTreeNode executionNode = getNodeWithResult(nodesToCompile, extractOperationName(operationParam));
+                String methodName = operationParam.replace('.', '_') + executionNode.getAlgorithmRow().getRowNumber();
 
-            AlgorithmTreeNode executionNode = getNodeWithResult(nodesToCompile, extractOperationName(operationParam));
-            String methodName = operationParam.replace('.', '_') + executionNode.getAlgorithmRow().getRowNumber();
+                IMethodSignature signature = header.getSignature();
 
-            IMethodSignature signature = header.getSignature();
+                IBindingContext cxt = createBindingContext();
 
-            IBindingContext cxt = createBindingContext();
-
-            return OpenlTool.makeMethodWithUnknownType(src, openl, methodName, signature, thisTargetClass, cxt);
+                return OpenlTool.makeMethodWithUnknownType(src, openl, methodName, signature, thisTargetClass, cxt);
+            }
         } else {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
