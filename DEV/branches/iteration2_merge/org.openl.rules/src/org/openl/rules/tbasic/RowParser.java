@@ -20,7 +20,7 @@ public class RowParser implements IRowParser {
         this.specifications = specifications;
     }
 
-    public List<AlgorithmTreeNode> parse() throws Exception {
+    public List<AlgorithmTreeNode> parse() throws BoundError {
         List<AlgorithmTreeNode> treeNodes = new ArrayList<AlgorithmTreeNode>();
         Map<Integer, AlgorithmTreeNode> parentTree = new HashMap<Integer, AlgorithmTreeNode>();
         int i = 0;
