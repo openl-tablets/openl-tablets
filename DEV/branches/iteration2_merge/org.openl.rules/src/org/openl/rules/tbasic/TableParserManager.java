@@ -3,6 +3,9 @@
  */
 package org.openl.rules.tbasic;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.openl.rules.tbasic.compile.ConversionRuleBean;
 import org.openl.runtime.EngineFactory;
 
@@ -72,7 +75,7 @@ public class TableParserManager implements ITableParserManager {
         return result;
     }
     
-    public String whatIsOperationsGroupName(String[] groupedOperationNames){
+    public String whatIsOperationsGroupName(List<String> groupedOperationNames){
         String result = rulesWrapperInstance.whatIsOperationsGroupName(groupedOperationNames);
         return result;
     }
@@ -92,6 +95,26 @@ public class TableParserManager implements ITableParserManager {
         for (String operationName : operationNames) {
             System.out.println(operationName);
         }
+        
+        System.out.println("----------------------------------------------");
+        
+        String groupOperationsName1 = TableParserManager.instance().whatIsOperationsGroupName(Arrays.asList(new String[]{"IF"}));
+        System.out.println(groupOperationsName1);
+        
+        String groupOperationsName2 = TableParserManager.instance().whatIsOperationsGroupName(Arrays.asList(new String[]{"IF", "ELSE"}));
+        System.out.println(groupOperationsName2);
+        
+        String groupOperationsName3 = TableParserManager.instance().whatIsOperationsGroupName(Arrays.asList(new String[]{"IF", "ELSE", "END IF"}));
+        System.out.println(groupOperationsName3);
+        
+        String groupOperationsName4 = TableParserManager.instance().whatIsOperationsGroupName(Arrays.asList(new String[]{"IF", "END IF"}));
+        System.out.println(groupOperationsName4);
+        
+        String groupOperationsName5 = TableParserManager.instance().whatIsOperationsGroupName(Arrays.asList(new String[]{"WHILE"}));
+        System.out.println(groupOperationsName5);
+        
+        String groupOperationsName6 = TableParserManager.instance().whatIsOperationsGroupName(Arrays.asList(new String[]{"WHILE", "END WHILE"}));
+        System.out.println(groupOperationsName6);
     }
 
 }

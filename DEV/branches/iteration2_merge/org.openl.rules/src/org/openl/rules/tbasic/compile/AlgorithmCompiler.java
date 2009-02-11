@@ -21,6 +21,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmRow;
+import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TableParserManager;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
@@ -28,13 +29,17 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObjectField;
+import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+
+// FIXME: refactor to eliminate code duplications and to isolate different functionality in separate classes
 
 /**
  * @author User
- *
+ * 
  */
 public class AlgorithmCompiler {
     /********************************
@@ -43,82 +48,181 @@ public class AlgorithmCompiler {
     private IBindingContext context;
     private IOpenMethodHeader header;
     private List<AlgorithmTreeNode> nodesToCompile;
-    
+
     /********************************
      * Intermediate values
      *******************************/
     private ConversionRuleBean[] conversionRules;
     private LabelManager labelManager;
-    
+
     private CompileContext currentCompileContext;
-    
+
     /*********************************
      * Compiler output
      ********************************/
     private ModuleOpenClass thisTargetClass;
     private CompileContext mainCompileContext;
     private Map<String, CompileContext> internalMethodsContexts;
-    
+
     public IOpenClass getThisTargetClass() {
         return thisTargetClass;
     }
-    
+
     public CompileContext getMainCompileContext() {
         return mainCompileContext;
     }
-    
+
     public Map<String, CompileContext> getInternalMethodsContexts() {
         return internalMethodsContexts;
     }
-    
-    public AlgorithmCompiler(IBindingContext context, IOpenMethodHeader header, List<AlgorithmTreeNode> nodesToCompile){
+
+    public AlgorithmCompiler(IBindingContext context, IOpenMethodHeader header, List<AlgorithmTreeNode> nodesToCompile) {
         this.context = context;
         this.header = header;
         this.nodesToCompile = nodesToCompile;
     }
-    
+
     /**********************************************
-     * Main compile logic
+     * Main logic
      **********************************************/
-    
-    public void compile(Algorithm algorithm) throws BoundError{
+
+    public void compile(Algorithm algorithm) throws BoundError {
         conversionRules = TableParserManager.instance().getFixedConversionRules();
         labelManager = new LabelManager();
         mainCompileContext = new CompileContext();
         internalMethodsContexts = new HashMap<String, CompileContext>();
         thisTargetClass = new ModuleOpenClass(null, generateOpenClassName(), context.getOpenL());
-        
+
         precompile(nodesToCompile);
-        compileTopLevel(nodesToCompile);
-        
+        compile(nodesToCompile);
+
         algorithm.setThisClass(getThisTargetClass());
         algorithm.setAlgorithmSteps(getMainCompileContext().getOperations());
         algorithm.setLabels(getMainCompileContext().getLocalLabelsRegister());
     }
+
+    /**********************************************
+     * Main precompile logic
+     **********************************************/
+
+    private void precompile(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+        // process nodes by groups of linked nodes
+        for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
+            linkedNodesGroupSize = getLinkedNodesGroupSize(nodesToProcess, i);
+
+            List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
+
+            precompileLinkedNodesGroup(nodesToCompile);
+        }
+    }
+
+    private void precompileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+        precompile(nodesToProcess);
+    }
+
+    void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
+        assert nodesToCompile.size() > 0;
+
+        ConversionRuleBean conversionRule = getConvertionRule(nodesToCompile);
+
+        // compile before statement
+
+        for (ConversionRuleStep convertionStep : conversionRule.getConvertionSteps()) {
+            preprocessConversionStep(nodesToCompile, convertionStep);
+        }
+    }
+
+    /*********************************************
+     * Single conversion step precompilation logic
+     ********************************************/
+
+    /**
+     * @param nodesToCompile
+     * @param conversionRule
+     * @throws BoundError
+     */
+    private void preprocessConversionStep(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+            throws BoundError {
+        assert nodesToCompile.size() > 0;
+        assert conversionStep != null;
+
+        String operationType = conversionStep.getOperationType();
+        // TODO
+        if (!operationType.startsWith("!")) {
+            // do nothing
+        } else if (operationType.equals("!Compile")) {
+            List<AlgorithmTreeNode> nodesToProcess;
+            nodesToProcess = getNestedInstructionsBlock(nodesToCompile, conversionStep);
+            precompileNestedNodes(nodesToProcess);
+        } else if (operationType.equals("!Declare")) {
+            declareVariable(nodesToCompile, conversionStep);
+        } else if (operationType.equals("!Subroutine")) {
+            declareSubroutine(nodesToCompile);
+        } else if (operationType.equals("!Function")) {
+            declareFunction(nodesToCompile);
+        } else {
+            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
+                    .asSourceCodeModule();
+            throw new BoundError(String.format("Unknown compilation instruction %s", operationType), errorSource);
+        }
+    }
+
+    private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
+        // method name will be at least as the first label
+        String methodName = nodesToCompile.get(0).getLabels()[0].getValue();
+        
+        IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName, JavaOpenClass.VOID, header.getSignature(), thisTargetClass);
+        
+        IOpenMethod method = new AlgorithmSubroutineMethod(methodHeader);
+        
+        thisTargetClass.addMethod(method);
+        
+        internalMethodsContexts.put(methodName, new CompileContext());
+
+//            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
+//            .asSourceCodeModule();
+//            throw new BoundError(String.format("Can't compile subroutine %s", methodName), errorSource);
+    }
     
-    private void precompile(List<AlgorithmTreeNode> nodesToCompile2) {
-        // TODO Auto-generated method stub
+    private void declareFunction(List<AlgorithmTreeNode> nodesToCompile) {
+        // method name will be at least as the first label
+        String methodName = nodesToCompile.get(0).getLabels()[0].getValue();
+        
+        // TODO: replace return type
+        IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName, /*need to detect type*/JavaOpenClass.VOID, header.getSignature(), thisTargetClass);
+        
+        IOpenMethod method = new AlgorithmSubroutineMethod(methodHeader);
+        
+        thisTargetClass.addMethod(method);
+        
+        internalMethodsContexts.put(methodName, new CompileContext());
         
     }
 
-    private void compileTopLevel(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+    /**********************************************
+     * Main compile logic
+     **********************************************/
+
+    private void compile(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
 
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
-            // switching context to the main algorithm, each operation which should have its own context will produce it and switch to it in the first step
+            // switching context to the main algorithm, each operation which
+            // should have its own context will produce it and switch to it in
+            // the first step
             currentCompileContext = mainCompileContext;
-            
+
             linkedNodesGroupSize = getLinkedNodesGroupSize(nodesToProcess, i);
 
             List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
 
             List<RuntimeOperation> emittedOperations = compileLinkedNodesGroup(nodesToCompile);
-            
+
             currentCompileContext.getOperations().addAll(emittedOperations);
         }
     }
-    
-    private List<RuntimeOperation> compile(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+
+    private List<RuntimeOperation> compileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
         List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
 
         // process nodes by groups of linked nodes
@@ -133,10 +237,9 @@ public class AlgorithmCompiler {
         return emittedOperations;
     }
 
-    
     List<RuntimeOperation> compileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
         assert nodesToCompile.size() > 0;
-        
+
         List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
 
         ConversionRuleBean conversionRule = getConvertionRule(nodesToCompile);
@@ -146,24 +249,25 @@ public class AlgorithmCompiler {
         labelManager.startOperationsSet(isLoopOperation);
 
         labelManager.generateAllLabels(conversionRule.getLabel());
-        
+
         // compile before statement
         emittedOperations.add(compileBefore(nodesToCompile));
-        
+
         for (ConversionRuleStep convertionStep : conversionRule.getConvertionSteps()) {
             List<RuntimeOperation> stepEmittedOperations = processConversionStep(nodesToCompile, convertionStep);
             emittedOperations.addAll(stepEmittedOperations);
         }
-        
+
         // compile after statement
         emittedOperations.add(compileAfter(nodesToCompile));
 
         // apply user defined label to the first emitted operation
         // label can be defined only for the first operation in the group
         StringValue[] userDefinedLabels = nodesToCompile.get(0).getLabels();
-        if (userDefinedLabels.length > 0 && emittedOperations.size()>0){
-            for(StringValue userDefinedLabel : userDefinedLabels){
-                currentCompileContext.getLocalLabelsRegister().put(userDefinedLabel.getValue(), emittedOperations.get(0));
+        if (userDefinedLabels.length > 0 && emittedOperations.size() > 0) {
+            for (StringValue userDefinedLabel : userDefinedLabels) {
+                currentCompileContext.getLocalLabelsRegister().put(userDefinedLabel.getValue(),
+                        emittedOperations.get(0));
             }
         }
 
@@ -171,35 +275,36 @@ public class AlgorithmCompiler {
 
         return emittedOperations;
     }
-    
+
     /**
      * before is allowed only for the first operation in group
-     * @throws BoundError 
+     * 
+     * @throws BoundError
      */
     private RuntimeOperation compileBefore(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
         final String beforeFieldName = "before";
         return createOperationForFirstNodeField(nodesToCompile, beforeFieldName);
     }
-    
+
     /**
      * after is allowed only for the first operation in group
-     * @throws BoundError 
+     * 
+     * @throws BoundError
      */
     private RuntimeOperation compileAfter(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
         final String afterFieldName = "after";
         return createOperationForFirstNodeField(nodesToCompile, afterFieldName);
     }
 
-    private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile, String beforeFieldName) throws BoundError {
+    private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile,
+            String beforeFieldName) throws BoundError {
         // TODO: strange method, refactore
         String param = nodesToCompile.get(0).getAlgorithmRow().getOperation() + FIELD_SEPARATOR + beforeFieldName;
         ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null);
-        
+
         return createOperation(nodesToCompile, conversionStep);
     }
 
-
-    
     /*********************************************
      * Single conversion step compilation logic
      ********************************************/
@@ -209,10 +314,11 @@ public class AlgorithmCompiler {
      * @param conversionRule
      * @throws BoundError
      */
-    private List<RuntimeOperation> processConversionStep(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep) throws BoundError {
+    private List<RuntimeOperation> processConversionStep(List<AlgorithmTreeNode> nodesToCompile,
+            ConversionRuleStep conversionStep) throws BoundError {
         assert nodesToCompile.size() > 0;
         assert conversionStep != null;
-        
+
         String label = null;
         List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
 
@@ -229,48 +335,54 @@ public class AlgorithmCompiler {
         } else if (operationType.equals("!Compile")) {
             List<AlgorithmTreeNode> nodesToProcess;
             nodesToProcess = getNestedInstructionsBlock(nodesToCompile, conversionStep);
-            emittedOperations.addAll(compile(nodesToProcess));
-        } else if (operationType.equals("!Declare")){
-            declareVariable(nodesToCompile, conversionStep);
-        } else if (operationType.equals("!Subroutine") || operationType.equals("!Function")){
+            emittedOperations.addAll(compileNestedNodes(nodesToProcess));
+        } else if (operationType.equals("!Declare")) {
+            // do nothing
+//            declareVariable(nodesToCompile, conversionStep);
+        } else if (operationType.equals("!Subroutine") || operationType.equals("!Function")) {
             // subroutine or function was declared while pre-compilation
             // switch context to subroutine or function
             switchToSubroutineOrFunctionContext(nodesToCompile);
         } else {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
+            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
+                    .asSourceCodeModule();
             throw new BoundError(String.format("Unknown compilation instruction %s", operationType), errorSource);
         }
-        
+
         // apply label for the current step
         if (emittedOperations.size() > 0 && label != null) {
             currentCompileContext.getLocalLabelsRegister().put(label, emittedOperations.get(0));
         }
-        
+
         return emittedOperations;
     }
-    
+
     private void switchToSubroutineOrFunctionContext(List<AlgorithmTreeNode> nodesToCompile) {
         // method name will be at least as the first label
         String methodName = nodesToCompile.get(0).getLabels()[0].getValue();
 
         CompileContext subroutineCompileContext = internalMethodsContexts.get(methodName);
-        
+
         currentCompileContext = subroutineCompileContext;
     }
 
-    private RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep) throws BoundError {
+    private RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+            throws BoundError {
         try {
-            Class clazz = Class.forName("org.openl.rules.tbasic.runtime." + conversionStep.getOperationType() + "Operation");
+            Class clazz = Class.forName("org.openl.rules.tbasic.runtime." + conversionStep.getOperationType()
+                    + "Operation");
             Constructor constructor = clazz.getConstructors()[0];
 
             Object[] params = new Object[constructor.getParameterTypes().length];
 
             if (constructor.getParameterTypes().length > 0) {
-                params[0] = convertParam(nodesToCompile, constructor.getParameterTypes()[0], conversionStep.getOperationParam1());
+                params[0] = convertParam(nodesToCompile, constructor.getParameterTypes()[0], conversionStep
+                        .getOperationParam1());
             }
 
             if (constructor.getParameterTypes().length > 1) {
-                params[1] = convertParam(nodesToCompile, constructor.getParameterTypes()[1], conversionStep.getOperationParam2());
+                params[1] = convertParam(nodesToCompile, constructor.getParameterTypes()[1], conversionStep
+                        .getOperationParam2());
             }
 
             // FIXME put source reference
@@ -278,12 +390,14 @@ public class AlgorithmCompiler {
             return (RuntimeOperation) constructor.newInstance(params);
 
         } catch (Exception e) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
+            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
+                    .asSourceCodeModule();
             throw new BoundError(e, errorSource);
         }
     }
-    
-    private Object convertParam(List<AlgorithmTreeNode> nodesToCompile, Class<? extends Object> clazz, String operationParam) throws BoundError {
+
+    private Object convertParam(List<AlgorithmTreeNode> nodesToCompile, Class<? extends Object> clazz,
+            String operationParam) throws BoundError {
         // FIXME !!!!
 
         if (clazz.equals(String.class)) {
@@ -291,35 +405,37 @@ public class AlgorithmCompiler {
                 return labelManager.getLabelByInstruction(operationParam);
             } else {
                 StringValue content = getCellContent(nodesToCompile, operationParam);
-                
+
                 return content.getValue();
             }
         } else if (clazz.equals(boolean.class)) {
             return Boolean.parseBoolean(operationParam);
-        } else if (clazz.equals(IMethodCaller.class)){
-            
+        } else if (clazz.equals(IMethodCaller.class)) {
+
             IOpenSourceCodeModule src = createSourceCode(nodesToCompile, operationParam);
-            
+
             OpenL openl = context.getOpenL();
-            
+
             AlgorithmTreeNode executionNode = getNodeWithResult(nodesToCompile, extractOperationName(operationParam));
             String methodName = operationParam.replace('.', '_') + executionNode.getAlgorithmRow().getRowNumber();
-            
+
             IMethodSignature signature = header.getSignature();
-            
+
             IBindingContext cxt = createBindingContext();
-            
+
             return OpenlTool.makeMethodWithUnknownType(src, openl, methodName, signature, thisTargetClass, cxt);
         } else {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
-            throw new BoundError(String.format("Compilation failure. Can't convert parameter %s to type %s", operationParam, clazz.toString()), errorSource);
+            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
+                    .asSourceCodeModule();
+            throw new BoundError(String.format("Compilation failure. Can't convert parameter %s to type %s",
+                    operationParam, clazz.toString()), errorSource);
         }
     }
-    
+
     /**
      * @param nodesToCompile
      * @return
-     * @throws BoundError 
+     * @throws BoundError
      */
     private List<AlgorithmTreeNode> getNestedInstructionsBlock(List<AlgorithmTreeNode> candidateNodes,
             ConversionRuleStep conversionStep) throws BoundError {
@@ -331,31 +447,32 @@ public class AlgorithmCompiler {
 
         return executionNode.getChildren();
     }
-    
-    private void declareVariable(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep) throws BoundError {
+
+    private void declareVariable(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
+            throws BoundError {
         String variableNameParameter = conversionStep.getOperationParam1();
         String variableAssignmentParameter = conversionStep.getOperationParam2();
-        
+
         StringValue variableName = getCellContent(nodesToCompile, variableNameParameter);
-        
+
         // TODO null values check
-        IMethodCaller assignmentStatement = (IMethodCaller) convertParam(nodesToCompile, IMethodCaller.class, variableAssignmentParameter);
+        IMethodCaller assignmentStatement = (IMethodCaller) convertParam(nodesToCompile, IMethodCaller.class,
+                variableAssignmentParameter);
         IOpenClass variableType = assignmentStatement.getMethod().getType();
-        
+
         IOpenField field = new DynamicObjectField(thisTargetClass, variableName.getValue(), variableType);
-        
+
         thisTargetClass.addField(field);
     }
-    
-    
+
     /********************************
      * Helper methods For main logic
      ********************************/
-    
+
     private String generateOpenClassName() {
         return header.getName();
     }
-    
+
     /**
      * @param nodesToProcess
      * @param firstNodeIndex
@@ -363,13 +480,13 @@ public class AlgorithmCompiler {
      */
     private int getLinkedNodesGroupSize(List<AlgorithmTreeNode> nodesToProcess, int firstNodeIndex) {
         int linkedNodesGroupSize = 1; // just one operation by default
-        
+
         AlgorithmTreeNode currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
         String currentNodeKeyword = currentNodeToProcess.getSpecification().getKeyword();
 
         String[] operationNamesToGroup = TableParserManager.instance().whatOperationsToGroup(currentNodeKeyword);
-        
-        if (operationNamesToGroup != null){
+
+        if (operationNamesToGroup != null) {
             List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
 
             for (; linkedNodesGroupSize < nodesToProcess.size() - firstNodeIndex; linkedNodesGroupSize++) {
@@ -379,24 +496,24 @@ public class AlgorithmCompiler {
                 }
             }
         }
-        
+
         return linkedNodesGroupSize;
     }
-    
+
     /**
      * @throws BoundError
      */
     private ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
         assert nodesToCompile.size() > 0;
-        
-        String[] groupedOperationNames = new String[nodesToCompile.size()];
 
-        for (int i = 0; i < nodesToCompile.size(); i++){
-            groupedOperationNames[i] = nodesToCompile.get(i).getSpecification().getKeyword();
+        List<String> groupedOperationNames = new ArrayList<String>(nodesToCompile.size());
+
+        for (AlgorithmTreeNode node : nodesToCompile) {
+            groupedOperationNames.add(node.getSpecification().getKeyword());
         }
         
         String operationGroupName = TableParserManager.instance().whatIsOperationsGroupName(groupedOperationNames);
-        
+
         boolean isMultilineOperation;
         // we assume that all the operations are either all multiline or not
         isMultilineOperation = nodesToCompile.get(0).getSpecification().isMultiLine();
@@ -409,15 +526,19 @@ public class AlgorithmCompiler {
         }
 
         // No conversion rule found.
-        String errorMessage = String.format("The operations sequence is wrong: %2$s (all of them are %3$s). Can't find convertion rule for group: %1$s", operationGroupName, groupedOperationNames, isMultilineOperation ? "multiline" : "not multiline");
+        String errorMessage = String
+                .format(
+                        "The operations sequence is wrong: %2$s (all of them are %3$s). Can't find convertion rule for group: %1$s",
+                        operationGroupName, groupedOperationNames, isMultilineOperation ? "multiline" : "not multiline");
         IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
         throw new BoundError(errorMessage, errorSource);
     }
-    
+
     /****************************************************
      * Helper methods for step processing logic
      ***************************************************/
-    private final String FIELD_SEPARATOR = "."; 
+    private final String FIELD_SEPARATOR = ".";
+
     /**
      * @param operationToGetFrom
      */
@@ -438,9 +559,10 @@ public class AlgorithmCompiler {
      * @param candidateNodes
      * @param operationToGetFrom
      * @return
-     * @throws BoundError 
+     * @throws BoundError
      */
-    private AlgorithmTreeNode getNodeWithResult(List<AlgorithmTreeNode> candidateNodes, String operationName) throws BoundError {
+    private AlgorithmTreeNode getNodeWithResult(List<AlgorithmTreeNode> candidateNodes, String operationName)
+            throws BoundError {
         AlgorithmTreeNode executionNode = null;
 
         for (AlgorithmTreeNode node : candidateNodes) {
@@ -450,13 +572,16 @@ public class AlgorithmCompiler {
         }
 
         if (executionNode == null) {
-            IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
-            throw new BoundError(String.format("Compilation failure. Can't find %s in operations sequence %s", operationName, candidateNodes), errorSource);
+            IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation()
+                    .asSourceCodeModule();
+            throw new BoundError(String.format("Compilation failure. Can't find %s in operations sequence %s",
+                    operationName, candidateNodes), errorSource);
         }
         return executionNode;
     }
-    
-    private IOpenSourceCodeModule createSourceCode(List<AlgorithmTreeNode> nodesToCompile, String operationParam) throws BoundError {
+
+    private IOpenSourceCodeModule createSourceCode(List<AlgorithmTreeNode> nodesToCompile, String operationParam)
+            throws BoundError {
         StringValue openLCodeValue = getCellContent(nodesToCompile, operationParam);
 
         return openLCodeValue.asSourceCodeModule();
@@ -471,7 +596,8 @@ public class AlgorithmCompiler {
         IOpenField codeField = JavaOpenClass.getOpenClass(AlgorithmRow.class).getField(fieldName);
 
         if (codeField == null) {
-            IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
+            IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation()
+                    .asSourceCodeModule();
             throw new BoundError(String.format("Compilation failure. Can't find %s field", fieldName), errorSource);
         }
 
@@ -481,11 +607,12 @@ public class AlgorithmCompiler {
     }
 
     private IBindingContext thisContext;
+
     private IBindingContext createBindingContext() {
-        if (thisContext == null){
+        if (thisContext == null) {
             thisContext = new ModuleBindingContext(context, thisTargetClass);
         }
         return thisContext;
     }
-    
+
 }
