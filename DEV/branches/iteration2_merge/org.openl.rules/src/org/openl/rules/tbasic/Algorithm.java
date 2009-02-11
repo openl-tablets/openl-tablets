@@ -1,16 +1,20 @@
 package org.openl.rules.tbasic;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
+import org.openl.rules.tbasic.runtime.TBasicContext;
+import org.openl.rules.tbasic.runtime.TBasicEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.DelegatedDynamicObject;
@@ -41,7 +45,11 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
         DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(thisClass, (IDynamicObject) target);
 
         TBasicVM algorithmVM = new TBasicVM(algorithmSteps, labels);
-        return algorithmVM.run(thisInstance, target, params, env);
+        
+        TBasicEnv runtimeEnvironment = new TBasicEnv(env, algorithmVM, thisInstance);
+        TBasicContext context = new TBasicContext(thisInstance, params, runtimeEnvironment);
+       
+        return algorithmVM.run(context);
     }
 
     public BindingDependencies getDependencies() {
@@ -61,7 +69,7 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
     public IMemberMetaInfo getInfo() {
         return this;
     }
-
+    
     public void setThisClass(IOpenClass thisClass) {
         this.thisClass = thisClass;
     }

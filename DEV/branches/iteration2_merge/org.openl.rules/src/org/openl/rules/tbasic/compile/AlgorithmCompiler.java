@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -23,6 +24,7 @@ import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.rules.tbasic.NoParamMethodField;
 import org.openl.rules.tbasic.TableParserManager;
 import org.openl.rules.tbasic.runtime.ReturnOperation;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
@@ -100,6 +102,21 @@ public class AlgorithmCompiler {
         algorithm.setThisClass(getThisTargetClass());
         algorithm.setAlgorithmSteps(getMainCompileContext().getOperations());
         algorithm.setLabels(getMainCompileContext().getLocalLabelsRegister());
+        processMethodsAfterCompile(algorithm);
+    }
+    
+    private void processMethodsAfterCompile(Algorithm algorithm){
+        Iterator<IOpenMethod> openMethods = thisTargetClass.methods();
+        for (; openMethods.hasNext();){
+            IOpenMethod method = openMethods.next();
+            if (method instanceof AlgorithmSubroutineMethod){
+                AlgorithmSubroutineMethod algorithmSubroutineMethod = (AlgorithmSubroutineMethod) method;
+                CompileContext methodContext = getInternalMethodsContexts().get(algorithmSubroutineMethod.getName());
+                
+                algorithmSubroutineMethod.setAlgorithmSteps(methodContext.getOperations());
+                algorithmSubroutineMethod.setLabels(methodContext.getLocalLabelsRegister());
+            }
+        }
     }
 
     /**********************************************
@@ -172,11 +189,15 @@ public class AlgorithmCompiler {
         // method name will be at least as the first label
         String methodName = nodesToCompile.get(0).getLabels()[0].getValue();
         
-        IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName, JavaOpenClass.VOID, header.getSignature(), thisTargetClass);
+        IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName, JavaOpenClass.VOID, IMethodSignature.VOID, thisTargetClass);
         
-        IOpenMethod method = new AlgorithmSubroutineMethod(methodHeader);
+        AlgorithmSubroutineMethod method = new AlgorithmSubroutineMethod(methodHeader);
         
         thisTargetClass.addMethod(method);
+        
+        // to support parameters free call
+        NoParamMethodField methodAlternative = new NoParamMethodField(methodName, method);
+        thisTargetClass.addField(methodAlternative);
         
         internalMethodsContexts.put(methodName, new CompileContext());
 

@@ -1,25 +1,20 @@
 package org.openl.rules.tbasic.runtime;
 
-import org.openl.types.impl.DelegatedDynamicObject;
-import org.openl.vm.IRuntimeEnv;
 
 public class TBasicContext {
-    private DelegatedDynamicObject thisTarget;
     private Object openLTarget;
     private Object[] openLParams;
-    private IRuntimeEnv openLEnvironment;
+    private TBasicEnv tbasicEnvironment;
     
     /**
      * @param openLTarget
      * @param openLParams
      * @param openLEnvironment
      */
-    public TBasicContext(DelegatedDynamicObject thisTarget, Object openLTarget, Object[] openLParams, IRuntimeEnv openLEnvironment) {
-        super();
-        this.setThisTarget(thisTarget);
+    public TBasicContext(Object openLTarget, Object[] openLParams, TBasicEnv environment) {
         this.openLTarget = openLTarget;
         this.openLParams = openLParams;
-        this.openLEnvironment = openLEnvironment;
+        this.tbasicEnvironment = environment;
     }
 
     
@@ -55,35 +50,21 @@ public class TBasicContext {
     /**
      * @return the openLEnvironment
      */
-    public IRuntimeEnv getOpenLEnvironment() {
-        return openLEnvironment;
+    public TBasicEnv getOpenLEnvironment() {
+        return tbasicEnvironment;
     }
 
     /**
      * @param openLEnvironment the openLEnvironment to set
      */
-    public void setOpenLEnvironment(IRuntimeEnv openLEnvironment) {
-        this.openLEnvironment = openLEnvironment;
-    }
-
-    /**
-     * @param thisTarget the thisTarget to set
-     */
-    public void setThisTarget(DelegatedDynamicObject thisTarget) {
-        this.thisTarget = thisTarget;
-    }
-
-    /**
-     * @return the thisTarget
-     */
-    public DelegatedDynamicObject getThisTarget() {
-        return thisTarget;
+    public void setOpenLEnvironment(TBasicEnv openLEnvironment) {
+        this.tbasicEnvironment = openLEnvironment;
     }
 
 
 
     public void assignValueToVariable(String variableName, Object value) {
-        thisTarget.setFieldValue(variableName, value);
+        tbasicEnvironment.getTbasicTarget().setFieldValue(variableName, value);
     }
     
 
