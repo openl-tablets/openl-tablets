@@ -10,13 +10,13 @@ package org.openl.rules.tbasic;
 public class TableParserSpecificationBean {
     private String keyword;
     private String description;
-    private boolean multiLine;
-    private boolean canHaveIdents;
-    private boolean mustHaveCondition;
-    private boolean mustHaveAction;
-    private boolean obligatoryLabel;
-    private boolean canHaveBeforeAndAfter;
-    private boolean canBeOnlyTopLevel;
+    private boolean multiline;
+    private String idents;
+    private String condition;
+    private String action;
+    private String label;
+    private String beforeAndAfter;
+    private String topLevel;
     private boolean loopOperation;
     private String[] predecessorOperations;
 
@@ -51,106 +51,104 @@ public class TableParserSpecificationBean {
     }
 
     /**
-     * @return the canHaveIdents
+     * @return the isMultiline
      */
-    public boolean isCanHaveIdents() {
-        return canHaveIdents;
+    public boolean isMultiline() {
+        return multiline;
     }
 
     /**
-     * @param canHaveIdents
-     *            the canHaveIdents to set
+     * @param isMultiline
+     *            the isMultiline to set
      */
-    public void setCanHaveIdents(boolean canHaveIdents) {
-        this.canHaveIdents = canHaveIdents;
+    public void setMultiline(boolean isMultiline) {
+        this.multiline = isMultiline;
     }
 
     /**
-     * @return the isMultiLine
+     * @return the idents
      */
-    public boolean isMultiLine() {
-        return multiLine;
+    public String getIdents() {
+        return idents;
     }
 
     /**
-     * @param isMultiLine
-     *            the isMultiLine to set
+     * @param idents the idents to set
      */
-    public void setMultiLine(boolean isMultiLine) {
-        this.multiLine = isMultiLine;
+    public void setIdents(String idents) {
+        this.idents = idents;
     }
 
     /**
-     * @return the mustHaveCondition
+     * @return the condition
      */
-    public boolean isMustHaveCondition() {
-        return mustHaveCondition;
+    public String getCondition() {
+        return condition;
     }
 
     /**
-     * @param mustHaveCondition the mustHaveCondition to set
+     * @param condition the condition to set
      */
-    public void setMustHaveCondition(boolean mustHaveCondition) {
-        this.mustHaveCondition = mustHaveCondition;
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 
     /**
-     * @return the mustHaveAction
+     * @return the action
      */
-    public boolean isMustHaveAction() {
-        return mustHaveAction;
+    public String getAction() {
+        return action;
     }
 
     /**
-     * @param mustHaveAction the mustHaveAction to set
+     * @param action the action to set
      */
-    public void setMustHaveAction(boolean mustHaveAction) {
-        this.mustHaveAction = mustHaveAction;
+    public void setAction(String action) {
+        this.action = action;
     }
 
     /**
-     * @return the obligatoryLabel
+     * @return the label
      */
-    public boolean isObligatoryLabel() {
-        return obligatoryLabel;
+    public String getLabel() {
+        return label;
     }
 
     /**
-     * @param obligatoryLabel the obligatoryLabel to set
+     * @param label the label to set
      */
-    public void setObligatoryLabel(boolean obligatoryLabel) {
-        this.obligatoryLabel = obligatoryLabel;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     /**
-     * @return the canHaveBeforeAndAfter
+     * @return the beforeAndAfter
      */
-    public boolean isCanHaveBeforeAndAfter() {
-        return canHaveBeforeAndAfter;
+    public String getBeforeAndAfter() {
+        return beforeAndAfter;
     }
 
     /**
-     * @param canHaveBeforeAndAfter the canHaveBeforeAndAfter to set
+     * @param beforeAndAfter the beforeAndAfter to set
      */
-    public void setCanHaveBeforeAndAfter(boolean canHaveBeforeAndAfter) {
-        this.canHaveBeforeAndAfter = canHaveBeforeAndAfter;
+    public void setBeforeAndAfter(String beforeAndAfter) {
+        this.beforeAndAfter = beforeAndAfter;
     }
 
     /**
-     * @return the canBeOnlyTopLevel
+     * @return the topLevel
      */
-    public boolean isCanBeOnlyTopLevel() {
-        return canBeOnlyTopLevel;
+    public String getTopLevel() {
+        return topLevel;
     }
 
     /**
-     * @param canBeOnlyTopLevel
-     *            the canBeOnlyTopLevel to set
+     * @param topLevel the topLevel to set
      */
-    public void setCanBeOnlyTopLevel(boolean canBeOnlyTopLevel) {
-        this.canBeOnlyTopLevel = canBeOnlyTopLevel;
+    public void setTopLevel(String topLevel) {
+        this.topLevel = topLevel;
     }
-    
+
     /**
      * @return the loopOperation
      */
@@ -177,6 +175,24 @@ public class TableParserSpecificationBean {
      */
     public void setPredecessorOperations(String[] predecessorOperations) {
         this.predecessorOperations = predecessorOperations;
+    }
+
+    private enum ValueNecessity {
+        REQUIRED,
+        OPTIONAL,
+        PROHIBITED;
+    }
+
+    public boolean isRequired(String value) {
+        return value != null && value.equalsIgnoreCase(ValueNecessity.REQUIRED.name());
+    }
+
+    public boolean isOptional(String value) {
+        return value != null && value.equalsIgnoreCase(ValueNecessity.OPTIONAL.name());
+    }
+
+    public boolean isProhibited(String value) {
+        return value != null && value.equalsIgnoreCase(ValueNecessity.PROHIBITED.name());
     }
 
 }

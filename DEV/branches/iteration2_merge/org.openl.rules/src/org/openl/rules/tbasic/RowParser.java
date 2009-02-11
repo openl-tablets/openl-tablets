@@ -104,19 +104,45 @@ public class RowParser implements IRowParser {
         return parent;
     }
 
-    private boolean validateRow(AlgorithmRow row,
-            boolean multiline, TableParserSpecificationBean specification) throws BoundError {
-        checkError(specification.isObligatoryLabel() && row.getLabel().isEmpty(), row.getLabel(),
+    private boolean validateRow(AlgorithmRow row, boolean multiline,
+            TableParserSpecificationBean spec) throws BoundError {
+        // check Label
+        checkError(spec.isRequired(spec.getLabel()) && row.getLabel().isEmpty(), row.getLabel(),
                 "Label is empty. Label is obligatory for this operation");
-        checkError(specification.isMustHaveCondition() == row.getCondition().isEmpty(), row.getCondition(),
-                "Operation must " + (specification.isMustHaveCondition() ? "" : "not ") + "have Condition value");
-        checkError(specification.isMustHaveAction() == row.getAction().isEmpty(), row.getAction(),
-                "Operation must " + (specification.isMustHaveAction() ? "" : "not ") + "have Action value");
-        checkError(!specification.isCanHaveBeforeAndAfter() && !row.getBefore().isEmpty(), row.getBefore(),
-                "Operation can not have Before value");
-        checkError(!specification.isCanHaveBeforeAndAfter() && !row.getAfter().isEmpty(), row.getAfter(),
-                "Operation can not have After value");
-        checkError(specification.isCanBeOnlyTopLevel() && row.getOperationLevel() > 0, row.getOperation(),
+        // check Condition
+        StringValue condition = row.getCondition();
+        String specCondition = spec.getCondition();
+        checkError(spec.isRequired(specCondition) && condition.isEmpty(), condition,
+                "Operation must have Condition value");
+        checkError(spec.isProhibited(specCondition) && !condition.isEmpty(), condition,
+                "Operation must not have Condition value");
+        // check Action
+        StringValue action = row.getAction();
+        String specAction = spec.getAction();
+        checkError(spec.isRequired(specAction) && action.isEmpty(), action,
+                "Operation must have Action value");
+        checkError(spec.isProhibited(specAction) && !action.isEmpty(), action,
+                "Operation must not have Action value");
+        // check Before
+        StringValue before = row.getBefore();
+        String specBeforeAfter = spec.getBeforeAndAfter();
+        checkError(spec.isRequired(specBeforeAfter) && before.isEmpty(), before,
+                "Operation must have Before value");
+        checkError(spec.isProhibited(specBeforeAfter) && !before.isEmpty(), before,
+                "Operation must not have Before value");
+        // check After
+        StringValue after = row.getBefore();
+        checkError(spec.isRequired(specBeforeAfter) && after.isEmpty(), after,
+                "Operation must have After value");
+        checkError(spec.isProhibited(specBeforeAfter) && !after.isEmpty(), after,
+                "Operation must not have After value");
+        // check Top Level
+        StringValue operation = row.getOperation();
+        int indent = row.getOperationLevel();
+        String specTopLevel = spec.getTopLevel();
+        checkError(spec.isProhibited(specTopLevel) && indent > 0, operation,
+                "Operation can not be a top level, i.e. must be nested");
+        checkError(spec.isRequired(specTopLevel) && indent > 0, operation,
                 "Operation can be only a top level, i.e. can not be nested");
         return true;
     }
@@ -137,7 +163,7 @@ public class RowParser implements IRowParser {
         for (TableParserSpecificationBean specification : specifications) {
             String specKeyword = specification.getKeyword();
             if (operation.getValue().equalsIgnoreCase(specKeyword)) {
-                boolean specMultiline = specification.isMultiLine();
+                boolean specMultiline = specification.isMultiline();
                 if (specMultiline == multiline) {
                     return specification;
                 }

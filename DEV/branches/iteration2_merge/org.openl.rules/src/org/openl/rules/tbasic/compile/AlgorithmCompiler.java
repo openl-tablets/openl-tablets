@@ -520,7 +520,7 @@ public class AlgorithmCompiler {
 
         boolean isMultilineOperation;
         // we assume that all the operations are either all multiline or not
-        isMultilineOperation = nodesToCompile.get(0).getSpecification().isMultiLine();
+        isMultilineOperation = nodesToCompile.get(0).getSpecification().isMultiline();
 
         for (ConversionRuleBean conversionRule : conversionRules) {
             if (conversionRule.getOperation().equals(operationGroupName)
