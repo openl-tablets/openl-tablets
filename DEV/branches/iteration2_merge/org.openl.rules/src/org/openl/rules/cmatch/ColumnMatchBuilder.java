@@ -39,7 +39,8 @@ public class ColumnMatchBuilder {
         columnMatch.setColumns(columns);
         columnMatch.setRows(rows);
 
-        ModuleOpenClass thisTargetClass = new ModuleOpenClass(null, columnMatch.getHeader().getName(), bindingContext.getOpenL());
+        ModuleOpenClass thisTargetClass = new ModuleOpenClass(null, columnMatch.getHeader().getName(), bindingContext
+                .getOpenL());
         columnMatch.setThisClass(thisTargetClass);
 
         // TODO compile
@@ -101,39 +102,13 @@ public class ColumnMatchBuilder {
             IGridTable grid = data.getGridTable();
 
             for (int r = 0; r < data.getLogicalHeight(); r++) {
-                SubValue[] values = new SubValue[subColumns];
-
-                for (int c = 0; c < subColumns; c++) {
-                    String value = grid.getStringValue(c, r);
-                    String uri = grid.getUri(c, r);
-
-                    if (value == null) {
-                        value = "";
-                    }
-
-                    StringValue sv = new StringValue(value, "cell" + r + "_" + column.getColumnIndex() + "_" + c, null,
-                            uri);
-                    values[c] = new SubValue(sv, grid.getCellStyle(c, r).getIdent());
-                }
-
+                SubValue[] values = createSV(column, grid, r, subColumns);
                 rows.get(r + 1).add(column.getId(), values);
             }
 
             // 0-th row
             grid = colTable.getGridTable();
-            SubValue[] values = new SubValue[subColumns];
-            for (int c = 0; c < subColumns; c++) {
-                String value = grid.getStringValue(c, 0);
-                String uri = grid.getUri(c, 0);
-
-                if (value == null) {
-                    value = "";
-                }
-
-                StringValue sv = new StringValue(value, null, null, uri);
-                values[c] = new SubValue(sv, grid.getCellStyle(c, 0).getIdent());
-            }
-
+            SubValue[] values = createSV(column, grid, 0, subColumns);
             rows.get(0).add(column.getId(), values);
         }
 
@@ -144,5 +119,23 @@ public class ColumnMatchBuilder {
         if (s == null)
             return "";
         return (s.trim().toLowerCase());
+    }
+
+    private SubValue[] createSV(TableColumn column, IGridTable grid, int r, int subColumns) {
+        SubValue[] values = new SubValue[subColumns];
+
+        for (int c = 0; c < subColumns; c++) {
+            String value = grid.getStringValue(c, r);
+            String uri = grid.getUri(c, r);
+
+            if (value == null) {
+                value = "";
+            }
+
+            StringValue sv = new StringValue(value, "cell" + r + "_" + column.getColumnIndex() + "_" + c, null, uri);
+            values[c] = new SubValue(sv, grid.getCellStyle(c, r).getIdent());
+        }
+
+        return values;
     }
 }
