@@ -107,6 +107,7 @@ public class ParserTest extends TestCase
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public void _testModule(String src, final String type) throws OpenConfigurationException
 	{
   	
@@ -138,6 +139,7 @@ public class ParserTest extends TestCase
 
 	
 
+	@SuppressWarnings("unchecked")
 	public void _testType(String src, final String type) throws OpenConfigurationException
 	{
   	
@@ -171,7 +173,8 @@ public class ParserTest extends TestCase
 
 
   
-  public void _testOperator(String src, String type) throws OpenConfigurationException
+@SuppressWarnings("unchecked")
+public void _testOperator(String src, String type) throws OpenConfigurationException
   {
   	
 		OpenL op = OpenL.getInstance("org.openl.j");
@@ -186,7 +189,8 @@ public class ParserTest extends TestCase
 		Assert.assertEquals(type, bn.getType());
   }
   
-  public void _testLiteral(String src, String res, String type)
+  @SuppressWarnings("unchecked")
+public void _testLiteral(String src, String res, String type)
     throws OpenConfigurationException
   {
   	

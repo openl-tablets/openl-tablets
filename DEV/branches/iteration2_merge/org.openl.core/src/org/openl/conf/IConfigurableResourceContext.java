@@ -17,7 +17,7 @@ public interface IConfigurableResourceContext
 {
 	public String findProperty(String propertyName);
 	public URL findClassPathResource(String url);
-	public Class findClass(String className);
+	public Class<?> findClass(String className);
 	public File findFileSystemResource(String url);
 	
 	public ClassLoader getClassLoader();

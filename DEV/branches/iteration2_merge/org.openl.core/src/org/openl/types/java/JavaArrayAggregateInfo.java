@@ -35,7 +35,7 @@ public class JavaArrayAggregateInfo extends AAggregateInfo
 
   public Iterator<Object> getIterator(Object aggregate)
   {
-    return OpenIterator.fromArray(aggregate);
+    return OpenIterator.fromArrayObj(aggregate);
   }
 
   public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType)

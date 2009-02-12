@@ -9,11 +9,12 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
 
 import org.openl.util.FileTool;
 import org.openl.util.Log;
@@ -108,7 +109,7 @@ public class OpenLProjectPropertiesLoader
 	public static String[] makeClasspath(String phome, String longPath,
 			String excludeFilter) throws IOException
 	{
-		Vector v = new Vector();
+		List<String> v = new ArrayList<String>();
 		String[] ecps = StringTool.tokenize(longPath, File.pathSeparator);
 		for (int i = 0; i < ecps.length; i++)
 		{
@@ -178,9 +179,9 @@ public class OpenLProjectPropertiesLoader
 		if (old == null)
 			return p;
 		boolean newProps = false;
-		for (Iterator iter = old.entrySet().iterator(); iter.hasNext();)
+		for (Iterator<Map.Entry<Object, Object>> iter = old.entrySet().iterator(); iter.hasNext();)
 		{
-			Map.Entry element = (Map.Entry) iter.next();
+			Map.Entry<Object, Object> element =  iter.next();
 			
 			Object x = p.get(element.getKey());
 			if (x == null)
@@ -211,9 +212,9 @@ public class OpenLProjectPropertiesLoader
 		{
 			fw = new FileWriter(new File(folder, OPENL_PROPERTIES_FNAME));
 
-			for (Iterator iter = p.entrySet().iterator(); iter.hasNext();)
+			for (Iterator<Map.Entry<Object, Object>> iter = p.entrySet().iterator(); iter.hasNext();)
 			{
-				Map.Entry element = (Map.Entry) iter.next();
+				Map.Entry<Object, Object> element =  iter.next();
 				writeSingleProperty(element, fw);
 
 			}
@@ -240,7 +241,7 @@ public class OpenLProjectPropertiesLoader
 	 * @param fw
 	 * @throws IOException
 	 */
-	public void writeSingleProperty(Map.Entry element, Writer w)
+	public void writeSingleProperty(Map.Entry<Object, Object> element, Writer w)
 			throws IOException
 	{
 		w.write("" + element.getKey() + "=");

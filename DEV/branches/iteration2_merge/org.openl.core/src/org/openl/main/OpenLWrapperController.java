@@ -3,7 +3,8 @@
  */
 package org.openl.main;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -92,13 +93,13 @@ public abstract class OpenLWrapperController
 
 
 
-	Vector versions = new Vector();
+	List<CompiledOpenClass[]> versions = new ArrayList<CompiledOpenClass[]>();
 	
 	private synchronized CompiledOpenClass[] getVersion(int version)
 	{
 		if (version < 0)
 		{
-			return (CompiledOpenClass[])versions.get(versions.size()-1+version);
+			return versions.get(versions.size()-1+version);
 		}	
 		//version == 0 - latest
 		

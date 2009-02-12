@@ -19,7 +19,6 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.data.String2DataConvertorFactory;
 import org.openl.rules.data.impl.OpenlBasedColumnDescriptor;
 import org.openl.rules.data.impl.OpenlBasedDataTableModel;
-import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;

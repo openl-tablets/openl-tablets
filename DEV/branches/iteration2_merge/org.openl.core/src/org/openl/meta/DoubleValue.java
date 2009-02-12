@@ -403,9 +403,9 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 		}
 
 
-		public Iterator getChildren()
+		public Iterator<DoubleValue> getChildren()
 		{
-			return AOpenIterator.EMPTY;
+			return AOpenIterator.empty();
 		}
 
 

@@ -21,8 +21,9 @@ public class UnaryNode extends ASyntaxNode
 	
 	public UnaryNode(String type, TextInterval pos, ISyntaxNode left, IOpenSourceCodeModule module)
 	{
-		super(type, pos, null, module);
+		super(type, pos, module);
 		this.left = left;
+		left.setParent(this);
 	}			
 	
 	public ISyntaxNode getChild(int i)

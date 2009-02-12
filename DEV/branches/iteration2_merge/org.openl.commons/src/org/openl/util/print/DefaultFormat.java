@@ -171,7 +171,7 @@ public StringBuffer formatIterator(Iterator it, int mode, StringBuffer buf, int 
 	{
 		int maxLen = maxCollectionLength(mode);
 		
-		return formatIterator(OpenIterator.fromArray(obj), mode, buf, maxLen, Array.getLength(obj), "[]");
+		return formatIterator(OpenIterator.fromArrayObj(obj), mode, buf, maxLen, Array.getLength(obj), "[]");
 	}
 
 }

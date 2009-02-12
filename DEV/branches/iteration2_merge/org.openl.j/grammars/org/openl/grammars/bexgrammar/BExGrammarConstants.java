@@ -119,9 +119,10 @@ public interface BExGrammarConstants {
   int IDENTIFIER = 118;
   int LETTER = 119;
   int DIGIT = 120;
-  int SINGLE_LINE_COMMENT = 123;
-  int FORMAL_COMMENT = 124;
-  int MULTI_LINE_COMMENT = 125;
+  int LABEL = 121;
+  int SINGLE_LINE_COMMENT = 124;
+  int FORMAL_COMMENT = 125;
+  int MULTI_LINE_COMMENT = 126;
 
   int DEFAULT = 0;
   int IN_FORMAL_COMMENT = 1;
@@ -249,12 +250,13 @@ public interface BExGrammarConstants {
     "<IDENTIFIER>",
     "<LETTER>",
     "<DIGIT>",
-    "<token of kind 121>",
+    "<LABEL>",
+    "<token of kind 122>",
     "\"/*\"",
     "<SINGLE_LINE_COMMENT>",
     "\"*/\"",
     "\"*/\"",
-    "<token of kind 126>",
+    "<token of kind 127>",
     "\"equals to\"",
     "\"is same as\"",
     "\"does not equal to\"",

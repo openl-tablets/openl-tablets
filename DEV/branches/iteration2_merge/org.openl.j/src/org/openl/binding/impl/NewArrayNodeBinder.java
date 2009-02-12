@@ -8,7 +8,6 @@ package org.openl.binding.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;

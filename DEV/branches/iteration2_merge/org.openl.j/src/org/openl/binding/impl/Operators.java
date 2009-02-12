@@ -125,6 +125,11 @@ public class Operators
 		return new Long(l);
 	}
 	
+	static public Long autocast(long l, double d)
+	{
+		return l;
+	}
+	
 	static public long autocast(Long L, long l)
 	{
 		return L.longValue();
@@ -508,22 +513,22 @@ public class Operators
 		return !x;
 	}
 	
-	static public boolean lt(Comparable c1, Comparable c2)
+	static public <T> boolean lt(Comparable<T> c1, T c2)
 	{
 		return c1.compareTo(c2) < 0;
 	}
 
-	static public boolean le(Comparable c1, Comparable c2)
+	static public <T> boolean le(Comparable<T> c1, T c2)
 	{
 		return c1.compareTo(c2) <= 0;
 	}
 	
-	static public boolean gt(Comparable c1, Comparable c2)
+	static public <T> boolean gt(Comparable<T> c1, T c2)
 	{
 		return c1.compareTo(c2) > 0;
 	}
 
-	static public boolean ge(Comparable c1, Comparable c2)
+	static public <T extends Comparable<?>> boolean ge(Comparable<T> c1, T c2)
 	{
 		return c1.compareTo(c2) >= 0;
 	}

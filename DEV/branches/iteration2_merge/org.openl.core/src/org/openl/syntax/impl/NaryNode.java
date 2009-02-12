@@ -6,8 +6,6 @@
  
 package org.openl.syntax.impl;
 
-import java.util.Map;
-
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.text.TextInterval;
@@ -22,10 +20,14 @@ public class NaryNode extends ASyntaxNode
 
 	protected ISyntaxNode[] nodes;
 
-	public NaryNode(String type, TextInterval pos, ISyntaxNode[] nodes, Map properties, IOpenSourceCodeModule module)
+	public NaryNode(String type, TextInterval pos, ISyntaxNode[] nodes, IOpenSourceCodeModule module)
 	{
-		super(type, pos, properties, module);
+		super(type, pos, module);
 		this.nodes = nodes;
+		for (int i = 0; i < nodes.length; i++) {
+			if (nodes[i] != null)
+				nodes[i].setParent(this);
+		}
 		
 	}
 

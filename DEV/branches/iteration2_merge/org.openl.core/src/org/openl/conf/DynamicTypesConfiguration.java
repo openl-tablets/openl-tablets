@@ -7,8 +7,9 @@
 package org.openl.conf;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 import org.openl.OpenConfigurationException;
 import org.openl.types.IOpenClass;
@@ -27,7 +28,7 @@ public class DynamicTypesConfiguration extends AConfigurationElement implements 
 	DynamicTypeLibrary library = null;
 
 
-	Vector dynamicTypes = new Vector();
+	List<DynamicTypeConfiguration> dynamicTypes = new ArrayList<DynamicTypeConfiguration>();
 
 
   /* (non-Javadoc)
@@ -38,7 +39,7 @@ public class DynamicTypesConfiguration extends AConfigurationElement implements 
   	if (library == null)
   	{
   		library = new DynamicTypeLibrary();
-			for (Iterator iter = dynamicTypes.iterator(); iter.hasNext();)
+			for (Iterator<DynamicTypeConfiguration> iter = dynamicTypes.iterator(); iter.hasNext();)
 			{
 				DynamicTypeConfiguration dtc = (DynamicTypeConfiguration)iter.next();
 				
@@ -55,7 +56,7 @@ public class DynamicTypesConfiguration extends AConfigurationElement implements 
   public void validate(IConfigurableResourceContext cxt)
     throws OpenConfigurationException
   {
-  	for (Iterator iter = dynamicTypes.iterator(); iter.hasNext();)
+  	for (Iterator<DynamicTypeConfiguration> iter = dynamicTypes.iterator(); iter.hasNext();)
     {
       DynamicTypeConfiguration dtc = (DynamicTypeConfiguration)iter.next();
       
@@ -79,7 +80,7 @@ public class DynamicTypesConfiguration extends AConfigurationElement implements 
 	  /* (non-Javadoc)
      * @see org.openl.conf.AGenericConfiguration#getImplementingClass()
      */
-    public Class getImplementingClass()
+    public Class<?> getImplementingClass()
     {
       return IOpenClass.class;
     }
@@ -127,9 +128,9 @@ public class DynamicTypesConfiguration extends AConfigurationElement implements 
     	if (name == null)
     	  throw new OpenConfigurationException("Attribute name mudt not be empty", getUri(), null);
     	  
-			Class c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
+			Class<?> c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
 			
-			Class[] params = {IOpenSchema.class, String.class};
+			Class<?>[] params = {IOpenSchema.class, String.class};
 			ClassFactory.validateHasConstructor(c, params, getUri());
     }
     
@@ -137,10 +138,10 @@ public class DynamicTypesConfiguration extends AConfigurationElement implements 
     {
       try
       {
-        Class c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
+        Class<?> c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
         
-        Class[] paramTypes = {IOpenSchema.class, String.class};
-        Constructor cc = ClassFactory.validateHasConstructor(c, paramTypes, getUri());
+        Class<?>[] paramTypes = {IOpenSchema.class, String.class};
+        Constructor<?> cc = ClassFactory.validateHasConstructor(c, paramTypes, getUri());
         
         
         Object[] params = {null, name};

@@ -111,10 +111,10 @@ public class SkipListTest extends TestCase
 	
 	public void testPerformance()
 	{
-		Map m1 = new HashMap(10000);
-		Map m2 = new HashMap();
+		Map<Object, Object> m1 = new HashMap<Object, Object>(10000);
+		Map<Object, Object> m2 = new HashMap<Object, Object>();
 		
-		Map m3 = new SkipList();
+		Map<Object, Object> m3 = new SkipList();
 		Map m4 = new TreeMap();
 		
 		mapBenchmarkPut(m3);

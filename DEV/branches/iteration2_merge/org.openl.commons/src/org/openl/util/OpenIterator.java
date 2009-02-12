@@ -36,7 +36,7 @@ public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T>
 		return new AIndexedIterator.ArrayIterator<T>(ary);  
 	}
 	
-	public static IOpenIterator<Object> fromArray(Object ary)
+	public static IOpenIterator<Object> fromArrayObj(Object ary)
 	{
 		if (ary == null)
 			return empty();

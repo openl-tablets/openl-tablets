@@ -114,7 +114,7 @@ public class DoubleValueFunction extends DoubleValue
 		return result.printValue();
 	}
 	
-	public Iterator getChildren()
+	public Iterator<DoubleValue> getChildren()
 	{
 		return OpenIterator.fromArray(params);
 	}

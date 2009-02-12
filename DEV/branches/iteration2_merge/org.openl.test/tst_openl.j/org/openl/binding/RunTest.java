@@ -118,6 +118,20 @@ public class RunTest extends TestCase {
 				"org.openl.j", "range.literal");
 	}
 
+	public void testLong() {
+		_runNoError("long x = 4; x + 5.0", 9.0, "org.openl.j");
+		_runNoError("long x = 4; x - 5.0", -1.0, "org.openl.j");
+	}
+	
+	public void testComparable() {
+		_runNoError("String x = \"abc\";String y = \"abc\"; x < y", false, "org.openl.j");
+		_runNoError("String x = \"abc\";String y = \"abc\"; x <= y", true, "org.openl.j");
+		
+	//TODO fix String < Integer - must be compile time error	
+//		_runNoError("String x = \"abc\";Integer y = 10; x <= y", true, "org.openl.j");
+	}
+	
+	
 	public void testBig() {
 		_runNoError("Vector x = new Vector(); x.size()", 0, "org.openl.j");
 

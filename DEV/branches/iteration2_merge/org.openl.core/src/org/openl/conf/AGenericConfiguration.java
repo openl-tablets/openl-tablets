@@ -9,8 +9,9 @@ package org.openl.conf;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 import org.openl.OpenConfigurationException;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -30,7 +31,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement
 	String fileResource;
 	String urlResource;
 	
-	Vector properties;
+	List<StringProperty> properties;
 	
 	//TODO will do it later
 	String classPathResource; 	
@@ -47,13 +48,13 @@ public abstract class AGenericConfiguration extends AConfigurationElement
     {
       
       
-      Class implementingClass = ClassFactory.validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
+      Class<?> implementingClass = ClassFactory.validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
       
       Object res = ClassFactory.newInstance(implementingClass, getUri());
       
       if (classResourse != null)
       {
-      	Class resourceClass = ClassFactory.validateClassExistsAndPublic(classResourse, cxt.getClassLoader(), getUri());
+      	Class<?> resourceClass = ClassFactory.validateClassExistsAndPublic(classResourse, cxt.getClassLoader(), getUri());
       	Method m = ClassFactory.validateHasMethod(implementingClass, "setClassResource", new Class[]{Class.class}, getUri());
       	m.invoke(res, new Object[]{resourceClass});	
       }
@@ -77,9 +78,9 @@ public abstract class AGenericConfiguration extends AConfigurationElement
       if (properties != null)
       {
 				Method m = ClassFactory.validateHasMethod(implementingClass, "setProperty", new Class[]{String.class, String.class}, getUri());
-				for (Iterator iter = properties.iterator(); iter.hasNext();)
+				for (Iterator<StringProperty> iter = properties.iterator(); iter.hasNext();)
         {
-          StringProperty prop = (StringProperty)iter.next();
+          StringProperty prop = iter.next();
           m.invoke(res, new Object[]{prop.getName(), prop.getValue()});
         }	
       }
@@ -92,7 +93,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement
     }
   }
 
-	public abstract Class getImplementingClass();
+	public abstract Class<?> getImplementingClass();
 
   /* (non-Javadoc)
    * @see org.openl.conf.IConfigurationElement#validate(org.openl.conf.IConfigurableResourceContext)
@@ -100,7 +101,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement
   public void validate(IConfigurableResourceContext cxt)
     throws OpenConfigurationException
   {
-		Class implementingClass = ClassFactory.validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
+		Class<?> implementingClass = ClassFactory.validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
 		ClassFactory.validateSuper(implementingClass, getImplementingClass(), getUri());
 		ClassFactory.validateHaveNewInstance(implementingClass, getUri());
 		
@@ -145,7 +146,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement
   public void addProperty(StringProperty prop)
   {
   	if (properties == null)
-  	  properties = new Vector();
+  	  properties = new ArrayList<StringProperty>();
   	properties.add(prop);
   }
   

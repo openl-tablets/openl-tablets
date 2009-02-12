@@ -19,7 +19,7 @@ public abstract class TerminalNode extends ASyntaxNode
   
   public TerminalNode(String type, ILocation pos, IOpenSourceCodeModule module)
   {
-  	super(type, pos, null, module);
+  	super(type, pos, module);
   }
   
   /* (non-Javadoc)

@@ -54,9 +54,10 @@ public class TableSyntaxNode  extends ASyntaxNode implements IIndexElement
 	  XlsSheetSourceCodeModule module,
 	  IGridTable gridtable, HeaderSyntaxNode header)
 	{
-	  super(type, pos, null, module);
+	  super(type, pos, module);
 	  this.table = LogicalTable.logicalTable(gridtable);
 	  this.headerNode = header;
+	  header.setParent(this);
 	}
 
 

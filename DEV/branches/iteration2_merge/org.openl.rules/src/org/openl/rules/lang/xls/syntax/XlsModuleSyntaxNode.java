@@ -33,7 +33,7 @@ public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes
     IOpenSourceCodeModule module,
 	OpenlSyntaxNode openlNode, IdentifierNode vocabularyNode, String allImportString)
   {
-    super(XLS_MODULE, null, nodes, null, module);
+    super(XLS_MODULE, null, nodes,  module);
     
     this.openlNode = openlNode;
     this.vocabularyNode = vocabularyNode;

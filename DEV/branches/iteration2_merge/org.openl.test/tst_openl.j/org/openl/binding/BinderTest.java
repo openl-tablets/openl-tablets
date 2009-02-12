@@ -39,7 +39,7 @@ public class BinderTest extends TestCase
 
 	public void _testNoErrorModule(
 		String testCode,
-		Class targetClass,
+		Class<?> targetClass,
 		String parser)
 		throws OpenConfigurationException
 	{
@@ -79,7 +79,7 @@ public class BinderTest extends TestCase
 			bc.getTopNode().getType().getInstanceClass());
 	}
 
-	public void _testNoError(String testCode, Class targetClass, String parser)
+	public void _testNoError(String testCode, Class<?> targetClass, String parser)
 		throws OpenConfigurationException
 	{
 

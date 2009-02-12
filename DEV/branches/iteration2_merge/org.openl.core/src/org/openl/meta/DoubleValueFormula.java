@@ -106,7 +106,7 @@ public class DoubleValueFormula extends DoubleValue
 		this.operand = operand;
 	}
 
-	public Iterator getChildren()
+	public Iterator<DoubleValue> getChildren()
 	{
 		return OpenIterator.fromArray(new DoubleValue[]{dv1, dv2});
 	}

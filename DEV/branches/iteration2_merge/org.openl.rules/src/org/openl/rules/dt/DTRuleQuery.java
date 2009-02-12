@@ -22,11 +22,11 @@ public class DTRuleQuery
 	
 	static public DTRule[] select(IOpenClass ioc, IDTRuleSelector rsel, IDTSelector dtsel)
 	{
-		ArrayList list = new ArrayList(100);
+		ArrayList<DTRule> list = new ArrayList<DTRule>(100);
 		
-		for (Iterator iter = ioc.methods(); iter.hasNext();)
+		for (Iterator<IOpenMethod> iter = ioc.methods(); iter.hasNext();)
 		{
-			IOpenMethod m = (IOpenMethod) iter.next();
+			IOpenMethod m = iter.next();
 			
 			if (m instanceof DecisionTable)
 			{
@@ -99,7 +99,7 @@ public class DTRuleQuery
 		public DTParameterInfo[] selectParametrs(DecisionTable dt, String paramName)
 		{
 			
-			List list  = new ArrayList();
+			List<DTParameterInfo> list  = new ArrayList<DTParameterInfo>();
 			IDTCondition[] cc = dt.getConditionRows();
 			for (int i = 0; i < cc.length; i++)
 			{
@@ -113,7 +113,7 @@ public class DTRuleQuery
 			
 			//TODO actions
 			
-			return (DTParameterInfo[])list.toArray(new DTParameterInfo[0]);
+			return list.toArray(new DTParameterInfo[0]);
 		}
 		
 	}

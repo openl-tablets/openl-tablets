@@ -21,9 +21,6 @@ import org.openl.types.ITypeLibrary;
 public class JavaPrimitiveTypeLibrary implements ITypeLibrary
 {
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.ITypeLibrary#findType(java.lang.String)
-   */
   public IOpenClass getType(String typename) throws AmbiguousTypeException
   {
   	return  (IOpenClass)classMap.get(typename);
@@ -31,10 +28,10 @@ public class JavaPrimitiveTypeLibrary implements ITypeLibrary
   
  
   
-  static final Map classMap;  
+  static final Map<String, JavaOpenClass> classMap;  
   static 
   {
-  	classMap = new HashMap();
+  	classMap = new HashMap<String, JavaOpenClass>();
   	classMap.put("int", JavaOpenClass.INT);
 		classMap.put("long", JavaOpenClass.LONG);
 		classMap.put("char", JavaOpenClass.CHAR);
@@ -50,10 +47,7 @@ public class JavaPrimitiveTypeLibrary implements ITypeLibrary
   
   
 
-  /* (non-Javadoc)
-   * @see org.openl.binding.ITypeLibrary#types()
-   */
-  public Iterator typeNames()
+  public Iterator<String> typeNames()
   {
     return classMap.keySet().iterator();
   }

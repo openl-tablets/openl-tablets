@@ -6,7 +6,8 @@
 
 package org.openl.binding.impl;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -14,7 +15,6 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
 
 /**
@@ -32,7 +32,7 @@ public class LocalVarBinder extends ANodeBinder
 
 	IOpenClass varType = typeNode.getType();
 
-	Vector boundNodes = new Vector();
+	List<IBoundNode> boundNodes = new ArrayList<IBoundNode>();
 
 	for (int i = 1; i < node.getNumberOfChildren(); ++i)
 	{
@@ -66,7 +66,7 @@ public class LocalVarBinder extends ANodeBinder
 	    boolean implyExpressionType) throws Exception
     {
 	IBoundNode init = null;
-	IOpenCast cast = null;
+//	IOpenCast cast = null;
 
 	if (initializationNode != null)
 	{
