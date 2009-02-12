@@ -6,8 +6,6 @@
  
 package org.openl.syntax;
 
-import java.util.Map;
-
 import org.openl.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
@@ -28,7 +26,11 @@ public interface ISyntaxNode
 	
 	public ILocation getSourceLocation();
 	
-	public Map<String, String> getProperties();
+	
+	void setParent(ISyntaxNode node);
+	ISyntaxNode getParent();
+	
+//	public Map<String, String> getProperties();
 
 	/**
 	 * @param i

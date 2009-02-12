@@ -167,7 +167,7 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
             return SearchElement.class;
         }
 
-        public IExportSection[] getSubSections() {
+        public IExportSection<SearchElement>[] getSubSections() {
             return null;
         }
 

@@ -1259,6 +1259,13 @@ void OptionalSemiColon() :
   (<SEMICOLON> | <EOF>)
 }
 
+void SemiColon() :
+{}
+{
+  <SEMICOLON> 
+}
+
+
 void Statement() :
 {}
 {
@@ -1331,13 +1338,13 @@ void BlockStatement() :
 {}
 {
   LOOKAHEAD(Type() <IDENTIFIER> "=")
-  LocalVariableDeclaration() OptionalSemiColon()
+  LocalVariableDeclaration() SemiColon()
 |
   LOOKAHEAD(Type() <IDENTIFIER> ";")
-  LocalVariableDeclaration() OptionalSemiColon()
+  LocalVariableDeclaration() SemiColon()
 |
   LOOKAHEAD(Type() <IDENTIFIER> ",")
-  LocalVariableDeclaration() OptionalSemiColon()
+  LocalVariableDeclaration() SemiColon()
 |
   Statement()
 }
@@ -1578,10 +1585,10 @@ void FormalParameters() :
 
 void FormalParameter() :
 {
-	java.util.Map map = new java.util.HashMap();			
+//	java.util.Map map = new java.util.HashMap();			
 }
 {
-  [ "final" {map.put("final", "final");} ] 
+// [ "final" {map.put("final", "final");} ] 
        Type() VariableDeclaratorId() 
 //   [
 //    "in" {map.put("in", "in");} 
@@ -1592,7 +1599,7 @@ void FormalParameter() :
 //    ]
   
   {
-    stb.nop("parameter.declaration", null, 2, map);
+    stb.nop("parameter.declaration", null, 2);
   }
   
 }

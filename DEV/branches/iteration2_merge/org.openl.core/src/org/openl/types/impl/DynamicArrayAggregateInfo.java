@@ -34,7 +34,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo
 		return null;
 	}
 
-	public Iterator getIterator(Object aggregate)
+	public Iterator<Object> getIterator(Object aggregate)
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -109,7 +109,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo
 			super(componentClass.getSchema(), componentClass, new MyArrayLengthOpenField() );
 		}
 
-		public Iterator superClasses()
+		public Iterator<IOpenClass> superClasses()
 		{
 			return null;
 		}
@@ -137,7 +137,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo
 			return false;
 		}
 
-		public boolean isAssignableFrom(Class c)
+		public boolean isAssignableFrom(Class<?> c)
 		{
 			// TODO Auto-generated method stub
 			return false;

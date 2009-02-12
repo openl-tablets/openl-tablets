@@ -6,7 +6,6 @@
 
 package org.openl.types.java;
 
-import java.lang.reflect.TypeVariable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,16 +26,18 @@ public class JavaListAggregateInfo extends AAggregateInfo
 
     public IOpenClass getComponentType(IOpenClass aggregateType)
     {
-	Class<?> listClass = aggregateType.getInstanceClass();
+    	
+//TODO get component type info using Java reflection API?    	
+//	Class<?> listClass = aggregateType.getInstanceClass();
 
-	TypeVariable<?> t = listClass.getTypeParameters()[0];
+//	TypeVariable<?> t = listClass.getTypeParameters()[0];
 
 	return JavaOpenClass.OBJECT;
     }
 
     public Iterator<Object> getIterator(Object aggregate)
     {
-	return OpenIterator.fromArray(aggregate);
+	return OpenIterator.fromArrayObj(aggregate);
     }
 
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType)

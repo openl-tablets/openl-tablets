@@ -31,7 +31,7 @@ public class JavaLibraryConfiguration extends AConfigurationElement implements I
   	if (library == null)
   	{
   		library = new StaticClassLibrary();
-  		Class c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(),  getUri());  	
+  		Class<?> c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(),  getUri());  	
   		library.setOpenClass(JavaOpenClass.getOpenClass(c));
   	}
     return library;

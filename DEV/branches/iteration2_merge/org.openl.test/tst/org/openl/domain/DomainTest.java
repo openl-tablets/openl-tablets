@@ -59,14 +59,14 @@ public class DomainTest extends TestCase
 	{
 		String[] _week = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 		
-		Enum week = new Enum(_week);
+		Enum<String> week = new Enum<String>(_week);
 		
 		
 		String[] _weekend =  new String[]{"Sunday", "Saturday"};
 		
-		EnumDomain weekend = new EnumDomain(week, _weekend);
+		EnumDomain<String> weekend = new EnumDomain<String>(week, _weekend);
 		
-		EnumDomain allweek = new EnumDomain(week, _week);
+		EnumDomain<String> allweek = new EnumDomain<String>(week, _week);
 		
 		Assert.assertEquals(allweek , weekend.or(weekend.not()));
 		

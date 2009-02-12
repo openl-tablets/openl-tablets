@@ -21,7 +21,7 @@ public class OpenLAdvancedSearchResult
 	OpenLAdvancedSearch search;
 
 	
-	ArrayList foundTables = new ArrayList();
+	ArrayList<TableAndRows> foundTables = new ArrayList<TableAndRows>();
 	
 
 	public OpenLAdvancedSearchResult(OpenLAdvancedSearch search)
@@ -67,12 +67,10 @@ public class OpenLAdvancedSearchResult
 	{
 		TableAndRows[] tr = (TableAndRows[])foundTables.toArray(new TableAndRows[0]);
 		
-		Arrays.sort(tr, new Comparator(){
+		Arrays.sort(tr, new Comparator<TableAndRows>(){
 
-			public int compare(Object o1, Object o2)
+			public int compare(TableAndRows t1, TableAndRows t2)
 			{
-				TableAndRows t1 = (TableAndRows)o1;
-				TableAndRows t2 = (TableAndRows)o2;
 				return t2.rows.length - t1.rows.length;
 			}});
 		return tr;

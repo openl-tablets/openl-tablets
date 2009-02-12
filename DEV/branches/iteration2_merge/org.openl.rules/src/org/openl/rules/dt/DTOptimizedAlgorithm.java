@@ -225,7 +225,7 @@ public class DTOptimizedAlgorithm
 			if (aggr.isAggregate(paramType) && aggr.getComponentType(paramType) == methodType)
 				return new ContainsInAryIndexedEvaluator();
 			
-			IRangeAdaptor ra = getRangeAdaptor(methodType, paramType); 
+			IRangeAdaptor<Object,Object> ra = getRangeAdaptor(methodType, paramType); 
 			if (ra != null)
 				return new RangeIndexedEvaluator(ra);
 			
@@ -236,7 +236,7 @@ public class DTOptimizedAlgorithm
 			if (methodType ==  paramType0 && methodType == paramType1)
 			{	
 				
-				Class c = methodType.getInstanceClass();
+				Class<?> c = methodType.getInstanceClass();
 				if (c != int.class && c != long.class && c != double.class && c != float.class && !Comparable.class.isAssignableFrom(c))
 					throw new BoundError(null, "Type " + methodType.getName() + " is not Comparable", null, condition.getSourceCodeModule());
 					

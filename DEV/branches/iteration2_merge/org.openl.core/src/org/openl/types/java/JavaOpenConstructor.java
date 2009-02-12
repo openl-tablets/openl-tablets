@@ -24,12 +24,12 @@ import org.openl.vm.IRuntimeEnv;
 public class JavaOpenConstructor implements IOpenMethod, IMethodSignature
 {
 	
-	Constructor constructor;
+	Constructor<?> constructor;
 
 
 	IOpenClass[] parameterTypes;
   
-	public JavaOpenConstructor(Constructor constructor)
+	public JavaOpenConstructor(Constructor<?> constructor)
 	{
 		this.constructor = constructor;
 	}

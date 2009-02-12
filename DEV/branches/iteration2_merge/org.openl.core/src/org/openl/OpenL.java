@@ -325,6 +325,7 @@ public class OpenL {
 		return method;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object evaluateMethod2(IOpenSourceCodeModule src, String methodName,
 			IOpenClass[] paramTypes, Object[] params)
 			throws OpenLRuntimeException, MethodNotFoundException,

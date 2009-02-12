@@ -24,7 +24,7 @@ public interface IExportSection<T> {
      *
      * @return child sections
      */
-    IExportSection[] getSubSections();
+    IExportSection<T>[] getSubSections();
 
     /**
      * Return array of rows - section data. Can be <code>null</code>.

@@ -1,6 +1,7 @@
 package org.openl.binding.impl.module;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -36,7 +37,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder
 
 	IOpenClass varType = typeNode.getType();
 
-	Vector boundNodes = new Vector();
+	List<IBoundNode> boundNodes = new ArrayList<IBoundNode>();
 
 	for (int i = 1; i < node.getNumberOfChildren(); ++i)
 	{

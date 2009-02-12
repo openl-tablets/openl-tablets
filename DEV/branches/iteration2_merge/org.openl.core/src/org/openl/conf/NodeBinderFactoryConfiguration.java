@@ -35,7 +35,7 @@ public class NodeBinderFactoryConfiguration extends AConfigurationElement
   public void validate(IConfigurableResourceContext cxt)
     throws OpenConfigurationException
   {
-  	for (Iterator iter = map.values().iterator(); iter.hasNext();)
+  	for (Iterator<Object> iter = map.values().iterator(); iter.hasNext();)
     {
       SingleBinderFactory factory = (SingleBinderFactory)iter.next();
       factory.validate(cxt);

@@ -57,24 +57,24 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants
 
 	ATableRowSelector[] rowSelectors()
 	{
-		ArrayList list = new ArrayList();
+		ArrayList<ATableRowSelector> list = new ArrayList<ATableRowSelector>();
 		
 		list.add(new ColumnGroupSelector(columnElements));
 
-		return (ATableRowSelector[]) list.toArray(new ATableRowSelector[0]);
+		return list.toArray(new ATableRowSelector[0]);
 
 	}
 
 	ATableSyntaxNodeSelector[] tableSelectors()
 	{
-		ArrayList sll = new ArrayList();
+		ArrayList<ATableSyntaxNodeSelector> sll = new ArrayList<ATableSyntaxNodeSelector>();
 
 		sll.add(makeTableTypeSelector());
 
 		sll.add(makePropertyOrHeaderSelectors());
 		
 		
-		return (ATableSyntaxNodeSelector[]) sll
+		return  sll
 				.toArray(new ATableSyntaxNodeSelector[0]);
 	}
 
@@ -88,7 +88,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants
 
 	TableTypeSelector makeTableTypeSelector()
 	{
-		ArrayList list = new ArrayList();
+		ArrayList<String> list = new ArrayList<String>();
 		for (int i = 0; i < selectedType.length; i++)
 		{
 			if (selectedType[i])
@@ -131,7 +131,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants
 				continue;
 			}
 
-			ArrayList selectedRows = new ArrayList();
+			ArrayList<ISearchTableRow> selectedRows = new ArrayList<ISearchTableRow>();
 			int nrows = tsi.numberOfRows();
 
 			for (int row = 0; row < nrows; row++)
@@ -143,7 +143,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants
 				selectedRows.add(tr);
 			}
 			
-			res.add(tsn,(ISearchTableRow[]) selectedRows.toArray(new ISearchTableRow[0]));
+			res.add(tsn, selectedRows.toArray(new ISearchTableRow[0]));
 		}
 
 		return res;

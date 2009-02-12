@@ -42,8 +42,7 @@ public abstract class AOpenClass implements IOpenClass
 	return false;
     }
 
-    @SuppressWarnings("unchecked")
-    public IDomain getDomain()
+    public IDomain<?> getDomain()
     {
 	return null;
     }

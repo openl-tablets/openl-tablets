@@ -10,7 +10,7 @@ public abstract class ATableParserElement implements ITableParserElement
 	String name;
 	
 
-	ISelector selector;
+	ISelector<ILogicalTable> selector;
 
 
 	public String getName()

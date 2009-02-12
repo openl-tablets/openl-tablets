@@ -51,7 +51,7 @@ public class OpenlTest
   {
     OpenL op = OpenL.getInstance(openl);
 
-    Class[] cc = new Class[params.length];
+    Class<?>[] cc = new Class[params.length];
     for (int i = 0; i < cc.length; i++)
     {
       cc[i] = params[i].getClass();
@@ -119,7 +119,7 @@ public class OpenlTest
   {
     OpenL op = OpenL.getInstance(openl);
 
-    Class[] cc = new Class[params.length];
+    Class<?>[] cc = new Class[params.length];
     for (int i = 0; i < cc.length; i++)
     {
       cc[i] = params[i].getClass();

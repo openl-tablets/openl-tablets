@@ -71,7 +71,7 @@ public class ConfigurableResourceContext
   /* (non-Javadoc)
    * @see org.openl.conf.IConfigurableResourceContext#findClass(java.lang.String)
    */
-  public Class findClass(String className)
+  public Class<?> findClass(String className)
   {
     try
     {

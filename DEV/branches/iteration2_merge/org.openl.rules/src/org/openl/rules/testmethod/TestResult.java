@@ -30,7 +30,7 @@ public class TestResult implements INamedThing
 		
 		if (res instanceof Comparable)
 		{
-			return ((Comparable)res).compareTo(expected) == 0;
+			return ((Comparable)res).compareTo((Comparable<?>)expected) == 0;
 		}	
 		
 		if (res.equals(expected))
@@ -77,7 +77,7 @@ public class TestResult implements INamedThing
 		}
 	}
 	
-	ArrayList tests = new ArrayList();
+	ArrayList<TestStruct> tests = new ArrayList<TestStruct>();
 	
 	public TestResult(TestMethodHelper helper)
 	{

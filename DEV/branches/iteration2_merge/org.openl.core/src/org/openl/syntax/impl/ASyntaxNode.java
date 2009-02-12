@@ -7,7 +7,6 @@
 package org.openl.syntax.impl;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -26,20 +25,21 @@ public abstract class ASyntaxNode implements ISyntaxNode
 	//  String namespace;
 
 	IOpenSourceCodeModule module;
+	ISyntaxNode parent;
 
-	Map<String, String> properties;
+//	Map<String, String> properties;
 
 	ILocation location;
 
 	public ASyntaxNode(
 		String type,
 		ILocation location,
-		Map<String, String> properties,
+//		Map<String, String> properties,
 		IOpenSourceCodeModule module)
 	{
 		this.type = type;
 		this.location = location;
-		this.properties = properties;
+//		this.properties = properties;
 		this.module = module;
 		//    this.namespace = namespace;
 	}
@@ -119,10 +119,10 @@ public abstract class ASyntaxNode implements ISyntaxNode
 	/**
 	 * @return
 	 */
-	public Map<String, String> getProperties()
-	{
-		return properties;
-	}
+//	public Map<String, String> getProperties()
+//	{
+//		return properties;
+//	}
 
 	protected void printMySelf(int level, StringBuffer buf)
 	{
@@ -160,7 +160,11 @@ public abstract class ASyntaxNode implements ISyntaxNode
 	 */
 	public IOpenSourceCodeModule getModule()
 	{
-		return module;
+		if (module != null)
+			return module;
+		if (parent != null)
+			return parent.getModule();
+		return null;
 	}
 
 	/**
@@ -177,6 +181,14 @@ public abstract class ASyntaxNode implements ISyntaxNode
 	public ILocation getLocation()
 	{
 		return location;
+	}
+
+	public ISyntaxNode getParent() {
+		return parent;
+	}
+
+	public void setParent(ISyntaxNode parent) {
+		this.parent = parent;
 	}
 
 }

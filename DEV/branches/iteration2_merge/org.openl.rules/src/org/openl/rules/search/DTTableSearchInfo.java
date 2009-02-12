@@ -40,7 +40,7 @@ public class DTTableSearchInfo implements ITableSearchInfo
 	{
 		if (params == null)
 		{
-			ArrayList list = new ArrayList(20);
+			ArrayList<DTParameterInfo> list = new ArrayList<DTParameterInfo>(20);
 			for (int i = 0; i < dt.getConditionRows().length; i++)
 			{
 				IDTCondition c = dt.getConditionRows()[i];
@@ -62,7 +62,7 @@ public class DTTableSearchInfo implements ITableSearchInfo
 				}
 			}
 			
-			params = (DTParameterInfo[])list.toArray(new DTParameterInfo[0]);
+			params = list.toArray(new DTParameterInfo[0]);
 			
 		}
 		return params;

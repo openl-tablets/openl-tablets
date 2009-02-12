@@ -48,7 +48,7 @@ public interface IType extends INameSpacedThing
 	 * @return 
 	 */
 	
-	public IDomain getDomain();
+	public IDomain<?> getDomain();
 	
 	static public final AnyThing ANY = new AnyThing(); 
  	

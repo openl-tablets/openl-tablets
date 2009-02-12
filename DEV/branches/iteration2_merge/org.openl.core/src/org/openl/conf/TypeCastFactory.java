@@ -72,7 +72,7 @@ public class TypeCastFactory
       throws OpenConfigurationException
     {
       ClassFactory.validateClassExistsAndPublic(libraryClassName,cxt.getClassLoader(), getUri());
-			Class implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
+			Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
 			
 			ClassFactory.validateSuper(implClass, ACastFactory.class, getUri());
 			
@@ -85,8 +85,8 @@ public class TypeCastFactory
     {
     	if (factory == null)
     	{
-				Class libClass = ClassFactory.validateClassExistsAndPublic(libraryClassName,cxt.getClassLoader(), getUri());
-				Class implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
+				Class<?> libClass = ClassFactory.validateClassExistsAndPublic(libraryClassName,cxt.getClassLoader(), getUri());
+				Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
 				
 				 factory = (ACastFactory) ClassFactory.newInstance(implClass, uri);
 				 factory.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(libClass)));						

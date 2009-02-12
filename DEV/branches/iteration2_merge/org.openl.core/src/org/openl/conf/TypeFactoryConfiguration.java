@@ -31,7 +31,7 @@ public class TypeFactoryConfiguration
   public void validate(IConfigurableResourceContext cxt)
     throws OpenConfigurationException
   {
- 		for (Iterator iter = map.values().iterator(); iter.hasNext();)
+ 		for (Iterator<Object> iter = map.values().iterator(); iter.hasNext();)
     {
       NameSpacedTypeConfiguration lib = (NameSpacedTypeConfiguration)iter.next();
       lib.validate(cxt);

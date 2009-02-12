@@ -25,7 +25,7 @@ public class ClassFactory extends AConfigurationElement
 	protected String extendsClassName;	
 	protected boolean singleton;
 	
-	public static Class forName(String name, ClassLoader cl)
+	public static Class<?> forName(String name, ClassLoader cl)
 	{
 		try
 		{
@@ -56,12 +56,12 @@ public class ClassFactory extends AConfigurationElement
   public void validate(IConfigurableResourceContext cxt)
     throws OpenConfigurationException
   {
-		Class c = validateClassExistsAndPublic(className,cxt.getClassLoader() , getUri());
+		Class<?> c = validateClassExistsAndPublic(className,cxt.getClassLoader() , getUri());
   	
   	
   	if (getExtendsClassName() != null)
 		{  	  
-			Class c2 = validateClassExistsAndPublic(getExtendsClassName(), cxt.getClassLoader(), uri);
+			Class<?> c2 = validateClassExistsAndPublic(getExtendsClassName(), cxt.getClassLoader(), uri);
 			
 			validateSuper(c, c2, getUri());			
 		}		
@@ -70,7 +70,7 @@ public class ClassFactory extends AConfigurationElement
   }
   
   
-	static public void validateHaveNewInstance(Class clazz,  String uri)
+	static public void validateHaveNewInstance(Class<?> clazz,  String uri)
 		throws OpenConfigurationException
 	{
 		if (Modifier.isAbstract(clazz.getModifiers()))
@@ -78,7 +78,7 @@ public class ClassFactory extends AConfigurationElement
 		
 		try
 		{
-			Constructor constr = clazz.getConstructor(NO_PARAMS);
+			Constructor<?> constr = clazz.getConstructor(NO_PARAMS);
 			if (!Modifier.isPublic(constr.getModifiers()))
 				throw new OpenConfigurationException("Default constructor of " + clazz.getName() + " must be public" , uri, null);
 		}
@@ -93,7 +93,7 @@ public class ClassFactory extends AConfigurationElement
 	}	
   
 
-	static public void validateSuper(Class clazz, Class superClazz,  String uri)
+	static public void validateSuper(Class<?> clazz, Class<?> superClazz,  String uri)
 		throws OpenConfigurationException
 	{
 		if (!superClazz.isAssignableFrom(clazz))
@@ -104,10 +104,10 @@ public class ClassFactory extends AConfigurationElement
 		
 	}
   
-  static public Class validateClassExistsAndPublic(String className, ClassLoader cl,  String uri)
+  static public Class<?> validateClassExistsAndPublic(String className, ClassLoader cl,  String uri)
 		throws OpenConfigurationException
 	{
-		Class c;
+		Class<?> c;
 		try
 		{
 			c = cl.loadClass(className);
@@ -124,7 +124,7 @@ public class ClassFactory extends AConfigurationElement
   	
 	}
 	
-	static public Method validateHasMethod(Class clazz, String methodName, Class[] params, String uri)
+	static public Method validateHasMethod(Class<?> clazz, String methodName, Class<?>[] params, String uri)
 	  throws OpenConfigurationException
 	{
 		Method m;
@@ -145,10 +145,10 @@ public class ClassFactory extends AConfigurationElement
 	}	
 		  
 
-	static public Constructor validateHasConstructor(Class clazz, Class[] params, String uri)
+	static public Constructor<?> validateHasConstructor(Class<?> clazz, Class<?>[] params, String uri)
 		throws OpenConfigurationException
 	{
-		Constructor c;
+		Constructor<?> c;
 		try
 		{
 			c = clazz.getConstructor(params);
@@ -167,7 +167,7 @@ public class ClassFactory extends AConfigurationElement
 		  
 
   
-  static final Class[] NO_PARAMS = {};
+  static final Class<?>[] NO_PARAMS = {};
 
 
 	Object cachedObject = null;
@@ -197,7 +197,7 @@ public class ClassFactory extends AConfigurationElement
 		}
 	}
 
-	public static Object newInstance(Class cc, String uri)
+	public static Object newInstance(Class<?> cc, String uri)
 		throws OpenConfigurationException
 	{
 		try

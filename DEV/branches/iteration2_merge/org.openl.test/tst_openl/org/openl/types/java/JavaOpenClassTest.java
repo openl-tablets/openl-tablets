@@ -31,7 +31,7 @@ public class JavaOpenClassTest extends TestCase
 
 	void _testMethodKey()
 	{
-		Class[] cc = {int.class, TestClass2.class};
+		Class<?>[] cc = {int.class, TestClass2.class};
 		JavaOpenClass.MethodKey mk1 = new JavaOpenClass.MethodKey("getM1", JavaOpenClass.getOpenClasses(cc));
 		JavaOpenClass.MethodKey mk2 = new JavaOpenClass.MethodKey("getM1", JavaOpenClass.getOpenClasses(cc));
 		
@@ -44,7 +44,7 @@ public class JavaOpenClassTest extends TestCase
   	_testMethodKey();
   	
 		JavaOpenClass oc1 = JavaOpenClass.getOpenClass(TestClass1.class);
-		Class[] cc = {int.class, TestClass2.class};
+		Class<?>[] cc = {int.class, TestClass2.class};
 		
 		IOpenMethod m1 = oc1.getMethod("getM1", JavaOpenClass.getOpenClasses(cc));
 		

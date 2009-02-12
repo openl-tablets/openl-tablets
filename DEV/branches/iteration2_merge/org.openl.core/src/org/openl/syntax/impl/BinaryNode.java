@@ -6,8 +6,6 @@
  
 package org.openl.syntax.impl;
 
-import java.util.Map;
-
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.text.TextInterval;
@@ -21,13 +19,24 @@ public class BinaryNode extends ASyntaxNode
 	ISyntaxNode left; 
 	ISyntaxNode right;
 	
-	public BinaryNode(String type, TextInterval pos, ISyntaxNode left, ISyntaxNode right, Map properties, IOpenSourceCodeModule module)
+//	public BinaryNode(String type, TextInterval pos, ISyntaxNode left, ISyntaxNode right, Map properties, IOpenSourceCodeModule module)
+//	{
+//		
+//		super(type, pos, properties, module);
+//		this.left = left;
+//		this.right = right;
+//	}			
+
+	public BinaryNode(String type, TextInterval pos, ISyntaxNode left, ISyntaxNode right, IOpenSourceCodeModule module)
 	{
 		
-		super(type, pos, properties, module);
+		super(type, pos, module);
 		this.left = left;
 		this.right = right;
+		left.setParent(this);
+		right.setParent(this);
 	}			
+	
 	
 	public ISyntaxNode getChild(int i)
 	{

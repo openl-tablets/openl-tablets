@@ -10,7 +10,7 @@ public class CellSyntaxNode extends ASyntaxNode
 	public CellSyntaxNode(String type,  
 			GridCellSourceCodeModule module)
 	{
-		super(type, null, null, module);
+		super(type, null, module);
 	}
 
 	public ISyntaxNode getChild(int i)

@@ -6,8 +6,9 @@
 
 package org.openl.util.text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.List;
 
 /**
  * @author snshor
@@ -94,7 +95,7 @@ public class TextInfo
   {
     boolean isCR = false;
     boolean isLF = true;
-    Vector table = new Vector();
+    List<Integer> table = new ArrayList<Integer>();
 
     for (int i = 0; i < text.length(); ++i)
     {
@@ -130,7 +131,7 @@ public class TextInfo
     lineTable = new int[table.size()];
     for (int i = 0; i < lineTable.length; i++)
     {
-      lineTable[i] = ((Integer)table.elementAt(i)).intValue();
+      lineTable[i] = table.get(i);
     }
   }
 }

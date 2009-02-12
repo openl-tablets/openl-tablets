@@ -42,7 +42,7 @@ public class JavaNoAggregateInfo extends AAggregateInfo
   /* (non-Javadoc)
    * @see org.openl.types.IAggregateInfo#getIterator(java.lang.Object)
    */
-  public Iterator getIterator(Object aggregate)
+  public Iterator<Object> getIterator(Object aggregate)
   {
     return null;
   }

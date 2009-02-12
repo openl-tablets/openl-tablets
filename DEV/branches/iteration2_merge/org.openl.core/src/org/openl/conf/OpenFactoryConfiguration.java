@@ -22,7 +22,7 @@ public class OpenFactoryConfiguration extends AGenericConfiguration implements I
   /* (non-Javadoc)
    * @see org.openl.conf.AGenericConfiguration#getImplementingClass()
    */
-  public Class getImplementingClass()
+  public Class<?> getImplementingClass()
   {
     return IOpenFactory.class;
   }

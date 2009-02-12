@@ -32,7 +32,7 @@ public class GenericTypeLibraryConfiguration
 
   }
 
-  public Class getImplementingClass()
+  public Class<?> getImplementingClass()
   {
     return ITypeLibrary.class;
   }

@@ -6,9 +6,9 @@
  
 package org.openl.syntax.impl;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
-import java.util.Vector;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxError;
@@ -21,7 +21,7 @@ import org.openl.util.text.TextInterval;
 public class SyntaxTreeBuilder implements ISyntaxConstants
 {
 	
-	Vector parseErrors;
+	List<ISyntaxError> parseErrors;
 	
 	IOpenSourceCodeModule module;
 	
@@ -39,7 +39,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants
 		ISyntaxNode right = pop();
 		ISyntaxNode left = pop();
 
-		push( new BinaryNode(type, pos, left, right, null, module) );
+		push( new BinaryNode(type, pos, left, right, module) );
 	}
 
 	public void identifier(String type, TextInterval pos, String image)
@@ -64,21 +64,17 @@ public class SyntaxTreeBuilder implements ISyntaxConstants
 	
 
 
+	
+	
 	public void nop(String type, TextInterval pos,  int args)
 	{
-		nop(type, pos, args, null);
-	}
-	
-	
-	public void nop(String type, TextInterval pos,  int args, Map properties)
-	{
-		push(new NaryNode(type, pos, popN(args), properties, module));
+		push(new NaryNode(type, pos, popN(args), module));
 	}
 	
 
 	public void toMarker(String type, TextInterval pos, Object marker)
 	{
-		push(new NaryNode(type, pos, popToMarker(marker), null, module));
+		push(new NaryNode(type, pos, popToMarker(marker),  module));
 	}
 	
 
@@ -94,13 +90,13 @@ public class SyntaxTreeBuilder implements ISyntaxConstants
       nodes[i] = args[i] ? pop() : null; 
     }
 		
-		push(new NaryNode(type, pos, nodes, null, module));
+		push(new NaryNode(type, pos, nodes,  module));
 	}
 	
 	public void addError(SyntaxError exc)
 	{
 		if (parseErrors == null)
-		  parseErrors = new Vector();
+		  parseErrors = new ArrayList<ISyntaxError>();
 		parseErrors.add(exc);
   }
   
@@ -141,7 +137,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants
 	
 ////////////////////////////////////////////////////////////	
 	
-	Stack stack = new Stack();
+	Stack<Object> stack = new Stack<Object>();
 	
 
 	ISyntaxNode pop()
