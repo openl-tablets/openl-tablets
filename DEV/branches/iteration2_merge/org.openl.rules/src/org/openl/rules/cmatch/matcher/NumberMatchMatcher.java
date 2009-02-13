@@ -17,9 +17,13 @@ public class NumberMatchMatcher extends ARangeMatch {
     }
 
     public boolean match(Object var, Object checkValue) {
+        if (checkValue == null) {
+            return false;
+        }
+
         if (checkValue instanceof INumberRange) {
             INumberRange range = (INumberRange) checkValue;
-            return range.containsNumber((Number)var);
+            return range.containsNumber((Number) var);
         } else {
             return checkValue.equals(var);
         }

@@ -30,7 +30,7 @@ public class ColumnMatchBuilder {
     }
 
     public void build(ILogicalTable tableBody) throws Exception {
-        if (tableBody.getLogicalHeight() <= 4) {
+        if (tableBody.getLogicalHeight() < 4) {
             throw new SyntaxError(tsn, "Unsufficient rows. At least 4 are expected!", null);
         }
 

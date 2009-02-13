@@ -212,9 +212,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             IMatcher matcher = nodes[i].getMatcher();
             for (int index = 0; index < inValues.length; index++) {
-                String s = inValues[index].getString();
+                String s = inValues[index].getString().trim();
 
-                if (s.trim().length() > 0) {
+                if (s.length() > 0) {
                     // ignore empty cells
                     Object v = matcher.fromString(s);
                     checkValues[index] = v;

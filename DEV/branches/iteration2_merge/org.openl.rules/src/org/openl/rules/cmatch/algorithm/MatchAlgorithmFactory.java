@@ -30,4 +30,8 @@ public class MatchAlgorithmFactory {
 
         return builder.build();
     }
+    
+    static {
+        registerBuilder("SIMPLE", new MatchAlgorithmCompilerBuilder());
+    }
 }
