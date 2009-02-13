@@ -7,6 +7,7 @@ package org.openl.rules.cmatch;
  * @author User
  * 
  */
+@Deprecated
 public class ColumnMatchTableParserSpecification {
     private String keyword;
     private String description;
