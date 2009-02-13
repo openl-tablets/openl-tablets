@@ -7,8 +7,7 @@ import java.util.Map;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
-import org.openl.rules.tbasic.runtime.TBasicContext;
-import org.openl.rules.tbasic.runtime.TBasicEnv;
+import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
@@ -45,11 +44,10 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
         DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(thisClass, (IDynamicObject) target);
 
         TBasicVM algorithmVM = new TBasicVM(algorithmSteps, labels);
-        
-        TBasicEnv runtimeEnvironment = new TBasicEnv(env, algorithmVM, thisInstance);
-        TBasicContext context = new TBasicContext(thisInstance, params, runtimeEnvironment);
-       
-        return algorithmVM.run(context);
+     
+        TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
+      
+        return algorithmVM.run(runtimeEnvironment);
     }
 
     public BindingDependencies getDependencies() {

@@ -21,11 +21,11 @@ public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation<R
      * @see org.openl.rules.tbasic.runtime.RuntimeOperation#execute(org.openl.rules.tbasic.runtime.TBasicContext, java.lang.Object[])
      */
     @Override
-    public Result execute(TBasicContext context, Object param) {
+    public Result execute(TBasicContextHolderEnv environment, Object param) {
         ResultValueType resultValue = null;
         
         if (hasReturnValue){
-            resultValue = evaluateStatement(context);
+            resultValue = evaluateStatement(environment);
         }
         
         return new Result(ReturnType.Return, resultValue);

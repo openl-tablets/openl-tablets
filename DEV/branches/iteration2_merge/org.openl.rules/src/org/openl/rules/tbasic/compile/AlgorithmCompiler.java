@@ -26,7 +26,6 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.NoParamMethodField;
 import org.openl.rules.tbasic.TableParserManager;
-import org.openl.rules.tbasic.runtime.ReturnOperation;
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -38,7 +37,7 @@ import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 
-// FIXME: refactor to eliminate code duplications and to isolate different functionality in separate classes
+// FIXME: !!!!!!!!!!!!!!! refactor to eliminate code duplications and to isolate different functionality in separate classes
 
 /**
  * @author User
@@ -177,7 +176,7 @@ public class AlgorithmCompiler {
         } else if (operationType.equals("!Subroutine")) {
             declareSubroutine(nodesToCompile);
         } else if (operationType.equals("!Function")) {
-            declareFunction(nodesToCompile);
+            declareFunction(nodesToCompile, conversionStep);
         } else {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
@@ -186,39 +185,72 @@ public class AlgorithmCompiler {
     }
 
     private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
-        // method name will be at least as the first label
-        String methodName = nodesToCompile.get(0).getLabels()[0].getValue();
-        
-        IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName, JavaOpenClass.VOID, IMethodSignature.VOID, thisTargetClass);
-        
-        AlgorithmSubroutineMethod method = new AlgorithmSubroutineMethod(methodHeader);
-        
-        thisTargetClass.addMethod(method);
-        
-        // to support parameters free call
-        NoParamMethodField methodAlternative = new NoParamMethodField(methodName, method);
-        thisTargetClass.addField(methodAlternative);
-        
-        internalMethodsContexts.put(methodName, new CompileContext());
+        createAlgorithmInternalMethod(nodesToCompile, JavaOpenClass.VOID);
 
 //            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
 //            .asSourceCodeModule();
 //            throw new BoundError(String.format("Can't compile subroutine %s", methodName), errorSource);
     }
     
-    private void declareFunction(List<AlgorithmTreeNode> nodesToCompile) {
-        // method name will be at least as the first label
-        String methodName = nodesToCompile.get(0).getLabels()[0].getValue();
+    private void declareFunction(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep convertionStep) throws BoundError {
+        String returnValueInstruction = convertionStep.getOperationParam1();
         
-        // TODO: replace return type
-        IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName, /*need to detect type*/JavaOpenClass.VOID, header.getSignature(), thisTargetClass);
+        IOpenClass returnType = JavaOpenClass.VOID;
+        if (isOperationFieldInstruction(returnValueInstruction)){
+            returnType = getTypeOfFieldValue(nodesToCompile, returnValueInstruction);
+        } else {
+            // TODO add support of specification instruction
+            returnType = discoverFunctionType(nodesToCompile.get(0).getChildren(), returnValueInstruction);
+        }
+        createAlgorithmInternalMethod(nodesToCompile, returnType);
         
-        IOpenMethod method = new AlgorithmSubroutineMethod(methodHeader);
+    }
+    
+    private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children, String returnValueInstruction) throws BoundError {
+        // FIXME Extremely ugly method (add exceptions, rewrite to be "proper" method, etc.)
         
-        thisTargetClass.addMethod(method);
+        // find first RETURN operation
+        List<AlgorithmTreeNode> returnNodes = findFirstReturn(children);
         
-        internalMethodsContexts.put(methodName, new CompileContext());
+        assert returnNodes.size() > 0;
         
+        //get RETURN.condition part of instruction
+        String fieldWithOpenLStatement = "RETURN.condition"; //returnValueInstruction
+        
+        return getTypeOfFieldValue(returnNodes, fieldWithOpenLStatement);        
+    }
+
+    private List<AlgorithmTreeNode> findFirstReturn(List<AlgorithmTreeNode> nodes) {
+        // FIXME delete this method at all
+        List<AlgorithmTreeNode> returnNodeSubList = null;
+        for (int i = 0; i < nodes.size() && returnNodeSubList == null; i++){
+            if (nodes.get(i).getSpecification().getKeyword().equals("RETURN")){
+                returnNodeSubList = nodes.subList(i, i + 1);
+            } else if (nodes.get(i).getChildren() != null){
+                returnNodeSubList = findFirstReturn(nodes.get(i).getChildren());
+            }
+        }
+        return returnNodeSubList;
+    }
+
+    private void createAlgorithmInternalMethod(List<AlgorithmTreeNode> nodesToCompile, IOpenClass returnType){
+        // method name will be at every label
+        CompileContext methodContext = new CompileContext();
+        for (StringValue label : nodesToCompile.get(0).getLabels()){
+            String methodName = label.getValue();
+            
+            IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName, returnType, IMethodSignature.VOID, thisTargetClass);
+            
+            AlgorithmSubroutineMethod method = new AlgorithmSubroutineMethod(methodHeader);
+            
+            thisTargetClass.addMethod(method);
+            
+            // to support parameters free call
+            NoParamMethodField methodAlternative = new NoParamMethodField(methodName, method);
+            thisTargetClass.addField(methodAlternative);
+            
+            internalMethodsContexts.put(methodName, methodContext);
+        }
     }
 
     /**********************************************
@@ -273,7 +305,10 @@ public class AlgorithmCompiler {
         labelManager.generateAllLabels(conversionRule.getLabel());
 
         // compile before statement
-        emittedOperations.add(compileBefore(nodesToCompile));
+        RuntimeOperation beforeOperation = compileBefore(nodesToCompile);
+        if (beforeOperation != null){
+            emittedOperations.add(beforeOperation);
+        }
 
         for (ConversionRuleStep convertionStep : conversionRule.getConvertionSteps()) {
             List<RuntimeOperation> stepEmittedOperations = processConversionStep(nodesToCompile, convertionStep);
@@ -281,7 +316,10 @@ public class AlgorithmCompiler {
         }
 
         // compile after statement
-        emittedOperations.add(compileAfter(nodesToCompile));
+        RuntimeOperation afterOperation = compileAfter(nodesToCompile);
+        if (afterOperation != null){
+            emittedOperations.add(afterOperation);
+        }
 
         // apply user defined label to the first emitted operation
         // label can be defined only for the first operation in the group
@@ -322,9 +360,16 @@ public class AlgorithmCompiler {
             String beforeFieldName) throws BoundError {
         // TODO: strange method, refactore
         String param = nodesToCompile.get(0).getAlgorithmRow().getOperation() + FIELD_SEPARATOR + beforeFieldName;
-        ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null);
 
-        return createOperation(nodesToCompile, conversionStep);
+        StringValue content = getCellContent(nodesToCompile, param);
+        RuntimeOperation operation = null;
+        
+        if (content.getValue() != null && content.getValue().trim() != "") {
+            ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null);
+            operation = createOperation(nodesToCompile, conversionStep);
+        }
+        
+        return operation;
     }
 
     /*********************************************
@@ -425,10 +470,13 @@ public class AlgorithmCompiler {
         if (clazz.equals(String.class)) {
             if (labelManager.isLabelInstruction(operationParam)) {
                 return labelManager.getLabelByInstruction(operationParam);
-            } else {
+            } else if (isOperationFieldInstruction(operationParam)) {
                 StringValue content = getCellContent(nodesToCompile, operationParam);
 
                 return content.getValue();
+            } else {
+                // TODO FIXME Do not know how to process
+                return operationParam;
             }
         } else if (clazz.equals(boolean.class)) {
             return Boolean.parseBoolean(operationParam);
@@ -441,7 +489,7 @@ public class AlgorithmCompiler {
                 OpenL openl = context.getOpenL();
 
                 AlgorithmTreeNode executionNode = getNodeWithResult(nodesToCompile, extractOperationName(operationParam));
-                String methodName = operationParam.replace('.', '_') + executionNode.getAlgorithmRow().getRowNumber();
+                String methodName = operationParam.replace('.', '_') + "_row_" +  executionNode.getAlgorithmRow().getRowNumber();
 
                 IMethodSignature signature = header.getSignature();
 
@@ -480,17 +528,14 @@ public class AlgorithmCompiler {
 
         StringValue variableName = getCellContent(nodesToCompile, variableNameParameter);
 
-        // TODO null values check
-        IMethodCaller assignmentStatement = (IMethodCaller) convertParam(nodesToCompile, IMethodCaller.class,
-                variableAssignmentParameter);
-        IOpenClass variableType = assignmentStatement.getMethod().getType();
+        IOpenClass variableType = getTypeOfFieldValue(nodesToCompile, variableAssignmentParameter);
 
         IOpenField field = new DynamicObjectField(thisTargetClass, variableName.getValue(), variableType);
 
         thisTargetClass.addField(field);
     }
 
-    /********************************
+     /********************************
      * Helper methods For main logic
      ********************************/
 
@@ -579,6 +624,10 @@ public class AlgorithmCompiler {
         // Get the first token after ".", it will be the field name
         return operationToGetFrom.split(Pattern.quote(FIELD_SEPARATOR))[1];
     }
+    
+    private boolean isOperationFieldInstruction(String instruction){
+        return instruction.split(Pattern.quote(FIELD_SEPARATOR)).length == 2;
+    }
 
     /**
      * @param candidateNodes
@@ -610,6 +659,12 @@ public class AlgorithmCompiler {
         StringValue openLCodeValue = getCellContent(nodesToCompile, operationParam);
 
         return openLCodeValue.asSourceCodeModule();
+    }
+    
+    private IOpenClass getTypeOfFieldValue(List<AlgorithmTreeNode> nodesToCompile, String openlStatementInstruction) throws BoundError {
+        IMethodCaller assignmentStatement = (IMethodCaller) convertParam(nodesToCompile, IMethodCaller.class,
+                openlStatementInstruction);
+        return assignmentStatement.getMethod().getType();
     }
 
     private StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String operationParam) throws BoundError {

@@ -24,7 +24,7 @@ public class ConditionalGotoOperation extends GotoOperation {
      * .tbasic.runtime.TBasicContext, java.lang.Object[])
      */
     @Override
-    public Result execute(TBasicContext context, Object param) {
+    public Result execute(TBasicContextHolderEnv environment, Object param) {
         if (param == null || !(param instanceof Boolean)) {
             // FIXME Add source reference and understandable hint
             throw new IllegalArgumentException("Previous operation should return boolean value");
@@ -34,7 +34,7 @@ public class ConditionalGotoOperation extends GotoOperation {
         Result result;
 
         if (condition == expectedCondition) {
-            result = executeUnconditionalGoto(context);
+            result = executeUnconditionalGoto(environment);
         } else {
             result = executeSkipGoto();
         }
@@ -55,9 +55,9 @@ public class ConditionalGotoOperation extends GotoOperation {
      * @param context
      * @return
      */
-    private Result executeUnconditionalGoto(TBasicContext context) {
+    private Result executeUnconditionalGoto(TBasicContextHolderEnv environment) {
         Result result;
-        result = super.execute(context, null);
+        result = super.execute(environment, null);
         return result;
     }
 }

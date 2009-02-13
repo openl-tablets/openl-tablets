@@ -7,11 +7,12 @@ import org.openl.IOpenRunner;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
-public class TBasicEnv implements IRuntimeEnv
+public class TBasicContextHolderEnv implements IRuntimeEnv
 {
-	IRuntimeEnv env;
-	TBasicVM tbasicVm;
-	DelegatedDynamicObject tbasicTarget;
+	private IRuntimeEnv env;
+	private TBasicVM tbasicVm;
+	private DelegatedDynamicObject tbasicTarget;
+    private Object[] tbasicParams;
 	
 
 	public IRuntimeEnv getEnv() {
@@ -25,6 +26,26 @@ public class TBasicEnv implements IRuntimeEnv
 	public DelegatedDynamicObject getTbasicTarget() {
 		return tbasicTarget;
 	}
+	
+    /**
+     * @return the tbasicParams
+     */
+    public Object[] getTbasicParams() {
+        return tbasicParams;
+    }
+    
+    public TBasicContextHolderEnv(IRuntimeEnv env, DelegatedDynamicObject tbasicTarget, Object[] params,
+            TBasicVM tbasicVM) {
+        super();
+        this.env = env;
+        this.tbasicVm = tbasicVM;
+        this.tbasicParams = params;
+        this.tbasicTarget = tbasicTarget;
+    }
+    
+    public void assignValueToVariable(String variableName, Object value) {
+        tbasicTarget.setFieldValue(variableName, value);
+    }
 
 	public Object[] getLocalFrame() {
 		return env.getLocalFrame();
@@ -52,12 +73,5 @@ public class TBasicEnv implements IRuntimeEnv
 
 	public void pushThis(Object thisObject) {
 		env.pushThis(thisObject);
-	}
-
-	public TBasicEnv(IRuntimeEnv env, TBasicVM tbasicVm, DelegatedDynamicObject tbasicTarget) {
-		super();
-		this.env = env;
-		this.tbasicVm = tbasicVm;
-		this.tbasicTarget = tbasicTarget;
 	}
 }

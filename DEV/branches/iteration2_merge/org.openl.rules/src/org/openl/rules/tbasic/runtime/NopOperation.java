@@ -13,7 +13,7 @@ public class NopOperation extends RuntimeOperation {
      * @see org.openl.rules.tbasic.runtime.RuntimeOperation#execute(org.openl.rules.tbasic.runtime.TBasicContext, java.lang.Object)
      */
     @Override
-    public Result execute(TBasicContext context, Object param) {
+    public Result execute(TBasicContextHolderEnv environment, Object param) {
         // do nothing
         return new Result(ReturnType.Next);
     }

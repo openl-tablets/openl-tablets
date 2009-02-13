@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.tbasic.runtime.RuntimeOperation;
-import org.openl.rules.tbasic.runtime.TBasicContext;
-import org.openl.rules.tbasic.runtime.TBasicEnv;
+import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -32,13 +31,12 @@ public class AlgorithmSubroutineMethod extends AMethod implements IOpenMethod {
      * @see org.openl.types.IMethodCaller#invoke(java.lang.Object, java.lang.Object[], org.openl.vm.IRuntimeEnv)
      */
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        assert env instanceof TBasicEnv;
+        assert env instanceof TBasicContextHolderEnv;
         
-        TBasicEnv runtimeEnvironment = (TBasicEnv) env;
-        TBasicVM vm = runtimeEnvironment.getTbasicVm();
-        TBasicContext context = new TBasicContext(target, params, runtimeEnvironment);
-        
-        return vm.run(algorithmSteps, labels, context);
+        TBasicContextHolderEnv environment = (TBasicContextHolderEnv) env;
+        TBasicVM vm = environment.getTbasicVm();
+         
+        return vm.run(algorithmSteps, labels, environment);
     }
 
 
