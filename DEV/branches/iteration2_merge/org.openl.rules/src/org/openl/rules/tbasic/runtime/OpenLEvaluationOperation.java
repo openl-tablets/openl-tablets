@@ -16,9 +16,9 @@ public abstract class OpenLEvaluationOperation<ResultValueType> extends RuntimeO
         this.openLStatement = openLStatement;
     }
     
-    public ResultValueType evaluateStatement(TBasicContext context){
+    public ResultValueType evaluateStatement(TBasicContextHolderEnv environment){
         ResultValueType resultValue = null;
-        resultValue = (ResultValueType)openLStatement.invoke(context.getOpenLEnvironment().getTbasicTarget(), context.getOpenLParams(), context.getOpenLEnvironment());
+        resultValue = (ResultValueType)openLStatement.invoke(environment.getTbasicTarget(), environment.getTbasicParams(), environment);
         return resultValue;
     }
 

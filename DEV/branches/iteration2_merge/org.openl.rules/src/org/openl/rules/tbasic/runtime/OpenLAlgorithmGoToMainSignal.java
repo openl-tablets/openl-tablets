@@ -2,10 +2,11 @@ package org.openl.rules.tbasic.runtime;
 
 import org.openl.binding.impl.ControlSignal;
 
+@SuppressWarnings("serial")
 public class OpenLAlgorithmGoToMainSignal extends ControlSignal {
 
     private String label;
-    
+
     public OpenLAlgorithmGoToMainSignal(String label) {
         super();
         this.label = label;
@@ -18,9 +19,6 @@ public class OpenLAlgorithmGoToMainSignal extends ControlSignal {
         return label;
     }
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -4368227688146541082L;
+
 
 }

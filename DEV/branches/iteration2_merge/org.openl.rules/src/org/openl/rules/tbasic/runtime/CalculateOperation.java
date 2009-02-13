@@ -19,9 +19,9 @@ public class CalculateOperation<ResultValueType> extends OpenLEvaluationOperatio
      * @see org.openl.rules.tbasic.runtime.RuntimeOperation#execute(org.openl.rules.tbasic.runtime.TBasicContext, java.lang.Object[])
      */
     @Override
-    public Result execute(TBasicContext context, Object param) {
+    public Result execute(TBasicContextHolderEnv environment, Object param) {
         // TODO Auto-generated method stub
-        ResultValueType resultValue = evaluateStatement(context);
+        ResultValueType resultValue = evaluateStatement(environment);
         return new Result(ReturnType.Next, resultValue);
     }
 

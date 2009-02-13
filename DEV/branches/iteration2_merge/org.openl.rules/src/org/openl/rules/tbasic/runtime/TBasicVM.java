@@ -3,8 +3,9 @@ package org.openl.rules.tbasic.runtime;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.types.impl.DelegatedDynamicObject;
-import org.openl.vm.IRuntimeEnv;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 
 public class TBasicVM {
 
@@ -13,6 +14,8 @@ public class TBasicVM {
 
     private List<RuntimeOperation> currentOperations;
     private Map<String, RuntimeOperation> currentLabels;
+    
+    private boolean isMainMethod;
 
     public TBasicVM(List<RuntimeOperation> operations, Map<String, RuntimeOperation> labels) {
         // TODO: not very good that we receive 2 separate collections with the
@@ -24,40 +27,90 @@ public class TBasicVM {
         
         currentOperations = mainOperations;
         currentLabels = mainLabels;
+        isMainMethod = true; // in the first turn only main can be called
     }
 
-    public Object run(TBasicContext context) {
+    public Object run(TBasicContextHolderEnv environment) {
 
         RuntimeOperation operation = getFirstOperation();
         Object previousStepResult = null;
         Object returnResult = null;
 
-        while (operation != null) {
-            Result result = null;
-            try {
-                result = operation.execute(context, previousStepResult);
-            } catch (OpenLAlgorithmGoToMainSignal signal){
-                operation = getLabeledOperation(signal.getLabel());
-                continue;
+        try {
+            while (operation != null) {
+                Result result = null;
+                try {
+                    result = operation.execute(environment, previousStepResult);
+                } catch (OpenLAlgorithmGoToMainSignal signal){
+                    operation = getLabeledOperation(signal.getLabel());
+                    continue;
+                }
+    
+                // TODO: result == null
+                if (result.getReturnType() == ReturnType.Goto) {
+                    // TODO: goto required operation
+                    operation = getLabeledOperation((String) result.getValue());
+                    continue;
+                } else if (result.getReturnType() == ReturnType.Return) {
+                    returnResult = result.getValue();
+                    break;
+                }
+    
+                operation = getNextOperation(operation);
+                previousStepResult = result.getValue();
             }
-
-            // TODO: result == null
-            if (result.getReturnType() == ReturnType.Goto) {
-                // TODO: goto required operation
-                operation = getLabeledOperation((String) result.getValue());
-                continue;
-            } else if (result.getReturnType() == ReturnType.Return) {
-                returnResult = result.getValue();
-                break;
+        } catch (OpenLAlgorithmErrorSignal signal){
+            if (!isMainMethod) {
+                throw signal;
+            } else if (isMainMethod){
+                // TODO discover which exception contains exception
+                returnResult = processError(signal.getCause().getCause(), environment);
             }
-
-            operation = getNextOperation(operation);
-            previousStepResult = result.getValue();
+        } catch (Throwable error){
+            if (!isMainMethod) {
+                throw new OpenLAlgorithmErrorSignal(error);
+            } else if (isMainMethod){
+                // TODO discover which exception contains exception
+                returnResult = processError(error.getCause(), environment);
+            }
         }
 
         return returnResult;
     }
 
+    private Object processError(Throwable signal, TBasicContextHolderEnv environment) {
+        IOpenClass algorithmType = environment.getTbasicTarget().getType();
+        IOpenMethod errorMethod = algorithmType.getMethod("ON ERROR", new IOpenClass[]{});
+        
+        if (errorMethod != null){
+            IOpenField error = algorithmType.getField("ERROR");
+            if (error != null){
+                // populate error messages
+                error.set(environment.getTbasicTarget(), signal, environment);
+            }
+            return errorMethod.invoke(environment.getTbasicTarget(), null, environment);
+        }
+        
+        throw new RuntimeException(String.format("Execution of algorithm failed: %s", signal.getMessage()), signal);
+    }
+
+    public Object run(List<RuntimeOperation> methodSteps, Map<String, RuntimeOperation> methodLabels,
+            TBasicContextHolderEnv environment) {
+        
+        List<RuntimeOperation> previousOperations = swapOperations(methodSteps);
+        Map<String, RuntimeOperation> previousLabels = swapLabels(methodLabels);
+        boolean previousIsMainMethod = swapIsMainMethod(false);
+
+        try {
+            Object result = run(environment);
+            return result;
+        } finally {
+            swapOperations(previousOperations);
+            swapLabels(previousLabels);
+            swapIsMainMethod(previousIsMainMethod);
+        }
+    }
+    
     /**
      * @return
      */
@@ -91,36 +144,31 @@ public class TBasicVM {
         throw new OpenLAlgorithmGoToMainSignal(label);
     }
 
-    public Object run(List<RuntimeOperation> methodSteps, Map<String, RuntimeOperation> methodLabels,
-            TBasicContext context) {
-        List<RuntimeOperation> previousOperations = swapOperations(methodSteps);
-        Map<String, RuntimeOperation> previousLabels = swapLabels(methodLabels);
-
-        try {
-            Object result = run(context);
-            return result;
-        } finally {
-            swapOperations(previousOperations);
-            swapLabels(previousLabels);
-        }
-    }
-
     /**
      * @param newOperations
      */
     private List<RuntimeOperation> swapOperations(List<RuntimeOperation> newOperations) {
-        List<RuntimeOperation> oldOperations = currentOperations;
+        List<RuntimeOperation> oldValue = currentOperations;
         currentOperations = newOperations;
-        return oldOperations;
+        return oldValue;
     }
-
+    
     /**
      * @param newLabels
      */
     private Map<String, RuntimeOperation> swapLabels(Map<String, RuntimeOperation> newLabels) {
-        Map<String, RuntimeOperation> oldOperations = currentLabels;
+        Map<String, RuntimeOperation> oldValue = currentLabels;
         currentLabels = newLabels;
-        return oldOperations;
+        return oldValue;
+    }
+    
+    /**
+     * @param newIsMainMethod
+     */
+    private boolean swapIsMainMethod(boolean newIsMainMethod) {
+        boolean oldValue = isMainMethod;
+        isMainMethod = newIsMainMethod;
+        return oldValue;
     }
 
 }

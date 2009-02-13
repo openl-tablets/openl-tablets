@@ -14,10 +14,13 @@ import org.openl.runtime.EngineFactory;
  * 
  */
 public class TableParserManager implements ITableParserManager {
-    private static TableParserManager instance = new TableParserManager();
+    // To make class serializable, change synchronization
+    
+    private static TableParserManager instance;
     private ITableParserManager rulesWrapperInstance;
 
     public static TableParserManager instance() {
+        lazyLoadInstance();
         return instance;
     }
 
@@ -38,16 +41,75 @@ public class TableParserManager implements ITableParserManager {
 
         return result;
     }
+    
+    private ConversionRuleBean[] convertionRules;
 
     public ConversionRuleBean[] getConversionRules() {
-        ConversionRuleBean[] result = rulesWrapperInstance.getConversionRules();
+        lazyLoadConversionRules();
+
+        return convertionRules;
+    }
+
+    private ConversionRuleBean[] fixedConvertionRules;
+    
+    public ConversionRuleBean[] getFixedConversionRules() {
+        lazyLoadFixedConvertionRules();
+        
+        return fixedConvertionRules;
+    }
+
+    public String[] whatOperationsToGroup(String keyword) {
+        String[] result = rulesWrapperInstance.whatOperationsToGroup(keyword);
 
         return result;
     }
     
-    public ConversionRuleBean[] getFixedConversionRules() {
-        ConversionRuleBean[] draftConvertionRules = getConversionRules();
-        return fixBrokenValues(draftConvertionRules);
+    public String whatIsOperationsGroupName(List<String> groupedOperationNames){
+        String result = rulesWrapperInstance.whatIsOperationsGroupName(groupedOperationNames);
+        return result;
+    }
+    
+    private static Object synchObjectForInstance = new Object();
+    
+    private static void lazyLoadInstance() {
+        if (instance == null){
+            synchronized (synchObjectForInstance) {
+                if (instance == null) {
+                    instance = new TableParserManager();
+                }
+            }
+        }
+    }
+    
+    private Object synchObjectForConvertionRules = new Object();
+    
+    /**
+     * 
+     */
+    private void lazyLoadConversionRules() {
+        if (convertionRules == null){
+            synchronized (synchObjectForConvertionRules) {
+                if (convertionRules == null) {
+                    convertionRules = rulesWrapperInstance.getConversionRules();
+                }
+            }
+        }
+    }
+    
+    private Object synchObjectForFixedConvertionRules = new Object();
+    
+    /**
+     * 
+     */
+    private void lazyLoadFixedConvertionRules() {
+        if (fixedConvertionRules == null){
+            synchronized (synchObjectForFixedConvertionRules) {
+                if (fixedConvertionRules == null){
+                    ConversionRuleBean[] draftConvertionRules = getConversionRules().clone();
+                    fixedConvertionRules = fixBrokenValues(draftConvertionRules);
+                }
+            }
+        }
     }
     
     private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {
@@ -67,17 +129,6 @@ public class TableParserManager implements ITableParserManager {
             }
         }
         
-    }
-
-    public String[] whatOperationsToGroup(String keyword) {
-        String[] result = rulesWrapperInstance.whatOperationsToGroup(keyword);
-
-        return result;
-    }
-    
-    public String whatIsOperationsGroupName(List<String> groupedOperationNames){
-        String result = rulesWrapperInstance.whatIsOperationsGroupName(groupedOperationNames);
-        return result;
     }
 
     public static void main(String[] args) {

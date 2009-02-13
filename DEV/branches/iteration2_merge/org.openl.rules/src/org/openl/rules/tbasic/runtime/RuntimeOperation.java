@@ -6,7 +6,7 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 public abstract class RuntimeOperation {
     protected AlgorithmTreeNode sourceCode;
     
-    public abstract Result execute(TBasicContext context, Object param);
+    public abstract Result execute(TBasicContextHolderEnv environment, Object param);
     
     public void setSourceCode(AlgorithmTreeNode sourceCode) {
         this.sourceCode = sourceCode;
