@@ -2,8 +2,9 @@ package org.openl.rules.cmatch;
 
 import java.util.List;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.binding.BindingDependencies;
-import org.openl.rules.cmatch.matcher.IMatcher;
+import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
@@ -20,55 +21,18 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     private Object[] returnValues;
     private MatchNode checkTree;
 
+    private IMatchAlgorithmExecutor algorithmExecutor;
+
     public ColumnMatch(IOpenMethodHeader header, ColumnMatchBoundNode node) {
         super(header);
         this.node = node;
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        // FIXME
-        // MOVE UNDER ALGORITHM
-
-        for (MatchNode node : checkTree.getChildren()) {
-            Argument arg = node.getArgument();
-            Object var = arg.extractValue(target, params, env);
-            IMatcher matcher = node.getMatcher();
-
-            for (int i = 0; i < returnValues.length; i++) {
-                Object checkValue = node.getCheckValues()[i];
-                if (matcher.match(var, checkValue)) {
-                    // check that all children are MATCH at i-th element
-                    if (childrenMatch(target, params, env, node, i)) {
-                        return returnValues[i];
-                    }
-                }
-            }
-        }
+        Object result = algorithmExecutor.invoke(target, params, env, this);
 
         // FIXME ?null or exception?
-        return null;
-    }
-
-    protected boolean childrenMatch(Object target, Object[] params, IRuntimeEnv env, MatchNode parent, int index) {
-        for (MatchNode node : parent.getChildren()) {
-            Argument arg = node.getArgument();
-            Object var = arg.extractValue(target, params, env);
-            IMatcher matcher = node.getMatcher();
-
-            Object checkValue = node.getCheckValues()[index];
-            if (matcher.match(var, checkValue)) {
-                // check that all children are MATCH at i-th element
-                if (!childrenMatch(target, params, env, node, index)) {
-                    return false;
-                }
-            } else {
-                // fail fast
-                return false;
-            }
-        }
-
-        // all TRUE or no children
-        return true;
+        return result;
     }
 
     public BindingDependencies getDependencies() {
@@ -105,10 +69,6 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
         this.rows = rows;
     }
 
-    public ColumnMatchAlgorithm getAlgorithm() {
-        return node.getAlgorithm();
-    }
-
     public Object[] getReturnValues() {
         return returnValues;
     }
@@ -123,5 +83,13 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
 
     public void setCheckTree(MatchNode checkTree) {
         this.checkTree = checkTree;
+    }
+
+    public void setAlgorithmExecutor(IMatchAlgorithmExecutor algorithmExecutor) {
+        this.algorithmExecutor = algorithmExecutor;
+    }
+
+    public IOpenSourceCodeModule getAlgorithm() {
+        return node.getAlgorithm();
     }
 }

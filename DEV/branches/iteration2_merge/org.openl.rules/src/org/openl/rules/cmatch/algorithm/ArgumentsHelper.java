@@ -1,4 +1,4 @@
-package org.openl.rules.cmatch;
+package org.openl.rules.cmatch.algorithm;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,7 +53,7 @@ class ArgumentsHelper {
         IOpenClass[] paramTypes = methodSignature.getParameterTypes();
         for (int i = 0; i < methodSignature.getNumberOfArguments(); i++) {
             // TODO add source
-            String paramName = methodSignature.getParameterName(i);
+//            String paramName = methodSignature.getParameterName(i);
 
             IOpenClass type = paramTypes[i];
             if (type.isSimple()) {

@@ -5,8 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.binding.IBindingContext;
 import org.openl.meta.StringValue;
+import org.openl.rules.cmatch.algorithm.IMatchAlgorithmCompiler;
+import org.openl.rules.cmatch.algorithm.MatchAlgorithmFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -38,10 +41,11 @@ public class ColumnMatchBuilder {
         columnMatch.setColumns(columns);
         columnMatch.setRows(rows);
 
-        ColumnMatchAlgorithm algorithm = columnMatch.getAlgorithm();
-        algorithm.compile(bindingContext, columnMatch);
+        IOpenSourceCodeModule alg = columnMatch.getAlgorithm();
+        String nameOfAlgorithm = (alg != null) ? alg.getCode(): null;
+        IMatchAlgorithmCompiler algorithm = MatchAlgorithmFactory.getAlgorithm(nameOfAlgorithm);
 
-        // TODO compile
+        algorithm.compile(bindingContext, columnMatch);
     }
 
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxError {

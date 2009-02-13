@@ -1,21 +1,28 @@
-package org.openl.rules.cmatch;
+package org.openl.rules.cmatch.algorithm;
 
 import java.text.MessageFormat;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
+import org.openl.rules.cmatch.ColumnMatch;
+import org.openl.rules.cmatch.MatchNode;
+import org.openl.rules.cmatch.SubValue;
+import org.openl.rules.cmatch.TableColumn;
+import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.String2DataConvertorFactory;
 import org.openl.types.IOpenClass;
 
-public class ColumnMatchAlgorithm {
+public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     private static final String NAMES = "names";
     public static final String OPERATION = "operation";
     public static final String VALUES = "values";
 
     private static final String[] REQUIRED_IDS = { NAMES, OPERATION, VALUES };
+
+    private static final MatchAlgorithmExecutor EXECUTOR = new MatchAlgorithmExecutor();
 
     public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) {
         checkReqColumns(columnMatch.getColumns());
@@ -36,6 +43,7 @@ public class ColumnMatchAlgorithm {
         // TODO validate CheckTree
 
         columnMatch.setCheckTree(rootNode);
+        columnMatch.setAlgorithmExecutor(EXECUTOR);
     }
 
     protected String[] getRequiredColumns() {
@@ -48,7 +56,7 @@ public class ColumnMatchAlgorithm {
      * @param columns
      * @see #getRequiredColumns()
      */
-    private void checkReqColumns(List<TableColumn> columns) {
+    void checkReqColumns(List<TableColumn> columns) {
         String[] requiredNames = getRequiredColumns();
         for (String req : requiredNames) {
             boolean exists = false;
@@ -142,7 +150,7 @@ public class ColumnMatchAlgorithm {
 
             MatchNode node = new MatchNode();
             node.setMatcher(matcher);
-            node.setVariableName(varName);  // TODO excessive
+            node.setVariableName(varName); // TODO excessive
             node.setArgument(arg);
 
             nodes[i] = node;
@@ -204,8 +212,13 @@ public class ColumnMatchAlgorithm {
 
             IMatcher matcher = nodes[i].getMatcher();
             for (int index = 0; index < inValues.length; index++) {
-                Object v = matcher.fromString(inValues[index].getString());
-                checkValues[index] = v;
+                String s = inValues[index].getString();
+
+                if (s.trim().length() > 0) {
+                    // ignore empty cells
+                    Object v = matcher.fromString(s);
+                    checkValues[index] = v;
+                }
             }
 
             nodes[i].setCheckValues(checkValues);

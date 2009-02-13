@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.openl.rules.cmatch.algorithm.Argument;
 import org.openl.rules.cmatch.matcher.IMatcher;
 
 public class MatchNode {

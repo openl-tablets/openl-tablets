@@ -1,4 +1,4 @@
-package org.openl.rules.cmatch;
+package org.openl.rules.cmatch.algorithm;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;

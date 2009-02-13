@@ -1,5 +1,6 @@
 package org.openl.rules.cmatch;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -12,12 +13,13 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
 public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBoundNode, IXlsTableNames {
-    private final ColumnMatchAlgorithm algorithm;
+    private final IOpenSourceCodeModule nameOfAlgorithm;
 
-    public ColumnMatchBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module, ColumnMatchAlgorithm algorithm) {
+    public ColumnMatchBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module,
+            IOpenSourceCodeModule nameOfAlgorithm) {
         super(tsn, openl, header, module);
-        
-        this.algorithm = algorithm;
+
+        this.nameOfAlgorithm = nameOfAlgorithm;
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
@@ -37,7 +39,7 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
         return (ColumnMatch) method;
     }
 
-    public ColumnMatchAlgorithm getAlgorithm() {
-        return algorithm;
+    public IOpenSourceCodeModule getAlgorithm() {
+        return nameOfAlgorithm;
     }
 }

@@ -1,10 +1,13 @@
 package org.openl.rules.cmatch.matcher;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 
 public class MatcherFactory {
@@ -13,15 +16,35 @@ public class MatcherFactory {
     static {
         // = (match)
         registerMatcher(new StringMatchMatcher());
-        registerMatcher(new IntegerMatchMatcher());
-        registerMatcher(new DoubleMatchMatcher());
-        registerMatcher(new DateMatchMatcher());
+        registerMatcher(new NumberMatchMatcher(Integer.class, IntRange.class, int.class));
+        registerMatcher(new NumberMatchMatcher(Double.class, DoubleRange.class, double.class));
+        registerMatcher(new ClassMatchMatcher(Date.class));
+        // ???
+        registerMatcher(new NumberMatchMatcher(Long.class, IntRange.class, long.class));
+        // ???
+        registerMatcher(new NumberMatchMatcher(Float.class, DoubleRange.class, float.class));
 
         // min
-        registerMatcher(new MinMatcher());
+        registerMatcher(new PrimitiveMinMatcher(int.class, Integer.class));
+        registerMatcher(new PrimitiveMinMatcher(double.class, Double.class));
+        registerMatcher(new PrimitiveMinMatcher(long.class, Long.class));
+        registerMatcher(new PrimitiveMinMatcher(float.class, Float.class));
+        registerMatcher(new ClassMinMatcher(Integer.class));
+        registerMatcher(new ClassMinMatcher(Double.class));
+        registerMatcher(new ClassMinMatcher(Long.class));
+        registerMatcher(new ClassMinMatcher(Float.class));
+        registerMatcher(new ClassMinMatcher(Date.class));
 
         // max
-        registerMatcher(new MaxMatcher());
+        registerMatcher(new PrimitiveMaxMatcher(int.class, Integer.class));
+        registerMatcher(new PrimitiveMaxMatcher(double.class, Double.class));
+        registerMatcher(new PrimitiveMaxMatcher(long.class, Long.class));
+        registerMatcher(new PrimitiveMaxMatcher(float.class, Float.class));
+        registerMatcher(new ClassMaxMatcher(Integer.class));
+        registerMatcher(new ClassMaxMatcher(Double.class));
+        registerMatcher(new ClassMaxMatcher(Long.class));
+        registerMatcher(new ClassMaxMatcher(Float.class));
+        registerMatcher(new ClassMaxMatcher(Date.class));
     }
 
     public static boolean hasMatcher(String name) {
