@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
 
+@Deprecated
 public class ColumnMatchRowParser {
     public static final String COLUMN_NAMES = "names";
     public static final String COLUMN_OPERATION = "operation";

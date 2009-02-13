@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openl.meta.StringValue;
 
+@Deprecated
 public class ColumnMatchTreeNode {
 
     private StringValue name;
