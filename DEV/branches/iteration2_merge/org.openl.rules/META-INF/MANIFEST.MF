@@ -10,6 +10,8 @@ Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.lib
 Export-Package: org.openl.rules.calc,
  org.openl.rules.cmatch,
+ org.openl.rules.cmatch.algorithm,
+ org.openl.rules.cmatch.matcher,
  org.openl.rules.data,
  org.openl.rules.data.binding,
  org.openl.rules.data.impl,

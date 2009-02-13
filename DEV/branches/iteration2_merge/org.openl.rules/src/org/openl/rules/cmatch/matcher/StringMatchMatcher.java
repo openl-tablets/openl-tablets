@@ -17,6 +17,11 @@ public class StringMatchMatcher implements IMatcher {
     }
 
     public boolean match(Object var, Object checkValue) {
+        if (checkValue == null) {
+            return false;
+        }
+
+        // hope both are Strings
         return checkValue.equals(var);
     }
 

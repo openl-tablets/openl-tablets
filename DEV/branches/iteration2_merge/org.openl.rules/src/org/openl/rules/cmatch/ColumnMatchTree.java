@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.openl.meta.StringValue;
 
+@Deprecated
 public class ColumnMatchTree {
 
     private StringValue[] returnValues;

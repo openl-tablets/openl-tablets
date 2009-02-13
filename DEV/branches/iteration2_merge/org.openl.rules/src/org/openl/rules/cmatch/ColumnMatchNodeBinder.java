@@ -25,16 +25,12 @@ public class ColumnMatchNodeBinder extends AXlsTableBinder {
 
         int headerTokenLength = tsn.getHeader().getHeaderToken().getIdentifier().length();
 
-        ColumnMatchAlgorithm algorithm = null;
-
         SubTextSourceCodeModule nameOfAlgorithm = cutNameOfAlgorithm(tsn, src, headerTokenLength);
         if (nameOfAlgorithm != null) {
             String name = nameOfAlgorithm.getCode();
             // TODO
             // headerTokenLength = name.getEndPosition() + 1;
             headerTokenLength = nameOfAlgorithm.getStartPosition() + name.length() + 1;
-
-            algorithm = ColumnMatchAlgorithmFactory.getAlgorithm(name);
         }
 
         SubTextSourceCodeModule codeModule = new SubTextSourceCodeModule(src, headerTokenLength);
@@ -43,7 +39,7 @@ public class ColumnMatchNodeBinder extends AXlsTableBinder {
 
         header.setDeclaringClass(module);
 
-        return new ColumnMatchBoundNode(tsn, openl, header, module, algorithm);
+        return new ColumnMatchBoundNode(tsn, openl, header, module, nameOfAlgorithm);
     }
 
     private SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn, IOpenSourceCodeModule src,
