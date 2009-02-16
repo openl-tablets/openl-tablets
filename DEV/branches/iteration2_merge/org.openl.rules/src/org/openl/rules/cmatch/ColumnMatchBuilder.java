@@ -132,6 +132,9 @@ public class ColumnMatchBuilder {
 
             if (value == null) {
                 value = "";
+            } else {
+                // kill extra spaces -- fix type errors
+                value = value.trim();
             }
 
             StringValue sv = new StringValue(value, "cell" + r + "_" + column.getColumnIndex() + "_" + c, null, uri);
