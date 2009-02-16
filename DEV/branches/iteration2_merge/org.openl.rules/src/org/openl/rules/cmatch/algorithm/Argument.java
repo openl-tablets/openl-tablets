@@ -19,7 +19,7 @@ public class Argument {
 
     public Argument(int index, IOpenField field) {
         this.index = index;
-        this.type = field.getDeclaringClass();
+        this.type = field.getType();
         this.field = field;
     }
 
@@ -27,7 +27,7 @@ public class Argument {
         if (field == null) {
             return params[index];
         } else {
-            return field.get(target, env);
+            return field.get(params[index], env);
         }
     }
 
