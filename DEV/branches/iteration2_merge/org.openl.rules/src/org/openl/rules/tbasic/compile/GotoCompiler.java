@@ -3,8 +3,8 @@ package org.openl.rules.tbasic.compile;
 import java.util.List;
 
 import org.openl.rules.tbasic.AlgorithmTreeNode;
-import org.openl.rules.tbasic.runtime.GotoOperation;
-import org.openl.rules.tbasic.runtime.RuntimeOperation;
+import org.openl.rules.tbasic.runtime.operations.GotoOperation;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
 public class GotoCompiler extends NodeCompiler{
 

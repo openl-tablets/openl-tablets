@@ -8,60 +8,61 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class NoParamMethodField implements IOpenField
-{
-	
-	String labelName; 
-	AlgorithmSubroutineMethod smethod;
+public class NoParamMethodField implements IOpenField {
 
-	public NoParamMethodField(String labelName, AlgorithmSubroutineMethod smethod) 
-	{
-		this.labelName = labelName;
-		this.smethod = smethod;
-	}
+    private String fieldName;
+    private AlgorithmSubroutineMethod methodToInvoke;
 
-	public Object get(Object target, IRuntimeEnv env) {
-		return smethod.invoke(target, new Object[]{}, env);
-	}
+    public NoParamMethodField(String theFieldName, AlgorithmSubroutineMethod theMethodToInvoke) {
+        assert theMethodToInvoke.getSignature().getParameterTypes().length > 0;
 
-	public boolean isConst() {
-		return false;
-	}
+        fieldName = theFieldName;
+        methodToInvoke = theMethodToInvoke;
+    }
 
-	public boolean isReadable() {
-		return true;
-	}
+    public Object get(Object target, IRuntimeEnv env) {
+        return methodToInvoke.invoke(target, new Object[] {}, env);
+    }
 
-	public boolean isWritable() {
-		return false;
-	}
+    public boolean isConst() {
+        return false;
+    }
 
-	public void set(Object target, Object value, IRuntimeEnv env) {
-		
-	}
+    public boolean isReadable() {
+        return true;
+    }
 
-	public IOpenClass getDeclaringClass() {
-		return smethod.getDeclaringClass();
-	}
+    public boolean isWritable() {
+        return false;
+    }
 
-	public IMemberMetaInfo getInfo() {
-		return null;
-	}
+    public void set(Object target, Object value, IRuntimeEnv env) {
+        throw new UnsupportedOperationException(String.format(
+                "Set operation is not supported for method proxy field \"%s\"", fieldName));
+    }
 
-	public IOpenClass getType() {
-		return smethod.getType();
-	}
+    public IOpenClass getDeclaringClass() {
+        return methodToInvoke.getDeclaringClass();
+    }
 
-	public boolean isStatic() {
-		return false;
-	}
+    public IMemberMetaInfo getInfo() {
+        return null;
+    }
 
-	public String getDisplayName(int mode) {
-		return smethod.getDisplayName(mode);
-	}
+    public IOpenClass getType() {
+        return methodToInvoke.getType();
+    }
 
-	public String getName() {
-		return labelName;
-	}
-	
+    public boolean isStatic() {
+        return methodToInvoke.isStatic();
+    }
+
+    public String getDisplayName(int mode) {
+        return methodToInvoke.getDisplayName(mode);
+    }
+
+    public String getName() {
+        return fieldName;
+    }
+
 }

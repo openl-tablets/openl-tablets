@@ -1,35 +1,39 @@
 package org.openl.rules.tbasic;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.tbasic.runtime.RuntimeOperation;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
+/**
+ * Table Basic Algorithm component. 
+ * It's runnable method inside OpenL Tablets infrastructure.
+ * 
+ * Allows users to represent any algorithm in tables using simple TBasic syntax. 
+ *
+ */
 public class Algorithm extends AMethod implements IMemberMetaInfo {
     private final AlgorithmBoundNode node;
 
     /**************************************************
-     * Comple artifacts
+     * Compile artifacts
      *************************************************/
+    
     private IOpenClass thisClass;
     private List<RuntimeOperation> algorithmSteps;
     private Map<String, RuntimeOperation> labels;
-
-    private List<AlgorithmRow> rows;
 
     public Algorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         super(header);
