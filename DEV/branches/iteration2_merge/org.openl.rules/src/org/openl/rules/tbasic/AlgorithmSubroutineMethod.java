@@ -6,20 +6,24 @@ package org.openl.rules.tbasic;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.tbasic.runtime.RuntimeOperation;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * @author User
- *
+ * Table Basic Algorithm component for internal subroutines and functions. 
+ * It can be run only inside call hierarchy of parent Algorithm. 
+ * However, it doesn't have any links to parent Algorithm, but relies on invocation arguments.
  */
 public class AlgorithmSubroutineMethod extends AMethod implements IOpenMethod {
 
+    /*******************************************
+     * Compile artifacts
+     ******************************************/
     private List<RuntimeOperation> algorithmSteps;
     private Map<String, RuntimeOperation> labels;
     

@@ -1,7 +1,11 @@
 /**
  * 
  */
-package org.openl.rules.tbasic.runtime;
+package org.openl.rules.tbasic.runtime.operations;
+
+import org.openl.rules.tbasic.runtime.Result;
+import org.openl.rules.tbasic.runtime.ReturnType;
+import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 
 /**
  * @author User
@@ -9,7 +13,7 @@ package org.openl.rules.tbasic.runtime;
  */
 public class GotoOperation extends RuntimeOperation {
 
-    protected String label;
+    private String label;
     
     public GotoOperation(String label){
         this.label = label;

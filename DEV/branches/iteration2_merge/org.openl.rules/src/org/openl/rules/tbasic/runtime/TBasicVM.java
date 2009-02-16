@@ -3,10 +3,9 @@ package org.openl.rules.tbasic.runtime;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
+// TODO: refactore
 public class TBasicVM {
 
     private List<RuntimeOperation> mainOperations;
@@ -14,8 +13,7 @@ public class TBasicVM {
 
     private List<RuntimeOperation> currentOperations;
     private Map<String, RuntimeOperation> currentLabels;
-    
-    private boolean isMainMethod;
+    private boolean isCurrentMainMethod;
 
     public TBasicVM(List<RuntimeOperation> operations, Map<String, RuntimeOperation> labels) {
         // TODO: not very good that we receive 2 separate collections with the
@@ -25,73 +23,36 @@ public class TBasicVM {
         mainOperations = operations;
         mainLabels = labels;
         
+        // in the first turn only main can be called
         currentOperations = mainOperations;
         currentLabels = mainLabels;
-        isMainMethod = true; // in the first turn only main can be called
+        isCurrentMainMethod = true; 
     }
 
     public Object run(TBasicContextHolderEnv environment) {
+        assert environment != null;
 
-        RuntimeOperation operation = getFirstOperation();
-        Object previousStepResult = null;
         Object returnResult = null;
-
+        
+        // Run fail safe, in case of error allow user code to handle it
+        // processing of error will be done in Algorithm main method
         try {
-            while (operation != null) {
-                Result result = null;
-                try {
-                    result = operation.execute(environment, previousStepResult);
-                } catch (OpenLAlgorithmGoToMainSignal signal){
-                    operation = getLabeledOperation(signal.getLabel());
-                    continue;
-                }
-    
-                // TODO: result == null
-                if (result.getReturnType() == ReturnType.Goto) {
-                    // TODO: goto required operation
-                    operation = getLabeledOperation((String) result.getValue());
-                    continue;
-                } else if (result.getReturnType() == ReturnType.Return) {
-                    returnResult = result.getValue();
-                    break;
-                }
-    
-                operation = getNextOperation(operation);
-                previousStepResult = result.getValue();
-            }
+            returnResult = runAll(environment);
         } catch (OpenLAlgorithmErrorSignal signal){
-            if (!isMainMethod) {
+            if (isCurrentMainMethod) {
+                returnResult = AlgorithmErrorHelper.processError(signal.getCause(), environment);
+            } else {
                 throw signal;
-            } else if (isMainMethod){
-                // TODO discover which exception contains exception
-                returnResult = processError(signal.getCause().getCause(), environment);
             }
         } catch (Throwable error){
-            if (!isMainMethod) {
+            if (isCurrentMainMethod) {
+                returnResult = AlgorithmErrorHelper.processError(error, environment);
+            } else {
                 throw new OpenLAlgorithmErrorSignal(error);
-            } else if (isMainMethod){
-                // TODO discover which exception contains exception
-                returnResult = processError(error.getCause(), environment);
             }
         }
 
         return returnResult;
-    }
-
-    private Object processError(Throwable signal, TBasicContextHolderEnv environment) {
-        IOpenClass algorithmType = environment.getTbasicTarget().getType();
-        IOpenMethod errorMethod = algorithmType.getMethod("ON ERROR", new IOpenClass[]{});
-        
-        if (errorMethod != null){
-            IOpenField error = algorithmType.getField("ERROR");
-            if (error != null){
-                // populate error messages
-                error.set(environment.getTbasicTarget(), signal, environment);
-            }
-            return errorMethod.invoke(environment.getTbasicTarget(), null, environment);
-        }
-        
-        throw new RuntimeException(String.format("Execution of algorithm failed: %s", signal.getMessage()), signal);
     }
 
     public Object run(List<RuntimeOperation> methodSteps, Map<String, RuntimeOperation> methodLabels,
@@ -102,13 +63,47 @@ public class TBasicVM {
         boolean previousIsMainMethod = swapIsMainMethod(false);
 
         try {
-            Object result = run(environment);
-            return result;
+            return run(environment);
         } finally {
             swapOperations(previousOperations);
             swapLabels(previousLabels);
             swapIsMainMethod(previousIsMainMethod);
         }
+    }
+    
+    /**
+     * @param environment
+     * @return
+     */
+    private Object runAll(TBasicContextHolderEnv environment) {
+        RuntimeOperation operation = getFirstOperation();
+        Object previousStepResult = null;
+        Object returnResult = null;
+        
+        while (operation != null) {
+            Result operationResult;
+            try {
+                operationResult = operation.execute(environment, previousStepResult);
+                assert operationResult != null;
+            } catch (OpenLAlgorithmGoToMainSignal signal){
+                operation = getLabeledOperation(signal.getLabel());
+                continue;
+            }
+            
+            if (operationResult.getReturnType() == ReturnType.Goto) {
+                assert operationResult.getValue() instanceof String;
+                operation = getLabeledOperation((String) operationResult.getValue());
+                continue;
+            } else if (operationResult.getReturnType() == ReturnType.Return) {
+                returnResult = operationResult.getValue();
+                break;
+            }
+   
+            operation = getNextOperation(operation);
+            previousStepResult = operationResult.getValue();
+        }
+        
+        return returnResult;
     }
     
     /**
@@ -166,9 +161,8 @@ public class TBasicVM {
      * @param newIsMainMethod
      */
     private boolean swapIsMainMethod(boolean newIsMainMethod) {
-        boolean oldValue = isMainMethod;
-        isMainMethod = newIsMainMethod;
+        boolean oldValue = isCurrentMainMethod;
+        isCurrentMainMethod = newIsMainMethod;
         return oldValue;
     }
-
 }

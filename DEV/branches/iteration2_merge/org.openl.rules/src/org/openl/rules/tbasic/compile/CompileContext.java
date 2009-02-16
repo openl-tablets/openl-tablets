@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.tbasic.runtime.RuntimeOperation;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
 public class CompileContext {
     /*********************************

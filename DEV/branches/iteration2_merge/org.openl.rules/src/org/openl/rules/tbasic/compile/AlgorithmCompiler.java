@@ -25,8 +25,8 @@ import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.NoParamMethodField;
-import org.openl.rules.tbasic.TableParserManager;
-import org.openl.rules.tbasic.runtime.RuntimeOperation;
+import org.openl.rules.tbasic.AlgorithmTableParserManager;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -89,7 +89,7 @@ public class AlgorithmCompiler {
      **********************************************/
 
     public void compile(Algorithm algorithm) throws BoundError {
-        conversionRules = TableParserManager.instance().getFixedConversionRules();
+        conversionRules = AlgorithmTableParserManager.instance().getFixedConversionRules();
         labelManager = new LabelManager();
         mainCompileContext = new CompileContext();
         internalMethodsContexts = new HashMap<String, CompileContext>();
@@ -436,7 +436,7 @@ public class AlgorithmCompiler {
     private RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
             throws BoundError {
         try {
-            Class clazz = Class.forName("org.openl.rules.tbasic.runtime." + conversionStep.getOperationType()
+            Class clazz = Class.forName("org.openl.rules.tbasic.runtime.operations." + conversionStep.getOperationType()
                     + "Operation");
             Constructor constructor = clazz.getConstructors()[0];
 
@@ -554,7 +554,7 @@ public class AlgorithmCompiler {
         AlgorithmTreeNode currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
         String currentNodeKeyword = currentNodeToProcess.getSpecification().getKeyword();
 
-        String[] operationNamesToGroup = TableParserManager.instance().whatOperationsToGroup(currentNodeKeyword);
+        String[] operationNamesToGroup = AlgorithmTableParserManager.instance().whatOperationsToGroup(currentNodeKeyword);
 
         if (operationNamesToGroup != null) {
             List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
@@ -582,7 +582,7 @@ public class AlgorithmCompiler {
             groupedOperationNames.add(node.getSpecification().getKeyword());
         }
         
-        String operationGroupName = TableParserManager.instance().whatIsOperationsGroupName(groupedOperationNames);
+        String operationGroupName = AlgorithmTableParserManager.instance().whatIsOperationsGroupName(groupedOperationNames);
 
         boolean isMultilineOperation;
         // we assume that all the operations are either all multiline or not

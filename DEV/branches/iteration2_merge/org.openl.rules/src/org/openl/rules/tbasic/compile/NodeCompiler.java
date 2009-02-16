@@ -3,8 +3,8 @@ package org.openl.rules.tbasic.compile;
 import java.util.List;
 
 import org.openl.rules.tbasic.AlgorithmTreeNode;
-import org.openl.rules.tbasic.runtime.PerformOperation;
-import org.openl.rules.tbasic.runtime.RuntimeOperation;
+import org.openl.rules.tbasic.runtime.operations.PerformOperation;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
 public abstract class NodeCompiler {
 

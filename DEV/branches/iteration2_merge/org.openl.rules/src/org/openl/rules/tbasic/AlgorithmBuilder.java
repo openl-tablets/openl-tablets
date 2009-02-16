@@ -39,8 +39,8 @@ public class AlgorithmBuilder {
         // parse data, row=2..*
         List<AlgorithmRow> algorithmRows = buildRows(tableBody);
 
-        RowParser rowParser = new RowParser(algorithmRows, TableParserManager.instance()
-                .getStructuredAlgorithmSpecification());
+        RowParser rowParser = new RowParser(algorithmRows, AlgorithmTableParserManager.instance()
+                .getAlgorithmSpecification());
 
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
 

@@ -1,8 +1,9 @@
 /**
  * 
  */
-package org.openl.rules.tbasic.runtime;
+package org.openl.rules.tbasic.runtime.operations;
 
+import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.types.IMethodCaller;
 
 /**
@@ -10,7 +11,7 @@ import org.openl.types.IMethodCaller;
  *
  */
 public abstract class OpenLEvaluationOperation<ResultValueType> extends RuntimeOperation {
-    protected IMethodCaller openLStatement;
+    private IMethodCaller openLStatement;
     
     public OpenLEvaluationOperation(IMethodCaller openLStatement){
         this.openLStatement = openLStatement;
@@ -18,7 +19,11 @@ public abstract class OpenLEvaluationOperation<ResultValueType> extends RuntimeO
     
     public ResultValueType evaluateStatement(TBasicContextHolderEnv environment){
         ResultValueType resultValue = null;
-        resultValue = (ResultValueType)openLStatement.invoke(environment.getTbasicTarget(), environment.getTbasicParams(), environment);
+        
+        if (openLStatement != null){
+            resultValue = (ResultValueType)openLStatement.invoke(environment.getTbasicTarget(), environment.getTbasicParams(), environment);
+        }
+        
         return resultValue;
     }
 

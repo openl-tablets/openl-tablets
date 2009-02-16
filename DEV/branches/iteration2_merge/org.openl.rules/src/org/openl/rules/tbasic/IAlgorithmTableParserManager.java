@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.openl.rules.tbasic.compile.ConversionRuleBean;
 
-public interface ITableParserManager {
+public interface IAlgorithmTableParserManager {
 
-    TableParserSpecificationBean[] getStructuredAlgorithmSpecification();
+    TableParserSpecificationBean[] getAlgorithmSpecification();
     ConversionRuleBean[] getConversionRules();
     String[] whatOperationsToGroup(String keyword);
     String whatIsOperationsGroupName(List<String> groupedOperationNames);

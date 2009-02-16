@@ -1,7 +1,11 @@
 /**
  * 
  */
-package org.openl.rules.tbasic.runtime;
+package org.openl.rules.tbasic.runtime.operations;
+
+import org.openl.rules.tbasic.runtime.Result;
+import org.openl.rules.tbasic.runtime.ReturnType;
+import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 
 /**
  * @author User
@@ -9,7 +13,7 @@ package org.openl.rules.tbasic.runtime;
  */
 public class ConditionalGotoOperation extends GotoOperation {
 
-    protected boolean expectedCondition;
+    private boolean expectedCondition;
 
     public ConditionalGotoOperation(String label, boolean expectedCondition) {
         super(label);
@@ -25,18 +29,16 @@ public class ConditionalGotoOperation extends GotoOperation {
      */
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        if (param == null || !(param instanceof Boolean)) {
-            // FIXME Add source reference and understandable hint
-            throw new IllegalArgumentException("Previous operation should return boolean value");
-        }
+        assert param != null;
+        assert param instanceof Boolean;
 
         boolean condition = (Boolean) param;
         Result result;
 
         if (condition == expectedCondition) {
-            result = executeUnconditionalGoto(environment);
+            result = executeGoto(environment);
         } else {
-            result = executeSkipGoto();
+            result = skipGoto();
         }
 
         return result;
@@ -45,17 +47,17 @@ public class ConditionalGotoOperation extends GotoOperation {
     /**
      * @return
      */
-    private Result executeSkipGoto() {
+    private Result skipGoto() {
         Result result;
         result = new Result(ReturnType.Next);
         return result;
     }
 
     /**
-     * @param context
+     * @param environment
      * @return
      */
-    private Result executeUnconditionalGoto(TBasicContextHolderEnv environment) {
+    private Result executeGoto(TBasicContextHolderEnv environment) {
         Result result;
         result = super.execute(environment, null);
         return result;
