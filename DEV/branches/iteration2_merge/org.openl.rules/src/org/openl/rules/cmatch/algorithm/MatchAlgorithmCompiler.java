@@ -1,6 +1,7 @@
 package org.openl.rules.cmatch.algorithm;
 
 import java.text.MessageFormat;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
@@ -17,11 +18,18 @@ import org.openl.rules.data.String2DataConvertorFactory;
 import org.openl.types.IOpenClass;
 
 public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
-    private static final String NAMES = "names";
+    public static final String NAMES = "names";
     public static final String OPERATION = "operation";
     public static final String VALUES = "values";
 
-    private static final String[] REQUIRED_IDS = { NAMES, OPERATION, VALUES };
+    public static final String ROW_RET_VALUE = "Return Values";
+
+    protected static final List<ColumnDefinition> MATCH_COLUMN_DEFINITION = new LinkedList<ColumnDefinition>();
+    static {
+        MATCH_COLUMN_DEFINITION.add(new ColumnDefinition(NAMES, false));
+        MATCH_COLUMN_DEFINITION.add(new ColumnDefinition(OPERATION, false));
+        MATCH_COLUMN_DEFINITION.add(new ColumnDefinition(VALUES, true));
+    }
 
     private static final MatchAlgorithmExecutor EXECUTOR = new MatchAlgorithmExecutor();
 
@@ -29,27 +37,31 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         checkReqColumns(columnMatch.getColumns());
         checkRows(columnMatch.getRows());
 
-        Object[] retValues = compileReturnValues(bindingContext, columnMatch);
-        columnMatch.setReturnValues(retValues);
+        int minRows = getSpecialRowCount() + 1;
+        if (columnMatch.getRows().size() < minRows) {
+            String msg = "Expects at least " + minRows + " rows!";
+            throw new IllegalArgumentException(msg);
+        }
+
+        checkSpecialRows(columnMatch);
+
+        parseSpecialRows(columnMatch);
 
         ArgumentsHelper argumentsHelper = new ArgumentsHelper(columnMatch.getHeader().getSignature());
 
-        // [0] are ignored
+        // [0..X] special rows are ignored
         List<TableRow> rows = columnMatch.getRows();
-        MatchNode[] nodes = prepareNodes(rows, argumentsHelper);
+        MatchNode[] nodes = prepareNodes(columnMatch, argumentsHelper, columnMatch.getReturnValues().length);
 
         MatchNode rootNode = buildTree(rows, nodes);
-        checkTree(rootNode, rows);
-        parseCheckValues(rows, nodes, retValues.length);
-
-        linearizeTree(rootNode, nodes);
-
+        validateTree(rootNode, rows, nodes);
         columnMatch.setCheckTree(rootNode);
-        columnMatch.setAlgorithmExecutor(EXECUTOR);
+
+        assignExecutor(columnMatch);
     }
 
-    protected String[] getRequiredColumns() {
-        return REQUIRED_IDS;
+    protected List<ColumnDefinition> getColumnDefinition() {
+        return MATCH_COLUMN_DEFINITION;
     }
 
     /**
@@ -58,39 +70,55 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * @param columns
      * @see #getRequiredColumns()
      */
-    void checkReqColumns(List<TableColumn> columns) {
-        String[] requiredNames = getRequiredColumns();
-        for (String req : requiredNames) {
+    private void checkReqColumns(List<TableColumn> columns) {
+        for (ColumnDefinition colDef : getColumnDefinition()) {
             boolean exists = false;
             for (TableColumn column : columns) {
-                if (req.equals(column.getId())) {
+                if (colDef.getName().equals(column.getId())) {
                     exists = true;
                     break;
                 }
             }
 
             if (!exists) {
-                throw new IllegalArgumentException("Required column " + req + " is absent!");
+                throw new IllegalArgumentException("Required column " + colDef.getName() + " is absent!");
             }
         }
     }
 
-    protected void checkRows(List<TableRow> rows) {
+    private void checkRows(List<TableRow> rows) {
         for (int i = 0; i < rows.size(); i++) {
             TableRow row = rows.get(i);
 
-            checkColumnValue(row, NAMES, false);
-            checkColumnValue(row, OPERATION, false);
-            checkColumnValue(row, VALUES, true);
+            for (ColumnDefinition colDef : getColumnDefinition()) {
+                checkColumnValue(row, colDef);
+            }
         }
     }
 
-    protected void checkColumnValue(TableRow row, String columnId, boolean isMultipleAlloved) {
-        SubValue[] values = row.get(columnId);
-        if (!isMultipleAlloved) {
+    protected void checkSpecialRows(ColumnMatch columnMatch) throws BoundError {
+        List<TableRow> rows = columnMatch.getRows();
+        checkRowName(rows.get(0), ROW_RET_VALUE);
+    }
+
+    protected void checkRowName(TableRow row, String expectedName) throws BoundError {
+        SubValue sv = row.get(NAMES)[0];
+        if (!expectedName.equalsIgnoreCase(sv.getString())) {
+            String msg = "Expects " + expectedName + " here!";
+            throw new BoundError(msg, sv.getStringValue().asSourceCodeModule());
+        }
+    }
+
+    protected int getSpecialRowCount() {
+        return 1;
+    }
+
+    protected void checkColumnValue(TableRow row, ColumnDefinition colDef) {
+        SubValue[] values = row.get(colDef.getName());
+        if (!colDef.isMultipleValueAllowed()) {
             // only 1
             if (values.length != 1) {
-                throw new IllegalArgumentException("Column " + columnId + " can have single value only!");
+                throw new IllegalArgumentException("Column " + colDef.getName() + " can have single value only!");
             }
         }
     }
@@ -98,23 +126,25 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     /**
      * Compiles (parses) return values based on return type.
      * 
-     * @param bindingContext
      * @param columnMatch
-     * @return
      */
-    protected Object[] compileReturnValues(IBindingContext bindingContext, ColumnMatch columnMatch) {
+    protected void parseSpecialRows(ColumnMatch columnMatch) throws BoundError {
         IOpenClass returnType = columnMatch.getHeader().getType();
-        IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(returnType.getInstanceClass());
+        Object[] retValues = parseValues(columnMatch.getRows().get(0), returnType.getInstanceClass());
+        columnMatch.setReturnValues(retValues);
+    }
 
-        TableRow retRow = columnMatch.getRows().get(0);
-        SubValue[] retSubValues = retRow.get(VALUES);
+    protected Object[] parseValues(TableRow row, Class<?> clazz) {
+        IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(clazz);
 
-        Object[] result = new Object[retSubValues.length];
-        for (int i = 0; i < retSubValues.length; i++) {
-            SubValue sv = retSubValues[i];
+        SubValue[] subValues = row.get(VALUES);
+
+        Object[] result = new Object[subValues.length];
+        for (int i = 0; i < subValues.length; i++) {
+            SubValue sv = subValues[i];
             String s = sv.getString();
 
-            result[i] = converter.parse(s, null, bindingContext);
+            result[i] = converter.parse(s, null, null);
         }
 
         return result;
@@ -123,18 +153,20 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     /**
      * Prepares Nodes. Check names, operations and assigns matchers.
      * <p>
-     * 0th row is ignored. That is why 0th element in return array is always
-     * null.
+     * Special rows are ignored. That is why first n elements in return array is
+     * always null.
      * 
      * @param rows
      * @param argumentsHelper
      * @return array of nodes, elements corresponds rows
      * @throws BoundError
      */
-    protected MatchNode[] prepareNodes(List<TableRow> rows, ArgumentsHelper argumentsHelper) throws BoundError {
+    protected MatchNode[] prepareNodes(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper, int retValuesCount)
+            throws BoundError {
+        List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = new MatchNode[rows.size()];
 
-        for (int i = 1; i < rows.size(); i++) {
+        for (int i = getSpecialRowCount(); i < rows.size(); i++) {
             TableRow row = rows.get(i);
             SubValue nameSV = row.get(NAMES)[0];
             String varName = nameSV.getString();
@@ -145,17 +177,20 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                 throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
-            String operationName = row.get(OPERATION)[0].getString();
+            SubValue operationSV = row.get(OPERATION)[0];
+            String operationName = operationSV.getString();
 
             IMatcher matcher = MatcherFactory.getMatcher(operationName, arg.getType());
             if (matcher == null) {
                 String msg = "No matcher was found for operation " + operationName + " and type " + arg.getType();
-                throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
+                throw new BoundError(msg, operationSV.getStringValue().asSourceCodeModule());
             }
 
             MatchNode node = new MatchNode(i);
             node.setMatcher(matcher);
             node.setArgument(arg);
+
+            parseCheckValues(row, node, retValuesCount);
 
             nodes[i] = node;
         }
@@ -168,7 +203,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * 
      * @param rows
      * @param nodes
-     *            (0-th must be null)
+     *            (special rows must be null)
      * @return root of tree
      * @throws BoundError
      */
@@ -177,7 +212,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
         MatchNode[] lastForIndent = new MatchNode[nodes.length];
         int prevIndent = 0;
-        for (int i = 1; i < rows.size(); i++) {
+        for (int i = getSpecialRowCount(); i < rows.size(); i++) {
             MatchNode node = nodes[i];
             TableRow row = rows.get(i);
             SubValue nameSV = row.get(NAMES)[0];
@@ -215,7 +250,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      *            rows to point out errors
      * @throws BoundError
      */
-    private void checkTree(MatchNode rootNode, List<TableRow> rows) throws BoundError {
+    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws BoundError {
         for (MatchNode node : rootNode.getChildren()) {
             if (node.isLeaf()) {
                 // ok
@@ -224,6 +259,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                 checkTreeChildren(node, rows);
             }
         }
+
+        linearizeTree(rootNode, nodes);
     }
 
     private void checkTreeChildren(MatchNode parent, List<TableRow> rows) throws BoundError {
@@ -253,10 +290,11 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         rootNode.clearChildren();
 
         MatchNode last0 = null;
-        for (int i = 1; i < nodes.length; i++) {
+        for (int i = getSpecialRowCount(); i < nodes.length; i++) {
             MatchNode node = nodes[i];
             if (node.getParent() == rootNode) {
                 last0 = new MatchNode(-2);
+                last0.setWeight(node.getWeight());
                 // use synthetic node
                 rootNode.add(last0);
             }
@@ -266,54 +304,32 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     }
 
     /**
-     * Parses all CheckValues for all nodes(rows). It is up to matcher (type of
-     * variable in 'names') how to parse it.
+     * Parses CheckValues for node(row). It is up to matcher (type of variable
+     * in 'names') how to parse it.
      * 
-     * @param rows
-     * @param nodes
+     * @param row
+     * @param node
      * @param retValuesCount
      */
-    protected void parseCheckValues(List<TableRow> rows, MatchNode[] nodes, int retValuesCount) {
-        for (int i = 1; i < rows.size(); i++) {
-            TableRow row = rows.get(i);
-            SubValue[] inValues = row.get(VALUES);
-            Object[] checkValues = new Object[retValuesCount];
+    protected void parseCheckValues(TableRow row, MatchNode node, int retValuesCount) {
+        SubValue[] inValues = row.get(VALUES);
+        Object[] checkValues = new Object[retValuesCount];
 
-            IMatcher matcher = nodes[i].getMatcher();
-            for (int index = 0; index < inValues.length; index++) {
-                String s = inValues[index].getString().trim();
+        IMatcher matcher = node.getMatcher();
+        for (int index = 0; index < inValues.length; index++) {
+            String s = inValues[index].getString().trim();
 
-                if (s.length() > 0) {
-                    // ignore empty cells
-                    Object v = matcher.fromString(s);
-                    checkValues[index] = v;
-                }
-            }
-
-            nodes[i].setCheckValues(checkValues);
-        }
-    }
-
-    @Deprecated
-    private void print(ColumnMatch columnMatch) {
-        List<TableRow> rows = columnMatch.getRows();
-        List<TableColumn> columns = columnMatch.getColumns();
-
-        for (int r = 0; r < rows.size(); r++) {
-            System.out.println("row #" + r);
-            TableRow row = rows.get(r);
-
-            for (TableColumn c : columns) {
-                System.out.println("  column " + c.getId());
-                System.out.print("   ");
-                SubValue[] values = row.get(c.getId());
-
-                for (SubValue sv : values) {
-                    System.out.print(" " + sv.getIndent() + ":" + sv.getString());
-                }
-                System.out.println();
+            if (s.length() > 0) {
+                // ignore empty cells
+                Object v = matcher.fromString(s);
+                checkValues[index] = v;
             }
         }
+
+        node.setCheckValues(checkValues);
     }
 
+    protected void assignExecutor(ColumnMatch columnMatch) {
+        columnMatch.setAlgorithmExecutor(EXECUTOR);
+    }
 }

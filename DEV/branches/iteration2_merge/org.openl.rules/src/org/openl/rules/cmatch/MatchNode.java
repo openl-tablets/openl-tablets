@@ -17,6 +17,8 @@ public class MatchNode {
 
     private Argument argument;
 
+    private int weight;
+
     /** Actual values in a row */
     private Object[] checkValues;
 
@@ -72,5 +74,13 @@ public class MatchNode {
 
     public int getRowIndex() {
         return rowIndex;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 }

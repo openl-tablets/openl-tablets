@@ -23,6 +23,10 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
 
     private IMatchAlgorithmExecutor algorithmExecutor;
 
+    // WEIGHT algorithm
+    private MatchNode totalScore;
+    private int[] columnScores;
+
     public ColumnMatch(IOpenMethodHeader header, ColumnMatchBoundNode node) {
         super(header);
         this.node = node;
@@ -92,4 +96,21 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     public IOpenSourceCodeModule getAlgorithm() {
         return node.getAlgorithm();
     }
+
+    public MatchNode getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(MatchNode totalScore) {
+        this.totalScore = totalScore;
+    }
+
+    public int[] getColumnScores() {
+        return columnScores;
+    }
+
+    public void setColumnScores(int[] columnScores) {
+        this.columnScores = columnScores;
+    }
+
 }
