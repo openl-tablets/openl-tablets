@@ -9,20 +9,20 @@ import org.openl.rules.cmatch.matcher.IMatcher;
 
 public class MatchNode {
     private final List<MatchNode> children;
+    private final int rowIndex;
+
     private MatchNode parent;
 
     private IMatcher matcher;
 
-    /** Name of variable / argument */
-    @Deprecated
-    private String variableName;
     private Argument argument;
 
     /** Actual values in a row */
     private Object[] checkValues;
 
-    public MatchNode() {
+    public MatchNode(int rowIndex) {
         children = new LinkedList<MatchNode>();
+        this.rowIndex = rowIndex;
     }
 
     public void add(MatchNode child) {
@@ -32,6 +32,14 @@ public class MatchNode {
 
     public MatchNode getParent() {
         return parent;
+    }
+
+    public boolean isLeaf() {
+        return (children.isEmpty());
+    }
+
+    public void clearChildren() {
+        children.clear();
     }
 
     public List<MatchNode> getChildren() {
@@ -44,14 +52,6 @@ public class MatchNode {
 
     public void setMatcher(IMatcher matcher) {
         this.matcher = matcher;
-    }
-
-    public String getVariableName() {
-        return variableName;
-    }
-
-    public void setVariableName(String variableName) {
-        this.variableName = variableName;
     }
 
     public Object[] getCheckValues() {
@@ -68,5 +68,9 @@ public class MatchNode {
 
     public void setArgument(Argument argument) {
         this.argument = argument;
+    }
+
+    public int getRowIndex() {
+        return rowIndex;
     }
 }
