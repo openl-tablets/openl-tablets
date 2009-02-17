@@ -6,6 +6,7 @@ import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
 
 public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
+    public static final Object NO_MATCH = null;
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
         MatchNode checkTree = columnMatch.getCheckTree();
@@ -38,6 +39,6 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
         }
 
-        return null;
+        return NO_MATCH;
     }
 }
