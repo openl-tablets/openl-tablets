@@ -6,49 +6,61 @@ import java.util.Map;
 import org.openl.binding.impl.ControlSignal;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
-// TODO: refactore
+/**
+ * The <code>TBasicVM</code> class executes Algorithm logic. Besides execution
+ * of operations list, the class provides logic to support GOTO to main method
+ * and errors processing.
+ * 
+ */
 public class TBasicVM {
+    private TBasicVMDataContext mainContext;
+    private TBasicVMDataContext currentContext;
 
-    private List<RuntimeOperation> mainOperations;
-    private Map<String, RuntimeOperation> mainLabels;
-
-    private List<RuntimeOperation> currentOperations;
-    private Map<String, RuntimeOperation> currentLabels;
-    private boolean isCurrentMainMethod;
-
+    /**
+     * Create an instance of <code>TBasicVM</code> initialized with main
+     * Algorithm method operations and labels register.
+     * 
+     * @param operations
+     * @param labels
+     */
     public TBasicVM(List<RuntimeOperation> operations, Map<String, RuntimeOperation> labels) {
-        // TODO: not very good that we receive 2 separate collections with the
-        // same items:
-        // operations - list of all operations to execute, labels - register of
-        // (label, operation) (operation is the same as in operations)
-        mainOperations = operations;
-        mainLabels = labels;
-        
+        mainContext = new TBasicVMDataContext(operations, labels, true);
+
         // in the first turn only main can be called
-        currentOperations = mainOperations;
-        currentLabels = mainLabels;
-        isCurrentMainMethod = true; 
+        currentContext = mainContext;
     }
 
+    /**
+     * Run the method of Algorithm. <code>TBasicVM</code> instance will run
+     * operations which are considered in current context. <br>
+     * Method also implements logic to handle all errors by user defined
+     * handling method. <br>
+     * Method should be called only for main Algorithm method, all sub methods
+     * should be run using {@link #run(List, Map, TBasicContextHolderEnv)}.
+     * 
+     * @param environment The environment for execution.
+     * @return The result of the method execution.
+     */
     public Object run(TBasicContextHolderEnv environment) {
         assert environment != null;
 
         Object returnResult = null;
-        
+
         // Run fail safe, in case of error allow user code to handle it
         // processing of error will be done in Algorithm main method
         try {
             returnResult = runAll(environment);
-        } catch (OpenLAlgorithmErrorSignal signal){
-            if (isCurrentMainMethod) {
+        } catch (OpenLAlgorithmErrorSignal signal) {
+            if (currentContext.isMainMethodContext()) {
                 returnResult = AlgorithmErrorHelper.processError(signal.getCause(), environment);
             } else {
                 throw signal;
             }
-        } catch (ControlSignal signal){
+        } catch (ControlSignal signal) {
+            // pass through all other OpenL signals
             throw signal;
-        } catch (Throwable error){
-            if (isCurrentMainMethod) {
+        } catch (Throwable error) {
+            if (currentContext.isMainMethodContext()) {
                 returnResult = AlgorithmErrorHelper.processError(error, environment);
             } else {
                 throw new OpenLAlgorithmErrorSignal(error);
@@ -58,41 +70,52 @@ public class TBasicVM {
         return returnResult;
     }
 
+    /**
+     * Run sub-method of Algorithm. <code>TBasicVM</code> instance will execute
+     * the provided operations list. <br>
+     * The sub-method can be called only within of execution of main Algorithm
+     * method. However, the implementation doesn't put any restrictions.
+     * 
+     * @param methodSteps The list of operations to run.
+     * @param methodLabels The labels register for sub-method.
+     * @param environment The environment for execution.
+     * @return The result of the method execution.
+     */
     public Object run(List<RuntimeOperation> methodSteps, Map<String, RuntimeOperation> methodLabels,
             TBasicContextHolderEnv environment) {
-        
-        List<RuntimeOperation> previousOperations = swapOperations(methodSteps);
-        Map<String, RuntimeOperation> previousLabels = swapLabels(methodLabels);
-        boolean previousIsMainMethod = swapIsMainMethod(false);
+
+        TBasicVMDataContext methodContext = new TBasicVMDataContext(methodSteps, methodLabels, false);
+
+        TBasicVMDataContext previousContext = swapContext(methodContext);
 
         try {
             return run(environment);
         } finally {
-            swapOperations(previousOperations);
-            swapLabels(previousLabels);
-            swapIsMainMethod(previousIsMainMethod);
+            swapContext(previousContext);
         }
     }
-    
+
     /**
-     * @param environment
-     * @return
+     * Run all operations in the current context.
+     * 
+     * @param environment The environment for execution.
+     * @return The result of the method execution.
      */
     private Object runAll(TBasicContextHolderEnv environment) {
-        RuntimeOperation operation = getFirstOperation();
+        RuntimeOperation operation = currentContext.getFirstOperation();
         Object previousStepResult = null;
         Object returnResult = null;
-        
+
         while (operation != null) {
             Result operationResult;
             try {
                 operationResult = operation.execute(environment, previousStepResult);
                 assert operationResult != null;
-            } catch (OpenLAlgorithmGoToMainSignal signal){
+            } catch (OpenLAlgorithmGoToMainSignal signal) {
                 operation = getLabeledOperation(signal.getLabel());
                 continue;
             }
-            
+
             if (operationResult.getReturnType() == ReturnType.Goto) {
                 assert operationResult.getValue() instanceof String;
                 operation = getLabeledOperation((String) operationResult.getValue());
@@ -101,71 +124,54 @@ public class TBasicVM {
                 returnResult = operationResult.getValue();
                 break;
             }
-   
-            operation = getNextOperation(operation);
+
+            operation = currentContext.getNextOperation(operation);
             previousStepResult = operationResult.getValue();
         }
-        
+
         return returnResult;
     }
-    
+
     /**
-     * @return
+     * Searches for operation labeled with the provided label. <br>
+     * The search will be done in current context and in the main context. If
+     * label will be found in main context, the execution will be switched to
+     * there.
+     * 
+     * @param label The label to switch to.
+     * @return The labeled operation.
      */
-    private RuntimeOperation getFirstOperation() {
-        return currentOperations.get(0);
-    }
-
-    private RuntimeOperation getNextOperation(RuntimeOperation operation) {
-        RuntimeOperation nextOperation = null;
-
-        int indexOfNext = currentOperations.indexOf(operation) + 1;
-
-        if (indexOfNext < currentOperations.size()) {
-            nextOperation = currentOperations.get(indexOfNext);
-        }
-
-        return nextOperation;
-    }
-
     private RuntimeOperation getLabeledOperation(String label) {
-        if (currentLabels.containsKey(label)) {
-            return currentLabels.get(label);
-        } else if (mainLabels.containsKey(label)) {
-            returnBackToMain(label);
+        if (currentContext.isLabelInContext(label)) {
+            return currentContext.getLabeledOperation(label);
+        } else if (mainContext.isLabelInContext(label)) {
+            goToLabelInMainContext(label);
         }
         throw new RuntimeException(String.format(
                 "Unexpected error while execution of TBasic component: unknown label \"%s\"", label));
     }
 
-    private void returnBackToMain(String label) {
+    /**
+     * Switch execution from current subroutine or function context to the main
+     * Algorithm context. The OpenL control signal is used to do this. It passes
+     * all the catches in OpenL and must be handled by <code>TBasicVM</code>
+     * handle logic.
+     * 
+     * @param label The context to set as current.
+     */
+    private void goToLabelInMainContext(String label) {
         throw new OpenLAlgorithmGoToMainSignal(label);
     }
 
     /**
-     * @param newOperations
+     * Set new current context and return the old one.
+     * 
+     * @param newContext The context to set as current.
+     * @return The context which was set as current before.
      */
-    private List<RuntimeOperation> swapOperations(List<RuntimeOperation> newOperations) {
-        List<RuntimeOperation> oldValue = currentOperations;
-        currentOperations = newOperations;
-        return oldValue;
-    }
-    
-    /**
-     * @param newLabels
-     */
-    private Map<String, RuntimeOperation> swapLabels(Map<String, RuntimeOperation> newLabels) {
-        Map<String, RuntimeOperation> oldValue = currentLabels;
-        currentLabels = newLabels;
-        return oldValue;
-    }
-    
-    /**
-     * @param newIsMainMethod
-     */
-    private boolean swapIsMainMethod(boolean newIsMainMethod) {
-        boolean oldValue = isCurrentMainMethod;
-        isCurrentMainMethod = newIsMainMethod;
+    private TBasicVMDataContext swapContext(TBasicVMDataContext newContext) {
+        TBasicVMDataContext oldValue = currentContext;
+        currentContext = newContext;
         return oldValue;
     }
 }
