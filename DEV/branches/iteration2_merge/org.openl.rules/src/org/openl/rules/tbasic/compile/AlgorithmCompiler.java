@@ -98,6 +98,10 @@ public class AlgorithmCompiler {
         precompile(nodesToCompile);
         compile(nodesToCompile);
 
+        // TODO: not very good that we receive 2 separate collections with the
+        // same items:
+        // operations - list of all operations to execute, labels - register of
+        // (label, operation) (operation is the same as in operations)
         algorithm.setThisClass(getThisTargetClass());
         algorithm.setAlgorithmSteps(getMainCompileContext().getOperations());
         algorithm.setLabels(getMainCompileContext().getLocalLabelsRegister());

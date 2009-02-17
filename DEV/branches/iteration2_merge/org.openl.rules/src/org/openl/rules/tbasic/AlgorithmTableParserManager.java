@@ -14,10 +14,10 @@ import org.openl.runtime.EngineFactory;
  * @author User
  * 
  */
-public class AlgorithmTableParserManager implements IAlgorithmTableParserManager {
+public final class AlgorithmTableParserManager implements IAlgorithmTableParserManager {
     // To make class serializable, change synchronization
 
-    private static AlgorithmTableParserManager instance;
+    private static volatile AlgorithmTableParserManager instance;
     private final IAlgorithmTableParserManager rulesWrapperInstance;
 
     public static AlgorithmTableParserManager instance() {
@@ -46,7 +46,7 @@ public class AlgorithmTableParserManager implements IAlgorithmTableParserManager
         return result;
     }
 
-    private ConversionRuleBean[] convertionRules;
+    private volatile ConversionRuleBean[] convertionRules;
 
     public ConversionRuleBean[] getConversionRules() {
         lazyLoadConversionRules();
@@ -54,7 +54,7 @@ public class AlgorithmTableParserManager implements IAlgorithmTableParserManager
         return convertionRules;
     }
 
-    private ConversionRuleBean[] fixedConvertionRules;
+    private volatile ConversionRuleBean[] fixedConvertionRules;
 
     public ConversionRuleBean[] getFixedConversionRules() {
         lazyLoadFixedConvertionRules();
