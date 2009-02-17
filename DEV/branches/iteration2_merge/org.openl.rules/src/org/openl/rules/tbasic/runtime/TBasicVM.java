@@ -3,6 +3,7 @@ package org.openl.rules.tbasic.runtime;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.binding.impl.ControlSignal;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
 // TODO: refactore
@@ -44,6 +45,8 @@ public class TBasicVM {
             } else {
                 throw signal;
             }
+        } catch (ControlSignal signal){
+            throw signal;
         } catch (Throwable error){
             if (isCurrentMainMethod) {
                 returnResult = AlgorithmErrorHelper.processError(error, environment);
