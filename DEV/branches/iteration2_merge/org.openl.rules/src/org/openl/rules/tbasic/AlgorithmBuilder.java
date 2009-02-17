@@ -108,7 +108,7 @@ public class AlgorithmBuilder {
     }
 
     private void setRowField(AlgorithmRow row, String column, StringValue sv) throws SyntaxError {
-        if ("section".equalsIgnoreCase(column)) {
+        if ("label".equalsIgnoreCase(column)) {
             row.setLabel(sv);
         } else if ("description".equalsIgnoreCase(column)) {
             row.setDescription(sv);
