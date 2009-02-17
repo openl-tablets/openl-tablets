@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BoundError;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.SubValue;
@@ -24,7 +25,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     private static final MatchAlgorithmExecutor EXECUTOR = new MatchAlgorithmExecutor();
 
-    public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) {
+    public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) throws BoundError {
         checkReqColumns(columnMatch.getColumns());
         checkRows(columnMatch.getRows());
 
@@ -37,10 +38,11 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = prepareNodes(rows, argumentsHelper);
 
-        MatchNode rootNode = buildNodeTree(rows, nodes);
+        MatchNode rootNode = buildTree(rows, nodes);
+        checkTree(rootNode, rows);
         parseCheckValues(rows, nodes, retValues.length);
 
-        // TODO validate CheckTree
+        linearizeTree(rootNode, nodes);
 
         columnMatch.setCheckTree(rootNode);
         columnMatch.setAlgorithmExecutor(EXECUTOR);
@@ -68,7 +70,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             }
 
             if (!exists) {
-                throw new IllegalArgumentException("Required column '" + req + "' is absent!");
+                throw new IllegalArgumentException("Required column " + req + " is absent!");
             }
         }
     }
@@ -88,7 +90,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         if (!isMultipleAlloved) {
             // only 1
             if (values.length != 1) {
-                throw new IllegalArgumentException("Column '" + columnId + "");
+                throw new IllegalArgumentException("Column " + columnId + " can have single value only!");
             }
         }
     }
@@ -127,30 +129,32 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * @param rows
      * @param argumentsHelper
      * @return array of nodes, elements corresponds rows
+     * @throws BoundError
      */
-    protected MatchNode[] prepareNodes(List<TableRow> rows, ArgumentsHelper argumentsHelper) {
+    protected MatchNode[] prepareNodes(List<TableRow> rows, ArgumentsHelper argumentsHelper) throws BoundError {
         MatchNode[] nodes = new MatchNode[rows.size()];
 
         for (int i = 1; i < rows.size(); i++) {
             TableRow row = rows.get(i);
-            String varName = row.get(NAMES)[0].getString();
+            SubValue nameSV = row.get(NAMES)[0];
+            String varName = nameSV.getString();
 
             Argument arg = argumentsHelper.getTypeByName(varName);
             if (arg == null) {
-                throw new IllegalArgumentException("Bad name '" + varName + "'!");
+                String msg = "Failed to bind " + varName + "!";
+                throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
             String operationName = row.get(OPERATION)[0].getString();
 
             IMatcher matcher = MatcherFactory.getMatcher(operationName, arg.getType());
             if (matcher == null) {
-                throw new IllegalArgumentException("No matcher was found for operation '" + operationName
-                        + "' and type " + arg.getType());
+                String msg = "No matcher was found for operation " + operationName + " and type " + arg.getType();
+                throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
-            MatchNode node = new MatchNode();
+            MatchNode node = new MatchNode(i);
             node.setMatcher(matcher);
-            node.setVariableName(varName); // TODO excessive
             node.setArgument(arg);
 
             nodes[i] = node;
@@ -164,36 +168,101 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * 
      * @param rows
      * @param nodes
-     * @return
+     *            (0-th must be null)
+     * @return root of tree
+     * @throws BoundError
      */
-    protected MatchNode buildNodeTree(List<TableRow> rows, MatchNode[] nodes) {
-        MatchNode rootNode = new MatchNode();
-        MatchNode prev = rootNode;
+    protected MatchNode buildTree(List<TableRow> rows, MatchNode[] nodes) throws BoundError {
+        MatchNode rootNode = new MatchNode(-1);
+
+        MatchNode[] lastForIndent = new MatchNode[nodes.length];
         int prevIndent = 0;
         for (int i = 1; i < rows.size(); i++) {
             MatchNode node = nodes[i];
             TableRow row = rows.get(i);
-            int indent = row.get(NAMES)[0].getIndent();
+            SubValue nameSV = row.get(NAMES)[0];
+            int indent = nameSV.getIndent();
 
             if (indent == 0) {
                 rootNode.add(node);
             } else {
                 if (indent == (prevIndent + 1)) {
-                    prev.add(node);
-                } else if (indent == prevIndent) {
-                    prev.getParent().add(node);
+                    lastForIndent[prevIndent].add(node);
+                } else if (indent > (prevIndent + 1)) {
+                    // can increase by +1 only
+                    String msg = MessageFormat.format("Illegal indent! 0..{0} expected.", prevIndent + 1);
+                    throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
                 } else {
-                    String msg = MessageFormat.format("Illegal indent! 0, {0} or {1} expected.", prevIndent,
-                            prevIndent + 1);
-                    throw new IllegalArgumentException(msg);
+                    // if (indent == prevIndent)
+                    // if (indent 1..prevIndent-1)
+                    lastForIndent[indent].getParent().add(node);
                 }
             }
 
             prevIndent = indent;
-            prev = node;
+            lastForIndent[indent] = node;
         }
 
         return rootNode;
+    }
+
+    /**
+     * Checks that tree is consistent.
+     * 
+     * @param rootNode
+     *            root of tree
+     * @param rows
+     *            rows to point out errors
+     * @throws BoundError
+     */
+    private void checkTree(MatchNode rootNode, List<TableRow> rows) throws BoundError {
+        for (MatchNode node : rootNode.getChildren()) {
+            if (node.isLeaf()) {
+                // ok
+            } else {
+                // has at least 1 child
+                checkTreeChildren(node, rows);
+            }
+        }
+    }
+
+    private void checkTreeChildren(MatchNode parent, List<TableRow> rows) throws BoundError {
+        int childCount = 0;
+        int childLeafs = 0;
+        for (MatchNode child : parent.getChildren()) {
+            if (child.isLeaf())
+                childLeafs++;
+            childCount++;
+        }
+
+        if (childCount == childLeafs) {
+            // No children or all are leafs
+        } else if (childCount == 1 && childLeafs == 0) {
+            // check child
+            for (MatchNode child : parent.getChildren()) {
+                checkTreeChildren(child, rows);
+            }
+        } else {
+            String msg = "All sub nodes must be leaves! Sub nodes are allowed for single child only.";
+            throw new BoundError(msg, rows.get(parent.getRowIndex()).get(NAMES)[0].getStringValue()
+                    .asSourceCodeModule());
+        }
+    }
+
+    private void linearizeTree(MatchNode rootNode, MatchNode[] nodes) {
+        rootNode.clearChildren();
+
+        MatchNode last0 = null;
+        for (int i = 1; i < nodes.length; i++) {
+            MatchNode node = nodes[i];
+            if (node.getParent() == rootNode) {
+                last0 = new MatchNode(-2);
+                // use synthetic node
+                rootNode.add(last0);
+            }
+
+            last0.add(node);
+        }
     }
 
     /**

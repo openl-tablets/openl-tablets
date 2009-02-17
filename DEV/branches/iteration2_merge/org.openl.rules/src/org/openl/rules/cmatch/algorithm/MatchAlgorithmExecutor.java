@@ -11,44 +11,33 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
         MatchNode checkTree = columnMatch.getCheckTree();
         Object returnValues[] = columnMatch.getReturnValues();
 
-        for (MatchNode node : checkTree.getChildren()) {
-            Argument arg = node.getArgument();
-            Object var = arg.extractValue(target, params, env);
-            IMatcher matcher = node.getMatcher();
+        // iterate over linearized nodes
+        for (MatchNode line : checkTree.getChildren()) {
+            if (line.getRowIndex() != -2) {
+                throw new IllegalArgumentException("Linearized MatchNode tree expected!");
+            }
 
-            for (int i = 0; i < returnValues.length; i++) {
-                Object checkValue = node.getCheckValues()[i];
-                if (matcher.match(var, checkValue)) {
-                    // check that all children are MATCH at i-th element
-                    if (childrenMatch(target, params, env, node, i)) {
-                        return returnValues[i];
+            // find matching result value from left to right
+            for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
+                boolean success = true;
+                // check that all children are MATCH at resultIndex element
+                for (MatchNode node : line.getChildren()) {
+                    Argument arg = node.getArgument();
+                    Object var = arg.extractValue(target, params, env);
+                    IMatcher matcher = node.getMatcher();
+                    Object checkValue = node.getCheckValues()[resultIndex];
+                    if (!matcher.match(var, checkValue)) {
+                        success = false;
+                        break;
                     }
+                }
+
+                if (success) {
+                    return returnValues[resultIndex];
                 }
             }
         }
 
         return null;
-    }
-
-    protected boolean childrenMatch(Object target, Object[] params, IRuntimeEnv env, MatchNode parent, int index) {
-        for (MatchNode node : parent.getChildren()) {
-            Argument arg = node.getArgument();
-            Object var = arg.extractValue(target, params, env);
-            IMatcher matcher = node.getMatcher();
-
-            Object checkValue = node.getCheckValues()[index];
-            if (matcher.match(var, checkValue)) {
-                // check that all children are MATCH at i-th element
-                if (!childrenMatch(target, params, env, node, index)) {
-                    return false;
-                }
-            } else {
-                // fail fast
-                return false;
-            }
-        }
-
-        // all TRUE or no children
-        return true;
     }
 }
