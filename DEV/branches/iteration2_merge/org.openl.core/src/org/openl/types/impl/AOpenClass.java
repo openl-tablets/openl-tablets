@@ -293,9 +293,28 @@ public abstract class AOpenClass implements IOpenClass
 
 	public int hashCode()
 	{
-	    return new HashCodeBuilder().append(name).append(pars).toHashCode();
+		int hashCode = new HashCodeBuilder().append(name).append(pars).toHashCode();  
+	    return hashCode;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(name).append("(");
+		boolean first = true;
+		for(IOpenClass c: pars)
+		{
+			if (!first)
+			 sb.append(",");
+			sb.append(c.getName());
+			first = false;
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
+	
+	
     }// eof MethodKey
 
     /*
