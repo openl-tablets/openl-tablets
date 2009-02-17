@@ -494,7 +494,43 @@ TableEditor.prototype = {
             },
             parameters : params
         });
-        
+    },
+
+    indent: function(_indent) {
+        if (!this.hasSelection()) {
+            alert("Nothing is selected");
+            return;
+        }
+
+        var cell = this.currentElement;
+        var self = this;
+        var params = {
+            editorId: this.editorId,    
+            row : this.selectionPos[0],
+            col : this.selectionPos[1],
+            indent: _indent
+        }
+        new Ajax.Request(this.buildUrl("indent"), {
+            onSuccess: function(response) {
+                response = eval(response.responseText);
+                if (response.status)
+                    alert(response.status)
+                else {
+                    self.processCallbacks(response, "do");
+                    resultPadding = 0;
+                    if (cell.style.paddingLeft.indexOf("em") > 0) {
+                        resultPadding = parseFloat(cell.style.paddingLeft);
+                    } else if (cell.style.paddingLeft.indexOf("px") > 0) {
+                        resultPadding = parseFloat(cell.style.paddingLeft) * 0.063;
+                    }
+                    resultPadding = resultPadding + parseInt(_indent);
+                    if (resultPadding >= 0) {
+                        cell.style.paddingLeft = resultPadding + "em";
+                    }
+                }
+            },
+            parameters : params
+        });
     },
 
     doRowOperation: function(op) {this.doColRowOperation(0, op)},

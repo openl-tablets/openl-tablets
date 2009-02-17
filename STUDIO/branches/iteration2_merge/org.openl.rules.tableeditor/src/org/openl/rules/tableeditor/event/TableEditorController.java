@@ -38,8 +38,9 @@ public class TableEditorController extends BaseTableViewController implements JS
     private int getRequestIntParam(String name) {
         int param = -1;
         try {
-            param = Integer.parseInt(getRequestParam(name)) - 1;
+            param = Integer.parseInt(getRequestParam(name));
         } catch (NumberFormatException e) {
+            e.printStackTrace();
         }
         return param;
     }
@@ -49,11 +50,11 @@ public class TableEditorController extends BaseTableViewController implements JS
     }
 
     private int getRow() {
-        return getRequestIntParam(Constants.REQUEST_PARAM_ROW);
+        return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1;
     }
 
     private int getCol() {
-        return getRequestIntParam(Constants.REQUEST_PARAM_COL);
+        return getRequestIntParam(Constants.REQUEST_PARAM_COL) - 1;
     }
 
     public String load() throws Exception {
@@ -310,6 +311,24 @@ public class TableEditorController extends BaseTableViewController implements JS
                     editorHelper.getModel().setStyle(row, col, newStyle);
                 }
             }
+            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
+        }
+        return null;
+    }
+
+    public String indent() throws Exception {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
+        if (editorHelper != null) {
+            int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
+            ICellStyle style = editorHelper.getModel().getCellStyle(row, col);
+            int currentIndent = style.getIdent();
+            int resultIndent = currentIndent + indent;
+            CellStyle newStyle = new CellStyle(style);
+            newStyle.setIdent(resultIndent >= 0 ? resultIndent : 0);
+            editorHelper.getModel().setStyle(row, col, newStyle);
             return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
         }
         return null;

@@ -230,6 +230,11 @@ public class HTMLRenderer {
             .append(renderEditorToolbarItem(editorId + "_align_right", editor, "img/alRight.gif",
                     "setAlignment('right')", "Align right"))
             .append(toolbarItemSeparator)
+            .append(renderEditorToolbarItem(editorId + "_decrease_indent", editor, "img/indent_left.gif",
+                    "indent('-1')", "Decrease indent"))
+            .append(renderEditorToolbarItem(editorId + "_increase_indent", editor, "img/indent_right.gif",
+                    "indent('1')", "Increase indent"))
+            .append(toolbarItemSeparator)
             .append(renderEditorToolbarItem(editorId + "_help", null,
                     "img/help.gif", "window.open('" + WebUtil.internalPath("docs/help.html") + "');", "Help"))
             .append("</div>");

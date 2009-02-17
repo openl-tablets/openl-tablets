@@ -34,7 +34,11 @@ public interface ICellModel
 	public void toHtmlString(StringBuffer buf, TableModel model);
 
 	public boolean isReal();
-	
+
+	public int getIdent();
+
+    public void setIdent(int ident);
+
 //!!!	public void setColorFilter(IColorFilter[] filter);
 	
 }

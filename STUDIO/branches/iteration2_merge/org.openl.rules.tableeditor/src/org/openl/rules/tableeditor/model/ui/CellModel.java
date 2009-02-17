@@ -90,17 +90,17 @@ public class CellModel implements ICellModel {
         // return buf.toString();
         // }
         boolean startLine = true;
-        boolean needIdent = true;
+        //boolean needIdent = true;
 
         for (int i = 0; i < content.length(); i++) {
             char ch = content.charAt(i);
 
-            if (needIdent) {
+            /*if (needIdent) {
                 for (int j = 0; j < ident; j++) {
                     buf.append("&nbsp;&nbsp;");
                 }
                 needIdent = false;
-            }
+            }*/
 
             if ((ch == ' ') && startLine) {
                 buf.append("&nbsp;");
@@ -109,7 +109,7 @@ public class CellModel implements ICellModel {
 
             if (ch == '\n') {
                 startLine = true;
-                needIdent = true;
+                //needIdent = true;
                 buf.append("<br>");
                 continue;
             }
@@ -181,12 +181,30 @@ public class CellModel implements ICellModel {
 
         buf.append(" bgcolor=" + WebTool.toHexString(color));
 
+        float cellPadding = 1;
+        StringBuffer style = new StringBuffer();
         if ((borderStyle != null) || (font != null)) {
-            buf.append(" style=\"padding:1px;");
-            borderToHtml(buf, table);
-            WebTool.fontToHtml(font, buf);
-            buf.append('"');
+            addStyleAttribute(style, "padding:" + String.valueOf(cellPadding) + "px");
+            borderToHtml(style, table);
+            WebTool.fontToHtml(font, style);
         }
+        if (ident > 0) {
+            addStyleAttribute(style, "padding-left:" + (cellPadding * 0.063 + ident) + "em");
+        }
+        if (style.length() != 0) {
+            style.append("\"");
+            buf.append(style);
+        }
+    }
+
+    private void addStyleAttribute(StringBuffer style, String attribute) {
+        if (style.length() == 0) {
+            style.append(" style=\"");
+        }
+        if (style.charAt(style.length() - 1) != ';') {
+            style.append(";");
+        }
+        style.append(attribute).append(";");
     }
 
     // /**
