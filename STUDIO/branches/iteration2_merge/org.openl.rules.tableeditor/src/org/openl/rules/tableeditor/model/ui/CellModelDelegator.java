@@ -17,9 +17,6 @@ public class CellModelDelegator implements ICellModel
 		return false;
 	}
 
-
-
-
 	public int getColspan()
 	{
 		return model.getColspan();
@@ -41,9 +38,6 @@ public class CellModelDelegator implements ICellModel
 		return model.getRowspan();
 	}
 
-
-
-
 	public void setColspan(int colspan)
 	{
 		model.setColspan(colspan);
@@ -53,7 +47,6 @@ public class CellModelDelegator implements ICellModel
 	{
 		model.setContent(content);
 	}
-
 
 	public void setRgbBackground(short[] rgbBackground)
 	{
@@ -103,4 +96,11 @@ public class CellModelDelegator implements ICellModel
 		return this.model;
 	}
 	
+	public int getIdent() {
+	    return model.getIdent();
+	}
+
+	public void setIdent(int ident) {
+	    model.setIdent(ident);
+	}
 }
