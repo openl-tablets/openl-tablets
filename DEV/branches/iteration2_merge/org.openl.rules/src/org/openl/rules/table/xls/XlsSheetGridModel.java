@@ -240,6 +240,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 	private void copyStyle(ICellStyle source, HSSFCellStyle dest, HSSFCellStyle oldStyle) {
 		dest.setAlignment((short) source.getHorizontalAlignment());
 		dest.setVerticalAlignment((short) source.getVerticalAlignment());
+        dest.setIndention((short) source.getIdent());
 
 		short[] bs = source.getBorderStyle();
 		dest.setBorderTop(bs[0]);
@@ -258,7 +259,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 			dest.setFillPattern(oldStyle.getFillPattern());
 			dest.setFont(getHSSFont(oldStyle));
 			dest.setHidden(oldStyle.getHidden());
-			dest.setIndention(oldStyle.getIndention());
 			dest.setLocked(oldStyle.getLocked());
 			dest.setRotation(oldStyle.getRotation());
 			dest.setWrapText(oldStyle.getWrapText());
