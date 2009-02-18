@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import org.openl.binding.IBindingContext;
+import org.openl.domain.EnumDomain;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -47,25 +48,23 @@ public class String2DataConvertorFactory
 
 	static HashMap<Class<?>,IString2DataConvertor> convertors;
 
-	public static IString2DataConvertor getConvertor(Class<?> c) //throws Exception
-	{
-		IString2DataConvertor conv = convertors.get(c);
+	public static IString2DataConvertor getConvertor(Class<?> clazz) {
+		IString2DataConvertor convertor = convertors.get(clazz);
 
-		if (conv != null)
-			return conv;
-
-
-
-		try
-		{
-			Constructor<?> ctr = c.getDeclaredConstructor(new Class[]{String.class});
-			return new String2ConstructorConvertor(ctr);
+		if (convertor == null) {
+    		if (clazz.isEnum()){
+    		    convertor = new String2EnumConvertor(clazz);
+    		} else {
+    		    try {
+    		        Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[]{String.class});
+    		        convertor =  new String2ConstructorConvertor(ctr);
+    		    } catch (Throwable t) {
+    		        throw new RuntimeException("Convertor or Public Constructor " + clazz.getName() + "(String s) does not exist");
+    		    }
+    		}
 		}
-		catch (Throwable t)
-		{
-			throw new RuntimeException("Convertor or Public Constructor " + c.getName() + "(String s) does not exist");
-//			return null;
-		}
+		
+		return convertor;
 
 	}
 
@@ -329,6 +328,40 @@ public class String2DataConvertorFactory
 		}
 
 	}
+	
+    public static class String2EnumConvertor implements IString2DataConvertor {
+        private Class<? extends Enum<?>> enumType;
+
+        @SuppressWarnings("unchecked")
+        public String2EnumConvertor(Class<?> clazz) {
+            assert clazz.isEnum();
+            enumType = (Class<? extends Enum<?>>) clazz;
+        }
+
+        public Object parse(String data, String format, IBindingContext cxt) {
+            Enum<?> resolvedConstant = null;
+            
+            for (Enum<?> enumConstant : enumType.getEnumConstants()) {
+                if (data.equalsIgnoreCase(enumConstant.name())) {
+                    resolvedConstant = enumConstant;
+                    break;
+                }
+            }
+
+            if (resolvedConstant == null) {
+                throw new RuntimeException(String.format(
+                        "Constant corresponding to value \"%s\" can't be found in Enum %s ", data, enumType.getName()));
+            }
+
+            return resolvedConstant;
+        }
+
+        public String format(Object data, String format) {
+            // Enum can override toString() method to display user-friendly
+            // values
+            return parse(String.valueOf(data), format, null).toString();
+        }
+    }
 	
 	
 	public static class String2ClassConvertor implements IString2DataConvertor

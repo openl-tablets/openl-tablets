@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
+import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
 
 public class RowParser implements IRowParser {
     List<AlgorithmRow> rows;
@@ -107,42 +108,42 @@ public class RowParser implements IRowParser {
     private boolean validateRow(AlgorithmRow row, boolean multiline,
             TableParserSpecificationBean spec) throws BoundError {
         // check Label
-        checkError(spec.isRequired(spec.getLabel()) && row.getLabel().isEmpty(), row.getLabel(),
+        checkError(spec.getLabel() == ValueNecessity.REQUIRED && row.getLabel().isEmpty(), row.getLabel(),
                 "Label is empty. Label is obligatory for this operation");
         // check Condition
         StringValue condition = row.getCondition();
-        String specCondition = spec.getCondition();
-        checkError(spec.isRequired(specCondition) && condition.isEmpty(), condition,
+        ValueNecessity specCondition = spec.getCondition();
+        checkError(spec.getCondition() == ValueNecessity.REQUIRED && condition.isEmpty(), condition,
                 "Operation must have Condition value");
-        checkError(spec.isProhibited(specCondition) && !condition.isEmpty(), condition,
+        checkError(spec.getCondition() == ValueNecessity.PROHIBITED && !condition.isEmpty(), condition,
                 "Operation must not have Condition value");
         // check Action
         StringValue action = row.getAction();
-        String specAction = spec.getAction();
-        checkError(spec.isRequired(specAction) && action.isEmpty(), action,
+        ValueNecessity specAction = spec.getAction();
+        checkError(specAction == ValueNecessity.REQUIRED && action.isEmpty(), action,
                 "Operation must have Action value");
-        checkError(spec.isProhibited(specAction) && !action.isEmpty(), action,
+        checkError(specAction == ValueNecessity.PROHIBITED && !action.isEmpty(), action,
                 "Operation must not have Action value");
         // check Before
         StringValue before = row.getBefore();
-        String specBeforeAfter = spec.getBeforeAndAfter();
-        checkError(spec.isRequired(specBeforeAfter) && before.isEmpty(), before,
+        ValueNecessity specBeforeAfter = spec.getBeforeAndAfter();
+        checkError(specBeforeAfter == ValueNecessity.REQUIRED && before.isEmpty(), before,
                 "Operation must have Before value");
-        checkError(spec.isProhibited(specBeforeAfter) && !before.isEmpty(), before,
+        checkError(specBeforeAfter == ValueNecessity.PROHIBITED && !before.isEmpty(), before,
                 "Operation must not have Before value");
         // check After
-        StringValue after = row.getBefore();
-        checkError(spec.isRequired(specBeforeAfter) && after.isEmpty(), after,
+        StringValue after = row.getAfter();
+        checkError(specBeforeAfter == ValueNecessity.REQUIRED && after.isEmpty(), after,
                 "Operation must have After value");
-        checkError(spec.isProhibited(specBeforeAfter) && !after.isEmpty(), after,
+        checkError(specBeforeAfter == ValueNecessity.PROHIBITED && !after.isEmpty(), after,
                 "Operation must not have After value");
         // check Top Level
         StringValue operation = row.getOperation();
         int indent = row.getOperationLevel();
-        String specTopLevel = spec.getTopLevel();
-        checkError(spec.isProhibited(specTopLevel) && indent > 0, operation,
+        ValueNecessity specTopLevel = spec.getTopLevel();
+        checkError(specTopLevel == ValueNecessity.PROHIBITED && indent > 0, operation,
                 "Operation can not be a top level, i.e. must be nested");
-        checkError(spec.isRequired(specTopLevel) && indent > 0, operation,
+        checkError(specTopLevel == ValueNecessity.REQUIRED && indent > 0, operation,
                 "Operation can be only a top level, i.e. can not be nested");
         return true;
     }

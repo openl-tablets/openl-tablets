@@ -26,13 +26,8 @@ public class JavaListAggregateInfo extends AAggregateInfo
 
     public IOpenClass getComponentType(IOpenClass aggregateType)
     {
-    	
-//TODO get component type info using Java reflection API?    	
-//	Class<?> listClass = aggregateType.getInstanceClass();
-
-//	TypeVariable<?> t = listClass.getTypeParameters()[0];
-
-	return JavaOpenClass.OBJECT;
+        // Lists can contain only Object
+        return JavaOpenClass.OBJECT;
     }
 
     public Iterator<Object> getIterator(Object aggregate)
