@@ -11,12 +11,12 @@ public class TableParserSpecificationBean {
     private String keyword;
     private String description;
     private boolean multiline;
-    private String idents;
-    private String condition;
-    private String action;
-    private String label;
-    private String beforeAndAfter;
-    private String topLevel;
+    private ValueNecessity idents;
+    private ValueNecessity condition;
+    private ValueNecessity action;
+    private ValueNecessity label;
+    private ValueNecessity beforeAndAfter;
+    private ValueNecessity topLevel;
     private boolean loopOperation;
     private String[] predecessorOperations;
 
@@ -28,8 +28,7 @@ public class TableParserSpecificationBean {
     }
 
     /**
-     * @param keyword
-     *            the keyword to set
+     * @param keyword the keyword to set
      */
     public void setKeyword(String keyword) {
         this.keyword = keyword;
@@ -43,8 +42,7 @@ public class TableParserSpecificationBean {
     }
 
     /**
-     * @param description
-     *            the description to set
+     * @param description the description to set
      */
     public void setDescription(String description) {
         this.description = description;
@@ -58,8 +56,7 @@ public class TableParserSpecificationBean {
     }
 
     /**
-     * @param isMultiline
-     *            the isMultiline to set
+     * @param isMultiline the isMultiline to set
      */
     public void setMultiline(boolean isMultiline) {
         this.multiline = isMultiline;
@@ -68,84 +65,84 @@ public class TableParserSpecificationBean {
     /**
      * @return the idents
      */
-    public String getIdents() {
+    public ValueNecessity getIdents() {
         return idents;
     }
 
     /**
      * @param idents the idents to set
      */
-    public void setIdents(String idents) {
+    public void setIdents(ValueNecessity idents) {
         this.idents = idents;
     }
 
     /**
      * @return the condition
      */
-    public String getCondition() {
+    public ValueNecessity getCondition() {
         return condition;
     }
 
     /**
      * @param condition the condition to set
      */
-    public void setCondition(String condition) {
+    public void setCondition(ValueNecessity condition) {
         this.condition = condition;
     }
 
     /**
      * @return the action
      */
-    public String getAction() {
+    public ValueNecessity getAction() {
         return action;
     }
 
     /**
      * @param action the action to set
      */
-    public void setAction(String action) {
+    public void setAction(ValueNecessity action) {
         this.action = action;
     }
 
     /**
      * @return the label
      */
-    public String getLabel() {
+    public ValueNecessity getLabel() {
         return label;
     }
 
     /**
      * @param label the label to set
      */
-    public void setLabel(String label) {
+    public void setLabel(ValueNecessity label) {
         this.label = label;
     }
 
     /**
      * @return the beforeAndAfter
      */
-    public String getBeforeAndAfter() {
+    public ValueNecessity getBeforeAndAfter() {
         return beforeAndAfter;
     }
 
     /**
      * @param beforeAndAfter the beforeAndAfter to set
      */
-    public void setBeforeAndAfter(String beforeAndAfter) {
+    public void setBeforeAndAfter(ValueNecessity beforeAndAfter) {
         this.beforeAndAfter = beforeAndAfter;
     }
 
     /**
      * @return the topLevel
      */
-    public String getTopLevel() {
+    public ValueNecessity getTopLevel() {
         return topLevel;
     }
 
     /**
      * @param topLevel the topLevel to set
      */
-    public void setTopLevel(String topLevel) {
+    public void setTopLevel(ValueNecessity topLevel) {
         this.topLevel = topLevel;
     }
 
@@ -177,22 +174,9 @@ public class TableParserSpecificationBean {
         this.predecessorOperations = predecessorOperations;
     }
 
-    private enum ValueNecessity {
+    public enum ValueNecessity {
         REQUIRED,
         OPTIONAL,
         PROHIBITED;
     }
-
-    public boolean isRequired(String value) {
-        return value != null && value.equalsIgnoreCase(ValueNecessity.REQUIRED.name());
-    }
-
-    public boolean isOptional(String value) {
-        return value != null && value.equalsIgnoreCase(ValueNecessity.OPTIONAL.name());
-    }
-
-    public boolean isProhibited(String value) {
-        return value != null && value.equalsIgnoreCase(ValueNecessity.PROHIBITED.name());
-    }
-
 }
