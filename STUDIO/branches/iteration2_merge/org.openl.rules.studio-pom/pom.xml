@@ -76,7 +76,20 @@
        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-        </plugin>
+       </plugin>
+       <plugin>
+         <groupId>org.codehaus.mojo</groupId>
+         <artifactId>maven-buildnumber-plugin</artifactId>
+         <version>0.9.6</version>
+         <executions>
+           <execution>
+             <phase>validate</phase>        
+             <goals>
+               <goal>create</goal>
+             </goals>
+           </execution>
+         </executions>
+       </plugin>
       </plugins>
     </pluginManagement>
   </build>
