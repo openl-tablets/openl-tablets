@@ -456,15 +456,41 @@ public class AlgorithmCompiler {
                         .getOperationParam2());
             }
 
-            // FIXME put source reference
+            RuntimeOperation emittedOperation = (RuntimeOperation) constructor.newInstance(params);
+            
+            // TODO: set more precise source reference
+            AlgorithmTreeNode sourceNode = getOperationSource(nodesToCompile, conversionStep);
+            emittedOperation.setSourceCode(sourceNode);
 
-            return (RuntimeOperation) constructor.newInstance(params);
+            return emittedOperation;
 
         } catch (Exception e) {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
             throw new BoundError(e, errorSource);
         }
+    }
+
+    /**
+     * @param nodesToCompile
+     * @param conversionStep
+     * @return
+     * @throws BoundError
+     */
+    private AlgorithmTreeNode getOperationSource(List<AlgorithmTreeNode> nodesToCompile,
+            ConversionRuleStep conversionStep) throws BoundError {
+        
+        AlgorithmTreeNode sourceNode;
+        
+        // TODO: set more precise source reference
+        String convertionParam = conversionStep.getOperationParam1();
+        if (isOperationFieldInstruction(convertionParam)) {
+            sourceNode = getNodeWithResult(nodesToCompile, extractOperationName(convertionParam));
+        } else {
+            sourceNode = nodesToCompile.get(0);
+        }
+        
+        return sourceNode;
     }
 
     private Object convertParam(List<AlgorithmTreeNode> nodesToCompile, Class<? extends Object> clazz,
@@ -630,7 +656,13 @@ public class AlgorithmCompiler {
     }
     
     private boolean isOperationFieldInstruction(String instruction){
-        return instruction.split(Pattern.quote(FIELD_SEPARATOR)).length == 2;
+        boolean isInstruction = false;
+        
+        if (instruction != null) {
+            isInstruction =  instruction.split(Pattern.quote(FIELD_SEPARATOR)).length == 2;
+        }
+        
+        return isInstruction;
     }
 
     /**

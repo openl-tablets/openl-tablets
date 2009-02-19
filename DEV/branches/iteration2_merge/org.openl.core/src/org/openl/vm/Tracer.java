@@ -46,6 +46,7 @@ public class Tracer
 		{
 			ITracerObject to = (ITracerObject)stack.peek();
 			to.addChild(obj);
+			obj.setParent(to);
 		}
 
 		stack.push(obj);

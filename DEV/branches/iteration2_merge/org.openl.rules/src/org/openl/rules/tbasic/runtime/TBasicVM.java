@@ -41,7 +41,7 @@ public class TBasicVM {
      * @param environment The environment for execution.
      * @return The result of the method execution.
      */
-    public Object run(TBasicContextHolderEnv environment) {
+    public Object run(TBasicContextHolderEnv environment, boolean debugMode) {
         assert environment != null;
 
         Object returnResult = null;
@@ -49,7 +49,7 @@ public class TBasicVM {
         // Run fail safe, in case of error allow user code to handle it
         // processing of error will be done in Algorithm main method
         try {
-            returnResult = runAll(environment);
+            returnResult = runAll(environment, debugMode);
         } catch (OpenLAlgorithmErrorSignal signal) {
             if (currentContext.isMainMethodContext()) {
                 returnResult = AlgorithmErrorHelper.processError(signal.getCause(), environment);
@@ -82,14 +82,14 @@ public class TBasicVM {
      * @return The result of the method execution.
      */
     public Object run(List<RuntimeOperation> methodSteps, Map<String, RuntimeOperation> methodLabels,
-            TBasicContextHolderEnv environment) {
+            TBasicContextHolderEnv environment, boolean debugMode) {
 
         TBasicVMDataContext methodContext = new TBasicVMDataContext(methodSteps, methodLabels, false);
 
         TBasicVMDataContext previousContext = swapContext(methodContext);
 
         try {
-            return run(environment);
+            return run(environment, debugMode);
         } finally {
             swapContext(previousContext);
         }
@@ -101,7 +101,8 @@ public class TBasicVM {
      * @param environment The environment for execution.
      * @return The result of the method execution.
      */
-    private Object runAll(TBasicContextHolderEnv environment) {
+    private Object runAll(TBasicContextHolderEnv environment, boolean debugMode) {
+        
         RuntimeOperation operation = currentContext.getFirstOperation();
         Object previousStepResult = null;
         Object returnResult = null;
@@ -109,7 +110,7 @@ public class TBasicVM {
         while (operation != null) {
             Result operationResult;
             try {
-                operationResult = operation.execute(environment, previousStepResult);
+                operationResult = operation.execute(environment, previousStepResult, debugMode);
                 assert operationResult != null;
             } catch (OpenLAlgorithmGoToMainSignal signal) {
                 operation = getLabeledOperation(signal.getLabel());
@@ -173,5 +174,16 @@ public class TBasicVM {
         TBasicVMDataContext oldValue = currentContext;
         currentContext = newContext;
         return oldValue;
+    }
+
+    public Object runTraced(TBasicContextHolderEnv runtimeEnvironment) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Object runTraced(List<RuntimeOperation> algorithmSteps, Map<String, RuntimeOperation> labels,
+            TBasicContextHolderEnv environment) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

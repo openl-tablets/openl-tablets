@@ -1,6 +1,7 @@
 package org.openl.rules.tbasic;
 
 import org.openl.meta.StringValue;
+import org.openl.rules.table.IGridRegion;
 
 public class AlgorithmRow {
     private StringValue label;
@@ -12,6 +13,7 @@ public class AlgorithmRow {
     private StringValue after;
     private int operationLevel;
     private int rowNumber;
+    private IGridRegion gridRegion;
 
     public StringValue getLabel() {
         return label;
@@ -89,5 +91,19 @@ public class AlgorithmRow {
      */
     public int getRowNumber() {
         return rowNumber;
+    }
+
+    /**
+     * @param gridRegion the gridRegion to set
+     */
+    public void setGridRegion(IGridRegion gridRegion) {
+        this.gridRegion = gridRegion;
+    }
+
+    /**
+     * @return the gridRegion
+     */
+    public IGridRegion getGridRegion() {
+        return gridRegion;
     }
 }

@@ -81,6 +81,8 @@ public class AlgorithmBuilder {
             // set sequential number of the row in table
             aRow.setRowNumber(r + 1);
             
+            aRow.setGridRegion(grid.getLogicalRow(r).getGridTable().getRegion());
+            
             // parse data row
             for (AlgorithmColumn column : columns.values()) {
                 int c = column.columnIndex;
