@@ -63,6 +63,24 @@
     </plugins>
   </reporting>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>maven-buildnumber-plugin</artifactId>
+        <version>0.9.6</version>
+        <executions>
+          <execution>
+            <phase>validate</phase>        
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <profiles>
     <profile>
       <id>internal-deploy</id>
