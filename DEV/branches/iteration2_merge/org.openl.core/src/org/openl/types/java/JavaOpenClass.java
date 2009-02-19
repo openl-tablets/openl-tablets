@@ -69,7 +69,7 @@ public class JavaOpenClass extends AOpenClass
     @SuppressWarnings("unchecked")
     public Iterator<IOpenClass> superClasses()
     {
-	IOpenIterator<Class> ic = (IOpenIterator<Class>)OpenIterator.fromArray(instanceClass
+	IOpenIterator<Class> ic = OpenIterator.fromArray(instanceClass
 		.getInterfaces());
 
 	IOpenIterator<IOpenClass> interfaces = ic
