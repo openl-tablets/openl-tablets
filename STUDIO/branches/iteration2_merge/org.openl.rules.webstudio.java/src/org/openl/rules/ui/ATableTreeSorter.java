@@ -109,15 +109,18 @@ public abstract class ATableTreeSorter extends TreeSorter
 			if (weightMap == null)
 			{
 				weightMap = new HashMap();
-				weightMap.put(ITableNodeTypes.XLS_DT, new Key(0, new String[]{"Decision Tables","",""}));
+				weightMap.put(ITableNodeTypes.XLS_DT, new Key(0, new String[]{"Decision","Decision Tables",""}));
+				weightMap.put(ITableNodeTypes.XLS_SPREADSHEET, new Key(1, new String[]{"Spreadsheet","Spreadsheet Tables",""}));
+				weightMap.put(ITableNodeTypes.XLS_TBASIC, new Key(2, new String[]{"TBasic","Structured Algorithm Tables",""}));
+				weightMap.put(ITableNodeTypes.XLS_COLUMN_MATCH, new Key(3, new String[]{"Column Match","Column Match Tables",""}));
 
-				weightMap.put(ITableNodeTypes.XLS_DATA, new Key(1, new String[]{"Data","Data Tables",""}));
-				weightMap.put(ITableNodeTypes.XLS_TEST_METHOD, new Key(2, new String[]{"Test","Tables with data for method unit tests",""}));
-				weightMap.put(ITableNodeTypes.XLS_RUN_METHOD, new Key(2, new String[]{"Run","Tables with run data for methods",""}));
-				weightMap.put(ITableNodeTypes.XLS_DATATYPE, new Key(3, new String[]{"Datatypes","OpenL Datatypes",""}));
-				weightMap.put(ITableNodeTypes.XLS_METHOD, new Key(4, new String[]{"Methods","OpenL Methods",""}));
+				weightMap.put(ITableNodeTypes.XLS_DATA, new Key(4, new String[]{"Data","Data Tables",""}));
+				weightMap.put(ITableNodeTypes.XLS_TEST_METHOD, new Key(5, new String[]{"Test","Tables with data for method unit tests",""}));
+				weightMap.put(ITableNodeTypes.XLS_RUN_METHOD, new Key(5, new String[]{"Run","Tables with run data for methods",""}));
+				weightMap.put(ITableNodeTypes.XLS_DATATYPE, new Key(6, new String[]{"Datatype","OpenL Datatypes",""}));
+				weightMap.put(ITableNodeTypes.XLS_METHOD, new Key(7, new String[]{"Method","OpenL Methods",""}));
 
-				weightMap.put(ITableNodeTypes.XLS_ENVIRONMENT, new Key(5, new String[]{"Configuration","Environment table, used to configure OpenL project",""}));
+				weightMap.put(ITableNodeTypes.XLS_ENVIRONMENT, new Key(8, new String[]{"Configuration","Environment table, used to configure OpenL project",""}));
 
 			}	
 			

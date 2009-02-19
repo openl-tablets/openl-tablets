@@ -81,10 +81,10 @@ public class DTreeModel implements IProjectTypes, ITableNodeTypes {
 	}
 
 	static final String[] DEFAULT_ICON_OPEN = {
-			"webresource/images/dtree/folder-o-n.gif",
-			"webresource/images/folder-o-error.png" }, DEFAULT_ICON_CLOSED = {
-			"webresource/images/dtree/folder-c-n.gif",
-			"webresource/images/folder-c-error.png" }, DEFAULT_ICON_LEAF = {
+			"webresource/images/dtree/folder-open.png",
+			"webresource/images/dtree/folder-open-error.png" }, DEFAULT_ICON_CLOSED = {
+			"webresource/images/dtree/folder.png",
+			"webresource/images/dtree/folder-error.png" }, DEFAULT_ICON_LEAF = {
 			"webresource/images/categoryset.gif",
 			"webresource/images/categoryset.gif" };
 
@@ -105,6 +105,16 @@ public class DTreeModel implements IProjectTypes, ITableNodeTypes {
 					"webresource/images/spreadsheet.gif",
 					"webresource/images/spreadsheet-error.gif",
 					"webresource/images/spreadsheet-error.gif" },
+			{ PT_TABLE + "." + XLS_TBASIC,
+	                 "webresource/images/tbasic.gif",
+	                 "webresource/mages/tbasic.gif",
+	                 "webresource/images/tbasic-error.gif",
+	                 "webresource/images/tbasic-error.gif" },
+	        { PT_TABLE + "." + XLS_COLUMN_MATCH,
+	                 "webresource/images/cmatch.gif",
+	                 "webresource/mages/cmatch.gif",
+	                 "webresource/images/cmatch-error.gif",
+	                 "webresource/images/cmatch-error.gif" },		
 			{ PT_TABLE + "." + XLS_DATA, "webresource/images/data.gif",
 					"webresource/images/data.gif",
 					"webresource/images/data-error.png",
