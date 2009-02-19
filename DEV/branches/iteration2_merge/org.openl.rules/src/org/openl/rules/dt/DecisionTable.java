@@ -13,6 +13,9 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ATableTracerLeaf;
+import org.openl.rules.table.ATableTracerNode;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
@@ -24,7 +27,6 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.print.Formatter;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.ITracerObject;
 import org.openl.vm.Tracer;
 
 /**
@@ -505,18 +507,18 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 			}
 		}
 
-	static public class DecisionTableTraceObject extends ITracerObject.SimpleTracerObject
+	static public class DecisionTableTraceObject extends ATableTracerNode
 	{
 //		DecisionTable dt;
-		Object[] params;
+//		Object[] params;
 		Object result;
 
 //		ArrayList rules = new ArrayList(1);
 
 		public DecisionTableTraceObject(DecisionTable dt, Object[] params)
 		{
-			super(dt);
-			this.params = params;
+			super(dt, params);
+//			this.params = params;
 		}
 
 		public DecisionTable getDT()
@@ -526,22 +528,23 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 		
 		public String getDisplayName(int mode)
 		{
-			StringBuffer buf = new StringBuffer(50);
-			buf.append("DT ");
-			DecisionTable dt = getDT();
-			buf.append(dt.getType().getDisplayName(SHORT)).append(' ');
-			buf.append(dt.getName()).append('(');
-	
-			for (int i = 0; i < params.length; i++)
-			{
-				if (i > 0)
-					buf.append(", ");
-				Formatter.format(params[i], INamedThing.SHORT, buf);
-			}
-			
-			buf.append(')');
-//			buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR, false));
-			return buf.toString();
+		    return "DT " + asString((IOpenMethod)getTraceObject());
+//			StringBuffer buf = new StringBuffer(50);
+//			buf.append("DT ");
+//			DecisionTable dt = getDT();
+//			buf.append(dt.getType().getDisplayName(SHORT)).append(' ');
+//			buf.append(dt.getName()).append('(');
+//	
+//			for (int i = 0; i < params.length; i++)
+//			{
+//				if (i > 0)
+//					buf.append(", ");
+//				Formatter.format(params[i], INamedThing.SHORT, buf);
+//			}
+//			
+//			buf.append(')');
+////			buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR, false));
+//			return buf.toString();
 		}
 		
 		
@@ -566,13 +569,12 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 //			return (RuleTracer[]) rules.toArray(new RuleTracer[0]);
 //		}
 		
-		public class RuleTracer extends ITracerObject.SimpleTracerObject
+		public class RuleTracer extends ATableTracerLeaf
 		{
 			int ruleIdx;
 
 			public RuleTracer(int idx)
 			{
-				super(null);
 				this.ruleIdx = idx;
 			}
 
@@ -605,7 +607,14 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 			{
 				return DecisionTableTraceObject.this;
 			}
-			
+
+            public IGridRegion getGridRegion() {
+                return getRuleTable().getGridTable().getRegion();
+            }
+
+            public TableSyntaxNode getTableSyntaxNode() {
+                return getParentTraceObject().getDT().getTableSyntaxNode();
+            }
 		}
 
 
@@ -617,6 +626,14 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 			return "decisiontable";
 		}
 
+        public IGridRegion getGridRegion() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public TableSyntaxNode getTableSyntaxNode() {
+            return getDT().getTableSyntaxNode();
+        }
 	}
 
 	/**

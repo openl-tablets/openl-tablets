@@ -49,7 +49,7 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     }
 
     public String getSourceUrl() {
-        return ((TableSyntaxNode) node.getSyntaxNode()).getUri();
+        return ((TableSyntaxNode) getSyntaxNode()).getUri();
     }
 
     @Override
