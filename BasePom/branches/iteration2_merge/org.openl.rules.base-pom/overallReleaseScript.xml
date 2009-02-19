@@ -92,7 +92,7 @@
 		</maven>
 	</target>
 
-	<target name="releaseModule" depends="prepareModule">
+	<target name="releaseModule" >
 		<maven dir="${moduleFolder}" failonerror="false">
 			<arg line="release:perform -Darguments=&quot;-P internal-deploy&quot;" />
 		</maven>
@@ -106,8 +106,8 @@
 		<antcall target="fullCommit"/>
 	</target>
 	
-	<target name="execute" depends="prepare">
-		<!--antcall target="releaseModule">
+	<target name="execute">
+		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${rootFolder}/BasePom/branches/iteration2_merge"/>
 		</antcall>
 		<antcall target="releaseModule">
@@ -118,7 +118,7 @@
 		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${rootFolder}/WSFrontend/branches/iteration2_merge"/>
-		</antcall-->
+		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${rootFolder}/Eclipse/branches/iteration2_merge"/>
 		</antcall>
