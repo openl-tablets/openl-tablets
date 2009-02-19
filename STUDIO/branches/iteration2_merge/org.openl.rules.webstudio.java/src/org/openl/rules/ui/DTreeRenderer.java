@@ -115,9 +115,9 @@ public abstract class DTreeRenderer {
 
     static final int STATE_SHIFT = 2;
 
-    static final String[] DEFAULT_ICON_NODE = { "default.node", "webresource/images/dtree/folder-c-n.gif",
-            "webresource/images/dtree/folder-o-n.gif", "webresource/images/folder-c-error.png",
-            "webresource/images/folder-o-error.png" }, DEFAULT_ICON_LEAF = { "default.leaf",
+    static final String[] DEFAULT_ICON_NODE = { "default.node", "webresource/images/dtree/folder.png",
+            "webresource/images/dtree/folder-open.png", "webresource/images/dtree/folder-error.png",
+            "webresource/images/dtree/folder-open-error.png" }, DEFAULT_ICON_LEAF = { "default.leaf",
             "webresource/images/reg-text.png", "webresource/images/categoryset.gif" };
 
     private String getIcon(ITreeElement element, int open) {
