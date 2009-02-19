@@ -7,6 +7,7 @@ import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
+import org.openl.rules.tbasic.runtime.debug.TBasicAlgorithmTraceObject;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IDynamicObject;
@@ -16,13 +17,14 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.Tracer;
 
 /**
- * Table Basic Algorithm component. 
- * It's runnable method inside OpenL Tablets infrastructure.
+ * Table Basic Algorithm component. It's runnable method inside OpenL Tablets
+ * infrastructure.
  * 
- * Allows users to represent any algorithm in tables using simple TBasic syntax. 
- *
+ * Allows users to represent any algorithm in tables using simple TBasic syntax.
+ * 
  */
 public class Algorithm extends AMethod implements IMemberMetaInfo {
     private final AlgorithmBoundNode node;
@@ -30,7 +32,7 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
     /**************************************************
      * Compile artifacts
      *************************************************/
-    
+
     private IOpenClass thisClass;
     private List<RuntimeOperation> algorithmSteps;
     private Map<String, RuntimeOperation> labels;
@@ -48,10 +50,32 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
         DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(thisClass, (IDynamicObject) target);
 
         TBasicVM algorithmVM = new TBasicVM(algorithmSteps, labels);
-     
+
         TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
-      
-        return algorithmVM.run(runtimeEnvironment);
+
+        boolean debugMode = false;
+        TBasicAlgorithmTraceObject algorithmTracer = null;
+
+        if (Tracer.isTracerOn() && Tracer.getTracer() != null) {
+            debugMode = true;
+
+            algorithmTracer = new TBasicAlgorithmTraceObject(this, params);
+            Tracer.getTracer().push(algorithmTracer);
+        }
+
+        Object resultValue = null;
+        try {
+
+            resultValue = algorithmVM.run(runtimeEnvironment, debugMode);
+
+        } finally {
+            if (debugMode) {
+                algorithmTracer.setResult(resultValue);
+                Tracer.getTracer().pop();
+            }
+        }
+
+        return resultValue;
     }
 
     public BindingDependencies getDependencies() {
@@ -64,14 +88,14 @@ public class Algorithm extends AMethod implements IMemberMetaInfo {
     }
 
     public String getSourceUrl() {
-        return ((TableSyntaxNode) node.getSyntaxNode()).getUri();
+        return ((TableSyntaxNode) getSyntaxNode()).getUri();
     }
 
     @Override
     public IMemberMetaInfo getInfo() {
         return this;
     }
-    
+
     public void setThisClass(IOpenClass thisClass) {
         this.thisClass = thisClass;
     }

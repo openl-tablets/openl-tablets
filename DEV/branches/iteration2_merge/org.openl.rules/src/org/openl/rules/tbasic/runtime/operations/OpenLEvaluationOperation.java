@@ -10,18 +10,18 @@ import org.openl.types.IMethodCaller;
  * @author User
  *
  */
-public abstract class OpenLEvaluationOperation<ResultValueType> extends RuntimeOperation {
+public abstract class OpenLEvaluationOperation extends RuntimeOperation {
     private IMethodCaller openLStatement;
     
     public OpenLEvaluationOperation(IMethodCaller openLStatement){
         this.openLStatement = openLStatement;
     }
     
-    public ResultValueType evaluateStatement(TBasicContextHolderEnv environment){
-        ResultValueType resultValue = null;
+    public Object evaluateStatement(TBasicContextHolderEnv environment){
+        Object resultValue = null;
         
         if (openLStatement != null){
-            resultValue = (ResultValueType)openLStatement.invoke(environment.getTbasicTarget(), environment.getTbasicParams(), environment);
+               resultValue = openLStatement.invoke(environment.getTbasicTarget(), environment.getTbasicParams(), environment);;
         }
         
         return resultValue;

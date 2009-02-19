@@ -12,7 +12,7 @@ import org.openl.types.IMethodCaller;
  * @author User
  *
  */
-public class CalculateOperation<ResultValueType> extends OpenLEvaluationOperation<ResultValueType> {
+public class CalculateOperation extends OpenLEvaluationOperation {
    
     public CalculateOperation(IMethodCaller openLStatement) {
         super(openLStatement);
@@ -23,8 +23,7 @@ public class CalculateOperation<ResultValueType> extends OpenLEvaluationOperatio
      */
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        // TODO Auto-generated method stub
-        ResultValueType resultValue = evaluateStatement(environment);
+        Object resultValue = evaluateStatement(environment);
         return new Result(ReturnType.Next, resultValue);
     }
 

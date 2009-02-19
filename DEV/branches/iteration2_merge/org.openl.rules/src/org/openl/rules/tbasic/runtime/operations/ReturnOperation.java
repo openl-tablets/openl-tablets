@@ -12,7 +12,7 @@ import org.openl.types.IMethodCaller;
  * @author User
  *
  */
-public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation<ResultValueType> {
+public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation {
     private boolean hasReturnValue;
     
     public ReturnOperation(IMethodCaller openLStatement){
@@ -25,7 +25,7 @@ public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation<R
      */
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        ResultValueType resultValue = null;
+        Object resultValue = null;
         
         if (hasReturnValue){
             resultValue = evaluateStatement(environment);

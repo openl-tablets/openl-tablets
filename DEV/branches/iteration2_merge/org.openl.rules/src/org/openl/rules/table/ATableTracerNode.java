@@ -1,6 +1,9 @@
 package org.openl.rules.table;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethod;
 import org.openl.util.print.Formatter;
 import org.openl.vm.ITracerObject;
@@ -11,7 +14,7 @@ public abstract class ATableTracerNode extends ITracerObject.SimpleTracerObject 
     public ATableTracerNode() {
     }
 
-    public ATableTracerNode(IOpenMethod traceObject, Object[] params) {
+    public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
         super(traceObject);
         this.params = params;
     }
@@ -42,5 +45,23 @@ public abstract class ATableTracerNode extends ITracerObject.SimpleTracerObject 
         buf.append(')');
 //      buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR, false));
         return buf.toString();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.openl.rules.table.ITableTracerObject#getTableSyntaxNode()
+     */
+    public TableSyntaxNode getTableSyntaxNode() {
+        TableSyntaxNode syntaxNode = null;
+
+        IMemberMetaInfo tracedNode = (IMemberMetaInfo) getTraceObject();
+        if (tracedNode != null) {
+            ISyntaxNode tsn = tracedNode.getSyntaxNode();
+            if (tsn instanceof TableSyntaxNode) {
+                syntaxNode = (TableSyntaxNode) tsn;
+            }
+        }
+        return syntaxNode;
     }
 }

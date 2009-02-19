@@ -6,7 +6,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.types.IMethodCaller;
 
 
-public class PerformOperation extends OpenLEvaluationOperation<Object> {
+public class PerformOperation extends OpenLEvaluationOperation {
 
     public PerformOperation(IMethodCaller openLStatement){
         super(openLStatement);

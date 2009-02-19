@@ -28,12 +28,29 @@ public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing
 	
 	public void addChild(ITracerObject child);
 	
+
+	/**
+     * Set parent trace object.
+     * 
+     * @param Parent <code>ITracerObject</code>.
+     */
+    void setParent(ITracerObject parentTraceObject);
+    
+    /**
+     * Get parent trace object.
+     * 
+     * @return Parent <code>ITracerObject</code>.
+     */
+    ITracerObject getParent();
+	
 	
 	public static abstract class SimpleTracerObject implements ITracerObject
 	{
 		Object traceObject;
 		
 		ArrayList<ITracerObject> children;
+		
+		private ITracerObject parent;
 		
 		public SimpleTracerObject()
 		{
@@ -86,11 +103,27 @@ public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing
 		{
 			return getDisplayName(INamedThing.SHORT);
 		}
+
+        /* (non-Javadoc)
+         * @see org.openl.vm.ITracerObject#getParent()
+         */
+        public ITracerObject getParent() {
+            return parent;
+        }
+
+        /* (non-Javadoc)
+         * @see org.openl.vm.ITracerObject#setParent(org.openl.vm.ITracerObject)
+         */
+        public void setParent(ITracerObject parentTraceObject) {
+            parent = parentTraceObject;
+        }
 		
 		
 		
 		
 	}
+
+
 	
 	
 }
