@@ -82,20 +82,20 @@
 
 	<target name="prepareModule">
 		<maven dir="${moduleFolder}" failonerror="false">
-			<arg line="release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${new_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${version} -Darguments=&quot;-P internal-deploy&quot;"/>
+			<arg line="release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${version_for_poms_argument} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version_argument}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version_argument} -Darguments=&quot;-P internal-deploy&quot;"/>
 		</maven>
 		<exec executable="svn">
 			<arg line="update ${moduleFolder}"/>
 		</exec>
 		<maven dir="${moduleFolder}" failonerror="false">
-			<arg line="release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${new_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${version} -Darguments=&quot;-P internal-deploy&quot;"/>
+			<arg line="release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${version_for_poms_argument} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version_argument}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version_argument} -Darguments=&quot;-P internal-deploy&quot;"/>
 		</maven>
 	</target>
 	
 	<target name="prepare">
 		<antcall target="changeVersions">
-			<param name="version" value="${release_version}"/>
-			<param name="version_for_poms" value="${release_version}"/>
+			<param name="version" value="${release_version_argument}"/>
+			<param name="version_for_poms" value="${release_version_argument}"/>
 		</antcall>
 		<antcall target="fullCommit"/>
 		<antcall target="prepareModule">
@@ -119,14 +119,14 @@
 		<maven dir="${rootFolder}/BasePom/branches/iteration2_merge" failonerror="false">
 			<arg line="release:perform -Darguments=&quot;-P internal-deploy&quot;" />
 		</maven>
-		<maven dir="${rootFolder}/WSFrontend/branches/iteration2_merge" failonerror="false">
-			<arg line="release:perform -Darguments=&quot;-P internal-deploy&quot;" />
-		</maven>		
 		<maven dir="${rootFolder}/DEV/branches/iteration2_merge" failonerror="false">
 			<arg line="release:perform -Darguments=&quot;-P internal-deploy&quot;" />
 		</maven>		
 		<maven dir="${rootFolder}/STUDIO/branches/iteration2_merge" failonerror="false">
 			<arg line="release:perform -Darguments=&quot;-P internal-deploy, build-tomcat6-war&quot;" />
+		</maven>		
+		<maven dir="${rootFolder}/WSFrontend/branches/iteration2_merge" failonerror="false">
+			<arg line="release:perform -Darguments=&quot;-P internal-deploy&quot;" />
 		</maven>		
 		<maven dir="${rootFolder}/Eclipse/branches/iteration2_merge" failonerror="false">
 			<arg line="release:perform -Darguments=&quot;-P internal-deploy&quot;" />
@@ -134,16 +134,19 @@
 	</target>
 	
 	<target name="fullRelease" depends="perform">
-		<antcall target="changeVersions"/>
+		<antcall target="changeVersions">
+			<param name="version" value="${version_argument}"/>
+			<param name="version_for_poms" value="${version_for_poms_argument}"/>
+		</antcall>
 		<antcall target="fullCommit"/>
 	</target>
     <target name="help">
         <echo>
         	Run this script with predefined properties in arguments with target "fullRelease":
 
-        		release_version - version which will be used for release.
-        		version - version to use for new local working copy(in manifests and features).
-	        	version_for_poms - version to use for new local working copy(in poms for base-pom and dependensies versions)
+        		release_version_argument - version which will be used for release.
+        		version_argument - version to use for new local working copy(in manifests and features).
+	        	version_for_poms_argument - version to use for new local working copy(in poms for base-pom and dependensies versions)
     	    	svnLogin - The SVN username to use. 
         		svnPassword - The SVN password to use.
 
