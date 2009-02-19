@@ -107,7 +107,7 @@
 	</target>
 	
 	<target name="execute" depends="prepare">
-		<antcall target="releaseModule">
+		<!--antcall target="releaseModule">
 			<param name="moduleFolder" value="${rootFolder}/BasePom/branches/iteration2_merge"/>
 		</antcall>
 		<antcall target="releaseModule">
@@ -118,7 +118,7 @@
 		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${rootFolder}/WSFrontend/branches/iteration2_merge"/>
-		</antcall>
+		</antcall-->
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${rootFolder}/Eclipse/branches/iteration2_merge"/>
 		</antcall>
