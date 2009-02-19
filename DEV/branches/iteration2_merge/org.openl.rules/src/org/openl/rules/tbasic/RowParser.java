@@ -10,6 +10,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
 
 public class RowParser implements IRowParser {
+    private static final String COMMENTS_REGEXP = "^(//)|(/\\*).*(\\*/)$";
     List<AlgorithmRow> rows;
     TableParserSpecificationBean[] specifications;
 
@@ -30,8 +31,8 @@ public class RowParser implements IRowParser {
         for (AlgorithmRow row : rows) {
             StringValue operation = row.getOperation();
             StringValue label = row.getLabel();
-            if (operation.isEmpty()) {
-                if (!label.isEmpty()) {
+            if (operation.isEmpty() || operation.getValue().matches(COMMENTS_REGEXP)) {
+                if (operation.isEmpty() && !label.isEmpty()) {
                     topLabels.add(label);
                 }
                 i++;
