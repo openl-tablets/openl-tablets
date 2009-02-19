@@ -5,6 +5,8 @@
 package org.openl.rules.ui;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.cmatch.algorithm.ColumnMatchTraceObject;
+import org.openl.rules.cmatch.algorithm.MatchTraceObject;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject;
 import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject.RuleTracer;
@@ -12,6 +14,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.RegionGridSelector;
@@ -92,29 +95,13 @@ public class TraceHelper
 		if (tt == null)
 			return "ERROR ID = " + id;
 		
-		DecisionTableTraceObject dtt = null;
-		ITracerObject[] rtt = null;
-		
-		if (tt instanceof DecisionTableTraceObject)
-		{
-			dtt = (DecisionTableTraceObject)tt;
-			rtt = dtt.getTracerObjects();
+		if (!(tt instanceof ITableTracerObject)) {
+		    return "----";
 		}
-		else if (tt instanceof RuleTracer)
-		{
-			
-			dtt = ((RuleTracer)tt).getParentTraceObject();
-			rtt = new ITracerObject[]{tt};
-		}
-		else
-			return "----";
-			
-
 		
-		DecisionTable dt = dtt.getDT();
-
-		
-		TableSyntaxNode tsn = dt.getTableSyntaxNode();
+		ITableTracerObject tto = (ITableTracerObject)tt;
+		TableSyntaxNode tsn = tto.getTableSyntaxNode();
+		ITableTracerObject[] rtt = tto.getTableTracers();
 
 		IGridTable gt = tsn.getTable().getGridTable();
         view = model.getTableView(view);
@@ -150,13 +137,13 @@ public class TraceHelper
     }
 
 
-    IGridFilter makeFilter(ITracerObject[] rtt, ProjectModel model)
+    IGridFilter makeFilter(ITableTracerObject[] rtt, ProjectModel model)
 	{
 		IGridRegion[] regions = new IGridRegion[rtt.length];
 		
 		for (int i = 0; i < rtt.length; i++)
 		{
-          regions[i] = ((RuleTracer)rtt[i]).getRuleTable().getGridTable().getRegion();
+          regions[i] = rtt[i].getGridRegion();
 		}
 		
 //		return ColorGridFilter.makeTransparentFilter(new RegionGridSelector(regions, true), 0.7, 0x00ff00);
