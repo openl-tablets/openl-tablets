@@ -49,7 +49,7 @@ public class ConditionalGotoOperation extends GotoOperation {
      */
     private Result skipGoto() {
         Result result;
-        result = new Result(ReturnType.Next);
+        result = new Result(ReturnType.NEXT);
         return result;
     }
 

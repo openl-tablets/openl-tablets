@@ -11,8 +11,8 @@ import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
 
 public class RowParser implements IRowParser {
     private static final String COMMENTS_REGEXP = "^(//)(.*)|^(/\\*)(.*)(\\*/)$";
-    List<AlgorithmRow> rows;
-    TableParserSpecificationBean[] specifications;
+    private List<AlgorithmRow> rows;
+    private TableParserSpecificationBean[] specifications;
 
     public RowParser(List<AlgorithmRow> rows, TableParserSpecificationBean[] specifications) {
         assert rows != null;

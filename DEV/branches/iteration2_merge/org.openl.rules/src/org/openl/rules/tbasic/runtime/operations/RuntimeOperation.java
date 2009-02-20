@@ -1,6 +1,6 @@
 package org.openl.rules.tbasic.runtime.operations;
 
-import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
@@ -10,7 +10,7 @@ import org.openl.vm.Tracer;
  * 
  */
 public abstract class RuntimeOperation {
-    private AlgorithmTreeNode sourceCode;
+    private AlgorithmOperationSource sourceCode;
 
     public Result execute(TBasicContextHolderEnv environment, Object param, boolean debugMode) {
         Result result = null;
@@ -39,14 +39,14 @@ public abstract class RuntimeOperation {
 
     public abstract Result execute(TBasicContextHolderEnv environment, Object param);
 
-    public void setSourceCode(AlgorithmTreeNode sourceCode) {
+    public void setSourceCode(AlgorithmOperationSource sourceCode) {
         this.sourceCode = sourceCode;
     }
 
     /**
      * @return the source code
      */
-    public AlgorithmTreeNode getSourceCode() {
+    public AlgorithmOperationSource getSourceCode() {
         return sourceCode;
     }
 }

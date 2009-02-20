@@ -18,7 +18,4 @@ public class OpenLAlgorithmGoToMainSignal extends ControlSignal {
     public String getLabel() {
         return label;
     }
-
-
-
 }

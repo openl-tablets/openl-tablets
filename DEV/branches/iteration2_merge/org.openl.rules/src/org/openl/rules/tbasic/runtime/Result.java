@@ -1,6 +1,5 @@
 package org.openl.rules.tbasic.runtime;
 
-
 public class Result {
 
     private ReturnType type;

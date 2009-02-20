@@ -1,5 +1,8 @@
 package org.openl.rules.tbasic;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.meta.StringValue;
 import org.openl.rules.table.IGridRegion;
 
@@ -14,6 +17,9 @@ public class AlgorithmRow {
     private int operationLevel;
     private int rowNumber;
     private IGridRegion gridRegion;
+    
+    // capacity by number of values
+    private Map<String, IGridRegion> valueGridRegions = new HashMap<String, IGridRegion>(7);  
 
     public StringValue getLabel() {
         return label;
@@ -105,5 +111,13 @@ public class AlgorithmRow {
      */
     public IGridRegion getGridRegion() {
         return gridRegion;
+    }
+
+    public void setValueGridRegion(String valueName, IGridRegion region) {
+        valueGridRegions.put(valueName, region);
+    }
+    
+    public IGridRegion getValueGridRegion(String valueName) {
+        return valueGridRegions.get(valueName);
     }
 }

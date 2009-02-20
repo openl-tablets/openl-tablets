@@ -5,12 +5,9 @@ package org.openl.rules.tbasic.runtime.debug;
 
 import java.util.HashMap;
 
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.vm.ITracerObject.SimpleTracerObject;
 
 /**
  * @author User
@@ -33,7 +30,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
     @Override
     public String getUri() {
         RuntimeOperation operation = (RuntimeOperation) getTraceObject();
-        String operationUri = operation.getSourceCode().getAlgorithmRow().getOperation().asSourceCodeModule().getUri(0);
+        String operationUri = operation.getSourceCode().getSourceUri();
 
         return operationUri;
     }
@@ -54,8 +51,8 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
      */
     public String getDisplayName(int mode) {
         RuntimeOperation operation = (RuntimeOperation) getTraceObject();
-        String operationName = operation.getSourceCode().getAlgorithmRow().getOperation().getValue();
-        int operationRow = operation.getSourceCode().getAlgorithmRow().getRowNumber();
+        String operationName = operation.getSourceCode().getOperationName();
+        int operationRow = operation.getSourceCode().getRowNumber();
 
         String displayName = String.format("%s in row %d", operationName, operationRow);
 
@@ -75,7 +72,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
     @SuppressWarnings("unchecked")
     public void setFieldValues(HashMap<String, Object> fieldValues) {
-        fieldValues = (HashMap<String, Object>) fieldValues.clone();
+        this.fieldValues = (HashMap<String, Object>) fieldValues.clone();
     }
 
     /**
@@ -87,7 +84,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
     public IGridRegion getGridRegion() {
         RuntimeOperation operation = (RuntimeOperation) getTraceObject();
-        return operation.getSourceCode().getAlgorithmRow().getGridRegion();
+        return operation.getSourceCode().getGridRegion();
     }
 
 }

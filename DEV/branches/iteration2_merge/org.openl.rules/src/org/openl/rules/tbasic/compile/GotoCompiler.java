@@ -16,7 +16,7 @@ public class GotoCompiler extends NodeCompiler{
     @Override
     public RuntimeOperation compileNode() {
         RuntimeOperation operation = new GotoOperation(node.getAlgorithmRow().getAction().getValue());
-        operation.setSourceCode(node);
+//        operation.setSourceCode(node);
         operations.add(operation);
         return operation;
     }

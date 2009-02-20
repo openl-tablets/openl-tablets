@@ -49,7 +49,9 @@ public class TBasicVM {
         // Run fail safe, in case of error allow user code to handle it
         // processing of error will be done in Algorithm main method
         try {
+
             returnResult = runAll(environment, debugMode);
+
         } catch (OpenLAlgorithmErrorSignal signal) {
             if (currentContext.isMainMethodContext()) {
                 returnResult = AlgorithmErrorHelper.processError(signal.getCause(), environment);
@@ -102,7 +104,7 @@ public class TBasicVM {
      * @return The result of the method execution.
      */
     private Object runAll(TBasicContextHolderEnv environment, boolean debugMode) {
-        
+
         RuntimeOperation operation = currentContext.getFirstOperation();
         Object previousStepResult = null;
         Object returnResult = null;
@@ -110,18 +112,20 @@ public class TBasicVM {
         while (operation != null) {
             Result operationResult;
             try {
+
                 operationResult = operation.execute(environment, previousStepResult, debugMode);
+
                 assert operationResult != null;
             } catch (OpenLAlgorithmGoToMainSignal signal) {
                 operation = getLabeledOperation(signal.getLabel());
                 continue;
             }
 
-            if (operationResult.getReturnType() == ReturnType.Goto) {
+            if (operationResult.getReturnType() == ReturnType.GOTO) {
                 assert operationResult.getValue() instanceof String;
                 operation = getLabeledOperation((String) operationResult.getValue());
                 continue;
-            } else if (operationResult.getReturnType() == ReturnType.Return) {
+            } else if (operationResult.getReturnType() == ReturnType.RETURN) {
                 returnResult = operationResult.getValue();
                 break;
             }
@@ -174,16 +178,5 @@ public class TBasicVM {
         TBasicVMDataContext oldValue = currentContext;
         currentContext = newContext;
         return oldValue;
-    }
-
-    public Object runTraced(TBasicContextHolderEnv runtimeEnvironment) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Object runTraced(List<RuntimeOperation> algorithmSteps, Map<String, RuntimeOperation> labels,
-            TBasicContextHolderEnv environment) {
-        // TODO Auto-generated method stub
-        return null;
     }
 }
