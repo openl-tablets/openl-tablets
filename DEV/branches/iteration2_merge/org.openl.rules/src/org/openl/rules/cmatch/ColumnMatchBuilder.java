@@ -43,7 +43,12 @@ public class ColumnMatchBuilder {
 
         IOpenSourceCodeModule alg = columnMatch.getAlgorithm();
         String nameOfAlgorithm = (alg != null) ? alg.getCode(): null;
-        IMatchAlgorithmCompiler algorithm = MatchAlgorithmFactory.getAlgorithm(nameOfAlgorithm);
+        IMatchAlgorithmCompiler algorithm = null;
+        try {
+            algorithm = MatchAlgorithmFactory.getAlgorithm(nameOfAlgorithm);
+        } catch (Exception ex) {
+            throw new SyntaxError(columnMatch.getSyntaxNode(), null, ex);
+        }
 
         algorithm.compile(bindingContext, columnMatch);
     }
@@ -138,7 +143,7 @@ public class ColumnMatchBuilder {
             }
 
             StringValue sv = new StringValue(value, "cell" + r + "_" + column.getColumnIndex() + "_" + c, null, uri);
-            values[c] = new SubValue(sv, grid.getCellStyle(c, r).getIdent());
+            values[c] = new SubValue(sv, grid.getCellStyle(c, r));
             values[c].setGridRegion(grid.getLogicalRegion(c, r, 1, 1).getGridTable().getRegion());
         }
 
