@@ -2,15 +2,16 @@ package org.openl.rules.cmatch;
 
 import org.openl.meta.StringValue;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ui.ICellStyle;
 
 public class SubValue {
     private StringValue value;
     private int indent;
     private IGridRegion gridRegion;
 
-    public SubValue(StringValue value, int indent) {
-        this.indent = indent;
+    public SubValue(StringValue value, ICellStyle cellStyle) {
         this.value = value;
+        this.indent = (cellStyle == null) ? 0 : cellStyle.getIdent();
     }
 
     public int getIndent() {

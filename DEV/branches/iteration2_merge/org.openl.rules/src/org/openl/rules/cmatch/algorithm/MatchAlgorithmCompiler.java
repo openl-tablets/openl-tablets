@@ -134,7 +134,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         columnMatch.setReturnValues(retValues);
     }
 
-    protected Object[] parseValues(TableRow row, Class<?> clazz) {
+    protected Object[] parseValues(TableRow row, Class<?> clazz) throws BoundError {
         IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(clazz);
 
         SubValue[] subValues = row.get(VALUES);
@@ -144,7 +144,11 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             SubValue sv = subValues[i];
             String s = sv.getString();
 
-            result[i] = converter.parse(s, null, null);
+            try {
+                result[i] = converter.parse(s, null, null);
+            } catch (Exception ex) {
+                throw new BoundError(ex, sv.getStringValue().asSourceCodeModule());
+            }
         }
 
         return result;
@@ -171,9 +175,14 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             SubValue nameSV = row.get(NAMES)[0];
             String varName = nameSV.getString();
 
+            if (varName.length() == 0) {
+                String msg = "Name cannot be empty!";
+                throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
+            }
+
             Argument arg = argumentsHelper.getTypeByName(varName);
             if (arg == null) {
-                String msg = "Failed to bind " + varName + "!";
+                String msg = "Failed to bind name '" + varName + "' !";
                 throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
