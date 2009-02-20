@@ -24,6 +24,7 @@ public abstract class ATBasicTraceObjectLeaf extends ATableTracerLeaf {
                 tsn = ((ATableTracerNode) parentTraceObject).getTableSyntaxNode();
                 break;
             }
+            parentTraceObject = parentTraceObject.getParent();
         }
         
         return tsn;

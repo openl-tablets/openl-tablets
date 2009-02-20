@@ -31,7 +31,7 @@ public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation {
             resultValue = evaluateStatement(environment);
         }
         
-        return new Result(ReturnType.Return, resultValue);
+        return new Result(ReturnType.RETURN, resultValue);
     }
 
 }

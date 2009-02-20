@@ -459,8 +459,8 @@ public class AlgorithmCompiler {
             RuntimeOperation emittedOperation = (RuntimeOperation) constructor.newInstance(params);
             
             // TODO: set more precise source reference
-            AlgorithmTreeNode sourceNode = getOperationSource(nodesToCompile, conversionStep);
-            emittedOperation.setSourceCode(sourceNode);
+            AlgorithmOperationSource source = getOperationSource(nodesToCompile, conversionStep);
+            emittedOperation.setSourceCode(source);
 
             return emittedOperation;
 
@@ -477,20 +477,22 @@ public class AlgorithmCompiler {
      * @return
      * @throws BoundError
      */
-    private AlgorithmTreeNode getOperationSource(List<AlgorithmTreeNode> nodesToCompile,
+    private AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile,
             ConversionRuleStep conversionStep) throws BoundError {
         
         AlgorithmTreeNode sourceNode;
+        String operationValueName = null;
         
         // TODO: set more precise source reference
         String convertionParam = conversionStep.getOperationParam1();
         if (isOperationFieldInstruction(convertionParam)) {
             sourceNode = getNodeWithResult(nodesToCompile, extractOperationName(convertionParam));
+            operationValueName = extractFieldName(convertionParam);
         } else {
             sourceNode = nodesToCompile.get(0);
         }
         
-        return sourceNode;
+        return new AlgorithmOperationSource(sourceNode, operationValueName);
     }
 
     private Object convertParam(List<AlgorithmTreeNode> nodesToCompile, Class<? extends Object> clazz,

@@ -19,7 +19,7 @@ public class NopOperation extends RuntimeOperation {
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
         // do nothing
-        return new Result(ReturnType.Next);
+        return new Result(ReturnType.NEXT);
     }
 
 }

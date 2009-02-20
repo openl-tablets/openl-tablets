@@ -99,7 +99,7 @@ public class AlgorithmSubroutineMethod extends AMethod implements IMemberMetaInf
         // TODO: rewrite to return more precise source code url
         if (algorithmSteps.size() > 0) {
             RuntimeOperation firstOperation = algorithmSteps.get(0);
-            sourceUrl = firstOperation.getSourceCode().getAlgorithmRow().getOperation().asSourceCodeModule().getUri(0);
+            sourceUrl = firstOperation.getSourceCode().getSourceUri();
         }
 
         return sourceUrl;
@@ -110,8 +110,11 @@ public class AlgorithmSubroutineMethod extends AMethod implements IMemberMetaInf
         // TODO: rewrite to return more precise grid region
         if (algorithmSteps.size() > 0) {
             RuntimeOperation firstOperation = algorithmSteps.get(0);
-            gridRegion = firstOperation.getSourceCode().getAlgorithmRow().getGridRegion();
+            gridRegion = firstOperation.getSourceCode().getGridRegion();
             // TODO: expand till the last operation
+//            RuntimeOperation lastOperation = algorithmSteps.get(0);
+//            lastGridRegion = lastOperation.getSourceCode().getGridRegion();
+//            gridRegion = IGridRegion.between(firstGridRegion, lastGridRegion);
         }
         
         return gridRegion;

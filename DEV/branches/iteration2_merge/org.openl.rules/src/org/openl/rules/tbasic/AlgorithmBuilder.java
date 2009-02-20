@@ -30,7 +30,7 @@ public class AlgorithmBuilder {
         this.tsn = tsn;
     }
 
-    public void build(ILogicalTable tableBody) throws Exception {
+    public void build(ILogicalTable tableBody) throws SyntaxError {
         if (tableBody.getLogicalHeight() <= 2) {
             throw new SyntaxError(tsn, "Unsufficient rows. Must be more than 2!", null);
         }
@@ -71,7 +71,7 @@ public class AlgorithmBuilder {
         }
     }
 
-    protected List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxError {
+    private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxError {
         List<AlgorithmRow> result = new ArrayList<AlgorithmRow>();
 
         IGridTable grid = tableBody.rows(2).getGridTable();
@@ -82,12 +82,16 @@ public class AlgorithmBuilder {
             // set sequential number of the row in table
             aRow.setRowNumber(r + 1);
             
-            aRow.setGridRegion(grid.getLogicalRow(r).getGridTable().getRegion());
+            ILogicalTable rowTable = grid.getLogicalRow(r);
+            aRow.setGridRegion(rowTable.getGridTable().getRegion());
             
             // parse data row
             for (AlgorithmColumn column : columns.values()) {
                 int c = column.columnIndex;
-
+                
+                ILogicalTable valueTable = rowTable.getLogicalColumn(c);
+                aRow.setValueGridRegion(column.id, valueTable.getGridTable().getRegion());
+                
                 String value = grid.getStringValue(c, r);
                 String uri = grid.getUri(c, r);
 
@@ -132,9 +136,11 @@ public class AlgorithmBuilder {
     }
 
     private String safeId(String s) {
-        if (s == null)
-            return "";
-        return (s.trim().toLowerCase());
+        String id = "";
+        if (s != null) {
+            id = s.trim().toLowerCase();
+        }
+        return id;
     }
 
     // Section Description Operation Condition Action Before After
@@ -142,7 +148,7 @@ public class AlgorithmBuilder {
         private String id;
         private int columnIndex;
 
-        public AlgorithmColumn(String id, int columnIndex) {
+        private AlgorithmColumn(String id, int columnIndex) {
             this.id = id;
             this.columnIndex = columnIndex;
         }

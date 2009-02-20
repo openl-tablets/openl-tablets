@@ -16,7 +16,7 @@ public abstract class NodeCompiler {
         //TODO openL statement
         //operation = new PerformOperation(String openLStatement);
         if (operation != null){
-            operation.setSourceCode(node);
+//            operation.setSourceCode(node);
             operations.add(operation);
         }
         return operation;

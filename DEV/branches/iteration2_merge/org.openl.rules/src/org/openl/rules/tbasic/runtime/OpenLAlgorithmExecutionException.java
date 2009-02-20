@@ -5,7 +5,7 @@ package org.openl.rules.tbasic.runtime;
 
 /**
  * @author User
- *
+ * 
  */
 public class OpenLAlgorithmExecutionException extends RuntimeException {
 

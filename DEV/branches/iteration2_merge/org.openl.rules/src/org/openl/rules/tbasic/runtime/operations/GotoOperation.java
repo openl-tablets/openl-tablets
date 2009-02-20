@@ -24,7 +24,7 @@ public class GotoOperation extends RuntimeOperation {
      */
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        return new Result(ReturnType.Goto, label);
+        return new Result(ReturnType.GOTO, label);
     }
 
 }

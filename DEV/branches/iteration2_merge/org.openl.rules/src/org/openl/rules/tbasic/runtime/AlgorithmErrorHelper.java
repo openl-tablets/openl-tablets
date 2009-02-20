@@ -7,6 +7,12 @@ import org.openl.types.IOpenMethod;
 
 class AlgorithmErrorHelper {
 
+    /**
+     * 
+     * @param error
+     * @param environment
+     * @return
+     */
     public static Object processError(Throwable error, TBasicContextHolderEnv environment) {
         // TODO discover which exception contains exception
         IOpenClass algorithmType = environment.getTbasicTarget().getType();
@@ -24,9 +30,14 @@ class AlgorithmErrorHelper {
         throw new RuntimeException(String.format("Execution of algorithm failed: %s", error.getMessage()), error);
     }
 
+    /**
+     * 
+     * @param message
+     * @param operation
+     * @return
+     */
     public static OpenLAlgorithmExecutionException createExecutionException(String message, RuntimeOperation operation) {
-        String sourceOperationUrl = operation.getSourceCode().getAlgorithmRow().getOperation().asSourceCodeModule()
-                .getUri(0);
+        String sourceOperationUrl = operation.getSourceCode().getSourceUri();
         String errorMessage = String
                 .format(
                         "Unexpected error appeared while executing TBasic component logic. It's unusal situation and the most propably something is wrong in component's internal logic, please contact developers. Error: %s at %s",
