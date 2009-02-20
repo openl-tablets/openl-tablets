@@ -8,6 +8,7 @@ import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.AMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -35,7 +36,13 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         Object result = algorithmExecutor.invoke(target, params, env, this);
 
-        // FIXME ?null or exception?
+        if (result == null) {
+            IOpenClass type = getHeader().getType();
+            if (type.getInstanceClass().isPrimitive()) {
+                throw new IllegalArgumentException("Cannot return <null> for primitive type " + type.getInstanceClass().getName());
+            }
+        }
+
         return result;
     }
 
