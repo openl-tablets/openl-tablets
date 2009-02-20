@@ -44,11 +44,6 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
         }
 
-        IOpenClass type = columnMatch.getHeader().getType();
-        if (type.getClass().isPrimitive()) {
-            throw new IllegalArgumentException("Cannot return <null> for primitive type " + type.getClass().getName());
-        } else {
-            return NO_MATCH;
-        }
+        return NO_MATCH;
     }
 }

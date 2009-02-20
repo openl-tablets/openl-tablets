@@ -3,7 +3,6 @@ package org.openl.rules.cmatch.algorithm;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.matcher.IMatcher;
-import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -52,11 +51,6 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
         }
 
-        IOpenClass type = columnMatch.getHeader().getType();
-        if (type.getClass().isPrimitive()) {
-            throw new IllegalArgumentException("Cannot return <null> for primitive type " + type.getClass().getName());
-        } else {
-            return NO_MATCH;
-        }
+        return NO_MATCH;
     }
 }

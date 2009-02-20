@@ -144,7 +144,8 @@ public class ColumnMatchBuilder {
 
             StringValue sv = new StringValue(value, "cell" + r + "_" + column.getColumnIndex() + "_" + c, null, uri);
             values[c] = new SubValue(sv, grid.getCellStyle(c, r));
-            values[c].setGridRegion(grid.getLogicalRegion(c, r, 1, 1).getGridTable().getRegion());
+            ILogicalTable lr = grid.getLogicalRegion(c, r, 1, 1);
+            values[c].setGridRegion(lr.getGridTable().getRegion());
         }
 
         return values;
