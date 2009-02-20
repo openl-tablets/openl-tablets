@@ -10,7 +10,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
 
 public class RowParser implements IRowParser {
-    private static final String COMMENTS_REGEXP = "^(//)|(/\\*).*(\\*/)$";
+    private static final String COMMENTS_REGEXP = "^(//)(.*)|^(/\\*)(.*)(\\*/)$";
     List<AlgorithmRow> rows;
     TableParserSpecificationBean[] specifications;
 
