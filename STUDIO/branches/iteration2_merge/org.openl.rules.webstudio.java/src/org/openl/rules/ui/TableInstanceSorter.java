@@ -1,9 +1,9 @@
 package org.openl.rules.ui;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.util.StringTool;
 
 public class TableInstanceSorter extends ATableTreeSorter implements IProjectTypes, ITableNodeTypes
 {
@@ -53,37 +53,26 @@ public class TableInstanceSorter extends ATableTreeSorter implements IProjectTyp
 		String sfx =(i < 2 ? "":"("+i+")");
 		return new String[]{name + sfx, display + sfx, display + sfx};
 	}
-	
-	
-	static String str2name(String src, String type)
-	{
-		if (src == null)
-			src = "NO NAME";
-		
-		String[] tokens = StringTool.tokenize(src, " \n\r(),");
-		
-		if (XLS_DT.equals(type) && tokens.length >= 3)
-		{
-			return tokens[2];
-		}
-		
-		if (XLS_DATA.equals(type) && tokens.length >= 3)
-		{
-			return tokens[2];
-		}
-		
-		if (XLS_TEST_METHOD.equals(type) && tokens.length >= 3)
-			return tokens[2];
 
-		if (XLS_RUN_METHOD.equals(type) && tokens.length >= 3)
-			return tokens[2];
-	
-		if (XLS_METHOD.equals(type) && tokens.length >= 3)
-			return tokens[2];
-		
+	static String str2name(String src, String type)	{
+		if (src == null) {
+			src = "NO NAME";
+		} else if (type.equals(XLS_DT)
+		        || type.equals(XLS_SPREADSHEET)
+		        || type.equals(XLS_TBASIC)
+		        || type.equals(XLS_COLUMN_MATCH)
+                || type.equals(XLS_DATA)
+                || type.equals(XLS_DATATYPE)
+                || type.equals(XLS_METHOD)
+                || type.equals(XLS_TEST_METHOD)
+                || type.equals(XLS_RUN_METHOD)
+                ) {
+            String[] tokens = StringUtils.split(src.replaceAll("\\(.*\\)", ""));
+            src = tokens[tokens.length - 1].trim();
+        }
 		return src;
 	}
-	
+
 	static String str2display(String src, String type)
 	{
 //		String[] tokens = StringTool.tokenize(src, " \n\r(),");
