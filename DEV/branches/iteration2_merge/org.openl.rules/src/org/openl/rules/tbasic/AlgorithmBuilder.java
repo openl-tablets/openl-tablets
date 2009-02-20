@@ -10,6 +10,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
 import org.openl.syntax.impl.SyntaxError;
 
@@ -98,7 +99,8 @@ public class AlgorithmBuilder {
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {
-                    int i = grid.getCellStyle(c, r).getIdent();
+                    ICellStyle cellStyle = grid.getCellStyle(c, r);
+                    int i = (cellStyle == null) ? 0 : cellStyle.getIdent();
                     aRow.setOperationLevel(i);
                 }
             }
