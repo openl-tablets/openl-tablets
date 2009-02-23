@@ -4,7 +4,6 @@
 package org.openl.rules.tbasic;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 
 import org.openl.rules.tbasic.compile.ConversionRuleBean;
