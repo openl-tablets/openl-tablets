@@ -12,8 +12,6 @@ import org.openl.rules.tbasic.Algorithm;
  * 
  */
 public class TBasicAlgorithmTraceObject extends ATableTracerNode {
-    private Object result;
-
     /**
      * @param traceObject
      */
@@ -48,27 +46,11 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
      */
     public String getDisplayName(int mode) {
         Algorithm algorithm = (Algorithm) getTraceObject();
-        String displayName = algorithm.getHeader().getDisplayName(mode);
-        return "Algorithm " + displayName;
+        return String.format("Algorithm %s", asString(algorithm, mode));
     }
 
     public IGridRegion getGridRegion() {
         // TODO Auto-generated method stub
         return null;
     }
-
-    /**
-     * @return the result
-     */
-    public Object getResult() {
-        return result;
-    }
-
-    /**
-     * @param result the result to set
-     */
-    public void setResult(Object result) {
-        this.result = result;
-    }
-
 }
