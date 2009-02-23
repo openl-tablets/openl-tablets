@@ -23,7 +23,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.expressions,
  org.eclipse.ui.console,
  org.openl.core;visibility:=reexport,
- org.openl.lib
+ org.openl.lib,
+ org.openl.j,
+ org.openl.rules,
+ org.openl.rules.helpers
 Eclipse-AutoStart: true
 Export-Package: org.openl.eclipse.base,
  org.openl.eclipse.builder,
