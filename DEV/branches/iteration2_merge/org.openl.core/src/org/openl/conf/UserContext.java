@@ -6,6 +6,8 @@
 
 package org.openl.conf;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Properties;
 import java.util.Stack;
 
@@ -117,7 +119,26 @@ public class UserContext extends AUserContext
 
 	public String toString()
 	{
-		return "home=" + userHome + " cl=" + userClassLoader;
+		return "home=" + userHome + " cl=" + printClassloader( userClassLoader);
+	}
+
+
+	private String printClassloader(ClassLoader ucl) {
+		if (ucl == null)
+			return "null";
+		if (ucl instanceof URLClassLoader)
+		{
+			URL[] urls = ((URLClassLoader)ucl).getURLs();
+			StringBuilder sb = new StringBuilder();
+			sb.append("ClassLoadr URLs: ");
+			for(URL url: urls)
+			{
+				sb.append(url.toExternalForm());
+				sb.append(',');
+			}	
+			return sb.toString();
+		}	
+		return ucl.toString();
 	}
 
 

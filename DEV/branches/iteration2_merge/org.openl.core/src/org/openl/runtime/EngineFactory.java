@@ -63,6 +63,17 @@ public class EngineFactory<T>
 	this.engineInterface = engineInterface;
     }
 
+    
+    public EngineFactory(String openlName, String sourceFile,
+    	    Class<T> engineInterface, IUserContext cxt)
+        {
+    	this.openlName = openlName;
+    	this.sourceFile = sourceFile;
+    	this.engineInterface = engineInterface;
+    	this.ucxt = cxt;
+        }
+    
+    
     public EngineFactory(String openlName, File file, Class<T> engineInterface)
     {
 	this.openlName = openlName;
@@ -77,6 +88,13 @@ public class EngineFactory<T>
 	this.engineInterface = engineInterface;
     }
 
+    public EngineFactory(String openlName, URL url, Class<T> engineInterface, IUserContext cxt)
+    {
+	this.openlName = openlName;
+	sourceCode = new URLSourceCodeModule(url);
+	this.engineInterface = engineInterface;
+	this.ucxt = cxt;
+    }
     public EngineFactory(String openlName, String userHome, String sourceFile,
 	    Class<T> engineInterface)
     {
@@ -121,9 +139,25 @@ public class EngineFactory<T>
     public synchronized IUserContext getUserContext()
     {
 	if (ucxt == null)
-	    ucxt = new UserContext(Thread.currentThread()
-		    .getContextClassLoader(), userHome);
+	    ucxt = new UserContext(getDefaultUserClassLoader(), userHome);
 	return ucxt;
+    }
+    
+    protected ClassLoader getDefaultUserClassLoader()
+    {
+    	ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    	
+    	try
+    	{
+    		cl.loadClass(this.getClass().getName()); //checking if classloader has openl, sometimes it does not
+    		return cl;
+    	}
+    	catch(ClassNotFoundException cnfe)
+    	{
+    		return this.getClass().getClassLoader();
+    	}
+    	
+    	
     }
 
     public synchronized IOpenSourceCodeModule getSourceCode()

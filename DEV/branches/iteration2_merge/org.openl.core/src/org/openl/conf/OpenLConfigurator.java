@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.Properties;
 
 import org.openl.OpenConfigurationException;
+import org.openl.util.Log;
 
 
 /**
@@ -39,8 +40,8 @@ public class OpenLConfigurator extends Configurator
     "org.openl.builder.classpath";
 	static final public String BUILDER_CLASS_PATH =
 	      ".builder.classpath";
-  static final public String DEFAULT_BUILDER_CLASS_NAME =
-    "org.openl.conf.ant.AntOpenLBuilder";
+//  static final public String DEFAULT_BUILDER_CLASS_NAME =
+//    "org.openl.conf.ant.AntOpenLBuilder";
 
 	public static final String OPENL_BUILDER = "OpenLBuilder";
 
@@ -154,11 +155,12 @@ public class OpenLConfigurator extends Configurator
 			return bb;
 		} catch (Exception e)
 		{
-			// TODO: handle exception
+			Log.error( "Can not build " + openl + " using cp: " + builderClassPath + " UCXT: " + ucxt, e);
+			throw e;
 		}
 		
-		builderClassName = DEFAULT_BUILDER_CLASS_NAME;
-		return makeBuilderInstance(builderClassName, builderClassPath, ucxt);
+//		builderClassName = DEFAULT_BUILDER_CLASS_NAME;
+//		return makeBuilderInstance(builderClassName, builderClassPath, ucxt);
     
   }
 
