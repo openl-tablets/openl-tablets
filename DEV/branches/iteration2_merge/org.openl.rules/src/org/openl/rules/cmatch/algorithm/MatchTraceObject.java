@@ -43,6 +43,6 @@ public class MatchTraceObject extends ATableTracerLeaf {
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
-        return (TableSyntaxNode)columnMatch.getSyntaxNode();
+        return columnMatch.getTableSyntaxNode();
     }
 }

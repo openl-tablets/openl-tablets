@@ -34,6 +34,6 @@ public class ColumnMatchTraceObject extends ATableTracerNode {
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
-        return (TableSyntaxNode)columnMatch.getSyntaxNode();
+        return columnMatch.getTableSyntaxNode();
     }
 }

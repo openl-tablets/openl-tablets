@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -15,7 +16,12 @@ import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     public static final String NAMES = "names";
@@ -167,6 +173,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected MatchNode[] prepareNodes(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper, int retValuesCount)
             throws BoundError {
+        IGridTable tableBodyGrid = columnMatch.getTableSyntaxNode().getTableBody().getGridTable();
+
         List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = new MatchNode[rows.size()];
 
@@ -200,6 +208,20 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             node.setArgument(arg);
 
             parseCheckValues(row, node, retValuesCount);
+
+            // Bind cell data type based on parsed data
+            SubValue[] inValues = row.get(VALUES);
+            for (int j = 0; j < retValuesCount; j++) {
+                IGridRegion gridRegion = inValues[j].getGridRegion();
+                Object cv = node.getCheckValues()[j];
+
+                if (cv != null) {
+                    IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
+                    CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, "?", paramType);
+                    IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
+                    wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
+                }
+            }
 
             nodes[i] = node;
         }
