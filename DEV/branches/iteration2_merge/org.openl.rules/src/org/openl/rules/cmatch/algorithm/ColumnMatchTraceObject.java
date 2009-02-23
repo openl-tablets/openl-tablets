@@ -25,7 +25,7 @@ public class ColumnMatchTraceObject extends ATableTracerNode {
     }
 
     public String getDisplayName(int mode) {
-        return "CM " + asString((IOpenMethod)getTraceObject());
+        return "CM " + asString((IOpenMethod)getTraceObject(), mode);
     }
 
     public IGridRegion getGridRegion() {

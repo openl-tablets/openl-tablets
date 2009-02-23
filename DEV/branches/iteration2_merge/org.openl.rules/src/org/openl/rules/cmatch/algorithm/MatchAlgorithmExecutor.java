@@ -38,11 +38,13 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
                 if (success) {
                     if (t!= null) {
-                        t.push(new ColumnMatchTraceObject(columnMatch, params));
+                        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params); 
+                        t.push(traceObject);
                         for (MatchNode node : line.getChildren()) {
                             t.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
                             t.pop();
                         }
+                        traceObject.setResult(returnValues[resultIndex]);
                         t.pop();
                     }
                     
@@ -50,6 +52,15 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 }
             }
         }
+        
+        // TODO: eliminate code duplication
+        if (t!= null) {
+            ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params); 
+            t.push(traceObject);
+            traceObject.setResult(NO_MATCH);
+            t.pop();
+        }
+        
 
         return NO_MATCH;
     }

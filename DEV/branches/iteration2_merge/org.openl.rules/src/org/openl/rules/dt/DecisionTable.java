@@ -6,7 +6,6 @@
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
-import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -25,7 +24,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.print.Formatter;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -429,7 +427,7 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 						ret = actionRows[j].executeAction(ruleN, target, params, env);
 						if (ret != null && actionRows[j].isReturnAction())
 						{
-							dtto.result = ret;
+							dtto.setResult(ret);
 							return ret;
 						}	
 							
@@ -441,7 +439,7 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 			
 			
 			}
-			dtto.result = ret;
+			dtto.setResult(ret);
 			return ret;
 		}	
 		finally
@@ -487,7 +485,7 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 							ret = actionRows[j].executeAction(i, target, params, env);
 							if (ret != null && actionRows[j].isReturnAction())
 							{
-								dtto.result = ret;
+								dtto.setResult(ret);
 								return ret;
 							}	
 								
@@ -498,7 +496,7 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 					}
 					
 				}
-				dtto.result = ret;
+				dtto.setResult(ret);
 				return ret;
 			} 
 			finally
@@ -509,16 +507,9 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 
 	static public class DecisionTableTraceObject extends ATableTracerNode
 	{
-//		DecisionTable dt;
-//		Object[] params;
-		Object result;
-
-//		ArrayList rules = new ArrayList(1);
-
 		public DecisionTableTraceObject(DecisionTable dt, Object[] params)
 		{
 			super(dt, params);
-//			this.params = params;
 		}
 
 		public DecisionTable getDT()
@@ -528,28 +519,8 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 		
 		public String getDisplayName(int mode)
 		{
-		    return "DT " + asString((IOpenMethod)getTraceObject());
-//			StringBuffer buf = new StringBuffer(50);
-//			buf.append("DT ");
-//			DecisionTable dt = getDT();
-//			buf.append(dt.getType().getDisplayName(SHORT)).append(' ');
-//			buf.append(dt.getName()).append('(');
-//	
-//			for (int i = 0; i < params.length; i++)
-//			{
-//				if (i > 0)
-//					buf.append(", ");
-//				Formatter.format(params[i], INamedThing.SHORT, buf);
-//			}
-//			
-//			buf.append(')');
-////			buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR, false));
-//			return buf.toString();
+		    return "DT " + asString((IOpenMethod)getTraceObject(), mode);
 		}
-		
-		
-		
-
 
 		public String getUri()
 		{
@@ -561,13 +532,18 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
 			return new RuleTracer(i);
 		}
 		
-		
+	      /* (non-Javadoc)
+         * @see org.openl.util.ITreeElement#getType()
+         */
+        public String getType()
+        {
+            return "decisiontable";
+        }
 
-
-//		public RuleTracer[] getRuleTracerObjects()
-//		{
-//			return (RuleTracer[]) rules.toArray(new RuleTracer[0]);
-//		}
+        public IGridRegion getGridRegion() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 		
 		public class RuleTracer extends ATableTracerLeaf
 		{
@@ -616,24 +592,6 @@ public class DecisionTable implements IOpenMethod, IDecisionTable,
                 return getParentTraceObject().getDT().getTableSyntaxNode();
             }
 		}
-
-
-		/* (non-Javadoc)
-		 * @see org.openl.util.ITreeElement#getType()
-		 */
-		public String getType()
-		{
-			return "decisiontable";
-		}
-
-        public IGridRegion getGridRegion() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        public TableSyntaxNode getTableSyntaxNode() {
-            return getDT().getTableSyntaxNode();
-        }
 	}
 
 	/**

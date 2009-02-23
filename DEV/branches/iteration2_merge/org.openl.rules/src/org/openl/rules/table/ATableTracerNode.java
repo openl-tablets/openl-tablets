@@ -1,15 +1,17 @@
 package org.openl.rules.table;
 
-import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.print.Formatter;
 import org.openl.vm.ITracerObject;
 
 public abstract class ATableTracerNode extends ITracerObject.SimpleTracerObject implements ITableTracerObject {
     private Object params[];
+    private Object result;
     
     public ATableTracerNode() {
     }
@@ -30,16 +32,24 @@ public abstract class ATableTracerNode extends ITracerObject.SimpleTracerObject 
         return temp;
     }
 
-    protected String asString(IOpenMethod method) {
+    protected String asString(IOpenMethod method, int mode) {
         StringBuffer buf = new StringBuffer(64);
-        buf.append(method.getType().getDisplayName(SHORT)).append(' ');
+        buf.append(method.getType().getDisplayName(mode)).append(' ');
+        boolean isVoidReturnType = (method.getType() == JavaOpenClass.VOID);
+        if (!isVoidReturnType) {
+            buf.append("= ").append(result != null ? result.toString() : "null").append(' ');
+        }
         buf.append(method.getName()).append('(');
+        
+        IOpenClass[] paramTypes = method.getSignature().getParameterTypes();
 
         for (int i = 0; i < params.length; i++)
         {
             if (i > 0)
                 buf.append(", ");
-            Formatter.format(params[i], INamedThing.SHORT, buf);
+            buf.append(paramTypes[i].getDisplayName(mode)).append(' ');
+            buf.append(method.getSignature().getParameterName(i)).append(" = ");
+            Formatter.format(params[i], mode, buf);
         }
         
         buf.append(')');
@@ -63,5 +73,19 @@ public abstract class ATableTracerNode extends ITracerObject.SimpleTracerObject 
             }
         }
         return syntaxNode;
+    }
+
+    /**
+     * @param result the result to set
+     */
+    public void setResult(Object result) {
+        this.result = result;
+    }
+
+    /**
+     * @return the result
+     */
+    public Object getResult() {
+        return result;
     }
 }
