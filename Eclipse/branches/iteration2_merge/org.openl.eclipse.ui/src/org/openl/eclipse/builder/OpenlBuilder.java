@@ -29,6 +29,7 @@ import org.openl.eclipse.util.Debug;
 import org.openl.eclipse.util.JDTUtil;
 import org.openl.eclipse.util.UrlUtil;
 import org.openl.main.OpenlMain;
+import org.openl.rules.lang.xls.XlsLoader;
 import org.openl.syntax.SyntaxErrorException;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -86,6 +87,7 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 	 * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
 	 *      java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@SuppressWarnings("unchecked")
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
 		if (kind == FULL_BUILD) {
@@ -153,7 +155,11 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 			
 		if (isOpenlFile(file)) {
 			OpenL openl = null;
+			ClassLoader old = Thread.currentThread().getContextClassLoader();
 			try {
+				IUserContext cxt = getUserContext();
+				Thread.currentThread().setContextClassLoader(cxt.getUserClassLoader());
+				
 				openl = getOpenlConfiguration(file);
 				if (openl != null)
 				   openl.compile(new EclipseFileSourceCodeModule(file));
@@ -167,6 +173,10 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 						"Unhandled Exception: " + t.getMessage(), severity,
 						null, null, null);
 				throw RuntimeExceptionWrapper.wrap(t);
+			}
+			finally
+			{
+				Thread.currentThread().setContextClassLoader(old);
 			}
 
 		}
@@ -193,7 +203,7 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 		userContext = null;
 		OpenL.reset();
 		OpenLConfiguration.reset();
-		HashMap old = ClassLoaderFactory.reset();
+		HashMap<?, ClassLoader> old = ClassLoaderFactory.reset();
 		JavaOpenClass.resetAllClassloaders(old);
 	}
 
@@ -208,17 +218,18 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 			throw RuntimeExceptionWrapper.wrap(e);
 		}
 		
-		boolean userHasOpenL = false;
+//		boolean userHasOpenL = false;
+//		
+//		for (int i = 0; i < cp.length; i++) {
+//			if (cp[i].indexOf("org.openl.core") >= 0)
+//			{
+//				userHasOpenL = true;
+//				break;
+//			}	
+//		}
 		
-		for (int i = 0; i < cp.length; i++) {
-			if (cp[i].indexOf("org.openl.core") >= 0)
-			{
-				userHasOpenL = true;
-				break;
-			}	
-		}
-		
-		return userHasOpenL ? new URLClassLoader(UrlUtil.toUrl(cp), OpenL.class.getClassLoader()) : new URLClassLoader(UrlUtil.toUrl(cp));
+//		return userHasOpenL ? new URLClassLoader(UrlUtil.toUrl(cp), OpenL.class.getClassLoader()) : new URLClassLoader(UrlUtil.toUrl(cp));
+		return  new URLClassLoader(UrlUtil.toUrl(cp), XlsLoader.class.getClassLoader());
 	}
 	
 	static final String openlPropertiesFname = "openl.project.classpath.properties";
