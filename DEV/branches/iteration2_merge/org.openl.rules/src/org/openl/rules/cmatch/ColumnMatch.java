@@ -51,12 +51,16 @@ public class ColumnMatch extends AMethod implements IMemberMetaInfo {
         return null;
     }
 
+    public TableSyntaxNode getTableSyntaxNode() {
+        return (TableSyntaxNode) getSyntaxNode();
+    }
+
     public ISyntaxNode getSyntaxNode() {
         return node.getSyntaxNode();
     }
 
     public String getSourceUrl() {
-        return ((TableSyntaxNode) getSyntaxNode()).getUri();
+        return getTableSyntaxNode().getUri();
     }
 
     @Override
