@@ -21,7 +21,13 @@ public class TraceTreeRenderer extends DTreeRenderer {
                     "webresource/images/data-error.png", "webresource/images/data-error.png" },
             { "cmMatch", "webresource/images/test_ok.gif", "webresource/images/test_ok.gif",
                     "webresource/images/data-error.png", "webresource/images/data-error.png" },
-            };
+            { "tbasic", "webresource/images/tbasic.gif", "webresource/images/tbasic.gif",
+                    "webresource/images/tbasic-error.gif", "webresource/images/tbasic-error.gif" },
+            { "tbasicMethod", "webresource/images/tbasicmethod.gif", "webresource/images/tbasicmethod.gif",
+                    "webresource/images/tbasicmethod-error.png", "webresource/images/tbasicmethod-error.png" },
+            { "tbasicOperation", "webresource/images/tbasicoperation.gif", "webresource/images/tbasicoperation.gif",
+                    "webresource/images/tbasicoperation-error.png", "webresource/images/tbasicoperation-error.png" },
+    };
 
     /**
      * @param jsp
