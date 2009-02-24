@@ -41,7 +41,7 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator
 		return new RangeSelector(condition, value, target, dtparams, env);
 	}
 
-	static class RangeSelector implements IIntSelector
+	class RangeSelector implements IIntSelector
 	{
 		IDTCondition condition;
 
@@ -72,16 +72,31 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator
 			if (ruleParams == null)
 				return true;
 
-			Object[] realParams = new Object[params.length];
+			Object[] realParams = new Object[ruleParams.length];
 
 			FunctionalRow
 					.loadParams(realParams, 0, ruleParams, target, dtparams, env);
 
-			if (ruleParams[0] == null)
-				return true;
+//			if (ruleParams[0] == null)
+//				return true;
+			
+			Comparable<Object> vFrom = null;
+			Comparable<Object> vTo = null;
 
-			return ((Comparable<Object>) ruleParams[0]).compareTo(value) <= 0
-					&& ((Comparable<Object>) value).compareTo(ruleParams[1]) < 0;
+			if (adaptor == null)
+			{
+
+				vFrom = (Comparable<Object>) realParams[0];
+				vTo = (Comparable<Object>) realParams[1];
+			} else
+			{
+				vFrom = adaptor.getMin(realParams[0]);
+				vTo = adaptor.getMax(realParams[0]);
+			}
+
+
+			return vFrom.compareTo(value) <= 0
+					&& ((Comparable<Object>) value).compareTo(vTo) < 0;
 		}
 	}
 
