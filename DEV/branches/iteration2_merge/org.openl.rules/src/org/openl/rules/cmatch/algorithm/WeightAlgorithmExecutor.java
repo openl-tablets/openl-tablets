@@ -3,7 +3,6 @@ package org.openl.rules.cmatch.algorithm;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.matcher.IMatcher;
-import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
