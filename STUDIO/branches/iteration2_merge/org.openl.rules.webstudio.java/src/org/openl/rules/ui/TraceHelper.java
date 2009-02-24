@@ -5,12 +5,10 @@
 package org.openl.rules.ui;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.cmatch.algorithm.ColumnMatchTraceObject;
-import org.openl.rules.cmatch.algorithm.MatchTraceObject;
-import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject;
 import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject.RuleTracer;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -49,39 +47,51 @@ public class TraceHelper
 		if (tt == null)
 			return null;
 
-		DecisionTableTraceObject dtt = null;
-		ITracerObject[] rtt = null;
-		String displayName = null;
-		IGridTable gt = null;
-		
-		if (tt instanceof DecisionTableTraceObject)
-		{
-			dtt = (DecisionTableTraceObject)tt;
-			rtt = dtt.getTracerObjects();
-			DecisionTable dt = dtt.getDT();
-			displayName = dtt.getDisplayName(INamedThing.REGULAR);
-			TableSyntaxNode tsn = dt.getTableSyntaxNode();
+        if (!(tt instanceof ITableTracerObject)) {
+            return null;
+        }
 
-			gt = tsn.getTable().getGridTable();
-		}
-		else if (tt instanceof RuleTracer)
-		{
+//        DecisionTableTraceObject dtt = null;
+//		ITracerObject[] rtt = null;
+		String displayName = null;
+//		IGridTable gt = null;
+		
+//		if (tt instanceof DecisionTableTraceObject)
+//		{
+//			dtt = (DecisionTableTraceObject)tt;
+//			rtt = dtt.getTracerObjects();
+//			DecisionTable dt = dtt.getDT();
+//			displayName = dtt.getDisplayName(INamedThing.REGULAR);
+//			TableSyntaxNode tsn = dt.getTableSyntaxNode();
+//
+//			gt = tsn.getTable().getGridTable();
+//		}
+//		else if (tt instanceof RuleTracer)
+//		{
+//			
+//			dtt = ((RuleTracer)tt).getParentTraceObject();
+//			rtt = new ITracerObject[]{tt};
+//			displayName = dtt.getDisplayName(INamedThing.REGULAR);
+//			displayName += rtt[0].getDisplayName(INamedThing.REGULAR);
+//			gt = ((RuleTracer)rtt[0]).getRuleTable().getGridTable();
+//		}
+//		else
+//			return null;
 			
-			dtt = ((RuleTracer)tt).getParentTraceObject();
-			rtt = new ITracerObject[]{tt};
-			displayName = dtt.getDisplayName(INamedThing.REGULAR);
-			displayName += rtt[0].getDisplayName(INamedThing.REGULAR);
-			gt = ((RuleTracer)rtt[0]).getRuleTable().getGridTable();
-		}
-		else
-			return null;
-			
-		
-		
-		
+        ITableTracerObject tto = (ITableTracerObject)tt;
+        TableSyntaxNode tsn = tto.getTableSyntaxNode();
+        IGridTable gt = tsn.getTable().getGridTable();
+        
+        if (tto instanceof ATableTracerNode) {
+            displayName = tto.getDisplayName(INamedThing.REGULAR);
+        } else {
+            // ATableTracerLeaf
+            displayName = tto.getDisplayName(INamedThing.REGULAR);
+            ITableTracerObject[] rtt = tto.getTableTracers();
+            displayName += rtt[0].getDisplayName(INamedThing.REGULAR);
+        }
 		
 		return new TableInfo(gt, displayName, false);
-		
 	}
 
 	
@@ -156,23 +166,6 @@ public class TraceHelper
 	}
 	
 	
-//	/**
-//	 * @return Returns the name.
-//	 */
-//	public String getName()
-//	{
-//		return name;
-//	}
-//
-//
-//	/**
-//	 * @param name The name to set.
-//	 */
-//	public void setName(String name)
-//	{
-//		this.name = name;
-//	}
-
 //	static class RuleTracerCellFilter implements ICellFilter, ICellSelector
 //	{
 //		ITracerObject[] rtt;
@@ -257,15 +250,4 @@ public class TraceHelper
 		
 		return traceRenderer.renderRoot(root);
 	}
-	
-	
-	
-	
-	
-	
-//	static short[] filterColor = new short[]{0, 0, 255};
-//	static IColorFilter cf = new TransparentColorFilter(filterColor, 0.50);
-	
-//	CellFilter cellFilter = new CellFilter(null, new IColorFilter[]{cf, cf, cf}, null);
-	
 }
