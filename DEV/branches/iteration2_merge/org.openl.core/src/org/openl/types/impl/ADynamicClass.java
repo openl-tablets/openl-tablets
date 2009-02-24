@@ -141,6 +141,8 @@ public abstract class ADynamicClass extends AOpenClass
 			throw new DuplicatedVarException("", field.getName());
 
 		fieldMap().put(field.getName(), field);
+		
+		addFieldToLowerCaseMap(field);
 	}
 
 	public void addMethod(IOpenMethod method)
