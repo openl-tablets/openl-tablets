@@ -10,8 +10,6 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
-        Tracer t = Tracer.getTracer();
-
         MatchNode checkTree = columnMatch.getCheckTree();
         Object returnValues[] = columnMatch.getReturnValues();
 
@@ -37,33 +35,49 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 }
 
                 if (success) {
-                    if (t!= null) {
-                        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params); 
-                        t.push(traceObject);
-                        t.push(new ResultTraceObject(columnMatch, resultIndex));
-                        t.pop();
-                        for (MatchNode node : line.getChildren()) {
-                            t.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
-                            t.pop();
-                        }
-                        traceObject.setResult(returnValues[resultIndex]);
-                        t.pop();
-                    }
-                    
+                    fillTracer(columnMatch, line, resultIndex, params);
                     return returnValues[resultIndex];
                 }
             }
         }
-        
-        // TODO: eliminate code duplication
-        if (t!= null) {
-            ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params); 
-            t.push(traceObject);
-            traceObject.setResult(NO_MATCH);
+
+        fillNoMatchTracer(columnMatch, params);
+        return NO_MATCH;
+    }
+
+    private void fillTracer(ColumnMatch columnMatch, MatchNode line, int resultIndex, Object[] params) {
+        Tracer t = Tracer.getTracer();
+        if (t == null) {
+            return;
+        }
+
+        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
+        Object returnValues[] = columnMatch.getReturnValues();
+        traceObject.setResult(returnValues[resultIndex]);
+
+        t.push(traceObject);
+
+        for (MatchNode node : line.getChildren()) {
+            t.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
             t.pop();
         }
-        
 
-        return NO_MATCH;
+        t.push(new ResultTraceObject(columnMatch, resultIndex));
+        t.pop();
+
+        t.pop();
+    }
+
+    private void fillNoMatchTracer(ColumnMatch columnMatch, Object[] params) {
+        Tracer t = Tracer.getTracer();
+        if (t == null) {
+            return;
+        }
+
+        ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params);
+        traceObject.setResult(NO_MATCH);
+
+        t.push(traceObject);
+        t.pop();
     }
 }
