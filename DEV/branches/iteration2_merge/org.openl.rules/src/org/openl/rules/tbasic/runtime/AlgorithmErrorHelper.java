@@ -4,6 +4,7 @@ import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.util.RuntimeExceptionWrapper;
 
 class AlgorithmErrorHelper {
 
@@ -27,7 +28,9 @@ class AlgorithmErrorHelper {
             return errorMethod.invoke(environment.getTbasicTarget(), null, environment);
         }
 
-        throw new RuntimeException(String.format("Execution of algorithm failed: %s", error.getMessage()), error);
+//        throw new RuntimeException(String.format("Execution of algorithm failed: %s", error.getMessage()), error);
+        throw  RuntimeExceptionWrapper.wrap(error);
+
     }
 
     /**

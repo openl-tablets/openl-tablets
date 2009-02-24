@@ -23,9 +23,9 @@ import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
+import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.NoParamMethodField;
-import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -88,7 +88,7 @@ public class AlgorithmCompiler {
      * Main logic
      **********************************************/
 
-    public void compile(Algorithm algorithm) throws BoundError {
+    public void compile(Algorithm algorithm) throws Exception {
         conversionRules = AlgorithmTableParserManager.instance().getFixedConversionRules();
         labelManager = new LabelManager();
         mainCompileContext = new CompileContext();
@@ -261,7 +261,7 @@ public class AlgorithmCompiler {
      * Main compile logic
      **********************************************/
 
-    private void compile(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+    private void compile(List<AlgorithmTreeNode> nodesToProcess) throws Exception {
 
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
@@ -280,7 +280,7 @@ public class AlgorithmCompiler {
         }
     }
 
-    private List<RuntimeOperation> compileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+    private List<RuntimeOperation> compileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws Exception {
         List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
 
         // process nodes by groups of linked nodes
@@ -295,7 +295,7 @@ public class AlgorithmCompiler {
         return emittedOperations;
     }
 
-    List<RuntimeOperation> compileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
+    List<RuntimeOperation> compileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
         assert nodesToCompile.size() > 0;
 
         List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
@@ -345,7 +345,7 @@ public class AlgorithmCompiler {
      * 
      * @throws BoundError
      */
-    private RuntimeOperation compileBefore(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
+    private RuntimeOperation compileBefore(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
         final String beforeFieldName = "before";
         return createOperationForFirstNodeField(nodesToCompile, beforeFieldName);
     }
@@ -355,13 +355,13 @@ public class AlgorithmCompiler {
      * 
      * @throws BoundError
      */
-    private RuntimeOperation compileAfter(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
+    private RuntimeOperation compileAfter(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
         final String afterFieldName = "after";
         return createOperationForFirstNodeField(nodesToCompile, afterFieldName);
     }
 
     private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile,
-            String beforeFieldName) throws BoundError {
+            String beforeFieldName) throws Exception {
         // TODO: strange method, refactore
         String param = nodesToCompile.get(0).getAlgorithmRow().getOperation() + FIELD_SEPARATOR + beforeFieldName;
 
@@ -386,7 +386,7 @@ public class AlgorithmCompiler {
      * @throws BoundError
      */
     private List<RuntimeOperation> processConversionStep(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep) throws BoundError {
+            ConversionRuleStep conversionStep) throws Exception {
         assert nodesToCompile.size() > 0;
         assert conversionStep != null;
 
@@ -438,11 +438,11 @@ public class AlgorithmCompiler {
     }
 
     private RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
-            throws BoundError {
+            throws Exception {
         try {
-            Class clazz = Class.forName("org.openl.rules.tbasic.runtime.operations." + conversionStep.getOperationType()
+            Class<?> clazz = Class.forName("org.openl.rules.tbasic.runtime.operations." + conversionStep.getOperationType()
                     + "Operation");
-            Constructor constructor = clazz.getConstructors()[0];
+            Constructor<?> constructor = clazz.getConstructors()[0];
 
             Object[] params = new Object[constructor.getParameterTypes().length];
 
@@ -465,9 +465,10 @@ public class AlgorithmCompiler {
             return emittedOperation;
 
         } catch (Exception e) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
-                    .asSourceCodeModule();
-            throw new BoundError(e, errorSource);
+//            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
+//                    .asSourceCodeModule();
+//            throw new BoundError(e, errorSource);
+            throw e;
         }
     }
 
