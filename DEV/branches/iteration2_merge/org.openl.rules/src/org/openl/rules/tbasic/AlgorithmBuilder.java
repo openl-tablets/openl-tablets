@@ -30,7 +30,7 @@ public class AlgorithmBuilder {
         this.tsn = tsn;
     }
 
-    public void build(ILogicalTable tableBody) throws SyntaxError {
+    public void build(ILogicalTable tableBody) throws Exception {
         if (tableBody.getLogicalHeight() <= 2) {
             throw new SyntaxError(tsn, "Unsufficient rows. Must be more than 2!", null);
         }
