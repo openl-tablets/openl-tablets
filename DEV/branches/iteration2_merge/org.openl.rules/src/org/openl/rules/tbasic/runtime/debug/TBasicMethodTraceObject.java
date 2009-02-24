@@ -5,6 +5,8 @@ package org.openl.rules.tbasic.runtime.debug;
 
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
+import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author User
@@ -38,7 +40,7 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
      * @see org.openl.util.ITreeElement#getType()
      */
     public String getType() {
-        return "tbasicAlgorithmMethod";
+        return "tbasicMethod";
     }
 
     /*
@@ -48,8 +50,17 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
      */
     public String getDisplayName(int mode) {
         AlgorithmSubroutineMethod method = (AlgorithmSubroutineMethod) getTraceObject();
+        
+        String returnValue = "";
+        IOpenClass returnType = method.getType();
+        if (returnType != JavaOpenClass.VOID) {
+            returnValue = String.format("%s = %s", returnType.getDisplayName(mode), 
+                    result != null ? result.toString() : "null");
+        }
+        
         String displayName = method.getHeader().getDisplayName(mode);
-        return "Algorithm Method " + displayName;
+        
+        return String.format("Algorithm Method %s %s", returnValue, displayName);
     }
 
     /**
@@ -67,8 +78,8 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
     }
 
     public IGridRegion getGridRegion() {
-        AlgorithmSubroutineMethod method = (AlgorithmSubroutineMethod) getTraceObject();
-        return method.getGridRegion();
+        // regions of sub-elements should be combined
+        return null;
     }
 
 }
