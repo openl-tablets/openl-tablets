@@ -61,9 +61,8 @@ public class TraceHelper
             displayName = tto.getDisplayName(INamedThing.REGULAR);
         } else {
             // ATableTracerLeaf
-            displayName = tto.getDisplayName(INamedThing.REGULAR);
-            ITableTracerObject[] rtt = tto.getTableTracers();
-            displayName += rtt[0].getDisplayName(INamedThing.REGULAR);
+            displayName = tto.getParent().getDisplayName(INamedThing.REGULAR);
+            displayName += tto.getDisplayName(INamedThing.REGULAR);
         }
 
 		return new TableInfo(gt, displayName, false);
@@ -119,6 +118,10 @@ public class TraceHelper
 	{
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
+        IGridRegion r = tto.getGridRegion();
+        if (r != null) {
+            regions.add(r);
+        }
         fillRegions(tto, regions);
 
         IGridRegion[] aRegions = new IGridRegion[regions.size()];
