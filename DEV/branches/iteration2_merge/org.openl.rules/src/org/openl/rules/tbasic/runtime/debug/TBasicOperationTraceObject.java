@@ -41,7 +41,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
      * @see org.openl.util.ITreeElement#getType()
      */
     public String getType() {
-        return "tbasicAlgorithmOperation";
+        return "tbasicOperation";
     }
 
     /*
@@ -51,12 +51,41 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
      */
     public String getDisplayName(int mode) {
         RuntimeOperation operation = (RuntimeOperation) getTraceObject();
+
         String operationName = operation.getSourceCode().getOperationName();
+        String resultValue = "";
+        if (result != null && result.getValue() != null) {
+            resultValue = "(" + result.getValue().toString() + ")";
+        }
         int operationRow = operation.getSourceCode().getRowNumber();
 
-        String displayName = String.format("%s in row %d", operationName, operationRow);
+        String fieldFormatedValues = getFieldValuesAsString();
 
-        return "Step " + displayName;
+        String displayFieldFormatedValues = "";
+        if (!fieldFormatedValues.equals("")) {
+            displayFieldFormatedValues = String.format("[Local vars: %s]", fieldFormatedValues);
+        }
+
+        return String.format("Step: row %d: %s %s %s", operationRow, operationName, resultValue,
+                displayFieldFormatedValues);
+    }
+
+    /**
+     * @return
+     */
+    private String getFieldValuesAsString() {
+        StringBuffer fields = new StringBuffer();
+
+        for (String fieldName : fieldValues.keySet()) {
+            fields.append(fieldName).append(" = ").append(fieldValues.get(fieldName)).append(", ");
+        }
+
+        // remove last ", "
+        if (fields.length() > 2) {
+            fields.delete(fields.length() - 2, fields.length());
+        }
+
+        return fields.toString();
     }
 
     public void setResult(Result result) {

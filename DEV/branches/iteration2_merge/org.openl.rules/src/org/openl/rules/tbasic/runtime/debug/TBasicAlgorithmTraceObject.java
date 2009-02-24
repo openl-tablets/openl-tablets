@@ -36,7 +36,7 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
      * @see org.openl.util.ITreeElement#getType()
      */
     public String getType() {
-        return "tbasicAlgorithm";
+        return "tbasic";
     }
 
     /*
@@ -50,7 +50,7 @@ public class TBasicAlgorithmTraceObject extends ATableTracerNode {
     }
 
     public IGridRegion getGridRegion() {
-        // TODO Auto-generated method stub
+        // regions of sub-elements should be combined
         return null;
     }
 }

@@ -612,7 +612,7 @@ public class AlgorithmCompiler {
         List<String> groupedOperationNames = new ArrayList<String>(nodesToCompile.size());
 
         for (AlgorithmTreeNode node : nodesToCompile) {
-            groupedOperationNames.add(node.getSpecification().getKeyword());
+            groupedOperationNames.add(node.getSpecification().getKeyword().toUpperCase());
         }
         
         String operationGroupName = AlgorithmTableParserManager.instance().whatIsOperationsGroupName(groupedOperationNames);
@@ -679,7 +679,7 @@ public class AlgorithmCompiler {
         AlgorithmTreeNode executionNode = null;
 
         for (AlgorithmTreeNode node : candidateNodes) {
-            if (operationName.equals(node.getAlgorithmRow().getOperation().getValue())) {
+            if (operationName.equalsIgnoreCase(node.getAlgorithmRow().getOperation().getValue())) {
                 executionNode = node;
             }
         }
