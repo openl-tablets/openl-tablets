@@ -121,8 +121,9 @@ public class TraceHelper
         IGridRegion r = tto.getGridRegion();
         if (r != null) {
             regions.add(r);
+        } else {
+            fillRegions(tto, regions);
         }
-        fillRegions(tto, regions);
 
         IGridRegion[] aRegions = new IGridRegion[regions.size()];
         aRegions = regions.toArray(aRegions);
