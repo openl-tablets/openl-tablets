@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -136,8 +135,12 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected void parseSpecialRows(ColumnMatch columnMatch) throws BoundError {
         IOpenClass returnType = columnMatch.getHeader().getType();
-        Object[] retValues = parseValues(columnMatch.getRows().get(0), returnType.getInstanceClass());
+
+        TableRow row0 = columnMatch.getRows().get(0);
+        Object[] retValues = parseValues(row0, returnType.getInstanceClass());
         columnMatch.setReturnValues(retValues);
+
+        bindMetaInfo(columnMatch, row0.get(VALUES), retValues);
     }
 
     protected Object[] parseValues(TableRow row, Class<?> clazz) throws BoundError {
@@ -173,8 +176,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected MatchNode[] prepareNodes(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper, int retValuesCount)
             throws BoundError {
-        IGridTable tableBodyGrid = columnMatch.getTableSyntaxNode().getTableBody().getGridTable();
-
         List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = new MatchNode[rows.size()];
 
@@ -209,24 +210,44 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             parseCheckValues(row, node, retValuesCount);
 
-            // Bind cell data type based on parsed data
-            SubValue[] inValues = row.get(VALUES);
-            for (int j = 0; j < retValuesCount; j++) {
-                IGridRegion gridRegion = inValues[j].getGridRegion();
-                Object cv = node.getCheckValues()[j];
-
-                if (cv != null) {
-                    IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
-                    CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, "?", paramType);
-                    IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
-                    wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
-                }
-            }
+            bindMetaInfo(columnMatch, row.get(VALUES), node.getCheckValues());
 
             nodes[i] = node;
         }
 
         return nodes;
+    }
+
+    /**
+     * Sets CellMetaInfo by type of parsed value. Thus, editor can use special
+     * controller to validate/limit user input.
+     * <p>
+     * Null values from {@literal objValues} will be ignored. That let us use
+     * both numeric and range values.
+     * <p>
+     * Side effect: when matcher parse cell as numeric binding will block range
+     * there.
+     * 
+     * @param columnMatch
+     * @param subValues
+     * @param objValues
+     */
+    protected void bindMetaInfo(ColumnMatch columnMatch, SubValue[] subValues, Object[] objValues) {
+        IGridTable tableBodyGrid = columnMatch.getTableSyntaxNode().getTableBody().getGridTable();
+
+        // Bind cell data type based on parsed data
+        for (int i = 0; i < subValues.length; i++) {
+            IGridRegion gridRegion = subValues[i].getGridRegion();
+            Object cv = objValues[i];
+
+            if (cv != null) {
+                IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, null, paramType);
+                IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
+                wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
+            }
+            // empty cells are left 'as is' -- suppose they are of String type
+        }
     }
 
     /**
