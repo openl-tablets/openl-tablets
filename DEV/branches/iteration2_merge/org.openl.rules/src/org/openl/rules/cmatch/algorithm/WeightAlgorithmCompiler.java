@@ -65,6 +65,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
 
         parseCheckValues(rows.get(1), totalScore, retValuesCount);
         columnMatch.setTotalScore(totalScore);
+        bindMetaInfo(columnMatch, rows.get(1).get(VALUES), totalScore.getCheckValues());
 
         SubValue operationSV = rows.get(2).get(OPERATION)[0];
         if (!"".equals(operationSV.getString())) {
@@ -79,6 +80,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
             scores[i] = (Integer) objScores[i];
         }
         columnMatch.setColumnScores(scores);
+        bindMetaInfo(columnMatch, rows.get(2).get(VALUES), objScores);
     }
 
     @Override
