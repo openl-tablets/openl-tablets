@@ -21,7 +21,7 @@ public class ColumnMatchTraceObject extends ATableTracerNode {
     }
 
     public String getType() {
-        return "?";
+        return "cmatch";
     }
 
     public String getDisplayName(int mode) {

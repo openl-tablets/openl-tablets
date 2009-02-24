@@ -40,6 +40,8 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                     if (t!= null) {
                         ColumnMatchTraceObject traceObject = new ColumnMatchTraceObject(columnMatch, params); 
                         t.push(traceObject);
+                        t.push(new ResultTraceObject(columnMatch, resultIndex));
+                        t.pop();
                         for (MatchNode node : line.getChildren()) {
                             t.push(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
                             t.pop();

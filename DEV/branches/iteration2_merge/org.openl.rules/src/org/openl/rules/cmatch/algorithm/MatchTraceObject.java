@@ -27,11 +27,11 @@ public class MatchTraceObject extends ATableTracerLeaf {
     }
 
     public String getType() {
-        return "?";
+        return "cmMatch";
     }
 
     public String getDisplayName(int mode) {
-        TableRow row = columnMatch.getRows().get(rowIndex);
+        TableRow row = getRow();
         String operation = row.get(MatchAlgorithmCompiler.OPERATION)[0].getString();
         String checkValue = row.get(MatchAlgorithmCompiler.VALUES)[resultIndex].getString();
         return "Match: " + operation + " " + checkValue;
@@ -44,5 +44,13 @@ public class MatchTraceObject extends ATableTracerLeaf {
 
     public TableSyntaxNode getTableSyntaxNode() {
         return columnMatch.getTableSyntaxNode();
+    }
+
+    protected TableRow getRow() {
+        return columnMatch.getRows().get(rowIndex);
+    }
+
+    protected int getResultIndex() {
+        return resultIndex;
     }
 }
