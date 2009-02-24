@@ -149,14 +149,14 @@ public class EqualsIndexedEvaluator implements IDTConditionEvaluator
 			if (ruleParams == null)
 				return true;
 			
-			Object[] realParams = new Object[params.length];
+			Object[] realParams = new Object[ruleParams.length];
 			
 			FunctionalRow.loadParams(realParams, 0, ruleParams, target, dtparams, env);
 			
-			if (ruleParams[0] == null)
-				return true;
+			if (realParams[0] == null)
+				return value == null;
 			
-			return ruleParams[0].equals(value);
+			return realParams[0].equals(value);
 		}
 	}
 
