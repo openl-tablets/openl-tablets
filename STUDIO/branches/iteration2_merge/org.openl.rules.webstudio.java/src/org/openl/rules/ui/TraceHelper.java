@@ -4,6 +4,9 @@
  */
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.base.INamedThing;
 import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject;
 import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject.RuleTracer;
@@ -29,21 +32,18 @@ import org.openl.vm.ITracerObject;
  */
 public class TraceHelper
 {
-	
-	
-	
+
 	ITracerObject root;
-	
+
 	public void setRoot(ITracerObject root)
 	{
 		this.root = root;
 	}
-	
-	
+
 	public TableInfo getTableInfo(int elementID)
 	{
 		ITracerObject tt = (ITracerObject)traceRenderer.map.getObject(elementID);
-		
+
 		if (tt == null)
 			return null;
 
@@ -51,37 +51,12 @@ public class TraceHelper
             return null;
         }
 
-//        DecisionTableTraceObject dtt = null;
-//		ITracerObject[] rtt = null;
-		String displayName = null;
-//		IGridTable gt = null;
-		
-//		if (tt instanceof DecisionTableTraceObject)
-//		{
-//			dtt = (DecisionTableTraceObject)tt;
-//			rtt = dtt.getTracerObjects();
-//			DecisionTable dt = dtt.getDT();
-//			displayName = dtt.getDisplayName(INamedThing.REGULAR);
-//			TableSyntaxNode tsn = dt.getTableSyntaxNode();
-//
-//			gt = tsn.getTable().getGridTable();
-//		}
-//		else if (tt instanceof RuleTracer)
-//		{
-//			
-//			dtt = ((RuleTracer)tt).getParentTraceObject();
-//			rtt = new ITracerObject[]{tt};
-//			displayName = dtt.getDisplayName(INamedThing.REGULAR);
-//			displayName += rtt[0].getDisplayName(INamedThing.REGULAR);
-//			gt = ((RuleTracer)rtt[0]).getRuleTable().getGridTable();
-//		}
-//		else
-//			return null;
-			
         ITableTracerObject tto = (ITableTracerObject)tt;
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
         IGridTable gt = tsn.getTable().getGridTable();
-        
+
+        String displayName = null;
+
         if (tto instanceof ATableTracerNode) {
             displayName = tto.getDisplayName(INamedThing.REGULAR);
         } else {
@@ -90,42 +65,36 @@ public class TraceHelper
             ITableTracerObject[] rtt = tto.getTableTracers();
             displayName += rtt[0].getDisplayName(INamedThing.REGULAR);
         }
-		
+
 		return new TableInfo(gt, displayName, false);
 	}
 
-	
-	
 	public String showTrace(int id, ProjectModel model, String view)
 	{
-		
 		ITracerObject tt = (ITracerObject)traceRenderer.map.getObject(id);
 
-		
 		if (tt == null)
 			return "ERROR ID = " + id;
-		
+
 		if (!(tt instanceof ITableTracerObject)) {
 		    return "----";
 		}
-		
+
 		ITableTracerObject tto = (ITableTracerObject)tt;
 		TableSyntaxNode tsn = tto.getTableSyntaxNode();
-		ITableTracerObject[] rtt = tto.getTableTracers();
 
 		IGridTable gt = tsn.getTable().getGridTable();
         view = model.getTableView(view);
 		ILogicalTable gtx =  tsn.getSubTables().get(view);
 		if (gtx != null)
-				gt = new TableEditorModel(gtx.getGridTable()).getUpdatedTable();
+			gt = new TableEditorModel(gtx.getGridTable()).getUpdatedTable();
 
-        TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[]{makeFilter(rtt, model)});
+        TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[]{makeFilter(tto, model)});
         return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null);
 	}
 
     public int getProjectNodeIndex(int id, ProjectModel model) {
         ITracerObject tt = (ITracerObject)traceRenderer.map.getObject(id);
-
 
 		if (tt == null)
 			return -1;
@@ -138,7 +107,6 @@ public class TraceHelper
 		}
 		else if (tt instanceof RuleTracer)
 		{
-
 			dtt = ((RuleTracer)tt).getParentTraceObject();
 		} else
             return -1;
@@ -147,107 +115,51 @@ public class TraceHelper
     }
 
 
-    IGridFilter makeFilter(ITableTracerObject[] rtt, ProjectModel model)
+    IGridFilter makeFilter(ITableTracerObject tto, ProjectModel model)
 	{
-		IGridRegion[] regions = new IGridRegion[rtt.length];
-		
-		for (int i = 0; i < rtt.length; i++)
-		{
-          regions[i] = rtt[i].getGridRegion();
-		}
-		
-//		return ColorGridFilter.makeTransparentFilter(new RegionGridSelector(regions, true), 0.7, 0x00ff00);
-		
-		return new ColorGridFilter(new RegionGridSelector(regions, true), model.getFilterHolder().makeFilter());
+        List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-		
-		//return new RuleTracerCellFilter(rtt);
-		
+        fillRegions(tto, regions);
+
+        IGridRegion[] aRegions = new IGridRegion[regions.size()];
+        aRegions = regions.toArray(aRegions);
+
+		return new ColorGridFilter(new RegionGridSelector(aRegions, true), model.getFilterHolder().makeFilter());
 	}
-	
-	
-//	static class RuleTracerCellFilter implements ICellFilter, ICellSelector
-//	{
-//		ITracerObject[] rtt;
-//
-//		/* (non-Javadoc)
-//		 * @see org.openl.rules.ui.ICellSelector#select(org.openl.rules.table.IGridTable, int, int)
-//		 */
-//		public boolean select(IGridTable table, int col, int row)
-//		{
-//
-//			int xcol = table.getGridColumn(col, row);
-//			int xrow = table.getGridRow(col, row);
-//			
-//			for (int i = 0; i < rtt.length; i++)
-//			{
-//				if (IGridRegion.Tool.contains(((RuleTracer)rtt[i]).getRuleTable().getGridTable().getRegion(), xcol, xrow))
-//					return false;
-//			}
-//			
-//			return true;
-//		}
-//
-//		/**
-//		 * @param rtt
-//		 */
-//		public RuleTracerCellFilter(ITracerObject[] rtt)
-//		{
-//			this.rtt = rtt;
-//		}
-//
-//		/* (non-Javadoc)
-//		 * @see org.openl.rules.ui.ICellFilter#getColorFilter()
-//		 */
-//		public IColorFilter[] getColorFilter()
-//		{
-//			return new IColorFilter[]{cf,cf, cf};
-//		}
-//
-//		/* (non-Javadoc)
-//		 * @see org.openl.rules.ui.ICellFilter#getSelector()
-//		 */
-//		public ICellSelector getSelector()
-//		{
-//			return this;
-//		}
-//
-//		/* (non-Javadoc)
-//		 * @see org.openl.rules.ui.ICellFilter#getTextFilter()
-//		 */
-//		public ITextFilter getTextFilter()
-//		{
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//	}
-	
 
-	
+    private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
+        for (ITableTracerObject child : tto.getTableTracers()) {
+            IGridRegion r = child.getGridRegion();
+            if (r != null) {
+                regions.add(r);
+            } else if (!child.isLeaf()) {
+                fillRegions(child, regions);
+            }
+        }
+    }
+
 	public String printTraceMethod(IOpenMethodHeader header, Object[] params, StringBuffer buf, ProjectModel model)
 	{
 		buf.append(header.getName()).append('(');
 		ObjectViewer viewer = new ObjectViewer(model);
-		
+
 		for (int i = 0; i < params.length; i++)
 		{
 			if (i > 0)
 				buf.append(",");
 			buf.append(viewer.displayResult(params[i]));
 		}
-		
+
 		buf.append(')');
 		return buf.toString();
 	}
-	
-	
+
 	TraceTreeRenderer traceRenderer;
-	
-	
+
 	public String renderTraceTree(String targetJsp, String targetFrame)
 	{
 		traceRenderer = new TraceTreeRenderer(targetJsp, targetFrame);
-		
+
 		return traceRenderer.renderRoot(root);
 	}
 }
