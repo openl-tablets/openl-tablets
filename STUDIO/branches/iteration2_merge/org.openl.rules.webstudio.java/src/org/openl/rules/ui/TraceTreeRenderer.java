@@ -18,15 +18,15 @@ public class TraceTreeRenderer extends DTreeRenderer {
             { "cmatch", "webresource/images/cmatch.gif", "webresource/images/cmatch.gif",
                     "webresource/images/cmatch-error.gif", "webresource/images/cmatch-error.gif" },
             { "cmResult", "webresource/images/cmatch-check.gif", "webresource/images/cmatch-check.gif",
-                    "webresource/images/data-error.png", "webresource/images/data-error.png" },
-            { "cmMatch", "webresource/images/test_ok.gif", "webresource/images/test_ok.gif",
-                    "webresource/images/data-error.png", "webresource/images/data-error.png" },
+                    "webresource/images/error.png", "webresource/images/webresource/images/error.png" },
+            { "cmMatch", "webresource/images/cmatch-match.gif", "webresource/images/cmatch-match.gif",
+                    "webresource/images/error.png", "webresource/images/error.png" },
             { "tbasic", "webresource/images/tbasic.gif", "webresource/images/tbasic.gif",
                     "webresource/images/tbasic-error.gif", "webresource/images/tbasic-error.gif" },
-            { "tbasicMethod", "webresource/images/tbasicmethod.gif", "webresource/images/tbasicmethod.gif",
-                    "webresource/images/tbasicmethod-error.png", "webresource/images/tbasicmethod-error.png" },
-            { "tbasicOperation", "webresource/images/tbasicoperation.gif", "webresource/images/tbasicoperation.gif",
-                    "webresource/images/tbasicoperation-error.png", "webresource/images/tbasicoperation-error.png" },
+            { "tbasicMethod", "webresource/images/method.gif", "webresource/images/method.gif",
+                    "webresource/images/error.png", "webresource/images/error.png" },
+            { "tbasicOperation", "webresource/images/tbasic-operation.gif", "webresource/images/tbasic-operation.gif",
+                    "webresource/images/error.png", "webresource/images/error.png" },
     };
 
     /**

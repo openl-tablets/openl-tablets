@@ -134,25 +134,36 @@ public abstract class DTreeRenderer {
      * @param type
      * @return
      */
-    private String[] guessIcon(ITreeElement element, String type) {
-        if (type == GUESS_TYPE)
+    private String[] guessIcon(ITreeElement<?> element, String type) {
+        if (type == GUESS_TYPE) {
             type = getJavaType(element);
+        }
 
-        int minIndex = -1;
-        int minDist = 999999;
+        int iconIndex = -1;
+        int minStartPosition = 999999;
+        int maxLengthOfMatchedWord = 0;
+
+        // FIXME: Rewrite!!!!!
 
         for (int i = 0; i < icons.length; i++) {
             int idx = type.indexOf(icons[i][0]);
-            if (0 <= idx && idx < minDist) {
-                minIndex = i;
-                minDist = idx;
+            if (0 <= idx && idx <= minStartPosition
+                    && maxLengthOfMatchedWord < icons[i][0].length()) {
+                iconIndex = i;
+                minStartPosition = idx;
+                maxLengthOfMatchedWord = icons[i][0].length();
             }
         }
 
-        if (minIndex >= 0)
-            return icons[minIndex];
+        String[] iconSet;
+        
+        if (iconIndex >= 0) {
+            iconSet = icons[iconIndex];
+        } else {
+            iconSet = element.isLeaf() ? DEFAULT_ICON_LEAF : DEFAULT_ICON_NODE;
+        }
 
-        return element.isLeaf() ? DEFAULT_ICON_LEAF : DEFAULT_ICON_NODE;
+        return iconSet;
     }
 
     /**
