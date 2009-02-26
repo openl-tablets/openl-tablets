@@ -31,6 +31,10 @@ class ArgumentsHelper {
                 argTypes.put(name, new Argument(i, type));
             } else {
                 // non simple will be initialized on demand
+                // except enum(s) that can be referenced in dual mode
+                if (type.getInstanceClass().isEnum()) {
+                    argTypes.put(name, new Argument(i, type));
+                }
             }
         }
     }

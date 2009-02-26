@@ -6,78 +6,57 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 
 public class MatcherFactory {
-    private static final Map<String, List<IMatcher>> matchers = new HashMap<String, List<IMatcher>>();
+    private static final Map<String, List<IMatcherBuilder>> matcherBuilders = new HashMap<String, List<IMatcherBuilder>>();
 
     static {
         // = (match)
-        registerMatcher(new StringMatchMatcher());
-        registerMatcher(new NumberMatchMatcher(Integer.class, IntRange.class, int.class));
-        registerMatcher(new NumberMatchMatcher(Double.class, DoubleRange.class, double.class));
-        registerMatcher(new ClassMatchMatcher(Date.class));
-        // ???
-        registerMatcher(new NumberMatchMatcher(Long.class, IntRange.class, long.class));
-        // ???
-        registerMatcher(new NumberMatchMatcher(Float.class, DoubleRange.class, float.class));
+        registerBuilder(new EnumMatchBuilder());
+        registerBuilder(new NumberMatchBuilder());
+        registerBuilder(new ClassMatchBuilder());
 
         // min
-        registerMatcher(new PrimitiveMinMatcher(int.class, Integer.class));
-        registerMatcher(new PrimitiveMinMatcher(double.class, Double.class));
-        registerMatcher(new PrimitiveMinMatcher(long.class, Long.class));
-        registerMatcher(new PrimitiveMinMatcher(float.class, Float.class));
-        registerMatcher(new ClassMinMatcher(Integer.class));
-        registerMatcher(new ClassMinMatcher(Double.class));
-        registerMatcher(new ClassMinMatcher(Long.class));
-        registerMatcher(new ClassMinMatcher(Float.class));
-        registerMatcher(new ClassMinMatcher(Date.class));
+        registerBuilder(new NumberMinBuilder());
+        registerBuilder(ClassMinMaxBuilder.minBuilder(Date.class));
 
         // max
-        registerMatcher(new PrimitiveMaxMatcher(int.class, Integer.class));
-        registerMatcher(new PrimitiveMaxMatcher(double.class, Double.class));
-        registerMatcher(new PrimitiveMaxMatcher(long.class, Long.class));
-        registerMatcher(new PrimitiveMaxMatcher(float.class, Float.class));
-        registerMatcher(new ClassMaxMatcher(Integer.class));
-        registerMatcher(new ClassMaxMatcher(Double.class));
-        registerMatcher(new ClassMaxMatcher(Long.class));
-        registerMatcher(new ClassMaxMatcher(Float.class));
-        registerMatcher(new ClassMaxMatcher(Date.class));
-    }
-
-    public static boolean hasMatcher(String name) {
-        return (matchers.get(name) != null);
+        registerBuilder(new NumberMaxBuilder());
+        registerBuilder(ClassMinMaxBuilder.maxBuilder(Date.class));
     }
 
     public static IMatcher getMatcher(String operationName, IOpenClass type) {
-        List<IMatcher> m2 = matchers.get(operationName);
-        if (m2 == null)
+        List<IMatcherBuilder> builders = matcherBuilders.get(operationName);
+        if (builders == null) {
+            // unknown operation
             return null;
+        }
 
-        for (IMatcher matcher : m2) {
-            if (matcher.isTypeSupported(type)) {
-                return matcher;
+        IMatcher result = null;
+        for (IMatcherBuilder builder : builders) {
+            result = builder.getInstanceIfSupports(type);
+            if (result != null) {
+                break;
             }
         }
 
-        return null;
+        return result;
     }
 
-    public static void registerMatcher(IMatcher matcher) {
-        String operationName = matcher.getName();
-        List<IMatcher> m2 = matchers.get(operationName);
+    public static void registerBuilder(IMatcherBuilder builder) {
+        String operationName = builder.getName();
+        List<IMatcherBuilder> builders = matcherBuilders.get(operationName);
 
-        if (m2 == null) {
-            m2 = new ArrayList<IMatcher>();
-            matchers.put(operationName, m2);
+        if (builders == null) {
+            builders = new ArrayList<IMatcherBuilder>();
+            matcherBuilders.put(operationName, builders);
         } else {
-            if (m2.contains(matcher)) {
-                throw new IllegalArgumentException("Matcher was already added!");
+            if (builders.contains(builder)) {
+                throw new IllegalArgumentException("MatcherBuilder is registered already!");
             }
         }
 
-        m2.add(matcher);
+        builders.add(builder);
     }
 }

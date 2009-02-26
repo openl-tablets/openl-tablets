@@ -1,15 +1,24 @@
 package org.openl.rules.cmatch.matcher;
 
-import org.openl.types.IOpenClass;
-
 public interface IMatcher {
-    public static final String OP_MATCH = "match";
-    public static final String OP_MIN = "min";
-    public static final String OP_MAX = "max";
-
-    String getName();
+    /**
+     * Check whether actual value and check value are match
+     * or satisfy matching operation.
+     * 
+     * @param var actual value
+     * @param checkValue check value
+     * @return true if it matches
+     */
     boolean match(Object var, Object checkValue);
 
-    boolean isTypeSupported(IOpenClass type);
+    /**
+     * Parse matching object from string.
+     * <p>
+     * Note that type of return value can depend on format of checkValue.
+     * For example, it can be Integer or IntRange.
+     * 
+     * @param checkValue string value of a cell
+     * @return matching value
+     */
     Object fromString(String checkValue);
 }
