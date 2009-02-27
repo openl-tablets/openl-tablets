@@ -369,7 +369,7 @@ public class AlgorithmCompiler {
         RuntimeOperation operation = null;
         
         if (content.getValue() != null && content.getValue().trim() != "") {
-            ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null, "execute " + fieldName);
+            ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null, fieldName + " execution");
             operation = createOperation(nodesToCompile, conversionStep);
         }
         
