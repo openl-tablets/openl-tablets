@@ -1,7 +1,6 @@
 package org.openl.rules.cmatch.algorithm;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.types.IMethodSignature;
@@ -63,6 +62,9 @@ class ArgumentsHelper {
             if (type.isSimple()) {
                 // ignore, already added
             } else {
+            // snshor: change the way we look up fields in IOpenClass 
+            //	to apply Bex approach 	
+            	
                 // non simple
 //                Iterator<IOpenField> fi = type.fields();
 //                while (fi.hasNext()) {
@@ -72,6 +74,8 @@ class ArgumentsHelper {
 //                    }
 //                }
             	
+            	argName = argName.replace(" ", "");
+	
             	IOpenField field = type.getField(argName, false);
             	if (field != null)
             	  return new Argument(i, field);
