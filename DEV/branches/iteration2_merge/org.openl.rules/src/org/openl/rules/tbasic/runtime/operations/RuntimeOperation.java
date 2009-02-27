@@ -7,6 +7,9 @@ import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
 import org.openl.vm.Tracer;
 
 /**
+ * The <code>RuntimeOperation</code> class describes operation in common.
+ * Contains link to source of this operation and can be executed with debug
+ * mode.
  * 
  */
 public abstract class RuntimeOperation {
@@ -15,6 +18,14 @@ public abstract class RuntimeOperation {
     private boolean significantForDebug;
     private String nameForDebug;
 
+    /**
+     * Execute operation in debug mode if necessary.
+     * 
+     * @param environment Environment for execution.
+     * @param param Argument for execution.
+     * @param debugMode Flag of necessity of debugging.
+     * @return The result of operation
+     */
     public Result execute(TBasicContextHolderEnv environment, Object param, boolean debugMode) {
         Result result = null;
 
@@ -40,6 +51,13 @@ public abstract class RuntimeOperation {
         return result;
     }
 
+    /**
+     * Run operation in specified context.
+     * 
+     * @param environment Environment for execution.
+     * @param param Argument for execution.
+     * @return The result of operation
+     */
     public abstract Result execute(TBasicContextHolderEnv environment, Object param);
 
     public void setSourceCode(AlgorithmOperationSource sourceCode) {

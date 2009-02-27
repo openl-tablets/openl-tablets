@@ -9,12 +9,21 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.types.IMethodCaller;
 
 /**
+ * The <code>ReturnOperation</code> class describes operation which finalizes execution of some function or subroutine
+ * and returns some value if necessary. 
+ * 
  * @author User
  *
  */
 public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation {
     private boolean hasReturnValue;
     
+    /**
+     * Create an instance of <code>ReturnOperation</code>. 
+     * 
+     * @param openLStatement Expression which result must be calculated and returned.
+     * If openLStatement is blank then operation just end execution of some function.
+     */
     public ReturnOperation(IMethodCaller openLStatement){
         super(openLStatement);
         hasReturnValue = openLStatement != null;
