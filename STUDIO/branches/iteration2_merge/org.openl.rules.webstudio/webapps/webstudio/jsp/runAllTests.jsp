@@ -26,12 +26,13 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="webresource/javascript/prototype/prototype-1.5.1.js"></script>
 
 <%@include file="common.jspf"%>
-
 </head>
 
 <body>
+<%@include file="/WEB-INF/include/errorDisplay.inc"%>
 <table>
 <tr>
 <td>Tests:</td><td align="right"><%=ntests%><%if (ntestsF > 0){ %> <span class="red"> (<%=ntestsF%>)</span> <%}%> </td>
