@@ -64,13 +64,18 @@ class ArgumentsHelper {
                 // ignore, already added
             } else {
                 // non simple
-                Iterator<IOpenField> fi = type.fields();
-                while (fi.hasNext()) {
-                    IOpenField field = fi.next();
-                    if (argName.equals(field.getName())) {
-                        return new Argument(i, field);
-                    }
-                }
+//                Iterator<IOpenField> fi = type.fields();
+//                while (fi.hasNext()) {
+//                    IOpenField field = fi.next();
+//                    if (argName.equals(field.getName())) {
+//                        return new Argument(i, field);
+//                    }
+//                }
+            	
+            	IOpenField field = type.getField(argName, false);
+            	if (field != null)
+            	  return new Argument(i, field);
+            	
             }
         }
 
