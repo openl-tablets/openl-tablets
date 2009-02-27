@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject;
-import org.openl.rules.dt.DecisionTable.DecisionTableTraceObject.RuleTracer;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
@@ -93,24 +91,12 @@ public class TraceHelper
 	}
 
     public int getProjectNodeIndex(int id, ProjectModel model) {
-        ITracerObject tt = (ITracerObject)traceRenderer.map.getObject(id);
-
-		if (tt == null)
-			return -1;
-
-		DecisionTableTraceObject dtt = null;
-
-		if (tt instanceof DecisionTableTraceObject)
-		{
-			dtt = (DecisionTableTraceObject)tt;
-		}
-		else if (tt instanceof RuleTracer)
-		{
-			dtt = ((RuleTracer)tt).getParentTraceObject();
-		} else
+        ITracerObject tracer = (ITracerObject) traceRenderer.map.getObject(id);
+        if (!(tracer instanceof ITableTracerObject)) {
             return -1;
-
-        return model.indexForNode(dtt.getDT().getTableSyntaxNode());
+        }
+		ITableTracerObject tableTracer = (ITableTracerObject) tracer;
+        return model.indexForNode(tableTracer.getTableSyntaxNode());
     }
 
 
