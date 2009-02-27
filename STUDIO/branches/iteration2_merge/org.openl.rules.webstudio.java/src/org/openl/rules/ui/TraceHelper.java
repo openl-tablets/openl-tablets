@@ -59,8 +59,8 @@ public class TraceHelper
             displayName = tto.getDisplayName(INamedThing.REGULAR);
         } else {
             // ATableTracerLeaf
-            displayName = tto.getParent().getDisplayName(INamedThing.REGULAR);
-            displayName += tto.getDisplayName(INamedThing.REGULAR);
+            displayName = tto.getParent().getDisplayName(INamedThing.REGULAR)
+                + ": " + tto.getDisplayName(INamedThing.REGULAR);
         }
 
 		return new TableInfo(gt, displayName, false);
