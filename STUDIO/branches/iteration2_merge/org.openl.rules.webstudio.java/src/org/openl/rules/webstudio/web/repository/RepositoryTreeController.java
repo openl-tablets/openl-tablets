@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,6 +15,7 @@ import org.openl.rules.webstudio.services.upload.UploadService;
 import org.openl.rules.webstudio.services.upload.UploadServiceParams;
 import org.openl.rules.webstudio.services.upload.UploadServiceResult;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.util.io.FileUtils;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
@@ -22,6 +24,7 @@ import org.openl.rules.workspace.abstracts.ProjectArtefact;
 import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.abstracts.ProjectResource;
 import org.openl.rules.workspace.abstracts.ProjectVersion;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.repository.RulesRepositoryArtefact;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
@@ -32,7 +35,13 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectResource;
 import org.openl.rules.workspace.uw.impl.UserWorkspaceProjectImpl;
 import org.openl.util.filter.OpenLFilter;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +54,7 @@ import java.util.Map;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -385,6 +395,60 @@ public class RepositoryTreeController {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
         }
         return null;
+    }
+
+    public String exportProjectVersion() {
+        File zipFile = null;
+        String zipFileName = null;
+        try {
+            UserWorkspaceProject p = repositoryTreeState.getSelectedProject();
+            zipFile = p.exportVersion(new CommonVersionImpl(version));
+            zipFileName = String.format("%s-%s.zip", p.getName(), version); 
+        } catch (ProjectException e) {
+            String msg = "Failed to export project version.";
+            log.error(msg, e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+        }
+
+        if (zipFile != null) {
+            final FacesContext facesContext = FacesContext.getCurrentInstance();
+            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+            writeOutContent(response, zipFile, zipFileName);
+            facesContext.responseComplete();
+
+            zipFile.delete();
+        }
+        return null;
+    }
+
+    private void writeOutContent(final HttpServletResponse res, final File content, final String theFilename) {
+        if (content == null)
+            return;
+        FileInputStream input = null;
+        try {
+            res.setHeader("Pragma", "no-cache");
+            res.setDateHeader("Expires", 0);
+            res.setContentType("application/zip");
+            res.setHeader("Content-disposition", "attachment; filename=" + theFilename);
+            
+            input = new FileInputStream(content);
+            IOUtils.copy(input, res.getOutputStream());
+        } catch (final IOException e) {
+            String msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response!";
+            log.error(msg, e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    String msg = "Failed to close content stream.";
+                    log.error(msg, e);
+                }
+            }
+        }
     }
 
     public String closeProject() {
