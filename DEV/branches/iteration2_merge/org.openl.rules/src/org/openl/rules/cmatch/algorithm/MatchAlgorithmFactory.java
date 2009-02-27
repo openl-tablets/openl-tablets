@@ -10,12 +10,20 @@ public class MatchAlgorithmFactory {
 
     static {
         // add well-known algorithms
-        registerBuilder("SIMPLE", new MatchAlgorithmCompilerBuilder());
-        registerBuilder("WEIGHT", new WeightAlgorithmCompilerBuilder());
+    	// snshor: slightly renamed the algorithms, left old names for compatibility
+        registerBuilder("SIMPLE", new MatchAlgorithmCompilerBuilder(), true);
+        registerBuilder("MATCH", new MatchAlgorithmCompilerBuilder(), true);
+        registerBuilder("WEIGHT", new WeightAlgorithmCompilerBuilder(), false);
+        registerBuilder("WEIGHTED", new WeightAlgorithmCompilerBuilder(), false);
     }
 
     public static void registerBuilder(String nameOfAlgorithm, IMatchAlgorithmCompilerBuilder builder) {
+    	registerBuilder(nameOfAlgorithm, builder, false);
+    }
+    public static void registerBuilder(String nameOfAlgorithm, IMatchAlgorithmCompilerBuilder builder, boolean isDefault) {
         builders.put(nameOfAlgorithm, builder);
+        if (isDefault)
+        	defaultBuilder = builder;
     }
 
     public static IMatchAlgorithmCompiler getAlgorithm(String nameOfAlgorithm) {
