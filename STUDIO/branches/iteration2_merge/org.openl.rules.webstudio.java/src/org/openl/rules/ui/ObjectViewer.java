@@ -642,7 +642,7 @@ public class ObjectViewer {
         printCodeAndErrorToHtml(srcLocation, module, buf);
         buf.append("</a>");
 
-        buf.append("<a href='../showLinks.jsp?").append(url).append("' target='show_app_hidden' title='").append(uri)
+        buf.append("<a href='/webstudio/jsp/showLinks.jsp?").append(url).append("' target='show_app_hidden' title='").append(uri)
                 .append("'> Edit in Excel </a>");
         buf.append("</td></tr></table>");
         buf.append("</td></tr></table>");
