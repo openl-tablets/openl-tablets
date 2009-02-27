@@ -54,9 +54,10 @@
         <h:commandButton styleClass="#{artefact.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" type="button" onclick="#{artefact.canRedeploy} &amp;&amp; openSmartRedeployDialog();"/>
         <h:commandButton styleClass="button" value="Compare" type="button" onclick="window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
       </h:panelGrid>
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+      <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openNewFolderDialog();" />
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Upload File" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openNewFileDialog();" />
+        <h:commandButton styleClass="#{artefact.canExport ? 'button':'disabledButton'}" value="Export Version" type="button" onclick="#{artefact.canExport} &amp;&amp; openExportVersionDialog();" />
       </h:panelGrid>
 
     </h:panelGroup>
