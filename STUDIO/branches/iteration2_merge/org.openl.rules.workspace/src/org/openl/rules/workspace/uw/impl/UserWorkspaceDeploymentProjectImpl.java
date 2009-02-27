@@ -4,6 +4,7 @@ import static org.openl.rules.security.Privileges.*;
 import static org.openl.rules.security.SecurityUtils.check;
 import static org.openl.rules.security.SecurityUtils.isGranted;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -440,5 +441,9 @@ public class UserWorkspaceDeploymentProjectImpl implements UserWorkspaceDeployme
 
     public boolean getCanDeploy() {
         return (!isCheckedOut() && isGranted(PRIVILEGE_DEPLOY));
+    }
+
+    public File exportVersion(CommonVersion version) throws ProjectException {
+        throw new ProjectException("Export isn't supported for deployment project!");
     }
 }

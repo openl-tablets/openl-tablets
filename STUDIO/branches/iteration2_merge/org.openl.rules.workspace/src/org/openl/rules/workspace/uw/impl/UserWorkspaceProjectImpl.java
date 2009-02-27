@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.io.File;
 import java.util.Collection;
 
 import org.apache.commons.logging.Log;
@@ -350,5 +351,15 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         }
 
         return isGranted(PRIVILEGE_DEPLOY);
+    }
+
+    public boolean getCanExport() {
+        return getCanOpen();
+    }
+
+    public File exportVersion(CommonVersion version) throws ProjectException {
+        check(PRIVILEGE_READ);
+
+        return userWorkspace.exportProject(dtrProject, version);
     }
 }

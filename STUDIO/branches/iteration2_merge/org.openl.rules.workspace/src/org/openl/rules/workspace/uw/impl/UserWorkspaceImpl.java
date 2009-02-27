@@ -229,6 +229,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace.addProject(oldRP);
     }
 
+    protected File exportProject(RepositoryProject repositoryProject, CommonVersion version) throws ProjectException {
+        RepositoryProject oldRP = designTimeRepository.getProject(repositoryProject.getName(), version);
+
+        ProjectExportHelper exportHelper = new ProjectExportHelper();
+        return exportHelper.export(user, oldRP);
+    }
+
     protected RepositoryDDProject getDDProjectFor(RepositoryDDProject deploymentProject, CommonVersion version) throws ProjectException {
         RepositoryDDProject oldDP = designTimeRepository.getDDProject(deploymentProject.getName(), version);
         return oldDP;
