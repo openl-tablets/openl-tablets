@@ -361,15 +361,15 @@ public class AlgorithmCompiler {
     }
 
     private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile,
-            String beforeFieldName) throws Exception {
+            String fieldName) throws Exception {
         // TODO: strange method, refactore
-        String param = nodesToCompile.get(0).getAlgorithmRow().getOperation() + FIELD_SEPARATOR + beforeFieldName;
+        String param = nodesToCompile.get(0).getAlgorithmRow().getOperation() + FIELD_SEPARATOR + fieldName;
 
         StringValue content = getCellContent(nodesToCompile, param);
         RuntimeOperation operation = null;
         
         if (content.getValue() != null && content.getValue().trim() != "") {
-            ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null);
+            ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null, "execute " + fieldName);
             operation = createOperation(nodesToCompile, conversionStep);
         }
         
@@ -461,6 +461,10 @@ public class AlgorithmCompiler {
             // TODO: set more precise source reference
             AlgorithmOperationSource source = getOperationSource(nodesToCompile, conversionStep);
             emittedOperation.setSourceCode(source);
+            
+            String nameForDebug = conversionStep.getNameForDebug();
+            emittedOperation.setNameForDebug(nameForDebug);
+            emittedOperation.setSignificantForDebug(nameForDebug != null);
 
             return emittedOperation;
 
@@ -492,6 +496,7 @@ public class AlgorithmCompiler {
         } else {
             sourceNode = nodesToCompile.get(0);
         }
+
         
         return new AlgorithmOperationSource(sourceNode, operationValueName);
     }

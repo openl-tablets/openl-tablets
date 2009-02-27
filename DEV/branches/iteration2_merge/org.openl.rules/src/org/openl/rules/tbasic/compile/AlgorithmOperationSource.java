@@ -12,11 +12,11 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
  */
 public class AlgorithmOperationSource {
     private AlgorithmTreeNode sourceNode;
-    private String valueName;
+    private String operationFieldName;
 
-    public AlgorithmOperationSource(AlgorithmTreeNode sourceNode, String valueName) {
+    public AlgorithmOperationSource(AlgorithmTreeNode sourceNode, String operationFieldName) {
         this.sourceNode = sourceNode;
-        this.valueName = valueName;
+        this.operationFieldName = operationFieldName;
     }
 
     public String getSourceUri() {
@@ -26,8 +26,8 @@ public class AlgorithmOperationSource {
     public IGridRegion getGridRegion() {
         IGridRegion sourceRegion = null;
         
-        if (valueName != null) {
-            sourceRegion = sourceNode.getAlgorithmRow().getValueGridRegion(valueName);
+        if (operationFieldName != null) {
+            sourceRegion = sourceNode.getAlgorithmRow().getValueGridRegion(operationFieldName);
         } 
         
         // if source is not value source or not found
@@ -39,11 +39,7 @@ public class AlgorithmOperationSource {
     }
     
     public String getOperationName() {
-        String operationName = sourceNode.getAlgorithmRow().getOperation().getValue();
-        if (valueName != null) {
-            operationName += " " + valueName;
-        } 
-        return operationName;
+        return sourceNode.getAlgorithmRow().getOperation().getValue();
     }
 
     public int getRowNumber() {

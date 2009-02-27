@@ -118,6 +118,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
             fixBrokenValues(conversionRule.getOperationParam1());
             fixBrokenValues(conversionRule.getOperationParam2());
             fixBrokenValues(conversionRule.getLabel());
+            fixBrokenValues(conversionRule.getNameForDebug());
         }
         return conversionRules;
     }
@@ -126,6 +127,8 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         for (int i = 0; i < label.length; i++) {
             if (label[i].equalsIgnoreCase("N/A")) {
                 label[i] = null;
+            } else if (label[i].equalsIgnoreCase("\"\"")) {
+                label[i] = "";
             }
         }
 

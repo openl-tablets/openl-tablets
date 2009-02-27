@@ -20,6 +20,7 @@ public class TableParserSpecificationBean {
     private boolean loopOperation;
     private String[] predecessorOperations;
 
+
     /**
      * @return the keyword
      */

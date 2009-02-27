@@ -53,6 +53,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         RuntimeOperation operation = (RuntimeOperation) getTraceObject();
 
         String operationName = operation.getSourceCode().getOperationName();
+        String stepNameForDebug = (operation.getNameForDebug() != null ? operation.getNameForDebug() : "");
         String resultValue = "";
         if (result != null && result.getValue() != null) {
             resultValue = "(" + result.getValue().toString() + ")";
@@ -66,7 +67,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
             displayFieldFormatedValues = String.format("[Local vars: %s]", fieldFormatedValues);
         }
 
-        return String.format("Step: row %d: %s %s %s", operationRow, operationName, resultValue,
+        return String.format("Step: row %d: %s %s %s %s", operationRow, operationName, stepNameForDebug, resultValue,
                 displayFieldFormatedValues);
     }
 

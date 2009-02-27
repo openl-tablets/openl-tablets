@@ -11,13 +11,16 @@ import org.openl.vm.Tracer;
  */
 public abstract class RuntimeOperation {
     private AlgorithmOperationSource sourceCode;
+    
+    private boolean significantForDebug;
+    private String nameForDebug;
 
     public Result execute(TBasicContextHolderEnv environment, Object param, boolean debugMode) {
         Result result = null;
 
         TBasicOperationTraceObject operationTracer = null;
 
-        if (debugMode) {
+        if (debugMode && significantForDebug) {
             operationTracer = new TBasicOperationTraceObject(this);
             operationTracer.setFieldValues(environment.getTbasicTarget().getFieldValues());
             Tracer.getTracer().push(operationTracer);
@@ -28,7 +31,7 @@ public abstract class RuntimeOperation {
             result = execute(environment, param);
 
         } finally {
-            if (debugMode) {
+            if (debugMode && significantForDebug) {
                 operationTracer.setResult(result);
                 Tracer.getTracer().pop();
             }
@@ -48,5 +51,33 @@ public abstract class RuntimeOperation {
      */
     public AlgorithmOperationSource getSourceCode() {
         return sourceCode;
+    }
+
+    /**
+     * @return the significantForDebug
+     */
+    public boolean isSignificantForDebug() {
+        return significantForDebug;
+    }
+
+    /**
+     * @param significantForDebug the significantForDebug to set
+     */
+    public void setSignificantForDebug(boolean significantForDebug) {
+        this.significantForDebug = significantForDebug;
+    }
+
+    /**
+     * @return the nameForDebug
+     */
+    public String getNameForDebug() {
+        return nameForDebug;
+    }
+
+    /**
+     * @param nameForDebug the nameForDebug to set
+     */
+    public void setNameForDebug(String nameForDebug) {
+        this.nameForDebug = nameForDebug;
     }
 }
