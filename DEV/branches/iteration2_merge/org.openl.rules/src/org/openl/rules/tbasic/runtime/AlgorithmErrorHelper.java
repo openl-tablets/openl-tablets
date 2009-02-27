@@ -6,13 +6,20 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.util.RuntimeExceptionWrapper;
 
+/**
+ * The <code>AlgorithmErrorHelper</code> class is the utility class which
+ * works with errors(handling and creation).
+ * 
+ */
 class AlgorithmErrorHelper {
 
     /**
+     * Try to process specified error occurred within environment.<br>
+     * Function "ON ERROR" must be specified to handle error by user.
      * 
      * @param error
      * @param environment
-     * @return
+     * @return Result of the execution "ON ERROR" method(if specified).
      */
     public static Object processError(Throwable error, TBasicContextHolderEnv environment) {
         // TODO discover which exception contains exception
@@ -28,16 +35,20 @@ class AlgorithmErrorHelper {
             return errorMethod.invoke(environment.getTbasicTarget(), null, environment);
         }
 
-//        throw new RuntimeException(String.format("Execution of algorithm failed: %s", error.getMessage()), error);
-        throw  RuntimeExceptionWrapper.wrap(error);
+        // throw new RuntimeException(String.format("Execution of algorithm
+        // failed: %s", error.getMessage()), error);
+        throw RuntimeExceptionWrapper.wrap(error);
 
     }
 
     /**
+     * Create exception with specified message and makes reference to source of
+     * error.
      * 
-     * @param message
-     * @param operation
-     * @return
+     * @param message The message to display.
+     * @param operation The operation which is source of error.
+     * @return <code>OpenLAlgorithmExecutionException</code> with wanted error
+     *         message.
      */
     public static OpenLAlgorithmExecutionException createExecutionException(String message, RuntimeOperation operation) {
         String sourceOperationUrl = operation.getSourceCode().getSourceUri();

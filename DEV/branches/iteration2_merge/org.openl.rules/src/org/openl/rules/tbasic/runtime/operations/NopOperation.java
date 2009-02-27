@@ -8,6 +8,8 @@ import org.openl.rules.tbasic.runtime.ReturnType;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 
 /**
+ * Empty operation. Do nothing.
+ * 
  * @author User
  *
  */
