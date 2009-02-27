@@ -12,7 +12,7 @@ import org.openl.rules.cmatch.test.TestObj;
 public class Test1 {
     @Test
     public void testS() {
-        File xlsFile = new File("rules/cmatch1/match1-s.xls");
+        File xlsFile = new File("test/rules/cmatch1/match1-s.xls");
         TestHelper<ITestS> testHelper;
         testHelper = new TestHelper<ITestS>(xlsFile, ITestS.class);
 
@@ -29,7 +29,7 @@ public class Test1 {
 
     @Test
     public void testI() {
-        File xlsFile = new File("rules/cmatch1/match1-i.xls");
+        File xlsFile = new File("test/rules/cmatch1/match1-i.xls");
         TestHelper<ITestI> testHelper;
         testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
@@ -47,7 +47,7 @@ public class Test1 {
 
     @Test
     public void testD() {
-        File xlsFile = new File("rules/cmatch1/match1-d.xls");
+        File xlsFile = new File("test/rules/cmatch1/match1-d.xls");
         TestHelper<ITestD> testHelper;
         testHelper = new TestHelper<ITestD>(xlsFile, ITestD.class);
 
@@ -63,7 +63,7 @@ public class Test1 {
 
     @Test
     public void testO() {
-        File xlsFile = new File("rules/cmatch1/match1-o.xls");
+        File xlsFile = new File("test/rules/cmatch1/match1-o.xls");
         TestHelper<ITestO> testHelper;
         testHelper = new TestHelper<ITestO>(xlsFile, ITestO.class);
 
@@ -84,7 +84,7 @@ public class Test1 {
 
     @Test
     public void testE() {
-        File xlsFile = new File("rules/cmatch1/match1-e.xls");
+        File xlsFile = new File("test/rules/cmatch1/match1-e.xls");
         TestHelper<ITestE> testHelper;
         testHelper = new TestHelper<ITestE>(xlsFile, ITestE.class);
 

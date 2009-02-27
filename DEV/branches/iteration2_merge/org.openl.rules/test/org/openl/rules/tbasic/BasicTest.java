@@ -6,7 +6,7 @@ import org.openl.runtime.EngineFactory;
 @Ignore("Manual test")
 public class BasicTest {
     public static void main(String[] args) {
-        EngineFactory<IBasicTest> engineFactory = new EngineFactory<IBasicTest>("org.openl.xls", "rules/BasicAlgorithm.xls", IBasicTest.class);
+        EngineFactory<IBasicTest> engineFactory = new EngineFactory<IBasicTest>("org.openl.xls", "test/rules/BasicAlgorithm.xls", IBasicTest.class);
 
         IBasicTest rule = engineFactory.newInstance();
         
