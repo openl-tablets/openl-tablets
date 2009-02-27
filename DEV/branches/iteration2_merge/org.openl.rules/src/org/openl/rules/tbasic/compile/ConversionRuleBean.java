@@ -17,7 +17,9 @@ public class ConversionRuleBean {
     private String[] operationType;
     private String[] operationParam1;
     private String[] operationParam2;
+    private String[] nameForDebug;
     private List<ConversionRuleStep> convertionSteps;
+
 
     public List<ConversionRuleStep> getConvertionSteps() {
         if (convertionSteps == null) {
@@ -35,13 +37,14 @@ public class ConversionRuleBean {
         ArrayList<ConversionRuleStep> steps = new ArrayList<ConversionRuleStep>(operationType.length);
 
         for (int i = 0; i < operationType.length; i++) {
-            String operationType = this.operationType[i];
-            String operationParam1 = this.operationParam1[i];
-            String operationParam2 = this.operationParam2[i];
-            String labelInstruction = this.label[i];
+            String theOperationType = operationType[i];
+            String theOperationParam1 = operationParam1[i];
+            String theOperationParam2 = operationParam2[i];
+            String theLabelInstruction = label[i];
+            String theNameForDebug = nameForDebug[i];
 
-            ConversionRuleStep step = new ConversionRuleStep(operationType, operationParam1, operationParam2,
-                    labelInstruction);
+            ConversionRuleStep step = new ConversionRuleStep(theOperationType, theOperationParam1, theOperationParam2,
+                    theLabelInstruction, theNameForDebug);
             
             steps.add(step);
         }
@@ -132,5 +135,17 @@ public class ConversionRuleBean {
     public void setOperationParam2(String[] operationParam2) {
         this.operationParam2 = operationParam2;
     }
+    /**
+     * @param nameForDebug the nameForDebug to set
+     */
+    public void setNameForDebug(String[] nameForDebug) {
+        this.nameForDebug = nameForDebug;
+    }
 
+    /**
+     * @return the nameForDebug
+     */
+    public String[] getNameForDebug() {
+        return nameForDebug;
+    }
 }
