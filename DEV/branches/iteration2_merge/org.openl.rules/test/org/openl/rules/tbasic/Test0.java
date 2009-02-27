@@ -33,7 +33,7 @@ public class Test0 {
     }
 
     private void _test() {
-        okRows(new File("rules/Algorithm.xls"), 26);
+        okRows(new File("test/rules/Algorithm.xls"), 26);
     }
 
     public static void main(String[] args) {

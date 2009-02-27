@@ -11,7 +11,7 @@ import org.openl.rules.TestUtils;
 public class Test2 {
     @Test
     public void test1() {
-        File xlsFile = new File("rules/cmatch1/match2-1.xls");
+        File xlsFile = new File("test/rules/cmatch1/match2-1.xls");
         TestHelper<ITest2> testHelper;
         testHelper = new TestHelper<ITest2>(xlsFile, ITest2.class);
 
@@ -31,7 +31,7 @@ public class Test2 {
 
     @Test
     public void test2() {
-        File xlsFile = new File("rules/cmatch1/match2-2.xls");
+        File xlsFile = new File("test/rules/cmatch1/match2-2.xls");
         TestHelper<ITest2> testHelper;
         testHelper = new TestHelper<ITest2>(xlsFile, ITest2.class);
 
@@ -52,7 +52,7 @@ public class Test2 {
 
     @Test
     public void test3() {
-        File xlsFile = new File("rules/cmatch1/match2-3.xls");
+        File xlsFile = new File("test/rules/cmatch1/match2-3.xls");
         TestHelper<ITest5> testHelper;
         testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
 
@@ -75,7 +75,7 @@ public class Test2 {
     public void test4() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch1/match2-4.xls");
+                File xlsFile = new File("test/rules/cmatch1/match2-4.xls");
                 TestHelper<ITest5> testHelper;
                 testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
             }
@@ -86,7 +86,7 @@ public class Test2 {
     public void test5() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch1/match2-5.xls");
+                File xlsFile = new File("test/rules/cmatch1/match2-5.xls");
                 TestHelper<ITest5> testHelper;
                 testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
             }
@@ -97,7 +97,7 @@ public class Test2 {
     public void test6() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch1/match2-6.xls");
+                File xlsFile = new File("test/rules/cmatch1/match2-6.xls");
                 TestHelper<ITest5> testHelper;
                 testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
             }

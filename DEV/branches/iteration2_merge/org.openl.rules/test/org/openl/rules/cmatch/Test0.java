@@ -15,7 +15,7 @@ public class Test0 {
     public void testCustom() {
         MatchAlgorithmFactory.registerBuilder("ALGORITHM", new MatchAlgorithmCompilerBuilder());
 
-        File xlsFile = new File("rules/ColumnMatch.xls");
+        File xlsFile = new File("test/rules/ColumnMatch.xls");
         TestHelper<ITestColumnMatch> testHelper;
         testHelper = new TestHelper<ITestColumnMatch>(xlsFile, ITestColumnMatch.class);
 
@@ -28,7 +28,7 @@ public class Test0 {
     public void test1() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch0/match0-1.xls");
+                File xlsFile = new File("test/rules/cmatch0/match0-1.xls");
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
@@ -39,7 +39,7 @@ public class Test0 {
     public void test2() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch0/match0-2.xls");
+                File xlsFile = new File("test/rules/cmatch0/match0-2.xls");
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
@@ -50,7 +50,7 @@ public class Test0 {
     public void test3() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch0/match0-3.xls");
+                File xlsFile = new File("test/rules/cmatch0/match0-3.xls");
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
@@ -61,7 +61,7 @@ public class Test0 {
     public void test4() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch0/match0-4.xls");
+                File xlsFile = new File("test/rules/cmatch0/match0-4.xls");
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
@@ -72,7 +72,7 @@ public class Test0 {
     public void test5() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch0/match0-5.xls");
+                File xlsFile = new File("test/rules/cmatch0/match0-5.xls");
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
@@ -86,7 +86,7 @@ public class Test0 {
 
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch0/match0-6.xls");
+                File xlsFile = new File("test/rules/cmatch0/match0-6.xls");
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
@@ -97,7 +97,7 @@ public class Test0 {
     public void test7() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch0/match0-7.xls");
+                File xlsFile = new File("test/rules/cmatch0/match0-7.xls");
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
@@ -108,7 +108,7 @@ public class Test0 {
     public void test8() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("rules/cmatch0/match0-8.xls");
+                File xlsFile = new File("test/rules/cmatch0/match0-8.xls");
                 TestHelper<ITestI> testHelper;
                 testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             }

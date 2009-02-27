@@ -21,7 +21,7 @@ public class Algorithm1Wrapper implements org.openl.main.OpenLWrapper
 
   public static String __openlName = "org.openl.xls";
 
-  public static String __src = "rules/Algorithm.xls";
+  public static String __src = "test/rules/Algorithm.xls";
 
   public static String __srcModuleClass = null;
 

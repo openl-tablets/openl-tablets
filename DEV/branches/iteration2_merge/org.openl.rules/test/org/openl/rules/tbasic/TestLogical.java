@@ -13,27 +13,27 @@ public class TestLogical{
         testHelper = new TestHelper<ITestAlgorithm2>(xlsFile, ITestAlgorithm2.class);
 
         ITestAlgorithm2 a = testHelper.getInstance();
-
-        assertEquals(a.modification(param), expectedResult);
+        int result = a.modification(param);
+        assertEquals(result, expectedResult);
     }
     @Test
     public void test1(){
-        okRows(new File("rules/algorithm/Test_Factorial.xls"), 4, 24);
-        okRows(new File("rules/algorithm/Test_Factorial.xls"), -123, 0);
-        okRows(new File("rules/algorithm/Test_Factorial.xls"), 6, 720);
-        okRows(new File("rules/algorithm/Test_Factorial.xls"), 0, 1);
+        okRows(new File("test/rules/algorithm/Test_Factorial.xls"), 4, 24);
+        okRows(new File("test/rules/algorithm/Test_Factorial.xls"), -123, 0);
+        okRows(new File("test/rules/algorithm/Test_Factorial.xls"), 6, 720);
+        okRows(new File("test/rules/algorithm/Test_Factorial.xls"), 0, 1);
     }
     @Test
     public void test2(){
-        okRows(new File("rules/algorithm/Test_IsSquare.xls"), 625, 0);
-        okRows(new File("rules/algorithm/Test_IsSquare.xls"), -123, 0);
-        okRows(new File("rules/algorithm/Test_IsSquare.xls"), 6, 0);
+        okRows(new File("test/rules/algorithm/Test_IsSquare.xls"), 625, 0);
+        okRows(new File("test/rules/algorithm/Test_IsSquare.xls"), -123, 0);
+        okRows(new File("test/rules/algorithm/Test_IsSquare.xls"), 6, 0);
     }
     @Test
     public void test3(){
-        okRows(new File("rules/algorithm/Test_GetMaxPrime.xls"), -1, 0);
-        okRows(new File("rules/algorithm/Test_GetMaxPrime.xls"), 10, 7);
-        okRows(new File("rules/algorithm/Test_GetMaxPrime.xls"), 100, 97);
-        okRows(new File("rules/algorithm/Test_GetMaxPrime.xls"), 2500, 2477);
+        okRows(new File("test/rules/algorithm/Test_GetMaxPrime.xls"), -1, 0);
+        okRows(new File("test/rules/algorithm/Test_GetMaxPrime.xls"), 10, 7);
+        okRows(new File("test/rules/algorithm/Test_GetMaxPrime.xls"), 100, 97);
+        okRows(new File("test/rules/algorithm/Test_GetMaxPrime.xls"), 2500, 2477);
     }
 }
