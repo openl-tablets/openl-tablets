@@ -14,6 +14,7 @@ public class MatchAlgorithmFactory {
         IMatchAlgorithmCompilerBuilder matchBuilder = new MatchAlgorithmCompilerBuilder();
         registerBuilder("MATCH", matchBuilder);
         registerBuilder("WEIGHTED", new WeightAlgorithmCompilerBuilder());
+        registerBuilder("SCORE", new ScoreAlgorithmCompilerBuilder());
 
         setDefaultBuilder(matchBuilder);
     }
@@ -61,6 +62,10 @@ public class MatchAlgorithmFactory {
 
     public static void setDefaultBuilder(IMatchAlgorithmCompilerBuilder builder) {
         defaultBuilder = builder;
+    }
+
+    public static IMatchAlgorithmCompilerBuilder getDefaultBuilder() {
+        return defaultBuilder;
     }
 
     /**

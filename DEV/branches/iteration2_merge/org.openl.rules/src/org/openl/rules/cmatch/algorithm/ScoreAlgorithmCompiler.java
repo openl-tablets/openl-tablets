@@ -8,45 +8,39 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.SubValue;
 import org.openl.rules.cmatch.TableRow;
-import org.openl.rules.cmatch.matcher.IMatcher;
-import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.String2DataConvertorFactory;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.types.IOpenClass;
 
-public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
+public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
     public static final String WEIGHT = "weight";
 
-    public static final String ROW_TOTAL_SCORE = "Total Score";
     public static final String ROW_SCORE = "Score";
 
-    public static final int ROW_TOTAL_SCORE_IDX = 1;
-    public static final int ROW_SCORE_IDX = 2;
+    public static final int ROW_SCORE_IDX = 0;
 
-    protected static final List<ColumnDefinition> WEIGHT_COLUMN_DEFINITION = new LinkedList<ColumnDefinition>();
+    protected static final List<ColumnDefinition> SCORE_COLUMN_DEFINITION = new LinkedList<ColumnDefinition>();
     static {
-        WEIGHT_COLUMN_DEFINITION.addAll(MATCH_COLUMN_DEFINITION);
-        WEIGHT_COLUMN_DEFINITION.add(new ColumnDefinition(WEIGHT, false));
+        SCORE_COLUMN_DEFINITION.addAll(MATCH_COLUMN_DEFINITION);
+        SCORE_COLUMN_DEFINITION.add(new ColumnDefinition(WEIGHT, false));
     }
 
-    private static final WeightAlgorithmExecutor WEIGHT_EXECUTOR = new WeightAlgorithmExecutor();
+    private static final ScoreAlgorithmExecutor SCORE_EXECUTOR = new ScoreAlgorithmExecutor();
 
     @Override
     protected List<ColumnDefinition> getColumnDefinition() {
-        return WEIGHT_COLUMN_DEFINITION;
+        return SCORE_COLUMN_DEFINITION;
     }
 
     @Override
     protected int getSpecialRowCount() {
-        return 3; // return values, total score, score
+        return 1; // score
     }
 
     @Override
     protected void checkSpecialRows(ColumnMatch columnMatch) throws BoundError {
-        super.checkSpecialRows(columnMatch);
-
         List<TableRow> rows = columnMatch.getRows();
-        checkRowName(rows.get(ROW_TOTAL_SCORE_IDX), ROW_TOTAL_SCORE);
         checkRowName(rows.get(ROW_SCORE_IDX), ROW_SCORE);
     }
 
@@ -54,28 +48,20 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
     protected void parseSpecialRows(ColumnMatch columnMatch) throws BoundError {
         super.parseSpecialRows(columnMatch);
 
-        int retValuesCount = columnMatch.getReturnValues().length;
-
-        // total score
-        MatchNode totalScore = new MatchNode(ROW_TOTAL_SCORE_IDX);
-        TableRow totalScoreRow = columnMatch.getRows().get(ROW_TOTAL_SCORE_IDX);
-
-        SubValue operationSV = totalScoreRow.get(OPERATION)[0];
-        IMatcher totalScoreMatcher = MatcherFactory
-                .getMatcher(operationSV.getString(), JavaOpenClass.getOpenClass(Integer.class));
-        if (totalScoreMatcher == null) {
-            String msg = "Column " + OPERATION + " of special row " + ROW_TOTAL_SCORE + " must be defined!";
-            throw new BoundError(msg, operationSV.getStringValue().asSourceCodeModule());
+        IOpenClass retType = columnMatch.getHeader().getType();
+        Class<?> retClass = retType.getInstanceClass();
+        if (retClass != int.class && retClass != Integer.class) {
+            String msg = "Score algorithm supports int or Integer return type only!";
+//            String uri = columnMatch.getTableSyntaxNode().getTableBody().getGridTable().getUri(0, 0);
+            String uri = columnMatch.getSourceUrl();
+            throw new BoundError(msg, new StringSourceCodeModule(null, uri));
         }
-        totalScore.setMatcher(totalScoreMatcher);
 
-        parseCheckValues(totalScoreRow, totalScore, retValuesCount);
-        columnMatch.setTotalScore(totalScore);
-        bindMetaInfo(columnMatch, totalScoreRow.get(VALUES), totalScore.getCheckValues());
+        int retValuesCount = columnMatch.getReturnValues().length;
 
         // score
         TableRow scoreRow = columnMatch.getRows().get(ROW_SCORE_IDX);
-        operationSV = scoreRow.get(OPERATION)[0];
+        SubValue operationSV = scoreRow.get(OPERATION)[0];
         if (!"".equals(operationSV.getString())) {
             String msg = "Column " + OPERATION + " of special row " + ROW_SCORE + " must be empty!";
             throw new BoundError(msg, operationSV.getStringValue().asSourceCodeModule());
@@ -144,6 +130,6 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
 
     @Override
     protected void assignExecutor(ColumnMatch columnMatch) {
-        columnMatch.setAlgorithmExecutor(WEIGHT_EXECUTOR);
+        columnMatch.setAlgorithmExecutor(SCORE_EXECUTOR);
     }
 }

@@ -39,15 +39,14 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     private static final MatchAlgorithmExecutor EXECUTOR = new MatchAlgorithmExecutor();
 
     public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) throws BoundError {
-        checkReqColumns(columnMatch.getColumns());
-        checkRows(columnMatch.getRows());
-
         int minRows = getSpecialRowCount() + 1;
         if (columnMatch.getRows().size() < minRows) {
             String msg = "Expects at least " + minRows + " rows!";
             throw new IllegalArgumentException(msg);
         }
 
+        checkReqColumns(columnMatch.getColumns());
+        checkRows(columnMatch.getRows());
         checkSpecialRows(columnMatch);
 
         parseSpecialRows(columnMatch);

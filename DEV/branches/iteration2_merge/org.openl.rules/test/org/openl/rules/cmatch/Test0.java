@@ -7,6 +7,7 @@ import java.io.File;
 import org.junit.Test;
 import org.openl.rules.TestHelper;
 import org.openl.rules.TestUtils;
+import org.openl.rules.cmatch.algorithm.IMatchAlgorithmCompilerBuilder;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompilerBuilder;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmFactory;
 
@@ -81,16 +82,21 @@ public class Test0 {
 
     @Test
     public void test6() {
-        // WARNING! Can affect other tests!
+        IMatchAlgorithmCompilerBuilder old = MatchAlgorithmFactory.getDefaultBuilder();
         MatchAlgorithmFactory.setDefaultBuilder(null);
 
-        TestUtils.assertEx(new Runnable() {
-            public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-6.xls");
-                TestHelper<ITestI> testHelper;
-                testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-            }
-        }, "Default algorithm builder was not defined!", "range=B3:L7");
+        Exception ex = null;
+        try {
+            File xlsFile = new File("test/rules/cmatch0/match0-6.xls");
+            TestHelper<ITestI> testHelper;
+            testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        } catch (Exception e) {
+            ex = e;
+        } finally {
+            MatchAlgorithmFactory.setDefaultBuilder(old);
+        }
+
+        TestUtils.assertEx(ex, "Default algorithm builder was not defined!", "range=B3:L7");
     }
 
     @Test
