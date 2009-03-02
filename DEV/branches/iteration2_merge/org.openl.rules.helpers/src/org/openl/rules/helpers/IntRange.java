@@ -6,7 +6,10 @@ package org.openl.rules.helpers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openl.OpenL;
 import org.openl.domain.IntRangeDomain;
+import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.util.RangeWithBounds;
 
 /**
  * Integer range.
@@ -22,8 +25,15 @@ public class IntRange extends IntRangeDomain implements INumberRange {
      * @param range
      */
     public IntRange(String range) {
+        // Spaces between numbers and '-' are mandatory. Example: "1 - 2" - correct "1-2" - wrong.
+        // TODO: Correct tokenizing in grammar.
         super(0, 0);
-        new Parser().parse(range);
+        OpenL openl = OpenL.getInstance("org.openl.j");
+        RangeWithBounds res = (RangeWithBounds)openl.evaluate(new StringSourceCodeModule(range, null),
+                "range.literal");
+        
+        min = res.getMin().intValue();
+        max = res.getMax().intValue();
     }
 
     /**

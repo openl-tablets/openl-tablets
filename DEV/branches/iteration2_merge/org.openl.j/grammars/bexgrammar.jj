@@ -347,8 +347,8 @@ TOKEN :
 TOKEN :
 {
   < INTEGER_LITERAL:
-//        (["+","-"])?  ["$"]? <DECIMAL_LITERAL> (["l","L"])?
-      <DECIMAL_LITERAL> (["l","L"])?
+      (["$"])? (["-","+"])?  <DECIMAL_LITERAL> (["l","L"])?
+      | <DECIMAL_LITERAL> (["l","L"])?
       | <HEX_LITERAL> (["l","L"])?
       | <OCTAL_LITERAL> (["l","L"])?
   >
@@ -364,10 +364,11 @@ TOKEN :
   < #FP_LITERAL2: ["1"-"9"] (["0"-"9"])? (["0"-"9"])? ("," ["0"-"9"] ["0"-"9"] ["0"-"9"])+ ("." (["0"-"9"])+ )? >
 |
   < FLOATING_POINT_LITERAL:
-        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      (["-","+"])?
+      (  (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
       | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
       | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
-      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"])
   >
 |
   < BUSINESS_INTEGER_LITERAL:
@@ -1145,6 +1146,9 @@ void LiteralBI() :
   |
   <BUSINESS_INTEGER_LITERAL>         
   { stb.literal("literal.number.business", pos(token), token.image); }
+  |
+  <FLOATING_POINT_LITERAL>         
+  { stb.literal("literal.real", pos(token), token.image); }
 }
 
 void RangeBinary():

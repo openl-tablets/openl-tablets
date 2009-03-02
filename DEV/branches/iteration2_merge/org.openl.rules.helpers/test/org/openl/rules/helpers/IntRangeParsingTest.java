@@ -5,6 +5,7 @@ package org.openl.rules.helpers;
 
 import static org.junit.Assert.*;
 
+
 import org.junit.Test;
 import org.openl.syntax.SyntaxErrorException;
 
@@ -16,8 +17,8 @@ public class IntRangeParsingTest {
 
     @Test
     public void testMinMaxFormat() {
-       assertEquals(new IntRange(1, 2), new IntRange("1- 2"));
-       assertEquals(new IntRange(-13, 200), new IntRange("-13- 200"));
+       assertEquals(new IntRange(1, 2), new IntRange("1 - 2"));
+       assertEquals(new IntRange(-13, 200), new IntRange("-13 - 200"));
     }
     
     @Test
@@ -37,10 +38,10 @@ public class IntRangeParsingTest {
     @Test
     public void testJustNumber(){
         assertEquals(new IntRange(-10, -10), new IntRange("-10"));
-        assertEquals(new IntRange(37, 37), new IntRange("37"));
+        assertEquals(new IntRange(37, 37), new IntRange("+37"));
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=SyntaxErrorException.class)
     public void testFailureParse(){
         new IntRange("--1");
     }
@@ -55,7 +56,7 @@ public class IntRangeParsingTest {
     
     @Test
     public void testDollarSymbol(){
-        assertEquals(new IntRange(13, 200), new IntRange("$13-200"));
+        assertEquals(new IntRange(13, 200), new IntRange("$13 - 200"));
         assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">$2"));
         assertEquals(new IntRange(-10, -10), new IntRange("$-10"));
         assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("$+2 +"));
@@ -64,8 +65,8 @@ public class IntRangeParsingTest {
     @Test
     public void testExtraSpacesAndPluses(){
         assertEquals(new IntRange(-3, 5), new IntRange("-3 - +5"));
-        assertEquals(new IntRange(-15, -8), new IntRange("-15 - - 8"));
+        assertEquals(new IntRange(-15, -8), new IntRange("-15  - -8"));
         assertEquals(new IntRange(100, Integer.MAX_VALUE), new IntRange(">= 100"));
-        assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("+ 2   +"));
+        assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("+2   +"));
     }
 }
