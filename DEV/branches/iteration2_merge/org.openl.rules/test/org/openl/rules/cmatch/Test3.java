@@ -36,6 +36,17 @@ public class Test3 {
         }, "Sub node are prohibited here!", "cell=B10");
     }
 
+    @Test
+    public void test3() {
+        TestUtils.assertEx(new Runnable() {
+            public void run() {
+                File xlsFile = new File("test/rules/cmatch1/match3-3.xls");
+                TestHelper<ITest4> testHelper;
+                testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
+            }
+        }, "Column operation of special row Total Score must be defined!", "cell=C7");
+    }
+
     public interface ITest4 {
         String runColumnMatch(int i1, int i2, int i3, int i4);
     }
