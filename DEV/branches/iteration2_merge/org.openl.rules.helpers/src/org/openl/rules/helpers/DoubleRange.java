@@ -3,18 +3,24 @@
  */
 package org.openl.rules.helpers;
 
-import org.openl.util.StringTool;
+import org.openl.OpenL;
+import org.openl.syntax.impl.StringSourceCodeModule;
+import org.openl.util.RangeWithBounds;
 
 /**
  * @author snshor
  */
 public class DoubleRange implements INumberRange
-{
-    static double CLOSE = 0, OPEN = 0.0000000001;
-
+{   
     public DoubleRange(String s)
     {
-        parse(s);
+        // Spaces between numbers and '-' are mandatory. Example: "1.0 - 2.0" - correct "1.0-2.0" - wrong.
+        // TODO: Correct tokenizing in grammar.
+        OpenL openl = OpenL.getInstance("org.openl.j");
+        RangeWithBounds res = (RangeWithBounds)openl.evaluate(new StringSourceCodeModule(s, null),
+                "range.literal");
+        lowerBound = res.getMin().doubleValue();
+        upperBound = res.getMax().doubleValue();        
     }
     
     public DoubleRange(double lowerBound, double upperBound)
@@ -27,89 +33,17 @@ public class DoubleRange implements INumberRange
 
     double upperBound = Double.MAX_VALUE;
 
-    double lowerType = CLOSE;
-
-    double upperType = CLOSE;
-
     public boolean contains(double x)
     {
-        return lowerBound + lowerType <= x && x <= upperBound - upperType;
+        return lowerBound <= x && x <= upperBound;
     }
 
   	public boolean containsNumber(Number num)
   	{
-  		return lowerBound + lowerType <= num.doubleValue() && num.doubleValue() <= upperBound - upperType;
+  		return lowerBound <= num.doubleValue() && num.doubleValue() <= upperBound;
   	}
-
     
     
-    void parse(String s)
-    {
-        String[] numbers = StringTool.tokenize(s, "-+<= ");
-
-        switch (numbers.length)
-        {
-        case 0:
-            throw new RuntimeException("Range Format - 0");
-        case 1:
-        {
-            double n = IntRange.parseNumber(numbers[0]);
-            if (s.indexOf('<') >= 0)
-            {
-                upperBound = n;
-                upperType = OPEN;
-            } else if (s.indexOf('+') >= 0)
-            {
-                lowerBound = n;
-            } else
-            {
-                upperBound = lowerBound = n;
-            }
-        }
-            break;
-        case 2:
-        {
-            lowerBound = IntRange.parseNumber(numbers[0]);
-            upperBound = IntRange.parseNumber(numbers[1]);
-            if (s.indexOf('-') >= 0)
-            {
-            } else
-                throw new RuntimeException("Range Format - 2");
-        }
-            break;
-        default:
-            throw new RuntimeException("Range Format - 3");
-
-        }
-    }
-    /**
-     * @return Returns the cLOSE.
-     */
-    public static double getCLOSE()
-    {
-        return CLOSE;
-    }
-    /**
-     * @param close The cLOSE to set.
-     */
-    public static void setCLOSE(double close)
-    {
-        CLOSE = close;
-    }
-    /**
-     * @return Returns the oPEN.
-     */
-    public static double getOPEN()
-    {
-        return OPEN;
-    }
-    /**
-     * @param open The oPEN to set.
-     */
-    public static void setOPEN(double open)
-    {
-        OPEN = open;
-    }
     /**
      * @return Returns the lowerBound.
      */
@@ -125,20 +59,6 @@ public class DoubleRange implements INumberRange
         this.lowerBound = lowerBound;
     }
     /**
-     * @return Returns the lowerType.
-     */
-    public double getLowerType()
-    {
-        return lowerType;
-    }
-    /**
-     * @param lowerType The lowerType to set.
-     */
-    public void setLowerType(double lowerType)
-    {
-        this.lowerType = lowerType;
-    }
-    /**
      * @return Returns the upperBound.
      */
     public double getUpperBound()
@@ -151,20 +71,6 @@ public class DoubleRange implements INumberRange
     public void setUpperBound(double upperBound)
     {
         this.upperBound = upperBound;
-    }
-    /**
-     * @return Returns the upperType.
-     */
-    public double getUpperType()
-    {
-        return upperType;
-    }
-    /**
-     * @param upperType The upperType to set.
-     */
-    public void setUpperType(double upperType)
-    {
-        this.upperType = upperType;
     }
 
 		public boolean contains(DoubleRange range)

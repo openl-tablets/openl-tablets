@@ -16,8 +16,44 @@ import org.openl.util.RangeWithBounds;
  * @author snshor
  */
 
+
 public class RangeNodeBinder extends ANodeBinder
 {
+    private Number getMin(Number number){
+        if(number.getClass() == Double.class){
+            return Double.NEGATIVE_INFINITY;
+        }else if(number.getClass() == Long.class){
+            return Long.MIN_VALUE;
+        }else{
+            return Integer.MIN_VALUE;
+        }
+    }
+    
+    private Number getMax(Number number){
+        if(number.getClass() == Double.class){
+            return Double.POSITIVE_INFINITY;
+        }else if(number.getClass() == Long.class){
+            return Long.MAX_VALUE;
+        }else{
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    private Number getMinimalIncrease(Number number){
+        if(number.getClass() == Double.class){
+            return number.doubleValue() + number.doubleValue() / 1e15;
+        }else{
+            return number.longValue() + 1;
+        }
+    }
+
+    private Number getMinimalDecrease(Number number){
+        if(number.getClass() == Double.class){
+            return number.doubleValue() - number.doubleValue() / 1e15;
+        }else{
+            return number.longValue() - 1;
+        }
+    }
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
 	    throws Exception
@@ -25,14 +61,13 @@ public class RangeNodeBinder extends ANodeBinder
     	IBoundNode[] children = bindChildren(node, bindingContext);
     	
     	final String type = node.getType();
-		Number x = (Number)((LiteralBoundNode)children[0]).getValue();
-		int val = x.intValue();
+		Number val = (Number)((LiteralBoundNode)children[0]).getValue();
 
     	
     	if (type.contains("binary"))
     	{	
-    		int val2 = ((Number)((LiteralBoundNode)children[1]).getValue()).intValue();
-    		if (val > val2)
+    	    Number val2 = (Number)((LiteralBoundNode)children[1]).getValue();
+    		if (val.doubleValue() > val2.doubleValue())
     			throw new BoundError(node, val2 + " must be more or equal than " + val);
     		
     		return new LiteralBoundNode(node, 
@@ -50,23 +85,23 @@ public class RangeNodeBinder extends ANodeBinder
     	{	
     		if (type.endsWith("lt"))
     		{	
-        		return new LiteralBoundNode(node, 
-        				new RangeWithBounds(Integer.MIN_VALUE, val-1), JavaOpenClass.getOpenClass(RangeWithBounds.class));
+                return new LiteralBoundNode(node, 
+                        new RangeWithBounds(getMin(val), getMinimalDecrease(val)), JavaOpenClass.getOpenClass(RangeWithBounds.class));
     		}
     		else if(type.endsWith("le"))
     		{	
-        		return new LiteralBoundNode(node, 
-        				new RangeWithBounds(Integer.MIN_VALUE, val), JavaOpenClass.getOpenClass(RangeWithBounds.class));
+                return new LiteralBoundNode(node, 
+                        new RangeWithBounds(getMin(val), val), JavaOpenClass.getOpenClass(RangeWithBounds.class));
     		}  
     		else if(type.endsWith("gt"))
     		{	
         		return new LiteralBoundNode(node, 
-        				new RangeWithBounds(val + 1, Integer.MAX_VALUE), JavaOpenClass.getOpenClass(RangeWithBounds.class));
+        				new RangeWithBounds(getMinimalIncrease(val), getMax(val)), JavaOpenClass.getOpenClass(RangeWithBounds.class));
     		} 
     		else if(type.endsWith("ge"))
     		{	
         		return new LiteralBoundNode(node, 
-        				new RangeWithBounds(val , Integer.MAX_VALUE), JavaOpenClass.getOpenClass(RangeWithBounds.class));
+        				new RangeWithBounds(val , getMax(val)), JavaOpenClass.getOpenClass(RangeWithBounds.class));
     		}
     		throw new RuntimeException("Unsupported range prefix type: " + type);
     	}	
@@ -77,12 +112,12 @@ public class RangeNodeBinder extends ANodeBinder
     		if (type.endsWith("lt"))
     		{	
         		return new LiteralBoundNode(node, 
-        				new RangeWithBounds(val+1, Integer.MAX_VALUE), JavaOpenClass.getOpenClass(RangeWithBounds.class));
+        				new RangeWithBounds(getMinimalIncrease(val), getMax(val)), JavaOpenClass.getOpenClass(RangeWithBounds.class));
     		}
     		else if(type.endsWith("le") || type.endsWith("plus"))
     		{	
         		return new LiteralBoundNode(node, 
-        				new RangeWithBounds(val, Integer.MAX_VALUE), JavaOpenClass.getOpenClass(RangeWithBounds.class));
+        				new RangeWithBounds(val, getMax(val)), JavaOpenClass.getOpenClass(RangeWithBounds.class));
     		}  
     		throw new RuntimeException("Unsupported range suffix type: " + type);
     	}	

@@ -28,15 +28,17 @@ public class IntNodeBinder extends ANodeBinder
     IBindingContext bindingContext)
   {
   	String s = ((LiteralNode)node).getImage();
+    if (s.charAt(0) == '$')
+        s = s.substring(1);
+    if (s.charAt(0) == '+')
+        s = s.substring(1);
   	
   	int len = s.length();
   	
-  	if (Character.toUpperCase(s.charAt(len - 1)) == 'L')
-  	{
-			return new LiteralBoundNode(node, Long.decode(s.substring(0, len - 1)), JavaOpenClass.LONG);
-  	}
-		  	
-		return new LiteralBoundNode(node, Integer.decode(s), JavaOpenClass.INT);
+    if (Character.toUpperCase(s.charAt(len - 1)) == 'L')
+    {
+            return new LiteralBoundNode(node, Long.decode(s.substring(0, len - 1)), JavaOpenClass.LONG);
+    }
+            return new LiteralBoundNode(node, Integer.decode(s), JavaOpenClass.INT);
   }
-
 }
