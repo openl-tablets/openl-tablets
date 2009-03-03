@@ -1,5 +1,5 @@
 /**
- *  OpenL Tablets,  2006
+ *  OpenL Tablets,  2006-2009
  *  https://sourceforge.net/projects/openl-tablets/ 
  */
 
