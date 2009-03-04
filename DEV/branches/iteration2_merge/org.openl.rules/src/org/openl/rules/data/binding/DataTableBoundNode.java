@@ -15,6 +15,7 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DynamicObject;
@@ -103,13 +104,13 @@ public class DataTableBoundNode
 
 		public Object get(Object target, IRuntimeEnv env)
 		{
-			Object data = ((DynamicObject)target).getFieldValue(name);
+			Object data = ((IDynamicObject)target).getFieldValue(name);
 	
 			
 			if (data == null)
 			{
 				data = table.getDataArray();
-				((DynamicObject)target).setFieldValue(name, data);
+				((IDynamicObject)target).setFieldValue(name, data);
 			}
 			
 			return data;
@@ -127,7 +128,7 @@ public class DataTableBoundNode
 
 		public void set(Object target, Object value, IRuntimeEnv env)
 		{
-			((DynamicObject)target).setFieldValue(name, value);
+			((IDynamicObject)target).setFieldValue(name, value);
 		}
 
 		/**
