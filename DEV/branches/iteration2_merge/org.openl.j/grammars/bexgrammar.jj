@@ -91,7 +91,6 @@ protected org.openl.util.text.TextInterval pos(Token t1, Token t2)
 
 	}
 
-
 public void parseTopNode(String type)
 {
 	try
@@ -104,11 +103,11 @@ public void parseTopNode(String type)
 	       parseModuleInternal(); 
         else if (type.equals("type"))
                 Type();
-               
+
+        else if (type.equals("range.literal.real"))
+                RangeLiteralFloat();
         else if (type.equals("range.literal"))
                 RangeLiteral();
-               
-	       
 	}
 	catch (ParseException pe)
 	{
@@ -1137,7 +1136,6 @@ void Literal() :
   NullLiteral()
 }
 
-
 void LiteralBI() :
 {}
 {
@@ -1146,8 +1144,12 @@ void LiteralBI() :
   |
   <BUSINESS_INTEGER_LITERAL>         
   { stb.literal("literal.number.business", pos(token), token.image); }
-  |
-  <FLOATING_POINT_LITERAL>         
+}
+
+void LiteralFloat() :
+{}
+{
+  (<FLOATING_POINT_LITERAL> | <INTEGER_LITERAL> | <BUSINESS_INTEGER_LITERAL>)        
   { stb.literal("literal.real", pos(token), token.image); }
 }
 
@@ -1214,7 +1216,68 @@ void RangeLiteral() :
 	)
 	<EOF>
 }
+void RangeBinaryFloat():
+{
+	Token x; 
+}
+{
+	LiteralFloat()
+	(x=<MINUS> | x =<DDOT>)
+	LiteralFloat()
+	{stb.bop("literal.range.binary", pos(x));}
+}
 
+void RangeNumberFloat():
+{
+}
+{
+	LiteralFloat()
+	{stb.uop("literal.range.number", null);}
+}
+
+
+void RangePrefixFloat():
+{
+	Token x;
+	String op; 
+}
+{
+	(x="<" {op="lt";} | x = "<=" {op="le";} | x = ">" {op="gt";} | x =">=" {op="ge";})
+	LiteralFloat()
+	{stb.uop("literal.range.unary.prefix." + op, pos(x));}	
+}
+
+void RangeSuffixFloat():
+{
+	Token x;
+	String op; 
+}
+{
+	LiteralFloat()
+	(x="<" {op="lt";} | x = "<=" {op="le";} | x = ">" {op="gt";} | x =">=" {op="ge";} | x ="+" {op="plus";})
+	{stb.uop("literal.range.unary.suffix."+op, pos(x));}
+}
+
+void RangeLiteralFloat() :
+{
+	Token x; 
+	String op;
+}
+{
+	(
+	LOOKAHEAD(RangeBinaryFloat())
+	RangeBinaryFloat()
+	|
+	LOOKAHEAD(RangePrefixFloat())
+	RangePrefixFloat()
+	| 
+	LOOKAHEAD(RangeSuffixFloat())
+	RangeSuffixFloat()
+	| 
+	RangeNumberFloat()
+	)
+	<EOF>
+}
 
 void BooleanLiteral() :
 {}
