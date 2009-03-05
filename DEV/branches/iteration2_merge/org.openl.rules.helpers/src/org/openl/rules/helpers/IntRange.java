@@ -9,9 +9,9 @@ import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 
 /**
- * Integer range.
- * 
- * @author snshor
+ * The <code>IntRange</code> class stores range of integers.
+ * Examples : "1-3", "2 .. 4", "123 ... 1000"
+ * (Important: using of ".." and "..." requires spaces between numbers and separator).
  */
 public class IntRange extends IntRangeDomain implements INumberRange {
 
@@ -25,8 +25,6 @@ public class IntRange extends IntRangeDomain implements INumberRange {
      * @param range
      */
     public IntRange(String range) {
-        // Spaces between numbers and '-' are mandatory. Example: "1 - 2" -
-        // correct "1-2" - wrong.
         // TODO: Correct tokenizing in grammar.
         super(0, 0);
         OpenL openl = OpenL.getInstance("org.openl.j");

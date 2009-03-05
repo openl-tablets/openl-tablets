@@ -8,12 +8,12 @@ import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 
 /**
- * @author snshor
+ * The <code>DoubleRange</code> class stores range of floats.
+ * Examples : "1.2-3", "2 .. 4", "123.456 ... 1000.00001"
+ * (Important: using of ".." and "..." requires spaces between numbers and separator).
  */
 public class DoubleRange implements INumberRange {
     public DoubleRange(String s) {
-        // Spaces between numbers and '-' are mandatory. Example: "1.0 - 2.0" -
-        // correct "1.0-2.0" - wrong.
         // TODO: Correct tokenizing in grammar.
         OpenL openl = OpenL.getInstance("org.openl.j");
         RangeWithBounds res = (RangeWithBounds) openl.evaluate(new StringSourceCodeModule(s, null),

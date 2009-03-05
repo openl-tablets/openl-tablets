@@ -42,16 +42,20 @@ public class RangeNodeBinder extends ANodeBinder
     private Number getMinimalIncrease(Number number){
         if(number.getClass() == Double.class){
             return number.doubleValue() + Math.abs(number.doubleValue() / 1e15);
-        }else{
+        }else if(number.getClass() == Long.class){
             return number.longValue() + 1;
+        }else{
+            return number.intValue() + 1;
         }
     }
 
     private Number getMinimalDecrease(Number number){
         if(number.getClass() == Double.class){
             return number.doubleValue() - Math.abs(number.doubleValue() / 1e15);
-        }else{
+        }else if(number.getClass() == Long.class){
             return number.longValue() - 1;
+        }else{
+            return number.intValue() - 1;
         }
     }
 
