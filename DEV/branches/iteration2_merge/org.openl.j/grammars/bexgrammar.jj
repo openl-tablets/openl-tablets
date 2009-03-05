@@ -292,6 +292,7 @@ TOKEN :
 | < COMMA: "," >
 | < DOT: "." >
 | < DDOT: ".." >
+| < TDOT: "..." >
 }
 
 /* OPERATORS */
@@ -346,8 +347,8 @@ TOKEN :
 TOKEN :
 {
   < INTEGER_LITERAL:
-      (["$"])? (["-","+"])?  <DECIMAL_LITERAL> (["l","L"])?
-      | <DECIMAL_LITERAL> (["l","L"])?
+      //(["-","+"])? <DECIMAL_LITERAL> (["l","L"])?
+       <DECIMAL_LITERAL> (["l","L"])?
       | <HEX_LITERAL> (["l","L"])?
       | <OCTAL_LITERAL> (["l","L"])?
   >
@@ -363,7 +364,7 @@ TOKEN :
   < #FP_LITERAL2: ["1"-"9"] (["0"-"9"])? (["0"-"9"])? ("," ["0"-"9"] ["0"-"9"] ["0"-"9"])+ ("." (["0"-"9"])+ )? >
 |
   < FLOATING_POINT_LITERAL:
-      (["-","+"])?
+      (["$"])? (["-","+"])?
       (  (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
       | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
       | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
@@ -1156,12 +1157,13 @@ void LiteralFloat() :
 void RangeBinary():
 {
 	Token x; 
+	String op; 
 }
 {
 	LiteralBI()
-	(x=<MINUS> | x =<DDOT>)
+	(x=<MINUS> {op="minus";} | x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
 	LiteralBI()
-	{stb.bop("literal.range.binary", pos(x));}
+	{stb.bop("literal.range.binary." + op, pos(x));}
 }
 
 void RangeNumber():
@@ -1219,12 +1221,13 @@ void RangeLiteral() :
 void RangeBinaryFloat():
 {
 	Token x; 
+	String op; 
 }
 {
 	LiteralFloat()
-	(x=<MINUS> | x =<DDOT>)
+	(x=<MINUS> {op="minus";}| x =<DDOT> {op="ddot";} | x=<TDOT>{op="tdot";} )
 	LiteralFloat()
-	{stb.bop("literal.range.binary", pos(x));}
+	{stb.bop("literal.range.binary." + op, pos(x));}
 }
 
 void RangeNumberFloat():

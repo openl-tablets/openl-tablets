@@ -70,9 +70,18 @@ public class RangeNodeBinder extends ANodeBinder
     		if (val.doubleValue() > val2.doubleValue())
     			throw new BoundError(node, val2 + " must be more or equal than " + val);
     		
-    		return new LiteralBoundNode(node, 
-    				new RangeWithBounds(val, val2), 
-    						JavaOpenClass.getOpenClass(RangeWithBounds.class));
+    		if (type.endsWith("minus") || type.endsWith("ddot") )
+            {
+        		return new LiteralBoundNode(node, 
+        				new RangeWithBounds(val, val2), 
+        						JavaOpenClass.getOpenClass(RangeWithBounds.class));
+            }
+    		if (type.endsWith("tdot") )
+            {
+                return new LiteralBoundNode(node, 
+                        new RangeWithBounds(getMinimalIncrease(val), getMinimalDecrease(val2)), 
+                                JavaOpenClass.getOpenClass(RangeWithBounds.class));
+            }
     	}	
     	
     	if (type.contains("number"))
