@@ -36,7 +36,7 @@
         }
 //<!--
         function reloginCountDown(countDown) {
-            if (!countDown) {
+            if (countDown == null) {
                 countDown = window._countDown;
             }
             if (countDown <= 0) {
@@ -45,7 +45,7 @@
                 var txt = document.getElementById('sessionExpiredCountDown');
                 txt.innerHTML = countDown;
                 window._countDown = countDown - 1;
-                setTimeout(reloginCountDown, 1000);
+                setTimeout(reloginCountDown, 1000, countDown - 1);
             }
         }
 
