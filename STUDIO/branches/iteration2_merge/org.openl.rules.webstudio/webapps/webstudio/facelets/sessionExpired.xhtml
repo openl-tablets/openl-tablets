@@ -36,14 +36,14 @@
         }
 //<!--
         function reloginCountDown(countDown) {
-            if (countDown == null) {
+            if (!countDown) {
                 countDown = window._countDown;
             }
             if (countDown <= 0) {
                 relogin();
             } else {
                 var txt = document.getElementById('sessionExpiredCountDown');
-                txt.innerText = countDown;
+                txt.innerHTML = countDown;
                 window._countDown = countDown - 1;
                 setTimeout(reloginCountDown, 1000);
             }
