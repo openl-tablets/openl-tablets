@@ -16,6 +16,7 @@ public class MatcherFactory {
         registerBuilder(new EnumMatchBuilder());
         registerBuilder(new NumberMatchBuilder());
         registerBuilder(new ClassMatchBuilder());
+        registerBuilder(new BooleanPrimitiveMatch());
 
         // min
         registerBuilder(new NumberMinBuilder());
