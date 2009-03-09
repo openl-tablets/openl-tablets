@@ -1144,14 +1144,17 @@ void LiteralBI() :
   { stb.literal("literal.integer", pos(token), token.image); }
   |
   <BUSINESS_INTEGER_LITERAL>         
-  { stb.literal("literal.number.business", pos(token), token.image); }
+  { stb.literal("literal.integer.business", pos(token), token.image); }
 }
 
 void LiteralFloat() :
 {}
 {
-  (<FLOATING_POINT_LITERAL> | <INTEGER_LITERAL> | <BUSINESS_INTEGER_LITERAL>)        
+  (<FLOATING_POINT_LITERAL> | <INTEGER_LITERAL>)        
   { stb.literal("literal.real", pos(token), token.image); }
+  |
+  <BUSINESS_INTEGER_LITERAL>
+  { stb.literal("literal.real.business", pos(token), token.image); }
 }
 
 void RangeBinary():

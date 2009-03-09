@@ -150,4 +150,18 @@ public class IntRangeDomain extends IFiniteDomain.FixedSizeDomain<Integer> imple
         return hashCode;
     }
 
+    /**
+     * @param min the min to set
+     */
+    protected void setMin(int min) {
+        this.min = min;
+    }
+
+    /**
+     * @param max the max to set
+     */
+    protected void setMax(int max) {
+        this.max = max;
+    }
+
 }
