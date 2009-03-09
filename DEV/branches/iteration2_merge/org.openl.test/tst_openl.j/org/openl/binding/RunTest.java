@@ -12,18 +12,46 @@ import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 
 public class RunTest extends TestCase {
-	void _runNoError(String expr, Object expected, String openl) {
+    void _runWithError(String expr, Object expected, String openl, String parseType) {
+        Throwable ex = null;
+        try {
+            _runNoError(expr, expected, openl, parseType, nopAssertion);
+        } catch (Throwable t) {
+            ex = t;
+        }
+        Assert.assertNotNull(ex);
+        Assert.assertEquals(expected, ex.getClass());
+
+    }
+    
+    void _runNoError(String expr, Object expected, String openl) {
 		_runNoError(expr, expected, openl, "method.body");
 	}
-
-	void _runNoError(String expr, Object expected, String openl,
-			String parseType) {
-		OpenL op = OpenL.getInstance(openl);
-		Object res = op.evaluate(new StringSourceCodeModule(expr, null),
-				parseType);
-		Assert.assertEquals(expected, res);
-	}
-
+	
+	void _runNoError(String expr, Object expected, String openlName, String parseType) {
+        _runNoError(expr, expected, openlName, parseType, equalsAssertion);
+    }
+    	
+	private static AssertionExpression<Object> equalsAssertion = new AssertionExpression<Object>() {
+    	    public void makeAssertion(Object expected, Object result) {
+    	        Assert.assertEquals(expected, result);
+    	    }
+    	};
+    	
+    private static AssertionExpression<Object> nopAssertion = new AssertionExpression<Object>() {
+            public void makeAssertion(Object expected, Object result) {
+                // do nothing
+            }
+        };
+	
+	@SuppressWarnings("unchecked")
+    void _runNoError(String expression, Object expected, String openlName, String parseType,
+            AssertionExpression assertion) {
+        OpenL openl = OpenL.getInstance(openlName);
+        Object res = openl.evaluate(new StringSourceCodeModule(expression, null), parseType);
+        assertion.makeAssertion(expected, res);
+    }
+	
 	public void testRun() {
 
 		_runNoError("String $x$y=null; $x$y == null || $x$y.length() < 10", true,
@@ -116,7 +144,29 @@ public class RunTest extends TestCase {
 				"range.literal");
 		_runNoError("$10,222 .. 12,599   ", new RangeWithBounds(10222, 12599),
 				"org.openl.j", "range.literal");
+
 	}
+	
+	public void testDoubleRange() {
+	    AssertionExpression<RangeWithBounds> assertion = new AssertionExpression<RangeWithBounds>() {
+        	    public void makeAssertion(RangeWithBounds expected, RangeWithBounds result) {
+        	            Assert.assertEquals(expected.getMax().doubleValue(), result.getMax().doubleValue(), 0.001); 
+        	            Assert.assertEquals(expected.getMin().doubleValue(), result.getMin().doubleValue(), 0.001);
+        	        }    
+    	    };
+    	    
+        _runNoError("10.0", new RangeWithBounds(10.0, 10.0), "org.openl.j", "range.literal.real", assertion);
+        _runNoError("< 10.0K", new RangeWithBounds(Double.NEGATIVE_INFINITY, 9999.99999999999), "org.openl.j", "range.literal.real", assertion);
+        _runNoError("<=33.3M", new RangeWithBounds(Double.NEGATIVE_INFINITY, 33300000.0), "org.openl.j", "range.literal.real", assertion);
+        _runNoError("5.0-$10.0", new RangeWithBounds(5.0, 10.0), "org.openl.j", "range.literal.real", assertion);
+        _runNoError("2B<", new RangeWithBounds(2000000000.0001, Double.POSITIVE_INFINITY), "org.openl.j", "range.literal.real", assertion);
+        _runNoError("2.1B+", new RangeWithBounds(2100000000, Double.POSITIVE_INFINITY), "org.openl.j", "range.literal.real", assertion);
+
+        _runWithError("10.0-2.0", SyntaxErrorException.class, "org.openl.j", "range.literal.real");
+        _runNoError("10.0-12,599.0", new RangeWithBounds(10.0, 12599.0), "org.openl.j", "range.literal.real", assertion);
+        _runNoError("$10,222.0 .. 12,599.0   ", new RangeWithBounds(10222.0, 12599.0), "org.openl.j", "range.literal.real", assertion);
+
+    }
 
 	public void testLong() {
 		_runNoError("long x = 4; x + 5.0", 9.0, "org.openl.j");
@@ -153,21 +203,11 @@ public class RunTest extends TestCase {
 	
 	
 
-	public static void _runWithError(String expr, Object expected,
-			String openl, String parseType) {
-		OpenL op = OpenL.getInstance(openl);
-		Throwable ex = null;
-		try {
-			op.evaluate(new StringSourceCodeModule(expr, null), parseType);
-		} catch (Throwable t) {
-			ex = t;
-		}
-		Assert.assertNotNull(ex);
-		Assert.assertEquals(expected, ex.getClass());
-
-	}
-
 	public static void main(String[] args) {
 		new RunTest().testRun();
+	}
+	
+	private static interface AssertionExpression<T>{
+	    void makeAssertion(T expected, T result);
 	}
 }

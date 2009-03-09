@@ -45,7 +45,8 @@ public class OpenLBuilder extends AOpenLBuilder
   		,"literal.string",org.openl.binding.impl.StringNodeBinder.class.getName()
   		,"literal.char", org.openl.binding.impl.CharNodeBinder.class.getName()
   		,"literal.range", org.openl.binding.impl.RangeNodeBinder.class.getName()
-  		,"literal.number.business", org.openl.binding.impl.BusinessNumberNodeBinder.class.getName()
+  		,"literal.integer.business", org.openl.binding.impl.BusinessIntNodeBinder.class.getName()
+  		,"literal.real.business", org.openl.binding.impl.BusinessDoubleNodeBinder.class.getName()
 
   		,"array.init",org.openl.binding.impl.ArrayInitializationBinder.class.getName()
 
