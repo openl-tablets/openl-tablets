@@ -391,16 +391,16 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 
 				for (int j = 0; j < ee.length; j++)
 				{
-					// ee[j].setTopLevelSyntaxNode(chNodes[i]);
+					ee[j].setTopLevelSyntaxNode(chNodes[i]);
 					chNodes[i].addError(ee[j]);
 					moduleContext.addError(ee[j]);
 				}
 
 			}
-
 			catch (Throwable e)
 			{
 				BoundError be = new BoundError(chNodes[i], null, e);
+				be.setTopLevelSyntaxNode(chNodes[i]);
 				chNodes[i].addError(be);
 				moduleContext.addError(be);
 			}
@@ -433,6 +433,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes
 				} catch (Throwable e)
 				{
 					BoundError be = new BoundError(chNodes[i], null, e);
+					be.setTopLevelSyntaxNode(chNodes[i]);
 					chNodes[i].addError(be);
 					moduleContext.addError(be);
 				}

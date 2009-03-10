@@ -21,7 +21,7 @@ import org.openl.util.text.ILocation;
  * @author snshor
  *
  */
-public class SyntaxError  extends Exception  implements ISyntaxError
+public class SyntaxError extends Exception implements ISyntaxError
 {
 	/**
 	 * 
@@ -266,6 +266,9 @@ public class SyntaxError  extends Exception  implements ISyntaxError
 //
 //
 //
-	
+
+	public String getUri() {
+	    return SourceCodeURLTool.makeSourceLocationURL(location, module, "");
+	}
 
 }
