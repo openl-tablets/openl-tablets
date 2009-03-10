@@ -12,6 +12,7 @@
 <%@page import="org.openl.rules.workspace.MultiUserWorkspaceManager"%>
 <%@page import = "org.openl.rules.util.net.NetUtils" %>
 <%@ page import="java.net.URLEncoder" %>
+<%@page import="org.openl.rules.webstudio.web.jsf.WebContext"%>
 <html>
 <head>
 <title>OpenL Web Studio</title>
@@ -25,6 +26,9 @@ if (rulesUserSession==null) {
     rulesUserSession.setUser(((CurrentUserInfo)WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("currentUserInfo")).getUser());
     rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager)WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("workspaceManager"));
     session.setAttribute("rulesUserSession", rulesUserSession);
+}
+if (WebContext.getContextPath() == null) {
+    WebContext.setContextPath(request.getContextPath());
 }
 %>
 

@@ -10,9 +10,6 @@
 <%
 	String uri = request.getParameter("uri");
 	String text = request.getParameter("text");
-	
- 
-	int elementID = 1;   
 %>
 
 
@@ -82,7 +79,6 @@ document.getElementById(elmnt).style.visibility="hidden"
  	
 if (ti != null)
 {
-    elementID = studio.getModel().indexForNode(studio.getModel().findNode(uri));
 %>
 
 <table>

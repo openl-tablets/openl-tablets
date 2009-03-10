@@ -5,6 +5,7 @@ package org.openl.rules.ui;
 
 import org.openl.base.INamedThing;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.ITreeElement;
 import org.openl.util.StringTool;
 
@@ -48,8 +49,8 @@ public class ExplainTreeRenderer extends DTreeRenderer {
         //		{
         //			url = WebTool.makeXlsOrDocUrl(url);
         //		}	
-        return targetJsp + "?uri=" + StringTool.encodeURL("" + url) + "&text="
-                + getDisplayName(element, INamedThing.REGULAR);
+        return targetJsp + "?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL("" + url)
+            + "&text=" + getDisplayName(element, INamedThing.REGULAR);
 
         //		return targetJsp + "?uri=" + map.getID(element);
     }
@@ -57,6 +58,10 @@ public class ExplainTreeRenderer extends DTreeRenderer {
     protected String getDisplayName(Object obj, int mode) {
 
         return super.getDisplayName(obj, mode + 1);
+    }
+    
+    public void cacheElement(ITreeElement<?> element) {
+        // TODO Auto-generated method stub
     }
 
 }

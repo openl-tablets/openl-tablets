@@ -1,5 +1,6 @@
 <%@ page import = "org.openl.rules.ui.*" %>
 <%@ page import = "org.openl.rules.webtools.*" %>
+<%@page import="org.openl.rules.webstudio.web.util.Constants"%>
 
 
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
@@ -15,17 +16,17 @@
       return;    
     }
  
-	String s_id = request.getParameter("elementID"); 
-   	 	
+	String s_id = request.getParameter(Constants.REQUEST_PARAM_ID);
+
    	int traceElementID = -100;	
    	if (s_id != null)
    	{
      	traceElementID = Integer.parseInt(s_id);
     }
-    
+
 	TableInfo ti = tracer.getTableInfo(traceElementID);
 
-    int elementID = tracer.getProjectNodeIndex(traceElementID, studio.getModel());   
+    String uri = tracer.getProjectNodeUri(traceElementID, studio.getModel());
 %>
 
 

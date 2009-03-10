@@ -5,9 +5,8 @@ import java.util.List;
 
 import javax.faces.component.html.HtmlDataTable;
 
-
-import org.apache.commons.lang.StringUtils;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkOrder;
@@ -100,7 +99,7 @@ public class BenchmarkMethodBean {
 
     public List<BenchmarkInfo> getBenchmarks() {
         studio = WebStudioUtils.getWebStudio();
-        if (FacesUtils.getRequestParameter("elementID") != null) {
+        if (FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI) != null) {
             addLastBenchmark();
         }
         BenchmarkInfo[] benchmarks = studio.getBenchmarks();
@@ -113,13 +112,13 @@ public class BenchmarkMethodBean {
     }
 
     public void addLastBenchmark() {
-        int elementID = getElementID();
+        String elementUri = getElementUri();
         String testName = getTestName();
         String testID = getTestID();
         String testDescr = getTestDescr();
         try {
             BenchmarkInfo buLast = studio.getModel().benchmarkElement(
-                    elementID, testName, testID, testDescr, 3000);
+                    elementUri, testName, testID, testDescr, 3000);
             studio.addBenchmark(buLast);
             benchmarkResults.add(buLast);
         } catch (Exception e) {
@@ -144,13 +143,8 @@ public class BenchmarkMethodBean {
         return testDescr;
     }
 
-    private int getElementID() {
-        int elementID = -1;
-        String elementIDStr = FacesUtils.getRequestParameter("elementID");
-        if (StringUtils.isNotBlank(elementIDStr)) {
-            elementID = Integer.parseInt(elementIDStr);
-        }
-        return elementID;
+    private String getElementUri() {
+        return FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
     }
 
     public boolean getBencmarkSelected() {

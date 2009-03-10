@@ -4,16 +4,16 @@ import org.openl.rules.table.IGridTable;
 
 public class TableSearch {
 
-    private int tableId;
+    private String tableUri;
     private IGridTable table;
     private String xlsLink;
 
-    public int getTableId() {
-        return tableId;
+    public String getTableUri() {
+        return tableUri;
     }
 
-    public void setTableId(int tableId) {
-        this.tableId = tableId;
+    public void setTableUri(String tableUri) {
+        this.tableUri = tableUri;
     }
 
     public IGridTable getTable() {

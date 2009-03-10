@@ -39,7 +39,11 @@ public class TraceTreeRenderer extends DTreeRenderer {
     }
 
     protected String makeURL(ITreeElement element) {
-        return targetJsp + "?elementID=" + map.getID(element);
+        return targetJsp + "?id=" + map.getID(element);
+    }
+
+    public void cacheElement(ITreeElement<?> element) {
+        // TODO Auto-generated method stub
     }
 
 }
