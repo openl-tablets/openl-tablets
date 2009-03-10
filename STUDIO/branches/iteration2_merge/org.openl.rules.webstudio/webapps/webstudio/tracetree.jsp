@@ -1,4 +1,5 @@
 <%@ page import = "org.openl.rules.ui.*" %>
+<%@page import="org.openl.rules.webstudio.web.util.Constants"%>
 
 
 <html>
@@ -35,27 +36,19 @@ BODY {
 <jsp:useBean id="tracer" scope="session" class="org.openl.rules.ui.TraceHelper"/>
 
 <%
-	String s_id = request.getParameter("elementID");
+	String uri = request.getParameter(Constants.REQUEST_PARAM_URI);
 
-
-
-   	int elementID = -100;
-   	if (s_id != null)
-   	{
-     	elementID = Integer.parseInt(s_id);
-     	studio.setTableID(elementID);
-	   	String url = studio.getModel().makeXlsUrl(elementID);
-	   	String uri = studio.getModel().getUri(elementID);
+   	if (uri != null && !uri.equals("")) {
+     	studio.setTableUri(uri);
+	   	String url = studio.getModel().makeXlsUrl(uri);
 	   	String text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);
-//	   	String name = studio.getModel().getDisplayNameFull(elementID);
+//	   	String name = studio.getModel().getDisplayNameFull(uri);
 //	   	tracer.setName(name);
-	   	org.openl.vm.Tracer t =  studio.getModel().traceElement(elementID);
+	   	org.openl.vm.Tracer t =  studio.getModel().traceElement(uri);
 	   	tracer.setRoot(t.getRoot());
-    }
-    else
-    {
+    } else {
 %>
-	<h1>elementID not found</h1>
+	<h1>elementUri not found</h1>
 <%
     }
 %>

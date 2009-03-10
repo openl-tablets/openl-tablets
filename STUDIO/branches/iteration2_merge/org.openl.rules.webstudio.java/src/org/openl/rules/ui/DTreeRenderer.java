@@ -62,15 +62,14 @@ public abstract class DTreeRenderer {
     }
 
     public void renderSingleElement(ITreeElement parent, ITreeElement element, StringBuffer buf) {
-        // d.add(id, parentId, name, url, title, target, icon, iconOpen, open) {
+        cacheElement(element);
 
         buf.append("d.add(");
+
         int parentId = parent == null ? -1 : map.getID(parent);
         int id = map.getNewID(element);
-        // String sfx = (element.getNameCount() < 2 ?
-        // "":"("+element.getNameCount()+")");
-        String name = getDisplayName(element, INamedThing.SHORT);
         String url = makeURL(element);
+        String name = getDisplayName(element, INamedThing.SHORT);
         String title = getDisplayName(element, INamedThing.REGULAR);
         String target = targetFrame;
         String icon = getIcon(element, CLOSE);
@@ -90,6 +89,8 @@ public abstract class DTreeRenderer {
         buf.append(");");
         buf.append("\n");
     }
+
+    public abstract void cacheElement(ITreeElement<?> element);
 
     public static String jsStr(String string) {
         if (string == null)
@@ -192,5 +193,4 @@ public abstract class DTreeRenderer {
     }
 
     ObjectMap map = new ObjectMap();
-
 }

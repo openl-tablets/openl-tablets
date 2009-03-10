@@ -202,10 +202,10 @@
         <img src="#{contextPath}/webresource/images/excel-workbook.png" />
         <h:outputText value="#{tableSearch.xlsLink}" escape="false" />
         <f:verbatim>&amp;nbsp;</f:verbatim>
-            <h:panelGroup rendered="#{not advancedSearch.studioReadOnly and tableSearch.tableId > -1}">
+            <h:panelGroup rendered="#{not advancedSearch.studioReadOnly and tableSearch.tableUri}">
                 <br /><br />
                 <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
-                    <f:param name="elementID" value="#{tableSearch.tableId}" />
+                    <f:param name="uri" value="#{tableSearch.tableUri}" />
                     <f:param name="mode" value="edit" />
                     <h:outputText value="Edit table" />
                 </h:outputLink>

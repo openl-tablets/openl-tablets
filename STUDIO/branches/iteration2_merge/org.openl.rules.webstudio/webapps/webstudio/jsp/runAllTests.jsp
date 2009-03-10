@@ -1,20 +1,17 @@
-<jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
+
+<%@page import="org.openl.rules.webstudio.web.util.Constants"%><jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
 <% 
-   String elementIDstr = request.getParameter("elementID"); 
-   int elementID = -100;
-   if (elementIDstr != null)
-     elementID = Integer.parseInt(elementIDstr);
-   	
-   org.openl.rules.ui.Explanator.setCurrent(explanator);
-   org.openl.rules.ui.AllTestsRunResult atr =  studio.getModel().runAllTests(elementID);
+    String elementUri = request.getParameter(Constants.REQUEST_PARAM_URI);
+
+    org.openl.rules.ui.Explanator.setCurrent(explanator);
+    org.openl.rules.ui.AllTestsRunResult atr =  studio.getModel().runAllTests(elementUri);
    
-  int ntests = atr.getTests().length;
-  int ntestsF = atr.numberOfFailedTests();	   
-  int nunits = atr.totalNumberOfTestUnits();	   
-  int nunitsF = atr.totalNumberOfFailures();	   
-	   
+    int ntests = atr.getTests().length;
+    int ntestsF = atr.numberOfFailedTests();	   
+    int nunits = atr.totalNumberOfTestUnits();	   
+    int nunitsF = atr.totalNumberOfFailures();	   
 %>
 
 
@@ -26,7 +23,6 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="webresource/javascript/prototype/prototype-1.5.1.js"></script>
 
 <%@include file="common.jspf"%>
 </head>

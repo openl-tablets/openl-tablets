@@ -23,7 +23,6 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.ITracerObject;
 
-
 /**
  * @author snshor
  *
@@ -90,13 +89,13 @@ public class TraceHelper
         return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null);
 	}
 
-    public int getProjectNodeIndex(int id, ProjectModel model) {
+    public String getProjectNodeUri(int id, ProjectModel model) {
         ITracerObject tracer = (ITracerObject) traceRenderer.map.getObject(id);
         if (!(tracer instanceof ITableTracerObject)) {
-            return -1;
+            return null;
         }
 		ITableTracerObject tableTracer = (ITableTracerObject) tracer;
-        return model.indexForNode(tableTracer.getTableSyntaxNode());
+        return tableTracer.getTableSyntaxNode().getUri();
     }
 
 

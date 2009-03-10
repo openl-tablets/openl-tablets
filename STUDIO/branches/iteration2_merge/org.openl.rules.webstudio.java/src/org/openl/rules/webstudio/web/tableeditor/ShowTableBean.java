@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
@@ -12,6 +14,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.workspace.abstracts.ProjectException;
@@ -30,35 +33,27 @@ public class ShowTableBean {
     private boolean testable;
     private ISyntaxError[] se;
     private String uri;
-    private int elementID = -1;
     private String notViewParams;
     private boolean switchParam;
 
     @SuppressWarnings("unchecked")
     public ShowTableBean() {
-        String s_id = FacesUtils.getRequestParameter("elementID");
+        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        if (s_id != null) {
-            elementID = Integer.parseInt(s_id);
+        if (uri != null) {
             switchParam = Boolean.valueOf(FacesUtils.getRequestParameter("switch"));
-            studio.setTableID(elementID);
+            studio.setTableUri(uri);
         } else {
-            String s_uri = FacesUtils.getRequestParameter("elementURI");
-            if (s_uri != null) {
-                int index = studio.getModel().indexForNodeByURI(s_uri);
-                if (index >= 0) studio.setTableID(index);
-            }
-            elementID = studio.getTableID();
+            uri = studio.getTableUri();
         }
         final ProjectModel model = studio.getModel();
-        url = model.makeXlsUrl(elementID);
-        uri = model.getUri(elementID);
+        url = model.makeXlsUrl(uri);
         text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);
-        name = model.getDisplayNameFull(elementID);
-        runnable = model.isRunnable(elementID);
-        testable = model.isTestable(elementID);
-        se = model.getErrors(elementID);
+        name = model.getDisplayNameFull(uri);
+        runnable = model.isRunnable(uri);
+        testable = model.isTestable(uri);
+        se = model.getErrors(uri);
 
         Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());
         for (Map.Entry entry : (Set<Map.Entry>) paramMap.entrySet()) {
@@ -97,22 +92,29 @@ public class ShowTableBean {
         return uri;
     }
 
+    public String getEncodedUri() {
+        String encodedUri = null;
+        try {
+            encodedUri = URLEncoder.encode(uri, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            // TODO: handle exception
+        }
+        return encodedUri;
+    }
+
     public boolean isHasErrors() {
         return se != null && se.length > 0;
     }
 
     public boolean isTsnHasErrors() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio != null && webStudio.getModel().hasErrors(elementID);
+        return webStudio != null && webStudio.getModel().hasErrors(uri);
     }
 
     public String getErrorString() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return webStudio.getModel().showErrors(elementID);
-    }
-
-    public int getElementID() {
-        return elementID;
+        return webStudio.getModel().showErrors(uri);
     }
 
     public String getNotViewParams() {
@@ -167,7 +169,7 @@ public class ShowTableBean {
     }
 
     public TestRunsResultBean getTestRunResults() {
-        AllTestsRunResult atr = WebStudioUtils.getWebStudio().getModel().getRunMethods(elementID);
+        AllTestsRunResult atr = WebStudioUtils.getWebStudio().getModel().getRunMethods(uri);
         AllTestsRunResult.Test[] tests = null;
         if (atr != null)
             tests = atr.getTests();
@@ -177,7 +179,7 @@ public class ShowTableBean {
     public IGridTable getTable() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         IGridTable table = studio.getModel().getTableWithMode(
-                elementID == -1 ? studio.getTableID() : elementID, getView());
+                uri == null ? studio.getTableUri() : uri, getView());
         return table;
     }
 

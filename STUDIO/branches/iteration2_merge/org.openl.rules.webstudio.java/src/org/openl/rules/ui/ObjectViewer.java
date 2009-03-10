@@ -52,7 +52,9 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.validator.dt.DTValidationResult;
+import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webtools.WebTool;
+import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
@@ -272,11 +274,11 @@ public class ObjectViewer {
             for (int i = 0; i < tr.length; i++) {
                 TableSyntaxNode tsn = tr[i].getTsn();
                 StringValue tableName = getTableName(tsn);
-                int tableId = projectModel.indexForNode(tsn);
+                String tableUri = tsn.getUri();
                 CompositeGrid cg = sviewer.makeGrid(tr[i].getRows());
                 IGridTable table = cg != null ? cg.asGridTable() : null;
                 TableSearch tableSearch = new TableSearch();
-                tableSearch.setTableId(tableId);
+                tableSearch.setTableUri(tableUri);
                 tableSearch.setTable(table);
                 tableSearch.setXlsLink((displayResult(tableName)));
                 tableSearchList.add(tableSearch);
@@ -595,7 +597,7 @@ public class ObjectViewer {
             } catch (UnsupportedOperationException e) {
             }
             if (src == null || src.trim().length() == 0)
-                src = "View Table in Excel";
+                src = "Edit Table";
             pstart = 0;
             pend = src.length();
         } else {
@@ -624,26 +626,34 @@ public class ObjectViewer {
     void makeXlsOrDocUrl(String uri, StringBuffer buf) {
 
         String url = WebTool.makeXlsOrDocUrl(uri);
-        buf.append("href=\"/webstudio/jsp/showLinks.jsp?").append(url).append('"');
+        buf.append("href='" + WebContext.getContextPath() + "/webstudio/jsp/showLinks.jsp?").append(url).append("'");
         buf.append(" target='show_app_hidden'");
     }
 
     private void displayErrorAndCode(Throwable tt, ILocation srcLocation, IOpenSourceCodeModule module, StringBuffer buf) {
         buf.append("<table><tr><td class='error_box'>");
         displayNonOpenlException(tt, buf).append("<p/>\n");
-        String uri = SourceCodeURLTool.makeSourceLocationURL(srcLocation, module, "");
-        String url = uri == null || "NO_MODULE".equals(uri) ? "NO+URL" : WebTool.makeXlsOrDocUrl(uri);
-
+        String errorUri = SourceCodeURLTool.makeSourceLocationURL(srcLocation, module, "");
+        String errorUrl = errorUri == null || "NO_MODULE".equals(errorUri) ? "NO+URL" : WebTool.makeXlsOrDocUrl(errorUri);
+        String tableUri = null;
+        TableSyntaxNode tableSyntaxNode = projectModel.findNode(errorUri);
+        if (tableSyntaxNode != null) {
+            tableUri = tableSyntaxNode.getUri();
+        }
+        XlsUrlParser uriParser = new XlsUrlParser();
+        uriParser.parse(errorUri);
         buf.append("\n" + "<table><tr><td class='javacode'>");
 
-        buf.append("<a class='left' href='javascript:errorClicked(\"").append(url).append(
-                "\")' title='Edit cell containing error'>");
+        buf.append("<a class='left' href='javascript:editError(\"")
+            .append(tableUri != null ? tableUri : "").append("\"").append(",")
+            .append("\"").append(uriParser.range).append("\")' title='Edit cell containing error'>");
 
         printCodeAndErrorToHtml(srcLocation, module, buf);
         buf.append("</a>");
 
-        buf.append("<a href='/webstudio/jsp/showLinks.jsp?").append(url).append("' target='show_app_hidden' title='").append(uri)
-                .append("'> Edit in Excel </a>");
+        buf.append("<a href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(errorUrl)
+            .append("' target='show_app_hidden' title='")
+            .append(errorUri).append("'> Edit in Excel </a>");
         buf.append("</td></tr></table>");
         buf.append("</td></tr></table>");
     }

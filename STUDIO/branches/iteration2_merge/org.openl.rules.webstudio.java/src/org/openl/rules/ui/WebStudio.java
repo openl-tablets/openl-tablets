@@ -37,7 +37,7 @@ public class WebStudio {
     private String workspacePath;
     ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
     List<StudioListener> listeners = new ArrayList<StudioListener>();
-    int tableID = -1;
+    String tableUri;
     ProjectModel model = new ProjectModel(this);
     private OpenLProjectLocator locator;
     OpenLWrapperInfo[] wrappers = null;
@@ -181,22 +181,12 @@ public class WebStudio {
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return Returns the tableID.
-     */
-    public int getTableID() {
-        return tableID;
+    public String getTableUri() {
+        return tableUri;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param tableID The tableID to set.
-     */
-    public void setTableID(int tableID) {
-        this.tableID = tableID;
+    public void setTableUri(String tableUri) {
+        this.tableUri = tableUri;
     }
 
     public WebStudioProperties getProperties() {

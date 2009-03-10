@@ -3,9 +3,13 @@
  */
 package org.openl.rules.ui;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.rules.lang.xls.ITableNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.syntax.impl.SyntaxError;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.ITreeElement;
 
 /**
@@ -80,6 +84,7 @@ public class ProjectTreeRenderer extends DTreeRenderer implements
 					"webresource/images/test-error.png" } };
 
 	ProjectModel project;
+	Map<String, ProjectTreeElement> tableMap = new HashMap<String, ProjectTreeElement>();
 
 	/**
 	 * @param jsp
@@ -91,26 +96,39 @@ public class ProjectTreeRenderer extends DTreeRenderer implements
 		this.project = project;
 	}
 
-  @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     protected String makeURL(ITreeElement element) {
-        if (element.getType().startsWith(PT_TABLE + "."))
-            return targetJsp + "?elementID=" + map.getID(element);
-
-        if (element.getType().startsWith(PT_PROBLEM)) {
-            final SyntaxError problem = (SyntaxError) ((ProjectTreeElement) element).getProblem();
-            final TableSyntaxNode tsn = (TableSyntaxNode) problem.getTopLevelSyntaxNode();
-            int tableId = project.indexForNode(tsn);
+        String elementType = element.getType();
+        if (elementType.startsWith(PT_TABLE + ".")) {
+            String uri = ((ProjectTreeElement)element).getUri();
+            try {
+                uri = URLEncoder.encode(uri, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                // TODO: handle exception
+            }
+            return targetJsp + "?" + Constants.REQUEST_PARAM_URI + "=" + uri;
+        } else if (elementType.startsWith(PT_PROBLEM)) {
             return "faces/facelets/tableeditor/showError.xhtml"
-                + "?elementID=" + map.getID(element)
-                + "&tableID=" + tableId;
+                + "?" + Constants.REQUEST_PARAM_ID + "=" + map.getID(element);
         }
-        
 		return null;
 	}
 
+	public ProjectTreeElement getElement(String uri) {
+        return tableMap.get(uri);
+    }
+
 	public ProjectTreeElement getElement(int id) {
-		return (ProjectTreeElement) map.getObject(id);
-	}
+        return (ProjectTreeElement) map.getObject(id);
+    }
+
+	public void cacheElement(ITreeElement<?> element) {
+        if (element.getType().startsWith(PT_TABLE + ".")) {
+            ProjectTreeElement ptr = (ProjectTreeElement) element;
+            tableMap.put(ptr.getUri(), ptr);
+        }
+    }
 
 	protected int getState(ITreeElement element) {
 		ProjectTreeElement pte = (ProjectTreeElement) element;

@@ -255,19 +255,6 @@ public class ProjectModel implements IProjectTypes {
 		// return buf.toString();
 	}
 
-	// public void renderElement(ProjectTreeElement parent,
-	// ProjectTreeElement pte, String targetJsp, StringBuffer buf) {
-	// DTreeModel dtm = new DTreeModel();
-	//
-	// dtm.renderElement(parent, pte, targetJsp, buf);
-	// for (Iterator iter = pte.getChildren(); iter.hasNext();) {
-	// ProjectTreeElement element = (ProjectTreeElement) iter.next();
-	//
-	// renderElement(pte, element, targetJsp, buf);
-	//
-	// }
-	// }
-
 	public ProjectTreeElement makeProjectTree() {
 		if (wrapper == null)
 			return null;
@@ -332,12 +319,14 @@ public class ProjectModel implements IProjectTypes {
 	}
 
 	private void addError(Throwable se, ProjectTreeElement errorFolder, int i) {
-
+	    String uri = null;
+	    /*if (se instanceof SyntaxError) {
+	        uri = ((SyntaxError) se).getUri();
+	    }*/
 		String name = se.getMessage();
 		String[] names = { name, name, name };
 		errorFolder.getElements().put(new ATableTreeSorter.Key(i, names),
-				new ProjectTreeElement(names, PT_PROBLEM, null, se, 0, null));
-
+				new ProjectTreeElement(names, PT_PROBLEM, uri, se, 0, null));
 	}
 
 	private void addErrors(CompiledOpenClass comp, ProjectTreeElement root) {
@@ -413,13 +402,13 @@ public class ProjectModel implements IProjectTypes {
 		this.projectRoot = projectRoot;
 	}
 
-	public IGridTable getTableWithMode(int elementID) {
-		return getTableWithMode(elementID, null);
+	public IGridTable getTableWithMode(String elementUri) {
+		return getTableWithMode(elementUri, null);
 	}
 
-	public IGridTable getTableWithMode(int elementID, String mode) {
+	public IGridTable getTableWithMode(String elementUri, String mode) {
 
-		TableSyntaxNode tsn = getNode(elementID);
+		TableSyntaxNode tsn = getNode(elementUri);
 		if (tsn == null)
 			return null;
 
@@ -435,34 +424,34 @@ public class ProjectModel implements IProjectTypes {
 
 	}
 
-	public IGridTable getTable(int elementID) {
+	public IGridTable getTable(String elementUri) {
+        TableSyntaxNode tsn = getNode(elementUri);
+        return tsn == null ? null : tsn.getTable().getGridTable();
+    }
 
-		TableSyntaxNode tsn = getNode(elementID);
-
-		return tsn == null ? null : tsn.getTable().getGridTable();
-
-	}
-
-	public Object showError(int elementID) {
-		ProjectTreeElement pte = ptr.getElement(elementID);
+	public Object showError(int elementId) {
+		ProjectTreeElement pte = ptr.getElement(elementId);
 		if (pte == null)
 			return null;
 
 		Object error = pte.getProblem();
 
 		return new ObjectViewer(this).displayResult(error);
-
 	}
 
-	public TableSyntaxNode getNode(int elementID) {
-		ProjectTreeElement pte = ptr.getElement(elementID);
-		if (pte == null)
-			return null;
-
-		TableSyntaxNode tsn = (TableSyntaxNode) pte.getObject();
-
-		return tsn;
-	}
+	public TableSyntaxNode getNode(String elementUri) {
+	    TableSyntaxNode tsn = null;
+	    if (elementUri != null) {
+            ProjectTreeElement pte = ptr.getElement(elementUri);
+            if (pte != null) {
+                tsn = (TableSyntaxNode) pte.getObject();
+            }
+            if (tsn == null) {
+                tsn = findNode(elementUri);
+            }
+	    }
+        return tsn;
+    }
 
 	public int indexForNode(TableSyntaxNode tsn) {
 		for (Object obj : ptr.map.getValues()) {
@@ -471,18 +460,17 @@ public class ProjectModel implements IProjectTypes {
 				return ptr.map.getID(obj);
 			}
 		}
-
 		return -1;
 	}
 
-    public ISyntaxError[] getErrors(int elementID) {
-		TableSyntaxNode tsn = getNode(elementID);
+    public ISyntaxError[] getErrors(String elementUri) {
+		TableSyntaxNode tsn = getNode(elementUri);
 		ISyntaxError[] se = tsn.getErrors();
 		return se == null ? ISyntaxError.EMPTY : se;
 	}
 
-	public String showErrors(int elementID) {
-		TableSyntaxNode tsn = getNode(elementID);
+	public String showErrors(String elementUri) {
+		TableSyntaxNode tsn = getNode(elementUri);
 		ISyntaxError[] se = tsn.getErrors();
 		if (se != null)
 			return new ObjectViewer(this).displayResult(se);
@@ -492,8 +480,8 @@ public class ProjectModel implements IProjectTypes {
 		return "";
 	}
 
-	public boolean hasErrors(int elementID) {
-		TableSyntaxNode tsn = getNode(elementID);
+	public boolean hasErrors(String elementUri) {
+		TableSyntaxNode tsn = getNode(elementUri);
 		ISyntaxError[] se = tsn.getErrors();
 		return se != null || tsn.getValidationResult() != null;
 
@@ -501,8 +489,8 @@ public class ProjectModel implements IProjectTypes {
 
 	ProjectTreeRenderer ptr;
 
-	public String getDisplayName(int elementID) {
-		ProjectTreeElement pte = ptr.getElement(elementID);
+	public String getDisplayName(String elementUri) {
+		ProjectTreeElement pte = ptr.getElement(elementUri);
 		if (pte == null)
 			return "";
 
@@ -517,25 +505,25 @@ public class ProjectModel implements IProjectTypes {
 
 	}
 
-	public String getDisplayNameFull(int elementID) {
-		ProjectTreeElement pte = ptr.getElement(elementID);
-		if (pte == null)
-			return "";
+	public String getDisplayNameFull(String elementUri) {
+        ProjectTreeElement pte = ptr.getElement(elementUri);
+        if (pte == null)
+            return "";
 
-		String displayName = pte.getDisplayName(INamedThing.REGULAR);
+        String displayName = pte.getDisplayName(INamedThing.REGULAR);
 
-		if (displayName == null)
-			return "NO_NAME";
+        if (displayName == null)
+            return "NO_NAME";
 
-		return displayName;
-	}
+        return displayName;
+    }
 
 	public String getTableView(String view) {
 		return view == null ? studio.getMode().getTableMode() : view;
 	}
 
-	public String showTable(int elementID, String view) {
-		TableSyntaxNode tsn = getNode(elementID);
+	public String showTable(String elementUri, String view) {
+		TableSyntaxNode tsn = getNode(elementUri);
 		if (tsn == null)
 			return "No Table have been selected yet";
 
@@ -557,8 +545,8 @@ public class ProjectModel implements IProjectTypes {
 		return showTable(gt, showGrid);
 	}
 
-	public String showProperty(int elementID, String propertyName) {
-		TableSyntaxNode tsn = getNode(elementID);
+	public String showProperty(String elementUri, String propertyName) {
+		TableSyntaxNode tsn = getNode(elementUri);
 		if (tsn == null)
 			return "";
 
@@ -572,17 +560,15 @@ public class ProjectModel implements IProjectTypes {
 
 	}
 
-	public String makeXlsUrl(int elementID) {
-		IGridTable table = getTable(elementID);
-
-		if (table == null)
-			return "problem: elementID: " + elementID;
-
-		return WebTool.makeXlsOrDocUrl(table.getUri());
+	public String makeXlsUrl(String elementUri) {
+		if (elementUri == null) {
+			return "problem: elementUri: " + elementUri;
+		}
+		return WebTool.makeXlsOrDocUrl(elementUri);
 	}
 
-	public boolean isRunnable(int elementID) {
-		IOpenMethod m = getMethod(elementID);
+	public boolean isRunnable(String elementUri) {
+		IOpenMethod m = getMethod(elementUri);
 		if (m == null)
 			return false;
 
@@ -597,16 +583,16 @@ public class ProjectModel implements IProjectTypes {
 		return ProjectHelper.isTestable(m);
 	}
 
-	public boolean isTestable(int elementID) {
-		IOpenMethod m = getMethod(elementID);
+	public boolean isTestable(String elementUri) {
+		IOpenMethod m = getMethod(elementUri);
 		if (m == null)
 			return false;
 
 		return ProjectHelper.isTestable(m);
 	}
 
-	public IOpenMethod getMethod(int elementID) {
-		TableSyntaxNode tsn = getNode(elementID);
+	public IOpenMethod getMethod(String elementUri) {
+		TableSyntaxNode tsn = getNode(elementUri);
 		if (tsn == null)
 			return null;
 
@@ -639,8 +625,8 @@ public class ProjectModel implements IProjectTypes {
 		this.readOnly = readOnly;
 	}
 
-	public AllTestsRunResult getRunMethods(int elementID) {
-		IOpenMethod m = getMethod(elementID);
+	public AllTestsRunResult getRunMethods(String elementUri) {
+		IOpenMethod m = getMethod(elementUri);
 
 		if (m == null)
 			return null;
@@ -659,17 +645,15 @@ public class ProjectModel implements IProjectTypes {
 
 	}
 
-	public AllTestsRunResult getTestMethods(int elementID) {
+	public AllTestsRunResult getTestMethods(String elementUri) {
 		IOpenMethod[] testers = null;
 
-		if (elementID >= 0) {
-			IOpenMethod m = getMethod(elementID);
-
-			if (m == null)
-				return null;
+		IOpenMethod m = getMethod(elementUri);
+		if (m != null) {
 			testers = ProjectHelper.testers(m);
-		} else
+		} else {
 			testers = ProjectHelper.allTesters(wrapper.getOpenClass());
+		}
 
 		String[] names = new String[testers.length];
 
@@ -786,10 +770,10 @@ public class ProjectModel implements IProjectTypes {
 				.toArray(new String[0]));
 	}
 
-	public AllTestsRunResult runAllTests(int elementID) {
+	public AllTestsRunResult runAllTests(String elementUri) {
 
 		// AllTestsRunResult atr = getAllTestMethods();
-		AllTestsRunResult atr = getTestMethods(elementID);
+		AllTestsRunResult atr = getTestMethods(elementUri);
 
 		Test[] ttm = atr.getTests();
 
@@ -802,16 +786,16 @@ public class ProjectModel implements IProjectTypes {
 		return atr;
 	}
 
-	public BenchmarkInfo benchmarkElement(int elementID, final String testName,
+	public BenchmarkInfo benchmarkElement(String elementUri, final String testName,
 			String testID, final String testDescr, int ms) throws Exception {
 
 		BenchmarkUnit bu = null;
 
 		if (testName == null) {
-			IOpenMethod m = getMethod(elementID);
+			IOpenMethod m = getMethod(elementUri);
 			return benchmarkMethod(m, ms);
 		}
-		final AllTestsRunResult atr = getRunMethods(elementID);
+		final AllTestsRunResult atr = getRunMethods(elementUri);
 
 		final int tid = Integer.parseInt(testID);
 
@@ -848,13 +832,13 @@ public class ProjectModel implements IProjectTypes {
 
 	}
 
-	public Object runElement(int elementID, String testName, String testID) {
+	public Object runElement(String elementUri, String testName, String testID) {
 		if (testName == null) {
-			IOpenMethod m = getMethod(elementID);
+			IOpenMethod m = getMethod(elementUri);
 			return convertResult(runMethod(m));
 		}
 
-		AllTestsRunResult atr = getRunMethods(elementID);
+		AllTestsRunResult atr = getRunMethods(elementUri);
 
 		int tid = Integer.parseInt(testID);
 
@@ -988,8 +972,8 @@ public class ProjectModel implements IProjectTypes {
 		return ores;
 	}
 
-	public Tracer traceElement(int elementID) throws Exception {
-		IOpenMethod m = getMethod(elementID);
+	public Tracer traceElement(String elementUri) throws Exception {
+		IOpenMethod m = getMethod(elementUri);
 		return traceMethod(m);
 	}
 
@@ -1017,14 +1001,14 @@ public class ProjectModel implements IProjectTypes {
 		return t;
 	}
 
-	public String getUri(int elementID) {
-		IGridTable table = getTable(elementID);
+	public String getUri(String elementUri) {
+        IGridTable table = getTable(elementUri);
 
-		if (table == null)
-			return "file://NO_FILE";
+        if (table == null)
+            return "file://NO_FILE";
 
-		return table.getUri();
-	}
+        return table.getUri();
+    }
 
 	public String displayResult(Object res) {
 		return new ObjectViewer(this).displayResult(res);

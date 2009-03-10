@@ -22,6 +22,7 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.ui.tablewizard.WizardBase;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
@@ -34,7 +35,7 @@ public class TableCopier extends WizardBase {
     /** Logger */
     private static final Log log = LogFactory.getLog(TableCopier.class);
     /** Table identifier */
-    private int elementId;
+    private String elementUri;
     /** Table technical name */
     private String tableTechnicalName;
     /** Table business name */
@@ -49,20 +50,19 @@ public class TableCopier extends WizardBase {
      * Initializes table properties.
      */
     private void init() {
-        String elementIdParam = FacesUtils.getRequestParameter("elementID");
+        String elementUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
         WebStudio studio = WebStudioUtils.getWebStudio();
-        if (StringUtils.isNotBlank(elementIdParam)) {
-            elementId = Integer.parseInt(elementIdParam);
-            studio.setTableID(elementId);
+        if (StringUtils.isNotBlank(elementUri)) {
+            studio.setTableUri(elementUri);
             ProjectModel model = studio.getModel();
-            TableSyntaxNode node = model.getNode(elementId);
+            TableSyntaxNode node = model.getNode(elementUri);
             tableTechnicalName = parseTechnicalName(
                     node.getHeaderLineValue().getValue(),
                     node.getType());
             tableBusinessName = node == null ? null : node.getProperty(
                     TableBuilder.TABLE_PROPERTIES_NAME);
         } else {
-            elementId = studio.getTableID();
+            elementUri = studio.getTableUri();
         }
     }
     
@@ -82,7 +82,7 @@ public class TableCopier extends WizardBase {
      */
     protected void reset() {
         super.reset();
-        elementId = -1;
+        elementUri = null;
         tableTechnicalName = null;
         tableBusinessName = null;
     }
@@ -162,8 +162,8 @@ public class TableCopier extends WizardBase {
      */
     private void buildTable(XlsSheetSourceCodeModule sourceCodeModule,
             ProjectModel model) throws CreateTableException {
-        IGridTable table = model.getTable(elementId);
-        TableSyntaxNode node = model.getNode(elementId);
+        IGridTable table = model.getTable(elementUri);
+        TableSyntaxNode node = model.getNode(elementUri);
         String tableType = node.getType();
         
         TableBuilder builder = new TableBuilder(

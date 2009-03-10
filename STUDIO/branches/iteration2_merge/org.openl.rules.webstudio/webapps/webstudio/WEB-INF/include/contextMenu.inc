@@ -31,7 +31,7 @@
 </script>
 
 <form name="editForm" action="${pageContext.request.contextPath}/faces/facelets/tableeditor/showTable.xhtml">
-<input type="hidden" name="elementID" value="<%=elementID%>">
+<input type="hidden" name="uri" value="<%=uri%>">
 <input type="hidden" name="mode" value="edit">
 <input type="hidden" name="cell" value="">
 <input type="hidden" name="view" value="<%=studio.getModel().getTableView(request.getParameter("view"))%>" />
