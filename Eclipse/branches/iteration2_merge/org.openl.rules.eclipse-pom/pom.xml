@@ -369,6 +369,12 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+        <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
         <version>${dep.version}</version>
     </dependency>

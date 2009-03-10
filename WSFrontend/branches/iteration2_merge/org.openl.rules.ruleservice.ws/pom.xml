@@ -9,8 +9,8 @@
     <relativePath>../org.openl.rules.ruleservice-pom</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.ruleservice</artifactId>
-  <name>OpenL - RuleService - RuleService</name>
+  <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+  <name>OpenL - RuleService - RuleService - Web Services</name>
   <description />
 
   <build>
@@ -35,19 +35,10 @@
         </includes>
       </resource>
     </resources>
-
-    <testSourceDirectory>test</testSourceDirectory>
   </build>
 
   <dependencies>
 
-
-    <!-- DEV -->
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.core</artifactId>
-    </dependency>
-    
     <!-- STUDIO -->
     <dependency>
       <groupId>org.openl.rules</groupId>
@@ -56,9 +47,20 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.workspace</artifactId>
+      <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+      <version>${dep.version}</version>
     </dependency>
 
-  </dependencies>
+    <!-- RulesService-->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice</artifactId>
+    </dependency>
 
+    <!-- Other-->
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-bundle</artifactId>
+    </dependency>
+  </dependencies>
 </project>

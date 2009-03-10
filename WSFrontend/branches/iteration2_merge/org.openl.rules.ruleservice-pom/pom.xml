@@ -23,6 +23,7 @@
 
   <modules>
     <module>../org.openl.rules.ruleservice</module>
+    <module>../org.openl.rules.ruleservice.ws</module>
     <module>../org.openl.rules.ruleservice.eclipse.feature</module>
     <module>../org.openl.rules.ruleservice.lib</module>
     <module>../org.openl.rules.ruleservice.lib.eclipse.feature</module>
@@ -116,6 +117,12 @@
 
   <dependencyManagement>
     <dependencies>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice</artifactId>
+        <version>${version}</version>
+      </dependency>
 
       <!-- DEV -->
       <dependency>
