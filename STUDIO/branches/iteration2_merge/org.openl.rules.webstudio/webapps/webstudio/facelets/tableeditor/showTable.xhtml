@@ -9,8 +9,8 @@
 
     <ui:define name="header">
         <script type="text/javascript">
-            function open_win(url) {
-                window.open(url, "_blank", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+            function open_win(url, name) {
+                window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
             }
         </script>
         <style>
@@ -45,7 +45,7 @@
 
                         <c:set var="traceUrl"
                             value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=tracetree.jsp&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
-                        <a onclick="open_win('#{traceUrl}', 800, 600)" href="#" title="Trace">
+                        <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#" title="Trace">
                             <img border="0" src="webresource/images/trace.gif" alt="trace" /></a>
 
                         <h:outputLink
