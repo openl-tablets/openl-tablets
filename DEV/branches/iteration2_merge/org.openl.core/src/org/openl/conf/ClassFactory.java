@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 
 import org.openl.OpenConfigurationException;
 import org.openl.binding.MethodUtil;
+import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -31,9 +32,14 @@ public class ClassFactory extends AConfigurationElement
 		{
 			return cl.loadClass(name);
 		}
-		catch(Exception ex)
+		catch(ClassNotFoundException ex)
 		{
 			throw RuntimeExceptionWrapper.wrap(ex);
+		}
+		catch(Throwable t)
+		{
+			Log.error("Error loading class: " + name, t);
+			throw RuntimeExceptionWrapper.wrap(t);			
 		}
 	}
 	
