@@ -33,4 +33,11 @@
          version="5.2.0"
          unpack="false"/>
 
+   <plugin
+         id="org.openl.rules.ruleservice.ws"
+         download-size="0"
+         install-size="0"
+         version="5.2.0"
+         unpack="false"/>
+
 </feature>

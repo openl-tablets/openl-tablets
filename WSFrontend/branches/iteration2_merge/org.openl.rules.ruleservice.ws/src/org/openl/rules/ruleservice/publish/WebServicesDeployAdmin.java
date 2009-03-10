@@ -1,11 +1,12 @@
 package org.openl.rules.ruleservice.publish;
 
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.openl.rules.ruleservice.instantiation.CglibInstantiationStrategy;
+import org.openl.rules.ruleservice.instantiation.WrapperAdjustingInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.EngineFactoryInstantiationStrategy;
 import org.openl.rules.ruleservice.instantiation.InstantiationStrategy;
 import org.openl.rules.ruleservice.resolver.RuleServiceInfo;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 
 public class WebServicesDeployAdmin implements DeploymentAdmin {
     private static final Log log = LogFactory.getLog(WebServicesDeployAdmin.class);
-
+    
     private Map<String, Collection<Server>> runningServices = new HashMap<String, Collection<Server>>();
 
     public synchronized void deploy(String serviceName, ClassLoader loader, List<RuleServiceInfo> infoList) {
@@ -61,7 +62,7 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
 
         return svrFactory.create();
     }
-    
+
     private InstantiationStrategy getStrategy(RuleServiceInfo wsInfo) {
         if (wsInfo.isUsingEngineFactory()) {
             return new EngineFactoryInstantiationStrategy(wsInfo.getXlsFile());
@@ -72,7 +73,7 @@ public class WebServicesDeployAdmin implements DeploymentAdmin {
             } catch (IOException e) {
                 log.error("failed to get canonical path", e);
             }
-            return new CglibInstantiationStrategy(path);
+            return new WrapperAdjustingInstantiationStrategy(path);
         }
     }
 

@@ -234,6 +234,11 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
     </dependency>
 
