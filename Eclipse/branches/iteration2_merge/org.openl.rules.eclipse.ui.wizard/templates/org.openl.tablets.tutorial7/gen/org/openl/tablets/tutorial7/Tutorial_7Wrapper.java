@@ -157,33 +157,15 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod scoreIssue_Method;
-  public int scoreIssue(org.openl.tablets.tutorial7.Issue issue)  {
+  static org.openl.types.IOpenMethod scoreIssueImportance_Method;
+  public java.lang.String scoreIssueImportance(org.openl.tablets.tutorial7.Issue issue)  {
     Object[] __params = new Object[1];
     __params[0] = issue;
     try
     {
     Object __myInstance = __instance;
-    Object __res = scoreIssue_Method.invoke(__myInstance, __params, __env.get());
-   return ((Integer)__res).intValue();  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod needApproval_Method;
-  public java.lang.Boolean needApproval(org.openl.tablets.tutorial7.Expense expense)  {
-    Object[] __params = new Object[1];
-    __params[0] = expense;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = needApproval_Method.invoke(__myInstance, __params, __env.get());
-   return (java.lang.Boolean)__res;  }
+    Object __res = scoreIssueImportance_Method.invoke(__myInstance, __params, __env.get());
+   return (java.lang.String)__res;  }
   catch(Throwable t)
   {
     Log.error("Java Wrapper execution error:", t);
@@ -210,14 +192,32 @@ public class Tutorial_7Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod scoreIssueImportance_Method;
-  public java.lang.String scoreIssueImportance(org.openl.tablets.tutorial7.Issue issue)  {
+  static org.openl.types.IOpenMethod scoreIssue_Method;
+  public int scoreIssue(org.openl.tablets.tutorial7.Issue issue)  {
     Object[] __params = new Object[1];
     __params[0] = issue;
     try
     {
     Object __myInstance = __instance;
-    Object __res = scoreIssueImportance_Method.invoke(__myInstance, __params, __env.get());
+    Object __res = scoreIssue_Method.invoke(__myInstance, __params, __env.get());
+   return ((Integer)__res).intValue();  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod needApprovalOf_Method;
+  public java.lang.String needApprovalOf(org.openl.tablets.tutorial7.Expense expense)  {
+    Object[] __params = new Object[1];
+    __params[0] = expense;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = needApprovalOf_Method.invoke(__myInstance, __params, __env.get());
    return (java.lang.String)__res;  }
   catch(Throwable t)
   {
@@ -257,14 +257,14 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
 });
     test3TestAll_Method = __class.getMatchingMethod("test3TestAll", new IOpenClass[] {
 });
-    scoreIssue_Method = __class.getMatchingMethod("scoreIssue", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial7.Issue.class)});
-    needApproval_Method = __class.getMatchingMethod("needApproval", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial7.Expense.class)});
-    test2TestAll_Method = __class.getMatchingMethod("test2TestAll", new IOpenClass[] {
-});
     scoreIssueImportance_Method = __class.getMatchingMethod("scoreIssueImportance", new IOpenClass[] {
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial7.Issue.class)});
+    test2TestAll_Method = __class.getMatchingMethod("test2TestAll", new IOpenClass[] {
+});
+    scoreIssue_Method = __class.getMatchingMethod("scoreIssue", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial7.Issue.class)});
+    needApprovalOf_Method = __class.getMatchingMethod("needApprovalOf", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial7.Expense.class)});
 
     __initialized=true;
   }
