@@ -28,13 +28,11 @@ public class Tutorial7Main {
         Expense expense = new Expense();
         expense.setArea("Hardware");
         expense.setMoney(55000.0);
-        expense.setPaysCompany(true);
 
         out.println("needApproval(Expense):");
-        out.printf("  %s: %s\n", expense, tutorial7.needApproval(expense));
-        expense.setPaysCompany(false);
-        out.printf("  %s: %s\n", expense, tutorial7.needApproval(expense));
-        out.println("  (null -- no matching)");
+        out.printf("  %s: %s\n", expense, tutorial7.needApprovalOf(expense));
+        expense.setMoney(5000.0);
+        out.printf("  %s: %s\n", expense, tutorial7.needApprovalOf(expense));
         out.println();
 
         Issue issue1 = issue("Other", true, 5400.0);
