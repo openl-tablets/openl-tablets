@@ -327,8 +327,8 @@ public class AlgorithmCompiler {
 
         // apply user defined label to the first emitted operation
         // label can be defined only for the first operation in the group
-        StringValue[] userDefinedLabels = nodesToCompile.get(0).getLabels();
-        if (userDefinedLabels.length > 0 && emittedOperations.size() > 0) {
+        List<StringValue> userDefinedLabels = nodesToCompile.get(0).getLabels();
+        if (!userDefinedLabels.isEmpty() && emittedOperations.size() > 0) {
             for (StringValue userDefinedLabel : userDefinedLabels) {
                 currentCompileContext.getLocalLabelsRegister().put(userDefinedLabel.getValue(),
                         emittedOperations.get(0));
@@ -430,7 +430,7 @@ public class AlgorithmCompiler {
 
     private void switchToSubroutineOrFunctionContext(List<AlgorithmTreeNode> nodesToCompile) {
         // method name will be at least as the first label
-        String methodName = nodesToCompile.get(0).getLabels()[0].getValue();
+        String methodName = nodesToCompile.get(0).getLabels().get(0).getValue();
 
         CompileContext subroutineCompileContext = internalMethodsContexts.get(methodName);
 

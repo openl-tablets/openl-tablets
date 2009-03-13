@@ -22,160 +22,169 @@ public class RowParser implements IRowParser {
         this.specifications = specifications;
     }
 
-    public List<AlgorithmTreeNode> parse() throws BoundError {
-        List<AlgorithmTreeNode> treeNodes = new ArrayList<AlgorithmTreeNode>();
-        Map<Integer, AlgorithmTreeNode> parentTree = new HashMap<Integer, AlgorithmTreeNode>();
-        int i = 0;
-        int prevIndent = 0;
-        List<StringValue> topLabels = new ArrayList<StringValue>();
+    private List<AlgorithmTreeNode> prepareNodes() {
+        // cut off commented rows, pack labels
+        List<AlgorithmTreeNode> nodes = new ArrayList<AlgorithmTreeNode>();
+
+        AlgorithmTreeNode lastNode = new AlgorithmTreeNode();
         for (AlgorithmRow row : rows) {
             StringValue operation = row.getOperation();
             StringValue label = row.getLabel();
-            if (operation.isEmpty() || operation.getValue().matches(COMMENTS_REGEXP)) {
-                if (operation.isEmpty() && !label.isEmpty()) {
-                    topLabels.add(label);
+
+            if (operation.isEmpty()) {
+                if (!label.isEmpty()) {
+                    // stack up labels
+                    lastNode.addLabel(label);
                 }
-                i++;
-                continue;
-            }
-            int indent = row.getOperationLevel();
-            boolean multiline = isMultiline(i, indent);
-            TableParserSpecificationBean specification = getSpecification(operation, multiline);
-            if (validateRow(row, multiline, specification)) {
-                StringValue[] nodeLabels = asNodeLabels(topLabels, label);
-                AlgorithmTreeNode node = createAlgorithmNode(row, nodeLabels, specification, null);
-                if (indent == 0) {
-                    treeNodes.add(node);
-                    if (parentTree.size() > 1) {
-                        parentTree.clear();
-                    }
+            } else if (operation.getValue().matches(COMMENTS_REGEXP)) {
+                // ignore
+            } else {
+                // has some operation
+                if (!label.isEmpty()) {
+                    lastNode.addLabel(label);
                 } else {
-                    checkError(indent > (prevIndent + 1), operation,
-                            "Incorrect operation indention. Expected indention is " + (prevIndent + 1));
-                    checkError(parentTree.isEmpty(), operation,
-                            "Incorrect operation indention. Could not find parent operation with 0 indention");
-                    addChild(parentTree.get(indent - 1), node);
+                    // if no labels at all
+                    if (lastNode.getLabels().isEmpty()) {
+                        // add this empty label anyway
+                        lastNode.addLabel(label);
+                    }
                 }
-                parentTree.put(indent, node);
-                prevIndent = indent;
+
+                lastNode.setAlgorithmRow(row);
+                nodes.add(lastNode);
+                lastNode = new AlgorithmTreeNode();
             }
-            i++;
         }
+
+        if (lastNode.getAlgorithmRow() != null) {
+            nodes.add(lastNode);
+        }
+
+        return nodes;
+    }
+
+    private boolean[] guessMuliline(List<AlgorithmTreeNode> nodes) {
+        int size = nodes.size();
+        boolean[] multilines = new boolean[size];
+        for (int i = 0; i < size - 1; i++) {
+            AlgorithmTreeNode node = nodes.get(i);
+            AlgorithmRow row = node.getAlgorithmRow();
+            int i1 = row.getOperationLevel();
+
+            AlgorithmTreeNode nextNode = nodes.get(i + 1);
+            AlgorithmRow nextRow = nextNode.getAlgorithmRow();
+            int i2 = nextRow.getOperationLevel();
+
+            multilines[i] = (i1 < i2);
+        }
+
+        return multilines;
+    }
+
+    public List<AlgorithmTreeNode> parse() throws BoundError {
+        List<AlgorithmTreeNode> nodes = prepareNodes();
+        boolean[] guessedMultilines = guessMuliline(nodes);
+
+        List<AlgorithmTreeNode> treeNodes = new ArrayList<AlgorithmTreeNode>();
+        Map<Integer, AlgorithmTreeNode> parentTree = new HashMap<Integer, AlgorithmTreeNode>();
+
+        int prevIndent = 0;
+        for (int i = 0; i < nodes.size(); i++) {
+            AlgorithmTreeNode node = nodes.get(i);
+            AlgorithmRow row = node.getAlgorithmRow();
+
+            TableParserSpecificationBean specification = validateNode(node, guessedMultilines[i]);
+            node.setSpecification(specification);
+
+            int indent = row.getOperationLevel();
+            if (indent == 0) {
+                treeNodes.add(node);
+                parentTree.clear();
+            } else {
+                StringValue operation = row.getOperation();
+                if (indent > (prevIndent + 1)) {
+                    String errMsg = String.format("Incorrect operation indention! Expected %d.", (prevIndent + 1));
+                    throw new BoundError(errMsg, operation.asSourceCodeModule());
+                }
+                if (parentTree.isEmpty()) {
+                    String errMsg = "Incorrect operation indention! Could not find parent operation with 0 indention.";
+                    throw new BoundError(errMsg, operation.asSourceCodeModule());
+                }
+
+                parentTree.get(indent - 1).add(node);
+            }
+            parentTree.put(indent, node);
+            prevIndent = indent;
+        }
+
         return treeNodes;
     }
 
-    private StringValue[] asNodeLabels(List<StringValue> topLabels, StringValue currentLabel) {
-        StringValue[] nodeLabels = null;
-        if (!topLabels.isEmpty()) {
-            if (!currentLabel.isEmpty()) {
-                topLabels.add(currentLabel);
-            }
-            nodeLabels = new StringValue[topLabels.size()];
-            nodeLabels = topLabels.toArray(nodeLabels);
-        } else {
-            nodeLabels = new StringValue[] { currentLabel };
-        }
-        topLabels.clear();
-        return nodeLabels;
-    }
-
-    private boolean isMultiline(int rowIndex, int rowIndent) {
-        boolean multiline = false;
-        if (rowIndex < rows.size() - 1) {
-            int nextRowIndent = rows.get(rowIndex + 1).getOperationLevel();
-            multiline = nextRowIndent > rowIndent;
-        }
-        return multiline;
-    }
-
-    private void checkError(boolean errorCondition, StringValue srcValue,
-            String errorMessage) throws BoundError {
-        if (errorCondition) {
-            throw new BoundError(errorMessage == null ? "" : errorMessage,
-                    srcValue.asSourceCodeModule());
-        }
-    }
-
-    private AlgorithmTreeNode addChild(AlgorithmTreeNode parent, AlgorithmTreeNode child) {
-        List<AlgorithmTreeNode> children = parent.getChildren();
-        if (children == null) {
-            children = new ArrayList<AlgorithmTreeNode>();
-            parent.setChildren(children);
-        }
-        children.add(child);
-        return parent;
-    }
-
-    private boolean validateRow(AlgorithmRow row, boolean multiline,
-            TableParserSpecificationBean spec) throws BoundError {
-        // check Label
-        checkError(spec.getLabel() == ValueNecessity.REQUIRED && row.getLabel().isEmpty(), row.getLabel(),
-                "Label is empty. Label is obligatory for this operation");
-        // check Condition
-        StringValue condition = row.getCondition();
-        ValueNecessity specCondition = spec.getCondition();
-        checkError(spec.getCondition() == ValueNecessity.REQUIRED && condition.isEmpty(), condition,
-                "Operation must have Condition value");
-        checkError(spec.getCondition() == ValueNecessity.PROHIBITED && !condition.isEmpty(), condition,
-                "Operation must not have Condition value");
-        // check Action
-        StringValue action = row.getAction();
-        ValueNecessity specAction = spec.getAction();
-        checkError(specAction == ValueNecessity.REQUIRED && action.isEmpty(), action,
-                "Operation must have Action value");
-        checkError(specAction == ValueNecessity.PROHIBITED && !action.isEmpty(), action,
-                "Operation must not have Action value");
-        // check Before
-        StringValue before = row.getBefore();
-        ValueNecessity specBeforeAfter = spec.getBeforeAndAfter();
-        checkError(specBeforeAfter == ValueNecessity.REQUIRED && before.isEmpty(), before,
-                "Operation must have Before value");
-        checkError(specBeforeAfter == ValueNecessity.PROHIBITED && !before.isEmpty(), before,
-                "Operation must not have Before value");
-        // check After
-        StringValue after = row.getAfter();
-        checkError(specBeforeAfter == ValueNecessity.REQUIRED && after.isEmpty(), after,
-                "Operation must have After value");
-        checkError(specBeforeAfter == ValueNecessity.PROHIBITED && !after.isEmpty(), after,
-                "Operation must not have After value");
-        // check Top Level
+    private TableParserSpecificationBean validateNode(AlgorithmTreeNode node, boolean guessedMultiline) throws BoundError {
+        AlgorithmRow row = node.getAlgorithmRow();
         StringValue operation = row.getOperation();
+        TableParserSpecificationBean spec = getSpecification(operation, guessedMultiline);
+
+        // check Label
+        if (spec.getLabel() == ValueNecessity.REQUIRED && row.getLabel().isEmpty()) {
+            String errMsg = "Label is obligatory for this operation!";
+            throw new BoundError(errMsg, row.getLabel().asSourceCodeModule());
+        }
+
+        checkRowValue("Condition", row.getCondition(), spec.getCondition());
+        checkRowValue("Action", row.getAction(), spec.getAction());
+        checkRowValue("Before", row.getBefore(), spec.getBeforeAndAfter());
+        checkRowValue("After", row.getAfter(), spec.getBeforeAndAfter());
+
+        // check Top Level
         int indent = row.getOperationLevel();
         ValueNecessity specTopLevel = spec.getTopLevel();
-        checkError(specTopLevel == ValueNecessity.PROHIBITED && indent > 0, operation,
-                "Operation can not be a top level, i.e. must be nested");
-        checkError(specTopLevel == ValueNecessity.REQUIRED && indent > 0, operation,
-                "Operation can be only a top level, i.e. can not be nested");
-        return true;
+        if (specTopLevel == ValueNecessity.PROHIBITED && indent == 0) {
+            throw new BoundError("Operation can not be a top level element! It should be nested.", operation
+                    .asSourceCodeModule());
+        }
+        if (specTopLevel == ValueNecessity.REQUIRED && indent > 0) {
+            throw new BoundError("Operation can be a top level only!", operation.asSourceCodeModule());
+        }
+
+        // passed
+        return spec;
     }
 
-    private AlgorithmTreeNode createAlgorithmNode(AlgorithmRow row, StringValue[] labels,
-            TableParserSpecificationBean specification, List<AlgorithmTreeNode> children) {
-        AlgorithmTreeNode node = new AlgorithmTreeNode();
-        node.setAlgorithmRow(row);
-        node.setLabels(labels);
-        node.setSpecification(specification);
-        node.setChildren(children);
-        return node;
+    private void checkRowValue(String columnName, StringValue columnValue, ValueNecessity columnNecessity)
+            throws BoundError {
+
+        if (columnNecessity == ValueNecessity.REQUIRED && columnValue.isEmpty()) {
+            String errMsg = String.format("Operation must have value in %s!", columnName);
+            throw new BoundError(errMsg, columnValue.asSourceCodeModule());
+        }
+
+        if (columnNecessity == ValueNecessity.PROHIBITED && !columnValue.isEmpty()) {
+            String errMsg = String.format("Operation must not have value in %s!", columnName);
+            throw new BoundError(errMsg, columnValue.asSourceCodeModule());
+        }
     }
 
-    private TableParserSpecificationBean getSpecification(
-            StringValue operation, boolean multiline) throws BoundError {
-        boolean found = false;
+    private TableParserSpecificationBean getSpecification(StringValue operation, boolean multiline) throws BoundError {
+        String operationName = operation.getValue();
+        boolean foundButNotMatch = false;
         for (TableParserSpecificationBean specification : specifications) {
             String specKeyword = specification.getKeyword();
-            if (operation.getValue().equalsIgnoreCase(specKeyword)) {
-                boolean specMultiline = specification.isMultiline();
-                if (specMultiline == multiline) {
+            if (operationName.equalsIgnoreCase(specKeyword)) {
+                if (specification.isMultiline() == multiline) {
                     return specification;
                 }
-                found = true;
+                foundButNotMatch = true;
             }
         }
-        checkError(found, operation,
-                "Operation can not be multiline, i.e. can not have nested operations");
-        checkError(true, operation, "No such operation: " + operation.getValue());
-        return null;
-    }
 
+        if (foundButNotMatch) {
+            String errMsg = String.format("Operation %s can not be multiline! Nested operations are not allowed here.",
+                    operationName);
+            throw new BoundError(errMsg, operation.asSourceCodeModule());
+        }
+
+        String errMsg = "No such operation: " + operation.getValue();
+        throw new BoundError(errMsg, operation.asSourceCodeModule());
+    }
 }

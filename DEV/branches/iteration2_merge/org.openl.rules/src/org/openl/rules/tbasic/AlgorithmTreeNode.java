@@ -1,5 +1,7 @@
 package org.openl.rules.tbasic;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.openl.meta.StringValue;
@@ -7,10 +9,15 @@ import org.openl.meta.StringValue;
 public class AlgorithmTreeNode {
 
     private AlgorithmRow algorithmRow;
-    private StringValue[] labels;
-    private List<AlgorithmTreeNode> children;
     private TableParserSpecificationBean specification;
+    private final List<StringValue> labels;
+    private final List<AlgorithmTreeNode> children;
 
+    public AlgorithmTreeNode() {
+        children = new ArrayList<AlgorithmTreeNode>();
+        labels = new LinkedList<StringValue>();
+    }
+    
     public AlgorithmRow getAlgorithmRow() {
         return algorithmRow;
     }
@@ -19,20 +26,12 @@ public class AlgorithmTreeNode {
         this.algorithmRow = algorithmRow;
     }
 
-    public StringValue[] getLabels() {
+    public List<StringValue> getLabels() {
         return labels;
-    }
-
-    public void setLabels(StringValue[] labels) {
-        this.labels = labels;
     }
 
     public List<AlgorithmTreeNode> getChildren() {
         return children;
-    }
-
-    public void setChildren(List<AlgorithmTreeNode> children) {
-        this.children = children;
     }
 
     public TableParserSpecificationBean getSpecification() {
@@ -41,5 +40,13 @@ public class AlgorithmTreeNode {
 
     public void setSpecification(TableParserSpecificationBean specification) {
         this.specification = specification;
+    }
+
+    public void add(AlgorithmTreeNode node) {
+        children.add(node);
+    }
+
+    public void addLabel(StringValue label) {
+        labels.add(label);
     }
 }

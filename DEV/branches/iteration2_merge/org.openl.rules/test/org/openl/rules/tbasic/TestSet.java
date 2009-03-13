@@ -9,7 +9,7 @@ public class TestSet extends Test0 {
     @Test
     public void test1() {
         Exception ex = catchEx(new File("test/rules/tbasic1/SET_F1.xls"));
-        TestUtils.assertEx(ex, "Operation must not have Condition value");
+        TestUtils.assertEx(ex, "Operation must not have value in Condition!");
     }
 
     @Test
@@ -21,13 +21,13 @@ public class TestSet extends Test0 {
     @Test
     public void test3() {
         Exception ex = catchEx(new File("test/rules/tbasic1/SET_F3.xls"));
-        TestUtils.assertEx(ex, "Operation must have Action value");
+        TestUtils.assertEx(ex, "Operation must have value in Action!");
    }
 
     @Test
     public void test4() {
         Exception ex = catchEx(new File("test/rules/tbasic1/SET_F4.xls"));
-        TestUtils.assertEx(ex, "Operation can not be multiline, i.e. can not have nested operations");
+        TestUtils.assertEx(ex, "Operation SET can not be multiline!");
     }
 
     @Test

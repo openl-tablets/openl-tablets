@@ -9,13 +9,13 @@ public class TestVar extends Test0 {
     @Test
     public void test1() {
         Exception ex = catchEx(new File("test/rules/tbasic1/VAR_F1.xls"));
-        TestUtils.assertEx(ex, "Operation must have Condition value");
+        TestUtils.assertEx(ex, "Operation must have value in Condition!");
     }
 
     @Test
     public void test2() {
         Exception ex = catchEx(new File("test/rules/tbasic1/VAR_F2.xls"));
-        TestUtils.assertEx(ex, "Operation can not be multiline, i.e. can not have nested operations");
+        TestUtils.assertEx(ex, "Operation VAR can not be multiline!");
     }
 
     @Test
