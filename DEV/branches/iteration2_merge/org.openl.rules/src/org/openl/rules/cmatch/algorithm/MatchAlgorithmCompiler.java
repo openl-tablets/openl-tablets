@@ -139,7 +139,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         Object[] retValues = parseValues(row0, returnType.getInstanceClass());
         columnMatch.setReturnValues(retValues);
 
-        bindMetaInfo(columnMatch, row0.get(VALUES), retValues);
+        bindMetaInfo(columnMatch, "Return Values", row0.get(VALUES), retValues);
     }
 
     protected Object[] parseValues(TableRow row, Class<?> clazz) throws BoundError {
@@ -209,7 +209,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             parseCheckValues(row, node, retValuesCount);
 
-            bindMetaInfo(columnMatch, row.get(VALUES), node.getCheckValues());
+            bindMetaInfo(columnMatch, varName, row.get(VALUES), node.getCheckValues());
 
             nodes[i] = node;
         }
@@ -231,7 +231,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * @param subValues
      * @param objValues
      */
-    protected void bindMetaInfo(ColumnMatch columnMatch, SubValue[] subValues, Object[] objValues) {
+    protected void bindMetaInfo(ColumnMatch columnMatch, String paramName, SubValue[] subValues, Object[] objValues) {
         IGridTable tableBodyGrid = columnMatch.getTableSyntaxNode().getTableBody().getGridTable();
 
         // Bind cell data type based on parsed data
@@ -241,7 +241,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             if (cv != null) {
                 IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, null, paramType);
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType);
                 IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
                 wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
             }

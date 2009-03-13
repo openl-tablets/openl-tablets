@@ -74,7 +74,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
             scores[i] = (Integer) objScores[i];
         }
         columnMatch.setColumnScores(scores);
-        bindMetaInfo(columnMatch, scoreRow.get(VALUES), objScores);
+        bindMetaInfo(columnMatch, "Scores", scoreRow.get(VALUES), objScores);
     }
 
     @Override
