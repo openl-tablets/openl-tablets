@@ -6,15 +6,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
+import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
 import org.openl.syntax.impl.SyntaxError;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public class AlgorithmBuilder {
@@ -128,33 +131,35 @@ public class AlgorithmBuilder {
      * @param grid
      */
     private void bindMetaInfo(IGridTable grid, int c, int r) {
-        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass
-                .getOpenClass(AlgorithmOperations.class));
+        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
+                JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperations), null));
         IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(grid);
-        wgrid.setCellMetaInfo(c, r, meta);
+        wgrid.setCellMetaInfo(IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c), IGridRegion.Tool.getAbsoluteRow(
+                grid.getRegion(), r), meta);
     }
+    
 
-    // FIXME: eliminate static enum and replace it with rules based data type
+    // FIXME: eliminate static string array and replace it with rules based data type
     // (if possible...)
-    public static enum AlgorithmOperations {
-        SET,
-        VAR,
-        IF,
-        ELSE,
-        WHILE,
-        /* FOR_EACH, */
-        SUB,
-        FUNCTION,
-        END_IF,
-        END_WHILE,
-        END_FOR_EACH,
-        END_SUB,
-        END_FUNCTION,
-        GOTO,
-        BREAK,
-        CONTINUE,
-        RETURN;
-    }
+    public static String[] algorithmOperations = new String[]{
+        "SET",
+        "VAR",
+        "IF",
+        "ELSE",
+        "WHILE",
+        /* "FOR_EACH", */
+        "SUB",
+        "FUNCTION",
+        "END_IF",
+        "END_WHILE",
+        "END_FOR_EACH",
+        "END_SUB",
+        "END_FUNCTION",
+        "GOTO",
+        "BREAK",
+        "CONTINUE",
+        "RETURN"
+    };
 
     private void setRowField(AlgorithmRow row, String column, StringValue sv) throws SyntaxError {
         if ("label".equalsIgnoreCase(column)) {
