@@ -279,6 +279,15 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 		return new DoubleValueFunction(Math.round (dv1.getValue()), "round", new DoubleValue[]{dv1});
 	}
 	
+	static public DoubleValue round(DoubleValue d, DoubleValue p)
+	{
+	
+		if (d == null) 
+			return ZERO; 
+		return new DoubleValueFunction(Math.round(d.doubleValue()/p.doubleValue()) * p.doubleValue(), "round", new DoubleValue[]{d, p}) ;
+	}
+	
+	
 	public String printExplanation(int mode, boolean fromMultiplicativeExpr, List<String> urls)
 	{
 		
