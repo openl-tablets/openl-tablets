@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import org.openl.binding.IBindingContext;
-import org.openl.domain.EnumDomain;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -70,7 +69,10 @@ public class String2DataConvertorFactory
 
 
 
-
+	static public void registerConvertor(Class<?> clazz, IString2DataConvertor conv)
+	{
+		convertors.put(clazz, conv);
+	}
 	
 	
 	
@@ -132,6 +134,7 @@ public class String2DataConvertorFactory
 
 		convertors.put(String.class, new String2StringConvertor());
 		convertors.put(Date.class, new String2DateConvertor());
+		convertors.put(Calendar.class, new String2CalendarConvertor());
 		convertors.put(Class.class, new String2ClassConvertor());
 		convertors.put(IOpenClass.class, new String2OpenClassConvertor());
 	}
@@ -473,6 +476,40 @@ public class String2DataConvertorFactory
 		{
 				DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT): new SimpleDateFormat(format);
 				return df.format(data);
+		}
+
+	}
+	
+	
+	static public class String2CalendarConvertor implements IString2DataConvertor
+	{
+		
+		
+		
+		public Object parse(String data, String format,  IBindingContext cxt)
+		{
+			return parseCalendar(data, format);
+		}
+		
+		public Calendar parseCalendar(String data, String format)
+		{
+			
+			Date d = new String2DateConvertor().parseDate(data, format);
+			
+			Calendar c = Calendar.getInstance(getLocale());
+			
+			c.setTime(d);
+			
+			return c;
+			
+		}
+		/**
+		 *
+		 */
+
+		public String format(Object data, String format)
+		{
+			return new String2DateConvertor().format(((Calendar)data).getTime(), format);
 		}
 
 	}

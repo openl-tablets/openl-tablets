@@ -74,9 +74,13 @@ public class SpreadsheetResult implements IDynamicObject
 
 	  public String toString()
 	  {
-	    NicePrinter printer = new NicePrinter();
-	    printer.print(this, DynamicObject.getNicePrinterAdaptor());
-	    return printer.getBuffer().toString();
+		if (false)
+		{	
+		    NicePrinter printer = new NicePrinter();
+		    printer.print(this, DynamicObject.getNicePrinterAdaptor());
+		    return printer.getBuffer().toString();
+		}
+		return "Spreadsheet[" + width() + " x " + height() + "]";
 	  }
 
 	public Map<String, Object> getFieldValues() 
