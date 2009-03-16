@@ -10,9 +10,9 @@
 var BaseEditor = Class.create();
 
 /**
- * Exteding default implementation of the function for IE and WebKit
+ * Exteding default implementation of the function unescapeHTML
  */
-if (Prototype.Browser.WebKit || Prototype.Browser.IE) Object.extend(String.prototype, {
+Object.extend(String.prototype, {
   unescapeHTML: function() {
     return this.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
   }
