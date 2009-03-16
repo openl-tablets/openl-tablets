@@ -20,6 +20,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
@@ -49,10 +50,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         checkRows(columnMatch.getRows());
         checkSpecialRows(columnMatch);
 
-        parseSpecialRows(columnMatch);
-
         ArgumentsHelper argumentsHelper = new ArgumentsHelper(columnMatch.getHeader().getSignature());
+        bindNamesMetaInfo(columnMatch, argumentsHelper);
 
+        parseSpecialRows(columnMatch);
         // [0..X] special rows are ignored
         List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = prepareNodes(columnMatch, argumentsHelper, columnMatch.getReturnValues().length);
@@ -190,7 +191,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             Argument arg = argumentsHelper.getTypeByName(varName);
             if (arg == null) {
-                String msg = "Failed to bind name '" + varName + "' !";
+                String msg = "Failed to bind name '" + varName + "'!";
                 throw new BoundError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
@@ -233,6 +234,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected void bindMetaInfo(ColumnMatch columnMatch, String paramName, SubValue[] subValues, Object[] objValues) {
         IGridTable tableBodyGrid = columnMatch.getTableSyntaxNode().getTableBody().getGridTable();
+        IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
 
         // Bind cell data type based on parsed data
         for (int i = 0; i < subValues.length; i++) {
@@ -242,10 +244,32 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             if (cv != null) {
                 IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
                 CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType);
-                IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
                 wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
             }
             // empty cells are left 'as is' -- suppose they are of String type
+        }
+    }
+
+    /**
+     * Sets CellMetaInfo for 'names' column (except special rows).
+     * 
+     * @param columnMatch
+     * @param argumentsHelper
+     */
+    protected void bindNamesMetaInfo(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper) {
+        DomainOpenClass domainOpenClass = argumentsHelper.generateDomainClassByArgNames();
+
+        IGridTable tableBodyGrid = columnMatch.getTableSyntaxNode().getTableBody().getGridTable();
+        IWritableGrid wgrid = IWritableGrid.Tool.getWritableGrid(tableBodyGrid);
+
+        List<TableRow> rows = columnMatch.getRows();
+        for (int i = getSpecialRowCount(); i < rows.size(); i++) {
+            TableRow row = rows.get(i);
+            SubValue nameSV = row.get(NAMES)[0];
+            IGridRegion gridRegion = nameSV.getGridRegion();
+
+            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, null, domainOpenClass);
+            wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
         }
     }
 

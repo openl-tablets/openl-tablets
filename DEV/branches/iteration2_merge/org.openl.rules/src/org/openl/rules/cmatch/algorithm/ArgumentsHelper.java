@@ -1,11 +1,17 @@
 package org.openl.rules.cmatch.algorithm;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
+import org.openl.domain.EnumDomain;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 class ArgumentsHelper {
     private final IMethodSignature methodSignature;
@@ -53,36 +59,52 @@ class ArgumentsHelper {
     }
 
     private Argument findIndirectByName(String argName) {
+        // snshor: change the way we look up fields in IOpenClass 
+        // to apply Bex approach
+        argName = argName.replace(" ", "");
+
         IOpenClass[] paramTypes = methodSignature.getParameterTypes();
         for (int i = 0; i < methodSignature.getNumberOfArguments(); i++) {
             // TODO add source
-//            String paramName = methodSignature.getParameterName(i);
+            // String paramName = methodSignature.getParameterName(i);
 
             IOpenClass type = paramTypes[i];
             if (type.isSimple()) {
                 // ignore, already added
             } else {
-            // snshor: change the way we look up fields in IOpenClass 
-            //	to apply Bex approach 	
-            	
-                // non simple
-//                Iterator<IOpenField> fi = type.fields();
-//                while (fi.hasNext()) {
-//                    IOpenField field = fi.next();
-//                    if (argName.equals(field.getName())) {
-//                        return new Argument(i, field);
-//                    }
-//                }
-            	
-            	argName = argName.replace(" ", "");
-	
-            	IOpenField field = type.getField(argName, false);
-            	if (field != null)
-            	  return new Argument(i, field);
-            	
+                IOpenField field = type.getField(argName, false);
+                if (field != null) {
+                    return new Argument(i, field);
+                }
             }
         }
 
         return null;
+    }
+
+    public DomainOpenClass generateDomainClassByArgNames() {
+        Set<String> argNames = new HashSet<String>();
+        argNames.addAll(argTypes.keySet());
+
+        IOpenClass[] paramTypes = methodSignature.getParameterTypes();
+        for (int i = 0; i < methodSignature.getNumberOfArguments(); i++) {
+            IOpenClass type = paramTypes[i];
+            if (type.isSimple()) {
+                // ignore, already added
+            } else {
+                // non simple
+              Iterator<IOpenField> fi = type.fields();
+              while (fi.hasNext()) {
+                  IOpenField field = fi.next();
+                  argNames.add(field.getName());
+              }
+            }
+        }
+
+        String[] possibleNames = argNames.toArray(new String[argNames.size()]);
+        DomainOpenClass domainClass = new DomainOpenClass("names", JavaOpenClass.STRING, new EnumDomain<String>(
+                possibleNames), null);
+
+        return domainClass;
     }
 }
