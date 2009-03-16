@@ -1,5 +1,7 @@
 package org.openl.rules.tbasic.runtime;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -22,15 +24,17 @@ class AlgorithmErrorHelper {
      * @return Result of the execution "ON ERROR" method(if specified).
      */
     public static Object processError(Throwable error, TBasicContextHolderEnv environment) {
-        // TODO discover which exception contains exception
         IOpenClass algorithmType = environment.getTbasicTarget().getType();
         IOpenMethod errorMethod = algorithmType.getMethod("ON ERROR", new IOpenClass[] {});
 
         if (errorMethod != null) {
             IOpenField errorField = algorithmType.getField("ERROR");
             if (errorField != null) {
-                // populate error messages
-                errorField.set(environment.getTbasicTarget(), error, environment);
+                //extracting ERROR exception 
+                Throwable err = ((InvocationTargetException)error.getCause().getCause()).getTargetException();
+                errorField.set(environment.getTbasicTarget(), err, environment);
+                IOpenField errorMessageField = algorithmType.getField("Error Message");
+                errorMessageField.set(environment.getTbasicTarget(), err.getMessage(), environment);
             }
             return errorMethod.invoke(environment.getTbasicTarget(), null, environment);
         }
