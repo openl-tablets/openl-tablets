@@ -26,6 +26,8 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.NoParamMethodField;
+import org.openl.rules.tbasic.runtime.operations.AssignValueOperation;
+import org.openl.rules.tbasic.runtime.operations.CalculateOperation;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -33,6 +35,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -95,6 +98,7 @@ public class AlgorithmCompiler {
         internalMethodsContexts = new HashMap<String, CompileContext>();
         thisTargetClass = new ModuleOpenClass(null, generateOpenClassName(), context.getOpenL());
 
+        initErrorVariable();
         precompile(nodesToCompile);
         compile(nodesToCompile);
 
@@ -108,6 +112,26 @@ public class AlgorithmCompiler {
         processMethodsAfterCompile(algorithm);
     }
     
+    private void initErrorVariable() {
+        initNewInternalVariable("ERROR", "new RuntimeException()");
+        initNewInternalVariable("Error Message", "\"Error!\"");
+    }
+
+    private void initNewInternalVariable(String variableName, String initialValue) {
+        IOpenSourceCodeModule src = new StringValue(initialValue).asSourceCodeModule();
+        OpenL openl = context.getOpenL();
+        IMethodSignature signature = header.getSignature();
+        IBindingContext cxt = createBindingContext();
+        CompositeMethod initialization = OpenlTool.makeMethodWithUnknownType(src, openl, variableName.replace(' ', '_')
+                + "_var", signature, thisTargetClass, cxt);
+        IOpenClass variableType = initialization.getMethod().getType();
+        IOpenField field = new DynamicObjectField(thisTargetClass, variableName, variableType);
+        thisTargetClass.addField(field);
+        mainCompileContext.getOperations().add(new CalculateOperation(initialization));
+        mainCompileContext.getOperations().add(new AssignValueOperation(variableName));
+    }
+    
+        
     private void processMethodsAfterCompile(Algorithm algorithm){
         Iterator<IOpenMethod> openMethods = thisTargetClass.methods();
         for (; openMethods.hasNext();){
