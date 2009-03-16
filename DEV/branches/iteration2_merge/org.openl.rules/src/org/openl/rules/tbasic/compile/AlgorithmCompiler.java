@@ -122,15 +122,11 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = createBindingContext();
-        CompositeMethod initialization = OpenlTool.makeMethodWithUnknownType(src, openl, variableName.replace(' ', '_')
-                + "_var", signature, thisTargetClass, cxt);
-        IOpenClass variableType = initialization.getMethod().getType();
+        IOpenClass variableType = OpenlTool.makeMethodWithUnknownType(src, openl,
+                variableName.replace(' ', '_') + "_var", signature, thisTargetClass, cxt).getMethod().getType();
         IOpenField field = new DynamicObjectField(thisTargetClass, variableName, variableType);
         thisTargetClass.addField(field);
-        mainCompileContext.getOperations().add(new CalculateOperation(initialization));
-        mainCompileContext.getOperations().add(new AssignValueOperation(variableName));
     }
-    
         
     private void processMethodsAfterCompile(Algorithm algorithm){
         Iterator<IOpenMethod> openMethods = thisTargetClass.methods();
@@ -658,10 +654,12 @@ public class AlgorithmCompiler {
         }
 
         // No conversion rule found.
+        
+        List<String> predecessorOperations =Arrays.asList(nodesToCompile.get(0).getSpecification().getPredecessorOperations());
         String errorMessage = String
                 .format(
-                        "The operations sequence is wrong: %2$s (all of them are %3$s). Can't find convertion rule for group: %1$s",
-                        operationGroupName, groupedOperationNames, isMultilineOperation ? "multiline" : "not multiline");
+                        "The operations sequence is wrong: %2$s. Operations %1$s must precede the %2$s",
+                        predecessorOperations, groupedOperationNames);
         IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
         throw new BoundError(errorMessage, errorSource);
     }
