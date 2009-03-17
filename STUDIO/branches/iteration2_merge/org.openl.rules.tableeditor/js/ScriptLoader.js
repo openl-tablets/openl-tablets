@@ -37,6 +37,7 @@ ScriptLoader.prototype = {
      * @param html the html string
      */
     evalScripts: function(html) {
+        //NOTE: IE evaluates scripts in random order (especially the v.6)
         this.extractScripts(html).each(this.evalScript);
     },
     
@@ -69,7 +70,9 @@ ScriptLoader.prototype = {
                 }
                 */
             }
-            head.appendChild(newScript);
+            setTimeout(function() {
+                head.appendChild(newScript);
+            }, 10);
         }
     }
 
