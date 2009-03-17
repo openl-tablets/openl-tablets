@@ -26,8 +26,6 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.NoParamMethodField;
-import org.openl.rules.tbasic.runtime.operations.AssignValueOperation;
-import org.openl.rules.tbasic.runtime.operations.CalculateOperation;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -35,7 +33,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -290,6 +287,13 @@ public class AlgorithmCompiler {
             // the first step
             currentCompileContext = mainCompileContext;
 
+            if (hasUnreachableCode(nodesToProcess, i)){
+                IOpenSourceCodeModule errorSource = nodesToProcess.get(i + 1).getAlgorithmRow().getOperation()
+                        .asSourceCodeModule();
+                throw new BoundError(String.format("Unreachable code. Operations after RETURN not allowed."),
+                        errorSource);
+            }
+
             linkedNodesGroupSize = getLinkedNodesGroupSize(nodesToProcess, i);
 
             List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
@@ -305,6 +309,13 @@ public class AlgorithmCompiler {
 
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
+            if (hasUnreachableCode(nodesToProcess, i)){
+                IOpenSourceCodeModule errorSource = nodesToProcess.get(i + 1).getAlgorithmRow().getOperation()
+                        .asSourceCodeModule();
+                throw new BoundError(String.format("Unreachable code. Operations after RETURN not allowed."),
+                        errorSource);
+            }
+            
             linkedNodesGroupSize = getLinkedNodesGroupSize(nodesToProcess, i);
 
             List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
@@ -313,6 +324,21 @@ public class AlgorithmCompiler {
         }
 
         return emittedOperations;
+    }
+    
+    private boolean hasUnreachableCode(List<AlgorithmTreeNode> nodesToProcess, int indexOfReturn){
+        if (indexOfReturn < nodesToProcess.size() - 1) {
+            if (nodesToProcess.get(indexOfReturn).getSpecification().getKeyword().equals("BREAK")
+                    || nodesToProcess.get(indexOfReturn).getSpecification().getKeyword().equals("CONTINUE")) {
+                return true;
+            }
+            if (nodesToProcess.get(indexOfReturn).getSpecification().getKeyword().equals("RETURN")
+                    && !nodesToProcess.get(indexOfReturn + 1).getSpecification().getKeyword().equals("SUB")
+                    && !nodesToProcess.get(indexOfReturn + 1).getSpecification().getKeyword().equals("FUNCTION")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     List<RuntimeOperation> compileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
