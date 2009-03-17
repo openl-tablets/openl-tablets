@@ -118,5 +118,11 @@ public class SpreadsheetResult implements IDynamicObject
 		return result;
 	}
 
-	
+	public String getRowName(int row) {
+	    return spreadsheet.rowNames[row];
+	}
+
+	public String getColumnName(int column) {
+	    return spreadsheet.colNames[column];
+	}
 }
