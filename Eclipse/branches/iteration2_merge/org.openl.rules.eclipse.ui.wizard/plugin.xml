@@ -107,6 +107,14 @@
             project="true"
             id="org.openl.rules.eclipse.wizard.Tutorial8Wizard">
       </wizard>
+      <wizard
+            name="Tutorial 9 - Spreadsheet example"
+            icon="icons/full/ctool16/new_openl_rules_project_wizard.gif"
+            category="org.openl.rules.wizard.openl.rules.category/org.openl.rules.wizard.tutorialscategory"
+            class="org.openl.rules.eclipse.wizard.Tutorial9Wizard"
+            project="true"
+            id="org.openl.rules.eclipse.wizard.Tutorial9Wizard">
+      </wizard>
       <category
             name="Examples"
             parentCategory="org.openl.rules.wizard.openl.rules.category"
