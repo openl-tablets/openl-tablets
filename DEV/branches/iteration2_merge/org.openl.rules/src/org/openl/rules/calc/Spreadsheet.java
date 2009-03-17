@@ -32,6 +32,10 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo
 	
 	
 	SCell[][] cells;
+	// FIXME
+	String[] rowNames;
+    // FIXME
+	String[] colNames;
 	
 	
 	public int width()
@@ -57,6 +61,14 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo
 	public void setCells(SCell[][] cells) {
 		this.cells = cells;
 	}
+
+	public void setRowNames(String[] rowNames) {
+	    this.rowNames = rowNames;
+	}
+
+    public void setColumnNames(String[] colNames) {
+        this.colNames = colNames;
+    }
 
 	public SpreadsheetType getSpreadsheetType() {
 		return spreadsheetType;

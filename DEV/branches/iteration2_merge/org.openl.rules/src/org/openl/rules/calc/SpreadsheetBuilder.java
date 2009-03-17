@@ -144,14 +144,19 @@ public class SpreadsheetBuilder
 	public void build(ILogicalTable tableBody) {
 		rowNamesTable = tableBody.getLogicalColumn(0).rows(1);
 		columnNamesTable = tableBody.getLogicalRow(0).columns(1);
+
+		int h = rowNamesTable.getLogicalHeight();
+		int w = columnNamesTable.getLogicalWidth();
 		
-		
-		for (int row = 0; row < rowNamesTable.getLogicalHeight(); row++) 
+        spreadsheet.setRowNames(new String[h]);
+        spreadsheet.setColumnNames(new String[w]);
+
+        for (int row = 0; row < h; row++) 
 		{
 			addRowNames(row, rowNamesTable.getLogicalRow(row));
 		}
 		
-		for (int col = 0; col < columnNamesTable.getLogicalWidth(); col++) 
+		for (int col = 0; col < w; col++) 
 		{
 			addColumnNames(col, columnNamesTable.getLogicalColumn(col));
 		}
@@ -432,8 +437,9 @@ public class SpreadsheetBuilder
 				StringValue sv =  new StringValue( value
 					, shortName, null, nameCell.getUri()) ;
 				addRowHeader(row, sv, i);
-			}	
-			
+			}
+		    // FIXME
+            spreadsheet.rowNames[row] = value;
 		}
 	}
 	
@@ -449,8 +455,9 @@ public class SpreadsheetBuilder
 				StringValue sv =  new StringValue( value
 					, shortName, null, nameCell.getUri()) ;
 				addColumnHeader(col, sv, i);
-			}	
-			
+			}
+		    // FIXME
+            spreadsheet.colNames[col] = value;
 		}
 	}
 	
