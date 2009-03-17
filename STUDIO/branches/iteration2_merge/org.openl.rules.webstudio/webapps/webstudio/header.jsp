@@ -33,7 +33,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
      
 <table width="97%" cellspacing="0" cellpadding="1">
 <tr><td align="right" style="font-size: 40%;">
-    <form target="top" action="index.jsp">
+    <form target="top" action="main.jsp">
     <span style="	font-size:300%;font-weight: bold;color:#8B4513;">Select OpenL Module:</span>
 <select name="select_wrapper" onchange="submit()">
 <%
@@ -71,9 +71,9 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
       <td align="right">
       <table style="border-style: solid; border-width: 1; border-color: black" cellspacing="0" cellpadding="2" >
       <td>
-        <a href="index.jsp?mode=business" title="Business View" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/business-view.png"></a>
+        <a href="main.jsp?mode=business" title="Business View" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/business-view.png"></a>
         &nbsp;
-        <a href="index.jsp?mode=developer" title="Developer View" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/developer-view.png"></a>
+        <a href="main.jsp?mode=developer" title="Developer View" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/developer-view.png"></a>
       &nbsp;&nbsp;
 
 <%if (NetUtils.isLocalRequest(request)) {
@@ -88,7 +88,7 @@ href="http://openl-tablets.sourceforge.net/" target="_new" title="OpenL Tablets 
 
         <a target="mainFrame" href="<%= request.getContextPath()%>/jsp/search/search.jsp?searchQuery=&quot;openl tablets&quot;" title="Search"><img border=0 src="<%= request.getContextPath()%>/webresource/images/search.png"></a>
         &nbsp;
-        <a href="index.jsp?reload=true&select_wrapper=<%=selected%>" title="Refresh Project(s)" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>
+        <a href="main.jsp?reload=true&select_wrapper=<%=selected%>" title="Refresh Project(s)" target="top"><img border=0 src="<%= request.getContextPath()%>/webresource/images/refresh.gif"></a>
         &nbsp;
         <a target="mainFrame" href="<%= request.getContextPath()%>/html/ws-intro.html" title="Help"><img border=0 src="<%= request.getContextPath()%>/webresource/images/help.gif"></a>
         &nbsp;
