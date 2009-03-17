@@ -7,10 +7,8 @@ import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
-import org.openl.rules.tableeditor.model.ComboBoxCellEditor;
 import org.openl.rules.tableeditor.model.EditorHelper;
 import org.openl.rules.tableeditor.model.ICellEditor;
-import org.openl.rules.tableeditor.model.MultiChoiceCellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.util.Constants;
@@ -127,61 +125,6 @@ public class TableEditorController extends BaseTableViewController implements JS
             ICellEditor editor = new CellEditorSelector().selectEditor(getRow(), getCol(), model);
             EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
             return pojo2json(typeResponse);
-        }
-        return "";
-    }
-
-    /**
-     * Generates JSON response for cell type: editor type and editor specific
-     * setup javascript object.
-     * 
-     * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
-     * 
-     * todo: remove
-     */
-    public String getCellTypeOld() {
-        int row = getRow();
-        int col = getCol();
-        EditorHelper editorHelper = getHelper(getEditorId());
-        if (editorHelper != null) {
-            EditorTypeResponse typeResponse = new EditorTypeResponse("text");
-            TableEditorModel editorModel = editorHelper.getModel();
-
-            if (editorModel.updatedTableCellInsideTableRegion(row, col)) {
-
-                TableEditorModel.CellType type = editorModel.getCellType(row, col);
-                if (type == TableEditorModel.CellType.CA_ENUMERATION_CELL_TYPE) {
-                    String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
-                    typeResponse = new ComboBoxCellEditor(metadata, metadata).getEditorTypeAndMetadata();
-                }
-
-                if (col == 3 && row == 1) {
-                    typeResponse = new EditorTypeResponse("multilineText");
-                }
-                if (col == 2 && row == 1) {
-                    typeResponse = new EditorTypeResponse("date");
-                }
-
-                if (col == 1 && row == 1) {
-                    typeResponse = new EditorTypeResponse("numeric");
-                    typeResponse.setParams(new RangeParam(-1000L, 1000L));
-                }
-
-                if (col == 0 && row == 1) {
-                    typeResponse = new EditorTypeResponse("price");
-                }
-
-                if (col == 2 && row == 2) {
-                    typeResponse = new EditorTypeResponse("suggestText");
-                    typeResponse.setParams(new SuggestParam(3, 1000));
-                }
-
-                if (col == 3 && row == 2) {
-                    String[] metadata = (String[]) editorModel.getCellEditorMetadata(row, col);
-                    typeResponse = new MultiChoiceCellEditor(metadata, metadata).getEditorTypeAndMetadata();
-                }
-                return pojo2json(typeResponse);
-            }
         }
         return "";
     }

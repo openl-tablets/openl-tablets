@@ -108,7 +108,12 @@ public class HTMLRenderer {
             .append(renderCSS("css/menu.css"))
             .append(renderCSS("css/toolbar.css"))
             .append(renderJS("js/prototype/prototype-1.5.1.js"))
-            .append(renderJS("js/ScriptLoader.js"));
+            .append(renderJS("js/ScriptLoader.js"))
+            .append(renderJS("js/IconManager.js"))
+            .append(renderJS("js/TableEditor.js"))
+            .append(renderJS("js/initTableEditor.js"))
+            .append(renderJS("js/BaseEditor.js"))
+            .append(renderJS("js/BaseTextEditor.js"));
         if (!inner) {
             result.append("<div id='").append(editorId).append("' class='te_'>");
         }
@@ -172,11 +177,9 @@ public class HTMLRenderer {
         final String tableId = editorId + Constants.TABLE_ID_POSTFIX;
         String editor = Constants.TABLE_EDITOR_PREFIX + editorId;
         result.append(renderJSBody("var " + editor + ";"))
-            .append(renderJS("js/IconManager.js"))
-            .append(renderJS("js/TableEditor.js"))
-            .append(renderJSBody("var jsPath = \"" + WebUtil.internalPath("js/") + "\""))
+            .append("<div id='aaa' style='color:red; font:200% bold'></div>")
+            //.append(renderJSBody("var jsPath = \"" + WebUtil.internalPath("js/") + "\""))
             .append(renderEditorToolbar(editorId ,editor))
-            .append(renderJS("js/BaseEditor.js"))
             .append(renderJS("js/TextEditor.js"))
             .append(renderJS("js/MultiLineEditor.js"))
             .append(renderJS("js/NumericEditor.js"))
@@ -186,10 +189,8 @@ public class HTMLRenderer {
             //.append(renderJS("js/PriceEditor.js"))
             //.append(renderJS("js/MultipleChoiceEditor.js"))
             .append("<div id=\"").append(tableId).append("\"></div>")
-            .append(renderJS("js/initTableEditor.js"))
-            .append(renderJSBody("setTimeout(function(){" + editor // setTimeout for IE
-                    + " = initTableEditor(\"" + editorId + "\", \""
-                    + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\")},10);"));
+            .append(renderJSBody(editor + " = initTableEditor(\"" + editorId + "\", \""
+                    + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\");"));
         return result.toString();
     }
 
@@ -306,6 +307,10 @@ public class HTMLRenderer {
                     if (embedCellURI) {
                         s.append("<input name=\"uri\" type=\"hidden\" value=\"")
                             .append(table.getUri(j, i)).append("\"></input>");
+                    }
+                    String content = cell.getContent();
+                    if (content != null) {
+                        content.replaceAll("", "");
                     }
                     s.append(cell.getContent()).append("</td>\n");
                 }
