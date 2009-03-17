@@ -132,8 +132,12 @@ public class TBasicVM {
 
             operation = currentContext.getNextOperation(operation);
             previousStepResult = operationResult.getValue();
+            if (previousStepResult != null) {
+                // store last not-null calculation result,
+                //if return is absent last calculation result will be returned
+                returnResult = previousStepResult;
+            }
         }
-
         return returnResult;
     }
 
