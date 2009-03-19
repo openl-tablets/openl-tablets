@@ -109,6 +109,7 @@ public class HTMLRenderer {
             .append(renderCSS("css/toolbar.css"))
             .append(renderJS("js/prototype/prototype-1.5.1.js"))
             .append(renderJS("js/ScriptLoader.js"))
+            .append(renderJS("js/AjaxHelper.js"))
             .append(renderJS("js/IconManager.js"))
             .append(renderJS("js/TableEditor.js"))
             .append(renderJS("js/initTableEditor.js"))
