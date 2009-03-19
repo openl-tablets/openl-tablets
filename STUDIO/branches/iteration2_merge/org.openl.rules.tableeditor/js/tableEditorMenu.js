@@ -7,6 +7,12 @@ function closeMenu(td) {
     PopupMenu.cancelShowMenu();
 }
 
+Ajax.Responders.register({
+    onFailure: function() {
+        alert("global");
+    }
+});
+
 function triggerEdit(editorId, url) {
     var cellUri = $(PopupMenu.lastTarget).down("input").value;
     var editor = $(editorId);
@@ -21,7 +27,8 @@ function triggerEdit(editorId, url) {
         onSuccess: function(data) {
             editor.innerHTML = data.responseText.stripScripts();
             new ScriptLoader().evalScripts(data.responseText);
-        }
+        },
+        onFailure: AjaxHelper.handleError
     });
 }
 
@@ -31,6 +38,7 @@ function triggerEditXls(url) {
         method: "get",
         parameters: {
             cellUri: cellUri
-        }
+        },
+        onFailure: AjaxHelper.handleError
     });
 }

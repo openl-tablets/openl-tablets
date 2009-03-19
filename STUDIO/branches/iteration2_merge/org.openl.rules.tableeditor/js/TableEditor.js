@@ -134,7 +134,8 @@ TableEditor.prototype = {
                         if (cell) self.editBeginRequest(cell, null, true);
                     }
                 }
-            }
+            },
+            onFailure: AjaxHelper.handleError
         });
     },
 
@@ -195,8 +196,9 @@ TableEditor.prototype = {
                     alert("Your changes have been saved!");
                 }
             },
-            onFailure : function() {
-                alert("Server failed to save your changes");
+            onFailure: function(response) {
+                AjaxHelper.handleError(response,
+                        "Server failed to save your changes");
             }
         });
     },
@@ -235,7 +237,8 @@ TableEditor.prototype = {
                 editorId: this.editorId,
                 row : self.selectionPos[0],
                 col : self.selectionPos[1]
-            }
+            },
+            onFailure: AjaxHelper.handleError
         });
     },
 
@@ -271,7 +274,8 @@ TableEditor.prototype = {
                         row : self.selectionPos[0],
                         col : self.selectionPos[1],
                         value: val
-                    }
+                    },
+                    onFailure: AjaxHelper.handleError
                 });
             }
             this.editor.detach();
@@ -449,7 +453,8 @@ TableEditor.prototype = {
             parameters: {
                 editorId: this.editorId
             },
-            onSuccess: this.modFuncSuccess
+            onSuccess: this.modFuncSuccess,
+            onFailure: AjaxHelper.handleError
         })
     },
 
@@ -492,7 +497,8 @@ TableEditor.prototype = {
                     cell.align = _align;
                 }
             },
-            parameters : params
+            parameters : params,
+            onFailure: AjaxHelper.handleError
         });
     },
 
@@ -529,7 +535,8 @@ TableEditor.prototype = {
                     }
                 }
             },
-            parameters : params
+            parameters : params,
+            onFailure: AjaxHelper.handleError
         });
     },
 
@@ -556,7 +563,8 @@ TableEditor.prototype = {
 
         new Ajax.Request(this.buildUrl(([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? "removeRowCol" : "addRowColBefore")), {
             onSuccess : this.modFuncSuccess,
-            parameters : params
+            parameters : params,
+            onFailure: AjaxHelper.handleError
         });
     },
 

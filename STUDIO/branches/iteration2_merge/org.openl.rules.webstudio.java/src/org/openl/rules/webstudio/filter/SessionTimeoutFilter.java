@@ -17,6 +17,8 @@ import org.apache.commons.logging.LogFactory;
 public class SessionTimeoutFilter implements Filter {
     private static final Log log = LogFactory.getLog(SessionTimeoutFilter.class);
 
+    private static final int REDIRECT_ERROR_CODE = 399;
+
     private FilterConfig config;
     private String redirectPage;
     private String[] excludePages;
@@ -50,8 +52,15 @@ public class SessionTimeoutFilter implements Filter {
         if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             String redirect = request.getContextPath() + redirectPage;
-            log.info("Session Timeout filter: redirect to " + redirect + " page");
-            response.sendRedirect(redirect);
+            log.info("Session Timeout filter: redirect to " + redirectPage + " page");
+            String xRequested = request.getHeader("X-Requested-With");
+            if (xRequested != null && xRequested.equalsIgnoreCase("XMLHttpRequest")) {
+                // handle Ajax requests
+                response.setHeader("Location", redirect);
+                response.sendError(REDIRECT_ERROR_CODE, "Redirect Error");
+            } else {
+                response.sendRedirect(redirect);
+            }
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }
