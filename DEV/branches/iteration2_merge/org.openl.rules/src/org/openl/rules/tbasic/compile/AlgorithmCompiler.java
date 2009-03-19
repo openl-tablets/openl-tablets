@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.OpenlTool;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
@@ -55,6 +56,7 @@ public class AlgorithmCompiler {
      * Intermediate values
      *******************************/
     private ConversionRuleBean[] conversionRules;
+    private Map<List<AlgorithmTreeNode>, IOpenClass> functions = new HashMap<List<AlgorithmTreeNode>, IOpenClass>();
     private LabelManager labelManager;
 
     private CompileContext currentCompileContext;
@@ -98,6 +100,7 @@ public class AlgorithmCompiler {
         initErrorVariable();
         precompile(nodesToCompile);
         compile(nodesToCompile);
+        analyzeReturnCorrectness();
 
         // TODO: not very good that we receive 2 separate collections with the
         // same items:
@@ -107,6 +110,41 @@ public class AlgorithmCompiler {
         algorithm.setAlgorithmSteps(getMainCompileContext().getOperations());
         algorithm.setLabels(getMainCompileContext().getLocalLabelsRegister());
         processMethodsAfterCompile(algorithm);
+    }
+
+    private void analyzeReturnCorrectness() throws BoundError {
+        ReturnAnalyzer analyzer = new ReturnAnalyzer(header.getType(), this);
+        functions.put(getMainFunctionBody(), header.getType());
+        for (List<AlgorithmTreeNode> functionBody : functions.keySet()) {
+            SuitablityAsReturn status = analyzer.analyzeSequence(functionBody, functions.get(functionBody));
+            if (status == SuitablityAsReturn.NONE){
+                IOpenSourceCodeModule errorSource = functionBody.get(functionBody.size() - 1).getAlgorithmRow()
+                        .getOperation().asSourceCodeModule();
+                throw new BoundError("The method must return value of type '"
+                        + functions.get(functionBody).getDisplayName(INamedThing.REGULAR) + "'", errorSource);
+            }
+        }
+    }
+
+    private List<AlgorithmTreeNode> getMainFunctionBody() {
+        int currentOperationIndex = 0;
+        while (currentOperationIndex < nodesToCompile.size()
+                && !nodesToCompile.get(currentOperationIndex).getSpecification().getKeyword().equals("FUNCTION")
+                && !nodesToCompile.get(currentOperationIndex).getSpecification().getKeyword().equals("SUB")) {
+            currentOperationIndex++;
+        }
+        return nodesToCompile.subList(0, currentOperationIndex);
+    }
+
+    public IOpenClass getTypeOfField(StringValue fieldContent) {
+        // TODO: make rational type detecting(without creating of CompositeMethod)
+        IOpenSourceCodeModule src = fieldContent.asSourceCodeModule();
+        OpenL openl = context.getOpenL();
+        IMethodSignature signature = header.getSignature();
+        IBindingContext cxt = createBindingContext();
+        IOpenClass filedType = OpenlTool.makeMethodWithUnknownType(src, openl, "cell_" + fieldContent.getValue(),
+                signature, thisTargetClass, cxt).getMethod().getType();
+        return filedType;
     }
     
     private void initErrorVariable() {
@@ -255,6 +293,8 @@ public class AlgorithmCompiler {
     }
 
     private void createAlgorithmInternalMethod(List<AlgorithmTreeNode> nodesToCompile, IOpenClass returnType){
+        // register method for the following return analyzing
+        functions.put(nodesToCompile.get(0).getChildren(), returnType);
         // method name will be at every label
         CompileContext methodContext = new CompileContext();
         for (StringValue label : nodesToCompile.get(0).getLabels()){
@@ -287,11 +327,10 @@ public class AlgorithmCompiler {
             // the first step
             currentCompileContext = mainCompileContext;
 
-            if (hasUnreachableCode(nodesToProcess, i)){
+            if (hasUnreachableCode(nodesToProcess, i)) {
                 IOpenSourceCodeModule errorSource = nodesToProcess.get(i + 1).getAlgorithmRow().getOperation()
                         .asSourceCodeModule();
-                throw new BoundError(String.format("Unreachable code. Operations after RETURN not allowed."),
-                        errorSource);
+                throw new BoundError("Unreachable code. Operations after BREAK,CONTINUE not allowed.", errorSource);
             }
 
             linkedNodesGroupSize = getLinkedNodesGroupSize(nodesToProcess, i);
@@ -309,11 +348,10 @@ public class AlgorithmCompiler {
 
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
-            if (hasUnreachableCode(nodesToProcess, i)){
+            if (hasUnreachableCode(nodesToProcess, i)) {
                 IOpenSourceCodeModule errorSource = nodesToProcess.get(i + 1).getAlgorithmRow().getOperation()
                         .asSourceCodeModule();
-                throw new BoundError(String.format("Unreachable code. Operations after RETURN not allowed."),
-                        errorSource);
+                throw new BoundError("Unreachable code. Operations after BREAK,CONTINUE not allowed.", errorSource);
             }
             
             linkedNodesGroupSize = getLinkedNodesGroupSize(nodesToProcess, i);
@@ -330,11 +368,6 @@ public class AlgorithmCompiler {
         if (indexOfReturn < nodesToProcess.size() - 1) {
             if (nodesToProcess.get(indexOfReturn).getSpecification().getKeyword().equals("BREAK")
                     || nodesToProcess.get(indexOfReturn).getSpecification().getKeyword().equals("CONTINUE")) {
-                return true;
-            }
-            if (nodesToProcess.get(indexOfReturn).getSpecification().getKeyword().equals("RETURN")
-                    && !nodesToProcess.get(indexOfReturn + 1).getSpecification().getKeyword().equals("SUB")
-                    && !nodesToProcess.get(indexOfReturn + 1).getSpecification().getKeyword().equals("FUNCTION")) {
                 return true;
             }
         }
@@ -632,7 +665,7 @@ public class AlgorithmCompiler {
      * @param firstNodeIndex
      * @return
      */
-    private int getLinkedNodesGroupSize(List<AlgorithmTreeNode> nodesToProcess, int firstNodeIndex) {
+    public static int getLinkedNodesGroupSize(List<AlgorithmTreeNode> nodesToProcess, int firstNodeIndex) {
         int linkedNodesGroupSize = 1; // just one operation by default
 
         AlgorithmTreeNode currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
