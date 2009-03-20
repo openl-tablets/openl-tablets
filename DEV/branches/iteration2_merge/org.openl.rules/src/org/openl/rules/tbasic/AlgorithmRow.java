@@ -22,30 +22,51 @@ public class AlgorithmRow {
     private Map<String, IGridRegion> valueGridRegions = new HashMap<String, IGridRegion>(7);  
 
     public StringValue getLabel() {
+        if (label == null){
+            label = new StringValue("");
+        }
         return label;
     }
 
     public StringValue getDescription() {
+        if (description == null){
+            description = new StringValue("");
+        }
         return description;
     }
 
     public StringValue getOperation() {
+        if (description == null){
+            description = new StringValue("");
+        }
         return operation;
     }
 
     public StringValue getCondition() {
+        if (condition == null){
+            condition = new StringValue("");
+        }
         return condition;
     }
 
     public StringValue getAction() {
+        if (action == null){
+            action = new StringValue("");
+        }
         return action;
     }
 
     public StringValue getBefore() {
+        if (before == null){
+            before = new StringValue("");
+        }
         return before;
     }
 
     public StringValue getAfter() {
+        if (after == null){
+            after = new StringValue("");
+        }
         return after;
     }
 
