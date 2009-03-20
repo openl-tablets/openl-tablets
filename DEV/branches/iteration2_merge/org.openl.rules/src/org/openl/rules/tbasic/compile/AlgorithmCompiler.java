@@ -113,11 +113,10 @@ public class AlgorithmCompiler {
     }
 
     private void analyzeReturnCorrectness() throws BoundError {
-        ReturnAnalyzer analyzer = new ReturnAnalyzer(header.getType(), this);
         functions.put(getMainFunctionBody(), header.getType());
         for (List<AlgorithmTreeNode> functionBody : functions.keySet()) {
-            SuitablityAsReturn status = analyzer.analyzeSequence(functionBody, functions.get(functionBody));
-            if (status == SuitablityAsReturn.NONE){
+            SuitablityAsReturn status = new ReturnAnalyzer(functions.get(functionBody), this).analyze(functionBody);
+            if (status == SuitablityAsReturn.NONE) {
                 IOpenSourceCodeModule errorSource = functionBody.get(functionBody.size() - 1).getAlgorithmRow()
                         .getOperation().asSourceCodeModule();
                 throw new BoundError("The method must return value of type '"
@@ -153,12 +152,7 @@ public class AlgorithmCompiler {
     }
 
     private void initNewInternalVariable(String variableName, String initialValue) {
-        IOpenSourceCodeModule src = new StringValue(initialValue).asSourceCodeModule();
-        OpenL openl = context.getOpenL();
-        IMethodSignature signature = header.getSignature();
-        IBindingContext cxt = createBindingContext();
-        IOpenClass variableType = OpenlTool.makeMethodWithUnknownType(src, openl,
-                variableName.replace(' ', '_') + "_var", signature, thisTargetClass, cxt).getMethod().getType();
+        IOpenClass variableType = getTypeOfField(new StringValue(initialValue));
         IOpenField field = new DynamicObjectField(thisTargetClass, variableName, variableType);
         thisTargetClass.addField(field);
     }
@@ -787,9 +781,8 @@ public class AlgorithmCompiler {
     }
     
     private IOpenClass getTypeOfFieldValue(List<AlgorithmTreeNode> nodesToCompile, String openlStatementInstruction) throws BoundError {
-        IMethodCaller assignmentStatement = (IMethodCaller) convertParam(nodesToCompile, IMethodCaller.class,
-                openlStatementInstruction);
-        return assignmentStatement.getMethod().getType();
+        StringValue content = getCellContent(nodesToCompile, openlStatementInstruction);
+        return getTypeOfField(content);
     }
 
     private StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String operationParam) throws BoundError {
