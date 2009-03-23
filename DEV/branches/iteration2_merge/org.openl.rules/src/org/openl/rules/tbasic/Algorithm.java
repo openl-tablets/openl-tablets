@@ -14,7 +14,6 @@ import org.openl.types.IDynamicObject;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.AMethod;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
@@ -26,7 +25,7 @@ import org.openl.vm.Tracer;
  * Allows users to represent any algorithm in tables using simple TBasic syntax.
  * 
  */
-public class Algorithm extends AMethod implements IMemberMetaInfo {
+public class Algorithm extends AlgorithmFunction implements IMemberMetaInfo {
     private final AlgorithmBoundNode node;
 
     /**************************************************

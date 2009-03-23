@@ -61,7 +61,7 @@ public class ReturnAnalyzer {
     private SuitablityAsReturn analyzeSequence(List<AlgorithmTreeNode> nodesToAnalyze) throws BoundError {
         SuitablityAsReturn result = SuitablityAsReturn.RETURN;
         for (int i = 0, linkedNodesGroupSize; i < nodesToAnalyze.size(); i += linkedNodesGroupSize) {
-            linkedNodesGroupSize = AlgorithmCompiler.getLinkedNodesGroupSize(nodesToAnalyze, i);
+            linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToAnalyze, i);
 
             if (linkedNodesGroupSize == 1) {
                 result = analyzeNode(nodesToAnalyze.get(i));

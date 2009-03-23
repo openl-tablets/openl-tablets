@@ -15,7 +15,6 @@ import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.AMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -25,7 +24,7 @@ import org.openl.vm.Tracer;
  * doesn't have any links to parent Algorithm, but relies on invocation
  * arguments.
  */
-public class AlgorithmSubroutineMethod extends AMethod implements IMemberMetaInfo {
+public class AlgorithmSubroutineMethod extends AlgorithmFunction implements IMemberMetaInfo {
 
     /*******************************************
      * Compile artifacts
