@@ -5,6 +5,7 @@ package org.openl.rules.webtools.indexer;
 
 
 import java.io.File;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -246,13 +247,14 @@ public class FileIndexer extends WebTool
 				continue;
 			
 			++cnt;
-			String[] res = new String[2];
-
-//			res[0] = urlLink("showLinks.jsp?searchQuery=" +  StringTool.prepareXMLAttributeValue(query)
-					res[0] = urlLink("../showLinks.jsp?"// +  StringTool.prepareXMLAttributeValue(query)
-					+ makeXlsOrDocUrl(hb.getElement().getUri()), "show", "" + cnt +  ". " //'(' + hb.getWeight()+')' +
+			String[] res = new String[3];
+			String uri = hb.getElement().getUri();
+			res[0] = urlLink("../showLinks.jsp?"// +  StringTool.prepareXMLAttributeValue(query)
+					+ makeXlsOrDocUrl(uri), "View Table in Excel", "" + cnt +  ". " //'(' + hb.getWeight()+')' +
 					+ showElementHeader(hb.getElement()), "show_app_hidden");
-			res[1] = htmlStringWithSelections(hb.getElement().getIndexedText(),
+			res[1] = urlLink("../../faces/facelets/tableeditor/showTable.xhtml?uri=" +  URLEncoder.encode(uri),
+			        "View Table in Table Editor", "View Table", null);
+			res[2] = htmlStringWithSelections(hb.getElement().getIndexedText(),
 					tokens);
 			vres.add(res);
 		}
@@ -309,13 +311,16 @@ public class FileIndexer extends WebTool
 				.hasNext(); ++i)
 		{
 			HitBucket hb = (HitBucket) iter.next();
-			int N = 2;
+			int N = 3;
 
 			String[] s1 = new String[N];
+			String uri = hb.getElement().getUri();
 			s1[0] = urlLink("../showLinks.jsp?value=" +  StringTool.encodeHTMLBody(value)
-					+ makeXlsOrDocUrl(hb.getElement().getUri()), "show", "" + i + ". "
+					+ makeXlsOrDocUrl(uri), "View Table in Excel", "" + i + ". "
 					+ showElementHeader(hb.getElement()), "show_app_hidden");
-			s1[1] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
+			s1[1] = urlLink("../../faces/facelets/tableeditor/showTable.xhtml?uri=" +  URLEncoder.encode(uri),
+			        "View Table in Table Editor", "View Table", null);
+			s1[2] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
 			v.add(s1);
 		}
 
