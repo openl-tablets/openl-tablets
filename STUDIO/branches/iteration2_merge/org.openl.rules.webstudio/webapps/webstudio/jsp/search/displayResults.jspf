@@ -1,30 +1,40 @@
-
-
+<%@page import="java.net.URLEncoder"%>
 <%
-for(int i = 0; i < values.length; ++i)
-{
+String contextPath = request.getContextPath();
+
+for(int i = 0; i < values.length; ++i) {
+    String xlsUrl = values[i][0];
+    String uri = values[i][1];
+    String result = values[i][2];
 	String icon = null;
-	if (values[i][0].indexOf(".xls") >= 0)
-	  icon="../../images/excel-workbook.png";
-	  
-	if (values[i][0].indexOf(".doc") >= 0)
-	  icon="../../images/word-doc.png";
+	if (xlsUrl.indexOf(".xls") >= 0) {
+	    icon="../../images/excel-workbook.png";
+    } else if (xlsUrl.indexOf(".doc") >= 0) {
+	    icon="../../images/word-doc.png";
+    }
 %>
 <table cellspacing=0 width=80%>
 <tr>
 <td width="16"><%if (icon!=null){%> <img src="<%=icon%>"/>  <%}%></td>
 <td valign=top> 
-  <%=values[i][0]%>
+  <%=xlsUrl%>
 </td>
 </tr>
-<% if (values[i][0].indexOf(".xls") >= 0) { %>
 <tr>
-    <td><img src="${pageContext.request.contextPath}/images/viewTable.gif" /></td>
-    <td valign="top"><%=values[i][1]%></td>
-</tr>
+<% if (xlsUrl.indexOf(".xls") >= 0 && studio.getModel().getNode(uri) != null) {
+%>
+    <td><img src="<%=contextPath%>/images/viewTable.gif" /></td>
+    <td valign="top">
+        <a href="<%=contextPath%>/faces/facelets/tableeditor/showTable.xhtml?uri=<%=URLEncoder.encode(uri)%>"
+            title="View Table in Table Editor">View Table</a>
+    </td>
+<% } else { %>
+    <td>&nbsp;</td>
+    <td colspan="2" style="color:red">External source</td>
 <% } %>
+</tr>
 <tr><td/>
-<td><font size=-1><%=values[i][2]%><font></td>
+<td><font size=-1><%=result%><font></td>
 </tr>
 </table><p/>
 
