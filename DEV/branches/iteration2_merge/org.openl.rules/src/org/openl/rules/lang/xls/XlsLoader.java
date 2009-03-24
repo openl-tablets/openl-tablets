@@ -192,9 +192,10 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 	static final String[][] headerMapping = { 
 		    { DECISION_TABLE, XLS_DT },
-			{ DECISION_TABLE2, XLS_DT },
-			{ SPREADSHEET_TABLE, XLS_SPREADSHEET },
-			{ TBASIC_TABLE, XLS_TBASIC },
+            { DECISION_TABLE2, XLS_DT },
+            { SPREADSHEET_TABLE, XLS_SPREADSHEET },
+            { SPREADSHEET_TABLE2, XLS_SPREADSHEET },
+            { TBASIC_TABLE, XLS_TBASIC },
             { TBASIC_TABLE2, XLS_TBASIC },
             { COLUMN_MATCH, XLS_COLUMN_MATCH},
 			{ DATA_TABLE, XLS_DATA },
