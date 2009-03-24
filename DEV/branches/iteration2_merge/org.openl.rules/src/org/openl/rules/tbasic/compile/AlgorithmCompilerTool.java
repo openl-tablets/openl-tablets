@@ -44,30 +44,29 @@ public class AlgorithmCompilerTool {
     }
 
     /**
-     * @param nodesToCompile
+     * @param candidateNodes
+     * @param conversionStep
      * @return
      * @throws BoundError
      */
     public static List<AlgorithmTreeNode> getNestedInstructionsBlock(List<AlgorithmTreeNode> candidateNodes,
-            ConversionRuleStep conversionStep) throws BoundError {
+            String instruction) throws BoundError {
 
-        String operationName = extractOperationName(conversionStep.getOperationParam1());
-        // We won't extract the field name as it's always the same
-
-        AlgorithmTreeNode executionNode = getNodeWithResult(candidateNodes, operationName);
+        AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction);
 
         return executionNode.getChildren();
     }
 
     /**
      * @param candidateNodes
-     * @param operationToGetFrom
+     * @param instruction
      * @return
      * @throws BoundError
      */
-    public static AlgorithmTreeNode getNodeWithResult(List<AlgorithmTreeNode> candidateNodes, String operationName)
+    public static AlgorithmTreeNode extractOperationNode(List<AlgorithmTreeNode> candidateNodes, String instruction)
             throws BoundError {
         AlgorithmTreeNode executionNode = null;
+        String operationName = extractOperationName(instruction);
 
         for (AlgorithmTreeNode node : candidateNodes) {
             if (operationName.equalsIgnoreCase(node.getAlgorithmRow().getOperation().getValue())) {
@@ -86,21 +85,20 @@ public class AlgorithmCompilerTool {
 
     /**
      * @param nodesToCompile
-     * @param conversionStep
+     * @param instruction
      * @return
      * @throws BoundError
      */
-    public static AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep) throws BoundError {
+    public static AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile, String instruction)
+            throws BoundError {
 
         AlgorithmTreeNode sourceNode;
         String operationValueName = null;
 
         // TODO: set more precise source reference
-        String convertionParam = conversionStep.getOperationParam1();
-        if (isOperationFieldInstruction(convertionParam)) {
-            sourceNode = getNodeWithResult(nodesToCompile, extractOperationName(convertionParam));
-            operationValueName = extractFieldName(convertionParam);
+        if (isOperationFieldInstruction(instruction)) {
+            sourceNode = extractOperationNode(nodesToCompile, instruction);
+            operationValueName = extractFieldName(instruction);
         } else {
             sourceNode = nodesToCompile.get(0);
         }
@@ -108,12 +106,17 @@ public class AlgorithmCompilerTool {
         return new AlgorithmOperationSource(sourceNode, operationValueName);
     }
 
-    public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String operationParam)
+    /**
+     * @param candidateNodes
+     * @param instruction
+     * @return
+     * @throws BoundError
+     */
+    public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String instruction)
             throws BoundError {
-        String operationName = extractOperationName(operationParam);
-        String fieldName = extractFieldName(operationParam);
+        String fieldName = extractFieldName(instruction);
 
-        AlgorithmTreeNode executionNode = getNodeWithResult(candidateNodes, operationName);
+        AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction);
 
         IOpenField codeField = JavaOpenClass.getOpenClass(AlgorithmRow.class).getField(fieldName);
 
@@ -128,6 +131,10 @@ public class AlgorithmCompilerTool {
         return openLCode;
     }
 
+    /**
+     * @param instruction
+     * @return
+     */
     public static boolean isOperationFieldInstruction(String instruction) {
         boolean isInstruction = false;
 
@@ -140,27 +147,14 @@ public class AlgorithmCompilerTool {
 
     public static final String FIELD_SEPARATOR = ".";
 
-    /**
-     * @param operationToGetFrom
-     */
-    public static String extractOperationName(String operationToGetFrom) {
+    private static String extractOperationName(String instruction) {
         // Get the first token before ".", it will be the name of operation
-        return operationToGetFrom.split(Pattern.quote(FIELD_SEPARATOR))[0];
+        return instruction.split(Pattern.quote(FIELD_SEPARATOR))[0];
     }
 
-    /**
-     * @param operationToGetFrom
-     */
-    private static String extractFieldName(String operationToGetFrom) {
+    private static String extractFieldName(String instruction) {
         // Get the first token after ".", it will be the field name
-        return operationToGetFrom.split(Pattern.quote(FIELD_SEPARATOR))[1];
-    }
-
-    public static IOpenSourceCodeModule createSourceCode(List<AlgorithmTreeNode> nodesToCompile, String operationParam)
-            throws BoundError {
-        StringValue openLCodeValue = getCellContent(nodesToCompile, operationParam);
-
-        return openLCodeValue.asSourceCodeModule();
+        return instruction.split(Pattern.quote(FIELD_SEPARATOR))[1];
     }
 
 }

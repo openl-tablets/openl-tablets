@@ -107,6 +107,10 @@ public class AlgorithmCompiler {
      **************************************************************************/
 
     private void precompile(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
+        precompileNestedNodes(nodesToProcess);
+    }
+
+    private void precompileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
@@ -115,10 +119,6 @@ public class AlgorithmCompiler {
 
             precompileLinkedNodesGroup(nodesToCompile);
         }
-    }
-
-    private void precompileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws BoundError {
-        precompile(nodesToProcess);
     }
 
     private void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
@@ -147,7 +147,8 @@ public class AlgorithmCompiler {
             // do nothing
         } else if (operationType.equals("!Compile")) {
             List<AlgorithmTreeNode> nodesToProcess;
-            nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile, conversionStep);
+            nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile, conversionStep
+                    .getOperationParam1());
             precompileNestedNodes(nodesToProcess);
         } else if (operationType.equals("!Declare")) {
             declareVariable(nodesToCompile, conversionStep);
@@ -234,17 +235,18 @@ public class AlgorithmCompiler {
 
     private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children, String returnValueInstruction)
             throws BoundError {
-        // FIXME Extremely ugly method (add exceptions, rewrite to be "proper"
-        // method, etc.)
-
         // find first RETURN operation
         List<AlgorithmTreeNode> returnNodes = findFirstReturn(children);
 
-        assert returnNodes.size() > 0;
+        //TODO processing function without RETURN
+        if (returnNodes == null || returnNodes.size() == 0){
+            IOpenSourceCodeModule errorSource = children.get(children.size() - 1).getAlgorithmRow().getOperation()
+                    .asSourceCodeModule();
+            throw new BoundError("RETURN operation expected.", errorSource);
+        }
 
         // get RETURN.condition part of instruction
         String fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
-
         return getTypeOfField(AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement));
     }
 
