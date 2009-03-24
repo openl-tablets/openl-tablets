@@ -25,6 +25,11 @@ public class SSheetBoundNode extends AMethodBasedNode implements IMemberBoundNod
         if (tableBody == null) {
             throw new BoundError(getTableSyntaxNode(), "Table has no body! Try to merge header cell horizontally to identify table.");
         }
+        int h = tableBody.getLogicalHeight();
+        int w = tableBody.getLogicalWidth();
+        if (h < 2 || w < 2) {
+            throw new BoundError(getTableSyntaxNode(), String.format("Spreadsheet must have at least 2x2 cells! Actual size %dx%d.", w, h));
+        }
 
         getTableSyntaxNode().getSubTables().put(VIEW_BUSINESS, tableBody);
         builder.build(tableBody);
