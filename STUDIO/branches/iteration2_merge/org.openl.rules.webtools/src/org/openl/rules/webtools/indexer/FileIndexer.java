@@ -5,7 +5,6 @@ package org.openl.rules.webtools.indexer;
 
 
 import java.io.File;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -252,8 +251,7 @@ public class FileIndexer extends WebTool
 			res[0] = urlLink("../showLinks.jsp?"// +  StringTool.prepareXMLAttributeValue(query)
 					+ makeXlsOrDocUrl(uri), "View Table in Excel", "" + cnt +  ". " //'(' + hb.getWeight()+')' +
 					+ showElementHeader(hb.getElement()), "show_app_hidden");
-			res[1] = urlLink("../../faces/facelets/tableeditor/showTable.xhtml?uri=" +  URLEncoder.encode(uri),
-			        "View Table in Table Editor", "View Table", null);
+			res[1] = uri;
 			res[2] = htmlStringWithSelections(hb.getElement().getIndexedText(),
 					tokens);
 			vres.add(res);
@@ -318,8 +316,7 @@ public class FileIndexer extends WebTool
 			s1[0] = urlLink("../showLinks.jsp?value=" +  StringTool.encodeHTMLBody(value)
 					+ makeXlsOrDocUrl(uri), "View Table in Excel", "" + i + ". "
 					+ showElementHeader(hb.getElement()), "show_app_hidden");
-			s1[1] = urlLink("../../faces/facelets/tableeditor/showTable.xhtml?uri=" +  URLEncoder.encode(uri),
-			        "View Table in Table Editor", "View Table", null);
+			s1[1] = uri;
 			s1[2] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
 			v.add(s1);
 		}
