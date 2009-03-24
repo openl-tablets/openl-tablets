@@ -148,7 +148,8 @@ public class AlgoritmNodesCompiler {
             emittedOperations.add(emittedOperation);
         } else if (operationType.equals("!Compile")) {
             List<AlgorithmTreeNode> nodesToProcess;
-            nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile, conversionStep);
+            nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile, conversionStep
+                    .getOperationParam1());
             emittedOperations.addAll(compileNestedNodes(nodesToProcess));
         }
         // apply label for the current step
@@ -219,7 +220,8 @@ public class AlgoritmNodesCompiler {
             RuntimeOperation emittedOperation = (RuntimeOperation) constructor.newInstance(params);
 
             // TODO: set more precise source reference
-            AlgorithmOperationSource source = AlgorithmCompilerTool.getOperationSource(nodesToCompile, conversionStep);
+            AlgorithmOperationSource source = AlgorithmCompilerTool.getOperationSource(nodesToCompile, conversionStep
+                    .getOperationParam1());
             emittedOperation.setSourceCode(source);
 
             String nameForDebug = conversionStep.getNameForDebug();
@@ -258,10 +260,11 @@ public class AlgoritmNodesCompiler {
             if (operationParam == null) {
                 return null;
             } else {
-                IOpenSourceCodeModule src = AlgorithmCompilerTool.createSourceCode(nodesToCompile, operationParam);
+                IOpenSourceCodeModule src = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam)
+                        .asSourceCodeModule();
 
-                AlgorithmTreeNode executionNode = AlgorithmCompilerTool.getNodeWithResult(nodesToCompile,
-                        AlgorithmCompilerTool.extractOperationName(operationParam));
+                AlgorithmTreeNode executionNode = AlgorithmCompilerTool
+                        .extractOperationNode(nodesToCompile, operationParam);
                 String methodName = operationParam.replace('.', '_') + "_row_"
                         + executionNode.getAlgorithmRow().getRowNumber();
                 return compiler.makeMethod(src, methodName);
