@@ -16,6 +16,21 @@ import org.openl.types.java.JavaOpenClass;
 public class AlgorithmCompilerTool {
 
     /**
+     * 
+     * @param nodes
+     * @return
+     */
+    public static AlgorithmTreeNode getLastExecutableOperation(List<AlgorithmTreeNode> nodes) {
+        AlgorithmTreeNode lastOperation = nodes.get(nodes.size() - 1);
+        if (lastOperation.getSpecification().getKeyword().startsWith("END")) {
+            lastOperation = getLastExecutableOperation(nodes.subList(0, nodes.size() - 1));
+        } else if (lastOperation.getChildren().size() > 0) {
+            lastOperation = getLastExecutableOperation(lastOperation.getChildren());
+        }
+        return lastOperation;
+    }
+
+    /**
      * @param nodesToProcess
      * @param firstNodeIndex
      * @return
