@@ -4,9 +4,7 @@
 package org.openl.rules.tbasic.compile;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
@@ -54,19 +52,9 @@ public class AlgorithmCompiler {
      * Compiler output
      **************************************************************************/
     private ModuleOpenClass thisTargetClass;
-    private CompileContext mainCompileContext;
-    private Map<String, CompileContext> internalMethodsContexts;
 
     public IOpenClass getThisTargetClass() {
         return thisTargetClass;
-    }
-
-    public CompileContext getMainCompileContext() {
-        return mainCompileContext;
-    }
-
-    public Map<String, CompileContext> getInternalMethodsContexts() {
-        return internalMethodsContexts;
     }
 
     public LabelManager getLabelManager() {
@@ -92,13 +80,12 @@ public class AlgorithmCompiler {
 
     private void initialization(Algorithm algorithm) {
         labelManager = new LabelManager();
-        mainCompileContext = new CompileContext();
-        internalMethodsContexts = new HashMap<String, CompileContext>();
         thisTargetClass = new ModuleOpenClass(null, generateOpenClassName(), context.getOpenL());
 
         initNewInternalVariable("ERROR", getTypeOfField(new StringValue("new RuntimeException()")));
         initNewInternalVariable("Error Message", getTypeOfField(new StringValue("\"Error!\"")));
         // add main function of Algorithm
+        CompileContext mainCompileContext = new CompileContext();
         functions.add(new AlgorithmFunctionCompiler(getMainFunctionBody(), mainCompileContext, algorithm, this));
     }
 
@@ -238,16 +225,15 @@ public class AlgorithmCompiler {
         // find first RETURN operation
         List<AlgorithmTreeNode> returnNodes = findFirstReturn(children);
 
-        //TODO processing function without RETURN
-        if (returnNodes == null || returnNodes.size() == 0){
-            IOpenSourceCodeModule errorSource = children.get(children.size() - 1).getAlgorithmRow().getOperation()
-                    .asSourceCodeModule();
-            throw new BoundError("RETURN operation expected.", errorSource);
+        if (returnNodes == null || returnNodes.size() == 0) {
+            StringValue lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children).getAlgorithmRow()
+                    .getAction();
+            return getTypeOfField(lastAction);
+        } else {
+            // get RETURN.condition part of instruction
+            String fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
+            return getTypeOfField(AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement));
         }
-
-        // get RETURN.condition part of instruction
-        String fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
-        return getTypeOfField(AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement));
     }
 
     private List<AlgorithmTreeNode> findFirstReturn(List<AlgorithmTreeNode> nodes) {
@@ -280,7 +266,6 @@ public class AlgorithmCompiler {
             thisTargetClass.addField(methodAlternative);
 
             functions.add(new AlgorithmFunctionCompiler(nodesToCompile, methodContext, method, this));
-            internalMethodsContexts.put(methodName, methodContext);
         }
     }
 
