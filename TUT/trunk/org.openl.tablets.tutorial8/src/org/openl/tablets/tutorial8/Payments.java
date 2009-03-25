@@ -32,4 +32,16 @@ public class Payments {
         amounts.add(amount);
         commissions.add(commission);
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append("Payments [");
+        for (int i = 0; i < getYears(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(String.format("[year=%d, amount=%.2f, commission=%.2f]", (i+1), getAmount(i), getCommission(i)));
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
 }
