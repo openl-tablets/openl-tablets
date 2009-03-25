@@ -6,5 +6,4 @@ Bundle-Version: 5.2.0
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.ruleservice.lib,
- org.openl.rules.ruleservice,
- org.openl.tablets.tutorial5
+ org.openl.rules.ruleservice
