@@ -59,6 +59,22 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper
 
 
 
+  static org.openl.types.IOpenField run1_Field;
+
+  public org.openl.types.impl.DynamicObject[] getRun1()
+  {
+   Object __res = run1_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject[])__res;
+  }
+
+
+  public void setRun1(org.openl.types.impl.DynamicObject[] __var)
+  {
+   run1_Field.set(__instance, __var, __env.get());
+  }
+
+
+
   static org.openl.types.IOpenField this_Field;
 
   public org.openl.types.impl.DynamicObject getThis()
@@ -73,6 +89,23 @@ public class Tutorial_9Wrapper implements org.openl.main.OpenLWrapper
    this_Field.set(__instance, __var, __env.get());
   }
 
+
+
+  static org.openl.types.IOpenMethod run1TestAll_Method;
+  public org.openl.rules.testmethod.TestResult run1TestAll()  {
+    Object[] __params = new Object[0];
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = run1TestAll_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.rules.testmethod.TestResult)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
 
 
   static org.openl.types.IOpenMethod incomeForecast_Method;
@@ -132,7 +165,10 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
 
+    run1_Field = __class.getField("run1");
     this_Field = __class.getField("this");
+    run1TestAll_Method = __class.getMatchingMethod("run1TestAll", new IOpenClass[] {
+});
     incomeForecast_Method = __class.getMatchingMethod("incomeForecast", new IOpenClass[] {
       JavaOpenClass.getOpenClass(double.class),
       JavaOpenClass.getOpenClass(double.class)});
