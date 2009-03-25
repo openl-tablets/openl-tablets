@@ -737,7 +737,9 @@ public class ObjectViewer {
 
 		FilteredGrid fg = new FilteredGrid(gt.getGrid(), filters);
 
-		return new Object[]{gt, new GridTable(gt.getRegion(), fg)};
+// AB: show only results
+//		return new Object[]{gt, new GridTable(gt.getRegion(), fg)};
+        return new GridTable(gt.getRegion(), fg);
 	}
 
 	
