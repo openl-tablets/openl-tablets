@@ -626,7 +626,7 @@ public class ObjectViewer {
     void makeXlsOrDocUrl(String uri, StringBuffer buf) {
 
         String url = WebTool.makeXlsOrDocUrl(uri);
-        buf.append("href='" + WebContext.getContextPath() + "/webstudio/jsp/showLinks.jsp?").append(url).append("'");
+        buf.append("href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(url).append("'");
         buf.append(" target='show_app_hidden'");
     }
 
