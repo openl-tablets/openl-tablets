@@ -67,6 +67,28 @@ public class Test0 {
         }, "Table has no body!", "merge header cell");
     }
 
+    @Test
+    public void test5() {
+        TestUtils.assertEx(new Runnable() {
+            public void run() {
+                File xlsFile = new File("test/rules/calc0/calc0-5.xls");
+                TestHelper<ITestCalc> testHelper;
+                testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+            }
+        }, "Col1 has already been defined", "cell=E4");
+    }
+
+    @Test
+    public void test6() {
+        TestUtils.assertEx(new Runnable() {
+            public void run() {
+                File xlsFile = new File("test/rules/calc0/calc0-6.xls");
+                TestHelper<ITestCalc> testHelper;
+                testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+            }
+        }, "Row1 has already been defined", "cell=B7");
+    }
+
     interface ITestCalc {
         SpreadsheetResult calc();
     }
