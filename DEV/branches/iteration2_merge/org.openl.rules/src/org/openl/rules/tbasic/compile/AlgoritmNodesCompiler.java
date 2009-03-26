@@ -113,8 +113,7 @@ public class AlgoritmNodesCompiler {
         List<StringValue> userDefinedLabels = nodesToCompile.get(0).getLabels();
         if (!userDefinedLabels.isEmpty() && emittedOperations.size() > 0) {
             for (StringValue userDefinedLabel : userDefinedLabels) {
-                currentCompileContext.getLocalLabelsRegister().put(userDefinedLabel.getValue(),
-                        emittedOperations.get(0));
+                currentCompileContext.setLabel(userDefinedLabel.getValue(), emittedOperations.get(0));
             }
         }
 
@@ -151,10 +150,18 @@ public class AlgoritmNodesCompiler {
             nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile, conversionStep
                     .getOperationParam1());
             emittedOperations.addAll(compileNestedNodes(nodesToProcess));
+        } else if (operationType.equals("!CheckLabel")) {
+            String labelName = (String) convertParam(nodesToCompile, String.class, conversionStep.getOperationParam1());
+            if (!currentCompileContext.isLabelRegistered(labelName)) {
+                IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
+                        .asSourceCodeModule();
+                throw new BoundError("Such label is not available from this place: \"" + labelName + "\".", errorSource);
+            }
         }
-        // apply label for the current step
         if (emittedOperations.size() > 0 && label != null) {
-            currentCompileContext.getLocalLabelsRegister().put(label, emittedOperations.get(0));
+            // register internal generated label label
+            currentCompileContext.registerNewLabel(label, nodesToCompile.get(0));
+            currentCompileContext.setLabel(label, emittedOperations.get(0));
         }
 
         return emittedOperations;
@@ -263,8 +270,8 @@ public class AlgoritmNodesCompiler {
                 IOpenSourceCodeModule src = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam)
                         .asSourceCodeModule();
 
-                AlgorithmTreeNode executionNode = AlgorithmCompilerTool
-                        .extractOperationNode(nodesToCompile, operationParam);
+                AlgorithmTreeNode executionNode = AlgorithmCompilerTool.extractOperationNode(nodesToCompile,
+                        operationParam);
                 String methodName = operationParam.replace('.', '_') + "_row_"
                         + executionNode.getAlgorithmRow().getRowNumber();
                 return compiler.makeMethod(src, methodName);

@@ -47,6 +47,8 @@ public class AlgorithmTreeNode {
     }
 
     public void addLabel(StringValue label) {
-        labels.add(label);
+        if (!label.equals("")) {
+            labels.add(label);
+        }
     }
 }

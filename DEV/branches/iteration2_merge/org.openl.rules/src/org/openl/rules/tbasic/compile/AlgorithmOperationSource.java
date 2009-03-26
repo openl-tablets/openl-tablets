@@ -3,6 +3,7 @@
  */
 package org.openl.rules.tbasic.compile;
 
+import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 
@@ -36,6 +37,10 @@ public class AlgorithmOperationSource {
         }
         
         return sourceRegion;
+    }
+    
+    public IOpenSourceCodeModule getSourceModule(){
+        return sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule();
     }
     
     public String getOperationName() {

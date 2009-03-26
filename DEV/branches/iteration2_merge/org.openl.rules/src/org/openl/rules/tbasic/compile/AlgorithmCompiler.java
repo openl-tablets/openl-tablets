@@ -5,6 +5,7 @@ package org.openl.rules.tbasic.compile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
@@ -45,6 +46,7 @@ public class AlgorithmCompiler {
     /***************************************************************************
      * Intermediate values
      **************************************************************************/
+    private CompileContext mainCompileContext;
     private List<AlgorithmFunctionCompiler> functions = new ArrayList<AlgorithmFunctionCompiler>();
     private LabelManager labelManager;
 
@@ -78,15 +80,17 @@ public class AlgorithmCompiler {
         postprocess(algorithm);
     }
 
-    private void initialization(Algorithm algorithm) {
+    private void initialization(Algorithm algorithm) throws BoundError {
         labelManager = new LabelManager();
         thisTargetClass = new ModuleOpenClass(null, generateOpenClassName(), context.getOpenL());
 
         initNewInternalVariable("ERROR", getTypeOfField(new StringValue("new RuntimeException()")));
         initNewInternalVariable("Error Message", getTypeOfField(new StringValue("\"Error!\"")));
-        // add main function of Algorithm
-        CompileContext mainCompileContext = new CompileContext();
-        functions.add(new AlgorithmFunctionCompiler(getMainFunctionBody(), mainCompileContext, algorithm, this));
+
+        mainCompileContext = new CompileContext();
+        List<AlgorithmTreeNode> mainFunction = getMainFunctionBody();
+        mainCompileContext.registerGroupOfLabels(AlgorithmCompilerTool.getAllDeclaredLables(mainFunction));
+        functions.add(new AlgorithmFunctionCompiler(mainFunction, mainCompileContext, algorithm, this));
     }
 
     /***************************************************************************
@@ -130,7 +134,7 @@ public class AlgorithmCompiler {
 
         String operationType = conversionStep.getOperationType();
         // TODO
-        if (!operationType.startsWith("!")) {
+        if (!operationType.startsWith("!") || operationType.equals("!CheckLabel")) {
             // do nothing
         } else if (operationType.equals("!Compile")) {
             List<AlgorithmTreeNode> nodesToProcess;
@@ -202,7 +206,11 @@ public class AlgorithmCompiler {
     }
 
     private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile) throws BoundError {
-        createAlgorithmInternalMethod(nodesToCompile, JavaOpenClass.VOID);
+        CompileContext subroutineContext = new CompileContext();
+        // add all labels from main
+        subroutineContext.registerGroupOfLabels(mainCompileContext.getExistingLables());
+
+        createAlgorithmInternalMethod(nodesToCompile, JavaOpenClass.VOID, subroutineContext);
     }
 
     private void declareFunction(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep convertionStep)
@@ -216,7 +224,7 @@ public class AlgorithmCompiler {
             // TODO add support of specification instruction
             returnType = discoverFunctionType(nodesToCompile.get(0).getChildren(), returnValueInstruction);
         }
-        createAlgorithmInternalMethod(nodesToCompile, returnType);
+        createAlgorithmInternalMethod(nodesToCompile, returnType, new CompileContext());
 
     }
 
@@ -249,9 +257,9 @@ public class AlgorithmCompiler {
         return returnNodeSubList;
     }
 
-    private void createAlgorithmInternalMethod(List<AlgorithmTreeNode> nodesToCompile, IOpenClass returnType) {
+    private void createAlgorithmInternalMethod(List<AlgorithmTreeNode> nodesToCompile, IOpenClass returnType,
+            CompileContext methodContext) throws BoundError {
         // method name will be at every label
-        CompileContext methodContext = new CompileContext();
         for (StringValue label : nodesToCompile.get(0).getLabels()) {
             String methodName = label.getValue();
             IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName, returnType, IMethodSignature.VOID,
@@ -267,6 +275,9 @@ public class AlgorithmCompiler {
 
             functions.add(new AlgorithmFunctionCompiler(nodesToCompile, methodContext, method, this));
         }
+        Map<String, AlgorithmTreeNode> internalLablesOfMethod = AlgorithmCompilerTool
+                .getAllDeclaredLables(nodesToCompile);
+        methodContext.registerGroupOfLabels(internalLablesOfMethod);
     }
 
     private void declareVariable(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)

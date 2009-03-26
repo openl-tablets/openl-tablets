@@ -1,7 +1,9 @@
 package org.openl.rules.tbasic.compile;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.openl.IOpenSourceCodeModule;
@@ -14,6 +16,17 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
 public class AlgorithmCompilerTool {
+
+    public static Map<String, AlgorithmTreeNode> getAllDeclaredLables(List<AlgorithmTreeNode> nodesToSearch) {
+        Map<String, AlgorithmTreeNode> labels = new HashMap<String, AlgorithmTreeNode>();
+        for (AlgorithmTreeNode node : nodesToSearch) {
+            for (StringValue labelOfNode : node.getLabels()) {
+                labels.put(labelOfNode.getValue(), node);
+            }
+            labels.putAll(getAllDeclaredLables(node.getChildren()));
+        }
+        return labels;
+    }
 
     /**
      * 
