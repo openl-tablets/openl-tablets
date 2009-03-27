@@ -18,14 +18,13 @@ import org.openl.util.ArrayTool;
 public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants
 {
 
-	static public String[] typeButtons = { "Rules", "Data", "Method", "Datatype",
-			"Test", "Run", "Env", "Other" };
+	static public String[] typeButtons = { "Rules", "Spreadsheet", "TBasic", "Column Match", "Data",
+	    "Method", "Datatype", "Test", "Run", "Env", "Other" };
 
-	static public String[] types = { XLS_DT, XLS_DATA, XLS_METHOD, XLS_DATATYPE,
-			XLS_TEST_METHOD, XLS_RUN_METHOD, XLS_ENVIRONMENT, XLS_OTHER };
+	static public String[] types = { XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_DATA,
+	    XLS_METHOD, XLS_DATATYPE, XLS_TEST_METHOD, XLS_RUN_METHOD, XLS_ENVIRONMENT, XLS_OTHER };
 
 	boolean[] selectedType = new boolean[typeButtons.length];
-	
 	
 	static public String[] nfValues = {"", "NOT"};
 
@@ -133,13 +132,12 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants
 
 			ArrayList<ISearchTableRow> selectedRows = new ArrayList<ISearchTableRow>();
 			int nrows = tsi.numberOfRows();
-
-			for (int row = 0; row < nrows; row++)
-			{
+			for (int row = 0; row < nrows; row++) {
 				ISearchTableRow tr = new SearchTableRow(row, tsi);
-
-				if (!isRowSelected(tr, rselectors, tsi))
+				if (!(tsi instanceof TableSearchInfo)
+				        && !isRowSelected(tr, rselectors, tsi)) {
 					continue;
+				}
 				selectedRows.add(tr);
 			}
 			

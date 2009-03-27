@@ -33,6 +33,12 @@ public abstract class ATableRowSelector extends ASelector implements ITableNodeT
 			return new DataTableSearchInfo(tsn);
 		else if (XLS_RUN_METHOD.equals(tsn.getType()))
 			return new DataTableSearchInfo(tsn);
+		else if (XLS_SPREADSHEET.equals(tsn.getType()))
+            return new TableSearchInfo(tsn);
+		else if (XLS_TBASIC.equals(tsn.getType()))
+            return new TableSearchInfo(tsn);
+		else if (XLS_COLUMN_MATCH.equals(tsn.getType()))
+            return new TableSearchInfo(tsn);
 		return null;
 	}
 
