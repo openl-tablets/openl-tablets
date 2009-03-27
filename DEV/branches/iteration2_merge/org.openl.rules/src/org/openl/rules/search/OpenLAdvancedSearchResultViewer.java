@@ -29,11 +29,13 @@ public class OpenLAdvancedSearchResultViewer
 	
 		if (rows.length == 0)
 			return null;
-		
-		IGridTable[] tables = new IGridTable[rows.length+1];
-		
-		tables[0] = rows[0].getTableSearchInfo().headerDisplayTable();
-		
+
+		IGridTable header = rows[0].getTableSearchInfo().headerDisplayTable();
+		IGridTable[] tables = new IGridTable[rows.length + (header != null ? 1 : 0)];
+		if (header != null) {
+		    tables[0] = header;
+		}
+
 //		boolean isVertical = rows[0].getRowTable().isNormalOrientation();
 		
 		boolean isVertical = isVertical(rows[0].getRowTable());
@@ -41,7 +43,7 @@ public class OpenLAdvancedSearchResultViewer
 		
 		for (int i = 0; i < rows.length; i++)
 		{
-			tables[1+i] = align(rows[i].getRowTable(), isVertical);
+			tables[(header != null ? 1 : 0) + i] = align(rows[i].getRowTable(), isVertical);
 		}
 		
 		
