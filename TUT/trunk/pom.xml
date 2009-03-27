@@ -13,6 +13,12 @@
   <name>OpenL - Tutorials</name>
   <description />
 
+  <scm>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</connection>
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</developerConnection>
+  </scm>
+
+
   <build>
     <sourceDirectory>.</sourceDirectory>
     <plugins>
