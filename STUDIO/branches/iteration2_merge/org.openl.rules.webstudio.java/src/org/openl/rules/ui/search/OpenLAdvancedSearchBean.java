@@ -1,7 +1,5 @@
 package org.openl.rules.ui.search;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.search.GroupOperator;
 import org.openl.rules.search.OpenLAdvancedSearch;
-import org.openl.rules.search.OpenLAdvancedSearchResult;
 import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.search.SearchElement;
 import org.openl.rules.ui.ProjectModel;
