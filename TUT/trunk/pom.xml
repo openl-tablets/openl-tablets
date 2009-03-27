@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.base-pom</artifactId>
+    <version>5.2.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.tutorials</artifactId>
+  <name>OpenL - Tutorials</name>
+  <description />
+
+  <build>
+    <sourceDirectory>.</sourceDirectory>
+    <plugins>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>org.openl.tablets.tutorial*/**/*.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>.</directory>
+        <includes>
+          <include>org.openl.tablets.tutorial*/</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+    <dependencies>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.core</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.commons</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.exigen.rules</groupId>
+        <artifactId>com.exigen.rules.constrainer</artifactId>
+        <version>${version}</version>
+      </dependency>
+    </dependencies>
+</project>
