@@ -115,10 +115,15 @@ public class Operators
 		return new Double(d);
 	}
 	
+	
+	
+	
+	
 	static public int autocast(Integer I, int i)
 	{
 		return I.intValue();
 	}
+
 	
 	static public Long autocast(long l, Long L)
 	{
@@ -668,6 +673,15 @@ public class Operators
 		return new BigInteger(String.valueOf(x), 10);
 	}
 	
+	static public Number autocast(double d, Number N)
+	{
+		return (Double)d;
+	}
+
+	static public Number autocast(int i, Number N)
+	{
+		return (Integer)i;
+	}
 	
 	
 	
