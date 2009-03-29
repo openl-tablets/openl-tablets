@@ -5,7 +5,6 @@ package org.openl.rules.table.ui;
 
 import org.openl.rules.table.ICellInfo;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.xls.XlsDateFormat;
 import org.openl.util.Log;
 
 /**
