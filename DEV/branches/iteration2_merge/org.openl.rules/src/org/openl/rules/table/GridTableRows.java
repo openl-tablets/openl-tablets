@@ -22,7 +22,7 @@ public class GridTableRows extends AGridTableDelegator
 	public GridTableRows(IGridTable gridTable, int fromRow, int toRow)
 	{
 		super(gridTable);
-		if (fromRow > toRow)
+		if (fromRow - toRow > 1)
 		  throw new ArrayIndexOutOfBoundsException(toRow);
 		
 		this.fromRow = fromRow;
