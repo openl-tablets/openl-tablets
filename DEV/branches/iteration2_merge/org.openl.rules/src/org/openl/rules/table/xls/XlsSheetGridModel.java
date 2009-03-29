@@ -567,7 +567,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 			cellTo = createNewCell(colTo, rowTo);
 
 		cellTo.setCellType(HSSFCell.CELL_TYPE_BLANK);
-		cellTo.setCellType(cellFrom.getCellType());
+//		cellTo.setCellType(cellFrom.getCellType());
 
 		switch (cellFrom.getCellType())
 		{
@@ -577,7 +577,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 			cellTo.setCellValue(cellFrom.getBooleanCellValue());
 			break;
 		case HSSFCell.CELL_TYPE_FORMULA:
-			cellTo.setCellValue(cellFrom.getCellFormula());
+			cellTo.setCellFormula(cellFrom.getCellFormula());
 			break;
 		case HSSFCell.CELL_TYPE_NUMERIC:
 			cellTo.setCellValue(cellFrom.getNumericCellValue());
