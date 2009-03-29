@@ -3,7 +3,6 @@
  */
 package org.openl.rules.table;
 
-import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.IGridFilter;
 
 
