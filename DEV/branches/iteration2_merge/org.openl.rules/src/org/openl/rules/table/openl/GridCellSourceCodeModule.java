@@ -13,7 +13,6 @@ import java.io.StringReader;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 
 
