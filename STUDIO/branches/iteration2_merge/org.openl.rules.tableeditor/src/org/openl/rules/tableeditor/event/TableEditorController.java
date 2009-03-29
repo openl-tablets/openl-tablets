@@ -33,10 +33,14 @@ public class TableEditorController extends BaseTableViewController implements JS
         return FacesUtils.getRequestParameter(name);
     }
 
+    
+    
     private int getRequestIntParam(String name) {
         int param = -1;
         try {
-            param = Integer.parseInt(getRequestParam(name));
+        	String requestParam = getRequestParam(name);
+        	if (requestParam != null)
+        		param = Integer.parseInt(requestParam);
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
