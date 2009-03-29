@@ -1,5 +1,8 @@
 package org.openl.rules.calc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
@@ -17,18 +20,23 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo
 		this.node = node;
 	}
 	
-	SSheetBoundNode node;	
+	SSheetBoundNode node;
+	
+	protected IResultBuilder resultBuilder;	
 
 	static public Spreadsheet createSpreadsheet(IOpenMethodHeader header, SSheetBoundNode node)
 	{
 		return new Spreadsheet(header, node);
 	}
 
-	public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-
-		return new SpreadsheetResult(this, (IDynamicObject)target, params, env);
-	}
 	
+	
+	public Object invoke(Object target, Object[] params, IRuntimeEnv env)
+	{
+		SpreadsheetResult res = new SpreadsheetResult(this, (IDynamicObject)target, params, env);
+		
+		return resultBuilder.makeResult(res);
+	}
 	
 	
 	SCell[][] cells;
@@ -94,6 +102,48 @@ public class Spreadsheet extends AMethod implements IMemberMetaInfo
 	@Override
 	public IMemberMetaInfo getInfo() {
 		return this;
+	}
+
+
+
+	public IResultBuilder getResultBuilder() {
+		return resultBuilder;
+	}
+
+
+
+	public void setResultBuilder(IResultBuilder resultBuilder) {
+		this.resultBuilder = resultBuilder;
+	}
+
+
+
+	public List<SCell> listNonEmptyCells(
+			SpreadsheetHeaderDefinition hdef) 
+			{
+		List<SCell> list = new ArrayList<SCell>();
+		int row = hdef.row;
+		int col = hdef.column;
+		
+		if (row >= 0)
+		{
+			for(int i = 0; i < width(); ++i)
+			{
+				if (!cells[row][i].isEmpty())
+					list.add(cells[row][i]);
+			}
+		}
+		else
+		{
+			for(int i = 0; i < height(); ++i)
+			{
+				if (!cells[i][col].isEmpty())
+					list.add(cells[i][col]);
+			}
+		}	
+			
+		
+		return list;
 	}
 	
 	

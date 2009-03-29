@@ -103,6 +103,9 @@ public class SCell
 		else 
 			return null;
 	}
+
+	public boolean isEmpty() {
+		return kind == CellKind.EMPTY;	}
 	
 
 }

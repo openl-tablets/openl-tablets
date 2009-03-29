@@ -23,9 +23,11 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
+import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenMethodHeader;
@@ -35,6 +37,12 @@ public class SpreadsheetBuilder
 {
 
 	
+	private static final String RETURN_NAME = "RETURN";
+	private static final IResultBuilder DEFAULT_RESULT_BULDER = new IResultBuilder(){
+
+		public Object makeResult(SpreadsheetResult res) {
+			return res;
+		}};
 	IBindingContext cxt;
 	Spreadsheet spreadsheet;
 	TableSyntaxNode tsn;
@@ -42,7 +50,8 @@ public class SpreadsheetBuilder
 	Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
 	Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
 	
-	Map<String, SpreadsheetHeaderDefinition> varDefinitions = new HashMap<String, SpreadsheetHeaderDefinition>(); 
+	Map<String, SpreadsheetHeaderDefinition> varDefinitions = new HashMap<String, SpreadsheetHeaderDefinition>();
+	private SpreadsheetHeaderDefinition returnHeaderDefinition; 
 
 
 	public SpreadsheetBuilder(IBindingContext cxt, Spreadsheet spreadsheet, TableSyntaxNode tsn) {
@@ -140,8 +149,98 @@ public class SpreadsheetBuilder
 		}
 	}
 
+	List<ISyntaxError> errors = new ArrayList<ISyntaxError>();
+	
+	void checkError(BoundError err)
+	{
+		if (err != null)
+			errors.add(err);
+	}
+
 
 	public void build(ILogicalTable tableBody) {
+		
+		
+				
+		buildColumnRowNames(tableBody);
+		
+		buildColRowHeaderTypes();
+		
+		try {
+			processReturnCells();
+		} catch (BoundError e) {
+			errors.add(e);
+		}
+		
+		buildCells();
+		
+		
+		if (errors.size() == 0)
+			checkError(buildReturn());
+		
+		
+		for(ISyntaxError e : errors)
+		{	
+		
+			tsn.addError(e);
+			cxt.addError(e);
+		}
+	}
+	
+	protected BoundError processReturnCells() throws BoundError {
+		
+		SpreadsheetHeaderDefinition sdef = varDefinitions.get(RETURN_NAME);
+		
+		if (sdef == null)
+			return null;
+		
+		int ncells = calculateNonEmptyCells(sdef);
+		
+		
+		
+		IOpenClass ctype = deriveSingleCellReturnType(ncells, sdef);
+		if (sdef.getType() == null)
+			sdef.setType(ctype);
+		else 
+			throw new BoundError(sdef.getVars().get(0).name, "RETURN " + sdef.rowOrColumn() + " derives it's type from the Spreadsheet return type and therefore must not be defined here");
+		returnHeaderDefinition = sdef;
+		
+		return null;
+		
+	}
+
+
+
+	private int calculateNonEmptyCells(SpreadsheetHeaderDefinition sdef) {
+		
+		int fromRow = 0, toRow = rowNamesTable.getLogicalHeight();
+		int fromCol = 0, toCol = columnNamesTable.getLogicalWidth();
+		
+		if (sdef.isRow())
+		{	
+			fromRow = sdef.row; toRow = fromRow + 1;
+		}
+		else
+		{
+			fromCol = sdef.column; toCol = fromCol + 1;
+		}
+		int cnt = 0;
+		for(int col = fromCol; col < toCol; ++col)
+			for(int row = fromRow; row < toRow; ++ row)
+			{
+				ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable.getLogicalColumn(col));
+				String str =cell.getGridTable().getStringValue(0, 0);
+				if (str != null && str.trim().length() > 0)
+					++cnt;
+			}		
+		
+		
+		return cnt;
+	}
+
+
+
+	protected void buildColumnRowNames(ILogicalTable tableBody) {
 		rowNamesTable = tableBody.getLogicalColumn(0).rows(1);
 		columnNamesTable = tableBody.getLogicalRow(0).columns(1);
 
@@ -161,12 +260,62 @@ public class SpreadsheetBuilder
 			addColumnNames(col, columnNamesTable.getLogicalColumn(col));
 		}
 		
-		buildType();
-		buildCells();
+	}
+
+
+
+	private BoundError buildReturn() 
+	{
+		SymbolicTypeDef sdef = null;
+		if (returnHeaderDefinition != null)
+		{
+			sdef =  returnHeaderDefinition.findVarDef(RETURN_NAME);
+		}
+		
+		if (spreadsheet.getHeader().getType() == JavaOpenClass.getOpenClass(SpreadsheetResult.class))
+		{
+			if (returnHeaderDefinition != null)
+			{
+				return  new BoundError(sdef.name, "If Spreadsheet return type is SpreadsheetResult, no return type is allowed");
+			}
+			
+			spreadsheet.setResultBuilder(DEFAULT_RESULT_BULDER);
+			
+		}	
+		else if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID)
+		{
+			return new BoundError(tsn, "Spreadsheet can not return 'void' type");
+		}
+		else  //real return type
+		{
+			if (returnHeaderDefinition == null)
+			{
+				return new BoundError(tsn, "There should be RETURN row or column for this return type");
+			}
+			
+			List<SCell> notEmpty = spreadsheet.listNonEmptyCells(returnHeaderDefinition);
+			
+			switch(notEmpty.size())
+			{
+				case 0: 
+					return new BoundError(sdef.name, "There is no return expression cell");
+				case 1:
+					spreadsheet.setResultBuilder(new ScalarResultBuilder(notEmpty));
+					break;
+				default:	
+					spreadsheet.setResultBuilder(new ArrayResultBuilder(notEmpty, returnHeaderDefinition.getType()));
+					
+			}
+				
+		}	
+		
+		return null;
 		
 	}
-	
-	private void buildType() 
+
+
+
+	private void buildColRowHeaderTypes() 
 	{
 		
 		SpreadsheetType stype = new SpreadsheetType(null, spreadsheet.getName()+ "Type", cxt.getOpenL());
@@ -178,6 +327,7 @@ public class SpreadsheetBuilder
 			IOpenClass htype = null;
 			for(SymbolicTypeDef sx: h.vars)
 			{
+				
 				if (sx.type != null)
 				{
 					BoundError b = null; 
@@ -200,13 +350,38 @@ public class SpreadsheetBuilder
 				h.setType(htype);
 			
 			
-			for(SymbolicTypeDef sx: h.vars)
-			{
-				stype.addField(new SpreadsheetHeaderField(stype, sx.name, h));
-			}	
+//			for(SymbolicTypeDef sx: h.vars)
+//			{
+//				stype.addField(new SpreadsheetHeaderField(stype, sx.name, h));
+//			}	
 			
 		}
 		
+	}
+
+	/**
+	 * 
+	 * @param ncells 
+	 * @param sdef 
+	 * @return the type that should be in the cell that is located in RETURN row or column
+	 * 
+	 * Right now we allow only to return types = scalars or arrays. 
+	 * @throws BoundError 
+	 */
+	
+	private IOpenClass deriveSingleCellReturnType(int ncells, SpreadsheetHeaderDefinition sdef) throws BoundError 
+	{
+		IOpenClass retType = spreadsheet.getHeader().getType();
+		
+		if (ncells < 2)
+			return  retType;
+			
+		IAggregateInfo aggr = retType.getAggregateInfo();
+		if (aggr != null && aggr.getComponentType(retType) != null)
+			retType = aggr.getComponentType(retType);
+		else
+			throw new BoundError(sdef.findVarDef(RETURN_NAME).name, "The return type is scalar, but there are more than one return cells");
+		return retType;
 	}
 
 	ILogicalTable rowNamesTable; 
