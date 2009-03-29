@@ -66,6 +66,7 @@ public class ParserTest extends TestCase
 	public void testOperator() throws OpenConfigurationException
 	{
 		_testOperator("x+y", "op.binary.add");
+		_testOperator("x+3", "op.binary.add");
 		_testOperator("x-3", "op.binary.subtract");
 	}
 	
