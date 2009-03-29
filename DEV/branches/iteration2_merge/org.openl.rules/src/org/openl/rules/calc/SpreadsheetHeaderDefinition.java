@@ -62,5 +62,22 @@ public class SpreadsheetHeaderDefinition
 		return null;
 	}
 
+	public SymbolicTypeDef findVarDef(String name) {
+		for(SymbolicTypeDef sdef: vars)
+		{
+			if (sdef.name.getIdentifier().equals(name))
+				return sdef;
+		}	
+		return null;
+	}
+
+	public String rowOrColumn() {
+		return isRow()? "row" : "column";
+	}
+
+	public boolean isRow() {
+		return row >= 0;
+	}
+
 
 }
