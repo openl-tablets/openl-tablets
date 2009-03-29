@@ -30,7 +30,10 @@ public class JavaArrayAggregateInfo extends AAggregateInfo
    */
   public IOpenClass getComponentType(IOpenClass aggregateType)
   {
-  	return JavaOpenClass.getOpenClass(aggregateType.getInstanceClass().getComponentType());
+	Class<?> c = aggregateType.getInstanceClass().getComponentType();
+	if (c == null)
+		return null;
+  	return JavaOpenClass.getOpenClass(c);
   }
 
   public Iterator<Object> getIterator(Object aggregate)
