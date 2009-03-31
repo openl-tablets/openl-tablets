@@ -16,7 +16,6 @@ import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.syntax.ISyntaxError;
 
 /**
  * @author Aliaksandr Antonik.
@@ -38,10 +37,6 @@ public class WizardTestTable extends WizardBase {
 
         for (int i = 0; i < syntaxNodes.length; i++) {
             TableSyntaxNode node = syntaxNodes[i];
-            ISyntaxError[] errors = node.getErrors();
-            if (errors != null && errors.length > 0) {
-                continue;
-            }
             if (ITableNodeTypes.XLS_DT.equals(node.getType())) {
                 result.add(new SelectItem(i, node.getMember().getName()));
             }
@@ -63,7 +58,7 @@ public class WizardTestTable extends WizardBase {
     }
 
     private TableSyntaxNode[] getSyntaxNodes() {
-        return getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes();
+        return getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors();
     }
 
     public SelectItem[] getDecisionTables() {
