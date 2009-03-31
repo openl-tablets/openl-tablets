@@ -19,7 +19,6 @@ import org.openl.rules.dt.IDTCondition;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.syntax.ISyntaxError;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -76,7 +75,7 @@ public class DomainTree {
             DomainTree domainTree = new DomainTree();
 
             XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) projectInfo;
-            for (TableSyntaxNode node : xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes()) {
+            for (TableSyntaxNode node : xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors()) {
                 if (node.getType().equals(ITableNodeTypes.XLS_DT)) {
                     IOpenMember table = node.getMember();
                     if (table != null) {
@@ -98,10 +97,6 @@ public class DomainTree {
      * @param decisionTable decision table to scan.
      */
     private void scanTable(DecisionTable decisionTable) {
-        ISyntaxError[] errors = decisionTable.getTableSyntaxNode().getErrors();
-        if (errors != null && errors.length > 0) {
-            return;
-        }
         for (IOpenClass paramType : decisionTable.getHeader().getSignature().getParameterTypes()) {
             addType(paramType);
         }
