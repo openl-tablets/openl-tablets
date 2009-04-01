@@ -491,9 +491,13 @@ TableEditor.prototype = {
             onSuccess: function(response) {
                 response = eval(response.responseText);
                 if (response.status)
-                    alert(response.status)
+                    alert(response.status);
                 else {
                     self.processCallbacks(response, "do");
+                    var editor = cell.down('input');
+                    if (editor) {
+                        editor.style.textAlign = _align;
+                    }
                     cell.align = _align;
                 }
             },
