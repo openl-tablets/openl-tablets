@@ -199,16 +199,17 @@
 
     <c:forEach items="#{advancedSearchRequest.searchResults}" var="tableSearch">
         <br />
-        <img src="#{contextPath}/webresource/images/excel-workbook.png" />
-        <h:outputText value="#{tableSearch.xlsLink}" escape="false" />
-        <f:verbatim>&amp;nbsp;</f:verbatim>
-            <h:panelGroup rendered="#{not advancedSearch.studioReadOnly and tableSearch.tableUri}">
-                <br /><br />
-                <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
-                    <f:param name="uri" value="#{tableSearch.tableUri}" />
-                    <f:param name="mode" value="edit" />
-                    <h:outputText value="Edit table" />
-                </h:outputLink>
+        <h:panelGroup rendered="#{not advancedSearch.studioReadOnly}">
+            <img src="#{contextPath}/webresource/images/excel-workbook.png" />
+            <h:outputText value="#{tableSearch.xlsLink}" escape="false" />
+        </h:panelGroup>
+        <br />
+        <h:panelGroup>
+            <img src="#{contextPath}/webresource/images/viewTable.gif" />
+            <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                <f:param name="uri" value="#{tableSearch.tableUri}" />
+                <h:outputText value="View Table" />
+            </h:outputLink>
         </h:panelGroup>
         <br /><br />
         <rules:tableEditor table="#{tableSearch.table}" editable="false" rendered="#{tableSearch.table != null}">
