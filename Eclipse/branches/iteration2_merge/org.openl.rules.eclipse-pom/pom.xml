@@ -18,6 +18,7 @@
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <modules>
+    <module>../org.openl.eclipse.sources</module>
     <module>../org.openl.eclipse.site</module>
     <module>../org.openl.eclipse.ui</module>
     <module>../org.openl.rules.eclipse.ui</module>
@@ -132,6 +133,12 @@
       <dependency>
   	    <groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+  	<groupId>org.openl</groupId>
+        <artifactId>org.openl.eclipse.sources</artifactId>
         <version>${version}</version>
       </dependency>
 
@@ -393,6 +400,222 @@
       <version>${dep.version}</version>
     </dependency>
 
+
+
+
+    <!--SOURCES-->
+    <!-- DEV -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.core</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.commons</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.j</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.helpers</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.validator</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.j.science</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.lib.apache.poi.modified</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.exigen.rules</groupId>
+      <artifactId>com.exigen.rules.constrainer</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.util</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.eclipse.ui</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.conf.ant</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.conf.ant</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.wizard</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <!-- STUDIO -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.tableeditor</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.util</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.workspace</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.webstudio.java</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.webtools</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.security</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.security.standalone</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.diff</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.lib.apache.tomcat</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <!-- WSFrontend -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+      <classifier>sources</classifier>
+      <version>${dep.version}</version>
+    </dependency>
     </dependencies>
   </dependencyManagement>
 
