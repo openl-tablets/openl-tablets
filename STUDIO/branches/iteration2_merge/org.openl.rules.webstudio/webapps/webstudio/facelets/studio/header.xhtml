@@ -57,8 +57,11 @@
   <a href="#{contextPath}/main.jsp?reload=true&amp;select_wrapper=#{headerBean.selectedProject}" title="Refresh Project(s)" target="top"><img border='0' src="#{contextPath}/webresource/images/refresh.gif" alt="reload"/></a>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <a target="mainFrame" href="#{contextPath}/html/ws-intro.html" title="Help"><img border='0' src="#{contextPath}/webresource/images/help.gif" alt="help"/></a>
-  <f:verbatim>&amp;nbsp;</f:verbatim>
-  <h:commandLink target="mainFrame" action="#{tableWizardManager.start}" title="Create new table" rendered="#{headerBean.projectsExist}"><img border='0' src="#{contextPath}/webresource/images/newtable.gif" alt="new table"/></h:commandLink>
+  <h:panelGroup rendered="#{headerBean.projectsExist and not headerBean.projectReadOnly}">
+      <f:verbatim>&amp;nbsp;</f:verbatim>
+      <h:commandLink target="mainFrame" action="#{tableWizardManager.start}" title="Create new table">
+          <img border='0' src="#{contextPath}/webresource/images/newtable.gif" alt="new table"/></h:commandLink>
+  </h:panelGroup>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <c:if test="#{headerBean.repositoryFailed}">
     <img border='0' src="#{contextPath}/webresource/images/repository/storage-disabled.gif" alt="repo failed"/>
