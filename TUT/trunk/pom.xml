@@ -32,6 +32,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <includes>
+            <include>org.openl.rules.examples*/**/*.java</include>
             <include>org.openl.tablets.tutorial*/**/*.java</include>
           </includes>
         </configuration>
@@ -42,6 +43,7 @@
       <resource>
         <directory>.</directory>
         <includes>
+          <include>org.openl.rules.examples*/</include>
           <include>org.openl.tablets.tutorial*/</include>
         </includes>
       </resource>

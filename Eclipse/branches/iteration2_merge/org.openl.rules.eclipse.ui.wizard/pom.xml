@@ -57,7 +57,7 @@
               <goal>unpack</goal>
             </goals>
             <configuration>
-              <includes>org.openl.tablets.tutorial*/</includes>
+              <includes>org.openl.tablets.tutorial*/,org.openl.rules.examples*/</includes>
               <artifactItems>
                 <artifactItem>
                   <groupId>org.openl.rules</groupId>
