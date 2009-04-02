@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -296,19 +297,25 @@ public class ProjectModel implements IProjectTypes {
 			}
 			ATableTreeSorter[] ts = sorters[k];
 
+			HashSet<TableSyntaxNode> added = new HashSet<TableSyntaxNode>(); 
 			int cnt = 0;
 			for (int i = 0; i < nodes.length; i++) {
 				if (studio.getMode().select(nodes[i])) {
 					ATableTreeSorter.addElement(folder, nodes[i], ts, 0);
 					++cnt;
 				}
+				 else if (nodes[i].getErrors() != null)
+				 {	 
+					 ATableTreeSorter.addElement(folder, nodes[i], ts, 0);
+					 added.add(nodes[i]);
+				 }	 
 			}
 
 			if (cnt == 0) // no selection have been made (usually in a
 			// business mode)
 			{
 				for (int i = 0; i < nodes.length; i++) {
-					if (!nodes[i].getType().equals(ITableNodeTypes.XLS_OTHER))
+					if (!nodes[i].getType().equals(ITableNodeTypes.XLS_OTHER) && !added.contains(nodes[i]))
 						ATableTreeSorter.addElement(folder, nodes[i], ts, 0);
 				}
 			}
@@ -330,7 +337,7 @@ public class ProjectModel implements IProjectTypes {
 	}
 
 	private void addErrors(CompiledOpenClass comp, ProjectTreeElement root) {
-		String[] errName = { "Problems", "Problems", "Problems" };
+		String[] errName = { "All Errors", "All Errors", "All Errors" };
 
 		ProjectTreeElement errorFolder = new ProjectTreeElement(errName,
 				"folder", null, null, 0, null);
