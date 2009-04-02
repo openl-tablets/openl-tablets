@@ -248,23 +248,11 @@ public class FileIndexer extends WebTool
 			++cnt;
 			String[] res = new String[3];
 			String uri = hb.getElement().getUri();
-			res[0] = urlLink("../showLinks.jsp?"// +  StringTool.prepareXMLAttributeValue(query)
-					+ makeXlsOrDocUrl(uri), "View Table in Excel", "" + cnt +  ". " //'(' + hb.getWeight()+')' +
-					+ showElementHeader(hb.getElement()), "show_app_hidden");
-			res[1] = uri;
-			res[2] = htmlStringWithSelections(hb.getElement().getIndexedText(),
-					tokens);
+			res[0] = uri;
+			res[1] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
 			vres.add(res);
 		}
-
-	
-		
 		return (String[][])vres.toArray(new String[0][]);
-	}
-
-	static String showElementHeader(IIndexElement element)
-	{
-		return showElementHeader(element.getUri());
 	}
 
 	public static String showElementHeader(String uri)
@@ -313,11 +301,8 @@ public class FileIndexer extends WebTool
 
 			String[] s1 = new String[N];
 			String uri = hb.getElement().getUri();
-			s1[0] = urlLink("../showLinks.jsp?value=" +  StringTool.encodeHTMLBody(value)
-					+ makeXlsOrDocUrl(uri), "View Table in Excel", "" + i + ". "
-					+ showElementHeader(hb.getElement()), "show_app_hidden");
-			s1[1] = uri;
-			s1[2] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
+			s1[0] = uri;
+			s1[1] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
 			v.add(s1);
 		}
 
