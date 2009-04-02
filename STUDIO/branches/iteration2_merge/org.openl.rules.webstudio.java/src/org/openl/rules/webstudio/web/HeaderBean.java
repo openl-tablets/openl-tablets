@@ -6,6 +6,7 @@ import javax.faces.model.SelectItem;
 import javax.servlet.ServletRequest;
 
 import org.openl.rules.ui.OpenLWrapperInfo;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.util.net.NetUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import static org.openl.rules.webstudio.web.util.WebStudioUtils.getWebStudio;
@@ -33,6 +34,11 @@ public class HeaderBean {
     public boolean isProjectsExist() throws IOException {
         OpenLWrapperInfo[] wrappers = getWebStudio().getWrappers();
         return wrappers.length > 0;
+    }
+
+    public boolean isProjectReadOnly() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
+        return webStudio == null || webStudio.getModel().isReadOnly();
     }
 
     public String getSelectedProject() {
