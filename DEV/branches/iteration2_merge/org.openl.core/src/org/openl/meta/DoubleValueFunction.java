@@ -111,7 +111,7 @@ public class DoubleValueFunction extends DoubleValue
 
 	public String printValue()
 	{
-		return result.printValue();
+		return result.printValue(format);
 	}
 	
 	public Iterator<DoubleValue> getChildren()

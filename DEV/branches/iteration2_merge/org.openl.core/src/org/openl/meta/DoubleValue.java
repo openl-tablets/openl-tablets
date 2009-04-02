@@ -2,8 +2,11 @@ package org.openl.meta;
 
 
 import java.text.DecimalFormat;
+import java.text.Format;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.base.INamedThing;
 import org.openl.util.AOpenIterator;
@@ -20,6 +23,14 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 	
 	String format = "#0.##";
 	
+	public DoubleValue(double value, IMetaInfo metaInfo,  String format) {
+		super();
+		this.metaInfo = metaInfo;
+		this.value = value;
+		this.format = format;
+	}
+
+
 	public int compareTo(Number o)
 	{
 		return Double.compare(value, ((Number)o).doubleValue());
@@ -321,8 +332,27 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
 	
 		public String printValue()
 		{
-			return new DecimalFormat(format).format(getValue());
+			return printValue(format);
 		}
+		
+		
+		public String printValue(String format)
+		{
+			return getFormat(format).format(value);
+		}
+		
+		static Map<String, Format> formats = new HashMap<String, Format>();
+		static synchronized Format getFormat(String fmt)
+		{
+			Format format = formats.get(fmt);
+			if (format == null)
+			{
+				format = new DecimalFormat(fmt);
+				formats.put(fmt, format);
+			}
+			return format;
+		}
+		
 
 		public static DoubleValue negative(DoubleValue dv)
 		{
