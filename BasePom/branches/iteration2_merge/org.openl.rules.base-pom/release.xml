@@ -104,15 +104,15 @@
 	</target>
 	
 	<target name="prepare">
-            <antcall target="changeVersions">
+            <!--antcall target="changeVersions">
 			<param name="version" value="${release_version}"/>
 			<param name="version_for_poms" value="${release_version}"/>
 		</antcall>
-		<antcall target="fullCommit"/>
+		<antcall target="fullCommit"/-->
 	</target>
 	
 	<target name="execute" depends="prepare">
-		<antcall target="releaseModule">
+		<!--antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${basepom_folder}"/>
 		</antcall>
 		<antcall target="releaseModule">
@@ -123,12 +123,12 @@
 		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${wsfrontend_folder}"/>
+		</antcall-->
+        <antcall target="releaseModule">
+			<param name="moduleFolder" value="${root_folder}/${tut_folder}"/>
 		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${site_folder}"/>
-		</antcall>
-        <antcall target="releaseModule">
-			<param name="moduleFolder" value="${root_folder}/${tut_folder}"/>
 		</antcall>
 	</target>
 	
