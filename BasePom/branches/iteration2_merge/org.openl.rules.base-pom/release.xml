@@ -54,13 +54,13 @@
 			<param name="moduleFolder" value="${root_folder}/${studio_folder}"/>
 		</antcall>
 		<antcall target="commitModule">
-			<param name="moduleFolder" value="${root_folder}/{wsfrontend_folder}"/>
+			<param name="moduleFolder" value="${root_folder}/${wsfrontend_folder}"/>
 		</antcall>
 		<antcall target="commitModule">
-			<param name="moduleFolder" value="${root_folder}/{site_folder}"/>
+			<param name="moduleFolder" value="${root_folder}/${site_folder}"/>
 		</antcall>
         <antcall target="commitModule">
-			<param name="moduleFolder" value="${root_folder}/{tut_folder}"/>
+			<param name="moduleFolder" value="${root_folder}/${tut_folder}"/>
 		</antcall>
 	</target>
 	
@@ -75,13 +75,13 @@
 			<param name="projects_root" value="${root_folder}/${studio_folder}"/>
 		</antcall>
 		<antcall target="change">
-			<param name="projects_root" value="${root_folder}/{wsfrontend_folder}"/>
+			<param name="projects_root" value="${root_folder}/${wsfrontend_folder}"/>
 		</antcall>
 		<antcall target="change">
-			<param name="projects_root" value="${root_folder}/{site_folder}"/>
+			<param name="projects_root" value="${root_folder}/${site_folder}"/>
 		</antcall>
         <antcall target="change">
-			<param name="projects_root" value="${root_folder}/{tut_folder}"/>
+			<param name="projects_root" value="${root_folder}/${tut_folder}"/>
 		</antcall>
 	</target>
 
@@ -97,14 +97,14 @@
 		</maven>
 	</target>
 
-	<target name="releaseModule" >
+	<target name="releaseModule" depends="prepareModule">
 		<maven dir="${moduleFolder}" failonerror="false">
 			<arg line="release:perform -Darguments=&quot;-P internal-deploy&quot;" />
 		</maven>
 	</target>
 	
 	<target name="prepare">
-		<antcall target="changeVersions">
+            <antcall target="changeVersions">
 			<param name="version" value="${release_version}"/>
 			<param name="version_for_poms" value="${release_version}"/>
 		</antcall>
@@ -122,13 +122,13 @@
 			<param name="moduleFolder" value="${root_folder}/${studio_folder}"/>
 		</antcall>
 		<antcall target="releaseModule">
-			<param name="moduleFolder" value="${root_folder}/{wsfrontend_folder}"/>
+			<param name="moduleFolder" value="${root_folder}/${wsfrontend_folder}"/>
 		</antcall>
 		<antcall target="releaseModule">
-			<param name="moduleFolder" value="${root_folder}/{site_folder}"/>
+			<param name="moduleFolder" value="${root_folder}/${site_folder}"/>
 		</antcall>
         <antcall target="releaseModule">
-			<param name="moduleFolder" value="${root_folder}/{tut_folder}"/>
+			<param name="moduleFolder" value="${root_folder}/${tut_folder}"/>
 		</antcall>
 	</target>
 	
