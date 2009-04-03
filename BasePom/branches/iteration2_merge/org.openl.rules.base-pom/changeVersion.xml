@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ChangeVersion" basedir="." default="help">
 
-    <property file="version.properties"/>
     <property name="projects_root" value=".."/>
 
     <fileset
@@ -66,6 +65,11 @@
         <replaceregexp byline="true" description="Updates dependecies version">
             <regexp pattern="\s*&lt;dep.version&gt;.*&lt;/dep.version&gt;"/>
             <substitution expression="    &lt;dep.version&gt;${version_for_poms}&lt;/dep.version&gt;"/>
+            <fileset refid="project_pom"/>
+        </replaceregexp>
+        <replaceregexp byline="true" description="Updates openl version for site">
+            <regexp pattern="\s*&lt;openl.version&gt;.*&lt;/openl.version&gt;"/>
+            <substitution expression="    &lt;openl.version&gt;${version}&lt;/openl.version&gt;"/>
             <fileset refid="project_pom"/>
         </replaceregexp>
     </target>
