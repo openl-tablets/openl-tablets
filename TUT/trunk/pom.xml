@@ -19,6 +19,10 @@
 <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/trunk</developerConnection>
   </scm>
 
+  <properties>
+    <dep.version>5.2.0</dep.version>
+  </properties>
+
 
   <build>
     <sourceDirectory>.</sourceDirectory>
@@ -73,25 +77,25 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <version>${version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.core</artifactId>
-        <version>${version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons</artifactId>
-        <version>${version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
         <groupId>com.exigen.rules</groupId>
         <artifactId>com.exigen.rules.constrainer</artifactId>
-        <version>${version}</version>
+        <version>${dep.version}</version>
       </dependency>
     </dependencies>
 </project>
