@@ -133,13 +133,13 @@
       <dependency>
   	    <groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
-        <version>${dep.version}</version>
+        <version>${version}</version>
       </dependency>
 
       <dependency>
   	<groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.sources</artifactId>
-        <version>${dep.version}</version>
+        <version>${version}</version>
       </dependency>
 
       <!-- DEV -->
@@ -152,7 +152,7 @@
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.eclipse.ui.util</artifactId>
-        <version>${dep.version}</version>
+        <version>${version}</version>
     </dependency>
 
 
@@ -472,21 +472,21 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.eclipse.ui</artifactId>
       <classifier>sources</classifier>
-      <version>${dep.version}</version>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.eclipse.ui.util</artifactId>
       <classifier>sources</classifier>
-      <version>${dep.version}</version>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.eclipse.ui</artifactId>
       <classifier>sources</classifier>
-      <version>${dep.version}</version>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
@@ -507,14 +507,14 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.eclipse.ui.wizard</artifactId>
       <classifier>sources</classifier>
-      <version>${dep.version}</version>
+      <version>${version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
       <classifier>sources</classifier>
-      <version>${dep.version}</version>
+      <version>${version}</version>
     </dependency>
 
     <!-- STUDIO -->
