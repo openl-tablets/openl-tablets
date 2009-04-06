@@ -133,13 +133,13 @@
       <dependency>
   	    <groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
-        <version>${version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <dependency>
   	<groupId>org.openl</groupId>
         <artifactId>org.openl.eclipse.sources</artifactId>
-        <version>${version}</version>
+        <version>${dep.version}</version>
       </dependency>
 
       <!-- DEV -->
@@ -152,7 +152,7 @@
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.eclipse.ui.util</artifactId>
-        <version>${version}</version>
+        <version>${dep.version}</version>
     </dependency>
 
 
