@@ -145,12 +145,6 @@
       <classifier>sources</classifier>
     </dependency>
 
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
-      <classifier>sources</classifier>
-    </dependency>
-
     <!-- STUDIO -->
     <dependency>
       <groupId>org.openl.rules</groupId>
@@ -215,12 +209,6 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.diff</artifactId>
-      <classifier>sources</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib.apache.tomcat</artifactId>
       <classifier>sources</classifier>
     </dependency>
 
