@@ -126,27 +126,6 @@ public class EventRecordFactory {
      */
     private static final Class[] records;
 
-    /**
-     * cache of the recordsToMap();
-     */
-    private static Map recordsMap = recordsToMap(records);
-
-    /**
-     * cache of the return of getAllKnownSids so that we don't have to
-     * expensively get them every time.
-     */
-    private static short[] sidscache;
-
-    /**
-     * List of the listners that are registred. should all be ERFListener
-     */
-    private List listeners;
-
-    /**
-     * instance is abortable or not
-     */
-    private boolean abortable;
-
     static {
         records = new Class[] { BOFRecord.class, InterfaceHdrRecord.class, MMSRecord.class, InterfaceEndRecord.class,
                 WriteAccessRecord.class, CodepageRecord.class, DSFRecord.class, TabIdRecord.class,
@@ -168,7 +147,29 @@ public class EventRecordFactory {
                 PaletteRecord.class, StringRecord.class, SharedFormulaRecord.class };
 
     }
+    
+    /**
+     * cache of the recordsToMap();
+     */
+    private static Map recordsMap = recordsToMap(records);
 
+    /**
+     * cache of the return of getAllKnownSids so that we don't have to
+     * expensively get them every time.
+     */
+    private static short[] sidscache;
+
+    /**
+     * List of the listners that are registred. should all be ERFListener
+     */
+    private List listeners;
+
+    /**
+     * instance is abortable or not
+     */
+    private boolean abortable;
+
+    
     /**
      * create a record, if there are MUL records than multiple records are
      * returned digested into the non-mul form.
