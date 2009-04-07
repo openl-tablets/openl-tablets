@@ -1,0 +1,117 @@
+/* ====================================================================
+ Copyright 2002-2004   Apache Software Foundation
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ==================================================================== */
+
+/*
+ * ExtSSTInfoSubRecord.java
+ *
+ * Created on September 8, 2001, 8:37 PM
+ */
+package org.apache.poi.hssf.record;
+
+import org.apache.poi.util.LittleEndian;
+
+/**
+ * Extended SST table info subrecord
+ * <P>
+ * contains the elements of "info" in the SST's array field
+ * <P>
+ *
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ * @see org.apache.poi.hssf.record.ExtSSTRecord
+ */
+
+public class ExtSSTInfoSubRecord extends Record {
+    public static final int INFO_SIZE = 8;
+    public final static short sid = 0xFFF; // only here for conformance,
+                                            // doesn't really have an sid
+    private int field_1_stream_pos; // stream pointer to the SST record
+    private short field_2_bucket_sst_offset; // don't really understand this
+                                                // yet.
+    private short field_3_zero; // must be 0;
+
+    /** Creates new ExtSSTInfoSubRecord */
+
+    public ExtSSTInfoSubRecord() {
+    }
+
+    public ExtSSTInfoSubRecord(short id, short size, byte[] data) {
+        super(id, size, data);
+    }
+
+    public ExtSSTInfoSubRecord(short id, short size, byte[] data, int offset) {
+        super(id, size, data, offset);
+    }
+
+    @Override
+    protected void fillFields(byte[] data, short size, int offset) {
+        field_1_stream_pos = LittleEndian.getInt(data, 0 + offset);
+        field_2_bucket_sst_offset = LittleEndian.getShort(data, 4 + offset);
+        field_3_zero = LittleEndian.getShort(data, 6 + offset);
+    }
+
+    public short getBucketSSTOffset() {
+        return field_2_bucket_sst_offset;
+    }
+
+    @Override
+    public int getRecordSize() {
+        return 8;
+    }
+
+    @Override
+    public short getSid() {
+        return sid;
+    }
+
+    public int getStreamPos() {
+        return field_1_stream_pos;
+    }
+
+    @Override
+    public int serialize(int offset, byte[] data) {
+        LittleEndian.putInt(data, 0 + offset, getStreamPos());
+        LittleEndian.putShort(data, 4 + offset, getBucketSSTOffset());
+        LittleEndian.putShort(data, 6 + offset, (short) 0);
+        return getRecordSize();
+    }
+
+    public void setBucketRecordOffset(short offset) {
+        field_2_bucket_sst_offset = offset;
+    }
+
+    public void setStreamPos(int pos) {
+        field_1_stream_pos = pos;
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append("[EXTSST]\n");
+        buffer.append("    .streampos      = ").append(Integer.toHexString(getStreamPos())).append("\n");
+        buffer.append("    .bucketsstoffset= ").append(Integer.toHexString(getBucketSSTOffset())).append("\n");
+        buffer.append("    .zero           = ").append(Integer.toHexString(field_3_zero)).append("\n");
+        buffer.append("[/EXTSST]\n");
+        return buffer.toString();
+    }
+
+    @Override
+    protected void validateSid(short id) {
+
+        // do nothing
+    }
+}
