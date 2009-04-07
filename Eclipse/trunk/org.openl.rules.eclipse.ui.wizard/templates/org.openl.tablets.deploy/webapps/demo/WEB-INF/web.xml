@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+  <context-param>
+    <param-name>javax.faces.DEFAULT_SUFFIX</param-name>
+    <param-value>.jsp</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>log4jConfigLocation</param-name>
+    <param-value>/WEB-INF/conf/log4j.properties</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>log4jRefreshInterval</param-name>
+    <param-value>5000</param-value><!-- every 5 seconds -->
+  </context-param>
+
+  <!-- TODO: solve problem with Log4jConfigListeners enabled both in webstudio and demo apps.
+  <listener>
+    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+  </listener>
+  -->
+
+  <servlet>
+    <servlet-name>Faces Servlet</servlet-name>
+    <servlet-class>org.apache.myfaces.webapp.MyFacesServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.jsf</url-pattern>
+  </servlet-mapping>
+
+</web-app>
