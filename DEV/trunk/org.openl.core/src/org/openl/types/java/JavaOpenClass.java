@@ -575,7 +575,8 @@ public class JavaOpenClass extends AOpenClass {
 
     @SuppressWarnings("unchecked")
     public Iterator<IOpenClass> superClasses() {
-        IOpenIterator<Class> ic = OpenIterator.fromArray(instanceClass.getInterfaces());
+        Class[] tmp = instanceClass.getInterfaces();
+        IOpenIterator<Class> ic = OpenIterator.fromArray(tmp);
 
         IOpenIterator<IOpenClass> interfaces = ic.collect(new Class2JavaOpenClassCollector());
 
