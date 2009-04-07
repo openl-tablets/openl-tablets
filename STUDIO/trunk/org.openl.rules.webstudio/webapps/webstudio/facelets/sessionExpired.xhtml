@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ui:composition
-  xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:h="http://java.sun.com/jsf/html">
-    <script type="text/javascript">
-        alert("While you were absent, your session has expired.");
-        top.location.href = "<h:outputText value='#{facesContext.externalContext.request.contextPath}' />";
-    </script>
-</ui:composition>
