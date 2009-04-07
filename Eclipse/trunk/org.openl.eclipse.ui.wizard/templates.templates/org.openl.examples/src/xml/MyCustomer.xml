@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<MyCustomer name="Robinson">  
-<child name= "Paul" age="17" gender="M"/>
-<child name="Ann" age="21" gender="F" />
-</MyCustomer> 
