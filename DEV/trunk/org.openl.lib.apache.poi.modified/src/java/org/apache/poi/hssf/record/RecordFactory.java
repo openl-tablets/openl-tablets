@@ -43,7 +43,6 @@ public class RecordFactory {
     private static int NUM_RECORDS = 10000;
     private static final Class[] records;
 
-    private static Map recordsMap = recordsToMap(records);
     static {
         if (FormulaRecord.EXPERIMENTAL_FORMULA_SUPPORT_ENABLED) {
             records = new Class[] { BOFRecord.class, InterfaceHdrRecord.class, MMSRecord.class,
@@ -90,9 +89,11 @@ public class RecordFactory {
                     PaletteRecord.class, StringRecord.class, RecalcIdRecord.class, SharedFormulaRecord.class,
                     DrawingRecord.class, DrawingGroupRecord.class, DrawingSelectionRecord.class, ObjRecord.class,
                     TextObjectRecord.class, HorizontalPageBreakRecord.class, VerticalPageBreakRecord.class };
-
         }
     }
+
+    private static Map recordsMap = recordsToMap(records);
+    
 
     public static Record[] createRecord(short rectype, short size, byte[] data) {
         Record retval = null;
