@@ -79,6 +79,10 @@
         <includes>
           <include>lib/**/*.jar</include>
         </includes>
+        <!-- Exclude poi-2.x - optional dependency from DbUnit -->
+        <excludes>
+          <exclude>lib/poi-2.5.1-final-20040804.jar</exclude>
+        </excludes>
       </resource>
     </resources>
   </build>
