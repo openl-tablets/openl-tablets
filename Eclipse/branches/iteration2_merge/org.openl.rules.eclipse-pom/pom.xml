@@ -193,12 +193,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.openl</groupId>
-        <artifactId>org.openl.lib.apache.poi.modified</artifactId>
-        <version>${dep.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>com.exigen.rules</groupId>
         <artifactId>com.exigen.rules.constrainer</artifactId>
         <version>${dep.version}</version>
@@ -450,13 +444,6 @@
     <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.j.science</artifactId>
-      <classifier>sources</classifier>
-      <version>${dep.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib.apache.poi.modified</artifactId>
       <classifier>sources</classifier>
       <version>${dep.version}</version>
     </dependency>
