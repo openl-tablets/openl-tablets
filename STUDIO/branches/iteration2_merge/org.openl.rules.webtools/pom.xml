@@ -58,11 +58,6 @@
       <artifactId>org.openl.commons</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib.apache.poi.modified</artifactId>
-    </dependency>
-
   </dependencies>
 
 </project>
