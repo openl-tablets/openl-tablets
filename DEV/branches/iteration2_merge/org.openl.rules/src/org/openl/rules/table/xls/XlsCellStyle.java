@@ -29,11 +29,14 @@ public class XlsCellStyle implements ICellStyle
 
 	public short[] getFillBackgroundColor()
 	{
-		short x = xlsStyle.getFillBackgroundColor();
-		return colorToArray(x, workbook);
+	    if (hasNoFill()) return null;
+        short x = xlsStyle.getFillBackgroundColor();
+        return colorToArray(x, workbook);
 	}
 	
-	
+	public boolean hasNoFill() {
+	    return (xlsStyle.getFillPattern() == HSSFCellStyle.NO_FILL);
+	}
 	
 	
 
@@ -117,6 +120,7 @@ public class XlsCellStyle implements ICellStyle
 
 	public short[] getFillForegroundColor()
 	{
+	    if (hasNoFill()) return null;
 		short x = xlsStyle.getFillForegroundColor();
 		return colorToArray(x, workbook);
 	}
