@@ -248,6 +248,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 		dest.setBorderBottom(bs[2]);
 		dest.setBorderLeft(bs[3]);
 
+		// TODO Can't we clone style like below?
+		// dest.cloneStyleFrom(oldStyle);
 		if (oldStyle != null) {
 			dest.setBottomBorderColor(oldStyle.getBottomBorderColor());
 			dest.setTopBorderColor(oldStyle.getTopBorderColor());
@@ -589,7 +591,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 			throw new RuntimeException("Unknown cell type: " + cellFrom.getCellType());
 		}
 
-		cellTo.setCellStyle(cellFrom.getCellStyle());
+//		cellTo.setCellStyle(cellFrom.getCellStyle());
+        cellTo.getCellStyle().cloneStyleFrom(cellFrom.getCellStyle());
 		setCellMetaInfo(colTo, rowTo, meta);
 	}
 

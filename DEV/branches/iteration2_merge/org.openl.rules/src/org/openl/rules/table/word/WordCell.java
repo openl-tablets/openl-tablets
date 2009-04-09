@@ -1,5 +1,6 @@
 package org.openl.rules.table.word;
 
+import org.apache.poi.hwpf.usermodel.RangeHack;
 import org.apache.poi.hwpf.usermodel.TableCell;
 import org.openl.rules.table.syntax.XlsURLConstants;
 
@@ -26,8 +27,8 @@ public class WordCell
 	
 	public String getUri()
 	{
-		return XlsURLConstants.PARAGRAPH_START + "=" + (tcell.getParStart()+1) + 
-		"&" + XlsURLConstants.PARAGRAPH_END + "=" + (tcell.getParStart() + tcell.numParagraphs());
+		return XlsURLConstants.PARAGRAPH_START + "=" + getParStart() + 
+		"&" + XlsURLConstants.PARAGRAPH_END + "=" + getParEnd();
 	}
 
 	public String getStringValue()
@@ -42,12 +43,14 @@ public class WordCell
 
 	public int getParStart()
 	{
-		return tcell.getParStart() + 1;
+//		return tcell.getParStart() + 1;
+        return RangeHack.getParStart(tcell) + 1;
 	}
 
 	public int getParEnd()
 	{
-		return tcell.getParStart() + tcell.numParagraphs();
+//		return tcell.getParStart() + tcell.numParagraphs();
+        return RangeHack.getParStart(tcell) + tcell.numParagraphs();
 	}
 	
 }

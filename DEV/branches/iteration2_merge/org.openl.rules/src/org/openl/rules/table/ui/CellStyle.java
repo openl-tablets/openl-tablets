@@ -96,7 +96,7 @@ public class CellStyle implements ICellStyle
 		this.fillForegroundColor = fillForegroundColor;
 	}
 
-	public int getHorizontalAlignment()
+    public int getHorizontalAlignment()
 	{
 		return this.horizontalAlignment;
 	}
