@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tomcat Plug-in
 Bundle-SymbolicName: org.openl.lib.apache.tomcat
-Bundle-Version: 5.3.0
+Bundle-Version: 5.2.0
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL Tablets
 Bundle-ClassPath: apache-tomcat-5.5.17/bin/bootstrap.jar,
