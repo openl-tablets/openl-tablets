@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Test
+Bundle-SymbolicName: org.openl.test
+Bundle-Version: 5.2.0
+Bundle-Localization: plugin
+Require-Bundle: org.openl.core;visibility:=reexport,
+ org.openl.conf.ant,
+ org.openl.j,
+ org.openl.rules.helpers
+Eclipse-AutoStart: true
+Bundle-Vendor: OpenL
+Export-Package: all.tests,
+ all.tests.openl.j,
+ org.openl,
+ org.openl.binding,
+ org.openl.conf.ant,
+ org.openl.domain,
+ org.openl.syntax,
+ org.openl.syntax.impl,
+ org.openl.types.java,
+ org.openl.util,
+ org.openl.util.conf,
+ org.openl.util.text
