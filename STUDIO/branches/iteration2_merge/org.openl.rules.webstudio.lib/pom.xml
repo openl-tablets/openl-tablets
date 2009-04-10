@@ -52,7 +52,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/../lib</outputDirectory>
-              <excludeGroupIds>com.exigen.rules,org.openl,org.openl.rules</excludeGroupIds>
+              <excludeGroupIds>com.exigen.rules,org.openl,org.openl.rules,org.apache.poi</excludeGroupIds>
               <excludeArtifactIds>junit,servlet-api</excludeArtifactIds>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
