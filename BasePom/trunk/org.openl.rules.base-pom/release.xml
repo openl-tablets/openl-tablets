@@ -87,19 +87,19 @@
 
 	<target name="prepareModule">
 		<maven dir="${moduleFolder}" failonerror="false">
-			<arg line="release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
+			<arg line="-B release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
 		</maven>
 		<exec executable="svn">
 			<arg line="update ${moduleFolder}"/>
 		</exec>
 		<maven dir="${moduleFolder}" failonerror="false">
-			<arg line="release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
+			<arg line="-B release:prepare -DautoVersionSubmodules=true -DdevelopmentVersion=${next_maven_version} -DscmCommentPrefix=EPBDS-345.[maven-release-plugin] -Dtag=release-${release_version}  -Dusername=${svnLogin} -Dpassword=${svnPassword} -DreleaseVersion=${release_version} -Darguments=&quot;-P internal-deploy&quot;"/>
 		</maven>
 	</target>
 
 	<target name="releaseModule" depends="prepareModule">
 		<maven dir="${moduleFolder}" failonerror="false">
-			<arg line="release:perform -Darguments=&quot;-P internal-deploy&quot;" />
+			<arg line="-B release:perform -Darguments=&quot;-P internal-deploy&quot;" />
 		</maven>
 	</target>
 	
