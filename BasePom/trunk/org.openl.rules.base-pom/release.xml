@@ -115,7 +115,7 @@
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${basepom_folder}"/>
 		</antcall>
-		<antcall target="releaseModule">
+		<!--antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${dev_folder}"/>
 		</antcall>
 		<antcall target="releaseModule">
@@ -129,7 +129,7 @@
 		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${site_folder}"/>
-		</antcall>
+		</antcall-->
 	</target>
 	
 	<target name="fullRelease" depends="execute">
