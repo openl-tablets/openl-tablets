@@ -147,11 +147,11 @@ public class StringTool {
 
     static final char[] STRING_TO_XML_REPLACE_FROM = { '>', '<', '&', '\'', '"' };
 
-    static final String[] STRING_TO_XML_REPLACE_TO = { "&gt;", "&lt;", "&amp;", "&apos;", "&quot;" };
+    static final String[] STRING_TO_XML_REPLACE_TO = { "&gt;", "&lt;", "&amp;", "&#39;", "&quot;" };
 
     static final char[] STRING_TO_XML_BODY_REPLACE_FROM = { '>', '<', '&', '\'', '"', ' ' };
 
-    static final String[] STRING_TO_XML_BODY_REPLACE_TO = { "&gt;", "&lt;", "&amp;", "&apos;", "&quot;", "&nbsp;" };
+    static final String[] STRING_TO_XML_BODY_REPLACE_TO = { "&gt;", "&lt;", "&amp;", "&#39;", "&quot;", "&nbsp;" };
 
     static final public int EMPTY = 1, COPY = 2, ERROR = 3;
 
