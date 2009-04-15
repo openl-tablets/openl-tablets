@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Reader;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
@@ -16,9 +17,10 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
   XlsWorkbookSourceCodeModule workbookSource;
   
-  HSSFSheet sheet;
+//  HSSFSheet sheet;
+  Sheet sheet;
 
-  public XlsSheetSourceCodeModule(HSSFSheet sheet, String sheetName,
+  public XlsSheetSourceCodeModule(Sheet sheet, String sheetName,
   		XlsWorkbookSourceCodeModule workbookSource)
   {
   	this.sheet = sheet;
@@ -89,7 +91,7 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 		return getUri(0);
 	}
 
-	public HSSFSheet getSheet()
+	public Sheet getSheet()
 	{
 		return sheet;
 	}
