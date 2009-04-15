@@ -8,6 +8,7 @@ package org.openl.rules.table.xls;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 
 
@@ -171,7 +172,7 @@ public class XlsCellStyle implements ICellStyle
 		return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getVerticalAlignment();
 	}
 
-	public HSSFCellStyle getXlsStyle() {
+	public CellStyle getXlsStyle() {
 	    return xlsStyle;
 	}
 

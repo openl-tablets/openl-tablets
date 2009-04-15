@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
@@ -25,11 +26,12 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement
 {
 	
-	HSSFWorkbook workbook;
+//	HSSFWorkbook workbook;
+	Workbook workbook;
 
 	private Collection<WorkbookListener> listeners = new ArrayList<WorkbookListener>();
 
-	public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, HSSFWorkbook workbook)
+	public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, Workbook workbook)
 	{
 		super(src);
 		this.workbook = workbook;
@@ -153,7 +155,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 		
 	}
 
-	public HSSFWorkbook getWorkbook()
+	public Workbook getWorkbook()
 	{
 		return workbook;
 	}

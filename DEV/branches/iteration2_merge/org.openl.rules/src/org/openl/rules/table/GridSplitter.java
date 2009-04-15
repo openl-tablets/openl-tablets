@@ -36,6 +36,7 @@ public class GridSplitter
     {
 
       int ncells = grid.getMaxColumnIndex(row) + 1;
+      if (ncells == 0) continue;
 
       for (int col = grid.getMinColumnIndex(row); col < ncells; col++)
       {

@@ -16,6 +16,9 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * Class that allows creating tables in specified excel sheet.
@@ -39,7 +42,7 @@ public class TableBuilder {
     /** Current table row to write. */
     private int currentRow;
     /**Default cell style. */
-    private HSSFCellStyle defaultCellStyle;
+    private CellStyle defaultCellStyle;
 
     /**
      * Creates new instance.
@@ -112,11 +115,11 @@ public class TableBuilder {
      * 
      * @return cell style
      */
-    protected HSSFCellStyle getDefaultCellStyle() {
+    protected CellStyle getDefaultCellStyle() {
         if (defaultCellStyle == null) {
-            HSSFWorkbook workbook = gridModel.getSheetSource()
+            Workbook workbook = gridModel.getSheetSource()
                     .getWorkbookSource().getWorkbook();
-            HSSFCellStyle cellStyle = workbook.createCellStyle();
+            CellStyle cellStyle = workbook.createCellStyle();
 
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
@@ -238,7 +241,7 @@ public class TableBuilder {
      */
     protected void writeCell(int x, int y, int width, int height, Object value,
             ICellStyle style) {
-        HSSFCellStyle cellStyle = null;
+        CellStyle cellStyle = null;
         if (style != null) {
             cellStyle = ((XlsCellStyle) style).getXlsStyle();
         } else {
@@ -247,7 +250,7 @@ public class TableBuilder {
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
-            HSSFCell cell = gridModel.createNewCell(x, y);
+            Cell cell = gridModel.createNewCell(x, y);
             gridModel.setCellValue(x, y, value);
             cell.setCellStyle(cellStyle);
         } else {
