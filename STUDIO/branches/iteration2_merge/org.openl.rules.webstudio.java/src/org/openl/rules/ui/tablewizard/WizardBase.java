@@ -8,8 +8,6 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -87,10 +85,10 @@ public abstract class WizardBase extends BaseWizardBean {
             return Collections.EMPTY_LIST;
         }
 
-        Workbook hssfWorkbook = currentSheet.getWorkbook();
-        List<SelectItem> items = new ArrayList<SelectItem>(hssfWorkbook.getNumberOfSheets());
-        for (int i = 0; i < hssfWorkbook.getNumberOfSheets(); ++i) {
-            items.add(new SelectItem(i, hssfWorkbook.getSheetName(i)));
+        Workbook workbook = currentSheet.getWorkbook();
+        List<SelectItem> items = new ArrayList<SelectItem>(workbook.getNumberOfSheets());
+        for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
+            items.add(new SelectItem(i, workbook.getSheetName(i)));
         }
         return items;
     }

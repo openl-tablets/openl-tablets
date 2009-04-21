@@ -4,6 +4,7 @@
  */
 package org.openl.rules.ui;
 
+import org.openl.rules.webtools.FileTypeHelper;
 import org.openl.rules.webtools.indexer.FileIndexer;
 import org.openl.rules.webstudio.util.WebstudioTreeIterator;
 import org.openl.util.Log;
@@ -32,18 +33,18 @@ public class ProjectIndexer extends FileIndexer
 	
 	synchronized void  loadFiles()
 	{
-		TreeIterator fti = new WebstudioTreeIterator(new File(projectRoot), 0);
+		TreeIterator<File> fti = new WebstudioTreeIterator(new File(projectRoot), 0);
 		
-		HashMap m = new HashMap();
+		HashMap<String, String> m = new HashMap<String, String>();
 	    for (; fti.hasNext();) {
-			File f = (File) fti.next();
-			
-			if (f.getName().endsWith(".xls") || f.getName().endsWith(".doc"))
+			File f = fti.next();
+			String fileName = f.getName();
+			if (FileTypeHelper.isExcelFile(fileName) || FileTypeHelper.isWordFile(fileName))
 				try {
 					String cp = f.getCanonicalPath(); 
 					
 					String name = f.getName();
-					String existing = (String)m.get(name);
+					String existing = m.get(name);
 					
 					String preferrable = selectPreferrablePath(existing, cp);
 					
@@ -58,9 +59,9 @@ public class ProjectIndexer extends FileIndexer
 	    
 	    String[] res = new String[m.size()];
 	    
-	    Iterator it = m.values().iterator();
+	    Iterator<String> it = m.values().iterator();
 	    for (int i = 0; i < res.length; i++) {
-			res[i] = (String)it.next();
+			res[i] = it.next();
 		}
 
 	    
