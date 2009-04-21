@@ -30,6 +30,7 @@ import org.openl.rules.indexer.WorksheetIndexParser;
 import org.openl.rules.indexer.Index.TokenBucket;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.syntax.XlsURLConstants;
+import org.openl.rules.webtools.FileTypeHelper;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.word.WordDocSourceCodeModule;
 import org.openl.syntax.impl.FileSourceCodeModule;
@@ -123,7 +124,7 @@ public class FileIndexer extends WebTool
 			FileSourceCodeModule source = new FileSourceCodeModule(files[i], null);
 
 			IIndexElement src = null;
-			if (files[i].endsWith(".xls"))
+			if (FileTypeHelper.isExcelFile(files[i]))
 				src = new XlsWorkbookSourceCodeModule(source);
 			else
 			{
