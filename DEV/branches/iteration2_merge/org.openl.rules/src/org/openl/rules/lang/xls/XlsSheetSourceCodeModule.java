@@ -3,7 +3,6 @@ package org.openl.rules.lang.xls;
 import java.io.InputStream;
 import java.io.Reader;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
@@ -17,7 +16,6 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
   XlsWorkbookSourceCodeModule workbookSource;
   
-//  HSSFSheet sheet;
   Sheet sheet;
 
   public XlsSheetSourceCodeModule(Sheet sheet, String sheetName,
