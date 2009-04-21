@@ -36,7 +36,7 @@ public class XlsCellStyle implements ICellStyle
 	}
 	
 	public boolean hasNoFill() {
-	    return (xlsStyle.getFillPattern() == HSSFCellStyle.NO_FILL);
+	    return (xlsStyle.getFillPattern() == CellStyle.NO_FILL);
 	}
 	
 	
@@ -140,7 +140,7 @@ public class XlsCellStyle implements ICellStyle
 
 
 	
-
+/*
 	short[] xlsBorders()
 	{
 		short[] bb = new short[8];
@@ -154,7 +154,7 @@ public class XlsCellStyle implements ICellStyle
 		bb[7] = xlsStyle.getLeftBorderColor();
 		return bb;
 	}
-
+*/
 
 
 	public String getTextFormat()

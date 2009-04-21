@@ -21,7 +21,7 @@ public class XlsCellStyle2 implements ICellStyle {
 		this.workbook = workbook;
 	}
 
-	@Override
+//	@Override
 	public short[][] getBorderRGB() {
 		short[][] ccRgb = new short[4][];
 		ccRgb[0] = colorToArray(xlsStyle.getTopBorderXSSFColor());
@@ -55,7 +55,6 @@ public class XlsCellStyle2 implements ICellStyle {
 		return result;
 	}
 	
-	@Override
 	public short[] getBorderStyle() {
 		short[] bb = new short[4];
 		bb[0] = xlsStyle.getBorderTop();
@@ -69,44 +68,36 @@ public class XlsCellStyle2 implements ICellStyle {
 	    return (xlsStyle.getFillPattern() == CellStyle.NO_FILL);
 	}
 
-	@Override
 	public short[] getFillBackgroundColor() {
 	    if (hasNoFill()) return null;
 		return colorToArray(xlsStyle.getFillBackgroundXSSFColor());
 	}
 
-	@Override
 	public short[] getFillForegroundColor() {
 	    if (hasNoFill()) return null;
 		return colorToArray(xlsStyle.getFillForegroundXSSFColor());
 	}
 
-	@Override
 	public int getHorizontalAlignment() {
 		return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getAlignment();
 	}
 
-	@Override
 	public int getIdent() {
 		return xlsStyle.getIndention();
 	}
 
-	@Override
 	public int getRotation() {
 		return xlsStyle.getRotation();
 	}
 
-	@Override
 	public String getTextFormat() {
 		return workbook.createDataFormat().getFormat(xlsStyle.getDataFormat());
 	}
 
-	@Override
 	public int getVerticalAlignment() {
 		return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getVerticalAlignment();
 	}
 
-	@Override
 	public boolean isWrappedText() {
 		return xlsStyle.getWrapText();
 	}

@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -28,12 +28,13 @@ public class Xls2TextConverter
 {
 
 
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args) throws Exception
 	{
 		
 		if (!new File(args[0]).exists())
 			throw new FileNotFoundException(args[1]);
 		
+		// FIXME .xls & .xlsx
 		if (!args[0].endsWith(".xls"))
 			throw new RuntimeException("The first argument must be an .xls file");
 		Xls2TextConverter conv = new Xls2TextConverter();
@@ -66,21 +67,19 @@ public class Xls2TextConverter
 	
 	
 	
-	public void convert(String xlsFromFile, String textToFile) throws IOException
+	public void convert(String xlsFromFile, String textToFile) throws Exception
 	{
 		convert(new FileSourceCodeModule(new File(xlsFromFile), null), new PrintWriter(new FileWriter(textToFile)));
 	}
 	
 	
-	public void convert(IOpenSourceCodeModule source, PrintWriter out)
+	public void convert(IOpenSourceCodeModule source, PrintWriter out) throws Exception
 	{
 		InputStream is = null;
 		try
 		{
 			is = source.getByteStream();
-			POIFSFileSystem fs = new POIFSFileSystem(is);
-
-			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			Workbook wb = WorkbookFactory.create(is);
 
 			XlsWorkbookSourceCodeModule srcIndex = new XlsWorkbookSourceCodeModule(
 					source, wb);
@@ -89,7 +88,7 @@ public class Xls2TextConverter
 
 			for (int i = 0; i < nsheets; i++)
 			{
-				HSSFSheet sheet = wb.getSheetAt(i);
+				Sheet sheet = wb.getSheetAt(i);
 				String sheetName = wb.getSheetName(i);
 
 				XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(

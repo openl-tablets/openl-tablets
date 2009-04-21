@@ -6,10 +6,11 @@
 
 package org.openl.rules.table.xls;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.Region;
@@ -36,10 +37,6 @@ import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.StringTool;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author snshor
@@ -132,7 +129,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 			double value = cell.getNumericCellValue();
 			return value == (int) value ? (Object) new Integer((int) value)
 					: (Object) new Double(value);
-		case HSSFCell.CELL_TYPE_STRING:
+		case Cell.CELL_TYPE_STRING:
 			return cell.getStringCellValue();
 		default:
 			return "unknown type: " + cell.getCellType();
@@ -225,11 +222,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 	}
 
 	public void beforeSave(XlsWorkbookSourceCodeModule xwscm) {
-		Workbook hssfWorkbook = xwscm.getWorkbook();
+		Workbook workbook = xwscm.getWorkbook();
 		for (CellKey ck : styleMap.keySet()) {
 			Cell cell = getCell(ck.getColumn(), ck.getRow());
 			if (cell != null) {
-				CellStyle cellStyle = hssfWorkbook.createCellStyle();
+				CellStyle cellStyle = workbook.createCellStyle();
 				copyStyle(styleMap.get(ck), cellStyle, cell.getCellStyle());
 				cell.setCellStyle(cellStyle);
 			}
@@ -269,7 +266,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 			dest.setFillBackgroundColor(oldStyle.getFillBackgroundColor());
 			dest.setFillForegroundColor(oldStyle.getFillForegroundColor());
 			dest.setFillPattern(oldStyle.getFillPattern());
-			dest.setFont(getHSSFont(oldStyle));
+			dest.setFont(getFontFromStyle(oldStyle));
 			dest.setHidden(oldStyle.getHidden());
 			dest.setLocked(oldStyle.getLocked());
 			dest.setRotation(oldStyle.getRotation());
@@ -428,18 +425,15 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 	public ICellInfo getCellInfo(int column, int row)
 	{
 		Region region = getRegionContaining(column, row);
-//		HSSFCell rb = null;
 //		if (region != null)
 //		{
 //			rb = getCell(region.getColumnTo(), region.getRowTo());
 //		}
-//		return new XlsCellInfo(column, row, region == null ? null
-//				: new XlsGridRegion(region), getCell(column, row), rb);
 	return new XlsCellInfo(column, row, region == null ? null
 	: new XlsGridRegion(region), getCell(column, row));
 	}
 
-	private Font getHSSFont(CellStyle style) {
+	private Font getFontFromStyle(CellStyle style) {
 		return sheetSource.getWorkbookSource().getWorkbook().getFontAt(style.getFontIndex());
 	}
 
@@ -480,7 +474,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 		{
 			if (cell == null)
 				return null;
-			Font font = getHSSFont(cell.getCellStyle());
+			Font font = getFontFromStyle(cell.getCellStyle());
 			return new XlsCellFont(font, XlsSheetGridModel.this.sheetSource
 					.getWorkbookSource().getWorkbook());
 		}
@@ -612,7 +606,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid, XlsW
 		CellStyle styleFrom = cellFrom.getCellStyle();
 		CellStyle styleTo = cellTo.getCellStyle();
 		// TODO FIXME doesn't work with xlsx
-//        styleTo.cloneStyleFrom(styleFrom);
+        styleTo.cloneStyleFrom(styleFrom);
 
 		setCellMetaInfo(colTo, rowTo, meta);
 	}

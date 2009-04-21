@@ -16,13 +16,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -113,9 +109,6 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 		{
 			is = source.getByteStream();
 			Workbook wb = WorkbookFactory.create(is);
-//			POIFSFileSystem fs = new POIFSFileSystem(is);
-
-//			HSSFWorkbook wb = new HSSFWorkbook(fs);
 
 			XlsWorkbookSourceCodeModule srcIndex = new XlsWorkbookSourceCodeModule(
 					source, wb);
@@ -124,7 +117,6 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 
 			for (int i = 0; i < nsheets; i++)
 			{
-//				HSSFSheet sheet = wb.getSheetAt(i);
 				Sheet sheet = wb.getSheetAt(i);
 				String sheetName = wb.getSheetName(i);
 
@@ -312,7 +304,6 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes
 	}
 
 	private void preprocessImportTable(IGridTable table,
-			@SuppressWarnings("unused")
 			XlsSheetSourceCodeModule sheetSource)
 	{
 
