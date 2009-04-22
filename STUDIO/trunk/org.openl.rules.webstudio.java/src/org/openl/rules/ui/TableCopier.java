@@ -170,7 +170,7 @@ public class TableCopier extends WizardBase {
      * Initializes table properties.
      */
     private void init() {
-        String elementUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        elementUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
         WebStudio studio = WebStudioUtils.getWebStudio();
         if (StringUtils.isNotBlank(elementUri)) {
             studio.setTableUri(elementUri);
