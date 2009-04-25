@@ -50,11 +50,7 @@
 
   <target name="prepare_webapps" depends="copy_tomcat">
     <mkdir dir="${webapps.dir}" />
-    <!--
-        <unzip src="wars/org.openl.rules.webstudio.war" dest="${webapps.studio.dir}"/>
 
-    	<delete dir="${webapps.studio.dir}/WEB-INF/classes/org"/>
--->
     <copy todir="${webapps.studio.dir}" preservelastmodified="true" overwrite="true">
       <fileset dir="../org.openl.rules.webstudio/webapps/webstudio" />
     </copy>
@@ -62,9 +58,6 @@
     <copy todir="${webapps.studio.dir}" preservelastmodified="true" overwrite="true">
       <fileset dir="webapps/webstudio" />
     </copy>
-    <!--
-        <unzip src="wars/tutorial4_client.war" dest="${webapps.client.dir}"/>
--->
     <copy todir="${webapps.client.dir}" preservelastmodified="true" overwrite="true">
       <fileset dir="webapps/demo" />
     </copy>
