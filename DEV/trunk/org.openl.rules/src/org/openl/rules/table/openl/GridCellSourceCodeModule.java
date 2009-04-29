@@ -64,7 +64,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     public String getCode() {
         if (code == null) {
-            code = table.getStringValue(column, row);
+            code = table.getCell(column, row).getStringValue();
 
             if (code == null) {
                 code = "";
@@ -78,7 +78,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     }
 
     public String getIndexedText() {
-        return table.getStringValue(column, row);
+        return table.getCell(column, row).getStringValue();
     }
 
     public int getStartPosition() {

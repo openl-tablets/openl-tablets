@@ -65,7 +65,7 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
         int w = t.getLogicalWidth();
         int cnt = 0;
         for (int i = 0; i < w; i++) {
-            String s = t.getLogicalColumn(i).getGridTable().getStringValue(0, 0);
+            String s = t.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
 
             if (s != null && s.length() >= 2) {
                 cnt += (s.charAt(0) == 'C' || s.charAt(0) == 'A') && Character.isDigit(s.charAt(1)) ? 1 : 0;
@@ -114,7 +114,7 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
 
     void loadRow(int row, ILogicalTable table) {
 
-        String headerStr = table.getLogicalRow(row).getGridTable().getStringValue(INFO_COLUMN, 0);
+        String headerStr = table.getLogicalRow(row).getGridTable().getCell(INFO_COLUMN, 0).getStringValue();
         if (headerStr == null) {
             return;
         }

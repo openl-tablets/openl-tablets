@@ -104,7 +104,7 @@ public class TableCopier extends WizardBase {
 
         if (!tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !tableType.equals(ITableNodeTypes.XLS_OTHER)) {
             String newHeader = buildHeader(node.getHeaderLineValue().getValue(), tableType);
-            ICellStyle headerStyle = table.getCellStyle(0, 0);
+            ICellStyle headerStyle = table.getCell(0, 0).getCellStyle();
             builder.writeHeader(newHeader, headerStyle);
             logicTableStartRow++;
 
@@ -113,8 +113,8 @@ public class TableCopier extends WizardBase {
             ICellStyle propertiesStyle = null;
             if (tableProperties != null) {
                 IGridTable propertiesTable = tableProperties.getTable().getGridTable();
-                propertiesStyle = propertiesTable.getCellStyle(0, 0) == null ? null : propertiesTable
-                        .getCellStyle(0, 0);
+                propertiesStyle = propertiesTable.getCell(0, 0).getCellStyle() == null ? null : propertiesTable
+                        .getCell(0, 0).getCellStyle();
                 properties = tableProperties.getProperties();
             }
             builder.writeProperties(buildProperties(properties), propertiesStyle);

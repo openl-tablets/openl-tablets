@@ -50,7 +50,7 @@ public abstract class AXlsTableBinder extends ANodeBinder {
 
         ILogicalTable propTable = table.rows(1, 1);
 
-        if (!PROPERTIES_HEADER.equals(propTable.getGridTable().getStringValue(0, 0))) {
+        if (!PROPERTIES_HEADER.equals(propTable.getGridTable().getCell(0, 0).getStringValue())) {
             return null;
         }
 
@@ -67,11 +67,11 @@ public abstract class AXlsTableBinder extends ANodeBinder {
                         null, new GridTableSourceCodeModule(row.getGridTable()));
             }
 
-            String propertyName = row.getGridTable().getStringValue(0, 0);
+            String propertyName = row.getGridTable().getCell(0, 0).getStringValue();
             if (propertyName == null || propertyName.trim().length() == 0) {
                 continue;
             }
-            String propertyValue = row.getLogicalColumn(1).getGridTable().getStringValue(0, 0);
+            String propertyValue = row.getLogicalColumn(1).getGridTable().getCell(0, 0).getStringValue();
             if (propertyValue == null || propertyValue.trim().length() == 0) {
                 continue;
             // validateProperty(propertyName, propertyValue, row);

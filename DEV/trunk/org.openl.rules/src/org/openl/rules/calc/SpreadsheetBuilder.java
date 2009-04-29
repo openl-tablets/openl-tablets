@@ -96,7 +96,7 @@ public class SpreadsheetBuilder {
     private void addColumnNames(int col, ILogicalTable logicalCol) {
         for (int i = 0; i < logicalCol.getLogicalHeight(); i++) {
             IGridTable nameCell = logicalCol.getLogicalRow(i).getGridTable();
-            String value = nameCell.getStringValue(0, 0);
+            String value = nameCell.getCell(0, 0).getStringValue();
             if (value != null) {
                 String shortName = "scol" + col + "_" + i;
                 StringValue sv = new StringValue(value, shortName, null, nameCell.getUri());
@@ -120,7 +120,7 @@ public class SpreadsheetBuilder {
     private void addRowNames(int row, ILogicalTable logicalRow) {
         for (int i = 0; i < logicalRow.getLogicalWidth(); i++) {
             IGridTable nameCell = logicalRow.getLogicalColumn(i).getGridTable();
-            String value = nameCell.getStringValue(0, 0);
+            String value = nameCell.getCell(0, 0).getStringValue();
             if (value != null) {
                 String shortName = "srow" + row + "_" + i;
                 StringValue sv = new StringValue(value, shortName, null, nameCell.getUri());
@@ -358,7 +358,7 @@ public class SpreadsheetBuilder {
             for (int row = fromRow; row < toRow; ++row) {
                 ILogicalTable cell = LogicalTable.mergeBounds(rowNamesTable.getLogicalRow(row), columnNamesTable
                         .getLogicalColumn(col));
-                String str = cell.getGridTable().getStringValue(0, 0);
+                String str = cell.getGridTable().getCell(0, 0).getStringValue();
                 if (str != null && str.trim().length() > 0) {
                     ++cnt;
                 }

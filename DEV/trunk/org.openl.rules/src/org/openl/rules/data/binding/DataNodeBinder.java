@@ -149,7 +149,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         for (int i = 0; i < w; i++) {
             ILogicalTable cell = indexRow.getLogicalColumn(i);
 
-            String res = cell.getGridTable().getStringValue(0, 0);
+            String res = cell.getGridTable().getCell(0, 0).getStringValue();
 
             if (res == null || res.trim().length() == 0) {
                 continue;
@@ -170,7 +170,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         int cnt = 0;
         int w = dataTable.getLogicalWidth();
         for (int i = 0; i < w; ++i) {
-            String fieldName = dataTable.getLogicalColumn(i).getGridTable().getStringValue(0, 0);
+            String fieldName = dataTable.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
             if (fieldName == null) {
                 continue;
             }
@@ -313,7 +313,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
 
             ILogicalTable headerCell = dataWithHeader.getLogicalRegion(i, 0, 1, 1);
 
-            String value = headerCell.getGridTable().getStringValue(0, 0);
+            String value = headerCell.getGridTable().getCell(0, 0).getStringValue();
             String uri = headerCell.getGridTable().getUri(0, 0);
             if (value == null) {
                 value = "";

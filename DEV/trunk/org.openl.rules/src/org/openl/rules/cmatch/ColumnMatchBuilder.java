@@ -102,7 +102,7 @@ public class ColumnMatchBuilder {
         SubValue[] values = new SubValue[subColumns];
 
         for (int c = 0; c < subColumns; c++) {
-            String value = grid.getStringValue(c, r);
+            String value = grid.getCell(c, r).getStringValue();
             String uri = grid.getUri(c, r);
 
             if (value == null) {
@@ -114,7 +114,7 @@ public class ColumnMatchBuilder {
 
             String cellName = "cell" + r + "_" + column.getColumnIndex() + "_" + c;
             StringValue sv = new StringValue(value, cellName, cellName, uri);
-            values[c] = new SubValue(sv, grid.getCellStyle(c, r));
+            values[c] = new SubValue(sv, grid.getCell(c, r).getCellStyle());
             ILogicalTable lr = grid.getLogicalRegion(c, r, 1, 1);
             values[c].setGridRegion(lr.getGridTable().getRegion());
         }
@@ -130,7 +130,7 @@ public class ColumnMatchBuilder {
 
         // parse ids, row=0
         for (int c = 0; c < ids.getLogicalWidth(); c++) {
-            String id = safeId(ids.getGridTable().getStringValue(c, 0));
+            String id = safeId(ids.getGridTable().getCell(c, 0).getStringValue());
             if (id.length() == 0) {
                 // ignore column with NO ID
                 continue;

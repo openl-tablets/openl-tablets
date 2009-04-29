@@ -145,7 +145,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
     static public Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
             OpenlToolAdaptor ota) throws BoundError {
-        String src = cell.getGridTable().getStringValue(0, 0);
+        String src = cell.getGridTable().getCell(0, 0).getStringValue();
         if (src == null || (src = src.trim()).length() == 0) {
             return null;
         }
@@ -245,7 +245,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         int last = -1;
 
         for (int i = 0; i < h; i++) {
-            String src = table.getLogicalRow(i).getGridTable().getStringValue(0, 0);
+            String src = table.getLogicalRow(i).getGridTable().getCell(0, 0).getStringValue();
             if (src != null && src.trim().length() != 0) {
                 last = i;
             }
@@ -343,7 +343,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
             int gridHeight = paramsTable.getLogicalRow(i).getGridTable().getGridHeight();
             IGridTable singleParamGridTable = (IGridTable) presentationTable.getGridTable().rows(fromHeight,
                     fromHeight + gridHeight - 1);
-            res[i] = singleParamGridTable.getStringValue(0, 0);
+            res[i] = singleParamGridTable.getCell(0, 0).getStringValue();
 
             fromHeight += gridHeight;
         }

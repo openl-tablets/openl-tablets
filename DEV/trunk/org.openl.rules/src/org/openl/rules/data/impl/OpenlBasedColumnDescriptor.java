@@ -105,7 +105,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
         Object res = null;
 
         if (!isArray) {
-            String s = values.getGridTable().getStringValue(0, 0);
+            String s = values.getGridTable().getCell(0, 0).getStringValue();
             if (s != null) {
 
                 s = s.trim();
@@ -122,7 +122,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
         } else {
             List<Object> v = new ArrayList<Object>();
             for (int i = 0; i < values.getLogicalHeight(); i++) {
-                String s = values.getGridTable().getStringValue(0, i);
+                String s = values.getGridTable().getCell(0, i).getStringValue();
 
                 if (s != null) {
                     s = s.trim();
@@ -307,7 +307,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
         boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
 
         if (!isArray && !isList) {
-            String s = values.getGridTable().getStringValue(0, 0);
+            String s = values.getGridTable().getCell(0, 0).getStringValue();
             if (s != null) {
 
                 s = s.trim();
@@ -333,7 +333,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
             ArrayList<Object> v = new ArrayList<Object>(h);
             int lastIndex = -1;
             for (int i = 0; i < h; i++) {
-                String s = values.getGridTable().getStringValue(0, i);
+                String s = values.getGridTable().getCell(0,i).getStringValue();
 
                 if (s != null) {
                     s = s.trim();
