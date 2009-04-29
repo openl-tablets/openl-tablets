@@ -12,7 +12,7 @@ public class RuleRow implements IDecisionTableConstants {
     }
 
     public String getRuleName(int col) {
-        return getValueCell(col).getGridTable().getStringValue(0, 0);
+        return getValueCell(col).getGridTable().getCell(0, 0).getStringValue();
     }
 
     ILogicalTable getValueCell(int col) {

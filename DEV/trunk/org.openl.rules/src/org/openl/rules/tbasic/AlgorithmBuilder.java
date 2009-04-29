@@ -111,7 +111,7 @@ public class AlgorithmBuilder {
                 ILogicalTable valueTable = rowTable.getLogicalColumn(c);
                 aRow.setValueGridRegion(column.id, valueTable.getGridTable().getRegion());
 
-                String value = grid.getStringValue(c, r);
+                String value = grid.getCell(c, r).getStringValue();
                 String uri = grid.getUri(c, r);
 
                 if (value == null) {
@@ -122,7 +122,7 @@ public class AlgorithmBuilder {
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {
-                    ICellStyle cellStyle = grid.getCellStyle(c, r);
+                    ICellStyle cellStyle = grid.getCell(c, r).getCellStyle();
                     int i = (cellStyle == null) ? 0 : cellStyle.getIdent();
                     aRow.setOperationLevel(i);
                     bindMetaInfo(grid, c, r);
@@ -142,7 +142,7 @@ public class AlgorithmBuilder {
 
         // parse ids, row=0
         for (int c = 0; c < ids.getLogicalWidth(); c++) {
-            String id = safeId(ids.getGridTable().getStringValue(c, 0));
+            String id = safeId(ids.getGridTable().getCell(c, 0).getStringValue());
             if (id.length() == 0) {
                 // ignore column with NO ID
                 continue;

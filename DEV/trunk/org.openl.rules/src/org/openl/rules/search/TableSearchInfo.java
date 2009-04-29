@@ -47,7 +47,7 @@ public class TableSearchInfo implements ITableSearchInfo {
     }
 
     public Object tableValue(int col, int row) {
-        return table.getObjectValue(col, row);
+        return table.getCell(col, row).getObjectValue();
     }
 
 }

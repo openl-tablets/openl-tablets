@@ -16,6 +16,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.openl.rules.table.ICell;
 
 /**
  * Class that allows creating tables in specified excel sheet.
@@ -228,10 +229,11 @@ public class TableBuilder {
         }
         for (int i = 0; i < table.getGridWidth(); i++) {
             for (int j = 0; j < table.getGridHeight(); j++) {
-                int cellWidth = table.getCellWidth(i, j);
-                int cellHeight = table.getCellHeight(i, j);
-                Object cellValue = table.getObjectValue(i, j);
-                ICellStyle style = table.getCellStyle(i, j);
+            	ICell cell = table.getCell(i, j);
+                int cellWidth = cell.getCellWidth();
+                int cellHeight = cell.getCellHeight();
+                Object cellValue = cell.getObjectValue();
+                ICellStyle style = cell.getCellStyle();
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
             }
         }

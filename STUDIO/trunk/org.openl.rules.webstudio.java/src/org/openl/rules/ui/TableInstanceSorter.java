@@ -26,11 +26,11 @@ public class TableInstanceSorter extends ATableTreeSorter implements IProjectTyp
         }
 
         if (name == null) {
-            name = str2name(tsn.getTable().getGridTable().getStringValue(0, 0), tsn.getType());
+            name = str2name(tsn.getTable().getGridTable().getCell(0, 0).getStringValue(), tsn.getType());
         }
 
         if (display == null) {
-            display = str2display(tsn.getTable().getGridTable().getStringValue(0, 0), tsn.getType());
+            display = str2display(tsn.getTable().getGridTable().getCell(0, 0).getStringValue(), tsn.getType());
         }
 
         String sfx = (i < 2 ? "" : "(" + i + ")");

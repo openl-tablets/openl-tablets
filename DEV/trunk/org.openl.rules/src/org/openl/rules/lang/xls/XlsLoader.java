@@ -195,7 +195,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         for (int i = 1; i < h; i++) {
             ILogicalTable row = lt.getLogicalRow(i);
 
-            String name = row.getLogicalColumn(0).getGridTable().getStringValue(0, 0);
+            String name = row.getLogicalColumn(0).getGridTable().getCell(0, 0).getStringValue();
 
             if (LANG_PROPERTY.equals(name)) {
                 preprocessOpenlTable(row.getGridTable(), source);
@@ -218,7 +218,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         String concat = null;
 
         for (int i = 0; i < h; i++) {
-            String imports = table.getStringValue(1, i);
+            String imports = table.getCell(1, i).getStringValue();
             if (imports == null) {
                 continue;
             }
@@ -247,7 +247,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         int h = table.getLogicalHeight();
 
         for (int i = 0; i < h; i++) {
-            String include = table.getStringValue(1, i);
+            String include = table.getCell(1, i).getStringValue();
             if (include == null) {
                 continue;
             }
@@ -307,7 +307,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
      */
     private void preprocessOpenlTable(IGridTable table, XlsSheetSourceCodeModule source) {
 
-        String openlName = table.getStringValue(1, 0);
+        String openlName = table.getCell(1, 0).getStringValue();
 
         setOpenl(new OpenlSyntaxNode(openlName, new GridLocation(table), source));
 
@@ -345,7 +345,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
 
     private void preprocessVocabularyTable(IGridTable table, XlsSheetSourceCodeModule source) {
 
-        String vocabularyStr = table.getStringValue(1, 0);
+        String vocabularyStr = table.getCell(1, 0).getStringValue();
 
         setVocabulary(new IdentifierNode(VOCABULARY_PROPERTY, new GridLocation(table), vocabularyStr, source));
 

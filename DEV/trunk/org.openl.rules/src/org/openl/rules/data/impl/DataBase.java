@@ -233,7 +233,7 @@ public class DataBase implements IDataBase {
             for (int i = startRow; i < rows; i++) {
 
                 IGridTable gridTable = data.getLogicalRegion(colIdx, i, 1, 1).getGridTable();
-                String key = gridTable.getStringValue(0, 0);
+                String key = gridTable.getCell(0, 0).getStringValue();
 
                 if (key == null) {
                     throw new BoundError("Empty key in an unique index", new GridCellSourceCodeModule(gridTable));

@@ -71,7 +71,7 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
     }
 
     public String getDisplayName() {
-        return table.getGridTable().getStringValue(0, 0);
+        return table.getGridTable().getCell(0, 0).getStringValue();
     }
 
     public ISyntaxError[] getErrors() {
@@ -95,7 +95,7 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
     }
 
     public StringValue getHeaderLineValue() {
-        String value = table.getGridTable().getStringValue(0, 0);
+        String value = table.getGridTable().getCell(0, 0).getStringValue();
         String uri = table.getGridTable().getUri(0, 0);
         return new StringValue(value, value, value, uri);
     }

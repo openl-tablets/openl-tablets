@@ -18,24 +18,7 @@ public interface IGridTable extends ILogicalTable {
 
     public static final boolean ORIENTATION_NORMAL = true, ORIENTATION_TRANSPOSED = false;
 
-    /**
-     *
-     * @param col
-     * @param row
-     * @return
-     */
-    int getCellHeight(int col, int row);
-
-    ICellInfo getCellInfo(int column, int row);
-
-    /**
-     * @param j
-     * @param i
-     * @return
-     */
-    ICellStyle getCellStyle(int col, int row);
-
-    int getCellWidth(int col, int row);
+    ICell getCell(int column, int row);
 
     IGrid getGrid();
 
@@ -48,19 +31,10 @@ public interface IGridTable extends ILogicalTable {
     int getGridWidth();
 
     /**
-     * @param first
-     * @param rrow
-     * @return
-     */
-    Object getObjectValue(int first, int rrow);
-
-    /**
      *
      * @return
      */
     IGridRegion getRegion();
-
-    String getStringValue(int col, int row);
 
     String getUri();
 

@@ -450,7 +450,7 @@ public class StructuredDiff {
 
             ILogicalTable table = node.getTable();
 
-            String tableName = (table.getGridTable()).getStringValue(0, 0);
+            String tableName = (table.getGridTable()).getCell(0, 0).getStringValue();
             tableName = filterSeparators(tableName);
             sheet2Tables.get(sheetName).add(tableName);
         }

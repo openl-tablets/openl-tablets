@@ -16,8 +16,8 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
 
     /**
      *
-     */
-
+     */	
+	
     @Override
     protected ILogicalTable columnsInternal(int from, int to) {
         return new GridTableColumns(this, from, to);
@@ -36,38 +36,7 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
         }
         throw new TableException("gridOffset is higher than table's height");
     }
-
-    /**
-     *
-     */
-
-    public int getCellHeight(int column, int row) {
-        return isNormalOrientation() ? getGrid().getCellHeight(getGridColumn(column, row), getGridRow(column, row))
-                : getGrid().getCellWidth(getGridColumn(column, row), getGridRow(column, row));
-    }
-
-    public ICellInfo getCellInfo(int column, int row) {
-        return isNormalOrientation() ? getGrid().getCellInfo(getGridColumn(column, row), getGridRow(column, row))
-                : getGrid().getCellInfo(getGridColumn(column, row), getGridRow(column, row));
-    }
-
-    /**
-     *
-     */
-
-    public ICellStyle getCellStyle(int col, int row) {
-        return getGrid().getCellStyle(getGridColumn(col, row), getGridRow(col, row));
-    }
-
-    /**
-     *
-     */
-
-    public int getCellWidth(int column, int row) {
-        return isNormalOrientation() ? getGrid().getCellWidth(getGridColumn(column, row), getGridRow(column, row))
-                : getGrid().getCellHeight(getGridColumn(column, row), getGridRow(column, row));
-    }
-
+    
     /**
      *
      */
@@ -123,11 +92,7 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
 
     public int getLogicalWidth() {
         return getGridWidth();
-    }
-
-    public Object getObjectValue(int col, int row) {
-        return getGrid().getObjectCellValue(getGridColumn(col, row), getGridRow(col, row));
-    }
+    }    
 
     public IGridRegion getRegion() {
         int left = getGridColumn(0, 0);
@@ -145,14 +110,6 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
         }
 
         return new GridTable(top, left, bottom, right, getGrid());
-    }
-
-    /**
-     *
-     */
-
-    public String getStringValue(int col, int row) {
-        return getGrid().getStringCellValue(getGridColumn(col, row), getGridRow(col, row));
     }
 
     public String getUri() {
@@ -191,6 +148,10 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
 
     public ILogicalTable transpose() {
         return new TransposedGridTable(this);
+    }
+    
+    public ICell getCell(int column, int row) {
+    	return new Cell(column, row, this);
     }
 
 }
