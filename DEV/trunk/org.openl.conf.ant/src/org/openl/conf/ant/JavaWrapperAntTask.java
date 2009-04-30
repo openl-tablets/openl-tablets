@@ -35,14 +35,14 @@ import org.openl.util.StringTool;
  */
 public class JavaWrapperAntTask extends Task {
 
-    static final String GOAL_MAKE_WRAPPER = "make wrapper", GOAL_UPDATE_PROPERTIES = "update properties",
+    private static final String GOAL_MAKE_WRAPPER = "make wrapper", GOAL_UPDATE_PROPERTIES = "update properties",
             GOAL_MAKE_WEBINF = "make WEB-INF", GOAL_ALL = "all";
 
-    static String resName = "__res";
+    private static String resName = "__res";
 
-    IOpenClass openClass;
+    private IOpenClass openClass;
 
-    String goal = GOAL_ALL;
+    private String goal = GOAL_ALL;
 
     private String web_inf_path;
 
@@ -50,53 +50,53 @@ public class JavaWrapperAntTask extends Task {
 
     private String web_inf_include = "";
 
-    String vocabularyClass;
-    String classpathExclude = ".*apache.ant.*|.*apache.commons.*|.*apache.tomcat.*|.*javacc.*";
+    private String vocabularyClass;
+    private String classpathExclude = ".*apache.ant.*|.*apache.commons.*|.*apache.tomcat.*|.*javacc.*";
 
-    String projectHome = ".";
+    private String projectHome = ".";
 
-    boolean ignoreNonJavaTypes = false;
+    private boolean ignoreNonJavaTypes = false;
 
-    String ignoreFields;
+    private String ignoreFields;
 
-    String ignoreMethods;
+    private String ignoreMethods;
 
-    String userClassPath;
+    private String userClassPath;
 
-    String userHome, deplUserHome;
+    private String userHome, deplUserHome;
 
-    String srcFile, deplSrcFile;
+    private String srcFile, deplSrcFile;
 
-    String srcModuleClass;
-    String openlName;
-    String targetSrcDir;
+    private String srcModuleClass;
+    private String openlName;
+    private String targetSrcDir;
 
-    String targetClass;
+    private String targetClass;
 
-    String displayName;
+    private String displayName;
 
-    String[] methods;
+    private String[] methods;
 
-    String[] fields;
+    private String[] fields;
 
-    String s_package;
+    private String s_package;
 
-    String s_class;
+    private String s_class;
 
-    String extendsClass = null;
+    private String extendsClass = null;
 
     /*
      * Full or relative path to directory where properties will be saved
      */
-    String classpathPropertiesOutputDir = ".";
+    private String classpathPropertiesOutputDir = ".";
 
-    String implementsInterfaces = OpenLWrapper.class.getName();
+    private String implementsInterfaces = OpenLWrapper.class.getName();
 
-    StringBuffer initBuf = new StringBuffer(1000);
+    private StringBuffer initBuf = new StringBuffer(1000);
 
-    String rulesFolder = "rules";
+    private String rulesFolder = "rules";
 
-    protected void addClassDeclaration(StringBuffer buf) {
+    private void addClassDeclaration(StringBuffer buf) {
         buf.append("public class " + s_class);
         if (extendsClass != null) {
             buf.append(" extends ").append(extendsClass);
@@ -107,7 +107,7 @@ public class JavaWrapperAntTask extends Task {
         buf.append("\n{\n");
     }
 
-    protected void addComment(StringBuffer buf) {
+    private void addComment(StringBuffer buf) {
         buf
                 .append("/*\n"
                         + " * This class has been generated. Do not change it, if you need to modify functionality - subclass it\n"
@@ -118,16 +118,19 @@ public class JavaWrapperAntTask extends Task {
 
     private void addEnvVariable(StringBuffer buf) {
         // declaration
-        buf
-                .append("  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n"
+        buf.append("  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n"
                         + "    @Override\n"
                         + "    protected org.openl.vm.IRuntimeEnv initialValue() {\n"
                         + "      this.set(new org.openl.vm.SimpleVM().getRuntimeEnv());\n"
-                        + "      return this.get();\n" + "    }\n" + "  };\n\n");
+                        + "      return this.get();\n" 
+                        + "    }\n" 
+                        + "  };\n\n");
         // getter and setter
-        buf.append("  public org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {\n" + "    return __env.get();\n"
-                + "  }\n\n" + "  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv __env) {\n"
-                + "    this.__env.set(__env);\n" + "  }\n\n");
+        buf.append("  public static org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {\n"
+                    + "    return __env.get();\n"
+                    + "  }\n\n" 
+                    + "  public static void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {\n"
+                    + "    __env.set(environment);\n" + "  }\n\n");
     }
 
     /**
@@ -154,11 +157,11 @@ public class JavaWrapperAntTask extends Task {
 
     }
 
-    public void addFieldField(IOpenField field, StringBuffer buf) {
+    private void addFieldField(IOpenField field, StringBuffer buf) {
         buf.append("\n\n  static " + IOpenField.class.getName() + " " + getFieldFieldName(field) + ";\n");
     }
 
-    public void addFieldFieldInitializer(IOpenField field) {
+    private void addFieldFieldInitializer(IOpenField field) {
         // abc_Field = __class.getField("abc");
 
         initBuf.append("    " + getFieldFieldName(field) + " = __class.getField(\"" + field.getName() + "\");\n");
@@ -196,7 +199,7 @@ public class JavaWrapperAntTask extends Task {
     /**
      * @param buf
      */
-    protected void addInitMethod(StringBuffer buf) {
+    private void addInitMethod(StringBuffer buf) {
 
         String initStart =
 
@@ -228,12 +231,12 @@ public class JavaWrapperAntTask extends Task {
         buf.append(initStart).append(initBuf.toString()).append("\n    __initialized=true;\n  }\n");
     }
 
-    public void addMethodAccessor(IOpenMethod method, StringBuffer buf, boolean isStatic) {
+    private void addMethodAccessor(IOpenMethod method, StringBuffer buf, boolean isStatic) {
         addMethodSignature(method, buf, isStatic);
         addMethodBody(method, buf, isStatic);
     }
 
-    public void addMethodBody(IOpenMethod method, StringBuffer buf, boolean isStatic) {
+    private void addMethodBody(IOpenMethod method, StringBuffer buf, boolean isStatic) {
         buf.append("  {\n");
 
         IOpenClass[] ptypes = method.getSignature().getParameterTypes();
@@ -278,14 +281,14 @@ public class JavaWrapperAntTask extends Task {
         buf.append("\n  }\n");
     }
 
-    public void addMethodField(IOpenMethod method, StringBuffer buf) {
+    private void addMethodField(IOpenMethod method, StringBuffer buf) {
         buf.append("\n\n  static " + IOpenMethod.class.getName() + " " + getMethodFieldName(method) + ";\n");
     }
 
     /**
      * @param method
      */
-    public void addMethodFieldInitializer(IOpenMethod method) {
+    private void addMethodFieldInitializer(IOpenMethod method) {
         // XYZ_Method = __class.getMatchingMethod("XYZ", new IOpenClass[] {
         // JavaOpenClass.getOpenClass(int.class),
         // JavaOpenClass.getOpenClass(String.class) });
@@ -308,7 +311,7 @@ public class JavaWrapperAntTask extends Task {
         initBuf.append("});\n");
     }
 
-    public void addMethodSignature(IOpenMethod method, StringBuffer buf, boolean isStatic) {
+    private void addMethodSignature(IOpenMethod method, StringBuffer buf, boolean isStatic) {
         buf.append("  public ");
         if (isStatic) {
             buf.append("static ");
@@ -327,13 +330,13 @@ public class JavaWrapperAntTask extends Task {
         buf.append(')');
     }
 
-    protected void addPackage(StringBuffer buf) {
+    private void addPackage(StringBuffer buf) {
         if (s_package != null) {
             buf.append("package " + s_package + ";\n\n");
         }
     }
 
-    int calcMethods(IOpenClass ioc) {
+    private int calcMethods(IOpenClass ioc) {
         int cnt = 0;
 
         for (Iterator<IOpenMethod> iter = ioc.methods(); iter.hasNext();) {
@@ -352,7 +355,7 @@ public class JavaWrapperAntTask extends Task {
      * @param resVarName
      * @return
      */
-    public String castAndUnwrap(Class<?> instanceClass, String resVarName) {
+    private String castAndUnwrap(Class<?> instanceClass, String resVarName) {
         if (instanceClass == Object.class) {
             return resVarName;
         }
@@ -406,7 +409,7 @@ public class JavaWrapperAntTask extends Task {
         return buf.toString();
     }
 
-    public String generateJavaClass(IOpenClass ioc) {
+    private String generateJavaClass(IOpenClass ioc) {
         StringBuffer buf = new StringBuffer(10000);
 
         parseClassName();
@@ -495,7 +498,7 @@ public class JavaWrapperAntTask extends Task {
      * @param instanceClass
      * @return
      */
-    public String getClassName(Class<?> instanceClass) {
+    private String getClassName(Class<?> instanceClass) {
         StringBuffer buf = new StringBuffer(30);
         while (instanceClass.isArray()) {
             buf.append("[]");
@@ -506,7 +509,7 @@ public class JavaWrapperAntTask extends Task {
         return buf.toString();
     }
 
-    public String getClasspathExclude() {
+; String getClasspathExclude() {
         return classpathExclude;
     }
 
@@ -594,7 +597,7 @@ public class JavaWrapperAntTask extends Task {
         return openlName;
     }
 
-    String getOutputFileName() {
+    private String getOutputFileName() {
         String file = targetSrcDir + "/" + targetClass.replace('.', '/') + ".java";
         return file;
     }
@@ -603,7 +606,7 @@ public class JavaWrapperAntTask extends Task {
      * @param parameterName
      * @return
      */
-    public String getParamName(String parameterName, int i) {
+    private String getParamName(String parameterName, int i) {
         return parameterName == null ? "arg" + i : parameterName;
     }
 
@@ -676,7 +679,7 @@ public class JavaWrapperAntTask extends Task {
         return web_inf_path;
     }
 
-    protected boolean isFieldGenerated(IOpenField field) {
+    private boolean isFieldGenerated(IOpenField field) {
         if (fields != null && !ArrayTool.contains(fields, field.getName())) {
             return false;
         }
@@ -693,7 +696,7 @@ public class JavaWrapperAntTask extends Task {
         return ignoreNonJavaTypes;
     }
 
-    protected boolean isMethodGenerated(IOpenMethod method) {
+    private boolean isMethodGenerated(IOpenMethod method) {
 
         // TODO fix a) provide isConstructor() in OpenMethod b) provide better
         // name for XLS modules
@@ -734,7 +737,7 @@ public class JavaWrapperAntTask extends Task {
                 && method.getSignature().getParameterTypes()[0].getInstanceClass().equals(String[].class);
     }
 
-    IOpenClass makeOpenClass() throws Exception {
+    private IOpenClass makeOpenClass() throws Exception {
 
         UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), userHome);
         if (userClassPath != null) {
@@ -794,7 +797,7 @@ public class JavaWrapperAntTask extends Task {
      * @param i
      * @return
      */
-    public String parameterToObject(IOpenMethod method, int i) {
+    private String parameterToObject(IOpenMethod method, int i) {
         IOpenClass type = method.getSignature().getParameterTypes()[i];
         String name = getParamName(method.getSignature().getParameterName(i), i);
 
@@ -824,7 +827,7 @@ public class JavaWrapperAntTask extends Task {
      * @param string
      * @return
      */
-    public String returnMethodResult(IOpenMethod method, String resVarName) {
+    private String returnMethodResult(IOpenMethod method, String resVarName) {
         IOpenClass type = method.getType();
 
         Class<?> instanceClass = type.getInstanceClass();
@@ -835,7 +838,7 @@ public class JavaWrapperAntTask extends Task {
         return "\n   return " + castAndUnwrap(instanceClass, resVarName) + ";";
     }
 
-    public String returnMethodVar(IOpenMethod method, String resVarName) {
+    private String returnMethodVar(IOpenMethod method, String resVarName) {
 
         IOpenClass type = method.getType();
 
@@ -846,7 +849,7 @@ public class JavaWrapperAntTask extends Task {
         return "    Object " + resVarName + " = ";
     }
 
-    void run() throws Exception {
+    private void run() throws Exception {
         if (ignoreFields != null) {
             fields = StringTool.tokenize(ignoreFields, ", ");
         }
@@ -1038,7 +1041,7 @@ public class JavaWrapperAntTask extends Task {
      * @param resName
      * @return
      */
-    public String unwrapIfPrimitive(Class<?> instanceClass, String name) {
+    private String unwrapIfPrimitive(Class<?> instanceClass, String name) {
         if (instanceClass == int.class) {
             return "((Integer)" + name + ").intValue()";
         }
@@ -1068,7 +1071,7 @@ public class JavaWrapperAntTask extends Task {
      * @param instanceClass
      * @return
      */
-    public String wrapIfPrimitive(String name, Class<?> instanceClass) {
+    private String wrapIfPrimitive(String name, Class<?> instanceClass) {
         if (instanceClass == int.class) {
             return "new Integer(" + name + ")";
         }
