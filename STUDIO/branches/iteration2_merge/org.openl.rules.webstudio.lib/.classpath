@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/poi-2.5.1-final-20040804.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-3.5-beta5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-scratchpad-3.5-beta5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/acegi-security-1.0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/acegi-security-tiger-1.0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-2.7.6.jar"/>
