@@ -6,7 +6,7 @@ public class WebUtil {
 
     public static final String internalPath(String path) {
         return FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath()
-                + Constants.TABLE_EDITOR_PATTERN + path;
+                + "/faces" + Constants.TABLE_EDITOR_PATTERN + path;
     }
 
 }
