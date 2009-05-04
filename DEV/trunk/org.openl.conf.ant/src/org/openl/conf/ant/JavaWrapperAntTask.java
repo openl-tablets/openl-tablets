@@ -118,7 +118,7 @@ public class JavaWrapperAntTask extends Task {
 
     private void addEnvVariable(StringBuffer buf) {
         // declaration
-        buf.append("  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n"
+        buf.append("  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n"
                         + "    @Override\n"
                         + "    protected org.openl.vm.IRuntimeEnv initialValue() {\n"
                         + "      this.set(new org.openl.vm.SimpleVM().getRuntimeEnv());\n"
@@ -126,10 +126,10 @@ public class JavaWrapperAntTask extends Task {
                         + "    }\n" 
                         + "  };\n\n");
         // getter and setter
-        buf.append("  public static org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {\n"
+        buf.append("  public org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {\n"
                     + "    return __env.get();\n"
                     + "  }\n\n" 
-                    + "  public static void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {\n"
+                    + "  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {\n"
                     + "    __env.set(environment);\n" + "  }\n\n");
     }
 
