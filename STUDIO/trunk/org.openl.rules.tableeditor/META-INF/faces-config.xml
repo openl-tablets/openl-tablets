@@ -4,6 +4,10 @@
 
 <faces-config>
 
+    <lifecycle>
+        <phase-listener>org.openl.rules.tableeditor.event.TableEditorDispatcher</phase-listener>
+    </lifecycle>
+
     <managed-bean>
         <managed-bean-name>_tableEditorController</managed-bean-name>
         <managed-bean-class>
