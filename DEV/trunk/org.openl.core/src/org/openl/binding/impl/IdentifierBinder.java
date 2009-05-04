@@ -30,18 +30,41 @@ public class IdentifierBinder extends ANodeBinder {
         boolean strictMatch = isStrictMatch(node);
 
         String fieldName = ((IdentifierNode) node).getIdentifier();
+        
+        char first = fieldName.charAt(0);
+        
+        if (Character.isLetter(first) && Character.isUpperCase(first))
+        {
+            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
 
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
+            if (type != null) {
+                return new TypeBoundNode(node, type);
+            }
 
-        if (type != null) {
-            return new TypeBoundNode(node, type);
+            IOpenField om = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
+
+            if (om != null) {
+                return new FieldBoundNode(node, om);
+            }
+        	
         }
+        else
+        {
+            IOpenField om = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
 
-        IOpenField om = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
+            if (om != null) {
+                return new FieldBoundNode(node, om);
+            }
+        	
+            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
 
-        if (om != null) {
-            return new FieldBoundNode(node, om);
-        }
+            if (type != null) {
+                return new TypeBoundNode(node, type);
+            }
+        	
+        }	
+        
+
 
         throw new BoundError(node, "Field not found: " + fieldName, null);
 
