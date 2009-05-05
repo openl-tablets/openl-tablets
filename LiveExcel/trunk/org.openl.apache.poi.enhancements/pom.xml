@@ -9,8 +9,8 @@
   </parent>
 
   <groupId>org.openl</groupId>
-  <artifactId>org.openl.apache.poi.modified</artifactId>
-  <name>OpenL - POI Modified</name>
+  <artifactId>org.openl.apache.poi.enhancements</artifactId>
+  <name>OpenL - POI Enhancements</name>
   <description />
 
   <build>
