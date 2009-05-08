@@ -17,14 +17,6 @@
   <name>OpenL - STUDIO - WebStudio Libraries</name>
   <description />
 
-  <dependencies>
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-      <artifactId>org.openl.rules.webstudio.java</artifactId>
-      <version>${version}</version>
-    </dependency>
-  </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -79,8 +71,32 @@
         <includes>
           <include>lib/**/*.jar</include>
         </includes>
+        <!-- Exclude poi-2.x - optional dependency from DbUnit -->
+        <excludes>
+          <exclude>lib/poi-2.5.1-final-20040804.jar</exclude>
+        </excludes>
       </resource>
     </resources>
   </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.webstudio.java</artifactId>
+      <version>${version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>3.5-beta5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-scratchpad</artifactId>
+      <version>3.5-beta5</version>
+    </dependency>
+  </dependencies>
 
 </project>

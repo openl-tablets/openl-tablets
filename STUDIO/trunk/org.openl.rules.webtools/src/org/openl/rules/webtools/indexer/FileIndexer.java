@@ -12,6 +12,7 @@ import java.util.Vector;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.rules.indexer.DefaultIndexer;
+import org.openl.rules.webtools.FileTypeHelper;
 import org.openl.rules.indexer.HitBucket;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.indexer.IIndexParser;
@@ -327,7 +328,7 @@ public class FileIndexer extends WebTool {
             FileSourceCodeModule source = new FileSourceCodeModule(files[i], null);
 
             IIndexElement src = null;
-            if (files[i].endsWith(".xls")) {
+            if (FileTypeHelper.isExcelFile(files[i])) {
                 src = new XlsWorkbookSourceCodeModule(source);
             } else {
                 try {

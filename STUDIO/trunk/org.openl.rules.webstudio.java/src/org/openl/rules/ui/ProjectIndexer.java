@@ -4,6 +4,7 @@
  */
 package org.openl.rules.ui;
 
+import org.openl.rules.webtools.FileTypeHelper;
 import org.openl.rules.webtools.indexer.FileIndexer;
 import org.openl.rules.webstudio.util.WebstudioTreeIterator;
 import org.openl.util.Log;
@@ -33,40 +34,42 @@ public class ProjectIndexer extends FileIndexer {
         return Math.max(idx1, idx2);
     }
 
-    synchronized void loadFiles() {
-        TreeIterator fti = new WebstudioTreeIterator(new File(projectRoot), 0);
+    synchronized void  loadFiles() {
+		TreeIterator<File> fti = new WebstudioTreeIterator(new File(projectRoot), 0);
+		
+		HashMap<String, String> m = new HashMap<String, String>();
+	    for (; fti.hasNext();) {
+			File f = fti.next();
+			String fileName = f.getName();
+			if (FileTypeHelper.isExcelFile(fileName) || FileTypeHelper.isWordFile(fileName))
+				try {
+					String cp = f.getCanonicalPath(); 
+					
+					String name = f.getName();
+					String existing = m.get(name);
+					
+					String preferrable = selectPreferrablePath(existing, cp);
+					
+					m.put(name, preferrable);
+			} catch (IOException e) {
+					e.printStackTrace();
+				}
+			
+		}
+	    
+	    
+	    
+	    String[] res = new String[m.size()];
+	    
+	    Iterator<String> it = m.values().iterator();
+	    for (int i = 0; i < res.length; i++) {
+			res[i] = it.next();
+		}
 
-        HashMap m = new HashMap();
-        for (; fti.hasNext();) {
-            File f = (File) fti.next();
-
-            if (f.getName().endsWith(".xls") || f.getName().endsWith(".doc")) {
-                try {
-                    String cp = f.getCanonicalPath();
-
-                    String name = f.getName();
-                    String existing = (String) m.get(name);
-
-                    String preferrable = selectPreferrablePath(existing, cp);
-
-                    m.put(name, preferrable);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-
-        String[] res = new String[m.size()];
-
-        Iterator it = m.values().iterator();
-        for (int i = 0; i < res.length; i++) {
-            res[i] = (String) it.next();
-        }
-
-        setFiles(res);
-
-    }
+	    
+	    setFiles(res);
+		
+	}
 
     @Override
     public void reset() {
