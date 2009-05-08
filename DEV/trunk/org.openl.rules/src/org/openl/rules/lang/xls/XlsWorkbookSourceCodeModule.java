@@ -12,8 +12,8 @@ import java.util.EventListener;
 import java.util.Collection;
 import java.util.ArrayList;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
@@ -28,23 +28,29 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         void beforeSave(XlsWorkbookSourceCodeModule xwscm);
     }
 
-    HSSFWorkbook workbook;
+	Workbook workbook;
 
     private Collection<WorkbookListener> listeners = new ArrayList<WorkbookListener>();
 
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
         this(src, false);
     }
-
+    
+	/**
+	 * @deprecated ignores preserveNodes
+	 * @param src
+	 * @param preserveNodes (ignored for a sake of POI 3.5)
+	 */
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, boolean preserveNodes) {
         super(src);
 
         InputStream is = null;
         try {
             is = src.getByteStream();
-            POIFSFileSystem fs = new POIFSFileSystem(is);
-
-            workbook = new HSSFWorkbook(fs, preserveNodes);
+//			POIFSFileSystem fs = new POIFSFileSystem(is);
+//	
+//			workbook = new HSSFWorkbook(fs, preserveNodes);
+            workbook = WorkbookFactory.create(is);
         } catch (Throwable t) {
             throw RuntimeExceptionWrapper.wrap(t);
         } finally {
@@ -59,7 +65,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         }
     }
 
-    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, HSSFWorkbook workbook) {
+    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, Workbook workbook) {
         super(src);
         this.workbook = workbook;
     }
@@ -104,7 +110,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         return src.getUri(0);
     }
 
-    public HSSFWorkbook getWorkbook() {
+    public Workbook getWorkbook() {
         return workbook;
     }
 

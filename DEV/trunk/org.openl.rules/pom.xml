@@ -67,24 +67,19 @@
     </dependency>
 
     <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.lib</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.helpers</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.lib.apache.poi.modified</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-	<scope>test</scope> 
+	  <scope>test</scope> 
     </dependency>
   </dependencies>
 

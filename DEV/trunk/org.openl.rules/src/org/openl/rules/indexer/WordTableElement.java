@@ -1,6 +1,7 @@
 package org.openl.rules.indexer;
 
 import org.apache.poi.hwpf.usermodel.Table;
+import org.apache.poi.hwpf.usermodel.RangeHack;
 import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.rules.word.WordDocSourceCodeModule;
 
@@ -37,7 +38,8 @@ public class WordTableElement implements IIndexElement {
     }
 
     public int getParagraphNum() {
-        return table.getParStart() + 1;
+//		return table.getParStart() + 1;
+        return RangeHack.getParStart(table) + 1;
     }
 
     public Table getTable() {
