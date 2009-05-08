@@ -68,6 +68,7 @@
         <includes>
           <include>org.openl.rules.examples*/</include>
           <include>org.openl.tablets.tutorial*/</include>
+          <include>org.openl.tablets.deploy*/</include>
         </includes>
       </resource>
     </resources>
@@ -97,5 +98,6 @@
         <artifactId>com.exigen.rules.constrainer</artifactId>
         <version>${dep.version}</version>
       </dependency>
+
     </dependencies>
 </project>

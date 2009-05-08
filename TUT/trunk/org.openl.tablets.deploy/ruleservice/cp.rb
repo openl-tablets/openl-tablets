@@ -14,5 +14,3 @@ go("lib") do |f|
 end
 
 puts a.join(";")
-
-
