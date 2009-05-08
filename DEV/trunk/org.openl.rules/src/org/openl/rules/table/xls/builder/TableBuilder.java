@@ -12,10 +12,14 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
-
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.openl.rules.table.ICell;
 
 /**
@@ -40,7 +44,7 @@ public class TableBuilder {
     /** Current table row to write. */
     private int currentRow;
     /** Default cell style. */
-    private HSSFCellStyle defaultCellStyle;
+    private CellStyle defaultCellStyle;
 
     /**
      * Creates new instance.
@@ -112,10 +116,11 @@ public class TableBuilder {
      *
      * @return cell style
      */
-    protected HSSFCellStyle getDefaultCellStyle() {
+    protected CellStyle getDefaultCellStyle() {
         if (defaultCellStyle == null) {
-            HSSFWorkbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-            HSSFCellStyle cellStyle = workbook.createCellStyle();
+            Workbook workbook = gridModel.getSheetSource()
+                    .getWorkbookSource().getWorkbook();
+            CellStyle cellStyle = workbook.createCellStyle();
 
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
@@ -175,29 +180,48 @@ public class TableBuilder {
      * @param style cell style
      */
     protected void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
-        HSSFCellStyle cellStyle = null;
+        CellStyle cellStyle = null;
         if (style != null) {
-            cellStyle = ((XlsCellStyle) style).getXlsStyle();
+            cellStyle = getCellStyle(((XlsCellStyle) style).getXlsStyle());
         } else {
             cellStyle = getDefaultCellStyle();
         }
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
-            HSSFCell cell = gridModel.createNewCell(x, y);
+            Cell cell = gridModel.createNewCell(x, y);
             gridModel.setCellValue(x, y, value);
             cell.setCellStyle(cellStyle);
         } else {
             int x2 = x + width - 1;
             int y2 = y + height - 1;
             gridModel.addMergedRegion(new GridRegion(y, x, y2, x2));
-            gridModel.setCellValue(x, y, value);
             for (int col = x; col <= x2; col++) {
                 for (int row = y; row <= y2; row++) {
-                    gridModel.createNewCell(col, row).setCellStyle(cellStyle);
+                    Cell newCell = gridModel.createNewCell(col, row);
+                    gridModel.setCellValue(x, y, value);
+                    newCell.setCellStyle(cellStyle);
                 }
             }
         }
+    }
+    
+    private CellStyle getCellStyle(CellStyle cellStyle) {
+    	if (cellStyle instanceof HSSFCellStyle) {
+    		try {
+    		((HSSFCellStyle)cellStyle).verifyBelongsToWorkbook((HSSFWorkbook) gridModel.getSheetSource()
+                    .getWorkbookSource().getWorkbook());
+    		} catch (Exception e) {
+    			Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+    			CellStyle newStyle = workbook.createCellStyle();
+    			try {
+    				newStyle.cloneStyleFrom(cellStyle);
+    			} catch (Exception ex) {}
+    			return newStyle;
+    		}
+    		return cellStyle;
+    	}
+    	return null;
     }
 
     /**

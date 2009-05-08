@@ -3,9 +3,11 @@
  */
 package org.openl.rules.table.xls;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
@@ -18,19 +20,25 @@ import org.openl.rules.table.ui.ICellStyle;
 public class XlsUndoGrid implements IUndoGrid {
 
     static final int CELLS_IN_A_ROW = 250;
-    HSSFWorkbook wb;
-    HSSFSheet sheet;
+    Workbook wb;
+    Sheet sheet;
 
     XlsSheetGridModel grid;
 
     int cnt;
 
-    public XlsUndoGrid() {
-        wb = new HSSFWorkbook();
-        wb.createSheet();
-        sheet = wb.getSheetAt(0);
-        grid = new XlsSheetGridModel(sheet);
-    }
+	public XlsUndoGrid(XlsSheetGridModel originalGrid) {
+		Workbook originalWorkbook = originalGrid.getSheetSource().getWorkbookSource().getWorkbook();
+		
+		if (originalWorkbook instanceof XSSFWorkbook) {
+			wb = new XSSFWorkbook();
+		} else {
+			wb = new HSSFWorkbook();
+		}
+		wb.createSheet();
+		sheet = wb.getSheetAt(0);
+		grid = new XlsSheetGridModel(sheet);
+	}
 
     private int getColumn(int cid) {
         return cid / CELLS_IN_A_ROW;
@@ -40,7 +48,7 @@ public class XlsUndoGrid implements IUndoGrid {
         return cid % CELLS_IN_A_ROW;
     }
 
-    public HSSFCell restoreCell(int id) {
+	public Cell restoreCell(int id) {
         int col = getColumn(id);
         int row = getRow(id);
         return grid.getCell(col, row);
@@ -63,7 +71,7 @@ public class XlsUndoGrid implements IUndoGrid {
         return grid.getModifiedStyle(col, row);
     }
 
-    public synchronized int saveCell(HSSFCell cell, CellMetaInfo meta, ICellStyle modifiedStyle) {
+	public synchronized int saveCell(Cell cell, CellMetaInfo meta, ICellStyle modifiedStyle) {
         ++cnt;
         int colTo = getColumn(cnt);
         int rowTo = getRow(cnt);

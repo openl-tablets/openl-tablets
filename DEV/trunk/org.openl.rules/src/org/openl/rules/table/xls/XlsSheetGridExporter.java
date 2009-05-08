@@ -1,9 +1,9 @@
 package org.openl.rules.table.xls;
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellStyle;
@@ -21,9 +21,9 @@ import org.openl.util.export.IExporter;
 public class XlsSheetGridExporter implements IExporter {
     public static final String SHEET_NAME = "Saved Searches";
     private final XlsSheetGridModel gridModel;
-    private HSSFCellStyle headerStyle;
-    private HSSFCellStyle style;
-    private final HSSFWorkbook workbook;
+	private CellStyle headerStyle;
+    private CellStyle style;
+    private final Workbook workbook;
 
     /**
      * Computes height of the section when saved to excel.
@@ -73,7 +73,7 @@ public class XlsSheetGridExporter implements IExporter {
         return width + 1;
     }
 
-    public XlsSheetGridExporter(HSSFWorkbook workbook, XlsSheetGridModel xlsSheetGridModel) {
+    public XlsSheetGridExporter(Workbook workbook, XlsSheetGridModel xlsSheetGridModel) {
         this.workbook = workbook;
         gridModel = xlsSheetGridModel;
     }
@@ -88,7 +88,7 @@ public class XlsSheetGridExporter implements IExporter {
 
     private void fillCell(int col, int row, int height, String value) {
         gridModel.setCellValue(col, row, value);
-        HSSFCellStyle style = getStyle();
+		CellStyle style = getStyle();
 
         for (int r = 0; r < height; ++r) {
             gridModel.createNewCell(col, row + r).setCellStyle(style);
@@ -100,7 +100,7 @@ public class XlsSheetGridExporter implements IExporter {
             fillCell(col, row, 1, value);
         } else {
             gridModel.setCellValue(col, row, value);
-            HSSFCellStyle style = getStyle();
+            CellStyle style = getStyle();
 
             for (int c = 0; c < width; ++c) {
                 gridModel.createNewCell(col + c, row).setCellStyle(style);
@@ -108,20 +108,20 @@ public class XlsSheetGridExporter implements IExporter {
         }
     }
 
-    HSSFCellStyle getHeaderStyle() {
+    CellStyle getHeaderStyle() {
         if (headerStyle == null) {
-            HSSFCellStyle cellStyle = workbook.createCellStyle();
+			CellStyle cellStyle = workbook.createCellStyle();
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
             cellStyle.setBorderLeft(ICellStyle.BORDER_THIN);
             cellStyle.setBorderRight(ICellStyle.BORDER_THIN);
 
             cellStyle.setFillForegroundColor(HSSFColor.BLACK.index);
-            cellStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+			cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
-            HSSFFont font = workbook.createFont();
+            Font font = workbook.createFont();
             font.setColor(HSSFColor.WHITE.index);
-            font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
             cellStyle.setFont(font);
 
             headerStyle = cellStyle;
@@ -130,9 +130,9 @@ public class XlsSheetGridExporter implements IExporter {
         return headerStyle;
     }
 
-    private HSSFCellStyle getStyle() {
+    private CellStyle getStyle() {
         if (style == null) {
-            HSSFCellStyle cellStyle = workbook.createCellStyle();
+            CellStyle cellStyle = workbook.createCellStyle();
 
             cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
             cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
@@ -204,7 +204,7 @@ public class XlsSheetGridExporter implements IExporter {
 
     private void persistHeader(IGridRegion region, String text) {
         gridModel.setCellValue(region.getLeft(), region.getTop(), text);
-        HSSFCellStyle hstyle = getHeaderStyle();
+        CellStyle hstyle = getHeaderStyle();
 
         for (int col = region.getLeft(); col <= region.getRight(); ++col) {
             gridModel.createNewCell(col, region.getTop()).setCellStyle(hstyle);

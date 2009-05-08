@@ -8,6 +8,7 @@ package org.openl.rules.table.xls;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 
 /**
@@ -63,11 +64,17 @@ public class XlsCellStyle implements ICellStyle {
     }
 
     public short[] getFillBackgroundColor() {
-        short x = xlsStyle.getFillBackgroundColor();
-        return colorToArray(x, workbook);
+		if (hasNoFill()) return null;
+		short x = xlsStyle.getFillBackgroundColor();
+		return colorToArray(x, workbook);
     }
+    
+	public boolean hasNoFill() {
+		return (xlsStyle.getFillPattern() == CellStyle.NO_FILL);
+	}
 
     public short[] getFillForegroundColor() {
+    	if (hasNoFill()) return null;
         short x = xlsStyle.getFillForegroundColor();
         return colorToArray(x, workbook);
     }
@@ -101,14 +108,14 @@ public class XlsCellStyle implements ICellStyle {
         return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getVerticalAlignment();
     }
 
-    public HSSFCellStyle getXlsStyle() {
+	public CellStyle getXlsStyle() {
         return xlsStyle;
     }
 
     public boolean isWrappedText() {
         return xlsStyle.getWrapText();
     }
-
+/*
     short[] xlsBorders() {
         short[] bb = new short[8];
         bb[0] = xlsStyle.getBorderTop();
@@ -121,5 +128,5 @@ public class XlsCellStyle implements ICellStyle {
         bb[7] = xlsStyle.getLeftBorderColor();
         return bb;
     }
-
+*/
 }

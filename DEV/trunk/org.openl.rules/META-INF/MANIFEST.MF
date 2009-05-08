@@ -6,7 +6,6 @@ Bundle-Version: 5.3.0
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.rules.helpers;visibility:=reexport,
- org.openl.lib.apache.poi.modified;visibility:=reexport,
  org.openl.lib,
  org.openl.j;visibility:=reexport
 Export-Package: org.openl.rules.calc,
@@ -29,7 +28,6 @@ Export-Package: org.openl.rules.calc,
  org.openl.rules.lang.xls.types,
  org.openl.rules.lookup,
  org.openl.rules.method.binding,
- org.openl.rules.poi,
  org.openl.rules.runtime,
  org.openl.rules.search,
  org.openl.rules.structure,

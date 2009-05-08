@@ -3,7 +3,7 @@ package org.openl.rules.lang.xls;
 import java.io.InputStream;
 import java.io.Reader;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
@@ -14,9 +14,9 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     XlsWorkbookSourceCodeModule workbookSource;
 
-    HSSFSheet sheet;
+	Sheet sheet;
 
-    public XlsSheetSourceCodeModule(HSSFSheet sheet, String sheetName, XlsWorkbookSourceCodeModule workbookSource) {
+    public XlsSheetSourceCodeModule(Sheet sheet, String sheetName, XlsWorkbookSourceCodeModule workbookSource) {
         this.sheet = sheet;
         this.sheetName = sheetName;
         this.workbookSource = workbookSource;
@@ -47,7 +47,7 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         return sheetName;
     }
 
-    public HSSFSheet getSheet() {
+    public Sheet getSheet() {
         return sheet;
     }
 
