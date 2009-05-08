@@ -8,8 +8,8 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -32,10 +32,10 @@ public abstract class WizardBase extends BaseWizardBean {
         XlsSheetSourceCodeModule sourceCodeModule;
         XlsWorkbookSourceCodeModule module = workbooks.get(workbook);
         if (newWorksheet) {
-            HSSFSheet sheet = module.getWorkbook().createSheet(getNewWorksheetName());
+            Sheet sheet = module.getWorkbook().createSheet(getNewWorksheetName());
             sourceCodeModule = new XlsSheetSourceCodeModule(sheet, getNewWorksheetName(), module);
         } else {
-            HSSFSheet sheet = module.getWorkbook().getSheetAt(getWorksheetIndex());
+            Sheet sheet = module.getWorkbook().getSheetAt(getWorksheetIndex());
             sourceCodeModule = new XlsSheetSourceCodeModule(sheet, module.getWorkbook().getSheetName(
                     getWorksheetIndex()), module);
         }
@@ -78,10 +78,10 @@ public abstract class WizardBase extends BaseWizardBean {
             return Collections.EMPTY_LIST;
         }
 
-        HSSFWorkbook hssfWorkbook = currentSheet.getWorkbook();
-        List<SelectItem> items = new ArrayList<SelectItem>(hssfWorkbook.getNumberOfSheets());
-        for (int i = 0; i < hssfWorkbook.getNumberOfSheets(); ++i) {
-            items.add(new SelectItem(i, hssfWorkbook.getSheetName(i)));
+        Workbook workbook = currentSheet.getWorkbook();
+        List<SelectItem> items = new ArrayList<SelectItem>(workbook.getNumberOfSheets());
+        for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
+            items.add(new SelectItem(i, workbook.getSheetName(i)));
         }
         return items;
     }

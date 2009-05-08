@@ -159,7 +159,7 @@ public class TableEditorModel {
 
     private UndoableActions actions = new UndoableActions();
 
-    private XlsUndoGrid undoGrid = new XlsUndoGrid();
+    private XlsUndoGrid undoGrid;
 
     FilteredGrid filteredGrid;
 
@@ -167,6 +167,10 @@ public class TableEditorModel {
         this.table = table;
         region = new GridRegion(table.getRegion());
         othertables = new GridSplitter(table.getGrid()).split();
+        
+        XlsSheetGridModel grid = (XlsSheetGridModel) table.getGrid();
+		undoGrid = new XlsUndoGrid(grid);
+	    
         removeThisTable(othertables);
         makeFilteredGrid(table);
 

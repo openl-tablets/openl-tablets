@@ -77,6 +77,10 @@ public class XlsUrlParser implements XlsURLConstants {
         return url;
     }
 
+    public boolean isExcelFile() {
+	    return FileTypeHelper.isExcelFile(wbName);
+	}
+
     public void parse(String url) {
         // String SCRIPT_NAME = "LaunchExcel.vbs";
 

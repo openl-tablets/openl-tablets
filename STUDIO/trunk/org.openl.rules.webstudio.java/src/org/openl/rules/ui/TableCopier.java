@@ -102,24 +102,24 @@ public class TableCopier extends WizardBase {
 
         builder.beginTable(tableWidth, tableHeight);
 
-        if (!tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !tableType.equals(ITableNodeTypes.XLS_OTHER)) {
-            String newHeader = buildHeader(node.getHeaderLineValue().getValue(), tableType);
-            ICellStyle headerStyle = table.getCell(0, 0).getCellStyle();
-            builder.writeHeader(newHeader, headerStyle);
-            logicTableStartRow++;
-
-            TableProperties tableProperties = node.getTableProperties();
-            Property[] properties = null;
-            ICellStyle propertiesStyle = null;
-            if (tableProperties != null) {
-                IGridTable propertiesTable = tableProperties.getTable().getGridTable();
-                propertiesStyle = propertiesTable.getCell(0, 0).getCellStyle() == null ? null : propertiesTable
-                        .getCell(0, 0).getCellStyle();
-                properties = tableProperties.getProperties();
-            }
-            builder.writeProperties(buildProperties(properties), propertiesStyle);
-            logicTableStartRow += properties == null ? 0 : properties.length;
-        }
+//        if (!tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !tableType.equals(ITableNodeTypes.XLS_OTHER)) {
+//            String newHeader = buildHeader(node.getHeaderLineValue().getValue(), tableType);
+//            ICellStyle headerStyle = table.getCell(0, 0).getCellStyle();
+//            builder.writeHeader(newHeader, headerStyle);
+//            logicTableStartRow++;
+//
+//            TableProperties tableProperties = node.getTableProperties();
+//            Property[] properties = null;
+//            ICellStyle propertiesStyle = null;
+//            if (tableProperties != null) {
+//                IGridTable propertiesTable = tableProperties.getTable().getGridTable();
+//                propertiesStyle = propertiesTable.getCell(0, 0).getCellStyle() == null ? null : propertiesTable
+//                        .getCell(0, 0).getCellStyle();
+//                properties = tableProperties.getProperties();
+//            }
+//            builder.writeProperties(buildProperties(properties), propertiesStyle);
+//            logicTableStartRow += properties == null ? 0 : properties.length;
+//        }
 
         builder.writeGridTable(table.getLogicalRegion(0, logicTableStartRow, tableWidth,
                 tableHeight - logicTableStartRow).getGridTable());

@@ -186,7 +186,7 @@ public class WebTool extends StringTool {
             throw RuntimeExceptionWrapper.wrap(e);
         }
 
-        if (parser.wbName.endsWith(".xls")) {
+        if (parser.isExcelFile()) {
             String ret = "" + "&wbPath=" + parser.wbPath + "&wbName=" + parser.wbName + "&wsName=" + parser.wsName
                     + "&range=" + parser.range;
 
