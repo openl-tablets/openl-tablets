@@ -101,4 +101,8 @@ public class XlsCellStyle2 implements ICellStyle {
 		return xlsStyle.getWrapText();
 	}
 
+    public CellStyle getXlsStyle() {
+        return xlsStyle;
+    }
+
 }
