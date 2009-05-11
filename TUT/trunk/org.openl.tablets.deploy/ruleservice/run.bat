@@ -110,7 +110,9 @@ lib\org.openl.rules.workspace_5.3.0.jar;^
 lib\org.openl.rules_5.3.0.jar;^
 lib\oro-2.0.8.jar;^
 lib\persistence-api-1.0.jar;^
-lib\poi-2.5.1-final-20040804.jar;^
+lib\poi-3.5-beta5.jar;^
+lib\poi-scratchpad-3.5-beta5.jar;^
+lib\poi-ooxml-3.5-beta5.jar;^
 lib\richfaces-api-3.1.2.GA.jar;^
 lib\richfaces-impl-3.1.2.GA.jar;^
 lib\richfaces-ui-3.1.2.GA.jar;^
