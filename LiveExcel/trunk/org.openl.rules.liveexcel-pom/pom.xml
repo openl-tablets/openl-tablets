@@ -9,15 +9,16 @@
   </parent>
 
   <groupId>org.openl.rules</groupId>
-  <artifactId>org.openl.rules.live.excel-pom</artifactId>
+  <artifactId>org.openl.rules.liveexcel-pom</artifactId>
   <packaging>pom</packaging>
   <version>5.3.0-SNAPSHOT</version>
-  <name>OpenL - Live Excel</name>
+  <name>OpenL - Live Excel - Base POM</name>
   <description>Dev</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <modules>
-    <module>../org.openl.apache.poi.enhancements</module>
+    <module>../org.openl.lib.poi35.dev-pom</module>
+    <module>../org.openl.rules.liveexcel</module>
   </modules>
 
 
@@ -26,8 +27,8 @@
   </properties>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/branches/iteration2_merge</connection>
-<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/branches/iteration2_merge</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</connection>
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</developerConnection>
   </scm>
 
   <reporting>
@@ -36,7 +37,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <configLocation>../org.openl.rules.live.excel-pom/checkstyle.xml</configLocation>
+          <configLocation>../org.openl.rules.liveexcel-pom/checkstyle.xml</configLocation>
         </configuration>
       </plugin>
     </plugins>
@@ -48,7 +49,7 @@
       <distributionManagement>
         <site>
           <id>internal-minsk</id>
-          <url>file://d:/reports/org.openl.rules.live.excel-pom</url>
+          <url>file://d:/reports/org.openl.rules.liveexcel-pom</url>
         </site>
       </distributionManagement>
     </profile>
@@ -71,7 +72,7 @@
                 </cobertura-merge>
 
                 <cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
-                  <fileset dir="..\org.openl.apache.poi.enhancements\src\">
+                  <fileset dir="..\org.openl.lib.poi35.dev.modified\src\">
                     <include name="**\*.java" />
                   </fileset>
                 </cobertura-report>
