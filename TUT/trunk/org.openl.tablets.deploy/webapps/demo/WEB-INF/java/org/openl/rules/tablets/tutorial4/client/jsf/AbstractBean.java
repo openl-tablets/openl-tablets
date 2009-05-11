@@ -1,4 +1,4 @@
-package org.openl.rules.tablets.tutorial4.client.jsf.managedbeans;
+package org.openl.rules.tablets.tutorial4.client.jsf;
 
 import org.openl.rules.tablets.tutorial4.client.WebServiceTemplate;
 import org.openl.rules.tablets.tutorial4.client.WebServiceCallback;
