@@ -1,5 +1,6 @@
 package org.openl.rules.table.xls.builder;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -7,19 +8,15 @@ import java.util.Set;
 import java.io.IOException;
 
 import org.openl.rules.table.xls.XlsCellStyle;
+import org.openl.rules.table.xls.XlsCellStyle2;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.openl.rules.table.ICell;
 
 /**
@@ -45,6 +42,11 @@ public class TableBuilder {
     private int currentRow;
     /** Default cell style. */
     private CellStyle defaultCellStyle;
+    
+    /**
+     *  Mapping for style to style transformation.
+     */
+    private Map<CellStyle,CellStyle> style2style;
 
     /**
      * Creates new instance.
@@ -56,6 +58,7 @@ public class TableBuilder {
             throw new IllegalArgumentException("gridModel is null");
         }
         this.gridModel = gridModel;
+        style2style = new HashMap<CellStyle,CellStyle>();
     }
 
     /**
@@ -81,6 +84,7 @@ public class TableBuilder {
         }
 
         currentRow = 0;
+        style2style.clear();
     }
 
     /**
@@ -105,6 +109,7 @@ public class TableBuilder {
             throw new CreateTableException("could not save table");
         }
         region = null;
+        style2style.clear();
     }
 
     protected int getCurrentRow() {
@@ -182,7 +187,12 @@ public class TableBuilder {
     protected void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
         CellStyle cellStyle = null;
         if (style != null) {
-            cellStyle = getCellStyle(((XlsCellStyle) style).getXlsStyle());
+            if (style instanceof XlsCellStyle) {
+                cellStyle = ((XlsCellStyle) style).getXlsStyle();
+            } else if (style instanceof XlsCellStyle2) {
+                cellStyle = ((XlsCellStyle2) style).getXlsStyle();
+            }
+            
         } else {
             cellStyle = getDefaultCellStyle();
         }
@@ -191,7 +201,7 @@ public class TableBuilder {
         if (width == 1 && height == 1) {
             Cell cell = gridModel.createNewCell(x, y);
             gridModel.setCellValue(x, y, value);
-            cell.setCellStyle(cellStyle);
+            setCellStyle(cell, cellStyle);
         } else {
             int x2 = x + width - 1;
             int y2 = y + height - 1;
@@ -200,29 +210,65 @@ public class TableBuilder {
                 for (int row = y; row <= y2; row++) {
                     Cell newCell = gridModel.createNewCell(col, row);
                     gridModel.setCellValue(x, y, value);
-                    newCell.setCellStyle(cellStyle);
+                    setCellStyle(newCell, cellStyle);
                 }
             }
         }
     }
     
-    private CellStyle getCellStyle(CellStyle cellStyle) {
-    	if (cellStyle instanceof HSSFCellStyle) {
-    		try {
-    		((HSSFCellStyle)cellStyle).verifyBelongsToWorkbook((HSSFWorkbook) gridModel.getSheetSource()
-                    .getWorkbookSource().getWorkbook());
-    		} catch (Exception e) {
-    			Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-    			CellStyle newStyle = workbook.createCellStyle();
-    			try {
-    				newStyle.cloneStyleFrom(cellStyle);
-    			} catch (Exception ex) {}
-    			return newStyle;
-    		}
-    		return cellStyle;
-    	}
-    	return null;
+    private void setCellStyle(Cell cell, CellStyle cellStyle) {
+        CellStyle newStyle = style2style.get(cellStyle);
+        if (newStyle != null) {
+            cellStyle = newStyle;
+        }
+        try {
+            cell.setCellStyle(cellStyle);
+        } catch (Exception e) {
+            CellStyle style = findWorkbookCellStyle(cellStyle);
+            if (style != null) {
+                style2style.put(cellStyle, style);
+            } else {
+                Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+                style = workbook.createCellStyle();
+                try {
+                    style.cloneStyleFrom(cellStyle);
+                } catch (IllegalArgumentException ex) {
+                    // FIXME: remove try.. catch
+                }
+                style2style.put(cellStyle, style);
+            }
+            cell.setCellStyle(style);
+        }
     }
+
+    private CellStyle findWorkbookCellStyle(CellStyle cellStyle) {
+        Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+        short numCellStyles = workbook.getNumCellStyles();
+        for (int i = 0; i < numCellStyles; i++) {
+            CellStyle cellStyleAt = workbook.getCellStyleAt((short) i);
+            if (equalsStyle(cellStyleAt, cellStyle)) {
+                return cellStyleAt;
+            }
+        }
+        return null;
+    }
+
+    private boolean equalsStyle(CellStyle cs1, CellStyle cs2) {
+        return (cs1.getAlignment() == cs2.getAlignment() && cs1.getAlignment() == cs2.getAlignment()
+                && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2.getLocked()
+                && cs1.getWrapText() == cs2.getWrapText() && cs1.getBorderBottom() == cs2.getBorderBottom()
+                && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1.getBorderRight() == cs2.getBorderRight()
+                && cs1.getBorderTop() == cs2.getBorderTop() && cs1.getBottomBorderColor() == cs2.getBottomBorderColor()
+                && cs1.getFillBackgroundColor() == cs2.getFillBackgroundColor()
+                && cs1.getFillForegroundColor() == cs2.getFillForegroundColor()
+                && cs1.getFillPattern() == cs2.getFillPattern() && cs1.getIndention() == cs2.getIndention()
+                && cs1.getLeftBorderColor() == cs2.getLeftBorderColor()
+                && cs1.getRightBorderColor() == cs2.getRightBorderColor() && cs1.getRotation() == cs2.getRotation()
+                && cs1.getTopBorderColor() == cs2.getTopBorderColor() && cs1.getVerticalAlignment() == cs2
+                .getVerticalAlignment());
+    }
+    
+    
 
     /**
      * Writes cell.
