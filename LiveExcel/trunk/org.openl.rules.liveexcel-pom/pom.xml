@@ -81,7 +81,7 @@
 
                 <cobertura-merge datafile="target\cobertura-merged-file.ser">
                   <fileset dir="..">
-                    <!--<include name="org.openl.lib.poi35.dev\target\cobertura\cobertura.ser" />-->
+                    <include name="org.openl.lib.poi35.dev\target\cobertura\cobertura.ser" />
                     <include name="org.openl.lib.poi35.dev.modified\target\cobertura\cobertura.ser" />
                     <include name="org.openl.lib.poi35.dev.modified.test\target\cobertura\cobertura.ser" />
                     <include name="org.openl.rules.liveexcel\target\cobertura\cobertura.ser" />
@@ -95,7 +95,7 @@
                   <fileset dir="..\org.openl.lib.poi35.dev.modified.test\src\">
                     <include name="**\*.java" />
                   </fileset>
-                  <fileset dir="..\org.openl.rules.livexcel\src\">
+                  <fileset dir="..\org.openl.rules.liveexcel\src\">
                     <include name="**\*.java" />
                   </fileset>
                 </cobertura-report>
