@@ -75,7 +75,7 @@ final class HSSFEvaluationCell implements EvaluationCell {
     public String getStringCellValue() {
         return _cell.getRichStringCellValue().getString();
     }
-    @Override
+    
     public void setValue(ValueEval value) {
         Class<? extends ValueEval> cls = value.getClass();
 
