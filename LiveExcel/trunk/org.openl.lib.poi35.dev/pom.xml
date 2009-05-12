@@ -59,7 +59,11 @@
                                         <phase>generate-sources</phase>
                                         <goals><goal>add-source</goal></goals>
                                         <configuration>
-                                                <sources><source>poi/src</source></sources>
+                                                <sources>
+                                                	<source>poi/src/java</source>
+                                                        <source>poi/src/java/ooxml/java</source>
+                                                        <source>poi/src/scratchpad/src</source>
+                                                </sources>
                                         </configuration>
                                 </execution>
                     </executions>
