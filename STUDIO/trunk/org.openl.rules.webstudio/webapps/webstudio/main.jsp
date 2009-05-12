@@ -23,8 +23,8 @@
 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
 if (rulesUserSession==null) {
     rulesUserSession = new RulesUserSession();
-    rulesUserSession.setUser(((CurrentUserInfo)WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("currentUserInfo")).getUser());
-    rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager)WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("workspaceManager"));
+    rulesUserSession.setUser(((CurrentUserInfo)WebApplicationContextUtils.getWebApplicationContext(getServletConfig().getServletContext()).getBean("currentUserInfo")).getUser());
+    rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager)WebApplicationContextUtils.getWebApplicationContext(getServletConfig().getServletContext()).getBean("workspaceManager"));
     session.setAttribute("rulesUserSession", rulesUserSession);
 }
 if (WebContext.getContextPath() == null) {
