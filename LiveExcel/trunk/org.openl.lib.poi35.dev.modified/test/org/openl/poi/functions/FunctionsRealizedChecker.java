@@ -42,7 +42,6 @@ public class FunctionsRealizedChecker {
 
     public void analyze(String fileName) throws Exception {
         InputStream is = null;
-        OutputStream out = null;
         try {
             is = new FileInputStream("test/functions/tests/" + fileName);
             POIFSFileSystem fs = new POIFSFileSystem(is);
@@ -53,10 +52,9 @@ public class FunctionsRealizedChecker {
 
             for (int i = 0; i < inputWorkbook.getNumberOfSheets(); i++) {
                 HSSFSheet currentSheet = inputWorkbook.getSheetAt(i);
-                FunctionSupport functionStatus = checkFunction(currentSheet);
+                FunctionSupportStatus functionStatus = checkFunction(currentSheet);
                 addCheckedFuction(currentSheet.getSheetName(), functionStatus);
             }
-            resultWorkbook.write(out = new FileOutputStream(FUNCTIONS_OUTPUT_FILE));
         } catch (IOException e) {
             throw e;
         } finally {
@@ -66,16 +64,10 @@ public class FunctionsRealizedChecker {
             } catch (Exception e) {
                 throw e;
             }
-            try {
-                if (out != null)
-                    out.close();
-            } catch (Exception e) {
-                throw e;
-            }
         }
     }
 
-    private void addCheckedFuction(String functionName, FunctionSupport functionStatus) {
+    private void addCheckedFuction(String functionName, FunctionSupportStatus functionStatus) {
         HSSFRow row = resultSheet.createRow(statistics.getFunctionsCount());
         // in first column function name
         row.createCell(0).setCellValue(functionName);
@@ -100,7 +92,7 @@ public class FunctionsRealizedChecker {
         cell.setCellStyle(cellStyle);
     }
 
-    private HSSFColor getColor(FunctionSupport functionSupport) {
+    private HSSFColor getColor(FunctionSupportStatus functionSupport) {
         switch (functionSupport) {
             case NON_IMPLEMENTED:
                 return new HSSFColor.RED();
@@ -114,13 +106,13 @@ public class FunctionsRealizedChecker {
         return new HSSFColor.WHITE();
     }
 
-    private FunctionSupport checkFunction(HSSFSheet functionTestsSheet) {
+    private FunctionSupportStatus checkFunction(HSSFSheet functionTestsSheet) {
         int numberOfTests = 0;
         int numberOfErrors = 0;
         List<String> errorList = new ArrayList<String>();
         int formulaRow = getFirstFormulaIndex(functionTestsSheet);
         if (formulaRow == -1) {
-            return FunctionSupport.NOT_TESTED;
+            return FunctionSupportStatus.NOT_TESTED;
         }
         while (!isEmpty(functionTestsSheet, formulaRow, (short) 0)) {
             try {
@@ -133,7 +125,7 @@ public class FunctionsRealizedChecker {
                             + getCellValue(functionTestsSheet, formulaRow, 0));
                 }
             } catch (NotImplementedException e) {
-                FunctionSupport functionStatus = FunctionSupport.NON_IMPLEMENTED;
+                FunctionSupportStatus functionStatus = FunctionSupportStatus.NON_IMPLEMENTED;
                 String operationNonImplemented = e.getCause().getMessage();
                 if (operationNonImplemented.startsWith("org.apache.poi.hssf.record.formula.functions.")) {
                     functionStatus.setMessage("Function is not yet implemented: "
@@ -149,12 +141,12 @@ public class FunctionsRealizedChecker {
             formulaRow++;
         }
         if (numberOfErrors > 0) {
-            FunctionSupport functionStatus = FunctionSupport.TESTED_WITH_ERRORS;
+            FunctionSupportStatus functionStatus = FunctionSupportStatus.TESTED_WITH_ERRORS;
             functionStatus.setMessage(numberOfErrors + " of " + numberOfTests + " tests failed.");
             functionStatus.setErrors(errorList);
             return functionStatus;
         }
-        return FunctionSupport.SUPPORTED;
+        return FunctionSupportStatus.SUPPORTED;
     }
 
     // analog of method of org.openl.rules.table.xls.XlsSheetGridModel
@@ -214,11 +206,11 @@ public class FunctionsRealizedChecker {
 
     private int getFirstFormulaIndex(HSSFSheet functionTestsSheet) {
         int rowNumber = 0;
-        final short columnIndexOfFormulaLabel = 0;
-        while ((!isEmpty(functionTestsSheet, rowNumber, columnIndexOfFormulaLabel) && !"Formula".equals(getCellValue(
-                functionTestsSheet, rowNumber, columnIndexOfFormulaLabel)))
-                || (isEmpty(functionTestsSheet, rowNumber, columnIndexOfFormulaLabel) && isPartOfTheMergedRegion(
-                        functionTestsSheet, rowNumber, columnIndexOfFormulaLabel))) {
+        final short COLUMN_INDEX_OF_FORMILA_LABEL = 0;
+        while ((!isEmpty(functionTestsSheet, rowNumber, COLUMN_INDEX_OF_FORMILA_LABEL) && !"Formula"
+                .equals(getCellValue(functionTestsSheet, rowNumber, COLUMN_INDEX_OF_FORMILA_LABEL)))
+                || (isEmpty(functionTestsSheet, rowNumber, COLUMN_INDEX_OF_FORMILA_LABEL) && isPartOfTheMergedRegion(
+                        functionTestsSheet, rowNumber, COLUMN_INDEX_OF_FORMILA_LABEL))) {
             rowNumber++;
         }
         if (isEmpty(functionTestsSheet, rowNumber, (short) 0)) {
@@ -227,18 +219,40 @@ public class FunctionsRealizedChecker {
         return rowNumber + 1;
     }
 
+    public void saveResults() throws Exception {
+        OutputStream out = null;
+        try {
+            resultWorkbook.write(out = new FileOutputStream(FUNCTIONS_OUTPUT_FILE));
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                if (out != null)
+                    out.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        statistics.save();
+    }
+
+    public void testAllFunctions() throws Exception {
+        analyze("Add-in_and_automation_functions.xls");
+        analyze("Cube.xls");
+        analyze("Database_and_list_management.xls");
+        analyze("Date_and_time.xls");
+        analyze("Engineering.xls");
+        analyze("Financial.xls");
+        analyze("Information.xls");
+        analyze("Logical.xls");
+        analyze("Lookup_and_reference.xls");
+        analyze("Math_and_trigonometry.xls");
+        analyze("Statistical.xls");
+        analyze("Text_and_data.xls");
+        saveResults();
+    }
+
     public static void main(String[] args) throws Exception {
-        FunctionsRealizedChecker checker = new FunctionsRealizedChecker();
-        checker.analyze("Add-in_and_automation_functions.xls");
-        checker.analyze("Database_and_list_management.xls");
-        checker.analyze("Date_and_time.xls");
-        checker.analyze("Engineering.xls");
-        checker.analyze("Financial.xls");
-        checker.analyze("Information.xls");
-        checker.analyze("Logical.xls");
-        checker.analyze("Lookup_and_reference.xls");
-        checker.analyze("Math_and_trigonometry.xls");
-        checker.analyze("Statistical.xls");
-        checker.analyze("Text_and_data.xls");
+        new FunctionsRealizedChecker().testAllFunctions();
     }
 }

@@ -3,7 +3,7 @@ package org.openl.poi.functions;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum FunctionSupport {
+public enum FunctionSupportStatus {
     NON_IMPLEMENTED("Non-impemented."),
     NOT_TESTED("Not tested.(That means function can be not_impemented.)"),
     TESTED_WITH_ERRORS(""),
@@ -11,7 +11,7 @@ public enum FunctionSupport {
     private String message;
     private List<String> errors = new ArrayList<String>();
 
-    private FunctionSupport(String message) {
+    private FunctionSupportStatus(String message) {
         this.message = message;
     }
 
