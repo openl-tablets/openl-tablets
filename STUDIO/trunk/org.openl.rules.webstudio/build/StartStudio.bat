@@ -6,7 +6,6 @@ set CP=%CP%;../org.openl.core/bin
 set CP=%CP%;../org.openl.commons/bin
 set CP=%CP%;../org.openl.j/bin
 set CP=%CP%;../org.openl.rules/bin
-set CP=%CP%;../org.openl.lib.apache.poi.modified/bin
 set CP=%CP%;../org.openl.lib.apache.commons/commons-lang-1.0.1/commons-lang-1.0.1.jar
 set CP=%CP%;../org.openl.lib.apache.commons/commons-logging-1.0.3/commons-logging.jar
 set CP=%CP%;../org.openl.lib.apache.commons/commons-logging-1.0.3/commons-logging-api.jar
