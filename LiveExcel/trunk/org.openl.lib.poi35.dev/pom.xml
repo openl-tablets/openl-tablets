@@ -16,6 +16,8 @@
   <description />
 
   <build>
+  <sourceDirectory>poi/src/java</sourceDirectory>
+
     <plugins>
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
@@ -30,6 +32,27 @@
           </filesets>
         </configuration>
       </plugin>
+
+     <plugin>
+       <groupId>org.codehaus.mojo</groupId>
+               <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                                <execution>
+                                        <phase>generate-sources</phase>
+                                        <goals><goal>add-source</goal></goals>
+                                        <configuration>
+                                                <sources>
+                                                       <!--<source>poi/src/java</source>-->
+                                                       <source>poi/src/java/ooxml/java</source>
+                                                       <source>poi/src/scratchpad/src</source>
+                                                       <!--<source>poi/src/java/**/*.java</source>
+                                                       <source>poi/src/java/ooxml/java/**/*.java</source>
+                                                       <source>poi/src/scratchpad/src/**/*.java</source>-->
+                                                </sources>
+                                        </configuration>
+                                </execution>
+                    </executions>
+       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -51,35 +74,14 @@
         </executions>
       </plugin>
 
-      <plugin>
-       <groupId>org.codehaus.mojo</groupId>
-               <artifactId>build-helper-maven-plugin</artifactId>
-                        <executions>
-                                <execution>
-                                        <phase>generate-sources</phase>
-                                        <goals><goal>add-source</goal></goals>
-                                        <configuration>
-                                                <sources>
-                                                	<source>poi/src/java</source>
-                                                        <source>poi/src/java/ooxml/java</source>
-                                                        <source>poi/src/scratchpad/src</source>
-                                                </sources>
-                                        </configuration>
-                                </execution>
-                    </executions>
-       </plugin>
-
        <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-                       <source>1.5</source>
+               <source>1.5</source>
                <target>1.5</target>
-
         </configuration>
       </plugin>
-
-
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -101,6 +103,27 @@
       </resource>
     </resources>
   </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javancss-maven-plugin</artifactId>
+        <version>2.0-beta-2</version>
+
+        <configuration>
+               <failOnViolation>false</failOnViolation>
+
+      <!--    <includes>
+            <include>poi/src/java/**/*.java</include>
+            <include>poi/src/java/ooxml/java/**/*.java</include>
+            <include>poi/src/scratchpad/src/**/*.java</include>
+          </includes>-->
+        </configuration>
+
+      </plugin>
+    </plugins>
+  </reporting>
 
   <dependencies>
     <dependency>
