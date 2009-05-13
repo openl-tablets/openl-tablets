@@ -10,17 +10,11 @@
   </parent>
 
   <groupId>org.openl</groupId>
-  <artifactId>org.openl.lib</artifactId>
-  <name>OpenL - DEV - Libraries</name>
+  <artifactId>org.openl.poi.lib</artifactId>
+  <name>OpenL - DEV - POI - Libraries</name>
   <description />
 
   <build>
-
-
-
-
-
-
 
     <plugins>
       <plugin>
@@ -48,7 +42,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/../lib</outputDirectory>
-              <excludeArtifactIds>junit,org.openl.poi.lib</excludeArtifactIds>
+              <excludeArtifactIds>junit</excludeArtifactIds>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
               <excludeTransitive>true</excludeTransitive>
@@ -96,13 +90,41 @@
     </dependency>
     
     <dependency>
-    	<groupId>org.openl</groupId>
-  		<artifactId>org.openl.poi.lib</artifactId>
-  		<version>${version}</version>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>ooxml-schemas</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.xmlbeans</groupId>
+      <artifactId>xmlbeans</artifactId>
     </dependency>
     
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+  	  <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+  	  <version>${version}</version>
+    </dependency>
     
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+  	  <artifactId>org.openl.lib.poi35.dev</artifactId>
+  	  <version>${version}</version>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+    </dependency>
+-->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-scratchpad</artifactId>
+    </dependency>
     
+	<dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
