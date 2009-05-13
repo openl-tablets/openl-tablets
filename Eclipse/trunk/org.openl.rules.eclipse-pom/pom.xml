@@ -233,6 +233,12 @@
         <artifactId>org.openl.lib.eclipse.feature</artifactId>
         <version>${dep.version}</version>
       </dependency>
+      
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.poi.lib.eclipse.feature</artifactId>
+        <version>${dep.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
@@ -249,6 +255,12 @@
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.lib</artifactId>
+        <version>${dep.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.poi.lib</artifactId>
         <version>${dep.version}</version>
       </dependency>
 
