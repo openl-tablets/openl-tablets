@@ -20,6 +20,7 @@ import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.hssf.util.Region;
+import org.junit.Assert;
 
 public class FunctionsRealizedChecker {
     private static final String FUNCTIONS_OUTPUT_FILE = "test/functions/CheckedFunctions.xls";
@@ -54,6 +55,7 @@ public class FunctionsRealizedChecker {
                 HSSFSheet currentSheet = inputWorkbook.getSheetAt(i);
                 FunctionSupportStatus functionStatus = checkFunction(currentSheet);
                 addCheckedFuction(currentSheet.getSheetName(), functionStatus);
+                testJUnit(currentSheet, functionStatus);
             }
         } catch (IOException e) {
             throw e;
@@ -64,6 +66,15 @@ public class FunctionsRealizedChecker {
             } catch (Exception e) {
                 throw e;
             }
+        }
+    }
+
+    private void testJUnit(HSSFSheet sheet, FunctionSupportStatus functionStatus) {
+        // if cell (0,0) contains "Junit test" then it must be completely
+        // supported by poi and tested by JUnit
+        if ("Junit test".equals(getCellValue(sheet, 0, 0))) {
+            System.out.println("Tetsted function : " + sheet.getSheetName());
+            Assert.assertTrue(functionStatus == FunctionSupportStatus.SUPPORTED);
         }
     }
 
@@ -151,23 +162,34 @@ public class FunctionsRealizedChecker {
 
     // analog of method of org.openl.rules.table.xls.XlsSheetGridModel
     public static Object getCellValue(HSSFSheet sheet, int row, int column) {
+        if (isEmpty(sheet, row, (short) column)) {
+            return null;
+        }
         Cell cell = sheet.getRow(row).getCell(column);
         switch (cell.getCellType()) {
+            default:
+                return "unknown type: " + cell.getCellType();
             case Cell.CELL_TYPE_BLANK:
                 return null;
             case Cell.CELL_TYPE_BOOLEAN:
                 return new Boolean(cell.getBooleanCellValue());
-            case Cell.CELL_TYPE_NUMERIC:
-                // try{
-                double value = cell.getNumericCellValue();
-                return value == (int) value ? (Object) new Integer((int) value) : (Object) new Double(value);
-                // }catch (IllegalStateException e) {
-                // return cell.getErrorCellValue();
-                // }
+            case Cell.CELL_TYPE_ERROR:
+                return cell.getErrorCellValue();
             case Cell.CELL_TYPE_STRING:
                 return cell.getStringCellValue();
-            default:
-                return "unknown type: " + cell.getCellType();
+            case Cell.CELL_TYPE_FORMULA:
+            case Cell.CELL_TYPE_NUMERIC:
+                try {
+                    double value = cell.getNumericCellValue();
+                    return value == (int) value ? (Object) new Integer((int) value) : (Object) new Double(value);
+                } catch (Exception exceptionOfNumeric) {
+                    try {
+                        // some formulas returns string (="string value")
+                        return cell.getStringCellValue();
+                    } catch (Exception exceptionOfString) {
+                        return cell.getErrorCellValue();
+                    }
+                }
         }
     }
 

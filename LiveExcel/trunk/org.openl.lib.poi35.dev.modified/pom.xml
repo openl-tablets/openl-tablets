@@ -53,6 +53,14 @@
                                 </executions>
                         </plugin>
                 </plugins>
+                <resources>
+                        <resource>
+                                <directory>src</directory>
+                                <includes>
+                                        <include>**/functionMetadata.txt</include>
+                                </includes>
+                        </resource>
+                </resources>
         </build>
         <dependencies>
                 <dependency>
