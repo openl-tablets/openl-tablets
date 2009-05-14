@@ -54,6 +54,7 @@
           <configLocation>../org.openl.rules.liveexcel-pom/checkstyle.xml</configLocation>
         </configuration>
       </plugin>
+
     </plugins>
   </reporting>
 
