@@ -39,7 +39,7 @@
                                                 <configuration>
                                                         <sources>
                                                                 <!--<source>poi/src/java</source>-->
-                                                                <source>poi/src/java/ooxml/java</source>
+                                                                <source>poi/src/ooxml/java</source>
                                                                 <source>poi/src/scratchpad/src</source>
                                                         </sources>
                                                 </configuration>
