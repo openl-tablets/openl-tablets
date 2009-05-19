@@ -113,6 +113,6 @@ public class ExcelFunctionCalculator {
         ExcelFunctionCalculator calculator = new ExcelFunctionCalculator("FOO.xls");
         Object[] inputValues = new Object[] { 10 };
         CellAddress[] inputCellAddresses = new CellAddress[] { new CellAddress("B1") };
-        System.out.println(calculator.calculateResult(new CellAddress("A2"), inputValues, inputCellAddresses));
+        System.out.println(calculator.calculateResult(new CellAddress("B2"), inputValues, inputCellAddresses));
     }
 }
