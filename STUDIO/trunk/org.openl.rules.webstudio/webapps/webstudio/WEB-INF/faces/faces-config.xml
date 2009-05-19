@@ -182,6 +182,12 @@
     </managed-property>
   </managed-bean>
 
+  <managed-bean>
+    <managed-bean-name>diffHandler</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.diff.DiffHandler</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
   <navigation-rule>
     <from-view-id>/facelets/repository/main.xhtml</from-view-id>
     <navigation-case>
