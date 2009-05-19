@@ -55,13 +55,14 @@
   <a target="mainFrame" href="#{contextPath}/jsp/search/search.jsp?searchQuery=&quot;openl tablets&quot;" title="Search"><img border='0' src="#{contextPath}/webresource/images/search.png" alt="search"/></a>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <a href="#{contextPath}/main.jsp?reload=true&amp;select_wrapper=#{headerBean.selectedProject}" title="Refresh Project(s)" target="top"><img border='0' src="#{contextPath}/webresource/images/refresh.gif" alt="reload"/></a>
-  <f:verbatim>&amp;nbsp;</f:verbatim>
-  <a target="mainFrame" href="#{contextPath}/html/ws-intro.html" title="Help"><img border='0' src="#{contextPath}/webresource/images/help.gif" alt="help"/></a>
   <h:panelGroup rendered="#{headerBean.projectsExist and not headerBean.projectReadOnly}">
       <f:verbatim>&amp;nbsp;</f:verbatim>
       <h:commandLink target="mainFrame" action="#{tableWizardManager.start}" title="Create new table">
           <img border='0' src="#{contextPath}/webresource/images/newtable.gif" alt="new table"/></h:commandLink>
   </h:panelGroup>
+  <f:verbatim>&amp;nbsp;</f:verbatim>
+  <a target="mainFrame" onclick="window.open('#{contextPath}/faces/facelets/diff/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;" href="#" title="Compare Excel files">
+      <img border='0' src="#{contextPath}/webresource/images/compare.gif" alt="Compare Excel files" /></a>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <c:if test="#{headerBean.repositoryFailed}">
     <img border='0' src="#{contextPath}/webresource/images/repository/storage-disabled.gif" alt="repo failed"/>
@@ -69,6 +70,8 @@
   <c:if test="#{not headerBean.repositoryFailed}">
     <a target="top" href="#{contextPath}/faces/facelets/repository/main.xhtml" title="Rules Repository"><img border='0' src="#{contextPath}/webresource/images/repository/storage.gif" alt="repo"/></a>
   </c:if>
+  <f:verbatim>&amp;nbsp;</f:verbatim>
+  <a target="mainFrame" href="#{contextPath}/html/ws-intro.html" title="Help"><img border='0' src="#{contextPath}/webresource/images/help.gif" alt="help"/></a>
   <c:if test="#{not headerBean.hideLogout}">
     <f:verbatim>&amp;nbsp;</f:verbatim>
     <a target="top" href='#{contextPath}/logoff.servlet?_j_acegi_logout=true' title="Log out" onclick="return confirm('Are you sure you want to Log out?')"><img border='0' src="#{contextPath}/webresource/images/logout.gif" alt="Log out"/></a>
