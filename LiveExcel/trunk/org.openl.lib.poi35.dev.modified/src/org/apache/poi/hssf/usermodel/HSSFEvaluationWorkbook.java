@@ -119,14 +119,14 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
         HSSFCell cell = ((HSSFEvaluationCell)evalCell).getHSSFCell();
         FormulaRecordAggregate fra = (FormulaRecordAggregate) cell.getCellValueRecord();
         Ptg[] formulaTokens = fra.getFormulaTokens();
-        for (Ptg token : formulaTokens){
-            if (token instanceof NamePtg){
-                // re-parsing the formula text also works, but is a waste of time
-                // It is useful from time to time to run all unit tests with this code
-                // to make sure that all formulas POI can evaluate can also be parsed.
-                return HSSFFormulaParser.parse(cell.getCellFormula(), _uBook, FormulaType.CELL, _uBook.getSheetIndex(cell.getSheet()));
-            }
-        }
+//        for (Ptg token : formulaTokens){
+//            if (token instanceof NamePtg){
+//                // re-parsing the formula text also works, but is a waste of time
+//                // It is useful from time to time to run all unit tests with this code
+//                // to make sure that all formulas POI can evaluate can also be parsed.
+//                return HSSFFormulaParser.parse(cell.getCellFormula(), _uBook, FormulaType.CELL, _uBook.getSheetIndex(cell.getSheet()));
+//            }
+//        }
         return formulaTokens;
     }
 
