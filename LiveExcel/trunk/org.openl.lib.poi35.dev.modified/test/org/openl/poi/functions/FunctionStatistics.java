@@ -44,6 +44,8 @@ public class FunctionStatistics {
         statistics.add(new HashMap<FunctionSupportStatus, Integer>());
         // for functions without priority
         statistics.add(new HashMap<FunctionSupportStatus, Integer>());
+        // for all functions
+        statistics.add(new HashMap<FunctionSupportStatus, Integer>());
     }
 
     private void initPriorities() {
@@ -80,6 +82,7 @@ public class FunctionStatistics {
     public void registerFunction(String functionName, FunctionSupportStatus functionStatus) {
         int priority = getFunctionPriorityByName(functionName);
         int count = getFunctionsCountWithPriorityAndStatus(priority, functionStatus);
+        statistics.get(8).put(functionStatus, getFunctionsCountWithPriorityAndStatus(8, functionStatus) + 1);
         statistics.get(priority).put(functionStatus, count + 1);
         functionsCount++;
     }
@@ -174,21 +177,27 @@ public class FunctionStatistics {
     }
 
     private void fillSheetWithStatistics(HSSFSheet sheet) {
-        setCellValue(sheet, 0, 1, functionsCount);
-        for (int i = 0; i < statistics.size(); i++) {
-            fillStatisticsOfOnePriorityBlock(sheet, i);
-        }
-    }
-
-    private void fillStatisticsOfOnePriorityBlock(HSSFSheet sheet, int priority) {
-        final int COLUMN_INDEX_OF_CELL_OF_DATA = 1;
         final int ONE_PRIORITY_BLOCK_SIZE = 12;
         final int FIRST_PRIORITY_BLOCK_ROW_INDEX = 2;
-        int startRow = FIRST_PRIORITY_BLOCK_ROW_INDEX + ONE_PRIORITY_BLOCK_SIZE * priority;
-        if (priority != 7) {
-            setCellValue(sheet, startRow, COLUMN_INDEX_OF_CELL_OF_DATA, priority);
-        } else {
+        int startRow = FIRST_PRIORITY_BLOCK_ROW_INDEX;
+        fillStatisticsOfOnePriorityBlock(sheet, 8, startRow);
+        setCellValue(sheet, 0, 1, functionsCount);
+        for (int i = statistics.size() - 3; i >= 0; i--) {
+            startRow = FIRST_PRIORITY_BLOCK_ROW_INDEX + ONE_PRIORITY_BLOCK_SIZE * (statistics.size() - 2 - i);
+            fillStatisticsOfOnePriorityBlock(sheet, i, startRow);
+        }
+        startRow = FIRST_PRIORITY_BLOCK_ROW_INDEX + ONE_PRIORITY_BLOCK_SIZE * (statistics.size() - 1);
+        fillStatisticsOfOnePriorityBlock(sheet, 7, startRow);
+    }
+
+    private void fillStatisticsOfOnePriorityBlock(HSSFSheet sheet, int priority, int startRow) {
+        final int COLUMN_INDEX_OF_CELL_OF_DATA = 1;
+        if (priority == 7) {
             setCellValue(sheet, startRow, COLUMN_INDEX_OF_CELL_OF_DATA, "not specified");
+        } else if (priority == 8) {
+            setCellValue(sheet, startRow, COLUMN_INDEX_OF_CELL_OF_DATA, "all functions");
+        } else {
+            setCellValue(sheet, startRow, COLUMN_INDEX_OF_CELL_OF_DATA, priority);
         }
         setCellValue(sheet, startRow + 1, COLUMN_INDEX_OF_CELL_OF_DATA, getFunctionsCountWithPriority(priority));
         setCellValue(sheet, startRow + 2, COLUMN_INDEX_OF_CELL_OF_DATA, getFunctionsCountWithPriorityAndStatus(
