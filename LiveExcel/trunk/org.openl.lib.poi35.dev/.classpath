@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="poi/src/java"/>
+	<classpathentry kind="src" path="poi/src/resources/main"/>
 	<classpathentry kind="src" path="poi/src/ooxml/java"/>
 	<classpathentry kind="src" path="poi/src/scratchpad/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.3.jar"/>
