@@ -90,6 +90,12 @@
                                         <include>lib/**/*.jar</include>
                                 </includes>
                         </resource>
+                        <resource>
+                                <directory>poi/src/resources/main/</directory>
+                                <includes>
+                                        <include>**/*.*</include>
+                                </includes>
+                        </resource>
                 </resources>
         </build>
         <reporting>
