@@ -5,10 +5,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
+import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.hssf.record.formula.eval.Eval;
+import org.apache.poi.hssf.record.formula.eval.NumberEval;
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.record.formula.function.LiveExcelFunction;
+import org.apache.poi.hssf.record.formula.function.LiveExcelFunctionsPack;
+import org.apache.poi.hssf.record.formula.toolpack.MainToolPacksHandler;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
+import org.apache.poi.hssf.usermodel.HSSFName;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 
 public class ExcelFunctionCalculator {
@@ -64,8 +73,40 @@ public class ExcelFunctionCalculator {
         }
     }
 
+    // TODO: find more appropriate place for this method
+    public void addNewUDF(String name) {
+        HSSFName declarationOfUDF = workbook.getName(name);
+        if (declarationOfUDF == null) {
+            declarationOfUDF = workbook.createName();
+        }
+        declarationOfUDF.setNameName("base");
+        declarationOfUDF.markAsFunctionName();
+    }
+
+    // TODO: delete method
+    private void makeExampleOfUDF() {
+        addNewUDF("base");
+        LiveExcelFunctionsPack pack = new LiveExcelFunctionsPack();
+        pack.addFunction("base", new LiveExcelFunction(null, null, null) {
+            public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
+                    int srcCellCol) {
+                if (args.length != 1) {
+                    return ErrorEval.VALUE_INVALID;
+                } else {
+                    try {
+                        return new NumberEval(((NumberEval) args[0]).getNumberValue() + 1);
+                    } catch (Exception e) {
+                        return ErrorEval.VALUE_INVALID;
+                    }
+                }
+            }
+        });
+        MainToolPacksHandler.instance().addToolPack(pack);
+    }
+
     public Object calculateResult(CellAddress outputAddress, Object[] inputValues, CellAddress[] inputCellAddresses) {
         setValues(inputValues, inputCellAddresses);
+        makeExampleOfUDF();
         new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(outputAddress.getRow()).getCell(
                 outputAddress.getColumn()));
         return getCellValue(sheet.getRow(outputAddress.getRow()).getCell(outputAddress.getColumn()));
