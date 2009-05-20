@@ -13,6 +13,6 @@ public class LiveExcelLookup extends LiveExcelFunction {
     }
     
     public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
-        return super.evaluate(args, workbook, srcCellSheet, srcCellRow, srcCellCol);
+        return null;
     }
 }
