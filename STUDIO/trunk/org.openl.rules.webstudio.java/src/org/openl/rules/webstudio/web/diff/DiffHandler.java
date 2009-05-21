@@ -9,8 +9,7 @@ import javax.faces.event.ActionEvent;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.web.jsf.util.FacesUtils;
 
@@ -31,14 +30,9 @@ public class DiffHandler {
         uploadFile(file1);
         uploadFile(file2);
 
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
+        XlsMetaInfo xmi1 = XlsHelper.getXlsMetaInfo(file1.getName());
+        XlsMetaInfo xmi2 = XlsHelper.getXlsMetaInfo(file2.getName());
 
-        OpenClassJavaWrapper wrapper1 = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, file1.getName());
-        XlsMetaInfo xmi1 = (XlsMetaInfo) wrapper1.getOpenClass().getMetaInfo();
-
-        OpenClassJavaWrapper wrapper2 = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, file2.getName());
-        XlsMetaInfo xmi2 = (XlsMetaInfo) wrapper2.getOpenClass().getMetaInfo();
-        
         AbstractProjection p1 = XlsProjectionBuilder.build(xmi1, "xls1");
         AbstractProjection p2 = XlsProjectionBuilder.build(xmi2, "xls2");
 

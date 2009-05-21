@@ -5,8 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 
 import org.openl.rules.diff.print.SimpleDiffTreePrinter;
@@ -29,14 +28,9 @@ public class TestXls {
     }
 
     void test(String file1, String file2, String fileOut) throws IOException {
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
+        XlsMetaInfo xmi1 = XlsHelper.getXlsMetaInfo(file1);
+        XlsMetaInfo xmi2 = XlsHelper.getXlsMetaInfo(file2);
 
-        OpenClassJavaWrapper wrapper1 = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, file1);
-        XlsMetaInfo xmi1 = (XlsMetaInfo) wrapper1.getOpenClass().getMetaInfo();
-
-        OpenClassJavaWrapper wrapper2 = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, file2);
-        XlsMetaInfo xmi2 = (XlsMetaInfo) wrapper2.getOpenClass().getMetaInfo();
-        
         AbstractProjection p1 = XlsProjectionBuilder.build(xmi1, "xls1");
         AbstractProjection p2 = XlsProjectionBuilder.build(xmi2, "xls2");
 
