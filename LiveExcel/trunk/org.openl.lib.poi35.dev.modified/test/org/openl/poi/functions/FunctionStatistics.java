@@ -1,10 +1,8 @@
 package org.openl.poi.functions;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +17,6 @@ import org.apache.poi.ss.usermodel.Row;
 
 public class FunctionStatistics {
     private static final String FUNCTION_PRIORITIES_FILE = "test/functions/FunctionPriorities.xls";
-    private static final String FUNCTION_STATISTICS_FILE = "test/functions/Statistics.xls";
 
     private List<Map<FunctionSupportStatus, Integer>> statistics;
     private Map<String, Integer> functionPriorities;
@@ -118,7 +115,7 @@ public class FunctionStatistics {
         }
     }
 
-    public void save() throws Exception {
+    /*public void save() throws Exception {
         InputStream is = null;
         OutputStream out = null;
         try {
@@ -144,7 +141,7 @@ public class FunctionStatistics {
                 throw e;
             }
         }
-    }
+    }*/
 
     // analog of method of org.openl.rules.table.xls.XlsSheetGridModel
     public static Cell createNewCell(HSSFSheet sheet, int colTo, int rowTo) {
@@ -176,7 +173,7 @@ public class FunctionStatistics {
             cell.setCellValue(String.valueOf(value));
     }
 
-    private void fillSheetWithStatistics(HSSFSheet sheet) {
+    public void fillSheetWithStatistics(HSSFSheet sheet) {
         final int ONE_PRIORITY_BLOCK_SIZE = 12;
         final int FIRST_PRIORITY_BLOCK_ROW_INDEX = 2;
         int startRow = FIRST_PRIORITY_BLOCK_ROW_INDEX;

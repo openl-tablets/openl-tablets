@@ -23,7 +23,7 @@ import org.apache.poi.hssf.util.Region;
 import org.junit.Assert;
 
 public class FunctionsRealizedChecker {
-    private static final String FUNCTIONS_OUTPUT_FILE = "test/functions/CheckedFunctions.xls";
+    private static final String FUNCTION_STATISTICS_FILE = "test/functions/Statistics.xls";
 
     HSSFSheet resultSheet;
     private HSSFWorkbook resultWorkbook;
@@ -32,12 +32,20 @@ public class FunctionsRealizedChecker {
     private HSSFFormulaEvaluator evaluator;
     private HSSFWorkbook inputWorkbook;
 
+    InputStream is = null;
+
     private void init() {
         evaluator = new HSSFFormulaEvaluator(inputWorkbook);
 
         if (resultWorkbook == null) {
-            resultWorkbook = new HSSFWorkbook();
-            resultSheet = resultWorkbook.createSheet("functions_checked");
+            try {
+                is = new FileInputStream(FUNCTION_STATISTICS_FILE);
+                POIFSFileSystem fs = new POIFSFileSystem(is);
+                resultWorkbook = new HSSFWorkbook(fs);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            resultSheet = resultWorkbook.getSheetAt(1);
         }
     }
 
@@ -54,7 +62,9 @@ public class FunctionsRealizedChecker {
             for (int i = 0; i < inputWorkbook.getNumberOfSheets(); i++) {
                 HSSFSheet currentSheet = inputWorkbook.getSheetAt(i);
                 FunctionSupportStatus functionStatus = checkFunction(currentSheet);
-                addCheckedFuction(currentSheet.getSheetName(), functionStatus);
+                String functionName = currentSheet.getSheetName();
+                int priority = statistics.getFunctionPriorityByName(functionName);
+                addCheckedFuction(currentSheet.getSheetName(), functionStatus, priority);
                 testJUnit(currentSheet, functionStatus);
             }
         } catch (IOException e) {
@@ -78,18 +88,21 @@ public class FunctionsRealizedChecker {
         }
     }
 
-    private void addCheckedFuction(String functionName, FunctionSupportStatus functionStatus) {
-        HSSFRow row = resultSheet.createRow(statistics.getFunctionsCount());
+    private void addCheckedFuction(String functionName, FunctionSupportStatus functionStatus, int priority) {
+        HSSFRow row = resultSheet.createRow(statistics.getFunctionsCount() + 1);
         // in first column function name
-        row.createCell(0).setCellValue(functionName);
+        HSSFCell priorityCell = row.createCell(0);
+        priorityCell.getCellStyle().setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        priorityCell.setCellValue(priority);
+        row.createCell(1).setCellValue(functionName);
         if (functionStatus != null) {
-            fillCellWithColor(row.getCell(0), getColor(functionStatus));
+            fillCellWithColor(row.getCell(1), getColor(functionStatus));
             // in second column function status
-            row.createCell(1).setCellValue(functionStatus.getMessage());
+            row.createCell(2).setCellValue(functionStatus.getMessage());
             // in third column and next columns errors that occurs during the
             // evaluation
             for (int i = 0; i < functionStatus.getErrors().size(); i++) {
-                row.createCell(2 + i).setCellValue(functionStatus.getErrors().get(i));
+                row.createCell(3 + i).setCellValue(functionStatus.getErrors().get(i));
             }
         }
         statistics.registerFunction(functionName, functionStatus);
@@ -244,6 +257,30 @@ public class FunctionsRealizedChecker {
     public void saveResults() throws Exception {
         OutputStream out = null;
         try {
+            HSSFSheet sheet = resultWorkbook.getSheetAt(0);
+            statistics.fillSheetWithStatistics(sheet);
+            resultWorkbook.write(out = new FileOutputStream(FUNCTION_STATISTICS_FILE));
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                if (is != null)
+                    is.close();
+            } catch (Exception e) {
+                throw e;
+            }
+            try {
+                if (out != null)
+                    out.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+    }
+
+    /*public void saveResults() throws Exception {
+        OutputStream out = null;
+        try {
             resultWorkbook.write(out = new FileOutputStream(FUNCTIONS_OUTPUT_FILE));
         } catch (IOException e) {
             throw e;
@@ -256,22 +293,27 @@ public class FunctionsRealizedChecker {
             }
         }
         statistics.save();
-    }
+    }*/
 
     public void testAllFunctions() throws Exception {
-        analyze("Add-in_and_automation_functions.xls");
-        analyze("Cube.xls");
-        analyze("Database_and_list_management.xls");
-        analyze("Date_and_time.xls");
-        analyze("Engineering.xls");
-        analyze("Financial.xls");
-        analyze("Information.xls");
-        analyze("Logical.xls");
-        analyze("Lookup_and_reference.xls");
-        analyze("Math_and_trigonometry.xls");
-        analyze("Statistical.xls");
-        analyze("Text_and_data.xls");
-        saveResults();
+        try {
+            analyze("Add-in_and_automation_functions.xls");
+            analyze("Cube.xls");
+            analyze("Database_and_list_management.xls");
+            analyze("Date_and_time.xls");
+            analyze("Engineering.xls");
+            analyze("Financial.xls");
+            analyze("Information.xls");
+            analyze("Logical.xls");
+            analyze("Lookup_and_reference.xls");
+            analyze("Math_and_trigonometry.xls");
+            analyze("Statistical.xls");
+            analyze("Text_and_data.xls");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            saveResults();
+        }
     }
 
     public static void main(String[] args) throws Exception {
