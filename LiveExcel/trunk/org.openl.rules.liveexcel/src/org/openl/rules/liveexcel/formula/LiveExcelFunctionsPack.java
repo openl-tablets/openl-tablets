@@ -1,4 +1,4 @@
-package org.apache.poi.hssf.record.formula.function;
+package org.openl.rules.liveexcel.formula;
 
 import java.util.HashMap;
 import java.util.Map;

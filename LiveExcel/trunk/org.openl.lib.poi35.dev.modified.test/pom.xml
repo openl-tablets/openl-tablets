@@ -11,27 +11,7 @@
         <name>Openl - POI 3.5 - Test</name>
         <description/>
         <build>
-                <plugins>
-                <!--Module org.openl.lib.poi35.dev.modified is constructed during build
-                process. We copy all classes from module org.openl.lib.poi35.dev and using
-                shade plugin rewrite and add to it org.openl.lib.poi35.dev.modified classes.
-                Classes from module org.openl.lib.poi35.dev don`t go through
-                compilation phase when org.openl.lib.poi35.dev.modified is building.
-                So we need to add packages from org.openl.lib.poi35.dev for
-                compilation(maven doesn`t have them in compile scope) to all projects
-                that are using org.openl.lib.poi35.dev.modified.
-                When we build single org.openl.lib.poi35.dev.modified.test there is no such
-                problem because org.openl.lib.poi35.dev.modified
-                go straight from repository-->
-                        <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-compiler-plugin</artifactId>
-                                <configuration>
-                                        <includes>
-                                                <include>org.apache.poi/**</include>
-                                        </includes>
-                                </configuration>
-                        </plugin>
+                <plugins>               
                         <plugin>
                                 <groupId>org.apache.maven.plugins</groupId>
                                 <artifactId>maven-jar-plugin</artifactId>

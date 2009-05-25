@@ -13,9 +13,9 @@
   <artifactId>org.openl.rules.liveexcel</artifactId>
   <name>LiveExcel</name>
   <description />
-  <build>
+  <build> 
 
-    <plugins>
+   <plugins>		 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -25,8 +25,16 @@
           </archive>
         </configuration>
       </plugin>
-    </plugins>
-
+    </plugins>	
+	
   </build>
-
+  <dependencies>
+	<dependency>
+		<groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+        <version>${dep.version}</version>
+        <scope>compile</scope>
+    </dependency>
+  </dependencies>  
+  
 </project>
