@@ -90,41 +90,39 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>ooxml-schemas</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.xmlbeans</groupId>
       <artifactId>xmlbeans</artifactId>
     </dependency>
     
+     <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>ooxml-schemas</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+    </dependency>
+
+<!-- DEV POI -->
     <dependency>
       <groupId>org.openl.rules</groupId>
   	  <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
   	  <version>${version}</version>
     </dependency>
     
-    <dependency>
-      <groupId>org.openl.rules</groupId>
-  	  <artifactId>org.openl.lib.poi35.dev</artifactId>
-  	  <version>${version}</version>
-    </dependency>
 <!--
+ORIGINAL POI ARTIFACRS
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
     </dependency>
--->
+
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-scratchpad</artifactId>
     </dependency>
-    
-	<dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml</artifactId>
-    </dependency>
-  </dependencies>
+-->
+</dependencies>
 
 </project>
