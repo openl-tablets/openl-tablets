@@ -45,7 +45,7 @@
             <configuration>
               <outputDirectory>${project.build.directory}/../lib</outputDirectory>
               <excludeGroupIds>com.exigen.rules,org.openl,org.openl.rules,org.apache.poi</excludeGroupIds>
-              <excludeArtifactIds>junit,servlet-api,org.openl.poi.lib</excludeArtifactIds>
+              <excludeArtifactIds>junit,servlet-api,jsp-api,org.openl.poi.lib</excludeArtifactIds>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
               <type>jar</type>
@@ -88,7 +88,7 @@
   	  <scope>runtime</scope>
     </dependency>
     
-        <dependency>
+    <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules</artifactId>
     </dependency>
@@ -166,11 +166,13 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
