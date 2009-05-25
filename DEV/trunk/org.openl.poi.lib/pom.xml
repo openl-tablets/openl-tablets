@@ -94,15 +94,11 @@
       <artifactId>xmlbeans</artifactId>
     </dependency>
     
-     <dependency>
+    <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>ooxml-schemas</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml</artifactId>
-    </dependency>
+     
 
 <!-- DEV POI -->
     <dependency>
@@ -113,6 +109,12 @@
     
 <!--
 ORIGINAL POI ARTIFACRS
+	
+    
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
