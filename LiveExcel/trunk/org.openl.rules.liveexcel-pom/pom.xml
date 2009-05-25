@@ -116,16 +116,4 @@
     </dependency>
   </dependencies>
 
-  <dependencyManagement>
-    <dependencies>
-
-      <dependency>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.webstudio.lib</artifactId>
-        <version>${dep.version}</version>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
-
 </project>

@@ -1,4 +1,4 @@
-package org.openl.rules.table.xls;
+package org.openl.rules.test.liveexcel.formula;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -9,8 +9,6 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.record.formula.function.LiveExcelFunction;
-import org.apache.poi.hssf.record.formula.function.LiveExcelFunctionsPack;
 import org.apache.poi.hssf.record.formula.toolpack.MainToolPacksHandler;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFName;
@@ -19,6 +17,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.openl.rules.liveexcel.formula.LiveExcelFunction;
+import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
 
 public class ExcelFunctionCalculator {
     public static class CellAddress {
@@ -150,10 +150,10 @@ public class ExcelFunctionCalculator {
         }
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         ExcelFunctionCalculator calculator = new ExcelFunctionCalculator("FOO.xls");
         Object[] inputValues = new Object[] { 10 };
         CellAddress[] inputCellAddresses = new CellAddress[] { new CellAddress("B1") };
         System.out.println(calculator.calculateResult(new CellAddress("B2"), inputValues, inputCellAddresses));
-    }
+    }*/
 }
