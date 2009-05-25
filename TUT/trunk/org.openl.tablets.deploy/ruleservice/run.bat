@@ -25,6 +25,7 @@ lib\commons-fileupload-1.2.jar;^
 lib\commons-io-1.3.2.jar;^
 lib\commons-lang-2.3.jar;^
 lib\commons-logging-1.1.jar;^
+lib\commons-logging-api-1.0.4.jar;^
 lib\commons-pool-1.3.jar;^
 lib\commons-validator-1.3.1.jar;^
 lib\concurrent-1.3.4.jar;^
@@ -33,7 +34,7 @@ lib\cxf-bundle-2.0.3-incubator.jar;^
 lib\cxf-common-utilities-2.0.3-incubator.jar;^
 lib\cxf-distribution-manifest-2.0.3-incubator.jar;^
 lib\cxf-rt-core-2.0.3-incubator.jar;^
-lib\cxf-rt-databinding-aegis-2.0.3-incubator.jar;^
+lib\cxf-rt-databinding-aegis-2.0.3-incubator.jar^
 lib\cxf-rt-frontend-jaxws-2.0.3-incubator.jar;^
 lib\cxf-rt-frontend-js-2.0.3-incubator.jar;^
 lib\cxf-rt-transports-http-2.0.3-incubator.jar;^
@@ -87,10 +88,10 @@ lib\lucene-core-2.0.0.jar;^
 lib\myfaces-api-1.1.5.jar;^
 lib\myfaces-impl-1.1.5.jar;^
 lib\neethi-2.0.2.jar;^
+lib\ooxml-schemas-1.0.jar;^
 lib\org.openl.commons_5.3.0.jar;^
 lib\org.openl.core_5.3.0.jar;^
 lib\org.openl.j_5.3.0.jar;^
-lib\org.openl.lib.apache.poi.modified_5.3.0.jar;^
 lib\org.openl.rules.diff_5.3.0.jar;^
 lib\org.openl.rules.eclipse.ui_5.3.0.jar;^
 lib\org.openl.rules.helpers_5.3.0.jar;^
@@ -110,9 +111,8 @@ lib\org.openl.rules.workspace_5.3.0.jar;^
 lib\org.openl.rules_5.3.0.jar;^
 lib\oro-2.0.8.jar;^
 lib\persistence-api-1.0.jar;^
-lib\poi-3.5-beta5.jar;^
-lib\poi-scratchpad-3.5-beta5.jar;^
 lib\poi-ooxml-3.5-beta5.jar;^
+lib\org.openl.lib.poi35.dev.modified-5.3.0-SNAPSHOT.jar;^
 lib\richfaces-api-3.1.2.GA.jar;^
 lib\richfaces-impl-3.1.2.GA.jar;^
 lib\richfaces-ui-3.1.2.GA.jar;^
@@ -141,6 +141,7 @@ lib\xbean-2.2.0.jar;^
 lib\xercesImpl-2.8.1.jar;^
 lib\xml-apis-1.3.03.jar;^
 lib\xml-resolver-1.2.jar;^
+lib\xmlbeans-2.3.0.jar;^
 lib\xmlParserAPIs-2.6.2.jar;^
 lib\XmlSchema-1.3.2.jar;^
 lib\xmlsec-1.3.0.jar

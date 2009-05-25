@@ -106,11 +106,11 @@
     <mkdir dir="${ruleservice.dir}/lib" />
     <copy todir="${ruleservice.dir}/lib" flatten="true">
       <fileset dir="${plugin.base.path}">
+      	<include name="org.openl.poi.lib${openl.plugin.version}/lib/*.jar" />
         <include name="**/org.openl.commons${openl.plugin.version}.jar" />
         <include name="**/org.openl.core${openl.plugin.version}.jar" />
         <include name="**/org.openl.rules*${openl.plugin.version}.jar" />
         <include name="**/org.openl.j${openl.plugin.version}.jar" />
-        <include name="**/org.openl.lib.apache.poi.modified${openl.plugin.version}.jar" />
         <include name="org.openl.rules.ruleservice.lib${openl.plugin.version}/lib/*.jar" />
         <include name="org.openl.rules.webstudio.lib${openl.plugin.version}/lib/*.jar" />
       </fileset>
