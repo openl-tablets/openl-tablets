@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.io.IOUtils;
@@ -42,6 +46,20 @@ public class DiffHandler {
         diffTree = builder.compare(p1, p2);
     }
 
+    public void validateContentType(FacesContext context, UIComponent toValidate, Object value) {
+        String errorMessage = "Only Excel files can be compared";
+        if (value != null && value instanceof UploadedFile) {
+            UploadedFile file = (UploadedFile) value;
+            if (file.getContentType().equalsIgnoreCase("application/vnd.ms-excel")) {
+                ((UIInput)toValidate).setValid(true);
+                return;
+            }
+        }
+        ((UIInput)toValidate).setValid(false);
+        FacesMessage message = new FacesMessage(errorMessage);
+        context.addMessage(toValidate.getClientId(context), message);
+    }
+
     private void uploadFile(UploadedFile file) {
         InputStream in = null;
         OutputStream out = null;
@@ -51,7 +69,6 @@ public class DiffHandler {
             IOUtils.copy(in, out);
         } catch (IOException e) {
             e.printStackTrace();
-            //log.error("Error while uploading file", e);
         } finally {
             IOUtils.closeQuietly(out);
             IOUtils.closeQuietly(in);

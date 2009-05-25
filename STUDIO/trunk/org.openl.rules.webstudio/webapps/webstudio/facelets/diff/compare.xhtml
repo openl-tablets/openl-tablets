@@ -18,12 +18,12 @@
     <h:form id="diffForm" enctype="multipart/form-data">
       <h:panelGrid columns="3">
         <h:outputText value="Excel File 1" />
-        <t:inputFileUpload id="file1" storage="file" value="#{diffHandler.file1}" required="true"
-            size="70" />
+        <t:inputFileUpload id="file1" storage="file" value="#{diffHandler.file1}" size="70"
+            validator="#{diffHandler.validateContentType}" required="true" />
         <t:message for="file1" style="color:red" />
         <h:outputText value="Excel File 2" />
-        <t:inputFileUpload id="file2" storage="file" value="#{diffHandler.file2}" required="true"
-            size="70" />
+        <t:inputFileUpload id="file2" storage="file" value="#{diffHandler.file2}" size="70"
+            validator="#{diffHandler.validateContentType}" required="true" />
         <t:message for="file2" style="color:red" />
         <h:commandButton value="Compare" actionListener="#{diffHandler.compare}" />
       </h:panelGrid>
