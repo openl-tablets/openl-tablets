@@ -29,6 +29,7 @@ public class DiffHandler {
     private UploadedFile file1;
     private UploadedFile file2;
     private DiffTreeNode diffTree;
+    private boolean showEqualElements = false;
 
     public void compare(ActionEvent e) {
         uploadFile(file1);
@@ -142,4 +143,17 @@ public class DiffHandler {
         this.file2 = file2;
     }
 
+    /**
+     * @return the showEqualElements
+     */
+    public boolean isShowEqualElements() {
+        return showEqualElements;
+    }
+
+    /**
+     * @param showEqualElements the showEqualElements to set
+     */
+    public void setShowEqualElements(boolean showEqualElements) {
+        this.showEqualElements = showEqualElements;
+    }
 }
