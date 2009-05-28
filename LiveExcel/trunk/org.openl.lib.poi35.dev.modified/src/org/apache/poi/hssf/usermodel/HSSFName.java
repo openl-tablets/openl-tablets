@@ -190,10 +190,6 @@ public final class HSSFName implements Name {
     public boolean isFunctionName() {
         return _definedNameRec.isFunctionName();
     }
-    
-    public void markAsFunctionName(){
-        _definedNameRec.markAsFunctionName();
-    }
 
     public String toString() {
         StringBuffer sb = new StringBuffer(64);

@@ -237,10 +237,6 @@ public final class NameRecord extends StandardRecord {
 	public boolean isFunctionName() {
 		return (field_1_option_flag & Option.OPT_FUNCTION_NAME) != 0;
 	}
-	
-	public void markAsFunctionName(){
-	    field_1_option_flag = (short) (field_1_option_flag | Option.OPT_FUNCTION_NAME);
-	}
 
 	/**
 	 * @return <code>true</code> if name has a formula (named range or defined value)
