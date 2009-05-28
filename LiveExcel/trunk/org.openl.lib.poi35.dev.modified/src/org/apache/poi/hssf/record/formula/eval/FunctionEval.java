@@ -88,7 +88,7 @@ public abstract class FunctionEval implements OperationEval {
 		retval[8] = new Row(); // ROW
 		retval[9] = new Column();
 		retval[10] = new Na();
-
+		retval[11] = new Npv();
 		retval[12] = AggregateFunction.STDEV;
 		retval[13] = NumericFunction.DOLLAR;
 

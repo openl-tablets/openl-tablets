@@ -23,10 +23,11 @@ import java.util.Map;
 import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.hssf.record.formula.toolpack.ToolPack;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 
-public final class AnalysisToolPak {
+public final class AnalysisToolPak implements ToolPack {
 
 	private static final class NotImplemented implements FreeRefFunction {
 		private final String _functionName;
@@ -41,17 +42,13 @@ public final class AnalysisToolPak {
 		}
 	};
 	
-	private static Map<String, FreeRefFunction> _functionsByName = createFunctionsMap();
+	private Map<String, FreeRefFunction> _functionsByName = createFunctionsMap();
 
-	private AnalysisToolPak() {
-		// no instances of this class
-	}
-
-	public static FreeRefFunction findFunction(String name) {
+	public FreeRefFunction findFunction(String name) {
 		return _functionsByName.get(name);
 	}
 	
-	private static Map<String, FreeRefFunction> createFunctionsMap() {
+	private Map<String, FreeRefFunction> createFunctionsMap() {
 		Map<String, FreeRefFunction> m = new HashMap<String, FreeRefFunction>(100);
 
 		r(m, "ACCRINT", null);
@@ -155,4 +152,16 @@ public final class AnalysisToolPak {
 		FreeRefFunction func = pFunc == null ? new NotImplemented(functionName) : pFunc;
 		m.put(functionName, func);
 	}
+
+    public void addFunction(String name, FreeRefFunction evaluator) {
+        r(_functionsByName, name, evaluator);
+    }
+
+    public boolean containsFunction(String name) {
+        return _functionsByName.containsKey(name);
+    }
+
+    public void removeFunction(String name) {
+        _functionsByName.remove(name);
+    }
 }

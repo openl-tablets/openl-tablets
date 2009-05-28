@@ -17,7 +17,7 @@
 
 package org.apache.poi.hssf.record.formula.eval;
 
-import org.apache.poi.hssf.record.formula.atp.AnalysisToolPak;
+import org.apache.poi.hssf.record.formula.toolpack.MainToolPacksHandler;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
@@ -64,7 +64,7 @@ final class ExternalFunction implements FreeRefFunction {
 		}
 		// currently only looking for functions from the 'Analysis TookPak'  e.g. "YEARFRAC" or "ISEVEN"
 		// not sure how much this logic would need to change to support other or multiple add-ins.
-		FreeRefFunction result = AnalysisToolPak.findFunction(functionName);
+		FreeRefFunction result = MainToolPacksHandler.instance().findFunction(functionName);
 		if (result != null) {
 			return result;
 		}
@@ -77,6 +77,10 @@ final class ExternalFunction implements FreeRefFunction {
 		if(false) {
 			System.out.println("received call to internal user defined function  (" + functionName + ")");
 		}
+		FreeRefFunction functionEvaluator = MainToolPacksHandler.instance().findFunction(functionName);
+        if (functionEvaluator != null) {
+            return functionEvaluator;
+        }
 		// TODO find the implementation for the user defined function
 		
 		throw new NotImplementedException(functionName);
