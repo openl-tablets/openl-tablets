@@ -26,226 +26,223 @@ import org.apache.poi.hssf.record.formula.functions.*;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
- * 
+ *  
  */
 public abstract class FunctionEval implements OperationEval {
-    /**
-     * Some function IDs that require special treatment
-     */
-    private static final class FunctionID {
-        /** 4 */
-        public static final int SUM = FunctionMetadataRegistry.FUNCTION_INDEX_SUM;
-        /** 78 */
-        public static final int OFFSET = 78;
-        /** 148 */
-        public static final int INDIRECT = 148;
-        /** 255 */
-        public static final int EXTERNAL_FUNC = FunctionMetadataRegistry.FUNCTION_INDEX_EXTERNAL;
-    }
+	/**
+	 * Some function IDs that require special treatment
+	 */
+	private static final class FunctionID {
+		/** 4 */
+		public static final int SUM = FunctionMetadataRegistry.FUNCTION_INDEX_SUM;
+		/** 78 */
+		public static final int OFFSET = 78;
+		/** 148 */
+		public static final int INDIRECT = 148;
+		/** 255 */
+		public static final int EXTERNAL_FUNC = FunctionMetadataRegistry.FUNCTION_INDEX_EXTERNAL;
+	}
+	// convenient access to namespace
+	private static final FunctionID ID = null;
 
-    // convenient access to namespace
-    private static final FunctionID ID = null;
+	protected static final Function[] functions ;
 
-    protected static Function[] functions = produceFunctions();
+	private static Map<Integer, FreeRefFunction> freeRefFunctionsByIdMap;
 
-    private static Map<Integer, FreeRefFunction> freeRefFunctionsByIdMap;
+	static {
+		Map<Integer, FreeRefFunction> m = new HashMap<Integer, FreeRefFunction>();
+		m.put(createFRFKey(ID.INDIRECT), new Indirect());
+		m.put(createFRFKey(ID.EXTERNAL_FUNC), new ExternalFunction());
+		freeRefFunctionsByIdMap = m;
+		functions = produceFunctions();
+	}
+	private static Integer createFRFKey(int functionIndex) {
+		return new Integer(functionIndex);
+	}
 
-    static {
-        Map<Integer, FreeRefFunction> m = new HashMap<Integer, FreeRefFunction>();
-        m.put(createFRFKey(ID.INDIRECT), new Indirect());
-        m.put(createFRFKey(ID.EXTERNAL_FUNC), new ExternalFunction());
-        freeRefFunctionsByIdMap = m;
-    }
 
-    private static Integer createFRFKey(int functionIndex) {
-        return new Integer(functionIndex);
-    }
+	public Function getFunction() {
+		short fidx = getFunctionIndex();
+		return functions[fidx];
+	}
+	public boolean isFreeRefFunction() {
+		return freeRefFunctionsByIdMap.containsKey(createFRFKey(getFunctionIndex()));
+	}
+	public FreeRefFunction getFreeRefFunction() {
+		return freeRefFunctionsByIdMap.get(createFRFKey(getFunctionIndex()));
+	}
 
-    public Function getFunction() {
-        short fidx = getFunctionIndex();
-        return functions[fidx];
-    }
+	public abstract short getFunctionIndex();
 
-    public boolean isFreeRefFunction() {
-        return freeRefFunctionsByIdMap.containsKey(createFRFKey(getFunctionIndex()));
-    }
+	private static Function[] produceFunctions() {
+		Function[] retval = new Function[368];
 
-    public FreeRefFunction getFreeRefFunction() {
-        return freeRefFunctionsByIdMap.get(createFRFKey(getFunctionIndex()));
-    }
+		retval[0] = new Count();
+		retval[1] = new If();
 
-    public abstract short getFunctionIndex();
+		retval[3] = new IsError();
+		retval[ID.SUM] = AggregateFunction.SUM;
+		retval[5] = AggregateFunction.AVERAGE;
+		retval[6] = AggregateFunction.MIN;
+		retval[7] = AggregateFunction.MAX;
+		retval[8] = new Row(); // ROW
+		retval[9] = new Column();
+		retval[10] = new Na();
 
-    private static Function[] produceFunctions() {
-        Function[] retval = new Function[368];
+		retval[12] = AggregateFunction.STDEV;
+		retval[13] = NumericFunction.DOLLAR;
 
-        retval[0] = new Count();
-        retval[1] = new If();
+		retval[15] = NumericFunction.SIN;
+		retval[16] = NumericFunction.COS;
+		retval[17] = NumericFunction.TAN;
+		retval[18] = NumericFunction.ATAN;
+		retval[19] = new Pi();
+		retval[20] = NumericFunction.SQRT;
+		retval[21] = NumericFunction.EXP;
+		retval[22] = NumericFunction.LN;
+		retval[23] = NumericFunction.LOG10;
+		retval[24] = NumericFunction.ABS;
+		retval[25] = NumericFunction.INT;
+		retval[26] = NumericFunction.SIGN;
+		retval[27] = NumericFunction.ROUND;
+		retval[28] = new Lookup();
+		retval[29] = new Index();
 
-        retval[3] = new IsError();
-        retval[ID.SUM] = AggregateFunction.SUM;
-        retval[5] = AggregateFunction.AVERAGE;
-        retval[6] = AggregateFunction.MIN;
-        retval[7] = AggregateFunction.MAX;
-        retval[8] = new Row(); // ROW
-        retval[9] = new Column();
-        retval[10] = new Na();
-        retval[11] = new Npv();
-        retval[12] = AggregateFunction.STDEV;
-        retval[13] = NumericFunction.DOLLAR;
+		retval[31] = TextFunction.MID;
+		retval[32] = TextFunction.LEN;
+		retval[33] = new Value();
+		retval[34] = new True();
+		retval[35] = new False();
+		retval[36] = new And();
+		retval[37] = new Or();
+		retval[38] = new Not();
+		retval[39] = NumericFunction.MOD;
 
-        retval[15] = NumericFunction.SIN;
-        retval[16] = NumericFunction.COS;
-        retval[17] = NumericFunction.TAN;
-        retval[18] = NumericFunction.ATAN;
-        retval[19] = new Pi();
-        retval[20] = NumericFunction.SQRT;
-        retval[21] = NumericFunction.EXP;
-        retval[22] = NumericFunction.LN;
-        retval[23] = NumericFunction.LOG10;
-        retval[24] = NumericFunction.ABS;
-        retval[25] = NumericFunction.INT;
-        retval[26] = NumericFunction.SIGN;
-        retval[27] = NumericFunction.ROUND;
-        retval[28] = new Lookup();
-        retval[29] = new Index();
+		retval[56] = FinanceFunction.PV;
+		retval[57] = FinanceFunction.FV;
+		retval[58] = FinanceFunction.NPER;
+		retval[59] = FinanceFunction.PMT;
 
-        retval[31] = TextFunction.MID;
-        retval[32] = TextFunction.LEN;
-        retval[33] = new Value();
-        retval[34] = new True();
-        retval[35] = new False();
-        retval[36] = new And();
-        retval[37] = new Or();
-        retval[38] = new Not();
-        retval[39] = NumericFunction.MOD;
+		retval[63] = new Rand();
+		retval[64] = new Match();
+		retval[65] = DateFunc.instance;
+		retval[66] = new Time();
+		retval[67] = CalendarFieldFunction.DAY;
+		retval[68] = CalendarFieldFunction.MONTH;
+		retval[69] = CalendarFieldFunction.YEAR;
 
-        retval[56] = FinanceFunction.PV;
-        retval[57] = FinanceFunction.FV;
-        retval[58] = FinanceFunction.NPER;
-        retval[59] = FinanceFunction.PMT;
+		retval[74] = new Now();
 
-        retval[63] = new Rand();
-        retval[64] = new Match();
-        retval[65] = DateFunc.instance;
-        retval[66] = new Time();
-        retval[67] = CalendarFieldFunction.DAY;
-        retval[68] = CalendarFieldFunction.MONTH;
-        retval[69] = CalendarFieldFunction.YEAR;
+		retval[76] = new Rows();
+		retval[77] = new Columns();
+		retval[ID.OFFSET] = new Offset();
 
-        retval[74] = new Now();
+		retval[97] = NumericFunction.ATAN2;
+		retval[98] = NumericFunction.ASIN;
+		retval[99] = NumericFunction.ACOS;
+		retval[100] = new Choose();
+		retval[101] = new Hlookup();
+		retval[102] = new Vlookup();
 
-        retval[76] = new Rows();
-        retval[77] = new Columns();
-        retval[ID.OFFSET] = new Offset();
+		retval[105] = new Isref();
 
-        retval[97] = NumericFunction.ATAN2;
-        retval[98] = NumericFunction.ASIN;
-        retval[99] = NumericFunction.ACOS;
-        retval[100] = new Choose();
-        retval[101] = new Hlookup();
-        retval[102] = new Vlookup();
+		retval[109] = NumericFunction.LOG;
 
-        retval[105] = new Isref();
+		retval[112] = TextFunction.LOWER;
+		retval[113] = TextFunction.UPPER;
 
-        retval[109] = NumericFunction.LOG;
+		retval[115] = TextFunction.LEFT;
+		retval[116] = TextFunction.RIGHT;
+		retval[117] = TextFunction.EXACT;
+		retval[118] = TextFunction.TRIM;
+		retval[119] = new Replace();
+		retval[120] = new Substitute();
 
-        retval[112] = TextFunction.LOWER;
-        retval[113] = TextFunction.UPPER;
+		retval[124] = new Find();
 
-        retval[115] = TextFunction.LEFT;
-        retval[116] = TextFunction.RIGHT;
-        retval[117] = TextFunction.EXACT;
-        retval[118] = TextFunction.TRIM;
-        retval[119] = new Replace();
-        retval[120] = new Substitute();
+		retval[127] = new Istext();
+		retval[128] = new Isnumber();
+		retval[129] = new Isblank();
+		retval[130] = new T();
 
-        retval[124] = new Find();
+		retval[ID.INDIRECT] = null; // Indirect.evaluate has different signature
 
-        retval[127] = new Istext();
-        retval[128] = new Isnumber();
-        retval[129] = new Isblank();
-        retval[130] = new T();
+		retval[169] = new Counta();
 
-        retval[ID.INDIRECT] = null; // Indirect.evaluate has different signature
+		retval[183] = AggregateFunction.PRODUCT;
+		retval[184] = NumericFunction.FACT;
 
-        retval[169] = new Counta();
+		retval[190] = new Isnontext();
 
-        retval[183] = AggregateFunction.PRODUCT;
-        retval[184] = NumericFunction.FACT;
+		retval[198] = new Islogical();
 
-        retval[190] = new Isnontext();
+		retval[212] = NumericFunction.ROUNDUP;
+		retval[213] = NumericFunction.ROUNDDOWN;
 
-        retval[198] = new Islogical();
+		retval[221] = new Today();
 
-        retval[212] = NumericFunction.ROUNDUP;
-        retval[213] = NumericFunction.ROUNDDOWN;
+		retval[227] = AggregateFunction.MEDIAN;
+		retval[228] = new Sumproduct();
+		retval[229] = NumericFunction.SINH;
+		retval[230] = NumericFunction.COSH;
+		retval[231] = NumericFunction.TANH;
+		retval[232] = NumericFunction.ASINH;
+		retval[233] = NumericFunction.ACOSH;
+		retval[234] = NumericFunction.ATANH;
 
-        retval[221] = new Today();
+		retval[ID.EXTERNAL_FUNC] = null; // ExternalFunction is a FreeREfFunction
 
-        retval[227] = AggregateFunction.MEDIAN;
-        retval[228] = new Sumproduct();
-        retval[229] = NumericFunction.SINH;
-        retval[230] = NumericFunction.COSH;
-        retval[231] = NumericFunction.TANH;
-        retval[232] = NumericFunction.ASINH;
-        retval[233] = NumericFunction.ACOSH;
-        retval[234] = NumericFunction.ATANH;
+		retval[261] = new Errortype();
 
-        retval[ID.EXTERNAL_FUNC] = null; // ExternalFunction is a FreeREfFunction
+		retval[269] = AggregateFunction.AVEDEV;
 
-        retval[261] = new Errortype();
+		retval[276] = NumericFunction.COMBIN;
 
-        retval[269] = AggregateFunction.AVEDEV;
+		retval[279] = new Even();
 
-        retval[276] = NumericFunction.COMBIN;
+		retval[285] = NumericFunction.FLOOR;
 
-        retval[279] = new Even();
+		retval[288] = NumericFunction.CEILING;
 
-        retval[285] = NumericFunction.FLOOR;
+		retval[298] = new Odd();
 
-        retval[288] = NumericFunction.CEILING;
+		retval[303] = new Sumxmy2();
+		retval[304] = new Sumx2my2();
+		retval[305] = new Sumx2py2();
 
-        retval[298] = new Odd();
+		retval[318] = AggregateFunction.DEVSQ;
 
-        retval[303] = new Sumxmy2();
-        retval[304] = new Sumx2my2();
-        retval[305] = new Sumx2py2();
+		retval[321] = AggregateFunction.SUMSQ;
 
-        retval[318] = AggregateFunction.DEVSQ;
+		retval[325] = AggregateFunction.LARGE;
+		retval[326] = AggregateFunction.SMALL;
 
-        retval[321] = AggregateFunction.SUMSQ;
+		retval[330] = new Mode();
 
-        retval[325] = AggregateFunction.LARGE;
-        retval[326] = AggregateFunction.SMALL;
+		retval[336] = TextFunction.CONCATENATE;
+		retval[337] = NumericFunction.POWER;
 
-        retval[330] = new Mode();
+		retval[342] = NumericFunction.RADIANS;
+		retval[343] = NumericFunction.DEGREES;
 
-        retval[336] = TextFunction.CONCATENATE;
-        retval[337] = NumericFunction.POWER;
+		retval[345] = new Sumif();
+		retval[346] = new Countif();
 
-        retval[342] = NumericFunction.RADIANS;
-        retval[343] = NumericFunction.DEGREES;
+		retval[359] = new Hyperlink();
 
-        retval[345] = new Sumif();
-        retval[346] = new Countif();
+		retval[362] = MinaMaxa.MAXA;
+		retval[363] = MinaMaxa.MINA;
 
-        retval[359] = new Hyperlink();
-
-        retval[362] = MinaMaxa.MAXA;
-        retval[363] = MinaMaxa.MINA;
-
-        for (int i = 0; i < retval.length; i++) {
-            Function f = retval[i];
-            if (f == null) {
-                FunctionMetadata fm = FunctionMetadataRegistry.getFunctionByIndex(i);
-                if (fm == null) {
-                    continue;
-                }
-                retval[i] = new NotImplementedFunction(fm.getName());
-            }
-        }
-        return retval;
-    }
-
+		for (int i = 0; i < retval.length; i++) {
+			Function f = retval[i];
+			if (f == null) {
+				FunctionMetadata fm = FunctionMetadataRegistry.getFunctionByIndex(i);
+				if (fm == null) {
+					continue;
+				}
+				retval[i] = new NotImplementedFunction(fm.getName());
+			}
+		}
+		return retval;
+	}
 }
