@@ -10,17 +10,19 @@
 
     <tree id="#{param.id != null ? param.id : param.treeId}">
       <t:dataList var="node" value="#{diffHandler.diffTreeNodes}">
-      <c:set var="element" value="#{node.elements[param.treeId-1]}" />
-        <node
-          text="#{element.projection.name}"
-          tooltip="#{element.projection.name}"
-          id="#{node.id}"
-          child="#{not empty node.children ? 1 : 0}"
-          open="0"
-          im0="#{element.diffStatus=='REMOVED'?'filedelete.gif': (element.diffStatus=='ADDED'?'fileadd.gif':(element.diffStatus=='DIFFERS'?'filemodified.gif':''))}"
-          im1="#{element.diffStatus=='REMOVED'?'folderdelete.gif': (element.diffStatus=='ADDED'?'folderadd.gif':(element.diffStatus=='DIFFERS'?'foldermodified.gif':''))}"
-          im2="#{element.diffStatus=='REMOVED'?'folderdelete.gif': (element.diffStatus=='ADDED'?'folderadd.gif':(element.diffStatus=='DIFFERS'?'foldermodified.gif':''))}"
-          />
+          <c:set var="element" value="#{node.elements[param.treeId-1]}" />
+          <h:panelGroup rendered="#{node.elements[1].diffStatus != 'EQUALS' or diffHandler.showEqualElements}">
+            <node
+              text="#{element.projection.name}"
+              tooltip="#{element.projection.name}"
+              id="#{node.id}"
+              child="#{not empty node.children ? 1 : 0}"
+              open="0"
+              im0="#{element.diffStatus=='REMOVED'?'filedelete.gif': (element.diffStatus=='ADDED'?'fileadd.gif':(element.diffStatus=='DIFFERS'?'filemodified.gif':''))}"
+              im1="#{element.diffStatus=='REMOVED'?'folderdelete.gif': (element.diffStatus=='ADDED'?'folderadd.gif':(element.diffStatus=='DIFFERS'?'foldermodified.gif':''))}"
+              im2="#{element.diffStatus=='REMOVED'?'folderdelete.gif': (element.diffStatus=='ADDED'?'folderadd.gif':(element.diffStatus=='DIFFERS'?'foldermodified.gif':''))}"
+              />
+          </h:panelGroup>
       </t:dataList>
     </tree>
 

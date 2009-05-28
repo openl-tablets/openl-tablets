@@ -25,6 +25,9 @@
         <t:inputFileUpload id="file2" storage="file" value="#{diffHandler.file2}" size="70"
             validator="#{diffHandler.validateContentType}" required="true" />
         <t:message for="file2" style="color:red" />
+        <h:outputText value="Show equal elements" />
+        <h:selectBooleanCheckbox value="#{diffHandler.showEqualElements}" />
+        <rich:spacer />
         <h:commandButton value="Compare" actionListener="#{diffHandler.compare}" />
       </h:panelGrid>
     </h:form>
