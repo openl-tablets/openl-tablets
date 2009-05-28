@@ -203,10 +203,14 @@ dTree.prototype.s = function(id) {
 	if (this.selectedNode != id) {
 		if (this.selectedNode || this.selectedNode==0) {
 			eOld = document.getElementById("s" + this.obj + this.selectedNode);
-			eOld.className = "node";
+			if (eOld) { 
+				eOld.className = "node";
+			}
 		}
 		eNew = document.getElementById("s" + this.obj + id);
-		eNew.className = "nodeSel";
+		if (eNew) {
+			eNew.className = "nodeSel";
+		}
 		this.selectedNode = id;
 		if (this.config.useCookies) this.setCookie('cs' + this.obj, cn.id);
 	}

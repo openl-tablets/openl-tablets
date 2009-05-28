@@ -47,6 +47,11 @@ BODY {
 <a href="main.jsp?reload=true" title="Refresh Project" target="top"><img border=0 src="webresource/images/refresh.gif"></a>
 
 <%
+
+	if (request.getParameter("resetStudio") != null && request.getParameter("resetStudio").equals("true")) {
+  		studio.reset();
+  	}
+  
   if (studio.getModel().getAllTestMethods() != null && studio.getModel().getAllTestMethods().getTests().length > 0)
   {
 %>
@@ -103,6 +108,9 @@ d = new dTree('d');
 
 
 document.getElementById('tree').innerHTML = d;
+
+d.o(0);
+
 </script>
 
 

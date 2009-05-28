@@ -192,7 +192,12 @@ TableEditor.prototype = {
                 if (response.status)
                     alert(response.status);
                 else {
-                    self.processCallbacks(response, "do");
+                	self.processCallbacks(response, "do");
+                	if (window.parent.frames.leftFrame.location.toString().indexOf("?resetStudio=true") == -1) {
+                		window.parent.frames.leftFrame.location = window.parent.frames.leftFrame.location + "?resetStudio=true";
+                	} else {
+                		window.parent.frames.leftFrame.location.reload();
+                	}
                     alert("Your changes have been saved!");
                 }
             },
