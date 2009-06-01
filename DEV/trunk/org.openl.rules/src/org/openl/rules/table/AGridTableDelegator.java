@@ -8,7 +8,7 @@ package org.openl.rules.table;
 
 /**
  * @author snshor
- *
+ * 
  */
 public abstract class AGridTableDelegator extends AGridTable {
     protected IGridTable gridTable;
@@ -18,11 +18,18 @@ public abstract class AGridTableDelegator extends AGridTable {
     }
 
     /**
-     *
+     * 
      */
 
     public IGrid getGrid() {
         return gridTable.getGrid();
+    }
+    
+    /**
+     * @return Original table which includes this delegated table
+     */
+    public IGridTable getOriginalGridTable() {
+        return gridTable;
     }
 
 }
