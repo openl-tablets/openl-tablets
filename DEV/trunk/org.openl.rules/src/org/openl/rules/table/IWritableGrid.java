@@ -4,6 +4,7 @@
 package org.openl.rules.table;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -18,10 +19,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IWritableGrid extends IGrid {
     static public class Tool {
+        static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
+
         public static IExporter createExporter(IWritableGrid wGrid) {
             if (wGrid instanceof XlsSheetGridModel) {
                 return new XlsSheetGridExporter((XlsSheetGridModel) wGrid);
@@ -31,7 +34,7 @@ public interface IWritableGrid extends IGrid {
         }
 
         public static IExporter createExporter(XlsWorkbookSourceCodeModule workbookModule) {
-			Workbook workbook = workbookModule.getWorkbook();
+            Workbook workbook = workbookModule.getWorkbook();
             Sheet sheet;
             synchronized (workbook) {
                 sheet = workbook.getSheet(SHEET_NAME);
@@ -87,8 +90,49 @@ public interface IWritableGrid extends IGrid {
             return null;
         }
 
+        /**
+         * Searches all merged regions inside the specified region of table for
+         * regions that have to be resized.
+         * 
+         * @param wgrid Current writable grid.
+         * @param firstRowOrColumn Index of row or column for
+         *            insertion/removing.
+         * @param numberOfRowsOrColumns Number of elements to insert/remove.
+         * @param isInsert Flag that defines what we have to do(insert/remove).
+         * @param isColumns Flag that defines direction of insertion/removing.
+         * @param regionOfTable Region of current table.
+         * @return All actions to resize merged regions.
+         */
+        public static List<IUndoableGridAction> findMergedRegionsToResize(IWritableGrid wgrid, int firstRowOrColumn,
+                int numberOfRowsOrColumns, boolean isInsert, boolean isColumns, IGridRegion regionOfTable) {
+            ArrayList<IUndoableGridAction> resizeActions = new ArrayList<IUndoableGridAction>();
+            for (int i = 0; i < wgrid.getNumberOfMergedRegions(); i++) {
+                IGridRegion existingMergedRegion = wgrid.getMergedRegion(i);
+                // merged region is contained by region of grid
+                if (org.openl.rules.table.IGridRegion.Tool.contains(regionOfTable, existingMergedRegion.getLeft(),
+                        existingMergedRegion.getTop())) {
+                    if (isColumns) {
+                        // merged region contains column which we copy
+                        if (org.openl.rules.table.IGridRegion.Tool.contains(existingMergedRegion, regionOfTable
+                                .getLeft()
+                                + firstRowOrColumn, existingMergedRegion.getTop())) {
+                            resizeActions.add(new UndoableResizeRegionAction(existingMergedRegion,
+                                    numberOfRowsOrColumns, isInsert, isColumns));
+                        }
+                    } else {
+                        // merged region contains row which we copy
+                        if (org.openl.rules.table.IGridRegion.Tool.contains(existingMergedRegion, existingMergedRegion
+                                .getLeft(), regionOfTable.getTop() + firstRowOrColumn)) {
+                            resizeActions.add(new UndoableResizeRegionAction(existingMergedRegion,
+                                    numberOfRowsOrColumns, isInsert, isColumns));
+                        }
+                    }
+                }
+            }
+            return resizeActions;
+        }
+
         public static IUndoableGridAction insertColumns(int nColumns, int beforeColumns, IGridRegion region,
-                @SuppressWarnings("unused")
                 IWritableGrid wgrid) {
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
@@ -106,12 +150,11 @@ public interface IWritableGrid extends IGrid {
                 }
             }
 
+            actions.addAll(findMergedRegionsToResize(wgrid, beforeColumns, nColumns, INSERT, COLUMNS, region));
             return new UndoableCompositeAction(actions);
         }
 
-        public static IUndoableGridAction insertRows(int nRows, int beforeRow, IGridRegion region,
-                @SuppressWarnings("unused")
-                IWritableGrid wgrid) {
+        public static IUndoableGridAction insertRows(int nRows, int beforeRow, IGridRegion region, IWritableGrid wgrid) {
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
             int rowsToMove = h - beforeRow;
@@ -127,6 +170,8 @@ public interface IWritableGrid extends IGrid {
                     actions.add(new UndoableCopyValueAction(left + j, row, left + j, row + nRows));
                 }
             }
+
+            actions.addAll(findMergedRegionsToResize(wgrid, beforeRow, nRows, INSERT, ROWS, region));
             return new UndoableCompositeAction(actions);
         }
 
@@ -141,7 +186,8 @@ public interface IWritableGrid extends IGrid {
             wgrid.setCellMetaInfo(gcol, grow, meta);
         }
 
-        public static IUndoableGridAction removeColumns(int nCols, int startColumn, IGridRegion region) {
+        public static IUndoableGridAction removeColumns(int nCols, int startColumn, IGridRegion region,
+                IWritableGrid wgrid) {
             int firstToMove = startColumn + nCols;
             int w = IGridRegion.Tool.width(region);
             int h = IGridRegion.Tool.height(region);
@@ -159,10 +205,12 @@ public interface IWritableGrid extends IGrid {
                     actions.add(new UndoableClearAction(left + w - 1 - i, top + j));
                 }
             }
+
+            actions.addAll(findMergedRegionsToResize(wgrid, startColumn, nCols, REMOVE, INSERT, region));
             return new UndoableCompositeAction(actions);
         }
 
-        public static IUndoableGridAction removeRows(int nRows, int startRow, IGridRegion region) {
+        public static IUndoableGridAction removeRows(int nRows, int startRow, IGridRegion region, IWritableGrid wgrid) {
             int firstToMove = startRow + nRows;
             int w = IGridRegion.Tool.width(region);
             int h = IGridRegion.Tool.height(region);
@@ -180,6 +228,8 @@ public interface IWritableGrid extends IGrid {
                     actions.add(new UndoableClearAction(left + j, top + h - 1 - i));
                 }
             }
+
+            actions.addAll(findMergedRegionsToResize(wgrid, startRow, nRows, REMOVE, INSERT, region));
             return new UndoableCompositeAction(actions);
         }
 
@@ -230,7 +280,7 @@ public interface IWritableGrid extends IGrid {
      * Finds a rectangular area of given width and height on the grid that can
      * be used for writing. The returned region should not intersect with or
      * touch existing not empty cells.
-     *
+     * 
      * @param width rectangle width
      * @param height rectangle height
      * @return region representing required rectangle or <code>null</code> if

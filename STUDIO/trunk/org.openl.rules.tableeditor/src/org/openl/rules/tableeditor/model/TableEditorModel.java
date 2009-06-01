@@ -5,6 +5,7 @@
 package org.openl.rules.tableeditor.model;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.AGridTableDelegator;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
@@ -29,7 +30,7 @@ import java.util.Vector;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class TableEditorModel {
     public static enum CellType {
@@ -154,6 +155,7 @@ public class TableEditorModel {
 
     private IGridTable table;
     private GridRegion region;
+    private int numberOfNonShownRows;
 
     private GridTable[] othertables;
 
@@ -165,12 +167,13 @@ public class TableEditorModel {
 
     public TableEditorModel(IGridTable table) {
         this.table = table;
-        region = new GridRegion(table.getRegion());
+        region = new GridRegion(getOriginalTable(table).getRegion());
+        numberOfNonShownRows = table.getRegion().getTop() - region.getTop();
         othertables = new GridSplitter(table.getGrid()).split();
-        
+
         XlsSheetGridModel grid = (XlsSheetGridModel) table.getGrid();
-		undoGrid = new XlsUndoGrid(grid);
-	    
+        undoGrid = new XlsUndoGrid(grid);
+
         removeThisTable(othertables);
         makeFilteredGrid(table);
 
@@ -214,7 +217,7 @@ public class TableEditorModel {
 
     /**
      * Gets editor metadata for a specified cell
-     *
+     * 
      * @param row
      * @param column
      * @return editor metadata
@@ -238,7 +241,7 @@ public class TableEditorModel {
 
     /**
      * Gets type of a specified cell
-     *
+     * 
      * @param row
      * @param column
      * @return cell type
@@ -282,7 +285,8 @@ public class TableEditorModel {
             return new GridTable(region.getTop() - 3, region.getLeft() - 3, region.getBottom() + 3,
                     region.getRight() + 3, table.getGrid());
         }
-        return new GridTable(region.getTop(), region.getLeft(), region.getBottom(), region.getRight(), table.getGrid());
+        return new GridTable(region.getTop() + numberOfNonShownRows, region.getLeft(), region.getBottom(), region
+                .getRight(), table.getGrid());
 
     }
 
@@ -294,6 +298,19 @@ public class TableEditorModel {
         return actions.hasUndo();
     }
 
+    /**
+     * Extracts original table.
+     * 
+     * @param table Table which we have.
+     * @return Original table that includes our table.
+     */
+    public static IGridTable getOriginalTable(IGridTable table) {
+        while (table instanceof AGridTableDelegator) {
+            table = ((AGridTableDelegator) table).getOriginalGridTable();
+        }
+        return table;
+    }
+
     public synchronized void insertColumns(int nCols, int beforeCol) {
         IUndoableGridAction ua = IWritableGrid.Tool.insertColumns(nCols, beforeCol, region, wgrid());
         RegionAction ra = new RegionAction(ua, COLUMNS, INSERT, nCols);
@@ -302,7 +319,8 @@ public class TableEditorModel {
     }
 
     public synchronized void insertRows(int nRows, int beforeRow) {
-        IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows, beforeRow, region, wgrid());
+        IUndoableGridAction ua = IWritableGrid.Tool
+                .insertRows(nRows, beforeRow + numberOfNonShownRows, region, wgrid());
         RegionAction ra = new RegionAction(ua, ROWS, INSERT, nRows);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
@@ -339,7 +357,7 @@ public class TableEditorModel {
             return;
         }
 
-        IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, beforeCol, region);
+        IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, beforeCol, region, wgrid());
         RegionAction ra = new RegionAction(ua, COLUMNS, REMOVE, nCols);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
@@ -353,7 +371,8 @@ public class TableEditorModel {
             return;
         }
 
-        IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows, beforeRow, region);
+        IUndoableGridAction ua = IWritableGrid.Tool
+                .removeRows(nRows, beforeRow + numberOfNonShownRows, region, wgrid());
         RegionAction ra = new RegionAction(ua, ROWS, REMOVE, nRows);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
@@ -361,7 +380,7 @@ public class TableEditorModel {
 
     /**
      * @param otherTables
-     *
+     * 
      */
     private synchronized void removeThisTable(GridTable[] otherTables) {
         Vector<GridTable> v = new Vector<GridTable>();
@@ -424,7 +443,7 @@ public class TableEditorModel {
     /**
      * Checks if cell with row/col coordinates in system of the grid returned by
      * <code>getUpdatedTable</code> methods is inside of table region.
-     *
+     * 
      * @param row row number in coordinates of <code>getUpdatedTable</code>
      *            grid
      * @param col column number in coordinates of <code>getUpdatedTable</code>
