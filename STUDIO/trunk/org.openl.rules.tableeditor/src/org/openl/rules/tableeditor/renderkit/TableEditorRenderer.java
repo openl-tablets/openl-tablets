@@ -13,6 +13,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.model.EditorHelper;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
 
@@ -31,12 +32,14 @@ public class TableEditorRenderer extends TableViewerRenderer {
         String mode = (String) editorParams.get(Constants.ATTRIBUTE_MODE);
         String editorId = component.getClientId(context);
         IGridTable table = (IGridTable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
+        IGridFilter filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         List<ActionLink> actionLinks = getActionLinks(component);
         String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
         if (editable) {
             initEditorHelper(externalContext, editorId, table);
         }
-        writer.write(new HTMLRenderer().render(mode, table, actionLinks, editable, cellToEdit, false, editorId));
+        writer.write(new HTMLRenderer().render(mode, table, actionLinks, editable, cellToEdit,
+                false, editorId, filter));
     }
 
     @SuppressWarnings("unchecked")

@@ -7,6 +7,7 @@ import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.util.Constants;
 
 public class TableViewerRenderer extends BaseRenderer {
@@ -14,8 +15,9 @@ public class TableViewerRenderer extends BaseRenderer {
     @Override
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
         IGridTable table = (IGridTable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
+        IGridFilter filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         String editorId = new HtmlOutputText().getClientId(context);
-        new HTMLRenderer().render(table, editorId);
+        new HTMLRenderer().render(table, editorId, filter);
     }
 
     @Override
