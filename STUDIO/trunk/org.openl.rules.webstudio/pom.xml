@@ -132,7 +132,7 @@
                   <warSourceDirectory>webapps/webstudio</warSourceDirectory>
                   <warName>${war.name}-tomcat6</warName>
                   <primaryArtifact>false</primaryArtifact>
-                  <warSourceExcludes>WEB-INF/lib/el-api-1.0.jar</warSourceExcludes>
+                  <packagingExcludes>WEB-INF/lib/el-api-1.0.jar</packagingExcludes>
                 </configuration>
               </execution>
             </executions>
