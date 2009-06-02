@@ -25,6 +25,11 @@
             <required>true</required>
             <description>The table grid</description>
         </attribute>
+        <attribute>
+            <name>filter</name>
+            <required>false</required>
+            <description>The table filter</description>
+        </attribute>
     </tag>
     <tag>
         <name>tableEditor</name>
@@ -44,6 +49,10 @@
             <name>table</name>
             <required>true</required>
             <description>The table grid</description>
+        </attribute>
+        <attribute>
+            <name>filter</name>
+            <description>The table filter</description>
         </attribute>
         <attribute>
             <name>mode</name>

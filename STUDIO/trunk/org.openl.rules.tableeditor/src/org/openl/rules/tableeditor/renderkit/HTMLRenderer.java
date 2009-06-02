@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
 import org.openl.rules.tableeditor.model.ui.CellModel;
@@ -108,12 +109,12 @@ public class HTMLRenderer {
         return resources;
     }
 
-    public String render(IGridTable table, String editorId) {
-        return render(null, table, null, false, null, false, editorId);
+    public String render(IGridTable table, String editorId, IGridFilter filter) {
+        return render(null, table, null, false, null, false, editorId, filter);
     }
 
     public String render(String mode, IGridTable table, List<ActionLink> actionLinks, boolean editable,
-            String cellToEdit, boolean inner, String editorId) {
+            String cellToEdit, boolean inner, String editorId, IGridFilter filter) {
         StringBuilder result = new StringBuilder();
         result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css")).append(
                 renderCSS("css/toolbar.css")).append(renderJS("js/prototype/prototype-1.5.1.js")).append(
@@ -125,7 +126,7 @@ public class HTMLRenderer {
             result.append("<div id='").append(editorId).append("' class='te_'>");
         }
         if (mode == null || mode.equals(Constants.MODE_VIEW)) {
-            result.append(renderViewer(table, actionLinks, editable, editorId));
+            result.append(renderViewer(table, actionLinks, editable, editorId, filter));
         } else if (mode.equals(Constants.MODE_EDIT)) {
             result.append(renderEditor(editorId, cellToEdit));
         }
@@ -183,8 +184,7 @@ public class HTMLRenderer {
         cellToEdit = cellToEdit == null ? "" : cellToEdit;
         final String tableId = editorId + Constants.TABLE_ID_POSTFIX;
         String editor = Constants.TABLE_EDITOR_PREFIX + editorId;
-        result.append(renderJSBody("var " + editor + ";")).append(
-                "<div id='aaa' style='color:red; font:200% bold'></div>")
+        result.append(renderJSBody("var " + editor + ";"))
         // .append(renderJSBody("var jsPath = \"" + WebUtil.internalPath("js/")
         // + "\""))
                 .append(renderEditorToolbar(editorId, editor)).append(renderJS("js/TextEditor.js")).append(
@@ -286,10 +286,13 @@ public class HTMLRenderer {
         return "";
     }
 
-    protected String renderViewer(IGridTable table, List<ActionLink> actionLinks, boolean editable, String editorId) {
+    protected String renderViewer(IGridTable table, List<ActionLink> actionLinks, boolean editable, String editorId,
+            IGridFilter filter) {
         StringBuilder result = new StringBuilder();
         if (table != null) {
-            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(table).getUpdatedTable());
+            IGridFilter[] filters = (filter == null) ? null : new IGridFilter[] { filter };
+            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(table).getUpdatedTable(),
+                    filters);
             if (tableModel != null) {
                 String menuId = editorId + Constants.MENU_ID_POSTFIX;
                 TableRenderer tableRenderer = new TableRenderer(tableModel);

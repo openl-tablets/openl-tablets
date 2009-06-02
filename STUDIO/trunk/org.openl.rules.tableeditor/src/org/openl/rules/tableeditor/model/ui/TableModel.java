@@ -28,19 +28,29 @@ public class TableModel {
     private IGridTable gridTable;
 
     public static TableModel initializeTableModel(IGridTable table) {
+        return initializeTableModel(table, null);
+    }
+
+    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters) {
         if (table == null) {
             return null;
         }
+        boolean filtered = filters != null && filters.length > 0;
         IGrid htmlGrid = table.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
-            int N = 2;
-            IGridFilter[] f1 = new IGridFilter[N];
+            int N = 1;
+            IGridFilter[] f1 = new IGridFilter[!filtered ? (N + 1) : (N + filters.length)];
             f1[0] = new SimpleXlsFormatter();
-            f1[1] = new SimpleHtmlFilter();
+            if (!filtered) {
+                f1[N] = new SimpleHtmlFilter();
+            } else {
+                for (int i = N; i < f1.length; i++) {
+                    f1[i] = filters[i - N];
+                }
+            }
             htmlGrid = new FilteredGrid(table.getGrid(), f1);
         }
-        TableViewer tv = new TableViewer(htmlGrid, table.getRegion());
-        return tv.buildModel(table);
+        return new TableViewer(htmlGrid, table.getRegion()).buildModel(table);
     }
 
     public TableModel(int width, int height, IGridTable gridTable) {
