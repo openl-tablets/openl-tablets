@@ -130,7 +130,7 @@ public class DeclaredFunctionParser {
                             Such arrays are not still implemented in POI.                              
                             } else {                            
                             }*/
-                            throw expected("second argument must be a declared function description");
+                            throw expected("not right parameters definition");
                         }
                     }
                 } catch (MissingRequiredParametersException e) {
