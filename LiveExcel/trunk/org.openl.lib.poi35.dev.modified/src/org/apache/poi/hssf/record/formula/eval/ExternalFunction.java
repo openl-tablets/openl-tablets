@@ -82,9 +82,9 @@ final class ExternalFunction implements FreeRefFunction {
 		if(false) {
 			System.out.println("received call to internal user defined function  (" + functionName + ")");
 		}
-		FreeRefFunction functionEvaluator = MainToolPacksHandler.instance().findFunction(functionName);
+		FreeRefFunction functionEvaluator = workbook.getWorkbook().getUserDefinedFunction(functionName); 
 		if (functionEvaluator == null) {
-			functionEvaluator = workbook.getWorkbook().getUserDefinedFunction(functionName);
+		    functionEvaluator = MainToolPacksHandler.instance().findFunction(functionName);
 		}
 		if (functionEvaluator != null) {
             return functionEvaluator;
