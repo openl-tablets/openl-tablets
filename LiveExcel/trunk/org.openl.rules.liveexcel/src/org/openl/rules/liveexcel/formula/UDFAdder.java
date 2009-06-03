@@ -25,7 +25,7 @@ public class UDFAdder {
             declarationOfUDF = workbook.createName();
         }
         declarationOfUDF.setNameName(functionName);
-        declarationOfUDF.markAsFunctionName();
+        declarationOfUDF.setFunction(true);
     }
 
     
