@@ -1,18 +1,17 @@
 package org.openl.rules.liveexcel.formula;
 
-import org.apache.poi.hssf.record.formula.RefPtg;
+import org.apache.poi.hssf.record.formula.eval.RefEval;
 
 /**
-* FunctionParam  - handles parameters pairs from function definition
-* 
-*/
+ * FunctionParam - handles parameters pairs from function definition
+ * 
+ */
 public class FunctionParam {
-    
+
     private String paramName;
-    private RefPtg paramCell;
-    
-    
-    public FunctionParam(String paramName, RefPtg paramCell) {        
+    private RefEval paramCell;
+
+    public FunctionParam(String paramName, RefEval paramCell) {
         this.paramName = paramName;
         this.paramCell = paramCell;
     }
@@ -20,16 +19,16 @@ public class FunctionParam {
     public String getParamName() {
         return paramName;
     }
-    
+
     public void setParamName(String paramName) {
         this.paramName = paramName;
     }
-    
-    public RefPtg getParamCell() {
+
+    public RefEval getParamCell() {
         return paramCell;
     }
-    
-    public void setParamCell(RefPtg paramCell) {
+
+    public void setParamCell(RefEval paramCell) {
         this.paramCell = paramCell;
     }
 
