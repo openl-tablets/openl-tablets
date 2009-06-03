@@ -179,7 +179,6 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 		return SpreadsheetVersion.EXCEL2007;
 	}
 
-	@Override
 	public Workbook getWorkbook() {
 		return _uBook;
 	}
