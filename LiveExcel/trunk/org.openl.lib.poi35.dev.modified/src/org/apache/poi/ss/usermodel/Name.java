@@ -181,4 +181,12 @@ public interface Name {
      * @param comment the user comment for this named range
      */
     public void setComment(String comment);
+
+    /**
+     * Indicates that the defined name refers to a user-defined function.
+     * This attribute is used when there is an add-in or other code project associated with the file.
+     *
+     * @param value <code>true</code> indicates the name refers to a function.
+     */
+    void setFunction(boolean value);
 }

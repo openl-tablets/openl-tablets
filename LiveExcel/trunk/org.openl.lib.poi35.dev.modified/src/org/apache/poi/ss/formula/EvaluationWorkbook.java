@@ -20,6 +20,7 @@ package org.apache.poi.ss.formula;
 import org.apache.poi.hssf.record.formula.NamePtg;
 import org.apache.poi.hssf.record.formula.NameXPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * Abstracts a workbook for the purpose of formula evaluation.<br/>
@@ -46,6 +47,7 @@ public interface EvaluationWorkbook {
 	EvaluationName getName(NamePtg namePtg);
 	String resolveNameXText(NameXPtg ptg);
 	Ptg[] getFormulaTokens(EvaluationCell cell);
+	Workbook getWorkbook();
 
 	class ExternalSheet {
 		private final String _workbookName;

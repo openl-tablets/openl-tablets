@@ -353,4 +353,5 @@ public final class XSSFName implements Name {
             throw new IllegalArgumentException("Invalid name: '"+name+"'; Names must begin with a letter or underscore and not contain spaces");
         }
     }
+
 }

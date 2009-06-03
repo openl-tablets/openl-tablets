@@ -238,11 +238,12 @@ public final class NameRecord extends StandardRecord {
 		return (field_1_option_flag & Option.OPT_FUNCTION_NAME) != 0;
 	}
 	
-	/**
-	 * Sets options as this name is a function.
-	 */
-	public void markAsFunctionName(){
-	    field_1_option_flag = (short) (field_1_option_flag | Option.OPT_FUNCTION_NAME);
+	public void setFunction(boolean function){
+		if (function) {
+			field_1_option_flag |= Option.OPT_FUNCTION_NAME;
+		} else {
+			field_1_option_flag &= (~Option.OPT_FUNCTION_NAME);
+		}
 	}
 
 	/**

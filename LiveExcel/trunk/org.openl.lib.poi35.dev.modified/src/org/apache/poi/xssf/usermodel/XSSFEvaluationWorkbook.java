@@ -21,6 +21,7 @@ import org.apache.poi.hssf.record.formula.NamePtg;
 import org.apache.poi.hssf.record.formula.NameXPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.ss.formula.*;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDefinedName;
 
@@ -176,5 +177,10 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 
 	public SpreadsheetVersion getSpreadsheetVersion(){
 		return SpreadsheetVersion.EXCEL2007;
+	}
+
+	@Override
+	public Workbook getWorkbook() {
+		return _uBook;
 	}
 }
