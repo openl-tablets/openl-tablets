@@ -2,6 +2,11 @@ package org.openl.rules.liveexcel.formula;
 
 import org.apache.poi.ss.usermodel.Sheet;
 
+/**
+ * Handles function declarations
+ * 
+ * @author DLiauchuk
+ */
 public class DeclaredFunction {
     private Sheet sheet;
     private String cellAdress;    

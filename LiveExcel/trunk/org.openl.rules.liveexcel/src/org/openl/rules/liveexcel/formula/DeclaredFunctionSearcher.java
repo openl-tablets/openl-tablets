@@ -4,8 +4,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import org.apache.poi.hssf.model.HSSFFormulaParser;
+import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.hssf.usermodel.HSSFDataFormatter;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -14,17 +21,26 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
 
-public class DeclareSearcher {
-    final String OL_DECLARATION_FUNCTION = "ol_declare_function";
-    HSSFWorkbook workbook;
-    List<DeclaredFunction> functionsToParse = new ArrayList<DeclaredFunction>();
 
-    public DeclareSearcher(String fileName) {
+/**
+ * Looks for all declarations of LiveExcel functions in all sheets in file  
+ * 
+ * @author DLiauchuk
+ */
+public class DeclaredFunctionSearcher {
+    
+    static Logger log4j = Logger.getLogger("org.openl.rules.liveexcel.formula");    
+    
+    private HSSFWorkbook workbook;
+    private List<DeclaredFunction> functionsToParse = new ArrayList<DeclaredFunction>();
+    
+   
+    public DeclaredFunctionSearcher(String fileName) {
         InputStream is = null;
         try {
             is = new FileInputStream(fileName);
             POIFSFileSystem fs = new POIFSFileSystem(is);
-            workbook = new HSSFWorkbook(fs);
+            workbook = new HSSFWorkbook(fs);            
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -47,20 +63,34 @@ public class DeclareSearcher {
                     if(isTypeFormula(cell)) {
                         HSSFDataFormatter dFormatter = new HSSFDataFormatter();
                         String formattedValue = dFormatter.formatCellValue(cell);                        
-                        if (formattedValue.startsWith(OL_DECLARATION_FUNCTION)) {                            
+                        if (formattedValue.startsWith(DeclaredFunctionParser.OL_DECLARATION_FUNCTION)) {                            
                             DeclaredFunction declFunc = new DeclaredFunction(sheet,cellRef.formatAsString(),formattedValue);
-                            functionsToParse.add(declFunc);                      
+                            functionsToParse.add(declFunc);
                         }
                         
                     }                      
                 }
             }
         }
+       // List<ParsedDeclaredFunction> parsedFunctions = parse(functionsToParse);        
+    }
+    
+    public List<ParsedDeclaredFunction> parse(List <DeclaredFunction> listDeclFunc) {
+        List<ParsedDeclaredFunction> parsedFunctions = new ArrayList<ParsedDeclaredFunction>(); 
+        for(DeclaredFunction decFun : listDeclFunc) {
+            ParsedDeclaredFunction parsFunc = DeclaredFunctionParser.parseFunction(decFun.getFunctionText(),workbook);            
+            parsedFunctions.add(parsFunc);
+        }
+        return parsedFunctions;
+    }
+    
+    public void setFunctionsToParse(List<DeclaredFunction> functionsToParse) {
+        this.functionsToParse = functionsToParse;
     }
     
     public List<DeclaredFunction> getFunctionsToParse() {
         return functionsToParse;
-    }
+    } 
     
     private boolean isTypeFormula(Cell cell) {
         boolean result = false;
@@ -69,32 +99,4 @@ public class DeclareSearcher {
         }
         return result;
     }
-    
-    /*private void determineCellValue(Cell cell) {
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_BLANK:
-                System.out.println("TYPE IS BLANK");
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:
-                System.out.println("TYPE IS BOOLEAN");
-                break;
-            case Cell.CELL_TYPE_FORMULA:
-                System.out.println("TYPE IS FORMULA");
-                break;
-            case Cell.CELL_TYPE_NUMERIC:
-                System.out.println("TYPE IS NUMERIC");
-                break;
-            case Cell.CELL_TYPE_STRING:
-                System.out.println("TYPE IS STRING");
-                break;
-            case Cell.CELL_TYPE_ERROR:
-                System.out.println("TYPE IS ERROR");
-                break;
-            default:
-                System.out.println("TYPE IS UNKNOWN");
-                break;
-        }
-        System.out.println("------------\n");
-    }*/
-
 }

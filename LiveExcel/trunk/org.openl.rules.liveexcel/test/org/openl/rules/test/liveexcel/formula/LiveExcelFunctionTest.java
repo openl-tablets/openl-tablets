@@ -15,5 +15,4 @@ public class LiveExcelFunctionTest {
         CellAddress[] inputCellAddresses = new CellAddress[] { new CellAddress("B1") };
         assertEquals("The result of our UDF is",3,calculator.calculateResult(new CellAddress("B2"), inputValues, inputCellAddresses));        
     }
-
 }
