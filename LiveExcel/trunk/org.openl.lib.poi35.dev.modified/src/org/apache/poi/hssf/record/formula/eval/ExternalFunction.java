@@ -42,7 +42,7 @@ final class ExternalFunction implements FreeRefFunction {
 		Eval nameArg = args[0];
 		FreeRefFunction targetFunc;
 		if (nameArg instanceof NameEval) {
-			targetFunc = findInternalUserDefinedFunction((NameEval) nameArg);
+			targetFunc = findInternalUserDefinedFunction(workbook, (NameEval) nameArg);
 		} else if (nameArg instanceof NameXEval) {
 			targetFunc = findExternalUserDefinedFunction(workbook, (NameXEval) nameArg);
 		} else {
@@ -65,20 +65,28 @@ final class ExternalFunction implements FreeRefFunction {
 		// currently only looking for functions from the 'Analysis TookPak'  e.g. "YEARFRAC" or "ISEVEN"
 		// not sure how much this logic would need to change to support other or multiple add-ins.
 		FreeRefFunction result = MainToolPacksHandler.instance().findFunction(functionName);
+		if (result == null) {
+			result = workbook.getWorkbook().getUserDefinedFunction(functionName);
+		}
 		if (result != null) {
 			return result;
 		}
+		
 		throw new NotImplementedException(functionName);
 	}
 
-	private static FreeRefFunction findInternalUserDefinedFunction(NameEval functionNameEval) {
+	private static FreeRefFunction findInternalUserDefinedFunction(EvaluationWorkbook workbook,
+			NameEval functionNameEval) {
 
 		String functionName = functionNameEval.getFunctionName();
 		if(false) {
 			System.out.println("received call to internal user defined function  (" + functionName + ")");
 		}
 		FreeRefFunction functionEvaluator = MainToolPacksHandler.instance().findFunction(functionName);
-        if (functionEvaluator != null) {
+		if (functionEvaluator == null) {
+			functionEvaluator = workbook.getWorkbook().getUserDefinedFunction(functionName);
+		}
+		if (functionEvaluator != null) {
             return functionEvaluator;
         }
 		// TODO find the implementation for the user defined function

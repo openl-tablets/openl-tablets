@@ -159,4 +159,8 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
     public SpreadsheetVersion getSpreadsheetVersion(){
         return SpreadsheetVersion.EXCEL97;
     }
+
+	public org.apache.poi.ss.usermodel.Workbook getWorkbook() {
+		return _uBook;
+	}
 }

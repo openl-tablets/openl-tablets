@@ -36,6 +36,8 @@ import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.POIXMLException;
 import org.apache.poi.hssf.record.formula.SheetNameFormatter;
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.hssf.usermodel.HSSFName;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
@@ -44,6 +46,7 @@ import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.PackagingURIHelper;
 import org.apache.poi.openxml4j.opc.TargetMode;
+import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -127,6 +130,9 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
     private List<XSSFPictureData> pictures;
 
     private static POILogger logger = POILogFactory.getLogger(XSSFWorkbook.class);
+    
+    /** Map of user defined functions, key - function name, value - instance of FreeRefFunctions */
+	private Map<String, FreeRefFunction> udfFunctions;
 
     /**
      * Create a new SpreadsheetML workbook.
@@ -225,6 +231,8 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
 
         namedRanges = new ArrayList<XSSFName>();
         sheets = new ArrayList<XSSFSheet>();
+        
+        udfFunctions = new HashMap<String, FreeRefFunction>();
     }
 
     /**
@@ -1273,6 +1281,21 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
      */
     public CalculationChain getCalculationChain(){
         return calcChain;
+    }
+
+    public FreeRefFunction getUserDefinedFunction(String functionName) {
+    	return udfFunctions.get(functionName);
+    }
+    
+    public void registerUserDefinedFunction(String functionName, FreeRefFunction freeRefFunction) {
+    	Name udfDeclaration = getName(functionName);
+        if (udfDeclaration == null) {
+            udfDeclaration = createName();
+        }
+        udfDeclaration.setNameName(functionName);
+        udfDeclaration.setFunction(true);
+        udfFunctions.put(functionName, freeRefFunction);
+    	
     }
 
 }

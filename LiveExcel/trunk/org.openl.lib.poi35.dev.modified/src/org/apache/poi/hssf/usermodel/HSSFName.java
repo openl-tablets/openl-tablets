@@ -191,13 +191,6 @@ public final class HSSFName implements Name {
         return _definedNameRec.isFunctionName();
     }
     
-	/**
-	 * Sets options as this name is a function.
-	 */
-    public void markAsFunctionName(){
-        _definedNameRec.markAsFunctionName();
-    }
-
     public String toString() {
         StringBuffer sb = new StringBuffer(64);
         sb.append(getClass().getName()).append(" [");
@@ -249,5 +242,16 @@ public final class HSSFName implements Name {
     public void setComment(String comment){
         _definedNameRec.setDescriptionText(comment);
     }
+
+    /**
+     * Indicates that the defined name refers to a user-defined function.
+     * This attribute is used when there is an add-in or other code project associated with the file.
+     *
+     * @param value <code>true</code> indicates the name refers to a function.
+     */
+	public void setFunction(boolean value) {
+		_definedNameRec.setFunction(value);
+		
+	}
 
 }

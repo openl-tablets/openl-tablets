@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 
 /**
@@ -464,4 +465,22 @@ public interface Workbook {
      * @param hidden 0 for not hidden, 1 for hidden, 2 for very hidden
      */
     void setSheetHidden(int sheetIx, int hidden);
+    
+    /**
+	 * Find and return user defined function (UDF) with specified name.
+	 * 
+	 * @param functionName
+	 *            UDF name
+	 * @return instance of FreeRefFunction or null if no UDF with the specified
+	 *         name exists.
+	 */
+	FreeRefFunction getUserDefinedFunction(String functionName);
+	
+	/**
+	 * Add user defined function (UDF) to workbook
+	 * 
+	 * @param name
+	 * @param function
+	 */
+	void registerUserDefinedFunction(String name, FreeRefFunction function);
 }

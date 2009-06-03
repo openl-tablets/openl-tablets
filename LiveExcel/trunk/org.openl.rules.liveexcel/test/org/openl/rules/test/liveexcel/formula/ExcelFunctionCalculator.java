@@ -17,6 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.LiveExcelFunction;
 import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
 
@@ -73,21 +74,9 @@ public class ExcelFunctionCalculator {
         }
     }
 
-    // TODO: find more appropriate place for this method
-    public void addNewUDF(String name) {
-        HSSFName declarationOfUDF = workbook.getName(name);
-        if (declarationOfUDF == null) {
-            declarationOfUDF = workbook.createName();
-        }
-        declarationOfUDF.setNameName("base");
-        declarationOfUDF.markAsFunctionName();
-    }
-
     // TODO: delete method
-    private void makeExampleOfUDF() {
-        addNewUDF("base");
-        LiveExcelFunctionsPack pack = new LiveExcelFunctionsPack();
-        pack.addFunction("base", new LiveExcelFunction(null, null, null) {
+    private void makeExampleOfUDF(Workbook wb) {
+        wb.registerUserDefinedFunction("base", new LiveExcelFunction(null, null, null) {
             public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
                     int srcCellCol) {
                 if (args.length != 1) {
@@ -101,12 +90,11 @@ public class ExcelFunctionCalculator {
                 }
             }
         });
-        MainToolPacksHandler.instance().addToolPack(pack);
     }
 
     public Object calculateResult(CellAddress outputAddress, Object[] inputValues, CellAddress[] inputCellAddresses) {
         setValues(inputValues, inputCellAddresses);
-        makeExampleOfUDF();
+        makeExampleOfUDF(workbook);
         new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(outputAddress.getRow()).getCell(
                 outputAddress.getColumn()));
         return getCellValue(sheet.getRow(outputAddress.getRow()).getCell(outputAddress.getColumn()));
