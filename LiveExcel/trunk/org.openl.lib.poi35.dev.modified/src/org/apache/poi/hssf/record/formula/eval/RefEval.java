@@ -26,6 +26,8 @@ package org.apache.poi.hssf.record.formula.eval;
  * reference. Thus if the HSSFCell has type CELL_TYPE_NUMERIC, the contained
  * value object should be of type NumberEval; if cell type is CELL_TYPE_STRING,
  * contained value object should be of type StringEval
+ * 
+ * June 4, 2009: Added method setValue for setting values in referenced object.
  */
 public interface RefEval extends ValueEval {
 
@@ -48,4 +50,10 @@ public interface RefEval extends ValueEval {
      * Creates an {@link AreaEval} offset by a relative amount from this RefEval
      */
     AreaEval offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx);
+    
+    /**
+     * Sets inner value in referenced object.
+     * @param value The value to set
+     */
+    void setValue(ValueEval value);
 }

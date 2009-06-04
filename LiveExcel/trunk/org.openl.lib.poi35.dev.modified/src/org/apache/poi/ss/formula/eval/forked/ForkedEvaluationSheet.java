@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
@@ -126,4 +127,8 @@ final class ForkedEvaluationSheet implements EvaluationSheet {
 			return _columnIndex;
 		}
 	}
+
+    public void setCellValue(int rowIndex, int columnIndex, ValueEval value) {
+        _masterSheet.setCellValue(rowIndex, columnIndex, value);
+    }
 }

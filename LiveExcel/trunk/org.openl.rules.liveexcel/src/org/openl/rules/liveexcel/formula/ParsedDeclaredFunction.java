@@ -3,6 +3,7 @@ package org.openl.rules.liveexcel.formula;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
@@ -46,7 +47,14 @@ public class ParsedDeclaredFunction extends LiveExcelFunction {
     }
 
     public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
-        // TODO setting input cells and evaluating output cell
-        return null;
+        if (args.length != parameters.size()) {
+            return ErrorEval.VALUE_INVALID;
+        } else {
+            for(int i = 0; i < parameters.size(); i++){
+                parameters.get(i).getParamCell().setValue((ValueEval)args[i]);
+            }
+            // TODO chain evaluation from output cell
+            return returnCell.getParamCell().getInnerValueEval();
+        }
     }
 }

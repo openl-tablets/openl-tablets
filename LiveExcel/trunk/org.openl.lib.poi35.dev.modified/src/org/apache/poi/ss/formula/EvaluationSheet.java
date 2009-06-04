@@ -17,12 +17,16 @@
 
 package org.apache.poi.ss.formula;
 
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
+
 /**
  * Abstracts a sheet for the purpose of formula evaluation.<br/>
  * 
  * For POI internal use only
  * 
  * @author Josh Micich
+ * 
+ * June 4, 2009: Added method setCellValue for setting values in cells.
  */
 public interface EvaluationSheet {
 
@@ -30,4 +34,12 @@ public interface EvaluationSheet {
 	 * @return <code>null</code> if there is no cell at the specified coordinates
 	 */
 	EvaluationCell getCell(int rowIndex, int columnIndex);
+	
+	/**
+	 * Sets value in specifed cell.
+	 * @param rowIndex Row index.
+	 * @param columnIndex Column index
+	 * @param value The value to set.
+	 */
+	void setCellValue(int rowIndex, int columnIndex, ValueEval value);
 }
