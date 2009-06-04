@@ -17,6 +17,11 @@
 
 package org.apache.poi.hssf.usermodel;
 
+import org.apache.poi.hssf.record.formula.eval.BoolEval;
+import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.hssf.record.formula.eval.NumberEval;
+import org.apache.poi.hssf.record.formula.eval.StringEval;
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
 
@@ -47,4 +52,35 @@ final class HSSFEvaluationSheet implements EvaluationSheet {
 		}
 		return new HSSFEvaluationCell(cell, this);
 	}
+
+    public void setCellValue(int rowIndex, int columnIndex, ValueEval value) {
+        // FIXME: move this block to some separate method "getOrCreateCell"(in
+        // class Sheet or something like that)
+        HSSFRow row = _hs.getRow(rowIndex);
+        if (row == null) {
+            row = _hs.createRow(rowIndex);
+        }
+        HSSFCell cell = row.getCell(columnIndex);
+        if (cell == null) {
+            cell = row.createCell(columnIndex);
+        }
+        // FIXME: move this block to some separate method "setValueFromEval"(in
+        // class Cell or something like that)
+        if (value instanceof NumberEval) {
+            NumberEval ne = (NumberEval) value;
+            cell.setCellValue(ne.getNumberValue());
+        }
+        if (value instanceof BoolEval) {
+            BoolEval be = (BoolEval) value;
+            cell.setCellValue(be.getBooleanValue());
+        }
+        if (value instanceof StringEval) {
+            StringEval se = (StringEval) value;
+            cell.setCellValue(se.getStringValue());
+        }
+        if (value instanceof ErrorEval) {
+            ErrorEval ee = (ErrorEval) value;
+            cell.setCellErrorValue((byte) ee.getErrorCode());
+        }
+    }
 }

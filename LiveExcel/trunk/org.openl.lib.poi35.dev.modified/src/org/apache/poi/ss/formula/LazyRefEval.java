@@ -65,4 +65,8 @@ final class LazyRefEval extends RefEvalBase {
 		sb.append("]");
 		return sb.toString();
 	}
+	
+    public void setValue(ValueEval value) {
+        _evaluator.setCellValue(getRow(), getColumn(), value);
+    }
 }
