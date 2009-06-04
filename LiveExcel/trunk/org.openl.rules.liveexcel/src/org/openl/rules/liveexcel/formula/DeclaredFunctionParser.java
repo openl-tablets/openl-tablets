@@ -16,14 +16,14 @@ import org.apache.poi.hssf.record.formula.eval.StringEval;
  */
 public class DeclaredFunctionParser {
 
-    final Logger LOGGER = Logger.getLogger(DeclaredFunctionParser.class);
+    private static final Logger log = Logger.getLogger(DeclaredFunctionParser.class);
 
     private Eval[] arguments;
-
-    String formulaString;
     private int pointer = 0;
     private ParsedDeclaredFunction parsDeclFunc = new ParsedDeclaredFunction();
     private List<FunctionParam> listParams = new ArrayList<FunctionParam>();
+    
+    String formulaString;
 
     private DeclaredFunctionParser(Eval[] arguments) {
         this.arguments = arguments;
@@ -42,19 +42,19 @@ public class DeclaredFunctionParser {
     private void parse() {
         try {
             if (arguments.length >= 3) {
-                checkName();
-                checkReturn();
-                checkParameters();
+                setName();
+                setReturn();
+                setParameters();
             } else {
                 throw expected("function definition must contain min name and output cell");
             }
         } catch (MissingRequiredParametersException e) {
-            e.printStackTrace();
+        	log.error("Function definition error", e);
         }
 
     }
 
-    private void checkName() {
+    private void setName() {
         pointer = 0;
         if (arguments[pointer] instanceof StringEval) {
             parsDeclFunc.setDeclFuncName(((StringEval) arguments[pointer]).getStringValue());
@@ -64,7 +64,7 @@ public class DeclaredFunctionParser {
         }
     }
 
-    private void checkReturn() {
+    private void setReturn() {
         parsDeclFunc.setReturnCell(extractNextParam());
     }
 
@@ -99,16 +99,15 @@ public class DeclaredFunctionParser {
         }
     }
     
-    private void checkParameters() {
+    private void setParameters() {
     	parseParameters();
     	parsDeclFunc.setParameters(listParams);
     }
 
     /** Report What Was Expected */
     private RuntimeException expected(String s) {
-        String msg;
-        msg = "The specified formula '" + formulaString + "' was expected: " + s;
-
-        return new MissingRequiredParametersException(msg);
+        String msg = "The specified formula '%1$s' was expected: %2$s";
+        return new MissingRequiredParametersException(String.format(msg, formulaString, s));
     }
+    
 }
