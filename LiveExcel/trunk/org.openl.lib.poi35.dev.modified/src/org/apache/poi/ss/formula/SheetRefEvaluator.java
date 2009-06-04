@@ -49,12 +49,13 @@ final class SheetRefEvaluator {
 	}
 	
     /**
-     * Sets value in specifed cell.
+     * Sets value in specifed cell. Cleares cache.
      * @param rowIndex Row index.
      * @param columnIndex Column index
      * @param value The value to set.
      */
     public void setCellValue(int rowIndex, int columnIndex, ValueEval value){
+        _bookEvaluator.clearAllCachedResultValues();
         _sheet.setCellValue(rowIndex, columnIndex, value);
     }
 }

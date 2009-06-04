@@ -53,7 +53,6 @@ public class ParsedDeclaredFunction extends LiveExcelFunction {
             for(int i = 0; i < parameters.size(); i++){
                 parameters.get(i).getParamCell().setValue((ValueEval)args[i]);
             }
-            // TODO chain evaluation from output cell
             return returnCell.getParamCell().getInnerValueEval();
         }
     }
