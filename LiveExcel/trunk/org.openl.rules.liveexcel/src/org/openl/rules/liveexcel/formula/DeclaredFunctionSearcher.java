@@ -27,10 +27,16 @@ public class DeclaredFunctionSearcher {
 
     public DeclaredFunctionSearcher(Workbook workbook) {
         this.workbook = workbook;
+
+        // TODO: remove
         workbook.registerUserDefinedFunction(OL_DECLARATION_FUNCTION, null);
-        LiveExcelFunctionsPack pack = new LiveExcelFunctionsPack();
-        pack.addFunction(OL_DECLARATION_FUNCTION, new LiveExcellFunctionDeclaration());
-        MainToolPacksHandler.instance().addToolPack(pack);
+
+        MainToolPacksHandler packHandler = MainToolPacksHandler.instance();
+		if (!packHandler.containsFunction(OL_DECLARATION_FUNCTION)) {
+        	LiveExcelFunctionsPack liveExcelPack = new LiveExcelFunctionsPack();
+            liveExcelPack.addFunction(OL_DECLARATION_FUNCTION, new LiveExcellFunctionDeclaration());
+            packHandler.addToolPack(liveExcelPack);
+        }
     }
 
     public void findFunctions() {

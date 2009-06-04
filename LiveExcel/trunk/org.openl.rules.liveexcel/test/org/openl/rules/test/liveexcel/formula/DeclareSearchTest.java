@@ -11,8 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.Test;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionParser;
@@ -39,6 +42,18 @@ public class DeclareSearchTest {
             }
         }
         assertTrue(true);
+    }
+    
+    @Test
+    public void testFunction() {
+        HSSFWorkbook workbook = getWorkbook();
+        DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
+        searcher.findFunctions();
+        Sheet sheet = workbook.getSheetAt(1);
+        HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(13).getCell(1));
+        System.out.println(evaluateInCell);
+
+        
     }
 
 //    @Test
