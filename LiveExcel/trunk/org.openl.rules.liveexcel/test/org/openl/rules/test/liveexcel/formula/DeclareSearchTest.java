@@ -46,13 +46,14 @@ public class DeclareSearchTest {
     
     @Test
     public void testFunction() {
+    	/*
         HSSFWorkbook workbook = getWorkbook();
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
         searcher.findFunctions();
         Sheet sheet = workbook.getSheetAt(1);
         HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(13).getCell(1));
         System.out.println(evaluateInCell);
-
+		*/
         
     }
 
