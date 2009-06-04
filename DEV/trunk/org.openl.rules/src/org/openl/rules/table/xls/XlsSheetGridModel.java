@@ -453,14 +453,17 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     public String getCellUri(int column, int row) {
         return xlsCellPresentation(column, row);
     }
-
+    
     Object getCellValue(Cell cell) {
-        switch (cell.getCellType()) {
+    	return getCellValue(cell, cell.getCellType());
+    }
+
+    Object getCellValue(Cell cell, int valueType) {
+        switch (valueType) {
             case Cell.CELL_TYPE_BLANK:
                 return null;
             case Cell.CELL_TYPE_BOOLEAN:
-                return new Boolean(cell.getBooleanCellValue());
-            case Cell.CELL_TYPE_FORMULA:
+                return Boolean.valueOf(cell.getBooleanCellValue());
             case Cell.CELL_TYPE_NUMERIC:
                 String fmt = sheetSource.getWorkbookSource().getWorkbook().createDataFormat().getFormat(
                         cell.getCellStyle().getDataFormat());
@@ -471,6 +474,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
                 return value == (int) value ? (Object) new Integer((int) value) : (Object) new Double(value);
             case Cell.CELL_TYPE_STRING:
                 return cell.getStringCellValue();
+            case Cell.CELL_TYPE_FORMULA:
+            	return getCellValue(cell, cell.getCachedFormulaResultType());
             default:
                 return "unknown type: " + cell.getCellType();
         }
