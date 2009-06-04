@@ -45,7 +45,6 @@ public class DeclaredFunctionParser {
                 checkName();
                 checkReturn();
                 checkParameters();
-                parsDeclFunc.setParameters(listParams);
             } else {
                 throw expected("function definition must contain min name and output cell");
             }
@@ -93,11 +92,16 @@ public class DeclaredFunctionParser {
         return funcParam;
     }
 
-    private void checkParameters() {
+    private void parseParameters() {
         if (pointer + 1 < arguments.length) {
             listParams.add(extractNextParam());
-            checkParameters();
+            parseParameters();
         }
+    }
+    
+    private void checkParameters() {
+    	parseParameters();
+    	parsDeclFunc.setParameters(listParams);
     }
 
     /** Report What Was Expected */
