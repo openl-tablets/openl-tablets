@@ -53,7 +53,7 @@ public class DeclareSearchTest {
         HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(13).getCell(1));
         HSSFCell evaluateInCell2 = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(2).getCell(3));
         assertTrue(20 == evaluateInCell.getNumericCellValue());
-        assertTrue(24.5 == evaluateInCell2.getNumericCellValue());
+        assertTrue(25.5 == evaluateInCell2.getNumericCellValue());
     }
 
 //    @Test
