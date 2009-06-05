@@ -319,8 +319,7 @@ public class TableEditorModel {
     }
 
     public synchronized void insertRows(int nRows, int beforeRow) {
-        IUndoableGridAction ua = IWritableGrid.Tool
-                .insertRows(nRows, beforeRow + numberOfNonShownRows, region, wgrid());
+        IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows, beforeRow, region, wgrid());
         RegionAction ra = new RegionAction(ua, ROWS, INSERT, nRows);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
@@ -371,8 +370,7 @@ public class TableEditorModel {
             return;
         }
 
-        IUndoableGridAction ua = IWritableGrid.Tool
-                .removeRows(nRows, beforeRow + numberOfNonShownRows, region, wgrid());
+        IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows, beforeRow, region, wgrid());
         RegionAction ra = new RegionAction(ua, ROWS, REMOVE, nRows);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
@@ -433,6 +431,13 @@ public class TableEditorModel {
 
     public int tY(int row) {
         return region.getTop() + row;
+    }
+    
+    /**
+     * @return Count of rows that is not showed.
+     */
+    public int getNumberOfNonShownRows() {
+        return numberOfNonShownRows;
     }
 
     public synchronized void undo() {

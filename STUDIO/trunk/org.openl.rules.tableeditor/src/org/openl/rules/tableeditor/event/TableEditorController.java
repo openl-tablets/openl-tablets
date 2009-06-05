@@ -316,7 +316,9 @@ public class TableEditorController extends BaseTableViewController implements JS
     }
 
     private int getRow() {
-        return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1;
+        EditorHelper editorHelper = getHelper(getEditorId());
+        int numberOfNonShownRows = editorHelper.getModel().getNumberOfNonShownRows();
+        return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
     }
 
     public String indent() throws Exception {
