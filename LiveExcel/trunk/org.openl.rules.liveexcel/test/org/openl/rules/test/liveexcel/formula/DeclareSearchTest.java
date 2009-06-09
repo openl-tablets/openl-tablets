@@ -6,11 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -19,11 +18,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.Test;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionParser;
-import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
 
 public class DeclareSearchTest {
 
-    final Logger LOGGER = Logger.getLogger(DeclaredFunctionParser.class);
+    final Log LOGGER = LogFactory.getLog(DeclaredFunctionParser.class);
 
     @Test
     public void testDeclare() {

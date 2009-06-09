@@ -1,7 +1,7 @@
 package org.openl.rules.liveexcel.formula;
 
-import org.apache.log4j.Logger;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.record.formula.toolpack.MainToolPacksHandler;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -18,7 +18,7 @@ public class DeclaredFunctionSearcher {
 
     public static final String OL_DECLARATION_FUNCTION = "OL_DECLARE_FUNCTION";
 
-    private static final Logger log = Logger.getLogger(DeclaredFunctionSearcher.class);
+    private static final Log log = LogFactory.getLog(DeclaredFunctionSearcher.class);
 
     private Workbook workbook;
 

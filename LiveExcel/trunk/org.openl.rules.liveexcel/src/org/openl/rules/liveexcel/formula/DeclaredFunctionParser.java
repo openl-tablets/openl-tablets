@@ -3,8 +3,8 @@ package org.openl.rules.liveexcel.formula;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
@@ -16,7 +16,7 @@ import org.apache.poi.hssf.record.formula.eval.StringEval;
  */
 public class DeclaredFunctionParser {
 
-    private static final Logger log = Logger.getLogger(DeclaredFunctionParser.class);
+    private static final Log log = LogFactory.getLog(DeclaredFunctionParser.class);
 
     private Eval[] arguments;
     private int pointer = 0;
