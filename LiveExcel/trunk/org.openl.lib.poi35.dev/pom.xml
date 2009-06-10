@@ -111,7 +111,13 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-pmd-plugin</artifactId>
 						<configuration>
-							<excludes>**/poi/**/*</excludes>
+							<excludeRoots>
+								<excludeRoot>poi/src/java</excludeRoot>
+                                <excludeRoot>poi/src/ooxml/java</excludeRoot>
+                                <excludeRoot>poi/src/scratchpad/src</excludeRoot>
+								<excludeRoot>target/classes</excludeRoot>
+						</excludeRoots>
+
 						</configuration>
 					</plugin>
 					<plugin>
