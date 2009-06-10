@@ -106,21 +106,22 @@
 								<excludes>**/poi/**/*</excludes>
 							</configuration>
 						</plugin>
-                </plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-pmd-plugin</artifactId>
-					<configuration>
-						<excludes>**/poi/**/*</excludes>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>findbugs-maven-plugin</artifactId>
-					<configuration>
-						<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-					</configuration>
-				</plugin>
+                
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-pmd-plugin</artifactId>
+						<configuration>
+							<excludes>**/poi/**/*</excludes>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>findbugs-maven-plugin</artifactId>
+						<configuration>
+							<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+						</configuration>
+					</plugin>
+				</plugins>
         </reporting>
         <dependencies>
                 <dependency>
