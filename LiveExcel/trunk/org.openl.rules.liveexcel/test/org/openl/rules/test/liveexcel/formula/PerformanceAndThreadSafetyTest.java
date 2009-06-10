@@ -16,29 +16,80 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 
-public class PerformanceTest {
+public class PerformanceAndThreadSafetyTest {
 
-    private HSSFWorkbook wb;
+    public class CalculationThread implements Runnable {
+        private HSSFFormulaEvaluator evaluator;
+        private Cell cellToevaluate;
+        private double expectedResult;
+
+        public CalculationThread(HSSFFormulaEvaluator evaluator, Cell cellToevaluate, double expectedResult) {
+            this.evaluator = evaluator;
+            this.cellToevaluate = cellToevaluate;
+            this.expectedResult = expectedResult;
+        }
+
+        public void run() {
+            for (int i = 0; i < 10; i++) {
+                assertTrue(expectedResult == evaluator.evaluate(cellToevaluate).getNumberValue());
+            }
+        }
+    }
+
+    private HSSFWorkbook wb = parseWorkbook();
     List<Cell> cellsToEvaluate = new ArrayList<Cell>();
+    List<Thread> cellCalculationThreads = new ArrayList<Thread>();
     List<Cell> udfs = new ArrayList<Cell>();
+    List<Thread> udfCalculationThreads = new ArrayList<Thread>();
 
     @Test
-    public void test() {
-        parseWorkbook();
+    public void testPerformance() {
         findCellsToEvaluate();
         evaluateFormualas();
         evaluateUDFs();
+    }
+
+    @Test
+    public void testThreadSafety() throws InterruptedException {
+        createThreads();
+        for (Thread thread : cellCalculationThreads) {
+            thread.start();
+        }
+        for (Thread thread : udfCalculationThreads) {
+            thread.start();
+        }
+        for (Thread thread : cellCalculationThreads) {
+            thread.join();
+        }
+        for (Thread thread : udfCalculationThreads) {
+            thread.join();
+        }
+    }
+
+    private void createThreads() {
+        findCellsToEvaluate();
+        HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator(wb);
+        for (Cell cell : cellsToEvaluate) {
+            cellCalculationThreads.add(new Thread(new CalculationThread(evaluator, cell, evaluator.evaluate(cell)
+                    .getNumberValue())));
+        }
+        for (Cell cell : udfs) {
+            evaluator.evaluateInCell(cell);
+            udfCalculationThreads.add(new Thread(new CalculationThread(evaluator, cell, evaluator.evaluate(cell)
+                    .getNumberValue())));
+        }
     }
 
     private void evaluateUDFs() {
         int i;
         HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator(wb);
         long startTime = System.currentTimeMillis();
-        for (i = 0; i < 100000; i++) {
+        for (i = 0; i < 1000; i++) {
             for (Cell cell : udfs) {
-                evaluator.evaluateInCell(cell);
+                evaluator.evaluateFormulaCell(cell);
             }
             if (i == 0) {
                 long resultTime = System.currentTimeMillis() - startTime;
@@ -56,9 +107,9 @@ public class PerformanceTest {
         int i;
         HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator(wb);
         long startTime = System.currentTimeMillis();
-        for (i = 0; i < 100000; i++) {
+        for (i = 0; i < 1000; i++) {
             for (Cell cell : cellsToEvaluate) {
-                evaluator.evaluateInCell(cell);
+                evaluator.evaluateFormulaCell(cell);
             }
             if (i == 0) {
                 long resultTime = System.currentTimeMillis() - startTime;
@@ -72,12 +123,13 @@ public class PerformanceTest {
                 + (System.currentTimeMillis() - startTime) + " ms.");
     }
 
-    private void parseWorkbook() {
+    private HSSFWorkbook parseWorkbook() {
         long startTime = System.currentTimeMillis();
-        wb = getHSSFWorkbook("./test/resources/PerformanceTest.xls");
+        HSSFWorkbook wb = getHSSFWorkbook("./test/resources/PerformanceTest.xls");
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(wb);
         searcher.findFunctions();
         System.out.println("Time to parse workbook : " + (System.currentTimeMillis() - startTime) + " ms.");
+        return wb;
     }
 
     private void findCellsToEvaluate() {
