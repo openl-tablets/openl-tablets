@@ -78,12 +78,13 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
 
     static Map<String, ProjectionProperty> buildMap(Projection projection) {
         Map<String, ProjectionProperty> map = new HashMap<String, ProjectionProperty>();
-        
+
         ProjectionProperty[] properties = projection.getProperties();
         for (ProjectionProperty property : properties) {
-            map.put(property.getName(), property);
+            if (property.isComparable()) {
+                map.put(property.getName(), property);
+            }
         }
-
         return map;
     }
 

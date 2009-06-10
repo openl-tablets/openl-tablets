@@ -8,6 +8,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.table.Cell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -51,9 +52,20 @@ public class XlsProjectionBuilder {
 
     public static AbstractProjection buildTable(IGridTable table, String tableName) {
         AbstractProjection projection = new AbstractProjection(tableName, TABLE.name());
-        for (int i = 1; i < table.getLogicalHeight(); i++) {
+        AbstractProperty grid = new AbstractProperty("grid", IGridTable.class, table, false);
+        projection.addProperty(grid);
+        /*for (int i = 1; i < table.getLogicalHeight(); i++) {
             ILogicalTable row = table.getLogicalRow(i);
             projection.addChild(buildRow(row, "row" + i));
+        }*/
+        int height = table.getGridHeight();
+        int width = table.getGridWidth();
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                ICell cell = table.getCell(j, i);
+                Object cellValue = cell.getObjectValue();
+                projection.addChild(buildCell(cell, (i + "x" + j + " - " + (cellValue == null ? "" : cellValue))));
+            }
         }
         return projection;
     }
@@ -88,6 +100,9 @@ public class XlsProjectionBuilder {
                 int.class, cellWidth));
         projection.addChild(buildCellStyle(cellStyle));
         projection.addChild(buildCellFont(cellFont));*/
+        AbstractProperty cellProp = new AbstractProperty("cell", ICell.class,
+                new Cell(cell.getRow(), cell.getCol(), null), false);
+        projection.addProperty(cellProp);
         return projection;
     }
 

@@ -5,7 +5,8 @@
   xmlns:rich="http://richfaces.ajax4jsf.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:t="http://myfaces.apache.org/tomahawk"
-  template="/facelets/common/baseToolbar.xhtml">
+  template="/facelets/common/baseToolbar.xhtml"
+  xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
 
   <ui:define name="title">Structured Diff</ui:define>
 
@@ -36,34 +37,63 @@
       <tr>
         <td valign="top">
 
+      <a4j:form id="diffTreeForm" ajaxSingle="true" ajaxSubmit="true" reRender="editor1,editor2">
+        <input type="hidden" name="id" value=""  />
         <table>
           <tr>
-            <td>
-            <div id="treeboxbox_tree1"
-              style="width: 450px; height: 590px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
+            <td colspan="2" style="height:16px;">
+                <a4j:status>
+                    <f:facet name="start">
+                        <h:graphicImage value="/webresource/images/ajax-loader.gif" />
+                        Loading...
+                    </f:facet>
+                </a4j:status>
             </td>
-
+          </tr>
+          <tr>
+            <td valign="top">
+              <div id="treeboxbox_tree1"
+                style="width: 450px; height: 480px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
+            </td>
+            <td valign="top">
+              <div id="treeboxbox_tree2"
+                style="width: 450px; height: 480px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
+            </td>
+          </tr>
+          <tr>
             <td>
-            <div id="treeboxbox_tree2"
-              style="width: 450px; height: 590px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
+              <p />
+              <rules:tableEditor id="editor1" table="#{diffHandler.table1}" mode="view" />
+            </td>
+            <td>
+              <p />
+              <rules:tableEditor id="editor2" table="#{diffHandler.table2}" mode="view"
+                filter="#{diffHandler.filter2}" />
             </td>
           </tr>
         </table>
-        <br />
+      </a4j:form>
+      <br />
 
         </td>
       </tr>
-
-    </table>
-
+   </table>
 
     <script>
       function onClickHandler1(key) {
         tree2.selectItem(key);
+        selectTable(key);
       }
 
       function onClickHandler2(key) {
         tree1.selectItem(key);
+        selectTable(key);
+      }
+
+      function selectTable(key) {
+        var form = $('diffTreeForm');
+        form.id.value = key;
+        form.submit();
       }
 
       function onOpenHandler1(key, state) {
