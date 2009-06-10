@@ -15,6 +15,14 @@ public class Cell implements ICell {
 		this.gridTable = gridTable;
 	}
 
+	public int getCol() {
+	    return col;
+	}
+
+	public int getRow() {
+	    return row;
+	}
+
 	public int getCellHeight() {
 		return gridTable.isNormalOrientation() ? gridTable.getGrid().getCellHeight(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row))
                 : gridTable.getGrid().getCellWidth(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row));
