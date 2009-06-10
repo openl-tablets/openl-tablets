@@ -96,50 +96,7 @@
                                 </includes>
                         </resource>
                 </resources>
-        </build>
-        <reporting>
-                <plugins>
-                        <plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-checkstyle-plugin</artifactId>
-							<configuration>
-								<excludes>**/poi/**/*</excludes>
-							</configuration>
-						</plugin>
-                
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-pmd-plugin</artifactId>
-						<configuration>
-							<excludeRoots>
-								<excludeRoot>poi/src/java</excludeRoot>
-                                <excludeRoot>poi/src/ooxml/java</excludeRoot>
-                                <excludeRoot>poi/src/scratchpad/src</excludeRoot>
-								<excludeRoot>target/classes</excludeRoot>
-						</excludeRoots>
-
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>findbugs-maven-plugin</artifactId>
-						<configuration>
-							<maven.findbugs.enable>false</maven.findbugs.enable>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>cobertura-maven-plugin</artifactId>
-						<configuration>
-							<instrumentation>
-							<excludes>
-								<exclude>org/apache/poi/**/*.class</exclude>								
-							</excludes>
-							</instrumentation>
-						</configuration>	
-					</plugin>
-				</plugins>
-        </reporting>
+        </build>        
         <dependencies>
                 <dependency>
                         <groupId>commons-lang</groupId>
