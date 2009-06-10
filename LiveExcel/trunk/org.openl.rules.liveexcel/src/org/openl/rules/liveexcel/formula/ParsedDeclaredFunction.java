@@ -14,17 +14,8 @@ import org.apache.poi.ss.formula.EvaluationWorkbook;
  */
 public class ParsedDeclaredFunction extends LiveExcelFunction {
 
-    private String declFuncName;
     private FunctionParam returnCell;
     private List<FunctionParam> parameters = new ArrayList<FunctionParam>();
-
-    public String getDeclFuncName() {
-        return declFuncName;
-    }
-
-    public void setDeclFuncName(String declFuncName) {
-        this.declFuncName = declFuncName;
-    }
 
     public String getDescription() {
         return returnCell.getParamName();
