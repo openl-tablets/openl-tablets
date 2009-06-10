@@ -4,6 +4,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -15,17 +17,28 @@ import org.apache.commons.io.IOUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ui.ColorGridFilter;
+import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
+import org.openl.rules.diff.tree.DiffElement;
+import org.openl.rules.diff.hierarchy.Projection;
+import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.test.AbstractProjection;
 import org.openl.rules.diff.test.DiffTreeBuilderImpl;
 import org.openl.rules.diff.test.ProjectionDifferImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionBuilder;
+import org.openl.rules.diff.xls.XlsProjectionType;
+import org.openl.rules.diff.util.DiffHelper;
 
 public class DiffHandler {
     private String id;
-    private String treeId;
     private UploadedFile file1;
     private UploadedFile file2;
     private DiffTreeNode diffTree;
@@ -77,25 +90,14 @@ public class DiffHandler {
     }
 
     public DiffTreeNode[] getDiffTreeNodes() {
-        return getDiffTreeNodesByParentId(diffTree, getId());
-    }
-
-    private DiffTreeNode[] getDiffTreeNodesByParentId(DiffTreeNode node, String id) {
-        if (node != null) {
-            if (id == null || id.equals(node.getId())) {
-                return node.getChildren();
-            } else {
-                for (DiffTreeNode child : node.getChildren()) {
-                    DiffTreeNode[] found = getDiffTreeNodesByParentId(child, id);
-                    if (found.length != 0) {
-                        return found;
-                    }
-                }
-            }
+        DiffTreeNode tree = DiffHelper.getDiffNodeById(diffTree, getId());
+        if (tree != null) {
+            return tree.getChildren();
         }
         return new DiffTreeNode[0];
     }
 
+    
     public String getId() {
         //if (id == null) {
             id = FacesUtils.getRequestParameter("id");
@@ -103,16 +105,8 @@ public class DiffHandler {
         return id;
     }
 
-    public String getTreeId() {
-        return treeId;
-    }
-
     public void setId(String id) {
         this.id = id;
-    }
-
-    public void setTreeId(String treeId) {
-        this.treeId = treeId;
     }
 
     /**
@@ -156,4 +150,78 @@ public class DiffHandler {
     public void setShowEqualElements(boolean showEqualElements) {
         this.showEqualElements = showEqualElements;
     }
+
+    public IGridTable getTable1() {
+        return getTable(0);
+    }
+
+    public IGridTable getTable2() {
+        return getTable(1);
+    }
+
+    public IGridTable getTable(int i) {
+        DiffTreeNode tree = DiffHelper.getDiffNodeById(diffTree, getId());
+        if (tree != null) {
+            DiffElement[] elems = tree.getElements();
+            if (elems.length > i) {
+                Projection projection = elems[i].getProjection();
+                if (projection != null) {
+                    String projType = projection.getType();
+                    if (projType.equalsIgnoreCase((XlsProjectionType.TABLE.name()))) {
+                        ProjectionProperty[] props = projection.getProperties();
+                        return (IGridTable) DiffHelper.getPropValue(props, "grid");
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public IGridFilter getFilter2() {
+        return getFilter(1);
+    }
+
+    public IGridFilter getFilter(int i) {
+        DiffTreeNode tree = DiffHelper.getDiffNodeById(diffTree, getId());
+        if (tree != null) {
+            DiffElement[] elems = tree.getElements();
+            if (elems.length > i) {
+                Projection projection = elems[i].getProjection();
+                if (projection != null) {
+                    String projType = projection.getType();
+                    if (projType.equalsIgnoreCase((XlsProjectionType.TABLE.name()))) {
+                        ProjectionProperty[] props = projection.getProperties();
+                        IGridTable table = (IGridTable) DiffHelper.getPropValue(props, "grid");
+                        List<DiffTreeNode> cells = DiffHelper.getDiffNodesByType(tree, XlsProjectionType.CELL.name());
+                        List<ICell> diffCells = new ArrayList<ICell>();
+                        for (DiffTreeNode cellNode : cells) {
+                            DiffElement cellElem = cellNode.getElements()[i];
+                            if (!cellElem.isSelfEqual()) {
+                                ProjectionProperty[] cellProps = cellElem.getProjection().getProperties();
+                                ICell cell = (ICell) DiffHelper.getPropValue(cellProps, "cell");
+                                diffCells.add(cell);
+                            }
+                        }
+                        return makeFilter(table, diffCells);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private IGridFilter makeFilter(IGridTable table, List<ICell> selectedCells) {
+        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        for (ICell cell : selectedCells) {
+            IGridRegion region = table.getLogicalRegion(cell.getRow(), cell.getCol(), 1, 1).getGridTable().getRegion();
+            regions.add(region);
+        }
+        if (regions.isEmpty()) {
+            return null;
+        }
+        IGridRegion[] aRegions = regions.toArray(new IGridRegion[regions.size()]);
+        return new ColorGridFilter(new RegionGridSelector(aRegions, true),
+                WebStudioUtils.getWebStudio().getModel().getFilterHolder().makeFilter());
+    }
+
 }

@@ -24,14 +24,17 @@ public class TableEditorRenderer extends TableViewerRenderer {
     @SuppressWarnings("unchecked")
     @Override
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
+        IGridTable table = (IGridTable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
         ResponseWriter writer = context.getResponseWriter();
+        if (table == null) {
+            writer.write("");
+        }
         Map editorParams = component.getAttributes();
         Boolean editable = getBooleanParam(editorParams.get(Constants.ATTRIBUTE_EDITABLE));
         ExternalContext externalContext = context.getExternalContext();
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
         String mode = (String) editorParams.get(Constants.ATTRIBUTE_MODE);
         String editorId = component.getClientId(context);
-        IGridTable table = (IGridTable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
         IGridFilter filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         List<ActionLink> actionLinks = getActionLinks(component);
         String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
@@ -77,7 +80,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
      */
     @Deprecated
     private Boolean getBooleanParam(Object param) {
-        Boolean bParam = null;
+        Boolean bParam = false;
         if (param instanceof String) {
             bParam = new Boolean((String) param);
         } else if (param instanceof Boolean) {
