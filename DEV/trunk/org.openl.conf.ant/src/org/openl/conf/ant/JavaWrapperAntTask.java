@@ -121,9 +121,7 @@ public class JavaWrapperAntTask extends Task {
         buf.append("  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){\n"
                         + "    @Override\n"
                         + "    protected org.openl.vm.IRuntimeEnv initialValue() {\n"
-                        + "      org.openl.vm.IRuntimeEnv newEnv = new org.openl.vm.SimpleVM().getRuntimeEnv();"
-                        + "      this.set(newEnv);\n"
-                        + "      return newEnv;\n" 
+                        + "      return new org.openl.vm.SimpleVM().getRuntimeEnv();\n" 
                         + "    }\n" 
                         + "  };\n\n");
         // getter and setter
