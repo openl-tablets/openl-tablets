@@ -66,34 +66,6 @@
         </build>        
         <dependencies>
                 <dependency>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                </dependency>
-                <dependency>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                </dependency>
-                <dependency>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging-api</artifactId>
-                </dependency>
-                <dependency>
-                        <groupId>org.apache.poi</groupId>
-                        <artifactId>ooxml-schemas</artifactId>
-                </dependency>
-                <dependency>
-                        <groupId>org.apache.xmlbeans</groupId>
-                        <artifactId>xmlbeans</artifactId>
-                </dependency>
-                <dependency>
-                        <groupId>dom4j</groupId>
-                        <artifactId>dom4j</artifactId>
-                </dependency>
-                <dependency>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                </dependency>
-                <dependency>
                         <groupId>com.exigen.le</groupId>
                         <artifactId>le-model-access</artifactId>
                 </dependency>
