@@ -18,7 +18,6 @@ public class LiveExcelMethod extends AMethod {
 		this.declaredFunction = declaredFunction;
 	}
 
-	@Override
 	public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
 		ValueEval[] args = new ValueEval[params.length];
 		for (int i = 0; i < params.length; i ++) {

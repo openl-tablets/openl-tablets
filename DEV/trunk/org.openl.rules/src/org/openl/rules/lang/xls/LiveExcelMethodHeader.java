@@ -27,22 +27,18 @@ private static class LiveExcelMethodSignature implements IMethodSignature {
 			this.declaredFunction = declaredFunction;
 		}
 
-		@Override
 		public int getNumberOfArguments() {
 			return declaredFunction.getParameters().size();
 		}
 
-		@Override
 		public int getParameterDirection(int i) {
 			return IParameterDeclaration.IN;
 		}
 
-		@Override
 		public String getParameterName(int i) {
 			return convertName(declaredFunction.getParameters().get(i).getParamName());
 		}
 
-		@Override
 		public IOpenClass[] getParameterTypes() {
 			IOpenClass[] params = new IOpenClass[declaredFunction.getParameters().size()];
 			for (int i = 0; i < params.length; i ++) {
