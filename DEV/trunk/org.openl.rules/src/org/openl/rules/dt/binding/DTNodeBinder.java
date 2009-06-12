@@ -31,6 +31,7 @@ public class DTNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module) {
 
         IGridTable table = tsn.getTable().getGridTable();
+        
 
         // String methodHeaderSrc =
         // table.getStringValue(0, 0).substring(dtNode.getHeader().length());

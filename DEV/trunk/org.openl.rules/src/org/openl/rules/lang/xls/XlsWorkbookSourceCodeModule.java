@@ -43,14 +43,14 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 	 */
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, boolean preserveNodes) {
         super(src);
-
+        workbook = loadWorkbook(src, preserveNodes);
+    }
+    
+    private Workbook loadWorkbook(IOpenSourceCodeModule src, boolean preserveNodes) {
         InputStream is = null;
         try {
             is = src.getByteStream();
-//			POIFSFileSystem fs = new POIFSFileSystem(is);
-//	
-//			workbook = new HSSFWorkbook(fs, preserveNodes);
-            workbook = WorkbookFactory.create(is);
+            return WorkbookFactory.create(is);
         } catch (Throwable t) {
             throw RuntimeExceptionWrapper.wrap(t);
         } finally {
@@ -137,6 +137,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         FileOutputStream fileOut = new FileOutputStream(fileName);
         workbook.write(fileOut);
         fileOut.close();
+        //workbook = loadWorkbook(src, false);
     }
 
 }

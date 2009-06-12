@@ -20,7 +20,7 @@ public interface IXlsTableNames {
             DATA_TABLE = "Data", DATATYPE_TABLE = "Datatype",
 
             LANG_PROPERTY = "language", INCLUDE_TABLE = "include", IMPORT_PROPERTY = "import",
-            VOCABULARY_PROPERTY = "vocabulary",
+            VOCABULARY_PROPERTY = "vocabulary", LIVEEXCEL_PROPERTY = "liveexcel",
 
             ENVIRONMENT_TABLE = "Environment",
 
