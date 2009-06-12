@@ -483,4 +483,11 @@ public interface Workbook {
 	 * @param function
 	 */
 	void registerUserDefinedFunction(String name, FreeRefFunction function);
+
+	/**
+	 * Returns user defined functions (UDF) names
+	 * 
+	 * @return list of UDF names
+	 */
+	List<String> getUserDefinedFunctionNames();
 }
