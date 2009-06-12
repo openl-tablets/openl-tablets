@@ -12,8 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.IOpenBinder;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
@@ -49,8 +52,10 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
 import org.openl.rules.method.binding.MethodTableNodeBinder;
 import org.openl.rules.structure.StructureTableNodeBinder;
+import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
 import org.openl.syntax.IParsedCode;
 import org.openl.syntax.ISyntaxError;
@@ -58,7 +63,11 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.AStringConvertor;
 import org.openl.util.ISelector;
@@ -200,6 +209,22 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
                 new XlsMetaInfo(moduleNode), openl);
 
         // int nchildren = moduleNode.getNumberOfChildren();
+        
+        
+        List<IdentifierNode> liveExcelNodes = moduleNode.getLiveExcelNodes();
+        for (int i = 0; i < liveExcelNodes.size(); i ++) {
+        	IdentifierNode node = liveExcelNodes.get(i);
+        	Workbook wb = ((XlsWorkbookSourceCodeModule)node.getModule()).workbook;
+			List<String> names = wb.getUserDefinedFunctionNames();
+        	for (int j = 0; j < names.size(); j ++) {
+        		String name = names.get(j);
+                ParsedDeclaredFunction function = (ParsedDeclaredFunction) wb.getUserDefinedFunction(name);
+                if (function != null) {
+                    LiveExcelMethod method = new LiveExcelMethod(new LiveExcelMethodHeader(function, null), function);
+                    module.addMethod(method);
+                }
+        	}
+        }
 
         // IMemberBoundNode[] children = new IMemberBoundNode[nchildren];
         ModuleBindingContext moduleContext = new ModuleBindingContext(cxt, module);
