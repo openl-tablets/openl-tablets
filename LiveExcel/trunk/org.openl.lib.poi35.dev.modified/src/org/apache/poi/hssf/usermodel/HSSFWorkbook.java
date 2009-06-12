@@ -1724,4 +1724,8 @@ public class HSSFWorkbook extends POIDocument implements org.apache.poi.ss.userm
         return workbook.getNameXPtg(name);
     }
 
+	public List<String> getUserDefinedFunctionNames() {
+		return new ArrayList<String>(udfFunctions.keySet());
+	}
+
 }

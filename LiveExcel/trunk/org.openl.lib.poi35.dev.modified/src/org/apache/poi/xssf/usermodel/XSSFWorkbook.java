@@ -1294,7 +1294,10 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         udfDeclaration.setNameName(functionName);
         udfDeclaration.setFunction(true);
         udfFunctions.put(functionName, freeRefFunction);
-    	
     }
+    
+	public List<String> getUserDefinedFunctionNames() {
+		return new ArrayList<String>(udfFunctions.keySet());
+	}
 
 }
