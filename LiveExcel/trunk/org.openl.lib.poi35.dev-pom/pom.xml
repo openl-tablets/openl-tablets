@@ -18,6 +18,7 @@
 
   <modules>
     <module>../org.openl.lib.poi35.dev</module>
+    <module>../org.openl.rules.liveexcel.lib</module>
     <module>../org.openl.lib.poi35.dev.modified</module>
     <module>../org.openl.lib.poi35.dev.modified.test</module>
   </modules>
@@ -90,11 +91,15 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.5</version>
-    </dependency>
-
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.liveexcel.lib</artifactId>
+        <version>${dep.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

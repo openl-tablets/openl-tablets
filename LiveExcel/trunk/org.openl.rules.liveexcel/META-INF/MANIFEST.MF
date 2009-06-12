@@ -4,7 +4,10 @@ Bundle-Name: LiveExcel OpenL integration Plug-in
 Bundle-SymbolicName: org.openl.rules.liveexcel
 Bundle-Version: 1.0.0
 Bundle-Vendor: OpenL
-Require-Bundle: org.openl.lib.poi35.dev.modified;visibility:=reexport
+Require-Bundle: org.openl.lib.poi35.dev.modified;visibility:=reexport,
+ org.openl.rules.liveexcel.lib
 Bundle-ClassPath: bin/,
- .
+ .,
+ lib/le-commons-0.0.1-SNAPSHOT.jar,
+ lib/le-model-access-0.0.1-SNAPSHOT.jar
 Export-Package: org.openl.rules.test.liveexcel.formula

@@ -109,11 +109,23 @@
   </profiles>
 
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-  </dependencies>
-
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+        <version>${dep.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.liveexcel.lib</artifactId>
+        <version>${dep.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

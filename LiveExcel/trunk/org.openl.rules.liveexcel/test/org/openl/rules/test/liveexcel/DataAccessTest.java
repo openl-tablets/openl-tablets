@@ -1,7 +1,6 @@
 package org.openl.rules.test.liveexcel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
 
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -11,54 +10,29 @@ import org.openl.rules.liveexcel.EvaluationContext;
 import org.openl.rules.liveexcel.LiveExcelEvaluator;
 import org.openl.rules.liveexcel.ServiceModelAPI;
 import org.openl.rules.test.liveexcel.formula.PerformanceAndThreadSafetyTest;
+
+import com.exigen.ipb.schemas.rating.VehicleDriverRelationshipType;
+import com.exigen.ipb.schemas.rating.VehicleType;
+import com.exigen.ipb.schemas.rating.hb.VehicleDriverRelationshipTypeImpl;
+import com.exigen.ipb.schemas.rating.hb.VehicleTypeImpl;
+import com.exigen.le.calc.PropertyEvaluator;
+
 import static org.junit.Assert.*;
 
 public class DataAccessTest {
-    public class Wife {
-        private int AGE;
-
-        public Wife(int age) {
-            AGE = age;
-        }
-
-        public int getAGE() {
-            return AGE;
-        }
-    }
-
-    public class Man {
-        private int AGE;
-        private Wife WIFE;
-
-        public Man(int age, Wife wife) {
-            AGE = age;
-            WIFE = wife;
-        }
-
-        public int getAGE() {
-            return AGE;
-        }
-
-        public Wife getWIFE() {
-            return WIFE;
-        }
-    }
-
     @Test
     public void test() {
         HSSFWorkbook workbook = PerformanceAndThreadSafetyTest.getHSSFWorkbook("./test/resources/DataAccessTest.xls");
-        EvaluationContext context = new EvaluationContext(new DataPool(), new ServiceModelAPI() {
-            public List<String> getAllServiceModelUDFs() {
-                List<String> udfs = new ArrayList<String>();
-                udfs.add("AGE");
-                udfs.add("WIFE");
-                return udfs;
-            }
-        });
+        EvaluationContext context = new EvaluationContext(new DataPool(), new ServiceModelAPI("SimpleExample"));
         LiveExcelEvaluator evaluator = new LiveExcelEvaluator(workbook, context);
-        assertTrue(5.0 == ((NumberEval) evaluator.evaluateServiceModelUDF("func1",
-                new Object[] { new Man(30, new Wife(25)) })).getNumberValue());
-        assertTrue(23.0 == ((NumberEval) evaluator.evaluateServiceModelUDF("func1",
-                new Object[] { new Man(41, new Wife(18)) })).getNumberValue());
+        VehicleType vehicleType = new VehicleTypeImpl();
+        VehicleDriverRelationshipType principalDriver = new VehicleDriverRelationshipTypeImpl();
+        VehicleDriverRelationshipType principalDriver2 = new VehicleDriverRelationshipTypeImpl();
+        vehicleType.setPrincipalDriver(principalDriver);
+        principalDriver.setPercentageOfUse(new BigDecimal(23));
+        principalDriver2.setPercentageOfUse(new BigDecimal(0));
+        assertTrue(23.0 == ((NumberEval) evaluator.evaluateServiceModelUDF("func1", new Object[]{vehicleType, principalDriver2})).getNumberValue());
+        principalDriver2.setPercentageOfUse(new BigDecimal(24));
+        assertTrue(1 == ((NumberEval) evaluator.evaluateServiceModelUDF("func1", new Object[]{vehicleType, principalDriver2})).getNumberValue());
     }
 }
