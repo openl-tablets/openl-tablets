@@ -7,5 +7,6 @@
 	<classpathentry kind="var" path="M2_REPO/junit/junit/4.5/junit-4.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1/commons-logging-1.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging-api/1.1/commons-logging-api-1.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.openl.lib.poi35.dev"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -26,23 +26,24 @@
         </configuration>
       </plugin>
     </plugins>	
-	
+
+    <resources>
+      <resource>
+        <directory>test</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
   <dependencies>
-	<dependency>
-		<groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
-        <version>${dep.version}</version>
-        <scope>compile</scope>
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging-api</artifactId>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.liveexcel.lib</artifactId>
     </dependency>
   </dependencies>  
   

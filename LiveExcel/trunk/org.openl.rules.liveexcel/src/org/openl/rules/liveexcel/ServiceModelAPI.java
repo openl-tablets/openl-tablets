@@ -1,26 +1,40 @@
 package org.openl.rules.liveexcel;
 
-import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Set;
+
+import com.exigen.le.calc.PropertyEvaluator;
 
 /**
- * Mock API to interact with service model.
+ * API to interact with service model.
  * 
  * @author PUdalau
  */
-public abstract class ServiceModelAPI {
+public class ServiceModelAPI {
+
+    private String projectName;
 
     /**
-     * @return List of all UDFs defined by service model.
+     * Creates ServiceModelAPI associated with some project.
+     * 
+     * @param projectName Name of project.
      */
-    public abstract List<String> getAllServiceModelUDFs();
+    public ServiceModelAPI(String projectName) {
+        this.projectName = projectName;
+    }
+
+    /**
+     * @return Set of all UDF names defined by service model.
+     */
+    public Set<String> getAllServiceModelUDFs() {
+        return PropertyEvaluator.getAllPropertyNames(projectName);
+    }
 
     /**
      * @param name Name of domain type.
      * @return Class of domain type.
      */
     public Class<?> getServiceModelObjectDomainType(String name) {
-        return null;
+        return PropertyEvaluator.getPropertyType(projectName, name);
     }
 
     /**
@@ -29,12 +43,7 @@ public abstract class ServiceModelAPI {
      * @return Value of property of object if its exists.
      */
     public Object getValue(String name, Object object) {
-        try {
-            Method method = object.getClass().getMethod("get" + name.toUpperCase(), new Class[0]);
-            return method.invoke(object, new Object[0]);
-        } catch (Exception e) {
-            return null;
-        }
+        return PropertyEvaluator.getValue(projectName, object, name);
     }
 
 }
