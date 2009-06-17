@@ -7,7 +7,7 @@ import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.StringValueEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
-import org.openl.rules.liveexcel.formula.LiveExcelFunction;
+import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
 
 /**
  * Evaluator for lookup. Data for lookup must be represented as linearized(In
@@ -16,7 +16,7 @@ import org.openl.rules.liveexcel.formula.LiveExcelFunction;
  * 
  * @author PUdalau
  */
-public class LiveExcelLookup extends LiveExcelFunction {
+public class LiveExcelLookup extends ParsedDeclaredFunction {
     private Grid lookupData;
 
     /**
