@@ -273,11 +273,6 @@
         <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
         <version>${version}</version>
       </dependency>
-      <dependency>
-     	<groupId>org.openl.rules</groupId>
-  		<artifactId>org.openl.rules.liveexcel</artifactId>
-  		<version>${version}</version>
-    </dependency>
 
     </dependencies>
   </dependencyManagement>
