@@ -20,6 +20,7 @@
     <module>../org.openl.lib.poi35.dev-pom</module>
     <module>../org.openl.rules.liveexcel.lib</module>
     <module>../org.openl.rules.liveexcel</module>
+    <module>../org.openl.rules.liveexcel.extension</module>
   </modules>
 
 
