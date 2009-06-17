@@ -10,4 +10,4 @@ Bundle-ClassPath: bin/,
  .,
  lib/le-commons-0.0.1-SNAPSHOT.jar,
  lib/le-model-access-0.0.1-SNAPSHOT.jar
-Export-Package: org.openl.rules.test.liveexcel.formula
+Export-Package: org.openl.rules.liveexcel.formula
