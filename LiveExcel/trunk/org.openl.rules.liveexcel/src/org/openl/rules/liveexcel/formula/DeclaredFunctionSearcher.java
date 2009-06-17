@@ -2,7 +2,6 @@ package org.openl.rules.liveexcel.formula;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.record.formula.toolpack.MainToolPacksHandler;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,8 +15,6 @@ import org.apache.poi.ss.usermodel.Workbook;
  */
 public class DeclaredFunctionSearcher {
 
-    public static final String OL_DECLARATION_FUNCTION = "OL_DECLARE_FUNCTION";
-
     private static final Log log = LogFactory.getLog(DeclaredFunctionSearcher.class);
 
     private Workbook workbook;
@@ -26,14 +23,10 @@ public class DeclaredFunctionSearcher {
         this.workbook = workbook;
 
         // TODO: remove after integration with liveexcel plugin
-        workbook.registerUserDefinedFunction(OL_DECLARATION_FUNCTION, null);
+        workbook.registerUserDefinedFunction(LiveExcelFunctionsPack.OL_DECLARATION_FUNCTION, null);
+        workbook.registerUserDefinedFunction(LiveExcelFunctionsPack.OL_DECLARATION_LOOKUP_TABLE, null);
 
-        MainToolPacksHandler packHandler = MainToolPacksHandler.instance();
-        if (!packHandler.containsFunction(OL_DECLARATION_FUNCTION)) {
-            LiveExcelFunctionsPack liveExcelPack = new LiveExcelFunctionsPack();
-            liveExcelPack.addFunction(OL_DECLARATION_FUNCTION, new LiveExcellFunctionDeclaration());
-            packHandler.addToolPack(liveExcelPack);
-        }
+        LiveExcelFunctionsPack.initialize();
     }
 
     public void findFunctions() {
@@ -44,7 +37,7 @@ public class DeclaredFunctionSearcher {
                     if (isTypeFormula(cell)) {
                         DataFormatter dataFormatter = new DataFormatter();
                         String formattedValue = dataFormatter.formatCellValue(cell);
-                        if (formattedValue.toUpperCase().startsWith(OL_DECLARATION_FUNCTION)) {
+                        if (LiveExcelFunctionsPack.isLiveExcelGlobalFunction(formattedValue)) {
                             workbook.getCreationHelper().createFormulaEvaluator().evaluate(cell);
                         }
                     }
