@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
+import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
 
 public class PerformanceAndThreadSafetyTest {
 
@@ -144,7 +145,7 @@ public class PerformanceAndThreadSafetyTest {
                     if (c.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
                         DataFormatter dataFormatter = new DataFormatter();
                         String formattedValue = dataFormatter.formatCellValue(c);
-                        if (!formattedValue.toUpperCase().startsWith(DeclaredFunctionSearcher.OL_DECLARATION_FUNCTION)) {
+                        if (!formattedValue.toUpperCase().startsWith(LiveExcelFunctionsPack.OL_DECLARATION_FUNCTION)) {
                             if ("UDFS".equals(sheet.getSheetName())) {
                                 if (wb.getUserDefinedFunction(getFunctionName(formattedValue)) != null) {
                                     udfs.add(c);

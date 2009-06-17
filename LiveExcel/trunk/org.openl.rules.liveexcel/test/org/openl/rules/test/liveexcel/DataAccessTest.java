@@ -15,7 +15,6 @@ import com.exigen.ipb.schemas.rating.VehicleDriverRelationshipType;
 import com.exigen.ipb.schemas.rating.VehicleType;
 import com.exigen.ipb.schemas.rating.hb.VehicleDriverRelationshipTypeImpl;
 import com.exigen.ipb.schemas.rating.hb.VehicleTypeImpl;
-import com.exigen.le.calc.PropertyEvaluator;
 
 import static org.junit.Assert.*;
 
