@@ -131,7 +131,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
     private static POILogger logger = POILogFactory.getLogger(XSSFWorkbook.class);
     
     /** Map of user defined functions, key - function name, value - instance of FreeRefFunctions */
-	private Map<String, FreeRefFunction> udfFunctions;
+	private Map<String, FreeRefFunction> udfFunctions = new HashMap<String, FreeRefFunction>();
 
     /**
      * Create a new SpreadsheetML workbook.
@@ -230,8 +230,6 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
 
         namedRanges = new ArrayList<XSSFName>();
         sheets = new ArrayList<XSSFSheet>();
-        
-        udfFunctions = new HashMap<String, FreeRefFunction>();
     }
 
     /**
