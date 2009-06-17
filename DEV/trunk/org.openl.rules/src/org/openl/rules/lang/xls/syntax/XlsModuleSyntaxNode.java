@@ -21,20 +21,20 @@ import org.openl.syntax.impl.NaryNode;
  */
 public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
 	
-	private List<IdentifierNode> liveExcelNodes;
+	private List<IdentifierNode> extensionNodes;
 
     OpenlSyntaxNode openlNode;
     IdentifierNode vocabularyNode;
     String allImportString;
 
     public XlsModuleSyntaxNode(TableSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
-            IdentifierNode vocabularyNode, String allImportString, List<IdentifierNode> liveExcelNodes) {
+            IdentifierNode vocabularyNode, String allImportString, List<IdentifierNode> extensionNodes) {
         super(XLS_MODULE, null, nodes, module);
 
         this.openlNode = openlNode;
         this.vocabularyNode = vocabularyNode;
         this.allImportString = allImportString;
-        this.liveExcelNodes = liveExcelNodes;
+        this.extensionNodes = extensionNodes;
     }
 
     public String getAllImportString() {
@@ -53,8 +53,8 @@ public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
         return (TableSyntaxNode[]) nodes;
     }
     
-    public List<IdentifierNode> getLiveExcelNodes() {
-		return liveExcelNodes;
+    public List<IdentifierNode> getExtensionNodes() {
+		return extensionNodes;
 	}
 
 	public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {

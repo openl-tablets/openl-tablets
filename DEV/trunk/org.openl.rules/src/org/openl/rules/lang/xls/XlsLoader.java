@@ -15,19 +15,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.IOpenSourceCodeModule;
-import org.openl.binding.IBindingContext;
 import org.openl.conf.IConfigurableResourceContext;
-import org.openl.rules.lang.xls.binding.AMethodBasedNode;
+import org.openl.rules.extension.load.IExtensionLoader;
+import org.openl.rules.extension.load.NameConventionLoaderFactory;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -44,7 +44,6 @@ import org.openl.syntax.impl.ParsedCode;
 import org.openl.syntax.impl.SyntaxError;
 import org.openl.syntax.impl.TokenizerParser;
 import org.openl.syntax.impl.URLSourceCodeModule;
-import org.openl.types.IOpenMethod;
 import org.openl.util.Log;
 import org.openl.util.PathTool;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -93,7 +92,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
 
     IdentifierNode vocabulary;
     
-    private List<IdentifierNode> liveExcelNodes = new ArrayList<IdentifierNode>();
+    private List<IdentifierNode> extensionNodes = new ArrayList<IdentifierNode>();
 
     HashSet<String> preprocessedWorkBooks = new HashSet<String>();
 
@@ -116,13 +115,22 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         this.searchPath = searchPath;
     }
 
-    void addError(ISyntaxError error) {
+    public void addError(ISyntaxError error) {
         errors.add(error);
     }
 
-    void addNode(ISyntaxNode node) {
+    public void addNode(ISyntaxNode node) {
         nodesList.add(node);
     }
+    
+    public void addExtensionNode(IdentifierNode node) {
+        extensionNodes.add(node);
+    }
+    
+    public Set<String> getPreprocessedWorkBooks() {
+        return preprocessedWorkBooks;
+    }
+    
 
     /**
      * @param include
@@ -187,7 +195,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         // }
 
         TableSyntaxNode[] nodes = nodesList.toArray(new TableSyntaxNode[nodesList.size()]);
-        return new ParsedCode(new XlsModuleSyntaxNode(nodes, source, openl, vocabulary, allImportString, liveExcelNodes), source,
+        return new ParsedCode(new XlsModuleSyntaxNode(nodes, source, openl, vocabulary, allImportString, extensionNodes), source,
                 errors.toArray(new ISyntaxError[0]));
     }
 
@@ -211,67 +219,17 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
                 preprocessImportTable(row.getGridTable(), source);
             } else if (VOCABULARY_PROPERTY.equals(name)) {
                 preprocessVocabularyTable(row.getGridTable(), source);
-            } else if (LIVEEXCEL_PROPERTY.equals(name)) {
-                preprocessLiveExcelImport(tsn, row.getGridTable(), source);
+            } else {
+                IExtensionLoader loader = NameConventionLoaderFactory.INSTANCE.getLoader(name);
+                if (loader != null) {
+                    loader.process(this, tsn, table, source);
+                }
             }
         }
 
     }
 
-    private void preprocessLiveExcelImport(TableSyntaxNode tsn,
-			IGridTable table, XlsSheetSourceCodeModule sheetSource) {
-		int h = table.getLogicalHeight();
-
-		for (int i = 0; i < h; i++) {
-			String include = table.getCell(1, i).getStringValue();
-			if (include == null) {
-				continue;
-			}
-			include = include.trim();
-			if (include.length() == 0) {
-				continue;
-			}
-			IOpenSourceCodeModule src = null;
-			try {
-				String newURL = PathTool.mergePath(sheetSource
-						.getWorkbookSource().getUri(0), include);
-				src = new URLSourceCodeModule(new URL(newURL));
-			} catch (Throwable t) {
-				ISyntaxError se = new SyntaxError(null, "Include " + include
-						+ " not found", t, new GridCellSourceCodeModule(table
-						.getLogicalRegion(1, i, 1, 1).getGridTable()));
-				addError(se);
-				tsn.addError(se);
-				continue;
-			}
-
-			try {
-				preprocessLiveExcelWorkbook(src, sheetSource);
-			} catch (Throwable t) {
-				ISyntaxError se = new SyntaxError(null, "Include " + include
-						+ " not found", t, new GridCellSourceCodeModule(table
-						.getLogicalRegion(1, i, 1, 1).getGridTable()));
-				addError(se);
-				tsn.addError(se);
-				continue;
-			}
-
-		}
-	}
-
-	private void preprocessLiveExcelWorkbook(IOpenSourceCodeModule source, XlsSheetSourceCodeModule sheetSource) {
-        String uri = source.getUri(0);
-        if (preprocessedWorkBooks.contains(uri)) {
-            return;
-        }
-        preprocessedWorkBooks.add(uri);
-        XlsWorkbookSourceCodeModule xlsWorkbookSourceCodeModule = new XlsWorkbookSourceCodeModule(source);
-        Workbook wb = xlsWorkbookSourceCodeModule.getWorkbook();
-
-        DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(wb);
-        searcher.findFunctions();
-        liveExcelNodes.add(new IdentifierNode(LIVEEXCEL_PROPERTY, null, source.getCode(), xlsWorkbookSourceCodeModule));
-    }
+    
 
 	private void preprocessImportTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
 

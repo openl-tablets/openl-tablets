@@ -14,10 +14,8 @@ Export-Package: org.apache.commons.lang,
  org.apache.commons.lang.text,
  org.apache.commons.lang.time,
  org.apache.commons.logging,
- org.apache.commons.logging.impl,
- org.openl.rules.liveexcel.formula
+ org.apache.commons.logging.impl
 Bundle-ClassPath: lib/commons-lang-2.3.jar,
  lib/commons-logging-1.1.jar,
- lib/commons-logging-api-1.0.4.jar,
- lib/org.openl.rules.liveexcel-5.3.0-SNAPSHOT.jar
+ lib/commons-logging-api-1.1.jar
 Require-Bundle: org.openl.poi.lib;bundle-version="5.3.0";visibility:=reexport

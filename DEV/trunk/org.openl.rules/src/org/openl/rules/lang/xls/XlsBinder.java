@@ -15,8 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.IOpenBinder;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
@@ -45,6 +43,8 @@ import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.dt.binding.DTNodeBinder;
+import org.openl.rules.extension.bind.IExtensionBinder;
+import org.openl.rules.extension.bind.NameConventionBinderFactory;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -52,10 +52,8 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
 import org.openl.rules.method.binding.MethodTableNodeBinder;
 import org.openl.rules.structure.StructureTableNodeBinder;
-import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
 import org.openl.syntax.IParsedCode;
 import org.openl.syntax.ISyntaxError;
@@ -63,11 +61,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.OpenMethodHeader;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.AStringConvertor;
 import org.openl.util.ISelector;
@@ -210,21 +204,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
 
         // int nchildren = moduleNode.getNumberOfChildren();
         
-        
-        List<IdentifierNode> liveExcelNodes = moduleNode.getLiveExcelNodes();
-        for (int i = 0; i < liveExcelNodes.size(); i ++) {
-        	IdentifierNode node = liveExcelNodes.get(i);
-        	Workbook wb = ((XlsWorkbookSourceCodeModule)node.getModule()).workbook;
-			List<String> names = wb.getUserDefinedFunctionNames();
-        	for (int j = 0; j < names.size(); j ++) {
-        		String name = names.get(j);
-                ParsedDeclaredFunction function = (ParsedDeclaredFunction) wb.getUserDefinedFunction(name);
-                if (function != null) {
-                    LiveExcelMethod method = new LiveExcelMethod(new LiveExcelMethodHeader(function, null), function);
-                    module.addMethod(method);
-                }
-        	}
-        }
+        proccessExtensions(module, moduleNode, moduleNode.getExtensionNodes());
 
         // IMemberBoundNode[] children = new IMemberBoundNode[nchildren];
         ModuleBindingContext moduleContext = new ModuleBindingContext(cxt, module);
@@ -266,6 +246,17 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
 
         // return bindInternal(moduleNode, openl, moduleContext, module,
         // testMethodSelector);
+    }
+
+    private void proccessExtensions(XlsModuleOpenClass module, XlsModuleSyntaxNode moduleNode,
+            List<IdentifierNode> extensionNodes) {
+        for (int i = 0; i < extensionNodes.size(); i++) {
+            IdentifierNode identifierNode = extensionNodes.get(i);
+            IExtensionBinder binder = NameConventionBinderFactory.INSTANCE.getNodeBinder(identifierNode);
+            if (binder != null && binder.getNodeType().equals(identifierNode.getType())) {
+                binder.bind(module, moduleNode, identifierNode);
+            }
+        }
     }
 
     /*
