@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
@@ -21,11 +22,14 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
+import org.openl.rules.liveexcel.formula.TypeResolver;
 
 public class TypeResolverTest {
     
@@ -63,8 +67,7 @@ public class TypeResolverTest {
                 (String.valueOf(cal.get(Calendar.YEAR))).substring(2);
             cellText = cal.get(Calendar.MONTH)+1 + "/" +
                          cal.get(Calendar.DAY_OF_MONTH) + "/" +
-                         cellText;
-            System.out.println ("Date value: " + cellText);
+                         cellText;            
        }
     }
     
@@ -76,10 +79,7 @@ public class TypeResolverTest {
         HSSFCell cell = sheet.getRow(1).getCell(1);
         if(cell.getCellType ()==HSSFCell.CELL_TYPE_NUMERIC) {
             CellStyle cellStyle = cell.getCellStyle();
-            assertEquals("0.00", cellStyle.getDataFormatString());
-            
-            System.out.println("Format of cell string="+cellStyle.getDataFormatString());
-            System.out.println("Format of cell short="+cellStyle.getDataFormat() );
+            assertEquals("0.00", cellStyle.getDataFormatString());            
         }
     }
     
@@ -91,66 +91,8 @@ public class TypeResolverTest {
         if(cell.getCellType ()==HSSFCell.CELL_TYPE_NUMERIC) {
             CellStyle cellStyle = cell.getCellStyle();
             assertEquals('"'+"$"+'"'+"#,##0.00", cellStyle.getDataFormatString());
-            System.out.println("Format of cell string="+cellStyle.getDataFormatString());
         }
-    }
-    
-    @Test
-    public void testAllTypes() {
-        Calendar cal = new GregorianCalendar();
-        HSSFWorkbook workbook = getWorkbook();
-        HSSFSheet sheet = workbook.getSheetAt(0);
-        for (Row row : sheet) {
-            System.out.println ("===================================");
-            System.out.println ("Row No.: " + row.getRowNum ());
-            for (Cell cell : row) {
-                System.out.println ("----------------------------------");
-                System.out.println ("Cell No.: " + cell.getColumnIndex());
-                switch (cell.getCellType ()) {
-                    case HSSFCell.CELL_TYPE_NUMERIC: {
-                        double d = cell.getNumericCellValue();                        
-                        if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                            cal.setTime(HSSFDateUtil.getJavaDate(d));
-                            String cellText =
-                                (String.valueOf(cal.get(Calendar.YEAR))).substring(2);
-                            cellText = cal.get(Calendar.MONTH)+1 + "/" +
-                                     cal.get(Calendar.DAY_OF_MONTH) + "/" +
-                                     cellText;
-                            CellStyle cellStyle = cell.getCellStyle();
-                            System.out.println ("Format of cell: " + cellStyle.getDataFormatString());
-                            System.out.println ("Date value: " + cellText);
-                        } else {
-                            CellStyle cellStyle = cell.getCellStyle();
-                            System.out.println ("Format of cell: " + cellStyle.getDataFormatString());
-                            System.out.println ("Numeric value: " + cell.getNumericCellValue ());
-                        }  
-                        break;
-                    }
-                    case HSSFCell.CELL_TYPE_STRING : {                        
-                        if (cell instanceof HSSFCell) {
-                            HSSFCell new_hssfCell = (HSSFCell) cell;
-                            HSSFRichTextString richTextString = new_hssfCell.getRichStringCellValue ();                        
-                            System.out.println ("String value: " + richTextString.getString ());                        
-                            break;
-                        }
-                    }
-                    case HSSFCell.CELL_TYPE_BOOLEAN : {                        
-                        if (cell instanceof HSSFCell) {
-                            HSSFCell new_hssfCell = (HSSFCell) cell;
-                                                    
-                            System.out.println ("Boolean value: " + new_hssfCell.getBooleanCellValue());                        
-                            break;
-                        }
-                    }
-                    default:{
-                        System.out.println ("Type not supported.");                        
-                        break;
-                    }
-                }               
-            }
-        }
-        
-    }
+    }  
     
     @Test 
     public void testBooleanSum() {
@@ -159,11 +101,103 @@ public class TypeResolverTest {
         searcher.findFunctions();
         Sheet sheet = workbook.getSheetAt(0);
         HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(16).getCell(1));
-        
-        System.out.println("Boolean result = "+evaluateInCell.getNumericCellValue());
+                
         assertTrue(2 == evaluateInCell.getNumericCellValue());        
     }
+    
+    /**
+     * 
+     */
+    @Test
+    public void testType() {
+        HSSFWorkbook workbook = getWorkbook();
+        HSSFSheet sheet = workbook.getSheetAt(1);
+        HSSFCell cellNumber = sheet.getRow(0).getCell(0);
+        Class res = TypeResolver.resolveType(cellNumber);        
+        if((res.getName().toString()).equals(Double.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
         
+        HSSFCell cellBool = sheet.getRow(1).getCell(0);
+        Class res1 = TypeResolver.resolveType(cellBool);
+        if((res1.getName().toString()).equals(Boolean.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+        
+        HSSFCell cellDate = sheet.getRow(2).getCell(0);
+        Class res2 = TypeResolver.resolveType(cellDate);
+        if((res2.getName().toString()).equals(Date.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+        
+        HSSFCell cellString = sheet.getRow(3).getCell(0);
+        Class res3 = TypeResolver.resolveType(cellString);
+        if((res3.getName().toString()).equals(String.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+        
+        HSSFCell cellFunc = sheet.getRow(4).getCell(0);
+        Class res4 = TypeResolver.resolveType(cellFunc);        
+        if((res4.getName().toString()).equals(Double.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+        
+        HSSFCell cell1 = sheet.getRow(6).getCell(0);
+        Class res6 = TypeResolver.resolveType(cell1);        
+        if((res6.getName().toString()).equals(Double.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+    }
+    
+    @Test
+    public void testFormat() {
+        HSSFWorkbook workbook = getWorkbook();
+        HSSFSheet sheet = workbook.getSheetAt(1);
+        HSSFCell cellStrFormNum = sheet.getRow(6).getCell(0);
+        Class<?> res = TypeResolver.resolveType(cellStrFormNum);
+        if((res.getName().toString()).equals(Double.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+        
+        HSSFCell cellNumFormText = sheet.getRow(13).getCell(0);
+        Class<?> res1 = TypeResolver.resolveType(cellNumFormText); 
+        if((res1.getName().toString()).equals(String.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+        
+        HSSFCell cellCurr = sheet.getRow(14).getCell(0);
+        Class<?> res2 = TypeResolver.resolveType(cellCurr);
+        if((res2.getName().toString()).equals(Double.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+    } 
+    
+    /*@Test
+    public void testErrorType() {
+        HSSFWorkbook workbook = getWorkbook();
+        HSSFSheet sheet = workbook.getSheetAt(1);
+        HSSFCell cellStrFormNum = sheet.getRow(8).getCell(0);
+        Class<?> res = TypeResolver.resolveType(cellStrFormNum);
+        assertTrue(res==null);
+    }*/
  }
         
         

@@ -32,11 +32,11 @@ public class LiveExcelEvaluator {
         this.workbook = workbook;
         this.evaluationContext = evaluationContext;
         new DeclaredFunctionSearcher(workbook).findFunctions();
-        registerUFDs();
+        registerServiceModelUDFs();
         exposeInOpenL();
     }
 
-    private void registerUFDs() {
+    private void registerServiceModelUDFs() {
         for (String functionName : evaluationContext.getServiceModelAPI().getAllServiceModelUDFs()) {
             workbook.registerUserDefinedFunction(functionName, generateGetterFunction(functionName));
         }
