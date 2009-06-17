@@ -162,6 +162,8 @@ public class RunTest extends TestCase {
         _runNoError("boolean x=true, y=false; x ^ y", true ^ false, "org.openl.j");
 
         _runNoError("int x=5, y=7; x < y ? 'a'+1 : 'b'+1", 'a' + 1, "org.openl.j");
+        _runNoError("int x=5, y=7; x < y ? 0.7 : 3", 0.7, "org.openl.j");
+        _runNoError("int x=5, y=7; x < y ? 3 : (int)0.7", 3, "org.openl.j");
 
         _runNoError("int x=5, y=7; x << y ", 5 << 7, "org.openl.j");
         _runNoError("long x=5;int y=7; x << y ", (long) 5 << 7, "org.openl.j");

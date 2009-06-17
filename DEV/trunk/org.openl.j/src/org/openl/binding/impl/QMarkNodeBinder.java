@@ -19,7 +19,14 @@ public class QMarkNodeBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
-        IBoundNode[] children = bindChildren(node, bindingContext);
+        
+    	
+    	IBoundNode[] children = new IBoundNode[3];
+    	children[0] = bindChildNode(node.getChild(0), bindingContext);
+    	
+    	
+    	
+    	
         // check condition
 
         IBoundNode conditionNode = children[0];
@@ -27,10 +34,10 @@ public class QMarkNodeBinder extends ANodeBinder {
             throw new BoundError(conditionNode.getSyntaxNode(), "Condition must have boolean type");
         }
 
-        if (children[1].getType() != children[2].getType()) {
-            throw new BoundError(conditionNode.getSyntaxNode(),
-                    "Both types should be the same in the conditional expression");
-        }
+
+    	children[1] = bindChildNode(node.getChild(1), bindingContext);
+    	children[2] = bindType(node.getChild(2), bindingContext, children[1].getType());
+        
 
         return new QMarkNode(node, children);
     }
