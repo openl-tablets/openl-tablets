@@ -1,5 +1,8 @@
 package org.openl.rules.liveexcel.formula.lookup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
@@ -7,6 +10,7 @@ import org.apache.poi.hssf.record.formula.eval.StringValueEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.openl.rules.liveexcel.formula.FunctionParam;
 
 /**
  * Class for registration new declared user lookups(declared by
@@ -30,8 +34,23 @@ public class LiveExcellLookupDeclaration implements FreeRefFunction {
             }
         }
         ((LiveExcelLookup) lookup).setDeclFuncName(functionName);
+        initParameters((LiveExcelLookup) lookup, args);
         workbook.getWorkbook().registerUserDefinedFunction(functionName, lookup);
         return new StringEval(functionName);
+    }
+
+    private void initParameters(LiveExcelLookup lookup, Eval[] args) {
+        if (args.length == 3) {
+            lookup.setReturnCell(new FunctionParam(((StringEval) args[1]).getStringValue(), null));
+        } else {
+            lookup.setReturnCell(new FunctionParam("", null));
+        }
+        List<FunctionParam> params = new ArrayList<FunctionParam>();
+        for (int i = 0; i < lookup.getLookupData().getWidth() - 1; i++) {
+            // TODO: check param type also
+            params.add(new FunctionParam("", null));
+        }
+        lookup.setParameters(params);
     }
 
     private Grid createLookupData(AreaEval area) {
