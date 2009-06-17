@@ -46,14 +46,26 @@ public class DeclareSearchTest {
     public void testFunction() {
         HSSFWorkbook workbook = getWorkbook();
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
-        searcher.findFunctions();
         Sheet sheet = workbook.getSheetAt(1);
+        searcher.findFunctions();
         HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(13).getCell(1));
         HSSFCell evaluateInCell2 = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(2).getCell(3));
         HSSFCell evaluateInCell3 = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(2).getCell(4));
         assertTrue(20 == evaluateInCell.getNumericCellValue());
         assertTrue(25.5 == evaluateInCell2.getNumericCellValue());
         assertTrue(25 == evaluateInCell3.getNumericCellValue());
+    }
+    
+    
+    @Test
+    public void testFunWithReturnFromOtherSheet() {
+        HSSFWorkbook workbook = getWorkbook();
+        DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
+        searcher.findFunctions();
+        Sheet sheet = workbook.getSheetAt(2);
+        HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(18).getCell(1));
+        
+        assertTrue(9 == evaluateInCell.getNumericCellValue());        
     }
 
 //    @Test

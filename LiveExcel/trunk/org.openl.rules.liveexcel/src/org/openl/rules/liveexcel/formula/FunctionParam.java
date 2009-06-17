@@ -9,7 +9,16 @@ import org.apache.poi.hssf.record.formula.eval.RefEval;
 public class FunctionParam {
 
     private String paramName;
-    private RefEval paramCell;
+    private RefEval paramCell;    
+    private Class<?> paramType;    
+
+    public Class<?> getParamType() {
+        return paramType;
+    }
+
+    public void setParamType(Class<?> paramType) {
+        this.paramType = paramType;
+    }
 
     public FunctionParam(String paramName, RefEval paramCell) {
         this.paramName = paramName;
@@ -31,5 +40,4 @@ public class FunctionParam {
     public void setParamCell(RefEval paramCell) {
         this.paramCell = paramCell;
     }
-
 }
