@@ -2,7 +2,6 @@ package org.openl.rules.liveexcel;
 
 import java.net.URL;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.extension.load.IExtensionLoader;
 import org.openl.rules.lang.xls.XlsLoader;
@@ -10,6 +9,8 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.ISyntaxError;
@@ -53,7 +54,8 @@ public class LiveexcelLoader implements IExtensionLoader {
             }
 
             try {
-                preprocessLiveExcelWorkbook(xlsLoader, src, sheetSource);
+                String projectName = include.substring(0, include.lastIndexOf('.'));
+                preprocessLiveExcelWorkbook(xlsLoader, src, sheetSource, projectName);
             } catch (Throwable t) {
                 ISyntaxError se = new SyntaxError(null, "Include " + include + " not found", t,
                         new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
@@ -65,18 +67,23 @@ public class LiveexcelLoader implements IExtensionLoader {
     }
 
     private void preprocessLiveExcelWorkbook(XlsLoader xlsLoader, IOpenSourceCodeModule source,
-            XlsSheetSourceCodeModule sheetSource) {
+            XlsSheetSourceCodeModule sheetSource, String projectName) {
         String uri = source.getUri(0);
         if (xlsLoader.getPreprocessedWorkBooks().contains(uri)) {
             return;
         }
         xlsLoader.getPreprocessedWorkBooks().add(uri);
-        XlsWorkbookSourceCodeModule xlsWorkbookSourceCodeModule = new XlsWorkbookSourceCodeModule(source);
-        Workbook wb = xlsWorkbookSourceCodeModule.getWorkbook();
-
-        DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(wb);
-        searcher.findFunctions();
-        xlsLoader.addExtensionNode(new IdentifierNode(LIVEEXCEL_TYPE, null, source.getCode(), xlsWorkbookSourceCodeModule));
+        LiveExcelWorkbook wb;
+        try {
+            wb = LiveExcelWorkbookFactory.create(source.getByteStream(), projectName);
+            XlsWorkbookSourceCodeModule xlsWorkbookSourceCodeModule = new XlsWorkbookSourceCodeModule(source, wb);
+            
+            DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(wb);
+            searcher.findFunctions();
+            xlsLoader.addExtensionNode(new IdentifierNode(LIVEEXCEL_TYPE, null, source.getCode(), xlsWorkbookSourceCodeModule));
+        } catch (Exception e) {
+             throw new RuntimeException("Error processing file.");
+        }
     }
 
 }
