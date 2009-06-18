@@ -37,7 +37,7 @@ public class ParsedDeclaredFunction extends LiveExcelFunction {
         this.parameters = parameters;
     }
 
-    public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
+    public ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
         if (args.length != parameters.size()) {
             return ErrorEval.VALUE_INVALID;
         } else {

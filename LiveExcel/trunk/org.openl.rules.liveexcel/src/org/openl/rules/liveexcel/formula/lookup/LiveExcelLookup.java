@@ -35,16 +35,16 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
         return lookupData;
     }
 
-    public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
+    public ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
         int paramsCount = this.getParameters().size();
         if (args.length != paramsCount) {
             return ErrorEval.VALUE_INVALID;
         } else {
-            prepareArguments(args);
             for (int i = 0; i < lookupData.getHeight(); i++) {
                 boolean matched = true;
                 for (int j = 0; j < paramsCount; j++) {
-                    if (!lookupData.getValue(paramsCount - 1 - j, i).equals(((StringValueEval) args[j]).getStringValue())) {
+                    if (!lookupData.getValue(paramsCount - 1 - j, i).equals(
+                            ((StringValueEval) args[j]).getStringValue())) {
                         matched = false;
                         break;
                     }
