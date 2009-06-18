@@ -9,15 +9,15 @@ public class Grid {
     }
 
     public int getWidth() {
-        return grid[0].length;
-    }
-
-    public int getHeight() {
         return grid.length;
     }
 
+    public int getHeight() {
+        return grid[0].length;
+    }
+
     public String getValue(int x, int y) {
-        return grid[y][x];
+        return grid[x][y];
     }
 
 }

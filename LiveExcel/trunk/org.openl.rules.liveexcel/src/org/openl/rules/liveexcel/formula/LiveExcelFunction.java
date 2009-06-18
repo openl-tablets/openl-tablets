@@ -1,5 +1,7 @@
 package org.openl.rules.liveexcel.formula;
 
+import org.apache.poi.hssf.record.formula.eval.Eval;
+import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 
 /**
@@ -24,5 +26,13 @@ public abstract class LiveExcelFunction implements FreeRefFunction {
      */
     public void setDeclFuncName(String declFuncName) {
         this.declFuncName = declFuncName;
+    }
+
+    public void prepareArguments(Eval[] args) {
+        for (Eval eval : args) {
+            if (eval instanceof RefEval) {
+                eval = ((RefEval) eval).getInnerValueEval();
+            }
+        }
     }
 }
