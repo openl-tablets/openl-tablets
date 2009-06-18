@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
+import org.openl.rules.liveexcel.LiveExcelException;
 
 /**
  * Parses defined ol_declare_function functions
@@ -93,7 +94,7 @@ public class DeclaredFunctionParser {
     }
 
     private void parseParameters() {
-        if (pointer + 1 < arguments.length) {
+        if (pointer + 1 <= arguments.length) {
             listParams.add(extractNextParam());
             parseParameters();
         }
@@ -105,7 +106,7 @@ public class DeclaredFunctionParser {
     }
 
     /** Report What Was Expected */
-    private RuntimeException expected(String s) {
+    private LiveExcelException expected(String s) {
         String msg = "The specified formula '%1$s' was expected: %2$s";
         return new MissingRequiredParametersException(String.format(msg, formulaString, s));
     }
