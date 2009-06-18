@@ -2,7 +2,9 @@ package org.openl.rules.liveexcel.formula;
 
 import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.EvaluationWorkbook;
 
 /**
  * Common class for LiveExcel functions.
@@ -28,11 +30,22 @@ public abstract class LiveExcelFunction implements FreeRefFunction {
         this.declFuncName = declFuncName;
     }
 
-    public void prepareArguments(Eval[] args) {
-        for (Eval eval : args) {
-            if (eval instanceof RefEval) {
-                eval = ((RefEval) eval).getInnerValueEval();
+    public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
+        return execute(prepareArguments(args), workbook, srcCellSheet, srcCellRow, srcCellCol);
+    }
+
+    public Eval[] prepareArguments(Eval[] args) {
+        Eval[] result = args.clone();
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof RefEval) {
+                result[i] = ((RefEval) args[i]).getInnerValueEval();
+            } else {
+                result[i] = args[i];
             }
         }
+        return result;
     }
+
+    protected abstract ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
+            int srcCellCol);
 }

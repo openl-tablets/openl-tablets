@@ -81,7 +81,7 @@ public class LiveExcelEvaluator {
 
     private LiveExcelFunction generateGetterFunction(String name) {
         return new LiveExcelDataAccessFunction(evaluationContext, name) {
-            public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
+            public ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
                     int srcCellCol) {
                 if (args.length != 1) {
                     return ErrorEval.VALUE_INVALID;

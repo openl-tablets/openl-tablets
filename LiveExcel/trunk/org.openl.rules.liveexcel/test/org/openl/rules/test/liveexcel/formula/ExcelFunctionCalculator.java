@@ -74,7 +74,7 @@ public class ExcelFunctionCalculator {
     // TODO: delete method
     private void makeExampleOfUDF(Workbook wb) {
         wb.registerUserDefinedFunction("base", new LiveExcelFunction() {
-            public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
+            public ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
                     int srcCellCol) {
                 if (args.length != 1) {
                     return ErrorEval.VALUE_INVALID;
