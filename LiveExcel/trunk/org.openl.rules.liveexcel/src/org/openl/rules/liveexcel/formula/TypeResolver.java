@@ -53,6 +53,7 @@ public class TypeResolver {
             }
         } catch (LiveExcelException e) {
             e.printStackTrace();
+            return Object.class;
         }
         return result;
     }

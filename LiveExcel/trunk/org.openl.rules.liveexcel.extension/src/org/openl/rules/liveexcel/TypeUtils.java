@@ -11,19 +11,23 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public class TypeUtils {
-    
+
     public static IOpenClass getParameterClass(FunctionParam functionParam) {
-        ValueEval innerValueEval = ((RefEvalBase)functionParam.getParamCell()).getInnerValueEval();
-        if (innerValueEval instanceof NumberEval) {
-            return JavaOpenClass.DOUBLE;
-        } else if (innerValueEval instanceof BoolEval) {
-            return JavaOpenClass.BOOLEAN;
-        } else if (innerValueEval instanceof StringEval){
-            return JavaOpenClass.STRING;
+        try {
+            ValueEval innerValueEval = ((RefEvalBase) functionParam.getParamCell()).getInnerValueEval();
+            if (innerValueEval instanceof NumberEval) {
+                return JavaOpenClass.DOUBLE;
+            } else if (innerValueEval instanceof BoolEval) {
+                return JavaOpenClass.BOOLEAN;
+            } else if (innerValueEval instanceof StringEval) {
+                return JavaOpenClass.STRING;
+            }
+            return JavaOpenClass.OBJECT;
+        } catch (Exception e) {
+            return JavaOpenClass.OBJECT;
         }
-        return JavaOpenClass.OBJECT;
     }
-    
+
     public static String convertName(String name) {
         if (name != null) {
             String[] parts = name.split(" ");
