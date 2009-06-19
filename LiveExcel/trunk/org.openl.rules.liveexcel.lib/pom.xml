@@ -73,5 +73,9 @@
                         <groupId>com.exigen.le</groupId>
                         <artifactId>le-commons</artifactId>
                 </dependency>				
+                <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate</artifactId>
+                </dependency>
         </dependencies>
 </project>
