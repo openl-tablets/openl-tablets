@@ -86,12 +86,7 @@ public class LiveExcelEvaluator {
                 if (args.length != 1) {
                     return ErrorEval.VALUE_INVALID;
                 } else {
-                    StringEval objectID = null;
-                    if (args[0] instanceof RefEval) {
-                        objectID = (StringEval) ((RefEval) args[0]).getInnerValueEval();
-                    } else {
-                        objectID = (StringEval) args[0];
-                    }
+                    StringEval objectID = (StringEval) args[0];
                     Object objectToProcess = evaluationContext.getDataPool().get(objectID.getStringValue());
                     Object result = evaluationContext.getServiceModelAPI().getValue(getDeclFuncName(), objectToProcess);
                     return createEvalForObject(result);
