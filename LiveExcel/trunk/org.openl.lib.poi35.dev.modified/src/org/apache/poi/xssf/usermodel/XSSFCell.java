@@ -675,6 +675,10 @@ public final class XSSFCell implements Cell {
      */
     public void setCellType(int cellType) {
         int prevType = getCellType();
+        // we need to reset formula, otherwise it will be always detected as a formula type
+        if(cell.isSetF() && cellType != CELL_TYPE_FORMULA) {
+            cell.unsetF();
+        }
         switch (cellType) {
             case CELL_TYPE_BLANK:
                 setBlank();

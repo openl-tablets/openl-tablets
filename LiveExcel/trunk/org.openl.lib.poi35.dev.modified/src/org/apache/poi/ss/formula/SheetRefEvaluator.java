@@ -55,7 +55,7 @@ final class SheetRefEvaluator {
      * @param value The value to set.
      */
     public void setCellValue(int rowIndex, int columnIndex, ValueEval value){
-        _bookEvaluator.clearAllCachedResultValues();
         _sheet.setCellValue(rowIndex, columnIndex, value);
+        _bookEvaluator.notifyUpdateCell(_sheet.getCell(rowIndex, columnIndex));
     }
 }

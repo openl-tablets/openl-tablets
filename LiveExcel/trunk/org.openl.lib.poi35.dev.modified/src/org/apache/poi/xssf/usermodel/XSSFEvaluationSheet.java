@@ -24,6 +24,7 @@ import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
+import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * XSSF wrapper for a sheet under evaluation
@@ -68,18 +69,22 @@ final class XSSFEvaluationSheet implements EvaluationSheet {
         // class Cell or something like that)
         if (value instanceof NumberEval) {
             NumberEval ne = (NumberEval) value;
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
             cell.setCellValue(ne.getNumberValue());
         }
         if (value instanceof BoolEval) {
             BoolEval be = (BoolEval) value;
+            cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
             cell.setCellValue(be.getBooleanValue());
         }
         if (value instanceof StringEval) {
             StringEval se = (StringEval) value;
+            cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue(se.getStringValue());
         }
         if (value instanceof ErrorEval) {
             ErrorEval ee = (ErrorEval) value;
+            cell.setCellType(Cell.CELL_TYPE_ERROR);
             cell.setCellErrorValue((byte) ee.getErrorCode());
         }
     }
