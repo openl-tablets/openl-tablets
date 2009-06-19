@@ -43,8 +43,8 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
             for (int i = 0; i < lookupData.getHeight(); i++) {
                 boolean matched = true;
                 for (int j = 0; j < paramsCount; j++) {
-                    if (!lookupData.getValue(paramsCount - 1 - j, i).equals(
-                            ((StringValueEval) args[j]).getStringValue())) {
+                    String expectedValue = ((StringValueEval) args[j]).getStringValue();
+                    if (!isLookupParamMatched(i, paramsCount - 1 - j, expectedValue)) {
                         matched = false;
                         break;
                     }
@@ -56,4 +56,19 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
             return BlankEval.INSTANCE;
         }
     }
+
+    private boolean isLookupParamMatched(int lookupRowIndex, int paramIndex, String expectedValue) {
+        lookupRowIndex = findParamValue(lookupRowIndex, paramIndex);
+        return (lookupData.getValue(paramIndex, lookupRowIndex).equals(expectedValue));
+    }
+
+    private int findParamValue(int lookupRowIndex, int paramIndex) {
+        // looks for first non-empty previous lookup param value(if param
+        // skipped it will be taken from previous row)
+        while (lookupRowIndex > 0 && "".equals(lookupData.getValue(paramIndex, lookupRowIndex))) {
+            lookupRowIndex--;
+        }
+        return lookupRowIndex;
+    }
+
 }
