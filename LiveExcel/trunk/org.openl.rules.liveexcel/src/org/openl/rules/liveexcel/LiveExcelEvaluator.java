@@ -31,8 +31,8 @@ public class LiveExcelEvaluator {
     public LiveExcelEvaluator(Workbook workbook, EvaluationContext evaluationContext) {
         this.workbook = workbook;
         this.evaluationContext = evaluationContext;
-        new DeclaredFunctionSearcher(workbook).findFunctions();
         registerServiceModelUDFs();
+        new DeclaredFunctionSearcher(workbook).findFunctions();        
         exposeInOpenL();
     }
 

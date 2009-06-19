@@ -72,6 +72,6 @@
                 <dependency>
                         <groupId>com.exigen.le</groupId>
                         <artifactId>le-commons</artifactId>
-                </dependency>
+                </dependency>				
         </dependencies>
 </project>

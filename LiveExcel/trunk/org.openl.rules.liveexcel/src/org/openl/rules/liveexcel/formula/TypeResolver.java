@@ -26,29 +26,29 @@ public class TypeResolver {
     private static final Pattern textPattern = Pattern.compile("@");   
     
     private Cell cell;
-    //private ServiceModelAPI serviceModel;
+    private ServiceModelAPI serviceModel;
     
-    public TypeResolver(Cell cell/*, ServiceModelAPI serviceModel*/) {
+    public TypeResolver(Cell cell, ServiceModelAPI serviceModel) {
         this.cell = cell;
-        //this.serviceModel = serviceModel;
+        this.serviceModel = serviceModel;
     }
     
     
-    public static Class<?> resolveType(Cell cell/*, ServiceModelAPI serviceModel*/) {
-        TypeResolver resolver = new TypeResolver(cell/*, serviceModel*/);
+    public static Class<?> resolveType(Cell cell, ServiceModelAPI serviceModel) {
+        TypeResolver resolver = new TypeResolver(cell, serviceModel);
         Class<?> result = null;
         try{
-            //if(resolver.isCellServiceModel()){
-        
-            //    result = resolver.resolveServiceModel();
-            //}
-            if(resolver.isFormatDefined()) {
-                result = resolver.resolveByFormat();
+            if(resolver.isCellServiceModel()){        
+                result = resolver.resolveServiceModel();
             } else {
-                if(resolver.isCellFormula()) {            
-                    result = resolver.resolveByValue(cell.getCachedFormulaResultType());
+                if(resolver.isFormatDefined()) {
+                    result = resolver.resolveByFormat();
                 } else {
-                    result = resolver.resolveByValue(cell.getCellType());
+                    if(resolver.isCellFormula()) {            
+                        result = resolver.resolveByValue(cell.getCachedFormulaResultType());
+                    } else {
+                        result = resolver.resolveByValue(cell.getCellType());
+                    }
                 }
             }
         } catch (LiveExcelException e) {
@@ -58,26 +58,26 @@ public class TypeResolver {
         return result;
     }
     
-    //private Class<?> resolveServiceModel() {        
-    //    return serviceModel.getServiceModelObjectDomainType(getMatchServiceModelName());
-    //}
+    private Class<?> resolveServiceModel() {        
+        return serviceModel.getServiceModelObjectDomainType(getMatchServiceModelName());
+    }
 
-    //private boolean isCellServiceModel() {
-    //    boolean res = false;
-    //    if(isCellFormula()&&getMatchServiceModelName()!=null) {
-    //        res = true;            
-    //    }
-    //    return res;
-    //}
+    private boolean isCellServiceModel() {
+        boolean res = false;
+        if(isCellFormula()&&getMatchServiceModelName()!=null) {
+            res = true;            
+       }
+        return res;
+    }
     
-    //private String getMatchServiceModelName() {
-    //    String res = null;
-    //    for(String servModUDF : serviceModel.getAllServiceModelUDFs()) {
-    //        if(cell.getCellFormula().startsWith(servModUDF));
-    //        res = servModUDF;
-    //    }
-    //    return res;
-    //}
+    private String getMatchServiceModelName() {
+        String res = null;
+        for(String servModUDF : serviceModel.getAllServiceModelUDFs()) {
+            if(cell.getCellFormula().startsWith(servModUDF))
+                res = servModUDF;
+        }
+        return res;
+    }
 
     /**
      * Resolve the type by the value in the cell
