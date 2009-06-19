@@ -13,11 +13,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionParser;
+import org.openl.rules.liveexcel.hssf.usermodel.LiveExcelHSSFWorkbook;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 
 public class DeclareSearchTest {
 
@@ -25,7 +30,7 @@ public class DeclareSearchTest {
 
     @Test
     public void testDeclare() {
-        HSSFWorkbook workbook = getWorkbook();
+        Workbook workbook = getWorkbook();
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
         searcher.findFunctions();
 
@@ -44,13 +49,13 @@ public class DeclareSearchTest {
     
     @Test
     public void testFunction() {
-        HSSFWorkbook workbook = getWorkbook();
+        Workbook workbook = getWorkbook();
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
         Sheet sheet = workbook.getSheetAt(1);
         searcher.findFunctions();
-        HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(13).getCell(1));
-        HSSFCell evaluateInCell2 = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(2).getCell(3));
-        HSSFCell evaluateInCell3 = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(2).getCell(4));
+        HSSFCell evaluateInCell = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)workbook).evaluateInCell(sheet.getRow(13).getCell(1));
+        HSSFCell evaluateInCell2 = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)workbook).evaluateInCell(sheet.getRow(2).getCell(3));
+        HSSFCell evaluateInCell3 = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)workbook).evaluateInCell(sheet.getRow(2).getCell(4));
         assertTrue(20 == evaluateInCell.getNumericCellValue());
         assertTrue(25.5 == evaluateInCell2.getNumericCellValue());
         assertTrue(25 == evaluateInCell3.getNumericCellValue());
@@ -59,11 +64,11 @@ public class DeclareSearchTest {
     
     @Test
     public void testFunWithReturnFromOtherSheet() {
-        HSSFWorkbook workbook = getWorkbook();
+        Workbook workbook = getWorkbook();
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
         searcher.findFunctions();
         Sheet sheet = workbook.getSheetAt(2);
-        HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(18).getCell(1));
+        HSSFCell evaluateInCell = new HSSFFormulaEvaluator((HSSFWorkbook)workbook).evaluateInCell(sheet.getRow(18).getCell(1));
         
         assertTrue(9 == evaluateInCell.getNumericCellValue());        
     }
@@ -111,15 +116,16 @@ public class DeclareSearchTest {
 //        assertTrue("C122".equals(parsFunc.getReturnCell().toFormulaString()));
 //    }
 
-    private HSSFWorkbook getWorkbook() {
+    private Workbook getWorkbook() {
         String fileName = "./test/resources/Functions_2009.05.18.xls";
-        HSSFWorkbook workbook = null;
+        LiveExcelWorkbook workbook = null;
         InputStream is = null;
         try {
             is = new FileInputStream(fileName);
-            POIFSFileSystem fs = new POIFSFileSystem(is);
-            workbook = new HSSFWorkbook(fs);
+            workbook = LiveExcelWorkbookFactory.create(is, "SimpleExample");
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {            
             e.printStackTrace();
         } finally {
             try {

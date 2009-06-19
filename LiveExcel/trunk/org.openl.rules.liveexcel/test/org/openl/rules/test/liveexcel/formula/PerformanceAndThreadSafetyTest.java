@@ -11,14 +11,20 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
+import org.openl.rules.liveexcel.hssf.usermodel.LiveExcelHSSFWorkbook;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 
 public class PerformanceAndThreadSafetyTest {
 
@@ -40,7 +46,7 @@ public class PerformanceAndThreadSafetyTest {
         }
     }
 
-    private HSSFWorkbook wb = parseWorkbook();
+    private Workbook wb = parseWorkbook();
     List<Cell> cellsToEvaluate = new ArrayList<Cell>();
     List<Thread> cellCalculationThreads = new ArrayList<Thread>();
     List<Cell> udfs = new ArrayList<Cell>();
@@ -72,7 +78,7 @@ public class PerformanceAndThreadSafetyTest {
 
     private void createThreads() {
         findCellsToEvaluate();
-        HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator(wb);
+        HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)wb);
         for (Cell cell : cellsToEvaluate) {
             cellCalculationThreads.add(new Thread(new CalculationThread(evaluator, cell, evaluator.evaluate(cell)
                     .getNumberValue())));
@@ -86,7 +92,7 @@ public class PerformanceAndThreadSafetyTest {
 
     private void evaluateUDFs() {
         int i;
-        HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator(wb);
+        HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)wb);
         long startTime = System.currentTimeMillis();
         for (i = 0; i < 1000; i++) {
             for (Cell cell : udfs) {
@@ -106,7 +112,7 @@ public class PerformanceAndThreadSafetyTest {
 
     private void evaluateFormualas() {
         int i;
-        HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator(wb);
+        HSSFFormulaEvaluator evaluator = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)wb);
         long startTime = System.currentTimeMillis();
         for (i = 0; i < 1000; i++) {
             for (Cell cell : cellsToEvaluate) {
@@ -124,9 +130,9 @@ public class PerformanceAndThreadSafetyTest {
                 + (System.currentTimeMillis() - startTime) + " ms.");
     }
 
-    private HSSFWorkbook parseWorkbook() {
+    private Workbook parseWorkbook() {
         long startTime = System.currentTimeMillis();
-        HSSFWorkbook wb = getHSSFWorkbook("./test/resources/PerformanceTest.xls");
+        Workbook wb = getHSSFWorkbook("./test/resources/PerformanceTest.xls");
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(wb);
         searcher.findFunctions();
         System.out.println("Time to parse workbook : " + (System.currentTimeMillis() - startTime) + " ms.");
@@ -137,7 +143,7 @@ public class PerformanceAndThreadSafetyTest {
         cellsToEvaluate = new ArrayList<Cell>();
         udfs = new ArrayList<Cell>();
         for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-            HSSFSheet sheet = wb.getSheetAt(i);
+            Sheet sheet = wb.getSheetAt(i);
             for (Iterator<Row> rit = sheet.rowIterator(); rit.hasNext();) {
                 Row r = rit.next();
                 for (Iterator<Cell> cit = r.cellIterator(); cit.hasNext();) {
@@ -164,14 +170,16 @@ public class PerformanceAndThreadSafetyTest {
         return formula.substring(0, formula.indexOf('('));
     }
 
-    public static HSSFWorkbook getHSSFWorkbook(String fileName) {
-        HSSFWorkbook workbook = null;
+    public static Workbook getHSSFWorkbook(String fileName) {
+        LiveExcelWorkbook workbook = null;
         InputStream is = null;
         try {
             is = new FileInputStream(fileName);
-            POIFSFileSystem fs = new POIFSFileSystem(is);
-            workbook = new HSSFWorkbook(fs);
+            
+            workbook = LiveExcelWorkbookFactory.create(is, "SimpleExample");
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
             e.printStackTrace();
         } finally {
             try {

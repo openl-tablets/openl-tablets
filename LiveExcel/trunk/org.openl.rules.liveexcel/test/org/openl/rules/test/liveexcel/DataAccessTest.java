@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.liveexcel.DataPool;
 import org.openl.rules.liveexcel.EvaluationContext;
@@ -21,7 +22,7 @@ import static org.junit.Assert.*;
 public class DataAccessTest {
     @Test
     public void test() {
-        HSSFWorkbook workbook = PerformanceAndThreadSafetyTest.getHSSFWorkbook("./test/resources/DataAccessTest.xls");
+        Workbook workbook = PerformanceAndThreadSafetyTest.getHSSFWorkbook("./test/resources/DataAccessTest.xls");
         EvaluationContext context = new EvaluationContext(new DataPool(), new ServiceModelAPI("SimpleExample"));
         LiveExcelEvaluator evaluator = new LiveExcelEvaluator(workbook, context);
         VehicleType vehicleType = new VehicleTypeImpl();

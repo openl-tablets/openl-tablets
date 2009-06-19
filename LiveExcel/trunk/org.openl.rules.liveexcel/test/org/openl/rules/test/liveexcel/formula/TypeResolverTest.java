@@ -19,6 +19,7 @@ import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -28,22 +29,28 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
+import org.openl.rules.liveexcel.ServiceModelAPI;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.TypeResolver;
+import org.openl.rules.liveexcel.hssf.usermodel.LiveExcelHSSFWorkbook;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
+
+import com.exigen.ipb.schemas.rating.hb.VehicleDriverRelationshipTypeImpl;
 
 public class TypeResolverTest {
     
-    private HSSFWorkbook getWorkbook() {
-        String fileName = "./test/resources/TestTypes.xls";
-        HSSFWorkbook workbook = null;
+    private Workbook getWorkbook(String fileName) {
+        
+        Workbook workbook = null;
         InputStream is = null;
         try {
             is = new FileInputStream(fileName);
-            POIFSFileSystem fs = new POIFSFileSystem(is);
-            workbook = new HSSFWorkbook(fs);
+            workbook = LiveExcelWorkbookFactory.create(is, "SimpleExample");
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
+        } catch (InvalidFormatException e) {            
+            e.printStackTrace();
+        }finally {
             try {
                 if (is != null)
                     is.close();
@@ -57,9 +64,9 @@ public class TypeResolverTest {
     @Test
     public void testDateType() {
         Calendar cal = new GregorianCalendar();
-        HSSFWorkbook workbook = getWorkbook();
-        HSSFSheet sheet = workbook.getSheetAt(0);
-        HSSFCell cell = sheet.getRow(0).getCell(1);   
+        Workbook workbook = getWorkbook("./test/resources/TestTypes.xls");
+        Sheet sheet = workbook.getSheetAt(0);
+        Cell cell = sheet.getRow(0).getCell(1);   
         if(cell.getCellType ()==HSSFCell.CELL_TYPE_NUMERIC) {
             assertTrue(HSSFDateUtil.isCellDateFormatted(cell));
             double d = cell.getNumericCellValue();
@@ -74,9 +81,9 @@ public class TypeResolverTest {
     @Test
     public void testNumberType() {
         DataFormatter formatter = new DataFormatter();
-        HSSFWorkbook workbook = getWorkbook();
-        HSSFSheet sheet = workbook.getSheetAt(0);
-        HSSFCell cell = sheet.getRow(1).getCell(1);
+        Workbook workbook = getWorkbook("./test/resources/TestTypes.xls");
+        Sheet sheet = workbook.getSheetAt(0);
+        Cell cell = sheet.getRow(1).getCell(1);
         if(cell.getCellType ()==HSSFCell.CELL_TYPE_NUMERIC) {
             CellStyle cellStyle = cell.getCellStyle();
             assertEquals("0.00", cellStyle.getDataFormatString());            
@@ -85,9 +92,9 @@ public class TypeResolverTest {
     
     @Test
     public void testCurrencyType() {
-        HSSFWorkbook workbook = getWorkbook();
-        HSSFSheet sheet = workbook.getSheetAt(0);
-        HSSFCell cell = sheet.getRow(2).getCell(1);
+        Workbook workbook = getWorkbook("./test/resources/TestTypes.xls");
+        Sheet sheet = workbook.getSheetAt(0);
+        Cell cell = sheet.getRow(2).getCell(1);
         if(cell.getCellType ()==HSSFCell.CELL_TYPE_NUMERIC) {
             CellStyle cellStyle = cell.getCellStyle();
             assertEquals('"'+"$"+'"'+"#,##0.00", cellStyle.getDataFormatString());
@@ -96,11 +103,11 @@ public class TypeResolverTest {
     
     @Test 
     public void testBooleanSum() {
-        HSSFWorkbook workbook = getWorkbook();
+        Workbook workbook = getWorkbook("./test/resources/TestTypes.xls");
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
         searcher.findFunctions();
         Sheet sheet = workbook.getSheetAt(0);
-        HSSFCell evaluateInCell = new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(16).getCell(1));
+        HSSFCell evaluateInCell = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)workbook).evaluateInCell(sheet.getRow(16).getCell(1));
                 
         assertTrue(2 == evaluateInCell.getNumericCellValue());        
     }
@@ -109,51 +116,52 @@ public class TypeResolverTest {
      * 
      */
     @Test
-    public void testType() {
-        HSSFWorkbook workbook = getWorkbook();
-        HSSFSheet sheet = workbook.getSheetAt(1);
-        HSSFCell cellNumber = sheet.getRow(0).getCell(0);
-        Class res = TypeResolver.resolveType(cellNumber);        
+    public void testType() {        
+        Workbook workbook = getWorkbook("./test/resources/TestTypes.xls");
+        ServiceModelAPI serviceModelAPI = new ServiceModelAPI("SimpleExample");
+        Sheet sheet = workbook.getSheetAt(1);        
+        Cell cellNumber = sheet.getRow(0).getCell(0);
+        Class res = TypeResolver.resolveType(cellNumber, serviceModelAPI);        
         if((res.getName().toString()).equals(Double.class.getName().toString())) {
             assertTrue(true);            
         } else {            
             assertTrue(false);
         }
         
-        HSSFCell cellBool = sheet.getRow(1).getCell(0);
-        Class res1 = TypeResolver.resolveType(cellBool);
+        Cell cellBool = sheet.getRow(1).getCell(0);
+        Class res1 = TypeResolver.resolveType(cellBool, serviceModelAPI);
         if((res1.getName().toString()).equals(Boolean.class.getName().toString())) {
             assertTrue(true);            
         } else {            
             assertTrue(false);
         }
         
-        HSSFCell cellDate = sheet.getRow(2).getCell(0);
-        Class res2 = TypeResolver.resolveType(cellDate);
+        Cell cellDate = sheet.getRow(2).getCell(0);
+        Class res2 = TypeResolver.resolveType(cellDate, serviceModelAPI);
         if((res2.getName().toString()).equals(Date.class.getName().toString())) {
             assertTrue(true);            
         } else {            
             assertTrue(false);
         }
         
-        HSSFCell cellString = sheet.getRow(3).getCell(0);
-        Class res3 = TypeResolver.resolveType(cellString);
+        Cell cellString = sheet.getRow(3).getCell(0);
+        Class res3 = TypeResolver.resolveType(cellString, serviceModelAPI);
         if((res3.getName().toString()).equals(String.class.getName().toString())) {
             assertTrue(true);            
         } else {            
             assertTrue(false);
         }
         
-        HSSFCell cellFunc = sheet.getRow(4).getCell(0);
-        Class res4 = TypeResolver.resolveType(cellFunc);        
+        Cell cellFunc = sheet.getRow(4).getCell(0);
+        Class res4 = TypeResolver.resolveType(cellFunc, serviceModelAPI);         
         if((res4.getName().toString()).equals(Double.class.getName().toString())) {
             assertTrue(true);            
         } else {            
             assertTrue(false);
         }
         
-        HSSFCell cell1 = sheet.getRow(6).getCell(0);
-        Class res6 = TypeResolver.resolveType(cell1);        
+        Cell cell1 = sheet.getRow(6).getCell(0);
+        Class res6 = TypeResolver.resolveType(cell1, serviceModelAPI);        
         if((res6.getName().toString()).equals(Double.class.getName().toString())) {
             assertTrue(true);            
         } else {            
@@ -163,26 +171,27 @@ public class TypeResolverTest {
     
     @Test
     public void testFormat() {
-        HSSFWorkbook workbook = getWorkbook();
-        HSSFSheet sheet = workbook.getSheetAt(1);
-        HSSFCell cellStrFormNum = sheet.getRow(6).getCell(0);
-        Class<?> res = TypeResolver.resolveType(cellStrFormNum);
+        Workbook workbook = getWorkbook("./test/resources/TestTypes.xls");
+        ServiceModelAPI serviceModelAPI = new ServiceModelAPI("SimpleExample");
+        Sheet sheet = workbook.getSheetAt(1);
+        Cell cellStrFormNum = sheet.getRow(6).getCell(0);
+        Class<?> res = TypeResolver.resolveType(cellStrFormNum, serviceModelAPI);
         if((res.getName().toString()).equals(Double.class.getName().toString())) {
             assertTrue(true);            
         } else {            
             assertTrue(false);
         }
         
-        HSSFCell cellNumFormText = sheet.getRow(13).getCell(0);
-        Class<?> res1 = TypeResolver.resolveType(cellNumFormText); 
+        Cell cellNumFormText = sheet.getRow(13).getCell(0);
+        Class<?> res1 = TypeResolver.resolveType(cellNumFormText, serviceModelAPI); 
         if((res1.getName().toString()).equals(String.class.getName().toString())) {
             assertTrue(true);            
         } else {            
             assertTrue(false);
         }
         
-        HSSFCell cellCurr = sheet.getRow(14).getCell(0);
-        Class<?> res2 = TypeResolver.resolveType(cellCurr);
+        Cell cellCurr = sheet.getRow(14).getCell(0);
+        Class<?> res2 = TypeResolver.resolveType(cellCurr, serviceModelAPI);
         if((res2.getName().toString()).equals(Double.class.getName().toString())) {
             assertTrue(true);            
         } else {            
@@ -190,14 +199,28 @@ public class TypeResolverTest {
         }
     } 
     
-    /*@Test
-    public void testErrorType() {
-        HSSFWorkbook workbook = getWorkbook();
-        HSSFSheet sheet = workbook.getSheetAt(1);
-        HSSFCell cellStrFormNum = sheet.getRow(8).getCell(0);
-        Class<?> res = TypeResolver.resolveType(cellStrFormNum);
-        assertTrue(res==null);
-    }*/
+    @Test
+    public void testServiceModelType() {
+        Workbook workbook = getWorkbook("./test/resources/DataAccessTest.xls");
+        ServiceModelAPI serviceModelAPI = new ServiceModelAPI("SimpleExample");
+        Sheet sheet = workbook.getSheetAt(0);
+        Cell cellSMFunc = sheet.getRow(3).getCell(1);
+        Class<?> res = TypeResolver.resolveType(cellSMFunc, serviceModelAPI);        
+        if((res.getName().toString()).equals(Double.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+        
+        Cell cellServMod = sheet.getRow(3).getCell(2);
+        Class<?> res1 = TypeResolver.resolveType(cellServMod, serviceModelAPI);       
+        if((res1.getName().toString()).equals(String.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+    }
+    
  }
         
         
