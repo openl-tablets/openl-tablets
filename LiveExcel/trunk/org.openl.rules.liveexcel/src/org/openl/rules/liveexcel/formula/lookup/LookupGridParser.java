@@ -2,6 +2,7 @@ package org.openl.rules.liveexcel.formula.lookup;
 
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
+import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.StringValueEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
@@ -45,7 +46,7 @@ public class LookupGridParser {
      */
     public boolean isVerticalLookup() {
         for (int i = 0; i < lookupArea.getWidth(); i++) {
-            ValueEval value = lookupArea.getRelativeValue(0, i);
+            ValueEval value = getValueFromLookupData(0, i);
             if (!(value instanceof BlankEval)) {
                 return false;
             }
@@ -58,7 +59,7 @@ public class LookupGridParser {
      */
     public boolean isHorizontalLookup() {
         for (int i = 0; i < lookupArea.getHeight(); i++) {
-            ValueEval value = lookupArea.getRelativeValue(i, 0);
+            ValueEval value = getValueFromLookupData(i, 0);
             if (!(value instanceof BlankEval)) {
                 return false;
             }
@@ -85,12 +86,22 @@ public class LookupGridParser {
         }
     }
 
+    private ValueEval getValueFromLookupData(int row, int column) {
+        ValueEval value = lookupArea.getRelativeValue(row, column);
+        if (row == 0 && column == 0 && value instanceof StringEval) {
+            if ("SECTION".equals(((StringEval) value).getStringValue().toUpperCase())) {
+                return BlankEval.INSTANCE;
+            }
+        }
+        return value;
+    }
+
     private Grid createGrid() {
         Grid result = new Grid();
         String values[][] = new String[lookupArea.getWidth()][lookupArea.getHeight()];
         for (int i = 0; i < lookupArea.getWidth(); i++) {
             for (int j = 0; j < lookupArea.getHeight(); j++) {
-                ValueEval value = lookupArea.getRelativeValue(j, i);
+                ValueEval value = getValueFromLookupData(j, i);
                 if (value instanceof StringValueEval) {
                     values[i][j] = ((StringValueEval) value).getStringValue();
                 } else {
@@ -107,7 +118,7 @@ public class LookupGridParser {
         String values[][] = new String[lookupArea.getHeight()][lookupArea.getWidth()];
         for (int i = 0; i < lookupArea.getWidth(); i++) {
             for (int j = 0; j < lookupArea.getHeight(); j++) {
-                ValueEval value = lookupArea.getRelativeValue(j, i);
+                ValueEval value = getValueFromLookupData(j, i);
                 if (value instanceof StringValueEval) {
                     values[j][i] = ((StringValueEval) value).getStringValue();
                 } else {
