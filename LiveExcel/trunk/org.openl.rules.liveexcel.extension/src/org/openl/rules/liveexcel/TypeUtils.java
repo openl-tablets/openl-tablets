@@ -1,11 +1,6 @@
 package org.openl.rules.liveexcel;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.record.formula.eval.BoolEval;
-import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.RefEvalBase;
-import org.apache.poi.hssf.record.formula.eval.StringEval;
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.openl.rules.liveexcel.formula.FunctionParam;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -13,16 +8,9 @@ import org.openl.types.java.JavaOpenClass;
 public class TypeUtils {
 
     public static IOpenClass getParameterClass(FunctionParam functionParam) {
+        Class<?> paramType = functionParam.getParamType();
         try {
-            ValueEval innerValueEval = ((RefEvalBase) functionParam.getParamCell()).getInnerValueEval();
-            if (innerValueEval instanceof NumberEval) {
-                return JavaOpenClass.DOUBLE;
-            } else if (innerValueEval instanceof BoolEval) {
-                return JavaOpenClass.BOOLEAN;
-            } else if (innerValueEval instanceof StringEval) {
-                return JavaOpenClass.STRING;
-            }
-            return JavaOpenClass.OBJECT;
+            return JavaOpenClass.getOpenClass(paramType);
         } catch (Exception e) {
             return JavaOpenClass.OBJECT;
         }
