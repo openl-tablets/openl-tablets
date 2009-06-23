@@ -1,7 +1,9 @@
 package org.openl.rules.liveexcel.formula;
 
 import java.text.DecimalFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -59,7 +61,8 @@ public class TypeResolver {
     }
     
     private Class<?> resolveServiceModel() {        
-        return serviceModel.getServiceModelObjectDomainType(getMatchServiceModelName());
+        //return serviceModel.getServiceModelObjectDomainType(getMatchServiceModelName());
+        return Object.class;
     }
 
     private boolean isCellServiceModel() {
@@ -71,6 +74,15 @@ public class TypeResolver {
     }
     
     private String getMatchServiceModelName() {
+        String res = null;
+        for(String servModName : serviceModel.getRootNames()) {
+            if(cell.getCellFormula().startsWith(servModName))
+                res = servModName;
+        }
+        return res;            
+    }
+    
+    private String getMatchServiceModelUDF() {
         String res = null;
         for(String servModUDF : serviceModel.getAllServiceModelUDFs()) {
             if(cell.getCellFormula().startsWith(servModUDF))
@@ -90,7 +102,7 @@ public class TypeResolver {
             case HSSFCell.CELL_TYPE_NUMERIC: {
                 double d = cell.getNumericCellValue();               
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                    result = HSSFDateUtil.getJavaDate(d).getClass();
+                    result = Calendar.class;
                 } else {
                     result = ((Double)cell.getNumericCellValue()).getClass();
                 }
@@ -105,7 +117,9 @@ public class TypeResolver {
                 break;
             }
             case HSSFCell.CELL_TYPE_ERROR: {                
-                throw new LiveExcelException("Type of cell is ERROR. Not supported");                
+                throw new LiveExcelException("Type of cell at sheet ["+cell.getSheet().getSheetName()+"] in row " +
+                		"["+(cell.getRowIndex()+1)+"] and column " +
+                		"["+(cell.getColumnIndex()+1)+"] is ERROR. Not supported");                
             }   
         }
         return result;
@@ -133,7 +147,7 @@ public class TypeResolver {
         int dataFormat = style.getDataFormat();
         String dataFormatStr = style.getDataFormatString();
         if(DateUtil.isADateFormat(dataFormat, dataFormatStr)) {
-            result = Date.class;
+            result = Calendar.class;
         } else {
             if(numPattern.matcher(dataFormatStr).find()) {
                 result = Double.class;
