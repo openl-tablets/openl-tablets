@@ -45,5 +45,12 @@ public class ServiceModelAPI {
     public Object getValue(String name, Object object) {
         return PropertyEvaluator.getValue(projectName, object, name);
     }
+    
+    /**
+     * @return Set of all root instance names.
+     */
+    public Set<String> getRootNames() {
+        return PropertyEvaluator.getRootNames(projectName);
+    }
 
 }
