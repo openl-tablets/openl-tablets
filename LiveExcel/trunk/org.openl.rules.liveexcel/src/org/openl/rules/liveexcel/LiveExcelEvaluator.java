@@ -1,13 +1,15 @@
 package org.openl.rules.liveexcel;
 
+import java.util.Calendar;
+
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.LiveExcelDataAccessFunction;
@@ -73,6 +75,8 @@ public class LiveExcelEvaluator {
             return BoolEval.valueOf((Boolean) object);
         } else if (object instanceof String) {
             return new StringEval((String) object);
+        } else if (object instanceof Calendar) {
+            return new NumberEval(DateUtil.getExcelDate((Calendar)object, false));
         } else {
             return addObjectToContext(object);
         }
