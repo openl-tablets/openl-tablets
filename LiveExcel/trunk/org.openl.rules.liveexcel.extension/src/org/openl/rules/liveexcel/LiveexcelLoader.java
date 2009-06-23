@@ -41,12 +41,16 @@ public class LiveexcelLoader implements IExtensionLoader {
             if (include.length() == 0) {
                 continue;
             }
+            String[] split = include.split(";");
+            String includePath = split[0];
+            String projectName = split.length == 2 ? split[1] : null;
+            
             IOpenSourceCodeModule src = null;
             try {
-                String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), include);
+                String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), includePath);
                 src = new URLSourceCodeModule(new URL(newURL));
             } catch (Throwable t) {
-                ISyntaxError se = new SyntaxError(null, "Include " + include + " not found", t,
+                ISyntaxError se = new SyntaxError(null, "Include " + includePath + " not found", t,
                         new GridCellSourceCodeModule(table.getLogicalRegion(1, i, 1, 1).getGridTable()));
                 xlsLoader.addError(se);
                 tsn.addError(se);
@@ -54,7 +58,6 @@ public class LiveexcelLoader implements IExtensionLoader {
             }
 
             try {
-                String projectName = include.substring(0, include.lastIndexOf('.'));
                 preprocessLiveExcelWorkbook(xlsLoader, src, sheetSource, projectName);
             } catch (Throwable t) {
                 ISyntaxError se = new SyntaxError(null, "Include " + include + " not found", t,
