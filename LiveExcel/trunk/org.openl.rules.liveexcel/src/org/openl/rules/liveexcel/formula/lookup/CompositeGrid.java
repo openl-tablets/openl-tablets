@@ -1,5 +1,7 @@
 package org.openl.rules.liveexcel.formula.lookup;
 
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
+
 /**
  * 
  * Join multiple tables in single one. Tables should have the same dimensions.
@@ -37,7 +39,7 @@ public class CompositeGrid extends Grid {
     }
 
     @Override
-    public String getValue(int x, int y) {
+    public ValueEval getValue(int x, int y) {
         return getGrid(y).getValue(x, getY(y));
     }
 

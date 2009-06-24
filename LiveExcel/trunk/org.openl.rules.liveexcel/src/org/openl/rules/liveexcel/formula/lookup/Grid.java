@@ -1,10 +1,12 @@
 package org.openl.rules.liveexcel.formula.lookup;
 
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
+
 public class Grid {
 
-    private String[][] grid;
+    private ValueEval[][] grid;
 
-    public void setGrid(String[][] grid) {
+    public void setGrid(ValueEval[][] grid) {
         this.grid = grid;
     }
 
@@ -16,7 +18,7 @@ public class Grid {
         return grid[0].length;
     }
 
-    public String getValue(int x, int y) {
+    public ValueEval getValue(int x, int y) {
         return grid[x][y];
     }
 

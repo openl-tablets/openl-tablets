@@ -98,14 +98,14 @@ public class LookupGridParser {
 
     private Grid createGrid() {
         Grid result = new Grid();
-        String values[][] = new String[lookupArea.getWidth()][lookupArea.getHeight()];
+        ValueEval values[][] = new ValueEval[lookupArea.getWidth()][lookupArea.getHeight()];
         for (int i = 0; i < lookupArea.getWidth(); i++) {
             for (int j = 0; j < lookupArea.getHeight(); j++) {
                 ValueEval value = getValueFromLookupData(j, i);
                 if (value instanceof StringValueEval) {
-                    values[i][j] = ((StringValueEval) value).getStringValue();
+                    values[i][j] = (ValueEval) value;
                 } else {
-                    values[i][j] = "";
+                    values[i][j] = GridDelegator.EMPTY_EVAL;
                 }
             }
         }
@@ -115,14 +115,14 @@ public class LookupGridParser {
 
     private Grid createTransposedGrid() {
         Grid result = new Grid();
-        String values[][] = new String[lookupArea.getHeight()][lookupArea.getWidth()];
+        ValueEval values[][] = new ValueEval[lookupArea.getHeight()][lookupArea.getWidth()];
         for (int i = 0; i < lookupArea.getWidth(); i++) {
             for (int j = 0; j < lookupArea.getHeight(); j++) {
                 ValueEval value = getValueFromLookupData(j, i);
                 if (value instanceof StringValueEval) {
-                    values[j][i] = ((StringValueEval) value).getStringValue();
+                    values[j][i] = value;
                 } else {
-                    values[j][i] = "";
+                    values[j][i] = GridDelegator.EMPTY_EVAL;
                 }
             }
         }
