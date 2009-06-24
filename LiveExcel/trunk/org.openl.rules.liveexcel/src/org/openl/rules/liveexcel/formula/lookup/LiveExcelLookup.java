@@ -3,8 +3,6 @@ package org.openl.rules.liveexcel.formula.lookup;
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.Eval;
-import org.apache.poi.hssf.record.formula.eval.StringEval;
-import org.apache.poi.hssf.record.formula.eval.StringValueEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
@@ -17,6 +15,7 @@ import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
  * @author PUdalau
  */
 public class LiveExcelLookup extends ParsedDeclaredFunction {
+    
     private Grid lookupData;
 
     /**
@@ -43,23 +42,23 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
             for (int i = 0; i < lookupData.getHeight(); i++) {
                 boolean matched = true;
                 for (int j = 0; j < paramsCount; j++) {
-                    String expectedValue = ((StringValueEval) args[j]).getStringValue();
-                    if (!isLookupParamMatched(i, paramsCount - 1 - j, expectedValue)) {
+                    if (!isLookupParamMatched(i, paramsCount - 1 - j, (ValueEval) args[j])) {
                         matched = false;
                         break;
                     }
                 }
                 if (matched) {
-                    return new StringEval(lookupData.getValue(lookupData.getWidth() - 1, i));
+                    return lookupData.getValue(lookupData.getWidth() - 1, i);
                 }
             }
             return BlankEval.INSTANCE;
         }
     }
 
-    private boolean isLookupParamMatched(int lookupRowIndex, int paramIndex, String expectedValue) {
+    private boolean isLookupParamMatched(int lookupRowIndex, int paramIndex, ValueEval expectedValue) {
         lookupRowIndex = findParamValue(lookupRowIndex, paramIndex);
-        return (lookupData.getValue(paramIndex, lookupRowIndex).equals(expectedValue));
+        ValueEval value = lookupData.getValue(paramIndex, lookupRowIndex);
+        return value.equals(expectedValue);
     }
 
     private int findParamValue(int lookupRowIndex, int paramIndex) {

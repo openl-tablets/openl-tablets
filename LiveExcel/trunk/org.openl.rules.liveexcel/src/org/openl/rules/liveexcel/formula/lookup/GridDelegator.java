@@ -1,5 +1,8 @@
 package org.openl.rules.liveexcel.formula.lookup;
 
+import org.apache.poi.hssf.record.formula.eval.StringEval;
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
+
 /**
  * 
  * Represents table like
@@ -45,6 +48,8 @@ package org.openl.rules.liveexcel.formula.lookup;
  *
  */
 public class GridDelegator extends Grid {
+    
+    public static final StringEval EMPTY_EVAL = new StringEval("");  
 
 	private Grid grid;
 
@@ -64,7 +69,8 @@ public class GridDelegator extends Grid {
 	private void initialize() {
 		int x = 0;
 		for (; x < grid.getWidth(); x ++) {
-			if (!grid.getValue(x, 0).equals("")) {
+		    ValueEval value = grid.getValue(x, 0);
+			if (value != null && !value.equals(EMPTY_EVAL)) {
 				break;
 			}
 		}
@@ -73,7 +79,8 @@ public class GridDelegator extends Grid {
 		
 		int y = 0;
 		for (; y < grid.getHeight(); y ++) {
-			if (!grid.getValue(0, y).equals("")) {
+			ValueEval value = grid.getValue(0, y);
+            if (value != null && !value.equals(EMPTY_EVAL)) {
 				break;
 			}
 		}
@@ -92,7 +99,7 @@ public class GridDelegator extends Grid {
 	}
 
 	@Override
-	public String getValue(int x, int y) {
+	public ValueEval getValue(int x, int y) {
 		return grid.getValue(getX(x, y), getY(x, y));
 	}
 
