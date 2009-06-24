@@ -1,5 +1,7 @@
 package org.openl.rules.liveexcel.formula.lookup;
 
+import org.apache.poi.hssf.record.formula.eval.BlankEval;
+import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
 public class Grid {
@@ -22,4 +24,13 @@ public class Grid {
         return grid[x][y];
     }
 
+    public boolean isBlank(int x, int y) {
+        ValueEval value = getValue(x, y);
+        if (value instanceof BlankEval
+                || (value instanceof StringEval && "".equals(((StringEval) value).getStringValue()))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

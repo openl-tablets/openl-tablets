@@ -3,6 +3,7 @@ package org.openl.rules.liveexcel.formula.lookup;
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.Eval;
+import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
@@ -15,7 +16,7 @@ import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
  * @author PUdalau
  */
 public class LiveExcelLookup extends ParsedDeclaredFunction {
-    
+
     private Grid lookupData;
 
     /**
@@ -57,17 +58,16 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
 
     private boolean isLookupParamMatched(int lookupRowIndex, int paramIndex, ValueEval expectedValue) {
         lookupRowIndex = findParamValue(lookupRowIndex, paramIndex);
-        ValueEval value = lookupData.getValue(paramIndex, lookupRowIndex);
-        return value.equals(expectedValue);
+        ValueEval param = lookupData.getValue(paramIndex, lookupRowIndex);
+        return LookupComparer.isMatched(param, expectedValue);
     }
 
     private int findParamValue(int lookupRowIndex, int paramIndex) {
         // looks for first non-empty previous lookup param value(if param
         // skipped it will be taken from previous row)
-        while (lookupRowIndex > 0 && "".equals(lookupData.getValue(paramIndex, lookupRowIndex))) {
+        while (lookupRowIndex > 0 && lookupData.isBlank(paramIndex, lookupRowIndex)) {
             lookupRowIndex--;
         }
         return lookupRowIndex;
     }
-
 }
