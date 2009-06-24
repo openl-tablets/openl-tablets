@@ -24,6 +24,10 @@ public class Grid {
         return grid[x][y];
     }
 
+    public void setValue(int x, int y, ValueEval newValue) {
+        grid[x][y] = newValue;
+    }
+
     public boolean isBlank(int x, int y) {
         ValueEval value = getValue(x, y);
         if (value instanceof BlankEval

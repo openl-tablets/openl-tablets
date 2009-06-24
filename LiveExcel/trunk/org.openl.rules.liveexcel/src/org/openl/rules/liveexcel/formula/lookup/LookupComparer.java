@@ -7,8 +7,20 @@ import org.apache.poi.hssf.record.formula.eval.StringValueEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.openl.rules.liveexcel.ranges.RangeEval;
 
+/**
+ * Class that compares values represented as {@link ValueEval} types.
+ * 
+ * @author PUdalau
+ */
 public class LookupComparer {
 
+    /**
+     * Attempts to match the value against the parameter.
+     * 
+     * @param matcherParameter Matcher parameter.
+     * @param valueToMatch Another value, that probably matched .
+     * @return <code>true</code> if value matches parameter.
+     */
     public static boolean isMatched(ValueEval matcherParameter, ValueEval valueToMatch) {
         if (matcherParameter instanceof RangeEval) {
             return isRangeMatched((RangeEval) matcherParameter, valueToMatch);
@@ -22,6 +34,13 @@ public class LookupComparer {
         return false;
     }
 
+    /**
+     * Checks if the value belongs to interval.
+     * 
+     * @param matcherParameter Range that probably contains interval.
+     * @param valueToMatch Value to check.
+     * @return <code>true</code> if value belong to range.
+     */
     public static boolean isRangeMatched(RangeEval matcherParameter, ValueEval valueToMatch) {
         if (valueToMatch instanceof NumberEval
                 && matcherParameter.contains(((NumberEval) valueToMatch).getNumberValue())) {
@@ -31,6 +50,13 @@ public class LookupComparer {
         }
     }
 
+    /**
+     * Checks if the value in string representation equals matcher string.
+     * 
+     * @param matcherParameter String matcher
+     * @param valueToMatch value to check.
+     * @return <code>true</code> if value equals string matcher.
+     */
     public static boolean isStringMatched(StringEval matcherParameter, ValueEval valueToMatch) {
         if (valueToMatch instanceof StringValueEval
                 && matcherParameter.getStringValue().equals(((StringValueEval) valueToMatch).getStringValue())) {
@@ -40,6 +66,13 @@ public class LookupComparer {
         }
     }
 
+    /**
+     * Checks if two values are equal.
+     * 
+     * @param matcherParameter Number value.
+     * @param valueToMatch Another value.
+     * @return <code>true</code> if values are equal.
+     */
     public static boolean isNumberMatched(NumberEval matcherParameter, ValueEval valueToMatch) {
         if (valueToMatch instanceof NumberEval
                 && Double.compare(matcherParameter.getNumberValue(), ((NumberEval) valueToMatch).getNumberValue()) == 0) {
@@ -49,6 +82,13 @@ public class LookupComparer {
         }
     }
 
+    /**
+     * Checks if two values are equal.
+     * 
+     * @param matcherParameter Boolean value.
+     * @param valueToMatch Another value.
+     * @return <code>true</code> if values are equal.
+     */
     public static boolean isBooleanMatched(BoolEval matcherParameter, ValueEval valueToMatch) {
         if (valueToMatch instanceof BoolEval
                 && matcherParameter.getBooleanValue() == ((BoolEval) valueToMatch).getBooleanValue()) {

@@ -102,6 +102,11 @@ public class GridDelegator extends Grid {
 	public ValueEval getValue(int x, int y) {
 		return grid.getValue(getX(x, y), getY(x, y));
 	}
+	
+	@Override
+	public void setValue(int x, int y, ValueEval newValue) {
+	    grid.setValue(getX(x, y), getY(x, y), newValue);
+	}
 
 	private int getX(int x, int y) {
 		if (x < thh) {

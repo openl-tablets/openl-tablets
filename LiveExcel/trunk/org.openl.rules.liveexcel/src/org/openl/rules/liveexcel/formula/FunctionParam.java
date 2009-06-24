@@ -23,6 +23,13 @@ public class FunctionParam {
     public FunctionParam(String paramName, RefEval paramCell) {
         this.paramName = paramName;
         this.paramCell = paramCell;
+        paramType = Object.class;
+    }
+
+    public FunctionParam(String paramName, RefEval paramCell, Class<?> paramType) {
+        this.paramName = paramName;
+        this.paramCell = paramCell;
+        this.paramType = paramType;
     }
 
     public String getParamName() {
