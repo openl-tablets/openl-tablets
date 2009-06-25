@@ -35,6 +35,7 @@ import org.openl.rules.liveexcel.formula.TypeResolver;
 import org.openl.rules.liveexcel.hssf.usermodel.LiveExcelHSSFWorkbook;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 
+import com.exigen.ipb.schemas.rating.hb.CoverageTypeImpl;
 import com.exigen.ipb.schemas.rating.hb.VehicleDriverRelationshipTypeImpl;
 
 public class TypeResolverTest {
@@ -230,6 +231,20 @@ public class TypeResolverTest {
             assertTrue(false);
         }
     }*/
+    
+    @Test
+    public void testServiceModelRootType() {
+        Workbook workbook = getWorkbook("./test/resources/LiveExcel Demo Case Revised.xlsx");
+        ServiceModelAPI serviceModelAPI = new ServiceModelAPI("DemoCase");
+        Sheet sheet = workbook.getSheetAt(0);
+        Cell cellSM = sheet.getRow(10).getCell(3);
+        Class<?> res = TypeResolver.resolveType(cellSM, serviceModelAPI);        
+        if((res.getName().toString()).equals(CoverageTypeImpl.class.getName().toString())) {
+            assertTrue(true);            
+        } else {            
+            assertTrue(false);
+        }
+    }
     
  }
         

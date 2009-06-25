@@ -22,10 +22,10 @@ import org.openl.rules.liveexcel.ServiceModelAPI;
 public class TypeResolver {
     
     /** Pattern to find a number format: "0" or  "#" */
-    private static final Pattern numPattern = Pattern.compile("[0#]+");
+    private static final Pattern NUM_PATTERN = Pattern.compile("[0#]+");
     
-    /** Pattern to find a number format: "0" or  "#" */
-    private static final Pattern textPattern = Pattern.compile("@");   
+    /** Pattern to find a text format*/
+    private static final Pattern TEXT_PATTERN = Pattern.compile("@");   
     
     private Cell cell;
     private ServiceModelAPI serviceModel;
@@ -33,8 +33,7 @@ public class TypeResolver {
     public TypeResolver(Cell cell, ServiceModelAPI serviceModel) {
         this.cell = cell;
         this.serviceModel = serviceModel;
-    }
-    
+    }    
     
     public static Class<?> resolveType(Cell cell, ServiceModelAPI serviceModel) {
         TypeResolver resolver = new TypeResolver(cell, serviceModel);
@@ -61,8 +60,7 @@ public class TypeResolver {
     }
     
     private Class<?> resolveServiceModel() {        
-        //return serviceModel.getServiceModelObjectDomainType(getMatchServiceModelName());
-        return Object.class;
+        return serviceModel.getRootType(getMatchServiceModelName());        
     }
 
     private boolean isCellServiceModel() {
@@ -76,8 +74,9 @@ public class TypeResolver {
     private String getMatchServiceModelName() {
         String res = null;
         for(String servModName : serviceModel.getRootNames()) {
-            if(cell.getCellFormula().startsWith(servModName))
+            if(cell.getCellFormula().startsWith(servModName)) {
                 res = servModName;
+            }
         }
         return res;            
     }
@@ -149,10 +148,10 @@ public class TypeResolver {
         if(DateUtil.isADateFormat(dataFormat, dataFormatStr)) {
             result = Calendar.class;
         } else {
-            if(numPattern.matcher(dataFormatStr).find()) {
+            if(NUM_PATTERN.matcher(dataFormatStr).find()) {
                 result = Double.class;
             } else {
-                if(textPattern.matcher(dataFormatStr).find()) {
+                if(TEXT_PATTERN.matcher(dataFormatStr).find()) {
                     result = String.class;
                 } 
             }

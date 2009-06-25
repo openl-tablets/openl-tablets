@@ -52,5 +52,13 @@ public class ServiceModelAPI {
     public Set<String> getRootNames() {
         return PropertyEvaluator.getRootNames(projectName);
     }
+    
+    /**
+     * @param rootName name of root Service Model object
+     * @return type of root Service Model object
+     */
+    public Class<?> getRootType(String rootName) {
+        return PropertyEvaluator.getRootType(projectName, rootName);
+    }
 
 }
