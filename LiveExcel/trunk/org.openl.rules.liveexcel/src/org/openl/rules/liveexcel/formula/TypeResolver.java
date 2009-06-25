@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
@@ -20,6 +22,8 @@ import org.openl.rules.liveexcel.ServiceModelAPI;
  *
  */
 public class TypeResolver {
+    
+    private static final Log LOG = LogFactory.getLog(TypeResolver.class);
     
     /** Pattern to find a number format: "0" or  "#" */
     private static final Pattern NUM_PATTERN = Pattern.compile("[0#]+");
@@ -53,7 +57,7 @@ public class TypeResolver {
                 }
             }
         } catch (LiveExcelException e) {
-            e.printStackTrace();
+            LOG.error(e);
             return Object.class;
         }
         return result;
@@ -101,7 +105,7 @@ public class TypeResolver {
             case HSSFCell.CELL_TYPE_NUMERIC: {
                 double d = cell.getNumericCellValue();               
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                    result = Calendar.class;
+                    result = Calendar.class;                    
                 } else {
                     result = ((Double)cell.getNumericCellValue()).getClass();
                 }
