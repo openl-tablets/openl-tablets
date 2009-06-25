@@ -113,7 +113,7 @@ public class EngineFactory<T> {
 
         @Override
         public String toString() {
-            return String.format("Rule Engine(%1)", getOpenClass().getName());
+            return String.format("Rule Engine(%s)", getOpenClass().getName());
         }
 
     }
@@ -261,12 +261,12 @@ public class EngineFactory<T> {
                             methodMap.put(interfaceMethod, rulesField);
                             continue;
                         } else {
-                            throw new RuntimeException(String.format("Return type of method \"%1\" should be %2", 
+                            throw new RuntimeException(String.format("Return type of method \"%s\" should be %s", 
                                     interfaceMethodName, rulesField.getType()));
                         }
                     }
                 }    
-                throw new RuntimeException(String.format("Method \"%1\" not found", interfaceMethod));
+                throw new RuntimeException(String.format("Method \"%s\" not found", interfaceMethod));
             }
         }
         
