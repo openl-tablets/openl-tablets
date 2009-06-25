@@ -17,19 +17,25 @@ import org.openl.rules.liveexcel.LiveExcelException;
  */
 public class DeclaredFunctionParser {
 
-    private static final Log log = LogFactory.getLog(DeclaredFunctionParser.class);
+    private static final Log LOG = LogFactory.getLog(DeclaredFunctionParser.class);
 
     private Eval[] arguments;
     private int pointer = 0;
     private ParsedDeclaredFunction parsDeclFunc = new ParsedDeclaredFunction();
     private List<FunctionParam> listParams = new ArrayList<FunctionParam>();
     
-    String formulaString;
+    private String formulaString;
 
     private DeclaredFunctionParser(Eval[] arguments) {
         this.arguments = arguments;
     }
-
+    
+    /**
+     * Parses arguments of ol_declare_functions.
+     * 
+     * @param evaluationContext EvaluationContext that presents service model.
+     * @param functionName Name of function.
+     */
     public static ParsedDeclaredFunction parseFunction(Eval[] arguments) {
         DeclaredFunctionParser parser = new DeclaredFunctionParser(arguments);
         parser.parse();
@@ -50,7 +56,7 @@ public class DeclaredFunctionParser {
                 throw expected("function definition must contain min name and output cell");
             }
         } catch (MissingRequiredParametersException e) {
-        	log.error("Function definition error", e);
+        	LOG.error("Function definition error", e);
         }
 
     }
