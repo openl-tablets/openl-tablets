@@ -112,9 +112,9 @@ Export-Package: org.apache.poi,
  org.apache.poi.xwpf.extractor,
  org.apache.poi.xwpf.model,
  org.apache.poi.xwpf.usermodel,
+ org.openxmlformats.schemas.spreadsheetml.x2006.main,
  org.apache.xmlbeans,
- org.openxmlformats.schemas.officeDocument.x2006.relationships,
- org.openxmlformats.schemas.spreadsheetml.x2006.main
+ org.openxmlformats.schemas.officeDocument.x2006.relationships 
 Bundle-ClassPath: .,
  lib/commons-lang-2.3.jar,
  lib/commons-logging-1.1.jar,
