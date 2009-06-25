@@ -52,7 +52,7 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
                     return lookupData.getValue(lookupData.getWidth() - 1, i);
                 }
             }
-            return BlankEval.INSTANCE;
+            return ErrorEval.NA;
         }
     }
 

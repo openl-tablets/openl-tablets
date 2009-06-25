@@ -5,6 +5,7 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.StringValueEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.openl.rules.liveexcel.ranges.DoubleRangeParser;
 import org.openl.rules.liveexcel.ranges.RangeEval;
 
 /**
@@ -42,9 +43,13 @@ public class LookupComparer {
      * @return <code>true</code> if value belong to range.
      */
     public static boolean isRangeMatched(RangeEval matcherParameter, ValueEval valueToMatch) {
-        if (valueToMatch instanceof NumberEval
-                && matcherParameter.contains(((NumberEval) valueToMatch).getNumberValue())) {
-            return true;
+        if (valueToMatch instanceof StringValueEval) {
+            String stringRepresentation = ((StringValueEval) valueToMatch).getStringValue();
+            if (DoubleRangeParser.isRange(stringRepresentation)) {
+                return matcherParameter.contains(DoubleRangeParser.parseNumber(stringRepresentation));
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
