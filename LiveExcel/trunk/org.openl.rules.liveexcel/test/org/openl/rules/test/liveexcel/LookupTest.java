@@ -2,6 +2,7 @@ package org.openl.rules.test.liveexcel;
 
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.ErrorConstants;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
@@ -23,6 +24,7 @@ public class LookupTest {
         Cell cell4Horizontal = sheet.getRow(14).getCell(0);
         Cell cell5Vertical = sheet.getRow(15).getCell(0);
         Cell cell6Skipped = sheet.getRow(16).getCell(0);
+        Cell cell7NoValue = sheet.getRow(17).getCell(0);
         HSSFFormulaEvaluator.evaluateAllFormulaCells((LiveExcelHSSFWorkbook) workbook);
         assertTrue(1 == cell.getNumericCellValue());
         assertTrue(0.965 == cell2.getNumericCellValue());
@@ -30,6 +32,7 @@ public class LookupTest {
         assertTrue(0.945 == cell4Horizontal.getNumericCellValue());
         assertTrue(1.001 == cell5Vertical.getNumericCellValue());
         assertTrue(3 == cell6Skipped.getNumericCellValue());
+        assertTrue(ErrorConstants.ERROR_NA == cell7NoValue.getErrorCellValue());
     }
 
 }

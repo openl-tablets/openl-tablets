@@ -1,6 +1,6 @@
 package org.openl.rules.liveexcel.ranges;
 
-public class DoubleRange implements RangeEval{
+public class DoubleRange implements RangeEval {
     private double lowerBound = Double.NEGATIVE_INFINITY;
     private double upperBound = Double.POSITIVE_INFINITY;
     private BoundType lowerBoundType = BoundType.OPEN;
@@ -60,5 +60,9 @@ public class DoubleRange implements RangeEval{
             return true;
         }
         return false;
+    }
+
+    public boolean contains(DoubleRange range) {
+        return this.contains(range.getLowerBound()) && this.contains(range.upperBound);
     }
 }
