@@ -10,6 +10,7 @@ import java.util.Properties;
 
 /**
  * @author snshor
+ * IUserContext an abstraction of user environment configuration.
  *
  */
 public interface IUserContext {

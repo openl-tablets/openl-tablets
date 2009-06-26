@@ -11,6 +11,7 @@ import java.io.Reader;
 
 /**
  * @author snshor
+ * IOpenSourceCodeModule an abstraction of source code of a rule.
  *
  */
 public interface IOpenSourceCodeModule {
