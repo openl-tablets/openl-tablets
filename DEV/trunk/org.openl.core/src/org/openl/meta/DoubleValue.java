@@ -94,6 +94,11 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return new DoubleValue(x);
     }
 
+    static public DoubleValue autocast(long x, DoubleValue y) {
+        return new DoubleValue(x);
+    }
+    
+    
     public static DoubleValue copy(DoubleValue value, String name) {
         if (value.getName() == null) {
             value.setName(name);
@@ -185,9 +190,9 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
                 new DoubleValue[] { d, p });
     }
 
-    static public DoubleValue subtract(double x, DoubleValue dv) {
-        return new DoubleValueFormula(new DoubleValue(x), dv, x - dv.getValue(), "-", false);
-    }
+//    static public DoubleValue subtract(double x, DoubleValue dv) {
+//        return new DoubleValueFormula(new DoubleValue(x), dv, x - dv.getValue(), "-", false);
+//    }
 
     public static DoubleValue subtract(DoubleValue dv1, DoubleValue dv2) {
         if (dv2 == null || dv2.getValue() == 0) {
@@ -196,9 +201,9 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return new DoubleValueFormula(dv1, dv2, dv1.getValue() - dv2.getValue(), "-", false);
     }
 
-    static public DoubleValue subtract(int x, DoubleValue dv) {
-        return new DoubleValueFormula(new DoubleValue(x), dv, x - dv.getValue(), "-", false);
-    }
+//    static public DoubleValue subtract(int x, DoubleValue dv) {
+//        return new DoubleValueFormula(new DoubleValue(x), dv, x - dv.getValue(), "-", false);
+//    }
 
     public DoubleValue() {
     }
