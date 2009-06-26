@@ -1,8 +1,14 @@
 package org.openl.runtime;
 
 import org.openl.IOpenSourceCodeModule;
+import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 
+/**
+ * 
+ * EngineFactoryDefinition handles context of users environment{@link IUserContext} and source code of rule {@link IOpenSourceCodeModule}.
+ *
+ */
 public class EngineFactoryDefinition {
 
     IUserContext ucxt;

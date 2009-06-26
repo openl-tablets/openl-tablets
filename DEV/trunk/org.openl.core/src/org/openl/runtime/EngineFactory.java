@@ -124,7 +124,7 @@ public class EngineFactory<T> {
     // These fieldValues may be derived from other fieldValues, or set by constructor directly
     private IOpenSourceCodeModule sourceCode;
     private OpenL openl;
-    private IUserContext ucxt;
+    private IUserContext userContext;
     
     private String openlName;
     private String userHome = ".";
@@ -133,52 +133,97 @@ public class EngineFactory<T> {
     // These fields are initialized internally and can't be passed as a parameter of constructor
     private IOpenClass openClass;
     private Map<Method, IOpenMember> methodMap;
-
+    
+    /**
+     * 
+     * @param openlName Name of OpenL configuration {@link OpenL}.
+     * @param factoryDef Engine factory definition {@link EngineFactoryDefinition}.
+     * @param engineInterface User interface of rule.
+     */
     public EngineFactory(String openlName, EngineFactoryDefinition factoryDef, Class<T> engineInterface) {
         this.openlName = openlName;
-        this.ucxt = factoryDef.ucxt;
+        this.userContext = factoryDef.ucxt;
         this.sourceCode = factoryDef.sourceCode;
 
         this.engineInterface = engineInterface;
     }
-
+    
+    /**
+     * 
+     * @param openlName Name of OpenL configuration {@link OpenL}
+     * @param file Rule file
+     * @param engineInterface User interface of rule
+     */
     public EngineFactory(String openlName, File file, Class<T> engineInterface) {
         this.openlName = openlName;
         sourceCode = new FileSourceCodeModule(file, null);
         this.engineInterface = engineInterface;
     }
-
+    
+    /**
+     * 
+     * @param openlName Name of OpenL configuration {@link OpenL}
+     * @param sourceFile A pathname of rule file string
+     * @param engineInterface User interface of a rule
+     */
     public EngineFactory(String openlName, String sourceFile, Class<T> engineInterface) {
         this.openlName = openlName;
         this.sourceFile = sourceFile;
         this.engineInterface = engineInterface;
     }
-
-    public EngineFactory(String openlName, String sourceFile, Class<T> engineInterface, IUserContext cxt) {
+    
+    /**
+     * 
+     * @param openlName Name of OpenL configuration {@link OpenL}
+     * @param sourceFile A pathname of rule file string
+     * @param engineInterface User interface of a rule
+     * @param userContext User context {@link IUserContext}
+     */
+    public EngineFactory(String openlName, String sourceFile, Class<T> engineInterface, IUserContext userContext) {
         this.openlName = openlName;
         this.sourceFile = sourceFile;
         this.engineInterface = engineInterface;
-        this.ucxt = cxt;
+        this.userContext = userContext;
     }
-
+    
+    /**
+     * 
+     * @param openlName Name of OpenL configuration {@link OpenL}
+     * @param userHome Current path of Openl userHome
+     * @param sourceFile A pathname of rule file string
+     * @param engineInterface User interface of a rule
+     */
     public EngineFactory(String openlName, String userHome, String sourceFile, Class<T> engineInterface) {
         this.openlName = openlName;
         this.userHome = userHome;
         this.sourceFile = sourceFile;
         this.engineInterface = engineInterface;
     }
-
+    
+    /**
+     * 
+     * @param openlName Name of OpenL configuration {@link OpenL}
+     * @param url Url to rule file
+     * @param engineInterface User interface of a rule
+     */
     public EngineFactory(String openlName, URL url, Class<T> engineInterface) {
         this.openlName = openlName;
         sourceCode = new URLSourceCodeModule(url);
         this.engineInterface = engineInterface;
     }
-
-    public EngineFactory(String openlName, URL url, Class<T> engineInterface, IUserContext cxt) {
+    
+    /**
+     * 
+     * @param openlName Name of OpenL configuration {@link OpenL}
+     * @param url Url to rule file
+     * @param engineInterface User interface of a rule
+     * @param userContext User context {@link IUserContext}
+     */
+    public EngineFactory(String openlName, URL url, Class<T> engineInterface, IUserContext userContext) {
         this.openlName = openlName;
         sourceCode = new URLSourceCodeModule(url);
         this.engineInterface = engineInterface;
-        this.ucxt = cxt;
+        this.userContext = userContext;
     }
     
     /**     
@@ -217,10 +262,10 @@ public class EngineFactory<T> {
      * @return user context.
      */
     public synchronized IUserContext getUserContext() {
-        if (ucxt == null) {
-            ucxt = new UserContext(getDefaultUserClassLoader(), userHome);
+        if (userContext == null) {
+            userContext = new UserContext(getDefaultUserClassLoader(), userHome);
         }
-        return ucxt;
+        return userContext;
     }
     
     protected ClassLoader getDefaultUserClassLoader() {
