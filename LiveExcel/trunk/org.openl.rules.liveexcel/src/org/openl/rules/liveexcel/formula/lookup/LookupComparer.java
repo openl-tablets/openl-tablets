@@ -64,7 +64,7 @@ public class LookupComparer {
      */
     public static boolean isStringMatched(StringEval matcherParameter, ValueEval valueToMatch) {
         if (valueToMatch instanceof StringValueEval
-                && matcherParameter.getStringValue().equals(((StringValueEval) valueToMatch).getStringValue())) {
+                && matcherParameter.getStringValue().trim().equals(((StringValueEval) valueToMatch).getStringValue().trim())) {
             return true;
         } else {
             return false;
