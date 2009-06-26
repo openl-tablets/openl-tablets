@@ -179,6 +179,7 @@ public abstract class FunctionEval implements OperationEval {
 		retval[212] = NumericFunction.ROUNDUP;
 		retval[213] = NumericFunction.ROUNDDOWN;
 
+        retval[220] = new Days360();
 		retval[221] = new Today();
 
 		retval[227] = AggregateFunction.MEDIAN;
