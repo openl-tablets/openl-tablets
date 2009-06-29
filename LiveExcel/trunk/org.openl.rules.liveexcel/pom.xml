@@ -27,14 +27,14 @@
       </plugin>
     </plugins>	
 
-    <resources>
-      <resource>
+    <testResources>
+      <testResource>
         <directory>test</directory>
         <includes>
           <include>**/*.properties</include>
         </includes>
-      </resource>
-    </resources>
+      </testResource>
+    </testResources>
   </build>
   <dependencies>
     <dependency>
