@@ -54,7 +54,7 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
                     return lookupData.getValue(lookupData.getWidth() - 1, i);
                 }
             }
-            log.error("No matched values in lookup [" +declFuncName + "]");
+            log.warn("No matched values in lookup [" +declFuncName + "]");
             return ErrorEval.NA;
         }
     }

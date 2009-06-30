@@ -42,7 +42,7 @@ public abstract class LiveExcelFunction implements FreeRefFunction {
             if (result == ErrorEval.VALUE_INVALID) {
                 log.error("Wrong arguments for function [" + declFuncName + "]");
             } else if (result == ErrorEval.NA) {
-                log.error("No output available from function [" + declFuncName + "]");
+                log.warn("No output available from function [" + declFuncName + "]");
             } else {
                 log.error("Error in function [" + declFuncName + "]" + "Error message :"
                         + ErrorEval.getText(((ErrorEval) result).getErrorCode()));
