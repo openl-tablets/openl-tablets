@@ -16,6 +16,29 @@ public class GridRegion implements IGridRegion {
         this.bottom = bottom;
         this.right = right;
     }
+    
+    public GridRegion(IGridRegion reg, short side, int coord)
+    {
+    	this(reg);
+    	switch(side)
+    	{
+    	case TOP:
+    		top = coord;
+    		break;
+    	case LEFT:
+    		left = coord;
+    		break;
+    	case RIGHT:
+    		right = coord;
+    		break;
+    	case BOTTOM:
+    		bottom = coord;
+    		break;
+    	default:
+    		throw new IllegalArgumentException("Wrong IGridRegion side argument: " + side);
+    	}
+    }
+    
 
     public int getBottom() {
         return bottom;

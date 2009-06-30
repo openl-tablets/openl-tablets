@@ -11,6 +11,9 @@ package org.openl.rules.table;
  *
  */
 public interface IGridRegion {
+	
+	static final public short TOP = 0, LEFT = 1, BOTTOM = 2, RIGHT = 3; 
+	
     static public class Tool {
         static public boolean contains(IGridRegion i1, int x, int y) {
             return i1.getLeft() <= x && x <= i1.getRight() && i1.getTop() <= y && y <= i1.getBottom();
