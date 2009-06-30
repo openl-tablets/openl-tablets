@@ -53,6 +53,12 @@ public class TablePrinter {
         this.separator = separator;
     }
 
+    public TablePrinter(ITableAdaptor adaptor, String[] alignment, String separator) {
+        tableAdaptor = adaptor;
+        this.alignment = alignment;
+        this.separator = separator;
+    }
+
     /**
      * @param data
      * @return
