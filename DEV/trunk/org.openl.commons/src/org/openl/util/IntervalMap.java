@@ -72,6 +72,40 @@ public class IntervalMap<T, V> {
         }
 
     }
+    
+    
+    public boolean removeInterval(Comparable<T> fromKey, Comparable<T> toKey, V value)
+    {
+        SortedMap<Comparable<T>, List<V>> submap = map.subMap(fromKey, toKey);
+        
+        if (submap.size() == 0)
+        	throw new RuntimeException("Interval not found! " + fromKey + " - " + toKey);
+        
+
+        if (!submap.firstKey().equals(fromKey))
+        	throw new RuntimeException("Interval should start with " + toKey);
+        
+        List<Comparable<T>> removedKeys = new ArrayList<Comparable<T>>();
+        
+        for (Map.Entry<Comparable<T>, List<V>> e : submap.entrySet()) {
+			boolean removed = e.getValue().remove(value);
+			if (removed == false)
+				throw new RuntimeException("Value not found: " + value + " at the Key: " + e.getKey());
+			
+			if (e.getValue().size() == 0)
+				removedKeys.add(e.getKey());
+		}
+        
+//        for (Comparable<T> key : removedKeys) {
+//        	map.remove(key);
+//		}
+        
+        return true;
+        
+        
+
+    }
+    
 
     public TreeMap<Comparable<T>, List<V>> treeMap() {
         return map;
