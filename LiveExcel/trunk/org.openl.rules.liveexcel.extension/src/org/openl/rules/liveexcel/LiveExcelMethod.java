@@ -6,6 +6,7 @@ import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
 import org.openl.types.IOpenMethodHeader;
@@ -29,9 +30,7 @@ public class LiveExcelMethod extends AMethod {
         ValueEval evaluate = evaluator.evaluateServiceModelUDF(declaredFunction.getDeclFuncName(), params);
         Class<?> returnType = declaredFunction.getReturnCell().getParamType();
         if (returnType != null && returnType.isAssignableFrom(Calendar.class)) {
-            Calendar instance = Calendar.getInstance();
-            instance.setTimeInMillis((long) ((NumberEval) evaluate).getNumberValue());
-            return instance;
+            return DateUtil.getJavaDate(((NumberEval) evaluate).getNumberValue());
         } else if (returnType != null && evaluate instanceof StringEval) {
             Object object = workbook.getEvaluationContext().getDataPool().get(((StringEval) evaluate).getStringValue());
             if (object != null) {
