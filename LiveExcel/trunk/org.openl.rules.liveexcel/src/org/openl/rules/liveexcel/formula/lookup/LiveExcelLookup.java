@@ -1,9 +1,9 @@
 package org.openl.rules.liveexcel.formula.lookup;
 
-import org.apache.poi.hssf.record.formula.eval.BlankEval;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.Eval;
-import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
@@ -16,6 +16,8 @@ import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
  * @author PUdalau
  */
 public class LiveExcelLookup extends ParsedDeclaredFunction {
+
+    private static final Log log = LogFactory.getLog(LiveExcelLookup.class);
 
     private Grid lookupData;
 
@@ -52,6 +54,7 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
                     return lookupData.getValue(lookupData.getWidth() - 1, i);
                 }
             }
+            log.error("No matched values in lookup [" +declFuncName + "]");
             return ErrorEval.NA;
         }
     }
