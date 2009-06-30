@@ -15,6 +15,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTable;
 
 /**
  * @author snshor
@@ -67,8 +68,9 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
         for (int i = 0; i < w; i++) {
             String s = t.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
 
-            if (s != null && s.length() >= 2) {
-                cnt += (s.charAt(0) == 'C' || s.charAt(0) == 'A') && Character.isDigit(s.charAt(1)) ? 1 : 0;
+            if (s != null) {
+            	s = s.toUpperCase();
+                cnt += isValidConditionHeader(s) || isActionHeader(s) ? 1 : 0;
             }
         }
 
@@ -76,28 +78,99 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
 
     }
 
+    boolean hasHConditions(ILogicalTable t) {
+        int w = t.getLogicalWidth();
+        for (int i = 0; i < w; i++) {
+            String s = t.getLogicalColumn(i).getGridTable().getCell(0, 0).getStringValue();
+
+            if (s != null) {
+            	s = s.toUpperCase();
+            	if (DTLookupConvertor.isValidHConditionHeader(s))
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+    
+    
+    
+    /**
+     * 
+     * @param s - not null string converted to uppercase before testing
+     * the same is true for all isValid..() functions in this class
+     * @return
+     */
+    
+    public static boolean isValidConditionHeader(String s)
+    {
+    	return s.length() >=2 && s.charAt(0) == 'C' && Character.isDigit(s.charAt(1));
+    }
+
+    public static boolean isValidActionHeader(String s)
+    {
+    	return s.length() >=2 && s.charAt(0) == 'A' && Character.isDigit(s.charAt(1));
+    }
+    
+    public static boolean isValidRetHeader(String s)
+    {
+    	return s.length() >=3 && s.startsWith(RETURN) && (s.length() ==  3 || Character.isDigit(s.charAt(3)));
+    }
+
+    public static boolean isValidRuleHeader(String s)
+    {
+    	return s.equals(RULE);
+    }
+    
+    public static boolean isValidCommentHeader(String s)
+    {
+    	return s.startsWith("//");
+    }
+    
+    public static boolean isActionHeader(String s)
+    {
+    	return isValidActionHeader(s) || isValidRetHeader(s);
+    }
+    
+    public static boolean isConditionHeader(String s)
+    {
+    	return isValidConditionHeader(s) || DTLookupConvertor.isValidHConditionHeader(s);
+    }
+    
+    
+
     public DecisionTable load(TableSyntaxNode tsn, DecisionTable dt, OpenL openl, ModuleOpenClass module,
             IBindingContextDelegator cxtd) throws Exception {
 
         dt.setTableSyntaxNode(tsn);
         int startRow = tsn.getTableProperties() == null ? 1 : 2;
         ILogicalTable tableBody = tsn.getTable().rows(startRow);
-
-        if (looksLikeTransposed(tableBody)) {
-            tableBody = tableBody.transpose();
+        
+        ILogicalTable transposed = tableBody.transpose();
+        
+        ILogicalTable toParse = tableBody;
+        
+        if (hasHConditions(tableBody))
+        {	
+        	toParse = LogicalTable.logicalTable( new DTLookupConvertor().convertTable(tableBody).transpose());
+        	tableBody = transposed;
+        }	
+        else if (looksLikeTransposed(tableBody)) {
+            toParse = tableBody = transposed;
         }
 
-        if (tableBody.getLogicalWidth() < DATA_COLUMN) {
+        if (toParse.getLogicalWidth() < DATA_COLUMN) {
             throw new Exception("Invalid structure of decision table");
         }
 
-        columns = tableBody.getLogicalWidth() - DATA_COLUMN;
+        columns = toParse.getLogicalWidth() - DATA_COLUMN;
 
         ILogicalTable businessView = tableBody.columns(DATA_COLUMN - 1);
         tsn.getSubTables().put(VIEW_BUSINESS, businessView);
 
-        for (int i = 0; i < tableBody.getLogicalHeight(); i++) {
-            loadRow(i, tableBody);
+        for (int i = 0; i < toParse.getLogicalHeight(); i++) {
+            loadRow(i, toParse);
         }
 
         // DecisionTableStructure dts = new DecisionTableStructure();
@@ -120,13 +193,13 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
         }
 
         String header = headerStr.toUpperCase();
-        if (header.startsWith(CONDITION)) {
+        if (isConditionHeader(header)) {
             addCondition(headerStr, row, table);
-        } else if (header.startsWith(ACTION)) {
+        } else if (isValidActionHeader(header)) {
             addAction(headerStr, row, table);
-        } else if (header.equals(RULE)) {
+        } else if (isValidRuleHeader(header)) {
             addRule(row, table);
-        } else if (header.startsWith(RETURN)) {
+        } else if (isValidRetHeader(header)) {
             addReturnAction(headerStr, row, table);
         }
 
