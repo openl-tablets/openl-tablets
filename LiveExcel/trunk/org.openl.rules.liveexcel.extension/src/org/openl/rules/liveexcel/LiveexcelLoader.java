@@ -80,12 +80,11 @@ public class LiveexcelLoader implements IExtensionLoader {
         try {
             wb = LiveExcelWorkbookFactory.create(source.getByteStream(), projectName);
             XlsWorkbookSourceCodeModule xlsWorkbookSourceCodeModule = new XlsWorkbookSourceCodeModule(source, wb);
-            
             DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(wb);
             searcher.findFunctions();
             xlsLoader.addExtensionNode(new IdentifierNode(LIVEEXCEL_TYPE, null, source.getCode(), xlsWorkbookSourceCodeModule));
         } catch (Exception e) {
-             throw new RuntimeException("Error processing file.");
+             throw new RuntimeException("Error processing file.", e);
         }
     }
 
