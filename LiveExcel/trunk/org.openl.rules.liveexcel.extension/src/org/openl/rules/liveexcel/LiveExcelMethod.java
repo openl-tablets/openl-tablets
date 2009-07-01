@@ -29,7 +29,7 @@ public class LiveExcelMethod extends AMethod {
         LiveExcelEvaluator evaluator = new LiveExcelEvaluator(workbook, workbook.getEvaluationContext());
         ValueEval evaluate = evaluator.evaluateServiceModelUDF(declaredFunction.getDeclFuncName(), params);
         Class<?> returnType = declaredFunction.getReturnCell().getParamType();
-        if (returnType != null && returnType.isAssignableFrom(Calendar.class)) {
+        if (returnType != null && Calendar.class.isAssignableFrom(returnType)) {
             return DateUtil.getJavaDate(((NumberEval) evaluate).getNumberValue());
         } else if (returnType != null && evaluate instanceof StringEval) {
             Object object = workbook.getEvaluationContext().getDataPool().get(((StringEval) evaluate).getStringValue());
