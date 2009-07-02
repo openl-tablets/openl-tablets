@@ -311,7 +311,7 @@ public class EngineFactory<T> {
                         }
                     }
                 }    
-                throw new RuntimeException(String.format("Method \"%s\" not found", interfaceMethod));
+                throw new RuntimeException(String.format("There is no implementation in rules for interface method \"%s\"", interfaceMethod));
             }
         }
         
