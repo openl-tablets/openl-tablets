@@ -156,6 +156,7 @@ public class TableEditorModel {
     private IGridTable table;
     private GridRegion region;
     private int numberOfNonShownRows;
+    private int numberOfNonShownCols;
 
     private GridTable[] othertables;
 
@@ -169,6 +170,7 @@ public class TableEditorModel {
         this.table = table;
         region = new GridRegion(getOriginalTable(table).getRegion());
         numberOfNonShownRows = table.getRegion().getTop() - region.getTop();
+        numberOfNonShownCols = table.getRegion().getLeft() - region.getLeft();
         othertables = new GridSplitter(table.getGrid()).split();
 
         XlsSheetGridModel grid = (XlsSheetGridModel) table.getGrid();
@@ -285,8 +287,8 @@ public class TableEditorModel {
             return new GridTable(region.getTop() - 3, region.getLeft() - 3, region.getBottom() + 3,
                     region.getRight() + 3, table.getGrid());
         }
-        return new GridTable(region.getTop() + numberOfNonShownRows, region.getLeft(), region.getBottom(), region
-                .getRight(), table.getGrid());
+        return new GridTable(region.getTop() + numberOfNonShownRows, region.getLeft() + numberOfNonShownCols,
+                region.getBottom(), region.getRight(), table.getGrid());
 
     }
 
@@ -432,12 +434,19 @@ public class TableEditorModel {
     public int tY(int row) {
         return region.getTop() + row;
     }
-    
+
     /**
      * @return Count of rows that is not showed.
      */
     public int getNumberOfNonShownRows() {
         return numberOfNonShownRows;
+    }
+
+    /**
+     * @return Count of columns that is not showed.
+     */
+    public int getNumberOfNonShownCols() {
+        return numberOfNonShownCols;
     }
 
     public synchronized void undo() {
