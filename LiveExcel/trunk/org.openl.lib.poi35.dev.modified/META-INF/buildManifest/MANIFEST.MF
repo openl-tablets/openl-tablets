@@ -121,11 +121,15 @@ Export-Package: org,
  org.apache.poi.xwpf,
  org.apache.poi.xwpf.extractor,
  org.apache.poi.xwpf.model,
- org.apache.poi.xwpf.usermodel
+ org.apache.poi.xwpf.usermodel,
+ org.openxmlformats.schemas.spreadsheetml.x2006.main,
+ org.apache.xmlbeans,
+ org.openxmlformats.schemas.officeDocument.x2006.relationships 
 Bundle-ClassPath: .,
  lib/commons-lang-2.3.jar,
  lib/commons-logging-1.1.jar,
  lib/commons-logging-api-1.0.4.jar,
  lib/dom4j-1.6.1.jar,
+ lib/junit-4.5.jar,
  lib/ooxml-schemas-1.0.jar,
  lib/xmlbeans-2.3.0.jar
