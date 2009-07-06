@@ -17,7 +17,7 @@
 		<profile>
 			<id>unit</id>
 			<activation>
-				<activeByDefault />
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<build>
 				<plugins>
@@ -26,7 +26,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
 							<excludes>
-								<exclude>**/PerformanceAndThreadSafetyTest.java</exclude>
+							<exclude>**/PerformanceAndThreadSafetyTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -35,11 +35,6 @@
 		</profile>
 		<profile>
 			<id>alltest</id>
-			<!-- 
-			<activation>
-				<activeByDefault />
-			</activation>
-			 -->
 			<build>
 				<plugins>
 					<plugin>
