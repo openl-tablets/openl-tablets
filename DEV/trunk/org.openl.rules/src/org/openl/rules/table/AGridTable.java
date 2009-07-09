@@ -6,7 +6,6 @@
 
 package org.openl.rules.table;
 
-import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor
