@@ -85,8 +85,12 @@
       <fileset dir="${plugin.base.path}">
         <include name="**/org.openl.*${openl.plugin.version}.jar" />
       </fileset>
+    	
+      <!--copy org.openl.lib.poi35.dev.modified-5.3.0-SNAPSHOT.jar to webstudio lib -->    	
+      <fileset dir="${plugin.base.path}/org.openl.poi.lib${openl.plugin.version}/lib">    	
+    	<include name="**/org.openl.lib.poi35.dev.modified*.jar" />
+      </fileset>    	
     </copy>
-
 
     <copy todir="${webapps.client.dir}/WEB-INF/lib" flatten="true" verbose="true">
       <fileset dir="${project.lib}" includes="**/*.jar" />
