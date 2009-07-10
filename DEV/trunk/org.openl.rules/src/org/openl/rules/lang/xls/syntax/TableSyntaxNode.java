@@ -54,6 +54,10 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
         header.setParent(this);
     }
 
+    public void setTable(IGridTable gridTable) {
+        table = LogicalTable.logicalTable(gridTable);
+    }
+
     public void addError(ISyntaxError error) {
         if (errors == null) {
             errors = new ArrayList<ISyntaxError>();
