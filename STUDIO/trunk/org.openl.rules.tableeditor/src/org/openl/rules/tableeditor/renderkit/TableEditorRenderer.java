@@ -12,7 +12,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ITable;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.model.EditorHelper;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
@@ -24,24 +24,22 @@ public class TableEditorRenderer extends TableViewerRenderer {
     @SuppressWarnings("unchecked")
     @Override
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
-        IGridTable table = (IGridTable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
+        ITable table = (ITable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
         ResponseWriter writer = context.getResponseWriter();
-        if (table == null) {
-            writer.write("");
-        }
         Map editorParams = component.getAttributes();
         Boolean editable = getBooleanParam(editorParams.get(Constants.ATTRIBUTE_EDITABLE));
         ExternalContext externalContext = context.getExternalContext();
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
         String mode = (String) editorParams.get(Constants.ATTRIBUTE_MODE);
+        String view = (String) editorParams.get(Constants.ATTRIBUTE_VIEW);
         String editorId = component.getClientId(context);
         IGridFilter filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         List<ActionLink> actionLinks = getActionLinks(component);
         String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
         if (editable) {
-            initEditorHelper(externalContext, editorId, table);
+            initEditorHelper(externalContext, editorId, table, view);
         }
-        writer.write(new HTMLRenderer().render(mode, table, actionLinks, editable, cellToEdit,
+        writer.write(new HTMLRenderer().render(mode, table, view, actionLinks, editable, cellToEdit,
                 false, editorId, filter));
     }
 
@@ -90,7 +88,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
     }
 
     @SuppressWarnings("unchecked")
-    private void initEditorHelper(ExternalContext externalContext, String editorId, IGridTable table) {
+    private void initEditorHelper(ExternalContext externalContext, String editorId, ITable table, String view) {
         Map sessionMap = externalContext.getSessionMap();
         synchronized (sessionMap) {
             Map helperMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_HELPER_NAME);
@@ -99,7 +97,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
                 sessionMap.put(Constants.TABLE_EDITOR_HELPER_NAME, helperMap);
             }
             EditorHelper editorHelper = new EditorHelper();
-            editorHelper.init(table);
+            editorHelper.init(table.getGridTable(view));
             helperMap.put(editorId, editorHelper);
         }
     }

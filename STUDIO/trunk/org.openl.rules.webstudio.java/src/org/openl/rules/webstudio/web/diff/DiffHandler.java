@@ -19,6 +19,8 @@ import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
+
+import org.openl.rules.table.ITable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.IGridFilter;
@@ -151,15 +153,15 @@ public class DiffHandler {
         this.showEqualElements = showEqualElements;
     }
 
-    public IGridTable getTable1() {
+    public ITable getTable1() {
         return getTable(0);
     }
 
-    public IGridTable getTable2() {
+    public ITable getTable2() {
         return getTable(1);
     }
 
-    public IGridTable getTable(int i) {
+    public ITable getTable(int i) {
         DiffTreeNode tree = DiffHelper.getDiffNodeById(diffTree, getId());
         if (tree != null) {
             DiffElement[] elems = tree.getElements();
@@ -169,7 +171,7 @@ public class DiffHandler {
                     String projType = projection.getType();
                     if (projType.equalsIgnoreCase((XlsProjectionType.TABLE.name()))) {
                         ProjectionProperty[] props = projection.getProperties();
-                        return (IGridTable) DiffHelper.getPropValue(props, "grid");
+                        return (ITable) DiffHelper.getPropValue(props, "grid");
                     }
                 }
             }
@@ -191,7 +193,7 @@ public class DiffHandler {
                     String projType = projection.getType();
                     if (projType.equalsIgnoreCase((XlsProjectionType.TABLE.name()))) {
                         ProjectionProperty[] props = projection.getProperties();
-                        IGridTable table = (IGridTable) DiffHelper.getPropValue(props, "grid");
+                        ITable table = (ITable) DiffHelper.getPropValue(props, "grid");
                         List<DiffTreeNode> cells = DiffHelper.getDiffNodesByType(tree, XlsProjectionType.CELL.name());
                         List<ICell> diffCells = new ArrayList<ICell>();
                         for (DiffTreeNode cellNode : cells) {
@@ -202,7 +204,7 @@ public class DiffHandler {
                                 diffCells.add(cell);
                             }
                         }
-                        return makeFilter(table, diffCells);
+                        return makeFilter(table.getGridTable(), diffCells);
                     }
                 }
             }

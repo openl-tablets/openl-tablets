@@ -26,6 +26,10 @@
             <description>The table grid</description>
         </attribute>
         <attribute>
+            <name>view</name>
+            <description>The table view - Business or Developer</description>
+        </attribute>
+        <attribute>
             <name>filter</name>
             <required>false</required>
             <description>The table filter</description>
@@ -49,6 +53,10 @@
             <name>table</name>
             <required>true</required>
             <description>The table grid</description>
+        </attribute>
+        <attribute>
+            <name>view</name>
+            <description>The table view - Business or Developer</description>
         </attribute>
         <attribute>
             <name>filter</name>

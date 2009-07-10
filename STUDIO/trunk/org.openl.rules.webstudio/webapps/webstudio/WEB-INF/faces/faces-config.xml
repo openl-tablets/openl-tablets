@@ -139,7 +139,7 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>diffState</managed-bean-name>
+    <managed-bean-name>State</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.StructuredDiffState</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
@@ -186,6 +186,12 @@
     <managed-bean-name>diffHandler</managed-bean-name>
     <managed-bean-class>org.openl.rules.webstudio.web.diff.DiffHandler</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>BusinessSearchHandler</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.search.BusinessSearchHandler</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
 
   <navigation-rule>

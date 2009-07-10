@@ -243,7 +243,7 @@ public class TableEditorController extends BaseTableViewController implements JS
     public String edit() {
         String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
         String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
-        return new HTMLRenderer().render("edit", null, null, false, cellToEdit, true, editorId, null);
+        return new HTMLRenderer().render("edit", null, null, null, false, cellToEdit, true, editorId, null);
     }
 
     public String editXls() {

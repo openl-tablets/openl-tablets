@@ -5,6 +5,7 @@ public final class Constants {
     public static final String MODE_EDIT = "edit";
 
     public static final String ATTRIBUTE_TABLE = "table";
+    public static final String ATTRIBUTE_VIEW = "view";
     public static final String ATTRIBUTE_FILTER = "filter";
     public static final String ATTRIBUTE_MODE = "mode";
     public static final String ATTRIBUTE_EDITABLE = "editable";

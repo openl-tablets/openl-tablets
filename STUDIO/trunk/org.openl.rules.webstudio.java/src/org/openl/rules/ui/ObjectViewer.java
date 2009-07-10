@@ -29,6 +29,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.search.ISearchTableRow;
 import org.openl.rules.search.OpenLAdvancedSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
@@ -751,10 +752,11 @@ public class ObjectViewer {
                 StringValue tableName = getTableName(tsn);
                 String tableUri = tsn.getUri();
                 CompositeGrid cg = sviewer.makeGrid(tr[i].getRows());
-                IGridTable table = cg != null ? cg.asGridTable() : null;
+                IGridTable gridTable = cg != null ? cg.asGridTable() : null;
+                tsn.setTable(gridTable);
                 TableSearch tableSearch = new TableSearch();
                 tableSearch.setTableUri(tableUri);
-                tableSearch.setTable(table);
+                tableSearch.setTable(new TableSyntaxNodeAdapter(tsn));
                 tableSearch.setXlsLink((displayResult(tableName)));
                 tableSearchList.add(tableSearch);
             }

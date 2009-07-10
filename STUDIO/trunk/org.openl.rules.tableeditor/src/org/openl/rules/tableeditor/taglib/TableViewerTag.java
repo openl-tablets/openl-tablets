@@ -7,6 +7,7 @@ import org.openl.rules.tableeditor.util.Constants;
 public class TableViewerTag extends BaseTag {
 
     private Object table = null;
+    private String view = null;
     private Object filter = null;
 
     @Override
@@ -23,8 +24,24 @@ public class TableViewerTag extends BaseTag {
         return table;
     }
 
+    public void setTable(Object table) {
+        this.table = table;
+    }
+
+    public String getView() {
+        return view;
+    }
+
+    public void setView(String view) {
+        this.view = view;
+    }
+
     public Object getFilter() {
         return filter;
+    }
+
+    public void setFilter(Object filter) {
+        this.filter = filter;
     }
 
     @Override
@@ -40,14 +57,9 @@ public class TableViewerTag extends BaseTag {
         // always call the superclass method
         super.setProperties(component);
         setObject(component, Constants.ATTRIBUTE_TABLE, table);
-        setObject(component, Constants.ATTRIBUTE_TABLE, filter);
+        setObject(component, Constants.ATTRIBUTE_VIEW, view);
+        setObject(component, Constants.ATTRIBUTE_FILTER, filter);
     }
 
-    public void setTable(Object table) {
-        this.table = table;
-    }
 
-    public void setFilter(Object filter) {
-        this.filter = filter;
-    }
 }

@@ -1,14 +1,14 @@
 package org.openl.rules.ui.search;
 
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ITable;
 
 public class TableSearch {
 
     private String tableUri;
-    private IGridTable table;
+    private ITable table;
     private String xlsLink;
 
-    public IGridTable getTable() {
+    public ITable getTable() {
         return table;
     }
 
@@ -20,7 +20,7 @@ public class TableSearch {
         return xlsLink;
     }
 
-    public void setTable(IGridTable table) {
+    public void setTable(ITable table) {
         this.table = table;
     }
 
