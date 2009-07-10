@@ -682,15 +682,18 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public void removeMergedRegion(IGridRegion remove) {
+        removeMergedRegion(remove.getLeft(), remove.getTop());
+    }
+
+    public void removeMergedRegion(int x, int y) {
         int nregions = getNumberOfMergedRegions();
         for (int i = 0; i < nregions; i++) {
             Region reg = getMergedRegionAt(i);
-            if (reg.getColumnFrom() == remove.getLeft() && reg.getRowFrom() == remove.getTop()) {
+            if (reg.getColumnFrom() == x && reg.getRowFrom() == y) {
                 sheet.removeMergedRegion(i);
                 return;
             }
         }
-
     }
 
     /**
