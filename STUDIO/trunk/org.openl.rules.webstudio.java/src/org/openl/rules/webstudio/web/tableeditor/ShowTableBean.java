@@ -9,7 +9,10 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.service.TableServiceException;
+import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.AllTestsRunResult;
@@ -235,5 +238,18 @@ public class ShowTableBean {
     public boolean isTsnHasErrors() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
         return webStudio != null && webStudio.getModel().hasErrors(uri);
+    }
+
+    public String removeTable() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        IGridTable table = studio.getModel().getTableWithMode(uri, IXlsTableNames.VIEW_DEVELOPER);
+        try {
+            new TableServiceImpl().removeTable(table);
+        } catch (TableServiceException e) {
+            e.printStackTrace();
+            //TODO UI exception
+            return null;
+        }
+        return "mainPage";
     }
 }

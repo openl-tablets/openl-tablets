@@ -346,6 +346,11 @@
 
   <navigation-rule>
     <navigation-case>
+      <from-outcome>mainPage</from-outcome>
+      <to-view-id>/mainRedirect.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+      <navigation-case>
       <from-outcome>wizardSelect</from-outcome>
       <to-view-id>/facelets/tableWizard/newTable0.xhtml</to-view-id>
     </navigation-case>

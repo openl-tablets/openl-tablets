@@ -103,20 +103,27 @@
 
         <br />
 
-        <h:outputLink rendered="#{showTableBean.editable}"
-            value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
-            <f:param name="uri" value="#{showTableBean.uri}" />
-            <f:param name="mode" value="edit" />
-            <f:param name="view" value="#{showTableBean.view}" />
-            Edit Table
-        </h:outputLink>
-        <f:verbatim>&amp;nbsp;</f:verbatim>
-        <h:outputLink rendered="#{showTableBean.copyable}"
-            value="#{contextPath}/faces/facelets/tableCopier/copyTable.xhtml">
-            <f:param name="uri" value="#{showTableBean.uri}" />
-            Copy Table
-        </h:outputLink>
-        <br /><br />
+        <h:form>
+            <h:outputLink rendered="#{showTableBean.editable}"
+                value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                <f:param name="uri" value="#{showTableBean.uri}" />
+                <f:param name="mode" value="edit" />
+                <f:param name="view" value="#{showTableBean.view}" />
+                Edit Table
+            </h:outputLink>
+            <f:verbatim>&amp;nbsp;</f:verbatim>
+            <h:outputLink rendered="#{showTableBean.copyable}"
+                value="#{contextPath}/faces/facelets/tableCopier/copyTable.xhtml">
+                <f:param name="uri" value="#{showTableBean.uri}" />
+                Copy Table
+            </h:outputLink>
+            <f:verbatim>&amp;nbsp;</f:verbatim>
+            <h:commandLink action="#{showTableBean.removeTable}"
+                onclick="if(!confirm('Do you really want to remove this table?'))return false;">
+                Remove Table
+            </h:commandLink>
+        </h:form>
+        <br />
 
         <script type="text/javascript">
             function triggerSearch(f) {
