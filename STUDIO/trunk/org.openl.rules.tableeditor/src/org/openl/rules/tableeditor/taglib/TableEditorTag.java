@@ -18,8 +18,16 @@ public class TableEditorTag extends TableViewerTag {
         return editable;
     }
 
+    public void setEditable(String editable) {
+        this.editable = editable;
+    }
+
     public String getMode() {
         return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     @Override
@@ -33,14 +41,6 @@ public class TableEditorTag extends TableViewerTag {
         super.release();
         mode = null;
         editable = null;
-    }
-
-    public void setEditable(String editable) {
-        this.editable = editable;
-    }
-
-    public void setMode(String mode) {
-        this.mode = mode;
     }
 
     @Override

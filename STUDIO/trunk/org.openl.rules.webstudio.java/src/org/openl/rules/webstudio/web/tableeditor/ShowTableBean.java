@@ -9,6 +9,9 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.table.ITable;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.service.TableServiceException;
@@ -183,10 +186,10 @@ public class ShowTableBean {
         return se;
     }
 
-    public IGridTable getTable() {
+    public ITable getTable() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        IGridTable table = studio.getModel().getTableWithMode(uri == null ? studio.getTableUri() : uri, getView());
-        return table;
+        TableSyntaxNode tsn = studio.getModel().getNode(uri == null ? studio.getTableUri() : uri);
+        return new TableSyntaxNodeAdapter(tsn);
     }
 
     public TestRunsResultBean getTestRunResults() {

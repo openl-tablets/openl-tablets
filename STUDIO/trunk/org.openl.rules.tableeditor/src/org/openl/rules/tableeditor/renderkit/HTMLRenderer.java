@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.rules.lang.xls.binding.TableProperties;
+import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ITable;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
@@ -109,11 +112,11 @@ public class HTMLRenderer {
         return resources;
     }
 
-    public String render(IGridTable table, String editorId, IGridFilter filter) {
-        return render(null, table, null, false, null, false, editorId, filter);
+    public String render(ITable table, String view, String editorId, IGridFilter filter) {
+        return render(null, table, view, null, false, null, false, editorId, filter);
     }
 
-    public String render(String mode, IGridTable table, List<ActionLink> actionLinks, boolean editable,
+    public String render(String mode, ITable table, String view, List<ActionLink> actionLinks, boolean editable,
             String cellToEdit, boolean inner, String editorId, IGridFilter filter) {
         StringBuilder result = new StringBuilder();
         result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css")).append(
@@ -126,9 +129,9 @@ public class HTMLRenderer {
             result.append("<div id='").append(editorId).append("' class='te_'>");
         }
         if (mode == null || mode.equals(Constants.MODE_VIEW)) {
-            result.append(renderViewer(table, actionLinks, editable, editorId, filter));
+            result.append(renderViewer(table, view, actionLinks, editable, editorId, filter));
         } else if (mode.equals(Constants.MODE_EDIT)) {
-            result.append(renderEditor(editorId, cellToEdit));
+            result.append(renderEditor(editorId, cellToEdit, table));
         }
         if (!inner) {
             result.append("</div>");
@@ -179,7 +182,7 @@ public class HTMLRenderer {
         return "";
     }
 
-    protected String renderEditor(String editorId, String cellToEdit) {
+    protected String renderEditor(String editorId, String cellToEdit, ITable table) {
         StringBuilder result = new StringBuilder();
         cellToEdit = cellToEdit == null ? "" : cellToEdit;
         final String tableId = editorId + Constants.TABLE_ID_POSTFIX;
@@ -190,6 +193,7 @@ public class HTMLRenderer {
                 .append(renderEditorToolbar(editorId, editor)).append(renderJS("js/TextEditor.js")).append(
                         renderJS("js/MultiLineEditor.js")).append(renderJS("js/NumericEditor.js")).append(
                         renderJS("js/DropdownEditor.js"))
+                .append(renderPropsEditor(table))
                 // .append(renderJS("js/SuggestEditor.js"))
                 // .append(renderJS("js/DateEditor.js"))
                 // .append(renderJS("js/PriceEditor.js"))
@@ -286,13 +290,16 @@ public class HTMLRenderer {
         return "";
     }
 
-    protected String renderViewer(IGridTable table, List<ActionLink> actionLinks, boolean editable, String editorId,
-            IGridFilter filter) {
+    protected String renderViewer(ITable table, String view, List<ActionLink> actionLinks, boolean editable,
+            String editorId, IGridFilter filter) {
         StringBuilder result = new StringBuilder();
         if (table != null) {
+            result.append(renderPropsViever(table));
+        }
+        if (table != null) {
             IGridFilter[] filters = (filter == null) ? null : new IGridFilter[] { filter };
-            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(table).getUpdatedTable(),
-                    filters);
+            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(
+                    table.getGridTable(view)).getUpdatedTable(), filters);
             if (tableModel != null) {
                 String menuId = editorId + Constants.MENU_ID_POSTFIX;
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
@@ -306,6 +313,57 @@ public class HTMLRenderer {
                 }
             }
         }
+        return result.toString();
+    }
+
+    protected String renderPropsViever(ITable table) {
+        TableProperties props = table.getProperties();
+        StringBuilder result = new StringBuilder();
+        result.append("<fieldset style='width:300px;margin-bottom:5px;'><legend>Properties</legend>"
+                + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'>");
+        for (Property property : props.getProperties()) {
+            result.append("<tr><td><b>").append(property.getKey()).append(":</b></td><td>")
+                  .append(property.getValue()).append("</td></tr>");
+        }
+        result.append("</table></fieldset>");
+        /*result.append("<fieldset style='width:515px;margin-bottom:5px;'><legend>Properties</legend>"
+                + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'><tr><td><table><tr><td><b>Name:</b></td><td>Table1</td></tr><tr><td><b>Template:</b></td>"
+                + "<td>Standard Rule</td></tr><tr><td><b>Effective Date:</b></td><td>12/12/2009</td></tr>"
+                + "<tr><td><b>Expiration Date:</b></td><td>12/12/2009</td></tr></table></td><td><table>"
+                + "<tr><td><b>Folder:</b></td><td>Folder1</td></tr><tr><td><b>Status:</td><td>Active</b></td></tr>"
+                + "<tr><td><b>Created On:</b></td><td>11/11/2009</td></tr><tr><td><b>Created By:</b></td>"
+                + "<td>Admin - Petr Udalov</td></tr></table></td></tr></table></fieldset>");*/
+        
+        
+        
+        return result.toString();
+    }
+
+    protected String renderPropsEditor(ITable table) {
+        TableProperties props = table.getProperties();
+        StringBuilder result = new StringBuilder();
+        result.append("<fieldset style='width:300px;margin-bottom:5px;'><legend>Properties</legend>"
+                + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'>");
+        for (Property property : props.getProperties()) {
+            result.append("<tr><td><b>").append(property.getKey()).append(":</b></td><td>")
+                  .append("<input id='_" + property.getKey() + "' type='text' value='" + property.getValue() + "' />")
+                  .append("</td></tr>");
+        }
+        result.append("</table></fieldset>");
+        /*result.append(renderJS("js/calendar_us.js"));
+        result.append(renderCSS("css/calendar.css"));
+        result.append("<fieldset style='width:580px;margin-bottom:5px;'><legend>Properties</legend>"
+                + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'><tr><td><table><tr><td><b>Name:</b></td><td><input type='text' value='Table1' /></td></tr><tr><td><b>Template:</b></td>"
+                + "<td><select><option>Standard Rule</option><option>Standard Rule 2</option><option>Standard Rule 3</option></select></td></tr><tr><td><b>Effective Date:</b></td><td><input type='text' value='12/12/2009' id='datepicker1' />")
+                .append(renderJSBody("new tcal ({'controlname': 'datepicker1'});"))
+                .append("</td></tr>"
+                + "<tr><td><b>Expiration Date:</b></td><td><input type='text' value='11/11/2009' id='datepicker2' />")
+                .append(renderJSBody("new tcal ({'controlname': 'datepicker2'});"))
+                .append("</td></tr></table></td><td><table>"
+                + "<tr><td><b>Folder:</b></td><td>Folder1</td></tr><tr><td><b>Status:</td><td><select><option>Active</option><option>Inactive</option></select></b></td></tr>"
+                + "<tr><td><b>Created On:</b></td><td>11/11/2009</td></tr><tr><td><b>Created By:</b></td>"
+                + "<td>Admin - Petr Udalov</td></tr></table></td></tr></table></fieldset>");
+        result.append(renderJSBody("$(function(){$('[name=datepicker]').datepicker({});});"));*/
         return result.toString();
     }
 

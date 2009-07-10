@@ -138,8 +138,8 @@
             <input type="hidden" name="searchQuery" value="" />
         </form>
 
-        <rules:tableEditor table="#{showTableBean.table}" mode="#{showTableBean.mode}"
-            editable="#{showTableBean.editable}">
+        <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
+            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 
