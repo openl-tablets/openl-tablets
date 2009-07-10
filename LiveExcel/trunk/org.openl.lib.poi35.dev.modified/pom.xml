@@ -39,15 +39,14 @@
                                                                         <exclude>log4j:log4j</exclude>
                                                                         <exclude>logkit:logkit</exclude>
                                                                         <exclude>commons-logging:commons-logging-api</exclude>
-                                                                        <exclude>avalon-framework:avalon-framework</exclude>
+                                                                        <exclude>avalon-framework:avalon-framework</exclude>-->
                                                                         <exclude>org.apache.poi:ooxml-schemas</exclude>
                                                                         <exclude>org.apache.xmlbeans:xmlbeans</exclude>
                                                                         <exclude>stax:stax-api</exclude>
                                                                         <exclude>dom4j:dom4j</exclude>
-                                                                        <exclude>xml-apis:xml-apis</exclude>
-                                                                        <exclude>junit:junit</exclude>
+                                                                        <exclude>xml-apis:xml-apis</exclude>                                                                        
                                                                 </excludes>
-                                                        </artifactSet>
+                                                        </artifactSet>														
                                                 </configuration>
                                         </execution>
                                 </executions>
@@ -59,6 +58,12 @@
                         <groupId>org.openl.rules</groupId>
                         <artifactId>org.openl.lib.poi35.dev</artifactId>
                         <version>${dep.version}</version>
+                </dependency>
+				<dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                        <version>4.5</version>
+						<scope>test</scope>
                 </dependency>
         </dependencies>
 </project>
