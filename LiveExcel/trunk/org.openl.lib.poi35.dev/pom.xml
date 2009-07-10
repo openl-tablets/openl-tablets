@@ -50,6 +50,7 @@
                                 <artifactId>maven-dependency-plugin</artifactId>
                                 <executions>
                                         <execution>
+												<id>execution1</id>
                                                 <phase>generate-resources</phase>
                                                 <goals>
                                                         <goal>copy-dependencies</goal>
@@ -58,10 +59,10 @@
                                                         <outputDirectory>${project.build.directory}/../lib</outputDirectory>
                                                         <overWriteReleases>true</overWriteReleases>
                                                         <overWriteSnapshots>true</overWriteSnapshots>
-                                                        <excludeTransitive>true</excludeTransitive>
+                                                        <excludeTransitive>true</excludeTransitive>																
                                                         <type>jar</type>
-                                                </configuration>
-                                        </execution>
+                                                </configuration>												
+                                        </execution>										
                                 </executions>
                         </plugin>
                         <plugin>
@@ -86,8 +87,14 @@
                         <resource>
                                 <directory>${project.build.directory}/..</directory>
                                 <includes>
-                                        <include>lib/**/*.jar</include>
-                                </includes>
+                                        <include>lib/**/*.jar</include>										
+                                </includes>				
+								<excludes>
+									<exclude>lib/**/commons-lang-2.3.jar</exclude>
+									<exclude>lib/**/commons-logging-1.1.jar</exclude>
+									<exclude>lib/**/commons-logging-api-1.0.4.jar</exclude>
+									<exclude>lib/**/dom4j-1.6.1.jar</exclude>									
+								</excludes>
                         </resource>
                         <resource>
                                 <directory>poi/src/resources/main/</directory>
@@ -101,7 +108,7 @@
                 <dependency>
                         <groupId>commons-lang</groupId>
                         <artifactId>commons-lang</artifactId>
-                        <version>2.3</version>
+                        <version>2.3</version>						
                 </dependency>
                 <dependency>
                         <groupId>commons-logging</groupId>
@@ -127,11 +134,6 @@
                         <groupId>dom4j</groupId>
                         <artifactId>dom4j</artifactId>
                         <version>1.6.1</version>
-                </dependency>
-                <dependency>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                        <version>4.5</version>
-                </dependency>
+                </dependency>                
         </dependencies>
 </project>
