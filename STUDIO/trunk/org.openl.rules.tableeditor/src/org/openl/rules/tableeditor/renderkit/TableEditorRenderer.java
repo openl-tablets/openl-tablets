@@ -97,7 +97,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
                 sessionMap.put(Constants.TABLE_EDITOR_HELPER_NAME, helperMap);
             }
             EditorHelper editorHelper = new EditorHelper();
-            editorHelper.init(table.getGridTable(view));
+            editorHelper.init(table);
             helperMap.put(editorId, editorHelper);
         }
     }
