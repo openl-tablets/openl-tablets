@@ -4,6 +4,7 @@
 package org.openl.rules.tableeditor.model;
 
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ITable;
 
 /**
  * @author snshor
@@ -12,6 +13,8 @@ import org.openl.rules.table.IGridTable;
 public class EditorHelper {
 
     private TableEditorModel model;
+    private ITable table;
+    
 
     public EditorHelper() {
     }
@@ -20,16 +23,17 @@ public class EditorHelper {
         return model;
     }
 
-    public void init(IGridTable table) {
-        init(table, true);
+    public void init(ITable table) {
+        this.table = table;
+        init(true);
     }
 
-    public void init(IGridTable table, boolean cancel) {
+    public void init(boolean cancel) {
         if (model != null && cancel) {
             model.cancel();
         }
 
-        TableEditorModel newModel = new TableEditorModel(table);
+        TableEditorModel newModel = new TableEditorModel(table.getGridTable());
 
         if (!cancel && model != null) {
             newModel.getUndoableActions(model);
@@ -48,4 +52,12 @@ public class EditorHelper {
             model = null;
         }
     }
+
+    public ITable getTable() {
+        return table;
+    }
+
+    public void setTable(ITable table) {
+        this.table = table;
+    }   
 }
