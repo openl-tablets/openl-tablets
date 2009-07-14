@@ -53,12 +53,12 @@ public class TableEditorModel {
             this.nRowsOrColumns = nRowsOrColumns;
         }
 
-        public void doSome(GridRegion r, IWritableGrid wgrid, IUndoGrid undoGrid) {
+        public void doSome(IGridRegion r, IWritableGrid wgrid, IUndoGrid undoGrid) {
             gridAction.doAction(wgrid, undoGrid);
             updateRegion(isInsert, isColumns, nRowsOrColumns, r);
         }
 
-        public void undoSome(GridRegion r, IWritableGrid wgrid, IUndoGrid undoGrid) {
+        public void undoSome(IGridRegion r, IWritableGrid wgrid, IUndoGrid undoGrid) {
             updateRegion(!isInsert, isColumns, nRowsOrColumns, r);
             gridAction.undoAction(wgrid, undoGrid);
         }
@@ -68,12 +68,12 @@ public class TableEditorModel {
          * @param isColumns
          * @param rowsOrColumns
          */
-        void updateRegion(boolean isInsert, boolean isColumns, int rowsOrColumns, GridRegion r) {
+        void updateRegion(boolean isInsert, boolean isColumns, int rowsOrColumns, IGridRegion r) {
             int inc = isInsert ? rowsOrColumns : -rowsOrColumns;
             if (isColumns) {
-                r.setRight(r.getRight() + inc);
+                ((GridRegion)r).setRight(r.getRight() + inc);
             } else {
-                r.setBottom(r.getBottom() + inc);
+                ((GridRegion)r).setBottom(r.getBottom() + inc);
             }
         }
     }
@@ -154,7 +154,7 @@ public class TableEditorModel {
     static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 
     private IGridTable table;
-    private GridRegion region;
+    private IGridRegion region;
     private int numberOfNonShownRows;
     private int numberOfNonShownCols;
 
@@ -239,6 +239,14 @@ public class TableEditorModel {
 
     public ICellStyle getCellStyle(int row, int column) {
         return IWritableGrid.Tool.getCellStyle(table.getGrid(), tX(column), tY(row));
+    }
+    
+    /**
+     * After coping or moving the table we need to set new region destination of it
+     * @param newRegion New region of the table
+     */
+    public void setRegion(IGridRegion newRegion) {
+        region = newRegion;
     }
 
     /**

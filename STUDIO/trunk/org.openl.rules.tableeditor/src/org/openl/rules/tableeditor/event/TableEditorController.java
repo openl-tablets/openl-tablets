@@ -3,8 +3,10 @@ package org.openl.rules.tableeditor.event;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 
+import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.EditorHelper;
@@ -222,7 +224,10 @@ public class TableEditorController extends BaseTableViewController implements JS
                     if (editorModel.canAddRows(1)) {
                         editorModel.insertRows(1, row);
                     } else {
-                        tmResponse.setStatus("Can not add row");
+                        IGridRegion newRegion = new TableServiceImpl().moveTable(editorModel.getUpdatedTable(), null);                        
+                        editorModel.setRegion(newRegion);
+                        editorModel.insertRows(1, row);
+                        tmResponse.setStatus("Table was moved to an empty place in file");
                     }
                 } else if (editorModel.canAddCols(1)) {
                     editorModel.insertColumns(1, col);
