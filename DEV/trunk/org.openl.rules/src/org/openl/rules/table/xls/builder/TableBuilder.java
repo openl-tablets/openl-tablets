@@ -145,7 +145,7 @@ public class TableBuilder {
         return height;
     }
 
-    protected IGridRegion getTableRegion() {
+    public IGridRegion getTableRegion() {
         return region;
     }
 

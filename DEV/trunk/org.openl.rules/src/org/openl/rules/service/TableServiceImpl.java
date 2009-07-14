@@ -1,5 +1,6 @@
 package org.openl.rules.service;
 
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -28,33 +29,52 @@ public class TableServiceImpl implements TableService {
             throw new TableServiceException("Could not remove the table", e);
         }
     }
-
-    public synchronized void copyTable(IGridTable table, XlsSheetGridModel destSheetModel)
+    
+    /**
+     * 
+     * @param table Table to copy
+     * @param destSheetModel Sheet to copy the table
+     * @return Region in the sheet, where table has been copied
+     * @throws TableServiceException
+     */
+    public synchronized IGridRegion copyTable(IGridTable table, XlsSheetGridModel destSheetModel)
             throws TableServiceException {
+        IGridRegion newRegion = null;
         try {
             if (destSheetModel == null) {
                 destSheetModel = (XlsSheetGridModel) table.getGrid();
-            }
+            }            
             TableBuilder tableBuilder = new TableBuilder(destSheetModel);
             tableBuilder.beginTable(table.getGridWidth(), table.getGridHeight());
+            newRegion = tableBuilder.getTableRegion();
             tableBuilder.writeGridTable(table);
             tableBuilder.endTable();
         } catch (Exception e) {
             throw new TableServiceException("Could not copy the table", e);
         }
+        return newRegion;
     }
-
-    public synchronized void moveTable(IGridTable table, XlsSheetGridModel destSheetModel)
+    
+    /**
+     *
+     * @param table Table to move
+     * @param destSheetModel Sheet to move the table
+     * @return Region in the sheet, where table has been moved
+     * @throws TableServiceException
+     */
+    public synchronized IGridRegion moveTable(IGridTable table, XlsSheetGridModel destSheetModel)
             throws TableServiceException {
+        IGridRegion newRegion = null;
         try {
             if (destSheetModel == null) {
                 destSheetModel = (XlsSheetGridModel) table.getGrid();
-            }
-            copyTable(table, destSheetModel);
+            }         
+            newRegion = copyTable(table, destSheetModel);            
             removeTable(table);
         } catch (Exception e) {
             throw new TableServiceException("Could not move the table", e);
         }
+        return newRegion;
     }
 
 }
