@@ -23,17 +23,17 @@ public class EditorHelper {
         return model;
     }
 
-    public void init(ITable table) {
+    public void init(ITable table, String view) {
         this.table = table;
-        init(true);
+        init(view,true);
     }
 
-    public void init(boolean cancel) {
+    public void init(String view,boolean cancel) {
         if (model != null && cancel) {
             model.cancel();
         }
 
-        TableEditorModel newModel = new TableEditorModel(table.getGridTable());
+        TableEditorModel newModel = new TableEditorModel(table.getGridTable(view));
 
         if (!cancel && model != null) {
             newModel.getUndoableActions(model);
