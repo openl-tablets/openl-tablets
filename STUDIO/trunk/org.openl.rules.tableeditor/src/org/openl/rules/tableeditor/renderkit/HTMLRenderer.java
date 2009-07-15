@@ -1,12 +1,14 @@
 package org.openl.rules.tableeditor.renderkit;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.table.IGridTable;
@@ -368,105 +370,133 @@ public class HTMLRenderer {
 //                + "<td>Admin - Petr Udalov</td></tr></table></td></tr></table></fieldset>");
 //        result.append(renderJSBody("$(function(){$('[name=datepicker]').datepicker({});});"));
 //        return result.toString();
-        PropEditorRenderer propEditRend = new PropEditorRenderer(props);
+        PropEditorRenderer propEditRend = new PropEditorRenderer();
         return propEditRend.renderPropertiesEdit();
-    }
+    }   
     
+    /**
+     * Temporary class to render properties on edit view
+     * @author DLiauchuk
+     *
+     */
     public class PropEditorRenderer {
-        private TableProperties props;
-        private List<Property> listProperties = new ArrayList<Property>();
+                
+        private List<TableProperty> listProperties = new ArrayList<TableProperty>();
         
-        public PropEditorRenderer(TableProperties props) {
-            this.props = props;
-            listProperties = initAllTableProperties();
+        private int numberOfCalendars = 0;
+        
+        private StringBuilder result;
+        
+        public PropEditorRenderer() {                        
+            listProperties = initPropertiesList();
+            result = new StringBuilder();
         }
         
-        private List<Property> initAllTableProperties() {
-            List<Property> propList = new ArrayList<Property>();
-            boolean categoryExists = false;
-            for(Property property: props.getProperties()) {
-                if(property.getKey().equals("category")) {
-                    categoryExists = true;
-                }
-                propList.add(property);                   
-            }            
-            if(categoryExists==false) {
-                propList.add(new Property(new StringValue("category"),new StringValue("Some Folder")));
-            }
-            propList.add(new Property(new StringValue("Template"),new StringValue("Standard Rule")));
-            propList.add(new Property(new StringValue("Effective Date"),new StringValue("12/12/2009")));
-            propList.add(new Property(new StringValue("Expiration Date"),new StringValue("11/11/2009")));        
-            propList.add(new Property(new StringValue("Status"),new StringValue("Active")));
-            propList.add(new Property(new StringValue("Created On"),new StringValue("11/11/2009")));
-            propList.add(new Property(new StringValue("Created By"),new StringValue("Denis Levchuk")));
-                    
-            return propList;
-            
-        }
+        private List<TableProperty> initPropertiesList() {
+            List<TableProperty> listProp = new ArrayList<TableProperty>();
+            listProp.add(new TableProperty("Name", "MyTableName"));            
+            listProp.add(new TableProperty("Template", Arrays.asList("Standard_Rule1", "Standard_Rule2", "Standard_Rule3")));
+            listProp.add(new TableProperty("Effective Date", new Date()));
+            listProp.add(new TableProperty("Expiration Date", new Date()));
+            listProp.add(new TableProperty("Folder", "Score-Driver"));
+            listProp.add(new TableProperty("Status", Arrays.asList("Active", "Inactive")));
+            listProp.add(new TableProperty("Created On", new Date()));
+            listProp.add(new TableProperty("Created By", "Denis Levchuk"));
+            return listProp;
+        }  
         
-        public String renderPropertiesEdit() {
-            StringBuilder result = new StringBuilder();    
+        /**
+         * 
+         * @return Constructed edit table for properties
+         */
+        public String renderPropertiesEdit() {                
             result.append("<fieldset style='width:400px;margin-bottom:5px;'><legend>Properties</legend>"
                     + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'>");
             result.append(renderJS("js/calendar_us.js"));
             result.append(renderCSS("css/calendar.css"));
-                            
-            buildLeftColumn(result);
-            buildRightColumn(result);
+            
+            divideForTwoColumns();
             
             result.append("</table></fieldset>");
             result.append(renderJSBody("$(function(){$('[name=datepicker]').datepicker({});});"));
-            return result.toString();
-            
+            return result.toString();            
         }
         
-        private void buildLeftColumn( StringBuilder result) {
-            for (Property property : listProperties) {
-                if(property.getKey().equals("name")) {
-                    result.append("<tr><td><table><tr><td><b>Name:</b></td><td><input type='text' value='" + property.getValue() + "' /></td></tr>");                  
+        /**
+         * Divide number of properties for two columns
+         */
+        private void divideForTwoColumns() {
+            int numToDivide = 0;
+            if(listProperties.size()%2==0) {
+                numToDivide = listProperties.size()/2;
+            } else {
+                numToDivide = (listProperties.size()+1)/2;                
+            }
+            buildPropTable(numToDivide);            
+        }
+        
+        /**
+         * Builds the table.
+         * @param numToDivide. The number that divides properties for 2 columns
+         */
+        private void buildPropTable(int numToDivide) {
+            result.append("<td><table>");
+            
+            //filling left column of table
+            for(int i=0;i<numToDivide;i++) {
+                fillRow(i);                
+            }
+            result.append("</table></td>");
+            result.append("<td><table>");
+            
+            //filling right column of table/
+            for(int i=numToDivide;i<listProperties.size();i++) {
+                fillRow(i);
+            }
+            result.append("</table></td>");            
+        }
+        
+        /**
+         * Fills the row in table, depending on the type of property value
+         * @param index
+         */
+        private void fillRow(int index) {
+            result.append("<tr>"+insertLabel(listProperties.get(index).getDisplayName()));
+            if(listProperties.get(index).getValue() instanceof String) {
+                insertEdit((String)listProperties.get(index).getValue());                    
+            } else {
+                if(listProperties.get(index).getValue() instanceof Date) {
+                    insertCalendar((Date)listProperties.get(index).getValue());
                 } else {
-                    if(property.getKey().equals("Template")) {
-                        result.append("<tr><td><b>"+property.getKey()+":</b></td><td><select><option>"+property.getValue()+"</option><option>Standard Rule 2</option><option>Standard Rule 3</option></select></td></tr>");
-                    } else {
-                        if(property.getKey().equals("Effective Date")) {
-                            result.append("<tr><td><b>"+property.getKey()+":</b></td><td><input type='text' value='"+property.getValue()+"' id='datepicker1' />").append(renderJSBody("new tcal ({'controlname': 'datepicker1'});")).append("</td></tr>");
-                        } else {
-                            if(property.getKey().equals("Expiration Date")) {
-                                result.append("<tr><td><b>"+property.getKey()+":</b></td><td><input type='text' value='"+property.getValue()+"' id='datepicker2' />").append(renderJSBody("new tcal ({'controlname': 'datepicker2'});")).append("</td></tr></table></td>");
-                            }
-                        }
+                    if(listProperties.get(index).getValue() instanceof List) {
+                        insertSelect((List<String>)listProperties.get(index).getValue());
                     }
                 }
             }
-            
+            result.append("</tr>");
         }
         
-        private void buildRightColumn(StringBuilder result) {
-            boolean categoryExists = false;
-            for (Property property : listProperties) {
-                if(property.getKey().equals("category")) {
-                    if(categoryExists==false){
-                        result.append("<td><table><tr><td><b>Table Folder:</b></td><td><input type='text' value='" + property.getValue() + "' /></td></tr>");
-                        categoryExists = true;
-                    }                 
-                } else {
-                    if(property.getKey().equals("Status")) {
-                        result.append("<tr><td><b>Table "+property.getKey()+":</b></td><td><select><option>"+property.getValue()+"</option><option>Inactive</option></select></td></tr>");
-                    } else {
-                        if(property.getKey().equals("Created On")) {
-                            result.append("<tr><td><b>"+property.getKey()+":</b></td><td>"+property.getValue()+"</td></tr>");
-                        } else {
-                            if(property.getKey().equals("Created By")) {
-                                result.append("<tr><td><b>"+property.getKey()+":</b></td><td>"+property.getValue()+"</td></tr></table></td>");
-                            }
-                        }
-                    }
-                }
-            }
+        private void insertCalendar(Date value) {
+            numberOfCalendars++;            
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");            
+            result.append("<td><input type='text' value='"+sdf.format(value)+"' id='datepicker"+numberOfCalendars+"' />").append(renderJSBody("new tcal ({'controlname': 'datepicker"+numberOfCalendars+"'});")).append("</td>");            
         }
-        
-        
-    }
-    
 
+        private void insertSelect(List<String> listOfOptions) {                        
+            result.append("<td><select>");
+            result.append("<option></option>");
+            for(String option : listOfOptions) {
+                result.append("<option>"+option+"</option>");
+            }
+            result.append("</select></td>");
+        }
+
+        private void insertEdit(String value) {
+            result.append("<td><input type='text' value='" + value + "' /></td>");            
+        }
+        
+        private String insertLabel(String displayName) {
+            return "<td><b>"+displayName+":</b></td>";
+        }
+    }
 }
