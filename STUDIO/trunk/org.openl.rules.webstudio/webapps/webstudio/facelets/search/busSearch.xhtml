@@ -7,123 +7,72 @@
         xmlns:c="http://java.sun.com/jstl/core"
         xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
         template="/facelets/common/webstudioBase.xhtml">
-
-  
-
   <ui:define name="page">
-
-<table><tr><td>
+  
+<table class="search-table"><tr><td>
 <h:form id="businessSearchForm">
 <fieldset><legend>Properties</legend>
   <h:panelGrid columns="2" cellspacing="5" >
-	<h:outputLabel for="name" value="Name" />
+	<h:outputLabel for="name" value="Table Name" />
   	<h:inputText id="name" value="" />
   	
-  	<h:outputLabel for="folder" value="Folder" />
-  	<h:inputText id="folder" value="" />
+  	<h:outputLabel for="folder" value="Table Folder" />
+  	<select name="form:subscriptions" size="1">
+  		<option value="0"></option>
+  		<option value="1">Folder1</option>
+  		<option value="2">Folder2</option>
+  		<option value="3">Folder3</option>  
+	</select>
+	
+  	<h:outputLabel for="template" value="Table Template" />
+  	<select name="template" size="1">
+  		<option value="0"></option>
+  		<option value="1">Standard_Rule1</option>
+  		<option value="2">Standard_Rule2</option>
+  		<option value="3">Standard_Rule3</option>  
+	</select>
+  	  	  	
+  	<h:outputLabel for="status" value="Table Status" />
+  	<select name="status" size="1">
+  		<option value="0"></option>
+  		<option value="1">Active</option>
+  		<option value="2">Inactive</option>  		  
+	</select>
   	
-  	<h:outputLabel for="template" value="Template" />
-  	<h:inputText id="template" value="" />
-  	
-  	<h:outputLabel for="status" value="Status" />
-  	<h:inputText id="status" value="" />
-  	
-  	<h:outputLabel for="efDate" value="Effective Date" />
-  	<h:inputText id="efDate" value="" />
+  	<h:outputLabel for="effectiveDate" value="Effective Date" />
+  	<rich:calendar id="effectiveDate" value="" popup="true" enableManualInput="true"
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
+      rendered="true" timeZone="#{formatPatterns.timeZone}">
+      <f:converter converterId="org.openl.DateConverter" />
+    </rich:calendar>
   	
   	<h:outputLabel for="expDate" value="Expiration Date" />
-  	<h:inputText id="expDate" value="" />
+  	<rich:calendar id="expDate" value="" popup="true" enableManualInput="true"
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
+      rendered="true" timeZone="#{formatPatterns.timeZone}">
+      <f:converter converterId="org.openl.DateConverter" />
+    </rich:calendar>
   	
-  	<h:outputLabel for="createdOn" value="Created On" />
-  	<h:inputText id="ncreatedOn" value="" />
+  	<h:outputLabel for="createdOn" value="Table Created On" />
+  	<rich:calendar id="createdOn" value="" popup="true" enableManualInput="true"
+      jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
+      rendered="true" timeZone="#{formatPatterns.timeZone}">
+      <f:converter converterId="org.openl.DateConverter" />
+    </rich:calendar>
   	
   </h:panelGrid>
-  
-
 </fieldset>
-
-<h:outputLabel for="content" value="Table Contains" />
-<h:inputText id="content" value="" />
-  	
+<br/>
+<fieldset>
+	<h:panelGrid columns="2" cellspacing="5" >
+		<h:outputLabel for="content" value="Table Contains" />
+		<h:inputText id="content" value="" />
+	</h:panelGrid>
+</fieldset>
+<br />
 <h:commandButton value="Search" action="#{advancedSearchRequest.search}"/>
 </h:form></td>
-<c:if test="#{advancedSearch.showSearches}"><td class="search"><h:form>
-    <h2><u>Saved Searches</u></h2>
-    <ul class="search">
-      <c:forEach items="#{advancedSearch.savedSearches}" var="ss" varStatus="status">
-        <li>
-          <h:commandLink value="#{ss.name}" action="#{advancedSearch.applySearch}">
-            <f:param name="index" value="#{status.index}"/>
-          </h:commandLink>
-        </li>
-      </c:forEach>
-    </ul>
-</h:form></td></c:if>
+
 </tr></table>
-
-
-<h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
-
-<c:if test="#{not advancedSearch.ready}">
-  <p class="warning">There is no valid projects in workspace. Or your session have expired and you need to reload project</p>
-</c:if>
-
-<c:if test="#{advancedSearchRequest.searching}">
-    <h:form id="saveAdvSearchForm">
-        <h:inputHidden value="#{advancedSearch.newSearchName}" id="searchName" />
-        <h:commandLink value="Save this search" action="#{advancedSearch.save}" onclick="if (!inputSearchName()) return false"/>
-     </h:form>
-
-    <c:forEach items="#{advancedSearchRequest.searchResults}" var="tableSearch">
-        <br />
-        <h:panelGroup rendered="#{not advancedSearch.studioReadOnly}">
-            <img src="#{contextPath}/webresource/images/excel-workbook.png" />
-            <h:outputText value="#{tableSearch.xlsLink}" escape="false" />
-        </h:panelGroup>
-        <br />
-        <h:panelGroup>
-            <img src="#{contextPath}/webresource/images/viewTable.gif" />
-            <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
-                <f:param name="uri" value="#{tableSearch.tableUri}" />
-                <h:outputText value="View Table" />
-            </h:outputLink>
-        </h:panelGroup>
-        <br /><br />
-        <rules:tableEditor table="#{tableSearch.table}" editable="false" rendered="#{tableSearch.table != null}">
-            <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
-        </rules:tableEditor>
-        <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{tableSearch.table == null}" escape="false" />
-     </c:forEach>
-</c:if>
-
-<script>
-  function fixValue1Enabled() {
-    var ind = 0;
-    var el = document.getElementById("searchForm:type1_" + ind);
-    for (;el; el=document.getElementById("searchForm:type1_" + (++ind)))
-          makeValue1Visible(el, ind)
-  }
-
-  fixValue1Enabled();
-</script>
-
-<f:verbatim>
-    <script type="text/javascript">
-        function triggerSearch(f) {
-            f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {
-                return s.nodeName == "#text"
-            }).nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "").split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
-                .reject(function(s) {
-                    return !s
-                }).join(" ");
-            f.submit();
-        }
-    </script>
-
-    <form name="searchForm" action="#{contextPath}/jsp/search/search.jsp">
-        <input type="hidden" name="searchQuery" value="" />
-    </form>
-</f:verbatim>
-
   </ui:define>
 </ui:composition>

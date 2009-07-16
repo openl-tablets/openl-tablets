@@ -9,12 +9,14 @@ public class TableProperty {
     
     private String displayName;
     private Object value;
+    private Class<?> type;
     private boolean show;
     private boolean canEdit;
     
-    public TableProperty(String displayName, Object value) {
+    public TableProperty(String displayName, Object value, Class<?> type) {
         this.displayName = displayName;
         this.value = value;
+        this.type = type;
     }
     
     public boolean isShow() {
@@ -43,6 +45,14 @@ public class TableProperty {
 
     public Object getValue() {
         return value;
+    }
+
+    public Class<?> getType() {
+        return type;
+    }
+
+    public void setType(Class<?> type) {
+        this.type = type;
     }
 
     public void setValue(Object value) {
