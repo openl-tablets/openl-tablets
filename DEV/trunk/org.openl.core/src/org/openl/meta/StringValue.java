@@ -17,7 +17,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     public StringValue(String value, String shortName, String fullName, String sourceUrl) {
         if (value == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("Error initializing StringValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
         metaInfo = new ValueMetaInfo(shortName, fullName, sourceUrl);
