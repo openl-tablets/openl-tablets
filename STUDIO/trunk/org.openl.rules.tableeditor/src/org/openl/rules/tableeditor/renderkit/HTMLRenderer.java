@@ -406,28 +406,30 @@ public class HTMLRenderer {
             boolean nameSet = false;
             boolean folderSet = false;
             List<TableProperty> listProp = new ArrayList<TableProperty>();
-            for(Property prop: props.getProperties()) {
-                if("name".equals(prop.getKey().getValue())) {
-                    listProp.add(new TableProperty("Name", prop.getValue().getValue(),String.class));
-                    nameSet = true;
-                }
-                if("category".equals(prop.getKey().getValue())) {
-                    listProp.add(new TableProperty("Folder", prop.getValue().getValue(),String.class));
-                    folderSet = true;
+            if(props!=null){
+                for(Property prop: props.getProperties()) {
+                    if("name".equals(prop.getKey().getValue())) {
+                        listProp.add(new TableProperty("Name", prop.getValue().getValue(),String.class));
+                        nameSet = true;
+                    }
+                    if("category".equals(prop.getKey().getValue())) {
+                        listProp.add(new TableProperty("Folder", prop.getValue().getValue(),String.class));
+                        folderSet = true;
+                    }
                 }
             }
             if(!nameSet) {
-                listProp.add(new TableProperty("Name", null, null));
+                listProp.add(new TableProperty("Name", null, String.class));
             }
             if(!folderSet) {
-                listProp.add(new TableProperty("Folder", null, null));
+                listProp.add(new TableProperty("Folder", null, String.class));
             }
             listProp.add(new TableProperty("Template", Arrays.asList("Standard_Rule1", "Standard_Rule2", "Standard_Rule3"),List.class));
-            listProp.add(new TableProperty("Effective Date", null, null));
-            listProp.add(new TableProperty("Expiration Date", null, null));            
+            listProp.add(new TableProperty("Effective Date", null, Date.class));
+            listProp.add(new TableProperty("Expiration Date", null, Date.class));            
             listProp.add(new TableProperty("Status", Arrays.asList("Active", "Inactive"),List.class));
-            listProp.add(new TableProperty("Created On", null, null));
-            listProp.add(new TableProperty("Created By", null, null));
+            listProp.add(new TableProperty("Created On", null, Date.class));
+            listProp.add(new TableProperty("Created By", null, String.class));
             return listProp;
         }  
         
@@ -536,8 +538,15 @@ public class HTMLRenderer {
         
         private void insertCalendar(Date value) {
             numberOfCalendars++;            
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");            
-            result.append("<td><input type='text' value='"+sdf.format(value)+"' id='datepicker"+numberOfCalendars+"' />").append(renderJSBody("new tcal ({'controlname': 'datepicker"+numberOfCalendars+"'});")).append("</td>");            
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy"); 
+            String resultStr;
+            if(value==null) {
+                resultStr = "";
+            } else {
+                resultStr = sdf.format(value); 
+            }
+             
+            result.append("<td><input type='text' value='"+resultStr+"' id='datepicker"+numberOfCalendars+"' />").append(renderJSBody("new tcal ({'controlname': 'datepicker"+numberOfCalendars+"'});")).append("</td>");            
         }
 
         private void insertSelect(List<String> listOfOptions) {                        
@@ -550,6 +559,9 @@ public class HTMLRenderer {
         }
 
         private void insertEdit(String value) {
+            if(value==null) {
+                value="";
+            }
             result.append("<td><input type='text' value='" + value + "' /></td>");            
         }
         
@@ -563,12 +575,24 @@ public class HTMLRenderer {
          */
         private void insertText(TableProperty prop) {
             if(String.class.equals(prop.getType())) {
-                result.append("<td><b>"+(String)prop.getValue()+"</b></td>");                    
+                String resString;
+                if(prop.getValue()==null){
+                    resString = "";
+                } else {
+                    resString = (String)prop.getValue();
+                }
+                result.append("<td>"+resString+"</td>");                    
             } else {
                 if(Date.class.equals(prop.getType())) {
                     numberOfCalendars++;            
                     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-                    result.append("<td><b>"+sdf.format(prop.getValue())+"</b></td>");
+                    String resString;
+                    if(prop.getValue()==null) {
+                        resString = "";
+                    } else {
+                        resString = sdf.format((Date)prop.getValue());
+                    }
+                    result.append("<td>"+resString+"</td>");
                 } else {
                     if(List.class.equals(prop.getType())) {
                         //result.append("<td><b>"+((List<String>)prop.getValue()).get(0)+"</b></td>");
