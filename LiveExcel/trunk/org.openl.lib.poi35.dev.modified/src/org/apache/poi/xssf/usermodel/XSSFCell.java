@@ -696,11 +696,14 @@ public final class XSSFCell implements Cell {
                 break;
             case CELL_TYPE_STRING:
                 if(prevType != CELL_TYPE_STRING){
-                    String str = convertCellValueToString();
-                    XSSFRichTextString rt = new XSSFRichTextString(str);
-                    rt.setStylesTableReference(stylesSource);
-                    int sRef = sharedStringSource.addEntry(rt.getCTRst());
-                    cell.setV(Integer.toString(sRef));
+                    //not a good fix for original poi
+                    if(prevType != CELL_TYPE_FORMULA){
+                        String str = convertCellValueToString();
+                        XSSFRichTextString rt = new XSSFRichTextString(str);
+                        rt.setStylesTableReference(stylesSource);
+                        int sRef = sharedStringSource.addEntry(rt.getCTRst());
+                        cell.setV(Integer.toString(sRef));
+                    }
                 }
                 cell.setT(STCellType.S);
                 break;
