@@ -52,7 +52,7 @@ Here is an implementation of decision table from HelloWorld.xls
 <img src="images/site/HelloWorld.png"/>
 
 <p>
-On this picture you can easily see the main components of the Decision Tablet. 
+On this picture you can easily see the main components of the Decision Table. 
 </p>
 <p>
 The first row is a header. It starts with a keyword <code>Rules</code> that is followed by familiar to every Java programmer 
@@ -126,30 +126,55 @@ Expression Type must be compatible with the column type.
 <h3>Decision Table Algorithm</h3>
 
 <p>
-Decision Table Rows (Rules) are executed from top to bottom. 
-In "classic" decision tables all rule rows are executed.
-OpenL Tablets also provide the alternative way of execution by using 
-so-called <code>RET</code>(return) columns. <code>RET</code> column works as a regular action with the only very 
-important exception, once executed it returns the action result as  a result of <b>Decision Table Method</b>. 
+Decision Table Rows (Rules) are executed from the top to the bottom and from the left to the right. 
+
+<p>
+Each Rule conditions are checked from left to right. 
+This process stops after the first failure. 
+If all the Conditions are checked, all the Actions are being performed from left to right. 
+Conditions and Actions with empty parameter cells are ignored, in other words, an empty Condition is always TRUE, 
+an empty Action is always no-op, not null.  
+
+<p>
+<h4>Execute all the rules decision table</h4>
+In the "classic" decision tables all rule rows are executed. In this case the algorithm checks for all possible rule matches and executes
+all of them. 
+
+<h4>Return after the first match</h4>
+Sometimes this is not convenient,and we would like to stop the execution after the first match. 
+<br>
+This will
+<ul>
+<li>improve performance by eliminating unnecessary checks after the first match</li> 
+<li>simplify the logic, if this algorithm is what you try to achieve</li>    
+</ul>
+  
+
+OpenL Tablets provide this alternative way of execution logic by using 
+<code>RET</code>(return) columns. <code>RET</code> column works as a regular action with the only very 
+important distinction, once executed it returns the action's result as  a result of <b>Decision Table Method(the result can not be null)</b>. 
 The return type of <code>RET</code> column expression must be compatible with the return type of 
 <b>Decision Table Method Header</b>. Type <code>void</code> is compatible with anything.     
 </p>
 
 <p>
-Each Rule conditions are checked from left to right. 
-This process stops after the first failure. 
-If all Conditions are checked, all the Actions are being performed from left to right. 
-Conditions and Actions with empty parameter cells are ignored.
-<p>
-To see more examples of Decision Tables in action check <a href="tutorial.shtml">OpenL Tablets Tutorial</a>
-</p>
+
+<h4>Performance</h4>
+
+The straightforward implementation of DT algorithm has linear with regard to the table size performance O(Nrows * Nconditions) + O(Nmatches * Nactions). 
+Apparently this does not scale well for large tables. Fortunately, OpenL Tablets provides DT optimization that 
+has really fast constant performance(per match) for most of the real-life situations. 
+For more details see <a href="dt-performance411.shtml">Decision Table Performance Optimization</a> and Tutorial 5 in tutorials.  
+
+<p/>
+
 
 
 
 Also see 
 <a href="struct-data.shtml">Data Tables</a>
 ,
-<a href="tutorial.shtml">Tutorial</a>
+<a href="tutorial.shtml">Tutorials</a>
 
 
 <!--#include virtual="footer_includes.shtml" -->
