@@ -81,5 +81,15 @@
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                 </dependency>
+				<dependency>
+                        <groupId>org.apache.poi</groupId>
+                        <artifactId>ooxml-schemas</artifactId>
+                        <version>1.0</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.apache.xmlbeans</groupId>
+                        <artifactId>xmlbeans</artifactId>
+                        <version>2.3.0</version>
+                </dependency>                
         </dependencies>
 </project>
