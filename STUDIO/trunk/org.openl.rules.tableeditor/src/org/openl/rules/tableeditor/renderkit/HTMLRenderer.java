@@ -437,11 +437,11 @@ public class HTMLRenderer {
          * 
          * @return Construct table for properties
          */
-        public String renderProperties() {                
+        public String renderProperties() {              
             result.append("<fieldset style='width:500px;margin-bottom:5px;'><legend>Properties</legend>"
                     + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'>");
             result.append(renderJS("js/calendar_us.js"));
-            result.append(renderCSS("css/calendar.css"));
+            result.append(renderCSS("css/calendar.css"));                        
             
             divideForTwoColumns();
             
@@ -460,51 +460,35 @@ public class HTMLRenderer {
             } else {
                 numToDivide = (listProperties.size()+1)/2;                
             }
-            if("edit".equals(mode)) {
-                buildEditTableProp(numToDivide);
-            } else {
-                buildViewTableProp(numToDivide);
-            }
+            buildTableProp(numToDivide);            
         }
         
-        private void buildViewTableProp(int numToDivide) {
+        private void buildTableProp(int numToDivide) {            
+            //filling left column of table            
             result.append("<td><table>");
-            
-            //filling left column of table
             for(int i=0;i<numToDivide;i++) {
-                fillViewRow(i);
+                if("edit".equals(mode)) {
+                    fillEditRow(i);
+                } else {
+                    fillViewRow(i);
+                }
             }
             result.append("</table></td>");
-            result.append("<td><table>");
             
             //filling right column of table
-            for(int i=numToDivide;i<listProperties.size();i++) {
-                fillViewRow(i);
-            }
-            result.append("</table></td>");            
-        }
-
-        /**
-         * Builds the table.
-         * @param numToDivide. The number that divides properties for 2 columns
-         */
-        private void buildEditTableProp(int numToDivide) {
             result.append("<td><table>");
-            
-            //filling left column of table
-            for(int i=0;i<numToDivide;i++) {
-                fillEditRow(i);                
-            }
-            result.append("</table></td>");
-            result.append("<td><table>");
-            
-            //filling right column of table
             for(int i=numToDivide;i<listProperties.size();i++) {
-                fillEditRow(i);
+                if("edit".equals(mode)) {
+                    fillEditRow(i);
+                } else {
+                    fillViewRow(i);
+                }
             }
-            result.append("</table></td>");            
+            result.append("</table></div></td>");
+            
         }
         
+                
         /**
          * Fills the row in edit table, depending on the type of property value
          * @param index
