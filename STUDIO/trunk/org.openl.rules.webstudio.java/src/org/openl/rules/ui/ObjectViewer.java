@@ -750,9 +750,8 @@ public class ObjectViewer {
             for (int i = 0; i < tr.length; i++) {
                 TableSyntaxNode tsn = tr[i].getTsn();
                 StringValue tableName = getTableName(tsn);
-                String tableUri = tsn.getUri();
-                CompositeGrid cg = sviewer.makeGrid(tr[i].getRows());
-                IGridTable gridTable = cg != null ? cg.asGridTable() : null;
+                String tableUri = tsn.getUri();                
+                IGridTable gridTable = tsn.getTable().getGridTable();
                 tsn.setTable(gridTable);
                 TableSearch tableSearch = new TableSearch();
                 tableSearch.setTableUri(tableUri);
