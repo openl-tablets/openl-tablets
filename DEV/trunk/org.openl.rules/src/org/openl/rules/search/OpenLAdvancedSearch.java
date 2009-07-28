@@ -192,7 +192,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants {
         return AStringBoolOperator.allNames();
     }
 
-    ATableRowSelector[] rowSelectors() {
+    ATableRowSelector[] getRowSelectors() {
         ArrayList<ATableRowSelector> list = new ArrayList<ATableRowSelector>();
 
         list.add(new ColumnGroupSelector(columnElements));
@@ -229,47 +229,40 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants {
      * @return
      */
     public Object search(XlsModuleSyntaxNode xsn) {
-        ATableSyntaxNodeSelector[] tselectors = tableSelectors();
-        ATableRowSelector[] rselectors = rowSelectors();
-
-        // ArrayList tableList = new ArrayList();
-        // ArrayList rowList = new ArrayList();
-
+        ATableSyntaxNodeSelector[] tablSelectors = getTableSelectors();
+        ATableRowSelector[] rowSelectors = getRowSelectors();
+        
         OpenLAdvancedSearchResult res = new OpenLAdvancedSearchResult(this);
 
-        TableSyntaxNode[] tsnn = xsn.getXlsTableSyntaxNodesWithoutErrors();
-        for (int i = 0; i < tsnn.length; i++) {
-            TableSyntaxNode tsn = tsnn[i];
-
-            ISyntaxError[] errors = tsn.getErrors();
-            if (errors != null && errors.length > 0) {
-                continue;
-            }
-
-            if (!isTableSelected(tsn, tselectors)) {
-                continue;
-            }
-
-            ITableSearchInfo tsi = ATableRowSelector.getTableSearchInfo(tsn);
-            if (tsi == null) {
-                res.add(tsn, new ISearchTableRow[0]);
-                continue;
-            }
-
-            ArrayList<ISearchTableRow> selectedRows = new ArrayList<ISearchTableRow>();
-            int nrows = tsi.numberOfRows();
-            for (int row = 0; row < nrows; row++) {
-                ISearchTableRow tr = new SearchTableRow(row, tsi);
-                if (!(tsi instanceof TableSearchInfo) && !isRowSelected(tr, rselectors, tsi)) {
-                    continue;
+        TableSyntaxNode[] tablSyntNodes = xsn.getXlsTableSyntaxNodesWithoutErrors();
+        for (TableSyntaxNode tsn : tablSyntNodes) {
+            if(!hasErrors(tsn)&&isTableSelected(tsn, tablSelectors)) {
+                ITableSearchInfo tableSearchInfo = ATableRowSelector.getTableSearchInfo(tsn);
+                if (tableSearchInfo != null) {
+                    ArrayList<ISearchTableRow> selectedRows = new ArrayList<ISearchTableRow>();
+                    int numRows = tableSearchInfo.numberOfRows();
+                    for (int row = 0; row < numRows; row++) {
+                        ISearchTableRow tableRow = new SearchTableRow(row, tableSearchInfo);
+                        if ((tableSearchInfo instanceof TableSearchInfo) && isRowSelected(tableRow, rowSelectors, tableSearchInfo)) {
+                            selectedRows.add(tableRow);
+                        }                    
+                    }
+                    res.add(tsn, selectedRows.toArray(new ISearchTableRow[0]));
+                }else {
+                    res.add(tsn, new ISearchTableRow[0]);                    
                 }
-                selectedRows.add(tr);
-            }
-
-            res.add(tsn, selectedRows.toArray(new ISearchTableRow[0]));
+            }           
         }
-
         return res;
+    }
+    
+    private boolean hasErrors(TableSyntaxNode tsn) {
+        boolean result = false;
+        ISyntaxError[] errors = tsn.getErrors();
+        if (errors != null && errors.length > 0) {
+            result = true;
+        }
+        return result;
     }
 
     public boolean selectType(int i) {
@@ -297,7 +290,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants {
         throw new RuntimeException("Unknown type value: " + typeValue);
     }
 
-    ATableSyntaxNodeSelector[] tableSelectors() {
+    ATableSyntaxNodeSelector[] getTableSelectors() {
         ArrayList<ATableSyntaxNodeSelector> sll = new ArrayList<ATableSyntaxNodeSelector>();
 
         sll.add(makeTableTypeSelector());
