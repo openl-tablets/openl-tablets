@@ -39,6 +39,7 @@ import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.Table;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.FormattedCell;
