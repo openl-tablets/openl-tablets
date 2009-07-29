@@ -15,6 +15,7 @@ import org.openl.util.ArrayTool;
 /**
  * @author snshor
  *
+ *
  */
 public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants {
 
@@ -229,40 +230,47 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants {
      * @return
      */
     public Object search(XlsModuleSyntaxNode xsn) {
-        ATableSyntaxNodeSelector[] tablSelectors = getTableSelectors();
-        ATableRowSelector[] rowSelectors = getRowSelectors();
-        
+        ATableSyntaxNodeSelector[] tselectors = getTableSelectors();
+        ATableRowSelector[] rselectors = getRowSelectors();
+
+        // ArrayList tableList = new ArrayList();
+        // ArrayList rowList = new ArrayList();
+
         OpenLAdvancedSearchResult res = new OpenLAdvancedSearchResult(this);
 
-        TableSyntaxNode[] tablSyntNodes = xsn.getXlsTableSyntaxNodesWithoutErrors();
-        for (TableSyntaxNode tsn : tablSyntNodes) {
-            if(!hasErrors(tsn)&&isTableSelected(tsn, tablSelectors)) {
-                ITableSearchInfo tableSearchInfo = ATableRowSelector.getTableSearchInfo(tsn);
-                if (tableSearchInfo != null) {
-                    ArrayList<ISearchTableRow> selectedRows = new ArrayList<ISearchTableRow>();
-                    int numRows = tableSearchInfo.numberOfRows();
-                    for (int row = 0; row < numRows; row++) {
-                        ISearchTableRow tableRow = new SearchTableRow(row, tableSearchInfo);
-                        if ((tableSearchInfo instanceof TableSearchInfo) && isRowSelected(tableRow, rowSelectors, tableSearchInfo)) {
-                            selectedRows.add(tableRow);
-                        }                    
-                    }
-                    res.add(tsn, selectedRows.toArray(new ISearchTableRow[0]));
-                }else {
-                    res.add(tsn, new ISearchTableRow[0]);                    
+        TableSyntaxNode[] tsnn = xsn.getXlsTableSyntaxNodesWithoutErrors();
+        for (int i = 0; i < tsnn.length; i++) {
+            TableSyntaxNode tsn = tsnn[i];
+
+            ISyntaxError[] errors = tsn.getErrors();
+            if (errors != null && errors.length > 0) {
+                continue;
+            }
+
+            if (!isTableSelected(tsn, tselectors)) {
+                continue;
+            }
+
+            ITableSearchInfo tsi = ATableRowSelector.getTableSearchInfo(tsn);
+            if (tsi == null) {
+                res.add(tsn, new ISearchTableRow[0]);
+                continue;
+            }
+
+            ArrayList<ISearchTableRow> selectedRows = new ArrayList<ISearchTableRow>();
+            int nrows = tsi.numberOfRows();
+            for (int row = 0; row < nrows; row++) {
+                ISearchTableRow tr = new SearchTableRow(row, tsi);
+                if (!(tsi instanceof TableSearchInfo) && !isRowSelected(tr, rselectors, tsi)) {
+                    continue;
                 }
-            }           
+                selectedRows.add(tr);
+            }
+
+            res.add(tsn, selectedRows.toArray(new ISearchTableRow[0]));
         }
+
         return res;
-    }
-    
-    private boolean hasErrors(TableSyntaxNode tsn) {
-        boolean result = false;
-        ISyntaxError[] errors = tsn.getErrors();
-        if (errors != null && errors.length > 0) {
-            result = true;
-        }
-        return result;
     }
 
     public boolean selectType(int i) {

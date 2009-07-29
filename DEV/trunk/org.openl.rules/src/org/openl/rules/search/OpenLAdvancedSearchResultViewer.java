@@ -10,7 +10,7 @@ import org.openl.rules.table.TransposedGridTable;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class OpenLAdvancedSearchResultViewer {
 
@@ -29,25 +29,25 @@ public class OpenLAdvancedSearchResultViewer {
     }
 
     public CompositeGrid makeGrid(ISearchTableRow[] rows) {
-        CompositeGrid result = null;
-        
-        if (rows.length != 0) {            
-            IGridTable header = rows[0].getTableSearchInfo().headerDisplayTable();
-            IGridTable[] tables = new IGridTable[rows.length + (header != null ? 1 : 0)];
-            if (header != null) {
-                tables[0] = header;
-            }
-
-            // boolean isVertical = rows[0].getRowTable().isNormalOrientation();
-
-            boolean isVertical = isVertical(rows[0].getRowTable());
-
-            for (int i = 0; i < rows.length; i++) {
-                tables[(header != null ? 1 : 0) + i] = align(rows[i].getRowTable(), isVertical);
-            }
-            result = new CompositeGrid(tables, isVertical); 
+        if (rows.length == 0) {
+            return null;
         }
-        return result;
+
+        IGridTable header = rows[0].getTableSearchInfo().headerDisplayTable();
+        IGridTable[] tables = new IGridTable[rows.length + (header != null ? 1 : 0)];
+        if (header != null) {
+            tables[0] = header;
+        }
+
+        // boolean isVertical = rows[0].getRowTable().isNormalOrientation();
+
+        boolean isVertical = isVertical(rows[0].getRowTable());
+
+        for (int i = 0; i < rows.length; i++) {
+            tables[(header != null ? 1 : 0) + i] = align(rows[i].getRowTable(), isVertical);
+        }
+
+        return new CompositeGrid(tables, isVertical);
     }
 
 }
