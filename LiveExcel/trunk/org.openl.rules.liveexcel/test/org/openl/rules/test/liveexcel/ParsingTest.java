@@ -15,6 +15,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
+import org.openl.rules.test.liveexcel.FormulaEvaluationTest.VerticalTableBenchmarkUnit;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -26,12 +27,14 @@ public class ParsingTest {
     private static final String BENCHMARK_FILE = "./test/statistics/Benchmarks.xlsx";
     private static final String FILE_TO_PARSE_STARTING = "./test/resources/ParsingTest/10x";
 
-    private static class ParsingBenchmark extends BenchmarkUnit {
+    private static class ParsingBenchmark extends VerticalTableBenchmarkUnit {
         private File fileToParse;
         private long memoryUsed = 0;
+        private int height;
 
-        public ParsingBenchmark(File fileToParse) {
+        public ParsingBenchmark(File fileToParse, int height) {
             this.fileToParse = fileToParse;
+            this.height = height;
         }
 
         protected String getNameSpecial() {
@@ -44,6 +47,10 @@ public class ParsingTest {
             long previouslyMemoryUsed = FormulaEvaluationTest.getUsedMemorySize();
             LiveExcelWorkbookFactory.create(new FileInputStream(fileToParse), null);
             memoryUsed = FormulaEvaluationTest.getUsedMemorySize() - previouslyMemoryUsed;
+        }
+
+        public int getHeight() {
+            return height;
         }
 
         public long getMemoryUsed() {
@@ -62,14 +69,20 @@ public class ParsingTest {
         private static int XLSX_STARTING_ROW = 11;
         private static int XLS_STARTING_ROW = 3;
         private static int COLUMN_10x10 = 1;
-        private static int COLUMN_10x100 = 2;
-        private static int COLUMN_10x1000 = 3;
+        private static int COLUMN_10x50 = 2;
+        private static int COLUMN_10x100 = 3;
+        private static int COLUMN_10x500 = 4;
+        private static int COLUMN_10x1000 = 5;
 
         private int getColumnToWrite(String benchmarkName) {
             if (benchmarkName.lastIndexOf("1000") != -1) {
                 return COLUMN_10x1000;
+            } else if (benchmarkName.lastIndexOf("500") != -1) {
+                return COLUMN_10x500;
             } else if (benchmarkName.lastIndexOf("100") != -1) {
                 return COLUMN_10x100;
+            } else if (benchmarkName.lastIndexOf("50") != -1) {
+                return COLUMN_10x50;
             } else {
                 return COLUMN_10x10;
             }
@@ -84,21 +97,25 @@ public class ParsingTest {
         }
 
         private void saveParsingTime(BenchmarkInfo benchmarkInfo, Sheet evaluationBenchmarkSheet) {
+            ParsingBenchmark benchmark = (ParsingBenchmark) benchmarkInfo.getUnit();
             int rowIndex = getRowToWrite(benchmarkInfo.getUnit().getName(), PARSING_TIME_OFFSET);
             int columnIndex = getColumnToWrite(benchmarkInfo.getUnit().getName());
-            evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(benchmarkInfo.avg());
+            evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(
+                    benchmarkInfo.avg() / benchmark.getHeight());
         }
 
         private void saveMemoryUsed(ParsingBenchmark benchmark, Sheet evaluationBenchmarkSheet) {
             int rowIndex = getRowToWrite(benchmark.getName(), USED_MEMORY_OFFSET);
             int columnIndex = getColumnToWrite(benchmark.getName());
-            evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(benchmark.getMemoryUsed());
+            evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(
+                    benchmark.getMemoryUsed() / benchmark.getHeight());
         }
 
         private void saveFileSize(ParsingBenchmark benchmark, Sheet evaluationBenchmarkSheet) {
             int rowIndex = getRowToWrite(benchmark.getName(), FILE_SIZE_OFFSET);
             int columnIndex = getColumnToWrite(benchmark.getName());
-            evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(benchmark.getFileSize());
+            evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(
+                    benchmark.getFileSize() / benchmark.getHeight());
         }
 
         private void saveStatistic(BenchmarkInfo benchmarkInfo, Sheet evaluationBenchmarkSheet) {
@@ -138,15 +155,20 @@ public class ParsingTest {
             }
         }
     }
-    
+
     @Test
-    public void testParsing(){
+    public void testParsing() {
         try {
             List<BenchmarkUnit> buList = new ArrayList<BenchmarkUnit>();
-
-            for (int i = 10; i < 1001; i *= 10) {
-                buList.add(new ParsingBenchmark(new File(FILE_TO_PARSE_STARTING + i + ".xlsx")));
-                buList.add(new ParsingBenchmark(new File(FILE_TO_PARSE_STARTING + i + ".xls")));
+            int multiplier = 2;
+            for (int i = 10; i < 1001; i *= multiplier) {
+                buList.add(new ParsingBenchmark(new File(FILE_TO_PARSE_STARTING + i + ".xlsx"), i));
+                buList.add(new ParsingBenchmark(new File(FILE_TO_PARSE_STARTING + i + ".xls"), i));
+                if (multiplier == 2) {
+                    multiplier = 5;
+                } else {
+                    multiplier = 2;
+                }
             }
 
             Map<String, BenchmarkInfo> res = new Benchmark((BenchmarkUnit[]) buList.toArray(new BenchmarkUnit[buList

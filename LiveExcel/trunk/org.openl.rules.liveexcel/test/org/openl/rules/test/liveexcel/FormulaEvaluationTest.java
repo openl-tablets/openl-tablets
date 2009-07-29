@@ -25,10 +25,14 @@ import static org.junit.Assert.*;
 
 public class FormulaEvaluationTest {
 
-    private static final String FORMULA_TEST = "./test/resources/EvaluationTest/FormulasTest.xls";
+    private static final String FORMULA_TEST = "./test/resources/EvaluationTest/FormulasTest.xlsx";
     private static final String BENCHMARK_FILE = "./test/statistics/Benchmarks.xlsx";
 
-    private static class POIEvauation extends BenchmarkUnit {
+    public static abstract class VerticalTableBenchmarkUnit extends BenchmarkUnit {
+        public abstract int getHeight();
+    }
+
+    private static class POIEvauation extends VerticalTableBenchmarkUnit {
         private Sheet sheet;
         private List<Cell> formulaCells;
 
@@ -62,9 +66,13 @@ public class FormulaEvaluationTest {
                 evaluator.evaluateFormulaCell(cell);
             }
         }
+
+        public int getHeight() {
+            return formulaCells.size() / 25;
+        }
     }
 
-    private static class OneRelationJavaEvaluation extends BenchmarkUnit {
+    private static class OneRelationJavaEvaluation extends VerticalTableBenchmarkUnit {
         private long[][] evaluationArray;
         private int height, width;
 
@@ -89,9 +97,13 @@ public class FormulaEvaluationTest {
                 }
             }
         }
+
+        public int getHeight() {
+            return height;
+        }
     }
 
-    private static class TwoRelationJavaEvaluation extends BenchmarkUnit {
+    private static class TwoRelationJavaEvaluation extends VerticalTableBenchmarkUnit {
         private long[][] evaluationArray;
         private int height, width;
 
@@ -120,6 +132,10 @@ public class FormulaEvaluationTest {
                 }
             }
         }
+
+        public int getHeight() {
+            return height;
+        }
     }
 
     private static class EvaluationStatisticsSaver {
@@ -129,14 +145,20 @@ public class FormulaEvaluationTest {
         private static int POI_ONE_RELATION_ROW = 4;
         private static int POI_TWO_RELATIONS_ROW = 5;
         private static int COLUMN_25x25 = 1;
-        private static int COLUMN_25x250 = 2;
-        private static int COLUMN_25x1000 = 3;
+        private static int COLUMN_25x125 = 2;
+        private static int COLUMN_25x250 = 3;
+        private static int COLUMN_25x1250 = 4;
+        private static int COLUMN_25x2500 = 5;
 
         private int getColumnToWrite(String benchmarkName) {
             if (benchmarkName.lastIndexOf("2500") != -1) {
-                return COLUMN_25x1000;
+                return COLUMN_25x2500;
+            } else if (benchmarkName.lastIndexOf("1250") != -1) {
+                return COLUMN_25x1250;
             } else if (benchmarkName.lastIndexOf("250") != -1) {
                 return COLUMN_25x250;
+            } else if (benchmarkName.lastIndexOf("125") != -1) {
+                return COLUMN_25x125;
             } else {
                 return COLUMN_25x25;
             }
@@ -158,10 +180,20 @@ public class FormulaEvaluationTest {
             }
         }
 
+        private int getRowsCount(BenchmarkUnit benchmarkUnit) {
+            if (benchmarkUnit instanceof VerticalTableBenchmarkUnit) {
+                return ((VerticalTableBenchmarkUnit) benchmarkUnit).getHeight();
+            } else {
+                return 1;
+            }
+        }
+
         private void saveStatistic(String benchmarkName, BenchmarkInfo benchmarkInfo, Sheet evaluationBenchmarkSheet) {
             int rowIndex = getRowToWrite(benchmarkName);
             int columnIndex = getColumnToWrite(benchmarkName);
-            evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(benchmarkInfo.avg());
+            int formulaRowsCount = getRowsCount(benchmarkInfo.getUnit());
+            evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(
+                    benchmarkInfo.avg() / formulaRowsCount);
         }
 
         public void save(Map<String, BenchmarkInfo> statistic, long memoryUsed) {
@@ -197,9 +229,9 @@ public class FormulaEvaluationTest {
     public static long getUsedMemorySize() {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
-    
+
     @Test
-    public void testEvaluation(){
+    public void testEvaluation() {
         long initialUsedMemory = getUsedMemorySize();
 
         InputStream in = null;
@@ -208,10 +240,14 @@ public class FormulaEvaluationTest {
             Workbook workbook = LiveExcelWorkbookFactory.create((in = new FileInputStream(FORMULA_TEST)), null);
             BenchmarkUnit[] bu = { new POIEvauation(workbook.getSheetAt(0)), new OneRelationJavaEvaluation(25, 25),
                     new POIEvauation(workbook.getSheetAt(1)), new TwoRelationJavaEvaluation(25, 25),
-                    new POIEvauation(workbook.getSheetAt(2)), new OneRelationJavaEvaluation(25, 250),
-                    new POIEvauation(workbook.getSheetAt(3)), new TwoRelationJavaEvaluation(25, 250),
-                    new POIEvauation(workbook.getSheetAt(4)), new OneRelationJavaEvaluation(25, 2500),
-                    new POIEvauation(workbook.getSheetAt(5)), new TwoRelationJavaEvaluation(25, 2500) };
+                    new POIEvauation(workbook.getSheetAt(2)), new OneRelationJavaEvaluation(25, 125),
+                    new POIEvauation(workbook.getSheetAt(3)), new TwoRelationJavaEvaluation(25, 125),
+                    new POIEvauation(workbook.getSheetAt(4)), new OneRelationJavaEvaluation(25, 250),
+                    new POIEvauation(workbook.getSheetAt(5)), new TwoRelationJavaEvaluation(25, 250),
+                    new POIEvauation(workbook.getSheetAt(6)), new OneRelationJavaEvaluation(25, 1250),
+                    new POIEvauation(workbook.getSheetAt(7)), new TwoRelationJavaEvaluation(25, 1250),
+                    new POIEvauation(workbook.getSheetAt(8)), new OneRelationJavaEvaluation(25, 2500),
+                    new POIEvauation(workbook.getSheetAt(9)), new TwoRelationJavaEvaluation(25, 2500) };
             Map<String, BenchmarkInfo> res = new Benchmark(bu).measureAll(1000);
 
             new EvaluationStatisticsSaver().save(res, getUsedMemorySize() - initialUsedMemory);
