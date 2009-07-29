@@ -172,10 +172,11 @@ public class TableEditorModel {
         numberOfNonShownRows = table.getRegion().getTop() - region.getTop();
         numberOfNonShownCols = table.getRegion().getLeft() - region.getLeft();
         othertables = new GridSplitter(table.getGrid()).split();
-
-        XlsSheetGridModel grid = (XlsSheetGridModel) table.getGrid();
-        undoGrid = new XlsUndoGrid(grid);
-
+        
+        if(table.getGrid() instanceof XlsSheetGridModel) {
+            XlsSheetGridModel grid = (XlsSheetGridModel) table.getGrid();
+            undoGrid = new XlsUndoGrid(grid);
+        }
         removeThisTable(othertables);
         makeFilteredGrid(table);
 
