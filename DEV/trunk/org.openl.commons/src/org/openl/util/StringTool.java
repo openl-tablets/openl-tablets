@@ -4,9 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 public class StringTool {
 
@@ -33,10 +34,10 @@ public class StringTool {
     static public class MacroSubst extends TextTransformer {
 
         public char _macroDelim;
-        public Map _macros;
+        public Map<String, String> _macros;
         MacroKeyHandler _mkh;
 
-        public MacroSubst(Map macros, char macroDelim, MacroKeyHandler mkh) {
+        public MacroSubst(Map<String, String> macros, char macroDelim, MacroKeyHandler mkh) {
             _macros = macros;
             _macroDelim = macroDelim;
             _mkh = mkh;
@@ -445,11 +446,11 @@ public class StringTool {
         return tokens.length > 0 ? tokens[tokens.length - 1] : "";
     }
 
-    public static String macroSubst(String src, Map macros, char macroDelim, MacroKeyHandler mkh) {
+    public static String macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh) {
         return macroSubst(src, macros, macroDelim, mkh, new StringBuffer()).toString();
     }
 
-    public static StringBuffer macroSubst(String src, Map macros, char macroDelim, MacroKeyHandler mkh, StringBuffer buf) {
+    public static StringBuffer macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh, StringBuffer buf) {
         MacroSubst ms = new MacroSubst(macros, macroDelim, mkh);
         return ms.transform(src, buf);
     }
@@ -470,7 +471,7 @@ public class StringTool {
 
     public static String[] openBrackets(String src, char openingBracket, char closingBracket, String ignore) {
         int len = src.length();
-        Vector v = new Vector();
+        List<String> v = new ArrayList<String>();
 
         for (int i = 0; i < len; i++) {
             char c = src.charAt(i);
@@ -701,7 +702,7 @@ public class StringTool {
 
     public static String[] splitLines(Reader reader) {
         BufferedReader br = new BufferedReader(reader);
-        Vector v = new Vector();
+        List<String> v = new ArrayList<String>();
         String s;
 
         try {
@@ -806,4 +807,9 @@ public class StringTool {
         return buf;
     }
 
+    static public String getFileNameOfJavaClass(Class<?> c)
+    {
+        return c.getName().replace('.', '/') +  ".java";
+    }
+    
 }
