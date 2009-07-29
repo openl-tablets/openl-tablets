@@ -78,9 +78,17 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.commons</artifactId>
+      <version>${version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.lib.poi35.dev.modified</artifactId>
     </dependency>
+
     <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.liveexcel.lib</artifactId>
