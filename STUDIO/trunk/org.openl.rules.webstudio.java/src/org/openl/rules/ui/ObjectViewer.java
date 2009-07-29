@@ -747,15 +747,19 @@ public class ObjectViewer {
             TableAndRows[] tr = ((OpenLAdvancedSearchResult) searchRes).tablesAndRows();
             OpenLAdvancedSearchResultViewer sviewer = new OpenLAdvancedSearchResultViewer(
                     (OpenLAdvancedSearchResult) searchRes);
-            for (int i = 0; i < tr.length; i++) {
+            for (int i = 0; i < tr.length; i++) {                
                 TableSyntaxNode tsn = tr[i].getTsn();
                 StringValue tableName = getTableName(tsn);
-                String tableUri = tsn.getUri();                
-                IGridTable gridTable = tsn.getTable().getGridTable();
-                tsn.setTable(gridTable);
+                String tableUri = tsn.getUri();
+                CompositeGrid cg = sviewer.makeGrid(tr[i].getRows());
+                IGridTable gridTable = cg != null ? cg.asGridTable() : null;                
+                Table newTable = new Table();
+                newTable.setGridTable(gridTable);
+                newTable.setProperties(tsn.getTableProperties());
                 TableSearch tableSearch = new TableSearch();
                 tableSearch.setTableUri(tableUri);
                 tableSearch.setTable(new TableSyntaxNodeAdapter(tsn));
+                tableSearch.setTable(newTable);
                 tableSearch.setXlsLink((displayResult(tableName)));
                 tableSearchList.add(tableSearch);
             }
