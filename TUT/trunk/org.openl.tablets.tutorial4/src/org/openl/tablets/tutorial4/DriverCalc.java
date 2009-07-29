@@ -7,98 +7,77 @@ import org.openl.meta.DoubleValue;
 
 /**
  * @author snshor
- *
+ * 
  */
-public class DriverCalc
-{
+public class DriverCalc {
 
-	
 	String ageType;
 	String eligibility;
 	String driverRisk;
-	
+
 	DoubleValue score = new DoubleValue(0);
 
 	Driver driver;
-	
+
 	DoubleValue premium = DoubleValue.ZERO;
-	
-	public DriverCalc(Driver driver)
-	{
+
+	public DriverCalc(Driver driver) {
 		this.driver = driver;
 	}
-	
-	public DriverCalc()
-	{
+
+	public DriverCalc() {
 	}
 
-	
-	public String getAgeType()
-	{
+	public String getAgeType() {
 		return this.ageType;
 	}
 
-	public void setAgeType(String ageType)
-	{
+	public void setAgeType(String ageType) {
 		this.ageType = ageType;
 	}
 
-	public String getDriverRisk()
-	{
+	public String getDriverRisk() {
 		return this.driverRisk;
 	}
 
-	public void setDriverRisk(String driverRisk)
-	{
+	public void setDriverRisk(String driverRisk) {
 		this.driverRisk = driverRisk;
 	}
 
-	public String getEligibility()
-	{
+	public String getEligibility() {
 		return this.eligibility;
 	}
 
-	public void setEligibility(String eligibility)
-	{
+	public void setEligibility(String eligibility) {
 		this.eligibility = eligibility;
 	}
 
-	public DoubleValue getScore()
-	{
+	public DoubleValue getScore() {
 		return this.score;
 	}
 
-	public void setScore(DoubleValue score)
-	{
+	public void setScore(DoubleValue score) {
 		this.score = score;
 	}
-	
-	public DoubleValue getFinalScore()
-	{
+
+	public DoubleValue getFinalScore() {
 		return score.copy("Score for " + driver.getName());
 	}
 
-
-	public Driver getDriver()
-	{
+	public Driver getDriver() {
 		return this.driver;
 	}
 
-
-	public void setDriver(Driver driver)
-	{
+	public void setDriver(Driver driver) {
 		this.driver = driver;
 	}
 
-	public DoubleValue getPremium()
-	{
+	public DoubleValue getPremium() {
 		return this.premium;
 	}
 
-	public void setPremium(DoubleValue premium)
-	{
+	public void setPremium(DoubleValue premium) {
 		this.premium = premium;
 	}
-	
 
 }
