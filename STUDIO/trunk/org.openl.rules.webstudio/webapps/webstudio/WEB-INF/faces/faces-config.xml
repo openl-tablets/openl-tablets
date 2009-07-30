@@ -281,6 +281,13 @@
       <value>#{applicationScope.hideLogout}</value>
     </managed-property>
   </managed-bean>
+  
+  
+  <managed-bean>
+    <managed-bean-name>propertyDef</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.search.BussinesSearchPropertyBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
 
   <navigation-rule>
     <from-view-id>/facelets/repository/main.xhtml</from-view-id>
