@@ -12,11 +12,13 @@ public class TableProperty {
     private Class<?> type;
     private boolean show;
     private boolean canEdit;
+    private String group;
     
-    public TableProperty(String displayName, Object value, Class<?> type) {
+    public TableProperty(String displayName, Object value, Class<?> type, String group) {
         this.displayName = displayName;
         this.value = value;
         this.type = type;
+        this.group = group;
     }
     
     public boolean isShow() {
@@ -58,4 +60,13 @@ public class TableProperty {
     public void setValue(Object value) {
         this.value = value;
     }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
 }
