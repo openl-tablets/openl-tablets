@@ -2,17 +2,18 @@ package org.openl.rules.tableeditor.renderkit;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.openl.rules.lang.xls.binding.TableProperties;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
+import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
@@ -197,7 +198,7 @@ public class HTMLRenderer {
                 .append(renderEditorToolbar(editorId, editor)).append(renderJS("js/TextEditor.js")).append(
                         renderJS("js/MultiLineEditor.js")).append(renderJS("js/NumericEditor.js")).append(
                         renderJS("js/DropdownEditor.js"))
-                .append(renderPropsEditor(table))
+                .append(renderPropsEditor(table, Constants.MODE_EDIT))
                 // .append(renderJS("js/SuggestEditor.js"))
                 // .append(renderJS("js/DateEditor.js"))
                 // .append(renderJS("js/PriceEditor.js"))
@@ -298,7 +299,7 @@ public class HTMLRenderer {
             String editorId, IGridFilter filter) {
         StringBuilder result = new StringBuilder();
         if (table != null) {
-            result.append(renderPropsViever(table));
+            result.append(renderPropsEditor(table, Constants.MODE_VIEW));
         }
         if (table != null) {
             IGridFilter[] filters = (filter == null) ? null : new IGridFilter[] { filter };
@@ -320,64 +321,11 @@ public class HTMLRenderer {
         return result.toString();
     }
 
-    protected String renderPropsViever(ITable table) {
-        TableProperties props = table.getProperties();
-//        StringBuilder result = new StringBuilder();
-//        result.append("<fieldset style='width:300px;margin-bottom:5px;'><legend>Properties</legend>"
-//                + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'>");
-//        if(props!=null) {
-//            for (Property property : props.getProperties()) {
-//                result.append("<tr><td><b>").append(property.getKey()).append(":</b></td><td>")
-//                      .append(property.getValue()).append("</td></tr>");
-//            }
-//            result.append("</table></fieldset>");
-//        
-            /*result.append("<fieldset style='width:515px;margin-bottom:5px;'><legend>Properties</legend>"
-                    + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'><tr><td><table><tr><td><b>Name:</b></td><td>Table1</td></tr><tr><td><b>Template:</b></td>"
-                    + "<td>Standard Rule</td></tr><tr><td><b>Effective Date:</b></td><td>12/12/2009</td></tr>"
-                    + "<tr><td><b>Expiration Date:</b></td><td>12/12/2009</td></tr></table></td><td><table>"
-                    + "<tr><td><b>Folder:</b></td><td>Folder1</td></tr><tr><td><b>Status:</td><td>Active</b></td></tr>"
-                    + "<tr><td><b>Created On:</b></td><td>11/11/2009</td></tr><tr><td><b>Created By:</b></td>"
-                    + "<td>Admin - Petr Udalov</td></tr></table></td></tr></table></fieldset>");*/
-            
-//        }        
-//        return result.toString();
-        
-        PropertyRenderer propEditRend = new PropertyRenderer(props,"view");
-        return propEditRend.renderProperties();
-    }
-
-    protected String renderPropsEditor(ITable table) {
+    protected String renderPropsEditor(ITable table, String mode) {
         TableProperties props = table.getProperties();        
-//       StringBuilder result = new StringBuilder();      
-//        result.append("<fieldset style='width:300px;margin-bottom:5px;'><legend>Properties</legend>"
-//                + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'>");
-//        for (Property property : props.getProperties()) {
-//            result.append("<tr><td><b>").append(property.getKey()).append(":</b></td><td>")
-//                  .append("<input id='_" + property.getKey() + "' type='text' value='" + property.getValue() + "' />")
-//                  .append("</td></tr>");
-//        }
-//        result.append("</table></fieldset>");
-        
-//        result.append(renderJS("js/calendar_us.js"));
-//        result.append(renderCSS("css/calendar.css"));
-//        result.append("<fieldset style='width:580px;margin-bottom:5px;'><legend>Properties</legend>"
-//                + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'><tr><td><table><tr><td><b>Name:</b></td><td><input type='text' value='Table1' /></td></tr><tr><td><b>Template:</b></td>"
-//                + "<td><select><option>Standard Rule</option><option>Standard Rule 2</option><option>Standard Rule 3</option></select></td></tr><tr><td><b>Effective Date:</b></td><td><input type='text' value='12/12/2009' id='datepicker1' />")
-//                .append(renderJSBody("new tcal ({'controlname': 'datepicker1'});"))
-//                .append("</td></tr>"
-//                + "<tr><td><b>Expiration Date:</b></td><td><input type='text' value='11/11/2009' id='datepicker2' />")
-//                .append(renderJSBody("new tcal ({'controlname': 'datepicker2'});"))
-//                .append("</td></tr></table></td><td><table>"
-//                + "<tr><td><b>Folder:</b></td><td>Folder1</td></tr><tr><td><b>Status:</td><td><select><option>Active</option><option>Inactive</option></select></b></td></tr>"
-//                + "<tr><td><b>Created On:</b></td><td>11/11/2009</td></tr><tr><td><b>Created By:</b></td>"
-//                + "<td>Admin - Petr Udalov</td></tr></table></td></tr></table></fieldset>");
-//        result.append(renderJSBody("$(function(){$('[name=datepicker]').datepicker({});});"));
-//        return result.toString();
-        PropertyRenderer propEditRend = new PropertyRenderer(props,"edit");
-        return propEditRend.renderProperties();
+        return new PropertyRenderer(props, mode).renderProperties();
     }   
-    
+
     /**
      * Temporary class to render properties on edit view
      * @author DLiauchuk
@@ -390,134 +338,161 @@ public class HTMLRenderer {
         private int numberOfCalendars = 0;
         
         private StringBuilder result;
-        
+
         private String mode;
-        
+
         private TableProperties props;
-        
-        public PropertyRenderer(TableProperties props,String view) { 
+
+        public PropertyRenderer(TableProperties props, String view) {
+            if (props == null) {
+                throw new IllegalArgumentException();
+            }
             this.props = props;
             this.mode = view;
             this.listProperties = initPropertiesList();
             this.result = new StringBuilder();
         }
-        
+
         private List<TableProperty> initPropertiesList() {
-            boolean nameSet = false;
-            boolean folderSet = false;
             List<TableProperty> listProp = new ArrayList<TableProperty>();
-            if(props!=null){
-                for(Property prop: props.getProperties()) {
-                    if("name".equals(prop.getKey().getValue())) {
-                        listProp.add(new TableProperty("Name", prop.getValue().getValue(),String.class));
-                        nameSet = true;
-                    }
-                    if("category".equals(prop.getKey().getValue())) {
-                        listProp.add(new TableProperty("Folder", prop.getValue().getValue(),String.class));
-                        folderSet = true;
-                    }
+            TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
+            for (TablePropertyDefinition propDefinition : propDefinitions) {
+                listProp.add(new TableProperty(propDefinition.getDisplayName(),
+                        props.getPropertyValue(propDefinition.getName()),
+                        propDefinition.getType() == null ? null : propDefinition.getType().getInstanceClass(),
+                        propDefinition.getGroup()));
+            }
+            return listProp;
+        }
+
+        private Map<String, List<TableProperty>> groupProps(List<TableProperty> props) {
+            Map<String, List<TableProperty>> groupProps = new LinkedHashMap<String, List<TableProperty>>();
+            for (TableProperty prop : props) {
+                String group = prop.getGroup();
+                List<TableProperty> groupList = groupProps.get(group);
+                if (groupList == null) {
+                    groupList = new ArrayList<TableProperty>();
+                    groupProps.put(group, groupList);
+                }
+                if (!groupList.contains(prop)) {
+                    groupList.add(prop);
                 }
             }
-            if(!nameSet) {
-                listProp.add(new TableProperty("Name", null, String.class));
-            }
-            if(!folderSet) {
-                listProp.add(new TableProperty("Folder", null, String.class));
-            }
-            listProp.add(new TableProperty("Template", Arrays.asList("Standard_Rule1", "Standard_Rule2", "Standard_Rule3"),List.class));
-            listProp.add(new TableProperty("Effective Date", null, Date.class));
-            listProp.add(new TableProperty("Expiration Date", null, Date.class));            
-            listProp.add(new TableProperty("Status", Arrays.asList("Active", "Inactive"),List.class));
-            listProp.add(new TableProperty("Created On", null, Date.class));
-            listProp.add(new TableProperty("Created By", null, String.class));
-            return listProp;
-        }  
+            return groupProps;
+        }
         
         /**
          * 
          * @return Construct table for properties
          */
-        public String renderProperties() {              
-            result.append("<fieldset style='width:500px;margin-bottom:5px;'><legend>Properties</legend>"
-                    + "<table style='font-size: 12px;font-family: Arial' cellspacing='1' cellpadding='1'>");
+        public String renderProperties() {
+            result.append("<fieldset style='width:600px;margin-bottom:5px;'><legend>Properties</legend>"
+                    + "<table style='font-size: 12px;font-family: Arial;' cellspacing='1' cellpadding='1'>");
             result.append(renderJS("js/calendar_us.js"));
-            result.append(renderCSS("css/calendar.css"));                        
-            
-            divideForTwoColumns();
-            
+            result.append(renderCSS("css/calendar.css"));
+
+            buildPropsTable();
+
             result.append("</table></fieldset>");
             result.append(renderJSBody("$(function(){$('[name=datepicker]').datepicker({});});"));
             return result.toString();            
         }
-        
-        /**
-         * Divide number of properties for two columns
-         */
-        private void divideForTwoColumns() {
+
+        private void buildPropsTable() {
+            Map<String, List<TableProperty>> groupProps = groupProps(listProperties);
+            int groupSize = groupProps.size();
+            int numToDivide = getNumToDivideColumns(groupSize);
+
+            int i = 0;
+            Set<String> groupKeys = groupProps.keySet();
+            for (String group : groupKeys) {
+                if (i == 0) {
+                    result.append("<tr>");
+                }
+                if (i == numToDivide) {
+                    result.append("</tr>");
+                    result.append("<tr>");
+                }
+                result.append("<td valign='top'>");
+                fillPropsGroup(group, mode);
+                result.append("</td>");
+
+                if (i == groupSize - 1) {
+                    result.append("</tr>");
+                }
+                i++;
+            }
+        }
+
+        private int getNumToDivideColumns(int groupSize) {
             int numToDivide = 0;
-            if(listProperties.size()%2==0) {
-                numToDivide = listProperties.size()/2;
+            if (groupSize %2 == 0) {
+                numToDivide = groupSize / 2;
             } else {
-                numToDivide = (listProperties.size()+1)/2;                
+                numToDivide = (groupSize + 1) / 2;
             }
-            buildTableProp(numToDivide);            
+            return numToDivide;
         }
-        
-        private void buildTableProp(int numToDivide) {            
-            //filling left column of table            
-            result.append("<td><table>");
-            for(int i=0;i<numToDivide;i++) {
-                if("edit".equals(mode)) {
-                    fillEditRow(i);
+
+        private void fillPropsGroup(String groupKey, String mode) {
+            Map<String, List<TableProperty>> groupProps = groupProps(listProperties);
+            List<TableProperty> groupList = groupProps.get(groupKey);
+            String groupId = groupKey + "_group";
+            result.append("<div style='margin-bottom:5px;'>");
+            result.append("<b>" + groupKey + "</b>");
+            renderHideButton(groupId);
+            result.append("</div>");
+            result.append("<div id='" + groupId + "' style='border:1px solid grey; margin: 0 4px 8px 0;'>");
+            result.append("<table>");
+            for (TableProperty prop : groupList) {
+                if (mode.equals("edit")) {
+                    fillEditProp(prop);
                 } else {
-                    fillViewRow(i);
+                    fillViewProp(prop);
                 }
             }
-            result.append("</table></td>");
-            
-            //filling right column of table
-            result.append("<td><table>");
-            for(int i=numToDivide;i<listProperties.size();i++) {
-                if("edit".equals(mode)) {
-                    fillEditRow(i);
-                } else {
-                    fillViewRow(i);
-                }
-            }
-            result.append("</table></div></td>");
-            
+            result.append("</table></div>");
         }
-        
-                
+
+        private void renderHideButton(String idToHide) {
+            result.append("<input type='button' value='-' onclick=\"$('"
+                    + idToHide + "').toggle();this.value=(this.value == '-' ? '+' : '-');"
+                    + "this.title=(this.title == 'Hide group' ? 'Show group' : 'Hide group');\""
+                    + " title='Hide group'"
+                    + " style='width:20px;height:15px;border:0px;background:none;' />");
+        }
+
         /**
          * Fills the row in edit table, depending on the type of property value
-         * @param index
+         * @param prop
          */
-        private void fillEditRow(int index) {
+        private void fillEditProp(TableProperty prop) {
             result.append("<tr>");
-            insertLabel(listProperties.get(index).getDisplayName());
-            if(String.class.equals(listProperties.get(index).getType())) {
-                insertEdit((String)listProperties.get(index).getValue());                    
-            } else {
-                if(Date.class.equals(listProperties.get(index).getType())) {
-                    insertCalendar((Date)listProperties.get(index).getValue());
-                } else {
-                    if(List.class.equals(listProperties.get(index).getType())) {
-                        insertSelect((List<String>)listProperties.get(index).getValue());
-                    }
+            insertLabel(prop.getDisplayName());
+            Class<?> propType = prop.getType();
+            Object propValue = prop.getValue();
+            if (propType != null) {
+                if (propType.equals(String.class)) {
+                    insertEdit((String) propValue);
+                } else if (propType.equals(Date.class)) {
+                    insertCalendar((Date) propValue);
+                } else if (propType.equals(List.class)) {
+                    insertSelect((List<String>) propValue);
+                } else if (propType.equals(Boolean.class)) {
+                    insertCheckbox((Boolean) propValue);
                 }
             }
             result.append("</tr>");
         }
-        
+
         /**
          * Fills the row in view table
-         * @param index
+         * @param prop
          */
-        private void fillViewRow(int index) {
+        private void fillViewProp(TableProperty prop) {
             result.append("<tr>");
-            insertLabel(listProperties.get(index).getDisplayName());
-            insertText(listProperties.get(index)); 
+            insertLabel(prop.getDisplayName());
+            insertText(prop);
         }
         
         private void insertCalendar(Date value) {
@@ -548,7 +523,14 @@ public class HTMLRenderer {
             }
             result.append("<td><input type='text' value='" + value + "' /></td>");            
         }
-        
+
+        private void insertCheckbox(Boolean value) {
+            if (value == null) {
+                value = false;
+            }
+            result.append("<td><input type='checkbox' ").append(value ? "checked='checked'" : "").append(" /></td>");
+        }
+
         private void insertLabel(String displayName) {
             result.append("<td><b>"+displayName+":</b></td>");
         }
