@@ -16,21 +16,14 @@ public class Vehicle extends NamedThing {
 
 	int year;
 	String model;
-
 	boolean hasAlarm;
-
 	String type;
 	boolean onHighTheftProbabilityList;
 	String airbags;
-
 	double price;
-
 	String bodyType;
-
 	String[] coverage;
-
 	boolean hasRollBar;
-
 	int age;
 
 	/**

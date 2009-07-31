@@ -11,14 +11,12 @@ import org.openl.meta.DoubleValue;
  */
 public class DriverCalc {
 
+	Driver driver;
 	String ageType;
 	String eligibility;
 	String driverRisk;
 
-	DoubleValue score = new DoubleValue(0);
-
-	Driver driver;
-
+	DoubleValue score = DoubleValue.ZERO;
 	DoubleValue premium = DoubleValue.ZERO;
 
 	public DriverCalc(Driver driver) {
@@ -58,10 +56,6 @@ public class DriverCalc {
 
 	public void setScore(DoubleValue score) {
 		this.score = score;
-	}
-
-	public DoubleValue getFinalScore() {
-		return score.copy("Score for " + driver.getName());
 	}
 
 	public Driver getDriver() {
