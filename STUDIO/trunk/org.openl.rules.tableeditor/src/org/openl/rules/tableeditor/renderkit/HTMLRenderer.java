@@ -394,7 +394,6 @@ public class HTMLRenderer {
             buildPropsTable();
 
             result.append("</table></fieldset>");
-            result.append(renderJSBody("$(function(){$('[name=datepicker]').datepicker({});});"));
             return result.toString();            
         }
 
@@ -492,17 +491,17 @@ public class HTMLRenderer {
             insertLabel(prop.getDisplayName());
             insertText(prop);
         }
-        
-        private void insertCalendar(Date value, String id) {
-            numberOfCalendars++;            
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy"); 
+
+        private void insertCalendar(Date value, String name) {
+            numberOfCalendars++;
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
             String resultStr;
-            if(value==null) {
+            if (value == null) {
                 resultStr = "";
             } else {
                 resultStr = sdf.format(value); 
             }
-            result.append("<td><input id='" + id + "' type='text' value='" + resultStr + "' id='datepicker"
+            result.append("<td><input name='" + name + "' type='text' value='" + resultStr + "' id='datepicker"
                     + numberOfCalendars +"' />")
                 .append(renderJSBody("new tcal ({'controlname': 'datepicker" + numberOfCalendars + "'});"))
                 .append("</td>");            
@@ -517,18 +516,18 @@ public class HTMLRenderer {
             result.append("</select></td>");
         }
 
-        private void insertEdit(String value, String id) {
+        private void insertEdit(String value, String name) {
             if(value==null) {
                 value="";
             }
-            result.append("<td><input id='" + id + "' type='text' value='" + value + "' /></td>");            
+            result.append("<td><input name='" + name + "' type='text' value='" + value + "' /></td>");
         }
 
-        private void insertCheckbox(Boolean value, String id) {
+        private void insertCheckbox(Boolean value, String name) {
             if (value == null) {
                 value = false;
             }
-            result.append("<td><input id='" + id + "' type='checkbox' ").append(value ? "checked='checked'" : "").append(" /></td>");
+            result.append("<td><input name='" + name + "' type='checkbox' ").append(value ? "checked='checked'" : "").append(" /></td>");
         }
 
         private void insertLabel(String displayName) {
