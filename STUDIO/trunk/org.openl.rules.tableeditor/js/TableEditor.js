@@ -21,6 +21,18 @@ TableEditor.Constants = {
     REMOVE : 5
 };
 
+TableEditor.Operations = {
+    LOAD : "load",
+    GET_CELL_TYPE : "getCellType",
+    SET_CELL_VALUE : "setCellValue",
+    SET_ALIGN : "setAlign",
+    SET_INDENT : "setIndent",
+    SET_PROP : "setProp",
+    UNDO : "undo",
+    REDO : "redo",
+    SAVE : "saveTable"
+};
+
 // standalone functions
 
 TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
@@ -71,7 +83,7 @@ TableEditor.prototype = {
         if (editCell) this.editCell = editCell;
 
         this.baseUrl = url;
-        this.saveUrl = this.buildUrl("save");
+        this.saveUrl = this.buildUrl(TableEditor.Operations.SET_CELL_VALUE);
 
         var self = this;
 
@@ -89,6 +101,12 @@ TableEditor.prototype = {
         this.tableContainer.observe("click", function(e) {
             self.handleClick(e);
         }, false);
+
+        $$('input[id^="_prop_"]').each(function(elem) {
+            elem.observe("blur", function(e) {
+                self.handlePropSet(e);
+            }, false);
+        });
 
         this.tableContainer.observe("dblclick", function(e) {
             self.handleDoubleClick(e);
@@ -111,7 +129,7 @@ TableEditor.prototype = {
      * @type: private
      */
     loadData : function(url) {
-        if (!url) url = this.buildUrl("load");
+        if (!url) url = this.buildUrl(TableEditor.Operations.LOAD);
         var self = this;
         new Ajax.Request(url, {
             method      : "get",
@@ -183,7 +201,7 @@ TableEditor.prototype = {
      */
     save: function() {
         var self = this;
-        new Ajax.Request(this.buildUrl("saveTable"), {
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SAVE), {
             parameters : {
                 editorId: this.editorId
             },
@@ -220,6 +238,28 @@ TableEditor.prototype = {
         this.editBeginRequest(cell);
     },
 
+    handlePropSet: function(event) {
+        var prop = Event.findElement(event, "input");
+        this.setProp(prop.id, prop.value);
+    },
+
+    setProp : function(name, value) {
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_PROP), {
+            method    : "get",
+            encoding   : "utf-8",
+            contentType : "text/javascript",
+            onSuccess  : function(data) {
+                data = eval(data.responseText);
+                self.processCallbacks(data, "do");
+            },
+            parameters: {
+                editorId: this.editorId,
+                propName : name,
+                propValue : value
+            },
+            onFailure: AjaxHelper.handleError
+        });
+    },
 
     /**
      * @desc: sends request to server to find out required editor for a cell. After getting response calls this.editBegin
@@ -234,7 +274,7 @@ TableEditor.prototype = {
         var typedText = undefined;
         if (keyCode) typedText = String.fromCharCode(keyCode);
 
-        new Ajax.Request(this.buildUrl("getCellType"), {
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.GET_CELL_TYPE), {
             onSuccess  : function(response) {
                 self.editBegin(cell, eval(response.responseText), typedText)
             },
@@ -454,7 +494,7 @@ TableEditor.prototype = {
 
     undoredo: function(redo) {
         if (Ajax.activeRequestCount > 0) return;
-        new Ajax.Request(this.buildUrl((redo ? "redo" : "undo")), {
+        new Ajax.Request(this.buildUrl((redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO)), {
             parameters: {
                 editorId: this.editorId
             },
@@ -492,7 +532,7 @@ TableEditor.prototype = {
             col : this.selectionPos[1],
             align: _align
         }
-        new Ajax.Request(this.buildUrl("setAlign"), {
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_ALIGN), {
             onSuccess: function(response) {
                 response = eval(response.responseText);
                 if (response.status)
@@ -525,7 +565,7 @@ TableEditor.prototype = {
             col : this.selectionPos[1],
             indent: _indent
         }
-        new Ajax.Request(this.buildUrl("indent"), {
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_INDENT), {
             onSuccess: function(response) {
                 response = eval(response.responseText);
                 if (response.status)

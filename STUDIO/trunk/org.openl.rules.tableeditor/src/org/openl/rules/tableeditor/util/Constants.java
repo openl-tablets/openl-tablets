@@ -20,6 +20,8 @@ public final class Constants {
     public static final String REQUEST_PARAM_INDENT = "indent";
     public static final String REQUEST_PARAM_ROW = "row";
     public static final String REQUEST_PARAM_COL = "col";
+    public static final String REQUEST_PARAM_PROP_NAME = "propName";
+    public static final String REQUEST_PARAM_PROP_VALUE = "propValue";
 
     public static final String TABLE_VIEWER_TYPE = "org.openl.rules.tableeditor.TableViewer";
     public static final String TABLE_EDITOR_TYPE = "org.openl.rules.tableeditor.TableEditor";

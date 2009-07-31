@@ -64,7 +64,7 @@ public class TableProperty {
 
     public Object getValue() {
         Object result;
-        if(value==null && isStringValue()) {
+        if (type == null || (value == null && isStringValue())) {
             result = new String("");
         } else {
             result = value;            
@@ -91,10 +91,10 @@ public class TableProperty {
     public void setGroup(String group) {
         this.group = group;
     }
-    
+
     public boolean isStringValue() {        
         boolean stringValue = false;
-        if(type.equals(String.class)) {
+        if (type.equals(String.class)) {
             stringValue = true;
         }        
         return stringValue;
@@ -107,7 +107,7 @@ public class TableProperty {
         }
         return dateValue;
     }
-    
+
     public boolean isBooleanValue() {
         boolean booleanValue = false;
         if(type.equals(java.lang.Boolean.class)) {

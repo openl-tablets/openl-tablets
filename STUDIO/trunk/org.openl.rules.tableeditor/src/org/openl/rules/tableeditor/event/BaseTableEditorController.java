@@ -10,9 +10,9 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.web.jsf.util.FacesUtils;
 
-public class BaseTableViewController {
+public class BaseTableEditorController {
 
-    public BaseTableViewController() {
+    public BaseTableEditorController() {
     }
 
     protected TableEditorModel getEditorModel(String editorId) {
