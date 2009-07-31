@@ -43,10 +43,9 @@ public class ParsingTest {
 
         @Override
         protected void run() throws Exception {
-            System.gc();
-            long previouslyMemoryUsed = FormulaEvaluationTest.getUsedMemorySize();
+            long previouslyMemoryUsed = FormulaEvaluationTest.getUsedMemorySizeBeforeTest();
             LiveExcelWorkbookFactory.create(new FileInputStream(fileToParse), null);
-            memoryUsed = FormulaEvaluationTest.getUsedMemorySize() - previouslyMemoryUsed;
+            memoryUsed = FormulaEvaluationTest.getUsedMemorySizeAfterTest() - previouslyMemoryUsed;
         }
 
         public int getHeight() {
