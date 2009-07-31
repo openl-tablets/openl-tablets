@@ -13,14 +13,14 @@
 	<tr><td>
 	<h:form id="businessSearchForm">
 	<fieldset><legend>Properties</legend>  
-		<table id="propertyTable">
-			<c:forEach items="#{propertyDef.propertiesForSearch}" var="propDef">
-				<tr><td><h:outputLabel for="#{propDef.name}" value="#{propDef.displayName}"/></td>
+		<table id="propertySearchTable">
+			<c:forEach items="#{bussinessSearch.propForSearch}" var="propDef">
+				<tr><td><h:outputLabel for="#{propDef.displayName}" value="#{propDef.displayName}"/></td>
 					<c:if test="#{propDef.stringValue}">
-						<td><h:inputText id="#{propDef.name}" value="" /></td>
+						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
 					</c:if>
 					<c:if test="#{propDef.dateValue}">
-						<td><rich:calendar id="#{propDef.name}" value="" popup="true" enableManualInput="true"
+						<td><rich:calendar id="#{propDef.name}" value="#{propDef.value}" popup="true" enableManualInput="true"
 	      					jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
 	      					rendered="true" timeZone="#{formatPatterns.timeZone}">
 	      					<f:converter converterId="org.openl.DateConverter" /></rich:calendar>
@@ -38,7 +38,7 @@
 		</h:panelGrid>
 	</fieldset>
 	<br />
-	<h:commandButton value="Search" action="#{advancedSearchRequest.search}"/>
+	<h:commandButton value="Search" action="#{bussinessSearch.search}"/>
 	</h:form></td></tr>
 	</table>
 </ui:define>
