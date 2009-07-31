@@ -13,12 +13,29 @@ public class TableProperty {
     private boolean show;
     private boolean canEdit;
     private String group;
+    private String name;
     
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public TableProperty(String displayName, Object value, Class<?> type, String group) {
         this.displayName = displayName;
         this.value = value;
         this.type = type;
         this.group = group;
+    }
+    
+    public TableProperty(String displayName, Object value, Class<?> type, String group, String name) {
+        this.displayName = displayName;
+        this.value = value;
+        this.type = type;
+        this.group = group;
+        this.name = name;
     }
     
     public boolean isShow() {
@@ -46,7 +63,13 @@ public class TableProperty {
     }
 
     public Object getValue() {
-        return value;
+        Object result;
+        if(value==null && isStringValue()) {
+            result = new String("");
+        } else {
+            result = value;            
+        }
+        return result;
     }
 
     public Class<?> getType() {
@@ -67,6 +90,30 @@ public class TableProperty {
 
     public void setGroup(String group) {
         this.group = group;
+    }
+    
+    public boolean isStringValue() {        
+        boolean stringValue = false;
+        if(type.equals(String.class)) {
+            stringValue = true;
+        }        
+        return stringValue;
+    }
+
+    public boolean isDateValue() {
+        boolean dateValue = false;
+        if(type.equals(java.util.Date.class)) {
+            dateValue = true;
+        }
+        return dateValue;
+    }
+    
+    public boolean isBooleanValue() {
+        boolean booleanValue = false;
+        if(type.equals(java.lang.Boolean.class)) {
+            booleanValue = true;
+        }        
+        return booleanValue;
     }
 
 }
