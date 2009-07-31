@@ -84,10 +84,10 @@ public class UDFsTest {
         @Override
         protected void run() throws Exception {
             System.gc();
-            long previouslyMemoryUsed = FormulaEvaluationTest.getUsedMemorySize();
+            long previouslyMemoryUsed = FormulaEvaluationTest.getUsedMemorySizeBeforeTest();
             evaluator = new LiveExcelEvaluator(LiveExcelWorkbookFactory.create(new FileInputStream(fileToParse), null),
                     ContextFactory.getEvaluationContext(null));
-            memoryUsed = FormulaEvaluationTest.getUsedMemorySize() - previouslyMemoryUsed;
+            memoryUsed = FormulaEvaluationTest.getUsedMemorySizeAfterTest() - previouslyMemoryUsed;
         }
     }
 
@@ -213,20 +213,22 @@ public class UDFsTest {
         return new Benchmark((BenchmarkUnit[]) buList.toArray(new BenchmarkUnit[buList.size()])).measureAll(1000);
     }
 
-//     public static void main(String[] args) throws Exception {
-//
-//        for (int i = 5; i < 4000; i *= 5) {
-//            Workbook workbook = LiveExcelWorkbookFactory.create(
-//                    new FileInputStream(FILE_TO_PARSE_STARTING + i + ".xls"), null);
-//            Sheet parsingBenchmarkSheet = workbook.getSheetAt(0);
-//            workbook.registerUserDefinedFunction("ol_declare_function", null);
-//            for (int j = 0; j < i; j++) {
-//                String foumula = parsingBenchmarkSheet.getRow(j).getCell(0).getCellFormula();
-//                Cell cell = parsingBenchmarkSheet.getRow(j).createCell(0);
-//                cell.setCellFormula(foumula.replaceFirst("func1", "func" + j));
-//            }
-//            workbook.write(new FileOutputStream(FILE_TO_PARSE_STARTING + i + ".xls"));
-//            System.out.println("i = " + i + " finished");
-//        }
-//    }
+    // public static void main(String[] args) throws Exception {
+    //
+    // for (int i = 5; i < 4000; i *= 5) {
+    // Workbook workbook = LiveExcelWorkbookFactory.create(
+    // new FileInputStream(FILE_TO_PARSE_STARTING + i + ".xls"), null);
+    // Sheet parsingBenchmarkSheet = workbook.getSheetAt(0);
+    // workbook.registerUserDefinedFunction("ol_declare_function", null);
+    // for (int j = 0; j < i; j++) {
+    // String foumula =
+    // parsingBenchmarkSheet.getRow(j).getCell(0).getCellFormula();
+    // Cell cell = parsingBenchmarkSheet.getRow(j).createCell(0);
+    // cell.setCellFormula(foumula.replaceFirst("func1", "func" + j));
+    // }
+    // workbook.write(new FileOutputStream(FILE_TO_PARSE_STARTING + i +
+    // ".xls"));
+    // System.out.println("i = " + i + " finished");
+    // }
+    // }
 }

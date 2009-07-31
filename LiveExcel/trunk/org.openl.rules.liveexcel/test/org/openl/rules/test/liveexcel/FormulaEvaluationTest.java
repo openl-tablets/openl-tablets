@@ -35,10 +35,12 @@ public class FormulaEvaluationTest {
     private static class POIEvauation extends VerticalTableBenchmarkUnit {
         private Sheet sheet;
         private List<Cell> formulaCells;
+        private FormulaEvaluator evaluator;
 
         public POIEvauation(Sheet sheet) {
             this.sheet = sheet;
             formulaCells = findFormulaCells(sheet);
+            evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
         }
 
         private List<Cell> findFormulaCells(Sheet sheet) {
@@ -61,7 +63,6 @@ public class FormulaEvaluationTest {
 
         @Override
         protected void run() throws Exception {
-            FormulaEvaluator evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
             for (Cell cell : formulaCells) {
                 evaluator.evaluateFormulaCell(cell);
             }
@@ -91,10 +92,19 @@ public class FormulaEvaluationTest {
 
         @Override
         protected void run() throws Exception {
+            getCell(width - 1, height);
             for (int row = 1; row < height + 1; row++) {
-                for (int column = 0; column < width; column++) {
-                    evaluationArray[column][row] = evaluationArray[column][row - 1] + 1;
+                for (int column = 1; column < width; column++) {
+                    getCell(column, row);
                 }
+            }
+        }
+
+        private long getCell(int x, int y) {
+            if (evaluationArray[x][y] != 0) {
+                return evaluationArray[x][y];
+            } else {
+                return (evaluationArray[x][y] = 1 + getCell(x, y - 1));
             }
         }
 
@@ -125,11 +135,19 @@ public class FormulaEvaluationTest {
 
         @Override
         protected void run() throws Exception {
+            getCell(width, height);
             for (int row = 1; row < height + 1; row++) {
                 for (int column = 1; column < width + 1; column++) {
-                    evaluationArray[column][row] = evaluationArray[column][row - 1]
-                            + evaluationArray[column - 1][row - 1];
+                    getCell(column, row);
                 }
+            }
+        }
+
+        private long getCell(int x, int y) {
+            if (evaluationArray[x][y] != 0) {
+                return evaluationArray[x][y];
+            } else {
+                return (evaluationArray[x][y] = getCell(x - 1, y) + getCell(x, y - 1));
             }
         }
 
@@ -226,13 +244,20 @@ public class FormulaEvaluationTest {
         }
     }
 
-    public static long getUsedMemorySize() {
+    public static long getUsedMemorySizeBeforeTest() {
+        System.gc();
+        System.gc();
+        System.gc();
+        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+    }
+
+    public static long getUsedMemorySizeAfterTest() {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
     @Test
     public void testEvaluation() {
-        long initialUsedMemory = getUsedMemorySize();
+        long initialUsedMemory = getUsedMemorySizeBeforeTest();
 
         InputStream in = null;
 
@@ -250,7 +275,7 @@ public class FormulaEvaluationTest {
                     new POIEvauation(workbook.getSheetAt(9)), new TwoRelationJavaEvaluation(25, 2500) };
             Map<String, BenchmarkInfo> res = new Benchmark(bu).measureAll(1000);
 
-            new EvaluationStatisticsSaver().save(res, getUsedMemorySize() - initialUsedMemory);
+            new EvaluationStatisticsSaver().save(res, getUsedMemorySizeAfterTest() - initialUsedMemory);
             assertTrue(true);
         } catch (Exception e) {
             e.printStackTrace();
