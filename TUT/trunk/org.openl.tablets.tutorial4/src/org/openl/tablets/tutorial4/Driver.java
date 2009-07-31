@@ -8,10 +8,9 @@ import org.openl.base.NamedThing;
 
 /**
  * @author snshor
- *
+ * 
  */
-public class Driver extends NamedThing 
-{
+public class Driver extends NamedThing {
 
 	String gender;
 	int age;
@@ -20,13 +19,7 @@ public class Driver extends NamedThing
 	int numAccidents;
 	int numMovingViolations;
 	int numDUI;
-	
 	boolean hadTraining;
-	
-	
-	
-	
-	
 
 	/**
 	 * @return Returns the age.
@@ -36,7 +29,8 @@ public class Driver extends NamedThing
 	}
 
 	/**
-	 * @param age The age to set.
+	 * @param age
+	 *            The age to set.
 	 */
 	public void setAge(int age) {
 		this.age = age;
@@ -50,7 +44,8 @@ public class Driver extends NamedThing
 	}
 
 	/**
-	 * @param gender The gender to set.
+	 * @param gender
+	 *            The gender to set.
 	 */
 	public void setGender(String gender) {
 		this.gender = gender;
@@ -64,7 +59,8 @@ public class Driver extends NamedThing
 	}
 
 	/**
-	 * @param hadTraining The hadTraining to set.
+	 * @param hadTraining
+	 *            The hadTraining to set.
 	 */
 	public void setHadTraining(boolean hadTraining) {
 		this.hadTraining = hadTraining;
@@ -78,7 +74,8 @@ public class Driver extends NamedThing
 	}
 
 	/**
-	 * @param maritalStatus The maritalStatus to set.
+	 * @param maritalStatus
+	 *            The maritalStatus to set.
 	 */
 	public void setMaritalStatus(String maritalStatus) {
 		this.maritalStatus = maritalStatus;
@@ -92,7 +89,8 @@ public class Driver extends NamedThing
 	}
 
 	/**
-	 * @param accidents The numAccidents to set.
+	 * @param accidents
+	 *            The numAccidents to set.
 	 */
 	public void setNumAccidents(int accidents) {
 		numAccidents = accidents;
@@ -106,7 +104,8 @@ public class Driver extends NamedThing
 	}
 
 	/**
-	 * @param ndui The nDUI to set.
+	 * @param ndui
+	 *            The nDUI to set.
 	 */
 	public void setNumDUI(int ndui) {
 		numDUI = ndui;
@@ -120,7 +119,8 @@ public class Driver extends NamedThing
 	}
 
 	/**
-	 * @param movingViolations The numMovingViolations to set.
+	 * @param movingViolations
+	 *            The numMovingViolations to set.
 	 */
 	public void setNumMovingViolations(int movingViolations) {
 		numMovingViolations = movingViolations;
@@ -134,10 +134,10 @@ public class Driver extends NamedThing
 	}
 
 	/**
-	 * @param state The state to set.
+	 * @param state
+	 *            The state to set.
 	 */
 	public void setState(String state) {
 		this.state = state;
 	}
-
 }

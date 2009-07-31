@@ -9,19 +9,17 @@ import org.openl.meta.DoubleValue;
  * @author snshor
  * 
  */
-public class VehicleCalc extends Price {
+public class VehicleCalc {
 
 	Vehicle vehicle;
-
 	String theftRating;
 	String injuryRating;
-
 	String eligibility;
 
-	DoubleValue score = new DoubleValue(0);
+	DoubleValue score = DoubleValue.ZERO;
+	DoubleValue premium = DoubleValue.ZERO;
 
 	public VehicleCalc(Vehicle vehicle) {
-		super(vehicle.getName());
 		this.vehicle = vehicle;
 	}
 
@@ -65,8 +63,12 @@ public class VehicleCalc extends Price {
 		this.vehicle = vehicle;
 	}
 
-	public DoubleValue getFinalScore() {
-		return new NamedDoubleValue("Score for " + vehicle.getName(), score)
-				.getResult();
+	public DoubleValue getPremium() {
+		return premium;
 	}
+
+	public void setPremium(DoubleValue premium) {
+		this.premium = premium;
+	}
+
 }
