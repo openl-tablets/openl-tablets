@@ -18,8 +18,6 @@ import org.openl.rules.util.net.NetUtils;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webtools.XlsUrlParser;
 
-import java.io.IOException;
-
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletRequest;
 
@@ -29,7 +27,7 @@ import javax.servlet.ServletRequest;
  *
  * @author Andrey Naumenko
  */
-public class TableEditorController extends BaseTableViewController implements JSTableEditor {
+public class TableEditorController extends BaseTableEditorController implements JSTableEditor {
 
     public static class EditorTypeResponse {
         private String editor;
@@ -227,7 +225,7 @@ public class TableEditorController extends BaseTableViewController implements JS
                         IGridRegion newRegion = new TableServiceImpl().moveTable(editorModel.getUpdatedTable(), null);                        
                         editorModel.setRegion(newRegion);
                         editorModel.insertRows(1, row);
-                        tmResponse.setStatus("Table was moved to an empty place in file");
+                        tmResponse.setStatus("Table was moved to an empty place in worksheet");
                     }
                 } else if (editorModel.canAddCols(1)) {
                     editorModel.insertColumns(1, col);
@@ -327,24 +325,6 @@ public class TableEditorController extends BaseTableViewController implements JS
         return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
     }
 
-    public String indent() throws Exception {
-        int row = getRow();
-        int col = getCol();
-        String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
-            ICellStyle style = editorHelper.getModel().getCellStyle(row, col);
-            int currentIndent = style.getIdent();
-            int resultIndent = currentIndent + indent;
-            CellStyle newStyle = new CellStyle(style);
-            newStyle.setIdent(resultIndent >= 0 ? resultIndent : 0);
-            editorHelper.getModel().setStyle(row, col, newStyle);
-            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
-        }
-        return null;
-    }
-
     public String load() throws Exception {
         String editorId = getEditorId();
         String response = render(editorId);
@@ -352,22 +332,6 @@ public class TableEditorController extends BaseTableViewController implements JS
         response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCellUri(gridTable.getGridColumn(0, 0),
                 gridTable.getGridRow(0, 0)), getEditorModel(editorId)));
         return response;
-    }
-
-    public String redo() throws Exception {
-        String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
-            if (editorHelper.getModel().hasRedo()) {
-                editorHelper.getModel().redo();
-                tmResponse.setResponse(render(editorId));
-            } else {
-                tmResponse.setStatus("No actions to redo");
-            }
-            return pojo2json(tmResponse);
-        }
-        return null;
     }
 
     public String removeRowCol() throws Exception {
@@ -397,12 +361,30 @@ public class TableEditorController extends BaseTableViewController implements JS
         return null;
     }
 
+    public String setIndent() throws Exception {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
+        if (editorHelper != null) {
+            int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
+            ICellStyle style = editorHelper.getModel().getCellStyle(row, col);
+            int currentIndent = style.getIdent();
+            int resultIndent = currentIndent + indent;
+            CellStyle newStyle = new CellStyle(style);
+            newStyle.setIdent(resultIndent >= 0 ? resultIndent : 0);
+            editorHelper.getModel().setStyle(row, col, newStyle);
+            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
+        }
+        return null;
+    }
+
     /**
      * Handles request saving new cell value.
      *
      * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
      */
-    public String save() {
+    public String setCellValue() {
         String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
         EditorHelper editorHelper = getHelper(getEditorId());
         if (editorHelper != null) {
@@ -412,12 +394,13 @@ public class TableEditorController extends BaseTableViewController implements JS
         return null;
     }
 
-    public String saveTable() throws IOException {
-        String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
+    public String setProp() throws Exception {
+        String name = getRequestParam(Constants.REQUEST_PARAM_PROP_NAME);
+        String value = getRequestParam(Constants.REQUEST_PARAM_PROP_VALUE);
+        EditorHelper editorHelper = getHelper(getEditorId());
         if (editorHelper != null) {
-            editorHelper.getModel().save();
-            return pojo2json(new TableModificationResponse("", editorHelper.getModel()));
+            editorHelper.getModel().setProp(name, value);
+            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
         }
         return null;
     }
@@ -465,6 +448,31 @@ public class TableEditorController extends BaseTableViewController implements JS
                 tmResponse.setStatus("No actions to undo");
             }
             return pojo2json(tmResponse);
+        }
+        return null;
+    }
+
+    public String redo() throws Exception {
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
+        if (editorHelper != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
+            if (editorHelper.getModel().hasRedo()) {
+                editorHelper.getModel().redo();
+                tmResponse.setResponse(render(editorId));
+            } else {
+                tmResponse.setStatus("No actions to redo");
+            }
+            return pojo2json(tmResponse);
+        }
+        return null;
+    }
+
+    public String saveTable() throws Exception {
+        EditorHelper editorHelper = getHelper(getEditorId());
+        if (editorHelper != null) {
+            editorHelper.getModel().save();
+            return pojo2json(new TableModificationResponse("", editorHelper.getModel()));
         }
         return null;
     }

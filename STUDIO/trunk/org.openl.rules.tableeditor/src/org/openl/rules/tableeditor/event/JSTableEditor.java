@@ -8,21 +8,27 @@ package org.openl.rules.tableeditor.event;
  * <code>FacesContext</code> and return a string - JSF navigation outcome.
  */
 public interface JSTableEditor {
-    String addRowColBefore() throws Exception;
-
-    String getCellType() throws Exception;
 
     String load() throws Exception;
 
-    String redo() throws Exception;
+    String getCellType() throws Exception;
+
+    String addRowColBefore() throws Exception;
 
     String removeRowCol() throws Exception;
 
-    String save() throws Exception;
+    String setCellValue() throws Exception;
 
-    String saveTable() throws Exception;
+    String setProp() throws Exception;
 
     String setAlign() throws Exception;
 
+    String setIndent() throws Exception;
+
+    String saveTable() throws Exception;
+
     String undo() throws Exception;
+
+    String redo() throws Exception;
+
 }

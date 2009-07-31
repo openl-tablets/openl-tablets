@@ -425,6 +425,10 @@ public class TableEditorModel {
         actions.addNewAction(ra);
     }
 
+    public synchronized void setProp(String name, String value) {
+        
+    }
+
     public synchronized void setStyle(int row, int col, ICellStyle style) {
         if (isExtendedView()) {
             row -= 3;

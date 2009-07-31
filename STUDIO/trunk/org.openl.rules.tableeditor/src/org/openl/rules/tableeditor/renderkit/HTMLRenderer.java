@@ -360,7 +360,7 @@ public class HTMLRenderer {
                 listProp.add(new TableProperty(propDefinition.getDisplayName(),
                         props.getPropertyValue(propDefinition.getName()),
                         propDefinition.getType() == null ? null : propDefinition.getType().getInstanceClass(),
-                        propDefinition.getGroup()));
+                        propDefinition.getGroup(), propDefinition.getName()));
             }
             return listProp;
         }
@@ -469,17 +469,15 @@ public class HTMLRenderer {
         private void fillEditProp(TableProperty prop) {
             result.append("<tr>");
             insertLabel(prop.getDisplayName());
-            Class<?> propType = prop.getType();
             Object propValue = prop.getValue();
-            if (propType != null) {
-                if (propType.equals(String.class)) {
-                    insertEdit((String) propValue);
-                } else if (propType.equals(Date.class)) {
-                    insertCalendar((Date) propValue);
-                } else if (propType.equals(List.class)) {
-                    insertSelect((List<String>) propValue);
-                } else if (propType.equals(Boolean.class)) {
-                    insertCheckbox((Boolean) propValue);
+            String propId = "_prop_" + prop.getName();
+            if (prop.getType() != null) {
+                if (prop.isStringValue()) {
+                    insertEdit((String) propValue, propId);
+                } else if (prop.isDateValue()) {
+                    insertCalendar((Date) propValue, propId);
+                } else if (prop.isBooleanValue()) {
+                    insertCheckbox((Boolean) propValue, propId);
                 }
             }
             result.append("</tr>");
@@ -495,7 +493,7 @@ public class HTMLRenderer {
             insertText(prop);
         }
         
-        private void insertCalendar(Date value) {
+        private void insertCalendar(Date value, String id) {
             numberOfCalendars++;            
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy"); 
             String resultStr;
@@ -504,8 +502,10 @@ public class HTMLRenderer {
             } else {
                 resultStr = sdf.format(value); 
             }
-             
-            result.append("<td><input type='text' value='"+resultStr+"' id='datepicker"+numberOfCalendars+"' />").append(renderJSBody("new tcal ({'controlname': 'datepicker"+numberOfCalendars+"'});")).append("</td>");            
+            result.append("<td><input id='" + id + "' type='text' value='" + resultStr + "' id='datepicker"
+                    + numberOfCalendars +"' />")
+                .append(renderJSBody("new tcal ({'controlname': 'datepicker" + numberOfCalendars + "'});"))
+                .append("</td>");            
         }
 
         private void insertSelect(List<String> listOfOptions) {                        
@@ -517,18 +517,18 @@ public class HTMLRenderer {
             result.append("</select></td>");
         }
 
-        private void insertEdit(String value) {
+        private void insertEdit(String value, String id) {
             if(value==null) {
                 value="";
             }
-            result.append("<td><input type='text' value='" + value + "' /></td>");            
+            result.append("<td><input id='" + id + "' type='text' value='" + value + "' /></td>");            
         }
 
-        private void insertCheckbox(Boolean value) {
+        private void insertCheckbox(Boolean value, String id) {
             if (value == null) {
                 value = false;
             }
-            result.append("<td><input type='checkbox' ").append(value ? "checked='checked'" : "").append(" /></td>");
+            result.append("<td><input id='" + id + "' type='checkbox' ").append(value ? "checked='checked'" : "").append(" /></td>");
         }
 
         private void insertLabel(String displayName) {
