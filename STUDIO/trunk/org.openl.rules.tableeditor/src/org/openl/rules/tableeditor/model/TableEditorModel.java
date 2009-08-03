@@ -12,6 +12,7 @@ import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ITable;
 import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IUndoableAction;
 import org.openl.rules.table.IUndoableGridAction;
@@ -153,7 +154,8 @@ public class TableEditorModel {
 
     static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 
-    private IGridTable table;
+    private ITable table;
+    private IGridTable gridTable;
     private IGridRegion region;
     private int numberOfNonShownRows;
     private int numberOfNonShownCols;
@@ -166,20 +168,24 @@ public class TableEditorModel {
 
     FilteredGrid filteredGrid;
 
-    public TableEditorModel(IGridTable table) {
+    public TableEditorModel(ITable table) {
+        this(table, null);
+    }
+
+    public TableEditorModel(ITable table, String view) {
         this.table = table;
-        region = new GridRegion(getOriginalTable(table).getRegion());
-        numberOfNonShownRows = table.getRegion().getTop() - region.getTop();
-        numberOfNonShownCols = table.getRegion().getLeft() - region.getLeft();
-        othertables = new GridSplitter(table.getGrid()).split();
-        
-        if(table.getGrid() instanceof XlsSheetGridModel) {
-            XlsSheetGridModel grid = (XlsSheetGridModel) table.getGrid();
+        this.gridTable = table.getGridTable(view);
+        region = new GridRegion(getOriginalTable(this.gridTable).getRegion());
+        numberOfNonShownRows = gridTable.getRegion().getTop() - region.getTop();
+        numberOfNonShownCols = gridTable.getRegion().getLeft() - region.getLeft();
+        othertables = new GridSplitter(gridTable.getGrid()).split();
+
+        if (gridTable.getGrid() instanceof XlsSheetGridModel) {
+            XlsSheetGridModel grid = (XlsSheetGridModel) gridTable.getGrid();
             undoGrid = new XlsUndoGrid(grid);
         }
         removeThisTable(othertables);
-        makeFilteredGrid(table);
-
+        makeFilteredGrid(gridTable);
     }
 
     public boolean canAddCols(int nCols) {
@@ -231,7 +237,7 @@ public class TableEditorModel {
 
     public CellMetaInfo getCellMetaInfo(int row, int column) {
 
-        CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(table.getGrid(), tX(column), tY(row));
+        CellMetaInfo metaInfo = IWritableGrid.Tool.getCellMetaInfo(gridTable.getGrid(), tX(column), tY(row));
 
         // System.out.println("Meta:" + metaInfo);
         return metaInfo;
@@ -239,7 +245,7 @@ public class TableEditorModel {
     }
 
     public ICellStyle getCellStyle(int row, int column) {
-        return IWritableGrid.Tool.getCellStyle(table.getGrid(), tX(column), tY(row));
+        return IWritableGrid.Tool.getCellStyle(gridTable.getGrid(), tX(column), tY(row));
     }
     
     /**
@@ -270,7 +276,7 @@ public class TableEditorModel {
     }
 
     public String getCellValue(int row, int column) {
-        return table.getGrid().getStringCellValue(tX(column), tY(row));
+        return gridTable.getGrid().getStringCellValue(tX(column), tY(row));
     }
 
     private IGridFilter getFilter(int col, int row) {
@@ -294,10 +300,10 @@ public class TableEditorModel {
     public synchronized IGridTable getUpdatedTable() {
         if (isExtendedView()) {
             return new GridTable(region.getTop() - 3, region.getLeft() - 3, region.getBottom() + 3,
-                    region.getRight() + 3, table.getGrid());
+                    region.getRight() + 3, gridTable.getGrid());
         }
         return new GridTable(region.getTop() + numberOfNonShownRows, region.getLeft() + numberOfNonShownCols,
-                region.getBottom(), region.getRight(), table.getGrid());
+                region.getBottom(), region.getRight(), gridTable.getGrid());
 
     }
 
@@ -403,13 +409,13 @@ public class TableEditorModel {
     }
 
     public synchronized void save() throws IOException {
-        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) table.getGrid();
+        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().save();
         actions = new UndoableActions();
     }
 
     public synchronized void saveAs(String fname) throws IOException {
-        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) table.getGrid();
+        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().saveAs(fname);
     }
 
@@ -486,6 +492,6 @@ public class TableEditorModel {
     }
 
     IWritableGrid wgrid() {
-        return (IWritableGrid) table.getGrid();
+        return (IWritableGrid) gridTable.getGrid();
     }
 }

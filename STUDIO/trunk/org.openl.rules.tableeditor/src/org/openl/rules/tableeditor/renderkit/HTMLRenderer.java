@@ -304,7 +304,7 @@ public class HTMLRenderer {
         if (table != null) {
             IGridFilter[] filters = (filter == null) ? null : new IGridFilter[] { filter };
             TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(
-                    table.getGridTable(view)).getUpdatedTable(), filters);
+                    table, view).getUpdatedTable(), filters);
             if (tableModel != null) {
                 String menuId = editorId + Constants.MENU_ID_POSTFIX;
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
