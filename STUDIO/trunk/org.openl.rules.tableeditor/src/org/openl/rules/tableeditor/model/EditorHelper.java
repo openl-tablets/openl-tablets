@@ -3,7 +3,6 @@
  */
 package org.openl.rules.tableeditor.model;
 
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
 
 /**
@@ -33,7 +32,7 @@ public class EditorHelper {
             model.cancel();
         }
 
-        TableEditorModel newModel = new TableEditorModel(table.getGridTable(view));
+        TableEditorModel newModel = new TableEditorModel(table, view);
 
         if (!cancel && model != null) {
             newModel.getUndoableActions(model);

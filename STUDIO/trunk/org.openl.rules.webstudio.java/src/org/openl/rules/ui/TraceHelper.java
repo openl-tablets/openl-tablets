@@ -9,10 +9,11 @@ import java.util.List;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.ITable;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.IGridFilter;
@@ -136,12 +137,9 @@ public class TraceHelper {
         ITableTracerObject tto = (ITableTracerObject) tt;
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
 
-        IGridTable gt = tsn.getTable().getGridTable();
+        ITable table = new TableSyntaxNodeAdapter(tsn);
         view = model.getTableView(view);
-        ILogicalTable gtx = tsn.getSubTables().get(view);
-        if (gtx != null) {
-            gt = new TableEditorModel(gtx.getGridTable()).getUpdatedTable();
-        }
+        IGridTable gt = new TableEditorModel(table, view).getUpdatedTable();
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[] { makeFilter(tto, model) });
         return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null);
