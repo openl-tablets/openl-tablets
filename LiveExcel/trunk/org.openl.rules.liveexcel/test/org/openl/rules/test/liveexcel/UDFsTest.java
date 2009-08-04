@@ -19,9 +19,10 @@ import org.openl.rules.liveexcel.LiveExcelEvaluator;
 import org.openl.rules.liveexcel.usermodel.ContextFactory;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 import org.openl.rules.test.liveexcel.FormulaEvaluationTest.VerticalTableBenchmarkUnit;
-import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
+import org.openl.util.benchmark.BenchmarkInfoWithMemory;
 import org.openl.util.benchmark.BenchmarkUnit;
+import org.openl.util.benchmark.BenchmarkWithMemory;
 
 public class UDFsTest {
     private static final String BENCHMARK_FILE = "./test/statistics/Benchmarks.xlsx";
@@ -56,7 +57,6 @@ public class UDFsTest {
     private static class UDFParsing extends VerticalTableBenchmarkUnit {
         private File fileToParse;
         private LiveExcelEvaluator evaluator;
-        private long memoryUsed = 0;
         private int size;
 
         public UDFParsing(File fileToParse, int size) {
@@ -77,17 +77,10 @@ public class UDFsTest {
             return evaluator;
         }
 
-        public long getMemoryUsed() {
-            return memoryUsed;
-        }
-
         @Override
         protected void run() throws Exception {
-            System.gc();
-            long previouslyMemoryUsed = FormulaEvaluationTest.getUsedMemorySizeBeforeTest();
             evaluator = new LiveExcelEvaluator(LiveExcelWorkbookFactory.create(new FileInputStream(fileToParse), null),
                     ContextFactory.getEvaluationContext(null));
-            memoryUsed = FormulaEvaluationTest.getUsedMemorySizeAfterTest() - previouslyMemoryUsed;
         }
     }
 
@@ -132,20 +125,20 @@ public class UDFsTest {
                     benchmarkInfo.avg() / benchmark.getHeight());
         }
 
-        private void saveMemoryUsed(UDFParsing benchmark, Sheet evaluationBenchmarkSheet) {
+        private void saveMemoryUsed(BenchmarkInfoWithMemory benchmarkInfo, Sheet evaluationBenchmarkSheet) {
+            UDFParsing benchmark = (UDFParsing) benchmarkInfo.getUnit();
             int rowIndex = STARTING_ROW + USED_MEMORY_OFFSET;
             int columnIndex = getColumnToWrite(benchmark.getName());
             evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(
-                    benchmark.getMemoryUsed() / benchmark.getHeight());
+                    benchmarkInfo.getMemoryUsed() / benchmark.getHeight());
         }
 
         private void saveStatistic(BenchmarkInfo benchmarkInfo, Sheet evaluationBenchmarkSheet) {
             if (benchmarkInfo.getUnit() instanceof UDFEvaluation) {
                 saveEvaluationTime(benchmarkInfo, evaluationBenchmarkSheet);
-            } else if (benchmarkInfo.getUnit() instanceof UDFParsing) {
-                UDFParsing benchmark = (UDFParsing) benchmarkInfo.getUnit();
+            } else if (benchmarkInfo instanceof BenchmarkInfoWithMemory) {
                 saveParsingTime(benchmarkInfo, evaluationBenchmarkSheet);
-                saveMemoryUsed(benchmark, evaluationBenchmarkSheet);
+                saveMemoryUsed((BenchmarkInfoWithMemory) benchmarkInfo, evaluationBenchmarkSheet);
             }
         }
 
@@ -199,8 +192,8 @@ public class UDFsTest {
         for (int i = 5; i < 3126; i *= 5) {
             buList.add(new UDFParsing(new File(FILE_TO_PARSE_STARTING + i + ".xlsx"), i));
         }
-
-        return new Benchmark((BenchmarkUnit[]) buList.toArray(new BenchmarkUnit[buList.size()])).measureAll(1000);
+        return new BenchmarkWithMemory((BenchmarkUnit[]) buList.toArray(new BenchmarkUnit[buList.size()]))
+                .measureAll(1000);
     }
 
     private Map<String, BenchmarkInfo> evaluate(Map<String, BenchmarkInfo> parsingResults) throws Exception {
@@ -209,26 +202,7 @@ public class UDFsTest {
             UDFParsing parsingUnit = (UDFParsing) benchmarkInfo.getUnit();
             buList.add(new UDFEvaluation(parsingUnit.getEvaluator(), parsingUnit.getHeight()));
         }
-
-        return new Benchmark((BenchmarkUnit[]) buList.toArray(new BenchmarkUnit[buList.size()])).measureAll(1000);
+        return new BenchmarkWithMemory((BenchmarkUnit[]) buList.toArray(new BenchmarkUnit[buList.size()]))
+                .measureAll(1000);
     }
-
-    // public static void main(String[] args) throws Exception {
-    //
-    // for (int i = 5; i < 4000; i *= 5) {
-    // Workbook workbook = LiveExcelWorkbookFactory.create(
-    // new FileInputStream(FILE_TO_PARSE_STARTING + i + ".xls"), null);
-    // Sheet parsingBenchmarkSheet = workbook.getSheetAt(0);
-    // workbook.registerUserDefinedFunction("ol_declare_function", null);
-    // for (int j = 0; j < i; j++) {
-    // String foumula =
-    // parsingBenchmarkSheet.getRow(j).getCell(0).getCellFormula();
-    // Cell cell = parsingBenchmarkSheet.getRow(j).createCell(0);
-    // cell.setCellFormula(foumula.replaceFirst("func1", "func" + j));
-    // }
-    // workbook.write(new FileOutputStream(FILE_TO_PARSE_STARTING + i +
-    // ".xls"));
-    // System.out.println("i = " + i + " finished");
-    // }
-    // }
 }

@@ -16,9 +16,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 import org.openl.rules.test.liveexcel.FormulaEvaluationTest.VerticalTableBenchmarkUnit;
-import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
+import org.openl.util.benchmark.BenchmarkInfoWithMemory;
 import org.openl.util.benchmark.BenchmarkUnit;
+import org.openl.util.benchmark.BenchmarkWithMemory;
 
 //import static org.junit.Assert.*;
 
@@ -29,7 +30,6 @@ public class ParsingTest {
 
     private static class ParsingBenchmark extends VerticalTableBenchmarkUnit {
         private File fileToParse;
-        private long memoryUsed = 0;
         private int height;
 
         public ParsingBenchmark(File fileToParse, int height) {
@@ -43,17 +43,11 @@ public class ParsingTest {
 
         @Override
         protected void run() throws Exception {
-            long previouslyMemoryUsed = FormulaEvaluationTest.getUsedMemorySizeBeforeTest();
             LiveExcelWorkbookFactory.create(new FileInputStream(fileToParse), null);
-            memoryUsed = FormulaEvaluationTest.getUsedMemorySizeAfterTest() - previouslyMemoryUsed;
         }
 
         public int getHeight() {
             return height;
-        }
-
-        public long getMemoryUsed() {
-            return memoryUsed;
         }
 
         public long getFileSize() {
@@ -103,11 +97,12 @@ public class ParsingTest {
                     benchmarkInfo.avg() / benchmark.getHeight());
         }
 
-        private void saveMemoryUsed(ParsingBenchmark benchmark, Sheet evaluationBenchmarkSheet) {
-            int rowIndex = getRowToWrite(benchmark.getName(), USED_MEMORY_OFFSET);
-            int columnIndex = getColumnToWrite(benchmark.getName());
+        private void saveMemoryUsed(BenchmarkInfoWithMemory benchmarkInfo, Sheet evaluationBenchmarkSheet) {
+            ParsingBenchmark benchmark = (ParsingBenchmark) benchmarkInfo.getUnit();
+            int rowIndex = getRowToWrite(benchmarkInfo.getUnit().getName(), USED_MEMORY_OFFSET);
+            int columnIndex = getColumnToWrite(benchmarkInfo.getUnit().getName());
             evaluationBenchmarkSheet.getRow(rowIndex).getCell(columnIndex).setCellValue(
-                    benchmark.getMemoryUsed() / benchmark.getHeight());
+                    benchmarkInfo.getMemoryUsed() / benchmark.getHeight());
         }
 
         private void saveFileSize(ParsingBenchmark benchmark, Sheet evaluationBenchmarkSheet) {
@@ -121,7 +116,7 @@ public class ParsingTest {
             if (benchmarkInfo.getUnit() instanceof ParsingBenchmark) {
                 ParsingBenchmark benchmark = (ParsingBenchmark) benchmarkInfo.getUnit();
                 saveParsingTime(benchmarkInfo, evaluationBenchmarkSheet);
-                saveMemoryUsed(benchmark, evaluationBenchmarkSheet);
+                saveMemoryUsed((BenchmarkInfoWithMemory) benchmarkInfo, evaluationBenchmarkSheet);
                 saveFileSize(benchmark, evaluationBenchmarkSheet);
             }
         }
@@ -170,8 +165,8 @@ public class ParsingTest {
                 }
             }
 
-            Map<String, BenchmarkInfo> res = new Benchmark((BenchmarkUnit[]) buList.toArray(new BenchmarkUnit[buList
-                    .size()])).measureAll(1000);
+            Map<String, BenchmarkInfo> res = new BenchmarkWithMemory((BenchmarkUnit[]) buList
+                    .toArray(new BenchmarkUnit[buList.size()])).measureAll(1000);
             new ParsingStatisticsSaver().save(res);
             assertTrue(true);
         } catch (Exception e) {
