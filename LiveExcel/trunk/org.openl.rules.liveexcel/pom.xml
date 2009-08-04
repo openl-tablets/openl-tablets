@@ -26,7 +26,10 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
 							<excludes>
-							<exclude>**/PerformanceAndThreadSafetyTest.java</exclude>
+								<exclude>**/PerformanceAndThreadSafetyTest.java</exclude>
+								<exclude>**/FormulaEvaluationTest.java</exclude>
+								<exclude>**/ParsingTest.java</exclude>
+								<exclude>**/UDFsTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
