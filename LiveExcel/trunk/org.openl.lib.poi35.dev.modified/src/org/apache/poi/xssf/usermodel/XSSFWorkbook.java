@@ -220,6 +220,11 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
      */
     private void onWorkbookCreate() {
         workbook = CTWorkbook.Factory.newInstance();
+
+        // don't EVER use the 1904 date system
+        CTWorkbookPr workbookPr = workbook.addNewWorkbookPr();
+        workbookPr.setDate1904(false);
+
         CTBookViews bvs = workbook.addNewBookViews();
         CTBookView bv = bvs.addNewWorkbookView();
         bv.setActiveTab(0);
@@ -949,7 +954,9 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         CellReference colRef = new CellReference(sheetName, 0, startC, true, true);
         CellReference colRef2 = new CellReference(sheetName, 0, endC, true, true);
 
-        String c = "'" + sheetName + "'!$" + colRef.getCellRefParts()[2] + ":$" + colRef2.getCellRefParts()[2];
+        String escapedName = SheetNameFormatter.format(sheetName);
+
+        String c = escapedName + "!$" + colRef.getCellRefParts()[2] + ":$" + colRef2.getCellRefParts()[2];
 
         CellReference rowRef = new CellReference(sheetName, startR, 0, true, true);
         CellReference rowRef2 = new CellReference(sheetName, endR, 0, true, true);
@@ -957,7 +964,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         String r = "";
 
         if (!rowRef.getCellRefParts()[1].equals("0") && !rowRef2.getCellRefParts()[1].equals("0")) {
-            r = ",'" + sheetName + "'!$" + rowRef.getCellRefParts()[1] + ":$" + rowRef2.getCellRefParts()[1];
+            r = "," + escapedName + "!$" + rowRef.getCellRefParts()[1] + ":$" + rowRef2.getCellRefParts()[1];
         }
         return c + r;
     }

@@ -24,6 +24,7 @@ import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
 import org.apache.poi.hssf.record.formula.NamePtg;
 import org.apache.poi.hssf.record.formula.NameXPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.*;
 import org.apache.poi.ss.SpreadsheetVersion;
 
@@ -163,4 +164,8 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	public org.apache.poi.ss.usermodel.Workbook getWorkbook() {
 		return _uBook;
 	}
+
+    public FreeRefFunction findUserDefinedFunction(String functionName) {
+        return _uBook.getUserDefinedFunction(functionName);
+    }
 }
