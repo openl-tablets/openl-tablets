@@ -62,16 +62,12 @@ final class ExternalFunction implements FreeRefFunction {
 		if(false) {
 			System.out.println("received call to external user defined function (" + functionName + ")");
 		}
-		// currently only looking for functions from the 'Analysis TookPak'  e.g. "YEARFRAC" or "ISEVEN"
+		// currently only looking for functions from the 'Analysis TookPak'(contained in MainToolPacksHandler)  e.g. "YEARFRAC" or "ISEVEN"
 		// not sure how much this logic would need to change to support other or multiple add-ins.
 		FreeRefFunction result = MainToolPacksHandler.instance().findFunction(functionName);
-		if (result == null) {
-			result = workbook.getWorkbook().getUserDefinedFunction(functionName);
-		}
 		if (result != null) {
 			return result;
 		}
-		
 		throw new NotImplementedException(functionName);
 	}
 
@@ -82,7 +78,7 @@ final class ExternalFunction implements FreeRefFunction {
 		if(false) {
 			System.out.println("received call to internal user defined function  (" + functionName + ")");
 		}
-		FreeRefFunction functionEvaluator = workbook.getWorkbook().getUserDefinedFunction(functionName); 
+		FreeRefFunction functionEvaluator = workbook.findUserDefinedFunction(functionName); 
 		if (functionEvaluator == null) {
 		    functionEvaluator = MainToolPacksHandler.instance().findFunction(functionName);
 		}

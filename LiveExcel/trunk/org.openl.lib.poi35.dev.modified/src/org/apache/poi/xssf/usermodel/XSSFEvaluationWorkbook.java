@@ -20,6 +20,7 @@ package org.apache.poi.xssf.usermodel;
 import org.apache.poi.hssf.record.formula.NamePtg;
 import org.apache.poi.hssf.record.formula.NameXPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.*;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -182,4 +183,8 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	public Workbook getWorkbook() {
 		return _uBook;
 	}
+
+    public FreeRefFunction findUserDefinedFunction(String functionName) {
+        return _uBook.getUserDefinedFunction(functionName);
+    }
 }
