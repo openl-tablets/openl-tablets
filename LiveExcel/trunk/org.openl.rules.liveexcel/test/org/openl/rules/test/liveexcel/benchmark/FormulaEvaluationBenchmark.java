@@ -1,4 +1,4 @@
-package org.openl.rules.test.liveexcel;
+package org.openl.rules.test.liveexcel.benchmark;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,7 +25,7 @@ import org.openl.util.benchmark.BenchmarkWithMemory;
 
 import static org.junit.Assert.*;
 
-public class FormulaEvaluationTest {
+public class FormulaEvaluationBenchmark {
 
     private static final String FORMULA_TEST_XLSX = "./test/resources/EvaluationTest/FormulasTest.xlsx";
     private static final String FORMULA_TEST_XLS = "./test/resources/EvaluationTest/FormulasTest.xls";

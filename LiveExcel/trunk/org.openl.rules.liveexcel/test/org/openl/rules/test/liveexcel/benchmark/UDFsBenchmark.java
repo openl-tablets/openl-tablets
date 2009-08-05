@@ -1,4 +1,4 @@
-package org.openl.rules.test.liveexcel;
+package org.openl.rules.test.liveexcel.benchmark;
 
 import static org.junit.Assert.assertTrue;
 
@@ -18,13 +18,13 @@ import org.junit.Test;
 import org.openl.rules.liveexcel.LiveExcelEvaluator;
 import org.openl.rules.liveexcel.usermodel.ContextFactory;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
-import org.openl.rules.test.liveexcel.FormulaEvaluationTest.VerticalTableBenchmarkUnit;
+import org.openl.rules.test.liveexcel.benchmark.FormulaEvaluationBenchmark.VerticalTableBenchmarkUnit;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkInfoWithMemory;
 import org.openl.util.benchmark.BenchmarkUnit;
 import org.openl.util.benchmark.BenchmarkWithMemory;
 
-public class UDFsTest {
+public class UDFsBenchmark {
     private static final String BENCHMARK_FILE = "./test/statistics/Benchmarks.xlsx";
     private static final String FILE_TO_PARSE_STARTING = "./test/resources/UDFTest/";
 
