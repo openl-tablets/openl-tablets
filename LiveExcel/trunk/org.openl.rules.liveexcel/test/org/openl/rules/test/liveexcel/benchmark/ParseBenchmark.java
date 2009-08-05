@@ -1,4 +1,4 @@
-package org.openl.rules.test.liveexcel;
+package org.openl.rules.test.liveexcel.benchmark;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
-import org.openl.rules.test.liveexcel.FormulaEvaluationTest.VerticalTableBenchmarkUnit;
+import org.openl.rules.test.liveexcel.benchmark.FormulaEvaluationBenchmark.VerticalTableBenchmarkUnit;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkInfoWithMemory;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -23,7 +23,7 @@ import org.openl.util.benchmark.BenchmarkWithMemory;
 
 //import static org.junit.Assert.*;
 
-public class ParsingTest {
+public class ParseBenchmark {
 
     private static final String BENCHMARK_FILE = "./test/statistics/Benchmarks.xlsx";
     private static final String FILE_TO_PARSE_STARTING = "./test/resources/ParsingTest/10x";
