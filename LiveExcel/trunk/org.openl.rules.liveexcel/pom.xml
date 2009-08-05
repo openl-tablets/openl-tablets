@@ -27,9 +27,7 @@
 						<configuration>
 							<excludes>
 								<exclude>**/PerformanceAndThreadSafetyTest.java</exclude>
-								<exclude>**/FormulaEvaluationTest.java</exclude>
-								<exclude>**/ParsingTest.java</exclude>
-								<exclude>**/UDFsTest.java</exclude>
+								<exclude>**/Benchmark.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
