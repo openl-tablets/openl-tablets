@@ -18,31 +18,7 @@ public class TablePropertyDefinition {
 	private String inheritable;	
 	private String description;
 	
-	public boolean isStringValue() {	    
-        boolean stringValue = false;
-	    if((type.getInstanceClass()).equals(java.lang.String.class)) {
-            stringValue = true;
-        }        
-        return stringValue;
-    }
-
-	public boolean isDateValue() {
-        boolean dateValue = false;
-        if((type.getInstanceClass()).equals(java.util.Date.class)) {
-            dateValue = true;
-        }
-        return dateValue;
-    }
-	
-    public boolean isBooleanValue() {
-        boolean booleanValue = false;
-        if((type.getInstanceClass()).equals(java.lang.Boolean.class)) {
-            booleanValue = true;
-        }        
-        return booleanValue;
-    }
-
-    public String getDisplayName() {
+	public String getDisplayName() {
 		return displayName;
 	}
     

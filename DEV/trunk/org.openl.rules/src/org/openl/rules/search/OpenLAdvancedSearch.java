@@ -17,7 +17,7 @@ import org.openl.util.ArrayTool;
  *
  *
  */
-public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants {
+public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, IOpenLSearch {
 
     static public String[] typeButtons = { "Rules", "Spreadsheet", "TBasic", "Column Match", "Data", "Method",
             "Datatype", "Test", "Run", "Env", "Other" };
@@ -230,44 +230,44 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants {
      * @return
      */
     public Object search(XlsModuleSyntaxNode xsn) {
-        ATableSyntaxNodeSelector[] tselectors = getTableSelectors();
-        ATableRowSelector[] rselectors = getRowSelectors();
+        ATableSyntaxNodeSelector[] tableSelectors = getTableSelectors();
+        ATableRowSelector[] rowSelectors = getRowSelectors();
 
         // ArrayList tableList = new ArrayList();
         // ArrayList rowList = new ArrayList();
 
         OpenLAdvancedSearchResult res = new OpenLAdvancedSearchResult(this);
 
-        TableSyntaxNode[] tsnn = xsn.getXlsTableSyntaxNodesWithoutErrors();
-        for (int i = 0; i < tsnn.length; i++) {
-            TableSyntaxNode tsn = tsnn[i];
+        TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodesWithoutErrors();
+        for (int i = 0; i < tables.length; i++) {
+            TableSyntaxNode table = tables[i];
 
-            ISyntaxError[] errors = tsn.getErrors();
+            ISyntaxError[] errors = table.getErrors();
             if (errors != null && errors.length > 0) {
                 continue;
             }
 
-            if (!isTableSelected(tsn, tselectors)) {
+            if (!isTableSelected(table, tableSelectors)) {
                 continue;
             }
 
-            ITableSearchInfo tsi = ATableRowSelector.getTableSearchInfo(tsn);
-            if (tsi == null) {
-                res.add(tsn, new ISearchTableRow[0]);
+            ITableSearchInfo tablSearchInfo = ATableRowSelector.getTableSearchInfo(table);
+            if (tablSearchInfo == null) {
+                res.add(table, new ISearchTableRow[0]);
                 continue;
             }
 
             ArrayList<ISearchTableRow> selectedRows = new ArrayList<ISearchTableRow>();
-            int nrows = tsi.numberOfRows();
-            for (int row = 0; row < nrows; row++) {
-                ISearchTableRow tr = new SearchTableRow(row, tsi);
-                if (!(tsi instanceof TableSearchInfo) && !isRowSelected(tr, rselectors, tsi)) {
+            int numRows = tablSearchInfo.numberOfRows();
+            for (int row = 0; row < numRows; row++) {
+                ISearchTableRow tablSearchRow = new SearchTableRow(row, tablSearchInfo);
+                if (!(tablSearchInfo instanceof TableSearchInfo) && !isRowSelected(tablSearchRow, rowSelectors, tablSearchInfo)) {
                     continue;
                 }
-                selectedRows.add(tr);
+                selectedRows.add(tablSearchRow);
             }
 
-            res.add(tsn, selectedRows.toArray(new ISearchTableRow[0]));
+            res.add(table, selectedRows.toArray(new ISearchTableRow[0]));
         }
 
         return res;
