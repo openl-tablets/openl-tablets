@@ -41,6 +41,7 @@ public class DecisionTableBuilder extends TableBuilder {
             incCurrentRow(LOGIC_ELEMENT_HEIGHT);
         }
         super.endTable();
+        super.save();
     }
 
     /**

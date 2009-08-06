@@ -175,6 +175,66 @@ public interface IWritableGrid extends IGrid {
             return new UndoableCompositeAction(actions);
         }
 
+        public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
+                String propName, String propValue) {
+            int h = IGridRegion.Tool.height(region);
+            int w = IGridRegion.Tool.width(region);
+            int nRows = 1;
+            int beforeRow = 1;
+
+            int left = region.getLeft();
+            int top = region.getTop();
+
+            boolean bProps = false;
+            String propsHeader = wgrid.getStringCellValue(left, top + 1);
+            if (propsHeader != null && propsHeader.equals("properties")) {
+                bProps = true;
+            }
+            int propsCount = 0;
+            if (bProps) {
+                propsCount = wgrid.getCellHeight(left, top + 1);
+                for (int i = 0; i < propsCount; i++) {
+                    String pName = wgrid.getStringCellValue(left + 1, top + 1 + i);
+                    if (pName.equals(propName)) {
+                        return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, null);
+                    }
+                }
+            }
+
+            int rowsToMove = h - beforeRow;
+
+            ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(w * rowsToMove);
+
+            // move row
+            for (int i = 0; i < rowsToMove; i++) {
+                int row = region.getBottom() - i;
+                for (int j = 0; j < w; j++) {
+                    actions.add(new UndoableCopyValueAction(left + j, row, left + j, row + nRows));
+                }
+            }
+
+            if (!bProps) {
+                actions.add(new UndoableSetValueAction(left, top + beforeRow, "properties", null));
+                if (w > 3) {
+                    // clear cells
+                    for (int j = left + 3; j < left + w; j++) {
+                        actions.add(new UndoableClearAction(j, top + beforeRow));
+                    }
+                }
+            }
+            actions.add(new UndoableSetValueAction(left + 1, top + beforeRow, propName, null));
+            actions.add(new UndoableSetValueAction(left + 2, top + beforeRow, propValue, null));
+
+            if (propsCount == 1) {
+                actions.add(new UndoableResizeRegionAction(new GridRegion(top + 1, left,
+                        top + 1, left), nRows, INSERT, ROWS));
+            } else {
+                actions.addAll(findMergedRegionsToResize(wgrid, beforeRow, nRows, INSERT, ROWS, region));
+            }
+
+            return new UndoableCompositeAction(actions);
+        }
+
         public static void putCellMetaInfo(IGridTable table, int col, int row, CellMetaInfo meta) {
             IWritableGrid wgrid = getWritableGrid(table);
             if (wgrid == null) {

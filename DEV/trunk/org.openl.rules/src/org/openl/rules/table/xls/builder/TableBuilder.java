@@ -103,13 +103,16 @@ public class TableBuilder {
                 writeCell(x, y, 1, 1, "");
             }
         }
+        region = null;
+        style2style.clear();
+    }
+
+    public void save() throws CreateTableException {
         try {
             gridModel.getSheetSource().getWorkbookSource().save();
         } catch (IOException e) {
             throw new CreateTableException("could not save table");
         }
-        region = null;
-        style2style.clear();
     }
 
     protected int getCurrentRow() {

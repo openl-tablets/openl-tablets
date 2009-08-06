@@ -1,5 +1,8 @@
 package org.openl.rules.lang.xls.binding;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.meta.StringValue;
 import org.openl.rules.table.ILogicalTable;
 
@@ -19,6 +22,10 @@ public class TableProperties {
 
         public StringValue getValue() {
             return value;
+        }
+
+        public void setValue(StringValue value) {
+            this.value = value;
         }
     }
 
@@ -61,5 +68,27 @@ public class TableProperties {
 
     public void setTable(ILogicalTable table) {
         this.table = table;
+    }
+
+    public void setProperty(String name, String value) {
+        if (name != null) {
+            Property property = getProperty(name);
+            if (property != null) {
+                property.setValue(new StringValue(value == null ? "" : value));
+            } else {
+                Property newProperty = new Property(new StringValue(name), new StringValue(value));
+                List<Property> propList = asList();
+                propList.add(newProperty);
+                setProperties(propList.toArray(new Property[]{}));
+            }
+        }
+    }
+
+    public List<Property> asList() {
+        List<Property> propList = new ArrayList<Property>();
+        for (Property prop : properties) {
+            propList.add(prop);
+        }
+        return propList;
     }
 }
