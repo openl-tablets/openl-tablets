@@ -28,6 +28,8 @@ TableEditor.Operations = {
     SET_ALIGN : "setAlign",
     SET_INDENT : "setIndent",
     SET_PROP : "setProp",
+    REMOVE : "removeRowCol",
+    INSERT : "insertRowColBefore",
     UNDO : "undo",
     REDO : "redo",
     SAVE : "saveTable"
@@ -248,10 +250,11 @@ TableEditor.prototype = {
             method    : "get",
             encoding   : "utf-8",
             contentType : "text/javascript",
-            onSuccess  : function(data) {
+            /*onSuccess  : function(data) {
                 data = eval(data.responseText);
                 self.processCallbacks(data, "do");
-            },
+            },*/
+            onSuccess : this.modFuncSuccess,
             parameters: {
                 editorId: this.editorId,
                 propName : name,
@@ -610,7 +613,7 @@ TableEditor.prototype = {
             params.up = true;
         }
 
-        new Ajax.Request(this.buildUrl(([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? "removeRowCol" : "addRowColBefore")), {
+        new Ajax.Request(this.buildUrl(([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? TableEditor.Operations.REMOVE : TableEditor.Operations.INSERT)), {
             onSuccess : this.modFuncSuccess,
             parameters : params,
             onFailure: AjaxHelper.handleError

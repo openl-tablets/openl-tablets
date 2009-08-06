@@ -125,6 +125,7 @@ public class TableCopier extends WizardBase {
                 tableHeight - logicTableStartRow).getGridTable());
 
         builder.endTable();
+        builder.save();
     }
 
     /**

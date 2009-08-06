@@ -39,6 +39,7 @@ public class WizardTestTable extends WizardBase {
         builder.writeHeader(header, null);
         builder.writeParams(params, null);
         builder.endTable();
+        builder.save();
     }
 
     public SelectItem[] getDecisionTables() {

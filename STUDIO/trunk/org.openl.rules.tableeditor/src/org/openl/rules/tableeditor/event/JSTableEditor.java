@@ -13,7 +13,7 @@ public interface JSTableEditor {
 
     String getCellType() throws Exception;
 
-    String addRowColBefore() throws Exception;
+    String insertRowColBefore() throws Exception;
 
     String removeRowCol() throws Exception;
 
