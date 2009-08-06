@@ -10,8 +10,7 @@ public class DefaultPropertyDefinitions
 {
 
 	public static TablePropertyDefinition[] getDefaultDefinitions()
-	{
-		
+	{		
 	    TablePropertyDefinition[] definitions = null;
 	    // <<< INSERT TablePropertiesDefinition >>>
 		definitions = new TablePropertyDefinition[23];
@@ -275,9 +274,36 @@ public class DefaultPropertyDefinitions
 	    
         // <<< END INSERT TablePropertiesDefinition >>>
 	    
-		return definitions; 
-		
-		
+		return definitions;
 	}
 	
+	/**
+	 * Gets the name of the property by the given display name
+	 * @param displayName
+	 * @return name
+	 */
+	public static String getPropertyName(String displayName) {
+	    String result = null;
+	    for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
+	        if(tablPropDef.getDisplayName().equals(displayName)){
+	            result = tablPropDef.getName();
+	        }
+	    }
+	    return result;
+	}
+	
+	/**
+     * Gets the display name of the property by the given name
+     * @param name
+     * @return diplayName
+     */
+	public static String getPropertyDisplayName(String name) {
+        String result = null;
+        for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
+            if(tablPropDef.getName().equals(name)){
+                result = tablPropDef.getDisplayName();
+            }
+        }
+        return result;
+    }
 }
