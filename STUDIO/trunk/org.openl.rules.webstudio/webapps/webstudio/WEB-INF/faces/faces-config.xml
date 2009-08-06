@@ -288,6 +288,17 @@
     <managed-bean-class>org.openl.rules.ui.search.BussinesSearchPropertyBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
+  
+  <managed-bean>
+    <managed-bean-name>bussinessSearchRequest</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.search.BussinesSearchPropertyBean$BussinessSearchRequest</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+
+    <managed-property>
+      <property-name>bussinessSearchBean</property-name>
+      <value>#{bussinessSearch}</value>
+    </managed-property>
+  </managed-bean>
 
   <navigation-rule>
     <from-view-id>/facelets/repository/main.xhtml</from-view-id>

@@ -23,7 +23,7 @@ import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.search.OpenLAdvancedSearch;
+import org.openl.rules.search.IOpenLSearch;
 import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
@@ -970,12 +970,12 @@ public class ProjectModel implements IProjectTypes {
         }
     }
 
-    public Object runSearch(OpenLAdvancedSearch searchBean) {
+    public Object runSearch(IOpenLSearch searchBean) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
 
         return searchBean.search(xsn);
-    }
-
+    }    
+    
     public void saveSearch(OpenLSavedSearch search) throws Exception {
         XlsWorkbookSourceCodeModule module = getWorkbookSourceCodeModule();
         if (module != null) {
