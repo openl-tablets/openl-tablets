@@ -1,6 +1,5 @@
 package org.openl.rules.service;
 
-import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -8,6 +7,12 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
 public class TableServiceImpl implements TableService {
+
+    private boolean save;
+
+    public TableServiceImpl(boolean save) {
+        this.save = save;
+    }
 
     public synchronized void removeTable(IGridTable table) throws TableServiceException {
         try {
@@ -24,7 +29,9 @@ public class TableServiceImpl implements TableService {
                     sheetModel.clearCell(left + i, top + j);
                 }
             }
-            sheetModel.getSheetSource().getWorkbookSource().save();
+            if (save) {
+                sheetModel.getSheetSource().getWorkbookSource().save();
+            }
         } catch (Exception e) {
             throw new TableServiceException("Could not remove the table", e);
         }
@@ -49,6 +56,9 @@ public class TableServiceImpl implements TableService {
             newRegion = tableBuilder.getTableRegion();
             tableBuilder.writeGridTable(table);
             tableBuilder.endTable();
+            if (save) {
+                tableBuilder.save();
+            }
         } catch (Exception e) {
             throw new TableServiceException("Could not copy the table", e);
         }
