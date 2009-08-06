@@ -247,7 +247,7 @@ public class ShowTableBean {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         IGridTable table = studio.getModel().getTableWithMode(uri, IXlsTableNames.VIEW_DEVELOPER);
         try {
-            new TableServiceImpl().removeTable(table);
+            new TableServiceImpl(true).removeTable(table);
         } catch (TableServiceException e) {
             e.printStackTrace();
             //TODO UI exception

@@ -4,6 +4,8 @@
  */
 package org.openl.rules.tableeditor.model;
 
+import org.openl.rules.lang.xls.binding.TableProperties;
+import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridTableDelegator;
 import org.openl.rules.table.GridRegion;
@@ -431,8 +433,13 @@ public class TableEditorModel {
         actions.addNewAction(ra);
     }
 
-    public synchronized void setProp(String name, String value) {
-        
+    public synchronized void insertProp(String name, String value) {
+        IUndoableGridAction ua = IWritableGrid.Tool.insertProp(region, wgrid(), name, value);
+        //TableProperties tableProps = table.getProperties();
+        //tableProps.setProperty(name, value);
+        RegionAction ra = new RegionAction(ua, ROWS, INSERT, 1);
+        ra.doSome(region, wgrid(), undoGrid);
+        actions.addNewAction(ra);
     }
 
     public synchronized void setStyle(int row, int col, ICellStyle style) {

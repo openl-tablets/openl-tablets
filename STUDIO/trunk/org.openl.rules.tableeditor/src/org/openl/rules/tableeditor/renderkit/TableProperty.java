@@ -102,7 +102,7 @@ public class TableProperty {
 
     public boolean isDateValue() {
         boolean dateValue = false;
-        if(type.equals(java.util.Date.class)) {
+        if (type.equals(java.util.Date.class)) {
             dateValue = true;
         }
         return dateValue;

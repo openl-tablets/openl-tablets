@@ -208,7 +208,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         }
     }
 
-    public String addRowColBefore() throws Exception {
+    public String insertRowColBefore() throws Exception {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
@@ -222,10 +222,9 @@ public class TableEditorController extends BaseTableEditorController implements 
                     if (editorModel.canAddRows(1)) {
                         editorModel.insertRows(1, row);
                     } else {
-                        IGridRegion newRegion = new TableServiceImpl().moveTable(editorModel.getUpdatedTable(), null);                        
+                        IGridRegion newRegion = new TableServiceImpl(false).moveTable(editorModel.getUpdatedTable(), null);                        
                         editorModel.setRegion(newRegion);
                         editorModel.insertRows(1, row);
-                        tmResponse.setStatus("Table was moved to an empty place in worksheet");
                     }
                 } else if (editorModel.canAddCols(1)) {
                     editorModel.insertColumns(1, col);
@@ -397,10 +396,20 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String setProp() throws Exception {
         String name = getRequestParam(Constants.REQUEST_PARAM_PROP_NAME);
         String value = getRequestParam(Constants.REQUEST_PARAM_PROP_VALUE);
-        EditorHelper editorHelper = getHelper(getEditorId());
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
-            editorHelper.getModel().setProp(name, value);
-            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
+            TableEditorModel editorModel = editorHelper.getModel();
+            if (editorModel.canAddRows(1)) {
+                editorModel.insertProp(name, value);
+            } else {
+                IGridRegion newRegion = new TableServiceImpl(false).moveTable(editorModel.getUpdatedTable(), null);
+                editorModel.setRegion(newRegion);
+                editorModel.insertProp(name, value);
+            }
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
+            tmResponse.setResponse(render(editorId));
+            return pojo2json(tmResponse);
         }
         return null;
     }
