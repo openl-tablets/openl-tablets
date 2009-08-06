@@ -33,6 +33,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.search.ISearchTableRow;
 import org.openl.rules.search.OpenLAdvancedSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
+import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTable;
@@ -758,11 +759,20 @@ public class ObjectViewer {
                 newTable.setGridTable(gridTable);
                 newTable.setProperties(tsn.getTableProperties());
                 TableSearch tableSearch = new TableSearch();
-                tableSearch.setTableUri(tableUri);
-                tableSearch.setTable(new TableSyntaxNodeAdapter(tsn));
+                tableSearch.setTableUri(tableUri);                
                 tableSearch.setTable(newTable);
                 tableSearch.setXlsLink((displayResult(tableName)));
                 tableSearchList.add(tableSearch);
+            }
+        }
+        if (searchRes instanceof OpenLBussinessSearchResult) {
+            List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchRes).getFoundTables();
+            for(TableSyntaxNode foundTable : foundTables) {
+                TableSearch tableSearch = new TableSearch();
+                tableSearch.setTableUri(foundTable.getUri());
+                tableSearch.setTable(new TableSyntaxNodeAdapter(foundTable));
+                tableSearch.setXlsLink((displayResult(getTableName(foundTable))));
+                tableSearchList.add(tableSearch);                
             }
         }
         return tableSearchList;
