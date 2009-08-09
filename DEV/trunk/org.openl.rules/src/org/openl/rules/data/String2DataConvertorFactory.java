@@ -23,14 +23,14 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class String2DataConvertorFactory {
 
     public static class String2BooleanConvertor implements IString2DataConvertor {
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -56,10 +56,11 @@ public class String2DataConvertorFactory {
         }
 
     }
+
     static public class String2CalendarConvertor implements IString2DataConvertor {
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -103,7 +104,7 @@ public class String2DataConvertorFactory {
     public static class String2ClassConvertor implements IString2DataConvertor {
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -131,7 +132,7 @@ public class String2DataConvertorFactory {
         }
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -154,7 +155,7 @@ public class String2DataConvertorFactory {
         DateFormat defaultFormat = DateFormat.getDateInstance(DateFormat.SHORT, getLocale());
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -192,7 +193,7 @@ public class String2DataConvertorFactory {
     public static class String2DoubleConvertor implements IString2DataConvertor {
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -266,7 +267,7 @@ public class String2DataConvertorFactory {
     public static class String2IntConvertor implements IString2DataConvertor {
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -298,7 +299,7 @@ public class String2DataConvertorFactory {
     public static class String2LongConvertor implements IString2DataConvertor {
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -330,7 +331,7 @@ public class String2DataConvertorFactory {
     public static class String2OpenClassConvertor implements IString2DataConvertor {
 
         /**
-         *
+         * 
          */
 
         public String format(Object data, String format) {
@@ -357,6 +358,26 @@ public class String2DataConvertorFactory {
 
         public Object parse(String data, String format, IBindingContext cxt) {
             return data;
+        }
+
+    }
+
+    public static class NoConvertor implements IString2DataConvertor {
+
+        private Class<?> clazz;
+        
+        public NoConvertor(Class<?> clazz) {
+            super();
+            this.clazz = clazz;
+        }
+
+        public String format(Object data, String format) {
+            throw new RuntimeException("Should not call this method");
+        }
+
+        public Object parse(String data, String format, IBindingContext cxt) {
+          throw new IllegalArgumentException("Convertor or Public Constructor " + clazz.getName()
+             + "(String s) does not exist");    
         }
 
     }
@@ -399,9 +420,11 @@ public class String2DataConvertorFactory {
                 try {
                     Constructor<?> ctr = clazz.getDeclaredConstructor(new Class[] { String.class });
                     convertor = new String2ConstructorConvertor(ctr);
-                } catch (Throwable t) {
-                    throw new RuntimeException("Convertor or Public Constructor " + clazz.getName()
-                            + "(String s) does not exist");
+                } catch (NoSuchMethodException t) {
+                    return new NoConvertor(clazz);
+                    // throw new IllegalArgumentException("Convertor or Public
+                    // Constructor " + clazz.getName()
+                    // + "(String s) does not exist");
                 }
             }
         }

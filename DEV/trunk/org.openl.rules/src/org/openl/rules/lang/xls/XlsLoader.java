@@ -22,6 +22,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.conf.IConfigurableResourceContext;
+import org.openl.rules.dt.DTLoader;
 import org.openl.rules.extension.load.IExtensionLoader;
 import org.openl.rules.extension.load.NameConventionLoaderFactory;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -219,7 +220,11 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
                 preprocessImportTable(row.getGridTable(), source);
             } else if (VOCABULARY_PROPERTY.equals(name)) {
                 preprocessVocabularyTable(row.getGridTable(), source);
-            } else {
+            } else if (DTLoader.isValidCommentHeader(name)) {
+                ;//ignore comment
+            } else
+                
+            {
                 IExtensionLoader loader = NameConventionLoaderFactory.INSTANCE.getLoader(name);
                 if (loader != null) {
                     loader.process(this, tsn, table, source);
