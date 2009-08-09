@@ -467,7 +467,14 @@ public class SpreadsheetBuilder {
     }
 
     private IString2DataConvertor makeConvertor(IOpenClass type) {
-        return String2DataConvertorFactory.getConvertor(type.getInstanceClass());
+        try
+        {
+            return String2DataConvertorFactory.getConvertor(type.getInstanceClass());
+        }
+        catch(IllegalArgumentException iae)
+        {
+            return null;
+        }
     }
 
     private IOpenMethodHeader makeHeader(String name, IOpenMethodHeader header, IOpenClass type) {
