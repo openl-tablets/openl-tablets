@@ -150,6 +150,10 @@ public class Operators {
         return new BigDecimal(x);
     }
 
+    static public BigDecimal autocast(Double x, BigDecimal y) {
+        return new BigDecimal(x);
+    }
+
     static public Double autocast(double d, Double D) {
         return new Double(d);
     }
@@ -167,7 +171,19 @@ public class Operators {
     }
 
     static public BigInteger autocast(int x, BigInteger y) {
-        return new BigInteger(String.valueOf(x), 10);
+        return BigInteger.valueOf(x);
+    }
+
+    static public BigInteger autocast(long x, BigInteger y) {
+        return BigInteger.valueOf(x);
+    }
+    
+    static public BigInteger autocast(Integer x, BigInteger y) {
+        return BigInteger.valueOf(x);
+    }
+
+    static public BigInteger autocast(Long x, BigInteger y) {
+        return BigInteger.valueOf(x);
     }
 
     static public double autocast(int x, double y) {
@@ -194,9 +210,6 @@ public class Operators {
         return new BigDecimal(x);
     }
 
-    static public BigInteger autocast(long x, BigInteger y) {
-        return new BigInteger(String.valueOf(x), 10);
-    }
 
     static public Long autocast(long l, double d) {
         return l;
