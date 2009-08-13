@@ -22,12 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
@@ -35,6 +30,7 @@ import javax.xml.namespace.QName;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.POIXMLException;
+import org.apache.poi.POIXMLProperties;
 import org.apache.poi.hssf.record.formula.SheetNameFormatter;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -58,6 +54,8 @@ import org.apache.poi.util.PackageHelper;
 import org.apache.poi.xssf.model.CalculationChain;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.model.MapInfo;
+import org.apache.poi.xssf.extractor.XSSFExportToXml;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -109,6 +107,11 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
     private CalculationChain calcChain;
 
     /**
+     * A collection of custom XML mappings
+     */
+    private MapInfo mapInfo;
+
+    /**
      * Used to keep track of the data formatter so that all
      * createDataFormatter calls return the same one for a given
      * book.  This ensures that updates from one places is visible
@@ -151,12 +154,14 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         super(ensureWriteAccess(pkg));
 
         //build a tree of POIXMLDocumentParts, this workbook being the root
-        try {
-            read(XSSFFactory.getInstance());
-        } catch (OpenXML4JException e){
-            throw new POIXMLException(e);
-        }
-        onDocumentRead();
+        load(XSSFFactory.getInstance());
+    }
+
+    public XSSFWorkbook(InputStream is) throws IOException {
+        super(PackageHelper.open(is));
+
+        //build a tree of POIXMLDocumentParts, this workbook being the root
+        load(XSSFFactory.getInstance());
     }
 
     /**
@@ -179,6 +184,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
                 if(p instanceof SharedStringsTable) sharedStringSource = (SharedStringsTable)p;
                 else if(p instanceof StylesTable) stylesSource = (StylesTable)p;
                 else if(p instanceof CalculationChain) calcChain = (CalculationChain)p;
+                else if(p instanceof MapInfo) mapInfo = (MapInfo)p;
                 else if (p instanceof XSSFSheet) {
                     shIdMap.put(p.getPackageRelationship().getId(), (XSSFSheet)p);
                 }
@@ -230,6 +236,9 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         bv.setActiveTab(0);
         workbook.addNewSheets();
 
+        POIXMLProperties.ExtendedProperties expProps = getProperties().getExtendedProperties();
+        expProps.getUnderlyingProperties().setApplication(DOCUMENT_CREATOR);
+
         sharedStringSource = (SharedStringsTable)createRelationship(XSSFRelation.SHARED_STRINGS, XSSFFactory.getInstance());
         stylesSource = (StylesTable)createRelationship(XSSFRelation.STYLES, XSSFFactory.getInstance());
 
@@ -250,7 +259,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
             // Create main document part
             pkg.createPart(corePartName, XSSFRelation.WORKBOOK.getContentType());
 
-            pkg.getPackageProperties().setCreatorProperty("Apache POI");
+            pkg.getPackageProperties().setCreatorProperty(DOCUMENT_CREATOR);
 
             return pkg;
         } catch (Exception e){
@@ -934,16 +943,17 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         boolean removingRange = startColumn == -1 && endColumn == -1 && startRow == -1 && endRow == -1;
 
         XSSFName name = getBuiltInName(XSSFName.BUILTIN_PRINT_TITLE, sheetIndex);
-        if (removingRange && name != null) {
-            namedRanges.remove(name);
+        if (removingRange) {
+            if(name != null)namedRanges.remove(name);
             return;
         }
         if (name == null) {
             name = createBuiltInName(XSSFName.BUILTIN_PRINT_TITLE, sheetIndex);
-            String reference = getReferenceBuiltInRecord(name.getSheetName(), startColumn, endColumn, startRow, endRow);
-            name.setRefersToFormula(reference);
             namedRanges.add(name);
         }
+
+        String reference = getReferenceBuiltInRecord(name.getSheetName(), startColumn, endColumn, startRow, endRow);
+        name.setRefersToFormula(reference);
 
         XSSFPrintSetup printSetup = sheet.getPrintSetup();
         printSetup.setValidSettings(false);
@@ -956,17 +966,26 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
 
         String escapedName = SheetNameFormatter.format(sheetName);
 
-        String c = escapedName + "!$" + colRef.getCellRefParts()[2] + ":$" + colRef2.getCellRefParts()[2];
+        String c;
+        if(startC == -1 && endC == -1) c= "";
+        else c = escapedName + "!$" + colRef.getCellRefParts()[2] + ":$" + colRef2.getCellRefParts()[2];
 
         CellReference rowRef = new CellReference(sheetName, startR, 0, true, true);
         CellReference rowRef2 = new CellReference(sheetName, endR, 0, true, true);
 
         String r = "";
-
-        if (!rowRef.getCellRefParts()[1].equals("0") && !rowRef2.getCellRefParts()[1].equals("0")) {
-            r = "," + escapedName + "!$" + rowRef.getCellRefParts()[1] + ":$" + rowRef2.getCellRefParts()[1];
+        if(startR == -1 && endR == -1) r = "";
+        else {
+            if (!rowRef.getCellRefParts()[1].equals("0") && !rowRef2.getCellRefParts()[1].equals("0")) {
+                r = escapedName + "!$" + rowRef.getCellRefParts()[1] + ":$" + rowRef2.getCellRefParts()[1];
+            }
         }
-        return c + r;
+        
+        StringBuffer rng = new StringBuffer();
+        rng.append(c);
+        if(rng.length() > 0 && r.length() > 0) rng.append(',');
+        rng.append(r);
+        return rng.toString();
     }
 
     private static String getReferencePrintArea(String sheetName, int startC, int endC, int startR, int endR) {
@@ -1285,6 +1304,22 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
      */
     public CalculationChain getCalculationChain(){
         return calcChain;
+    }
+
+    /**
+     * 
+     * @return a collection of custom XML mappings defined in this workbook
+     */
+    public Collection<XSSFMap> getCustomXMLMappings(){
+        return mapInfo == null ? new ArrayList<XSSFMap>() : mapInfo.getAllXSSFMaps();
+    }
+    
+    /**
+     * 
+     * @return the helper class used to query the custom XML mapping defined in this workbook
+     */
+    public MapInfo getMapInfo(){
+    	return mapInfo;
     }
 
     public FreeRefFunction getUserDefinedFunction(String functionName) {
