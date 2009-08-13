@@ -94,7 +94,8 @@ public class WizardPainter {
             }
         }
 
-        return new HTMLRenderer.TableRenderer(tableModel).render();
+        //FIXME: should formulas be displayed?
+        return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 
     private String getTableTitle() {

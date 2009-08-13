@@ -18,8 +18,8 @@ public class CellModelDelegator implements ICellModel {
         return model.getColspan();
     }
 
-    public String getContent() {
-        return model.getContent();
+    public String getContent(boolean showFormulas) {
+        return model.getContent(showFormulas);
     }
 
     public ICellFont getFont() {
@@ -52,7 +52,7 @@ public class CellModelDelegator implements ICellModel {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.rules.ui.ICellModel#setColorFilter(org.openl.rules.ui.IColorFilter[])
      */
     public void setColorFilter(IColorFilter[] filter) {
@@ -86,5 +86,17 @@ public class CellModelDelegator implements ICellModel {
 
     public void toHtmlString(StringBuffer buf, TableModel table) {
         model.toHtmlString(buf, table);
+    }
+
+    public String getFormula() {
+        return model.getFormula();
+    }
+
+    public boolean hasFormula() {
+        return model.hasFormula();
+    }
+
+    public void setFormula(String formula) {
+        model.setFormula(formula);
     }
 }

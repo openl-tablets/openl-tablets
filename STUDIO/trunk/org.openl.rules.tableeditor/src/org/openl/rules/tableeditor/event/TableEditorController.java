@@ -246,7 +246,8 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
         String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
         EditorHelper editorHelper = getHelper(editorId);
-        return new HTMLRenderer().render("edit", editorHelper.getTable(), null, null, false, cellToEdit, true, editorId, null);
+        return new HTMLRenderer().render("edit", editorHelper.getTable(), null, null, false, cellToEdit, true,
+                editorId, null, editorHelper.getModel().isShowFormulas());
     }
 
     public String editXls() {

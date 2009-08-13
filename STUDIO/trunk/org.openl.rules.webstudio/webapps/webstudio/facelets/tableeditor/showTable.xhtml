@@ -81,6 +81,26 @@
                             title="Developer (Full) View"
                             alt="Full View" style="padding-left:5px;" />
                     </h:outputLink>
+                    <c:if test="#{showTableBean.showFormulas}">
+                        <h:outputLink
+                            value="?#{showTableBean.paramsWithoutShowFormulas}">
+                            <f:param value="false" name="showFormulas" />
+                            <h:graphicImage
+                                url="/webresource/images/dont-show-formulas.png"
+                                title="Don't Show Formulas"
+                                alt="Don't Show Formulas" style="padding-left:5px;" />
+                        </h:outputLink>
+                    </c:if>
+                    <c:if test="#{not showTableBean.showFormulas}">
+                        <h:outputLink
+                            value="?#{showTableBean.paramsWithoutShowFormulas}">
+                            <f:param value="true" name="showFormulas" />
+                            <h:graphicImage
+                                url="/webresource/images/show-formulas.png"
+                                title="Show Formulas"
+                                alt="Show Formulas" style="padding-left:5px;" />
+                        </h:outputLink>
+                    </c:if>
                 </td>
             </tr>
         </table>
@@ -109,6 +129,7 @@
                 <f:param name="uri" value="#{showTableBean.uri}" />
                 <f:param name="mode" value="edit" />
                 <f:param name="view" value="#{showTableBean.view}" />
+                <f:param name="showFormulas" value="#{showTableBean.showFormulas}" />
                 Edit Table
             </h:outputLink>
             <f:verbatim>&amp;nbsp;</f:verbatim>
@@ -139,7 +160,7 @@
         </form>
 
         <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
-            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}">
+            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}" showFormulas="#{showTableBean.showFormulas}">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 

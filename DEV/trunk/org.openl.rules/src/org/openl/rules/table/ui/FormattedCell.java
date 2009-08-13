@@ -68,4 +68,7 @@ public class FormattedCell implements ICellInfo {
         this.filter = filter;
     }
 
+    public boolean hasFormula() {
+        return delegate.hasFormula();
+    }
 }

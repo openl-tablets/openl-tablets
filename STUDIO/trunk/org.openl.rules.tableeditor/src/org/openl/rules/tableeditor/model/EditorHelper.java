@@ -24,15 +24,20 @@ public class EditorHelper {
 
     public void init(ITable table, String view) {
         this.table = table;
-        init(view,true);
+        init(view,true, false);
     }
 
-    public void init(String view,boolean cancel) {
+    public void init(ITable table, String view, boolean showFormulas) {
+        this.table = table;
+        init(view,true, showFormulas);
+    }
+
+    public void init(String view,boolean cancel, boolean showFormulas) {
         if (model != null && cancel) {
             model.cancel();
         }
 
-        TableEditorModel newModel = new TableEditorModel(table, view);
+        TableEditorModel newModel = new TableEditorModel(table, view, showFormulas);
 
         if (!cancel && model != null) {
             newModel.getUndoableActions(model);
@@ -58,5 +63,5 @@ public class EditorHelper {
 
     public void setTable(ITable table) {
         this.table = table;
-    }   
+    }
 }

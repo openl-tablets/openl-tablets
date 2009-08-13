@@ -9,6 +9,7 @@ public class TableViewerTag extends BaseTag {
     private Object table = null;
     private String view = null;
     private Object filter = null;
+    private boolean showFormulas = false;
 
     @Override
     public String getComponentType() {
@@ -44,6 +45,14 @@ public class TableViewerTag extends BaseTag {
         this.filter = filter;
     }
 
+    public boolean isShowFormulas() {
+        return showFormulas;
+    }
+
+    public void setShowFormulas(boolean showFormulas) {
+        this.showFormulas = showFormulas;
+    }
+
     @Override
     public void release() {
         // always call the superclass method
@@ -58,6 +67,7 @@ public class TableViewerTag extends BaseTag {
         super.setProperties(component);
         setObject(component, Constants.ATTRIBUTE_TABLE, table);
         setObject(component, Constants.ATTRIBUTE_VIEW, view);
+        setObject(component, Constants.ATTRIBUTE_SHOW_FORMULAS, showFormulas);
         setObject(component, Constants.ATTRIBUTE_FILTER, filter);
     }
 

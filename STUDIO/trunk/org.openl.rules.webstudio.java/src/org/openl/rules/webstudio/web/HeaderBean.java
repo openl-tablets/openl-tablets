@@ -62,6 +62,11 @@ public class HeaderBean {
         return WebStudioUtils.isRepositoryFailed();
     }
 
+    public boolean isShowFormulas() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
+        return webStudio == null || webStudio.isShowFormulas();
+    }
+
     public void setHideLogout(boolean hideLogout) {
         this.hideLogout = hideLogout;
     }

@@ -139,9 +139,10 @@ public class TraceHelper {
 
         ITable table = new TableSyntaxNodeAdapter(tsn);
         view = model.getTableView(view);
-        IGridTable gt = new TableEditorModel(table, view).getUpdatedTable();
+        IGridTable gt = new TableEditorModel(table, view, false).getUpdatedTable();
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[] { makeFilter(tto, model) });
-        return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null);
+        //TODO: Show formulas in trace
+        return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null, false);
     }
 }

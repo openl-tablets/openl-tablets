@@ -58,6 +58,7 @@ public class ShowTableBean {
                 return StringTool.encodeURL(getTest().getTestName());
             }
         }
+
         private AllTestsRunResult.Test[] tests;
 
         private TestProxy[] proxies;
@@ -83,6 +84,7 @@ public class ShowTableBean {
             return tests != null && tests.length > 0;
         }
     }
+
     private String url;
     private String text;
     private String name;
@@ -91,6 +93,7 @@ public class ShowTableBean {
     private ISyntaxError[] se;
     private String uri;
     private String notViewParams;
+    private String paramsWithoutShowFormulas;
 
     private boolean switchParam;
 
@@ -120,6 +123,8 @@ public class ShowTableBean {
             }
         }
         notViewParams = WebTool.listParamsExcept(new String[] { "transparency", "filterType", "view" }, paramMap);
+        paramsWithoutShowFormulas = WebTool.listParamsExcept(new String[] { "transparency", "filterType",
+                "showFormulas" }, paramMap);
     }
 
     boolean canModifyCurrentProject() {
@@ -180,6 +185,10 @@ public class ShowTableBean {
 
     public String getNotViewParams() {
         return notViewParams;
+    }
+
+    public String getParamsWithoutShowFormulas() {
+        return paramsWithoutShowFormulas;
     }
 
     public ISyntaxError[] getSe() {
@@ -243,6 +252,16 @@ public class ShowTableBean {
         return webStudio != null && webStudio.getModel().hasErrors(uri);
     }
 
+    public boolean isShowFormulas() {
+        String showFormulas = FacesUtils.getRequestParameter("showFormulas");
+        if (showFormulas != null) {
+            return Boolean.parseBoolean(showFormulas);
+        } else {
+            WebStudio webStudio = WebStudioUtils.getWebStudio();
+            return webStudio != null && webStudio.isShowFormulas();
+        }
+    }
+
     public String removeTable() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         IGridTable table = studio.getModel().getTableWithMode(uri, IXlsTableNames.VIEW_DEVELOPER);
@@ -250,7 +269,7 @@ public class ShowTableBean {
             new TableServiceImpl(true).removeTable(table);
         } catch (TableServiceException e) {
             e.printStackTrace();
-            //TODO UI exception
+            // TODO UI exception
             return null;
         }
         return "mainPage";

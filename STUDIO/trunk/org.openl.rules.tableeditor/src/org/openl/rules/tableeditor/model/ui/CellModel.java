@@ -30,6 +30,8 @@ public class CellModel implements ICellModel {
     String valign;
     short[] rgbBackground;
     BorderStyle[] borderStyle;
+    private boolean hasFormula;
+    private String formula;
 
     // int[] borderWidth;
     //
@@ -62,6 +64,7 @@ public class CellModel implements ICellModel {
     public CellModel(int row, int column) {
         this.row = row;
         this.column = column;
+        hasFormula = false;
     }
 
     private void addStyleAttribute(StringBuffer style, String attribute) {
@@ -223,8 +226,12 @@ public class CellModel implements ICellModel {
         return colspan;
     }
 
-    public String getContent() {
-        return convertContent(content);
+    public String getContent(boolean showFormulas) {
+        if(showFormulas && hasFormula){
+            return convertContent(formula);
+        }else{
+            return convertContent(content);
+        }
     }
 
     public ICellFont getFont() {
@@ -375,8 +382,22 @@ public class CellModel implements ICellModel {
     public void toHtmlString(StringBuffer buf, TableModel table) {
         buf.append("<td ");
         atttributesToHtml(buf, table);
+        //FIXME: is this method deprecated? should formulas be displayed?
         buf.append('>').append("<div ").append(" onMouseDown='clickCell(").append(column).append(',').append(row)
                 .append(",event)'").append(" id='c").append(column).append('x').append(row).append("'>").append(
-                        getContent()).append("</div></td>\n");
+                        getContent(false)).append("</div></td>\n");
+    }
+
+    public boolean hasFormula() {
+        return hasFormula;
+    }
+
+    public void setFormula(String formula) {
+        this.formula = "=" + formula;
+        hasFormula = true;
+    }
+
+    public String getFormula() {
+        return formula;
     }
 }

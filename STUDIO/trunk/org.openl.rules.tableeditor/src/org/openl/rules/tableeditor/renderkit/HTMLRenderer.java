@@ -44,11 +44,11 @@ public class HTMLRenderer {
             this.tableModel = tableModel;
         }
 
-        public String render() {
-            return render(null, false);
+        public String render(boolean showFormulas) {
+            return render(null, false, showFormulas);
         }
 
-        public String render(String extraTDText, boolean embedCellURI) {
+        public String render(String extraTDText, boolean embedCellURI, boolean showFormulas) {
             String tdPrefix = "<td";
             if (extraTDText != null) {
                 tdPrefix += " ";
@@ -81,11 +81,11 @@ public class HTMLRenderer {
                         s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(table.getUri(j, i)).append(
                                 "\"></input>");
                     }
-                    String content = cell.getContent();
+                    String content = cell.getContent(showFormulas);
                     if (content != null) {
                         content.replaceAll("", "");
                     }
-                    s.append(cell.getContent()).append("</td>\n");
+                    s.append(content).append("</td>\n");
                 }
                 s.append("</tr>\n");
             }
@@ -93,9 +93,9 @@ public class HTMLRenderer {
             return s.toString();
         }
 
-        public String renderWithMenu(String menuId) {
+        public String renderWithMenu(String menuId, boolean showFormulas) {
             menuId = menuId == null ? "" : menuId;
-            return render("onmouseover=\"openMenu('" + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"", true);
+            return render("onmouseover=\"openMenu('" + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"", true, showFormulas);
         }
 
         public void setCellIdPrefix(String prefix) {
@@ -117,12 +117,12 @@ public class HTMLRenderer {
         return resources;
     }
 
-    public String render(ITable table, String view, String editorId, IGridFilter filter) {
-        return render(null, table, view, null, false, null, false, editorId, filter);
+    public String render(ITable table, String view, String editorId, IGridFilter filter, boolean showFormulas) {
+        return render(null, table, view, null, false, null, false, editorId, filter, showFormulas);
     }
 
     public String render(String mode, ITable table, String view, List<ActionLink> actionLinks, boolean editable,
-            String cellToEdit, boolean inner, String editorId, IGridFilter filter) {
+            String cellToEdit, boolean inner, String editorId, IGridFilter filter, boolean showFormulas) {
         StringBuilder result = new StringBuilder();
         result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css")).append(
                 renderCSS("css/toolbar.css")).append(renderJS("js/prototype/prototype-1.5.1.js")).append(
@@ -134,9 +134,9 @@ public class HTMLRenderer {
             result.append("<div id='").append(editorId).append("' class='te_'>");
         }
         if (mode == null || mode.equals(Constants.MODE_VIEW)) {
-            result.append(renderViewer(table, view, actionLinks, editable, editorId, filter));
+            result.append(renderViewer(table, view, actionLinks, editable, editorId, filter, showFormulas));
         } else if (mode.equals(Constants.MODE_EDIT)) {
-            result.append(renderEditor(editorId, cellToEdit, table));
+            result.append(renderEditor(editorId, cellToEdit, table, showFormulas));
         }
         if (!inner) {
             result.append("</div>");
@@ -187,7 +187,7 @@ public class HTMLRenderer {
         return "";
     }
 
-    protected String renderEditor(String editorId, String cellToEdit, ITable table) {
+    protected String renderEditor(String editorId, String cellToEdit, ITable table, boolean showFormulas) {
         StringBuilder result = new StringBuilder();
         cellToEdit = cellToEdit == null ? "" : cellToEdit;
         final String tableId = editorId + Constants.TABLE_ID_POSTFIX;
@@ -296,7 +296,7 @@ public class HTMLRenderer {
     }
 
     protected String renderViewer(ITable table, String view, List<ActionLink> actionLinks, boolean editable,
-            String editorId, IGridFilter filter) {
+            String editorId, IGridFilter filter, boolean showFormulas) {
         StringBuilder result = new StringBuilder();
         if (table != null) {
             result.append(renderPropsEditor(table, Constants.MODE_VIEW));
@@ -304,17 +304,17 @@ public class HTMLRenderer {
         if (table != null) {
             IGridFilter[] filters = (filter == null) ? null : new IGridFilter[] { filter };
             TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(
-                    table, view).getUpdatedTable(), filters);
+                    table, view, showFormulas).getUpdatedTable(), filters);
             if (tableModel != null) {
                 String menuId = editorId + Constants.MENU_ID_POSTFIX;
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
                 tableRenderer.setCellIdPrefix(editorId + Constants.CELL_ID_POSTFIX);
                 if (editable || (actionLinks != null && !actionLinks.isEmpty())) {
                     result.append(renderJS("js/popup/popupmenu.js")).append(renderJS("js/tableEditorMenu.js")).append(
-                            tableRenderer.renderWithMenu(menuId)).append(
+                            tableRenderer.renderWithMenu(menuId, showFormulas)).append(
                             renderActionMenu(menuId, editable, actionLinks));
                 } else {
-                    result.append(tableRenderer.render());
+                    result.append(tableRenderer.render(showFormulas));
                 }
             }
         }

@@ -88,6 +88,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             return region != null && region.getLeft() == column && region.getTop() == row;
         }
 
+        public boolean hasFormula() {
+            return cell.getCellType() == CELL_TYPE_FORMULA;
+        }
+
     }
 
     static class XlsGridRegion implements IGridRegion {
@@ -753,6 +757,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             cell.setCellValue(String.valueOf(value));
         }
 
+    }
+
+    public String getCellFormula(int column, int row) {
+        return getCell(column, row).getCellFormula();
     }
 
 }

@@ -13,9 +13,9 @@ import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor
- *
+ * 
  * The class representing absolute grid starting at 0,0
- *
+ * 
  */
 public interface IGrid {
 
@@ -95,6 +95,14 @@ public interface IGrid {
     IGridRegion getRegionStartingAt(int colFrom, int rowFrom);
 
     String getStringCellValue(int column, int row);
+
+    /**
+     * @param column Column of cell.
+     * @param row Row of cell.
+     * @return formula of specified cell or <code>null</code> if cell does not
+     *         contain formula.
+     */
+    String getCellFormula(int column, int row);
 
     String getUri();
 

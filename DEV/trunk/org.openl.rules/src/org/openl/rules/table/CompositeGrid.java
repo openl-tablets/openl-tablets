@@ -58,6 +58,10 @@ public class CompositeGrid extends AGridModel {
             return region != null && region.getLeft() == column && region.getTop() == row;
         }
 
+        public boolean hasFormula() {
+            return delegate.hasFormula();
+        }
+
     }
     static class Transform {
         IGridTable gridTable;
@@ -306,6 +310,15 @@ public class CompositeGrid extends AGridModel {
         }
 
         return null;
+    }
+
+    public String getCellFormula(int column, int row) {
+        Transform t = transform(column, row);
+        if (t == null) {
+            return null;
+        }else{
+            return t.grid().getCellFormula(t.col, t.row);
+        }
     }
 
 }

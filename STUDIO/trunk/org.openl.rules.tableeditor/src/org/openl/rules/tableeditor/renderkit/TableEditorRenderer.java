@@ -32,15 +32,16 @@ public class TableEditorRenderer extends TableViewerRenderer {
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
         String mode = (String) editorParams.get(Constants.ATTRIBUTE_MODE);
         String view = (String) editorParams.get(Constants.ATTRIBUTE_VIEW);
+        boolean showFormulas = (Boolean) editorParams.get(Constants.ATTRIBUTE_SHOW_FORMULAS);
         String editorId = component.getClientId(context);
         IGridFilter filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         List<ActionLink> actionLinks = getActionLinks(component);
         String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
         if (editable) {
-            initEditorHelper(externalContext, editorId, table, view);
+            initEditorHelper(externalContext, editorId, table, view, showFormulas);
         }
         writer.write(new HTMLRenderer().render(mode, table, view, actionLinks, editable, cellToEdit,
-                false, editorId, filter));
+                false, editorId, filter, showFormulas));
     }
 
     @SuppressWarnings("unchecked")
@@ -88,7 +89,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
     }
 
     @SuppressWarnings("unchecked")
-    private void initEditorHelper(ExternalContext externalContext, String editorId, ITable table, String view) {
+    private void initEditorHelper(ExternalContext externalContext, String editorId, ITable table, String view, boolean showFormulas) {
         Map sessionMap = externalContext.getSessionMap();
         synchronized (sessionMap) {
             Map helperMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_HELPER_NAME);
@@ -97,7 +98,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
                 sessionMap.put(Constants.TABLE_EDITOR_HELPER_NAME, helperMap);
             }
             EditorHelper editorHelper = new EditorHelper();
-            editorHelper.init(table,view);
+            editorHelper.init(table,view, showFormulas);
             helperMap.put(editorId, editorHelper);
         }
     }

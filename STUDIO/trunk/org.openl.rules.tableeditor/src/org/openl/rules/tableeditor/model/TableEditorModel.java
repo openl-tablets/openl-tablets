@@ -161,6 +161,7 @@ public class TableEditorModel {
     private IGridRegion region;
     private int numberOfNonShownRows;
     private int numberOfNonShownCols;
+    private boolean showFormulas = false;
 
     private GridTable[] othertables;
 
@@ -171,12 +172,13 @@ public class TableEditorModel {
     FilteredGrid filteredGrid;
 
     public TableEditorModel(ITable table) {
-        this(table, null);
+        this(table, null, false);
     }
 
-    public TableEditorModel(ITable table, String view) {
+    public TableEditorModel(ITable table, String view, boolean showFormulas) {
         this.table = table;
         this.gridTable = table.getGridTable(view);
+        this.showFormulas = showFormulas;
         region = new GridRegion(getOriginalTable(this.gridTable).getRegion());
         numberOfNonShownRows = gridTable.getRegion().getTop() - region.getTop();
         numberOfNonShownCols = gridTable.getRegion().getLeft() - region.getLeft();
@@ -500,5 +502,13 @@ public class TableEditorModel {
 
     IWritableGrid wgrid() {
         return (IWritableGrid) gridTable.getGrid();
+    }
+
+    public boolean isShowFormulas() {
+        return showFormulas;
+    }
+
+    public void setShowFormulas(boolean showFormulas) {
+        this.showFormulas = showFormulas;
     }
 }
