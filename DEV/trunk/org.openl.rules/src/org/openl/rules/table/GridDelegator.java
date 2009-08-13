@@ -117,4 +117,8 @@ public class GridDelegator implements IGrid {
         return delegate.isPartOfTheMergedRegion(col, row);
     }
 
+    public String getCellFormula(int column, int row) {
+        return delegate.getCellFormula(column, row);
+    }
+
 }

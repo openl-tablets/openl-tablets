@@ -30,7 +30,7 @@ public class BaseTableEditorController {
      * which notifies a client of the mismatch and returns <code>null</code>.
      * In the latter case calling method may just do nothing as corresponding
      * response is already prepared.
-     *
+     * 
      * @param elementId table id
      * @return <code>EditorHelper</code> instance or <code>null</code> if
      *         <code>elementId</code> does not match element id in an existing
@@ -53,9 +53,9 @@ public class BaseTableEditorController {
 
     protected String render(String editorId) {
         TableModel tableModel = initializeTableModel(editorId);
+        EditorHelper editorHelper = getHelper(editorId);
         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(tableModel);
         tableRenderer.setCellIdPrefix(editorId + "_cell-");
-        return tableRenderer.render();
+        return tableRenderer.render(editorHelper.getModel().isShowFormulas());
     }
-
 }

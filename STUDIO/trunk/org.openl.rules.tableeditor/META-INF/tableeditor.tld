@@ -34,6 +34,10 @@
             <required>false</required>
             <description>The table filter</description>
         </attribute>
+        <attribute>
+            <name>showFormulas</name>
+            <description>Flag that indicates how to display cell content(formulas or values)</description>
+        </attribute>
     </tag>
     <tag>
         <name>tableEditor</name>
@@ -69,6 +73,10 @@
         <attribute>
             <name>editable</name>
             <description>If true the table is editable</description>
+        </attribute>
+        <attribute>
+            <name>showFormulas</name>
+            <description>Flag that indicates how to display cell content(formulas or values)</description>
         </attribute>
     </tag>
 </taglib>

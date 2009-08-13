@@ -570,7 +570,8 @@ public class ObjectViewer {
                     TableModel tableModel = ProjectModel.buildModel(((GridWithNode) res).gridTable, null);
                     HTMLRenderer.TableRenderer renderer = new HTMLRenderer.TableRenderer(tableModel);
                     renderer.setCellIdPrefix("cell-" + index + "-");
-                    return renderer.renderWithMenu(null);
+                    //FIXME: should formulas be displayed?
+                    return renderer.renderWithMenu(null, false);
                 }
             }
 

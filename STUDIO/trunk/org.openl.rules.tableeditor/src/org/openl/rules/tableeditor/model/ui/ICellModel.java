@@ -8,7 +8,7 @@ public interface ICellModel {
 
     public int getColspan();
 
-    public String getContent();
+    public String getContent(boolean showFormulas);
 
     public ICellFont getFont();
 
@@ -35,6 +35,23 @@ public interface ICellModel {
     public void setRowspan(int rowspan);
 
     public void toHtmlString(StringBuffer buf, TableModel model);
+
+    /**
+     * @return true if cell contains formula.
+     */
+    boolean hasFormula();
+
+    /**
+     * Sets formula of cell.
+     * 
+     * @param formula Formula of cell.
+     */
+    void setFormula(String formula);
+
+    /**
+     * @return Formula of cell if it is contained in cell.
+     */
+    String getFormula();
 
     // !!! public void setColorFilter(IColorFilter[] filter);
 

@@ -54,8 +54,11 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
         session.setAttribute("studio_from_userWorkspace", "");
 }
 
+  String showFormulas = request.getParameter("showFormulas");
+  if (showFormulas != null)
+    studio.setShowFormulas(showFormulas);
 
-String mode = request.getParameter("mode");
+ String mode = request.getParameter("mode");
   if (mode != null)
     studio.setMode(mode);
   String reload = request.getParameter("reload");

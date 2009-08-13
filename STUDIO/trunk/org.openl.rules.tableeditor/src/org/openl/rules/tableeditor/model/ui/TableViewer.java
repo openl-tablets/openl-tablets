@@ -107,6 +107,10 @@ public class TableViewer {
         String content = grid.getFormattedCellValue(column, row);
         if (content != null && content.trim().length() != 0) {
             cm.setContent(content);
+            if(ci.hasFormula()){
+                grid.getStringCellValue(column, row);
+                cm.setFormula(grid.getCellFormula(column, row));
+            }
         // cm.setContent(content.startsWith(LITERAL) ?
         // content.substring(LITERAL.length()) :
         // StringTool.prepareXMLAttributeValue(content));

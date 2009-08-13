@@ -47,6 +47,7 @@ public class WebStudio {
     WebStudioMode mode = WebStudioMode.BUSINESS1;
     private Set<String> writableProjects;
     OpenLWrapperInfo currentWrapper;
+    private boolean showFormulas;
 
     WebStudioProperties properties = new WebStudioProperties();
     // public void toggleMode() throws Exception
@@ -327,5 +328,13 @@ public class WebStudio {
 
     public void setWritableProjects(Set<String> writableProjects) {
         this.writableProjects = writableProjects;
+    }
+
+    public boolean isShowFormulas() {
+        return showFormulas;
+    }
+
+    public void setShowFormulas(String showFormulas) {
+            this.showFormulas = Boolean.parseBoolean(showFormulas);
     }
 }

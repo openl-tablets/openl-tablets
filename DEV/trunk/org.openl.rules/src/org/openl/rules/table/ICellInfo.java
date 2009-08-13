@@ -14,16 +14,21 @@ public interface ICellInfo {
     int getRow();
 
     /**
-     *
+     * 
      * @return IGridRegion if the cell is part of the merged cell, null othrwise
      */
     IGridRegion getSurroundingRegion();
 
     /**
-     *
+     * 
      * @return true if column is part of the merged region and is in it's
      *         top-left-most corner
      */
     boolean isTopLeft();
+
+    /**
+     * @return true if cell contains formula.
+     */
+    boolean hasFormula();
 
 }

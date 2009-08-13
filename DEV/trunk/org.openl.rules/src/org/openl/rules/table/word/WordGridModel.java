@@ -322,4 +322,9 @@ public class WordGridModel implements IGrid {
         return gr != null;
     }
 
+    public String getCellFormula(int column, int row) {
+        //is formula possible in word?
+        return null;
+    }
+
 }
