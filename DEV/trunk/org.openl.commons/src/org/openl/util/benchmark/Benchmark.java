@@ -1,7 +1,9 @@
 package org.openl.util.benchmark;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.util.Log;
@@ -25,15 +27,45 @@ public class Benchmark {
         throw new RuntimeException("Unit " + name + " not found");
     }
 
+    static public long getCleanMemorySize() {
+        // System.gc();
+        long prevUsedMemory = getUsedMemorySize();
+        while (true) {
+            System.gc();
+            if (prevUsedMemory - getUsedMemorySize() < 1024)
+                return getUsedMemorySize();
+            prevUsedMemory = getUsedMemorySize();
+        }
+
+    }
+
+    static public long getUsedMemorySize() {
+        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+    }
+
     RunInfo makeRun(BenchmarkUnit bu, int minRuns, int ms) throws Exception {
 
         int minMillis = ms == -1 ? bu.getMinms() : ms;
         int runs = minRuns;
         while (true) {
-            long time = bu.millisecondsToRun(runs);
-            if (time > minMillis) {
-                return new RunInfo(runs, time);
+            long time = 0;
+            if (bu.isTestMemory()) {
+                long memoryBefore = getCleanMemorySize();
+                time = bu.millisecondsToRun(runs);
+                long memoryDirtyAfter = getUsedMemorySize();
+                long memoryCleanAfter = getCleanMemorySize();
+                if (time > minMillis) {
+                    return new RunInfo(runs, time, memoryBefore, memoryDirtyAfter, memoryCleanAfter);
+                }
             }
+            else
+            {
+                time = bu.millisecondsToRun(runs);
+                if (time > minMillis) {
+                    return new RunInfo(runs, time);
+                }
+            }    
+                
 
             if (time <= 0) {
                 time = 1;
@@ -72,6 +104,16 @@ public class Benchmark {
         }
 
         return _measurements;
+    }
+
+    public List<BenchmarkInfo> measureAllInList(int ms) throws Exception {
+        _measurements = new HashMap<String, BenchmarkInfo>();
+        List<BenchmarkInfo> list = new ArrayList<BenchmarkInfo>();
+        for (int i = 0; i < _units.length; ++i) {
+            list.add(measureUnit(_units[i], ms));
+        }
+
+        return list;
     }
 
     public BenchmarkInfo measureUnit(BenchmarkUnit bu, int ms) throws Exception {

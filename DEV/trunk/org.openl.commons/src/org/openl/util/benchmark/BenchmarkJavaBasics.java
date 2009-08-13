@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.openl.util.IdMap;
@@ -183,12 +183,12 @@ public class BenchmarkJavaBasics {
         BenchmarkUnit[] bu = { new Empty(), new Call(), new Invoke(), new MapGet(), new MapInternGet(), new IDMapGet(),
                 new ThreadG(), new TreeMapGet(), new TreeMapGetFirstKey(), new BSearch() };
 
-        Map<String, BenchmarkInfo> res = new Benchmark(bu).measureAll(1000);
+        List<BenchmarkInfo> res = new Benchmark(bu).measureAllInList(1000);
 
-        for (Iterator<Map.Entry<String, BenchmarkInfo>> iter = res.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<String, BenchmarkInfo> element = iter.next();
+        for (BenchmarkInfo bi: res) {
+            
 
-            System.out.println(element.getKey() + " = \t" + element.getValue());
+            System.out.println(bi);
 
         }
     }

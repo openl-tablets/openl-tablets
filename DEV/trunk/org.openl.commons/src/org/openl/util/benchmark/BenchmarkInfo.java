@@ -37,6 +37,24 @@ public class BenchmarkInfo {
     }
 
     static public String printDouble(double d) {
+        if (d >= 1000)
+        {    
+            DecimalFormat fmt = new DecimalFormat("#,##0");
+            return fmt.format(d);
+        }
+        if (d >= 1)
+        {    
+            DecimalFormat fmt = new DecimalFormat("#,##0.00");
+            return fmt.format(d);
+        }    
+        
+        if (d > 0.1)
+            return printDouble(d, 3);
+        if (d > 0.01)
+            return printDouble(d, 4);
+        if (d > 0.001)
+            return printDouble(d, 5);
+        
         return printDouble(d, 6);
     }
 
@@ -63,7 +81,7 @@ public class BenchmarkInfo {
     }
 
     public double avg() {
-        int n = 0;
+        long n = 0;
         double sum = 0;
         for (int i = 0; i < runs.size(); ++i) {
             RunInfo run = runs.get(i);
@@ -74,6 +92,30 @@ public class BenchmarkInfo {
         return sum / n;
     }
 
+    public double avgMemory() {
+        long n = 0;
+        double sum = 0;
+        for (int i = 0; i < runs.size(); ++i) {
+            RunInfo run = runs.get(i);
+            n += run.times;
+            sum += run.usedBytes();
+        }
+
+        return sum / n;
+    }
+    
+    public double avgLeaked() {
+        long n = 0;
+        double sum = 0;
+        for (int i = 0; i < runs.size(); ++i) {
+            RunInfo run = runs.get(i);
+            n += run.times;
+            sum += run.leakedBytes();
+        }
+
+        return sum / n;
+    }
+    
     public double deviation() {
         int n = 0;
         double sum = 0;
@@ -106,6 +148,8 @@ public class BenchmarkInfo {
         return unit;
     }
 
+    
+    
     public String msrun() {
         return printDouble(avg());
     }
@@ -128,9 +172,20 @@ public class BenchmarkInfo {
         // return printDouble(avg()) + " ms/run" + '\t' +
         // printLargeDouble(1000/avg()) + "runs/sec" + " \t" + runs + " \t" +
         // unitDescription() + " 1: " + printDouble(firstRunms) ;
-        return msrun() + " ms/run" + '\t' + runssec() + " runs/sec" + " \t" + " First Run: " + printDouble(firstRunms)
-                + "ms";
+        return getName() + " = "
+                + '\t' + msrun() + " ms/run" 
+                + '\t' + runssec() + " runs/sec" 
+                + '\t' + " First Run: " + printDouble(firstRunms) + "ms" 
+                + '\t' + "Memory: " + printLargeDouble(avgMemory()/unit.nUnitRuns())  + "b/unit"
+                + '\t' + "Leaked: " + printLargeDouble(avgLeaked()/unit.nUnitRuns()) + "b/unit"
+                ;
     }
+    
+    public String printUnits()
+    {
+        return msrununit() + "ms/" + unit.unitName()[0] + "  " + drunsunitsec() + " units/sec";
+    } 
+    
 
     String unitDescription() {
         if (unit.getDescription() == null) {
