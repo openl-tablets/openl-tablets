@@ -66,6 +66,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder implements IXlsTableName
         ModuleOpenClass tableType = new ModuleOpenClass(module.getSchema(), typeName, cxt.getOpenL());
 
         cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
+        
+        // Add new type to internal types of module.
+        //
+        module.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
         return new DatatypeTableMethodBoundNode(tsn, tableType, table, openl);
     }

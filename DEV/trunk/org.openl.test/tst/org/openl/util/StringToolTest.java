@@ -47,7 +47,7 @@ public class StringToolTest extends TestCase {
      * String)'
      */
     public void testDecapitalizeNameStringString() {
-        Assert.assertEquals("zzz", StringTool.decapitalizeName("ABCEndsWithIDOperatorXYZ", ":"));
+        Assert.assertEquals("abc:ends:with:id:operator:xyz", StringTool.decapitalizeName("ABCEndsWithIDOperatorXYZ", ":"));
     }
 
     /*

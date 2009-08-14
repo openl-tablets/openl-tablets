@@ -155,4 +155,13 @@ public class OpenClassDelegator implements IOpenClass {
         return (getNameSpace() == null ? "" : getNameSpace() + ":") + getName();
     }
 
+	public void addType(String namespace, IOpenClass type) throws Exception {
+		// Default implementation.
+		
+	}
+
+	public IOpenClass findType(String namespace, String typeName) {
+		// Default implementation.
+		return null;
+	}
 }

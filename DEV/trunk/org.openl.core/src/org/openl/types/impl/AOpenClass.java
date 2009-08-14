@@ -367,4 +367,31 @@ public abstract class AOpenClass implements IOpenClass {
         return getName();
     }
 
+    /**
+	 * Default implementation.
+	 * 
+	 * @param type
+	 *            IOpenClass instance
+	 * @throws Exception
+	 *             if an error had occurred.
+	 */
+	public void addType(String namespace, IOpenClass type) throws Exception {
+
+		// Default implementation.
+		// To do nothing. Not everyone has internal types.
+	}
+
+	/**
+	 * Default implementation. Always returns <code>null</code>.
+	 * 
+	 * @param typeName
+	 *            name of type to search
+	 * @return {@link IOpenClass} instance or <code>null</code>
+	 */
+	public IOpenClass findType(String namespace, String typeName) {
+
+		// Default implementation.
+
+		return null;
+	}
 }

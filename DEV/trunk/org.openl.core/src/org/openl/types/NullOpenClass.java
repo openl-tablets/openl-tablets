@@ -168,4 +168,13 @@ public class NullOpenClass implements IOpenClass {
         return null;
     }
 
+	public void addType(String namespace, IOpenClass type) throws Exception {
+		// Default implementation
+		
+	}
+
+	public IOpenClass findType(String namespace, String typeName) {
+		// Default implementation
+		return null;
+	}
 }

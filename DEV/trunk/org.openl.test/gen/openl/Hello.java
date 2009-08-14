@@ -11,6 +11,8 @@ import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.syntax.impl.ISyntaxConstants;
 public class Hello implements org.openl.main.OpenLWrapper
 {
   Object __instance;
@@ -31,19 +33,18 @@ public class Hello implements org.openl.main.OpenLWrapper
 
   public static String __userHome = ".";
 
-  private static ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+  private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
     @Override
     protected org.openl.vm.IRuntimeEnv initialValue() {
-      this.set(new org.openl.vm.SimpleVM().getRuntimeEnv());
-      return this.get();
+      return new org.openl.vm.SimpleVM().getRuntimeEnv();
     }
   };
 
-  public static org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {
+  public org.openl.vm.IRuntimeEnv getRuntimeEnvironment() {
     return __env.get();
   }
 
-  public static void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {
+  public void setRuntimeEnvironment(org.openl.vm.IRuntimeEnv environment) {
     __env.set(environment);
   }
 

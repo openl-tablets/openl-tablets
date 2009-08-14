@@ -14,6 +14,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
@@ -302,9 +303,16 @@ public class JavaWrapperAntTask extends Task {
                 initBuf.append(",\n");
             }
 
-            // JavaOpenClass.getOpenClass(int.class),
-            initBuf.append("      JavaOpenClass.getOpenClass(").append(getClassName(params[i].getInstanceClass()))
-                    .append(".class)");
+            IOpenClass param = params[i];
+			if (param instanceof ModuleOpenClass) {
+				initBuf.append("((XlsModuleOpenClass)__class)")
+					   .append(String.format(".findType(ISyntaxConstants.THIS_NAMESPACE, \"%s\")", param.getName()));
+			} else {
+				// JavaOpenClass.getOpenClass(int.class),
+				initBuf.append("      JavaOpenClass.getOpenClass(")
+					   .append(getClassName(params[i].getInstanceClass()))
+					   .append(".class)");
+			}
         }
 
         initBuf.append("});\n");
@@ -429,6 +437,8 @@ public class JavaWrapperAntTask extends Task {
         addImport(buf, "org.openl.conf.UserContext");
 
         addImport(buf, "org.openl.impl.OpenClassJavaWrapper");
+        addImport(buf, "org.openl.rules.lang.xls.binding.XlsModuleOpenClass");
+        addImport(buf, "org.openl.syntax.impl.ISyntaxConstants");
 
         addClassDeclaration(buf);
 
