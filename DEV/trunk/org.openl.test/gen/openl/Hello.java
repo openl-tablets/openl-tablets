@@ -11,8 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.syntax.impl.ISyntaxConstants;
+
 public class Hello implements org.openl.main.OpenLWrapper
 {
   Object __instance;
@@ -77,7 +76,7 @@ public class Hello implements org.openl.main.OpenLWrapper
 
 
   static org.openl.types.IOpenMethod main_Method;
-  public static void main(java.lang.String[] args)  {
+  public void main(java.lang.String[] args)  {
     Object[] __params = new Object[1];
     __params[0] = args;
     try
