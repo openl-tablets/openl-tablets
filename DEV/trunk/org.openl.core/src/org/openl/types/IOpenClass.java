@@ -132,5 +132,25 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * not fully supported yet
      */
     public Iterator<IOpenClass> superClasses();
+    
+    /**
+	 * Add new type to internal types list. If the type with the same name
+	 * already exists exception will be thrown.
+	 * 
+	 * @param type
+	 *            IOpenClass instance
+	 * @throws Exception
+	 *             if an error had occurred.
+	 */
+	void addType(String namespace, IOpenClass type) throws Exception;
 
+	/**
+	 * Finds type with given name in internal type list. If type with given name
+	 * exists in list it will be returned; <code>null</code> - otherwise.
+	 * 
+	 * @param typeName
+	 *            name of type to search
+	 * @return {@link IOpenClass} instance or <code>null</code>
+	 */
+	IOpenClass findType(String namespace, String typeName);
 }

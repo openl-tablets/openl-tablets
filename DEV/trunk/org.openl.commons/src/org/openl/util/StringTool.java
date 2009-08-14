@@ -236,16 +236,13 @@ public class StringTool {
     }
 
     /**
-     * See examples below Assert.assertEquals("url",
-     * StringTool.decapitalizeName("URL", "_")); Assert.assertEquals("driver",
-     * StringTool.decapitalizeName("Driver", "_"));
-     * Assert.assertEquals("test_url", StringTool.decapitalizeName("TestURL",
-     * "_")); Assert.assertEquals("testurl",
-     * StringTool.decapitalizeName("testURL", null));
-     * Assert.assertEquals("test_url_code",
-     * StringTool.decapitalizeName("TestURLCode", "_"));
-     * Assert.assertEquals("url_code", StringTool.decapitalizeName("URLCode",
-     * "_"));
+     * See examples below: 
+     * 1) Assert.assertEquals("url", StringTool.decapitalizeName("URL", "_")); 
+     * 2) Assert.assertEquals("driver", StringTool.decapitalizeName("Driver", "_"));
+     * 3) Assert.assertEquals("test_url", StringTool.decapitalizeName("TestURL", "_")); 
+     * 4) Assert.assertEquals("testurl", StringTool.decapitalizeName("testURL", null));
+     * 5) Assert.assertEquals("test_url_code", StringTool.decapitalizeName("TestURLCode", "_"));
+     * 6) Assert.assertEquals("url_code", StringTool.decapitalizeName("URLCode", "_"));
      */
 
     public static String decapitalizeName(String capitalized, String separator) {
