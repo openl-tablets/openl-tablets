@@ -4,6 +4,7 @@
  */
 package org.openl.tablets.tutorial4;
 
+import org.openl.types.impl.DynamicObject;
 import org.openl.vm.Tracer;
 
 /**
@@ -11,7 +12,6 @@ import org.openl.vm.Tracer;
  * 
  */
 public class Tutorial4Main {
-
 	/**
 	 * Tutorial wrapper object instance.
 	 */
@@ -39,8 +39,8 @@ public class Tutorial4Main {
 
 		// Get policy profile.
 		//
-		Policy[] policies = wrapper.getPolicyProfile1();
-		Policy policy = policies[0];
+		DynamicObject[] policies = wrapper.getPolicyProfile1();
+		DynamicObject policy = policies[0];
 
 		calculatePolicyPremium(policy);
 	}
@@ -53,8 +53,8 @@ public class Tutorial4Main {
 
 		// Get policy profile.
 		//
-		Policy[] policies = wrapper.getPolicyProfile2();
-		Policy policy = policies[0];
+		DynamicObject[] policies = wrapper.getPolicyProfile2();
+		DynamicObject policy = policies[0];
 
 		calculatePolicyPremium(policy);
 	}
@@ -67,8 +67,8 @@ public class Tutorial4Main {
 
 		// Get policy profile.
 		//
-		Policy[] policies = wrapper.getPolicyProfile3();
-		Policy policy = policies[0];
+		DynamicObject[] policies = wrapper.getPolicyProfile3();
+		DynamicObject policy = policies[0];
 
 		calculatePolicyPremium(policy);
 	}
@@ -82,47 +82,47 @@ public class Tutorial4Main {
 
 		// Get policy profile.
 		//
-		Policy[] policies = wrapper.getPolicyProfile4();
-		Policy policy = policies[0];
+		DynamicObject[] policies = wrapper.getPolicyProfile4();
+		DynamicObject policy = policies[0];
 
 		calculatePolicyPremium(policy);
 	}
 
-	private void calculatePolicyPremium(Policy policy) {
+	private void calculatePolicyPremium(DynamicObject policy) {
 
-		PolicyCalc pc = new PolicyCalc(policy);
-		wrapper.calcPolicyPremium(pc);
+		DynamicObject pc = wrapper.calculatePolicy(policy);
 
 		System.out.println();
-		System.out.println(String.format("'%s' premium calculation report.", pc
-				.getPolicy().getName()));
+		System.out.println(String.format("'%s' premium calculation report.", ((DynamicObject)pc.getFieldValue("policy")).getFieldValue("name")));
 		System.out.println();
 
+		DynamicObject[] vehicles = (DynamicObject[])pc.getFieldValue("vehicles");
 		System.out.println(" Vehicles:");
-		for (VehicleCalc vc : pc.getVehicleCalcs()) {
+		for (DynamicObject vc : vehicles) {
 			System.out.println();
-			System.out.println(" Vehicle: " + vc.getVehicle().getName());
-			System.out.println("	Theft rating:   " + vc.getTheftRating());
-			System.out.println("	Injury rating:  " + vc.getInjuryRating());
-			System.out.println("	Eligibility:    " + vc.getEligibility());
+			System.out.println(" Vehicle: " + ((DynamicObject)vc.getFieldValue("vehicle")).getFieldValue("name"));
+			System.out.println("	Theft rating:   " + vc.getFieldValue("theftRating"));
+			System.out.println("	Injury rating:  " + vc.getFieldValue("injuryRating"));
+			System.out.println("	Eligibility:    " + vc.getFieldValue("eligibility"));
 		}
 
 		System.out.println();
 
+		DynamicObject[] drivers = (DynamicObject[])pc.getFieldValue("drivers");
 		System.out.println(" Drivers:");
-		for (DriverCalc dc : pc.getDriverCalcs()) {
+		for (DynamicObject dc : drivers) {
 			System.out.println();
-			System.out.println(" Driver: " + dc.getDriver().getName());
-			System.out.println("	Age Type:    " + dc.getAgeType());
-			System.out.println("	Risk:        " + dc.getDriverRisk());
-			System.out.println("	Eligibility: " + dc.getEligibility());
+			System.out.println(" Driver: " + ((DynamicObject)dc.getFieldValue("driver")).getFieldValue("name"));
+			System.out.println("	Age Type:    " + dc.getFieldValue("ageType"));
+			System.out.println("	Risk:        " + dc.getFieldValue("driverRisk"));
+			System.out.println("	Eligibility: " + dc.getFieldValue("eligibility"));
 		}
 
 		System.out.println();
 		System.out.println(" Result:");
-		System.out.println("	Score:       " + pc.getScore());
-		System.out.println("	Eligibility: " + pc.getEligibility());
-		System.out.println("	Premium:     " + pc.getPremium());
+		System.out.println("	Score:       " + pc.getFieldValue("score"));
+		System.out.println("	Eligibility: " + pc.getFieldValue("eligibility"));
+		System.out.println("	Premium:     " + pc.getFieldValue("premium"));
 
 		System.out.println();
 		System.out.println();
