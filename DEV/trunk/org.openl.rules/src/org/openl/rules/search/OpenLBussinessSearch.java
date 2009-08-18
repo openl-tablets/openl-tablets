@@ -69,7 +69,7 @@ public class OpenLBussinessSearch implements IOpenLSearch{
     }
     
     //TO DO
-    private void searchByContainTable(){}
+    //private void searchByContainTable(){}
     
 }
 

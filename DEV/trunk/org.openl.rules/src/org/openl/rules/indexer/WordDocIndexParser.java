@@ -1,6 +1,7 @@
 package org.openl.rules.indexer;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Paragraph;
@@ -28,7 +29,7 @@ public class WordDocIndexParser implements IIndexParser {
 
         Range r = doc.getRange();
 
-        Vector v = new Vector();
+        List<WordParagraphElement> v = new ArrayList<WordParagraphElement>();
         int nSections = r.numSections();
         int paragraphNum = 1;
 
@@ -45,7 +46,7 @@ public class WordDocIndexParser implements IIndexParser {
 
         }
 
-        return (WordParagraphElement[]) v.toArray(new WordParagraphElement[v.size()]);
+        return v.toArray(new WordParagraphElement[v.size()]);
     }
 
     public GridTable[] parseTables(WordDocSourceCodeModule wdSrc) {
@@ -54,7 +55,7 @@ public class WordDocIndexParser implements IIndexParser {
 
         Range r = doc.getRange();
 
-        Vector v = new Vector();
+        List<GridTable> v = new ArrayList<GridTable>();
         int nSections = r.numSections();
 
         for (int i = 0; i < nSections; i++) {

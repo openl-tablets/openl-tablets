@@ -272,6 +272,7 @@ public class DTOptimizedAlgorithm {
      * @param paramType
      * @return
      */
+    @SuppressWarnings("unchecked")
     private static IRangeAdaptor getRangeAdaptor(IOpenClass methodType, IOpenClass paramType) {
         if (methodType == JavaOpenClass.INT && paramType.getInstanceClass() == org.openl.rules.helpers.IntRange.class) {
             return new IRangeAdaptor.IntRangeAdaptor();
@@ -283,6 +284,7 @@ public class DTOptimizedAlgorithm {
      * @param methodType
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static IDTConditionEvaluator makeEvaluator(IDTCondition condition, IOpenClass methodType) throws BoundError {
         IParameterDeclaration[] params = condition.getParams();
 

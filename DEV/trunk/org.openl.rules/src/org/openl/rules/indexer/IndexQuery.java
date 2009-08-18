@@ -17,15 +17,15 @@ public class IndexQuery {
 
     IIndexElement[] indexExclude = {};
 
-    HashSet excludedIndexes;
+    HashSet<IIndexElement> excludedIndexes;
 
-    static public Map intersect(Map m1, Map m2) {
+    static  public <K,V> Map<K,V> intersect(Map<K,V> m1, Map<K,V> m2) {
         // TreeMap tm = new TreeMap(exclusions2.comparator());
 
-        Map tm = new HashMap();
+        Map<K,V> tm = new HashMap<K,V>();
 
-        for (Iterator iter = m2.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry element = (Map.Entry) iter.next();
+        for (Iterator<Map.Entry<K, V>> iter = m2.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry<K,V> element = iter.next();
             if (m1.containsKey(element.getKey())) {
                 tm.put(element.getKey(), element.getValue());
             }
@@ -44,13 +44,13 @@ public class IndexQuery {
         }
     }
 
-    public TreeMap execute(Index idx) {
+    public TreeMap<HitBucket, HitBucket> execute(Index idx) {
         makeExclusions(idx);
-        Map allInc = makeInclusions(idx);
+        Map<String, HitBucket> allInc = makeInclusions(idx);
 
-        TreeMap tm = new TreeMap();
+        TreeMap<HitBucket, HitBucket> tm = new TreeMap<HitBucket, HitBucket>();
 
-        for (Iterator iter = allInc.values().iterator(); iter.hasNext();) {
+        for (Iterator<HitBucket> iter = allInc.values().iterator(); iter.hasNext();) {
             HitBucket hb = (HitBucket) iter.next();
             tm.put(hb, hb);
         }
@@ -63,14 +63,14 @@ public class IndexQuery {
 
     void makeExclusions(Index idx) {
 
-        excludedIndexes = new HashSet(indexExclude.length);
+        excludedIndexes = new HashSet<IIndexElement>(indexExclude.length);
         for (int i = 0; i < indexExclude.length; i++) {
             excludedIndexes.add(indexExclude[i]);
         }
 
         for (int i = 0; i < tokensExclude.length; i++) {
 
-            Map exclusions = null;
+            Map<String, HitBucket> exclusions = null;
             for (int j = 0; j < tokensExclude[i].length; j++) {
                 String tokenExclude = tokensExclude[i][j];
                 TokenBucket tb = idx.findTokenBucket(tokenExclude);
@@ -81,7 +81,7 @@ public class IndexQuery {
                 }
             }
 
-            for (Iterator iter = exclusions.values().iterator(); iter.hasNext();) {
+            for (Iterator<HitBucket> iter = exclusions.values().iterator(); iter.hasNext();) {
                 HitBucket hb = (HitBucket) iter.next();
                 excludedIndexes.add(hb.getElement());
             }
@@ -89,13 +89,13 @@ public class IndexQuery {
 
     }
 
-    Map makeInclusions(Index idx) {
-        Map allInclusions = new HashMap();
+    Map<String, HitBucket> makeInclusions(Index idx) {
+        Map<String, HitBucket> allInclusions = new HashMap<String, HitBucket>();
 
         for (int i = 0; i < tokensInclude.length; i++) {
-            Map inclusions = makeInclusions(idx, tokensInclude[i]);
+            Map<String, HitBucket> inclusions = makeInclusions(idx, tokensInclude[i]);
 
-            for (Iterator iter = inclusions.values().iterator(); iter.hasNext();) {
+            for (Iterator<HitBucket> iter = inclusions.values().iterator(); iter.hasNext();) {
                 HitBucket hb = (HitBucket) iter.next();
                 String uri = hb.getElement().getUri();
                 HitBucket hbInc = (HitBucket) allInclusions.get(uri);
@@ -111,7 +111,7 @@ public class IndexQuery {
     }
 
     // Var 1 - all have to be there
-    Map makeInclusions(Index idx, String[] tokens) {
+    Map<String, HitBucket> makeInclusions(Index idx, String[] tokens) {
 
         String searchStr = tokens[0];
         for (int i = 1; i < tokens.length; i++) {
@@ -120,7 +120,7 @@ public class IndexQuery {
 
         searchStr = searchStr.toLowerCase();
 
-        Map inclusions = new HashMap();
+        Map<String, HitBucket> inclusions = new HashMap<String, HitBucket>();
 
         for (int i = 0; i < tokens.length; i++) {
             TokenBucket tb = idx.findTokenBucket(tokens[i]);
@@ -128,8 +128,8 @@ public class IndexQuery {
                 continue;
             }
             if (i == 0) {
-                for (Iterator iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
-                    HitBucket hb = (HitBucket) iter.next();
+                for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
+                    HitBucket hb = iter.next();
                     if (!excludedIndexes.contains(hb.getElement())) {
                         HitBucket hbInc = new HitBucket(hb);
                         boolean contains = hbInc.getElement().getIndexedText().toLowerCase().indexOf(searchStr) >= 0;
@@ -140,8 +140,8 @@ public class IndexQuery {
                     }
                 }
             } else {
-                Map myInclusions = new HashMap();
-                for (Iterator iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
+                Map<String, HitBucket> myInclusions = new HashMap<String, HitBucket>();
+                for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
 
                     HitBucket hb = (HitBucket) iter.next();
                     String uri = hb.getElement().getUri();

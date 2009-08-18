@@ -140,6 +140,7 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
      *
      * @return child sections
      */
+    @SuppressWarnings("unchecked")
     public IExportSection[] getSubSections() {
         return new IExportSection[] { new ExportSectionSingleRow("Table Type", new String[] { tableTypes }),
                 new SearchElementSection("Table elements", tableElements),

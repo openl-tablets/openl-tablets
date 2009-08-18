@@ -3,10 +3,12 @@ package org.apache.poi.hwpf.usermodel;
 /**
  * Fast fix of compatibility issue.
  * 
- * @deprecated Please, rework corresponding code
  * @author Aleh Bykhavets
  *
  */
+
+
+//TODO please rework
 public class RangeHack extends Range {
 
     // it is hack ;)

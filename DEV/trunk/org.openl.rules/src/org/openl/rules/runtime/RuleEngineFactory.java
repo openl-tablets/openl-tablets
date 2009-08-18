@@ -1,13 +1,10 @@
 package org.openl.rules.runtime;
 
 import java.io.File;
-import java.lang.reflect.Proxy;
 import java.net.URL;
 
-import org.openl.OpenL;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.EngineFactoryDefinition;
-import org.openl.runtime.IEngineWrapper;
 
 /**
  * 

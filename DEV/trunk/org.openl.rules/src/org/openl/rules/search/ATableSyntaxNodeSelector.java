@@ -10,10 +10,10 @@ import org.openl.util.ASelector;
  * @author snshor
  *
  */
-public abstract class ATableSyntaxNodeSelector extends ASelector {
+public abstract class ATableSyntaxNodeSelector extends ASelector<TableSyntaxNode> {
 
-    public boolean select(Object obj) {
-        return selectTable((TableSyntaxNode) obj);
+    public boolean select(TableSyntaxNode table) {
+        return selectTable( table);
     }
 
     /**

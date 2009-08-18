@@ -35,7 +35,7 @@ public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISea
                     return res;
                 }
 
-                boolean x = selectors[i].select(target);
+                boolean x = selectors[i].select((TableSyntaxNode)target);
                 x = tableElements[i].isNotFlag() ? !x : x;
                 res = i == idx ? x : tableElements[i].getOperator().op(res, x);
 

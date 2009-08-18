@@ -11,7 +11,7 @@ import org.openl.util.ASelector;
  * @author snshor
  *
  */
-public abstract class ATableRowSelector extends ASelector implements ITableNodeTypes {
+public abstract class ATableRowSelector extends ASelector<ISearchTableRow> implements ITableNodeTypes {
     /**
      * @param tableSyntaxNode
      * @return
@@ -35,7 +35,7 @@ public abstract class ATableRowSelector extends ASelector implements ITableNodeT
         return null;
     }
 
-    public boolean select(Object obj) {
+    public boolean select(ISearchTableRow obj) {
         return selectRow((ISearchTableRow) obj);
     }
 
