@@ -15,7 +15,7 @@ public class SelectorSetElement {
 
     String andOr = AND;
 
-    protected ISelector selector;
+    protected ISelector<Object> selector;
 
     static public boolean select(Object obj, SelectorSetElement[] elements) {
         boolean res = true;
@@ -38,7 +38,7 @@ public class SelectorSetElement {
         return andOr;
     }
 
-    public ISelector getSelector() {
+    public ISelector<Object> getSelector() {
         return selector;
     }
 
@@ -58,7 +58,7 @@ public class SelectorSetElement {
         this.isNot = isNot;
     }
 
-    public void setSelector(ISelector selector) {
+    public void setSelector(ISelector<Object> selector) {
         this.selector = selector;
     }
 }

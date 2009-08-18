@@ -5,6 +5,11 @@ package org.openl.util.export;
  * instances.
  */
 public class ExportException extends Exception {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 7953655844659754008L;
+
     public ExportException() {
         super();
     }

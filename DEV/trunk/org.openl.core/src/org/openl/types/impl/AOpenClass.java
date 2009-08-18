@@ -31,7 +31,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor

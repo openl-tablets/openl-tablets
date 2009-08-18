@@ -12,5 +12,5 @@ public interface OpenLFilter<T> extends ISelector<T> {
      * @param aClass a class to check.
      * @return if <code>aClass</code> is supported.
      */
-    boolean supports(Class aClass);
+    boolean supports(Class<?> aClass);
 }

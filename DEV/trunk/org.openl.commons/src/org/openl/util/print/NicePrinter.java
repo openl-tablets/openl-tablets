@@ -27,7 +27,7 @@ public class NicePrinter {
 
     int ident = 0;
 
-    HashMap printedObjects = new HashMap();
+    HashMap<Object, Integer> printedObjects = new HashMap<Object, Integer>();
 
     int printedID = 0;
 
@@ -69,6 +69,7 @@ public class NicePrinter {
         ++ident;
     }
 
+    @SuppressWarnings("unchecked")
     public void print(Object obj, NicePrinterAdaptor adaptor) {
         if (obj == null) {
             adaptor.printNull(this);
@@ -80,7 +81,7 @@ public class NicePrinter {
             return;
         }
 
-        Integer existingID = (Integer) printedObjects.get(obj);
+        Integer existingID = printedObjects.get(obj);
         if (existingID != null) {
             adaptor.printReference(obj, existingID.intValue(), this);
             return;
@@ -91,12 +92,12 @@ public class NicePrinter {
         printedObjects.put(obj, new Integer(newID));
 
         if (obj instanceof Map) {
-            adaptor.printMap((Map) obj, null, this);
+            adaptor.printMap((Map<Object,Object>) obj, null, this);
             return;
         }
 
         if (obj instanceof Collection) {
-            adaptor.printCollection((Collection) obj, newID, this);
+            adaptor.printCollection((Collection<?>) obj, newID, this);
             return;
         }
 

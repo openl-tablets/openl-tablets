@@ -33,20 +33,20 @@ public class CategorizedSearchContext implements ICategorizedSearchContext {
         }
     }
 
-    static ThreadLocal contexts = new ThreadLocal();
+    static ThreadLocal<Stack<ICategorizedSearchContext>> contexts = new ThreadLocal<Stack<ICategorizedSearchContext>>();
 
     static CategorizedSearchContext defaultContext;
 
     ICategorizedSearchContext parent;
 
-    HashMap map = new HashMap();
+    HashMap<CKey, Object> map = new HashMap<CKey, Object>();
 
     public static ICategorizedSearchContext current() {
-        Stack s = (Stack) contexts.get();
+        Stack<ICategorizedSearchContext> s = contexts.get();
         if (s == null || s.size() == 0) {
             return defaultSearchContext();
         }
-        return (ICategorizedSearchContext) s.peek();
+        return s.peek();
     }
 
     /**
@@ -69,9 +69,9 @@ public class CategorizedSearchContext implements ICategorizedSearchContext {
     }
 
     public static void push(ICategorizedSearchContext cxt) {
-        Stack s = (Stack) contexts.get();
+        Stack<ICategorizedSearchContext> s = contexts.get();
         if (s == null) {
-            s = new Stack();
+            s = new Stack<ICategorizedSearchContext>();
             contexts.set(s);
         }
         s.push(cxt);

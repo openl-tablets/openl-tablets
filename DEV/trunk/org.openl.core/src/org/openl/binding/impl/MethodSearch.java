@@ -20,7 +20,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
@@ -38,7 +37,7 @@ public class MethodSearch {
         }
 
         @Override
-        protected boolean equalsSelector(ASelector<?> sel) {
+        protected boolean equalsSelector(ASelector<IOpenMethod> sel) {
             // TODO Auto-generated method stub
             return false;
         }

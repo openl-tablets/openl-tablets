@@ -139,7 +139,7 @@ public class ArrayTool {
         return newArray;
     }
 
-    public static Enumeration enumeration(Object array) {
+    public static  Enumeration<Object> enumeration(Object array) {
         return new ArrayEnumeration(array);
     }
 
@@ -172,7 +172,7 @@ public class ArrayTool {
         return obj1.equals(obj2);
     }
 
-    public static Object findFirstElement(Object array, ISelector s) {
+    public static Object findFirstElement(Object array, ISelector<Object> s) {
         int index = findFirstIndex(array, s);
         if (index < 0) {
             return null;
@@ -185,7 +185,7 @@ public class ArrayTool {
         return findFirstIndex(array, ASelector.selectObject(element));
     }
 
-    public static int findFirstIndex(Object array, ISelector sel) {
+    public static int findFirstIndex(Object array, ISelector<Object> sel) {
         int size = Array.getLength(array);
         for (int i = 0; i < size; ++i) {
             if (sel.select(Array.get(array, i))) {
@@ -525,7 +525,7 @@ public class ArrayTool {
 
     public static String[] tokens(String toparse, String delim) {
         StringTokenizer st = new StringTokenizer(toparse, delim);
-        Vector v = new Vector(10);
+        List<String> v = new ArrayList<String>(10);
 
         while (st.hasMoreTokens()) {
             v.add(st.nextToken());
@@ -535,8 +535,8 @@ public class ArrayTool {
 
     }
 
-    static public Set toSet(Object[] ary) {
-        Set set = new HashSet();
+    static public Set<Object> toSet(Object[] ary) {
+        Set<Object> set = new HashSet<Object>();
         for (int i = 0; i < ary.length; i++) {
             set.add(ary[i]);
         }

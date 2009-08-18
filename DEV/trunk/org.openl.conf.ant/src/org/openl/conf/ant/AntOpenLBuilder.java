@@ -31,27 +31,27 @@ import org.openl.vm.SimpleVM;
  */
 public class AntOpenLBuilder implements IOpenLBuilder {
 
-    static class UserContextStack extends ThreadLocal {
+    static class UserContextStack extends ThreadLocal<Stack<IUserContext>> {
 
         /**
          *
          */
 
         @Override
-        protected Object initialValue() {
-            return new Stack();
+        protected Stack<IUserContext> initialValue() {
+            return new Stack<IUserContext>();
         }
 
         public IUserContext pop() {
-            return (IUserContext) stack().pop();
+            return stack().pop();
         }
 
         public void push(IUserContext ucxt) {
             stack().push(ucxt);
         }
 
-        protected Stack stack() {
-            return (Stack) get();
+        protected Stack<IUserContext> stack() {
+            return get();
         }
 
         public IUserContext top() {

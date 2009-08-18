@@ -24,7 +24,7 @@ public class AllOpenLFilter extends BaseOpenLFilter {
      * @param aClass a class to check
      * @return true
      */
-    public boolean supports(Class aClass) {
+    public boolean supports(Class<?> aClass) {
         return true;
     }
 }

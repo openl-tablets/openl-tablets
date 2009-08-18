@@ -36,11 +36,11 @@ public class DefaultFormat implements IFormat {
         }
 
         if (obj instanceof Collection) {
-            return formatCollection((Collection) obj, mode, buf);
+            return formatCollection((Collection<?>) obj, mode, buf);
         }
 
         if (obj instanceof Map) {
-            return formatMap((Map) obj, mode, buf);
+            return formatMap((Map<?,?>) obj, mode, buf);
         }
 
         if (!isPrimitive(obj.getClass())) {
@@ -82,14 +82,14 @@ public class DefaultFormat implements IFormat {
      * @param buf
      * @return
      */
-    protected StringBuffer formatCollection(Collection collection, int mode, StringBuffer buf) {
+    protected StringBuffer formatCollection(Collection<?> collection, int mode, StringBuffer buf) {
 
         int maxLength = maxCollectionLength(mode);
 
         buf.append(shortClassName(collection));
 
         Object element = null;
-        Iterator it = collection.iterator();
+        Iterator<?> it = collection.iterator();
         if (it.hasNext()) {
             element = it.next();
         }
@@ -103,7 +103,7 @@ public class DefaultFormat implements IFormat {
         return buf;
     }
 
-    public StringBuffer formatIterator(Iterator it, int mode, StringBuffer buf, int maxLength, int actualLength,
+    public StringBuffer formatIterator(Iterator<?> it, int mode, StringBuffer buf, int maxLength, int actualLength,
             String brackets) {
         buf.append(brackets.charAt(0));
 
@@ -137,7 +137,7 @@ public class DefaultFormat implements IFormat {
      * @param buf
      * @return
      */
-    protected StringBuffer formatMap(Map map, int mode, StringBuffer buf) {
+    protected StringBuffer formatMap(Map<?,?> map, int mode, StringBuffer buf) {
         return formatCollection(map.keySet(), mode, buf);
     }
 
@@ -145,7 +145,7 @@ public class DefaultFormat implements IFormat {
      * @param obj
      * @return
      */
-    protected boolean isPrimitive(Class c) {
+    protected boolean isPrimitive(Class<?> c) {
         return c.isPrimitive();
     }
 

@@ -38,8 +38,8 @@ public class AntHelper {
         project.setCoreLoader(Thread.currentThread().getContextClassLoader());
 
         if (props != null) {
-            for (Iterator iter = props.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry element = (Map.Entry) iter.next();
+            for (Iterator<Map.Entry<Object, Object>> iter = props.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry<Object, Object> element =  iter.next();
                 project.setProperty((String) element.getKey(), (String) element.getValue());
             }
         }

@@ -11,5 +11,5 @@ public interface IExporter {
      * @param exportable an object to export
      * @throws ExportException if an error while persisting occurs.
      */
-    void persist(IExportable exportable) throws ExportException;
+    void persist(IExportable<?> exportable) throws ExportException;
 }

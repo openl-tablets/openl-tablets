@@ -63,7 +63,7 @@ public class Formatter {
         return IFormat.class.getName();
     }
 
-    public static void registerFilter(Class c, OutputFilter filter) {
+    public static void registerFilter(Class<?> c, OutputFilter filter) {
         CategorizedSearchContext.current()
                 .register(c == null ? (Object) filterCategory() : c, filterCategory(), filter);
     }
@@ -72,7 +72,7 @@ public class Formatter {
         CategorizedSearchContext.current().register(c, formatCategory(), format);
     }
 
-    public static void unregisterFormat(Class c) {
+    public static void unregisterFormat(Class<?> c) {
         CategorizedSearchContext.current().unregister(c, formatCategory());
     }
 
