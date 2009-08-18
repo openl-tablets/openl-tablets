@@ -11,6 +11,7 @@ import java.util.Map;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.rules.dt.ADTRuleIndex.DTRuleNode;
 import org.openl.rules.dt.ADTRuleIndex.DTRuleNodeBuilder;
 import org.openl.util.ArrayTool;
 import org.openl.vm.IRuntimeEnv;
@@ -23,9 +24,9 @@ public class ContainsInAryIndexedEvaluator implements IDTConditionEvaluator {
 
     static class ContainsInAryIndex extends ADTRuleIndex {
 
-        HashMap valueNodes = new HashMap();
+        HashMap<Object, DTRuleNode> valueNodes = new HashMap<Object, DTRuleNode>();
 
-        public ContainsInAryIndex(DTRuleNode emptyOrFormulaNodes, HashMap valueNodes) {
+        public ContainsInAryIndex(DTRuleNode emptyOrFormulaNodes, HashMap<Object, DTRuleNode> valueNodes) {
             super(emptyOrFormulaNodes);
             this.valueNodes = valueNodes;
         }
@@ -41,7 +42,7 @@ public class ContainsInAryIndexedEvaluator implements IDTConditionEvaluator {
         }
 
         @Override
-        public Iterator nodes() {
+        public Iterator<DTRuleNode> nodes() {
             return valueNodes.values().iterator();
         }
     }
@@ -101,7 +102,7 @@ public class ContainsInAryIndexedEvaluator implements IDTConditionEvaluator {
             return null;
         }
 
-        HashMap map = new HashMap();
+        HashMap<Object, DTRuleNodeBuilder> map = new HashMap<Object, DTRuleNodeBuilder>();
         DTRuleNodeBuilder emptyBuilder = new DTRuleNodeBuilder();
 
         for (; it.hasNext();) {
@@ -110,8 +111,8 @@ public class ContainsInAryIndexedEvaluator implements IDTConditionEvaluator {
             if (indexedparams[i] == null || indexedparams[i][0] == null) {
                 emptyBuilder.addRule(i);
 
-                for (Iterator iter = map.values().iterator(); iter.hasNext();) {
-                    DTRuleNodeBuilder dtrnb = (DTRuleNodeBuilder) iter.next();
+                for (Iterator<DTRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();) {
+                    DTRuleNodeBuilder dtrnb = iter.next();
                     dtrnb.addRule(i);
                 }
 
@@ -133,10 +134,10 @@ public class ContainsInAryIndexedEvaluator implements IDTConditionEvaluator {
 
         }
 
-        HashMap nodeMap = new HashMap();
+        HashMap<Object, ADTRuleIndex.DTRuleNode> nodeMap = new HashMap<Object, DTRuleNode>();
 
-        for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry element = (Map.Entry) iter.next();
+        for (Iterator<Map.Entry<Object, DTRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry<Object, DTRuleNodeBuilder> element = iter.next();
 
             nodeMap.put(element.getKey(), ((DTRuleNodeBuilder) element.getValue()).makeNode());
         }

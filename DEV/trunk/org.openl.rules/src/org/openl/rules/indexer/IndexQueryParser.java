@@ -1,11 +1,12 @@
 package org.openl.rules.indexer;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IndexQueryParser {
 
-    Vector included = new Vector();
-    Vector excluded = new Vector();
+    List<String[]> included = new ArrayList<String[]>();
+    List<String[]> excluded = new ArrayList<String[]>();
 
     String input;
 
@@ -93,7 +94,7 @@ public class IndexQueryParser {
         closeToken();
         flushTokens();
 
-        IndexQuery iq = new IndexQuery((String[][]) included.toArray(new String[0][]), (String[][]) excluded
+        IndexQuery iq = new IndexQuery(included.toArray(new String[0][]),  excluded
                 .toArray(new String[0][]), null);
 
         return iq;

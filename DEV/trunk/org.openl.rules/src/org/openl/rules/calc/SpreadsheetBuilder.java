@@ -49,6 +49,13 @@ public class SpreadsheetBuilder {
     private static final IResultBuilder DEFAULT_RESULT_BULDER = new IResultBuilder() {
 
         public Object makeResult(SpreadsheetResult res) {
+            int h = res.getSpreadsheet().height();
+            int w = res.getSpreadsheet().width();
+            for (int row = 0; row < h; row++) {
+                for (int col = 0; col < w; col++) {
+                    res.getValue(row, col);
+                }
+            }
             return res;
         }
     };
@@ -467,14 +474,7 @@ public class SpreadsheetBuilder {
     }
 
     private IString2DataConvertor makeConvertor(IOpenClass type) {
-        try
-        {
             return String2DataConvertorFactory.getConvertor(type.getInstanceClass());
-        }
-        catch(IllegalArgumentException iae)
-        {
-            return null;
-        }
     }
 
     private IOpenMethodHeader makeHeader(String name, IOpenMethodHeader header, IOpenClass type) {

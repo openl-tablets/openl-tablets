@@ -1,6 +1,7 @@
 package org.openl.rules.indexer;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -24,7 +25,7 @@ public class TableIndexParser implements IIndexParser {
         int w = table.getLogicalWidth();
         int h = table.getLogicalHeight();
 
-        Vector v = new Vector();
+        List<GridCellSourceCodeModule> v = new ArrayList<GridCellSourceCodeModule>();
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {

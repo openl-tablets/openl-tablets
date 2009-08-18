@@ -47,6 +47,7 @@ import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -55,6 +56,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConstants {
 
+//    public final static Object EMPTY_CELL = new Object();
+    
     static class ArrayHolder {
         Object ary;
         CompositeMethod[] methods;
@@ -133,10 +136,11 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
             if (x instanceof IOpenMethod) {
                 x = ((IOpenMethod) x).invoke(target, dtparams, env);
             }
-
-            if (x instanceof ArrayHolder) {
+            else if (x instanceof ArrayHolder) {
                 x = ((ArrayHolder) x).invoke(target, dtparams, env);
             }
+//            else if (x == EMPTY_CELL)
+//                x = null;
 
             ary[i + from] = x;
         }
@@ -239,7 +243,8 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         presentationTable = decisionTable.getLogicalRegion(PRESENTATION_COLUMN, row, 1, 1);
         this.name = name;
     }
-    int calcHeight(ILogicalTable table) {
+    
+   static public int calcHeight(ILogicalTable table) {
         int h = table.getLogicalHeight();
 
         int last = -1;
@@ -252,7 +257,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
         }
 
-        return last + 1;
+        return  last + 1;
     }
 
     public IDecisionValue calculateCondition(int rule, Object target, Object[] dtParams, IRuntimeEnv env) {
@@ -415,7 +420,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         return decisionTable.getLogicalRegion(col + DATA_COLUMN, row, 1, 1);
     }
 
-    boolean hasNoParams() {
+    protected boolean hasNoParams() {
         if (hasNoParams == null) {
             hasNoParams = params[0].getName().startsWith(NO_PARAM) ? Boolean.TRUE : Boolean.FALSE;
         }
@@ -426,13 +431,12 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
             OpenlToolAdaptor ota) throws BoundError {
         boolean indexed = paramType.getAggregateInfo().isAggregate(paramType);
 
-        if (indexed) {
-            paramType = paramType.getAggregateInfo().getComponentType(paramType);
-        }
 
         if (!indexed) {
             return loadSingleParam(paramType, paramName, ruleName, dataTable, ota);
         }
+        
+        IOpenClass indexedParamType = paramType.getAggregateInfo().getComponentType(paramType); 
 
         dataTable = ALogicalTable.make1ColumnTable(dataTable);
 
@@ -441,13 +445,27 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         if (h == 0) {
             return null;
         }
+        
+        if (h == 1)
+        {
+            // attempt to load as a single paramType(will work in case of expressions)
+            try {
+                return loadSingleParam(paramType, paramName, ruleName, dataTable, ota);
+            } catch (Exception e) {
+                
+                Log.info(e);
+                // do nothing, assume the type was wrong or this was not an expression
+                // let the regular flow of events take it's course
+            }
+        }    
+        
 
         CompositeMethod[] methods = null;
-        Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { h });
+        Object ary = indexedParamType.getAggregateInfo().makeIndexedAggregate(indexedParamType, new int[] { h });
 
         for (int i = 0; i < h; i++) {
             ILogicalTable cell = dataTable.getLogicalRow(i);
-            Object x = loadSingleParam(paramType, paramName, ruleName, cell, ota);
+            Object x = loadSingleParam(indexedParamType, paramName, ruleName, cell, ota);
             if (x instanceof CompositeMethod) {
                 if (methods == null) {
                     methods = new CompositeMethod[h];

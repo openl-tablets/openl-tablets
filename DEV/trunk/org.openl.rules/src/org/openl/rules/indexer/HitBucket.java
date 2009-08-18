@@ -1,6 +1,6 @@
 package org.openl.rules.indexer;
 
-public class HitBucket implements Comparable {
+public class HitBucket implements Comparable<HitBucket> {
     double weight = 0;
 
     IIndexElement element;
@@ -14,8 +14,7 @@ public class HitBucket implements Comparable {
         this.element = element;
     }
 
-    public int compareTo(Object arg) {
-        HitBucket hb = (HitBucket) arg;
+    public int compareTo(HitBucket hb) {
 
         return weight == hb.weight ? element.getUri().compareTo(hb.getElement().getUri()) : (weight > hb.weight ? -1
                 : 1);

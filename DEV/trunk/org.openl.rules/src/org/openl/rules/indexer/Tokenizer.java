@@ -6,7 +6,8 @@
 
 package org.openl.rules.indexer;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author snshor
@@ -40,7 +41,7 @@ public class Tokenizer {
         return src.substring(startToken, pos);
     }
 
-    private Object getNumberToken() {
+    private String getNumberToken() {
         startToken = pos;
         ++pos;
 
@@ -56,7 +57,7 @@ public class Tokenizer {
     }
 
     public String[] parse() {
-        Vector v = new Vector();
+        List<String> v = new ArrayList<String>();
         len = src.length();
 
         for (; pos < len; pos++) {
