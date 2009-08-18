@@ -15,7 +15,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.ITypeLibrary;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor

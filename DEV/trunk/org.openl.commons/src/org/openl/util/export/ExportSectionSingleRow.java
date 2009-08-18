@@ -21,6 +21,7 @@ public class ExportSectionSingleRow implements IExportSection<ExportSectionSingl
      *
      * @return a class
      */
+    @SuppressWarnings("unchecked")
     public Class getExportedClass() {
         return getClass();
     }
@@ -48,6 +49,7 @@ public class ExportSectionSingleRow implements IExportSection<ExportSectionSingl
      *
      * @return child sections
      */
+    @SuppressWarnings("unchecked")
     public IExportSection[] getSubSections() {
         return null;
     }

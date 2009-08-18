@@ -3,6 +3,7 @@ package org.openl.util;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+@SuppressWarnings("unchecked")
 public class TreeElement implements ITreeElement.Node {
     TreeMap elements = new TreeMap();
 

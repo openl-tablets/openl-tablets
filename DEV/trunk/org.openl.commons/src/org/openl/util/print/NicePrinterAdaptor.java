@@ -22,11 +22,9 @@ import java.util.Map;
  */
 public class NicePrinterAdaptor {
 
-    static class MapEntryComparator implements Comparator {
+    static class MapEntryComparator<K,V> implements Comparator<Map.Entry<K,V>> {
 
-        public int compare(Object arg1, Object arg2) {
-            Map.Entry e1 = (Map.Entry) arg1;
-            Map.Entry e2 = (Map.Entry) arg2;
+        public int compare(Map.Entry<K,V> e1, Map.Entry<K,V> e2) {
 
             String key1 = String.valueOf(e1.getKey());
             String key2 = String.valueOf(e2.getKey());
@@ -53,12 +51,12 @@ public class NicePrinterAdaptor {
 
     }
 
-    static Class[] primitiveClasses = { Integer.class, Double.class, Boolean.class, Character.class, Float.class,
+    static Class<?>[] primitiveClasses = { Integer.class, Double.class, Boolean.class, Character.class, Float.class,
             Byte.class, Long.class, Short.class, String.class, Date.class };
 
-    static final public Comparator mapComparator = new MapEntryComparator();
+    static final public Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<Object, Object>();
 
-    static public boolean isPrimitiveClass(Class c) {
+    static public boolean isPrimitiveClass(Class<?> c) {
 
         for (int i = 0; i < primitiveClasses.length; i++) {
             if (primitiveClasses[i] == c) {
@@ -131,16 +129,17 @@ public class NicePrinterAdaptor {
 
     }
 
-    public void printCollection(Collection c, int newID, NicePrinter printer) {
+    public void printCollection(Collection<?> c, int newID, NicePrinter printer) {
         Object[] ary = new Object[c.size()];
-        Iterator it = c.iterator();
+        Iterator<?> it = c.iterator();
         for (int i = 0; it.hasNext(); i++) {
             ary[i] = it.next();
         }
         printArray(ary, newID, printer);
     }
 
-    public void printMap(Map map, Comparator mapEntryComparator, NicePrinter printer) {
+    @SuppressWarnings("unchecked")
+    public void  printMap(Map map, Comparator<Map.Entry<Object, Object>> mapEntryComparator, NicePrinter printer) {
         int len = map.size();
 
         if (len == 0) {
@@ -148,11 +147,11 @@ public class NicePrinterAdaptor {
             return;
         }
 
-        Map.Entry[] entries = new Map.Entry[len];
+        Map.Entry<Object, Object>[] entries = new Map.Entry[len];
 
-        Iterator it = map.entrySet().iterator();
+        Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
         for (int i = 0; it.hasNext(); i++) {
-            entries[i] = (Map.Entry) it.next();
+            entries[i] = (Map.Entry<Object, Object>) it.next();
         }
 
         if (mapEntryComparator == null) {

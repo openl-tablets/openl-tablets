@@ -8,7 +8,7 @@ package org.openl.util;
 
 /**
  * @author snshor
- *
+ * 
  */
 public abstract class ASelector<T> implements ISelector<T> {
 
@@ -34,7 +34,7 @@ public abstract class ASelector<T> implements ISelector<T> {
     }
 
     /**
-     *
+     * 
      * @author snshor Base class for binary boolean operators
      */
     static abstract class BoolBinSelector<T> extends ASelector<T> {
@@ -47,8 +47,14 @@ public abstract class ASelector<T> implements ISelector<T> {
         }
 
         @Override
-        protected boolean equalsSelector(ASelector<?> sel) {
-            return sel1.equals(((BoolBinSelector<?>) sel).sel1) && sel2.equals(((BoolBinSelector<?>) sel).sel2);
+        protected boolean equalsSelector(ASelector<T> sel) {
+            BoolBinSelector<?> x = null;
+            if (sel != null && sel instanceof BoolBinSelector<?>) {
+                x = (BoolBinSelector<?>) sel;
+
+            } else
+                return false;
+            return sel1.equals(x.sel1) && sel2.equals(x.sel2);
         }
 
         @Override
@@ -66,7 +72,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         }
 
         @Override
-        protected boolean equalsSelector(ASelector<?> sel) {
+        protected boolean equalsSelector(ASelector<Object> sel) {
             return c == ((ClassSelector) (ASelector<Object>) sel).c;
         }
 
@@ -89,7 +95,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         }
 
         @Override
-        protected boolean equalsSelector(ASelector<?> sel) {
+        protected boolean equalsSelector(ASelector<T> sel) {
             return ((IntValueSelector<?>) sel).value == value;
         }
 
@@ -122,7 +128,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         }
 
         @Override
-        protected boolean equalsSelector(ASelector<?> sel) {
+        protected boolean equalsSelector(ASelector<T> sel) {
             return is.equals(((NOTSelector<?>) sel).is);
         }
 
@@ -146,7 +152,7 @@ public abstract class ASelector<T> implements ISelector<T> {
 
         @Override
         @SuppressWarnings("unchecked")
-        protected boolean equalsSelector(ASelector<?> sel) {
+        protected boolean equalsSelector(ASelector<T> sel) {
             return select(((ObjectSelector<T>) sel).myobj);
         }
 
@@ -190,7 +196,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         }
 
         @Override
-        protected boolean equalsSelector(ASelector<?> sel) {
+        protected boolean equalsSelector(ASelector<T> sel) {
             StringValueSelector<?> svs = (StringValueSelector<?>) sel;
             return value.equals(svs.value) && convertor.equals(svs.convertor);
         }
@@ -246,7 +252,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         return equalsSelector((ASelector<T>) obj);
     }
 
-    protected boolean equalsSelector(ASelector<?> sel) {
+    protected boolean equalsSelector(ASelector<T> sel) {
         return sel == this;
     }
 

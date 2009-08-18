@@ -18,16 +18,16 @@ public class TopoSortCycleException extends RuntimeException {
      *
      */
     private static final long serialVersionUID = -6748402650936894385L;
-    Collection cycles;
+    Collection<?> cycles;
 
-    public TopoSortCycleException(Collection cycles) {
+    public TopoSortCycleException(Collection<?> cycles) {
         this.cycles = cycles;
     }
 
     /**
      * @return
      */
-    public Collection getCycles() {
+    public Collection<?> getCycles() {
         return cycles;
     }
 

@@ -13,7 +13,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenSchema;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ISelector;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor

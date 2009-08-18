@@ -8,7 +8,6 @@ package org.openl.domain;
 import java.util.Iterator;
 
 import org.openl.util.AOpenIterator;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
