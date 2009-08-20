@@ -16,7 +16,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.Region;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -89,6 +91,9 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         public boolean hasFormula() {
+            if (cell == null) {
+                return false;
+            }
             return cell.getCellType() == CELL_TYPE_FORMULA;
         }
 
@@ -479,7 +484,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             case Cell.CELL_TYPE_STRING:
                 return cell.getStringCellValue();
             case Cell.CELL_TYPE_FORMULA:
-            	return getCellValue(cell, cell.getCachedFormulaResultType());
+                FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
+                CellValue resultValue = formulaEvaluator.evaluate(cell);
+                return resultValue.getNumberValue();
+            	//return getCellValue(cell, cell.getCachedFormulaResultType());
             default:
                 return "unknown type: " + cell.getCellType();
         }
@@ -743,20 +751,22 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         if (value == null) {
             return;
         }
-
         Cell cell = createNewCell(col, row);
-
         if (value instanceof Number) {
             Number x = (Number) value;
             cell.setCellValue(x.doubleValue());
-
         } else if (value instanceof Date) {
             Date x = (Date) value;
             cell.setCellValue(x);
         } else {
-            cell.setCellValue(String.valueOf(value));
+            String strValue = String.valueOf(value);
+            // formula
+            if (strValue.startsWith("=")) {
+                cell.setCellFormula(strValue.replaceFirst("=", ""));
+            } else {
+                cell.setCellValue(strValue);
+            }
         }
-
     }
 
     public String getCellFormula(int column, int row) {

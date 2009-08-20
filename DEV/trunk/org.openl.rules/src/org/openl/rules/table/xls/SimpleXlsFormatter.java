@@ -141,6 +141,11 @@ public class SimpleXlsFormatter implements IGridFilter {
             return formatDate(fc);
         }
 
+        // don't format formula
+        if (fc.content.startsWith("=")) {
+            return fc;
+        }
+
         return formatNumber(fc);
     }
 
