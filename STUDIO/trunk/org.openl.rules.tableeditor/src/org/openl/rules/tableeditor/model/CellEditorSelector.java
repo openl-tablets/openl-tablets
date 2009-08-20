@@ -4,8 +4,10 @@ import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.lang.xls.types.CellMetaInfo; //import org.openl.rules.helpers.IntRange;
+import org.openl.rules.table.ICellInfo;
 import org.openl.types.IOpenClass;
 
+// TODO Reimplement
 public class CellEditorSelector {
     private ICellEditorFactory factory = new CellEditorFactory();
 
@@ -52,6 +54,10 @@ public class CellEditorSelector {
     }
 
     public ICellEditor selectEditor(int row, int col, TableEditorModel model) {
+        ICellInfo cellInfo = model.getCell(row, col).getCellInfo();
+        if (cellInfo != null && cellInfo.hasFormula()) {
+            return factory.makeFormulaEditor();
+        }
         ICellEditor editor = selectEditor(model.getCellMetaInfo(row, col));
         return editor == null ? defaultEditor(row, col, model) : editor;
     }

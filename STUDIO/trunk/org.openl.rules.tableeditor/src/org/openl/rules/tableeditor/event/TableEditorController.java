@@ -386,10 +386,17 @@ public class TableEditorController extends BaseTableEditorController implements 
      */
     public String setCellValue() {
         String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
-        EditorHelper editorHelper = getHelper(getEditorId());
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
-            editorHelper.getModel().setCellValue(getRow(), getCol(), value);
-            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
+            TableEditorModel editorModel = editorHelper.getModel();
+            editorModel.setCellValue(getRow(), getCol(), value);
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            // rerender the table if value is a formula
+            if (value.startsWith("=")) {
+                tmResponse.setResponse(render(editorId));
+            }
+            return pojo2json(tmResponse);
         }
         return null;
     }
@@ -408,7 +415,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 editorModel.setRegion(newRegion);
                 editorModel.insertProp(name, value);
             }
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             tmResponse.setResponse(render(editorId));
             return pojo2json(tmResponse);
         }

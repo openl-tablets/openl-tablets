@@ -25,6 +25,7 @@ TableEditor.Operations = {
     LOAD : "load",
     GET_CELL_TYPE : "getCellType",
     SET_CELL_VALUE : "setCellValue",
+    SET_CELL_FORMULA : "setCellFormula",
     SET_ALIGN : "setAlign",
     SET_INDENT : "setIndent",
     SET_PROP : "setProp",
@@ -58,7 +59,6 @@ TableEditor.prototype = {
     tableContainer : null,
     currentElement : null,
     editor : null,
-    saveUrl : null,
     baseUrl : null,
     selectionPos : null,
     selectionHistory : [],
@@ -85,7 +85,6 @@ TableEditor.prototype = {
         if (editCell) this.editCell = editCell;
 
         this.baseUrl = url;
-        this.saveUrl = this.buildUrl(TableEditor.Operations.SET_CELL_VALUE);
 
         var self = this;
 
@@ -119,8 +118,10 @@ TableEditor.prototype = {
             response = eval(response.responseText);
             if (response.status) alert(response.status);
             else {
-                this.renderTable(response.response);
-                this.selectElement();
+                if (response.response) {
+                    this.renderTable(response.response);
+                    this.selectElement();
+                }
                 this.processCallbacks(response, "do");
             }
         }.bindAsEventListener(this);
@@ -250,10 +251,6 @@ TableEditor.prototype = {
             method    : "get",
             encoding   : "utf-8",
             contentType : "text/javascript",
-            /*onSuccess  : function(data) {
-                data = eval(data.responseText);
-                self.processCallbacks(data, "do");
-            },*/
             onSuccess : this.modFuncSuccess,
             parameters: {
                 editorId: this.editorId,
@@ -294,6 +291,10 @@ TableEditor.prototype = {
      *  @desc: Create and activate new editor
      */
     editBegin : function(cell, response, typedText) {
+        if (response.editor == 'formula') {
+            var formula = cell.down("input[name='formula']");
+            typedText = formula ? formula.value : '';
+        }
         this.editor = new TableEditor.Editors[response.editor](this, cell, response.params, typedText);
         this.selectElement(cell);
     },
@@ -305,18 +306,19 @@ TableEditor.prototype = {
     },
 
     editStop : function() {
+        this.setCellValue();
+    },
+
+    setCellValue : function() {
         if (this.editor) {
             if (!this.editor.isCancelled()) {
                 var val = this.editor.getValue();
                 var self = this;
-                new Ajax.Request(this.saveUrl, {
+                new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_CELL_VALUE), {
                     method    : "get",
                     encoding   : "utf-8",
                     contentType : "text/javascript",
-                    onSuccess  : function(data) {
-                        data = eval(data.responseText);
-                        self.processCallbacks(data, "do");
-                    },
+                    onSuccess  : this.modFuncSuccess,
                     parameters: {
                         editorId: this.editorId,
                         row : self.selectionPos[0],
