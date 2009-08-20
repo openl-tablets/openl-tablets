@@ -13,8 +13,13 @@ import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeRespons
 
 public interface ICellEditor {
 
-    static final public String CE_TEXT = "text", CE_NUMERIC = "numeric", CE_MULTILINE = "multilineText",
-            CE_COMBO = "combo", CE_DATE = "date", CE_MULTICHOICE = "multiChoice";
+    static final public String CE_TEXT = "text",
+                               CE_NUMERIC = "numeric",
+                               CE_MULTILINE = "multilineText",
+                               CE_COMBO = "combo",
+                               CE_DATE = "date",
+                               CE_MULTICHOICE = "multiChoice",
+                               CE_FORMULA = "formula";
 
     /**
      *

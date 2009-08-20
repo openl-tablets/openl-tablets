@@ -31,4 +31,6 @@ public interface ICellEditorFactory {
     ICellEditor makeMultilineEditor();
 
     ICellEditor makeTextEditor();
+    
+    ICellEditor makeFormulaEditor();
 }

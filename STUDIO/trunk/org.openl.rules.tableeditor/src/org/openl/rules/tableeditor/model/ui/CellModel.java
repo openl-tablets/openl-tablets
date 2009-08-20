@@ -227,9 +227,9 @@ public class CellModel implements ICellModel {
     }
 
     public String getContent(boolean showFormulas) {
-        if(showFormulas && hasFormula){
+        if (showFormulas && hasFormula) {
             return convertContent(formula);
-        }else{
+        } else {
             return convertContent(content);
         }
     }

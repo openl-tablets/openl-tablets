@@ -78,14 +78,18 @@ public class HTMLRenderer {
 
                     s.append(" id=\"").append(id).append("\">");
                     if (embedCellURI) {
-                        s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(table.getUri(j, i)).append(
-                                "\"></input>");
+                        s.append("<input name=\"uri\" type=\"hidden\" value=\"").append(table.getUri(j, i))
+                         .append("\"></input>");
                     }
-                    String content = cell.getContent(showFormulas);
-                    if (content != null) {
-                        content.replaceAll("", "");
+                    if (cell.hasFormula()) {
+                        s.append("<input name=\"formula\" type=\"hidden\" value=\"").append(cell.getFormula())
+                         .append("\"></input>");
                     }
-                    s.append(content).append("</td>\n");
+                    String cellContent = cell.getContent(showFormulas);
+                    if (cellContent != null) {
+                        cellContent.replaceAll("", "");
+                    }
+                    s.append(cellContent).append("</td>\n");
                 }
                 s.append("</tr>\n");
             }
@@ -195,9 +199,12 @@ public class HTMLRenderer {
         result.append(renderJSBody("var " + editor + ";"))
         // .append(renderJSBody("var jsPath = \"" + WebUtil.internalPath("js/")
         // + "\""))
-                .append(renderEditorToolbar(editorId, editor)).append(renderJS("js/TextEditor.js")).append(
-                        renderJS("js/MultiLineEditor.js")).append(renderJS("js/NumericEditor.js")).append(
-                        renderJS("js/DropdownEditor.js"))
+                .append(renderEditorToolbar(editorId, editor))
+                .append(renderJS("js/TextEditor.js"))
+                .append(renderJS("js/MultiLineEditor.js"))
+                .append(renderJS("js/NumericEditor.js"))
+                .append(renderJS("js/DropdownEditor.js"))
+                .append(renderJS("js/FormulaEditor.js"))
                 .append(renderPropsEditor(table, Constants.MODE_EDIT))
                 // .append(renderJS("js/SuggestEditor.js"))
                 // .append(renderJS("js/DateEditor.js"))

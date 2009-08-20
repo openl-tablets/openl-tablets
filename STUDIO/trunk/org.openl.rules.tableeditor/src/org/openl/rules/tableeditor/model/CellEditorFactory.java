@@ -18,4 +18,8 @@ public class CellEditorFactory implements ICellEditorFactory {
         return new TextCellEditor();
     }
 
+    public ICellEditor makeFormulaEditor() {
+        return new FormulaCellEditor();
+    }
+
 }

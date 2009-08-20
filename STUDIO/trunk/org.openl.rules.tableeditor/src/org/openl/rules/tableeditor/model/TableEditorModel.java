@@ -4,13 +4,14 @@
  */
 package org.openl.rules.tableeditor.model;
 
-import org.openl.rules.lang.xls.binding.TableProperties;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
+//import org.openl.rules.lang.xls.binding.TableProperties;
+//import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridTableDelegator;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -251,7 +252,11 @@ public class TableEditorModel {
     public ICellStyle getCellStyle(int row, int column) {
         return IWritableGrid.Tool.getCellStyle(gridTable.getGrid(), tX(column), tY(row));
     }
-    
+
+    public ICell getCell(int row, int col) {
+        return gridTable.getCell(col, row);
+    }
+
     /**
      * After coping or moving the table we need to set new region destination of it
      * @param newRegion New region of the table
