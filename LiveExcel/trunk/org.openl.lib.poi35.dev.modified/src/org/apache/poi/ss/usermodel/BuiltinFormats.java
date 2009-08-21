@@ -88,7 +88,7 @@ public final class BuiltinFormats {
 		putFormat(m, 4, "#,##0.00");
 		putFormat(m, 5, "$#,##0_);($#,##0)");
 		putFormat(m, 6, "$#,##0_);[Red]($#,##0)");
-		putFormat(m, 7, "$#,##0.00);($#,##0.00)");
+		putFormat(m, 7, "$#,##0.00_);($#,##0.00)");
 		putFormat(m, 8, "$#,##0.00_);[Red]($#,##0.00)");
 		putFormat(m, 9, "0%");
 		putFormat(m, 0xa, "0.00%");
