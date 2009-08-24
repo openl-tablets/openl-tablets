@@ -25,6 +25,29 @@
           </archive>
         </configuration>
       </plugin>
+	  
+	   <!-- Remove the folders: org.openl.tablets.tutorial*, org.openl.rules.examples*, org.openl.tablets.deploy*, 
+	   org.openl.rules.webstudio* to avoid conflicts with old version files.
+	   -->
+		<plugin>
+			<artifactId>maven-clean-plugin</artifactId>
+			<configuration>
+			  <filesets>
+				<fileset>
+					<directory>templates</directory>
+
+				  <includes>
+					<include>org.openl.tablets.tutorial*</include>
+					<include>org.openl.rules.examples*</include>
+					<include>org.openl.tablets.deploy*</include>
+					<include>org.openl.rules.webstudio*</include>
+				</includes>
+				  <followSymlinks>false</followSymlinks>
+				</fileset>
+			  </filesets>
+			</configuration>
+		</plugin>
+
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
