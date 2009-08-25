@@ -60,7 +60,7 @@ public class OpenLBussinessSearch implements IOpenLSearch{
                 }
             }
         }
-        if(numMatch == propsFromSearch.size()) {
+        if(numMatch == propsFromSearch.size() && numMatch > 0) {
             result = true;
         } else {
             result = false;
