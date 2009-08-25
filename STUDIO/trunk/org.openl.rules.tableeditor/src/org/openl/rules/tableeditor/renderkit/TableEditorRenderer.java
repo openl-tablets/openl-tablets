@@ -32,7 +32,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
         String mode = (String) editorParams.get(Constants.ATTRIBUTE_MODE);
         String view = (String) editorParams.get(Constants.ATTRIBUTE_VIEW);
-        boolean showFormulas = (Boolean) editorParams.get(Constants.ATTRIBUTE_SHOW_FORMULAS);
+        Boolean showFormulas = getBooleanParam(editorParams.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
         String editorId = component.getClientId(context);
         IGridFilter filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         List<ActionLink> actionLinks = getActionLinks(component);
