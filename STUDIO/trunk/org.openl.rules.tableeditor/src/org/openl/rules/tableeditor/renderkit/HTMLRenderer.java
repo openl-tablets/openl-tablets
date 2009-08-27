@@ -509,9 +509,12 @@ public class HTMLRenderer {
                 }
             }
             result.append("<td><input name='" + name + "' type='text' value='" + resultStr + "' id='datepicker"
-                    + numberOfCalendars +"' />")
+                        + numberOfCalendars +"' />")
                 .append(renderJSBody("new tcal ({'controlname': 'datepicker" + numberOfCalendars + "'});"))
-                .append("</td>");            
+                .append("<img src='" + WebUtil.internalPath("img/calendar/cal.gif") + "' id='tcalico_"
+                        + (numberOfCalendars - 1) + "' onclick='A_TCALS[\"" + (numberOfCalendars - 1)
+                        + "\"].f_toggle()' class='tcalIcon' alt='Open Calendar' />")
+                .append("</td>");
         }
 
         private void insertSelect(List<String> listOfOptions) {                        

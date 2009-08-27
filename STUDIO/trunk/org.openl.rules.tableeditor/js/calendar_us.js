@@ -70,7 +70,7 @@ function tcal (a_cfg, a_tpl) {
 	this.s_iconId = 'tcalico_' + this.s_id;
 	this.e_icon = f_getElement(this.s_iconId);
 	if (!this.e_icon) {
-		document.write('<img src="' + a_tpl.imgpath + 'cal.gif" id="' + this.s_iconId + '" onclick="A_TCALS[\'' + this.s_id + '\'].f_toggle()" class="tcalIcon" alt="Open Calendar" />');
+		//document.write('<img src="' + a_tpl.imgpath + 'cal.gif" id="' + this.s_iconId + '" onclick="A_TCALS[\'' + this.s_id + '\'].f_toggle()" class="tcalIcon" alt="Open Calendar" />');
 		this.e_icon = f_getElement(this.s_iconId);
 	}
 	// save received parameters
