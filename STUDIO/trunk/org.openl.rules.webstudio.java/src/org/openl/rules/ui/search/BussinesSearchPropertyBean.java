@@ -15,6 +15,8 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.lang.xls.binding.TableProperties.Property;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+
 
 /**
  * Bean to handle business search, has session scope.
@@ -92,8 +94,8 @@ public class BussinesSearchPropertyBean {
                         listforSearch.add(new Property(new StringValue(prop.getName()), new StringValue(format.format((Date)prop.getValue()))));
                     }
                 }
-            }
-            search.getBusSearchCondit().setContains(tableContain);
+            }            
+            search.getBusSearchCondit().setTablesContains(searchTableContains());
         }
     }
     
@@ -110,6 +112,30 @@ public class BussinesSearchPropertyBean {
         }
         return result;
     }
+    
+    /**
+     * Get all the tables, that contain string from tableConsist field.
+     * 
+     * @return Massive of tables that suit to table contains field 
+     */
+    public TableSyntaxNode[] searchTableContains() {
+        String[][] values = {};
+        TableSyntaxNode[] result = null;
+        List<TableSyntaxNode> resultNodes = new ArrayList<TableSyntaxNode>();
+        if(tableContain!="") {
+            values = WebStudioUtils.getWebStudio().getModel().getIndexer().getResultsForQuery(tableContain, 200, null);
+            if(values.length>0) {
+                for(int i = 0; i < values.length; ++i) {
+                    String uri = values[i][0];                    
+                    if (uri.indexOf(".xls") >= 0) {
+                        resultNodes.add(WebStudioUtils.getWebStudio().getModel().getNode(uri));
+                    } 
+                }
+            }
+            result = resultNodes.toArray(new TableSyntaxNode[0]);
+        } 
+        return result;
+    } 
     
     /**
      * Request scope bean, holding flag if search run is required.
@@ -136,7 +162,7 @@ public class BussinesSearchPropertyBean {
          * @return
          */
         public String search() {            
-            needSearch = true;
+            needSearch = true;            
             bussinessSearchBean.initBusSearchCond();            
             return null;
         }
@@ -152,7 +178,6 @@ public class BussinesSearchPropertyBean {
             }
             return tableSearchList;
         }        
-    }    
-    
-    
+    }
+        
 }
