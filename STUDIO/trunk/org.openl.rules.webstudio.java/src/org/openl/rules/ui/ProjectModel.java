@@ -374,6 +374,10 @@ public class ProjectModel implements IProjectTypes {
         XlsUrlParser parsedUrl = new XlsUrlParser();
         parsedUrl.parse(url);
 
+        if (parsedUrl.range == null) {
+            return null;
+        }
+
         return findNode(parsedUrl);
     }
 
