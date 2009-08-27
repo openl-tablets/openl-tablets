@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.lang.xls.binding.TableProperties.Property;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * Bean consists criteria for bussiness search
@@ -13,7 +14,11 @@ import org.openl.rules.lang.xls.binding.TableProperties.Property;
 public class BussinessSearchCondition {
     
     private List<Property> propToSearch = new ArrayList<Property>();
-    private String tableContains;
+    
+    /*
+     * Contain all tables that suit to table contains search cryteria 
+     */
+    private TableSyntaxNode[] tablesContains;
     
     public List<Property> getPropToSearch() {
         return propToSearch;
@@ -23,15 +28,12 @@ public class BussinessSearchCondition {
         this.propToSearch = propToSearch;
     }
     
-    public String getContains() {
-        return tableContains;
+    public TableSyntaxNode[] getTablesContains() {
+        return tablesContains;
     }
-    
-    public void setContains(String contains) {
-        this.tableContains = contains;
+
+    public void setTablesContains(TableSyntaxNode[] tablesContains) {
+        this.tablesContains = tablesContains;
     }
-    
-    
-    
     
 }

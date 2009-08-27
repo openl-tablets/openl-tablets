@@ -69,5 +69,38 @@ public class BusSearchTest {
             fail();
         }        
     }
+    
+    @Test 
+    public void testWithConsists() {
+        XlsModuleSyntaxNode xls = getTables();
+        List<Property> propList = new ArrayList<Property>(){{
+            add(new Property(new StringValue("name"), new StringValue("Vehicle Score Processing Sequence")));            
+        }};
+        initSearchCondition(propList);
+        search.getBusSearchCondit().setTablesContains(getTableConsists(xls, "Vehicle Score Processing Sequence"));
+        Object searchResult = search.search(xls);
+        if((searchResult != null) && (searchResult instanceof OpenLBussinessSearchResult)) {
+            List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
+            assertTrue("There is only one table for this cryteria",foundTables.size()==1);
+            assertEquals("Display names are identical", "Rules void vehicleScore(VehicleCalc vc)" ,
+                    foundTables.get(0).getDisplayName());            
+        } else {
+            fail();
+        }        
+    }
+    
+    private TableSyntaxNode[] getTableConsists(XlsModuleSyntaxNode xls, String nameProp) {
+        TableSyntaxNode[] listTables = new TableSyntaxNode[1];
+        TableSyntaxNode result = null;
+        
+        for(TableSyntaxNode table : xls.getXlsTableSyntaxNodes()) {
+            if(table.getProperty("name")!=null && table.getPropertyValue("name").equals(nameProp) && 
+                    table.getProperty("category")==null) {
+                listTables[0] = table;
+            }
+        }
+        return listTables;
+    }
+                                               
 
 }

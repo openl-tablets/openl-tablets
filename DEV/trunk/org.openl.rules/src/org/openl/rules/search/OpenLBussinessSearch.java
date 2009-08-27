@@ -22,8 +22,7 @@ public class OpenLBussinessSearch implements IOpenLSearch{
     
     public void setBusSearchCondit(BussinessSearchCondition busSearchCondit) {
         this.busSearchCondit = busSearchCondit;
-    }
-    
+    }    
     
     /**
      * Searches the tables by {@link BussinessSearchCondition}
@@ -39,9 +38,34 @@ public class OpenLBussinessSearch implements IOpenLSearch{
                 res.add(table);
             }
         }
+        res = matchWithTableContains(res);
         return res;
     }
     
+    /**
+     * We need to filter our result, found by property values, with the result of tableContains field
+     * 
+     * @param busSearchRes Results found by property values
+     * @return filtered results with table contains search result
+     */
+    private OpenLBussinessSearchResult matchWithTableContains(OpenLBussinessSearchResult busSearchRes) {
+        OpenLBussinessSearchResult result = new OpenLBussinessSearchResult();
+        TableSyntaxNode[] tablesContains = busSearchCondit.getTablesContains(); 
+        if(tablesContains != null) {
+            for(TableSyntaxNode table : busSearchRes.foundTables) {                
+                for(TableSyntaxNode tablesConsist : tablesContains) {
+                    if(table.equals(tablesConsist)) {
+                        result.add(table);
+                        break; //we need to break, because tableConsists result contains one table many times                                
+                    }
+                }
+            }
+        } else {
+            result = busSearchRes;
+        }
+        return result;        
+    }
+
     /**
      * Check if table properties from excel table consists all the values for properties,
      * from properties defined in {@link BussinessSearchCondition}
@@ -67,9 +91,6 @@ public class OpenLBussinessSearch implements IOpenLSearch{
         }
         return result;
     }
-    
-    //TO DO
-    //private void searchByContainTable(){}
     
 }
 
