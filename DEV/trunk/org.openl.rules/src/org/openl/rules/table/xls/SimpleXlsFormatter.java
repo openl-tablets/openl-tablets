@@ -59,8 +59,9 @@ public class SimpleXlsFormatter implements IGridFilter {
     public FormattedCell filterFormat(FormattedCell fc) {
         switch (fc.type) {
             case IGrid.CELL_TYPE_NUMERIC:
-            case IGrid.CELL_TYPE_FORMULA:
                 return formatNumberOrDate(fc);
+            case IGrid.CELL_TYPE_FORMULA:
+                return formatFormula(fc);
         }
 
         return fc;
@@ -141,12 +142,23 @@ public class SimpleXlsFormatter implements IGridFilter {
             return formatDate(fc);
         }
 
-        // don't format formula
-        if (fc.content.startsWith("=")) {
-            return fc;
-        }
-
         return formatNumber(fc);
+    }
+
+    private FormattedCell formatFormula(FormattedCell fc) {
+        XlsFormat format = getFormat(fc);
+        return new XlsFormulaFormat(format).filterFormat(fc);
+    }
+
+    private XlsFormat getFormat(FormattedCell fc) {
+        String fmt = fc.getCellStyle().getTextFormat();
+        if (isDateFormat(fmt)) {
+            return findXlsDateFormat(fmt);
+        } else if (fc.value instanceof Number) {
+            return findXlsNumberFormat(fmt);
+        } else {
+            return null;
+        }
     }
 
     public IGridSelector getGridSelector() {

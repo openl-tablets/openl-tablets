@@ -277,19 +277,8 @@ public class XlsNumberFormat extends XlsFormat {
 
         Number value = (Number) fcell.value;
 
-        SegmentFormatter sf = positiveFormat;
-
-        if (value.doubleValue() < 0) {
-            sf = negativeFormat();
-        } else if (value.doubleValue() == 0) {
-            sf = zeroFormat();
-        }
-
-        if (sf.multiplier != 1) {
-            value = new Double(value.doubleValue() * sf.multiplier);
-        }
-
-        fcell.content = sf.format.format(value);
+        SegmentFormatter sf = getFormatter(value);
+        fcell.content = format(value, sf);
 
         if (fcell.font.getFontColor() == null) {
             fcell.font.setFontColor(sf.color);
@@ -303,21 +292,34 @@ public class XlsNumberFormat extends XlsFormat {
         return fcell;
     }
 
-    public String format(Number value) {
-        SegmentFormatter sf = positiveFormat;
+    public String format(Object value, SegmentFormatter sf) {
+        if (!(value instanceof Number)) {
+            Log.error("Should be Number " + value);
+            return null;
+        }
+        Number number = (Number) value;
+        if (sf == null) {
+            sf = getFormatter(number);
+        }
+        if (sf.multiplier != 1) {
+            value = new Double(number.doubleValue() * sf.multiplier);
+        }
+        return sf.format.format(value);
+    }
 
-        if (value.doubleValue() < 0) {
+    @Override
+    public String format(Object value) {
+        return format(value, null);
+    }
+
+    private SegmentFormatter getFormatter(Number number) {
+        SegmentFormatter sf = positiveFormat;
+        if (number.doubleValue() < 0) {
             sf = negativeFormat();
-        } else if (value.doubleValue() == 0) {
+        } else if (number.doubleValue() == 0) {
             sf = zeroFormat();
         }
-
-        if (sf.multiplier != 1) {
-            value = new Double(value.doubleValue() * sf.multiplier);
-        }
-
-        return sf.format.format(value);
-
+        return sf;
     }
 
     /**

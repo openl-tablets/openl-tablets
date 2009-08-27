@@ -17,6 +17,7 @@ import org.apache.poi.hssf.util.Region;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
@@ -474,9 +475,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             case Cell.CELL_TYPE_BOOLEAN:
                 return Boolean.valueOf(cell.getBooleanCellValue());
             case Cell.CELL_TYPE_NUMERIC:
-                String fmt = sheetSource.getWorkbookSource().getWorkbook().createDataFormat().getFormat(
-                        cell.getCellStyle().getDataFormat());
-                if (SimpleXlsFormatter.isDateFormat(fmt)) {
+                if (DateUtil.isCellDateFormatted(cell)) {
                     return cell.getDateCellValue();
                 }
                 double value = cell.getNumericCellValue();

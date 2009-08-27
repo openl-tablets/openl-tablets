@@ -43,17 +43,26 @@ public class XlsDateFormat extends XlsFormat {
             return cell;
         }
 
-        if (!(cell.value instanceof Date)) {
-            Log.error("Should be date" + cell.value);
+        String fDate = format(cell.value);
+        if (fDate == null) {
             return cell;
         }
 
-        Date date = (Date) cell.value;
-
-        cell.content = format.format(date);
+        cell.content = fDate;
         cell.setFilter(this);
 
         return cell;
+    }
+
+    @Override
+    public String format(Object value) {
+        if (!(value instanceof Date)) {
+            Log.error("Should be date" + value);
+            return null;
+        }
+        Date date = (Date) value;
+        String fDate = format.format(date);
+        return fDate;
     }
 
     @Override
