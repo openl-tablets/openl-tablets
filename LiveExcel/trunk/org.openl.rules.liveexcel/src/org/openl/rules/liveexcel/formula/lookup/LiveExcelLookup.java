@@ -3,9 +3,8 @@ package org.openl.rules.liveexcel.formula.lookup;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.openl.rules.liveexcel.formula.ParsedDeclaredFunction;
 
 /**
@@ -37,7 +36,8 @@ public class LiveExcelLookup extends ParsedDeclaredFunction {
         return lookupData;
     }
 
-    public ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
+    @Override
+    public ValueEval execute(ValueEval[] args, OperationEvaluationContext ec) {
         int paramsCount = this.getParameters().size();
         if (args.length != paramsCount) {
             return ErrorEval.VALUE_INVALID;

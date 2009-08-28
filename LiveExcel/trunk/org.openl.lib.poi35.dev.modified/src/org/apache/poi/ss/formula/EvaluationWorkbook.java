@@ -36,6 +36,10 @@ public interface EvaluationWorkbook {
 	 * @return -1 if the specified sheet is from a different book
 	 */
 	int getSheetIndex(EvaluationSheet sheet);
+	/**
+	 * Finds a sheet index by case insensitive name.
+	 * @return the index of the sheet matching the specified name.  -1 if not found
+	 */
 	int getSheetIndex(String sheetName);
 
 	EvaluationSheet getSheet(int sheetIndex);
@@ -59,6 +63,7 @@ public interface EvaluationWorkbook {
      *         name exists.
      */
 	FreeRefFunction findUserDefinedFunction(String functionName);
+
 
 	class ExternalSheet {
 		private final String _workbookName;

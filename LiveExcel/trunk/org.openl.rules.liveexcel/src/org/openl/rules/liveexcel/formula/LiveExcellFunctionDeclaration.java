@@ -1,11 +1,11 @@
 package org.openl.rules.liveexcel.formula;
 
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
 
@@ -16,7 +16,8 @@ import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
  */
 public class LiveExcellFunctionDeclaration implements FreeRefFunction {
 
-    public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
+    public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+        EvaluationWorkbook workbook = ec.getWorkbook();
         ParsedDeclaredFunction function = DeclaredFunctionParser.parseFunction(args);        
         setReturnCellType(function, workbook);
         setParamsCellType(function, workbook);

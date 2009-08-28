@@ -575,7 +575,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
             throw new IllegalStateException("There are no defined names in this workbook");
         }
         if (nameIndex < 0 || nameIndex > nNames) {
-            throw new IllegalArgumentException("Specified name index " + nameIndex 
+            throw new IllegalArgumentException("Specified name index " + nameIndex
                     + " is outside the allowable range (0.." + (nNames-1) + ").");
         }
         return namedRanges.get(nameIndex);
@@ -641,7 +641,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
      * @param sheetIndex Zero-based sheet index (0 Represents the first sheet to keep consistent with java)
      * @return String Null if no print area has been defined
      */
-    public String getPrintArea(int sheetIndex) {    
+    public String getPrintArea(int sheetIndex) {
         XSSFName name = getBuiltInName(XSSFName.BUILTIN_PRINT_AREA, sheetIndex);
         if (name == null) return null;
         //adding one here because 0 indicates a global named region; doesnt make sense for print areas
@@ -980,7 +980,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
                 r = escapedName + "!$" + rowRef.getCellRefParts()[1] + ":$" + rowRef2.getCellRefParts()[1];
             }
         }
-        
+
         StringBuffer rng = new StringBuffer();
         rng.append(c);
         if(rng.length() > 0 && r.length() > 0) rng.append(',');
@@ -1248,7 +1248,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         }
         return embedds;
     }
-    
+
     public boolean isHidden() {
         throw new RuntimeException("Not implemented yet");
     }
@@ -1285,7 +1285,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
      * Fired when a formula is deleted from this workbook,
      * for example when calling cell.setCellFormula(null)
      *
-     * @see XSSFCell#setCellFormula(String) 
+     * @see XSSFCell#setCellFormula(String)
      */
     protected void onDeleteFormula(XSSFCell cell){
         if(calcChain != null) {
@@ -1299,7 +1299,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
      * <p>
      *   The calculation chain object specifies the order in which the cells in a workbook were last calculated
      * </p>
-     * 
+     *
      * @return the <code>CalculationChain</code> object or <code>null</code> if not defined
      */
     public CalculationChain getCalculationChain(){
@@ -1307,15 +1307,15 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
     }
 
     /**
-     * 
+     *
      * @return a collection of custom XML mappings defined in this workbook
      */
     public Collection<XSSFMap> getCustomXMLMappings(){
         return mapInfo == null ? new ArrayList<XSSFMap>() : mapInfo.getAllXSSFMaps();
     }
-    
+
     /**
-     * 
+     *
      * @return the helper class used to query the custom XML mapping defined in this workbook
      */
     public MapInfo getMapInfo(){

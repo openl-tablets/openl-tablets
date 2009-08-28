@@ -3,11 +3,10 @@ package org.openl.rules.liveexcel.formula;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
-import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 
 /**
  * Common class for LiveExcel functions.
@@ -34,10 +33,10 @@ public abstract class LiveExcelFunction implements FreeRefFunction {
         this.declFuncName = declFuncName;
     }
 
-    public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
-        Eval[] processedArgs = prepareArguments(args);
+    public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+        ValueEval[] processedArgs = prepareArguments(args);
         log.info("Execution of function [" + declFuncName + "]started. Arguments: " + printArguments(processedArgs));
-        ValueEval result = execute(processedArgs, workbook, srcCellSheet, srcCellRow, srcCellCol);
+        ValueEval result = execute(processedArgs, ec);
         if (result instanceof ErrorEval) {
             if (result == ErrorEval.VALUE_INVALID) {
                 log.error("Wrong arguments for function [" + declFuncName + "]");
@@ -53,8 +52,8 @@ public abstract class LiveExcelFunction implements FreeRefFunction {
         return result;
     }
 
-    public Eval[] prepareArguments(Eval[] args) {
-        Eval[] result = args.clone();
+    public ValueEval[] prepareArguments(ValueEval[] args) {
+        ValueEval[] result = args.clone();
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof RefEval) {
                 result[i] = ((RefEval) args[i]).getInnerValueEval();
@@ -65,9 +64,9 @@ public abstract class LiveExcelFunction implements FreeRefFunction {
         return result;
     }
 
-    private static String printArguments(Eval[] args) {
+    private static String printArguments(ValueEval[] args) {
         StringBuffer buffer = new StringBuffer("[");
-        for (Eval argument : args) {
+        for (ValueEval argument : args) {
             buffer.append(argument);
             buffer.append(';');
         }
@@ -75,6 +74,5 @@ public abstract class LiveExcelFunction implements FreeRefFunction {
         return buffer.toString();
     }
 
-    protected abstract ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
-            int srcCellCol);
+    protected abstract ValueEval execute(ValueEval[] args, OperationEvaluationContext ec);
 }

@@ -17,29 +17,34 @@
 
 package org.apache.poi.hssf.record.formula.eval;
 
-import org.apache.poi.hssf.record.formula.toolpack.MainToolPacksHandler;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.hssf.record.formula.toolpack.MainToolPacksHandler;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 /**
- * 
- * Common entry point for all user-defined (non-built-in) functions (where 
+ *
+ * Common entry point for all user-defined (non-built-in) functions (where
  * <tt>AbstractFunctionPtg.field_2_fnc_index</tt> == 255)
- * 
- * TODO rename to UserDefinedFunction
+ *
  * @author Josh Micich
  */
-final class ExternalFunction implements FreeRefFunction {
+final class UserDefinedFunction implements FreeRefFunction {
 
-	public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, 
-			int srcCellSheet, int srcCellRow,int srcCellCol) {
-		
+	public static final FreeRefFunction instance = new UserDefinedFunction();
+
+	private UserDefinedFunction() {
+		// enforce singleton
+	}
+
+	public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+		EvaluationWorkbook workbook = ec.getWorkbook();
 		int nIncomingArgs = args.length;
 		if(nIncomingArgs < 1) {
 			throw new RuntimeException("function name argument missing");
 		}
-		
-		Eval nameArg = args[0];
+
+		ValueEval nameArg = args[0];
 		FreeRefFunction targetFunc;
 		if (nameArg instanceof NameEval) {
 			targetFunc = findInternalUserDefinedFunction(workbook, (NameEval) nameArg);
@@ -50,9 +55,9 @@ final class ExternalFunction implements FreeRefFunction {
 					+ nameArg.getClass().getName() + ")");
 		}
 		int nOutGoingArgs = nIncomingArgs -1;
-		Eval[] outGoingArgs = new Eval[nOutGoingArgs];
+		ValueEval[] outGoingArgs = new ValueEval[nOutGoingArgs];
 		System.arraycopy(args, 1, outGoingArgs, 0, nOutGoingArgs);
-		return targetFunc.evaluate(outGoingArgs, workbook, srcCellSheet, srcCellRow, srcCellCol);
+		return targetFunc.evaluate(outGoingArgs, ec);
 	}
 
 	private static FreeRefFunction findExternalUserDefinedFunction(EvaluationWorkbook workbook,
@@ -86,7 +91,7 @@ final class ExternalFunction implements FreeRefFunction {
             return functionEvaluator;
         }
 		// TODO find the implementation for the user defined function
-		
+
 		throw new NotImplementedException(functionName);
 	}
 }

@@ -20,11 +20,10 @@ package org.apache.poi.hssf.record.formula.atp;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.hssf.record.formula.toolpack.ToolPack;
-import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 
 public final class AnalysisToolPak implements ToolPack {
@@ -36,10 +35,9 @@ public final class AnalysisToolPak implements ToolPack {
 			_functionName = functionName;
 		}
 
-		public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet,
-				int srcCellRow, int srcCellCol) {
-			throw new NotImplementedException(_functionName);
-		}
+        public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+            throw new NotImplementedException(_functionName);
+        }
 	};
 	
 	private Map<String, FreeRefFunction> _functionsByName = createFunctionsMap();
@@ -144,7 +142,7 @@ public final class AnalysisToolPak implements ToolPack {
 		r(m, "YIELD", null);
 		r(m, "YIELDDISC", null);
 		r(m, "YIELDMAT", null);
-		
+
 		return m;
 	}
 

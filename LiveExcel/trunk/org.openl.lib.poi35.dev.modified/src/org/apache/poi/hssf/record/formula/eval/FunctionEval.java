@@ -17,17 +17,17 @@
 
 package org.apache.poi.hssf.record.formula.eval;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.apache.poi.hssf.record.formula.AbstractFunctionPtg;
 import org.apache.poi.hssf.record.formula.function.FunctionMetadata;
 import org.apache.poi.hssf.record.formula.function.FunctionMetadataRegistry;
 import org.apache.poi.hssf.record.formula.functions.*;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  */
-public abstract class FunctionEval implements OperationEval {
+public final class FunctionEval implements OperationEval {
 	/**
 	 * Some function IDs that require special treatment
 	 */
@@ -44,34 +44,10 @@ public abstract class FunctionEval implements OperationEval {
 	// convenient access to namespace
 	private static final FunctionID ID = null;
 
-	protected static final Function[] functions ;
-
-	private static Map<Integer, FreeRefFunction> freeRefFunctionsByIdMap;
-
-	static {
-		Map<Integer, FreeRefFunction> m = new HashMap<Integer, FreeRefFunction>();
-		m.put(createFRFKey(ID.INDIRECT), new Indirect());
-		m.put(createFRFKey(ID.EXTERNAL_FUNC), new ExternalFunction());
-		freeRefFunctionsByIdMap = m;
-		functions = produceFunctions();
-	}
-	private static Integer createFRFKey(int functionIndex) {
-		return new Integer(functionIndex);
-	}
-
-
-	public Function getFunction() {
-		short fidx = getFunctionIndex();
-		return functions[fidx];
-	}
-	public boolean isFreeRefFunction() {
-		return freeRefFunctionsByIdMap.containsKey(createFRFKey(getFunctionIndex()));
-	}
-	public FreeRefFunction getFreeRefFunction() {
-		return freeRefFunctionsByIdMap.get(createFRFKey(getFunctionIndex()));
-	}
-
-	public abstract short getFunctionIndex();
+	/**
+	 * Array elements corresponding to unimplemented functions are <code>null</code>
+	 */
+	protected static final Function[] functions = produceFunctions();
 
 	private static Function[] produceFunctions() {
 		Function[] retval = new Function[368];
@@ -159,8 +135,8 @@ public abstract class FunctionEval implements OperationEval {
 
 		retval[124] = new Find();
 
-		retval[127] = new Istext();
-		retval[128] = new Isnumber();
+		retval[127] = LogicalFunction.IsText;
+		retval[128] = LogicalFunction.IsNumber;
 		retval[129] = new Isblank();
 		retval[130] = new T();
 
@@ -171,9 +147,9 @@ public abstract class FunctionEval implements OperationEval {
 		retval[183] = AggregateFunction.PRODUCT;
 		retval[184] = NumericFunction.FACT;
 
-		retval[190] = new Isnontext();
+		retval[190] = LogicalFunction.IsNonText;
 
-		retval[198] = new Islogical();
+		retval[198] = LogicalFunction.IsLogical;
 
 		retval[212] = NumericFunction.ROUNDUP;
 		retval[213] = NumericFunction.ROUNDDOWN;
@@ -244,5 +220,34 @@ public abstract class FunctionEval implements OperationEval {
 			}
 		}
 		return retval;
+	}
+
+	private AbstractFunctionPtg _delegate;
+
+	public FunctionEval(AbstractFunctionPtg funcPtg) {
+		_delegate = funcPtg;
+	}
+
+	public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+		int fidx = _delegate.getFunctionIndex();
+		// check for 'free ref' functions first
+		switch (fidx) {
+			case FunctionID.INDIRECT:
+				return Indirect.instance.evaluate(args, ec);
+			case FunctionID.EXTERNAL_FUNC:
+				return UserDefinedFunction.instance.evaluate(args, ec);
+		}
+		// else - must be plain function
+		Function f = functions[fidx];
+		if (f == null) {
+			throw new NotImplementedException("FuncIx=" + fidx);
+		}
+		int srcCellRow = ec.getRowIndex();
+		int srcCellCol = ec.getColumnIndex();
+		return f.evaluate(args, srcCellRow, (short) srcCellCol);
+	}
+
+	public int getNumberOfOperands() {
+		return _delegate.getNumberOfOperands();
 	}
 }
