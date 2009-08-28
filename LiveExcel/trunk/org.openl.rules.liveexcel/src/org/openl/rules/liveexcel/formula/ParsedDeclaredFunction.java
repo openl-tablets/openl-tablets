@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 
 /**
  * ParsedDeclaredFunction - handles parsed ol_declare_function
@@ -37,7 +36,8 @@ public class ParsedDeclaredFunction extends LiveExcelFunction {
         this.parameters = parameters;
     }
 
-    public ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
+    @Override
+    public ValueEval execute(ValueEval[] args, OperationEvaluationContext ec) {
         if (args.length != parameters.size()) {
             return ErrorEval.VALUE_INVALID;
         } else {

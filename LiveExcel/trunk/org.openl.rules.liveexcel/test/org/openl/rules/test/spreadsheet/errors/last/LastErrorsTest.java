@@ -34,17 +34,13 @@ public class LastErrorsTest {
     /**
      * fails on evaluating OL_PRINT_FULLNAME function
      */
-    @Test
+    @Test(expected = RuntimeException.class)
     public void testOlPrintFullname() throws Exception {
         Workbook workbook = getXSSFWorkbook("./test/resources/The rules 8.xlsm");
-        Sheet sheet = workbook.getSheet("Service Model");                
-        try {
-            Cell evaluateInCell = new XSSFFormulaEvaluator((XSSFWorkbook)workbook).evaluateInCell(sheet.getRow(9).getCell(5));
-            assertFalse("Test won`t pass if evaluation success",true);
-        } catch (RuntimeException e) {            
-            e.printStackTrace();
-            assertTrue("Fails because of the Life Excel plugin",true);
-        }
+        Sheet sheet = workbook.getSheet("Service Model");
+        Cell evaluateInCell = new XSSFFormulaEvaluator((XSSFWorkbook) workbook).evaluateInCell(sheet.getRow(9).getCell(
+                5));
+        assertFalse("Test won`t pass if evaluation success", true);
     }
     
     /**
@@ -59,18 +55,13 @@ public class LastErrorsTest {
      *  IF(E28>=8000, "[8000-8999]",E31))))))))'
      * 
      */
-    @Test 
+    @Test(expected = RuntimeException.class)
     public void testMultyLineFormula() {
         Workbook workbook = getXSSFWorkbook("./test/resources/The rules 8.xlsm");
         Sheet sheet = workbook.getSheet("Annual Mileage.2");
         Cell evaluateInCell;
-        try {
-            evaluateInCell = new XSSFFormulaEvaluator((XSSFWorkbook)workbook).evaluateInCell(sheet.getRow(31).getCell(4));
-            assertFalse("Test won`t pass if evaluation success",true);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            assertTrue("Fails because POI can`t parse multi line condition ",true);
-        }
+        evaluateInCell = new XSSFFormulaEvaluator((XSSFWorkbook) workbook).evaluateInCell(sheet.getRow(31).getCell(4));
+        assertFalse("Test won`t pass if evaluation success", true);
     }
     
     public static Workbook getXSSFWorkbook(String fileName) {

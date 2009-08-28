@@ -4,11 +4,10 @@ import java.util.Calendar;
 
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
@@ -61,7 +60,7 @@ public class LiveExcelEvaluator {
         for (int i = 0; i < args.length; i++) {
             processedArgs[i] = createEvalForObject(args[i]);
         }
-        return workbook.getUserDefinedFunction(functionName).evaluate(processedArgs, null, 0, 0, 0);
+        return workbook.getUserDefinedFunction(functionName).evaluate(processedArgs, null);
     }
 
     private StringEval addObjectToContext(Object object) {
@@ -85,8 +84,7 @@ public class LiveExcelEvaluator {
 
     private LiveExcelFunction generateGetterFunction(String name) {
         return new LiveExcelDataAccessFunction(evaluationContext, name) {
-            public ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
-                    int srcCellCol) {
+            public ValueEval execute(ValueEval[] args, OperationEvaluationContext ec) {
                 if (args.length != 1) {
                     return ErrorEval.VALUE_INVALID;
                 } else {

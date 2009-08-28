@@ -1,12 +1,12 @@
 package org.openl.rules.liveexcel.formula.lookup;
 
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.StringValueEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 
 /**
  * Class for registration new declared user lookups(declared by
@@ -16,7 +16,8 @@ import org.apache.poi.ss.formula.EvaluationWorkbook;
  */
 public class LiveExcellLookupDeclaration implements FreeRefFunction {
 
-    public ValueEval evaluate(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow, int srcCellCol) {
+    public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+        EvaluationWorkbook evaluationWorkbook = ec.getWorkbook();
         String functionName = ((StringValueEval) args[0]).getStringValue();
         AreaEval lookupArea = (AreaEval) args[args.length - 1];
         LiveExcelLookup lookup = createLookup(lookupArea);
@@ -26,7 +27,7 @@ public class LiveExcellLookupDeclaration implements FreeRefFunction {
         } else {
             new LookupTypeResolver(lookup).initParameters("");
         }
-        workbook.getWorkbook().registerUserDefinedFunction(functionName, lookup);
+        evaluationWorkbook.getWorkbook().registerUserDefinedFunction(functionName, lookup);
         return new StringEval(functionName);
     }
 

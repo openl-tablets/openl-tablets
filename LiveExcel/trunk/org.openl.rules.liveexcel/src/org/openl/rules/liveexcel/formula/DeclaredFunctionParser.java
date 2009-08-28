@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.openl.rules.liveexcel.LiveExcelException;
 
 /**
@@ -19,14 +19,14 @@ public class DeclaredFunctionParser {
 
     private static final Log LOG = LogFactory.getLog(DeclaredFunctionParser.class);
 
-    private Eval[] arguments;
+    private ValueEval[] arguments;
     private int pointer = 0;
     private ParsedDeclaredFunction parsDeclFunc = new ParsedDeclaredFunction();
     private List<FunctionParam> listParams = new ArrayList<FunctionParam>();
     
     private String formulaString;
 
-    private DeclaredFunctionParser(Eval[] arguments) {
+    private DeclaredFunctionParser(ValueEval[] arguments) {
         this.arguments = arguments;
     }
     
@@ -36,7 +36,7 @@ public class DeclaredFunctionParser {
      * @param evaluationContext EvaluationContext that presents service model.
      * @param functionName Name of function.
      */
-    public static ParsedDeclaredFunction parseFunction(Eval[] arguments) {
+    public static ParsedDeclaredFunction parseFunction(ValueEval[] arguments) {
         DeclaredFunctionParser parser = new DeclaredFunctionParser(arguments);
         parser.parse();
         return parser.getParsedDeclFunc();

@@ -6,14 +6,13 @@ import java.io.InputStream;
 import java.util.Date;
 
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.Eval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.LiveExcelFunction;
@@ -74,8 +73,7 @@ public class ExcelFunctionCalculator {
     // TODO: delete method
     private void makeExampleOfUDF(Workbook wb) {
         wb.registerUserDefinedFunction("base", new LiveExcelFunction() {
-            public ValueEval execute(Eval[] args, EvaluationWorkbook workbook, int srcCellSheet, int srcCellRow,
-                    int srcCellCol) {
+            public ValueEval execute(ValueEval[] args, OperationEvaluationContext ec) {
                 if (args.length != 1) {
                     return ErrorEval.VALUE_INVALID;
                 } else {
