@@ -109,19 +109,20 @@ public interface IWritableGrid extends IGrid {
             for (int i = 0; i < wgrid.getNumberOfMergedRegions(); i++) {
                 IGridRegion existingMergedRegion = wgrid.getMergedRegion(i);
                 // merged region is contained by region of grid
-                if (org.openl.rules.table.IGridRegion.Tool.contains(regionOfTable, existingMergedRegion.getLeft(),
+                if (IGridRegion.Tool.contains(regionOfTable, existingMergedRegion.getLeft(),
                         existingMergedRegion.getTop())) {
                     if (isColumns) {
                         // merged region contains column which we copy
-                        if (org.openl.rules.table.IGridRegion.Tool.contains(existingMergedRegion, regionOfTable
-                                .getLeft()
+                        if (IGridRegion.Tool.width(existingMergedRegion) > 1 // merged by columns region
+                                && IGridRegion.Tool.contains(existingMergedRegion, regionOfTable.getLeft()
                                 + firstRowOrColumn, existingMergedRegion.getTop())) {
                             resizeActions.add(new UndoableResizeRegionAction(existingMergedRegion,
                                     numberOfRowsOrColumns, isInsert, isColumns));
                         }
                     } else {
                         // merged region contains row which we copy
-                        if (org.openl.rules.table.IGridRegion.Tool.contains(existingMergedRegion, existingMergedRegion
+                        if (IGridRegion.Tool.height(existingMergedRegion) > 1 // merged by rows region
+                                && IGridRegion.Tool.contains(existingMergedRegion, existingMergedRegion
                                 .getLeft(), regionOfTable.getTop() + firstRowOrColumn)) {
                             resizeActions.add(new UndoableResizeRegionAction(existingMergedRegion,
                                     numberOfRowsOrColumns, isInsert, isColumns));
@@ -166,7 +167,6 @@ public interface IWritableGrid extends IGrid {
             for (int i = 0; i < rowsToMove; i++) {
                 int row = region.getBottom() - i;
                 for (int j = 0; j < w; j++) {
-                    // wgrid.copyCell(left+j, row, left+j, row + nRows);
                     actions.add(new UndoableCopyValueAction(left + j, row, left + j, row + nRows));
                 }
             }
@@ -226,6 +226,7 @@ public interface IWritableGrid extends IGrid {
             actions.add(new UndoableSetValueAction(left + 2, top + beforeRow, propValue, null));
 
             if (propsCount == 1) {
+                // resize 'properties' cell
                 actions.add(new UndoableResizeRegionAction(new GridRegion(top + 1, left,
                         top + 1, left), nRows, INSERT, ROWS));
             } else {
