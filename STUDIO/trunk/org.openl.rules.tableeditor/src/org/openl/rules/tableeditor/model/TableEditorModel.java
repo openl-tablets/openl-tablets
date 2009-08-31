@@ -8,6 +8,7 @@ package org.openl.rules.tableeditor.model;
 //import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridTableDelegator;
+import org.openl.rules.table.AUndoableCellAction;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
@@ -444,7 +445,7 @@ public class TableEditorModel {
         IUndoableGridAction ua = IWritableGrid.Tool.insertProp(region, wgrid(), name, value);
         //TableProperties tableProps = table.getProperties();
         //tableProps.setProperty(name, value);
-        RegionAction ra = new RegionAction(ua, ROWS, INSERT, 1);
+        RegionAction ra = new RegionAction(ua, ROWS, INSERT, (ua instanceof AUndoableCellAction) ? 0 : 1);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
     }
