@@ -16,7 +16,7 @@ public final class Constants {
     public static final String REQUEST_PARAM_CELL = "cell";
     public static final String REQUEST_PARAM_CELL_URI = "cellUri";
     public static final String REQUEST_PARAM_VALUE = "value";
-    public static final String REQUEST_PARAM_MOVE = "move";
+    //public static final String REQUEST_PARAM_MOVE = "move";
     public static final String REQUEST_PARAM_ALIGN = "align";
     public static final String REQUEST_PARAM_INDENT = "indent";
     public static final String REQUEST_PARAM_ROW = "row";

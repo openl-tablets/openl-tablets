@@ -27,7 +27,7 @@ import javax.servlet.ServletRequest;
  *
  * @author Andrey Naumenko
  */
-public class TableEditorController extends BaseTableEditorController implements JSTableEditor {
+public class TableEditorController extends BaseTableEditorController implements ITableEditorController {
 
     public static class EditorTypeResponse {
         private String editor;
@@ -208,35 +208,54 @@ public class TableEditorController extends BaseTableEditorController implements 
         }
     }
 
-    public String insertRowColBefore() throws Exception {
+    public String insertRowBefore() throws Exception {
         int row = getRow();
-        int col = getCol();
         String editorId = getEditorId();
         EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
             TableEditorModel editorModel = editorHelper.getModel();
-
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
             try {
                 if (row >= 0) {
                     if (editorModel.canAddRows(1)) {
                         editorModel.insertRows(1, row);
                     } else {
-                        IGridRegion newRegion = new TableServiceImpl(false).moveTable(editorModel.getUpdatedTable(), null);                        
+                        IGridRegion newRegion = new TableServiceImpl(false)
+                            .moveTable(editorModel.getUpdatedTable(), null);
                         editorModel.setRegion(newRegion);
                         editorModel.insertRows(1, row);
                     }
-                } else if (editorModel.canAddCols(1)) {
-                    editorModel.insertColumns(1, col);
+                    tmResponse.setResponse(render(editorId));
                 } else {
-                    tmResponse.setStatus("Can not add column");
+                    tmResponse.setStatus("Can not insert row");
                 }
             } catch (Exception e) {
                 tmResponse.setStatus("Internal server error");
                 e.printStackTrace();
             }
+            return pojo2json(tmResponse);
+        }
+        return null;
+    }
 
-            tmResponse.setResponse(render(editorId));
+    public String insertColBefore() throws Exception {
+        int col = getCol();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
+        if (editorHelper != null) {
+            TableEditorModel editorModel = editorHelper.getModel();
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
+            try {
+                if (col >= 0 && editorModel.canAddRows(1)) {
+                    editorModel.insertColumns(1, col);
+                    tmResponse.setResponse(render(editorId));
+                } else {
+                    tmResponse.setStatus("Can not insert column");
+                }
+            } catch (Exception e) {
+                tmResponse.setStatus("Internal server error");
+                e.printStackTrace();
+            }
             return pojo2json(tmResponse);
         }
         return null;
@@ -334,29 +353,30 @@ public class TableEditorController extends BaseTableEditorController implements 
         return response;
     }
 
-    public String removeRowCol() throws Exception {
+    public String removeRow() throws Exception {
         int row = getRow();
+        String editorId = getEditorId();
+        EditorHelper editorHelper = getHelper(editorId);
+        if (editorHelper != null) {
+            TableEditorModel editorModel = editorHelper.getModel();
+            if (row >= 0) {
+                editorModel.removeRows(1, row);
+                return pojo2json(new TableModificationResponse(render(editorId), editorHelper.getModel()));
+            }
+        }
+        return null;
+    }
+
+    public String removeCol() throws Exception {
         int col = getCol();
         String editorId = getEditorId();
         EditorHelper editorHelper = getHelper(editorId);
         if (editorHelper != null) {
             TableEditorModel editorModel = editorHelper.getModel();
-            boolean move = Boolean.valueOf(getRequestParam(Constants.REQUEST_PARAM_MOVE));
-
-            if (row >= 0) {
-                if (move) {
-                    ;
-                } else {
-                    editorModel.removeRows(1, row);
-                }
-            } else {
-                if (move) {
-                    ;
-                } else {
-                    editorModel.removeColumns(1, col);
-                }
+            if (col >= 0) {
+                editorModel.removeColumns(1, col);
+                return pojo2json(new TableModificationResponse(render(editorId), editorHelper.getModel()));
             }
-            return pojo2json(new TableModificationResponse(render(editorId), editorHelper.getModel()));
         }
         return null;
     }
