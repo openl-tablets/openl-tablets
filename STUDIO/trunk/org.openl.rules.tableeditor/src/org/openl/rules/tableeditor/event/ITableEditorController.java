@@ -4,18 +4,20 @@ package org.openl.rules.tableeditor.event;
  * This interface contains methods that TableEditor javascript object expects to
  * be present in a bean it communicates with.
  *
- * All methods do not take parameters, all information should be pulled out of
- * <code>FacesContext</code> and return a string - JSF navigation outcome.
  */
-public interface JSTableEditor {
+public interface ITableEditorController {
 
     String load() throws Exception;
 
     String getCellType() throws Exception;
 
-    String insertRowColBefore() throws Exception;
+    String insertRowBefore() throws Exception;
 
-    String removeRowCol() throws Exception;
+    String insertColBefore() throws Exception;
+
+    String removeRow() throws Exception;
+
+    String removeCol() throws Exception;
 
     String setCellValue() throws Exception;
 

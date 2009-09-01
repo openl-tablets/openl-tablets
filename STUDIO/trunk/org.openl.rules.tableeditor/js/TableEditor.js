@@ -14,8 +14,8 @@ var TableEditor = Class.create();
 TableEditor.Editors = $H();
 
 TableEditor.Constants = {
-    ADD_BEFORE : 1,
-    ADD_AFTER : 2,
+    INSERT_BEFORE : 1,
+    INSERT_AFTER : 2,
     MOVE_DOWN : 3,
     MOVE_UP : 4,
     REMOVE : 5
@@ -29,8 +29,10 @@ TableEditor.Operations = {
     SET_ALIGN : "setAlign",
     SET_INDENT : "setIndent",
     SET_PROP : "setProp",
-    REMOVE : "removeRowCol",
-    INSERT : "insertRowColBefore",
+    REMOVE_ROW : "removeRow",
+    REMOVE_COL : "removeCol",
+    INSERT_ROW : "insertRowBefore",
+    INSERT_COL : "insertColBefore",
     UNDO : "undo",
     REDO : "redo",
     SAVE : "saveTable"
@@ -605,17 +607,13 @@ TableEditor.prototype = {
             alert("Nothing is selected");
             return;
         }
-
         var params = [];
         params.editorId = this.editorId;
-        params[["row", "col"][index]] = (op == TableEditor.Constants.ADD_AFTER ? 1 : 0) + this.selectionPos[index];
-        if (op == TableEditor.Constants.MOVE_DOWN) params.move = true;
-        if (op == TableEditor.Constants.MOVE_UP) {
-            params.move = true;
-            params.up = true;
-        }
+        params[["row", "col"][index]] = (op == TableEditor.Constants.INSERT_AFTER ? 1 : 0) + this.selectionPos[index];
 
-        new Ajax.Request(this.buildUrl(([TableEditor.Constants.MOVE_DOWN, TableEditor.Constants.MOVE_UP, TableEditor.Constants.REMOVE].include(op) ? TableEditor.Operations.REMOVE : TableEditor.Operations.INSERT)), {
+        new Ajax.Request(this.buildUrl(([TableEditor.Constants.REMOVE].include(op)
+                ? (index == 0 ?  TableEditor.Operations.REMOVE_ROW :  TableEditor.Operations.REMOVE_COL)
+                : (index == 0 ?  TableEditor.Operations.INSERT_ROW :  TableEditor.Operations.INSERT_COL))), {
             onSuccess : this.modFuncSuccess,
             parameters : params,
             onFailure: AjaxHelper.handleError

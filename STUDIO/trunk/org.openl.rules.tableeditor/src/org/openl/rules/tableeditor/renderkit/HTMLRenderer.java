@@ -228,7 +228,7 @@ public class HTMLRenderer {
                 renderEditorToolbarItem(editorId + "_redo", editor, "img/Redo.gif", "undoredo(true)", "Redo")).append(
                 toolbarItemSeparator).append(
                 renderEditorToolbarItem(editorId + "_add_row_before", editor, "img/insert_row.gif",
-                        "doRowOperation(TableEditor.Constants.ADD_BEFORE)", "Insert row before")).append(
+                        "doRowOperation(TableEditor.Constants.INSERT_BEFORE)", "Insert row before")).append(
                 renderEditorToolbarItem(editorId + "_remove_row", editor, "img/delete_row.gif",
                         "doRowOperation(TableEditor.Constants.REMOVE)", "Remove row"))
         // .append(renderEditorToolbarItem(editorId + "_move_row_down", editor,
@@ -241,7 +241,7 @@ public class HTMLRenderer {
                 // up"))
                 .append(toolbarItemSeparator).append(
                         renderEditorToolbarItem(editorId + "_add_column_before", editor, "img/insert_column.gif",
-                                "doColOperation(TableEditor.Constants.ADD_BEFORE)", "Insert column before")).append(
+                                "doColOperation(TableEditor.Constants.INSERT_BEFORE)", "Insert column before")).append(
                         renderEditorToolbarItem(editorId + "_remove_column", editor, "img/delete_column.gif",
                                 "doColOperation(TableEditor.Constants.REMOVE)", "Remove column"))
                 // .append(renderEditorToolbarItem(editorId +
