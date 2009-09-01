@@ -1,6 +1,14 @@
 package org.openl.rules.indexer;
 
+/**
+ * Handles the index element and number of matches of it during indexing. 
+ *
+ */
 public class HitBucket implements Comparable<HitBucket> {
+    
+    /*
+     * number of matches of element during the indexing
+     */
     double weight = 0;
 
     IIndexElement element;
@@ -28,7 +36,7 @@ public class HitBucket implements Comparable<HitBucket> {
         return weight;
     }
 
-    public void inc() {
+    public void increment() {
         weight += 1;
     }
 

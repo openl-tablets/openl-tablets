@@ -1,23 +1,30 @@
 package org.openl.rules.indexer;
 
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.openl.rules.indexer.Index.TokenBucket;
 
+/**
+ * During initialization, gets the elements for inclusion and exclusion in search.
+ * Searches by the index using exclusion and inclusion search elements. see {@link IndexQuery#execute(Index)} 
+ */
 public class IndexQuery {
-    static final int ELEMENT_PRESENCE_WEIGHT = 20;
-    static final int CONTAINS_STR_WEIGHT = 100;
+    
+    private static final int ELEMENT_PRESENCE_WEIGHT = 20;
+    private static final int CONTAINS_STR_WEIGHT = 100;
 
-    String[][] tokensInclude = null;
-    String[][] tokensExclude = {};
+    private String[][] tokensInclude = null;
+    // protected for tests
+    protected String[][] tokensExclude = {};
 
-    IIndexElement[] indexExclude = {};
+    private IIndexElement[] indexExclude = {};
 
-    HashSet<IIndexElement> excludedIndexes;
+    private HashSet<IIndexElement> excludedIndexes;
 
     static  public <K,V> Map<K,V> intersect(Map<K,V> m1, Map<K,V> m2) {
         // TreeMap tm = new TreeMap(exclusions2.comparator());
@@ -43,25 +50,13 @@ public class IndexQuery {
             this.indexExclude = indexExclude;
         }
     }
-
-    public TreeMap<HitBucket, HitBucket> execute(Index idx) {
-        makeExclusions(idx);
-        Map<String, HitBucket> allInc = makeInclusions(idx);
-
-        TreeMap<HitBucket, HitBucket> tm = new TreeMap<HitBucket, HitBucket>();
-
-        for (Iterator<HitBucket> iter = allInc.values().iterator(); iter.hasNext();) {
-            HitBucket hb = (HitBucket) iter.next();
-            tm.put(hb, hb);
-        }
-        return tm;
-    }
-
-    public String[][] getTokensInclude() {
-        return tokensInclude;
-    }
-
-    void makeExclusions(Index idx) {
+    
+    /**
+     * Initialize the indexes for exclusion elements, according with tokens that 
+     * must be excluded from search result
+     * @param idx Index of files.
+     */
+    private void makeExclusions(Index idx) {
 
         excludedIndexes = new HashSet<IIndexElement>(indexExclude.length);
         for (int i = 0; i < indexExclude.length; i++) {
@@ -87,9 +82,14 @@ public class IndexQuery {
             }
         }
 
-    }
-
-    Map<String, HitBucket> makeInclusions(Index idx) {
+    }    
+    
+    /**
+     * 
+     * @param idx
+     * @return Map of search result, where there key is an uri and value is an element satisfying the search. 
+     */
+    private Map<String, HitBucket> makeInclusions(Index idx) {
         Map<String, HitBucket> allInclusions = new HashMap<String, HitBucket>();
 
         for (int i = 0; i < tokensInclude.length; i++) {
@@ -111,11 +111,11 @@ public class IndexQuery {
     }
 
     // Var 1 - all have to be there
-    Map<String, HitBucket> makeInclusions(Index idx, String[] tokens) {
+    private Map<String, HitBucket> makeInclusions(Index idx, String[] tokens) {
 
         String searchStr = tokens[0];
-        for (int i = 1; i < tokens.length; i++) {
-            searchStr += " " + tokens[i];
+        for (String token : tokens) {
+            searchStr += " " + token;
         }
 
         searchStr = searchStr.toLowerCase();
@@ -151,23 +151,40 @@ public class IndexQuery {
                         hbInc.setWeight(hb.getWeight() + hbInc.getWeight());
                         myInclusions.put(uri, hbInc);
                     }
-
                 }
-
                 inclusions = myInclusions;
             }
-
         }
-
         return inclusions;
     }
-
-    public void setIndexExclude(IIndexElement[] indexExclude) {
-        this.indexExclude = indexExclude;
+    
+    public String[][] getTokensInclude() {
+        return tokensInclude;
     }
-
+    
     public void setTokensExclude(String[][] tokensExclude) {
         this.tokensExclude = tokensExclude;
     }
+    
+    public void setIndexExclude(IIndexElement[] indexExclude) {
+        this.indexExclude = indexExclude;
+    } 
+    
+    /**
+     * Process the index with the search query.  
+     * @param idx Indexed data.
+     * @return 
+     */
+    public TreeSet<HitBucket> execute(Index idx) {
+        TreeSet<HitBucket> result = new TreeSet<HitBucket>();        
+        makeExclusions(idx);
+        Map<String, HitBucket> allInc = makeInclusions(idx);
 
+        for (Iterator<HitBucket> iter = allInc.values().iterator(); iter.hasNext();) {
+            HitBucket hb = (HitBucket) iter.next();
+            result.add(hb);
+        }
+        return result;
+    }
+    
 }

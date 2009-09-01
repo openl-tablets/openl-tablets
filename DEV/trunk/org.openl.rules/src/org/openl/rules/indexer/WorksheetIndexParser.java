@@ -12,7 +12,13 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
 
+/**
+ * Parser for sheet. Parses the sheet to table it contains.
+ * 
+ */
 public class WorksheetIndexParser implements IIndexParser {
+    
+    private static final String NOT_AVAILABLE = "N/A";
 
     public String getCategory() {
         return IDocumentType.WORKSHEET.getCategory();
@@ -21,12 +27,24 @@ public class WorksheetIndexParser implements IIndexParser {
     public String getType() {
         return IDocumentType.WORKSHEET.getType();
     }
+    
 
+    /**
+     * Try to process root as sheet {@link XlsSheetSourceCodeModule} and 
+     * call {@link WorksheetIndexParser#parseSheet(XlsSheetSourceCodeModule)}.
+     * 
+     * @return Tables from the sheet as array of {@link IIndexElement}.
+     */
     public IIndexElement[] parse(IIndexElement root) {
         XlsSheetSourceCodeModule sheetSrc = (XlsSheetSourceCodeModule) root;
         return parseSheet(sheetSrc);
     }
-
+    
+    /**
+     * Parses the sheet to table it contains.
+     * @param sheetSrc Sheet for parsing.
+     * @return Tables from the sheet.
+     */
     public TableSyntaxNode[] parseSheet(XlsSheetSourceCodeModule sheetSrc) {
 
         XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSrc);
@@ -48,7 +66,7 @@ public class WorksheetIndexParser implements IIndexParser {
 
             String xls_type = XlsLoader.tableHeaders().get(header);
             if (xls_type == null) {
-                xls_type = "N/A";
+                xls_type = NOT_AVAILABLE;
             }
 
             nodes[i] = new TableSyntaxNode(xls_type, new GridLocation(table), sheetSrc, table, headerNode);
