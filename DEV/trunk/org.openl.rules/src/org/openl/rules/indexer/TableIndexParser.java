@@ -7,6 +7,10 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 
+/**
+ * Parser for tables. Parses the table to cells it contain. see {@link GridCellSourceCodeModule}
+ * 
+ */
 public class TableIndexParser implements IIndexParser {
 
     public String getCategory() {
@@ -16,7 +20,13 @@ public class TableIndexParser implements IIndexParser {
     public String getType() {
         return "All";
     }
-
+    
+    /**
+     * Parses the table to cells it contain. see {@link GridCellSourceCodeModule}
+     * 
+     * @param root Table for parsing.
+     * @return Array of grid cells of this table.
+     */
     public IIndexElement[] parse(IIndexElement root) {
         TableSyntaxNode tableSrc = (TableSyntaxNode) root;
 
@@ -25,19 +35,17 @@ public class TableIndexParser implements IIndexParser {
         int w = table.getLogicalWidth();
         int h = table.getLogicalHeight();
 
-        List<GridCellSourceCodeModule> v = new ArrayList<GridCellSourceCodeModule>();
+        List<GridCellSourceCodeModule> gridCells = new ArrayList<GridCellSourceCodeModule>();
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
                 if (table.getCell(j, i).getStringValue() != null) {
-                    v.add(new GridCellSourceCodeModule(table, j, i
-                    // , tableSrc
-                            ));
+                    gridCells.add(new GridCellSourceCodeModule(table, j, i));
                 }
             }
         }
 
-        return (GridCellSourceCodeModule[]) v.toArray(new GridCellSourceCodeModule[v.size()]);
+        return (GridCellSourceCodeModule[]) gridCells.toArray(new GridCellSourceCodeModule[gridCells.size()]);
     }
 
 }

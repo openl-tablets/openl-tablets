@@ -1,7 +1,12 @@
 package org.openl.rules.table;
 
 import org.openl.rules.lang.xls.binding.TableProperties;
-
+/**
+ * 
+ * @author DLiauchuk
+ * 
+ * The high logical representation of table
+ */
 public class Table implements ITable {
         
     private IGridTable gridTable;
@@ -18,7 +23,6 @@ public class Table implements ITable {
     public IGridTable getGridTable(String view) {
         return gridTable;
     }
-
     
     public void setProperties(TableProperties tableProperties) {
         this.properties = tableProperties;

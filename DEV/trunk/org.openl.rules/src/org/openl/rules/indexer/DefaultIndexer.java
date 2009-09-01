@@ -11,16 +11,13 @@ public class DefaultIndexer implements IIndexer {
     }
 
     public void index(IIndexElement element, Index index) {
-        String src = element.getIndexedText();
-        if (src == null) {
-            return;
-        }
-        Tokenizer tt = new Tokenizer(src);
+        String indexedText = element.getIndexedText();
+        if (indexedText != null) {
+            String[] tokens = Tokenizer.parse(indexedText);
 
-        String[] tokens = tt.parse();
-
-        for (int i = 0; i < tokens.length; i++) {
-            index.add(tokens[i], element);
+            for (String token : tokens) {
+                index.add(token, element);
+            }
         }
     }
 
