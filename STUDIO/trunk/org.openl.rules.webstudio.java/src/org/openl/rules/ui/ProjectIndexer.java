@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
+ * Gets all the files from project directory and set it to {@link FileIndex} for further indexing .
+ * 
  * @author snshor
  *
  */
@@ -27,48 +29,48 @@ public class ProjectIndexer extends FileIndexer {
 
         loadFiles();
     }
-
-    int findMaxIndexInPath(String path) {
+    
+    /**
+     * Find the max length between 'bin' and 'classes' folders in the given path. 
+     * 
+     * @param path Path to file.
+     * @return
+     */
+    int findMaxPathLength(String path) {
         int idx1 = path.lastIndexOf("bin");
         int idx2 = path.lastIndexOf("classes");
         return Math.max(idx1, idx2);
     }
-
+    
+    /**
+     * Iterates over project folder, searches for excel and word files.
+     * 
+     */
     synchronized void  loadFiles() {
-		TreeIterator<File> fti = new WebstudioTreeIterator(new File(projectRoot), 0);
+		TreeIterator<File> filesTreeIter = new WebstudioTreeIterator(new File(projectRoot), 0);
 		
-		HashMap<String, String> m = new HashMap<String, String>();
-	    for (; fti.hasNext();) {
-			File f = fti.next();
-			String fileName = f.getName();
+		HashMap<String, String> fileMap = new HashMap<String, String>();
+	    for (; filesTreeIter.hasNext();) {
+			File file = filesTreeIter.next();
+			String fileName = file.getName();
 			if (FileTypeHelper.isExcelFile(fileName) || FileTypeHelper.isWordFile(fileName))
 				try {
-					String cp = f.getCanonicalPath(); 
-					
-					String name = f.getName();
-					String existing = m.get(name);
-					
-					String preferrable = selectPreferrablePath(existing, cp);
-					
-					m.put(name, preferrable);
+					String canonPath = file.getCanonicalPath(); 										
+					String fileAlreadyExist = fileMap.get(fileName);					
+					String preferrablePath = selectPreferrablePath(fileAlreadyExist, canonPath);					
+					fileMap.put(fileName, preferrablePath);
 			} catch (IOException e) {
 					e.printStackTrace();
-				}
-			
+				}			
 		}
 	    
+	    String[] files = new String[fileMap.size()];
 	    
-	    
-	    String[] res = new String[m.size()];
-	    
-	    Iterator<String> it = m.values().iterator();
-	    for (int i = 0; i < res.length; i++) {
-			res[i] = it.next();
-		}
-
-	    
-	    setFiles(res);
-		
+	    Iterator<String> it = fileMap.values().iterator();
+	    for (int i = 0; i < files.length; i++) {
+			files[i] = it.next();
+		}	    
+	    setFiles(files);		
 	}
 
     @Override
@@ -77,21 +79,23 @@ public class ProjectIndexer extends FileIndexer {
     }
 
     /**
-     * @param existing
-     * @param cp
+     * Preferable are files with min length to 'bin' or 'classes' folders in their path.
+     * 
+     * @param existingFile File that has been already found and put to map.
+     * @param currentFile Path to current file.
      * @return
      */
-    private String selectPreferrablePath(String existing, String cp) {
-        if (existing == null) {
-            return cp;
+    private String selectPreferrablePath(String existingFile, String currentFile) {
+        if (existingFile == null) {
+            return currentFile;
         }
-        int i1 = findMaxIndexInPath(existing);
-        int i2 = findMaxIndexInPath(cp);
-        if (i1 == i2) {
-            Log.warn("Two files with the same name: \n" + existing + "\n" + cp);
+        int existMaxLength = findMaxPathLength(existingFile);
+        int currentMaxLength = findMaxPathLength(currentFile);
+        if (existMaxLength == currentMaxLength) {
+            Log.warn("Two files with the same name: \n" + existingFile + "\n" + currentFile);
         }
 
-        return i1 < i2 ? existing : cp;
+        return existMaxLength < currentMaxLength ? existingFile : currentFile;
     }
 
 }

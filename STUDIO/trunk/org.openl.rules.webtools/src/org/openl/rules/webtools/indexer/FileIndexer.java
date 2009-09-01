@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import org.openl.main.SourceCodeURLConstants;
@@ -35,15 +36,18 @@ import org.openl.util.Log;
 import org.openl.util.StringTool;
 
 /**
+ * Handles Word and Excel files for indexing. Check if files where changed in time. If true,
+ * reindex it. 
  * @author snshor
  *
  */
 public class FileIndexer extends WebTool {
-    long[] updateTimes;
+    
+    private long[] updateTimes;
 
-    String[] files = null;
+    private String[] files = null;
 
-    Index index;
+    private Index index;
 
     static public String getBucketLink(TokenBucket tb) {
         return urlLink("showIndex.jsp?value=" + StringTool.encodeHTMLBody(tb.displayValue()), null, tb.displayValue()
@@ -95,21 +99,13 @@ public class FileIndexer extends WebTool {
 
         ixr.index(src, index);
 
-        // String[][] included = {{"account", "id" }};
-        // String[][] excluded = {{"unique"}};
-        // IIndexElement[] includedInd = {};
-        //
-        // IndexQuery iq = new IndexQuery(included, excluded, includedInd);
+        IndexQuery iq = IndexQueryParser.parse("account id unique");
 
-        IndexQueryParser iqp = new IndexQueryParser("account id unique");
-        IndexQuery iq = iqp.parse();
-
-        TreeMap tm = iq.execute(index);
+        TreeSet<HitBucket> hitBuckets = iq.execute(index);
 
         String[] tokens = tokens(iq.getTokensInclude(), index);
 
-        for (Iterator iter = tm.values().iterator(); iter.hasNext();) {
-            HitBucket hb = (HitBucket) iter.next();
+        for (HitBucket hb : hitBuckets) {            
             String text = hb.getElement().getIndexedText();
             String res = htmlStringWithSelections(text, tokens);
 
@@ -118,8 +114,14 @@ public class FileIndexer extends WebTool {
         }
 
     }
-
-    static long[] makeTimes(String[] xfiles) {
+    
+    /**
+     * Gets the last times of file modifications.
+     * 
+     * @param xfiles
+     * @return Times of last file modifications.
+     */
+    static long[] getLastModifTime(String[] xfiles) {
         long[] times = new long[xfiles.length];
 
         for (int i = 0; i < xfiles.length; i++) {
@@ -148,7 +150,7 @@ public class FileIndexer extends WebTool {
                     v.add(tx);
                     continue;
                 }
-                for (Iterator<String> iter = tb.getTokens().values().iterator(); iter.hasNext();) {
+                for (Iterator<String> iter = tb.getTokens().iterator(); iter.hasNext();) {
                     v.add(iter.next());
                 }
 
@@ -172,20 +174,27 @@ public class FileIndexer extends WebTool {
         s1 += ">" + text + "</a>";
         return s1;
     }
-
+    
+    /**
+     * Gets the buckets on the specified letter
+     * @param charStr Capital letter on which you want to get all buckets from index.
+     * @return Array of {@link TokenBucket}
+     */
     public TokenBucket[] getBuckets(String charStr) {
         TreeMap tm = getIndex().getFirstCharMap().get(charStr);
 
-        TokenBucket[] tb = new TokenBucket[tm.size()];
+        TokenBucket[] tokenBucket = new TokenBucket[tm.size()];
         int i = 0;
         for (Iterator iter = tm.values().iterator(); iter.hasNext(); ++i) {
-            TokenBucket element = (TokenBucket) iter.next();
-            tb[i] = element;
-
+            tokenBucket[i] = (TokenBucket) iter.next();
         }
-        return tb;
+        return tokenBucket;
     }
-
+    
+    /**
+     * Gets the index. If null index existing files.
+     * @return index
+     */
     public synchronized Index getIndex() {
         if (index == null) {
             index = makeIndex();
@@ -202,165 +211,178 @@ public class FileIndexer extends WebTool {
         }
         return is;
     }
-
+    
+    /**
+     * Gets the string array of capital letters for which there are words in files.
+     * @return String array of capital letters for which there are words in files. 
+     */
     public String[] getLetters() {
         Index idx = getIndex();
-        Vector v = new Vector();
+        Vector result = new Vector();
 
         for (Iterator iter = idx.getFirstCharMap().keySet().iterator(); iter.hasNext();) {
             String s = (String) iter.next();
-
             if (Character.isLetter(s.charAt(0))) {
-
-                v.add(s);
+                result.add(s);
             }
-
         }
-
-        return (String[]) v.toArray(new String[v.size()]);
-
+        return (String[]) result.toArray(new String[result.size()]);
     }
-
-    public String[][] getResultsForIndex(String value) {
-        Index index = getIndex();
-
-        TokenBucket tb = index.findTokenBucket(value);
+    
+    /**
+     * Gets the result from indexed files satisfying search query request.
+     * 
+     * @param searchQuery Query for search.
+     * @return Double string array, contains the uri to element and piece of text where 
+     * search query request was found.
+     */
+    public String[][] getResultsForIndex(String searchQuery) {        
+        TokenBucket tb = getIndex().findTokenBucket(searchQuery);
 
         Vector v = new Vector();
 
         String[] tokens = new String[tb.getTokens().size()];
         int i = 0;
-        for (Iterator iter = tb.getTokens().values().iterator(); iter.hasNext(); ++i) {
-            String element = (String) iter.next();
+        for (String element : tb.getTokens()) {            
             tokens[i] = element;
+            i++;
         }
 
         i = 1;
         for (Iterator iter = tb.getIndexElements().values().iterator(); iter.hasNext(); ++i) {
             HitBucket hb = (HitBucket) iter.next();
-            int N = 3;
-
-            String[] s1 = new String[N];
-            String uri = hb.getElement().getUri();
-            s1[0] = uri;
+            String[] s1 = new String[3]; 
+            s1[0] = hb.getElement().getUri();
             s1[1] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
             v.add(s1);
         }
 
         return (String[][]) v.toArray(new String[v.size()][]);
     }
+    
+    /**
+     * Gets the result from indexed files satisfying search query request and filtered 
+     * with uri filter.
+     * 
+     * @param searchQuery Query for search.
+     * @param maxRes Max number of results satisfying the search criteria.
+     * @param uriFilter Filter for results. If null, all results will be taken.
+     * @return Double string array, contains the uri to element and piece of text where 
+     * search query request was found.
+     */
+    public String[][] getResultsForQuery(String searchQuery, int maxRes, IStringFilter uriFilter) {        
+        IndexQuery indexQuery = IndexQueryParser.parse(searchQuery);
+                
+        TreeSet<HitBucket> searchRes = indexQuery.execute(getIndex());
 
-    public String[][] getResultsForQuery(String query, int maxRes, IStringFilter uriFilter) {
-        IndexQueryParser iqp = new IndexQueryParser(query);
-        IndexQuery iq = iqp.parse();
+        String[] tokens = tokens(indexQuery.getTokensInclude(), index);
 
-        TreeMap tm = iq.execute(getIndex());
+        int size = Math.min(maxRes, searchRes.size());
 
-        String[] tokens = tokens(iq.getTokensInclude(), index);
-
-        int size = Math.min(maxRes, tm.size());
-
-        Vector vres = new Vector(size);
+        Vector result = new Vector(size);
 
         int cnt = 0;
-        for (Iterator iter = tm.values().iterator(); iter.hasNext();) {
+        for (HitBucket hb : searchRes) {
             if (cnt >= size) {
                 break;
             }
-
-            HitBucket hb = (HitBucket) iter.next();
+            
             if (uriFilter != null && !uriFilter.matchString(hb.getElement().getUri())) {
                 continue;
-            }
-
-            ++cnt;
+            }            
             String[] res = new String[3];
             String uri = hb.getElement().getUri();
             res[0] = uri;
             res[1] = htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
-            vres.add(res);
+            result.add(res);
+            ++cnt;
         }
-        return (String[][]) vres.toArray(new String[0][]);
+        return (String[][]) result.toArray(new String[0][]);
     }
-
+    
+    /**
+     * Check whether the files were changed.
+     * @param xfiles
+     * @param times
+     * @return
+     */
     boolean isFilesChanged(String[] xfiles, long[] times) {
-        if (files == null) {
-            return true;
-        }
-        if (files.length != xfiles.length) {
-            return true;
-        }
-
-        for (int i = 0; i < xfiles.length; i++) {
-            if (!xfiles[i].equals(files[i])) {
-                return true;
-            }
-        }
-
-        if (updateTimes == null) {
-            return true;
-        }
-
-        for (int i = 0; i < times.length; i++) {
-            if (times[i] != updateTimes[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public Index makeIndex() {
-        IIndexParser[] parsers = { new WorkbookIndexParser(), new WorksheetIndexParser(), new TableIndexParser(),
-                new WordDocIndexParser() };
-        IIndexer[] indexers = {};
-
-        IndexRunner ixr = new IndexRunner(parsers, indexers, new DefaultIndexer());
-
-        Index index = new Index();
-        if (files == null) {
-            return index;
-        }
-
-        for (int i = 0; i < files.length; i++) {
-            System.out.print("Indexing " + files[i] + " ... ");
-            long start = System.currentTimeMillis();
-
-            FileSourceCodeModule source = new FileSourceCodeModule(files[i], null);
-
-            IIndexElement src = null;
-            if (FileTypeHelper.isExcelFile(files[i])) {
-                src = new XlsWorkbookSourceCodeModule(source);
-            } else {
-                try {
-                    src = new WordDocSourceCodeModule(source);
-                } catch (Throwable t) {
-                    t.printStackTrace(System.err);
-                    Log
-                            .error(
-                                    "This is sometimes happenning with MS Word files using Apache POI. Hopefully either they fix it or we switch to another API",
-                                    t);
-                    Log.warn("Skipping " + files[i]);
-                    continue;
+        boolean result = false;
+        
+        if(files == null || updateTimes == null || files.length != xfiles.length) {
+            result = true;
+        } else {
+            for (int i = 0; i < xfiles.length; i++) {
+                if (!xfiles[i].equals(files[i])) {
+                    result = true;
                 }
             }
-
-            ixr.index(src, index);
-
-            long time = System.currentTimeMillis() - start;
-
-            System.out.println(" Elapsed Time: " + time + "ms");
-
-        }
-
-        return index;
+            for (int i = 0; i < times.length; i++) {
+                if (times[i] != updateTimes[i]) {
+                    result = true;
+                }
+            }
+        }        
+        return result;
     }
+    
+    /**
+     * Index all the files in project according to their format (Word or Excel). 
+     * @return Index for files.
+     */
+    public Index makeIndex() {
+        Index indexResult = new Index();
+        if (files != null) {
+            IIndexParser[] parsers = { new WorkbookIndexParser(), new WorksheetIndexParser(), new TableIndexParser(),
+                    new WordDocIndexParser() };
+            IIndexer[] indexers = {};
 
+            IndexRunner indexRunner = new IndexRunner(parsers, indexers, new DefaultIndexer());            
+
+            for (String file : files) {
+                System.out.print("Indexing " + file + " ... ");
+                long start = System.currentTimeMillis();
+
+                FileSourceCodeModule source = new FileSourceCodeModule(file, null);
+
+                IIndexElement srcToIndex = null;
+                if (FileTypeHelper.isExcelFile(file)) {
+                    srcToIndex = new XlsWorkbookSourceCodeModule(source);
+                } else {
+                    try {
+                        srcToIndex = new WordDocSourceCodeModule(source);
+                    } catch (Throwable t) {
+                        t.printStackTrace(System.err);
+                        Log.error("This is sometimes happenning with MS Word files using Apache POI. " +
+                        		"Hopefully either they fix it or we switch to another API", t);
+                        Log.warn("Skipping " + file);
+                        continue;
+                    }
+                }
+
+                indexRunner.index(srcToIndex, indexResult);
+
+                long time = System.currentTimeMillis() - start;
+
+                System.out.println(" Elapsed Time: " + time + "ms");
+            }
+        }         
+        return indexResult;
+    }
+    
+    /**
+     * Reset index to null. To reinitialize it call getIndex().
+     */
     public void reset() {
         index = null;
     }
-
+    
+    /**
+     * Sets the files for further indexing.
+     * @param xfiles
+     */
     synchronized public void setFiles(String[] xfiles) {
-        long[] times = makeTimes(xfiles);
+        long[] times = getLastModifTime(xfiles);
         if (isFilesChanged(xfiles, times)) {
             index = null;
             files = xfiles;
