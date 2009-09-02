@@ -10,7 +10,7 @@
 
   <ui:define name="header">
     <a4j:loadStyle src="resource:///css/openl/advSearch.css" />
-    <a4j:loadScript src="resource:///javascript/search/advSearch.js" />
+    <a4j:loadScript src="resource:///javascript/search/advSearch.js" />    
   </ui:define>
 
   <ui:define name="page">
@@ -33,11 +33,11 @@
     <th class="search">Condition</th>
     <th class="search">Value</th>
 
-    <c:forEach items="#{advancedSearch.tableElements}" var="se" varStatus="status">
+    <c:forEach items="#{advancedSearch.tableElements}" var="searchElem" varStatus="status">
       <c:if test="#{status.index > 0}">
         <tr>
-          <td colspan="7" align="#{se.operator.group ? 'center' : 'value'}" class="#{se.operator.group ? 'search-group' : 'search-element'}">
-             <h:selectOneMenu value="#{se.groupOperatorName}" onchange="alignGop(this)" styleClass="#{se.operator.group ? 'search-group' : 'search-element'}">
+          <td colspan="7" align="#{searchElem.operator.group ? 'center' : 'value'}" class="#{searchElem.operator.group ? 'search-group' : 'search-element'}">
+             <h:selectOneMenu value="#{searchElem.groupOperatorName}" onchange="alignGop(this)" styleClass="#{searchElem.operator.group ? 'search-group' : 'search-element'}">
                <f:selectItems value="#{advancedSearch.groupOperationValues}"/>
              </h:selectOneMenu>
           </td>
@@ -46,29 +46,30 @@
       <tr>
         <td> </td>
         <td>
-          <h:selectOneMenu value="#{se.notFlag}">
+          <h:selectOneMenu value="#{searchElem.notFlag}">
             <f:selectItems value="#{advancedSearch.notFlagValues}"/>
           </h:selectOneMenu>
         </td>
 
         <td>
-          <h:selectOneMenu value="#{se.type}" id="type1_#{status.index}" onchange="makeValue1Visible(this, #{status.index})">
+          <!-- searchElem.type means 'header' or 'property' -->
+          <h:selectOneMenu value="#{searchElem.type}" id="type1_#{status.index}" onchange="makeValue1Visible(this, #{status.index})">
             <f:selectItems value="#{advancedSearch.typeValues}"/>
           </h:selectOneMenu>
         </td>
 
         <td>
-          <h:inputText value="#{se.value1}" id="v1_#{status.index}" styleClass="search-input" onclick="jscleanAny(this)"/>
+          <h:inputText value="#{searchElem.value1}" id="typeValue_#{status.index}" styleClass="search-input" onclick="jscleanAny(this)"/>
         </td>
 
         <td>
-          <h:selectOneMenu value="#{se.opType2}">
+          <h:selectOneMenu value="#{searchElem.opType2}">
             <f:selectItems value="#{advancedSearch.opTypeValues}"/>
           </h:selectOneMenu>
         </td>
 
         <td>
-          <h:inputText value="#{se.value2}" styleClass="search-input" onclick="jscleanAny(this)"/>
+          <h:inputText value="#{searchElem.value2}" styleClass="search-input" onclick="jscleanAny(this)"/>
         </td>
 
         <td>

@@ -1,6 +1,17 @@
+function init() 
+{
+	$$('input[id^="advSearchForm:typeValue_"]').each(function(elem) {		
+		var pair = elem.id.split("_");
+		var index = pair[1];		
+		makeValue1Visible(document.getElementById("advSearchForm:type1_" + index),index);		
+    });
+}
+
+window.onload = init;
+
 function body_load()
 {
-	document.getElementById('img_action').value = ''
+	document.getElementById('img_action').value = ''	
 }
 
 function img_action_click(action)
@@ -11,7 +22,7 @@ function img_action_click(action)
 
 
 function makeValue1Visible(el, index) {
-    document.getElementById("advSearchForm:v1_" + index).disabled = el.value == 'property'
+    document.getElementById("advSearchForm:typeValue_" + index).disabled = el.value == 'header'
 }
 
 
