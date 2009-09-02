@@ -54,7 +54,7 @@ public class CellEditorSelector {
     }
 
     public ICellEditor selectEditor(int row, int col, TableEditorModel model) {
-        ICellInfo cellInfo = model.getCell(row, col).getCellInfo();
+        ICellInfo cellInfo = model.getCellInfo(row, col);
         if (cellInfo != null && cellInfo.hasFormula()) {
             return factory.makeFormulaEditor();
         }
