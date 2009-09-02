@@ -13,6 +13,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellInfo;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -254,8 +255,8 @@ public class TableEditorModel {
         return IWritableGrid.Tool.getCellStyle(gridTable.getGrid(), tX(column), tY(row));
     }
 
-    public ICell getCell(int row, int col) {
-        return gridTable.getCell(col, row);
+    public ICellInfo getCellInfo(int row, int column) {
+        return gridTable.getGrid().getCellInfo(tX(column), tY(row));
     }
 
     /**
