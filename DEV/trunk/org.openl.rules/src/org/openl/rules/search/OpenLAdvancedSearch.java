@@ -31,8 +31,8 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
 
     boolean[] selectedType = new boolean[typeButtons.length];
 
-    SearchElement[] tableElements = { new SearchElement(HEADER), new SearchElement(PROPERTY) };
-    SearchElement[] columnElements = { new SearchElement(COLUMN_NAME), new SearchElement(COLUMN_TYPE) };
+    SearchElement[] tableElements = { new SearchElement(HEADER)};
+    SearchElement[] columnElements = { new SearchElement(COLUMN_NAME)};
 
     private void addColumnPropertyAfter(int i) {
         columnElements = (SearchElement[]) ArrayTool.insertValue(i + 1, columnElements, columnElements[i].copy());
