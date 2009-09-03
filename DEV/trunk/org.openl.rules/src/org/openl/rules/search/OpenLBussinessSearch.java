@@ -79,9 +79,13 @@ public class OpenLBussinessSearch implements IOpenLSearch{
         for(Property propFromSearch : propsFromSearch) {
             if(tableProperties!=null){
                 Property property = tableProperties.getProperty(propFromSearch.getKey().getValue());
-                if(property!=null && property.getValue().getValue().equalsIgnoreCase(propFromSearch.getValue().getValue())) {
-                    numMatch++;
-                }
+                if(property != null)    {
+                    String propValue = property.getValue().getValue().toLowerCase();
+                    String propValueFromSearch  = propFromSearch.getValue().getValue().toLowerCase();
+                    if(propValue.equals(propValueFromSearch) || propValue.contains(propValueFromSearch)) {
+                        numMatch++;
+                    }
+                }                
             }
         }
         if(numMatch == propsFromSearch.size() && numMatch > 0) {
