@@ -31,6 +31,7 @@ public class XlsSheetGridExporter implements IExporter {
      * @param section exported section
      * @return row number required for the section.
      */
+    @SuppressWarnings("unchecked")
     private static int height(IExportSection section) {
         int height = 0;
         IExportSection[] subSections = section.getSubSections();
@@ -54,6 +55,7 @@ public class XlsSheetGridExporter implements IExporter {
      * @param section exported section
      * @return column number required for the section.
      */
+    @SuppressWarnings("unchecked")
     private static int width(IExportSection section) {
         int width = 0;
         IExportSection[] subSections = section.getSubSections();
@@ -145,6 +147,7 @@ public class XlsSheetGridExporter implements IExporter {
         return style;
     }
 
+    @SuppressWarnings("unchecked")
     public void persist(IExportable exportable) throws ExportException {
         IExportSection exportSection = exportable.mainSection();
         int width = width(exportSection), height = height(exportSection) + 1;
@@ -171,6 +174,7 @@ public class XlsSheetGridExporter implements IExporter {
      * @param widthToFill number of columns not filled yet in current row
      * @return height of the section
      */
+    @SuppressWarnings("unchecked")
     private int persist(int col, int row, IExportSection section, int widthToFill) {
         int height = 0;
         ++col;

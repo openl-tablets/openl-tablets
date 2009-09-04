@@ -10,7 +10,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.table.ui.ICellStyle;
 
 public class XlsCellStyle2 implements ICellStyle {
-	private static Hashtable<Integer, HSSFColor> oldIndexedColors = HSSFColor.getIndexHash();
+
+    @SuppressWarnings("unchecked")
+    private static Hashtable<Integer, HSSFColor> oldIndexedColors = HSSFColor.getIndexHash();
 	
 	XSSFCellStyle xlsStyle;
 	XSSFWorkbook workbook;
