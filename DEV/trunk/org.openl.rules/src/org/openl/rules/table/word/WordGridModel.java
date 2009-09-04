@@ -1,9 +1,10 @@
 package org.openl.rules.table.word;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
-import java.util.Vector;
 
 import org.apache.poi.hwpf.usermodel.Table;
 import org.apache.poi.hwpf.usermodel.TableCell;
@@ -25,11 +26,11 @@ public class WordGridModel implements IGrid {
 
         int ncolumns;
 
-        Vector regions = new Vector();
+        List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-        Vector vregions = new Vector();
+        List<IGridRegion> vregions = new ArrayList<IGridRegion>();
 
-        TreeMap wCells = new TreeMap();
+        TreeMap<Integer, Integer> wCells = new TreeMap<Integer, Integer>();
 
         public void buildModel(WordGridModel model, WordTableElement wte) {
             Table wt = wte.getTable();
@@ -46,11 +47,11 @@ public class WordGridModel implements IGrid {
             model.grid = grid;
             IGridRegion[] rr = new IGridRegion[regions.size() + vregions.size()];
             for (int i = 0; i < regions.size(); i++) {
-                rr[i] = (GridRegion) regions.get(i);
+                rr[i] =  regions.get(i);
             }
 
             for (int i = 0; i < vregions.size(); i++) {
-                rr[i + regions.size()] = (GridRegion) vregions.get(i);
+                rr[i + regions.size()] =  vregions.get(i);
             }
 
             model.regions = rr;
@@ -66,8 +67,7 @@ public class WordGridModel implements IGrid {
                 for (int j = 0; j < ncells; j++) {
                     TableCell tc = tr.getCell(j);
                     w += tc.getWidth();
-                    Integer iw = new Integer(w);
-                    wCells.put(iw, iw);
+                    wCells.put(w, w);
 
                 }
             }
@@ -135,10 +135,10 @@ public class WordGridModel implements IGrid {
         }
 
         private void normalizeWidths() {
-            TreeMap tm = new TreeMap();
+            TreeMap<Integer, Integer> tm = new TreeMap<Integer, Integer>();
             int r = 0;
-            for (Iterator iter = wCells.keySet().iterator(); iter.hasNext();) {
-                Integer w = (Integer) iter.next();
+            for (Iterator<Integer> iter = wCells.keySet().iterator(); iter.hasNext();) {
+                Integer w =  iter.next();
 
                 tm.put(w, new Integer(++r));
             }

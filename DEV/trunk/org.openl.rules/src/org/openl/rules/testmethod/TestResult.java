@@ -47,6 +47,7 @@ public class TestResult implements INamedThing {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     static public boolean compareResult(Object res, Object expected) {
         if (res == expected) {
             return true;
@@ -57,7 +58,7 @@ public class TestResult implements INamedThing {
         }
 
         if (res instanceof Comparable) {
-            return ((Comparable) res).compareTo(expected) == 0;
+            return ((Comparable<Object>) res).compareTo(expected) == 0;
         }
 
         if (res.equals(expected)) {
