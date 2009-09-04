@@ -2,12 +2,27 @@
 <%@include file="header.jsp"%>
 -->
 
-<head>
+<head>	
+	<%@ page import = "java.net.URLDecoder" %>
+	<%@ page import = "java.lang.Character" %>
+	<%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
+	
+	 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
 </head>
 
-<%
+<%	
+	// There is a problem with decoding. When we call 'Search' on table cell and if
+	// the cell contains spaces in string it come to search page with symbols 'Â '.
+	// We need to replace it back with space. The problem is in javascript method 
+	// triggerSearch(f) in file showTable.xhtml. Try to fix it anther way.
+	
 	String searchQuery = request.getParameter("searchQuery");
+	String remove = Character.toString((char)194)+Character.toString((char)160);
+	if(searchQuery.contains(remove)) {
+	    searchQuery = searchQuery.replaceAll(remove, " ");	    
+	}
+
 	if (searchQuery == null) searchQuery="";
 %>
 
