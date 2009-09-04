@@ -7,7 +7,7 @@
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
     template="/facelets/common/webstudioBase.xhtml">
 
-    <ui:define name="header">
+    <ui:define name="header">	 
         <script type="text/javascript">
             function open_win(url, name) {
                 window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
@@ -147,15 +147,24 @@
         <br />
 
         <script type="text/javascript">
-            function triggerSearch(f) {
-                f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {return s.nodeName == "#text"})
-                    .nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "").split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
-                    .reject(function(s) {return !s}).join(" ");
+            function triggerSearch(f) {               
+	           	f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes)
+               							.find(function(s) 
+                      						{
+                  								return s.nodeName == "#text"
+                     						})
+               								.nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "")
+                        					.split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
+                    						.reject(function(s) 
+                            						{
+                        								return !s
+                        							})
+			                        				.join(" ");                    
                 f.submit();
             }
         </script>
 
-        <form name="searchForm" action="#{contextPath}/jsp/search/search.jsp">
+        <form name="searchForm" method="POST" action="#{contextPath}/jsp/search/search.jsp">
             <input type="hidden" name="searchQuery" value="" />
         </form>
 
