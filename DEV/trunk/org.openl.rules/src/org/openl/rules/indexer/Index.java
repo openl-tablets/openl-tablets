@@ -1,11 +1,15 @@
 package org.openl.rules.indexer;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 /**
  * Handles indexed data by first char alphabet map.
@@ -119,7 +123,7 @@ public class Index {
      * @param token
      * @return
      */
-    static String getRoot(String token) {
+    public static String getRoot(String token) {
         String lc = token.toLowerCase();
         String result = lc;
         int len = token.length();
@@ -169,11 +173,11 @@ public class Index {
     }
     
     /**
-     * Searches for token bucket in the first chat map. 
+     * Searches by strict compliance for token bucket in the first chat map by the token.      
      * @param token
      * @return
      */
-    public TokenBucket findTokenBucket(String token) {
+    public TokenBucket findEqualsTokenBucket(String token) {
         TokenBucket tokenBucket = null;
         String charStr = token.substring(0, 1).toUpperCase();
 
@@ -181,9 +185,34 @@ public class Index {
 
         if (charMap != null) {
             String tokenRoot = getRoot(token);
-            tokenBucket = charMap.get(tokenRoot);
+            tokenBucket = charMap.get(tokenRoot);            
         }        
         return tokenBucket;
+    }
+    
+    /**
+     * Searches by contains for token bucket in the first chat map by the token.      
+     * @param token
+     * @return
+     */
+    public List<TokenBucket> findContainTokenBuckets(String token) {
+        List<TokenBucket> tokBucks = new ArrayList<TokenBucket>();
+        String charStr = token.substring(0, 1).toUpperCase();
+
+        Map<String, TokenBucket> charMap = firstCharMap.get(charStr);
+
+        if (charMap != null) {
+            String tokenRoot = getRoot(token);
+            for(Iterator<String> iter = charMap.keySet().iterator(); iter.hasNext();) {
+                String keyValue = iter.next();
+                TokenBucket tokenBucket = null;
+                if(keyValue.contains(tokenRoot)) {
+                    tokenBucket = charMap.get(keyValue);
+                    tokBucks.add(tokenBucket);
+                }
+            }
+        }
+        return tokBucks;
     }
 
     public Map<String, TreeMap<String, TokenBucket>> getFirstCharMap() {
@@ -207,5 +236,5 @@ public class Index {
         }
         return tb;
     }
-
+    
 }
