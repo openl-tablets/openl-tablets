@@ -4,6 +4,7 @@ package org.openl.rules.indexer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -68,7 +69,7 @@ public class IndexQuery {
             Map<String, HitBucket> exclusions = null;
             for (int j = 0; j < tokensExclude[i].length; j++) {
                 String tokenExclude = tokensExclude[i][j];
-                TokenBucket tb = idx.findTokenBucket(tokenExclude);
+                TokenBucket tb = idx.findEqualsTokenBucket(tokenExclude);
                 if (j == 0) {
                     exclusions = tb.getIndexElements();
                 } else {
@@ -110,10 +111,16 @@ public class IndexQuery {
         return allInclusions;
     }
 
-    // Var 1 - all have to be there
+    /**
+     * At first we try to get the {@TokenBucket} by a strict equals condition. If there is no such element,
+     * we try to find token buckets that contains current token.
+     * @param idx Index contains indexed data.  
+     * @param tokens Tokens to be found.
+     * @return
+     */
     private Map<String, HitBucket> makeInclusions(Index idx, String[] tokens) {
-
-        String searchStr = tokens[0];
+        
+        String searchStr = "";
         for (String token : tokens) {
             searchStr += " " + token;
         }
@@ -123,41 +130,53 @@ public class IndexQuery {
         Map<String, HitBucket> inclusions = new HashMap<String, HitBucket>();
 
         for (int i = 0; i < tokens.length; i++) {
-            TokenBucket tb = idx.findTokenBucket(tokens[i]);
+            TokenBucket tb = idx.findEqualsTokenBucket(tokens[i]);
             if (tb == null) {
+                List<TokenBucket> tbs = idx.findContainTokenBuckets(tokens[i]);
+                for(TokenBucket tb1 : tbs) {
+                    inclusions.putAll(include(tb1,i,searchStr));
+                }
                 continue;
             }
-            if (i == 0) {
-                for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
-                    HitBucket hb = iter.next();
-                    if (!excludedIndexes.contains(hb.getElement())) {
-                        HitBucket hbInc = new HitBucket(hb);
-                        boolean contains = hbInc.getElement().getIndexedText().toLowerCase().indexOf(searchStr) >= 0;
-                        if (contains) {
-                            hbInc.setWeight(hbInc.getWeight() * CONTAINS_STR_WEIGHT);
-                        }
-                        inclusions.put(hb.getElement().getUri(), hbInc);
-                    }
-                }
-            } else {
-                Map<String, HitBucket> myInclusions = new HashMap<String, HitBucket>();
-                for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
-
-                    HitBucket hb = (HitBucket) iter.next();
-                    String uri = hb.getElement().getUri();
-                    HitBucket hbInc = (HitBucket) inclusions.get(uri);
-
-                    if (hbInc != null) {
-                        hbInc.setWeight(hb.getWeight() + hbInc.getWeight());
-                        myInclusions.put(uri, hbInc);
-                    }
-                }
-                inclusions = myInclusions;
-            }
+            inclusions.putAll(include(tb, i, searchStr));            
         }
         return inclusions;
     }
     
+    
+    
+    private Map<String, HitBucket> include(TokenBucket tb, int i, String searchStr) {
+        Map<String, HitBucket> inclusions = new HashMap<String, HitBucket>();
+        if (i == 0) {
+            for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
+                HitBucket hb = iter.next();
+                if (!excludedIndexes.contains(hb.getElement())) {
+                    HitBucket hbInc = new HitBucket(hb);
+                    boolean contains = hbInc.getElement().getIndexedText().toLowerCase().indexOf(searchStr) >= 0;
+                    if (contains) {
+                        hbInc.setWeight(hbInc.getWeight() * CONTAINS_STR_WEIGHT);
+                    }
+                    inclusions.put(hb.getElement().getUri(), hbInc);
+                }
+            }
+        } else {
+            Map<String, HitBucket> myInclusions = new HashMap<String, HitBucket>();
+            for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
+
+                HitBucket hb = (HitBucket) iter.next();
+                String uri = hb.getElement().getUri();
+                HitBucket hbInc = (HitBucket) inclusions.get(uri);
+
+                if (hbInc != null) {
+                    hbInc.setWeight(hb.getWeight() + hbInc.getWeight());
+                    myInclusions.put(uri, hbInc);
+                }
+            }
+            inclusions = myInclusions;
+        }       
+        return inclusions;        
+    }
+
     public String[][] getTokensInclude() {
         return tokensInclude;
     }
