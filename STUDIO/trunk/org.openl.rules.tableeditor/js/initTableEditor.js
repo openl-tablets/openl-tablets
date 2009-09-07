@@ -19,9 +19,6 @@ function initTableEditor(editorId, url, cellToEdit) {
             window.onbeforeunload = function() {
                 return "Your changes have not been saved.";
             };
-        } else {
-            window.onbeforeunload = function() {
-            };
         }
     };
 

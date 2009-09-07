@@ -14,7 +14,7 @@ import javax.faces.context.ResponseWriter;
 
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.ui.IGridFilter;
-import org.openl.rules.tableeditor.model.EditorHelper;
+import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
 
 import org.openl.rules.tableeditor.util.Constants;
@@ -89,17 +89,21 @@ public class TableEditorRenderer extends TableViewerRenderer {
     }
 
     @SuppressWarnings("unchecked")
-    private void initEditorHelper(ExternalContext externalContext, String editorId, ITable table, String view, boolean showFormulas) {
+    private void initEditorHelper(ExternalContext externalContext, String editorId, ITable table, String view,
+            boolean showFormulas) {
         Map sessionMap = externalContext.getSessionMap();
         synchronized (sessionMap) {
-            Map helperMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_HELPER_NAME);
-            if (helperMap == null) {
-                helperMap = new HashMap<String, EditorHelper>();
-                sessionMap.put(Constants.TABLE_EDITOR_HELPER_NAME, helperMap);
+            Map editorModelMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_MODEL_NAME);
+            if (editorModelMap == null) {
+                editorModelMap = new HashMap<String, TableEditorModel>();
+                sessionMap.put(Constants.TABLE_EDITOR_MODEL_NAME, editorModelMap);
             }
-            EditorHelper editorHelper = new EditorHelper();
-            editorHelper.init(table,view, showFormulas);
-            helperMap.put(editorId, editorHelper);
+            TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
+            if (editorModel != null) {
+                editorModel.cancel();
+            }
+            editorModel = new TableEditorModel(table, view, showFormulas);
+            editorModelMap.put(editorId, editorModel);
         }
     }
 

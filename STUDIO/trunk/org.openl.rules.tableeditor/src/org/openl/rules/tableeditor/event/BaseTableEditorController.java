@@ -3,7 +3,6 @@ package org.openl.rules.tableeditor.event;
 import java.util.Map;
 
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.tableeditor.model.EditorHelper;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
@@ -15,41 +14,20 @@ public class BaseTableEditorController {
     public BaseTableEditorController() {
     }
 
-    protected TableEditorModel getEditorModel(String editorId) {
-        EditorHelper helper = getHelper(editorId);
-        if (helper != null) {
-            return helper.getModel();
-        }
-        return null;
-    }
-
     protected IGridTable getGridTable(String editorId) {
-        EditorHelper helper = getHelper(editorId);
-        if (helper != null) {
-            return helper.getModel().getUpdatedTable();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            return editorModel.getUpdatedTable();
         }
         return null;
     }
 
-    /**
-     * Returns <code>EditorHelper</code> instance from http session or creates
-     * new one if not present there. Checks that <code>elementId</code>
-     * matches id in this helper. If it does not the method prepares response
-     * which notifies a client of the mismatch and returns <code>null</code>.
-     * In the latter case calling method may just do nothing as corresponding
-     * response is already prepared.
-     * 
-     * @param elementId table id
-     * @return <code>EditorHelper</code> instance or <code>null</code> if
-     *         <code>elementId</code> does not match element id in an existing
-     *         helper.
-     */
     @SuppressWarnings("unchecked")
-    protected EditorHelper getHelper(String editorId) {
+    protected TableEditorModel getEditorModel(String editorId) {
         Map sessionMap = FacesUtils.getSessionMap();
-        Map editorHelperMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_HELPER_NAME);
-        if (editorHelperMap != null) {
-            return (EditorHelper) editorHelperMap.get(editorId);
+        Map editorModelMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_MODEL_NAME);
+        if (editorModelMap != null) {
+            return (TableEditorModel) editorModelMap.get(editorId);
         }
         return null;
     }
@@ -61,9 +39,9 @@ public class BaseTableEditorController {
 
     protected String render(String editorId) {
         TableModel tableModel = initializeTableModel(editorId);
-        EditorHelper editorHelper = getHelper(editorId);
+        TableEditorModel editorModel = getEditorModel(editorId);
         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(tableModel);
         tableRenderer.setCellIdPrefix(editorId + "_cell-");
-        return tableRenderer.render(editorHelper.getModel().isShowFormulas());
+        return tableRenderer.render(editorModel.isShowFormulas());
     }
 }
