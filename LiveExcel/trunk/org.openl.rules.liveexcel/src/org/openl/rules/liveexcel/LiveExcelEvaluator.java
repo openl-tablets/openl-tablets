@@ -7,7 +7,9 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
+import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
@@ -20,8 +22,8 @@ import org.openl.rules.liveexcel.formula.LiveExcelFunction;
  * @author PUdalau
  */
 public class LiveExcelEvaluator {
-    private Workbook workbook;
     private EvaluationContext evaluationContext;
+    private EvaluationWorkbook evaluationWorkbook;
 
     /**
      * Parse workbook and create LiveExcelEvaluator.
@@ -30,16 +32,17 @@ public class LiveExcelEvaluator {
      * @param evaluationContext EvaluationContext associated with evaluator.
      */
     public LiveExcelEvaluator(Workbook workbook, EvaluationContext evaluationContext) {
-        this.workbook = workbook;
         this.evaluationContext = evaluationContext;
+        evaluationWorkbook = workbook.getCreationHelper().createEvaluationWorkbook();
         registerServiceModelUDFs();
-        new DeclaredFunctionSearcher(workbook).findFunctions();        
+        new DeclaredFunctionSearcher(workbook).findFunctions();
         exposeInOpenL();
     }
 
     private void registerServiceModelUDFs() {
         for (String functionName : evaluationContext.getServiceModelAPI().getAllServiceModelUDFs()) {
-            workbook.registerUserDefinedFunction(functionName, generateGetterFunction(functionName));
+            evaluationWorkbook.getWorkbook().registerUserDefinedFunction(functionName,
+                    generateGetterFunction(functionName));
         }
     }
 
@@ -55,19 +58,22 @@ public class LiveExcelEvaluator {
      * @return Result of evaluation.
      */
     public ValueEval evaluateServiceModelUDF(String functionName, Object[] args) {
-        evaluationContext.resetContext();
+        WorkbookEvaluator evaluator = new WorkbookEvaluator(evaluationWorkbook, null);
+        evaluationContext.createDataPool(evaluator);
         ValueEval[] processedArgs = new ValueEval[args.length];
         for (int i = 0; i < args.length; i++) {
-            processedArgs[i] = createEvalForObject(args[i]);
+            processedArgs[i] = createEvalForObject(args[i], evaluator);
         }
-        return workbook.getUserDefinedFunction(functionName).evaluate(processedArgs, null);
+        ValueEval result = evaluator.evaluate(evaluationWorkbook.findUserDefinedFunction(functionName), processedArgs);
+        evaluationContext.removeDataPool(evaluator);
+        return result;
     }
 
-    private StringEval addObjectToContext(Object object) {
-        return new StringEval(evaluationContext.getDataPool().add(object));
+    private StringEval addObjectToContext(Object object, WorkbookEvaluator evaluator) {
+        return new StringEval(evaluationContext.getDataPool(evaluator).add(object));
     }
 
-    private ValueEval createEvalForObject(Object object) {
+    private ValueEval createEvalForObject(Object object, WorkbookEvaluator evaluator) {
         if (object instanceof Number) {
             return new NumberEval(((Number) object).doubleValue());
         } else if (object instanceof Boolean) {
@@ -75,9 +81,9 @@ public class LiveExcelEvaluator {
         } else if (object instanceof String) {
             return new StringEval((String) object);
         } else if (object instanceof Calendar) {
-            return new NumberEval(DateUtil.getExcelDate((Calendar)object, false));
+            return new NumberEval(DateUtil.getExcelDate((Calendar) object, false));
         } else {
-            return addObjectToContext(object);
+            return addObjectToContext(object, evaluator);
         }
 
     }
@@ -89,9 +95,10 @@ public class LiveExcelEvaluator {
                     return ErrorEval.VALUE_INVALID;
                 } else {
                     StringEval objectID = (StringEval) args[0];
-                    Object objectToProcess = evaluationContext.getDataPool().get(objectID.getStringValue());
+                    Object objectToProcess = evaluationContext.getDataPool(ec.getWorkbookEvaluator()).get(
+                            objectID.getStringValue());
                     Object result = evaluationContext.getServiceModelAPI().getValue(getDeclFuncName(), objectToProcess);
-                    return createEvalForObject(result);
+                    return createEvalForObject(result, ec.getWorkbookEvaluator());
                 }
             }
         };

@@ -18,10 +18,6 @@
 package org.apache.poi.ss.formula;
 
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
-import org.apache.poi.hssf.record.formula.eval.BoolEval;
-import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
@@ -36,6 +32,9 @@ import org.apache.poi.ss.formula.PlainCellCache.Loc;
  * 
  * 
  * @author Josh Micich
+ * 
+ * Modified 09/07/09 by Petr Udalau - changed processing of plain cache values(it is similar to formula cash values).
+ * Method getPlainValueEntry() renamed to getOrCreatePlainValueEntry() (without ValueEval in args).
  */
 final class EvaluationCache {
 
@@ -128,53 +127,23 @@ final class EvaluationCache {
 		});
 	}
 
-	public PlainValueCellCacheEntry getPlainValueEntry(int bookIndex, int sheetIndex,
-			int rowIndex, int columnIndex, ValueEval value) {
+	public PlainValueCellCacheEntry getOrCreatePlainValueEntry(int bookIndex, int sheetIndex,
+			int rowIndex, int columnIndex) {
 		
 		Loc loc = new Loc(bookIndex, sheetIndex, rowIndex, columnIndex);
 		PlainValueCellCacheEntry result = _plainCellCache.get(loc);
 		if (result == null) {
-			result = new PlainValueCellCacheEntry(value);
+			result = new PlainValueCellCacheEntry();
 			_plainCellCache.put(loc, result);
 			if (_evaluationListener != null) {
 				_evaluationListener.onReadPlainValue(sheetIndex, rowIndex, columnIndex, result);
 			}
 		} else {
-			// TODO - if we are confident that this sanity check is not required, we can remove 'value' from plain value cache entry  
-			if (!areValuesEqual(result.getValue(), value)) {
-				throw new IllegalStateException("value changed");
-			}
 			if (_evaluationListener != null) {
-				_evaluationListener.onCacheHit(sheetIndex, rowIndex, columnIndex, value);
+				_evaluationListener.onCacheHit(sheetIndex, rowIndex, columnIndex, result.getValue());
 			}
 		}
 		return result;
-	}
-	private boolean areValuesEqual(ValueEval a, ValueEval b) {
-		if (a == null) {
-			return false;
-		}
-		Class<?> cls = a.getClass();
-		if (cls != b.getClass()) {
-			// value type is changing
-			return false;
-		}
-		if (a == BlankEval.INSTANCE) {
-			return b == a;
-		}
-		if (cls == NumberEval.class) {
-			return ((NumberEval)a).getNumberValue() == ((NumberEval)b).getNumberValue();
-		}
-		if (cls == StringEval.class) {
-			return ((StringEval)a).getStringValue().equals(((StringEval)b).getStringValue());
-		}
-		if (cls == BoolEval.class) {
-			return ((BoolEval)a).getBooleanValue() == ((BoolEval)b).getBooleanValue();
-		}
-		if (cls == ErrorEval.class) {
-			return ((ErrorEval)a).getErrorCode() == ((ErrorEval)b).getErrorCode();
-		}
-		throw new IllegalStateException("Unexpected value class (" + cls.getName() + ")");
 	}
 	
 	public FormulaCellCacheEntry getOrCreateFormulaCellEntry(EvaluationCell cell) {

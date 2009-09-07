@@ -17,6 +17,8 @@
 
 package org.apache.poi.hssf.record.formula.eval;
 
+import org.apache.poi.ss.formula.EvaluationCell;
+
 /**
  * @author Amol S Deshmukh &lt; amolweb at ya hoo dot com &gt;
  * 
@@ -27,7 +29,7 @@ package org.apache.poi.hssf.record.formula.eval;
  * value object should be of type NumberEval; if cell type is CELL_TYPE_STRING,
  * contained value object should be of type StringEval
  * 
- * June 4, 2009: Added method setValue for setting values in referenced object.
+ * Modified 09/07/09 by Petr Udalau - added method getEvaluationCell().
  */
 public interface RefEval extends ValueEval {
 
@@ -52,8 +54,7 @@ public interface RefEval extends ValueEval {
     AreaEval offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx);
     
     /**
-     * Sets inner value in referenced object.
-     * @param value The value to set
+     * @return EvaluationCell referred to by this RefEval
      */
-    void setValue(ValueEval value);
+    EvaluationCell getEvaluationCell();
 }

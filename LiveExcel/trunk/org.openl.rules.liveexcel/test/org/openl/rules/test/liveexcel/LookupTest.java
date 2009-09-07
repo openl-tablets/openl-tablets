@@ -1,5 +1,7 @@
 package org.openl.rules.test.liveexcel;
 
+import java.io.FileInputStream;
+
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.ErrorConstants;
@@ -8,14 +10,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.hssf.usermodel.LiveExcelHSSFWorkbook;
-import org.openl.rules.test.liveexcel.formula.PerformanceAndThreadSafetyTest;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 
 import static org.junit.Assert.*;
 
 public class LookupTest {
     @Test
-    public void test() {
-        Workbook workbook = PerformanceAndThreadSafetyTest.getHSSFWorkbook("./test/resources/LookupTest.xls");
+    public void test() throws Exception {
+        Workbook workbook = LiveExcelWorkbookFactory.create(new FileInputStream("./test/resources/LookupTest.xls"),
+                null);
         new DeclaredFunctionSearcher(workbook).findFunctions();
         Sheet sheet = workbook.getSheetAt(0);
         Cell cell = sheet.getRow(11).getCell(0);

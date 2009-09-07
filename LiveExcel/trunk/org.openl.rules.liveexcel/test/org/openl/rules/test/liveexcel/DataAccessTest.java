@@ -1,16 +1,13 @@
 package org.openl.rules.test.liveexcel;
 
+import java.io.FileInputStream;
 import java.math.BigDecimal;
 
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
-import org.openl.rules.liveexcel.DataPool;
-import org.openl.rules.liveexcel.EvaluationContext;
 import org.openl.rules.liveexcel.LiveExcelEvaluator;
-import org.openl.rules.liveexcel.ServiceModelAPI;
-import org.openl.rules.test.liveexcel.formula.PerformanceAndThreadSafetyTest;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
+import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 
 import com.exigen.ipb.schemas.rating.VehicleDriverRelationshipType;
 import com.exigen.ipb.schemas.rating.VehicleType;
@@ -21,10 +18,9 @@ import static org.junit.Assert.*;
 
 public class DataAccessTest {
     @Test
-    public void test() {
-        Workbook workbook = PerformanceAndThreadSafetyTest.getHSSFWorkbook("./test/resources/DataAccessTest.xls");
-        EvaluationContext context = new EvaluationContext(new DataPool(), new ServiceModelAPI("SimpleExample"));
-        LiveExcelEvaluator evaluator = new LiveExcelEvaluator(workbook, context);
+    public void test() throws Exception{
+        LiveExcelWorkbook workbook = LiveExcelWorkbookFactory.create(new FileInputStream("./test/resources/DataAccessTest.xls"), "SimpleExample");
+        LiveExcelEvaluator evaluator = new LiveExcelEvaluator(workbook, workbook.getEvaluationContext());
         VehicleType vehicleType = new VehicleTypeImpl();
         VehicleDriverRelationshipType principalDriver = new VehicleDriverRelationshipTypeImpl();
         VehicleDriverRelationshipType principalDriver2 = new VehicleDriverRelationshipTypeImpl();

@@ -1,6 +1,5 @@
 package org.openl.rules.liveexcel.usermodel;
 
-import org.openl.rules.liveexcel.DataPool;
 import org.openl.rules.liveexcel.EvaluationContext;
 import org.openl.rules.liveexcel.ServiceModelAPI;
 
@@ -10,9 +9,9 @@ public class ContextFactory {
     
     public static EvaluationContext getEvaluationContext(String projectName) {
         if (projectName == null) {
-            return new EvaluationContext(new DataPool(), EMPTY_API);
+            return new EvaluationContext(EMPTY_API);
         } else {
-            return new EvaluationContext(new DataPool(), new ServiceModelAPI(projectName));
+            return new EvaluationContext(new ServiceModelAPI(projectName));
         }
     }
 

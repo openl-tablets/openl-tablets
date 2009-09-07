@@ -17,6 +17,10 @@
 
 package org.apache.poi.ss.formula;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.poi.hssf.record.formula.AreaI;
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
@@ -35,6 +39,9 @@ import org.apache.poi.ss.util.CellReference.NameType;
  * For POI internal use only
  *
  * @author Josh Micich
+ * 
+ * Modified 09/07/09 by Petr Udalau - added method getWorkbookEvaluator() and added API to set 
+ * and roll back values of some cell for evaluation of current operation.
  */
 public final class OperationEvaluationContext {
 
@@ -44,6 +51,7 @@ public final class OperationEvaluationContext {
 	private final int _columnIndex;
 	private final EvaluationTracker _tracker;
 	private final WorkbookEvaluator _bookEvaluator;
+    private Map<EvaluationCell, ValueEval> _previousValues = new HashMap<EvaluationCell, ValueEval>();
 
 	public OperationEvaluationContext(WorkbookEvaluator bookEvaluator, EvaluationWorkbook workbook, int sheetIndex, int srcRowNum,
 			int srcColNum, EvaluationTracker tracker) {
@@ -66,7 +74,29 @@ public final class OperationEvaluationContext {
 	public int getColumnIndex() {
 		return _columnIndex;
 	}
+	
+	public WorkbookEvaluator getWorkbookEvaluator(){
+	    return _bookEvaluator;
+	}
 
+    /**
+     * Sets new value of cell into cache(only cache). This value will be used
+     * only during evaluation of current function.
+     */
+    public void setTemporaryCellValueForEvaluationTime(EvaluationCell cellToSet, ValueEval newValue) {
+        _previousValues.put(cellToSet, _bookEvaluator.evaluate(cellToSet));
+        _bookEvaluator.setCachedCellValue(cellToSet, newValue, _tracker);
+    }
+
+    /**
+     * Reverting all temporary cell values. All previous values will come back.
+     */
+    public void rollBackTemporaryCells() {
+        for (Entry<EvaluationCell, ValueEval> entry : _previousValues.entrySet()) {
+            _bookEvaluator.setCachedCellValue(entry.getKey(), entry.getValue(), _tracker);
+        }
+    }
+    
 	/* package */ SheetRefEvaluator createExternSheetRefEvaluator(ExternSheetReferenceToken ptg) {
 		int externSheetIndex = ptg.getExternSheetIndex();
 		ExternalSheet externalSheet = _workbook.getExternalSheet(externSheetIndex);
