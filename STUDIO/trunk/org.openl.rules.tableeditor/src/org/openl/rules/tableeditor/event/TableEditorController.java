@@ -9,7 +9,6 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
-import org.openl.rules.tableeditor.model.EditorHelper;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
@@ -22,8 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletRequest;
 
 /**
- * Table editor controller. It should be a managed bean with <b>request</b>
- * scope.
+ * Table editor controller.
  *
  * @author Andrey Naumenko
  */
@@ -81,11 +79,11 @@ public class TableEditorController extends BaseTableEditorController implements 
             return model != null && model.hasUndo();
         }
 
-        @SuppressWarnings("unused")
+        // required for POJO->JSON mapping
         public void setHasRedo(boolean hasRedo) {
         }
 
-        @SuppressWarnings("unused")
+        // required for POJO->JSON mapping
         public void setHasUndo(boolean hasUndo) {
         }
 
@@ -124,32 +122,6 @@ public class TableEditorController extends BaseTableEditorController implements 
         }
     }
 
-    public static class SuggestParam {
-        private Integer minChars;
-        private Integer delay;
-
-        public SuggestParam(Integer minChars, Integer delay) {
-            this.minChars = minChars;
-            this.delay = delay;
-        }
-
-        public Integer getDelay() {
-            return delay;
-        }
-
-        public Integer getMinChars() {
-            return minChars;
-        }
-
-        public void setDelay(Integer delay) {
-            this.delay = delay;
-        }
-
-        public void setMinChars(Integer minChars) {
-            this.minChars = minChars;
-        }
-    }
-
     public static class TableModificationResponse {
         private String response;
         private String status;
@@ -182,11 +154,11 @@ public class TableEditorController extends BaseTableEditorController implements 
             return model != null && model.hasUndo();
         }
 
-        @SuppressWarnings("unused")
+        // required for POJO->JSON mapping
         public void setHasRedo(boolean hasRedo) {
         }
 
-        @SuppressWarnings("unused")
+        // required for POJO->JSON mapping
         public void setHasUndo(boolean hasUndo) {
         }
 
@@ -262,9 +234,9 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String edit() {
         String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
         String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
-        EditorHelper editorHelper = getHelper(editorId);
-        return new HTMLRenderer().render("edit", editorHelper.getTable(), null, null, false, cellToEdit, true,
-                editorId, null, editorHelper.getModel().isShowFormulas());
+        TableEditorModel editorModel = getEditorModel(editorId);
+        return new HTMLRenderer().render("edit", editorModel.getTable(), null, null, false, cellToEdit, true,
+                editorId, null, editorModel.isShowFormulas());
     }
 
     public String editXls() {

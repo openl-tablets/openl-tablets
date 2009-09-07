@@ -31,7 +31,7 @@ public final class Constants {
 
     public static final String TABLE_EDITOR_CONTROLLER_NAME = "_tableEditorController";
 
-    public static final String TABLE_EDITOR_HELPER_NAME = "_tableEditorHelper";
+    public static final String TABLE_EDITOR_MODEL_NAME = "_tableEditorModel";
 
     public static final String TABLE_EDITOR_RESOURCES = "_tableEditorResources";
 

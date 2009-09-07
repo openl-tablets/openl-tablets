@@ -12,7 +12,6 @@ import org.openl.rules.table.AUndoableCellAction;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellInfo;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
@@ -303,6 +302,10 @@ public class TableEditorModel {
     public void getUndoableActions(TableEditorModel other) {
         actions = other.actions;
         undoGrid = other.undoGrid;
+    }
+
+    public ITable getTable() {
+        return table;
     }
 
     /**
