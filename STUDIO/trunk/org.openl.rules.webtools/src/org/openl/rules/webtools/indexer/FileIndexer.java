@@ -145,8 +145,8 @@ public class FileIndexer extends WebTool {
         for (int i = 0; i < src.length; i++) {
             for (int j = 0; j < src[i].length; j++) {
                 String tx = src[i][j];
-                TokenBucket tb = idx.findTokenBucket(tx);
-                if (tb == null) {
+                TokenBucket tb = idx.findEqualsTokenBucket(tx);
+                if (tb == null) {  
                     v.add(tx);
                     continue;
                 }
@@ -162,7 +162,7 @@ public class FileIndexer extends WebTool {
         Arrays.sort(ret, Index.TokenBucket.TOKEN_COMPARATOR);
         return ret;
     }
-
+    
     public static String urlLink(String url, String title, String text, String target) {
         String s1 = "<a href=\"" + url + "\"";
         if (title != null) {
@@ -237,7 +237,7 @@ public class FileIndexer extends WebTool {
      * search query request was found.
      */
     public String[][] getResultsForIndex(String searchQuery) {        
-        TokenBucket tb = getIndex().findTokenBucket(searchQuery);
+        TokenBucket tb = getIndex().findEqualsTokenBucket(searchQuery);
 
         Vector v = new Vector();
 

@@ -17,65 +17,86 @@ import javax.servlet.http.HttpServletRequest;
  * @author Stanislav Shor
  */
 public class WebTool extends StringTool {
-    static class StringFinder {
-        int start = 0;
-        String[] tokens;
-        String src;
-        int lastSelected = -1;
+    
+    /**
+     * Finds the given array of strings in the text and highlight it with <b> tags 
+     * for further displaying on UI. Finds detached words and parts of the words.
+     *
+     */
+    static class StringHighlighter {
+        
+        private final String BOLD_OPEN = "<b>";
+        private final String BOLD_CLOSE = "</b>";
+        // tokens to be highlighted in the text
+        private String[] tokensToHighlight;
+        
+        //last found token as it is in text
+        private String currentToken;
+        
+        //text for highlighting
+        private String text;
+        
+        //index of last found word
+        private int lastSelected = -1;
+        
+        public StringHighlighter(String[] tokens, String src) {           
+            this.tokensToHighlight = tokens;
+            this.text = src;
+        }
 
-        int findFirst() {
-            int min = src.length();
+        private int findTokenFromPos(int startPos) {
+            int textLength = text.length();
             lastSelected = -1;
 
-            for (int i = tokens.length - 1; i >= 0; i--) {
-                int idx = findToken(tokens[i]);
-                if (idx < 0) {
-                    continue;
-                }
-
-                if (idx < min) {
+            for (int i = tokensToHighlight.length - 1; i >= 0; i--) {                
+                int idx = findToken(tokensToHighlight[i].toLowerCase(), startPos);
+                if (idx >=0 && idx < textLength) {
                     lastSelected = i;
-                    min = idx;
+                    textLength = idx;                    
                 }
             }
 
             if (lastSelected < 0) {
                 return -1;
             }
-            return min;
+            currentToken = text.substring(textLength, textLength + tokensToHighlight[lastSelected].length()); 
+            return textLength;
         }
-
-        int findToken(String token) {
-            int sx = start;
-            int tlen = token.length();
-            while (true) {
-                int idx = src.indexOf(token, sx);
-                if (idx < 0) {
-                    return idx;
-                }
-                if (((idx > 0) && Character.isLetterOrDigit(src.charAt(idx - 1)))
-                        || (((idx + tlen) < src.length()) && Character.isLetterOrDigit(src.charAt(idx + tlen)))) {
-                    sx = idx + tlen;
-                    continue;
-                }
-                return idx;
-            }
+        
+        /**
+         * 
+         * Searches the start index of a token in the text from the given position.
+         * If no such token exists in the text, then -1 is returned.
+         * @param token Token to be found.
+         * @param startPos Position in the text to start looking for a token.
+         * @return Index in the text where token starts.
+         */
+        private int findToken(String token, int startPos) {
+            String text = this.text;
+            int tokenIndex = 0;
+            tokenIndex = text.toLowerCase().indexOf(token, startPos);                
+            return tokenIndex;            
         }
-
-        String makeSelections() {
+        
+        /**
+         * Highlight strings in the text. Find  
+         * detached words and parts of words.
+         * @return Highlighted strings in text. For further use on UI.
+         */
+        public String highlightStringsInText() {
             StringBuffer buf = new StringBuffer();
-
+            int startPos = 0;
             for (;;) {
-                int nextStart = findFirst();
+                int nextStart = findTokenFromPos(startPos);
                 if (nextStart < 0) {
-                    buf.append(src.substring(start));
+                    buf.append(text.substring(startPos));
                     return buf.toString();
                 }
-                buf.append(src.substring(start, nextStart));
-                buf.append("<b>");
-                buf.append(tokens[lastSelected]);
-                buf.append("</b>");
-                start = nextStart + tokens[lastSelected].length();
+                buf.append(text.substring(startPos, nextStart));
+                buf.append(BOLD_OPEN);
+                buf.append(currentToken);
+                buf.append(BOLD_CLOSE);
+                startPos = nextStart + tokensToHighlight[lastSelected].length();
             }
         }
     }
@@ -116,10 +137,8 @@ public class WebTool extends StringTool {
     }
 
     static public String htmlStringWithSelections(String src, String[] tokens) {
-        StringFinder sf = new StringFinder();
-        sf.tokens = tokens;
-        sf.src = src;
-        return sf.makeSelections();
+        StringHighlighter sf = new StringHighlighter(tokens, src);        
+        return sf.highlightStringsInText();
     }
 
     public static String listParamsExcept(String[] usedParams, HttpServletRequest request) {
