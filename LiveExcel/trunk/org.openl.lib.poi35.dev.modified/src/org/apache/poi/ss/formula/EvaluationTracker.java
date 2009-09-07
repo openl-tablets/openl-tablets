@@ -143,8 +143,8 @@ final class EvaluationTracker {
 			if (value == BlankEval.INSTANCE) {
 				consumingFrame.addUsedBlankCell(bookIndex, sheetIndex, rowIndex, columnIndex);
 			} else {
-				PlainValueCellCacheEntry cce = _cache.getPlainValueEntry(bookIndex, sheetIndex,
-						rowIndex, columnIndex, value);
+				PlainValueCellCacheEntry cce = _cache.getOrCreatePlainValueEntry(bookIndex, sheetIndex,
+						rowIndex, columnIndex);
 				consumingFrame.addSensitiveInputCell(cce);
 			}
 		}

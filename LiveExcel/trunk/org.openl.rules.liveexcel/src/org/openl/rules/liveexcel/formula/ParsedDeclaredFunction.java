@@ -41,10 +41,11 @@ public class ParsedDeclaredFunction extends LiveExcelFunction {
         if (args.length != parameters.size()) {
             return ErrorEval.VALUE_INVALID;
         } else {
-            for(int i = 0; i < parameters.size(); i++){
-                parameters.get(i).getParamCell().setValue((ValueEval)args[i]);
+            for (int i = 0; i < parameters.size(); i++) {
+                ec.setTemporaryCellValueForEvaluationTime(parameters.get(i).getParamCell().getEvaluationCell(),
+                        (ValueEval) args[i]);
             }
-            return returnCell.getParamCell().getInnerValueEval();
+            return ec.getWorkbookEvaluator().evaluate(returnCell.getParamCell().getEvaluationCell());
         }
     }
 }

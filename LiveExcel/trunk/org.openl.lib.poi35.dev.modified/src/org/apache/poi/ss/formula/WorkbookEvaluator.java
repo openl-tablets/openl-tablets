@@ -59,6 +59,7 @@ import org.apache.poi.hssf.record.formula.eval.OperationEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFoundException;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
@@ -74,6 +75,10 @@ import org.apache.poi.ss.usermodel.Cell;
  * For POI internal use only
  *
  * @author Josh Micich
+ * 
+ * Modified 09/07/09 by Petr Udalau - Expanded working with OperationEvaluationContext and plain cached values.
+ * Added method setCachedCellValue(EvaluationCell, ValueEval, EvaluationTracker).
+ * Added method evaluate(FreeRefFunction, ValueEval[]). 
  */
 public final class WorkbookEvaluator {
 
@@ -161,6 +166,24 @@ public final class WorkbookEvaluator {
 		_sheetIndexesBySheet.clear();
 	}
 
+    /**
+     * Sets new value of cell into cache(only cache).
+     */
+    public void setCachedCellValue(EvaluationCell cell, ValueEval newValue, EvaluationTracker tracker) {
+        if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+            FormulaCellCacheEntry cce = _cache.getOrCreateFormulaCellEntry(cell);
+            tracker.startEvaluate(cce);
+            if (cce.isInputSensitive()) {
+                tracker.acceptFormulaDependency(cce);
+            }
+            tracker.updateCacheResult(newValue);
+            tracker.endEvaluate(cce);
+        } else {
+            _cache.getOrCreatePlainValueEntry(_workbookIx, getSheetIndex(cell.getSheet()), cell.getRowIndex(),
+                    cell.getColumnIndex()).updateValue(newValue);
+        }
+    }
+
 	/**
 	 * Should be called to tell the cell value cache that the specified (value or formula) cell
 	 * has changed.
@@ -196,6 +219,17 @@ public final class WorkbookEvaluator {
 		return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(), new EvaluationTracker(_cache));
 	}
 
+    /**
+     *  Executes FreeRefFunction with context of this WorkbookEvaluator.
+     * 
+     * @param function FreeRefFunction to evaluate.
+     * @param args Arguments.
+     * @return Result of evaluation.
+     */
+    public ValueEval evaluate(FreeRefFunction function, ValueEval[] args) {
+        return function.evaluate(args, new OperationEvaluationContext(this, _workbook, -1, -1, -1,new EvaluationTracker(_cache)));
+    }
+
 	/**
 	 * Case-insensitive.
 	 * @return -1 if sheet with specified name does not exist
@@ -224,7 +258,15 @@ public final class WorkbookEvaluator {
 		boolean shouldCellDependencyBeRecorded = _stabilityClassifier == null ? true
 					: !_stabilityClassifier.isCellFinal(sheetIndex, rowIndex, columnIndex);
 		if (srcCell == null || srcCell.getCellType() != Cell.CELL_TYPE_FORMULA) {
-			ValueEval result = getValueFromNonFormulaCell(srcCell);
+		    PlainValueCellCacheEntry entry = _cache.getOrCreatePlainValueEntry(_workbookIx, sheetIndex, rowIndex,
+                    columnIndex);
+            ValueEval result = null;
+            if (entry.getValue() == null) {
+                result = getValueFromNonFormulaCell(srcCell);
+                entry.updateValue(result);
+            } else {
+                result = entry.getValue();
+            }
 			if (shouldCellDependencyBeRecorded) {
 				tracker.acceptPlainValueDependency(_workbookIx, sheetIndex, rowIndex, columnIndex, result);
 			}
@@ -259,6 +301,7 @@ public final class WorkbookEvaluator {
 				throw addExceptionInfo(e, sheetIndex, rowIndex, columnIndex);
 			} finally {
 				tracker.endEvaluate(cce);
+                ec.rollBackTemporaryCells();
 			}
 		} else {
 			if(evalListener != null) {

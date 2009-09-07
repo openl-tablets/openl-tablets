@@ -52,6 +52,10 @@ final class LazyRefEval extends RefEvalBase {
 		return _evaluator.getEvalForCell(getRow(), getColumn());
 	}
 
+    public EvaluationCell getEvaluationCell() {
+        return _evaluator.getEvaluationCell(getRow(), getColumn());
+    }
+    
 	public AreaEval offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx) {
 
 		AreaI area = new OffsetArea(getRow(), getColumn(),
@@ -70,8 +74,4 @@ final class LazyRefEval extends RefEvalBase {
 		sb.append("]");
 		return sb.toString();
 	}
-	
-    public void setValue(ValueEval value) {
-        _evaluator.setCellValue(getRow(), getColumn(), value);
-    }
 }

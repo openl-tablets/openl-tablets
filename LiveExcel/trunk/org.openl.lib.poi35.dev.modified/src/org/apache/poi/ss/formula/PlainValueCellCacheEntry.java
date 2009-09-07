@@ -23,9 +23,13 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  * Used for non-formula cells, primarily to keep track of the referencing (formula) cells.
  * 
  * @author Josh Micich
+ * 
+ * Modified 09/07/09 by Petr Udalau - added constructor without arguments.
  */
 final class PlainValueCellCacheEntry extends CellCacheEntry {
 	public PlainValueCellCacheEntry(ValueEval value) {
 		updateValue(value);
+	}
+	public PlainValueCellCacheEntry(){
 	}
 }
