@@ -32,10 +32,11 @@ public class LiveExcelMethod extends AMethod {
         if (returnType != null && Calendar.class.isAssignableFrom(returnType)) {
             return DateUtil.getJavaDate(((NumberEval) evaluate).getNumberValue());
         } else if (returnType != null && evaluate instanceof StringEval) {
-            Object object = workbook.getEvaluationContext().getDataPool().get(((StringEval) evaluate).getStringValue());
-            if (object != null) {
-                return object;
-            }
+// Incorrect functionality: LiveExcelEvaluator can't return object. 
+//            Object object = workbook.getEvaluationContext().getDataPool().get(((StringEval) evaluate).getStringValue());
+//            if (object != null) {
+//                return object;
+//            }
         }
         return getValueByEval(evaluate);
     }
