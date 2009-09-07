@@ -16,11 +16,19 @@ public class BaseTableEditorController {
     }
 
     protected TableEditorModel getEditorModel(String editorId) {
-        return getHelper(editorId).getModel();
+        EditorHelper helper = getHelper(editorId);
+        if (helper != null) {
+            return helper.getModel();
+        }
+        return null;
     }
 
     protected IGridTable getGridTable(String editorId) {
-        return getHelper(editorId).getModel().getUpdatedTable();
+        EditorHelper helper = getHelper(editorId);
+        if (helper != null) {
+            return helper.getModel().getUpdatedTable();
+        }
+        return null;
     }
 
     /**

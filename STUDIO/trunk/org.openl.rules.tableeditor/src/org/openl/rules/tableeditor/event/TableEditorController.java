@@ -211,10 +211,9 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String insertRowBefore() throws Exception {
         int row = getRow();
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableEditorModel editorModel = editorHelper.getModel();
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             try {
                 if (row >= 0) {
                     if (editorModel.canAddRows(1)) {
@@ -241,10 +240,9 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String insertColBefore() throws Exception {
         int col = getCol();
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableEditorModel editorModel = editorHelper.getModel();
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             try {
                 if (col >= 0 && editorModel.canAddRows(1)) {
                     editorModel.insertColumns(1, col);
@@ -303,10 +301,9 @@ public class TableEditorController extends BaseTableEditorController implements 
      */
 
     public String getCellType() {
-        EditorHelper editorHelper = getHelper(getEditorId());
-        if (editorHelper != null) {
-            TableEditorModel model = editorHelper.getModel();
-            ICellEditor editor = new CellEditorSelector().selectEditor(getRow(), getCol(), model);
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        if (editorModel != null) {
+            ICellEditor editor = new CellEditorSelector().selectEditor(getRow(), getCol(), editorModel);
             EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
             return pojo2json(typeResponse);
         }
@@ -339,8 +336,8 @@ public class TableEditorController extends BaseTableEditorController implements 
     }
 
     private int getRow() {
-        EditorHelper editorHelper = getHelper(getEditorId());
-        int numberOfNonShownRows = editorHelper.getModel().getNumberOfNonShownRows();
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        int numberOfNonShownRows = editorModel.getNumberOfNonShownRows();
         return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
     }
 
@@ -356,12 +353,11 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String removeRow() throws Exception {
         int row = getRow();
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableEditorModel editorModel = editorHelper.getModel();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
             if (row >= 0) {
                 editorModel.removeRows(1, row);
-                return pojo2json(new TableModificationResponse(render(editorId), editorHelper.getModel()));
+                return pojo2json(new TableModificationResponse(render(editorId), editorModel));
             }
         }
         return null;
@@ -370,12 +366,11 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String removeCol() throws Exception {
         int col = getCol();
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableEditorModel editorModel = editorHelper.getModel();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
             if (col >= 0) {
                 editorModel.removeColumns(1, col);
-                return pojo2json(new TableModificationResponse(render(editorId), editorHelper.getModel()));
+                return pojo2json(new TableModificationResponse(render(editorId), editorModel));
             }
         }
         return null;
@@ -385,16 +380,16 @@ public class TableEditorController extends BaseTableEditorController implements 
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
             int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
-            ICellStyle style = editorHelper.getModel().getCellStyle(row, col);
+            ICellStyle style = editorModel.getCellStyle(row, col);
             int currentIndent = style.getIdent();
             int resultIndent = currentIndent + indent;
             CellStyle newStyle = new CellStyle(style);
             newStyle.setIdent(resultIndent >= 0 ? resultIndent : 0);
-            editorHelper.getModel().setStyle(row, col, newStyle);
-            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
+            editorModel.setStyle(row, col, newStyle);
+            return pojo2json(new TableModificationResponse(null, editorModel));
         }
         return null;
     }
@@ -407,9 +402,8 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String setCellValue() {
         String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableEditorModel editorModel = editorHelper.getModel();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
             editorModel.setCellValue(getRow(), getCol(), value);
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             // rerender the table if value is a formula
@@ -425,9 +419,8 @@ public class TableEditorController extends BaseTableEditorController implements 
         String name = getRequestParam(Constants.REQUEST_PARAM_PROP_NAME);
         String value = getRequestParam(Constants.REQUEST_PARAM_PROP_VALUE);
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableEditorModel editorModel = editorHelper.getModel();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
             if (editorModel.canAddRows(1)) {
                 editorModel.insertProp(name, value);
             } else {
@@ -446,8 +439,8 @@ public class TableEditorController extends BaseTableEditorController implements 
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
             String align = getRequestParam(Constants.REQUEST_PARAM_ALIGN);
             int halign = -1;
             if ("left".equalsIgnoreCase(align)) {
@@ -461,25 +454,25 @@ public class TableEditorController extends BaseTableEditorController implements 
             }
 
             if (halign != -1) {
-                ICellStyle style = editorHelper.getModel().getCellStyle(row, col);
+                ICellStyle style = editorModel.getCellStyle(row, col);
                 if (style.getHorizontalAlignment() != halign) {
                     CellStyle newStyle = new CellStyle(style);
                     newStyle.setHorizontalAlignment(halign);
-                    editorHelper.getModel().setStyle(row, col, newStyle);
+                    editorModel.setStyle(row, col, newStyle);
                 }
             }
-            return pojo2json(new TableModificationResponse(null, editorHelper.getModel()));
+            return pojo2json(new TableModificationResponse(null, editorModel));
         }
         return null;
     }
 
     public String undo() throws Exception {
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
-            if (editorHelper.getModel().hasUndo()) {
-                editorHelper.getModel().undo();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            if (editorModel.hasUndo()) {
+                editorModel.undo();
                 tmResponse.setResponse(render(editorId));
             } else {
                 tmResponse.setStatus("No actions to undo");
@@ -491,11 +484,11 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     public String redo() throws Exception {
         String editorId = getEditorId();
-        EditorHelper editorHelper = getHelper(editorId);
-        if (editorHelper != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorHelper.getModel());
-            if (editorHelper.getModel().hasRedo()) {
-                editorHelper.getModel().redo();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            if (editorModel.hasRedo()) {
+                editorModel.redo();
                 tmResponse.setResponse(render(editorId));
             } else {
                 tmResponse.setStatus("No actions to redo");
@@ -506,10 +499,10 @@ public class TableEditorController extends BaseTableEditorController implements 
     }
 
     public String saveTable() throws Exception {
-        EditorHelper editorHelper = getHelper(getEditorId());
-        if (editorHelper != null) {
-            editorHelper.getModel().save();
-            return pojo2json(new TableModificationResponse("", editorHelper.getModel()));
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        if (editorModel != null) {
+            editorModel.save();
+            return pojo2json(new TableModificationResponse("", editorModel));
         }
         return null;
     }
