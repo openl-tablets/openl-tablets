@@ -33,8 +33,7 @@ public class Tokenizer {
     private Tokenizer() {
     }
 
-    private static String getAlphanumericToken(String textToTokenize,
-            int startPos) {
+    private static String getAlphanumericToken(String textToTokenize, int startPos) {        
         int pos = startPos + 1;
 
         for (; pos < textToTokenize.length(); pos++) {
@@ -44,7 +43,6 @@ public class Tokenizer {
                 break;
             }
         }
-
         return textToTokenize.substring(startPos, pos);
     }
 
@@ -76,12 +74,15 @@ public class Tokenizer {
      */
     public static String[] parse(String textToTokenize) {
         List<String> tokens = new ArrayList<String>();
-
+        
+        if(textIsComposite(textToTokenize)){
+            tokens.add(textToTokenize);
+        }
         for (int pos = 0; pos < textToTokenize.length(); pos++) {
             char currentSymbol = textToTokenize.charAt(pos);
             String currentToken = null;
 
-            if (Character.isLetter(currentSymbol)) {
+            if (Character.isLetter(currentSymbol)) {                
                 currentToken = getAlphanumericToken(textToTokenize, pos);
             } else if (Character.isDigit(currentSymbol)) {
                 currentToken = getNumberToken(textToTokenize, pos);
@@ -94,6 +95,28 @@ public class Tokenizer {
         }
 
         return (String[]) tokens.toArray(new String[tokens.size()]);
+    }
+    
+    /**
+     * Check if the given text is a composite word. It means contains of several words, 
+     * separated by dash symbol ('-'). 
+     * @param textToTokenize 
+     * @return
+     */
+    private static boolean textIsComposite(String textToTokenize) {
+        boolean result = false;
+        for(int pos = 0; pos < textToTokenize.length(); pos++) {
+            int indexOfDash = textToTokenize.indexOf('-', pos);
+            if(indexOfDash > 0) {
+                char charBeforeDash = textToTokenize.charAt(indexOfDash-1);
+                char charAfterDash = textToTokenize.charAt(indexOfDash+1);
+                if(Character.isLetter(charBeforeDash) && Character.isLetter(charAfterDash)) {
+                    result = true;
+                    pos = charAfterDash;
+                }
+            }               
+        }
+        return result;         
     }
 
 }
