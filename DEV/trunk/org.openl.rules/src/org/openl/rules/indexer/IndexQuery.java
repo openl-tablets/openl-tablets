@@ -69,17 +69,20 @@ public class IndexQuery {
             Map<String, HitBucket> exclusions = null;
             for (int j = 0; j < tokensExclude[i].length; j++) {
                 String tokenExclude = tokensExclude[i][j];
-                TokenBucket tb = idx.findEqualsTokenBucket(tokenExclude);
-                if (j == 0) {
-                    exclusions = tb.getIndexElements();
-                } else {
-                    exclusions = intersect(exclusions, tb.getIndexElements());
-                }
+                TokenBucket tb = idx.findEqualsTokenBucket(tokenExclude);   
+                if(tb != null) {
+                    if (j == 0) {
+                        exclusions = tb.getIndexElements();
+                    } else {
+                        exclusions = intersect(exclusions, tb.getIndexElements());
+                    }
+                }                
             }
-
-            for (Iterator<HitBucket> iter = exclusions.values().iterator(); iter.hasNext();) {
-                HitBucket hb = (HitBucket) iter.next();
-                excludedIndexes.add(hb.getElement());
+            if(exclusions != null) {
+                for (Iterator<HitBucket> iter = exclusions.values().iterator(); iter.hasNext();) {
+                    HitBucket hb = (HitBucket) iter.next();
+                    excludedIndexes.add(hb.getElement());
+                }
             }
         }
 
