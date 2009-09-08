@@ -97,7 +97,7 @@ public class FileIndexerTest {
         for(TokenBucket buck : buckets) {
             System.out.println("111"+buck.displayValue());
         }
-        assertTrue(23 == buckets.length);        
+        assertTrue(25 == buckets.length);        
     }
     
     @Test
