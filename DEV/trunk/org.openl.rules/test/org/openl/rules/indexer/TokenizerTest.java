@@ -52,5 +52,30 @@ public class TokenizerTest {
             System.out.println(str);
         }
     }
+    
+    @Test
+    public void testParse4() {
+        String[] resStr2 = Tokenizer.parse("Driver-Premium");
+        for(String str : resStr2) {
+            System.out.println(str);
+        }
+        assertTrue(3 == resStr2.length);
+        assertEquals("Driver-Premium", resStr2[0]);
+        assertEquals("Driver", resStr2[1]);
+        assertEquals("Premium", resStr2[2]);
+    }
+    
+    @Test
+    public void testParse5() {
+        String[] resStr2 = Tokenizer.parse("Driver-Premium-Forever");
+        for(String str : resStr2) {
+            System.out.println(str);
+        }
+        assertTrue(4 == resStr2.length);
+        assertEquals("Driver-Premium-Forever", resStr2[0]);
+        assertEquals("Driver", resStr2[1]);
+        assertEquals("Premium", resStr2[2]);
+        assertEquals("Forever", resStr2[3]);
+    }
 
 }

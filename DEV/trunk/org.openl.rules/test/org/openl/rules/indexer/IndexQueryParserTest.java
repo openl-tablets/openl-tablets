@@ -18,17 +18,17 @@ public class IndexQueryParserTest {
     @Test
     public void testParsing1() {
         IndexQuery iq = IndexQueryParser.parse("\"Child-root\"");
-        assertTrue(0 == iq.getTokensInclude().length);
-        assertTrue(1 == iq.tokensExclude.length);
-        assertEquals("Child-root", iq.tokensExclude[0][0]);        
+        assertTrue(1 == iq.getTokensInclude().length);
+        assertTrue(0 == iq.tokensExclude.length);
+        assertEquals("Child-root", iq.getTokensInclude()[0][0]);        
     }
     
     @Test
     public void testParsing2() {
         IndexQuery iq = IndexQueryParser.parse("\"Child-root");
-        assertTrue(0 == iq.getTokensInclude().length);
-        assertTrue(1 == iq.tokensExclude.length);
-        assertEquals("Child-root", iq.tokensExclude[0][0]);        
+        assertTrue(1 == iq.getTokensInclude().length);
+        assertTrue(0 == iq.tokensExclude.length);
+        assertEquals("Child-root", iq.getTokensInclude()[0][0]);        
     }
     
     @Test
@@ -41,11 +41,11 @@ public class IndexQueryParserTest {
     
     @Test
     public void testParsing4() {
-        IndexQuery iq = IndexQueryParser.parse("chi\"ca-go");
-        assertTrue(1 == iq.getTokensInclude().length);
-        assertTrue(1 == iq.tokensExclude.length);
+        IndexQuery iq = IndexQueryParser.parse("chi\"ca-go");        
+        assertTrue(2 == iq.getTokensInclude().length);
+        assertTrue(0 == iq.tokensExclude.length);
         assertEquals("chi", iq.getTokensInclude()[0][0]);
-        assertEquals("ca-go", iq.tokensExclude[0][0]);
+        assertEquals("ca-go", iq.getTokensInclude()[1][0]);
     }
     
     @Test
@@ -70,6 +70,14 @@ public class IndexQueryParserTest {
         assertTrue(0 == iq.tokensExclude.length);
         assertEquals("openl", iq.getTokensInclude()[0][0]);
         assertEquals("tablets", iq.getTokensInclude()[0][1]);
+    }
+    
+    @Test
+    public void testParsing7() {
+        IndexQuery iq = IndexQueryParser.parse("Child-root");
+        assertTrue(1 == iq.getTokensInclude().length);
+        assertTrue(0 == iq.tokensExclude.length);
+        assertEquals("Child-root", iq.getTokensInclude()[0][0]);        
     }
     
 

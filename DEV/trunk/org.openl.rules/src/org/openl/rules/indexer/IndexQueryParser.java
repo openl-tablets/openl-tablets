@@ -6,8 +6,7 @@ import java.util.List;
 /**
  * Parses the input string for tokens. Consider space (' ') is a separator for words.
  * Cuts off the double brackets from expressions. If finds a
- * double bracket in the middle of the word, consider it as a separator for tokens.
- * Words separated by dash are not included in the parsed result.
+ * double bracket in the middle of the word, consider it as a separator for tokens. 
  */
 public class IndexQueryParser {
 
@@ -25,12 +24,10 @@ public class IndexQueryParser {
     private int nTokens = 0;    
     private int startPos = 0;
     private boolean wordStarted = false;
-    private boolean openBracket = false;
-    private boolean wordWithDash = false;
+    private boolean openBracket = false;    
     private boolean letter = false;
     private boolean space = false;
-    private boolean bracket = false;
-    private boolean dash = false;
+    private boolean bracket = false;    
 
     private int pos = 0;
 
@@ -54,9 +51,9 @@ public class IndexQueryParser {
             for (int i = 0; i < nTokens; i++) {
                 newtokens[i] = tokens[i];
             }
-
-            (wordWithDash ? excluded : included).add(newtokens);
-            wordWithDash = openBracket = wordStarted = false;
+            
+            included.add(newtokens);
+            openBracket = wordStarted = false;
             nTokens = 0;
         }        
     }
@@ -72,8 +69,7 @@ public class IndexQueryParser {
     /**
      * Parses the input string for tokens. Consider space (' ') is a separator for words.
      * Cuts off the double brackets from expressions. If finds a 
-     * double bracket in the middle of the word, consider it as a separator for tokens.
-     * Words separated by dash are not included in the parsed result.
+     * double bracket in the middle of the word, consider it as a separator for tokens.     * 
      * 
      * @return {@link IndexQuery}
      */
@@ -85,12 +81,10 @@ public class IndexQueryParser {
     
     private IndexQuery parse() {
         for (; pos < input.length(); pos++) {
-            dash = letter = space = bracket = false;
+            letter = space = bracket = false;
             char charAtPos = input.charAt(pos);
 
-            if (charAtPos == '-') {
-                dash = true;
-            } else if (charAtPos == '"') {
+            if (charAtPos == '"') {
                 bracket = true;
             } else if (charAtPos == ' ') {
                 space = true;
@@ -113,9 +107,7 @@ public class IndexQueryParser {
                 closeToken();
                 flushTokens();
                 openBracket = false;
-            } else if (dash) {
-                wordWithDash = true;
-            }
+            } 
         }
 
         closeToken();
