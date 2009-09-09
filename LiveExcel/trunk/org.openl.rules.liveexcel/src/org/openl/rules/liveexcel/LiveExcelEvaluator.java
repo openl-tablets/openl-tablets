@@ -7,6 +7,8 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.EvaluationTracker;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
@@ -64,7 +66,9 @@ public class LiveExcelEvaluator {
         for (int i = 0; i < args.length; i++) {
             processedArgs[i] = createEvalForObject(args[i], evaluator);
         }
-        ValueEval result = evaluator.evaluate(evaluationWorkbook.findUserDefinedFunction(functionName), processedArgs);
+        FreeRefFunction udf = evaluationWorkbook.findUserDefinedFunction(functionName);
+        ValueEval result = udf.evaluate(processedArgs, new OperationEvaluationContext(evaluator, evaluationWorkbook,
+                -1, -1, -1, new EvaluationTracker()));
         evaluationContext.removeDataPool(evaluator);
         return result;
     }

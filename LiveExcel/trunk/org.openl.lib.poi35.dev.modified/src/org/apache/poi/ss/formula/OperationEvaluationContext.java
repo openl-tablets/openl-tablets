@@ -85,7 +85,7 @@ public final class OperationEvaluationContext {
      */
     public void setTemporaryCellValueForEvaluationTime(EvaluationCell cellToSet, ValueEval newValue) {
         _previousValues.put(cellToSet, _bookEvaluator.evaluate(cellToSet));
-        _bookEvaluator.setCachedCellValue(cellToSet, newValue, _tracker);
+        _bookEvaluator.setCachedCellValue(cellToSet, newValue);
     }
 
     /**
@@ -93,7 +93,7 @@ public final class OperationEvaluationContext {
      */
     public void rollBackTemporaryCells() {
         for (Entry<EvaluationCell, ValueEval> entry : _previousValues.entrySet()) {
-            _bookEvaluator.setCachedCellValue(entry.getKey(), entry.getValue(), _tracker);
+            _bookEvaluator.setCachedCellValue(entry.getKey(), entry.getValue());
         }
     }
     
