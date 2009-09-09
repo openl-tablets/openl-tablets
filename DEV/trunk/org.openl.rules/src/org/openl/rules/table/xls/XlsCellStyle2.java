@@ -92,7 +92,7 @@ public class XlsCellStyle2 implements ICellStyle {
 	}
 
 	public String getTextFormat() {
-		return workbook.createDataFormat().getFormat(xlsStyle.getDataFormat());
+		return xlsStyle.getDataFormatString();
 	}
 
 	public int getVerticalAlignment() {

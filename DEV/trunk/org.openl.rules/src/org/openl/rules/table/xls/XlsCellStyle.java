@@ -96,7 +96,7 @@ public class XlsCellStyle implements ICellStyle {
     }
 
     public String getTextFormat() {
-        return workbook.createDataFormat().getFormat(xlsStyle.getDataFormat());
+        return xlsStyle.getDataFormatString();
     }
 
     /*
