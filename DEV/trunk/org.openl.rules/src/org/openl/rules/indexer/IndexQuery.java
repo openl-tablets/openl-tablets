@@ -11,14 +11,15 @@ import java.util.TreeSet;
 import org.openl.rules.indexer.Index.TokenBucket;
 
 /**
- * During initialization, gets the elements for inclusion and exclusion in search.
- * Searches by the index using exclusion and inclusion search elements. see {@link IndexQuery#execute(Index)} 
+ * Contains parsed search request as elements that must be included in search and excluded from it.
+ * Using method {@link IndexQuery#executeSearch(Index)} you can find all elements from indexed data that 
+ * match to the parsed search request.  
  */
 public class IndexQuery {
     
     private static final int ELEMENT_PRESENCE_WEIGHT = 20;
     private static final int CONTAINS_STR_WEIGHT = 100;
-
+    
     private String[][] tokensInclude = null;
     // protected for tests
     protected String[][] tokensExclude = {};
@@ -53,9 +54,9 @@ public class IndexQuery {
     }
     
     /**
-     * Initialize the indexes for exclusion elements, according with tokens that 
-     * must be excluded from search result
-     * @param idx Index of files.
+     * Initialize elements that match to the tokens that must be excluded from search,
+     * to exclude this elements in final search result. 
+     * @param idx Indexed data.
      */
     private void makeExclusions(Index idx) {
 
@@ -85,12 +86,11 @@ public class IndexQuery {
                 }
             }
         }
-
     }    
     
     /**
-     * 
-     * @param idx
+     * Goes through the tokens parsed from the search query and gets the results from Index.
+     * @param idx Indexed data.
      * @return Map of search result, where there key is an uri and value is an element satisfying the search. 
      */
     private Map<String, HitBucket> makeInclusions(Index idx) {
@@ -115,69 +115,142 @@ public class IndexQuery {
     }
 
     /**
-     * At first we try to get the {@TokenBucket} by a strict equals condition. If there is no such element,
-     * we try to find token buckets that contains current token.
-     * @param idx Index contains indexed data.  
+     * Construct the result for array of tokens. If array contains only one token, 
+     * we process it as a single word. Also if there are several elements in the 
+     * array we process it as a query in curly brackets (e.g. "driver license"), 
+     * it means we need results that match all the words in the query.
+     * Both for single words and queries at first we try to get results that fully 
+     * matches the search string (like equals()), if none we try to find results
+     * that contain the search string from its beginning.  
+     *
+     * @param idx {@link Index} - contains indexed data.  
      * @param tokens Tokens to be found.
      * @return
      */
     private Map<String, HitBucket> makeInclusions(Index idx, String[] tokens) {
         
-        String searchStr = "";
-        for (String token : tokens) {
-            searchStr += " " + token;
+        String searchStr = tokens[0];
+        for (int i = 1; i<tokens.length; i++) {
+            searchStr += " " + tokens[i];
         }
-
+        
         searchStr = searchStr.toLowerCase();
 
         Map<String, HitBucket> inclusions = new HashMap<String, HitBucket>();
-
-        for (int i = 0; i < tokens.length; i++) {
-            TokenBucket tb = idx.findEqualsTokenBucket(tokens[i]);
-            if (tb == null) {
-                List<TokenBucket> tbs = idx.findContainTokenBuckets(tokens[i]);
-                for(TokenBucket tb1 : tbs) {
-                    inclusions.putAll(include(tb1,i,searchStr));
+        
+        if(isTokenQuery(tokens)) {
+            for (int i = 0; i < tokens.length; i++) {
+                TokenBucket equalTokBuck = idx.findEqualsTokenBucket(tokens[i]);
+                if (equalTokBuck == null) {
+                    List<TokenBucket> containTokBucks = idx.findContainTokenBuckets(tokens[i]);
+                    Map<String, HitBucket> containInclusions = new HashMap<String, HitBucket>();
+                    for(TokenBucket containTokBuck : containTokBucks) {                            
+                        containInclusions.putAll(include(containTokBuck,i,searchStr, inclusions));                        
+                    }
+                    inclusions = containInclusions; 
+                    continue;
+                } else {
+                    inclusions = include(equalTokBuck, i, searchStr, inclusions);
+                }                            
+            }            
+        } else {
+            TokenBucket equalTokBuck = idx.findEqualsTokenBucket(searchStr);
+            if (equalTokBuck == null) {
+                List<TokenBucket> containTokBucks = idx.findContainTokenBuckets(searchStr);
+                Map<String, HitBucket> containInclusions = new HashMap<String, HitBucket>();
+                for(TokenBucket containTokBuck : containTokBucks) {
+                    containInclusions = includeSingleToken(containTokBuck, searchStr);
+                    inclusions.putAll(containInclusions);
                 }
-                continue;
-            }
-            inclusions.putAll(include(tb, i, searchStr));            
+            } else {
+                inclusions = includeSingleToken(equalTokBuck, searchStr);
+            }                        
         }
         return inclusions;
     }
     
+    /**
+     * If string array contains more than one string, it means that the search request
+     * was set as a query in curly brackets (e.g. "driver license").
+     * And result of search must contain the whole this query.
+     * @param tokens Tokens from search request.
+     * @return
+     */
+    private boolean isTokenQuery(String[] tokens) {
+        boolean result = false;
+        if(tokens.length > 1) {
+            result = true;
+        }
+        return result;        
+    }
     
-    
-    private Map<String, HitBucket> include(TokenBucket tb, int i, String searchStr) {
-        Map<String, HitBucket> inclusions = new HashMap<String, HitBucket>();
+    /**
+     * This method is called for every token in search request when it is a query. 
+     * For the first element in the query we call {@link #includeSingleToken(TokenBucket, String, Map)} 
+     * and get all results that match to this token. For every next token we call 
+     * {@link #filterQuery(TokenBucket, Map)} and filter the existing map of results, excluding all
+     * that don`t contain the current token. 
+     * So we will get the results that fully match to our query.
+     * 
+     * @param tb {@link TokenBucket} that matches to the current token in array.
+     * @param i The number of the current token in array.
+     * @param searchStr The whole search request.
+     * @param inclusions Map of search results.
+     * @return
+     */
+    private Map<String, HitBucket> include(TokenBucket tb, int i, String searchStr, Map<String, HitBucket> inclusions) {        
         if (i == 0) {
-            for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
-                HitBucket hb = iter.next();
-                if (!excludedIndexes.contains(hb.getElement())) {
-                    HitBucket hbInc = new HitBucket(hb);
-                    boolean contains = hbInc.getElement().getIndexedText().toLowerCase().indexOf(searchStr) >= 0;
-                    if (contains) {
-                        hbInc.setWeight(hbInc.getWeight() * CONTAINS_STR_WEIGHT);
-                    }
-                    inclusions.put(hb.getElement().getUri(), hbInc);
-                }
-            }
+            inclusions = includeSingleToken(tb, searchStr);
         } else {
-            Map<String, HitBucket> myInclusions = new HashMap<String, HitBucket>();
-            for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
-
-                HitBucket hb = (HitBucket) iter.next();
-                String uri = hb.getElement().getUri();
-                HitBucket hbInc = (HitBucket) inclusions.get(uri);
-
-                if (hbInc != null) {
-                    hbInc.setWeight(hb.getWeight() + hbInc.getWeight());
-                    myInclusions.put(uri, hbInc);
-                }
-            }
-            inclusions = myInclusions;
+            inclusions = filterQuery(tb, inclusions);
         }       
         return inclusions;        
+    }
+    
+    /**
+     * Filter the existing map of results, excluding all that don`t contain the current token. 
+     * 
+     * @param tb {@link TokenBucket} that matches to current token.
+     * @param inclusions Map of search results that will be filtered. 
+     * @return Map of filtered search results. 
+     */
+    private Map<String, HitBucket> filterQuery(TokenBucket tb, Map<String, HitBucket> inclusions) {
+        Map<String, HitBucket> myInclusions = new HashMap<String, HitBucket>();
+        for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
+
+            HitBucket hb = (HitBucket) iter.next();
+            String uri = hb.getElement().getUri();
+            HitBucket hbInc = (HitBucket) inclusions.get(uri);
+
+            if (hbInc != null) {
+                hbInc.setWeight(hb.getWeight() + hbInc.getWeight());
+                myInclusions.put(uri, hbInc);
+            }
+        }
+        return myInclusions;
+    }
+    
+    /**
+     * Collect the search results that match to the current token.
+     * 
+     * @param tb {@link TokenBucket} that matches to the string token.
+     * @param searchStr String token.      
+     * @return Map of search results that match to the current token.
+     */
+    private Map<String, HitBucket> includeSingleToken(TokenBucket tb, String searchStr) {
+        Map<String, HitBucket> inclusions = new HashMap<String, HitBucket>();
+        for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext();) {
+            HitBucket hb = iter.next();
+            if (!excludedIndexes.contains(hb.getElement())) {
+                HitBucket hbInc = new HitBucket(hb);
+                boolean contains = hbInc.getElement().getIndexedText().toLowerCase().indexOf(searchStr) >= 0;
+                if (contains) {
+                    hbInc.setWeight(hbInc.getWeight() * CONTAINS_STR_WEIGHT);
+                }
+                inclusions.put(hb.getElement().getUri(), hbInc);
+            }
+        }
+        return inclusions;
     }
 
     public String[][] getTokensInclude() {
@@ -193,11 +266,13 @@ public class IndexQuery {
     } 
     
     /**
-     * Process the index with the search query.  
-     * @param idx Indexed data.
-     * @return 
+     * Searches over elements from indexed data using parsed search request.
+     *    
+     * @param idx Indexed data to search for.
+     * @return TreeSet<{@link HitBucket}> - result that matches to
+     * the search request.  
      */
-    public TreeSet<HitBucket> execute(Index idx) {
+    public TreeSet<HitBucket> executeSearch(Index idx) {
         TreeSet<HitBucket> result = new TreeSet<HitBucket>();        
         makeExclusions(idx);
         Map<String, HitBucket> allInc = makeInclusions(idx);

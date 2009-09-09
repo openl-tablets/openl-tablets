@@ -50,10 +50,7 @@ public class IndexQueryParserTest {
     
     @Test
     public void testParsing5() {
-        IndexQuery iq = IndexQueryParser.parse("Young Driver");
-        for(int i=0; i<iq.getTokensInclude().length;i++){
-            System.out.println("1111"+iq.getTokensInclude()[i][0]);
-        }
+        IndexQuery iq = IndexQueryParser.parse("Young Driver");        
         assertTrue(2 == iq.getTokensInclude().length);
         assertTrue(0 == iq.tokensExclude.length);
         assertEquals("Young", iq.getTokensInclude()[0][0]);
@@ -62,10 +59,7 @@ public class IndexQueryParserTest {
     
     @Test
     public void testParsing6() {
-        IndexQuery iq = IndexQueryParser.parse("\"openl tablets\"");
-        for(int i=0; i<iq.getTokensInclude().length;i++){
-            System.out.println("1111"+iq.getTokensInclude()[i][0]);
-        }
+        IndexQuery iq = IndexQueryParser.parse("\"openl tablets\"");        
         assertTrue(1 == iq.getTokensInclude().length);
         assertTrue(0 == iq.tokensExclude.length);
         assertEquals("openl", iq.getTokensInclude()[0][0]);
@@ -78,6 +72,24 @@ public class IndexQueryParserTest {
         assertTrue(1 == iq.getTokensInclude().length);
         assertTrue(0 == iq.tokensExclude.length);
         assertEquals("Child-root", iq.getTokensInclude()[0][0]);        
+    }
+    
+    @Test
+    public void testParsing8() {
+        IndexQuery iq = IndexQueryParser.parse("\"High Risk\"");        
+        assertTrue(1 == iq.getTokensInclude().length);
+        assertTrue(0 == iq.tokensExclude.length);
+        assertEquals("High", iq.getTokensInclude()[0][0]);
+        assertEquals("Risk", iq.getTokensInclude()[0][1]);
+    }
+    
+    @Test
+    public void testParsing9() {
+        IndexQuery iq = IndexQueryParser.parse("High Risk");        
+        assertTrue(2 == iq.getTokensInclude().length);
+        assertTrue(0 == iq.tokensExclude.length);
+        assertEquals("High", iq.getTokensInclude()[0][0]);
+        assertEquals("Risk", iq.getTokensInclude()[1][0]);
     }
     
 
