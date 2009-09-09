@@ -387,20 +387,22 @@ public class HTMLRenderer {
             }
             return groupProps;
         }
-        
+
         /**
          * 
          * @return Construct table for properties
          */
         public String renderProperties() {
-            result.append("<fieldset style='width:600px;margin-bottom:5px;'><legend>Properties</legend>"
-                    + "<table style='font-size: 12px;font-family: Arial;' cellspacing='1' cellpadding='1'>");
+            result.append(renderCSS("css/properties.css"));
+            result.append("<table cellspacing='0' cellpadding='0' class='te_props'>");
+            result.append("<tr><td class='te_props_header'>Properties");
+            renderHideButton(propsId);
+            result.append("</td></tr><tr><td><div id=" + propsId + " class='te_props_propstable'>");
+            result.append("<table cellspacing='1' cellpadding='1'>");
             result.append(renderJS("js/calendar_us.js"));
             result.append(renderCSS("css/calendar.css"));
-
             buildPropsTable();
-
-            result.append("</table></fieldset>");
+            result.append("</table></div></td></tr></table>");
             return result.toString();            
         }
 
@@ -419,7 +421,7 @@ public class HTMLRenderer {
                     result.append("</tr>");
                     result.append("<tr>");
                 }
-                result.append("<td valign='top'>");
+                result.append("<td valign='top' class='te_props_group'>");
                 fillPropsGroup(group, mode);
                 result.append("</td>");
 
@@ -444,11 +446,11 @@ public class HTMLRenderer {
             Map<String, List<TableProperty>> groupProps = groupProps(listProperties);
             List<TableProperty> groupList = groupProps.get(groupKey);
             String groupId = propsId + Constants.ID_POSTFIX_PROPS_GROUP + groupKey;
-            result.append("<div style='margin-bottom:5px;'>");
-            result.append("<b>" + groupKey + "</b>");
+            result.append("<div class='te_props_groupheader'>");
+            result.append(groupKey);
             renderHideButton(groupId);
             result.append("</div>");
-            result.append("<div id='" + groupId + "' style='border:1px solid grey; margin: 0 4px 8px 0;'>");
+            result.append("<div id='" + groupId + "' class='te_props_grouptable'>");
             result.append("<table>");
             for (TableProperty prop : groupList) {
                 if (mode.equals("edit")) {
@@ -463,9 +465,8 @@ public class HTMLRenderer {
         private void renderHideButton(String idToHide) {
             result.append("<input type='button' value='-' onclick=\"$('"
                     + idToHide + "').toggle();this.value=(this.value == '-' ? '+' : '-');"
-                    + "this.title=(this.title == 'Hide group' ? 'Show group' : 'Hide group');\""
-                    + " title='Hide group'"
-                    + " style='width:20px;height:15px;border:0px;background:none;' />");
+                    + "this.title=(this.title == 'Hide' ? 'Show' : 'Hide');\""
+                    + " title='Hide' class='te_props_hidebutton' />");
         }
 
         /**
