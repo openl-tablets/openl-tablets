@@ -101,7 +101,7 @@ public class FileIndexer extends WebTool {
 
         IndexQuery iq = IndexQueryParser.parse("account id unique");
 
-        TreeSet<HitBucket> hitBuckets = iq.execute(index);
+        TreeSet<HitBucket> hitBuckets = iq.executeSearch(index);
 
         String[] tokens = tokens(iq.getTokensInclude(), index);
 
@@ -273,7 +273,7 @@ public class FileIndexer extends WebTool {
     public String[][] getResultsForQuery(String searchQuery, int maxRes, IStringFilter uriFilter) {        
         IndexQuery indexQuery = IndexQueryParser.parse(searchQuery);
                 
-        TreeSet<HitBucket> searchRes = indexQuery.execute(getIndex());
+        TreeSet<HitBucket> searchRes = indexQuery.executeSearch(getIndex());
 
         String[] tokens = tokens(indexQuery.getTokensInclude(), index);
 

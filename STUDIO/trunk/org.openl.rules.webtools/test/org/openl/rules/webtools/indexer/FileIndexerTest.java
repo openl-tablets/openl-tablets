@@ -117,6 +117,6 @@ public class FileIndexerTest {
         assertEquals(30, index.getFirstCharMap().size());
         
         IndexQuery indexQuery = IndexQueryParser.parse("Gender");
-        TreeSet ts = indexQuery.execute(index);        
+        TreeSet ts = indexQuery.executeSearch(index);        
     }
 }
