@@ -306,12 +306,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         CellStyle styleFrom = cellFrom.getCellStyle();
         CellStyle styleTo = cellTo.getCellStyle();
 
-        // TODO FIXME remove try..catch when cloneStyleFrom will be fixed.
-        try {
-            styleTo.cloneStyleFrom(styleFrom);
-        } catch (IllegalArgumentException ex) {
-            // IllegalArgumentException always thrown after method execution
-        }
+        styleTo.cloneStyleFrom(styleFrom);
 
         setCellMetaInfo(colTo, rowTo, meta);
     }
@@ -327,6 +322,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
      *            that ignored in <code>ICellStyle source</code> parameter
      */
     private void copyStyle(ICellStyle source, CellStyle dest, CellStyle oldStyle) {
+        if (source != null) {
         dest.setAlignment((short) source.getHorizontalAlignment());
         dest.setVerticalAlignment((short) source.getVerticalAlignment());
         dest.setIndention((short) source.getIdent());
@@ -336,7 +332,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         dest.setBorderRight(bs[1]);
         dest.setBorderBottom(bs[2]);
         dest.setBorderLeft(bs[3]);
-
+        }
         // TODO Can't we clone style like below?
         // dest.cloneStyleFrom(oldStyle);
         if (oldStyle != null) {
