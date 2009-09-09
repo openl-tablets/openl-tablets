@@ -69,7 +69,8 @@ public class IndexQueryParser {
     /**
      * Parses the input string for tokens. Consider space (' ') is a separator for words.
      * Cuts off the double brackets from expressions. If finds a 
-     * double bracket in the middle of the word, consider it as a separator for tokens.     * 
+     * double bracket in the middle of the word, consider it as a separator for tokens.
+     * If input string is bordered with curly brackets, process it as a query.   
      * 
      * @return {@link IndexQuery}
      */

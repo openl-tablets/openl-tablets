@@ -191,7 +191,8 @@ public class Index {
     }
     
     /**
-     * Searches by contains for token bucket in the first chat map by the token.      
+     * Searches all {@link TokenBucket} that matches to the token,
+     * by contains for token bucket in the first chat map by the token.      
      * @param token
      * @return
      */
