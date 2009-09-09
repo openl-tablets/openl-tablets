@@ -29,7 +29,7 @@ public abstract class GroupOperator {
     static public class GroupAND extends GroupOperator {
         @Override
         public String getName() {
-            return "----- AND ------";
+            return "-AND NEXT GROUP-";
         }
 
         @Override
@@ -46,7 +46,7 @@ public abstract class GroupOperator {
     static public class GroupOR extends GroupOperator {
         @Override
         public String getName() {
-            return "----- OR ------";
+            return "-OR NEXT GROUP-";
         }
 
         @Override
