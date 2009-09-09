@@ -37,8 +37,11 @@ public final class Constants {
 
     public static final String TABLE_EDITOR_PREFIX = "_te";
 
-    public static final String MENU_ID_POSTFIX = "_menu";
-    public static final String TABLE_ID_POSTFIX = "_table";
-    public static final String CELL_ID_POSTFIX = "_cell-";
+    public static final String ID_POSTFIX_TABLE = "_table";
+    public static final String ID_POSTFIX_MENU = "_menu";
+    public static final String ID_POSTFIX_PROPS = "_props";
+    public static final String ID_POSTFIX_PROPS_GROUP = "_group-";
+    public static final String ID_POSTFIX_PROP = "_prop-";
+    public static final String ID_POSTFIX_CELL = "_cell-";
 
 }
