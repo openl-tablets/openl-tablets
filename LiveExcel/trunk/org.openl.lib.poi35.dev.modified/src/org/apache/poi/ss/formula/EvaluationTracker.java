@@ -36,14 +36,12 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
  *
  * @author Josh Micich
  */
-final class EvaluationTracker {
+public final class EvaluationTracker {
 	// TODO - consider deleting this class and letting CellEvaluationFrame take care of itself
 	private final List<CellEvaluationFrame> _evaluationFrames;
 	private final Set<FormulaCellCacheEntry> _currentlyEvaluatingCells;
-	private final EvaluationCache _cache;
 
-	public EvaluationTracker(EvaluationCache cache) {
-		_cache = cache;
+	public EvaluationTracker() {
 		_evaluationFrames = new ArrayList<CellEvaluationFrame>();
 		_currentlyEvaluatingCells = new HashSet<FormulaCellCacheEntry>();
 	}
@@ -120,33 +118,20 @@ final class EvaluationTracker {
 		_evaluationFrames.remove(nFrames);
 		_currentlyEvaluatingCells.remove(cce);
 	}
-
-	public void acceptFormulaDependency(CellCacheEntry cce) {
-		// Tell the currently evaluating cell frame that it has a dependency on the specified
-		int prevFrameIndex = _evaluationFrames.size()-1;
-		if (prevFrameIndex < 0) {
-			// Top level frame, there is no 'cell' above this frame that is using the current cell
-		} else {
-			CellEvaluationFrame consumingFrame = _evaluationFrames.get(prevFrameIndex);
-			consumingFrame.addSensitiveInputCell(cce);
-		}
-	}
-
-	public void acceptPlainValueDependency(int bookIndex, int sheetIndex,
-			int rowIndex, int columnIndex, ValueEval value) {
-		// Tell the currently evaluating cell frame that it has a dependency on the specified
-		int prevFrameIndex = _evaluationFrames.size() - 1;
-		if (prevFrameIndex < 0) {
-			// Top level frame, there is no 'cell' above this frame that is using the current cell
-		} else {
-			CellEvaluationFrame consumingFrame = _evaluationFrames.get(prevFrameIndex);
-			if (value == BlankEval.INSTANCE) {
-				consumingFrame.addUsedBlankCell(bookIndex, sheetIndex, rowIndex, columnIndex);
-			} else {
-				PlainValueCellCacheEntry cce = _cache.getOrCreatePlainValueEntry(bookIndex, sheetIndex,
-						rowIndex, columnIndex);
-				consumingFrame.addSensitiveInputCell(cce);
-			}
-		}
+	
+	public void acceptDependency(int bookIndex, int sheetIndex,
+            int rowIndex, int columnIndex, CellCacheEntry cce) {
+        // Tell the currently evaluating cell frame that it has a dependency on the specified
+        int prevFrameIndex = _evaluationFrames.size() - 1;
+        if (prevFrameIndex < 0) {
+            // Top level frame, there is no 'cell' above this frame that is using the current cell
+        } else {
+            CellEvaluationFrame consumingFrame = _evaluationFrames.get(prevFrameIndex);
+            if (cce.getValue() == BlankEval.INSTANCE) {
+                consumingFrame.addUsedBlankCell(bookIndex, sheetIndex, rowIndex, columnIndex);
+            } else {
+                consumingFrame.addSensitiveInputCell(cce);
+            }
+        }
 	}
 }
