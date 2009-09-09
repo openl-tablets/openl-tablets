@@ -54,7 +54,7 @@ public class HTMLRenderer {
                 tdPrefix += " ";
                 tdPrefix += extraTDText;
             }
-            final String prefix = cellIdPrefix != null ? cellIdPrefix : Constants.CELL_ID_POSTFIX;
+            final String prefix = cellIdPrefix != null ? cellIdPrefix : Constants.ID_POSTFIX_CELL;
 
             IGridTable table = tableModel.getGridTable();
             StringBuffer s = new StringBuffer();
@@ -153,7 +153,7 @@ public class HTMLRenderer {
         StringBuilder result = new StringBuilder();
 
         String editLinks = "<tr><td><a href=\"javascript:triggerEdit('"
-                + menuId.replaceFirst(Constants.MENU_ID_POSTFIX, "") + "','" + WebUtil.internalPath("ajax/edit")
+                + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','" + WebUtil.internalPath("ajax/edit")
                 + "')\">Edit</a></td></tr>" + "<tr><td><a href=\"javascript:triggerEditXls('"
                 + WebUtil.internalPath("ajax/editXls") + "')\">Edit in Excel</a></td></tr>";
         String menuBegin = "<div id=\"" + menuId + "\" style=\"display:none;\">" + "<table cellpadding=\"1px\">"
@@ -194,7 +194,7 @@ public class HTMLRenderer {
     protected String renderEditor(String editorId, String cellToEdit, ITable table, boolean showFormulas) {
         StringBuilder result = new StringBuilder();
         cellToEdit = cellToEdit == null ? "" : cellToEdit;
-        final String tableId = editorId + Constants.TABLE_ID_POSTFIX;
+        final String tableId = editorId + Constants.ID_POSTFIX_TABLE;
         String editor = Constants.TABLE_EDITOR_PREFIX + editorId;
         result.append(renderJSBody("var " + editor + ";"))
         // .append(renderJSBody("var jsPath = \"" + WebUtil.internalPath("js/")
@@ -205,7 +205,7 @@ public class HTMLRenderer {
                 .append(renderJS("js/NumericEditor.js"))
                 .append(renderJS("js/DropdownEditor.js"))
                 .append(renderJS("js/FormulaEditor.js"))
-                .append(renderPropsEditor(table, Constants.MODE_EDIT))
+                .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT))
                 // .append(renderJS("js/SuggestEditor.js"))
                 // .append(renderJS("js/DateEditor.js"))
                 // .append(renderJS("js/PriceEditor.js"))
@@ -306,16 +306,16 @@ public class HTMLRenderer {
             String editorId, IGridFilter filter, boolean showFormulas) {
         StringBuilder result = new StringBuilder();
         if (table != null) {
-            result.append(renderPropsEditor(table, Constants.MODE_VIEW));
+            result.append(renderPropsEditor(editorId, table, Constants.MODE_VIEW));
         }
         if (table != null) {
             IGridFilter[] filters = (filter == null) ? null : new IGridFilter[] { filter };
             TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(
                     table, view, showFormulas).getUpdatedTable(), filters);
             if (tableModel != null) {
-                String menuId = editorId + Constants.MENU_ID_POSTFIX;
+                String menuId = editorId + Constants.ID_POSTFIX_MENU;
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
-                tableRenderer.setCellIdPrefix(editorId + Constants.CELL_ID_POSTFIX);
+                tableRenderer.setCellIdPrefix(editorId + Constants.ID_POSTFIX_CELL);
                 if (editable || (actionLinks != null && !actionLinks.isEmpty())) {
                     result.append(renderJS("js/popup/popupmenu.js")).append(renderJS("js/tableEditorMenu.js")).append(
                             tableRenderer.renderWithMenu(menuId, showFormulas)).append(
@@ -328,10 +328,10 @@ public class HTMLRenderer {
         return result.toString();
     }
 
-    protected String renderPropsEditor(ITable table, String mode) {
-        TableProperties props = table.getProperties();        
-        return new PropertyRenderer(props, mode).renderProperties();
-    }   
+    protected String renderPropsEditor(String editorId, ITable table, String mode) {
+        TableProperties props = table.getProperties();
+        return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode).renderProperties();
+    }
 
     /**
      * Temporary class to render properties on edit view
@@ -349,8 +349,11 @@ public class HTMLRenderer {
         private String mode;
 
         private TableProperties props;
+        
+        private String propsId;
 
-        public PropertyRenderer(TableProperties props, String view) {
+        public PropertyRenderer(String propsId, TableProperties props, String view) {
+            this.propsId = propsId == null ? "" : propsId;
             this.props = props;
             this.mode = view;
             this.listProperties = initPropertiesList();
@@ -440,7 +443,7 @@ public class HTMLRenderer {
         private void fillPropsGroup(String groupKey, String mode) {
             Map<String, List<TableProperty>> groupProps = groupProps(listProperties);
             List<TableProperty> groupList = groupProps.get(groupKey);
-            String groupId = groupKey + "_group";
+            String groupId = propsId + Constants.ID_POSTFIX_PROPS_GROUP + groupKey;
             result.append("<div style='margin-bottom:5px;'>");
             result.append("<b>" + groupKey + "</b>");
             renderHideButton(groupId);
@@ -473,7 +476,7 @@ public class HTMLRenderer {
             result.append("<tr>");
             insertLabel(prop.getDisplayName());
             Object propValue = prop.getValue();
-            String propId = "_prop_" + prop.getName();
+            String propId = propsId + Constants.ID_POSTFIX_PROP + prop.getName();
             if (prop.getType() != null) {
                 if (prop.isStringValue()) {
                     insertEdit((String) propValue, propId);
@@ -517,14 +520,14 @@ public class HTMLRenderer {
                 .append("</td>");
         }
 
-        private void insertSelect(List<String> listOfOptions) {                        
+        /*private void insertSelect(List<String> listOfOptions) {                        
             result.append("<td><select>");
             result.append("<option></option>");
             for(String option : listOfOptions) {
                 result.append("<option>"+option+"</option>");
             }
             result.append("</select></td>");
-        }
+        }*/
 
         private void insertEdit(String value, String name) {
             if(value == null) {

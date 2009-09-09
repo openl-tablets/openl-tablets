@@ -105,7 +105,7 @@ TableEditor.prototype = {
             self.handleClick(e);
         }, false);
 
-        $$('input[name^="_prop_"]').each(function(elem) {
+        $$('input[name^="' + this.editorId + '_props_prop-"]').each(function(elem) {
             elem.observe("blur", function(e) {
                 self.handlePropSet(e);
             }, false);
@@ -245,7 +245,7 @@ TableEditor.prototype = {
 
     handlePropSet: function(event) {
         var prop = Event.findElement(event, "input");
-        this.setProp(prop.name.replace("_prop_", ""), prop.value);
+        this.setProp(prop.name.replace(this.editorId + "_props_prop-", ""), prop.value);
     },
 
     setProp : function(name, value) {
