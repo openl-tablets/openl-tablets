@@ -19,7 +19,7 @@ function initTableEditor(editorId, url, cellToEdit) {
             window.onbeforeunload = function() {
                 return "Your changes have not been saved.";
             };
-        } else { // hack
+        } else { // remove handler if Save/Undo items are disabled
             window.onbeforeunload = function() {};
         }
     };
