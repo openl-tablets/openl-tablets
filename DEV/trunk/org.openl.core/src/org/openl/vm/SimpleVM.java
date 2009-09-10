@@ -11,6 +11,8 @@ import org.openl.IOpenRunner;
 import org.openl.IOpenVM;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.OpenLRuntimeException;
+import org.openl.runtime.HashMapContext;
+import org.openl.runtime.IContext;
 import org.openl.util.fast.FastStack;
 
 /**
@@ -87,6 +89,8 @@ public class SimpleVM implements IOpenVM {
         FastStack thisStack = new FastStack(100);
 
         FastStack frameStack = new FastStack(100);
+        
+        private IContext context = new HashMapContext();
 
         SimpleRuntimeEnv() {
             this(new SimpleRunner(), 0, new Object[] {});
@@ -138,6 +142,9 @@ public class SimpleVM implements IOpenVM {
             thisStack.push(thisObject);
         }
 
+		public IContext getContext() {
+	        return context;
+        }
     }
 
     /*
