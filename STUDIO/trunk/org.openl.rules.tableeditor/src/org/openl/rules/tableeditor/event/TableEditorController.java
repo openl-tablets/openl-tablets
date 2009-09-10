@@ -192,7 +192,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                         editorModel.insertRows(1, row);
                     } else {
                         IGridRegion newRegion = new TableServiceImpl(false)
-                            .moveTable(editorModel.getUpdatedTable(), null);
+                            .moveTable(editorModel.getUpdatedFullTable(), null);
                         editorModel.setRegion(newRegion);
                         editorModel.insertRows(1, row);
                     }

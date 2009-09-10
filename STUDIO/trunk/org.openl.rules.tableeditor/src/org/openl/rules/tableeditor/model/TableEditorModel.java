@@ -321,6 +321,11 @@ public class TableEditorModel {
 
     }
 
+    public synchronized IGridTable getUpdatedFullTable() {
+        return new GridTable(region, gridTable.getGrid());
+
+    }
+
     public synchronized boolean hasRedo() {
         return actions.hasRedo();
     }
