@@ -64,7 +64,8 @@ public class JavaWrapperAntTask extends Task {
 
     private String userClassPath;
 
-    private String userHome, deplUserHome;
+    private String userHome = ".";
+    private String deplUserHome;
 
     private String srcFile, deplSrcFile;
 
