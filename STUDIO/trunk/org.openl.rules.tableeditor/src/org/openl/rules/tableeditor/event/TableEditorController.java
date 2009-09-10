@@ -396,7 +396,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             if (editorModel.canAddRows(1)) {
                 editorModel.insertProp(name, value);
             } else {
-                IGridRegion newRegion = new TableServiceImpl(false).moveTable(editorModel.getUpdatedTable(), null);
+                IGridRegion newRegion = new TableServiceImpl(false).moveTable(editorModel.getUpdatedFullTable(), null);
                 editorModel.setRegion(newRegion);
                 editorModel.insertProp(name, value);
             }
