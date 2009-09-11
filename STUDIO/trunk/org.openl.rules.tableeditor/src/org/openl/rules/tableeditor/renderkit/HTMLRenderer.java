@@ -121,12 +121,14 @@ public class HTMLRenderer {
         return resources;
     }
 
-    public String render(ITable table, String view, String editorId, IGridFilter filter, boolean showFormulas) {
-        return render(null, table, view, null, false, null, false, editorId, filter, showFormulas);
+    public String render(ITable table, String view, String editorId, IGridFilter filter, boolean showFormulas,
+            boolean collapseProps) {
+        return render(null, table, view, null, false, null, false, editorId, filter, showFormulas, collapseProps);
     }
 
     public String render(String mode, ITable table, String view, List<ActionLink> actionLinks, boolean editable,
-            String cellToEdit, boolean inner, String editorId, IGridFilter filter, boolean showFormulas) {
+            String cellToEdit, boolean inner, String editorId, IGridFilter filter, boolean showFormulas,
+            boolean collapseProps) {
         StringBuilder result = new StringBuilder();
         result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css")).append(
                 renderCSS("css/toolbar.css")).append(renderJS("js/prototype/prototype-1.5.1.js")).append(
@@ -138,9 +140,10 @@ public class HTMLRenderer {
             result.append("<div id='").append(editorId).append("' class='te_'>");
         }
         if (mode == null || mode.equals(Constants.MODE_VIEW)) {
-            result.append(renderViewer(table, view, actionLinks, editable, editorId, filter, showFormulas));
+            result.append(renderViewer(table, view, actionLinks, editable, editorId, filter, showFormulas,
+                    collapseProps));
         } else if (mode.equals(Constants.MODE_EDIT)) {
-            result.append(renderEditor(editorId, cellToEdit, table, showFormulas));
+            result.append(renderEditor(editorId, cellToEdit, table, showFormulas, collapseProps));
         }
         if (!inner) {
             result.append("</div>");
@@ -191,7 +194,8 @@ public class HTMLRenderer {
         return "";
     }
 
-    protected String renderEditor(String editorId, String cellToEdit, ITable table, boolean showFormulas) {
+    protected String renderEditor(String editorId, String cellToEdit, ITable table, boolean showFormulas,
+            boolean collapseProps) {
         StringBuilder result = new StringBuilder();
         cellToEdit = cellToEdit == null ? "" : cellToEdit;
         final String tableId = editorId + Constants.ID_POSTFIX_TABLE;
@@ -205,7 +209,7 @@ public class HTMLRenderer {
                 .append(renderJS("js/NumericEditor.js"))
                 .append(renderJS("js/DropdownEditor.js"))
                 .append(renderJS("js/FormulaEditor.js"))
-                .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT))
+                .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT, collapseProps))
                 // .append(renderJS("js/SuggestEditor.js"))
                 // .append(renderJS("js/DateEditor.js"))
                 // .append(renderJS("js/PriceEditor.js"))
@@ -303,10 +307,10 @@ public class HTMLRenderer {
     }
 
     protected String renderViewer(ITable table, String view, List<ActionLink> actionLinks, boolean editable,
-            String editorId, IGridFilter filter, boolean showFormulas) {
+            String editorId, IGridFilter filter, boolean showFormulas, boolean collapseProps) {
         StringBuilder result = new StringBuilder();
         if (table != null) {
-            result.append(renderPropsEditor(editorId, table, Constants.MODE_VIEW));
+            result.append(renderPropsEditor(editorId, table, Constants.MODE_VIEW, collapseProps));
         }
         if (table != null) {
             IGridFilter[] filters = (filter == null) ? null : new IGridFilter[] { filter };
@@ -328,9 +332,10 @@ public class HTMLRenderer {
         return result.toString();
     }
 
-    protected String renderPropsEditor(String editorId, ITable table, String mode) {
+    protected String renderPropsEditor(String editorId, ITable table, String mode, boolean collapseProps) {
         TableProperties props = table.getProperties();
-        return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode).renderProperties();
+        return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
+                collapseProps).renderProperties();
     }
 
     /**
@@ -351,13 +356,16 @@ public class HTMLRenderer {
         private TableProperties props;
         
         private String propsId;
+        
+        private boolean collapsed;
 
-        public PropertyRenderer(String propsId, TableProperties props, String view) {
+        public PropertyRenderer(String propsId, TableProperties props, String view, boolean collapsed) {
             this.propsId = propsId == null ? "" : propsId;
             this.props = props;
             this.mode = view;
             this.listProperties = initPropertiesList();
             this.result = new StringBuilder();
+            this.collapsed = collapsed;
         }
 
         private List<TableProperty> initPropertiesList() {
@@ -403,6 +411,9 @@ public class HTMLRenderer {
             result.append(renderCSS("css/calendar.css"));
             buildPropsTable();
             result.append("</table></div></td></tr></table>");
+            if (collapsed) {
+                result.append(renderJSBody("$('" + propsId + "').hide()"));
+            }
             return result.toString();            
         }
 

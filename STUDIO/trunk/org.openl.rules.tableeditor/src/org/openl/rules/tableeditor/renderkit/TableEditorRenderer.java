@@ -27,21 +27,23 @@ public class TableEditorRenderer extends TableViewerRenderer {
         ITable table = (ITable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
         ResponseWriter writer = context.getResponseWriter();
         Map editorParams = component.getAttributes();
-        Boolean editable = getBooleanParam(editorParams.get(Constants.ATTRIBUTE_EDITABLE));
+        // TODO Encapsulate all params into bean
+        Boolean editable = toBoolean(editorParams.get(Constants.ATTRIBUTE_EDITABLE));
         ExternalContext externalContext = context.getExternalContext();
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
         String mode = (String) editorParams.get(Constants.ATTRIBUTE_MODE);
         String view = (String) editorParams.get(Constants.ATTRIBUTE_VIEW);
-        Boolean showFormulas = getBooleanParam(editorParams.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
+        Boolean showFormulas = toBoolean(editorParams.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
+        Boolean collapseProps = toBoolean(editorParams.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         String editorId = component.getClientId(context);
         IGridFilter filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         List<ActionLink> actionLinks = getActionLinks(component);
         String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
         if (editable) {
-            initEditorHelper(externalContext, editorId, table, view, showFormulas);
+            initEditorHelper(externalContext, editorId, table, view, showFormulas, collapseProps);
         }
         writer.write(new HTMLRenderer().render(mode, table, view, actionLinks, editable, cellToEdit,
-                false, editorId, filter, showFormulas));
+                false, editorId, filter, showFormulas, collapseProps));
     }
 
     @SuppressWarnings("unchecked")
@@ -70,27 +72,9 @@ public class TableEditorRenderer extends TableViewerRenderer {
         return links;
     }
 
-    /**
-     * Convert Object to Boolean. Temporary method. Will be removed.
-     *
-     * @deprecated
-     * @param param Object param
-     * @return Boolean param
-     */
-    @Deprecated
-    private Boolean getBooleanParam(Object param) {
-        Boolean bParam = false;
-        if (param instanceof String) {
-            bParam = new Boolean((String) param);
-        } else if (param instanceof Boolean) {
-            bParam = (Boolean) param;
-        }
-        return bParam;
-    }
-
     @SuppressWarnings("unchecked")
     private void initEditorHelper(ExternalContext externalContext, String editorId, ITable table, String view,
-            boolean showFormulas) {
+            boolean showFormulas, boolean collapseProps) {
         Map sessionMap = externalContext.getSessionMap();
         synchronized (sessionMap) {
             Map editorModelMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_MODEL_NAME);
@@ -103,6 +87,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
                 editorModel.cancel();
             }
             editorModel = new TableEditorModel(table, view, showFormulas);
+            editorModel.setCollapseProps(collapseProps);
             editorModelMap.put(editorId, editorModel);
         }
     }

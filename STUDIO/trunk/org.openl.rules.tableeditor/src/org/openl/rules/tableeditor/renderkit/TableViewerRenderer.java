@@ -20,9 +20,10 @@ public class TableViewerRenderer extends BaseRenderer {
         ITable table = (ITable) params.get(Constants.ATTRIBUTE_TABLE);
         IGridFilter filter = (IGridFilter) params.get(Constants.ATTRIBUTE_FILTER);
         String view = (String) params.get(Constants.ATTRIBUTE_VIEW);
-        boolean showFormulas = (Boolean) params.get(Constants.ATTRIBUTE_SHOW_FORMULAS);
+        boolean showFormulas = toBoolean(params.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
+        boolean collapseProps = toBoolean(params.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         String editorId = new HtmlOutputText().getClientId(context);
-        new HTMLRenderer().render(table, view, editorId, filter, showFormulas);
+        new HTMLRenderer().render(table, view, editorId, filter, showFormulas, collapseProps);
     }
 
     @Override

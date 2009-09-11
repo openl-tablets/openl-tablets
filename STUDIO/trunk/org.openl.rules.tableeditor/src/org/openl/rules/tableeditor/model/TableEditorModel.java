@@ -164,6 +164,7 @@ public class TableEditorModel {
     private int numberOfNonShownRows;
     private int numberOfNonShownCols;
     private boolean showFormulas = false;
+    private boolean collapseProps = false;
 
     private GridTable[] othertables;
 
@@ -525,5 +526,13 @@ public class TableEditorModel {
 
     public void setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
+    }
+
+    public boolean isCollapseProps() {
+        return collapseProps;
+    }
+
+    public void setCollapseProps(boolean collapseProps) {
+        this.collapseProps = collapseProps;
     }
 }

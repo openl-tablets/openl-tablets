@@ -10,6 +10,7 @@ public final class Constants {
     public static final String ATTRIBUTE_MODE = "mode";
     public static final String ATTRIBUTE_EDITABLE = "editable";
     public static final String ATTRIBUTE_SHOW_FORMULAS = "showFormulas";
+    public static final String ATTRIBUTE_COLLAPSE_PROPS = "collapseProps";
 
     public static final String REQUEST_PARAM_EDITOR_ID = "editorId";
     public static final String REQUEST_PARAM_MODE = "mode";

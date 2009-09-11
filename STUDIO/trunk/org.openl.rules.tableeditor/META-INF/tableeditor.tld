@@ -36,7 +36,11 @@
         </attribute>
         <attribute>
             <name>showFormulas</name>
-            <description>Flag that indicates how to display cell content(formulas or values)</description>
+            <description>Flag that indicates how to display cell content(formulas or values). The default is 'false'.</description>
+        </attribute>
+        <attribute>
+            <name>collapseProps</name>
+            <description>If true the table properties are collapsed. The default is 'false'.</description>
         </attribute>
     </tag>
     <tag>
@@ -72,11 +76,15 @@
         </attribute>
         <attribute>
             <name>editable</name>
-            <description>If true the table is editable</description>
+            <description>If true the table is editable. The default is 'true'.</description>
         </attribute>
         <attribute>
             <name>showFormulas</name>
-            <description>Flag that indicates how to display cell content(formulas or values)</description>
+            <description>Flag that indicates how to display cell content(formulas or values). The default is 'false'.</description>
+        </attribute>
+        <attribute>
+            <name>collapseProps</name>
+            <description>If true the table properties are collapsed. The default is 'false'.</description>
         </attribute>
     </tag>
 </taglib>
