@@ -14,7 +14,7 @@ import org.openl.rules.search.GroupOperator;
 import org.openl.rules.search.ISearchConstants;
 import org.openl.rules.search.OpenLAdvancedSearch;
 import org.openl.rules.search.OpenLSavedSearch;
-import org.openl.rules.search.SearchElement;
+import org.openl.rules.search.SearchConditionElement;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.web.jsf.util.FacesUtils;
@@ -26,13 +26,14 @@ import org.openl.util.AStringBoolOperator;
  * JSF managed bean, session scope.
  */
 public class OpenLAdvancedSearchBean {
+    
     public class ColumnSearchElementBean extends SearchElementBean {
         public ColumnSearchElementBean(int index) {
             super(index);
         }
 
         @Override
-        protected SearchElement getSearchElement() {
+        protected SearchConditionElement getSearchConditionElement() {
             return search.getColumnElements()[index];
         }
     }
@@ -45,71 +46,71 @@ public class OpenLAdvancedSearchBean {
         }
 
         public String getGroupOperatorName() {
-            return getSearchElement().getOperator().getName();
+            return getSearchConditionElement().getGroupOperator().getName();
         }
 
         public String getNotFlag() {
-            return OpenLAdvancedSearch.nfValues[getSearchElement().isNotFlag() ? 1 : 0];
+            return OpenLAdvancedSearch.nfValues[getSearchConditionElement().isNotFlag() ? 1 : 0];
         }
 
         public GroupOperator getOperator() {
-            return getSearchElement().getOperator();
+            return getSearchConditionElement().getGroupOperator();
         }
 
         public String getOpType1() {
-            return getSearchElement().getOpType1();
+            return getSearchConditionElement().getOpType1();
         }
 
         public String getOpType2() {
-            return getSearchElement().getOpType2();
+            return getSearchConditionElement().getOpType2();
         }
 
-        protected SearchElement getSearchElement() {
+        protected SearchConditionElement getSearchConditionElement() {
             return search.getTableElements()[index];
         }
 
         public String getType() {
-            return getSearchElement().getType();
+            return getSearchConditionElement().getType();
         }
 
-        public String getValue1() {
-            return getSearchElement().getValue1();
+        public String getElementValueName() {
+            return getSearchConditionElement().getElementValueName();
         }
 
-        public String getValue2() {
-            return getSearchElement().getValue2();
+        public String getElementValue() {
+            return getSearchConditionElement().getElementValue();
         }
 
-        public boolean isRequiredValue1() {
-            return search.showValue1(getType());
+        public boolean isRequiredElementValueName() {
+            return search.showElementValueName(getType());
         }
 
         public void setGroupOperatorName(String groupOperatorName) {
-            getSearchElement().setOperator(GroupOperator.find(groupOperatorName));
+            getSearchConditionElement().setGroupOperator(GroupOperator.find(groupOperatorName));
         }
 
         public void setNotFlag(String flag) {
-            getSearchElement().setNotFlag(OpenLAdvancedSearch.nfValues[1].equals(flag));
+            getSearchConditionElement().setNotFlag(OpenLAdvancedSearch.nfValues[1].equals(flag));
         }
 
         public void setOpType1(String type) {
-            getSearchElement().setOpType1(type);
+            getSearchConditionElement().setOpType1(type);
         }
 
         public void setOpType2(String type) {
-            getSearchElement().setOpType2(type);
+            getSearchConditionElement().setOpType2(type);
         }
 
         public void setType(String type) {
-            getSearchElement().setType(type);
+            getSearchConditionElement().setType(type);
         }
 
-        public void setValue1(String value1) {
-            getSearchElement().setValue1(value1);
+        public void setElementValueName(String elementValueName) {
+            getSearchConditionElement().setElementValueName(elementValueName);
         }
 
-        public void setValue2(String value2) {
-            getSearchElement().setValue2(value2);
+        public void setElementValue(String elementValue) {
+            getSearchConditionElement().setElementValue(elementValue);
         }
     }
     /**
@@ -177,7 +178,7 @@ public class OpenLAdvancedSearchBean {
     private final OpenLAdvancedSearch search = new OpenLAdvancedSearch();
 
     static {
-        tableTypes = createSelectItems(OpenLAdvancedSearch.typeButtons);
+        tableTypes = createSelectItems(OpenLAdvancedSearch.existingTableTypes);
         columnTypeValues = createSelectItems(ISearchConstants.colTypeValues);
         groupOperationValues = createSelectItems(GroupOperator.names);
         notFlagValues = createSelectItems(OpenLAdvancedSearch.nfValues);
@@ -185,8 +186,8 @@ public class OpenLAdvancedSearchBean {
         opTypeValues = createSelectItems(AStringBoolOperator.allNames());
 
         tableType2Index = new HashMap<String, Integer>();
-        for (int i = 0; i < OpenLAdvancedSearch.typeButtons.length; i++) {
-            tableType2Index.put(OpenLAdvancedSearch.typeButtons[i], i);
+        for (int i = 0; i < OpenLAdvancedSearch.existingTableTypes.length; i++) {
+            tableType2Index.put(OpenLAdvancedSearch.existingTableTypes[i], i);
         }
     }
 
@@ -346,7 +347,7 @@ public class OpenLAdvancedSearchBean {
         }
 
         for (int i = 0; i < selected.length; i++) {
-            search.selectType(i, selected[i]);
+            search.selectTableType(i, selected[i]);
         }
     }
 

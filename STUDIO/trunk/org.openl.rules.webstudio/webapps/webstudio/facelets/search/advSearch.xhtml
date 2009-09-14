@@ -33,11 +33,11 @@
     <th class="search">Condition</th>
     <th class="search">Value</th>
 
-    <c:forEach items="#{advancedSearch.tableElements}" var="searchElem" varStatus="status">
+    <c:forEach items="#{advancedSearch.tableElements}" var="searchTableElem" varStatus="status">
       <c:if test="#{status.index > 0}">
         <tr>
-          <td colspan="7" align="#{searchElem.operator.group ? 'center' : 'value'}" class="#{searchElem.operator.group ? 'search-group' : 'search-element'}">
-             <h:selectOneMenu value="#{searchElem.groupOperatorName}" onchange="alignGop(this)" styleClass="#{searchElem.operator.group ? 'search-group' : 'search-element'}">
+          <td colspan="7" align="#{searchTableElem.operator.group ? 'center' : 'value'}" class="#{searchTableElem.operator.group ? 'search-group' : 'search-element'}">
+             <h:selectOneMenu value="#{searchTableElem.groupOperatorName}" onchange="alignGop(this)" styleClass="#{searchTableElem.operator.group ? 'search-group' : 'search-element'}">
                <f:selectItems value="#{advancedSearch.groupOperationValues}"/>
              </h:selectOneMenu>
           </td>
@@ -46,30 +46,30 @@
       <tr>
         <td> </td>
         <td>
-          <h:selectOneMenu value="#{searchElem.notFlag}">
+          <h:selectOneMenu value="#{searchTableElem.notFlag}">
             <f:selectItems value="#{advancedSearch.notFlagValues}"/>
           </h:selectOneMenu>
         </td>
 
         <td>
-          <!-- searchElem.type means 'header' or 'property' -->
-          <h:selectOneMenu value="#{searchElem.type}" id="type1_#{status.index}" onchange="makeValue1Visible(this, #{status.index})">
+          <!-- {#searchTableElem.type} means 'header' or 'property' on UI-->
+          <h:selectOneMenu value="#{searchTableElem.type}" id="type1_#{status.index}" onchange="makeValue1Visible(this, #{status.index})">
             <f:selectItems value="#{advancedSearch.typeValues}"/>
           </h:selectOneMenu>
         </td>
 
         <td>
-          <h:inputText value="#{searchElem.value1}" id="typeValue_#{status.index}" styleClass="search-input" onclick="jscleanAny(this)"/>
+          <h:inputText value="#{searchTableElem.elementValueName}" id="typeValue_#{status.index}" styleClass="search-input" onclick="jscleanAny(this)"/>
         </td>
 
         <td>
-          <h:selectOneMenu value="#{searchElem.opType2}">
+          <h:selectOneMenu value="#{searchTableElem.opType2}">
             <f:selectItems value="#{advancedSearch.opTypeValues}"/>
           </h:selectOneMenu>
         </td>
 
         <td>
-          <h:inputText value="#{searchElem.value2}" styleClass="search-input" onclick="jscleanAny(this)"/>
+          <h:inputText value="#{searchTableElem.elementValue}" styleClass="search-input" onclick="jscleanAny(this)"/>
         </td>
 
         <td>
@@ -101,11 +101,11 @@
 <th class="search" colspan="2">Condition</th>
 <th class="search">Value</th>
 
-<c:forEach items="#{advancedSearch.columnElements}" var="se" varStatus="status">
+<c:forEach items="#{advancedSearch.columnElements}" var="searchColumnElem" varStatus="status">
   <c:if test="#{status.index > 0}">
     <tr>
-      <td colspan="7" align="#{se.operator.group ? 'center' : 'value'}" class="#{se.operator.group ? 'search-group' : 'search-element'}">
-         <h:selectOneMenu value="#{se.groupOperatorName}" onchange="alignGop(this)" styleClass="#{se.operator.group ? 'search-group' : 'search-element'}">
+      <td colspan="7" align="#{searchColumnElem.operator.group ? 'center' : 'value'}" class="#{searchColumnElem.operator.group ? 'search-group' : 'search-element'}">
+         <h:selectOneMenu value="#{searchColumnElem.groupOperatorName}" onchange="alignGop(this)" styleClass="#{searchColumnElem.operator.group ? 'search-group' : 'search-element'}">
            <f:selectItems value="#{advancedSearch.groupOperationValues}"/>
          </h:selectOneMenu>
       </td>
@@ -115,35 +115,36 @@
   <tr>
     <td> </td>
     <td>
-      <h:selectOneMenu value="#{se.notFlag}">
+      <h:selectOneMenu value="#{searchColumnElem.notFlag}">
         <f:selectItems value="#{advancedSearch.notFlagValues}"/>
       </h:selectOneMenu>
     </td>
 
      <td>
-       <h:selectOneMenu value="#{se.type}">
+       <!-- #{searchColumnElem.type} means 'Column Name' or 'Column Type' on UI-->
+       <h:selectOneMenu value="#{searchColumnElem.type}">
          <f:selectItems value="#{advancedSearch.columnTypeValues}"/>
        </h:selectOneMenu>
      </td>
 
     <td>
-      <h:selectOneMenu value="#{se.opType1}">
+      <h:selectOneMenu value="#{searchColumnElem.opType1}">
         <f:selectItems value="#{advancedSearch.opTypeValues}"/>
       </h:selectOneMenu>
     </td>
 
     <td>
-      <h:inputText value="#{se.value1}" styleClass="search-input" onclick="jscleanAny(this)"/>
+      <h:inputText value="#{searchColumnElem.elementValueName}" styleClass="search-input" onclick="jscleanAny(this)"/>
     </td>
 
     <td>
-      <h:selectOneMenu value="#{se.opType2}">
+      <h:selectOneMenu value="#{searchColumnElem.opType2}">
         <f:selectItems value="#{advancedSearch.opTypeValues}"/>
       </h:selectOneMenu>
     </td>
 
     <td>
-      <h:inputText value="#{se.value2}" styleClass="search-input" onclick="jscleanAny(this)"/>
+      <h:inputText value="#{searchColumnElem.elementValue}" styleClass="search-input" onclick="jscleanAny(this)"/>
     </td>
 
      <td>
