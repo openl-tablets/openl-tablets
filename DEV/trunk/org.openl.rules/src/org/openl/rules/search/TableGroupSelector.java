@@ -20,7 +20,7 @@ public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISea
             while (idx < tableElements.length) {
                 int oldIdx = idx;
                 boolean x = executeGroup(target);
-                res = tableElements[oldIdx].getOperator().op(res, x);
+                res = tableElements[oldIdx].getGroupOperator().op(res, x);
             }
 
             return res;
@@ -30,14 +30,14 @@ public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISea
             boolean res = true;
             int N = tableElements.length;
             for (int i = idx; i < N; ++i) {
-                if (i > idx && tableElements[i].getOperator().isGroup()) {
+                if (i > idx && tableElements[i].getGroupOperator().isGroup()) {
                     idx = i;
                     return res;
                 }
 
                 boolean x = selectors[i].select((TableSyntaxNode)target);
                 x = tableElements[i].isNotFlag() ? !x : x;
-                res = i == idx ? x : tableElements[i].getOperator().op(res, x);
+                res = i == idx ? x : tableElements[i].getGroupOperator().op(res, x);
 
             }
             idx = N;
@@ -45,19 +45,19 @@ public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISea
 
         }
     }
-    SearchElement[] tableElements;
+    SearchConditionElement[] tableElements;
 
     ATableSyntaxNodeSelector[] selectors;
 
     /**
      * @param tableElements
      */
-    public TableGroupSelector(SearchElement[] tableElements) {
+    public TableGroupSelector(SearchConditionElement[] tableElements) {
         this.tableElements = tableElements;
         init(tableElements);
     }
 
-    void init(SearchElement[] se) {
+    void init(SearchConditionElement[] se) {
         selectors = new ATableSyntaxNodeSelector[se.length];
         for (int i = 0; i < se.length; i++) {
             ATableSyntaxNodeSelector tsnSel = makeTableSyntaxNodeSelector(se[i]);
@@ -69,7 +69,7 @@ public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISea
      * @param element
      * @return
      */
-    private ATableSyntaxNodeSelector makeTableSyntaxNodeSelector(SearchElement se) {
+    private ATableSyntaxNodeSelector makeTableSyntaxNodeSelector(SearchConditionElement se) {
         if (HEADER.equals(se.getType())) {
             return new TableHeaderSelector(se);
         }
@@ -80,7 +80,7 @@ public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISea
     }
 
     @Override
-    public boolean selectTable(TableSyntaxNode node) {
+    public boolean isTableSelected(TableSyntaxNode node) {
         return new GroupResult().execute(node);
 
     }

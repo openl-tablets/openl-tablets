@@ -11,50 +11,50 @@ public class ColumnGroupSelector extends ATableRowSelector implements ISearchCon
 
     class GroupResult {
         boolean groupRes = true;
-        int idx = 0;
+        int currentIndex = 0;
 
-        boolean execute(ISearchTableRow row, ITableSearchInfo tsi) {
+        boolean execute(ISearchTableRow searchTableRow, ITableSearchInfo tableSearchInfo) {
             boolean res = true;
-            while (idx < tableElements.length) {
-                int oldIdx = idx;
-                boolean x = executeGroup(row, tsi);
-                res = tableElements[oldIdx].getOperator().op(res, x);
+            while (currentIndex < tableElements.length) {
+                int oldIndex = currentIndex;
+                boolean x = executeGroup(searchTableRow, tableSearchInfo);
+                res = tableElements[oldIndex].getGroupOperator().op(res, x);
             }
 
             return res;
         }
 
-        boolean executeGroup(ISearchTableRow row, ITableSearchInfo tsi) {
+        boolean executeGroup(ISearchTableRow searchRatbleRow, ITableSearchInfo searchTableInfo) {
             boolean res = true;
-            int N = tableElements.length;
-            for (int i = idx; i < N; ++i) {
-                if (i > idx && tableElements[i].getOperator().isGroup()) {
-                    idx = i;
+            int elemLength = tableElements.length;
+            for (int i = currentIndex; i < elemLength; ++i) {
+                if (i > currentIndex && tableElements[i].getGroupOperator().isGroup()) {
+                    currentIndex = i;
                     return res;
                 }
 
-                boolean x = selectors[i].selectRowInTable(row, tsi);
+                boolean x = selectors[i].isRowInTableSelected(searchRatbleRow, searchTableInfo);
                 x = tableElements[i].isNotFlag() ? !x : x;
-                res = i == idx ? x : tableElements[i].getOperator().op(res, x);
+                res = i == currentIndex ? x : tableElements[i].getGroupOperator().op(res, x);
 
             }
-            idx = N;
+            currentIndex = elemLength;
             return res;
         }
     }
-    SearchElement[] tableElements;
+    SearchConditionElement[] tableElements;
 
     ATableRowSelector[] selectors;
 
     /**
      * @param tableElements
      */
-    public ColumnGroupSelector(SearchElement[] tableElements) {
+    public ColumnGroupSelector(SearchConditionElement[] tableElements) {
         this.tableElements = tableElements;
         init(tableElements);
     }
 
-    void init(SearchElement[] se) {
+    void init(SearchConditionElement[] se) {
         selectors = new ATableRowSelector[se.length];
         for (int i = 0; i < se.length; i++) {
             ATableRowSelector tsnSel = makeTableRowSelector(se[i]);
@@ -66,7 +66,7 @@ public class ColumnGroupSelector extends ATableRowSelector implements ISearchCon
      * @param element
      * @return
      */
-    private ATableRowSelector makeTableRowSelector(SearchElement se) {
+    private ATableRowSelector makeTableRowSelector(SearchConditionElement se) {
         if (COLUMN_NAME.equals(se.getType())) {
             return new ColumnNameRowSelector(se);
         }
@@ -83,8 +83,8 @@ public class ColumnGroupSelector extends ATableRowSelector implements ISearchCon
      *      org.openl.rules.search.ITableSearchInfo)
      */
     @Override
-    public boolean selectRowInTable(ISearchTableRow row, ITableSearchInfo tsi) {
-        return new GroupResult().execute(row, tsi);
+    public boolean isRowInTableSelected(ISearchTableRow searchTableRow, ITableSearchInfo tableSearchInfo) {
+        return new GroupResult().execute(searchTableRow, tableSearchInfo);
     }
 
 }

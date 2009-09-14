@@ -10,6 +10,6 @@ package org.openl.util;
 public interface IStringBoolOperator extends IOperator {
     public String getSample();
 
-    public boolean op(String test);
+    public boolean isMatching(String test);
 
 }

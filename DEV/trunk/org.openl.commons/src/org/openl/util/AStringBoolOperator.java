@@ -20,7 +20,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         @Override
-        public boolean op(String sample, String test) {
+        public boolean isMatching(String sample, String test) {
             return test.indexOf(sample) >= 0;
         }
     }
@@ -32,7 +32,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         @Override
-        public boolean op(String sample, String test) {
+        public boolean isMatching(String sample, String test) {
             return test.endsWith(sample);
         }
     }
@@ -44,7 +44,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         @Override
-        public boolean op(String sample, String test) {
+        public boolean isMatching(String sample, String test) {
             return test.equalsIgnoreCase(sample);
         }
     }
@@ -56,7 +56,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         @Override
-        public boolean op(String sample, String test) {
+        public boolean isMatching(String sample, String test) {
             return test.equals(sample);
         }
     }
@@ -84,7 +84,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         public boolean op(String test) {
-            return op.op(test);
+            return op.isMatching(test);
         }
 
         public void setName(String name) {
@@ -108,7 +108,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         @Override
-        public boolean op(String sample, String test) {
+        public boolean isMatching(String sample, String test) {
             return test.matches(sample);
         }
     }
@@ -120,7 +120,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         @Override
-        public boolean op(String sample, String test) {
+        public boolean isMatching(String sample, String test) {
             return test.startsWith(sample);
         }
     }
@@ -182,14 +182,14 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         return sampleStr;
     }
 
-    public boolean op(String test) {
-        return op(sampleStr, test);
+    public boolean isMatching(String test) {
+        return isMatching(sampleStr, test);
     }
-
-    public abstract boolean op(String op1, String op2);
+    
+    public abstract boolean isMatching(String op1, String op2);
 
     public boolean opReverse(String test) {
-        return op(test, sampleStr);
+        return isMatching(test, sampleStr);
     }
 
     public void setSample(String sample) {

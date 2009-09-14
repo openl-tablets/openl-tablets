@@ -15,9 +15,9 @@ import org.openl.types.IOpenClass;
  */
 public class DataTableSearchInfo implements ITableSearchInfo {
 
-    TableSyntaxNode tsn;
+    private TableSyntaxNode tsn;
 
-    ITable table;
+    private ITable table;
 
     public DataTableSearchInfo(TableSyntaxNode tsn) {
         this.tsn = tsn;
@@ -25,39 +25,39 @@ public class DataTableSearchInfo implements ITableSearchInfo {
         table = df.getTable();
     }
 
-    public String columnDisplay(int n) {
-        return table.getColumnDisplay(n);
+    public String getColumnDisplay(int col) {
+        return table.getColumnDisplay(col);
     }
 
-    public String columnName(int n) {
-        return table.getColumnName(n);
+    public String getColumnName(int col) {
+        return table.getColumnName(col);
     }
 
-    public IOpenClass columnType(int n) {
-        return table.getColumnType(n);
+    public IOpenClass getColumnType(int col) {
+        return table.getColumnType(col);
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
         return tsn;
     }
 
-    public IGridTable headerDisplayTable() {
+    public IGridTable getHeaderDisplayTable() {
         return table.getHeaderTable();
     }
 
-    public int numberOfColumns() {
+    public int getNumberOfColumns() {
         return table.getNumberOfColumns();
     }
 
-    public int numberOfRows() {
+    public int getNumberOfRows() {
         return table.getNumberOfRows();
     }
 
-    public IGridTable rowTable(int row) {
+    public IGridTable getRowTable(int row) {
         return table.getRowTable(row);
     }
 
-    public Object tableValue(int col, int row) {
+    public Object getTableValue(int col, int row) {
         return table.getValue(col, row);
     }
 

@@ -19,17 +19,17 @@ import org.apache.commons.lang.StringUtils;
  * @author Aliaksandr Antonik.
  */
 public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportSection<OpenLSavedSearch> {
-    private static class SearchElementSection implements IExportSection<SearchElement> {
+    private static class SearchElementSection implements IExportSection<SearchConditionElement> {
         String name;
-        SearchElement[] searchElements;
+        SearchConditionElement[] searchElements;
 
-        private SearchElementSection(String name, SearchElement[] searchElements) {
+        private SearchElementSection(String name, SearchConditionElement[] searchElements) {
             this.name = name;
             this.searchElements = searchElements;
         }
 
-        public Class<SearchElement> getExportedClass() {
-            return SearchElement.class;
+        public Class<SearchConditionElement> getExportedClass() {
+            return SearchConditionElement.class;
         }
 
         public String getName() {
@@ -45,21 +45,21 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
             IExportRow[] exportRows = new IExportRow[searchElements.length];
 
             for (int i = 0; i < searchElements.length; ++i) {
-                SearchElement searchElement = searchElements[i];
+                SearchConditionElement searchElement = searchElements[i];
                 exportRows[i] = new ExportRow(searchElement.getType(), String.valueOf(searchElement.isNotFlag()),
-                        searchElement.getOperator().getName(), searchElement.getOpType1(), searchElement.getValue1(),
-                        searchElement.getOpType2(), searchElement.getValue2());
+                        searchElement.getGroupOperator().getName(), searchElement.getOpType1(), searchElement.getElementValueName(),
+                        searchElement.getOpType2(), searchElement.getElementValue());
             }
 
             return exportRows;
         }
 
-        public IExportSection<SearchElement>[] getSubSections() {
+        public IExportSection<SearchConditionElement>[] getSubSections() {
             return null;
         }
     }
-    private SearchElement[] tableElements;
-    private SearchElement[] columnElements;
+    private SearchConditionElement[] tableElements;
+    private SearchConditionElement[] columnElements;
     private String tableTypes;
 
     /**
@@ -81,18 +81,18 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
         return sb.toString();
     }
 
-    private static SearchElement[] readSearchElementSection(IImporter importer, IImportedSection section) {
+    private static SearchConditionElement[] readSearchElementSection(IImporter importer, IImportedSection section) {
         String[][] rows = importer.readRows(section.getId());
-        SearchElement[] searchElements = new SearchElement[rows.length];
+        SearchConditionElement[] searchElements = new SearchConditionElement[rows.length];
         for (int i = 0; i < searchElements.length; i++) {
             String[] row = rows[i];
-            SearchElement searchElement = searchElements[i] = new SearchElement(row[0]);
+            SearchConditionElement searchElement = searchElements[i] = new SearchConditionElement(row[0]);
             searchElement.setNotFlag(Boolean.valueOf(row[1]));
-            searchElement.setOperator(GroupOperator.find(row[2]));
+            searchElement.setGroupOperator(GroupOperator.find(row[2]));
             searchElement.setOpType1(row[3]);
-            searchElement.setValue1(row[4]);
+            searchElement.setElementValueName(row[4]);
             searchElement.setOpType2(row[5]);
-            searchElement.setValue2(row[6]);
+            searchElement.setElementValue(row[6]);
         }
         return searchElements;
     }
@@ -100,13 +100,13 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
     public OpenLSavedSearch() {
     }
 
-    public OpenLSavedSearch(SearchElement[] columnElements, SearchElement[] tableElements, String[] tableType) {
+    public OpenLSavedSearch(SearchConditionElement[] columnElements, SearchConditionElement[] tableElements, String[] tableType) {
         this.columnElements = columnElements;
         this.tableElements = tableElements;
         tableTypes = join(tableType);
     }
 
-    public SearchElement[] getColumnElements() {
+    public SearchConditionElement[] getColumnElements() {
         return columnElements;
     }
 
@@ -147,7 +147,7 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
                 new SearchElementSection("Column elements", columnElements), };
     }
 
-    public SearchElement[] getTableElements() {
+    public SearchConditionElement[] getTableElements() {
         return tableElements;
     }
 
@@ -176,7 +176,7 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
         return this;
     }
 
-    public void setColumnElements(SearchElement[] columnElements) {
+    public void setColumnElements(SearchConditionElement[] columnElements) {
         this.columnElements = columnElements;
     }
 
@@ -189,7 +189,7 @@ public class OpenLSavedSearch implements IExportable<OpenLSavedSearch>, IExportS
         this.name = name;
     }
 
-    public void setTableElements(SearchElement[] tableElements) {
+    public void setTableElements(SearchConditionElement[] tableElements) {
         this.tableElements = tableElements;
     }
 

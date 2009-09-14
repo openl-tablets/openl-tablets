@@ -12,13 +12,15 @@ import org.openl.util.ASelector;
  *
  */
 public abstract class ATableRowSelector extends ASelector<ISearchTableRow> implements ITableNodeTypes {
+    
     /**
+     * Finds the table search info, according to its type.
      * @param tableSyntaxNode
      * @return
      */
     public static ITableSearchInfo getTableSearchInfo(TableSyntaxNode tsn) {
         if (XLS_DT.equals(tsn.getType())) {
-            return new DTTableSearchInfo(tsn);
+            return new DecisionTableSearchInfo(tsn);
         } else if (XLS_DATA.equals(tsn.getType())) {
             return new DataTableSearchInfo(tsn);
         } else if (XLS_TEST_METHOD.equals(tsn.getType())) {
@@ -41,9 +43,9 @@ public abstract class ATableRowSelector extends ASelector<ISearchTableRow> imple
 
     public boolean selectRow(ISearchTableRow row) {
         ITableSearchInfo tsi = row.getTableSearchInfo();
-        return selectRowInTable(row, tsi);
+        return isRowInTableSelected(row, tsi);
     }
 
-    public abstract boolean selectRowInTable(ISearchTableRow row, ITableSearchInfo tsi);
+    public abstract boolean isRowInTableSelected(ISearchTableRow row, ITableSearchInfo tsi);
 
 }

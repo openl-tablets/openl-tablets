@@ -17,27 +17,27 @@ import org.openl.types.IOpenClass;
  * @author snshor
  *
  */
-public class DTTableSearchInfo implements ITableSearchInfo {
+public class DecisionTableSearchInfo implements ITableSearchInfo {
 
-    TableSyntaxNode tsn;
-    DecisionTable dt;
-    DTParameterInfo[] params;
+    private TableSyntaxNode tsn;
+    private DecisionTable dt;
+    private DTParameterInfo[] params;
 
-    public DTTableSearchInfo(TableSyntaxNode tsn) {
+    public DecisionTableSearchInfo(TableSyntaxNode tsn) {
         this.tsn = tsn;
         dt = (DecisionTable) tsn.getMember();
     }
 
-    public String columnDisplay(int n) {
-        return getParams()[n].getPresentation();
+    public String getColumnDisplay(int col) {
+        return getParams()[col].getPresentation();
     }
 
-    public String columnName(int n) {
-        return getParams()[n].getParameterDeclaration().getName();
+    public String getColumnName(int col) {
+        return getParams()[col].getParameterDeclaration().getName();
     }
 
-    public IOpenClass columnType(int n) {
-        return getParams()[n].getParameterDeclaration().getType();
+    public IOpenClass getColumnType(int col) {
+        return getParams()[col].getParameterDeclaration().getType();
     }
 
     public DTParameterInfo[] getParams() {
@@ -70,23 +70,23 @@ public class DTTableSearchInfo implements ITableSearchInfo {
         return tsn;
     }
 
-    public IGridTable headerDisplayTable() {
+    public IGridTable getHeaderDisplayTable() {
         return dt.getDisplayTable().getGridTable();
     }
 
-    public int numberOfColumns() {
+    public int getNumberOfColumns() {
         return getParams().length;
     }
 
-    public int numberOfRows() {
+    public int getNumberOfRows() {
         return dt.getNumberOfRules();
     }
 
-    public IGridTable rowTable(int row) {
+    public IGridTable getRowTable(int row) {
         return dt.getRuleTable(row).getGridTable();
     }
 
-    public Object tableValue(int col, int row) {
+    public Object getTableValue(int col, int row) {
         return getParams()[col].getValue(row);
     }
 
