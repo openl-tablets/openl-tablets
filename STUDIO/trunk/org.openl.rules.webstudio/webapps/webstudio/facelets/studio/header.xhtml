@@ -38,6 +38,10 @@
 </td></tr>
 <tr><td align="right" valign="top"><h:form>
 <table style="border-style: solid; border-width: 1px; border-color: black;" cellspacing="0" cellpadding="2"><tr><td>
+  <a href="#{contextPath}/main.jsp?mode=business" title="Business View" target="top"><img border='0px;' alt="business view" src="#{contextPath}/webresource/images/business-view.png" /></a>
+  <f:verbatim>&amp;nbsp;</f:verbatim>
+  <a href="#{contextPath}/main.jsp?mode=developer" title="Developer View" target="top"><img border='0px;' alt="developer's view" src="#{contextPath}/webresource/images/developer-view.png" /></a>
+  <f:verbatim>&amp;nbsp;</f:verbatim>
   <c:if test="#{headerBean.showFormulas}">
     <a href="#{contextPath}/main.jsp?showFormulas=false" title="Dont't Show Formulas" target="top"><img border='0px;' alt="business view" src="#{contextPath}/webresource/images/dont-show-formulas.png" /></a>
   </c:if>
@@ -45,10 +49,6 @@
     <a href="#{contextPath}/main.jsp?showFormulas=true" title="Show Formulas" target="top"><img border='0px;' alt="business view" src="#{contextPath}/webresource/images/show-formulas.png" /></a>
   </c:if>
   <f:verbatim>&amp;nbsp;</f:verbatim>
-  <a href="#{contextPath}/main.jsp?mode=business" title="Business View" target="top"><img border='0px;' alt="business view" src="#{contextPath}/webresource/images/business-view.png" /></a>
-  <f:verbatim>&amp;nbsp;</f:verbatim>
-  <a href="#{contextPath}/main.jsp?mode=developer" title="Developer View" target="top"><img border='0px;' alt="developer's view" src="#{contextPath}/webresource/images/developer-view.png" /></a>
-  <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
   <c:if test="#{headerBean.localRequest}">
     <c:if test="#{headerBean.repositoryFailed}">
       <img border='0' src="#{contextPath}/webresource/images/repository/upload-disabled.gif" alt="repo failed"/>
