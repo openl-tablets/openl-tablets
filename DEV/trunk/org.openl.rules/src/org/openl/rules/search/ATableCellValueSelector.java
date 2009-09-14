@@ -33,7 +33,7 @@ public abstract class ATableCellValueSelector extends ATableRowSelector {
 
         String strCellValue = String.valueOf(cellValue);
 
-        return cellValueSelector.op(strCellValue);
+        return cellValueSelector.isMatching(strCellValue);
 
     }
 

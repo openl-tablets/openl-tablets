@@ -16,21 +16,21 @@ public class ColumnNameRowSelector extends ATableCellValueSelector {
     /**
      * @param se
      */
-    public ColumnNameRowSelector(SearchElement se) {
-        columnNameSelector = se.isAny(se.getValue1()) ? null : AStringBoolOperator.makeOperator(se.getOpType1(), se
-                .getValue1());
-        cellValueSelector = se.isAny(se.getValue2()) ? null : AStringBoolOperator.makeOperator(se.getOpType2(), se
-                .getValue2());
+    public ColumnNameRowSelector(SearchConditionElement se) {
+        columnNameSelector = se.isAny(se.getElementValueName()) ? null : AStringBoolOperator.makeOperator(se.getOpType1(), se
+                .getElementValueName());
+        cellValueSelector = se.isAny(se.getElementValue()) ? null : AStringBoolOperator.makeOperator(se.getOpType2(), se
+                .getElementValue());
     }
 
     @Override
-    public boolean selectRowInTable(ISearchTableRow row, ITableSearchInfo tsi) {
-        int nc = tsi.numberOfColumns();
+    public boolean isRowInTableSelected(ISearchTableRow searchTableRow, ITableSearchInfo searchTableInfo) {
+        int colNum = searchTableInfo.getNumberOfColumns();
 
-        for (int c = 0; c < nc; c++) {
+        for (int c = 0; c < colNum; c++) {
             if (columnNameSelector != null) {
-                String cname = tsi.columnName(c);
-                if (!columnNameSelector.op(cname)) {
+                String cname = searchTableInfo.getColumnName(c);
+                if (!columnNameSelector.isMatching(cname)) {
                     continue;
                 }
             }
@@ -39,7 +39,7 @@ public class ColumnNameRowSelector extends ATableCellValueSelector {
                 return true;
             }
 
-            Object cellValue = tsi.tableValue(c, row.getRow());
+            Object cellValue = searchTableInfo.getTableValue(c, searchTableRow.getRow());
             if (selectCellValue(cellValue)) {
                 return true;
             }

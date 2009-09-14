@@ -17,9 +17,9 @@ public class TableHeaderSelector extends ATableSyntaxNodeSelector {
     /**
      * @param se
      */
-    public TableHeaderSelector(SearchElement se) {
-        headerSelector = se.isAny(se.getValue2()) ? null : AStringBoolOperator.makeOperator(se.getOpType2(), se
-                .getValue2());
+    public TableHeaderSelector(SearchConditionElement se) {
+        headerSelector = se.isAny(se.getElementValue()) ? null : AStringBoolOperator.makeOperator(se.getOpType2(), se
+                .getElementValue());
     }
 
     public AStringBoolOperator getHeaderSelector() {
@@ -27,8 +27,8 @@ public class TableHeaderSelector extends ATableSyntaxNodeSelector {
     }
 
     @Override
-    public boolean selectTable(TableSyntaxNode node) {
-        return headerSelector == null || headerSelector.op(node.getHeaderLineValue().getValue());
+    public boolean isTableSelected(TableSyntaxNode node) {
+        return headerSelector == null || headerSelector.isMatching(node.getHeaderLineValue().getValue());
     }
 
     public void setHeaderSelector(AStringBoolOperator headerSelector) {

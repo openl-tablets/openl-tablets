@@ -6,23 +6,23 @@ import org.openl.types.IOpenClass;
 
 public class TableSearchInfo implements ITableSearchInfo {
 
-    TableSyntaxNode tsn;
-    IGridTable table;
+    private TableSyntaxNode tsn;
+    private IGridTable table;
 
     public TableSearchInfo(TableSyntaxNode tsn) {
         this.tsn = tsn;
         table = tsn.getTableBody().getGridTable();
     }
 
-    public String columnDisplay(int n) {
+    public String getColumnDisplay(int col) {
         return null;
     }
 
-    public String columnName(int n) {
+    public String getColumnName(int col) {
         return null;
     }
 
-    public IOpenClass columnType(int n) {
+    public IOpenClass getColumnType(int col) {
         return null;
     }
 
@@ -30,23 +30,23 @@ public class TableSearchInfo implements ITableSearchInfo {
         return tsn;
     }
 
-    public IGridTable headerDisplayTable() {
+    public IGridTable getHeaderDisplayTable() {
         return null;
     }
 
-    public int numberOfColumns() {
+    public int getNumberOfColumns() {
         return table.getGridWidth();
     }
 
-    public int numberOfRows() {
+    public int getNumberOfRows() {
         return table.getGridHeight();
     }
 
-    public IGridTable rowTable(int row) {
+    public IGridTable getRowTable(int row) {
         return table.getLogicalRow(row).getGridTable();
     }
 
-    public Object tableValue(int col, int row) {
+    public Object getTableValue(int col, int row) {
         return table.getCell(col, row).getObjectValue();
     }
 

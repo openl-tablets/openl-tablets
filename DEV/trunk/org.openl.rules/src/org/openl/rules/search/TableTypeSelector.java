@@ -7,11 +7,14 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.ArrayTool;
 
 /**
+ * Handles array of table types (e.g. rules, spreadsheet, etc. see {@code ITableNodeTypes#XLS_MODULE} constant for supported types).
+ * Checks if given table type exists in current array.
  * @author snshor
  *
  */
 public class TableTypeSelector extends ATableSyntaxNodeSelector {
-    String[] types;
+    
+    private String[] types;
 
     public TableTypeSelector() {
     }
@@ -23,9 +26,12 @@ public class TableTypeSelector extends ATableSyntaxNodeSelector {
     public String[] getTypes() {
         return types;
     }
-
+    
+    /**
+     * Checks if given table type exists in current array.
+     */
     @Override
-    public boolean selectTable(TableSyntaxNode node) {
+    public boolean isTableSelected(TableSyntaxNode node) {
         String type = node.getType();
         return ArrayTool.contains(types, type);
     }

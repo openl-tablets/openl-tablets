@@ -20,20 +20,20 @@ public class PropertySelector extends ATableSyntaxNodeSelector {
     /**
      * @param se
      */
-    public PropertySelector(SearchElement se) {
-        propertyNameSelector = se.isAny(se.getValue1()) ? null : AStringBoolOperator.makeOperator("matches", se
-                .getValue1());
-        propertyValueSelector = se.isAny(se.getValue2()) ? null : AStringBoolOperator.makeOperator(se.getOpType2(), se
-                .getValue2());
+    public PropertySelector(SearchConditionElement se) {
+        propertyNameSelector = se.isAny(se.getElementValueName()) ? null : AStringBoolOperator.makeOperator("matches", se
+                .getElementValueName());
+        propertyValueSelector = se.isAny(se.getElementValue()) ? null : AStringBoolOperator.makeOperator(se.getOpType2(), se
+                .getElementValue());
     }
 
     public boolean selectProperty(TableProperties.Property prop) {
-        return (propertyNameSelector == null || propertyNameSelector.op(prop.getKey().getValue()))
-                && (propertyValueSelector == null || propertyValueSelector.op(prop.getValue().getValue()));
+        return (propertyNameSelector == null || propertyNameSelector.isMatching(prop.getKey().getValue()))
+                && (propertyValueSelector == null || propertyValueSelector.isMatching(prop.getValue().getValue()));
     }
 
     @Override
-    public boolean selectTable(TableSyntaxNode tsn) {
+    public boolean isTableSelected(TableSyntaxNode tsn) {
         TableProperties tp = tsn.getTableProperties();
         if (tp == null) {
             return propertyNameSelector == null && propertyValueSelector == null;

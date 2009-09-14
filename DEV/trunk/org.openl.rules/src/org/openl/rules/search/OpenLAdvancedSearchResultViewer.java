@@ -33,7 +33,7 @@ public class OpenLAdvancedSearchResultViewer {
             return null;
         }
 
-        IGridTable header = rows[0].getTableSearchInfo().headerDisplayTable();
+        IGridTable header = rows[0].getTableSearchInfo().getHeaderDisplayTable();
         IGridTable[] tables = new IGridTable[rows.length + (header != null ? 1 : 0)];
         if (header != null) {
             tables[0] = header;

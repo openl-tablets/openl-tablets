@@ -14,7 +14,7 @@ import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 
-public class BusSearchTest {
+public class OpenLBussinessSearchTest {
     
     private String __src = "test/rules/Tutorial_4_Test.xls";
     

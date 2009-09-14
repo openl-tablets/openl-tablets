@@ -13,12 +13,12 @@ import org.openl.util.ASelector;
 public abstract class ATableSyntaxNodeSelector extends ASelector<TableSyntaxNode> {
 
     public boolean select(TableSyntaxNode table) {
-        return selectTable( table);
+        return isTableSelected(table);
     }
 
     /**
      * @param node
      * @return
      */
-    public abstract boolean selectTable(TableSyntaxNode node);
+    public abstract boolean isTableSelected(TableSyntaxNode node);
 }

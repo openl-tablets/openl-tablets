@@ -13,22 +13,22 @@ import org.openl.types.IOpenClass;
  */
 public interface ITableSearchInfo {
 
-    String columnDisplay(int n);
+    String getColumnDisplay(int col);
 
-    String columnName(int n);
-
-    IOpenClass columnType(int n);
+    String getColumnName(int col);
+    
+    IOpenClass getColumnType(int col);
 
     TableSyntaxNode getTableSyntaxNode();
 
-    IGridTable headerDisplayTable();
+    IGridTable getHeaderDisplayTable();
 
-    int numberOfColumns();
+    int getNumberOfColumns();
 
-    int numberOfRows();
+    int getNumberOfRows();
 
-    IGridTable rowTable(int row);
+    IGridTable getRowTable(int row);
 
-    Object tableValue(int col, int row);
+    Object getTableValue(int col, int row);
 
 }

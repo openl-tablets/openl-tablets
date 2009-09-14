@@ -18,42 +18,45 @@ import org.openl.util.ArrayTool;
  *
  */
 public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, IOpenLSearch {
-
-    static public String[] typeButtons = { "Rules", "Spreadsheet", "TBasic", "Column Match", "Data", "Method",
+    
+    /*
+     * Type of components where we search the results. 
+     */
+    public static final String[] existingTableTypes = { "Rules", "Spreadsheet", "TBasic", "Column Match", "Data", "Method",
             "Datatype", "Test", "Run", "Env", "Other" };
 
-    static public String[] types = { XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_DATA, XLS_METHOD,
+    public static final String[] types = { XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_DATA, XLS_METHOD,
             XLS_DATATYPE, XLS_TEST_METHOD, XLS_RUN_METHOD, XLS_ENVIRONMENT, XLS_OTHER };
 
-    static public String[] nfValues = { "", "NOT" };
+    public static final  String[] nfValues = { "", "NOT" };
 
-    static public final boolean[] typeNeedValue1 = { false, true };
+    public static final boolean[] typeNeedValue1 = { false, true };
 
-    boolean[] selectedType = new boolean[typeButtons.length];
+    private boolean[] selectedTableTypes = new boolean[existingTableTypes.length];
 
-    SearchElement[] tableElements = { new SearchElement(HEADER)};
-    SearchElement[] columnElements = { new SearchElement(COLUMN_NAME)};
+    private SearchConditionElement[] tableElements = { new SearchConditionElement(HEADER)};
+    private SearchConditionElement[] columnElements = { new SearchConditionElement(COLUMN_NAME)};
 
     private void addColumnPropertyAfter(int i) {
-        columnElements = (SearchElement[]) ArrayTool.insertValue(i + 1, columnElements, columnElements[i].copy());
+        columnElements = (SearchConditionElement[]) ArrayTool.insertValue(i + 1, columnElements, columnElements[i].copy());
     }
 
     /**
      * @param i
      */
     private void addTablePropertyAfter(int i) {
-        tableElements = (SearchElement[]) ArrayTool.insertValue(i + 1, tableElements, tableElements[i].copy());
+        tableElements = (SearchConditionElement[]) ArrayTool.insertValue(i + 1, tableElements, tableElements[i].copy());
     }
 
     private void deleteColumnPropertyAt(int i) {
-        columnElements = (SearchElement[]) ArrayTool.removeValue(i, columnElements);
+        columnElements = (SearchConditionElement[]) ArrayTool.removeValue(i, columnElements);
     }
 
     /**
      * @param i
      */
     private void deleteTablePropertyAt(int i) {
-        tableElements = (SearchElement[]) ArrayTool.removeValue(i, tableElements);
+        tableElements = (SearchConditionElement[]) ArrayTool.removeValue(i, tableElements);
     }
 
     /**
@@ -80,7 +83,8 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
         }
 
     }
-
+    
+    @Deprecated
     public void fillColumnElement(int i, String gopID, String nfID, String typeID, String opType1ID, String value1ID,
             String opType2ID, String value2ID) {
         if (i >= columnElements.length) {
@@ -91,22 +95,23 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
             typeID = COLUMN_NAME;
         }
 
-        SearchElement se = new SearchElement(typeID);
+        SearchConditionElement se = new SearchConditionElement(typeID);
 
-        se.setOperator(GroupOperator.find(gopID));
+        se.setGroupOperator(GroupOperator.find(gopID));
         se.setNotFlag(nfValues[1].equals(nfID));
 
         se.setOpType1(opType1ID);
         if (value1ID != null) {
-            se.setValue1(value1ID);
+            se.setElementValueName(value1ID);
         }
         se.setOpType2(opType2ID);
-        se.setValue2(value2ID);
+        se.setElementValue(value2ID);
 
         columnElements[i] = se;
 
     }
-
+    
+    @Deprecated
     public void fillTableElement(int i, String gopID, String nfID, String typeID, String value1ID, String opTypeID,
             String value2ID) {
         if (i >= tableElements.length) {
@@ -117,39 +122,39 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
             typeID = PROPERTY;
         }
 
-        SearchElement se = new SearchElement(typeID);
+        SearchConditionElement se = new SearchConditionElement(typeID);
 
-        se.setOperator(GroupOperator.find(gopID));
+        se.setGroupOperator(GroupOperator.find(gopID));
         se.setNotFlag(nfValues[1].equals(nfID));
         if (value1ID != null) {
-            se.setValue1(value1ID);
+            se.setElementValueName(value1ID);
         }
         se.setOpType2(opTypeID);
-        se.setValue2(value2ID);
+        se.setElementValue(value2ID);
 
         tableElements[i] = se;
 
     }
 
-    public SearchElement[] getColumnElements() {
+    public SearchConditionElement[] getColumnElements() {
         return columnElements;
     }
 
-    public String[] getGopValues() {
+    public String[] getGroupOperatorNames() {
         return GroupOperator.names;
     }
 
-    public SearchElement[] getTableElements() {
+    public SearchConditionElement[] getTableElements() {
         return tableElements;
     }
 
-    public String[] getTypeButtons() {
-        return typeButtons;
+    public String[] getExistingTableTypes() {
+        return existingTableTypes;
     }
 
-    boolean isRowSelected(ISearchTableRow trow, ATableRowSelector[] rselectors, ITableSearchInfo tsi) {
-        for (int j = 0; j < rselectors.length; j++) {
-            if (!rselectors[j].selectRowInTable(trow, tsi)) {
+    private boolean isRowSelected(ISearchTableRow searchTableRow, ATableRowSelector[] rowSelectors, ITableSearchInfo tableSearchInfo) {
+        for (int j = 0; j < rowSelectors.length; j++) {
+            if (!rowSelectors[j].isRowInTableSelected(searchTableRow, tableSearchInfo)) {
                 return false;
             }
         }
@@ -158,9 +163,9 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
 
     }
 
-    boolean isTableSelected(TableSyntaxNode tsn, ATableSyntaxNodeSelector[] tselectors) {
+    private boolean isTableSelected(TableSyntaxNode tsn, ATableSyntaxNodeSelector[] tselectors) {
         for (int j = 0; j < tselectors.length; j++) {
-            if (!tselectors[j].selectTable(tsn)) {
+            if (!tselectors[j].isTableSelected(tsn)) {
                 return false;
             }
         }
@@ -176,10 +181,10 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
         return new TableGroupSelector(tableElements);
     }
 
-    TableTypeSelector makeTableTypeSelector() {
+    private TableTypeSelector makeTableTypeSelector() {
         ArrayList<String> list = new ArrayList<String>();
-        for (int i = 0; i < selectedType.length; i++) {
-            if (selectedType[i]) {
+        for (int i = 0; i < selectedTableTypes.length; i++) {
+            if (selectedTableTypes[i]) {
                 list.add(types[i]);
             }
         }
@@ -193,7 +198,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
         return AStringBoolOperator.allNames();
     }
 
-    ATableRowSelector[] getRowSelectors() {
+    public ATableRowSelector[] getColumnSelectors() {
         ArrayList<ATableRowSelector> list = new ArrayList<ATableRowSelector>();
 
         list.add(new ColumnGroupSelector(columnElements));
@@ -231,65 +236,76 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
      */
     public Object search(XlsModuleSyntaxNode xsn) {
         ATableSyntaxNodeSelector[] tableSelectors = getTableSelectors();
-        ATableRowSelector[] rowSelectors = getRowSelectors();
-
-        // ArrayList tableList = new ArrayList();
-        // ArrayList rowList = new ArrayList();
+        ATableRowSelector[] columnSelectors = getColumnSelectors();
 
         OpenLAdvancedSearchResult res = new OpenLAdvancedSearchResult(this);
 
         TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodesWithoutErrors();
-        for (int i = 0; i < tables.length; i++) {
-            TableSyntaxNode table = tables[i];
-
+        for (TableSyntaxNode table : tables) {
             ISyntaxError[] errors = table.getErrors();
-            if (errors != null && errors.length > 0) {
-                continue;
-            }
-
-            if (!isTableSelected(table, tableSelectors)) {
-                continue;
-            }
-
-            ITableSearchInfo tablSearchInfo = ATableRowSelector.getTableSearchInfo(table);
-            if (tablSearchInfo == null) {
-                res.add(table, new ISearchTableRow[0]);
-                continue;
-            }
-
-            ArrayList<ISearchTableRow> selectedRows = new ArrayList<ISearchTableRow>();
-            int numRows = tablSearchInfo.numberOfRows();
-            for (int row = 0; row < numRows; row++) {
-                ISearchTableRow tablSearchRow = new SearchTableRow(row, tablSearchInfo);
-                if (!(tablSearchInfo instanceof TableSearchInfo) && !isRowSelected(tablSearchRow, rowSelectors, tablSearchInfo)) {
-                    continue;
+            if (errors == null) {
+                addResult(table, res, tableSelectors, columnSelectors);
+            } else {
+                if(errors.length < 0) {
+                    addResult(table, res, tableSelectors, columnSelectors);
                 }
-                selectedRows.add(tablSearchRow);
-            }
-
-            res.add(table, selectedRows.toArray(new ISearchTableRow[0]));
+            }                                    
         }
-
         return res;
     }
-
-    public boolean selectType(int i) {
-        return selectedType[i];
+    
+    private void addResult(TableSyntaxNode table, OpenLAdvancedSearchResult res, 
+            ATableSyntaxNodeSelector[] tableSelectors, ATableRowSelector[] columnSelectors) {        
+        if (isTableSelected(table, tableSelectors)) {
+            ITableSearchInfo tablSearchInfo = ATableRowSelector.getTableSearchInfo(table);
+            if (tablSearchInfo != null) {
+                ArrayList<ISearchTableRow> matchedRows = getMatchedRows(tablSearchInfo, columnSelectors);
+                res.add(table, matchedRows.toArray(new ISearchTableRow[0]));
+            } else {
+                res.add(table, new ISearchTableRow[0]);
+            }
+        }
+    }
+    
+    /**
+     * Gets the rows of tables that match to the search info.
+     * @param tablSearchInfo
+     * @param columnSelectors
+     * @return
+     */
+    private ArrayList<ISearchTableRow> getMatchedRows(ITableSearchInfo tablSearchInfo, ATableRowSelector[] columnSelectors) {
+        ArrayList<ISearchTableRow> matchedRows = new ArrayList<ISearchTableRow>();
+        int numRows = tablSearchInfo.getNumberOfRows();
+        for (int row = 0; row < numRows; row++) {
+            ISearchTableRow tablSearchRow = new SearchTableRow(row, tablSearchInfo);
+            // Now there is implementations for ITableSearchInfo just for data tables (DataTableSearchInfo class) and 
+            // for decision tables (DecisionTableSearchInfo class) all other tables process as TableSearchInfo. It must 
+            // be implemented for other types.
+            if (!(tablSearchInfo instanceof TableSearchInfo) && !isRowSelected(tablSearchRow, columnSelectors, tablSearchInfo)) {
+                continue;
+            }
+            matchedRows.add(tablSearchRow);
+        }
+        return matchedRows;
     }
 
-    public void selectType(int i, boolean x) {
-        selectedType[i] = x;
+    public boolean getSelectedTableType(int i) {
+        return selectedTableTypes[i];
     }
 
-    public void setColumnElements(SearchElement[] columnElements) {
+    public void selectTableType(int i, boolean x) {
+        selectedTableTypes[i] = x;
+    }
+
+    public void setColumnElements(SearchConditionElement[] columnElements) {
         this.columnElements = columnElements;
     }
 
-    public void setTableElements(SearchElement[] tableElements) {
+    public void setTableElements(SearchConditionElement[] tableElements) {
         this.tableElements = tableElements;
     }
 
-    public boolean showValue1(String typeValue) {
+    public boolean showElementValueName(String typeValue) {
         for (int i = 0; i < typeValues.length; i++) {
             if (typeValues[i].equals(typeValue)) {
                 return typeNeedValue1[i];
@@ -298,7 +314,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
         throw new RuntimeException("Unknown type value: " + typeValue);
     }
 
-    ATableSyntaxNodeSelector[] getTableSelectors() {
+    private ATableSyntaxNodeSelector[] getTableSelectors() {
         ArrayList<ATableSyntaxNodeSelector> sll = new ArrayList<ATableSyntaxNodeSelector>();
 
         sll.add(makeTableTypeSelector());

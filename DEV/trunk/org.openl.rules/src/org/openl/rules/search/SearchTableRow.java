@@ -12,8 +12,8 @@ import org.openl.rules.table.IGridTable;
  */
 public class SearchTableRow implements ISearchTableRow {
 
-    int row;
-    ITableSearchInfo tsi;
+    private int row;
+    private ITableSearchInfo tsi;
 
     /**
      * @param row
@@ -29,7 +29,7 @@ public class SearchTableRow implements ISearchTableRow {
     }
 
     public IGridTable getRowTable() {
-        return tsi.rowTable(row);
+        return tsi.getRowTable(row);
     }
 
     public ITableSearchInfo getTableSearchInfo() {
