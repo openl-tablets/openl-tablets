@@ -67,7 +67,7 @@ public class ColumnGroupSelector extends ATableRowSelector implements ISearchCon
      * @return
      */
     private ATableRowSelector makeTableRowSelector(SearchConditionElement se) {
-        if (COLUMN_NAME.equals(se.getType())) {
+        if (COLUMN_PARAMETER.equals(se.getType())) {
             return new ColumnNameRowSelector(se);
         }
         if (COLUMN_TYPE.equals(se.getType())) {

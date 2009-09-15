@@ -35,7 +35,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
     private boolean[] selectedTableTypes = new boolean[existingTableTypes.length];
 
     private SearchConditionElement[] tableElements = { new SearchConditionElement(HEADER)};
-    private SearchConditionElement[] columnElements = { new SearchConditionElement(COLUMN_NAME)};
+    private SearchConditionElement[] columnElements = { new SearchConditionElement(COLUMN_PARAMETER)};
 
     private void addColumnPropertyAfter(int i) {
         columnElements = (SearchConditionElement[]) ArrayTool.insertValue(i + 1, columnElements, columnElements[i].copy());
@@ -92,7 +92,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
         }
 
         if (typeID == null) {
-            typeID = COLUMN_NAME;
+            typeID = COLUMN_PARAMETER;
         }
 
         SearchConditionElement se = new SearchConditionElement(typeID);
