@@ -58,7 +58,7 @@ public class OpenLAdvancedSearchTest {
         searchTableElem.setOpType2("contains");
         searchTableElem.setElementValue("--ANY--");
         
-        SearchConditionElement columnSearchElem =  new SearchConditionElement(ISearchConstants.COLUMN_NAME);
+        SearchConditionElement columnSearchElem =  new SearchConditionElement(ISearchConstants.COLUMN_PARAMETER);
         columnSearchElem.setNotFlag(false); 
         columnSearchElem.setOpType1("contains");
         columnSearchElem.setElementValueName("--ANY--");
@@ -84,7 +84,7 @@ public class OpenLAdvancedSearchTest {
     
     @Test 
     public void testColumnSearch() {
-        SearchConditionElement columnSearchElem =  new SearchConditionElement(ISearchConstants.COLUMN_NAME);
+        SearchConditionElement columnSearchElem =  new SearchConditionElement(ISearchConstants.COLUMN_PARAMETER);
         columnSearchElem.setNotFlag(false); 
         columnSearchElem.setOpType1("contains");
         columnSearchElem.setElementValueName("--ANY--");
@@ -120,7 +120,7 @@ public class OpenLAdvancedSearchTest {
     
     @Test 
     public void testColumnSearch1() {
-        SearchConditionElement columnSearchElem =  new SearchConditionElement(ISearchConstants.COLUMN_NAME);
+        SearchConditionElement columnSearchElem =  new SearchConditionElement(ISearchConstants.COLUMN_PARAMETER);
         columnSearchElem.setNotFlag(false); 
         columnSearchElem.setOpType1("contains");
         columnSearchElem.setElementValueName("airbags");
