@@ -33,12 +33,6 @@ function triggerEdit(editorId, url) {
 }
 
 function triggerEditXls(url) {
-    var cellUri = $(PopupMenu.lastTarget).down("input").value;
-    new Ajax.Request(url, {
-        method: "get",
-        parameters: {
-            cellUri: cellUri
-        },
-        onFailure: AjaxHelper.handleError
-    });
+    var excelUri = $(PopupMenu.lastTarget).down("input").value;
+    window.open(url + "?uri=" + escape(excelUri));
 }

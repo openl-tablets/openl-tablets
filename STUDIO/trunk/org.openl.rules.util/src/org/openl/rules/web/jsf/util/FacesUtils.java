@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Collection;
 
 import javax.faces.FactoryFinder;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextFactory;
 import javax.faces.lifecycle.Lifecycle;
@@ -84,7 +85,7 @@ public abstract class FacesUtils {
 
     @SuppressWarnings("unchecked")
     public static Map getRequestMap() {
-        return FacesContext.getCurrentInstance().getExternalContext().getRequestMap();
+        return getExternalContext().getRequestMap();
     }
 
     /**
@@ -102,12 +103,16 @@ public abstract class FacesUtils {
 
     @SuppressWarnings("unchecked")
     public static Map getRequestParameterMap() {
-        return FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        return getExternalContext().getRequestParameterMap();
     }
 
     @SuppressWarnings("unchecked")
     public static Map getSessionMap() {
-        return FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
+        return getExternalContext().getSessionMap();
+    }
+
+    public static ExternalContext getExternalContext() {
+        return FacesContext.getCurrentInstance().getExternalContext();
     }
 
 }
