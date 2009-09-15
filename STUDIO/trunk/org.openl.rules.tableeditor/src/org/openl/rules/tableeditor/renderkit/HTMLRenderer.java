@@ -158,7 +158,7 @@ public class HTMLRenderer {
         String editLinks = "<tr><td><a href=\"javascript:triggerEdit('"
                 + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','" + WebUtil.internalPath("ajax/edit")
                 + "')\">Edit</a></td></tr>" + "<tr><td><a href=\"javascript:triggerEditXls('"
-                + WebUtil.internalPath("ajax/editXls") + "')\">Edit in Excel</a></td></tr>";
+                + WebUtil.internalPath("excel/") + "')\">Edit in Excel</a></td></tr>";
         String menuBegin = "<div id=\"" + menuId + "\" style=\"display:none;\">" + "<table cellpadding=\"1px\">"
                 + (editable ? editLinks : "");
         String menuEnd = "</table>" + "</div>";
@@ -404,6 +404,7 @@ public class HTMLRenderer {
             result.append(renderCSS("css/properties.css"));
             result.append("<table cellspacing='0' cellpadding='0' class='te_props'>");
             result.append("<tr><td class='te_props_header'>Properties");
+            //renderCollapseButton(propsId, collapsed);
             renderHideButton(propsId);
             result.append("</td></tr><tr><td><div id=" + propsId + " class='te_props_propstable'>");
             result.append("<table cellspacing='1' cellpadding='1'>");
@@ -411,9 +412,9 @@ public class HTMLRenderer {
             result.append(renderCSS("css/calendar.css"));
             buildPropsTable();
             result.append("</table></div></td></tr></table>");
-            if (collapsed) {
+            /*if (collapsed) {
                 result.append(renderJSBody("$('" + propsId + "').hide()"));
-            }
+            }*/
             return result.toString();            
         }
 
@@ -459,6 +460,7 @@ public class HTMLRenderer {
             String groupId = propsId + Constants.ID_POSTFIX_PROPS_GROUP + groupKey;
             result.append("<div class='te_props_groupheader'>");
             result.append(groupKey);
+            //renderCollapseButton(groupId, false);
             renderHideButton(groupId);
             result.append("</div>");
             result.append("<div id='" + groupId + "' class='te_props_grouptable'>");
@@ -479,6 +481,19 @@ public class HTMLRenderer {
                     + "this.title=(this.title == 'Hide' ? 'Show' : 'Hide');\""
                     + " title='Hide' class='te_props_hidebutton' />");
         }
+
+        /*private void renderCollapseButton(String idToHide, boolean collapsed) {
+            if (collapsed) {
+                result.append(renderJSBody("$('" + idToHide + "').hide()"));
+            }
+            String imgCollapseSrc = WebUtil.internalPath("img/arrow_right.gif");
+            String imgExpandSrc = WebUtil.internalPath("img/arrow_down.gif");
+            result.append(" <img src='" + (collapsed ? imgCollapseSrc : imgExpandSrc)+ "' onclick=\"$('"
+                    + idToHide + "').toggle();this.src=(this.title == 'Hide' ? '"
+                    + imgExpandSrc + "' : '" + imgCollapseSrc + "');"
+                    + "this.title=(this.title == 'Hide' ? 'Show' : 'Hide');\""
+                    + " title='Hide' class='te_props_hidebutton' />");
+        }*/
 
         /**
          * Fills the row in edit table, depending on the type of property value

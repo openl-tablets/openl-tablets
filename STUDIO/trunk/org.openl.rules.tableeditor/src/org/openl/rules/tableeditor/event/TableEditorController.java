@@ -13,12 +13,7 @@ import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.util.net.NetUtils;
 import org.openl.rules.web.jsf.util.FacesUtils;
-import org.openl.rules.webtools.XlsUrlParser;
-
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletRequest;
 
 /**
  * Table editor controller.
@@ -26,6 +21,271 @@ import javax.servlet.ServletRequest;
  * @author Andrey Naumenko
  */
 public class TableEditorController extends BaseTableEditorController implements ITableEditorController {
+
+    public String edit() {
+        String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
+        String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
+        TableEditorModel editorModel = getEditorModel(editorId);
+        return new HTMLRenderer().render("edit", editorModel.getTable(), null, null, false, cellToEdit, true,
+                editorId, null, editorModel.isShowFormulas(), editorModel.isCollapseProps());
+    }
+
+    public String insertRowBefore() throws Exception {
+        int row = getRow();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            try {
+                if (row >= 0) {
+                    if (!editorModel.canAddRows(1)) {
+                        IGridRegion newRegion = new TableServiceImpl(false)
+                            .moveTable(editorModel.getUpdatedFullTable(), null);
+                        editorModel.setRegion(newRegion);
+                    }
+                    editorModel.insertRows(1, row);
+                    tmResponse.setResponse(render(editorId));
+                } else {
+                    tmResponse.setStatus("Can not insert row");
+                }
+            } catch (Exception e) {
+                tmResponse.setStatus("Internal server error");
+                e.printStackTrace();
+            }
+            return pojo2json(tmResponse);
+        }
+        return null;
+    }
+
+    public String insertColBefore() throws Exception {
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            try {
+                if (col >= 0 && editorModel.canAddRows(1)) {
+                    editorModel.insertColumns(1, col);
+                    tmResponse.setResponse(render(editorId));
+                } else {
+                    tmResponse.setStatus("Can not insert column");
+                }
+            } catch (Exception e) {
+                tmResponse.setStatus("Internal server error");
+                e.printStackTrace();
+            }
+            return pojo2json(tmResponse);
+        }
+        return null;
+    }
+
+    public String getCellType() {
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        if (editorModel != null) {
+            ICellEditor editor = new CellEditorSelector().selectEditor(getRow(), getCol(), editorModel);
+            EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
+            return pojo2json(typeResponse);
+        }
+        return "";
+    }
+
+    private int getCol() {
+        return getRequestIntParam(Constants.REQUEST_PARAM_COL) - 1;
+    }
+
+    private String getEditorId() {
+        return getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
+    }
+
+    private int getRequestIntParam(String name) {
+        int param = -1;
+        try {
+            String requestParam = getRequestParam(name);
+            if (requestParam != null) {
+                param = Integer.parseInt(requestParam);
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return param;
+    }
+
+    private String getRequestParam(String name) {
+        return FacesUtils.getRequestParameter(name);
+    }
+
+    private int getRow() {
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        int numberOfNonShownRows = editorModel.getNumberOfNonShownRows();
+        return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
+    }
+
+    public String load() throws Exception {
+        String editorId = getEditorId();
+        String response = render(editorId);
+        IGridTable gridTable = getGridTable(editorId);
+        response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCellUri(gridTable.getGridColumn(0, 0),
+                gridTable.getGridRow(0, 0)), getEditorModel(editorId)));
+        return response;
+    }
+
+    public String removeRow() throws Exception {
+        int row = getRow();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            if (row >= 0) {
+                editorModel.removeRows(1, row);
+                return pojo2json(new TableModificationResponse(render(editorId), editorModel));
+            }
+        }
+        return null;
+    }
+
+    public String removeCol() throws Exception {
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            if (col >= 0) {
+                editorModel.removeColumns(1, col);
+                return pojo2json(new TableModificationResponse(render(editorId), editorModel));
+            }
+        }
+        return null;
+    }
+
+    public String setIndent() throws Exception {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
+            ICellStyle style = editorModel.getCellStyle(row, col);
+            int currentIndent = style.getIdent();
+            int resultIndent = currentIndent + indent;
+            CellStyle newStyle = new CellStyle(style);
+            newStyle.setIdent(resultIndent >= 0 ? resultIndent : 0);
+            editorModel.setStyle(row, col, newStyle);
+            return pojo2json(new TableModificationResponse(null, editorModel));
+        }
+        return null;
+    }
+
+    public String setCellValue() {
+        String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            editorModel.setCellValue(getRow(), getCol(), value);
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            // rerender the table if value is a formula
+            if (value.startsWith("=")) {
+                tmResponse.setResponse(render(editorId));
+            }
+            return pojo2json(tmResponse);
+        }
+        return null;
+    }
+
+    public String setProp() throws Exception {
+        String name = getRequestParam(Constants.REQUEST_PARAM_PROP_NAME);
+        String value = getRequestParam(Constants.REQUEST_PARAM_PROP_VALUE);
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            if (!editorModel.canAddRows(1)) {
+                IGridRegion newRegion = new TableServiceImpl(false).moveTable(editorModel.getUpdatedFullTable(), null);
+                editorModel.setRegion(newRegion);
+            }
+            editorModel.insertProp(name, value);
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            tmResponse.setResponse(render(editorId));
+            return pojo2json(tmResponse);
+        }
+        return null;
+    }
+
+    public String setAlign() throws Exception {
+        int row = getRow();
+        int col = getCol();
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            String align = getRequestParam(Constants.REQUEST_PARAM_ALIGN);
+            int halign = -1;
+            if ("left".equalsIgnoreCase(align)) {
+                halign = ICellStyle.ALIGN_LEFT;
+            } else if ("center".equalsIgnoreCase(align)) {
+                halign = ICellStyle.ALIGN_CENTER;
+            } else if ("right".equalsIgnoreCase(align)) {
+                halign = ICellStyle.ALIGN_RIGHT;
+            } else if ("justify".equalsIgnoreCase(align)) {
+                halign = ICellStyle.ALIGN_JUSTIFY;
+            }
+
+            if (halign != -1) {
+                ICellStyle style = editorModel.getCellStyle(row, col);
+                if (style.getHorizontalAlignment() != halign) {
+                    CellStyle newStyle = new CellStyle(style);
+                    newStyle.setHorizontalAlignment(halign);
+                    editorModel.setStyle(row, col, newStyle);
+                }
+            }
+            return pojo2json(new TableModificationResponse(null, editorModel));
+        }
+        return null;
+    }
+
+    public String undo() throws Exception {
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            if (editorModel.hasUndo()) {
+                editorModel.undo();
+                tmResponse.setResponse(render(editorId));
+            } else {
+                tmResponse.setStatus("No actions to undo");
+            }
+            return pojo2json(tmResponse);
+        }
+        return null;
+    }
+
+    public String redo() throws Exception {
+        String editorId = getEditorId();
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            if (editorModel.hasRedo()) {
+                editorModel.redo();
+                tmResponse.setResponse(render(editorId));
+            } else {
+                tmResponse.setStatus("No actions to redo");
+            }
+            return pojo2json(tmResponse);
+        }
+        return null;
+    }
+
+    public String saveTable() throws Exception {
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        if (editorModel != null) {
+            editorModel.save();
+            return pojo2json(new TableModificationResponse("", editorModel));
+        }
+        return null;
+    }
+
+    private static String pojo2json(Object pojo) {
+        try {
+            return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")").toString();
+        } catch (MapperException e) {
+            return null;
+        }
+    }
 
     public static class EditorTypeResponse {
         private String editor;
@@ -170,313 +430,6 @@ public class TableEditorController extends BaseTableEditorController implements 
             this.status = status;
         }
 
-    }
-
-    private static String pojo2json(Object pojo) {
-        try {
-            return new StringBuilder().append("(").append(JSONMapper.toJSON(pojo).render(true)).append(")").toString();
-        } catch (MapperException e) {
-            return null;
-        }
-    }
-
-    public String insertRowBefore() throws Exception {
-        int row = getRow();
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
-            try {
-                if (row >= 0) {
-                    if (editorModel.canAddRows(1)) {
-                        editorModel.insertRows(1, row);
-                    } else {
-                        IGridRegion newRegion = new TableServiceImpl(false)
-                            .moveTable(editorModel.getUpdatedFullTable(), null);
-                        editorModel.setRegion(newRegion);
-                        editorModel.insertRows(1, row);
-                    }
-                    tmResponse.setResponse(render(editorId));
-                } else {
-                    tmResponse.setStatus("Can not insert row");
-                }
-            } catch (Exception e) {
-                tmResponse.setStatus("Internal server error");
-                e.printStackTrace();
-            }
-            return pojo2json(tmResponse);
-        }
-        return null;
-    }
-
-    public String insertColBefore() throws Exception {
-        int col = getCol();
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
-            try {
-                if (col >= 0 && editorModel.canAddRows(1)) {
-                    editorModel.insertColumns(1, col);
-                    tmResponse.setResponse(render(editorId));
-                } else {
-                    tmResponse.setStatus("Can not insert column");
-                }
-            } catch (Exception e) {
-                tmResponse.setStatus("Internal server error");
-                e.printStackTrace();
-            }
-            return pojo2json(tmResponse);
-        }
-        return null;
-    }
-
-    public String edit() {
-        String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
-        String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
-        TableEditorModel editorModel = getEditorModel(editorId);
-        return new HTMLRenderer().render("edit", editorModel.getTable(), null, null, false, cellToEdit, true,
-                editorId, null, editorModel.isShowFormulas(), editorModel.isCollapseProps());
-    }
-
-    public String editXls() {
-        String cellUri = getRequestParam(Constants.REQUEST_PARAM_CELL_URI);
-        boolean local = NetUtils.isLocalRequest((ServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-                .getRequest());
-        boolean wantURI = (cellUri == null || cellUri.equals("")) ? false : true;
-        if (local) {
-            if (wantURI) {
-                XlsUrlParser parser = new XlsUrlParser();
-                parser.parse(cellUri);
-                try {
-                    org.openl.rules.webtools.ExcelLauncher.launch("LaunchExcel.vbs", parser.wbPath, parser.wbName,
-                            parser.wsName, parser.range);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        } else if (wantURI) {
-            return "<script type='text/javascript'>"
-                    + "alert('This action is available only from the machine server runs at.')</script>";
-        }
-        return null;
-    }
-
-    /**
-     * Generates JSON response for cell type: editor type and editor specific
-     * setup javascript object.
-     *
-     * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
-     *
-     * Modified by snshor to reflect new Cell Editor creation/selection
-     * framework
-     */
-
-    public String getCellType() {
-        TableEditorModel editorModel = getEditorModel(getEditorId());
-        if (editorModel != null) {
-            ICellEditor editor = new CellEditorSelector().selectEditor(getRow(), getCol(), editorModel);
-            EditorTypeResponse typeResponse = editor.getEditorTypeAndMetadata();
-            return pojo2json(typeResponse);
-        }
-        return "";
-    }
-
-    private int getCol() {
-        return getRequestIntParam(Constants.REQUEST_PARAM_COL) - 1;
-    }
-
-    private String getEditorId() {
-        return getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
-    }
-
-    private int getRequestIntParam(String name) {
-        int param = -1;
-        try {
-            String requestParam = getRequestParam(name);
-            if (requestParam != null) {
-                param = Integer.parseInt(requestParam);
-            }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-        return param;
-    }
-
-    private String getRequestParam(String name) {
-        return FacesUtils.getRequestParameter(name);
-    }
-
-    private int getRow() {
-        TableEditorModel editorModel = getEditorModel(getEditorId());
-        int numberOfNonShownRows = editorModel.getNumberOfNonShownRows();
-        return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
-    }
-
-    public String load() throws Exception {
-        String editorId = getEditorId();
-        String response = render(editorId);
-        IGridTable gridTable = getGridTable(editorId);
-        response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCellUri(gridTable.getGridColumn(0, 0),
-                gridTable.getGridRow(0, 0)), getEditorModel(editorId)));
-        return response;
-    }
-
-    public String removeRow() throws Exception {
-        int row = getRow();
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            if (row >= 0) {
-                editorModel.removeRows(1, row);
-                return pojo2json(new TableModificationResponse(render(editorId), editorModel));
-            }
-        }
-        return null;
-    }
-
-    public String removeCol() throws Exception {
-        int col = getCol();
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            if (col >= 0) {
-                editorModel.removeColumns(1, col);
-                return pojo2json(new TableModificationResponse(render(editorId), editorModel));
-            }
-        }
-        return null;
-    }
-
-    public String setIndent() throws Exception {
-        int row = getRow();
-        int col = getCol();
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
-            ICellStyle style = editorModel.getCellStyle(row, col);
-            int currentIndent = style.getIdent();
-            int resultIndent = currentIndent + indent;
-            CellStyle newStyle = new CellStyle(style);
-            newStyle.setIdent(resultIndent >= 0 ? resultIndent : 0);
-            editorModel.setStyle(row, col, newStyle);
-            return pojo2json(new TableModificationResponse(null, editorModel));
-        }
-        return null;
-    }
-
-    /**
-     * Handles request saving new cell value.
-     *
-     * @return {@link #OUTCOME_SUCCESS} jsf navigation case outcome
-     */
-    public String setCellValue() {
-        String value = getRequestParam(Constants.REQUEST_PARAM_VALUE);
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            editorModel.setCellValue(getRow(), getCol(), value);
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
-            // rerender the table if value is a formula
-            if (value.startsWith("=")) {
-                tmResponse.setResponse(render(editorId));
-            }
-            return pojo2json(tmResponse);
-        }
-        return null;
-    }
-
-    public String setProp() throws Exception {
-        String name = getRequestParam(Constants.REQUEST_PARAM_PROP_NAME);
-        String value = getRequestParam(Constants.REQUEST_PARAM_PROP_VALUE);
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            if (editorModel.canAddRows(1)) {
-                editorModel.insertProp(name, value);
-            } else {
-                IGridRegion newRegion = new TableServiceImpl(false).moveTable(editorModel.getUpdatedFullTable(), null);
-                editorModel.setRegion(newRegion);
-                editorModel.insertProp(name, value);
-            }
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
-            tmResponse.setResponse(render(editorId));
-            return pojo2json(tmResponse);
-        }
-        return null;
-    }
-
-    public String setAlign() throws Exception {
-        int row = getRow();
-        int col = getCol();
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            String align = getRequestParam(Constants.REQUEST_PARAM_ALIGN);
-            int halign = -1;
-            if ("left".equalsIgnoreCase(align)) {
-                halign = ICellStyle.ALIGN_LEFT;
-            } else if ("center".equalsIgnoreCase(align)) {
-                halign = ICellStyle.ALIGN_CENTER;
-            } else if ("right".equalsIgnoreCase(align)) {
-                halign = ICellStyle.ALIGN_RIGHT;
-            } else if ("justify".equalsIgnoreCase(align)) {
-                halign = ICellStyle.ALIGN_JUSTIFY;
-            }
-
-            if (halign != -1) {
-                ICellStyle style = editorModel.getCellStyle(row, col);
-                if (style.getHorizontalAlignment() != halign) {
-                    CellStyle newStyle = new CellStyle(style);
-                    newStyle.setHorizontalAlignment(halign);
-                    editorModel.setStyle(row, col, newStyle);
-                }
-            }
-            return pojo2json(new TableModificationResponse(null, editorModel));
-        }
-        return null;
-    }
-
-    public String undo() throws Exception {
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
-            if (editorModel.hasUndo()) {
-                editorModel.undo();
-                tmResponse.setResponse(render(editorId));
-            } else {
-                tmResponse.setStatus("No actions to undo");
-            }
-            return pojo2json(tmResponse);
-        }
-        return null;
-    }
-
-    public String redo() throws Exception {
-        String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
-            if (editorModel.hasRedo()) {
-                editorModel.redo();
-                tmResponse.setResponse(render(editorId));
-            } else {
-                tmResponse.setStatus("No actions to redo");
-            }
-            return pojo2json(tmResponse);
-        }
-        return null;
-    }
-
-    public String saveTable() throws Exception {
-        TableEditorModel editorModel = getEditorModel(getEditorId());
-        if (editorModel != null) {
-            editorModel.save();
-            return pojo2json(new TableModificationResponse("", editorModel));
-        }
-        return null;
     }
 
 }
