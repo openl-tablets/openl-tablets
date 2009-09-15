@@ -54,7 +54,8 @@
                     <h:graphicImage url="/webresource/images/copyTable.gif" alt="Copy Table" title="Copy Table" />
                 </h:outputLink>
 
-                <h:commandLink action="#{showTableBean.removeTable}"
+                <h:commandLink rendered="#{showTableBean.editable}"
+                    action="#{showTableBean.removeTable}"
                     onclick="if(!confirm('Do you really want to remove this table?'))return false;">
                     <h:graphicImage url="/webresource/images/delete.gif" alt="Remove Table" title="Remove Table" />
                 </h:commandLink>
