@@ -245,7 +245,9 @@ TableEditor.prototype = {
 
     handlePropSet: function(event) {
         var prop = Event.findElement(event, "input");
-        this.setProp(prop.name.replace(this.editorId + "_props_prop-", ""), prop.value);
+        var propName = prop.name.replace(this.editorId + "_props_prop-", "");
+        var propValue = prop.type == "checkbox" ? prop.checked : prop.value;
+        this.setProp(propName, propValue);
     },
 
     setProp : function(name, value) {
