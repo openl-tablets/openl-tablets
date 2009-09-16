@@ -138,8 +138,10 @@ function f_tcalShow (d_date) {
 }
 
 function f_tcalHide (n_date) {
-	if (n_date)
+	if (n_date) {
 		this.e_input.value = this.f_generDate(new Date(n_date));
+		this.e_input.focus();
+	}
 
 	// no action if not visible
 	if (!this.b_visible)
