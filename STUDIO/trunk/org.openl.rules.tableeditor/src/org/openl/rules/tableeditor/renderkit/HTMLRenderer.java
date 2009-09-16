@@ -603,6 +603,9 @@ public class HTMLRenderer {
                             }
                         }
                     }
+                } else if (prop.isBooleanValue()) {
+                    Object bValue = prop.getValue();
+                    resString = bValue == null ? "" : bValue.toString();
                 } else {
                     if (List.class.equals(prop.getType())) {
                         //result.append("<td><b>"+((List<String>)prop.getValue()).get(0)+"</b></td>");
