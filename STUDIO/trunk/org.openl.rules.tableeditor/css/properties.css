@@ -29,10 +29,20 @@
     border-top: 1px dashed rgb(192,196,200);
 }
 
+.te_props_proplabel {
+    font-weight: bold;
+    color: rgb(50,50,50);
+    padding: 2px 0px;
+}
+
+.te_props_propvalue {
+    font-size: 13px;
+}
+
 .te_props_hidebutton {
     width: 15px;
-    height:15px;
-    border:0px;
+    height: 15px;
+    border: 0px;
     background: none;
     cursor: pointer;
 }

@@ -512,6 +512,7 @@ public class HTMLRenderer {
             result.append("<tr>");
             insertLabel(prop.getDisplayName());
             insertText(prop);
+            result.append("</tr>");
         }
 
         private void insertCalendar(String value, String name) {
@@ -561,7 +562,7 @@ public class HTMLRenderer {
         }
 
         private void insertLabel(String displayName) {
-            result.append("<td><b>"+displayName+":</b></td>");
+            result.append("<td class='te_props_proplabel'>" + displayName + ":</td>");
         }
         
         /**
@@ -600,7 +601,7 @@ public class HTMLRenderer {
                     }
                 }
             }
-            result.append("<td>" + resString + "</td>");
+            result.append("<td class='te_props_propvalue'>" + resString + "</td>");
         }
     }
 }
