@@ -4,8 +4,7 @@
  */
 package org.openl.rules.tableeditor.model;
 
-//import org.openl.rules.lang.xls.binding.TableProperties;
-//import org.openl.rules.lang.xls.binding.TableProperties.Property;
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridTableDelegator;
 import org.openl.rules.table.AUndoableCellAction;
@@ -161,6 +160,7 @@ public class TableEditorModel {
     private ITable table;
     private IGridTable gridTable;
     private IGridRegion region;
+    private String view;
     private int numberOfNonShownRows;
     private int numberOfNonShownCols;
     private boolean showFormulas = false;
@@ -180,6 +180,7 @@ public class TableEditorModel {
 
     public TableEditorModel(ITable table, String view, boolean showFormulas) {
         this.table = table;
+        this.view = view;
         this.gridTable = table.getGridTable(view);
         this.showFormulas = showFormulas;
         region = new GridRegion(getOriginalTable(this.gridTable).getRegion());
@@ -195,6 +196,10 @@ public class TableEditorModel {
         makeFilteredGrid(gridTable);
     }
 
+    public boolean isBusinessView() {
+        return view != null && view.equalsIgnoreCase(IXlsTableNames.VIEW_BUSINESS);
+    }
+    
     public boolean canAddCols(int nCols) {
         GridRegion testRegion = new GridRegion(region.getTop() - 1, region.getRight() + 1, region.getBottom() + 1,
                 region.getRight() + 1 + nCols);
@@ -453,8 +458,6 @@ public class TableEditorModel {
 
     public synchronized void insertProp(String name, String value) {
         IUndoableGridAction ua = IWritableGrid.Tool.insertProp(region, wgrid(), name, value);
-        //TableProperties tableProps = table.getProperties();
-        //tableProps.setProperty(name, value);
         RegionAction ra = new RegionAction(ua, ROWS, INSERT, (ua instanceof AUndoableCellAction) ? 0 : 1);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
