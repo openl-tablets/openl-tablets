@@ -8,9 +8,6 @@ Require-Bundle: org.openl.lib.poi35.dev;visibility:=reexport
 Bundle-ClassPath: bin/,
  .
 Export-Package: org.apache.poi.hssf.record,
- org.apache.poi.hssf.record.formula.atp,
- org.apache.poi.hssf.record.formula.eval,
- org.apache.poi.hssf.record.formula.toolpack,
  org.apache.poi.hssf.usermodel,
  org.apache.poi.ss.formula,
  org.apache.poi.ss.usermodel,
