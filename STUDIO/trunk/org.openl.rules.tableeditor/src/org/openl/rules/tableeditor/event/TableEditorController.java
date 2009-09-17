@@ -201,7 +201,9 @@ public class TableEditorController extends BaseTableEditorController implements 
             }
             editorModel.insertProp(name, value);
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
-            tmResponse.setResponse(render(editorId));
+            if (!editorModel.isBusinessView()) {
+                tmResponse.setResponse(render(editorId));
+            }
             return pojo2json(tmResponse);
         }
         return null;
