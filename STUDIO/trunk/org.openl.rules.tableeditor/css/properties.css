@@ -30,8 +30,9 @@
 }
 
 .te_props_hidebutton {
-    width: 20px;
+    width: 15px;
     height:15px;
     border:0px;
     background: none;
+    cursor: pointer;
 }

@@ -354,9 +354,9 @@ public class HTMLRenderer {
         private String mode;
 
         private TableProperties props;
-        
+
         private String propsId;
-        
+
         private boolean collapsed;
 
         public PropertyRenderer(String propsId, TableProperties props, String view, boolean collapsed) {
@@ -404,7 +404,6 @@ public class HTMLRenderer {
             result.append(renderCSS("css/properties.css"));
             result.append("<table cellspacing='0' cellpadding='0' class='te_props'>");
             result.append("<tr><td class='te_props_header'>Properties");
-            //renderCollapseButton(propsId, collapsed);
             renderHideButton(propsId);
             result.append("</td></tr><tr><td><div id=" + propsId + " class='te_props_propstable'>");
             result.append("<table cellspacing='1' cellpadding='1'>");
@@ -412,9 +411,9 @@ public class HTMLRenderer {
             result.append(renderCSS("css/calendar.css"));
             buildPropsTable();
             result.append("</table></div></td></tr></table>");
-            /*if (collapsed) {
+            if (collapsed) {
                 result.append(renderJSBody("$('" + propsId + "').hide()"));
-            }*/
+            }
             return result.toString();            
         }
 
@@ -460,7 +459,6 @@ public class HTMLRenderer {
             String groupId = propsId + Constants.ID_POSTFIX_PROPS_GROUP + groupKey;
             result.append("<div class='te_props_groupheader'>");
             result.append(groupKey);
-            //renderCollapseButton(groupId, false);
             renderHideButton(groupId);
             result.append("</div>");
             result.append("<div id='" + groupId + "' class='te_props_grouptable'>");
@@ -476,24 +474,14 @@ public class HTMLRenderer {
         }
 
         private void renderHideButton(String idToHide) {
-            result.append("<input type='button' value='-' onclick=\"$('"
-                    + idToHide + "').toggle();this.value=(this.value == '-' ? '+' : '-');"
-                    + "this.title=(this.title == 'Hide' ? 'Show' : 'Hide');\""
-                    + " title='Hide' class='te_props_hidebutton' />");
-        }
-
-        /*private void renderCollapseButton(String idToHide, boolean collapsed) {
-            if (collapsed) {
-                result.append(renderJSBody("$('" + idToHide + "').hide()"));
-            }
             String imgCollapseSrc = WebUtil.internalPath("img/arrow_right.gif");
             String imgExpandSrc = WebUtil.internalPath("img/arrow_down.gif");
-            result.append(" <img src='" + (collapsed ? imgCollapseSrc : imgExpandSrc)+ "' onclick=\"$('"
+            result.append(" <img src='" + imgCollapseSrc + "' onclick=\"$('"
                     + idToHide + "').toggle();this.src=(this.title == 'Hide' ? '"
                     + imgExpandSrc + "' : '" + imgCollapseSrc + "');"
                     + "this.title=(this.title == 'Hide' ? 'Show' : 'Hide');\""
                     + " title='Hide' class='te_props_hidebutton' />");
-        }*/
+        }
 
         /**
          * Fills the row in edit table, depending on the type of property value
