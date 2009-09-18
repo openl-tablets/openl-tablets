@@ -306,7 +306,7 @@
       <dependency>
         <groupId>org.richfaces.framework</groupId>
         <artifactId>richfaces-api</artifactId>
-        <version>3.1.2.GA</version>
+        <version>3.1.6.GA</version>
         <exclusions>
           <exclusion>
             <groupId>javax.faces</groupId>
@@ -318,7 +318,7 @@
       <dependency>
         <groupId>org.richfaces.framework</groupId>
         <artifactId>richfaces-impl</artifactId>
-        <version>3.1.2.GA</version>
+        <version>3.1.6.GA</version>
         <exclusions>
           <exclusion>
             <groupId>javax.faces</groupId>
@@ -334,7 +334,7 @@
       <dependency>
         <groupId>org.richfaces.ui</groupId>
         <artifactId>richfaces-ui</artifactId>
-        <version>3.1.2.GA</version>
+        <version>3.1.6.GA</version>
         <exclusions>
           <exclusion>
             <groupId>javax.faces</groupId>
