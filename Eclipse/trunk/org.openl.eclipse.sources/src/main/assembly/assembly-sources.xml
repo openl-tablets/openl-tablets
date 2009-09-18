@@ -19,7 +19,7 @@
   <dependencySets>
     <dependencySet>
       <outputFileNameMapping>src.zip</outputFileNameMapping>
-      <outputDirectory>src/${artifact.artifactId}_${openl.version}</outputDirectory>
+      <outputDirectory>src/${artifact.artifactId}_${openl.version.eclipse}</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
         <include>*sources*</include>

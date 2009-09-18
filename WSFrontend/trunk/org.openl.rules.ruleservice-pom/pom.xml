@@ -17,10 +17,6 @@
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
 
-  <properties>
-    <dep.version>5.3.0-SNAPSHOT</dep.version>
-  </properties>
-
   <modules>
     <module>../org.openl.rules.ruleservice</module>
     <module>../org.openl.rules.ruleservice.ws</module>
@@ -128,50 +124,50 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <version>${dep.version}</version>
+        <version>${openl.version.maven}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.core</artifactId>
-        <version>${dep.version}</version>
+        <version>${openl.version.maven}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j</artifactId>
-        <version>${dep.version}</version>
+        <version>${openl.version.maven}</version>
       </dependency>
       
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.conf.ant</artifactId>
-        <version>${dep.version}</version>
+        <version>${openl.version.maven}</version>
       </dependency>
 
       <!-- STUDIO -->
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.repository</artifactId>
-        <version>${dep.version}</version>
+        <version>${openl.version.maven}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.repository.jcr</artifactId>
-        <version>${dep.version}</version>
+        <version>${openl.version.maven}</version>
       </dependency>
       
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-        <version>${dep.version}</version>
+        <version>${openl.version.maven}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.workspace</artifactId>
-        <version>${dep.version}</version>
+        <version>${openl.version.maven}</version>
       </dependency>
 
     </dependencies>

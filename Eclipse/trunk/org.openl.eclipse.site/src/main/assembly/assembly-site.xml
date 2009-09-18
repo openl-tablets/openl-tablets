@@ -19,7 +19,7 @@
 
   <dependencySets>
     <dependencySet>
-      <outputFileNameMapping>${artifact.artifactId}_${openl.version}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <outputFileNameMapping>${artifact.artifactId}_${openl.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
       <outputDirectory>plugins</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <excludes>
@@ -29,7 +29,7 @@
     </dependencySet>
 
     <dependencySet>
-      <outputFileNameMapping>${artifact.artifactId}_${openl.version}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <outputFileNameMapping>${artifact.artifactId}_${openl.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
       <outputDirectory>features</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
