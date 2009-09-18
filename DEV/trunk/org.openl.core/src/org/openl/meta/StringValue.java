@@ -9,7 +9,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     public StringValue(String value) {
         if (value == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
         }
         this.value = value;
         metaInfo = new ValueMetaInfo();
