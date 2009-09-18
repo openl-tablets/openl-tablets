@@ -23,10 +23,17 @@
 						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
 					</c:if>
 					<c:if test="#{propDef.dateValue}">
-						<td><rich:calendar id="#{propDef.name}" value="#{propDef.value}" popup="true" enableManualInput="true"
-	      					jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-	      					rendered="true" timeZone="#{formatPatterns.timeZone}">
-	      					<f:converter converterId="org.openl.DateConverter" /></rich:calendar>
+						<td><rich:calendar id="#{propDef.name}" 
+										   value="#{propDef.value}"										   
+										   popup="true" 
+										   enableManualInput="false"
+	      								   jointPoint="bottom-left" 
+	      								   datePattern="#{propDef.format}"
+	      								   defaultTime = "00:00"
+	      								   rendered="true"
+	      								   timeZone="#{formatPatterns.defaultTimeZone}">
+	      						<f:converter converterId="org.openl.DateConverter" />
+	      					</rich:calendar>
 	      				</td>
 					</c:if>
 				</tr>				

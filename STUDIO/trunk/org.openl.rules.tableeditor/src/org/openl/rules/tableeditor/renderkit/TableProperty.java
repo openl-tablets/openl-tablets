@@ -14,7 +14,16 @@ public class TableProperty {
     private boolean canEdit;
     private String group;
     private String name;
+    private String format;
     
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
     public String getName() {
         return name;
     }
@@ -30,12 +39,14 @@ public class TableProperty {
         this.group = group;
     }
     
-    public TableProperty(String displayName, Object value, Class<?> type, String group, String name) {
+    public TableProperty(String displayName, Object value, Class<?> type, 
+            String group, String name, String format) {
         this.displayName = displayName;
         this.value = value;
         this.type = type;
         this.group = group;
         this.name = name;
+        this.format = format;
     }
     
     public boolean isShow() {

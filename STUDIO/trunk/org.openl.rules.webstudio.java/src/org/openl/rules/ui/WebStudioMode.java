@@ -58,8 +58,8 @@ public abstract class WebStudioMode extends NamedThing {
             String name = null;
             TableProperties tp = tsn.getTableProperties();
             if (tp != null) {
-                view = tp.getPropertyValue("view");
-                name = tp.getPropertyValue("name");
+                view = tp.getPropertyValueAsString("view");
+                name = tp.getPropertyValueAsString("name");
             }
 
             return name != null && (view == null || view.indexOf(IXlsTableNames.VIEW_BUSINESS) >= 0);

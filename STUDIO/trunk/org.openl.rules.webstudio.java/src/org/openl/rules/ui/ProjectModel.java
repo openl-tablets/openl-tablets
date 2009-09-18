@@ -447,7 +447,8 @@ public class ProjectModel implements IProjectTypes {
                 continue;
             }
 
-            if (!"on".equals(tsn.getProperty("validate"))) {
+            if (tsn.getPropertyValue("validate") != null && !"on".equals((String)tsn
+                    .getPropertyValue("validate").getValue())) {
                 continue;
             }
 
@@ -1112,7 +1113,7 @@ public class ProjectModel implements IProjectTypes {
             return "";
         }
 
-        String p = tp.getPropertyValue(propertyName);
+        String p = tp.getPropertyValueAsString(propertyName);
 
         return p == null ? "" : p;
 

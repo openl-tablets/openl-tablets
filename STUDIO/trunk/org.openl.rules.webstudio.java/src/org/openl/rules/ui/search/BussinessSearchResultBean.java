@@ -3,6 +3,7 @@ package org.openl.rules.ui.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.meta.ObjectValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -86,9 +87,9 @@ public class BussinessSearchResultBean {
         for(TableProperty propForSearch : propsForSearch) {
             String propName = propForSearch.getName();
             String propDisplName = DefaultPropertyDefinitions.getPropertyDisplayName(propName);
-            StringValue propValue = tableSearch.getPropertyValue(propName);
+            ObjectValue propValue = tableSearch.getPropertyValue(propName);
             if(propValue==null) {
-                propValue = new StringValue("--EMPTY--");
+                propValue = new ObjectValue("--EMPTY--");
             }
             Property pr = new Property(new StringValue(propDisplName), propValue);
             prop.add(pr);

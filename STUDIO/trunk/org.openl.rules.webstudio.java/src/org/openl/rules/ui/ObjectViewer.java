@@ -17,6 +17,7 @@ import org.openl.binding.impl.BoundError;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
+import org.openl.meta.ObjectValue;
 import org.openl.meta.OpenLRuntimeExceptionWithMetaInfo;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -786,8 +787,10 @@ public class ObjectViewer {
         StringValue name = null;
         Property prop = null;
         TableProperties tableProperties = tsn.getTableProperties();
-        if (tableProperties != null && (prop = tableProperties.getProperty("name")) != null) {
-            name = prop.getValue();
+        if (tableProperties != null && (prop = tableProperties.getProperty("name")) != null) {            
+            
+            name = new StringValue((String)prop.getValue().getValue());
+            name.setMetaInfo(prop.getValue().getMetaInfo());
         } else {
             name = tsn.getHeaderLineValue();
         }

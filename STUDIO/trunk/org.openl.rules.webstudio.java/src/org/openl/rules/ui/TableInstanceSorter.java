@@ -18,8 +18,8 @@ public class TableInstanceSorter extends ATableTreeSorter implements IProjectTyp
 
         if (tp != null) {
 
-            name = tp.getPropertyValue("name");
-            display = tp.getPropertyValue("display");
+            name = tp.getPropertyValueAsString("name");
+            display = tp.getPropertyValueAsString("display");
             if (display == null) {
                 display = name;
             }
