@@ -48,7 +48,6 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-      <version>${dep.version}</version>
     </dependency>
 
     <!-- RulesService-->

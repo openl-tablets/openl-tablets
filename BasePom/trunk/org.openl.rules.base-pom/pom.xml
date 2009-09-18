@@ -10,6 +10,12 @@
   <description>Base project</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
+  <properties>
+    <openl.version.eclipse>5.3.0</openl.version.eclipse>
+    <openl.version.maven>5.3.0-SNAPSHOT</openl.version.maven>
+  </properties>
+
+
   <pluginRepositories>
     <!-- for maven-depgraph-plugin -->
     <pluginRepository>
