@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.openl.meta.ObjectValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.search.OpenLBussinessSearch;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
@@ -66,8 +67,7 @@ public class BussinesSearchPropertyBean {
                 propForSearch.add(new TableProperty(propDefinition.getDisplayName(),
                     null,
                     propDefinition.getType() == null ? null : propDefinition.getType().getInstanceClass(),
-                    propDefinition.getGroup(),
-                    propDefinition.getName()));
+                    propDefinition.getGroup(), propDefinition.getName(), propDefinition.getFormat()));
             }
         }
         //busSearchResBean = new BussinessSearchResultBean(propForSearch);
@@ -87,11 +87,10 @@ public class BussinesSearchPropertyBean {
             listforSearch.clear();
             for(TableProperty prop : propForSearch) {
                 if(prop.isStringValue() && (prop.getValue()!=null && !("").equals(prop.getValue()))) {
-                    listforSearch.add(new Property(new StringValue(prop.getName()), new StringValue((String)prop.getValue())));
+                    listforSearch.add(new Property(new StringValue(prop.getName()), new ObjectValue((String)prop.getValue())));
                 } else {
                     if(prop.isDateValue() && prop.getValue()!=null) {
-                        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-                        listforSearch.add(new Property(new StringValue(prop.getName()), new StringValue(format.format((Date)prop.getValue()))));
+                        listforSearch.add(new Property(new StringValue(prop.getName()), new ObjectValue((Date)prop.getValue())));
                     }
                 }
             }            

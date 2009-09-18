@@ -7,7 +7,11 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 public class CategorySorter extends ATableTreeSorter implements IProjectTypes {
 
     String getCategory(TableSyntaxNode tsn) {
-        String category = tsn.getProperty("category");
+        String category = null;
+        
+        if(tsn.getPropertyValue("category") != null) { 
+             category = (String)tsn.getPropertyValue("category").getValue();
+        }
 
         if (category == null) {
 

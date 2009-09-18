@@ -375,7 +375,7 @@ public class HTMLRenderer {
                 listProp.add(new TableProperty(propDefinition.getDisplayName(),
                         props != null ? props.getPropertyValue(propDefinition.getName()) : null,
                         propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(),
-                        propDefinition.getGroup(), propDefinition.getName()));
+                        propDefinition.getGroup(), propDefinition.getName(), propDefinition.getFormat()));
             }
             return listProp;
         }
@@ -491,12 +491,13 @@ public class HTMLRenderer {
             result.append("<tr>");
             insertLabel(prop.getDisplayName());
             Object propValue = prop.getValue();
+            String format = prop.getFormat();
             String propId = propsId + Constants.ID_POSTFIX_PROP + prop.getName();
             if (prop.getType() != null) {
                 if (prop.isStringValue()) {
                     insertEdit((String) propValue, propId);
                 } else if (prop.isDateValue()) {
-                    insertCalendar((String) propValue, propId);
+                    insertCalendar((Date)propValue, propId, format);
                 } else if (prop.isBooleanValue()) {
                     insertCheckbox((String) propValue, propId);
                 }
@@ -515,14 +516,13 @@ public class HTMLRenderer {
             result.append("</tr>");
         }
 
-        private void insertCalendar(String value, String name) {
+        private void insertCalendar(Date value, String name, String dateFormat) {
             numberOfCalendars++;
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
             String resultStr = "";
             if (value != null) {
-                try {
-                    Date date = sdf.parse(value);
-                    resultStr = sdf.format(date);
+                try {                    
+                    resultStr = sdf.format(value);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -577,11 +577,11 @@ public class HTMLRenderer {
                 }
             } else {
                 if (prop.isDateValue()) {
-                    numberOfCalendars++;            
-                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-                    Object propValue = prop.getValue();
+                    numberOfCalendars++;                    
+                    Object propValue = prop.getValue();                    
                     if (propValue != null) {
-                        if (propValue instanceof Date) {
+                        SimpleDateFormat sdf = new SimpleDateFormat(prop.getFormat());
+                        if (propValue instanceof Date) {                            
                             resString = sdf.format((Date)propValue);
                         } else {
                             try {

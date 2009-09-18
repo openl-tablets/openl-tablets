@@ -65,13 +65,13 @@ public class TableCopier extends WizardBase {
      * @param properties old properties
      * @return new properties
      */
-    private Map<String, String> buildProperties(Property[] properties) {
-        Map<String, String> newProperties = new LinkedHashMap<String, String>();
+    private Map<String, Object> buildProperties(Property[] properties) {
+        Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
         if (properties != null) {
             for (int i = 0; i < properties.length; i++) {
                 String key = properties[i].getKey().getValue();
-                String value = properties[i].getValue().getValue();
-                newProperties.put(key.trim(), value.trim());
+                Object value = properties[i].getValue().getValue();
+                newProperties.put(key.trim(), value);
             }
         }
         if (StringUtils.isBlank(tableBusinessName) && newProperties.containsKey(TableBuilder.TABLE_PROPERTIES_NAME)) {
@@ -178,7 +178,8 @@ public class TableCopier extends WizardBase {
             ProjectModel model = studio.getModel();
             TableSyntaxNode node = model.getNode(elementUri);
             tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
-            tableBusinessName = node == null ? null : node.getProperty(TableBuilder.TABLE_PROPERTIES_NAME);
+            tableBusinessName = node == null ? null : (String)node.getPropertyValue(TableBuilder.TABLE_PROPERTIES_NAME)
+                    .getValue();
         } else {
             elementUri = studio.getTableUri();
         }
