@@ -3,10 +3,8 @@ package org.openl.rules.tableeditor.event;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 
-import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
@@ -38,11 +36,6 @@ public class TableEditorController extends BaseTableEditorController implements 
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             try {
                 if (row >= 0) {
-                    if (!editorModel.canAddRows(1)) {
-                        IGridRegion newRegion = new TableServiceImpl(false)
-                            .moveTable(editorModel.getUpdatedFullTable(), null);
-                        editorModel.setRegion(newRegion);
-                    }
                     editorModel.insertRows(1, row);
                     tmResponse.setResponse(render(editorId));
                 } else {
@@ -195,10 +188,6 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            if (!editorModel.canAddRows(1)) {
-                IGridRegion newRegion = new TableServiceImpl(false).moveTable(editorModel.getUpdatedFullTable(), null);
-                editorModel.setRegion(newRegion);
-            }
             editorModel.insertProp(name, value);
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             if (!editorModel.isBusinessView()) {

@@ -6,6 +6,7 @@ package org.openl.rules.tableeditor.model;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.AGridTableDelegator;
 import org.openl.rules.table.AUndoableCellAction;
 import org.openl.rules.table.GridRegion;
@@ -360,7 +361,10 @@ public class TableEditorModel {
         actions.addNewAction(ra);
     }
 
-    public synchronized void insertRows(int nRows, int beforeRow) {
+    public synchronized void insertRows(int nRows, int beforeRow) throws Exception {
+        if (!canAddRows(1)) {
+            moveTable(getUpdatedFullTable());
+        }
         IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows, beforeRow, region, wgrid());
         RegionAction ra = new RegionAction(ua, ROWS, INSERT, nRows);
         ra.doSome(region, wgrid(), undoGrid);
@@ -456,11 +460,20 @@ public class TableEditorModel {
         actions.addNewAction(ra);
     }
 
-    public synchronized void insertProp(String name, String value) {
+    public synchronized void insertProp(String name, String value) throws Exception {
+        if (!canAddRows(1)) {
+            moveTable(getUpdatedFullTable());
+        }
         IUndoableGridAction ua = IWritableGrid.Tool.insertProp(region, wgrid(), name, value);
         RegionAction ra = new RegionAction(ua, ROWS, INSERT, (ua instanceof AUndoableCellAction) ? 0 : 1);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
+    }
+
+    public synchronized void moveTable(IGridTable table) throws Exception {
+        // TODO Add to Undo model
+        IGridRegion newRegion = new TableServiceImpl(false).moveTable(table, null);
+        setRegion(newRegion);
     }
 
     public synchronized void setStyle(int row, int col, ICellStyle style) {
