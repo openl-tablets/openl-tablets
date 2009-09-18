@@ -17,7 +17,6 @@ import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.util.ArrayTool;
 
 
 public class TablePropertiesTest {
@@ -36,9 +35,10 @@ public class TablePropertiesTest {
     public void testPropertyDef() {
         TableSyntaxNode[] tsns = getTables().getXlsTableSyntaxNodes(); 
         assertTrue(61 == tsns.length);        
-        assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getProperty("name").getValue().getValue());        
-        assertEquals("04.02.2237 0:00:00", ((Date)tsns[4].getTableProperties()
-                .getProperty("effectiveDate").getValue().getValue()).toLocaleString());
+        assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getProperty("name").getValue().getValue());
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        assertEquals("02/04/2237", sdf.format(((Date)tsns[4].getTableProperties()
+                .getProperty("effectiveDate").getValue().getValue())));
     }
     
     @Test
