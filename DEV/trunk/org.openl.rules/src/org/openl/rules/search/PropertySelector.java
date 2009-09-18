@@ -27,9 +27,10 @@ public class PropertySelector extends ATableSyntaxNodeSelector {
                 .getElementValue());
     }
 
-    public boolean selectProperty(TableProperties.Property prop) {
+    public boolean selectProperty(TableProperties.Property prop, TableProperties tp) {
         return (propertyNameSelector == null || propertyNameSelector.isMatching(prop.getKey().getValue()))
-                && (propertyValueSelector == null || propertyValueSelector.isMatching(prop.getValue().getValue()));
+                && (propertyValueSelector == null || propertyValueSelector.isMatching(tp
+                        .getPropertyValueAsString(prop.getKey().getValue())));
     }
 
     @Override
@@ -41,7 +42,7 @@ public class PropertySelector extends ATableSyntaxNodeSelector {
 
         TableProperties.Property[] pp = tp.getProperties();
         for (int i = 0; i < pp.length; i++) {
-            if (selectProperty(pp[i])) {
+            if (selectProperty(pp[i], tp)) {
                 return true;
             }
         }

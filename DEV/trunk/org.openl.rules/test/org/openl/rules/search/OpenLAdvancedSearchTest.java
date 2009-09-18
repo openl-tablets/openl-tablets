@@ -51,6 +51,30 @@ public class OpenLAdvancedSearchTest {
     }
     
     @Test 
+    public void testPropertySearch() {      
+        SearchConditionElement searchElem =  new SearchConditionElement(ISearchConstants.PROPERTY);
+        searchElem.setNotFlag(false);        
+        searchElem.setElementValueName("--ANY--");
+        searchElem.setOpType2("contains");
+        searchElem.setElementValue("Driver");
+        
+        SearchConditionElement[] tableElements = {searchElem};
+        search.selectTableType(0, true);
+        search.setTableElements(tableElements);
+        Object searchResult = search.search(getTables());
+        if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
+            assertTrue(true);   
+            assertTrue(11 == ((OpenLAdvancedSearchResult)searchResult).tablesAndRows().length);
+            for(TableAndRows tabAndRows : ((OpenLAdvancedSearchResult)searchResult).tablesAndRows()) {
+                assertTrue(tabAndRows.getRows().length>0);
+            }
+            
+        } else {
+            fail();
+        }        
+    }
+    
+    @Test 
     public void testAllSearch() {         
         SearchConditionElement searchTableElem =  new SearchConditionElement(ISearchConstants.HEADER);
         searchTableElem.setNotFlag(false);        

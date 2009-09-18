@@ -4,12 +4,17 @@
 package org.openl.rules.table;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.xls.XlsDateFormat;
+import org.openl.rules.table.xls.XlsNumberFormat;
 import org.openl.rules.table.xls.XlsSheetGridExporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
@@ -23,7 +28,7 @@ import org.apache.poi.ss.usermodel.Workbook;
  */
 public interface IWritableGrid extends IGrid {
     static public class Tool {
-        static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
+        static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;        
 
         public static IExporter createExporter(IWritableGrid wGrid) {
             if (wGrid instanceof XlsSheetGridModel) {
@@ -177,6 +182,7 @@ public interface IWritableGrid extends IGrid {
 
         public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
                 String propName, String propValue) {
+            IGridFilter filter = getFilter(propName);
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
             int nRows = 1;
@@ -196,7 +202,7 @@ public interface IWritableGrid extends IGrid {
                 for (int i = 0; i < propsCount; i++) {
                     String pName = wgrid.getStringCellValue(left + 1, top + 1 + i);
                     if (pName.equals(propName)) {
-                        return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, null);
+                        return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, filter);
                     }
                 }
             }
@@ -223,7 +229,7 @@ public interface IWritableGrid extends IGrid {
                 }
             }
             actions.add(new UndoableSetValueAction(left + 1, top + beforeRow, propName, null));
-            actions.add(new UndoableSetValueAction(left + 2, top + beforeRow, propValue, null));
+            actions.add(new UndoableSetValueAction(left + 2, top + beforeRow, propValue, filter));
 
             if (propsCount == 1) {
                 // resize 'properties' cell
@@ -234,6 +240,31 @@ public interface IWritableGrid extends IGrid {
             }
 
             return new UndoableCompositeAction(actions);
+        }
+        
+        private static IGridFilter getFilter(String propName) {
+            IGridFilter result = null;
+            TablePropertyDefinition tablProp= DefaultPropertyDefinitions.getPropertyByName(propName);
+            if(tablProp != null) {
+                if(String.class.equals(tablProp.getType().getInstanceClass())) {
+                    result = null;
+                } else {
+                    if(Date.class.equals(tablProp.getType().getInstanceClass())) {
+                        result = new XlsDateFormat(tablProp.getFormat()); 
+                    } else {
+                        if(Boolean.class.equals(tablProp.getType().getInstanceClass())) {
+                            //TO DO implement XlsBooleanFrmat
+                            result = null;
+                        } else {
+                            if(Integer.class.equals(tablProp.getType().getInstanceClass())) {
+                                //TO DO refactor XlsNumberFormat
+                                result = null;
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
         public static void putCellMetaInfo(IGridTable table, int col, int row, CellMetaInfo meta) {
@@ -327,6 +358,8 @@ public interface IWritableGrid extends IGrid {
             return new UndoableSetStyleAction(gcol, grow, style);
         }
     }
+    
+    public static final String DATE_FORMAT = "MM/dd/yyyy";
 
     /**
      * @param reg

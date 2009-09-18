@@ -79,11 +79,16 @@ public class OpenLBussinessSearch implements IOpenLSearch{
         for(Property propFromSearch : propsFromSearch) {
             if(tableProperties!=null){
                 Property property = tableProperties.getProperty(propFromSearch.getKey().getValue());
-                if(property != null)    {
-                    String propValue = property.getValue().getValue().toLowerCase();
-                    String propValueFromSearch  = propFromSearch.getValue().getValue().toLowerCase();
-                    if(propValue.equals(propValueFromSearch) || propValue.contains(propValueFromSearch)) {
+                if(property != null) {
+                    if(property.getValue().compareTo(propFromSearch.getValue()) == 0) {
                         numMatch++;
+                    } else {
+                        if(property.getValue().getValue() instanceof String 
+                                && checkIfContainString(((String)property.getValue().getValue()).toLowerCase(),
+                                    ((String)propFromSearch.getValue().getValue()).toLowerCase())) {
+                            numMatch++;
+                            
+                        }
                     }
                 }                
             }
@@ -92,6 +97,22 @@ public class OpenLBussinessSearch implements IOpenLSearch{
             result = true;
         } else {
             result = false;
+        }
+        return result;
+    }
+    
+    /**
+     * Checks if the property value of the table consist the string from search condition.
+     * It is made to find results that not fully match the search request, but also include.
+     * To search by the parts of text properties.
+     * @param propValue Value of the table property.
+     * @param propValueFromSearch Value of the property from search condition.
+     * @return
+     */
+    private boolean checkIfContainString(String propValue, String propValueFromSearch) {
+        boolean result = false;
+        if(propValue.contains(propValueFromSearch)) {
+            result = true;
         }
         return result;
     }

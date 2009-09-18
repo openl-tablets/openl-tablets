@@ -22,6 +22,9 @@ import org.openl.util.StringTool;
  *
  * @author snshor
  *
+ *  TO DO: refactor this class. Remove from method parse() next parameters: SegmentFormatter positiveFormat, SegmentFormatter negativeFormat,
+ *  SegmentFormatter zeroFormat;
+ *
  */
 public class XlsNumberFormat extends XlsFormat {
 
