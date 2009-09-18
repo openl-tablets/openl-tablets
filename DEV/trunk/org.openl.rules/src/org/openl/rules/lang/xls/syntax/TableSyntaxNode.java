@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.meta.ObjectValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.TableProperties;
+import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
@@ -118,11 +120,11 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
         return 0;
     }
 
-    public String getProperty(String name) {
-        return tableProperties == null ? null : tableProperties.getPropertyValue(name);
+    public Property getProperty(String name) {
+        return tableProperties == null ? null : tableProperties.getProperty(name);
     }
 
-    public StringValue getPropertyValue(String name) {
+    public ObjectValue getPropertyValue(String name) {
         if (tableProperties == null || tableProperties.getProperty(name) == null) {
             return null;
         }

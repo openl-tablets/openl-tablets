@@ -14,6 +14,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.ANodeBinder;
 import org.openl.binding.impl.BoundError;
+import org.openl.meta.ObjectValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -70,15 +71,15 @@ public abstract class AXlsTableBinder extends ANodeBinder {
             String propertyName = row.getGridTable().getCell(0, 0).getStringValue();
             if (propertyName == null || propertyName.trim().length() == 0) {
                 continue;
-            }
-            String propertyValue = row.getLogicalColumn(1).getGridTable().getCell(0, 0).getStringValue();
-            if (propertyValue == null || propertyValue.trim().length() == 0) {
+            }            
+            Object propertyValue = row.getLogicalColumn(1).getGridTable().getCell(0, 0).getObjectValue();
+            if (propertyValue == null) {
                 continue;
             // validateProperty(propertyName, propertyValue, row);
             }
 
             StringValue key = new StringValue(propertyName, "key", null, row.getGridTable().getUri(0, 0));
-            StringValue value = new StringValue(propertyValue, "value", null, row.getLogicalColumn(1).getGridTable()
+            ObjectValue value = new ObjectValue(propertyValue, "value", null, row.getLogicalColumn(1).getGridTable()
                     .getUri(0, 0));
             TableProperties.Property p = new TableProperties.Property(key, value);
             properties.add(p);

@@ -57,32 +57,48 @@ public class SimpleOpenMethodDecorator extends OpenMethodDecorator {
 			TableSyntaxNode syntaxNode = (TableSyntaxNode) candidate.getInfo().getSyntaxNode();
 			TableProperties tableProperties = syntaxNode.getTableProperties();
 			
-			String effectiveDateString = tableProperties.getPropertyValue("effectiveDate");
-			String expirationDateString = tableProperties.getPropertyValue("expirationDate");
+			//String effectiveDateString = tableProperties.getPropertyValueAsString("effectiveDate");
+			//String expirationDateString = tableProperties.getPropertyValueAsString("expirationDate");
 			
 			Date effectiveDate;
 			Date expirationDate;
 			
 			try {
-				SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", new Locale("en"));
+			    effectiveDate = (Date)tableProperties.getPropertyValue("effectiveDate");
+			    expirationDate = (Date)tableProperties.getPropertyValue("expirationDate");
+			    Calendar calendar = Calendar.getInstance();
+			    if(effectiveDate == null) {
+			        calendar.set(1900, 0, 1, 0, 0, 0);
+                    effectiveDate = calendar.getTime();
+			    }
+			    if(expirationDate == null) {
+			        calendar.set(2999, 11, 31, 23, 59, 59);
+                    expirationDate = calendar.getTime();
+                }
+			} catch (Exception e) {
+			    throw new RuntimeException(e);
+            }   
+			    
+			    
+				/*SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", new Locale("en"));
 				Calendar calendar = Calendar.getInstance();
 				
 				if (effectiveDateString == null || "".equals(effectiveDateString)) {
 					calendar.set(1900, 0, 1, 0, 0, 0);
 					effectiveDate = calendar.getTime();
 				} else {
-					effectiveDate = dateFormat.parse(tableProperties.getPropertyValue("effectiveDate"));
+					effectiveDate = dateFormat.parse((Date)tableProperties.getPropertyValue("effectiveDate"));
 				}
 				
 				if (expirationDateString == null || "".equals(expirationDateString)) {
 					calendar.set(2999, 11, 31, 23, 59, 59);
 					expirationDate = calendar.getTime();
 				} else {
-					expirationDate = dateFormat.parse(tableProperties.getPropertyValue("expirationDate"));
+					expirationDate = dateFormat.parse(tableProperties.getPropertyValueAsString("expirationDate"));
 				}
 			} catch (ParseException e) {
 				throw new RuntimeException(e);
-			}
+			}*/
 			
 			if (userDate.after(effectiveDate) && userDate.before(expirationDate)) {
 //				System.out.println("\n+++++++++++++++++++++++++++++++");

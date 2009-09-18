@@ -15,6 +15,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -22,6 +23,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -37,6 +39,7 @@ import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.StringTool;
+import org.apache.poi.xssf.model.StylesTable;
 
 /**
  * @author snshor
@@ -775,6 +778,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         } else if (value instanceof Date) {
             Date x = (Date) value;
             cell.setCellValue(x);
+            CellStyle cellStyle = cell.getSheet().getWorkbook().createCellStyle();
+            CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
+            
+            cellStyle.setDataFormat(createHelper.createDataFormat().getFormat(DATE_FORMAT));
+            cell.setCellStyle(cellStyle);
         } else {
             String strValue = String.valueOf(value);
             // formula

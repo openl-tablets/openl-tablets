@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Test;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.meta.ObjectValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.TableProperties.Property;
@@ -37,7 +38,7 @@ public class OpenLBussinessSearchTest {
     @Test 
     public void testTableByName() {
         List<Property> propList = new ArrayList<Property>(){{
-            add(new Property(new StringValue("name"), new StringValue("Vehicle Discounts"))); 
+            add(new Property(new StringValue("name"), new ObjectValue("Vehicle Discounts"))); 
         }};
         initSearchCondition(propList);
         Object searchResult = search.search(getTables());
@@ -54,8 +55,8 @@ public class OpenLBussinessSearchTest {
     @Test 
     public void testTableByNameAndCategory() {
         List<Property> propList = new ArrayList<Property>(){{
-            add(new Property(new StringValue("name"), new StringValue("Vehicle Score Processing Sequence")));
-            add(new Property(new StringValue("category"), new StringValue("Auto-Scoring")));
+            add(new Property(new StringValue("name"), new ObjectValue("Vehicle Score Processing Sequence")));
+            add(new Property(new StringValue("category"), new ObjectValue("Auto-Scoring")));
         }};
         initSearchCondition(propList);
         Object searchResult = search.search(getTables());
@@ -74,7 +75,7 @@ public class OpenLBussinessSearchTest {
     public void testWithConsists() {
         XlsModuleSyntaxNode xls = getTables();
         List<Property> propList = new ArrayList<Property>(){{
-            add(new Property(new StringValue("name"), new StringValue("Vehicle Score Processing Sequence")));            
+            add(new Property(new StringValue("name"), new ObjectValue("Vehicle Score Processing Sequence")));            
         }};
         initSearchCondition(propList);
         search.getBusSearchCondit().setTablesContains(getTableConsists(xls, "Vehicle Score Processing Sequence"));
@@ -94,8 +95,8 @@ public class OpenLBussinessSearchTest {
         TableSyntaxNode result = null;
         
         for(TableSyntaxNode table : xls.getXlsTableSyntaxNodes()) {
-            if(table.getProperty("name")!=null && table.getPropertyValue("name").equals(nameProp) && 
-                    table.getProperty("category")==null) {
+            if(table.getProperty("name") != null && table.getPropertyValue("name").equals(nameProp) && 
+                    table.getProperty("category") == null) {
                 listTables[0] = table;
             }
         }

@@ -12,7 +12,7 @@ public class DefaultPropertyDefinitions
 	public static TablePropertyDefinition[] getDefaultDefinitions()
 	{		
 	    TablePropertyDefinition[] definitions = null;
-	    // <<< INSERT TablePropertiesDefinition >>>
+	    // <<< INSERT TablePropertiesDefinition >>>		
 		definitions = new TablePropertyDefinition[23];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setBusinessSearch(true);
@@ -66,6 +66,7 @@ public class DefaultPropertyDefinitions
 		definitions[4].setDescription("The table becomes active on this date and inactive on the expiration date. There"
 		 + " can be multiple copies of the same table in the same module");
 		definitions[4].setDisplayName("Rate Effective Date");
+		definitions[4].setFormat("MM/dd/yyyy");
 		definitions[4].setGroup("Business Dimension");
 		definitions[4].setInheritable("worksheet,workbook");
 		definitions[4].setName("effectiveDate");
@@ -77,6 +78,7 @@ public class DefaultPropertyDefinitions
 		definitions[5].setConstraints("effectiveDate < expirationDate");
 		definitions[5].setDescription("See effectiveDate");
 		definitions[5].setDisplayName("Rate Expiration Date");
+		definitions[5].setFormat("MM/dd/yyyy");
 		definitions[5].setGroup("Business Dimension");
 		definitions[5].setInheritable("worksheet,workbook");
 		definitions[5].setName("expirationDate");
@@ -99,6 +101,7 @@ public class DefaultPropertyDefinitions
 		definitions[7].setConstraints("no");
 		definitions[7].setDescription("The date of the table creation");
 		definitions[7].setDisplayName("Created On");
+		definitions[7].setFormat("MM/dd/yyyy");
 		definitions[7].setGroup("Info");
 		definitions[7].setInheritable("worksheet,workbook, module");
 		definitions[7].setName("createdOn");
@@ -121,6 +124,7 @@ public class DefaultPropertyDefinitions
 		definitions[9].setConstraints("no");
 		definitions[9].setDescription("The date of the last table modification");
 		definitions[9].setDisplayName("Modified On");
+		definitions[9].setFormat("MM/dd/yyyy");
 		definitions[9].setGroup("Info");
 		definitions[9].setInheritable("no");
 		definitions[9].setName("modifyOn");
@@ -271,6 +275,7 @@ public class DefaultPropertyDefinitions
 		definitions[22].setName("returnOnMiss");
 		definitions[22].setPrimaryKey(false);
 		definitions[22].setTableType("xls.dt");
+		
 	    
         // <<< END INSERT TablePropertiesDefinition >>>
 	    
@@ -302,6 +307,21 @@ public class DefaultPropertyDefinitions
         for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
             if(tablPropDef.getName().equals(name)){
                 result = tablPropDef.getDisplayName();
+            }
+        }
+        return result;
+    }
+	
+	/**
+     * Gets the property by its given name
+     * @param name
+     * @return property definition
+     */
+	public static TablePropertyDefinition getPropertyByName(String name) {
+	    TablePropertyDefinition result = null;
+        for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
+            if(tablPropDef.getName().equals(name)){
+                result = tablPropDef;
             }
         }
         return result;
