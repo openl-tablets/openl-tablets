@@ -6,8 +6,9 @@ package org.openl.rules.table.ui;
 import java.util.HashMap;
 
 import org.openl.rules.table.CellKey;
+import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridDelegator;
-import org.openl.rules.table.ICellInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 
 /**
@@ -34,10 +35,6 @@ public class FilteredGrid extends GridDelegator {
      * @param row
      */
     private void formatCell(FormattedCell fcell, int col, int row) {
-        fcell.content = getStringCellValue(col, row);
-        fcell.type = getCellType(col, row);
-        fcell.value = getObjectCellValue(col, row);
-
         if (formatFilters != null) {
             for (int i = 0; i < formatFilters.length; i++) {
                 if (formatFilters[i].getGridSelector() == null
@@ -49,46 +46,23 @@ public class FilteredGrid extends GridDelegator {
     }
 
     @Override
-    public ICellInfo getCellInfo(int column, int row) {
+    public ICell getCell(int column, int row) {
         if (isEmpty(column, row)) {
-            super.getCellInfo(column, row);
+            super.getCell(column, row);
         }
 
         return getFormattedCell(column, row);
     }
 
-    @Override
     public synchronized FormattedCell getFormattedCell(int col, int row) {
         CellKey ckey = new CellKey(col, row);
         FormattedCell fcell = formattedCells.get(ckey);
         if (fcell == null) {
-            fcell = new FormattedCell(delegate.getCellInfo(col, row));
+            fcell = new FormattedCell(delegate.getCell(col, row));
             formatCell(fcell, col, row);
             formattedCells.put(ckey, fcell);
         }
         return fcell;
-    }
-
-    // public FormattedCell getFormattedCell(int column, int row)
-    // {
-    // if (isEmpty(column, row))
-    // return null;
-    //
-    //
-    // FormattedCell fcell = getFormattedCell(column, row);
-    //
-    // return fcell;
-    // }
-
-    @Override
-    public String getFormattedCellValue(int column, int row) {
-        if (isEmpty(column, row)) {
-            return null;
-        }
-
-        FormattedCell fcell = getFormattedCell(column, row);
-
-        return fcell.content;
     }
 
 }

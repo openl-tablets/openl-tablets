@@ -1,22 +1,28 @@
 package org.openl.rules.table;
 
+import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
 public interface ICell {
 
-    ICellStyle getCellStyle();
+    int getRow();
+    int getColumn();
 
-    int getCellWidth();
+    int getWidth();
+    int getHeight();
+
+    ICellStyle getStyle();
 
     Object getObjectValue();
-
     String getStringValue();
 
-    ICellInfo getCellInfo();
+    ICellFont getFont();
 
-    int getCellHeight();
+    IGridRegion getRegion();
 
-    int getCol();
+    String getFormula();
+    
+    int getType();
 
-    int getRow();
+    String getUri();
 }

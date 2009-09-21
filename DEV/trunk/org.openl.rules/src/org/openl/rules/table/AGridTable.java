@@ -6,17 +6,12 @@
 
 package org.openl.rules.table;
 
-
 /**
  * @author snshor
  *
  */
 public abstract class AGridTable extends ALogicalTable implements IGridTable {
 
-    /**
-     *
-     */	
-	
     @Override
     protected ILogicalTable columnsInternal(int from, int to) {
         return new GridTableColumns(this, from, to);
@@ -36,17 +31,9 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
         throw new TableException("gridOffset is higher than table's height");
     }
     
-    /**
-     *
-     */
-
     public IGridTable getGridTable() {
         return this;
     }
-
-    /**
-     *
-     */
 
     public ILogicalTable getLogicalColumn(int column) {
         return columns(column, column);
@@ -56,26 +43,14 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
         return 1;
     }
 
-    /**
-     *
-     */
-
     public int getLogicalHeight() {
         return getGridHeight();
     }
-
-    /**
-     *
-     */
 
     @Override
     protected ILogicalTable getLogicalRegionInternal(int column, int row, int width, int height) {
         return new GridTableRegion(this, column, row, width, height);
     }
-
-    /**
-     *
-     */
 
     public ILogicalTable getLogicalRow(int row) {
         return rows(row, row);
@@ -84,10 +59,6 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
     public int getLogicalRowGridHeight(int row) {
         return 1;
     }
-
-    /**
-     *
-     */
 
     public int getLogicalWidth() {
         return getGridWidth();
@@ -118,10 +89,6 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
                 getGridRow(w - 1, h - 1));
     }
 
-    /**
-     *
-     */
-
     public String getUri(int col, int row) {
         int colStart = getGridColumn(col, row);
         int rowStart = getGridRow(col, row);
@@ -132,25 +99,17 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
         return getGrid().isPartOfTheMergedRegion(getGridColumn(column, row), getGridRow(column, row));
     }
 
-    /**
-     *
-     */
-
     @Override
     protected ILogicalTable rowsInternal(int from, int to) {
         return new GridTableRows(this, from, to);
     }
 
-    /**
-     *
-     */
-
     public ILogicalTable transpose() {
         return new TransposedGridTable(this);
     }
-    
+
     public ICell getCell(int column, int row) {
-    	return new Cell(column, row, this);
+    	return new GridTableCell(column, row, this);
     }
 
 }

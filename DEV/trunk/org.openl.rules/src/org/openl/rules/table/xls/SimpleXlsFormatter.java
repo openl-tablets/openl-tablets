@@ -6,8 +6,9 @@ package org.openl.rules.table.xls;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGrid;
-import org.openl.rules.table.ui.FormattedCell;
+import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.IGridSelector;
@@ -57,7 +58,7 @@ public class SimpleXlsFormatter implements IGridFilter {
     }
 
     public FormattedCell filterFormat(FormattedCell fc) {
-        switch (fc.type) {
+        switch (fc.getType()) {
             case IGrid.CELL_TYPE_NUMERIC:
                 return formatNumberOrDate(fc);
             case IGrid.CELL_TYPE_FORMULA:
@@ -104,7 +105,7 @@ public class SimpleXlsFormatter implements IGridFilter {
      * @return
      */
     private FormattedCell formatDate(FormattedCell fc) {
-        String fmt = fc.style.getTextFormat();
+        String fmt = fc.getStyle().getTextFormat();
         XlsDateFormat xnf = findXlsDateFormat(fmt);
         xnf.filterFormat(fc);
 
@@ -117,11 +118,12 @@ public class SimpleXlsFormatter implements IGridFilter {
      */
 
     protected FormattedCell formatNumber(FormattedCell fc) {
-        if (fc.style.getHorizontalAlignment() == ICellStyle.ALIGN_GENERAL) {
-            fc.style.setHorizontalAlignment(ICellStyle.ALIGN_RIGHT);
+        CellStyle style = fc.getStyle();
+        if (style.getHorizontalAlignment() == ICellStyle.ALIGN_GENERAL) {
+            style.setHorizontalAlignment(ICellStyle.ALIGN_RIGHT);
         }
 
-        String fmt = fc.style.getTextFormat();
+        String fmt = style.getTextFormat();
 
         XlsNumberFormat xnf = findXlsNumberFormat(fmt);
         xnf.filterFormat(fc);
@@ -138,7 +140,7 @@ public class SimpleXlsFormatter implements IGridFilter {
         // understand)
         // is to check format, so let's do it
 
-        if (isDateFormat(fc.getCellStyle().getTextFormat())) {
+        if (isDateFormat(fc.getStyle().getTextFormat())) {
             return formatDate(fc);
         }
 
@@ -151,10 +153,10 @@ public class SimpleXlsFormatter implements IGridFilter {
     }
 
     private XlsFormat getFormat(FormattedCell fc) {
-        String fmt = fc.getCellStyle().getTextFormat();
+        String fmt = fc.getStyle().getTextFormat();
         if (isDateFormat(fmt)) {
             return findXlsDateFormat(fmt);
-        } else if (fc.value instanceof Number) {
+        } else if (fc.getObjectValue() instanceof Number) {
             return findXlsNumberFormat(fmt);
         } else {
             return null;

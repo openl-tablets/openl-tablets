@@ -51,7 +51,7 @@ public class XlsUndoGrid implements IUndoGrid {
 	public Cell restoreCell(int id) {
         int col = getColumn(id);
         int row = getRow(id);
-        return grid.getCell(col, row);
+        return grid.getXlsCell(col, row);
     }
 
     public void restoreCell(int cellID, IWritableGrid toGrid, int col, int row) {
@@ -81,7 +81,7 @@ public class XlsUndoGrid implements IUndoGrid {
     }
 
     public int saveCell(IWritableGrid fromGrid, int col, int row) {
-        return saveCell(((XlsSheetGridModel) fromGrid).getCell(col, row), fromGrid.getCellMetaInfo(col, row),
+        return saveCell(((XlsSheetGridModel) fromGrid).getXlsCell(col, row), fromGrid.getCellMetaInfo(col, row),
                 ((XlsSheetGridModel) fromGrid).getModifiedStyle(col, row));
     }
 

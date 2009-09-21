@@ -1,6 +1,6 @@
 package org.openl.rules.table.xls;
 
-import org.openl.rules.table.ui.FormattedCell;
+import org.openl.rules.table.FormattedCell;
 import org.openl.util.Log;
 
 /**
@@ -22,10 +22,11 @@ public class XlsFormulaFormat extends XlsFormat {
     }
 
     public FormattedCell filterFormat(FormattedCell cell) {
-        if (cell.value == null) {
+        Object value = cell.getObjectValue();
+        if (value == null) {
             return cell;
         }
-        cell.content = format(cell.value);
+        cell.setFormattedValue(format(value));
         cell.setFilter(this);
 
         return cell;

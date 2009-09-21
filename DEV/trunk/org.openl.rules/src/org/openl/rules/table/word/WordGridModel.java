@@ -10,11 +10,11 @@ import org.apache.poi.hwpf.usermodel.Table;
 import org.apache.poi.hwpf.usermodel.TableCell;
 import org.apache.poi.hwpf.usermodel.TableRow;
 import org.openl.rules.indexer.WordTableElement;
+import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICellInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 
 public class WordGridModel implements IGrid {
@@ -176,7 +176,7 @@ public class WordGridModel implements IGrid {
         return 1;
     }
 
-    public ICellInfo getCellInfo(int column, int row) {
+    public ICell getCell(int column, int row) {
         // TODO Auto-generated method stub
         return null;
     }

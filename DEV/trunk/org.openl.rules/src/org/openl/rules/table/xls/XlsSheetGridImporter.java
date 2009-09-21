@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.util.export.IImportedSection;
 import org.openl.util.export.IImporter;
@@ -31,8 +32,8 @@ public class XlsSheetGridImporter implements IImporter {
 
     private String[] readRow(int row, int colStart, int colEnd) {
         List<String> rowData = new ArrayList<String>();
-        for (int c = colStart; c <= colEnd; c += gridModel.getCellWidth(row, c)) {
-            rowData.add(gridModel.getStringCellValue(c, row));
+        for (int c = colStart; c <= colEnd; c += gridModel.getCell(row, c).getWidth()) {
+            rowData.add(gridModel.getCell(c, row).getStringValue());
         }
         return rowData.toArray(new String[rowData.size()]);
     }
@@ -53,8 +54,9 @@ public class XlsSheetGridImporter implements IImporter {
         SectionId id = (SectionId) parentSectionId;
         int column = id.column;
         int row = id.row;
-        int height = gridModel.getCellHeight(column, row);
-        column += gridModel.getCellWidth(column, row);
+        ICell cell = gridModel.getCell(column, row);
+        int height = cell.getHeight();
+        column += cell.getWidth();
 
         List<String[]> rows = new ArrayList<String[]>();
         for (int r = row; r < row + height; ++r) {
@@ -81,13 +83,14 @@ public class XlsSheetGridImporter implements IImporter {
             SectionId id = (SectionId) parentSectionId;
             column = id.column;
             row = id.row;
-            height = gridModel.getCellHeight(column, row);
-            column += gridModel.getCellWidth(column, row);
+            ICell cell = gridModel.getCell(column, row);
+            height = cell.getHeight();
+            column += cell.getWidth();
         }
 
         List<IImportedSection> sections = new ArrayList<IImportedSection>();
-        for (int r = row; r < row + height; r += gridModel.getCellHeight(column, r)) {
-            sections.add(new ImportedSection(new SectionId(column, r), gridModel.getStringCellValue(column, r)));
+        for (int r = row; r < row + height; r += gridModel.getCell(column, r).getHeight()) {
+            sections.add(new ImportedSection(new SectionId(column, r), gridModel.getCell(column, r).getStringValue()));
         }
         return sections.toArray(new IImportedSection[sections.size()]);
     }

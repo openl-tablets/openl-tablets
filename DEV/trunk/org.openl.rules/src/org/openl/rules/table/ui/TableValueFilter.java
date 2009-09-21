@@ -1,5 +1,6 @@
 package org.openl.rules.table.ui;
 
+import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 
@@ -26,8 +27,8 @@ public class TableValueFilter extends AGridFilter {
         Object v = getCellValue(cell.getColumn(), cell.getRow());
 
         if (v != null) {
-            cell.value = v;
-            cell.content = String.valueOf(v);
+            cell.setObjectValue(v);
+            cell.setFormattedValue(String.valueOf(v));
         }
         return cell;
     }
