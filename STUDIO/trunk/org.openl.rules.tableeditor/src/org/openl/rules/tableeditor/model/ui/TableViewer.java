@@ -1,6 +1,7 @@
 package org.openl.rules.tableeditor.model.ui;
 
-import org.openl.rules.table.ICellInfo;
+import org.openl.rules.table.FormattedCell;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -12,8 +13,8 @@ public class TableViewer {
 
     IGridRegion reg;
 
-    private static void setStyle(ICellInfo ci, CellModel cm) {
-        ICellStyle style = ci.getCellStyle();
+    private static void setStyle(ICell cell, CellModel cm) {
+        ICellStyle style = cell.getStyle();
 
         if (style == null) {
             return;
@@ -52,7 +53,7 @@ public class TableViewer {
 
         // setCssBorders(cm, style);
 
-        cm.setFont(ci.getFont());
+        cm.setFont(cell.getFont());
 
         /*
          * buf.append(" style=\""); String[] borders = style.cssBorders();
@@ -95,28 +96,24 @@ public class TableViewer {
         this.reg = reg;
     }
 
-    CellModel buildCell(ICellInfo ci, int column, int row, CellModel cm) {
+    CellModel buildCell(ICell cell, CellModel cm) {
 
-        cm.setColspan(getColSpan(ci));
-        cm.setRowspan(getRowSpan(ci));
+        cm.setColspan(getColSpan(cell));
+        cm.setRowspan(getRowSpan(cell));
 
         if (cm.row == 0) {
-            cm.setWidth(getWidth(ci, column, row));
+            cm.setWidth(getWidth(cell));
         }
 
-        String content = grid.getFormattedCellValue(column, row);
-        if (content != null && content.trim().length() != 0) {
-            cm.setContent(content);
-            if(ci.hasFormula()){
-                grid.getStringCellValue(column, row);
-                cm.setFormula(grid.getCellFormula(column, row));
+        String formattedValue = ((FormattedCell) cell).getFormattedValue();
+        if (formattedValue != null && formattedValue.trim().length() != 0) {
+            cm.setContent(formattedValue);
+            if (cell.getFormula() != null) {
+                cm.setFormula(cell.getFormula());
             }
-        // cm.setContent(content.startsWith(LITERAL) ?
-        // content.substring(LITERAL.length()) :
-        // StringTool.prepareXMLAttributeValue(content));
         }
 
-        setStyle(ci, cm);
+        setStyle(cell, cm);
         return cm;
     }
 
@@ -199,9 +196,9 @@ public class TableViewer {
                 if (tm.hasCell(r, c)) {
                     continue;
                 }
-                ICellInfo ci = grid.getCellInfo(column, row);
+                ICell cell = grid.getCell(column, row);
 
-                CellModel cm = buildCell(ci, column, row, new CellModel(r, c));
+                CellModel cm = buildCell(cell, new CellModel(r, c));
 
                 tm.addCell(cm, r, c);
                 if (cm.getColspan() > 1 || cm.getRowspan() > 1) {
@@ -283,34 +280,26 @@ public class TableViewer {
         return bs;
     }
 
-    int getColSpan(ICellInfo ci) {
-        IGridRegion gr = ci.getSurroundingRegion();
+    int getColSpan(ICell cell) {
+        IGridRegion gr = cell.getRegion();
         if (gr == null) {
             return 1;
         }
         return IGridRegion.Tool.width(IGridRegion.Tool.intersect(reg, gr));
     }
 
-    // static boolean isCellShowable(ICellInfo ci)
-    // {
-    // if (ci.getSurroundingRegion() == null)
-    // return true;
-    // // TODO consider when region is not inside the table completely
-    // return ci.isTopLeft();
-    // }
-
-    int getRowSpan(ICellInfo ci) {
-        IGridRegion gr = ci.getSurroundingRegion();
+    int getRowSpan(ICell cell) {
+        IGridRegion gr = cell.getRegion();
         if (gr == null) {
             return 1;
         }
         return IGridRegion.Tool.height(IGridRegion.Tool.intersect(reg, gr));
     }
 
-    public int getWidth(ICellInfo ci, int col, int row) {
+    public int getWidth(ICell cell) {
         IGridRegion gr;
-        if ((gr = ci.getSurroundingRegion()) == null) {
-            return grid.getColumnWidth(col);
+        if ((gr = cell.getRegion()) == null) {
+            return grid.getColumnWidth(cell.getColumn());
         }
         int w = 0;
 
@@ -351,8 +340,8 @@ public class TableViewer {
         int top = reg.getTop();
 
         for (int i = 0; i < width; i++) {
-            ICellStyle ts = row + top - 1 < 0 ? null : grid.getCellInfo(i + left, row + top - 1).getCellStyle();
-            ICellStyle bs = grid.getCellInfo(i + left, row + top).getCellStyle();
+            ICellStyle ts = row + top - 1 < 0 ? null : grid.getCell(i + left, row + top - 1).getStyle();
+            ICellStyle bs = grid.getCell(i + left, row + top).getStyle();
 
             CellModel cmTop = ts == null ? null : tm.findCellModel(i, row - 1, ICellStyle.BOTTOM);
             CellModel cmBottom = bs == null ? null : tm.findCellModel(i, row, ICellStyle.TOP);
@@ -403,8 +392,8 @@ public class TableViewer {
         int top = reg.getTop();
 
         for (int i = 0; i < height; i++) {
-            ICellStyle ls = column + left - 1 < 0 ? null : grid.getCellInfo(column + left - 1, i + top).getCellStyle();
-            ICellStyle rs = column + left - 1 < 0 ? null : grid.getCellInfo(column + left, i + top).getCellStyle();
+            ICellStyle ls = column + left - 1 < 0 ? null : grid.getCell(column + left - 1, i + top).getStyle();
+            ICellStyle rs = column + left - 1 < 0 ? null : grid.getCell(column + left, i + top).getStyle();
 
             CellModel cmLeft = ls == null ? null : tm.findCellModel(column - 1, i, ICellStyle.RIGHT);
             CellModel cmRight = rs == null ? null : tm.findCellModel(column, i, ICellStyle.LEFT);

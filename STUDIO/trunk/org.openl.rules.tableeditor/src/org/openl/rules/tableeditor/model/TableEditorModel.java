@@ -9,10 +9,11 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.AGridTableDelegator;
 import org.openl.rules.table.AUndoableCellAction;
+import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICellInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -23,7 +24,6 @@ import org.openl.rules.table.IUndoableGridAction;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.UndoableActions;
 import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.xls.SimpleXlsFormatter;
@@ -38,12 +38,6 @@ import java.util.Vector;
  * 
  */
 public class TableEditorModel {
-    public static enum CellType {
-        TH_CELL_TYPE,
-        CA_HEADER_CELL_TYPE,
-        CA_ENUMERATION_CELL_TYPE
-    }
-
     static class RegionAction implements IUndoableAction {
         IUndoableGridAction gridAction;
 
@@ -257,12 +251,8 @@ public class TableEditorModel {
 
     }
 
-    public ICellStyle getCellStyle(int row, int column) {
-        return IWritableGrid.Tool.getCellStyle(gridTable.getGrid(), tX(column), tY(row));
-    }
-
-    public ICellInfo getCellInfo(int row, int column) {
-        return gridTable.getGrid().getCellInfo(tX(column), tY(row));
+    public ICell getCell(int row, int column) {
+        return gridTable.getGrid().getCell(tX(column), tY(row));
     }
 
     /**
@@ -271,29 +261,6 @@ public class TableEditorModel {
      */
     public void setRegion(IGridRegion newRegion) {
         region = newRegion;
-    }
-
-    /**
-     * Gets type of a specified cell
-     * 
-     * @param row
-     * @param column
-     * @return cell type
-     */
-    public CellType getCellType(int row, int column) {
-        // TODO
-        switch (column) {
-            case 0:
-                return CellType.TH_CELL_TYPE;
-            case 3:
-                return CellType.CA_ENUMERATION_CELL_TYPE;
-            default:
-                return null;
-        }
-    }
-
-    public String getCellValue(int row, int column) {
-        return gridTable.getGrid().getStringCellValue(tX(column), tY(row));
     }
 
     private IGridFilter getFilter(int col, int row) {

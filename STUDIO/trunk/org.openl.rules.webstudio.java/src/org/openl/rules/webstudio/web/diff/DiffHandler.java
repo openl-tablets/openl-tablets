@@ -215,7 +215,7 @@ public class DiffHandler {
     private IGridFilter makeFilter(IGridTable table, List<ICell> selectedCells) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
         for (ICell cell : selectedCells) {
-            IGridRegion region = table.getLogicalRegion(cell.getRow(), cell.getCol(), 1, 1).getGridTable().getRegion();
+            IGridRegion region = table.getLogicalRegion(cell.getRow(), cell.getColumn(), 1, 1).getGridTable().getRegion();
             regions.add(region);
         }
         if (regions.isEmpty()) {
