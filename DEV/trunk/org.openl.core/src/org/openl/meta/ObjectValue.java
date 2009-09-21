@@ -9,7 +9,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     
     public ObjectValue(Object value) {
         if (value == null) {
-            throw new IllegalArgumentException("Error initializing StringValue class. Parameter \"value\" can't be null.");
+            throw new IllegalArgumentException("Error initializing ObjectValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
         metaInfo = new ValueMetaInfo();
@@ -17,7 +17,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     
     public ObjectValue(Object value, String shortName, String fullName, String sourceUrl) {
         if (value == null) {
-            throw new IllegalArgumentException("Error initializing StringValue class. Parameter \"value\" can't be null.");
+            throw new IllegalArgumentException("Error initializing ObjectValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
         metaInfo = new ValueMetaInfo(shortName, fullName, sourceUrl);
