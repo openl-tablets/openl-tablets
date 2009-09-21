@@ -117,8 +117,8 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         String response = render(editorId);
         IGridTable gridTable = getGridTable(editorId);
-        response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCellUri(gridTable.getGridColumn(0, 0),
-                gridTable.getGridRow(0, 0)), getEditorModel(editorId)));
+        response = pojo2json(new LoadResponse(response, gridTable.getGrid().getCell(gridTable.getGridColumn(0, 0),
+                gridTable.getGridRow(0, 0)).getUri(), getEditorModel(editorId)));
         return response;
     }
 
@@ -155,7 +155,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
             int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
-            ICellStyle style = editorModel.getCellStyle(row, col);
+            ICellStyle style = editorModel.getCell(row, col).getStyle();
             int currentIndent = style.getIdent();
             int resultIndent = currentIndent + indent;
             CellStyle newStyle = new CellStyle(style);
@@ -217,7 +217,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             }
 
             if (halign != -1) {
-                ICellStyle style = editorModel.getCellStyle(row, col);
+                ICellStyle style = editorModel.getCell(row, col).getStyle();
                 if (style.getHorizontalAlignment() != halign) {
                     CellStyle newStyle = new CellStyle(style);
                     newStyle.setHorizontalAlignment(halign);

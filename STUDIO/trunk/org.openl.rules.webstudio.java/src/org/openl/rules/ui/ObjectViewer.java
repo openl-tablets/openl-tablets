@@ -17,7 +17,6 @@ import org.openl.binding.impl.BoundError;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
-import org.openl.meta.ObjectValue;
 import org.openl.meta.OpenLRuntimeExceptionWithMetaInfo;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -37,6 +36,7 @@ import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
 import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -44,7 +44,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Table;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
@@ -97,10 +96,10 @@ public class ObjectViewer {
 
         public FormattedCell filterFormat(FormattedCell cell) {
 
-            String fontStyle = WebTool.fontToHtml(cell.font, new StringBuffer()).toString();
+            String fontStyle = WebTool.fontToHtml(cell.getFont(), new StringBuffer()).toString();
 
-            cell.content = "<a href=\"" + url + "\" class=\"nounderline\" style=\"" + fontStyle + "\"  >"
-                    + cell.content + "</a>";
+            cell.setFormattedValue("<a href=\"" + url + "\" class=\"nounderline\" style=\"" + fontStyle + "\"  >"
+                    + cell.getFormattedValue() + "</a>");
             return cell;
         }
         public IGridSelector getGridSelector() {

@@ -9,7 +9,6 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.table.Cell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -103,8 +102,7 @@ public class XlsProjectionBuilder {
                 int.class, cellWidth));
         projection.addChild(buildCellStyle(cellStyle));
         projection.addChild(buildCellFont(cellFont));*/
-        AbstractProperty cellProp = new AbstractProperty("cell", ICell.class,
-                new Cell(cell.getRow(), cell.getCol(), null), false);
+        AbstractProperty cellProp = new AbstractProperty("cell", ICell.class, cell, false);
         projection.addProperty(cellProp);
         return projection;
     }
