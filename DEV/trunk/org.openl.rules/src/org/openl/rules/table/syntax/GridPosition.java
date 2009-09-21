@@ -63,7 +63,7 @@ public class GridPosition implements IPosition {
 
     @Override
     public String toString() {
-        return grid.getCellUri(x, y);
+        return grid.getCell(x, y).getUri();
     }
 
 }

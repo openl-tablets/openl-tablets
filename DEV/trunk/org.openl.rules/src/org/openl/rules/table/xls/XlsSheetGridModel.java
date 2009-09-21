@@ -23,7 +23,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -32,14 +31,12 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridModel;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICellInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.ui.FormattedCell;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.StringTool;
-import org.apache.poi.xssf.model.StylesTable;
 
 /**
  * @author snshor
@@ -47,24 +44,27 @@ import org.apache.poi.xssf.model.StylesTable;
  */
 public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         XlsWorkbookSourceCodeModule.WorkbookListener {
-    class XlsCellInfo implements ICellInfo {
-        int column;
 
-        int row;
+    class XlsCell implements ICell {
 
-        IGridRegion region;
+        private int column;
 
-        Cell cell;
+        private int row;
 
-        public XlsCellInfo(int column, int row, IGridRegion region, Cell cell) {
+        private IGridRegion region;
+
+        private Cell cell;
+
+        public XlsCell(int column, int row, IGridRegion region, Cell cell) {
             this.column = column;
             this.row = row;
             this.region = region;
             this.cell = cell;
         }
 
-        public ICellStyle getCellStyle() {
-            return getCellStyle0(column, row, cell);
+        public ICellStyle getStyle() {
+            if (cell == null) return null;
+            return getCellStyle(column, row, cell);
         }
 
         public int getColumn() {
@@ -72,10 +72,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         public ICellFont getFont() {
-            if (cell == null) {
-                return null;
-            }
-            Font font = getFontFromStyle(cell.getCellStyle());
+            if (cell == null) return null;
+            Font font = sheetSource.getWorkbookSource().getWorkbook().getFontAt(cell.getCellStyle().getFontIndex());
             return new XlsCellFont(font, sheetSource.getWorkbookSource().getWorkbook());
         }
 
@@ -83,44 +81,65 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             return row;
         }
 
-        public IGridRegion getSurroundingRegion() {
+        public IGridRegion getRegion() {
             return region;
         }
 
-        public boolean isTopLeft() {
-            return region != null && region.getLeft() == column && region.getTop() == row;
-        }
-
-        public boolean hasFormula() {
-            if (cell == null) {
-                return false;
+        public int getHeight() {
+            if (region != null && region.getLeft() == column && region.getTop() == row) {
+                return region.getBottom() - region.getTop() + 1;
             }
-            return cell.getCellType() == CELL_TYPE_FORMULA;
+            return 1;
         }
 
-    }
-
-    static class XlsGridRegion implements IGridRegion {
-        CellRangeAddress poiXlsRegion;
-
-        XlsGridRegion(CellRangeAddress poiXlsRegion) {
-            this.poiXlsRegion = poiXlsRegion;
+        public int getWidth() {
+            if (region != null && region.getLeft() == column && region.getTop() == row) {
+                return region.getRight() - region.getLeft() + 1;
+            }
+            return 1;
         }
 
-        public int getBottom() {
-            return poiXlsRegion.getLastRow();
+        public Object getObjectValue() {
+            if (cell == null) return null;
+            int valueType = cell.getCellType();
+            switch (valueType) {
+                case Cell.CELL_TYPE_BLANK:
+                    return null;
+                case Cell.CELL_TYPE_BOOLEAN:
+                    return Boolean.valueOf(cell.getBooleanCellValue());
+                case Cell.CELL_TYPE_NUMERIC:
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        return cell.getDateCellValue();
+                    }
+                    double value = cell.getNumericCellValue();
+                    return XlsUtil.intOrDouble(value);
+                case Cell.CELL_TYPE_STRING:
+                    return cell.getStringCellValue();
+                case Cell.CELL_TYPE_FORMULA:
+                    FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
+                    CellValue resultValue = formulaEvaluator.evaluate(cell);
+                    return XlsUtil.intOrDouble(resultValue.getNumberValue());
+                default:
+                    return "unknown type: " + cell.getCellType();
+            }
         }
 
-        public int getLeft() {
-            return poiXlsRegion.getFirstColumn();
+        public String getStringValue() {
+            Object res = getObjectValue();
+            return res == null ? null : String.valueOf(res);
         }
 
-        public int getRight() {
-            return poiXlsRegion.getLastColumn();
+        public String getFormula() {
+            return cell.getCellType() == CELL_TYPE_FORMULA ? cell.getCellFormula() : null;
         }
 
-        public int getTop() {
-            return poiXlsRegion.getFirstRow();
+        public int getType() {
+            if (cell == null) return Cell.CELL_TYPE_BLANK;
+            return cell.getCellType();
+        }
+
+        public String getUri() {
+            return XlsUtil.xlsCellPresentation(column, row);
         }
 
     }
@@ -161,15 +180,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         throw new RuntimeException("Invalid cell: " + cell);
     }
 
-    // public static boolean isTopLeftOfTheMergedRegion(int x, int y, Region
-    // reg) {
-    // return reg.getColumnFrom() == x && reg.getRowFrom() == y;
-    // }
-
-    /**
-     * @param range
-     * @return
-     */
     public static IGridRegion makeRegion(String range) {
 
         int idx = range.indexOf(RANGE_SEPARATOR);
@@ -186,23 +196,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         int row2 = getRow(rr[1]);
 
         return new GridRegion(row1, col1, row2, col2);
-    }
-
-    static public String xlsCellPresentation(int x, int y) {
-        StringBuffer buf = new StringBuffer();
-        int div = 'Z' - 'A' + 1;
-
-        int xx = x;
-        while (xx >= div) {
-            int dd = xx / div;
-            buf.append((char) ('A' + dd - 1));
-            xx -= dd * div;
-        }
-
-        buf.append((char) ('A' + xx));
-
-        buf.append(y + 1);
-        return buf.toString();
     }
 
     public XlsSheetGridModel(Sheet sheet) {
@@ -224,23 +217,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     private CellRangeAddress getMergedRegionAt(int index) {
         return sheet.getMergedRegion(index);
     }    
-    
-    // private Region getMergedRegionAt(int index) {
-    // if (sheet instanceof XSSFSheet) {
-    // XSSFSheet s = (XSSFSheet) sheet;
-    // CellRangeAddress cra = s.getMergedRegion(index);
-    // return new Region(cra.getFirstRow(), (short)cra.getFirstColumn(),
-    // cra.getLastRow(), (short)cra.getLastColumn());
-    // } else {
-    // HSSFSheet s = (HSSFSheet) sheet;
-    // return s.getMergedRegionAt(index);
-    // }
-    // }
 
     public void beforeSave(XlsWorkbookSourceCodeModule xwscm) {
         Workbook workbook = xwscm.getWorkbook();
         for (CellKey ck : styleMap.keySet()) {
-            Cell cell = getCell(ck.getColumn(), ck.getRow());
+            Cell cell = getXlsCell(ck.getColumn(), ck.getRow());
             if (cell != null) {
                 CellStyle cellStyle = workbook.createCellStyle();
                 copyStyle(styleMap.get(ck), cellStyle, cell.getCellStyle());
@@ -255,7 +236,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     public void clearCell(int col, int row) {
 
         setCellMetaInfo(col, row, null);
-        Cell cell = getCell(col, row);
+        Cell cell = getXlsCell(col, row);
         if (cell == null) {
             return;
         }
@@ -264,13 +245,13 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public void copyCell(int colFrom, int rowFrom, int colTo, int rowTo) {
-        Cell cellFrom = getCell(colFrom, rowFrom);
+        Cell cellFrom = getXlsCell(colFrom, rowFrom);
 
         copyFrom(cellFrom, colTo, rowTo, getCellMetaInfo(colFrom, rowFrom));
     }
 
     public void copyFrom(Cell cellFrom, int colTo, int rowTo, CellMetaInfo meta) {
-        Cell cellTo = getCell(colTo, rowTo);
+        Cell cellTo = getXlsCell(colTo, rowTo);
 
         if (cellFrom == null) {
             if (cellTo == null) {
@@ -347,7 +328,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             dest.setFillBackgroundColor(oldStyle.getFillBackgroundColor());
             dest.setFillForegroundColor(oldStyle.getFillForegroundColor());
             dest.setFillPattern(oldStyle.getFillPattern());
-            dest.setFont(getFontFromStyle(oldStyle));
+            dest.setFont(sheetSource.getWorkbookSource().getWorkbook().getFontAt(oldStyle.getFontIndex()));
             dest.setHidden(oldStyle.getHidden());
             dest.setLocked(oldStyle.getLocked());
             dest.setRotation(oldStyle.getRotation());
@@ -355,11 +336,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
     }
 
-    /**
-     * @param colTo
-     * @param rowTo
-     * @return
-     */
     public Cell createNewCell(int colTo, int rowTo) {
         Row row = sheet.getRow(rowTo);
         if (row == null) {
@@ -380,7 +356,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return new GridRegion(top, left, top + height - 1, left + width - 1);
     }
 
-    public Cell getCell(int x, int y) {
+    public Cell getXlsCell(int x, int y) {
         Row row = sheet.getRow(y);
         if (row == null) {
             return null;
@@ -389,32 +365,9 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return row.getCell(x);
     }
 
-    /**
-     * 
-     */
-
-    public int getCellHeight(int column, int row) {
-
-        CellRangeAddress reg = getRegionContaining(column, row);
-        if (reg == null) {
-            return 1;
-        }
-
-        if (reg.getFirstColumn() == column && reg.getFirstRow() == row) {
-            return reg.getLastRow() - reg.getFirstRow() + 1;
-        }
-        return 1;
-    }
-
-    public ICellInfo getCellInfo(int column, int row) {
+    public ICell getCell(int column, int row) {
         CellRangeAddress region = getRegionContaining(column, row);
-
-        // if (region != null)
-        // {
-        // rb = getCell(region.getColumnTo(), region.getRowTo());
-        // }
-
-        return new XlsCellInfo(column, row, region == null ? null : new XlsGridRegion(region), getCell(column, row));
+        return new XlsCell(column, row, region == null ? null : new XlsGridRegion(region), getXlsCell(column, row));
     }
 
     public CellMetaInfo getCellMetaInfo(int col, int row) {
@@ -422,22 +375,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return metaInfoMap.get(ck);
     }
 
-    /**
-     * Returns cell style.
-     * 
-     * @param column cell column number
-     * @param row cell row number
-     * @return cell style object, maybe <code>null</code>
-     */
-    public ICellStyle getCellStyle(int column, int row) {
-        return getCellStyle0(column, row, getCell(column, row));
-    }
-
-    private ICellStyle getCellStyle0(int column, int row, Cell cell) {
-        if (cell == null) {
-            return null;
-        }
-
+    private ICellStyle getCellStyle(int column, int row, Cell cell) {
         ICellStyle newStyle = getModifiedStyle(column, row);
         if (newStyle != null) {
             return newStyle;
@@ -457,69 +395,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
     }
 
-    public int getCellType(int column, int row) {
-        Cell cell = getCell(column, row);
-        return cell == null ? CELL_TYPE_BLANK : cell.getCellType();
-    }
-
-    public String getCellUri(int column, int row) {
-        return xlsCellPresentation(column, row);
-    }
-
-    Object getCellValue(Cell cell) {
-        return getCellValue(cell, cell.getCellType());
-    }
-
-    Object getCellValue(Cell cell, int valueType) {
-        switch (valueType) {
-            case Cell.CELL_TYPE_BLANK:
-                return null;
-            case Cell.CELL_TYPE_BOOLEAN:
-                return Boolean.valueOf(cell.getBooleanCellValue());
-            case Cell.CELL_TYPE_NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue();
-                }
-                double value = cell.getNumericCellValue();
-                return intOrDouble(value);
-            case Cell.CELL_TYPE_STRING:
-                return cell.getStringCellValue();
-            case Cell.CELL_TYPE_FORMULA:
-                FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
-                CellValue resultValue = formulaEvaluator.evaluate(cell);
-                return intOrDouble(resultValue.getNumberValue());
-                // return getCellValue(cell, cell.getCachedFormulaResultType());
-            default:
-                return "unknown type: " + cell.getCellType();
-        }
-    }
-
-    static Object intOrDouble(double value) {
-        int intValue = (int) value;
-        Object res = value;
-        if (value == intValue)
-            res = (Integer) intValue;
-
-        return res;
-    }
-
-    /**
-     * 
-     */
-
-    public int getCellWidth(int column, int row) {
-        CellRangeAddress reg = getRegionContaining(column, row);
-        if (reg == null) {
-            return 1;
-        }
-
-        if (reg.getFirstColumn() == column && reg.getFirstRow() == row) {
-            return reg.getLastColumn() - reg.getFirstColumn() + 1;
-        }
-        return 1;
-    }
-
-    /**
+   /**
      * Some magic numbers here
      */
 
@@ -531,76 +407,23 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return w / 40;
     }
 
-    public Date getDateCellValue(int column, int row) {
-        Cell cell = getCell(column, row);
-        return cell == null ? null : cell.getDateCellValue();
-    }
-
-    public double getDoubleCellValue(int column, int row) {
-        Cell cell = getCell(column, row);
-        return cell == null ? 0 : cell.getNumericCellValue();
-    }
-
-    public FormattedCell getFormattedCell(int column, int row) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String getFormattedCellValue(int column, int row) {
-        return getStringCellValue(column, row);
-    }
-
-    private Font getFontFromStyle(CellStyle style) {
-        return sheetSource.getWorkbookSource().getWorkbook().getFontAt(style.getFontIndex());
-    }
-
-    /**
-     * 
-     */
-
     public int getMaxColumnIndex(int rownum) {
         Row row = sheet.getRow(rownum);
-
         return row == null ? 0 : row.getLastCellNum();
     }
-
-    /**
-     * 
-     */
 
     public int getMaxRowIndex() {
         return sheet.getLastRowNum();
     }
 
     public synchronized IGridRegion getMergedRegion(int i) {
-        // if (regions == null)
-        // {
-        // int n = getNumberOfMergedRegions();
-        // regions = new XlsGridRegion[n];
-        // for (int j = 0; j < n; j++)
-        // {
-        // regions[j] = new XlsGridRegion(sheet.getMergedRegionAt(j));
-        // }
-        // }
-        //
-        // return regions[i];
-
         return new XlsGridRegion(getMergedRegionAt(i));
     }
 
-    /**
-     * 
-     */
-
-    public int getMinColumnIndex(int rownum) {
+     public int getMinColumnIndex(int rownum) {
         Row row = sheet.getRow(rownum);
-
         return row == null ? 0 : row.getFirstCellNum();
     }
-
-    /**
-     * 
-     */
 
     public int getMinRowIndex() {
         return sheet.getFirstRowNum();
@@ -610,16 +433,9 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return styleMap.get(new CellKey(column, row));
     }
 
-    /**
-     * @return
-     */
     public String getName() {
         return sheetSource.getSheetName();
     }
-
-    /**
-     * 
-     */
 
     public int getNumberOfMergedRegions() {
         try {
@@ -629,19 +445,14 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
     }
 
-    public Object getObjectCellValue(int column, int row) {
-        Cell cell = getCell(column, row);
-        return cell == null ? null : getCellValue(cell);
-    }
-
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
 
         if (colStart == colEnd && rowStart == rowEnd) {
-            return getUri() + "&" + "cell=" + getCellUri(colStart, rowStart);
+            return getUri() + "&" + "cell=" + getCell(colStart, rowStart).getUri();
         }
 
-        return getUri() + "&" + "range=" + getCellUri(colStart, rowStart) + RANGE_SEPARATOR
-                + getCellUri(colEnd, rowEnd);
+        return getUri() + "&" + "range=" + getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR
+                + getCell(colEnd, rowEnd).getUri();
     }
 
     public CellRangeAddress getRegionContaining(int x, int y) {
@@ -656,8 +467,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     
-    static boolean contains(CellRangeAddress reg, int x, int y)
-    {
+    static boolean contains(CellRangeAddress reg, int x, int y) {
         return reg.getFirstColumn() <= x
         && x <= reg.getLastColumn()
         && reg.getFirstRow() <= y 
@@ -666,21 +476,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     
     public XlsSheetSourceCodeModule getSheetSource() {
         return sheetSource;
-    }
-
-    // public CellMetaInfo getCellMetaInfo(int col, int row)
-    // {
-    // CellKey ck = new CellKey(col, row);
-    // CellMetaInfo cmi = metaInfoMap.get(ck);
-    // return cmi;
-    // }
-
-    public String getStringCellValue(int column, int row) {
-        Cell cell = getCell(column, row);
-
-        Object res = cell == null ? null : getCellValue(cell);
-
-        return res == null ? null : String.valueOf(res);
     }
 
     public String getUri() {
@@ -706,7 +501,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
         if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 
-            String v = getStringCellValue(x, y);
+            String v = getCell(x, y).getStringValue();
             return v == null || v.trim().length() == 0;
         }
         return false;
@@ -728,11 +523,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
     }
 
-    /**
-     * @param colTo
-     * @param rowTo
-     * @param map
-     */
     public void setCellMetaInfo(int col, int row, CellMetaInfo meta) {
         CellKey ck = new CellKey(col, row);
         if (meta == null) {
@@ -757,16 +547,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.rules.table.IWritableGrid#setCellType(int, int, int)
-     */
-    public void setCellType(int col, int row, int type) {
-        // TODO Auto-generated method stub
-
-    }
-
     public void setCellValue(int col, int row, Object value) {
         if (value == null) {
             return;
@@ -780,7 +560,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             cell.setCellValue(x);
             CellStyle cellStyle = cell.getSheet().getWorkbook().createCellStyle();
             CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
-            
             cellStyle.setDataFormat(createHelper.createDataFormat().getFormat(DATE_FORMAT));
             cell.setCellStyle(cellStyle);
         } else {
@@ -792,10 +571,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
                 cell.setCellValue(strValue);
             }
         }
-    }
-
-    public String getCellFormula(int column, int row) {
-        return getCell(column, row).getCellFormula();
     }
 
 }

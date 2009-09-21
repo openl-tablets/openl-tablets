@@ -7,7 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.openl.rules.table.ui.FormattedCell;
+import org.openl.rules.table.FormattedCell;
 import org.openl.util.Log;
 
 /**
@@ -39,16 +39,17 @@ public class XlsDateFormat extends XlsFormat {
     }
 
     public FormattedCell filterFormat(FormattedCell cell) {
-        if (cell.value == null) {
+        Object value = cell.getObjectValue();
+        if (value == null) {
             return cell;
         }
 
-        String fDate = format(cell.value);
+        String fDate = format(value);
         if (fDate == null) {
             return cell;
         }
 
-        cell.content = fDate;
+        cell.setFormattedValue(fDate);
         cell.setFilter(this);
 
         return cell;

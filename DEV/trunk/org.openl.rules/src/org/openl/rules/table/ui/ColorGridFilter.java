@@ -3,6 +3,8 @@
  */
 package org.openl.rules.table.ui;
 
+import org.openl.rules.table.FormattedCell;
+
 /**
  * @author snshor
  *
@@ -35,32 +37,33 @@ public class ColorGridFilter extends AGridFilter {
     public FormattedCell filterFormat(FormattedCell cell) {
 
         if ((scope & FONT) != 0) {
-            short[] fc = cell.font.getFontColor();
+            short[] fc = cell.getFont().getFontColor();
             if (fc == null) {
                 fc = IColorFilter.BLACK;
             }
-            cell.font.setFontColor(filter.filterColor(fc));
+            cell.getFont().setFontColor(filter.filterColor(fc));
         }
 
+        CellStyle style = cell.getStyle();
         if ((scope & BACKGROUND) != 0) {
-            short[] bcg = cell.style.getFillBackgroundColor();
+            short[] bcg = style.getFillBackgroundColor();
             if (bcg == null) {
                 bcg = IColorFilter.WHITE;
             }
 
-            cell.style.setFillBackgroundColor(filter.filterColor(bcg));
+            style.setFillBackgroundColor(filter.filterColor(bcg));
 
-            short[] fg = cell.style.getFillForegroundColor();
+            short[] fg = style.getFillForegroundColor();
 
             if (fg == null) {
                 fg = IColorFilter.WHITE;
             }
 
-            cell.style.setFillForegroundColor(filter.filterColor(fg));
+            style.setFillForegroundColor(filter.filterColor(fg));
         }
 
         if ((scope & BORDERS) != 0) {
-            short[][] bb = cell.style.borderRGB;
+            short[][] bb = style.borderRGB;
 
             if (bb != null) {
                 for (int i = 0; i < bb.length; i++) {

@@ -6,11 +6,6 @@
 
 package org.openl.rules.table;
 
-import java.util.Date;
-
-import org.openl.rules.table.ui.FormattedCell;
-import org.openl.rules.table.ui.ICellStyle;
-
 /**
  * @author snshor
  * 
@@ -42,34 +37,9 @@ public interface IGrid {
     // public final static int CELL_SUB_TYPE_URL = 11;
     // public final static int CELL_SUB_TYPE_DATE = 12;
 
-    /**
-     * Calculates cell height: if it is left top corner of merged region -
-     * returns region height, else - returns 1.
-     */
-    int getCellHeight(int column, int row);
-
-    ICellInfo getCellInfo(int column, int row);
-
-    ICellStyle getCellStyle(int column, int row);
-
-    int getCellType(int column, int row);
-
-    String getCellUri(int column, int row);
-
-    /**
-     * @see #getCellHeight
-     */
-    int getCellWidth(int column, int row);
+    ICell getCell(int column, int row);
 
     int getColumnWidth(int col);
-
-    Date getDateCellValue(int column, int row);
-
-    double getDoubleCellValue(int column, int row);
-
-    FormattedCell getFormattedCell(int column, int row);
-
-    String getFormattedCellValue(int column, int row);
 
     int getMaxColumnIndex(int row);
 
@@ -83,26 +53,9 @@ public interface IGrid {
 
     int getNumberOfMergedRegions();
 
-    Object getObjectCellValue(int column, int row);
-
     String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd);
 
-    /**
-     * @param colFrom
-     * @param rowFrom
-     * @return
-     */
     IGridRegion getRegionStartingAt(int colFrom, int rowFrom);
-
-    String getStringCellValue(int column, int row);
-
-    /**
-     * @param column Column of cell.
-     * @param row Row of cell.
-     * @return formula of specified cell or <code>null</code> if cell does not
-     *         contain formula.
-     */
-    String getCellFormula(int column, int row);
 
     String getUri();
 

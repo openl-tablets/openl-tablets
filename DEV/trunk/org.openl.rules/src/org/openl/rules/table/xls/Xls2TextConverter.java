@@ -156,7 +156,7 @@ public class Xls2TextConverter {
                 if (grid.isEmpty(x, y)) {
                     printEmptyCell(out);
                 } else {
-                    printCell(grid.getStringCellValue(x, y), out);
+                    printCell(grid.getCell(x, y).getStringValue(), out);
                 }
             }
 

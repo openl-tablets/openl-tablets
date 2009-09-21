@@ -14,7 +14,6 @@ import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.xls.XlsDateFormat;
-import org.openl.rules.table.xls.XlsNumberFormat;
 import org.openl.rules.table.xls.XlsSheetGridExporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
@@ -77,7 +76,7 @@ public interface IWritableGrid extends IGrid {
                 return null;
             }
 
-            return wgrid.getCellStyle(col, row);
+            return wgrid.getCell(col, row).getStyle();
         }
 
         public static IWritableGrid getWritableGrid(IGrid grid) {
@@ -192,15 +191,15 @@ public interface IWritableGrid extends IGrid {
             int top = region.getTop();
 
             boolean bProps = false;
-            String propsHeader = wgrid.getStringCellValue(left, top + 1);
+            String propsHeader = wgrid.getCell(left, top + 1).getStringValue();
             if (propsHeader != null && propsHeader.equals("properties")) {
                 bProps = true;
             }
             int propsCount = 0;
             if (bProps) {
-                propsCount = wgrid.getCellHeight(left, top + 1);
+                propsCount = wgrid.getCell(left, top + 1).getHeight();
                 for (int i = 0; i < propsCount; i++) {
-                    String pName = wgrid.getStringCellValue(left + 1, top + 1 + i);
+                    String pName = wgrid.getCell(left + 1, top + 1 + i).getStringValue();
                     if (pName.equals(propName)) {
                         return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, filter);
                     }
@@ -394,8 +393,6 @@ public interface IWritableGrid extends IGrid {
     void setCellStringValue(int col, int row, String value);
 
     void setCellStyle(int col, int row, ICellStyle style);
-
-    void setCellType(int col, int row, int type);
 
     void setCellValue(int col, int row, Object value);
 

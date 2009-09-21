@@ -7,7 +7,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.table.ui.FormattedCell;
+import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.ITextFormatter;
 import org.openl.util.Log;
@@ -269,26 +269,27 @@ public class XlsNumberFormat extends XlsFormat {
     }
 
     public FormattedCell filterFormat(FormattedCell fcell) {
-        if (fcell.value == null) {
+        Object cellValue = fcell.getObjectValue();
+        if (cellValue == null) {
             return fcell;
         }
 
-        if (fcell.value instanceof String) {
-            Log.error("Should be Number " + fcell.value);
+        if (cellValue instanceof String) {
+            Log.error("Should be Number " + cellValue);
             return fcell;
         }
 
-        Number value = (Number) fcell.value;
+        Number value = (Number) cellValue;
 
         SegmentFormatter sf = getFormatter(value);
-        fcell.content = format(value, sf);
+        fcell.setFormattedValue(format(value, sf));
 
-        if (fcell.font.getFontColor() == null) {
-            fcell.font.setFontColor(sf.color);
+        if (fcell.getFont().getFontColor() == null) {
+            fcell.getFont().setFontColor(sf.color);
         }
 
-        if (fcell.style.getHorizontalAlignment() == ICellStyle.ALIGN_GENERAL) {
-            fcell.style.setHorizontalAlignment(sf.alignment);
+        if (fcell.getStyle().getHorizontalAlignment() == ICellStyle.ALIGN_GENERAL) {
+            fcell.getStyle().setHorizontalAlignment(sf.alignment);
         }
 
         fcell.setFilter(this);

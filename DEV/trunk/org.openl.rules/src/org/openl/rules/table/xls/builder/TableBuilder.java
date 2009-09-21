@@ -303,10 +303,10 @@ public class TableBuilder {
         for (int i = 0; i < table.getGridWidth(); i++) {
             for (int j = 0; j < table.getGridHeight(); j++) {
             	ICell cell = table.getCell(i, j);
-                int cellWidth = cell.getCellWidth();
-                int cellHeight = cell.getCellHeight();
+                int cellWidth = cell.getWidth();
+                int cellHeight = cell.getHeight();
                 Object cellValue = cell.getObjectValue();
-                ICellStyle style = cell.getCellStyle();
+                ICellStyle style = cell.getStyle();
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
             }
         }

@@ -26,7 +26,7 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
         int columns = 0;
         int cellWidth;
         for (int w = 0; w < gridTable.getGridWidth(); w += cellWidth, columns++) {
-            cellWidth = gridTable.getCell(w, 0).getCellWidth();
+            cellWidth = gridTable.getCell(w, 0).getWidth();
         }
         return columns;
     }
@@ -36,7 +36,7 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
         int rows = 0;
         int cellHeight;
         for (int h = 0; h < gridTable.getGridHeight(); h += cellHeight, rows++) {
-            cellHeight = gridTable.getCell(0, h).getCellHeight();
+            cellHeight = gridTable.getCell(0, h).getHeight();
         }
         return rows;
     }
@@ -193,7 +193,7 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
         int i = 0;
         for (; i < rowOffset.length - 1; offset += cellHeight, ++i) {
             rowOffset[i] = offset;
-            cellHeight = gridTable.getCell(0, offset).getCellHeight();
+            cellHeight = gridTable.getCell(0, offset).getHeight();
         }
         rowOffset[i] = offset;
 
@@ -202,7 +202,7 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
         i = 0;
         for (; i < columnOffset.length - 1; offset += cellWidth, ++i) {
             columnOffset[i] = offset;
-            cellWidth = gridTable.getCell(offset, 0).getCellWidth();
+            cellWidth = gridTable.getCell(offset, 0).getWidth();
         }
         columnOffset[i] = offset;
     }

@@ -4,13 +4,8 @@
 package org.openl.rules.table;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-
-import org.openl.rules.table.ui.FormattedCell;
-import org.openl.rules.table.ui.ICellFont;
-import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor
@@ -21,48 +16,6 @@ public class CompositeGrid extends AGridModel {
     // static final public String VERTICAL_DIR = "Vertical", HORIZONTAL_DIR =
     // "Horizontal";
 
-    static class CompositeCellInfo implements ICellInfo {
-
-        ICellInfo delegate;
-        IGridRegion region;
-        int column, row;
-
-        public CompositeCellInfo(ICellInfo delegate, IGridRegion region, int column, int row) {
-            this.delegate = delegate;
-            this.region = region;
-            this.column = column;
-            this.row = row;
-        }
-
-        public ICellStyle getCellStyle() {
-            return delegate.getCellStyle();
-        }
-
-        public int getColumn() {
-            return column;
-        }
-
-        public ICellFont getFont() {
-            return delegate.getFont();
-        }
-
-        public int getRow() {
-            return row;
-        }
-
-        public IGridRegion getSurroundingRegion() {
-            return region;
-        }
-
-        public boolean isTopLeft() {
-            return region != null && region.getLeft() == column && region.getTop() == row;
-        }
-
-        public boolean hasFormula() {
-            return delegate.hasFormula();
-        }
-
-    }
     static class Transform {
         IGridTable gridTable;
         int col;
@@ -100,65 +53,20 @@ public class CompositeGrid extends AGridModel {
         return new GridTable(0, 0, height - 1, width - 1, this);
     }
 
-    public int getCellHeight(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? 1 : t.grid().getCellHeight(t.col, t.row);
-    }
-
-    public ICellInfo getCellInfo(int column, int row) {
+    public ICell getCell(int column, int row) {
         Transform t = transform(column, row);
         if (t == null) {
             return null;
         }
 
-        ICellInfo delegate = t.grid().getCellInfo(t.col, t.row);
+        ICell delegate = t.grid().getCell(t.col, t.row);
 
-        return new CompositeCellInfo(delegate, getGridRegionContaining(column, row), column, row);
-    }
-
-    public ICellStyle getCellStyle(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? null : t.grid().getCellStyle(t.col, t.row);
-    }
-
-    public int getCellType(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? CELL_TYPE_BLANK : t.grid().getCellType(t.col, t.row);
-    }
-
-    public String getCellUri(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? null : t.grid().getCellUri(t.col, t.row);
-    }
-
-    public int getCellWidth(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? 1 : t.grid().getCellWidth(t.col, t.row);
+        return new CompositeCell(column, row, getGridRegionContaining(column, row), delegate);
     }
 
     public int getColumnWidth(int col) {
         Transform t = transform(col, 0);
         return t == null ? 100 : t.grid().getColumnWidth(t.col);
-    }
-
-    public Date getDateCellValue(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? null : t.grid().getDateCellValue(t.col, t.row);
-    }
-
-    public double getDoubleCellValue(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? 0 : t.grid().getDoubleCellValue(t.col, t.row);
-    }
-
-    public FormattedCell getFormattedCell(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? null : t.grid().getFormattedCell(t.col, t.row);
-    }
-
-    public String getFormattedCellValue(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? null : t.grid().getFormattedCellValue(t.col, t.row);
     }
 
     public int getHeight() {
@@ -189,11 +97,6 @@ public class CompositeGrid extends AGridModel {
         return mergedRegions.length;
     }
 
-    public Object getObjectCellValue(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? null : t.grid().getObjectCellValue(t.col, t.row);
-    }
-
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
         Transform t1 = transform(colStart, rowStart);
         Transform t2 = transform(colEnd, rowEnd);
@@ -205,11 +108,6 @@ public class CompositeGrid extends AGridModel {
         }
         return t1.grid().getRangeUri(t1.col, t1.row, t2.col, t2.row);
 
-    }
-
-    public String getStringCellValue(int column, int row) {
-        Transform t = transform(column, row);
-        return t == null ? null : t.grid().getStringCellValue(t.col, t.row);
     }
 
     public String getUri() {
@@ -310,15 +208,6 @@ public class CompositeGrid extends AGridModel {
         }
 
         return null;
-    }
-
-    public String getCellFormula(int column, int row) {
-        Transform t = transform(column, row);
-        if (t == null) {
-            return null;
-        }else{
-            return t.grid().getCellFormula(t.col, t.row);
-        }
     }
 
 }

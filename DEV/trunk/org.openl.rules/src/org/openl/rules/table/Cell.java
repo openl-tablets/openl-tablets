@@ -1,53 +1,128 @@
 package org.openl.rules.table;
 
+import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
 public class Cell implements ICell {
-	
-	private int col;
-	private int row;
-	private IGridTable gridTable;
-	
-	
-	public Cell(int col, int row, IGridTable gridTable) {
-		this.col = col;
-		this.row = row;
-		this.gridTable = gridTable;
-	}
 
-	public int getCol() {
-	    return col;
-	}
+    private int row;
+    private int column;
 
-	public int getRow() {
-	    return row;
-	}
+    private int width;
+    private int height;
 
-	public int getCellHeight() {
-		return gridTable.isNormalOrientation() ? gridTable.getGrid().getCellHeight(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row))
-                : gridTable.getGrid().getCellWidth(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row));
-	}
+    private ICellStyle style;
 
-	public ICellInfo getCellInfo() {
-		return gridTable.isNormalOrientation() ? gridTable.getGrid().getCellInfo(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row))
-                : gridTable.getGrid().getCellInfo(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row));		
-	}
+    private Object objectValue;
+    private String stringValue;
+  
+    private ICellFont font;
+    
+    private IGridRegion region;
 
-	public ICellStyle getCellStyle() {
-		return gridTable.getGrid().getCellStyle(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row));
-	}
+    private String formula;
+    
+    private int type;
 
-	public int getCellWidth() {
-		return gridTable.isNormalOrientation() ? gridTable.getGrid().getCellWidth(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row))
-                : gridTable.getGrid().getCellHeight(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row));
-	}
-	
-	public Object getObjectValue() {
-		return gridTable.getGrid().getObjectCellValue(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row));
-	}
+    private String uri;
 
-	public String getStringValue() {
-		return gridTable.getGrid().getStringCellValue(gridTable.getGridColumn(col, row), gridTable.getGridRow(col, row));
-	}
+    public Cell() {
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setColumn(int col) {
+        this.column = col;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public ICellStyle getStyle() {
+        return style;
+    }
+
+    public void setStyle(ICellStyle style) {
+        this.style = style;
+    }
+
+    public Object getObjectValue() {
+        return objectValue;
+    }
+
+    public void setObjectValue(Object objectValue) {
+        this.objectValue = objectValue;
+    }
+
+    public String getStringValue() {
+        return stringValue;
+    }
+
+    public void setStringValue(String stringValue) {
+        this.stringValue = stringValue;
+    }
+
+    public ICellFont getFont() {
+        return font;
+    }
+
+    public void setFont(ICellFont font) {
+        this.font = font;
+    }
+
+    public IGridRegion getRegion() {
+        return region;
+    }
+
+    public void setRegion(IGridRegion region) {
+        this.region = region;
+    }
+
+    public String getFormula() {
+        return formula;
+    }
+
+    public void setFormula(String formula) {
+        this.formula = formula;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
 
 }

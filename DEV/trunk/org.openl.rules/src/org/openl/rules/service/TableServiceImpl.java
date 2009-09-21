@@ -23,7 +23,7 @@ public class TableServiceImpl implements TableService {
             for (int i = 0; i < table.getGridWidth(); i++) {
                 for (int j = 0; j < table.getGridHeight(); j++) {
                     ICell cell = table.getCell(i, j);
-                    if (cell.getCellWidth() != 1 || cell.getCellHeight() != 1) {
+                    if (cell.getWidth() != 1 || cell.getHeight() != 1) {
                         sheetModel.removeMergedRegion(left + i, top + j);
                     }
                     sheetModel.clearCell(left + i, top + j);
