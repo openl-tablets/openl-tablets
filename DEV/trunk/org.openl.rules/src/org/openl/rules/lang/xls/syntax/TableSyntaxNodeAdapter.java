@@ -33,4 +33,8 @@ public class TableSyntaxNodeAdapter implements ITable {
     public TableProperties getProperties() {
         return tsn.getTableProperties();
     }
+
+    public String getType() {
+        return tsn.getType();
+    }
 }
