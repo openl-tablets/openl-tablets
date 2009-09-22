@@ -1,9 +1,13 @@
-package org.openl.types;
+package org.openl.rules.types;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.runtime.IContext;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 
@@ -14,7 +18,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author Alexey Gamanovich
  * 
  */
-public abstract class OpenMethodDecorator implements IOpenMethod {
+public abstract class OpenMethodDispatcher implements IOpenMethod {
 	
 	/**
 	 * Delegate method. Used as a descriptor of method for all overloaded

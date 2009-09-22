@@ -34,4 +34,12 @@ public interface IRuntimeEnv {
 	 * @return <code>IContext</code> instance
 	 */
 	IContext getContext();
+	
+	/**
+	 * Sets context to runtime environment. By default, runtime environment
+	 * doesn't provide any context.
+	 * 
+	 * @param context runtime context.
+	 */
+	void setContext(IContext context);
 }
