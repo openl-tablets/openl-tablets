@@ -138,7 +138,7 @@ public class SquigglySudoku extends SudokuSolver {
 		}
 
 		static short[] getColor(IGridTable gt, XY point) {
-			ICellStyle cs = gt.getCell(point.x, point.y).getCellStyle();
+			ICellStyle cs = gt.getCell(point.x, point.y).getStyle();
 			return cs == null ? null : cs.getFillForegroundColor();
 		}
 
