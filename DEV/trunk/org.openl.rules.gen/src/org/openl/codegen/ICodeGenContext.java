@@ -17,5 +17,4 @@ public interface ICodeGenContext {
     String genNewName(String baseName, String type);
 
     ICodeGenContext parentContext();
-
 }

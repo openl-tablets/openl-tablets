@@ -9,7 +9,8 @@ public class TablePropertyDefinition {
 	private boolean	primaryKey;	
 	private IOpenClass type;	
 	private String group;	
-	private boolean businessSearch;	
+	private boolean businessSearch;
+	private boolean dimensional;
 	private String securityFilter;	
 	private String tableType;	
 	private String defaultValue;	
@@ -17,6 +18,7 @@ public class TablePropertyDefinition {
 	private String format;	
 	private String inheritable;	
 	private String description;
+	private String expression;
 	
 	public String getDisplayName() {
 		return displayName;
@@ -120,6 +122,21 @@ public class TablePropertyDefinition {
 	
 	public void setDescription(String description) {
 		this.description = description;
-	}	
-	
+	}
+
+	public boolean isDimensional() {
+    	return dimensional;
+    }
+
+	public void setDimensional(boolean dimensional) {
+    	this.dimensional = dimensional;
+    }
+
+	public String getExpression() {
+    	return expression;
+    }
+
+	public void setExpression(String expression) {
+    	this.expression = expression;
+    }	
 }
