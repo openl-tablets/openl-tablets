@@ -9,4 +9,6 @@ public interface ITable {
     IGridTable getGridTable(String view);
 
     TableProperties getProperties();
+
+    String getType();
 }
