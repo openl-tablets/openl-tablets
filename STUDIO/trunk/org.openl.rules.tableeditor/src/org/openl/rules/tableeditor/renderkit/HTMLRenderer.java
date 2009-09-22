@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
@@ -333,9 +334,12 @@ public class HTMLRenderer {
     }
 
     protected String renderPropsEditor(String editorId, ITable table, String mode, boolean collapseProps) {
-        TableProperties props = table.getProperties();
-        return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
-                collapseProps).renderProperties();
+        if (!table.getType().equals(ITableNodeTypes.XLS_OTHER)) {
+            TableProperties props = table.getProperties();
+            return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
+                    collapseProps).renderProperties();
+        }
+        return "";
     }
 
     /**
