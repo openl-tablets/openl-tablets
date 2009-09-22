@@ -17,7 +17,7 @@ public class VariableDefinition {
 	/**
 	 * Variable type.
 	 */
-	private Class clazz;
+	private Class<?> clazz;
 	
 	/**
 	 * Creates new instance of class using the name, value and type of variable.
@@ -29,7 +29,7 @@ public class VariableDefinition {
 	 * @param clazz
 	 *            type of variable
 	 */
-	public VariableDefinition(String name, Class clazz) {
+	public VariableDefinition(String name, Class<?> clazz) {
 		
 		this.name = name;
 		this.clazz = clazz;
@@ -49,7 +49,7 @@ public class VariableDefinition {
 	 * 
 	 * @return <code>Class</code> instance that represents the variable type
 	 */
-	public Class getClazz() {
+	public Class<?> getClazz() {
 		return clazz;
 	}
 
