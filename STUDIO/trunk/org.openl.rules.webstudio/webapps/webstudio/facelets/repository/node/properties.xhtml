@@ -10,7 +10,7 @@
 
     <rich:calendar id="#{prefix}effectiveDate" value="#{repositoryTreeController.effectiveDate}" popup="true" enableManualInput="true"
       jointPoint="bottom-left" datePattern="#{formatPatterns.datePattern}"
-      rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.timeZone}">
+      rendered="#{artefact.project.checkedOut}" timeZone="#{formatPatterns.GMTtimeZone}">
       <f:converter converterId="org.openl.DateConverter" />
     </rich:calendar>
 
