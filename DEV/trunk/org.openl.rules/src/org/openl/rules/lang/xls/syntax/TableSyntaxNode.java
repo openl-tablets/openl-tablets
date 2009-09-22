@@ -20,6 +20,7 @@ import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
@@ -152,8 +153,17 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
         return tableBody;
     }
 
+
+    
     public TableProperties getTableProperties() {
         return tableProperties;
+    }
+    
+    //TODO refactor - remove older implementation, rename this
+    public ITableProperties getTableProperties2()
+    {
+        //TODO add implementation
+        return null;
     }
 
     public String getUri() {
