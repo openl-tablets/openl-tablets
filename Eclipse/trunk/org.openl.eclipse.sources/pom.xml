@@ -35,7 +35,7 @@
                 <manifestEntries>
                   <Bundle-Name>OpenL Tablets</Bundle-Name>
                   <Bundle-SymbolicName>org.openl.eclipse.sources</Bundle-SymbolicName>
-                  <Bundle-Version>${openl.version}</Bundle-Version>
+                  <Bundle-Version>${openl.version.eclipse}</Bundle-Version>
                   <Bundle-Localization>plugin</Bundle-Localization>
                   <Bundle-Vendor>OpenL Tablets</Bundle-Vendor>
                 </manifestEntries>
