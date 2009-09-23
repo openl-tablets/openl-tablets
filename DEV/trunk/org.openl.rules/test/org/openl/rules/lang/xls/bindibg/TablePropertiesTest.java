@@ -71,6 +71,9 @@ public class TablePropertiesTest {
         prop = new Property[]{new Property(new StringValue(propName), new ObjectValue(intValue))};
         tablProp = new TableProperties(null, prop);
         result = tablProp.getPropertyValueAsString(propName);        
-        assertEquals("37", result);        
+        assertEquals("37", result);
+        String unexistingName = "noSuchName";
+        result = tablProp.getPropertyValueAsString(unexistingName);        
+        assertNull(result);
     }
 }

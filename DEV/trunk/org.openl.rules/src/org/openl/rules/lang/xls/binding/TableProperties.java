@@ -62,7 +62,8 @@ public class TableProperties {
      * If the current property value is of <code>Date</code> type,
      * gets the format of date from {@link DefaultPropertyDefinitions}.
      * @param key Name of the property.
-     * @return Value formatted to string.
+     * @return Value formatted to string. <code>Null</code> when there is
+     * no property with such name.
      */
     public String getPropertyValueAsString(String key) {
         String result = null;
