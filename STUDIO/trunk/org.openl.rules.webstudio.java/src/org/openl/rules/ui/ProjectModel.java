@@ -446,14 +446,12 @@ public class ProjectModel implements IProjectTypes {
             if (tsn.getErrors() != null) {
                 continue;
             }
-
-            if (tsn.getPropertyValue("validate") != null && !"on".equals((String)tsn
-                    .getPropertyValue("validate").getValue())) {
+           
+            if ( !"on".equals(tsn.getPropertValueAsString("validate"))) {
                 continue;
             }
 
             list.add(tsn);
-
         }
 
         return list;

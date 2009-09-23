@@ -10,7 +10,7 @@ public class CategorySorter extends ATableTreeSorter implements IProjectTypes {
         String category = null;
         
         if(tsn.getPropertyValue("category") != null) { 
-             category = (String)tsn.getPropertyValue("category").getValue();
+             category = tsn.getPropertValueAsString("category");
         }
 
         if (category == null) {

@@ -178,8 +178,7 @@ public class TableCopier extends WizardBase {
             ProjectModel model = studio.getModel();
             TableSyntaxNode node = model.getNode(elementUri);
             tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
-            tableBusinessName = node == null ? null : (String)node.getPropertyValue(TableBuilder.TABLE_PROPERTIES_NAME)
-                    .getValue();
+            tableBusinessName = node == null ? null : node.getPropertValueAsString(TableBuilder.TABLE_PROPERTIES_NAME);
         } else {
             elementUri = studio.getTableUri();
         }
