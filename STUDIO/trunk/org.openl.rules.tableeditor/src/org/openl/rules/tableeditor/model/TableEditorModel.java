@@ -195,7 +195,7 @@ public class TableEditorModel {
         return view != null && view.equalsIgnoreCase(IXlsTableNames.VIEW_BUSINESS);
     }
     
-    public boolean canAddCols(int nCols) {
+    public boolean canInsertCols(int nCols) {
         GridRegion testRegion = new GridRegion(region.getTop() - 1, region.getRight() + 1, region.getBottom() + 1,
                 region.getRight() + 1 + nCols);
         for (int i = 0; i < othertables.length; i++) {
@@ -206,7 +206,7 @@ public class TableEditorModel {
         return true;
     }
 
-    public boolean canAddRows(int nRows) {
+    public boolean canInsertRows(int nRows) {
         GridRegion testRegion = new GridRegion(region.getBottom() + 1, region.getLeft() - 1, region.getBottom() + 1
                 + nRows, region.getRight() + 1);
         for (int i = 0; i < othertables.length; i++) {
@@ -321,7 +321,10 @@ public class TableEditorModel {
         return table;
     }
 
-    public synchronized void insertColumns(int nCols, int beforeCol) {
+    public synchronized void insertColumns(int nCols, int beforeCol) throws Exception {
+        if (!canInsertCols(1)) {
+            moveTable(getUpdatedFullTable());
+        }
         IUndoableGridAction ua = IWritableGrid.Tool.insertColumns(nCols, beforeCol, region, wgrid());
         RegionAction ra = new RegionAction(ua, COLUMNS, INSERT, nCols);
         ra.doSome(region, wgrid(), undoGrid);
@@ -329,7 +332,7 @@ public class TableEditorModel {
     }
 
     public synchronized void insertRows(int nRows, int beforeRow) throws Exception {
-        if (!canAddRows(1)) {
+        if (!canInsertRows(1)) {
             moveTable(getUpdatedFullTable());
         }
         IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows, beforeRow, region, wgrid());
@@ -343,7 +346,7 @@ public class TableEditorModel {
         if (true) {
             return false;
         }
-        return !(canAddRows(1) && canAddCols(1));
+        return !(canInsertRows(1) && canInsertCols(1));
     }
 
     private void makeFilteredGrid(IGridTable gt) {
@@ -428,7 +431,7 @@ public class TableEditorModel {
     }
 
     public synchronized void insertProp(String name, String value) throws Exception {
-        if (!canAddRows(1)) {
+        if (!canInsertRows(1)) {
             moveTable(getUpdatedFullTable());
         }
         IUndoableGridAction ua = IWritableGrid.Tool.insertProp(region, wgrid(), name, value);
