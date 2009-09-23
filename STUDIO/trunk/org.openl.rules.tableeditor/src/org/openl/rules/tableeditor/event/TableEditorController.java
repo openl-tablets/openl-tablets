@@ -57,7 +57,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         if (editorModel != null) {
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             try {
-                if (col >= 0 && editorModel.canAddRows(1)) {
+                if (col >= 0) {
                     editorModel.insertColumns(1, col);
                     tmResponse.setResponse(render(editorId));
                 } else {
