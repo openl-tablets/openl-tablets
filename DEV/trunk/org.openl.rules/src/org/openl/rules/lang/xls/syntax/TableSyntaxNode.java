@@ -131,6 +131,10 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
         }
         return tableProperties.getProperty(name).getValue();
     }
+    
+    public String getPropertValueAsString(String name) {
+        return tableProperties == null ? null : tableProperties.getPropertyValueAsString(name);
+    }
 
     public Map<String, ILogicalTable> getSubTables() {
         return subTables;
