@@ -109,10 +109,12 @@ public class Tokenizer {
             int indexOfDash = textToTokenize.indexOf('-', pos);
             if(indexOfDash > 0) {
                 char charBeforeDash = textToTokenize.charAt(indexOfDash-1);
-                char charAfterDash = textToTokenize.charAt(indexOfDash+1);
-                if(Character.isLetter(charBeforeDash) && Character.isLetter(charAfterDash)) {
-                    result = true;
-                    pos = charAfterDash;
+                if(indexOfDash+1 < textToTokenize.length()) {
+                    char charAfterDash = textToTokenize.charAt(indexOfDash+1);
+                    if(Character.isLetter(charBeforeDash) && Character.isLetter(charAfterDash)) {
+                        result = true;
+                        pos = charAfterDash;
+                    }
                 }
             }               
         }
