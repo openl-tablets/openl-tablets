@@ -63,9 +63,8 @@
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <a href="#{contextPath}/main.jsp?reload=true&amp;select_wrapper=#{headerBean.selectedProject}" title="Refresh Project(s)" target="top"><img border='0' src="#{contextPath}/webresource/images/refresh.gif" alt="reload"/></a>
   <h:panelGroup rendered="#{headerBean.projectsExist and not headerBean.projectReadOnly}">
-      <f:verbatim>&amp;nbsp;</f:verbatim>
-      <h:commandLink target="mainFrame" action="#{tableWizardManager.start}" title="Create new table">
-          <img border='0' src="#{contextPath}/webresource/images/newtable.gif" alt="new table"/></h:commandLink>
+      <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+      <h:commandLink target="mainFrame" action="#{tableWizardManager.start}" title="Create new table"><img border='0' src="#{contextPath}/webresource/images/newtable.gif" alt="new table"/></h:commandLink>
   </h:panelGroup>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <a target="mainFrame" onclick="window.open('#{contextPath}/faces/facelets/diff/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;" href="#" title="Compare Excel files">
