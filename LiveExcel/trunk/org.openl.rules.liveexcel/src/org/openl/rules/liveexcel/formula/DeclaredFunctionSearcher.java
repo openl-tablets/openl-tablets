@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -21,15 +22,17 @@ public class DeclaredFunctionSearcher {
 
     public DeclaredFunctionSearcher(Workbook workbook) {
         this.workbook = workbook;
+        LiveExcelFunctionsPack.instance().createUDFFinderLE(workbook);
 
         // TODO: remove after integration with liveexcel plugin
-        workbook.registerUserDefinedFunction(LiveExcelFunctionsPack.OL_DECLARATION_FUNCTION, null);
-        workbook.registerUserDefinedFunction(LiveExcelFunctionsPack.OL_DECLARATION_LOOKUP_TABLE, null);
-
-        LiveExcelFunctionsPack.initialize();
+        LiveExcelFunctionsPack.registerFunctionNameInWorkbook(workbook, LiveExcelFunctionsPack.OL_DECLARATION_FUNCTION);
+        LiveExcelFunctionsPack.registerFunctionNameInWorkbook(workbook,
+                LiveExcelFunctionsPack.OL_DECLARATION_LOOKUP_TABLE);
     }
 
     public void findFunctions() {
+        FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator(
+                LiveExcelFunctionsPack.instance());
         for (int num = 0; num < workbook.getNumberOfSheets(); num++) {
             Sheet sheet = workbook.getSheetAt(num);
             for (Row row : sheet) {
@@ -38,7 +41,7 @@ public class DeclaredFunctionSearcher {
                         DataFormatter dataFormatter = new DataFormatter();
                         String formattedValue = dataFormatter.formatCellValue(cell);
                         if (LiveExcelFunctionsPack.isLiveExcelGlobalFunction(formattedValue)) {
-                            workbook.getCreationHelper().createFormulaEvaluator().evaluate(cell);
+                            evaluator.evaluate(cell);
                         }
                     }
                 }

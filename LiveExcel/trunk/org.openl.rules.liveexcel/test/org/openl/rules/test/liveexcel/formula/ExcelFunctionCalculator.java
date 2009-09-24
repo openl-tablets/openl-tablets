@@ -8,14 +8,18 @@ import java.util.Date;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.hssf.record.formula.udf.DefaultUDFFinder;
+import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.LiveExcelFunction;
+import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
 
 public class ExcelFunctionCalculator {
     public static class CellAddress {
@@ -71,8 +75,9 @@ public class ExcelFunctionCalculator {
     }
 
     // TODO: delete method
-    private void makeExampleOfUDF(Workbook wb) {
-        wb.registerUserDefinedFunction("base", new LiveExcelFunction() {
+    private UDFFinder makeExampleOfUDF(Workbook wb) {
+        LiveExcelFunctionsPack.instance().createUDFFinderLE(wb);
+        LiveExcelFunctionsPack.instance().addUDF(wb, "base", new LiveExcelFunction() {
             public ValueEval execute(ValueEval[] args, OperationEvaluationContext ec) {
                 if (args.length != 1) {
                     return ErrorEval.VALUE_INVALID;
@@ -84,14 +89,14 @@ public class ExcelFunctionCalculator {
                     }
                 }
             }
-        });
+        } );
+        return LiveExcelFunctionsPack.instance().getUDFFinderLE(wb);
     }
 
     public Object calculateResult(CellAddress outputAddress, Object[] inputValues, CellAddress[] inputCellAddresses) {
         setValues(inputValues, inputCellAddresses);
-        makeExampleOfUDF(workbook);
-        new HSSFFormulaEvaluator(workbook).evaluateInCell(sheet.getRow(outputAddress.getRow()).getCell(
-                outputAddress.getColumn()));
+        FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator(makeExampleOfUDF(workbook));
+        evaluator.evaluateInCell(sheet.getRow(outputAddress.getRow()).getCell(outputAddress.getColumn()));
         return getCellValue(sheet.getRow(outputAddress.getRow()).getCell(outputAddress.getColumn()));
     }
 

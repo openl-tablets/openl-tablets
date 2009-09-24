@@ -10,17 +10,16 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionParser;
-import org.openl.rules.liveexcel.hssf.usermodel.LiveExcelHSSFWorkbook;
+import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
+import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack.UDFFinderLE;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbook;
 import org.openl.rules.liveexcel.usermodel.LiveExcelWorkbookFactory;
 
@@ -34,42 +33,45 @@ public class DeclareSearchTest {
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
         searcher.findFunctions();
 
-        List<String> expextedFunctions = new ArrayList<String>();
-        expextedFunctions.add("func1");
-        expextedFunctions.add("func2");
-        expextedFunctions.add("denisesFun");
+        List<String> expectedFunctions = new ArrayList<String>();
+        expectedFunctions.add("func1");
+        expectedFunctions.add("func2");
+        expectedFunctions.add("denisesFun");
 
-        for (String functionName : expextedFunctions) {
-            if (workbook.getUserDefinedFunction(functionName) == null) {
+        for (String functionName : expectedFunctions) {
+            if (LiveExcelFunctionsPack.instance().getUDFFinderLE(workbook).findFunction(functionName) == null) {
                 assertFalse(true);
             }
         }
         assertTrue(true);
     }
-    
+
     @Test
     public void testFunction() {
         Workbook workbook = getWorkbook();
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
         Sheet sheet = workbook.getSheetAt(1);
         searcher.findFunctions();
-        HSSFCell evaluateInCell = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)workbook).evaluateInCell(sheet.getRow(13).getCell(1));
-        HSSFCell evaluateInCell2 = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)workbook).evaluateInCell(sheet.getRow(2).getCell(3));
-        HSSFCell evaluateInCell3 = new HSSFFormulaEvaluator((LiveExcelHSSFWorkbook)workbook).evaluateInCell(sheet.getRow(2).getCell(4));
+        UDFFinderLE udfFinder = LiveExcelFunctionsPack.instance().getUDFFinderLE(workbook);
+        FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator(udfFinder);
+        Cell evaluateInCell = evaluator.evaluateInCell(sheet.getRow(13).getCell(1));
+        Cell evaluateInCell2 = evaluator.evaluateInCell(sheet.getRow(2).getCell(3));
+        Cell evaluateInCell3 = evaluator.evaluateInCell(sheet.getRow(2).getCell(4));
         assertTrue(20 == evaluateInCell.getNumericCellValue());
         assertTrue(25.5 == evaluateInCell2.getNumericCellValue());
         assertTrue(25 == evaluateInCell3.getNumericCellValue());
     }
-    
-    
+
     @Test
     public void testFunWithReturnFromOtherSheet() {
         Workbook workbook = getWorkbook();
         DeclaredFunctionSearcher searcher = new DeclaredFunctionSearcher(workbook);
         searcher.findFunctions();
         Sheet sheet = workbook.getSheetAt(2);
-        HSSFCell evaluateInCell = new HSSFFormulaEvaluator((HSSFWorkbook)workbook).evaluateInCell(sheet.getRow(18).getCell(1));
-        
+        FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator(
+                LiveExcelFunctionsPack.instance().getUDFFinderLE(workbook));
+        Cell evaluateInCell = evaluator.evaluateInCell(sheet.getRow(18).getCell(1));
+
         assertTrue(9 == evaluateInCell.getNumericCellValue());        
     }
 

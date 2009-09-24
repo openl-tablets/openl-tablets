@@ -164,8 +164,4 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	public org.apache.poi.ss.usermodel.Workbook getWorkbook() {
 		return _uBook;
 	}
-
-    public FreeRefFunction findUserDefinedFunction(String functionName) {
-        return _uBook.getUserDefinedFunction(functionName);
-    }
 }

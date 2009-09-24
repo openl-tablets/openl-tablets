@@ -184,6 +184,7 @@ public final class WorkbookEvaluator {
                     cell.getColumnIndex());
         }
         cce.updateValue(newValue);
+        cce.recurseClearCachedFormulaResults(null);
     }
 
 	/**
