@@ -232,31 +232,16 @@ public class HTMLRenderer {
                 renderEditorToolbarItem(editorId + "_undo", editor, "img/Undo.gif", "undoredo()", "Undo")).append(
                 renderEditorToolbarItem(editorId + "_redo", editor, "img/Redo.gif", "undoredo(true)", "Redo")).append(
                 toolbarItemSeparator).append(
-                renderEditorToolbarItem(editorId + "_add_row_before", editor, "img/insert_row.gif",
-                        "doRowOperation(TableEditor.Constants.INSERT_BEFORE)", "Insert row before")).append(
+                renderEditorToolbarItem(editorId + "_insert_row_before", editor, "img/insert_row.gif",
+                        "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row before")).append(
                 renderEditorToolbarItem(editorId + "_remove_row", editor, "img/delete_row.gif",
-                        "doRowOperation(TableEditor.Constants.REMOVE)", "Remove row"))
-        // .append(renderEditorToolbarItem(editorId + "_move_row_down", editor,
-        // "img/b_row_ins.gif",
-                // "doRowOperation(TableEditor.Constants.MOVE_DOWN)", "Move row
-                // down"))
-                // .append(renderEditorToolbarItem(editorId + "_move_row_up",
-                // editor, "img/b_row_ins.gif",
-                // "doRowOperation(TableEditor.Constants.MOVE_UP)", "Move row
-                // up"))
+                        "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
                 .append(toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_add_column_before", editor, "img/insert_column.gif",
-                                "doColOperation(TableEditor.Constants.INSERT_BEFORE)", "Insert column before")).append(
+                        renderEditorToolbarItem(editorId + "_insert_column_before", editor, "img/insert_column.gif",
+                                "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)",
+                                "Insert column before")).append(
                         renderEditorToolbarItem(editorId + "_remove_column", editor, "img/delete_column.gif",
-                                "doColOperation(TableEditor.Constants.REMOVE)", "Remove column"))
-                // .append(renderEditorToolbarItem(editorId +
-                // "_move_column_right", editor, "img/b_row_ins.gif",
-                // "doColOperation(TableEditor.Constants.MOVE_DOWN)", "Move
-                // column right"))
-                // .append(renderEditorToolbarItem(editorId +
-                // "_move_column_left", editor, "img/b_row_ins.gif",
-                // "doColOperation(TableEditor.Constants.MOVE_UP)", "Move column
-                // left"))
+                                "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)", "Remove column"))
                 .append(toolbarItemSeparator).append(
                         renderEditorToolbarItem(editorId + "_align_left", editor, "img/alLeft.gif",
                                 "setAlignment('left')", "Align left")).append(

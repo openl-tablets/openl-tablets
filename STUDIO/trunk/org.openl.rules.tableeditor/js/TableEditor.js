@@ -13,14 +13,6 @@ var TableEditor = Class.create();
  */
 TableEditor.Editors = $H();
 
-TableEditor.Constants = {
-    INSERT_BEFORE : 1,
-    INSERT_AFTER : 2,
-    MOVE_DOWN : 3,
-    MOVE_UP : 4,
-    REMOVE : 5
-};
-
 TableEditor.Operations = {
     LOAD : "load",
     GET_CELL_TYPE : "getCellType",
@@ -30,9 +22,9 @@ TableEditor.Operations = {
     SET_INDENT : "setIndent",
     SET_PROP : "setProp",
     REMOVE_ROW : "removeRow",
-    REMOVE_COL : "removeCol",
-    INSERT_ROW : "insertRowBefore",
-    INSERT_COL : "insertColBefore",
+    REMOVE_COLUMN : "removeCol",
+    INSERT_ROW_BEFORE : "insertRowBefore",
+    INSERT_COLUMN_BEFORE : "insertColBefore",
     UNDO : "undo",
     REDO : "redo",
     SAVE : "saveTable"
@@ -598,24 +590,17 @@ TableEditor.prototype = {
         });
     },
 
-    doRowOperation: function(op) {this.doColRowOperation(0, op)},
-    doColOperation: function(op) {this.doColRowOperation(1, op)},
-
-    /**
-     *  @type: private
-     */
-    doColRowOperation: function(index, op) {
+    doTableOperation: function(operation) {
         if (!this.hasSelection()) {
             alert("Nothing is selected");
             return;
         }
-        var params = [];
-        params.editorId = this.editorId;
-        params[["row", "col"][index]] = (op == TableEditor.Constants.INSERT_AFTER ? 1 : 0) + this.selectionPos[index];
-
-        new Ajax.Request(this.buildUrl(([TableEditor.Constants.REMOVE].include(op)
-                ? (index == 0 ?  TableEditor.Operations.REMOVE_ROW :  TableEditor.Operations.REMOVE_COL)
-                : (index == 0 ?  TableEditor.Operations.INSERT_ROW :  TableEditor.Operations.INSERT_COL))), {
+        var params = {
+            editorId: this.editorId,
+            row : this.selectionPos[0],
+            col : this.selectionPos[1]
+        }
+        new Ajax.Request(this.buildUrl(operation), {
             onSuccess : this.modFuncSuccess,
             parameters : params,
             onFailure: AjaxHelper.handleError

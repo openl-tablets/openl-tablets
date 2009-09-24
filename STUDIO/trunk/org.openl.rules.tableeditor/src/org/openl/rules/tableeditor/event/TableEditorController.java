@@ -124,11 +124,12 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     public String removeRow() throws Exception {
         int row = getRow();
+        int col = getCol();
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            if (row >= 0) {
-                editorModel.removeRows(1, row);
+            if (row >= 0 && col >= 0) {
+                editorModel.removeRows(1, row, col);
                 return pojo2json(new TableModificationResponse(render(editorId), editorModel));
             }
         }
