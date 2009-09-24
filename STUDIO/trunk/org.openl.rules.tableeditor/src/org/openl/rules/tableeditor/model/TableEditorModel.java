@@ -364,29 +364,31 @@ public class TableEditorModel {
         ((RegionAction) ua).doSome(region, wgrid(), undoGrid);
     }
 
-    public synchronized void removeColumns(int nCols, int beforeCol) {
+    public synchronized void removeColumns(int nCols, int startCol) {
         if (isExtendedView()) {
-            beforeCol -= 3;
+            startCol -= 3;
         }
-        if (beforeCol < 0 || beforeCol >= IGridRegion.Tool.width(region)) {
+        if (startCol < 0 || startCol >= IGridRegion.Tool.width(region)) {
             return;
         }
-
-        IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, beforeCol, region, wgrid());
+        IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, startCol, region, wgrid());
         RegionAction ra = new RegionAction(ua, COLUMNS, REMOVE, nCols);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
     }
 
-    public synchronized void removeRows(int nRows, int beforeRow) {
+    public synchronized void removeRows(int nRows, int startRow, int col) {
         if (isExtendedView()) {
-            beforeRow -= 3;
+            startRow -= 3;
         }
-        if (beforeRow < 0 || beforeRow >= IGridRegion.Tool.height(region)) {
+        if (startRow < 0 || startRow >= IGridRegion.Tool.height(region)) {
             return;
         }
-
-        IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows, beforeRow, region, wgrid());
+        int cellHeight = getCell(startRow, col).getHeight();
+        if (cellHeight > 1) { // merged cell
+            nRows += cellHeight - 1;
+        }
+        IUndoableGridAction ua = IWritableGrid.Tool.removeRows(nRows, startRow, region, wgrid());
         RegionAction ra = new RegionAction(ua, ROWS, REMOVE, nRows);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
