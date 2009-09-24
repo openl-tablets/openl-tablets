@@ -16,7 +16,9 @@
 ==================================================================== */
 package org.apache.poi.xssf.usermodel;
 
+import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 
 public class XSSFCreationHelper implements CreationHelper {
 	private XSSFWorkbook workbook;
@@ -54,6 +56,10 @@ public class XSSFCreationHelper implements CreationHelper {
 	public XSSFFormulaEvaluator createFormulaEvaluator() {
 		return new XSSFFormulaEvaluator(workbook);
 	}
+
+    public FormulaEvaluator createFormulaEvaluator(UDFFinder udfFinder) {
+        return XSSFFormulaEvaluator.create(workbook, null, udfFinder);
+    }
 
 	/**
 	 * Creates a XSSFClientAnchor. Use this object to position drawing object in

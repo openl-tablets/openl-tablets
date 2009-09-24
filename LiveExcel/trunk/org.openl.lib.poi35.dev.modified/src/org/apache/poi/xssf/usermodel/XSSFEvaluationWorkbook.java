@@ -30,6 +30,8 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDefinedName;
  * Internal POI use only
  *
  * @author Josh Micich
+ * 
+ * Modified 09/07/09 by Petr Udalau - added methods for searching for UDFs of this Workbook. 
  */
 public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, EvaluationWorkbook, FormulaParsingWorkbook {
 
@@ -183,8 +185,4 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	public Workbook getWorkbook() {
 		return _uBook;
 	}
-
-    public FreeRefFunction findUserDefinedFunction(String functionName) {
-        return _uBook.getUserDefinedFunction(functionName);
-    }
 }

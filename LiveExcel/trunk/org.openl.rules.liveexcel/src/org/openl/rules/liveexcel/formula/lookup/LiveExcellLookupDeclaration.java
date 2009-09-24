@@ -7,6 +7,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
+import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
 
 /**
  * Class for registration new declared user lookups(declared by
@@ -27,7 +28,7 @@ public class LiveExcellLookupDeclaration implements FreeRefFunction {
         } else {
             new LookupTypeResolver(lookup).initParameters("");
         }
-        evaluationWorkbook.getWorkbook().registerUserDefinedFunction(functionName, lookup);
+        LiveExcelFunctionsPack.instance().addUDF(evaluationWorkbook.getWorkbook(), lookup.getDeclFuncName(), lookup);
         return new StringEval(functionName);
     }
 

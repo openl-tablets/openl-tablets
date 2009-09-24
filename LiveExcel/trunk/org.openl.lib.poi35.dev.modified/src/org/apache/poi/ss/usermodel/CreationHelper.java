@@ -16,6 +16,7 @@
 ==================================================================== */
 package org.apache.poi.ss.usermodel;
 
+import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 
 /**
@@ -63,6 +64,14 @@ public interface CreationHelper {
      * @return a FormulaEvaluator instance
      */
     FormulaEvaluator createFormulaEvaluator();
-    
+
+    /**
+     * Creates FormulaEvaluator - an object that evaluates formula cells.
+     * 
+     * @param udfFinder  pass <code>null</code> for default (AnalysisToolPak only)
+     * @return a FormulaEvaluator instance
+     */
+    FormulaEvaluator createFormulaEvaluator(UDFFinder udfFinder);
+
     ClientAnchor createClientAnchor();
 }

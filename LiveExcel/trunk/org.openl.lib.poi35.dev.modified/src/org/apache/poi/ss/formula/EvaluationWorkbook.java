@@ -54,17 +54,6 @@ public interface EvaluationWorkbook {
 	Ptg[] getFormulaTokens(EvaluationCell cell);
 	Workbook getWorkbook();
 
-	/**
-     * Find and return user defined function (UDF) contained by workbook with
-     * specified name.
-     * 
-     * @param functionName UDF name
-     * @return instance of FreeRefFunction or null if no UDF with the specified
-     *         name exists.
-     */
-	FreeRefFunction findUserDefinedFunction(String functionName);
-
-
 	class ExternalSheet {
 		private final String _workbookName;
 		private final String _sheetName;

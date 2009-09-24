@@ -8,6 +8,7 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.ss.formula.EvaluationTracker;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
@@ -17,6 +18,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.LiveExcelDataAccessFunction;
 import org.openl.rules.liveexcel.formula.LiveExcelFunction;
+import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
 
 /**
  * Evaluator for any declared LiveExcel function.
@@ -24,6 +26,7 @@ import org.openl.rules.liveexcel.formula.LiveExcelFunction;
  * @author PUdalau
  */
 public class LiveExcelEvaluator {
+    private Workbook workbook;
     private EvaluationContext evaluationContext;
     private EvaluationWorkbook evaluationWorkbook;
 
@@ -34,17 +37,25 @@ public class LiveExcelEvaluator {
      * @param evaluationContext EvaluationContext associated with evaluator.
      */
     public LiveExcelEvaluator(Workbook workbook, EvaluationContext evaluationContext) {
+        this.workbook = workbook;
         this.evaluationContext = evaluationContext;
         evaluationWorkbook = workbook.getCreationHelper().createEvaluationWorkbook();
-        registerServiceModelUDFs();
         new DeclaredFunctionSearcher(workbook).findFunctions();
+        registerServiceModelUDFs();
         exposeInOpenL();
     }
 
     private void registerServiceModelUDFs() {
         for (String functionName : evaluationContext.getServiceModelAPI().getAllServiceModelUDFs()) {
-            evaluationWorkbook.getWorkbook().registerUserDefinedFunction(functionName,
-                    generateGetterFunction(functionName));
+            LiveExcelFunctionsPack.instance().addUDF(workbook, functionName, generateGetterFunction(functionName));
+        }
+        //stub for root name methods.
+        for (String functionName : evaluationContext.getServiceModelAPI().getRootNames()) {
+            LiveExcelFunctionsPack.instance().addUDF(workbook, functionName, new FreeRefFunction() {
+                public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+                    return new NumberEval(0);
+                }
+            });
         }
     }
 
@@ -60,13 +71,14 @@ public class LiveExcelEvaluator {
      * @return Result of evaluation.
      */
     public ValueEval evaluateServiceModelUDF(String functionName, Object[] args) {
-        WorkbookEvaluator evaluator = new WorkbookEvaluator(evaluationWorkbook, null);
+        UDFFinder functionsPack = LiveExcelFunctionsPack.instance().getUDFFinderLE(workbook);
+        WorkbookEvaluator evaluator = new WorkbookEvaluator(evaluationWorkbook, null, functionsPack);
         evaluationContext.createDataPool(evaluator);
         ValueEval[] processedArgs = new ValueEval[args.length];
         for (int i = 0; i < args.length; i++) {
             processedArgs[i] = createEvalForObject(args[i], evaluator);
         }
-        FreeRefFunction udf = evaluationWorkbook.findUserDefinedFunction(functionName);
+        FreeRefFunction udf = evaluator.findUserDefinedFunction(functionName);
         ValueEval result = udf.evaluate(processedArgs, new OperationEvaluationContext(evaluator, evaluationWorkbook,
                 -1, -1, -1, new EvaluationTracker()));
         evaluationContext.removeDataPool(evaluator);

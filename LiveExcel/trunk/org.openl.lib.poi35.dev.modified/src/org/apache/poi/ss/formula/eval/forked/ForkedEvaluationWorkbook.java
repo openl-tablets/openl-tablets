@@ -145,10 +145,6 @@ final class ForkedEvaluationWorkbook implements EvaluationWorkbook {
 		}
 	}
 
-    public FreeRefFunction findUserDefinedFunction(String functionName) {
-        return _masterBook.findUserDefinedFunction(functionName);
-    }
-
     public Workbook getWorkbook() {
         return _masterBook.getWorkbook();
     }

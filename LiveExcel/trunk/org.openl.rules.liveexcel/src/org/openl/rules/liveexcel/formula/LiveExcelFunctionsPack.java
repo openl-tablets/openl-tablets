@@ -2,53 +2,66 @@ package org.openl.rules.liveexcel.formula;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
-import org.apache.poi.hssf.record.formula.toolpack.MainToolPacksHandler;
-import org.apache.poi.hssf.record.formula.toolpack.ToolPack;
+import org.apache.poi.hssf.record.formula.udf.UDFFinder;
+import org.apache.poi.ss.usermodel.Name;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.lookup.LiveExcellLookupDeclaration;
 
 /**
  * Tool pack of global LiveExcel functions.
  * 
+ * TODO: remove this class when our parsing will be done.
  * @author PUdalau
  */
-public class LiveExcelFunctionsPack implements ToolPack {
+public class LiveExcelFunctionsPack implements UDFFinder {
     public static final String OL_DECLARATION_FUNCTION = "OL_DECLARE_FUNCTION";
     public static final String OL_DECLARATION_LOOKUP_TABLE = "OL_DECLARE_TABLE";
 
     private Map<String, FreeRefFunction> functionsByName = new HashMap<String, FreeRefFunction>();
+    private Map<Workbook, UDFFinderLE> udfStorage = new HashMap<Workbook, UDFFinderLE>();
 
-    public void addFunction(String name, FreeRefFunction evaluator) {
-        if (evaluator != null) {
-            functionsByName.put(name, evaluator);
+    private static LiveExcelFunctionsPack instance;
+
+    public static LiveExcelFunctionsPack instance() {
+        if (instance == null) {
+            instance = new LiveExcelFunctionsPack();
         }
+        return instance;
     }
 
-    public boolean containsFunction(String name) {
-        return functionsByName.containsKey(name);
+    public UDFFinderLE createUDFFinderLE(Workbook wb) {
+        return udfStorage.put(wb, new UDFFinderLE());
+    }
+
+    public UDFFinderLE getUDFFinderLE(Workbook wb) {
+        return udfStorage.get(wb);
+    }
+
+    public void addUDF(Workbook wb, String name, FreeRefFunction executor) {
+        name = name.toUpperCase();
+        udfStorage.get(wb).add(name, executor);
+        registerFunctionNameInWorkbook(wb, name);
+    }
+
+    public static void registerFunctionNameInWorkbook(Workbook wb, String name) {
+        Name function = wb.getName(name);
+        if (function == null) {
+            function = wb.createName();
+            function.setNameName(name);
+        }
+        function.setFunction(true);
+    }
+
+    private LiveExcelFunctionsPack() {
+        functionsByName.put(OL_DECLARATION_FUNCTION, new LiveExcellFunctionDeclaration());
+        functionsByName.put(OL_DECLARATION_LOOKUP_TABLE, new LiveExcellLookupDeclaration());
     }
 
     public FreeRefFunction findFunction(String name) {
-        return functionsByName.get(name);
-    }
-
-    public void removeFunction(String name) {
-        functionsByName.remove(name);
-    }
-
-    /**
-     * Initializes LiveExcel tool pack with all global functions and registers
-     * it.
-     */
-    public static void initialize() {
-        MainToolPacksHandler packHandler = MainToolPacksHandler.instance();
-        if (!packHandler.containsFunction(OL_DECLARATION_FUNCTION)) {
-            LiveExcelFunctionsPack liveExcelPack = new LiveExcelFunctionsPack();
-            liveExcelPack.addFunction(OL_DECLARATION_FUNCTION, new LiveExcellFunctionDeclaration());
-            liveExcelPack.addFunction(OL_DECLARATION_LOOKUP_TABLE, new LiveExcellLookupDeclaration());
-            packHandler.addToolPack(liveExcelPack);
-        }
+        return functionsByName.get(name.toUpperCase());
     }
 
     /**
@@ -64,5 +77,21 @@ public class LiveExcelFunctionsPack implements ToolPack {
             return true;
         }
         return false;
+    }
+
+    public static class UDFFinderLE implements UDFFinder {
+        private Map<String, FreeRefFunction> functionsByName = new HashMap<String, FreeRefFunction>();
+
+        private void add(String name, FreeRefFunction executor) {
+            functionsByName.put(name, executor);
+        }
+
+        public FreeRefFunction findFunction(String name) {
+            return functionsByName.get(name.toUpperCase());
+        }
+
+        public Set<String> getUserDefinedFunctionNames() {
+            return functionsByName.keySet();
+        }
     }
 }
