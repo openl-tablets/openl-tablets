@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ChangeVersion" basedir="." default="help">
 
+	<!--property name="projects_root" value="d:/projects/OpenL/Eclipse/trunk"></property>
+	<property name="previous_version" value="5.3.0"></property>
+	<property name="version_for_poms" value="5.3.1-snaps"></property>
+	<property name="version" value="5.3.1"></property-->
     <fileset
             id="openl_version_file"
             dir="${projects_root}"
@@ -22,8 +26,19 @@
     <fileset
             id="project_pom"
             dir="${projects_root}"
-            includes="*-pom/pom.xml"
-            />
+            includes="*-pom/pom.xml">
+    	<include name="pom.xml"/><!--Only for totorials POM(Changing parent version)-->
+    </fileset>
+
+    <fileset
+            id="other_files"
+            dir="${projects_root}">
+    	<include name="**/site.xml"/>
+    	<include name="**/WebStudio Starter.launch"/>
+    	<include name="**/build.xml"/>
+    	<include name="**/run.bat"/>
+    	<include name="org.openl.rules.base-pom/pom.xml"/><!--Dependencies versions-->
+    </fileset>
 
     <target name="change" description="Change Version">
         <replaceregexp byline="true">
@@ -40,10 +55,11 @@
         It is possible that other Eclipse specific files can have the same sequence.
         Luckily, our _versions_ has few leading spaces.
         -->
-        <replaceregexp byline="true">
-            <regexp pattern='\s\sversion="(.*)"'/>
-            <substitution expression='  version="${version}"'/>
+        <replaceregexp byline="false" flags="-g" description="Updates OpenL Eclipse version">
+            <regexp pattern='${previous_version}'/>
+            <substitution expression='${version}'/>
             <fileset refid="all_feature"/>
+            <fileset refid="other_files"/>
         </replaceregexp>
         <replaceregexp byline="true" description="Updates OpenL version">
             <regexp pattern="openl.version=(.*)"/>
@@ -60,16 +76,6 @@
             <substitution expression="${version_for_poms}"/>
             <fileset refid="project_pom"/>
         </replaceregexp>
-        <replaceregexp byline="true" description="Updates dependecies version">
-            <regexp pattern="\s*&lt;dep.version&gt;.*&lt;/dep.version&gt;"/>
-            <substitution expression="    &lt;dep.version&gt;${version_for_poms}&lt;/dep.version&gt;"/>
-            <fileset refid="project_pom"/>
-        </replaceregexp>
-        <!--replaceregexp byline="true" description="Updates openl version for site">
-            <regexp pattern="\s*&lt;openl.version&gt;.*&lt;/openl.version&gt;"/>
-            <substitution expression="    &lt;openl.version&gt;${version}&lt;/openl.version&gt;"/>
-            <fileset refid="project_pom"/>
-        </replaceregexp-->
     </target>
 
     <target name="help">
