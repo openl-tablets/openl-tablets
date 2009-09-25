@@ -320,7 +320,7 @@ public interface IWritableGrid extends IGrid {
                 }
             }
 
-            actions.addAll(findMergedRegionsToResize(wgrid, startRow, nRows, REMOVE, INSERT, region));
+            //actions.addAll(findMergedRegionsToResize(wgrid, startRow, nRows, REMOVE, INSERT, region));
             return new UndoableCompositeAction(actions);
         }
 
