@@ -104,10 +104,11 @@
 	</target>
 	
 	<target name="prepare">
-        <!--antcall target="changeVersions">
+        <antcall target="changeVersions">
+			<param name="previous_version" value="${release_version}"/>
 			<param name="version" value="${release_version}"/>
 			<param name="version_for_poms" value="${release_version}"/>
-		</antcall-->
+		</antcall>
 		<antcall target="fullCommit"/>
 	</target>
 	
@@ -133,10 +134,11 @@
 	</target>
 	
 	<target name="fullRelease" depends="execute">
-		<!--antcall target="changeVersions">
+		<antcall target="changeVersions">
+			<param name="previous_version" value="${release_version}"/>
 			<param name="version" value="${next_eclipse_version}"/>
 			<param name="version_for_poms" value="${next_maven_version}"/>
-		</antcall-->
+		</antcall>
 		<antcall target="fullCommit"/>
 	</target>
     <target name="help">
