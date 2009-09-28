@@ -48,6 +48,9 @@
 			<param name="moduleFolder" value="${root_folder}/${basepom_folder}"/>
 		</antcall>
 		<antcall target="commitModule">
+			<param name="moduleFolder" value="${root_folder}/${poi_folder}"/>
+		</antcall>
+		<antcall target="commitModule">
 			<param name="moduleFolder" value="${root_folder}/${dev_folder}"/>
 		</antcall>
 		<antcall target="commitModule">
@@ -67,6 +70,9 @@
 	<target name="changeVersions">
 		<antcall target="change">
 			<param name="projects_root" value="${root_folder}/${basepom_folder}"/>
+		</antcall>
+		<antcall target="change">
+			<param name="projects_root" value="${root_folder}/${poi_folder}"/>
 		</antcall>
 		<antcall target="change">
 			<param name="projects_root" value="${root_folder}/${dev_folder}"/>
@@ -115,6 +121,9 @@
 	<target name="execute" depends="prepare">
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${basepom_folder}"/>
+		</antcall>
+		<antcall target="releaseModule">
+			<param name="moduleFolder" value="${root_folder}/${poi_folder}"/>
 		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${dev_folder}"/>
