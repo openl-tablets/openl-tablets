@@ -819,7 +819,7 @@ public class ProjectModel implements IProjectTypes {
 
             if (folders != null && folders[k] != null) {
                 folder = new ProjectTreeElement(folders[k], "folder", null, null, 0, null);
-                root.getElements().put(new ATableTreeSorter.Key(k + 1, folder.getDisplayName()), folder);
+                root.addChild(new ATableTreeSorter.Key(k + 1, folder.getDisplayName()), folder);
             }
             ATableTreeSorter[] ts = sorters[k];
 
