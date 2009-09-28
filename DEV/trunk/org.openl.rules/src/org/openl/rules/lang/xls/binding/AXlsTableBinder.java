@@ -7,6 +7,7 @@
 package org.openl.rules.lang.xls.binding;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -19,6 +20,8 @@ import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridTableSourceCodeModule;
+import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.syntax.ISyntaxNode;
 
 /**
@@ -55,6 +58,7 @@ public abstract class AXlsTableBinder extends ANodeBinder {
             return null;
         }
 
+        
         ILogicalTable propValues = propTable.columns(1);
 
         ArrayList<TableProperties.Property> properties = new ArrayList<TableProperties.Property>();
@@ -69,26 +73,59 @@ public abstract class AXlsTableBinder extends ANodeBinder {
             }
 
             String propertyName = row.getGridTable().getCell(0, 0).getStringValue();
-            if (propertyName == null || propertyName.trim().length() == 0) {
-                continue;
-            }            
-            Object propertyValue = row.getLogicalColumn(1).getGridTable().getCell(0, 0).getObjectValue();
-            if (propertyValue == null) {
-                continue;
-            // validateProperty(propertyName, propertyValue, row);
+            if (propertyName != null && propertyName.trim().length() != 0) {
+                Object propertyValue = row.getLogicalColumn(1).getGridTable().getCell(0, 0).getObjectValue();
+                if (propertyValue == null) {
+                    continue;
+                } else {
+                    validateProperty(propertyName, propertyValue, row);
+                }
+    
+                StringValue key = new StringValue(propertyName, "key", null, row.getGridTable().getUri(0, 0));
+                ObjectValue value = new ObjectValue(propertyValue, "value", null, row.getLogicalColumn(1).getGridTable()
+                        .getUri(0, 0));
+                TableProperties.Property p = new TableProperties.Property(key, value);
+                properties.add(p);
             }
-
-            StringValue key = new StringValue(propertyName, "key", null, row.getGridTable().getUri(0, 0));
-            ObjectValue value = new ObjectValue(propertyValue, "value", null, row.getLogicalColumn(1).getGridTable()
-                    .getUri(0, 0));
-            TableProperties.Property p = new TableProperties.Property(key, value);
-            properties.add(p);
         }
 
         return new TableProperties(propValues, properties.toArray(new TableProperties.Property[0]));
 
     }
-
+    
+    /**
+     * Try to get the property definition by its given name from {@link DefaultPropertyDefinitions}.
+     * If there is no such property throws an exception. If type of the property value can`t be
+     * cast to its type from definition, also throws an error.
+     * @param propertyName Name of the property.
+     * @param propertyValue Value of the property.
+     * @param row Row in table.
+     * @throws BoundError
+     */
+    private void validateProperty(String propertyName, Object propertyValue,
+            ILogicalTable row) throws BoundError {
+        Class<?> propDefType = Class.class;
+        TablePropertyDefinition propDef = DefaultPropertyDefinitions.getPropertyByName(propertyName);
+        if (propDef == null) {
+            throw new BoundError(null, String.format(
+                    "There is no property in definitions with name \"%1s\".",
+                    propertyName), null, new GridTableSourceCodeModule(row
+                    .getGridTable()));
+        } else {
+            propDefType = propDef.getType().getInstanceClass();
+            try {
+                propDefType.cast(propertyValue);
+            } catch (ClassCastException e) {
+                throw new BoundError(null, String.format("Property \"%1s\" must be of type \"%2s\". " +
+                		"Found type is \"%3s\". Found value is \"%4s\".", 
+                		propertyName, propDefType.toString(), 
+                		propertyValue.getClass().toString(), 
+                		propertyValue),
+                        null, new GridTableSourceCodeModule(row.getGridTable()));
+            }
+        }
+    }
+    
     public abstract IMemberBoundNode preBind(TableSyntaxNode syntaxNode, OpenL openl, IBindingContext cxt,
             XlsModuleOpenClass module) throws Exception;
 }

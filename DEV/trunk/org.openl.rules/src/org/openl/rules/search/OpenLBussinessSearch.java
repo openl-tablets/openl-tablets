@@ -83,7 +83,7 @@ public class OpenLBussinessSearch implements IOpenLSearch{
                     if(property.getValue().compareTo(propFromSearch.getValue()) == 0) {
                         numMatch++;
                     } else {
-                        if(property.getValue().getValue() instanceof String 
+                        if(property.getValue().getValue() instanceof String && propFromSearch.getValue().getValue() instanceof String
                                 && checkIfContainString(((String)property.getValue().getValue()).toLowerCase(),
                                     ((String)propFromSearch.getValue().getValue()).toLowerCase())) {
                             numMatch++;

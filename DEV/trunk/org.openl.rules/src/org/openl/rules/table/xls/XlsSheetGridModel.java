@@ -557,11 +557,15 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             cell.setCellValue(x.doubleValue());
         } else if (value instanceof Date) {
             Date x = (Date) value;
+            
             cell.setCellValue(x);
             CellStyle cellStyle = cell.getSheet().getWorkbook().createCellStyle();
             CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
             cellStyle.setDataFormat(createHelper.createDataFormat().getFormat(DATE_FORMAT));
             cell.setCellStyle(cellStyle);
+        } else if (value instanceof Boolean){
+            Boolean boolValue = (Boolean) value;
+            cell.setCellValue(boolValue.booleanValue());
         } else {
             String strValue = String.valueOf(value);
             // formula
