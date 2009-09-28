@@ -138,11 +138,12 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     public String removeCol() throws Exception {
         int col = getCol();
+        int row = getRow();
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            if (col >= 0) {
-                editorModel.removeColumns(1, col);
+            if (col >= 0 && row >= 0) {
+                editorModel.removeColumns(1, col, row);
                 return pojo2json(new TableModificationResponse(render(editorId), editorModel));
             }
         }
