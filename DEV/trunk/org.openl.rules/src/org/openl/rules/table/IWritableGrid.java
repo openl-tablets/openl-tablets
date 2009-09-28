@@ -107,7 +107,7 @@ public interface IWritableGrid extends IGrid {
          * @param regionOfTable Region of current table.
          * @return All actions to resize merged regions.
          */
-        public static List<IUndoableGridAction> findMergedRegionsToResize(IWritableGrid wgrid, int firstRowOrColumn,
+        public static List<IUndoableGridAction> resizeMergedRegions(IWritableGrid wgrid, int firstRowOrColumn,
                 int numberOfRowsOrColumns, boolean isInsert, boolean isColumns, IGridRegion regionOfTable) {
             ArrayList<IUndoableGridAction> resizeActions = new ArrayList<IUndoableGridAction>();
             for (int i = 0; i < wgrid.getNumberOfMergedRegions(); i++) {
@@ -155,7 +155,7 @@ public interface IWritableGrid extends IGrid {
                 }
             }
 
-            actions.addAll(findMergedRegionsToResize(wgrid, beforeColumns, nColumns, INSERT, COLUMNS, region));
+            actions.addAll(resizeMergedRegions(wgrid, beforeColumns, nColumns, INSERT, COLUMNS, region));
             return new UndoableCompositeAction(actions);
         }
 
@@ -175,7 +175,7 @@ public interface IWritableGrid extends IGrid {
                 }
             }
 
-            actions.addAll(findMergedRegionsToResize(wgrid, beforeRow, nRows, INSERT, ROWS, region));
+            actions.addAll(resizeMergedRegions(wgrid, beforeRow, nRows, INSERT, ROWS, region));
             return new UndoableCompositeAction(actions);
         }
 
@@ -235,7 +235,7 @@ public interface IWritableGrid extends IGrid {
                 actions.add(new UndoableResizeRegionAction(new GridRegion(top + 1, left,
                         top + 1, left), nRows, INSERT, ROWS));
             } else {
-                actions.addAll(findMergedRegionsToResize(wgrid, beforeRow, nRows, INSERT, ROWS, region));
+                actions.addAll(resizeMergedRegions(wgrid, beforeRow, nRows, INSERT, ROWS, region));
             }
 
             return new UndoableCompositeAction(actions);
@@ -297,7 +297,7 @@ public interface IWritableGrid extends IGrid {
                 }
             }
 
-            actions.addAll(findMergedRegionsToResize(wgrid, startColumn, nCols, REMOVE, INSERT, region));
+            //actions.addAll(resizeMergedRegions(wgrid, startColumn, nCols, REMOVE, INSERT, region));
             return new UndoableCompositeAction(actions);
         }
 
@@ -320,7 +320,7 @@ public interface IWritableGrid extends IGrid {
                 }
             }
 
-            //actions.addAll(findMergedRegionsToResize(wgrid, startRow, nRows, REMOVE, INSERT, region));
+            //actions.addAll(resizeMergedRegions(wgrid, startRow, nRows, REMOVE, ROWS, region));
             return new UndoableCompositeAction(actions);
         }
 
