@@ -7,7 +7,6 @@
 package org.openl.rules.lang.xls.binding;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;

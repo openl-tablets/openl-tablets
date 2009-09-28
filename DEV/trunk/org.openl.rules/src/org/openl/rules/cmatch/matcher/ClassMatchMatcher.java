@@ -23,4 +23,8 @@ public class ClassMatchMatcher implements IMatcher {
         return checkValue.equals(var);
     }
 
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
 }
