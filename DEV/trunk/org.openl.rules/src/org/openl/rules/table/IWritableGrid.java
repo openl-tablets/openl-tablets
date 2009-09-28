@@ -13,7 +13,9 @@ import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.xls.XlsBooleanFormat;
 import org.openl.rules.table.xls.XlsDateFormat;
+import org.openl.rules.table.xls.XlsNumberFormat;
 import org.openl.rules.table.xls.XlsSheetGridExporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
@@ -252,13 +254,16 @@ public interface IWritableGrid extends IGrid {
                         result = new XlsDateFormat(tablProp.getFormat()); 
                     } else {
                         if(Boolean.class.equals(tablProp.getType().getInstanceClass())) {
-                            //TO DO implement XlsBooleanFrmat
-                            result = null;
+                            result = new XlsBooleanFormat();
                         } else {
-                            if(Integer.class.equals(tablProp.getType().getInstanceClass())) {
-                                //TO DO refactor XlsNumberFormat
-                                result = null;
+                            if(Integer.class.equals(tablProp.getType().getInstanceClass())) {                                
+                                result = XlsNumberFormat.General;
+                            } else {
+                                if(Double.class.equals(tablProp.getType().getInstanceClass())) {
+                                    result = XlsNumberFormat.General;
+                                }
                             }
+                                
                         }
                     }
                 }
