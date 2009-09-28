@@ -21,6 +21,7 @@ public class ClassMinMaxMatcher implements IMatcher {
         return convertor.parse(checkValue, null, null);
     }
 
+    @SuppressWarnings("unchecked")
     public boolean match(Object var, Object checkValue) {
         Comparable<Object> c1 = Comparable.class.cast(var);
         Comparable<Object> c2 = Comparable.class.cast(checkValue);
