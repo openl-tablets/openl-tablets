@@ -364,12 +364,16 @@ public class TableEditorModel {
         ((RegionAction) ua).doSome(region, wgrid(), undoGrid);
     }
 
-    public synchronized void removeColumns(int nCols, int startCol) {
+    public synchronized void removeColumns(int nCols, int startCol, int row) {
         if (isExtendedView()) {
             startCol -= 3;
         }
         if (startCol < 0 || startCol >= IGridRegion.Tool.width(region)) {
             return;
+        }
+        int cellWidth = getCell(row, startCol).getWidth();
+        if (cellWidth > 1) { // merged cell
+            nCols += cellWidth - 1;
         }
         IUndoableGridAction ua = IWritableGrid.Tool.removeColumns(nCols, startCol, region, wgrid());
         RegionAction ra = new RegionAction(ua, COLUMNS, REMOVE, nCols);
