@@ -25,10 +25,10 @@
 		<table id="propertySearchTable">
 			<c:forEach items="#{bussinessSearch.propForSearch}" var="propDef">
 				<tr><td><h:outputLabel for="#{propDef.displayName}" value="#{propDef.displayName}"/></td>
-					<c:if test="#{propDef.stringValue}">
+					<c:if test="#{propDef.stringType}">
 						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
 					</c:if>
-					<c:if test="#{propDef.dateValue}">
+					<c:if test="#{propDef.dateType}">
 						<td><rich:calendar id="#{propDef.name}" 
 										   value="#{propDef.value}"										   
 										   popup="true" 
