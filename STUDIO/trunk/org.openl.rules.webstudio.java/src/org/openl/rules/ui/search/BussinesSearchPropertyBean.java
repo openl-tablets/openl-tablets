@@ -86,10 +86,10 @@ public class BussinesSearchPropertyBean {
             List<Property> listforSearch = search.getBusSearchCondit().getPropToSearch();  
             listforSearch.clear();
             for(TableProperty prop : propForSearch) {
-                if(prop.isStringValue() && (prop.getValue()!=null && !("").equals(prop.getValue()))) {
+                if(prop.isStringType() && (prop.getValue()!=null && !("").equals(prop.getValue()))) {
                     listforSearch.add(new Property(new StringValue(prop.getName()), new ObjectValue((String)prop.getValue())));
                 } else {
-                    if(prop.isDateValue() && prop.getValue()!=null) {
+                    if(prop.isDateType() && prop.getValue()!=null) {
                         listforSearch.add(new Property(new StringValue(prop.getName()), new ObjectValue((Date)prop.getValue())));
                     }
                 }

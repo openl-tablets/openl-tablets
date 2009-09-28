@@ -1,5 +1,10 @@
 package org.openl.rules.tableeditor.renderkit;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.poi.ss.usermodel.DateUtil;
+
 /**
  * Temporary class for holding table properties
  * @author DLiauchuk
@@ -75,13 +80,56 @@ public class TableProperty {
 
     public Object getValue() {
         Object result;
-        if (type == null || (value == null && isStringValue())) {
+        if (type == null || (value == null && isStringType())) {
             result = new String("");
         } else {
             result = value;            
         }
         return result;
     }
+
+    /**
+     * This method must be used for all the cases when you need to display property on UI.
+     * It converts its value from any type to string.
+     * @return
+     */
+    public String getValueString() {
+        String result = "";
+        if(value != null) {
+            if (value instanceof String) {
+                result = (String)value;
+            } else {
+                if (value instanceof Date) {
+                    SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
+                    result = sdf.format((Date)value);
+                } else {
+                    if (value instanceof Boolean) {
+                        result = ((Boolean)value).toString();                    
+                    } else {
+                        if (value instanceof Integer) {
+                            // if date format for cell was not set in excel, it will process as
+                            // general and we will get the integer value on UI.
+                            // We must display it as Date.  
+//                            if (type != null && isDateType()) {
+//                                Date dateFromInt = DateUtil.getJavaDate(((Integer)value).doubleValue());
+//                                SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
+//                                result = sdf.format(dateFromInt);
+//                            } else {
+                                result = ((Integer)value).toString();
+//                            }
+                            
+                        } else {
+                            if (value instanceof Double) {
+                                result = ((Double)value).toString();
+                            }
+                        }
+                    }            
+                }
+            }
+        }        
+        return result;
+    }
+    
 
     public Class<?> getType() {
         return type;
@@ -103,7 +151,7 @@ public class TableProperty {
         this.group = group;
     }
 
-    public boolean isStringValue() {        
+    public boolean isStringType() {        
         boolean stringValue = false;
         if (type.equals(String.class)) {
             stringValue = true;
@@ -111,7 +159,7 @@ public class TableProperty {
         return stringValue;
     }
 
-    public boolean isDateValue() {
+    public boolean isDateType() {
         boolean dateValue = false;
         if (type.equals(java.util.Date.class)) {
             dateValue = true;
@@ -119,12 +167,22 @@ public class TableProperty {
         return dateValue;
     }
 
-    public boolean isBooleanValue() {
+    public boolean isBooleanType() {
         boolean booleanValue = false;
         if(type.equals(java.lang.Boolean.class)) {
             booleanValue = true;
         }        
         return booleanValue;
     }
+    
+    public boolean isDoubleType() {
+        boolean doubleValue = false;
+        if(type.equals(java.lang.Double.class)) {
+            doubleValue = true;
+        }        
+        return doubleValue;
+    }
+    
+    
 
 }

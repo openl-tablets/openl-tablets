@@ -1,8 +1,6 @@
 package org.openl.rules.tableeditor.renderkit;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -479,16 +477,17 @@ public class HTMLRenderer {
         private void fillEditProp(TableProperty prop) {
             result.append("<tr>");
             insertLabel(prop.getDisplayName());
-            Object propValue = prop.getValue();
-            String format = prop.getFormat();
+            String propValue = prop.getValueString();            
             String propId = propsId + Constants.ID_POSTFIX_PROP + prop.getName();
             if (prop.getType() != null) {
-                if (prop.isStringValue()) {
-                    insertEdit((String) propValue, propId);
-                } else if (prop.isDateValue()) {
-                    insertCalendar((Date)propValue, propId, format);
-                } else if (prop.isBooleanValue()) {
-                    insertCheckbox((String) propValue, propId);
+                if (prop.isStringType()) {
+                    insertEdit(propValue, propId);
+                } else if (prop.isDateType()) {
+                    insertCalendar(propValue, propId);
+                } else if (prop.isBooleanType()) {
+                    insertCheckbox(propValue, propId);
+                } else if (prop.isDoubleType()) {
+                    insertEdit(propValue, propId);
                 }
             }
             result.append("</tr>");
@@ -505,18 +504,9 @@ public class HTMLRenderer {
             result.append("</tr>");
         }
 
-        private void insertCalendar(Date value, String name, String dateFormat) {
+        private void insertCalendar(String value, String name) {
             numberOfCalendars++;
-            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-            String resultStr = "";
-            if (value != null) {
-                try {                    
-                    resultStr = sdf.format(value);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            result.append("<td><input name='" + name + "' type='text' value='" + resultStr + "' id='datepicker"
+            result.append("<td><input name='" + name + "' type='text' value='" + value + "' id='datepicker"
                         + numberOfCalendars +"' />")
                 .append(renderJSBody("new tcal ({'controlname': 'datepicker" + numberOfCalendars + "'});"))
                 .append("<img src='" + WebUtil.internalPath("img/calendar/cal.gif") + "' id='tcalico_"
@@ -559,38 +549,8 @@ public class HTMLRenderer {
          * @param value
          */
         private void insertText(TableProperty prop) {
-            String resString = "";
-            if (prop.isStringValue()) {
-                if (prop.getValue() != null){
-                    resString = (String) prop.getValue();
-                }
-            } else {
-                if (prop.isDateValue()) {
-                    numberOfCalendars++;                    
-                    Object propValue = prop.getValue();                    
-                    if (propValue != null) {
-                        SimpleDateFormat sdf = new SimpleDateFormat(prop.getFormat());
-                        if (propValue instanceof Date) {                            
-                            resString = sdf.format((Date)propValue);
-                        } else {
-                            try {
-                                Date date = sdf.parse(propValue.toString());
-                                resString = sdf.format(date);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                } else if (prop.isBooleanValue()) {
-                    Object bValue = prop.getValue();
-                    resString = bValue == null ? "" : bValue.toString();
-                } else {
-                    if (List.class.equals(prop.getType())) {
-                        //result.append("<td><b>"+((List<String>)prop.getValue()).get(0)+"</b></td>");
-                    }
-                }
-            }
-            result.append("<td class='te_props_propvalue'>" + resString + "</td>");
+            String propValue = prop.getValueString();            
+            result.append("<td class='te_props_propvalue'>" + propValue + "</td>");
         }
     }
 }
