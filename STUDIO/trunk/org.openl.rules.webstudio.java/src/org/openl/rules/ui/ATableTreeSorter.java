@@ -142,18 +142,31 @@ public abstract class ATableTreeSorter extends TreeSorter {
 
     @Override
     public ITreeElement makeElement(Object obj, int i) {
+        return makeElement(obj, i, null);
+    }
+
+    @Override
+    public ITreeElement makeElement(Object obj, int i, String name) {
         TableSyntaxNode tsn = (TableSyntaxNode) obj;
         Object so = makeSorterObject(tsn);
+        String[] displayNames = (name == null) ? getDisplayValue(so, 0) : new String[]{name, name, name};
 
-        ProjectTreeElement pte = new ProjectTreeElement(getDisplayValue(so, 0), getType(so), getUrl(so),
-                getProblems(so), i, tsn);
+        ProjectTreeElement pte = new ProjectTreeElement(displayNames, getType(so), getUrl(so), getProblems(so), i, tsn);
         pte.setObject(so);
         return pte;
+    }
+
+    public ITreeElement makeFolder(String name) {
+        return new ProjectTreeElement(new String[]{name, name,name}, "folder", null, null, 0, null);
     }
 
     @Override
     public Comparable makeKey(Object obj) {
         return makeKey(obj, 0);
+    }
+
+    public Comparable makeStringKey(String key) {
+        return new Key(0, new String[]{key, key, key});
     }
 
     @Override
