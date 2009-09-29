@@ -22,11 +22,16 @@ public class CategorySorterN extends CategorySorter {
 
     @Override
     String getCategory(TableSyntaxNode tsn) {
+        String result = null;
         String category = super.getCategory(tsn);
 
         String[] categories = StringTool.tokenize(category, separators);
-
-        return categoryLevel < categories.length ? categories[categoryLevel] : categories[categories.length - 1];
+        if (categories.length == 0) {
+            result = category;
+        } else {
+            result = categoryLevel < categories.length ? categories[categoryLevel] : categories[categories.length - 1]; 
+        }        
+        return result;
     }
 
     @Override
