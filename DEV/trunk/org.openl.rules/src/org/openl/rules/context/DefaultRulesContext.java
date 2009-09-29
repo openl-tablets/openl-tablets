@@ -17,11 +17,10 @@ public class DefaultRulesContext implements IRulesContext {
 	
 	// <<< INSERT >>>
 	public java.util.Date getCurrentDate() {
-		return (java.util.Date) internalMap.get("currentDate");
+		return (java.util.Date) internalMap.get("currentDate"); 
 	}
-	
 	public void setCurrentDate(java.util.Date currentDate) {
 		internalMap.put("currentDate", currentDate);
-	}
+	}	
 	// <<< END INSERT >>>
 }

@@ -71,7 +71,7 @@ public class DefaultPropertyDefinitions
 		 + " can be multiple copies of the same table in the same module");
 		definitions[4].setDimensional(true);
 		definitions[4].setDisplayName("Rate Effective Date");
-		definitions[4].setExpression("tableProperties.getEffectiveDate().compareTo(context.getCurrentDate())  <= 0");
+		definitions[4].setExpression("le(currentDate)");
 		definitions[4].setFormat("MM/dd/yyyy");
 		definitions[4].setGroup("Business Dimension");
 		definitions[4].setInheritable("worksheet,workbook");
@@ -85,7 +85,7 @@ public class DefaultPropertyDefinitions
 		definitions[5].setDescription("See effectiveDate");
 		definitions[5].setDimensional(true);
 		definitions[5].setDisplayName("Rate Expiration Date");
-		definitions[5].setExpression("tableProperties.getExpirationDate().compareTo(context.getCurrentDate())  >= 0");
+		definitions[5].setExpression("gt(currentDate)");
 		definitions[5].setFormat("MM/dd/yyyy");
 		definitions[5].setGroup("Business Dimension");
 		definitions[5].setInheritable("worksheet,workbook");

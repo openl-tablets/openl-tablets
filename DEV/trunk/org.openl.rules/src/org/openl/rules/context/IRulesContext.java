@@ -8,8 +8,6 @@ public interface IRulesContext extends IContext {
 	
 	// <<< INSERT >>>
 	java.util.Date getCurrentDate();
-	
-	void setCurrentDate(java.util.Date currentDate);
+	void setCurrentDate(java.util.Date currentDate);	
 	// <<< END INSERT >>>
-	
 }
