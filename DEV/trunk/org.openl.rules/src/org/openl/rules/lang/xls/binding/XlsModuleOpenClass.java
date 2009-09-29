@@ -14,7 +14,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.impl.DataBase;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.types.impl.SimpleOpenMethodDispatcher;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
@@ -127,7 +127,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 				
 				// Create decorator for existed method.
 				//
-				OpenMethodDispatcher decorator = new SimpleOpenMethodDispatcher(existedMethod);
+				OpenMethodDispatcher decorator = new MatchingOpenMethodDispatcher(existedMethod);
 				
 				// Add new method to decorator as candidate.
 				//

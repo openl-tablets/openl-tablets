@@ -63,6 +63,11 @@
       <artifactId>org.openl.rules</artifactId>
     </dependency>
 
+	<dependency>
+		<groupId>org.apache.velocity</groupId>
+		<artifactId>velocity</artifactId>
+	</dependency>
+	
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

@@ -53,6 +53,7 @@ Export-Package: org.apache.poi.hwpf.usermodel,
  org.openl.rules.tbasic.runtime.operations,
  org.openl.rules.testmethod,
  org.openl.rules.testmethod.binding,
+ org.openl.rules.types.impl,
  org.openl.rules.word,
  org.openl.tablets,
  org.openl.xls

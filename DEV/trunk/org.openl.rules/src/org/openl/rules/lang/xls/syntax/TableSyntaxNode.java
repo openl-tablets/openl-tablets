@@ -20,6 +20,7 @@ import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
+import org.openl.rules.table.properties.DefaultTableProperties;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.ISyntaxError;
@@ -48,6 +49,8 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
     ArrayList<ISyntaxError> errors;
 
     Object validationResult;
+
+    private TablePropertiesAdapter tablePropertiesAdapter = new TablePropertiesAdapter();
 
     public TableSyntaxNode(String type, GridLocation pos, XlsSheetSourceCodeModule module, IGridTable gridtable,
             HeaderSyntaxNode header) {
@@ -131,7 +134,7 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
         }
         return tableProperties.getProperty(name).getValue();
     }
-    
+
     public String getPropertValueAsString(String name) {
         return tableProperties == null ? null : tableProperties.getPropertyValueAsString(name);
     }
@@ -157,17 +160,13 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
         return tableBody;
     }
 
-
-    
     public TableProperties getTableProperties() {
         return tableProperties;
     }
-    
-    //TODO refactor - remove older implementation, rename this
-    public ITableProperties getTableProperties2()
-    {
-        //TODO add implementation
-        return null;
+
+    public ITableProperties getTableProperties2() {
+
+        return tablePropertiesAdapter.getITableProperties();
     }
 
     public String getUri() {
@@ -188,10 +187,59 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
 
     public void setTableProperties(TableProperties properties) {
         tableProperties = properties;
+        tablePropertiesAdapter.setTableProperties(properties);
     }
 
     public void setValidationResult(Object validationResult) {
         this.validationResult = validationResult;
     }
 
+    /**
+     * Internal adapter class that adapts {@link TableProperties} to
+     * {@link ITableProperties} interface. Used as temporal solution. In future
+     * versions {@link TableProperties} will be removed with
+     * {@link ITableProperties}.
+     * 
+     * Note: This implementation of adapter stores internally the converted
+     * values of objects.
+     * 
+     * @author Alexey Gamanovich
+     * 
+     */
+    private class TablePropertiesAdapter {
+
+        private TableProperties tableProperties;
+        private ITableProperties iTableProperties;
+
+        public TablePropertiesAdapter() {
+        }
+
+        public void setTableProperties(TableProperties tableProperties) {
+            this.tableProperties = tableProperties;
+            this.iTableProperties = convert(this.tableProperties);
+        }
+
+        public ITableProperties getITableProperties() {
+            return iTableProperties;
+        }
+
+        private ITableProperties convert(TableProperties tableProperties) {
+            
+            if (tableProperties == null) {
+                return null;
+            }
+            
+            DefaultTableProperties properties = new DefaultTableProperties();
+
+            for (TableProperties.Property tableProperty : tableProperties.getProperties()) {
+
+                String key = tableProperty.getKey().getValue();
+                Object value = tableProperty.getValue().getValue();
+
+                properties.put(key, value);
+            }
+
+            return properties;
+        }
+    }
 }
