@@ -40,8 +40,8 @@ public abstract class TreeSorter<T> {
             ITreeElement ed = sorter.makeFolder(eds[i]);
             parent.addChild(sorter.makeStringKey("ed" + (i + 1)), ed);
             for (int j = 0; j < 3; j++) {
-                ITreeElement v = sorter.makeElement(elemmentObject, 0, "" + (i + 1));
-                ((ITreeElement.Node) ed).addChild(sorter.makeStringKey("v" + (i + 1)), v);
+                ITreeElement v = sorter.makeElement(elemmentObject, 0, "" + (j + 1));
+                ((ITreeElement.Node) ed).addChild(sorter.makeStringKey("v" + (j + 1)), v);
             }
         }
     }
