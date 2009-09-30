@@ -17,10 +17,14 @@
 
 
   <pluginRepositories>
-    <!-- for maven-depgraph-plugin -->
+    <!-- for maven-depgraph-plugin --> 
     <pluginRepository>
       <id>elca-services</id>
       <url>http://el4.elca-services.ch/el4j/maven2repository</url>
+	  <releases>
+		<enabled>true</enabled>
+	</releases>
+
     </pluginRepository>
     <!-- for maven-buildnumber-plugin -->
     <pluginRepository>
@@ -69,7 +73,7 @@
         <plugin>
           <groupId>ch.elca.el4j.maven.plugins</groupId>
           <artifactId>maven-depgraph-plugin</artifactId>
-          <version>1.4</version>
+          <version>1.7</version>
           <configuration>
             <outDir>target/site/images</outDir>
             <outFile>${pom.artifactId}.png</outFile>
