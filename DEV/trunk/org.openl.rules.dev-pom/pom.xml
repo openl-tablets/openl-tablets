@@ -31,6 +31,8 @@
     <module>../org.openl.lib.eclipse.feature</module>
     <module>../org.openl.poi.lib</module>
     <module>../org.openl.poi.lib.eclipse.feature</module>
+    <module>../org.openl.rules.gen</module>
+
   </modules>
 
   <scm>

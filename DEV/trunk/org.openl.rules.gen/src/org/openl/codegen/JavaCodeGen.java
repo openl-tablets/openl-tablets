@@ -5,9 +5,11 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import org.openl.rules.context.properties.ContextPropertyDefinition;
 import org.openl.types.IOpenClass;
@@ -52,7 +54,7 @@ public class JavaCodeGen implements ICodeGen {
 	private ICodeGenContext cxt;
 	private int genLevel = 0;
 	private int dprecision = 4;
-	private DecimalFormat format = new DecimalFormat("#.0###");
+	private DecimalFormat format = new DecimalFormat("#.0###", new DecimalFormatSymbols(new Locale("en")));
 	
 	private JavaCodeGenController ctr = new JavaCodeGenController();
 	
