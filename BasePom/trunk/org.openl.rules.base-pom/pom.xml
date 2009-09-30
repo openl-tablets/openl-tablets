@@ -254,7 +254,7 @@
           <plugins>
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
-              <artifactId>maven-buildnumber-plugin</artifactId>
+              <artifactId>buildnumber-maven-plugin</artifactId>
             </plugin>
           </plugins>
         </build>
