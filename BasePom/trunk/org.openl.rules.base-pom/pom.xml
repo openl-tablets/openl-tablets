@@ -27,11 +27,11 @@
 
     </pluginRepository>
     <!-- for maven-buildnumber-plugin -->
-    <pluginRepository>
+    <!--<pluginRepository>
         <id>tlc</id>
         <name>TLC Repository</name>
         <url>http://commons.ucalgary.ca/pub/m2</url>
-    </pluginRepository>
+    </pluginRepository>-->
   </pluginRepositories>
 
   <distributionManagement>
@@ -86,7 +86,7 @@
          </plugin>
          <plugin>
            <groupId>org.codehaus.mojo</groupId>
-           <artifactId>maven-buildnumber-plugin</artifactId>
+           <artifactId>buildnumber-maven-plugin</artifactId>
            <version>1.0-beta-3</version>
            <executions>
              <execution>
