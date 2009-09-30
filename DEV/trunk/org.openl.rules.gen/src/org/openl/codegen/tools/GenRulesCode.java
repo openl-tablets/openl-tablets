@@ -60,7 +60,7 @@ public class GenRulesCode {
 
         String soutreFilePath = getClassSourcePath(DefaultPropertyDefinitions.class);
 
-        FileCodeGen fileGen = new FileCodeGen(soutreFilePath, TMP_FILE, null);
+        FileCodeGen fileGen = new FileCodeGen(soutreFilePath, TMP_FILE);
         fileGen.processFile(new ICodeGenAdaptor() {
 
             public void processInsertTag(String line, StringBuilder sb) {
@@ -70,6 +70,9 @@ public class GenRulesCode {
                 jcgen.setGenLevel(JavaCodeGen.METHOD_BODY_LEVEL);
                 jcgen.genInitializeBeanArray(ARRAY_NAME, tablePropertyDefinitions, TablePropertyDefinition.class, null,
                         sb);
+            }
+
+            public void processEndInsertTag(String line, StringBuilder sb) {
             }
         });
     }
@@ -139,7 +142,7 @@ public class GenRulesCode {
     private void processSourceCode(String sourceFilePath, final String templateName, final Map<String, Object> variables)
             throws IOException {
 
-        FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE, null);
+        FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
         fileGen.processFile(new ICodeGenAdaptor() {
 
             public void processInsertTag(String line, StringBuilder sb) {
@@ -151,6 +154,9 @@ public class GenRulesCode {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+            }
+
+            public void processEndInsertTag(String line, StringBuilder sb) {
             }
         });
     }

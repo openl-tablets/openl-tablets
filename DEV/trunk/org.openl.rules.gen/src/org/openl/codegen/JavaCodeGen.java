@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-import org.openl.rules.context.properties.ContextPropertyDefinition;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
