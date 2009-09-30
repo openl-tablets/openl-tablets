@@ -26,9 +26,9 @@ public class FormattedCell implements ICell {
     private String formattedValue;
 
     public FormattedCell(ICell delegate) {
-        this.delegate = delegate;        
-        this.objectValue = this.delegate.getObjectValue();        
-        this.formattedValue = this.delegate.getStringValue();        
+        this.delegate = delegate;
+        this.objectValue = this.delegate.getObjectValue();
+        this.formattedValue = this.delegate.getStringValue();
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());
     }

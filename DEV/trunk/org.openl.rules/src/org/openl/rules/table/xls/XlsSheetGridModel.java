@@ -118,7 +118,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
                 case Cell.CELL_TYPE_FORMULA:
                     FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
                     CellValue resultValue = formulaEvaluator.evaluate(cell);
-                    return XlsUtil.intOrDouble(resultValue.getNumberValue());                    
+                    return XlsUtil.intOrDouble(resultValue.getNumberValue());
                 default:
                     return "unknown type: " + cell.getCellType();
             }
