@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Stack;
 
 /**
  * Generates file in outFileLocation by inserting code into predefined places in
@@ -19,16 +20,24 @@ import java.io.IOException;
 public class FileCodeGen {
 	
 	public static final String DEFAULT_INSERT_TAG = "<<< INSERT";
+    public static final String DEFAULT_END_INSERT_TAG = "<<< END INSERT";
 	
 	private String inFileLocation;
 	private String outFileLocation;
 	private String insertTag;
 	
-	public FileCodeGen(String inFileLocation, String outFileLocation, String insertTag) {
+	public FileCodeGen(String inFileLocation, String outFileLocation) {
 		
+        System.out.println("Processing " + inFileLocation + " into " + this.outFileLocation);
 		this.inFileLocation = inFileLocation;
 		this.outFileLocation = outFileLocation == null ? inFileLocation : outFileLocation;
 		this.insertTag = insertTag == null ? DEFAULT_INSERT_TAG : insertTag;
+		
+	}
+	
+	public String getEndInsertTag(String line)
+	{
+	    return DEFAULT_END_INSERT_TAG;
 	}
 	
 	public void processFile(ICodeGenAdaptor cga) throws IOException {
@@ -37,14 +46,39 @@ public class FileCodeGen {
 		StringBuilder sb = new StringBuilder(10000);
 		
 		String line = null;
+
+		
+		Stack<String> endInsert = new Stack<String>();
 		
 		while ((line = br.readLine()) != null) {
-			sb.append(line).append('\n');
-			
-			if (line.contains(insertTag)) {
-				cga.processInsertTag(line, sb);
-			}
+		    
+            if (line.contains(insertTag)){
+                sb.append(line).append('\n');
+                cga.processInsertTag(line, sb);
+                endInsert.push(getEndInsertTag(line));
+		    }
+		
+            boolean skipTillEnd = endInsert.size() > 0;
+		
+            if (skipTillEnd)
+		    {
+		        String endTag = endInsert.peek();
+		        if (line.contains(endTag)){
+	                cga.processEndInsertTag(line, sb);
+	                sb.append(line).append('\n');
+		            endInsert.pop();
+		        }
+		        continue;
+		    }    
+            sb.append(line).append('\n');
+            
 		}
+		
+		if (endInsert.size() > 0)
+		{
+		    throw new RuntimeException("Not processed " + endInsert);
+		}    
+		
 		
 		br.close();
 		
