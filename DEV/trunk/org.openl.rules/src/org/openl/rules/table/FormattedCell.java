@@ -3,17 +3,22 @@
  */
 package org.openl.rules.table;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.IGridFilter;
-import org.openl.util.Log;
 
 /**
  * @author snshor
  *
  */
 public class FormattedCell implements ICell {
-
+    
+    private final static Log LOG = LogFactory.getLog(FormattedCell.class); 
+    
+    public static final String ERROR_VALUE = "#ERROR";
+    
     private ICell delegate;
 
     private CellFont font;
@@ -27,8 +32,18 @@ public class FormattedCell implements ICell {
 
     public FormattedCell(ICell delegate) {
         this.delegate = delegate;
-        this.objectValue = this.delegate.getObjectValue();
-        this.formattedValue = this.delegate.getStringValue();
+        try {
+            this.objectValue = this.delegate.getObjectValue();
+        } catch (RuntimeException e) {
+            LOG.warn(e.getMessage()+" for cell containing "+delegate.getFormula());
+            this.objectValue = ERROR_VALUE;
+        }
+        try {
+            this.formattedValue = this.delegate.getStringValue();
+        } catch (RuntimeException e) {
+            LOG.warn(e.getMessage()+" for cell containing "+delegate.getFormula());
+            this.formattedValue = ERROR_VALUE;
+        }        
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());
     }
@@ -55,7 +70,7 @@ public class FormattedCell implements ICell {
 
     public void setFilter(IGridFilter filter) {
         if (this.filter != null) {
-            Log.warn("More than one filter set on cell");
+            LOG.warn("More than one filter set on cell");
         }
         this.filter = filter;
     }
