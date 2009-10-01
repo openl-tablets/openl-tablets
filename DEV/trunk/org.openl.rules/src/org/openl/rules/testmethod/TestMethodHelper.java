@@ -5,9 +5,11 @@ package org.openl.rules.testmethod;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
+import org.openl.rules.context.DefaultRulesContext;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.testmethod.binding.TestMethodBoundNode;
+import org.openl.runtime.IContext;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -28,7 +30,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
+ * 
  */
 
 public class TestMethodHelper {
@@ -46,8 +48,13 @@ public class TestMethodHelper {
 
             IOpenField res = new DynamicObjectField(this, EXPECTED_RESULT_NAME, testedMethod.getType());
             addField(res);
+
             IOpenField descr = new DynamicObjectField(this, DESCRIPTION_NAME, JavaOpenClass.STRING);
             addField(descr);
+
+            IOpenField contextField = new DynamicObjectField(this, CONTEXT_NAME, JavaOpenClass
+                    .getOpenClass(DefaultRulesContext.class));
+            addField(contextField);
 
         }
 
@@ -68,7 +75,7 @@ public class TestMethodHelper {
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see org.openl.types.impl.IBenchmarkableMethod#getBenchmarkName()
          */
         public String getBenchmarkName() {
@@ -134,7 +141,7 @@ public class TestMethodHelper {
         public Object invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, int ntimes) {
             Object testArray = boundNode.getField().get(target, env);
 
-            DynamicObject[] dd = (DynamicObject[]) testArray;
+            DynamicObject[] testInstances = (DynamicObject[]) testArray;
 
             IOpenClass dclass = getMethodBasedClass();
             IMethodSignature msign = testedMethod.getSignature();
@@ -143,27 +150,39 @@ public class TestMethodHelper {
             TestResult tres = new TestResult(TestMethodHelper.this);
             // Object[] results = new Object[dd.length];
 
-            for (int i = 0; i < dd.length; i++) {
+            for (int i = 0; i < testInstances.length; i++) {
+
                 Object[] mpvals = new Object[mpars.length];
+
+                DynamicObject currentTest = testInstances[i];
+
                 for (int j = 0; j < mpars.length; j++) {
                     IOpenField f = dclass.getField(msign.getParameterName(j), true);
-                    mpvals[j] = f.get(dd[i], env);
+                    mpvals[j] = f.get(currentTest, env);
                 }
 
                 try {
                     Object res = null;
 
                     for (int j = 0; j < ntimes; j++) {
+                        IOpenField contextField = dclass.getField(CONTEXT_NAME);
+                        IContext context = (IContext) contextField.get(currentTest, env);
+
+                        IContext oldContext = env.getContext();
+                        env.setContext(context);
+
                         res = testedMethod.invoke(target, mpvals, env);
+
+                        env.setContext(oldContext);
                     }
 
                     // if (isRunmethod())
                     // results[i] = res;
                     // else
-                    tres.add(dd[i], res, null);
+                    tres.add(currentTest, res, null);
                 } catch (Throwable t) {
-                    Log.error("Testing " + dd[i], t);
-                    tres.add(dd[i], null, t);
+                    Log.error("Testing " + currentTest, t);
+                    tres.add(currentTest, null, t);
                 }
 
             }
@@ -203,6 +222,7 @@ public class TestMethodHelper {
          * @return
          */
         public Object run(int tid, Object target, IRuntimeEnv env, int ntimes) {
+            
             Object testArray = boundNode.getField().get(target, env);
 
             DynamicObject[] dd = (DynamicObject[]) testArray;
@@ -213,16 +233,26 @@ public class TestMethodHelper {
 
             // TestResult tres = new TestResult(TestMethodHelper.this);
 
+            DynamicObject currentTest = dd[tid];
             Object[] mpvals = new Object[mpars.length];
+            
             for (int j = 0; j < mpars.length; j++) {
                 IOpenField f = dclass.getField(msign.getParameterName(j), true);
-                mpvals[j] = f.get(dd[tid], env);
+                mpvals[j] = f.get(currentTest, env);
             }
 
             Object res = null;
 
             for (int i = 0; i < ntimes; i++) {
+                IOpenField contextField = dclass.getField(CONTEXT_NAME);
+                IContext context = (IContext) contextField.get(currentTest, env);
+
+                IContext oldContext = env.getContext();
+                env.setContext(context);
+
                 res = testedMethod.invoke(target, mpvals, env);
+                
+                env.setContext(oldContext);
             }
 
             return res;
@@ -230,7 +260,7 @@ public class TestMethodHelper {
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see org.openl.types.impl.IBenchmarkableMethod#unitName()
          */
         public String[] unitName() {
@@ -240,6 +270,7 @@ public class TestMethodHelper {
     }
 
     public static final String EXPECTED_RESULT_NAME = "_res_";
+    public static final String CONTEXT_NAME = "_context_";
 
     static final String DESCRIPTION_NAME = "_description_";
 
