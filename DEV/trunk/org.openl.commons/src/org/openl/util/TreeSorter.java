@@ -13,9 +13,9 @@ public abstract class TreeSorter<T> {
         if (element == null) {
             element = sorters[level].makeElement(obj, 0);
             target.addChild(key, element);
-            if (level > 0) {
+            /*if (level > 0) {
                 addSubElements(sorters[level], (ITreeElement.Node<T>) element, obj);
-            }
+            }*/
         } else if (sorters[level].isUnique()) {
             for (int i = 2; i < 100; ++i) {
                 Comparable<?> key2 = sorters[level].makeKey(obj, i);
