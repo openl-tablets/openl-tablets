@@ -154,6 +154,11 @@
 
   <dependencyManagement>
     <dependencies>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+            <version>${openl.version.maven}</version>
+		</dependency>
 
       <!-- DEV -->
       <dependency>
