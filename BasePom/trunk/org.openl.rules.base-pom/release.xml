@@ -119,12 +119,12 @@
 	</target>
 	
 	<target name="execute" depends="prepare">
-		<antcall target="releaseModule">
+		<!--antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${basepom_folder}"/>
 		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${poi_folder}"/>
-		</antcall>
+		</antcall-->
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${root_folder}/${dev_folder}"/>
 		</antcall>
