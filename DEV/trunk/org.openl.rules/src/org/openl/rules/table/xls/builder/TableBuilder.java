@@ -339,7 +339,7 @@ public class TableBuilder {
      * @throws IllegalStateException if method is called without prior
      *             <code>beginTable()</code> call
      */
-    public void writeProperties(Map<String, String> properties, ICellStyle style) {
+    public void writeProperties(Map<String, Object> properties, ICellStyle style) {
         if (properties == null) {
             throw new IllegalArgumentException("properties must be not null");
         }
@@ -351,7 +351,7 @@ public class TableBuilder {
         for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
             String key = iterator.next();
             writeCell(1, currentRow, 1, 1, key, style);
-            String value = properties.get(key);
+            Object value = properties.get(key);
             writeCell(2, currentRow, 1, 1, value, style);
             currentRow++;
         }
