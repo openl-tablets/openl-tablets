@@ -37,7 +37,6 @@
     	<include name="**/WebStudio Starter.launch"/>
     	<include name="**/build.xml"/>
     	<include name="**/run.bat"/>
-    	<include name="org.openl.rules.base-pom/pom.xml"/><!--Dependencies versions-->
     </fileset>
 
     <target name="change" description="Change Version">
