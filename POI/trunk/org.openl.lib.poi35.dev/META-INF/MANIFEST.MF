@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: POI 3.5 Dev Plug-in
 Bundle-SymbolicName: org.openl.lib.poi35.dev
-Bundle-Version: 5.3.0.001
+Bundle-Version: 5.3.0
 Bundle-Vendor: OpenL
 Export-Package: org.apache.poi,
  org.apache.poi.common.usermodel,
