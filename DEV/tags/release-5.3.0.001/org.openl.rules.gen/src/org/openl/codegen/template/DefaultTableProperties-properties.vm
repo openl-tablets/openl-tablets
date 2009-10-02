@@ -1,0 +1,8 @@
+#foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
+	public $tablePropertyDefinition.Type.InstanceClass.Name get#upperFirstChar($tablePropertyDefinition.Name)() {
+		return ($tablePropertyDefinition.Type.InstanceClass.Name) internalMap.get("$tablePropertyDefinition.Name"); 
+	}
+	public void set#upperFirstChar($tablePropertyDefinition.Name)($tablePropertyDefinition.Type.InstanceClass.Name $tablePropertyDefinition.Name) {
+		internalMap.put("$tablePropertyDefinition.Name", $tablePropertyDefinition.Name);
+	}	
+#end
