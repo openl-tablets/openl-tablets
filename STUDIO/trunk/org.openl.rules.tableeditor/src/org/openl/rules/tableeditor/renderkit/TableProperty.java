@@ -3,8 +3,6 @@ package org.openl.rules.tableeditor.renderkit;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.poi.ss.usermodel.DateUtil;
-
 /**
  * Temporary class for holding table properties
  * @author DLiauchuk
