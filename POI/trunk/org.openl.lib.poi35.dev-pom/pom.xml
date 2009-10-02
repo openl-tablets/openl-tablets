@@ -11,7 +11,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.lib.poi35.dev-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.3.0-SNAPSHOT</version>
+  <version>5.3.0.001</version>
   <name>OpenL - POI 3.5 - Dev POM</name>
   <description>Dev</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
@@ -28,8 +28,8 @@
   </properties>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</connection>
-<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.3.0.001</connection>
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.3.0.001</developerConnection>
   </scm>
 
   <reporting>
