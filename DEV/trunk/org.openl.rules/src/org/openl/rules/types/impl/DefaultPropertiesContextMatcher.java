@@ -25,7 +25,6 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
     protected void initilaize() {
         // <<< INSERT >>>
-		
 		constraints.put("effectiveDate", new MatchingConstraint<java.util.Date, java.util.Date>() {
 
 			@Override
@@ -44,7 +43,6 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		
 		constraints.put("expirationDate", new MatchingConstraint<java.util.Date, java.util.Date>() {
 
 			@Override
@@ -60,6 +58,78 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			@Override
 			protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
 			    return GT(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("lob", new MatchingConstraint<java.lang.String, java.lang.String>() {
+
+			@Override
+			protected java.lang.String getContextValue(IRulesContext context) {
+			    return context.getLob();
+			}
+			
+			@Override
+			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			    return properties.getLob();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
+			    return EQ(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("usregion", new MatchingConstraint<java.lang.String, java.lang.String>() {
+
+			@Override
+			protected java.lang.String getContextValue(IRulesContext context) {
+			    return context.getUsRegion();
+			}
+			
+			@Override
+			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			    return properties.getUsregion();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
+			    return EQ(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("country", new MatchingConstraint<java.lang.String, java.lang.String>() {
+
+			@Override
+			protected java.lang.String getContextValue(IRulesContext context) {
+			    return context.getCountry();
+			}
+			
+			@Override
+			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			    return properties.getCountry();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
+			    return EQ(propertyValue, contextValue);
+			}
+			
+        });
+		constraints.put("state", new MatchingConstraint<java.lang.String, java.lang.String>() {
+
+			@Override
+			protected java.lang.String getContextValue(IRulesContext context) {
+			    return context.getUsState();
+			}
+			
+			@Override
+			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			    return properties.getState();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
+			    return EQ(propertyValue, contextValue);
 			}
 			
         });

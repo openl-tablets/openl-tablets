@@ -17,6 +17,7 @@ public class OverloadTest {
 	
 	public interface ITestI {
 		DoubleValue driverRiskScoreOverloadTest(String driverRisk);
+		DoubleValue driverRiskScoreNoOverloadTest(String driverRisk);
 	}
 	
 	@Test
@@ -44,5 +45,8 @@ public class OverloadTest {
 		
 		DoubleValue res2 = instance.driverRiskScoreOverloadTest("High Risk Driver");
 		assertEquals(100.0, res2.doubleValue());
+		
+		DoubleValue res3 = instance.driverRiskScoreNoOverloadTest("High Risk Driver");
+		assertEquals(200.0, res3.doubleValue());
 	}
 }

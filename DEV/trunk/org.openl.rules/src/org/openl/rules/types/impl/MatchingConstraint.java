@@ -41,4 +41,9 @@ public abstract class MatchingConstraint<P, C> {
     public static <T> boolean GT(Comparable<T> cmp1, Comparable<T> cmp2) {
         return cmp1.compareTo((T) cmp2) > 0;
     }
+    
+    @SuppressWarnings("unchecked")
+    public static <T> boolean EQ(Comparable<T> cmp1, Comparable<T> cmp2) {
+        return cmp1.compareTo((T) cmp2) == 0;
+    }
 }
