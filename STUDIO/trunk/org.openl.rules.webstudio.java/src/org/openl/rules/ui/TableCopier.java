@@ -93,6 +93,8 @@ public class TableCopier extends WizardBase {
         IGridTable table = model.getTable(elementUri);
         TableSyntaxNode node = model.getNode(elementUri);
         String tableType = node.getType();
+        
+        //validateTechnicalName(node);
 
         TableBuilder builder = new TableBuilder(new XlsSheetGridModel(sourceCodeModule));
 
@@ -102,24 +104,24 @@ public class TableCopier extends WizardBase {
 
         builder.beginTable(tableWidth, tableHeight);
 
-//        if (!tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !tableType.equals(ITableNodeTypes.XLS_OTHER)) {
-//            String newHeader = buildHeader(node.getHeaderLineValue().getValue(), tableType);
-//            ICellStyle headerStyle = table.getCell(0, 0).getCellStyle();
-//            builder.writeHeader(newHeader, headerStyle);
-//            logicTableStartRow++;
-//
-//            TableProperties tableProperties = node.getTableProperties();
-//            Property[] properties = null;
-//            ICellStyle propertiesStyle = null;
-//            if (tableProperties != null) {
-//                IGridTable propertiesTable = tableProperties.getTable().getGridTable();
-//                propertiesStyle = propertiesTable.getCell(0, 0).getCellStyle() == null ? null : propertiesTable
-//                        .getCell(0, 0).getCellStyle();
-//                properties = tableProperties.getProperties();
-//            }
-//            builder.writeProperties(buildProperties(properties), propertiesStyle);
-//            logicTableStartRow += properties == null ? 0 : properties.length;
-//        }
+        if (!tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !tableType.equals(ITableNodeTypes.XLS_OTHER)) {
+            String newHeader = buildHeader(node.getHeaderLineValue().getValue(), tableType);
+            ICellStyle headerStyle = table.getCell(0, 0).getStyle();
+            builder.writeHeader(newHeader, headerStyle);
+            logicTableStartRow++;
+
+            TableProperties tableProperties = node.getTableProperties();
+            Property[] properties = null;
+            ICellStyle propertiesStyle = null;
+            if (tableProperties != null) {
+                IGridTable propertiesTable = tableProperties.getTable().getGridTable();
+                propertiesStyle = propertiesTable.getCell(0, 0).getStyle() == null ? null : propertiesTable
+                        .getCell(0, 0).getStyle();
+                properties = tableProperties.getProperties();
+            }
+            builder.writeProperties(buildProperties(properties), propertiesStyle);
+            logicTableStartRow += properties == null ? 0 : properties.length;
+        }
 
         builder.writeGridTable(table.getLogicalRegion(0, logicTableStartRow, tableWidth,
                 tableHeight - logicTableStartRow).getGridTable());
@@ -127,6 +129,17 @@ public class TableCopier extends WizardBase {
         builder.endTable();
         builder.save();
     }
+
+//    private void validateTechnicalName(TableSyntaxNode node) throws CreateTableException {
+//        String[] headerStr = node.getHeaderLineValue().getValue().split(" ");
+//        if (headerStr.length >=3) {
+//            String existingTechnicalName = headerStr[2].substring(0, headerStr[2].indexOf("("));
+//            if (tableTechnicalName.equalsIgnoreCase(existingTechnicalName)) {
+//                throw new CreateTableException("Table with the same technical name already exists");
+//            }
+//        }
+//        
+//    }
 
     /**
      * Copy table handler.
@@ -138,7 +151,7 @@ public class TableCopier extends WizardBase {
             success = true;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not copy table", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not copy table. "+e.getMessage(), e.getMessage()));
             log.error("Could not copy table: ", e);
         }
         if (success) {
