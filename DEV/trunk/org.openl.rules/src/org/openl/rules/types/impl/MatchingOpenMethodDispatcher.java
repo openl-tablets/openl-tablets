@@ -57,6 +57,10 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         // <<< INSERT MatchingProperties >>>
 		selectCandidatesByProperty("effectiveDate", selected, context);
 		selectCandidatesByProperty("expirationDate", selected, context);
+		selectCandidatesByProperty("lob", selected, context);
+		selectCandidatesByProperty("usregion", selected, context);
+		selectCandidatesByProperty("country", selected, context);
+		selectCandidatesByProperty("state", selected, context);
         // <<< END INSERT MatchingProperties >>>
     }
 

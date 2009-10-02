@@ -172,8 +172,9 @@ public class DefaultPropertyDefinitions
 		definitions[12].setBusinessSearch(true);
 		definitions[12].setConstraints("list: Defined by method getLob()");
 		definitions[12].setDescription("Defines the list of active LOBs for this table");
-		definitions[12].setDimensional(false);
+		definitions[12].setDimensional(true);
 		definitions[12].setDisplayName("LOB");
+		definitions[12].setExpression("eq(lob)");
 		definitions[12].setGroup("Business Dimension");
 		definitions[12].setInheritable("worksheet,workbook, module");
 		definitions[12].setName("lob");
@@ -184,8 +185,9 @@ public class DefaultPropertyDefinitions
 		definitions[13].setBusinessSearch(true);
 		definitions[13].setConstraints("list: East, West, Midwest, South");
 		definitions[13].setDescription("US Region");
-		definitions[13].setDimensional(false);
+		definitions[13].setDimensional(true);
 		definitions[13].setDisplayName("US Region");
+		definitions[13].setExpression("eq(usRegion)");
 		definitions[13].setGroup("Business Dimension");
 		definitions[13].setInheritable("worksheet,workbook");
 		definitions[13].setName("usregion");
@@ -197,8 +199,9 @@ public class DefaultPropertyDefinitions
 		definitions[14].setConstraints("list: countries");
 		definitions[14].setDefaultValue("US");
 		definitions[14].setDescription("Country");
-		definitions[14].setDimensional(false);
+		definitions[14].setDimensional(true);
 		definitions[14].setDisplayName("Country");
+		definitions[14].setExpression("eq(country)");
 		definitions[14].setGroup("Business Dimension");
 		definitions[14].setInheritable("worksheet,workbook");
 		definitions[14].setName("country");
@@ -235,8 +238,9 @@ public class DefaultPropertyDefinitions
 		definitions[17].setBusinessSearch(true);
 		definitions[17].setConstraints("list: US States");
 		definitions[17].setDescription("US State");
-		definitions[17].setDimensional(false);
+		definitions[17].setDimensional(true);
 		definitions[17].setDisplayName("US State");
+		definitions[17].setExpression("eq(usState)");
 		definitions[17].setGroup("Business Dimension");
 		definitions[17].setInheritable("worksheet,workbook");
 		definitions[17].setName("state");
