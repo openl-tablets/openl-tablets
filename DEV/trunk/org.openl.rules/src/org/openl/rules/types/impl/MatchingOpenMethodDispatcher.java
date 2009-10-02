@@ -33,6 +33,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
 
         selectCandidates(selected, (IRulesContext) context);
+        
+        // Temporal implementation of the active/inactive method feature for overloaded methods only.
+        // 
+        // Use case: if method has the active table property with 'false' value 
+        // it will be ignored by method dispatcher.  
+        //
+        removeInactiveMethods(selected);
 
         switch (selected.size()) {
             case 0:
@@ -101,5 +108,25 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private ITableProperties getTableProperties(IOpenMethod method) {
         return ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties2();
+    }
+    
+    private void removeInactiveMethods(Set<IOpenMethod> candidates) {
+        
+        List<IOpenMethod> inactiveCandidates = new ArrayList<IOpenMethod>();
+        
+        for (IOpenMethod candidate : candidates) {
+            if (!isActive(candidate)) {
+                inactiveCandidates.add(candidate);
+            }
+        }
+        
+        candidates.removeAll(inactiveCandidates);
+    }
+    
+    private boolean isActive(IOpenMethod method) {
+        
+        ITableProperties tableProperties = ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties2();
+        
+        return tableProperties.getActive() == null || tableProperties.getActive().booleanValue(); 
     }
 }
