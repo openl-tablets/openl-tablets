@@ -26,7 +26,9 @@
         <h:outputText value="#{version.versionInfo.createdBy}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{version.versionInfo.createdAt}" />
+        <h:outputText value="#{version.versionInfo.createdAt}">
+        	<f:convertDateTime type="date" pattern="#{formatPatterns.datePattern}"/>
+        </h:outputText>
       </rich:column>
     </rich:columnGroup>
   </rich:dataTable>

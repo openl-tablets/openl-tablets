@@ -18,7 +18,9 @@
     </ui:remove>
 
     <h:outputText value="Creation Date" />
-    <h:outputText value="#{node.createdAt}" />
+    <h:outputText value="#{node.createdAt}">
+    	<f:convertDateTime type="date" pattern="#{formatPatterns.datePattern}"/>
+    </h:outputText>
 
     <h:outputText value="Created By" />
     <h:outputText value="#{node.createdBy}" />
