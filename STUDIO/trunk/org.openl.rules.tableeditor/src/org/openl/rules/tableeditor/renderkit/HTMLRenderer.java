@@ -317,7 +317,9 @@ public class HTMLRenderer {
     }
 
     protected String renderPropsEditor(String editorId, ITable table, String mode, boolean collapseProps) {
-        if (table.getType() !=  null && !table.getType().equals(ITableNodeTypes.XLS_OTHER)) {
+        final String tableType = table.getType();
+        if (tableType !=  null && !tableType.equals(ITableNodeTypes.XLS_OTHER)
+                && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)) {
             TableProperties props = table.getProperties();
             return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
                     collapseProps).renderProperties();
