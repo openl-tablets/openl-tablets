@@ -176,6 +176,13 @@
   <dependencyManagement>
     <dependencies>
 
+      <dependency>
+          <groupId>org.openl</groupId>
+  	  <artifactId>org.openl.poi.lib</artifactId>
+	  <scope>runtime</scope>
+          <version>${openl.version.maven}</version>
+      </dependency>
+
       <!-- DEV -->
       <dependency>
         <groupId>org.openl.rules</groupId>
