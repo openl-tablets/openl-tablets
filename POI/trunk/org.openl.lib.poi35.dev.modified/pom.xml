@@ -39,14 +39,22 @@
                                                                         <exclude>log4j:log4j</exclude>
                                                                         <exclude>logkit:logkit</exclude>
                                                                         <exclude>commons-logging:commons-logging-api</exclude>
-                                                                        <exclude>avalon-framework:avalon-framework</exclude>--&gt;
+                                                                        <exclude>avalon-framework:avalon-framework</exclude>
                                                                         <exclude>org.apache.poi:ooxml-schemas</exclude>
                                                                         <exclude>org.apache.xmlbeans:xmlbeans</exclude>
                                                                         <exclude>stax:stax-api</exclude>
                                                                         <exclude>dom4j:dom4j</exclude>
                                                                         <exclude>xml-apis:xml-apis</exclude>                                                                        
                                                                 </excludes>
-                                                        </artifactSet>														
+                                                        </artifactSet>									
+                                                        <filters>
+                                                        	<filter>
+                                                        	<artifact>org.openl.rules:org.openl.lib.poi35.dev</artifact>
+                                                        	<excludes>
+                                                        		<exclude>lib/**</exclude>
+                                                        	</excludes>
+                                                        	</filter>
+                                                        </filters>
                                                 </configuration>
                                         </execution>
                                 </executions>
