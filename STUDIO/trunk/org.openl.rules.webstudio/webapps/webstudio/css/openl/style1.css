@@ -455,15 +455,11 @@ font-style: italic;
   color:red;
 }
 
-span#userName {
+#userName {
   background: url(../webresource/images/user.gif) no-repeat right;
   color: black;
-  display: block;
   font-size: 11px;
   font-weight: bold;
   padding-right: 17px;
-  padding-top: 2px;
-  position: absolute;
-  top: 30px;
-  right: 330px;
+  margin-right: 10px;
 }
