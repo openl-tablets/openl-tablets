@@ -44,46 +44,46 @@
 <h:form>
 <table style="border-style: solid; border-width: 1px; border-color: black;" cellspacing="0" cellpadding="2"><tr><td>
 
-  <a href="#{contextPath}/main.jsp?mode=business" title="Business View" target="top"><img border='0px;' alt="business view" src="#{contextPath}/webresource/images/business-view.png" /></a>
+  <a href="#{contextPath}/main.jsp?mode=business" title="Business View" target="top"><img border='0px;' alt="Business View" src="#{contextPath}/webresource/images/business-view.png" /></a>
   <f:verbatim>&amp;nbsp;</f:verbatim>
-  <a href="#{contextPath}/main.jsp?mode=developer" title="Developer View" target="top"><img border='0px;' alt="developer's view" src="#{contextPath}/webresource/images/developer-view.png" /></a>
+  <a href="#{contextPath}/main.jsp?mode=developer" title="Developer View" target="top"><img border='0px;' alt="Developer View" src="#{contextPath}/webresource/images/developer-view.png" /></a>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <c:if test="#{headerBean.showFormulas}">
-    <a href="#{contextPath}/main.jsp?showFormulas=false" title="Dont't Show Formulas" target="top"><img border='0px;' alt="business view" src="#{contextPath}/webresource/images/dont-show-formulas.png" /></a>
+    <a href="#{contextPath}/main.jsp?showFormulas=false" title="Dont't Show Formulas" target="top"><img border='0px;' alt="Dont't Show Formulas" src="#{contextPath}/webresource/images/dont-show-formulas.png" /></a>
   </c:if>
   <c:if test="#{not headerBean.showFormulas}">
-    <a href="#{contextPath}/main.jsp?showFormulas=true" title="Show Formulas" target="top"><img border='0px;' alt="business view" src="#{contextPath}/webresource/images/show-formulas.png" /></a>
+    <a href="#{contextPath}/main.jsp?showFormulas=true" title="Show Formulas" target="top"><img border='0px;' alt="Show Formulas" src="#{contextPath}/webresource/images/show-formulas.png" /></a>
   </c:if>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <c:if test="#{headerBean.localRequest}">
     <c:if test="#{headerBean.repositoryFailed}">
-      <img border='0' src="#{contextPath}/webresource/images/repository/upload-disabled.gif" alt="repo failed"/>
+      <img border='0' src="#{contextPath}/webresource/images/repository/upload-disabled.gif" alt="Upload project(s) failed"/>
       <f:verbatim>&amp;nbsp;</f:verbatim>
     </c:if>
     <c:if test="#{not headerBean.repositoryFailed}">
-      <a target="mainFrame" href="#{contextPath}/faces/facelets/studio/uploadProjects.xhtml" title="Upload projects to repository"><img border='0' src="#{contextPath}/webresource/images/repository/upload.gif" alt="upload"/></a>
+      <a target="mainFrame" href="#{contextPath}/faces/facelets/studio/uploadProjects.xhtml" title="Upload project(s) to repository"><img border='0' src="#{contextPath}/webresource/images/repository/upload.gif" alt="Upload project(s) to repository"/></a>
       <f:verbatim>&amp;nbsp;</f:verbatim>
     </c:if>
   </c:if>
-  <a target="mainFrame" href="#{contextPath}/jsp/search/search.jsp?searchQuery=&quot;openl tablets&quot;" title="Search"><img border='0' src="#{contextPath}/webresource/images/search.png" alt="search"/></a>
+  <a target="mainFrame" href="#{contextPath}/jsp/search/search.jsp?searchQuery=&quot;openl tablets&quot;" title="Search"><img border='0' src="#{contextPath}/webresource/images/search.png" alt="Search"/></a>
   <f:verbatim>&amp;nbsp;</f:verbatim>
-  <a href="#{contextPath}/main.jsp?reload=true&amp;select_wrapper=#{headerBean.selectedProject}" title="Refresh Project(s)" target="top"><img border='0' src="#{contextPath}/webresource/images/refresh.gif" alt="reload"/></a>
+  <a href="#{contextPath}/main.jsp?reload=true&amp;select_wrapper=#{headerBean.selectedProject}" title="Refresh Project(s)" target="top"><img border='0' src="#{contextPath}/webresource/images/refresh.gif" alt="Refresh Project(s)"/></a>
   <h:panelGroup rendered="#{headerBean.projectsExist and not headerBean.projectReadOnly}">
       <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
-      <h:commandLink target="mainFrame" action="#{tableWizardManager.start}" title="Create new table"><img border='0' src="#{contextPath}/webresource/images/newtable.gif" alt="new table"/></h:commandLink>
+      <h:commandLink target="mainFrame" action="#{tableWizardManager.start}" title="Create new table"><img border='0' src="#{contextPath}/webresource/images/newtable.gif" alt="Create new table"/></h:commandLink>
   </h:panelGroup>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <a target="mainFrame" onclick="window.open('#{contextPath}/faces/facelets/diff/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;" href="#" title="Compare Excel files">
       <img border='0' src="#{contextPath}/webresource/images/compare.gif" alt="Compare Excel files" /></a>
   <f:verbatim>&amp;nbsp;</f:verbatim>
   <c:if test="#{headerBean.repositoryFailed}">
-    <img border='0' src="#{contextPath}/webresource/images/repository/storage-disabled.gif" alt="repo failed"/>
+    <img border='0' src="#{contextPath}/webresource/images/repository/storage-disabled.gif" alt="Rules Repository failed"/>
   </c:if>
   <c:if test="#{not headerBean.repositoryFailed}">
-    <a target="top" href="#{contextPath}/faces/facelets/repository/main.xhtml" title="Rules Repository"><img border='0' src="#{contextPath}/webresource/images/repository/storage.gif" alt="repo"/></a>
+    <a target="top" href="#{contextPath}/faces/facelets/repository/main.xhtml" title="Rules Repository"><img border='0' src="#{contextPath}/webresource/images/repository/storage.gif" alt="Rules Repository"/></a>
   </c:if>
   <f:verbatim>&amp;nbsp;</f:verbatim>
-  <a target="mainFrame" href="#{contextPath}/html/ws-intro.html" title="Help"><img border='0' src="#{contextPath}/webresource/images/help.gif" alt="help"/></a>
+  <a target="mainFrame" href="#{contextPath}/html/ws-intro.html" title="Help"><img border='0' src="#{contextPath}/webresource/images/help.gif" alt="Help"/></a>
   <c:if test="#{not headerBean.hideLogout}">
     <f:verbatim>&amp;nbsp;</f:verbatim>
     <a target="top" href='#{contextPath}/logoff.servlet?_j_acegi_logout=true' title="Log out" onclick="return confirm('Are you sure you want to Log out?')"><img border='0' src="#{contextPath}/webresource/images/logout.gif" alt="Log out"/></a>
