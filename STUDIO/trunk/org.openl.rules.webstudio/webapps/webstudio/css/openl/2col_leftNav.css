@@ -22,7 +22,6 @@ div#container
 	background-repeat: no-repeat;
 	border-bottom: 1px solid #CCCCCC;
 	min-width: 800px;
-	max-width: 1400px;
 	position: relative;
 }
 
@@ -125,16 +124,6 @@ div#container
 	top: -70px;
 	left: 420px;
 	display: none;
-}
-
-#search {
-	vertical-align: top;
-	width: 100%;
-	margin-right: 0px;
-	font-size:110%;
-	font-weight: bold;
-	color:#8B4513;
-	background-color:transparent;
 }
 
 #navTable {
