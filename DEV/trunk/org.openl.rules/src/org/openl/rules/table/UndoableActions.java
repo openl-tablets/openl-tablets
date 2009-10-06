@@ -35,11 +35,11 @@ public class UndoableActions {
         return currentUndoIndex > 0;
     }
 
-    public IUndoableAction redo() {
+    public IUndoableAction getRedoAction() {
         return undoableActions.get(currentUndoIndex++);
     }
 
-    public IUndoableAction undo() {
+    public IUndoableAction getUndoAction() {
         return undoableActions.get(--currentUndoIndex);
     }
 
