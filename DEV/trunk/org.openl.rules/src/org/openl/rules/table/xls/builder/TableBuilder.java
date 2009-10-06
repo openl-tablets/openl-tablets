@@ -202,7 +202,7 @@ public class TableBuilder {
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
-            Cell cell = gridModel.createNewCell(x, y);
+            Cell cell = gridModel.createXlsCell(x, y);
             gridModel.setCellValue(x, y, value);
             setCellStyle(cell, cellStyle);
         } else {
@@ -211,7 +211,7 @@ public class TableBuilder {
             gridModel.addMergedRegion(new GridRegion(y, x, y2, x2));
             for (int col = x; col <= x2; col++) {
                 for (int row = y; row <= y2; row++) {
-                    Cell newCell = gridModel.createNewCell(col, row);
+                    Cell newCell = gridModel.createXlsCell(col, row);
                     gridModel.setCellValue(x, y, value);
                     setCellStyle(newCell, cellStyle);
                 }
