@@ -246,7 +246,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
     public void copyCell(int colFrom, int rowFrom, int colTo, int rowTo) {
         Cell cellFrom = getXlsCell(colFrom, rowFrom);
-
         copyFrom(cellFrom, colTo, rowTo, getCellMetaInfo(colFrom, rowFrom));
     }
 
@@ -262,7 +261,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         if (cellTo == null) {
-            cellTo = createNewCell(colTo, rowTo);
+            cellTo = createXlsCell(colTo, rowTo);
         }
 
         cellTo.setCellType(Cell.CELL_TYPE_BLANK);
@@ -336,19 +335,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
     }
 
-    public Cell createNewCell(int colTo, int rowTo) {
-        Row row = sheet.getRow(rowTo);
-        if (row == null) {
-            row = sheet.createRow(rowTo);
-        }
-
-        Cell cell = row.getCell(colTo);
-        if (cell == null) {
-            cell = row.createCell(colTo);
-        }
-        return cell;
-    }
-
     public IGridRegion findEmptyRect(int width, int height) {
         int lastRow = sheet.getLastRowNum();
         int top = lastRow + 2, left = 1;
@@ -356,13 +342,28 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return new GridRegion(top, left, top + height - 1, left + width - 1);
     }
 
-    public Cell getXlsCell(int x, int y) {
-        Row row = sheet.getRow(y);
-        if (row == null) {
-            return null;
+    public Cell getXlsCell(int colIndex, int rowIndex) {
+        Row row = sheet.getRow(rowIndex);
+        if (row != null) {
+            return row.getCell(colIndex);
         }
+        return null;
+    }
 
-        return row.getCell(x);
+    public Cell getXlsCell(int colIndex, int rowIndex, boolean createIfNull) {
+        Cell cell = getXlsCell(colIndex, rowIndex);
+        if (cell == null && createIfNull) {
+            cell = createXlsCell(colIndex, rowIndex);
+        }
+        return cell;
+    }
+
+    public Cell createXlsCell(int colIndex, int rowIndex) {
+        Row row = sheet.createRow(rowIndex);
+        if (row != null) {
+            return row.createCell(colIndex);
+        }
+        return null;
     }
 
     public ICell getCell(int column, int row) {
@@ -533,7 +534,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public void setCellStringValue(int col, int row, String value) {
-        Cell cell = createNewCell(col, row);
+        Cell cell = getXlsCell(col, row, true);
         cell.setCellValue(value);
     }
 
@@ -542,7 +543,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         if (style == null) {
             styleMap.remove(key);
         } else {
-            createNewCell(col, row);
+            getXlsCell(col, row, true);
             styleMap.put(key, style);
         }
     }
@@ -551,7 +552,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         if (value == null) {
             return;
         }
-        Cell cell = createNewCell(col, row);
+        Cell cell = getXlsCell(col, row, true);
         if (value instanceof Number) {
             Number x = (Number) value;
             cell.setCellValue(x.doubleValue());
