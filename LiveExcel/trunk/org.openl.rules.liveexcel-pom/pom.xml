@@ -133,6 +133,16 @@
         <artifactId>org.openl.commons</artifactId>
         <version>${openl.version.maven}</version>
       </dependency>
+      <dependency>
+        <groupId>com.exigen.le</groupId>
+        <artifactId>le-model-access</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>com.exigen.le</groupId>
+        <artifactId>le-commons</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>				
     </dependencies>
   </dependencyManagement>
 </project>
