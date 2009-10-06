@@ -3,13 +3,13 @@
         <parent>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.liveexcel-pom</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>5.3.0.001</version>
                 <relativePath>../org.openl.rules.liveexcel-pom</relativePath>
         </parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.liveexcel.lib</artifactId>
         <name>OpenL - LiveExcel - Libraries</name>
-        <description/>
+        <description />
         <build>                
                 <plugins>
                         <plugin>
