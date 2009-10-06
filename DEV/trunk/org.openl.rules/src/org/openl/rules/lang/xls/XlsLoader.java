@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -220,7 +221,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
                 preprocessImportTable(row.getGridTable(), source);
             } else if (VOCABULARY_PROPERTY.equals(name)) {
                 preprocessVocabularyTable(row.getGridTable(), source);
-            } else if (name == null || name.isEmpty() || DTLoader.isValidCommentHeader(name)) {
+            } else if (name == null || StringUtils.isEmpty(name) || DTLoader.isValidCommentHeader(name)) {
                 ;//ignore comment
             } else {
                 //TODO: why do we consider everything else an extension?
