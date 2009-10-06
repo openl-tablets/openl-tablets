@@ -220,11 +220,10 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
                 preprocessImportTable(row.getGridTable(), source);
             } else if (VOCABULARY_PROPERTY.equals(name)) {
                 preprocessVocabularyTable(row.getGridTable(), source);
-            } else if (DTLoader.isValidCommentHeader(name)) {
+            } else if (name == null || name.isEmpty() || DTLoader.isValidCommentHeader(name)) {
                 ;//ignore comment
-            } else
-                
-            {
+            } else {
+                //TODO: why do we consider everything else an extension?
                 IExtensionLoader loader = NameConventionLoaderFactory.INSTANCE.getLoader(name);
                 if (loader != null) {
                     loader.process(this, tsn, table, source);
