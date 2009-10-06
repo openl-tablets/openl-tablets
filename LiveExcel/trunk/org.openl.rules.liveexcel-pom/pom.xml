@@ -11,7 +11,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.liveexcel-pom</artifactId>
   <packaging>pom</packaging>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1</version>
   <name>OpenL - Live Excel - Base POM</name>
   <description>Dev</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
@@ -22,8 +22,8 @@
     <module>../org.openl.rules.liveexcel.extension</module>
   </modules>
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</connection>
-<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/tags/release-0.1</connection>
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/tags/release-0.1</developerConnection>
   </scm>
 
   <repositories>
