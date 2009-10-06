@@ -21,12 +21,6 @@
     <module>../org.openl.rules.liveexcel</module>
     <module>../org.openl.rules.liveexcel.extension</module>
   </modules>
-
-
-  <properties>
-    <liveexcel.version.maven>0.1</liveexcel.version.maven>
-  </properties>
-
   <scm>
     <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</connection>
 <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/LiveExcel/trunk</developerConnection>
@@ -111,12 +105,12 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.liveexcel</artifactId>
-        <version>${liveexcel.version.maven}</version>
+        <version>${version}</version>
       </dependency>
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.liveexcel.lib</artifactId>
-        <version>${liveexcel.version.maven}</version>
+        <version>${version}</version>
       </dependency>
       <dependency>
         <groupId>org.openl.rules</groupId>
