@@ -360,7 +360,7 @@ public class TableEditorModel {
     }
 
     public synchronized void redo() {
-        IUndoableAction ua = actions.redo();
+        IUndoableAction ua = actions.getRedoAction();
         ((RegionAction) ua).doSome(region, wgrid(), undoGrid);
     }
 
@@ -486,7 +486,7 @@ public class TableEditorModel {
     }
 
     public synchronized void undo() {
-        IUndoableAction ua = actions.undo();
+        IUndoableAction ua = actions.getUndoAction();
         ((RegionAction) ua).undoSome(region, wgrid(), undoGrid);
     }
 
