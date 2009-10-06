@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Live Excel Lib
 Bundle-SymbolicName: org.openl.rules.liveexcel.lib
-Bundle-Version: 1.0.0
+Bundle-Version: 0.1
 Bundle-Vendor: OpenL
-Bundle-ClassPath: lib/le-commons-0.0.1-SNAPSHOT.jar,
- lib/le-model-access-0.0.1-SNAPSHOT.jar,
+Bundle-ClassPath: lib/le-commons-0.1.0.jar,
+ lib/le-model-access-0.1.0.jar,
  .,
  lib/hibernate-3.2.5.ga.jar,
  lib/log4j-1.2.13.jar
