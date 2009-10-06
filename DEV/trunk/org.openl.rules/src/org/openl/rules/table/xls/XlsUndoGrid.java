@@ -29,7 +29,7 @@ public class XlsUndoGrid implements IUndoGrid {
 
 	public XlsUndoGrid(XlsSheetGridModel originalGrid) {
 		Workbook originalWorkbook = originalGrid.getSheetSource().getWorkbookSource().getWorkbook();
-		
+
 		if (originalWorkbook instanceof XSSFWorkbook) {
 			wb = new XSSFWorkbook();
 		} else {
@@ -48,24 +48,24 @@ public class XlsUndoGrid implements IUndoGrid {
         return cid % CELLS_IN_A_ROW;
     }
 
-	public Cell restoreCell(int id) {
+	public Cell getCellToRestore(int id) {
         int col = getColumn(id);
         int row = getRow(id);
         return grid.getXlsCell(col, row);
     }
 
     public void restoreCell(int cellID, IWritableGrid toGrid, int col, int row) {
-        ((XlsSheetGridModel) toGrid).copyFrom(restoreCell(cellID), col, row, restoreMeta(cellID));
-        toGrid.setCellStyle(col, row, restoreModifiedStyle(cellID));
+        ((XlsSheetGridModel) toGrid).copyFrom(getCellToRestore(cellID), col, row, getCellMetaInfoToRestore(cellID));
+        toGrid.setCellStyle(col, row, getStyleToRestore(cellID));
     }
 
-    public CellMetaInfo restoreMeta(int id) {
+    public CellMetaInfo getCellMetaInfoToRestore(int id) {
         int col = getColumn(id);
         int row = getRow(id);
         return grid.getCellMetaInfo(col, row);
     }
 
-    private ICellStyle restoreModifiedStyle(int id) {
+    private ICellStyle getStyleToRestore(int id) {
         int col = getColumn(id);
         int row = getRow(id);
         return grid.getModifiedStyle(col, row);
