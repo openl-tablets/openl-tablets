@@ -13,9 +13,9 @@ public abstract class TreeSorter<T> {
         if (element == null) {
             element = sorters[level].makeElement(obj, 0);
             target.addChild(key, element);
-            /*if (level > 0) {
+            if (level > 0) {
                 addSubElements(sorters[level], (ITreeElement.Node<T>) element, obj);
-            }*/
+            }
         } else if (sorters[level].isUnique()) {
             for (int i = 2; i < 100; ++i) {
                 Comparable<?> key2 = sorters[level].makeKey(obj, i);
@@ -32,7 +32,7 @@ public abstract class TreeSorter<T> {
     }
 
     /**
-     * Temp stub method
+     * Temp mockup method
      **/
     private static void addSubElements(TreeSorter sorter, ITreeElement.Node parent, Object elemmentObject) {
         String eds[] = {"10.10.2007", "11.11.2008", "12.12.2009"};
