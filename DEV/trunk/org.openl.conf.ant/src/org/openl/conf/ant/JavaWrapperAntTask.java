@@ -912,6 +912,7 @@ public class JavaWrapperAntTask extends Task {
     private void saveProjectProperties() throws IOException {
         Properties p = new Properties();
         p.put(OpenLProjectPropertiesLoader.OPENL_CLASSPATH_PROPERTY, filterClassPath());
+        p.put(OpenLProjectPropertiesLoader.OPENL_CLASSPATH_SEPARATOR_PROPERTY, File.pathSeparator);
 
         if (displayName != null) {
             p.put(targetClass + OpenLProjectPropertiesLoader.DISPLAY_NAME_SUFFIX, displayName);

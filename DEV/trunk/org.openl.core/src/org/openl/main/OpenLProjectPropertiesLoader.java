@@ -29,6 +29,8 @@ public class OpenLProjectPropertiesLoader {
     static final public String OPENL_PROPERTIES_FNAME = "openl.project.classpath.properties";
 
     static final public String OPENL_CLASSPATH_PROPERTY = "openl.project.classpath";
+    
+    public static final String OPENL_CLASSPATH_SEPARATOR_PROPERTY = "openl.project.classpath.separator";
 
     static final public String OPENL_PROJECT_DISPLAY_NAME_PROPERTY = "openl.project.display.name";
 
@@ -102,6 +104,15 @@ public class OpenLProjectPropertiesLoader {
             return null;
         }
         return p.getProperty(OPENL_CLASSPATH_PROPERTY);
+
+    }
+    
+    public String loadExistingClasspathSeparator(String projectHome) {
+        Properties p = loadProjectProperties(projectHome);
+        if (p == null) {
+            return null;
+        }
+        return p.getProperty(OPENL_CLASSPATH_SEPARATOR_PROPERTY);
 
     }
 
