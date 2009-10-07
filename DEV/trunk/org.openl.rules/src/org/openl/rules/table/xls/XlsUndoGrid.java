@@ -11,7 +11,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IUndoGrid;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor
@@ -55,8 +54,7 @@ public class XlsUndoGrid implements IUndoGrid {
     }
 
     public void restoreCell(int cellID, IWritableGrid toGrid, int col, int row) {
-        ((XlsSheetGridModel) toGrid).copyFrom(getCellToRestore(cellID), col, row, getCellMetaInfoToRestore(cellID));
-        toGrid.setCellStyle(col, row, getStyleToRestore(cellID));
+        ((XlsSheetGridModel) toGrid).copyCell(getCellToRestore(cellID), col, row, getCellMetaInfoToRestore(cellID));
     }
 
     public CellMetaInfo getCellMetaInfoToRestore(int id) {
@@ -65,24 +63,16 @@ public class XlsUndoGrid implements IUndoGrid {
         return grid.getCellMetaInfo(col, row);
     }
 
-    private ICellStyle getStyleToRestore(int id) {
-        int col = getColumn(id);
-        int row = getRow(id);
-        return grid.getModifiedStyle(col, row);
-    }
-
-	public synchronized int saveCell(Cell cell, CellMetaInfo meta, ICellStyle modifiedStyle) {
+	public synchronized int saveCell(Cell cell, CellMetaInfo meta) {
         ++cnt;
         int colTo = getColumn(cnt);
         int rowTo = getRow(cnt);
-        grid.copyFrom(cell, colTo, rowTo, meta);
-        grid.setCellStyle(colTo, rowTo, modifiedStyle);
+        grid.copyCell(cell, colTo, rowTo, meta);
         return cnt;
     }
 
     public int saveCell(IWritableGrid fromGrid, int col, int row) {
-        return saveCell(((XlsSheetGridModel) fromGrid).getXlsCell(col, row), fromGrid.getCellMetaInfo(col, row),
-                ((XlsSheetGridModel) fromGrid).getModifiedStyle(col, row));
+        return saveCell(((XlsSheetGridModel) fromGrid).getXlsCell(col, row), fromGrid.getCellMetaInfo(col, row));
     }
 
 }
