@@ -152,11 +152,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
     Map<CellKey, CellMetaInfo> metaInfoMap = new HashMap<CellKey, CellMetaInfo>();
 
-    /**
-     * Not saved styles for cells.
-     */
-    private Map<CellKey, ICellStyle> styleMap = new HashMap<CellKey, ICellStyle>();
-
     static public int getColumn(String cell) {
         int col = 0;
         int mul = 'Z' - 'A' + 1;
@@ -219,54 +214,44 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }    
 
     public void beforeSave(XlsWorkbookSourceCodeModule xwscm) {
-        Workbook workbook = xwscm.getWorkbook();
-        for (CellKey ck : styleMap.keySet()) {
-            Cell cell = getXlsCell(ck.getColumn(), ck.getRow());
-            if (cell != null) {
-                CellStyle cellStyle = workbook.createCellStyle();
-                copyStyle(styleMap.get(ck), cellStyle, cell.getCellStyle());
-                cell.setCellStyle(cellStyle);
-            }
-        }
-        styleMap.clear();
     }
 
-    // XlsGridRegion[] regions = null;
-
     public void clearCell(int col, int row) {
-
         setCellMetaInfo(col, row, null);
         Cell cell = getXlsCell(col, row);
-        if (cell == null) {
-            return;
+        if (cell != null) {
+            sheet.getRow(row).removeCell(cell);
         }
-
-        sheet.getRow(row).removeCell(cell);
     }
 
     public void copyCell(int colFrom, int rowFrom, int colTo, int rowTo) {
         Cell cellFrom = getXlsCell(colFrom, rowFrom);
-        copyFrom(cellFrom, colTo, rowTo, getCellMetaInfo(colFrom, rowFrom));
+        copyCell(cellFrom, colTo, rowTo, getCellMetaInfo(colFrom, rowFrom));
     }
 
-    public void copyFrom(Cell cellFrom, int colTo, int rowTo, CellMetaInfo meta) {
+    // TODO To Refactor
+    public void copyCell(Cell cellFrom, int colTo, int rowTo, CellMetaInfo meta) {
         Cell cellTo = getXlsCell(colTo, rowTo);
 
         if (cellFrom == null) {
-            if (cellTo == null) {
-                return;
+            if (cellTo != null) {
+                clearCell(colTo, rowTo);
             }
-            clearCell(colTo, rowTo);
             return;
         }
 
         if (cellTo == null) {
-            cellTo = createXlsCell(colTo, rowTo);
+            cellTo = getOrCreateXlsCell(colTo, rowTo);
         }
 
-        cellTo.setCellType(Cell.CELL_TYPE_BLANK);
-        // cellTo.setCellType(cellFrom.getCellType());
+        copyCellValue(cellFrom, cellTo);
+        copyCellStyle(cellFrom, cellTo);
 
+        setCellMetaInfo(colTo, rowTo, meta);
+    }
+
+    public void copyCellValue(Cell cellFrom, Cell cellTo) {
+        cellTo.setCellType(Cell.CELL_TYPE_BLANK);
         switch (cellFrom.getCellType()) {
             case Cell.CELL_TYPE_BLANK:
                 break;
@@ -285,53 +270,36 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             default:
                 throw new RuntimeException("Unknown cell type: " + cellFrom.getCellType());
         }
+    }
 
+    public void copyCellStyle(Cell cellFrom, Cell cellTo) {
         CellStyle styleFrom = cellFrom.getCellStyle();
-        CellStyle styleTo = cellTo.getCellStyle();
-
-        styleTo.cloneStyleFrom(styleFrom);
-
-        setCellMetaInfo(colTo, rowTo, meta);
+        try {
+            cellTo.setCellStyle(styleFrom);
+        } catch (IllegalArgumentException e) { // copy cell style to cell of another workbook
+            CellStyle styleTo = sheet.getWorkbook().createCellStyle();
+            styleTo.cloneStyleFrom(styleFrom);
+            cellTo.setCellStyle(styleTo);
+        }
     }
 
     /**
-     * Copies properties of <code>ICellStyle</code> object to POI xls styling
-     * object. <br/> <b>Note:</b> for now ignores font and some properties, to
-     * set those ones another POI xls styling object is used.
+     * Copies properties of <code>ICellStyle</code> object to POI xls styling object. <br/>
      * 
      * @param source style source
      * @param dest xls cell style object to fill
-     * @param oldStyle xls style object - another style source for properties
-     *            that ignored in <code>ICellStyle source</code> parameter
      */
-    private void copyStyle(ICellStyle source, CellStyle dest, CellStyle oldStyle) {
-        if (source != null) {
-        dest.setAlignment((short) source.getHorizontalAlignment());
-        dest.setVerticalAlignment((short) source.getVerticalAlignment());
-        dest.setIndention((short) source.getIdent());
+    private void styleToXls(ICellStyle source, CellStyle dest) {
+        if (source != null && dest != null) {
+            dest.setAlignment((short) source.getHorizontalAlignment());
+            dest.setVerticalAlignment((short) source.getVerticalAlignment());
+            dest.setIndention((short) source.getIdent());
 
-        short[] bs = source.getBorderStyle();
-        dest.setBorderTop(bs[0]);
-        dest.setBorderRight(bs[1]);
-        dest.setBorderBottom(bs[2]);
-        dest.setBorderLeft(bs[3]);
-        }
-        // TODO Can't we clone style like below?
-        // dest.cloneStyleFrom(oldStyle);
-        if (oldStyle != null) {
-            dest.setBottomBorderColor(oldStyle.getBottomBorderColor());
-            dest.setTopBorderColor(oldStyle.getTopBorderColor());
-            dest.setRightBorderColor(oldStyle.getRightBorderColor());
-            dest.setLeftBorderColor(oldStyle.getLeftBorderColor());
-            dest.setDataFormat(oldStyle.getDataFormat());
-            dest.setFillBackgroundColor(oldStyle.getFillBackgroundColor());
-            dest.setFillForegroundColor(oldStyle.getFillForegroundColor());
-            dest.setFillPattern(oldStyle.getFillPattern());
-            dest.setFont(sheetSource.getWorkbookSource().getWorkbook().getFontAt(oldStyle.getFontIndex()));
-            dest.setHidden(oldStyle.getHidden());
-            dest.setLocked(oldStyle.getLocked());
-            dest.setRotation(oldStyle.getRotation());
-            dest.setWrapText(oldStyle.getWrapText());
+            short[] bs = source.getBorderStyle();
+            dest.setBorderTop(bs[0]);
+            dest.setBorderRight(bs[1]);
+            dest.setBorderBottom(bs[2]);
+            dest.setBorderLeft(bs[3]);
         }
     }
 
@@ -350,20 +318,16 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         return null;
     }
 
-    public Cell getXlsCell(int colIndex, int rowIndex, boolean createIfNull) {
-        Cell cell = getXlsCell(colIndex, rowIndex);
-        if (cell == null && createIfNull) {
-            cell = createXlsCell(colIndex, rowIndex);
+    public Cell getOrCreateXlsCell(int colIndex, int rowIndex) {
+        Row row = sheet.getRow(rowIndex);
+        if (row == null) {
+            row = sheet.createRow(rowIndex);
+        }
+        Cell cell = row.getCell(colIndex);
+        if (cell == null) {
+            cell = row.createCell(colIndex);
         }
         return cell;
-    }
-
-    public Cell createXlsCell(int colIndex, int rowIndex) {
-        Row row = sheet.createRow(rowIndex);
-        if (row != null) {
-            return row.createCell(colIndex);
-        }
-        return null;
     }
 
     public ICell getCell(int column, int row) {
@@ -377,23 +341,16 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     private ICellStyle getCellStyle(int column, int row, Cell cell) {
-        ICellStyle newStyle = getModifiedStyle(column, row);
-        if (newStyle != null) {
-            return newStyle;
-        }
-
         CellStyle style = cell.getCellStyle();
-
-        if (style == null) {
-            return null;
-        } else {
-            Workbook workbook = sheetSource.getWorkbookSource().getWorkbook();
+        if (style != null) {
+            Workbook workbook = sheet.getWorkbook();
             if (style instanceof XSSFCellStyle) {
                 return new XlsCellStyle2((XSSFCellStyle) style, (XSSFWorkbook) workbook);
             } else {
                 return new XlsCellStyle((HSSFCellStyle) style, (HSSFWorkbook) workbook);
             }
         }
+        return null;
     }
 
    /**
@@ -428,10 +385,6 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
     public int getMinRowIndex() {
         return sheet.getFirstRowNum();
-    }
-
-    ICellStyle getModifiedStyle(int column, int row) {
-        return styleMap.get(new CellKey(column, row));
     }
 
     public String getName() {
@@ -534,25 +487,22 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public void setCellStringValue(int col, int row, String value) {
-        Cell cell = getXlsCell(col, row, true);
+        Cell cell = getOrCreateXlsCell(col, row);
         cell.setCellValue(value);
     }
 
     public void setCellStyle(int col, int row, ICellStyle style) {
-        CellKey key = new CellKey(col, row);
-        if (style == null) {
-            styleMap.remove(key);
-        } else {
-            getXlsCell(col, row, true);
-            styleMap.put(key, style);
-        }
+        Cell xlsCell = getOrCreateXlsCell(col, row);
+        CellStyle xlsStyle = xlsCell.getCellStyle();
+        styleToXls(style, xlsStyle);
+        xlsCell.setCellStyle(xlsStyle);
     }
 
     public void setCellValue(int col, int row, Object value) {
         if (value == null) {
             return;
         }
-        Cell cell = getXlsCell(col, row, true);
+        Cell cell = getOrCreateXlsCell(col, row);
         if (value instanceof Number) {
             Number x = (Number) value;
             cell.setCellValue(x.doubleValue());
