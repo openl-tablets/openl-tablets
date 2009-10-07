@@ -103,7 +103,19 @@ public class OpenLWebProjectInfo {
     }
 
     public String projectClasspath() {
-        return new OpenLProjectPropertiesLoader().loadExistingClasspath(projectHome());
+        String classPath;
+
+        OpenLProjectPropertiesLoader propertiesLoader = new OpenLProjectPropertiesLoader();
+        String usedClassPath = propertiesLoader.loadExistingClasspath(projectHome());
+        
+        String usedClasspathSeparator = propertiesLoader.loadExistingClasspathSeparator(projectHome());
+        if (usedClasspathSeparator != null) {
+            classPath = usedClassPath.replace(usedClasspathSeparator, File.pathSeparator);
+        } else {
+            classPath = usedClassPath;
+        }
+        
+        return classPath;
     }
 
     public String projectHome() {
