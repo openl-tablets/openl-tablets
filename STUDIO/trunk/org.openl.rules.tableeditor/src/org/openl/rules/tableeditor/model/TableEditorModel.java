@@ -314,9 +314,13 @@ public class TableEditorModel {
         return table;
     }
 
-    public synchronized void insertColumns(int nCols, int beforeCol) throws Exception {
+    public synchronized void insertColumns(int nCols, int beforeCol, int row) throws Exception {
         if (!canInsertCols(1)) {
             moveTable(getUpdatedFullTable());
+        }
+        int cellWidth = getCell(row, beforeCol).getWidth();
+        if (cellWidth > 1) { // merged cell
+            nCols += cellWidth - 1;
         }
         IUndoableGridAction ua = IWritableGrid.Tool.insertColumns(nCols, beforeCol, region, wgrid());
         RegionAction ra = new RegionAction(ua, COLUMNS, INSERT, nCols);
@@ -324,9 +328,13 @@ public class TableEditorModel {
         actions.addNewAction(ra);
     }
 
-    public synchronized void insertRows(int nRows, int beforeRow) throws Exception {
+    public synchronized void insertRows(int nRows, int beforeRow, int col) throws Exception {
         if (!canInsertRows(1)) {
             moveTable(getUpdatedFullTable());
+        }
+        int cellHeight = getCell(beforeRow, col).getHeight();
+        if (cellHeight > 1) { // merged cell
+            nRows += cellHeight - 1;
         }
         IUndoableGridAction ua = IWritableGrid.Tool.insertRows(nRows, beforeRow, region, wgrid());
         RegionAction ra = new RegionAction(ua, ROWS, INSERT, nRows);

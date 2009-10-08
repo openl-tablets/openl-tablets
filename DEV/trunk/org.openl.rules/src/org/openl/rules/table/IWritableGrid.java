@@ -293,54 +293,87 @@ public interface IWritableGrid extends IGrid {
 
             wgrid.setCellMetaInfo(gcol, grow, meta);
         }
+        
+        private static List<IUndoableGridAction> clearCells(int startColumn,int nCols, int startRow,int nRows){
+            ArrayList<IUndoableGridAction> clearActions = new ArrayList<IUndoableGridAction>();
+            for (int i = startColumn; i < startColumn + nCols; i++) {
+                for (int j = startRow; j < startRow + nRows; j++) {
+                    clearActions.add(new UndoableClearAction(i, j));
+                }
+            }
+            return clearActions;
+        }
+
+        /**
+         * Checks if cell is the top left cell in merged region.
+         * We don't have to remove value from this cell because value of merged
+         * cell will be lost.
+         * 
+         */
+        private static boolean isTopLeftInMergedRegion(int column, int row, IWritableGrid wgrid) {
+            for (int i = 0; i < wgrid.getNumberOfMergedRegions(); i++) {
+                IGridRegion existingMergedRegion = wgrid.getMergedRegion(i);
+                if (existingMergedRegion.getLeft() == column
+                        && existingMergedRegion.getTop() == row) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static List<IUndoableGridAction> shiftColumnsLeft(int columnFrom, int step, IGridRegion region, IWritableGrid wgrid){
+            ArrayList<IUndoableGridAction> shiftActions = new ArrayList<IUndoableGridAction>();
+            for (int i = region.getTop(); i <= region.getBottom(); i++) {
+                for (int j = columnFrom; j <= region.getRight(); j++) {
+//                    if (!isTopLeftInMergedRegion(j - step, i, wgrid)) {
+                        shiftActions.add(new UndoableCopyValueAction(j, i, j - step, i));
+//                    }
+                }
+            }
+            return shiftActions;
+        }
 
         public static IUndoableGridAction removeColumns(int nCols, int startColumn, IGridRegion region,
                 IWritableGrid wgrid) {
-            int firstToMove = startColumn + nCols;
+            int firstToMove = region.getLeft() + startColumn + nCols;
             int w = IGridRegion.Tool.width(region);
             int h = IGridRegion.Tool.height(region);
-            int left = region.getLeft();
-            int top = region.getTop();
 
             ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(h * (w - startColumn));
-            for (int i = firstToMove; i < w; i++) {
-                for (int j = 0; j < h; j++) {
-                    actions.add(new UndoableCopyValueAction(left + i, top + j, left + i - nCols, top + j));
-                }
-            }
-            for (int i = 0; i < nCols; i++) {
-                for (int j = 0; j < h; j++) {
-                    actions.add(new UndoableClearAction(left + w - 1 - i, top + j));
-                }
-            }
 
-            //actions.addAll(resizeMergedRegions(wgrid, startColumn, nCols, REMOVE, INSERT, region));
+            actions.addAll(shiftColumnsLeft(firstToMove, nCols, region, wgrid));
+            actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h));
+            actions.addAll(resizeMergedRegions(wgrid, startColumn, nCols, REMOVE, COLUMNS, region));
+            
             return new UndoableCompositeAction(actions);
+        }
+
+        private static List<IUndoableGridAction> shiftRowsUp(int rowFrom, int step, IGridRegion region, IWritableGrid wgrid){
+            ArrayList<IUndoableGridAction> shiftActions = new ArrayList<IUndoableGridAction>();
+            for (int i = rowFrom; i <= region.getBottom(); i++) {
+                for (int j = region.getLeft(); j <= region.getRight(); j++) {
+//                    if (!isTopLeftInMergedRegion(j, i - step, wgrid)) {
+                        shiftActions.add(new UndoableCopyValueAction(j, i, j, i - step));
+//                    }
+                }
+            }
+            return shiftActions;
         }
 
         public static IUndoableGridAction removeRows(int nRows, int startRow, IGridRegion region, IWritableGrid wgrid) {
-            int firstToMove = startRow + nRows;
             int w = IGridRegion.Tool.width(region);
             int h = IGridRegion.Tool.height(region);
-            int left = region.getLeft();
-            int top = region.getTop();
+            int firstToMove = region.getTop() + startRow + nRows;
 
             ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(w * (h - startRow));
-            for (int i = firstToMove; i < h; i++) {
-                for (int j = 0; j < w; j++) {
-                    actions.add(new UndoableCopyValueAction(left + j, top + i, left + j, top + i - nRows));
-                }
-            }
-            for (int i = 0; i < nRows; i++) {
-                for (int j = 0; j < w; j++) {
-                    actions.add(new UndoableClearAction(left + j, top + h - 1 - i));
-                }
-            }
 
-            //actions.addAll(resizeMergedRegions(wgrid, startRow, nRows, REMOVE, ROWS, region));
+            actions.addAll(shiftRowsUp(firstToMove, nRows, region, wgrid));
+            actions.addAll(clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows));
+            actions.addAll(resizeMergedRegions(wgrid, startRow, nRows, REMOVE, ROWS, region));
+
             return new UndoableCompositeAction(actions);
         }
-
+        
         public static IUndoableGridAction setStringValue(int col, int row, IGridRegion region, String value,
                 IGridFilter filter) {
 
