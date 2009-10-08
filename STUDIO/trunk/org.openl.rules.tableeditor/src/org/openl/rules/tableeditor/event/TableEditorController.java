@@ -50,7 +50,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String insertColBefore() throws Exception {
+    public String insertColumnBefore() throws Exception {
         int col = getCol();
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
@@ -136,7 +136,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String removeCol() throws Exception {
+    public String removeColumn() throws Exception {
         int col = getCol();
         int row = getRow();
         String editorId = getEditorId();
@@ -184,13 +184,13 @@ public class TableEditorController extends BaseTableEditorController implements 
         return null;
     }
 
-    public String setProp() throws Exception {
+    public String setProperty() throws Exception {
         String name = getRequestParam(Constants.REQUEST_PARAM_PROP_NAME);
         String value = getRequestParam(Constants.REQUEST_PARAM_PROP_VALUE);
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            editorModel.insertProp(name, value);
+            editorModel.setProperty(name, value);
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             if (!editorModel.isBusinessView()) {
                 tmResponse.setResponse(render(editorId));
