@@ -184,7 +184,7 @@ public interface IWritableGrid extends IGrid {
         /**
          * TODO To refactor
          * 
-         * @return null if set new property with empty value
+         * @return null if set new property with empty or same value
          * */
         public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
                 String propName, String propValue) {
@@ -208,6 +208,10 @@ public interface IWritableGrid extends IGrid {
                 for (int i = 0; i < propsCount; i++) {
                     String pName = wgrid.getCell(left + 1, top + 1 + i).getStringValue();
                     if (pName.equals(propName)) {
+                        String pValue = wgrid.getCell(left + 2, top + 1 + i).getStringValue();
+                        if (pValue!= null && propValue!= null &&  pValue.trim().equals(propValue.trim())) {
+                            return null;
+                        }
                         return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, filter);
                     }
                 }
