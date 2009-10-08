@@ -1,5 +1,6 @@
 package org.openl.rules.table.xls.builder;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -188,22 +189,26 @@ public class TableBuilder {
      * @param style cell style
      */
     protected void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
+       
         CellStyle cellStyle = null;
         if (style != null) {
             if (style instanceof XlsCellStyle) {
                 cellStyle = ((XlsCellStyle) style).getXlsStyle();
             } else if (style instanceof XlsCellStyle2) {
                 cellStyle = ((XlsCellStyle2) style).getXlsStyle();
-            }
-            
+            }           
         } else {
-            cellStyle = getDefaultCellStyle();
+            cellStyle = getDefaultCellStyle();               
         }
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
             Cell cell = gridModel.getOrCreateXlsCell(x, y);
             gridModel.setCellValue(x, y, value);
+            // we need to add data format in style for dates
+            if (value instanceof Date) {
+                modifyCellStyle(cell, cellStyle);
+            }
             setCellStyle(cell, cellStyle);
         } else {
             int x2 = x + width - 1;
@@ -219,6 +224,16 @@ public class TableBuilder {
         }
     }
     
+    /**
+     * If the value was set to the cell of type date, we need to modify our 
+     * default style with data format for dates.
+     * @param cell Cell with value in it.
+     * @param cellStyle Cell style.
+     */
+    private void modifyCellStyle(Cell cell, CellStyle cellStyle) {
+        cellStyle.setDataFormat(cell.getCellStyle().getDataFormat());        
+    }
+
     private void setCellStyle(Cell cell, CellStyle cellStyle) {
         CellStyle newStyle = style2style.get(cellStyle);
         if (newStyle != null) {
