@@ -517,9 +517,11 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
     public void setCellStyle(int col, int row, ICellStyle style) {
         Cell xlsCell = getOrCreateXlsCell(col, row);
-        CellStyle xlsStyle = xlsCell.getCellStyle();
-        styleToXls(style, xlsStyle);
-        xlsCell.setCellStyle(xlsStyle);
+        CellStyle currentXlsStyle = xlsCell.getCellStyle();
+        CellStyle newXlsStyle = sheet.getWorkbook().createCellStyle();
+        newXlsStyle.cloneStyleFrom(currentXlsStyle);
+        styleToXls(style, newXlsStyle); // apply our style changes
+        xlsCell.setCellStyle(newXlsStyle);
     }
 
     public void setCellValue(int col, int row, Object value) {
