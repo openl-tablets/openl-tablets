@@ -181,6 +181,11 @@ public interface IWritableGrid extends IGrid {
             return new UndoableCompositeAction(actions);
         }
 
+        /**
+         * TODO To refactor
+         * 
+         * @return null if set new property with empty value
+         * */
         public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
                 String propName, String propValue) {
             IGridFilter filter = getFilter(propName);
@@ -206,6 +211,9 @@ public interface IWritableGrid extends IGrid {
                         return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, filter);
                     }
                 }
+            }
+            if (propValue == null || propValue.equals("")) {
+                return null;
             }
 
             int rowsToMove = h - beforeRow;
