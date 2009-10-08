@@ -76,14 +76,8 @@ public class TableProperty {
         this.displayName = displayName;
     }
 
-    public Object getValue() {
-        Object result;
-        if (type == null || (value == null && isStringType())) {
-            result = new String("");
-        } else {
-            result = value;            
-        }
-        return result;
+    public Object getValue() {        
+        return value;
     }
 
     /**

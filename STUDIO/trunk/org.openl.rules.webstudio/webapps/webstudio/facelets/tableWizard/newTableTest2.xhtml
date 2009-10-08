@@ -7,9 +7,9 @@
                 template="partSelectSheet.xhtml">
 
   <ui:define name="controlButtons">
-    <h:inputHidden value="2" id="step" binding="#{tableWizardManager.hiddenStep}"/>
-    <h:commandButton value="Prev" action="#{tableWizardManager.prev}" onclick="enableControls()"/>
-    <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}" immediate="true"/>
+    <h:inputHidden value="2" id="step" binding="#{tableCreatorWizardManager.hiddenStep}"/>
+    <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" onclick="enableControls()"/>
+    <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"/>
 
     <h:commandButton value="Save" action="#{tableWizard.save}" onclick="return validateForm();enableControls()"/>
   </ui:define>

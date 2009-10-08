@@ -329,13 +329,19 @@
     <managed-bean-class>org.openl.rules.ui.tablewizard.jsf.Counter</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
-
+  
   <managed-bean>
-    <managed-bean-name>tableWizardManager</managed-bean-name>
+    <managed-bean-name>tableCreatorWizardManager</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.tablewizard.TableWizardManager</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
-
+  
+  <managed-bean>
+    <managed-bean-name>tableCopierWizardManager</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.tablewizard.TableCopierWizardManager</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  
   <managed-bean>
     <managed-bean-name>wizardPainter</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.tablewizard.WizardPainter</managed-bean-class>
@@ -343,7 +349,7 @@
 
     <managed-property>
       <property-name>wizardBean</property-name>
-      <value>#{tableWizardManager.wizard}</value>
+      <value>#{tableCreatorWizardManager.wizard}</value>
     </managed-property>
   </managed-bean>
 
@@ -354,18 +360,18 @@
 
     <managed-property>
       <property-name>domainTree</property-name>
-      <value>#{tableWizardManager.wizard.domainTree}</value>
+      <value>#{tableCreatorWizardManager.wizard.domainTree}</value>
     </managed-property>
     <managed-property>
       <property-name>parameters</property-name>
-      <value>#{tableWizardManager.wizard.parameters}</value>
+      <value>#{tableCreatorWizardManager.wizard.parameters}</value>
     </managed-property>
   </managed-bean>
 
   <managed-bean>
     <managed-bean-name>tableCopier</managed-bean-name>
-    <managed-bean-class>org.openl.rules.ui.TableCopier</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
+    <managed-bean-class>org.openl.rules.ui.TableNamesCopier</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
   <navigation-rule>
@@ -496,4 +502,85 @@
       <to-view-id>/facelets/tableWizard/newTableTest1.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
+  
+  <!-- Change names copy table wizard -->
+  <navigation-rule>
+    <from-view-id>/facelets/tableCopier/copyTableSelectOptions.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>changeName</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyNames.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>changeProperties</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyProperties.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
+  <!-- Change names navigation -->   
+  <navigation-rule>
+    <from-view-id>/facelets/tableCopier/copyNames.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyNamesSelectDestination.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyTableSelectOptions.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
+  <navigation-rule>
+    <from-view-id>/facelets/tableCopier/copyNamesSelectDestination.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyNamesSaveContent.xhtml</to-view-id>
+    </navigation-case>    
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyNames.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
+  <navigation-rule>
+    <from-view-id>/facelets/tableCopier/copyNamesSaveContent.xhtml</from-view-id>        
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyNamesSelectDestination.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <!--End change names navigation  -->  
+  
+  <!-- Change properties navigation -->   
+  <navigation-rule>
+    <from-view-id>/facelets/tableCopier/copyProperties.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyTableSelectOptions.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
+  <navigation-rule>
+    <from-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</from-view-id>  
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyPropertiesSaveContent.xhtml</to-view-id>
+    </navigation-case>  
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyProperties.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
+  <navigation-rule>
+    <from-view-id>/facelets/tableCopier/copyPropertiesSaveContent.xhtml</from-view-id>        
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  <!--Change properties navigation  -->
 </faces-config>

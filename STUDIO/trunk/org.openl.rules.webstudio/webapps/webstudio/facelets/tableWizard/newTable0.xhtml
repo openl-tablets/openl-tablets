@@ -17,7 +17,7 @@
     <h2>Select table type</h2>
 <h:form>
     <div align="left">
-      <h:selectOneRadio value="#{tableWizardManager.tableType}" layout="pageDirection">
+      <h:selectOneRadio value="#{tableCreatorWizardManager.tableType}" layout="pageDirection">
         <f:selectItem itemValue="DECISION" itemLabel="Decision Table"/>
         <f:selectItem itemValue="DATA" itemLabel="Data Table" itemDisabled="true"/>
         <f:selectItem itemValue="TEST" itemLabel="Test Method"/>
@@ -25,8 +25,8 @@
       <hr/>
     </div>
 
-    <h:commandButton value="Next" action="#{tableWizardManager.startWizard}"/>
-    <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}"/>
+    <h:commandButton value="Next" action="#{tableCreatorWizardManager.startWizard}"/>
+    <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}"/>
   </h:form>
   </ui:define>
 </ui:composition>
