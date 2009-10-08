@@ -413,7 +413,7 @@ public class TableEditorModel {
     public synchronized void setProperty(String name, String value) throws Exception {
         int nRowsToInsert = 1;
         IUndoableGridAction ua = IWritableGrid.Tool
-            .insertProp(region, wgrid(), name, value); // returns null if set new property with empty value
+            .insertProp(region, wgrid(), name, value); // returns null if set new property with empty or same value
         if (ua != null) {
             if (ua instanceof UndoableSetValueAction // if set new value of existing property
                     || value == null || value.equals("")) { // if clear value of existing property
