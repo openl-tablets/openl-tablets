@@ -20,7 +20,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 /**
  * @author Aliaksandr Antonik.
  */
-public class WizardTestTable extends WizardBase {
+public class TestTableCreationWizard extends WizardBase {
     private SelectItem[] tableItems;
     private int selectedTable;
 

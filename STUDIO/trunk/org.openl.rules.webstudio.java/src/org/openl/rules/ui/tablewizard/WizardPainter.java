@@ -17,7 +17,7 @@ public class WizardPainter {
     static final BorderStyle[] BORDER_STYLE = new BorderStyle[] { BORDER_SOLID, BORDER_SOLID, BORDER_SOLID,
             BORDER_SOLID };
 
-    private WizardDecisionTable wizardDecisionTable;
+    private DecisionTableCreationWizard wizardDecisionTable;
 
     private TableModel tableModel;
     private static void appendParams(StringBuilder sb, List<TypeNamePair> params) {
@@ -105,7 +105,7 @@ public class WizardPainter {
         return sb.toString();
     }
 
-    public void setWizardBean(WizardDecisionTable wizardDecisionTable) {
+    public void setWizardBean(DecisionTableCreationWizard wizardDecisionTable) {
         this.wizardDecisionTable = wizardDecisionTable;
     }
 }

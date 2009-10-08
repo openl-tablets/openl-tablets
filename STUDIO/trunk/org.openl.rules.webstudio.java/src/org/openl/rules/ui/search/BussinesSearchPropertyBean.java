@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.meta.ObjectValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.search.OpenLBussinessSearch;
@@ -86,10 +87,10 @@ public class BussinesSearchPropertyBean {
             List<Property> listforSearch = search.getBusSearchCondit().getPropToSearch();  
             listforSearch.clear();
             for(TableProperty prop : propForSearch) {
-                if(prop.isStringType() && (prop.getValue()!=null && !("").equals(prop.getValue()))) {
+                if (prop.isStringType() && prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getValueString())) {
                     listforSearch.add(new Property(new StringValue(prop.getName()), new ObjectValue((String)prop.getValue())));
                 } else {
-                    if(prop.isDateType() && prop.getValue()!=null) {
+                    if (prop.isDateType() && prop.getValue()!=null) {
                         listforSearch.add(new Property(new StringValue(prop.getName()), new ObjectValue((Date)prop.getValue())));
                     }
                 }
@@ -105,7 +106,7 @@ public class BussinesSearchPropertyBean {
     public boolean arePropertieValuesSet() {
         boolean result = false;
         for(TableProperty prop : propForSearch) {
-            if((prop.getValue()!=null) && !("").equals(prop.getValue())){
+            if (prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getValueString())){
                 result = true;
             }
         }

@@ -9,7 +9,8 @@
    xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
-  <c:set var="tableWizard" value="#{tableWizardManager.wizard}"/>
+  <c:set var="tableWizard" value="#{tableCreatorWizardManager.wizard}"/>
+  <c:set var="tableCopierWizard" value="#{tableCopierWizardManager.wizard}"/>
 
   <head>
     <a4j:loadStyle src="resource:///css/openl/style1.css" />

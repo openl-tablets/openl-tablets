@@ -22,11 +22,11 @@ import org.openl.rules.web.jsf.util.FacesUtils;
 /**
  * @author Aliaksandr Antonik.
  */
-public class WizardDecisionTable extends WizardBase {
-    private static final Log log = LogFactory.getLog(WizardDecisionTable.class);
+public class DecisionTableCreationWizard extends WizardBase {
+    private static final Log log = LogFactory.getLog(DecisionTableCreationWizard.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
-
+    
     private String tableName;
     private String returnType;
     private boolean vertical;
@@ -39,7 +39,7 @@ public class WizardDecisionTable extends WizardBase {
 
     private SelectItem[] domainTypes;
 
-    public WizardDecisionTable() {
+    public DecisionTableCreationWizard() {
     }
 
     public void addAction() {
