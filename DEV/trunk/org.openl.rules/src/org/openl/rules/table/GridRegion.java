@@ -11,34 +11,39 @@ public class GridRegion implements IGridRegion {
     }
 
     public GridRegion(int top, int left, int bottom, int right) {
+        if (bottom < top) {
+            throw new IllegalArgumentException("The bottom row (" + top + ") must not be less than the top row("
+                    + bottom + ").");
+        }
+        if (right < left) {
+            throw new IllegalArgumentException("The right row (" + right + ") must not be less than the left row("
+                    + left + ").");
+        }
         this.top = top;
         this.left = left;
         this.bottom = bottom;
         this.right = right;
     }
-    
-    public GridRegion(IGridRegion reg, short side, int coord)
-    {
-    	this(reg);
-    	switch(side)
-    	{
-    	case TOP:
-    		top = coord;
-    		break;
-    	case LEFT:
-    		left = coord;
-    		break;
-    	case RIGHT:
-    		right = coord;
-    		break;
-    	case BOTTOM:
-    		bottom = coord;
-    		break;
-    	default:
-    		throw new IllegalArgumentException("Wrong IGridRegion side argument: " + side);
-    	}
+
+    public GridRegion(IGridRegion reg, short side, int coord) {
+        this(reg);
+        switch (side) {
+            case TOP:
+                top = coord;
+                break;
+            case LEFT:
+                left = coord;
+                break;
+            case RIGHT:
+                right = coord;
+                break;
+            case BOTTOM:
+                bottom = coord;
+                break;
+            default:
+                throw new IllegalArgumentException("Wrong IGridRegion side argument: " + side);
+        }
     }
-    
 
     public int getBottom() {
         return bottom;

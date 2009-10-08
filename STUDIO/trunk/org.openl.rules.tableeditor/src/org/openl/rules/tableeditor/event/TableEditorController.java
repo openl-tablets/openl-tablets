@@ -30,13 +30,14 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     public String insertRowBefore() throws Exception {
         int row = getRow();
+        int col = getCol();
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             try {
                 if (row >= 0) {
-                    editorModel.insertRows(1, row);
+                    editorModel.insertRows(1, row, col);
                     tmResponse.setResponse(render(editorId));
                 } else {
                     tmResponse.setStatus("Can not insert row");
@@ -52,13 +53,14 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     public String insertColumnBefore() throws Exception {
         int col = getCol();
+        int row = getRow();
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             try {
                 if (col >= 0) {
-                    editorModel.insertColumns(1, col);
+                    editorModel.insertColumns(1, col, row);
                     tmResponse.setResponse(render(editorId));
                 } else {
                     tmResponse.setStatus("Can not insert column");

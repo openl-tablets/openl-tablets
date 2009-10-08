@@ -233,10 +233,13 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     public void copyCell(Cell cellFrom, int colTo, int rowTo, CellMetaInfo meta) {
         Cell cellTo = getXlsCell(colTo, rowTo);
 
-        if (cellFrom == null) {
-            if (cellTo != null) {
-                clearCell(colTo, rowTo);
-            }
+        if (cellFrom == null
+                || (isInOneMergedRegion(cellFrom.getColumnIndex(), cellFrom.getRowIndex(), colTo, rowTo) && isTopLeftCellInMergedRegion(
+                        colTo, rowTo))) {
+// FIXME When it is possible
+//            if (cellTo != null) {
+//                clearCell(colTo, rowTo);
+//            }
             return;
         }
 
@@ -248,6 +251,27 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         copyCellStyle(cellFrom, cellTo);
 
         setCellMetaInfo(colTo, rowTo, meta);
+    }
+    
+    private boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
+        for (int i = 0; i < getNumberOfMergedRegions(); i++) {
+            IGridRegion existingMergedRegion = getMergedRegion(i);
+            if (org.openl.rules.table.IGridRegion.Tool.contains(existingMergedRegion, firstCellColumn, firstCellRow)
+                    && org.openl.rules.table.IGridRegion.Tool.contains(existingMergedRegion, secondCellColumn, secondCellRow)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isTopLeftCellInMergedRegion(int column, int row) {
+        for (int i = 0; i < getNumberOfMergedRegions(); i++) {
+            IGridRegion existingMergedRegion = getMergedRegion(i);
+                if(existingMergedRegion.getTop() == row && existingMergedRegion.getLeft() == column){
+                    return true;
+            }
+        }
+        return false;
     }
 
     public void copyCellValue(Cell cellFrom, Cell cellTo) {
