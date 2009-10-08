@@ -20,11 +20,11 @@ TableEditor.Operations = {
     SET_CELL_FORMULA : "setCellFormula",
     SET_ALIGN : "setAlign",
     SET_INDENT : "setIndent",
-    SET_PROP : "setProp",
+    SET_PROPERTY : "setProperty",
     REMOVE_ROW : "removeRow",
-    REMOVE_COLUMN : "removeCol",
+    REMOVE_COLUMN : "removeColumn",
     INSERT_ROW_BEFORE : "insertRowBefore",
-    INSERT_COLUMN_BEFORE : "insertColBefore",
+    INSERT_COLUMN_BEFORE : "insertColumnBefore",
     UNDO : "undo",
     REDO : "redo",
     SAVE : "saveTable"
@@ -243,7 +243,7 @@ TableEditor.prototype = {
     },
 
     setProp : function(name, value) {
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_PROP), {
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_PROPERTY), {
             method    : "get",
             encoding   : "utf-8",
             contentType : "text/javascript",

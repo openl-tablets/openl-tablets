@@ -13,15 +13,15 @@ public interface ITableEditorController {
 
     String insertRowBefore() throws Exception;
 
-    String insertColBefore() throws Exception;
+    String insertColumnBefore() throws Exception;
 
     String removeRow() throws Exception;
 
-    String removeCol() throws Exception;
+    String removeColumn() throws Exception;
 
     String setCellValue() throws Exception;
 
-    String setProp() throws Exception;
+    String setProperty() throws Exception;
 
     String setAlign() throws Exception;
 

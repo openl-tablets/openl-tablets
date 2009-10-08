@@ -8,7 +8,6 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.AGridTableDelegator;
-import org.openl.rules.table.AUndoableCellAction;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
@@ -23,6 +22,7 @@ import org.openl.rules.table.IUndoableAction;
 import org.openl.rules.table.IUndoableGridAction;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.UndoableActions;
+import org.openl.rules.table.UndoableSetValueAction;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
@@ -282,14 +282,7 @@ public class TableEditorModel {
         return table;
     }
 
-    /**
-     * @return
-     */
     public synchronized IGridTable getUpdatedTable() {
-        if (isExtendedView()) {
-            return new GridTable(region.getTop() - 3, region.getLeft() - 3, region.getBottom() + 3,
-                    region.getRight() + 3, gridTable.getGrid());
-        }
         return new GridTable(region.getTop() + numberOfNonShownRows, region.getLeft() + numberOfNonShownCols,
                 region.getBottom(), region.getRight(), gridTable.getGrid());
 
@@ -341,14 +334,6 @@ public class TableEditorModel {
         actions.addNewAction(ra);
     }
 
-    private boolean isExtendedView() {
-        // TODO will deal with it later
-        if (true) {
-            return false;
-        }
-        return !(canInsertRows(1) && canInsertCols(1));
-    }
-
     private void makeFilteredGrid(IGridTable gt) {
         IGrid g = gt.getGrid();
         if (g instanceof FilteredGrid) {
@@ -365,9 +350,6 @@ public class TableEditorModel {
     }
 
     public synchronized void removeColumns(int nCols, int startCol, int row) {
-        if (isExtendedView()) {
-            startCol -= 3;
-        }
         if (startCol < 0 || startCol >= IGridRegion.Tool.width(region)) {
             return;
         }
@@ -382,9 +364,6 @@ public class TableEditorModel {
     }
 
     public synchronized void removeRows(int nRows, int startRow, int col) {
-        if (isExtendedView()) {
-            startRow -= 3;
-        }
         if (startRow < 0 || startRow >= IGridRegion.Tool.height(region)) {
             return;
         }
@@ -425,25 +404,28 @@ public class TableEditorModel {
     }
 
     public synchronized void setCellValue(int row, int col, String value) {
-        if (isExtendedView()) {
-            row -= 3;
-            col -= 3;
-        }
-
         IUndoableGridAction ua = IWritableGrid.Tool.setStringValue(col, row, region, value, getFilter(col, row));
         RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
         ra.doSome(region, wgrid(), undoGrid);
         actions.addNewAction(ra);
     }
 
-    public synchronized void insertProp(String name, String value) throws Exception {
-        if (!canInsertRows(1)) {
-            moveTable(getUpdatedFullTable());
+    public synchronized void setProperty(String name, String value) throws Exception {
+        int nRowsToInsert = 1;
+        IUndoableGridAction ua = IWritableGrid.Tool
+            .insertProp(region, wgrid(), name, value); // returns null if set new property with empty value
+        if (ua != null) {
+            if (ua instanceof UndoableSetValueAction // if set new value of existing property
+                    || value == null || value.equals("")) { // if clear value of existing property
+                nRowsToInsert = 0;
+            }
+            if (nRowsToInsert > 0 && !canInsertRows(nRowsToInsert)) {
+                moveTable(getUpdatedFullTable());
+            }
+            RegionAction ra = new RegionAction(ua, ROWS, INSERT, nRowsToInsert);
+            ra.doSome(region, wgrid(), undoGrid);
+            actions.addNewAction(ra);
         }
-        IUndoableGridAction ua = IWritableGrid.Tool.insertProp(region, wgrid(), name, value);
-        RegionAction ra = new RegionAction(ua, ROWS, INSERT, (ua instanceof AUndoableCellAction) ? 0 : 1);
-        ra.doSome(region, wgrid(), undoGrid);
-        actions.addNewAction(ra);
     }
 
     public synchronized void moveTable(IGridTable table) throws Exception {
@@ -453,10 +435,6 @@ public class TableEditorModel {
     }
 
     public synchronized void setStyle(int row, int col, ICellStyle style) {
-        if (isExtendedView()) {
-            row -= 3;
-            col -= 3;
-        }
         IUndoableGridAction ua = IWritableGrid.Tool.setStyle(col, row, region, style);
         RegionAction ra = new RegionAction(ua, ROWS, REMOVE, 0);
         ra.doSome(region, wgrid(), undoGrid);
@@ -501,10 +479,6 @@ public class TableEditorModel {
      * @return if cell belongs to the table
      */
     public boolean updatedTableCellInsideTableRegion(int row, int col) {
-        if (isExtendedView()) {
-            row -= 3;
-            col -= 3;
-        }
         return (row >= 0 && col >= 0 && row < IGridRegion.Tool.height(region) && col < IGridRegion.Tool.width(region));
     }
 
