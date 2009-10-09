@@ -207,7 +207,7 @@ public class TableBuilder {
             gridModel.setCellValue(x, y, value);
             // we need to add data format in style for dates
             if (value instanceof Date) {
-                modifyCellStyle(cell, cellStyle);
+                cellStyle = modifyCellStyle(cell, cellStyle);
             }
             setCellStyle(cell, cellStyle);
         } else {
@@ -230,8 +230,10 @@ public class TableBuilder {
      * @param cell Cell with value in it.
      * @param cellStyle Cell style.
      */
-    private void modifyCellStyle(Cell cell, CellStyle cellStyle) {
-        cellStyle.setDataFormat(cell.getCellStyle().getDataFormat());        
+    private CellStyle modifyCellStyle(Cell cell, CellStyle cellStyle) {
+        CellStyle modifCellStyle = cellStyle;
+        modifCellStyle.setDataFormat(cell.getCellStyle().getDataFormat());        
+        return modifCellStyle;
     }
 
     private void setCellStyle(Cell cell, CellStyle cellStyle) {
