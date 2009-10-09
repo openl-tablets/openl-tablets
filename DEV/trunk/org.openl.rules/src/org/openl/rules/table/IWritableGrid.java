@@ -261,23 +261,14 @@ public interface IWritableGrid extends IGrid {
             if(tablProp != null) {
                 if(String.class.equals(tablProp.getType().getInstanceClass())) {
                     result = null;
-                } else {
-                    if(Date.class.equals(tablProp.getType().getInstanceClass())) {
-                        result = new XlsDateFormat(tablProp.getFormat()); 
-                    } else {
-                        if(Boolean.class.equals(tablProp.getType().getInstanceClass())) {
-                            result = new XlsBooleanFormat();
-                        } else {
-                            if(Integer.class.equals(tablProp.getType().getInstanceClass())) {                                
-                                result = XlsNumberFormat.General;
-                            } else {
-                                if(Double.class.equals(tablProp.getType().getInstanceClass())) {
-                                    result = XlsNumberFormat.General;
-                                }
-                            }
-                                
-                        }
-                    }
+                } else if(Date.class.equals(tablProp.getType().getInstanceClass())) {
+                    result = new XlsDateFormat(tablProp.getFormat()); 
+                } else if(Boolean.class.equals(tablProp.getType().getInstanceClass())) {
+                    result = new XlsBooleanFormat();
+                } else if(Integer.class.equals(tablProp.getType().getInstanceClass())) {                                
+                    result = XlsNumberFormat.General;
+                } else if(Double.class.equals(tablProp.getType().getInstanceClass())) {
+                    result = XlsNumberFormat.General;
                 }
             }
             return result;
