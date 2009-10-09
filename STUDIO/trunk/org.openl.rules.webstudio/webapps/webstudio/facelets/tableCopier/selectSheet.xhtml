@@ -11,7 +11,7 @@
     </ui:define>
   
   <ui:define name="page">
-    <h:messages errorClass="error" showSummary="true" showDetail="true"/>
+    <h:messages errorClass="error" infoStyle="color:green" />
 
     <h2>Select destination</h2>
 
@@ -43,7 +43,7 @@
       <hr/>
       <h:inputHidden value="2" id="step" binding="#{tableCopierWizardManager.hiddenStep}"/>
       <h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" onclick="enableControls()"/> 
-      <h:commandButton value="Next" action="#{tableCopierWizardManager.next}"/>      
+      <h:commandButton value="Copy" action="#{tableCopierWizard.copy}"/>      
       <h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" immediate="true"/>
     </h:form>
 

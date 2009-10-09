@@ -14,14 +14,14 @@ import org.openl.rules.tableeditor.renderkit.TableProperty;
 
 public class TablePropertyCopier extends TableCopier {
     
-    private List<TableProperty> propForSearch = new ArrayList<TableProperty>();
+    private List<TableProperty> propToCopy = new ArrayList<TableProperty>();
     
-    public List<TableProperty> getPropForSearch() {
-        return propForSearch;
+    public List<TableProperty> getPropToCopy() {
+        return propToCopy;
     }
 
-    public void setPropForSearch(List<TableProperty> propForSearch) {
-        this.propForSearch = propForSearch;
+    public void setPropToCopy(List<TableProperty> propToCopy) {
+        this.propToCopy = propToCopy;
     }
     
     public TablePropertyCopier(String elementUri1) {        
@@ -38,7 +38,7 @@ public class TablePropertyCopier extends TableCopier {
         
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String name = propDefinition.getName();
-            propForSearch.add(new TableProperty(
+            propToCopy.add(new TableProperty(
                     propDefinition.getDisplayName(), node.getPropertyValue(name) != null ? node.getPropertyValue(name).getValue() : null, propDefinition
                             .getType() == null ? null : propDefinition
                             .getType().getInstanceClass(), propDefinition
@@ -55,7 +55,7 @@ public class TablePropertyCopier extends TableCopier {
     @Override
     protected void reset() {
         super.reset();
-        propForSearch.clear();
+        propToCopy.clear();
     }
     
     @Override
@@ -65,9 +65,9 @@ public class TablePropertyCopier extends TableCopier {
         //TO DO:
         // validateIfNecessaryPropertiesWereChanged(tableProperties);
         
-        for (int i = 0; i < propForSearch.size(); i++) {
-            String key = (propForSearch.get(i)).getName();
-            Object value = (propForSearch.get(i)).getValue();
+        for (int i = 0; i < propToCopy.size(); i++) {
+            String key = (propToCopy.get(i)).getName();
+            Object value = (propToCopy.get(i)).getValue();
             if (value == null || (value instanceof String && StringUtils.isEmpty((String)value))) {
                 continue;
             } else {
