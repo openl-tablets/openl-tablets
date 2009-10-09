@@ -532,8 +532,8 @@
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/copyNamesSelectDestination.xhtml</from-view-id>
     <navigation-case>
-      <from-outcome>next</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyNamesSaveContent.xhtml</to-view-id>
+      <from-outcome>copySuccess</from-outcome>
+      <to-view-id>/facelets/tableCopier/copySuccess.xhtml</to-view-id>
     </navigation-case>    
     <navigation-case>
       <from-outcome>prev</from-outcome>
@@ -566,9 +566,9 @@
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</from-view-id>  
     <navigation-case>
-      <from-outcome>next</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyPropertiesSaveContent.xhtml</to-view-id>
-    </navigation-case>  
+      <from-outcome>copySuccess</from-outcome>
+      <to-view-id>/facelets/tableCopier/copySuccess.xhtml</to-view-id>
+    </navigation-case>   
     <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableCopier/copyProperties.xhtml</to-view-id>

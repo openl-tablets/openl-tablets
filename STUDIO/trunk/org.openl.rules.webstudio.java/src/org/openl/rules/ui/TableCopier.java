@@ -214,6 +214,7 @@ public abstract class TableCopier extends WizardBase {
      * Copy table handler.
      */
     public String copy() {
+        String result = null;
         boolean success = false;
         try {
             doCopy();
@@ -222,11 +223,13 @@ public abstract class TableCopier extends WizardBase {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not copy table. "+e.getMessage(), e.getMessage()));
             log.error("Could not copy table: ", e);
+            result = "copyFailed";
         }
         if (success) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Table was copied successful"));
+            result = "copySuccess";
         }
-        return null;
+        return result;
     }
     
     protected ICellStyle getPropertiesStyle(TableProperties tableProperties) {

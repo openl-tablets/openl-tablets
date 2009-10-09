@@ -27,8 +27,8 @@
             
 	
 	<fieldset><legend>Table Properties</legend>  
-		<table id="propertySearchTable">
-			<c:forEach items="#{tableCopierWizard.propForSearch}" var="propDef">
+		<table id="propertiesToCopy">
+			<c:forEach items="#{tableCopierWizard.propToCopy}" var="propDef">
 				<tr><td><h:outputLabel for="#{propDef.displayName}" value="#{propDef.displayName}"/></td>
 					<c:if test="#{propDef.stringType}">
 						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
