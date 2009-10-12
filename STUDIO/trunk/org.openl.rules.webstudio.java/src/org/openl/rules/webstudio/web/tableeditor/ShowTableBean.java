@@ -127,7 +127,8 @@ public class ShowTableBean {
                 "showFormulas" }, paramMap);
     }
 
-    boolean canModifyCurrentProject() {
+    // TODO: make internal and instance method
+    public static boolean canModifyCurrentProject() {
         UserWorkspaceProject currentProject = getCurrentProject();
 
         if (currentProject != null) {
@@ -137,7 +138,8 @@ public class ShowTableBean {
         }
     }
 
-    UserWorkspaceProject getCurrentProject() {
+    // TODO: make instance method
+    static UserWorkspaceProject getCurrentProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
                 .getRequest();
