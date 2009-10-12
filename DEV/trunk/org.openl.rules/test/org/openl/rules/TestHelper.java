@@ -24,7 +24,7 @@ public class TestHelper<T> {
         IEngineWrapper<T> ew = (IEngineWrapper<T>) instance;
         DynamicObject dObj = (DynamicObject) ew.getInstance();
         XlsMetaInfo xlsMI = (XlsMetaInfo) dObj.getType().getMetaInfo();
-        tableSyntaxNode = (TableSyntaxNode) xlsMI.getXlsModuleNode().getChild(0);
+        tableSyntaxNode =  xlsMI.getXlsModuleNode().getXlsTableSyntaxNodes()[0];
     }
 
     public EngineFactory<T> getEngineFactory() {
