@@ -22,6 +22,11 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
         return mc.match(props, context);
     }
+    
+    public void addConstraint(String propertyName, MatchingConstraint<?, ?> ctr) {
+        constraints.put(propertyName, ctr);
+    }
+    
 
     protected void initilaize() {
         // <<< INSERT >>>
@@ -135,4 +140,5 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
         });
         // <<< END INSERT >>>
     }
+
 }

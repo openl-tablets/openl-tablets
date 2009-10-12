@@ -113,7 +113,7 @@ public class Tokenizer {
                     char charAfterDash = textToTokenize.charAt(indexOfDash+1);
                     if(Character.isLetter(charBeforeDash) && Character.isLetter(charAfterDash)) {
                         result = true;
-                        pos = charAfterDash;
+                        pos = indexOfDash + 1;
                     }
                 }
             }               

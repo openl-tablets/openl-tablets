@@ -301,6 +301,7 @@ public interface IWritableGrid extends IGrid {
          * cell will be lost.
          * 
          */
+        @SuppressWarnings("unused")
         private static boolean isTopLeftInMergedRegion(int column, int row, IWritableGrid wgrid) {
             for (int i = 0; i < wgrid.getNumberOfMergedRegions(); i++) {
                 IGridRegion existingMergedRegion = wgrid.getMergedRegion(i);

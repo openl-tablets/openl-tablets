@@ -24,15 +24,13 @@ import org.openl.rules.table.properties.DefaultTableProperties;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.ISyntaxError;
-import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.types.IOpenMember;
 
 /**
  * @author snshor
  */
 
-public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
+public class TableSyntaxNode extends NodeWithProperties implements IIndexElement {
 
     ILogicalTable table;
     // String header;
@@ -54,7 +52,7 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
 
     public TableSyntaxNode(String type, GridLocation pos, XlsSheetSourceCodeModule module, IGridTable gridtable,
             HeaderSyntaxNode header) {
-        super(type, pos, module);
+        super(type,  pos, null, module);
         table = LogicalTable.logicalTable(gridtable);
         headerNode = header;
         header.setParent(this);
@@ -75,10 +73,6 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
         return IDocumentType.WORKSHEET_TABLE.getCategory();
     }
 
-    public ISyntaxNode getChild(int i) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     public String getDisplayName() {
         return table.getGridTable().getCell(0, 0).getStringValue();
@@ -119,10 +113,6 @@ public class TableSyntaxNode extends ASyntaxNode implements IIndexElement {
         return member;
     }
 
-    public int getNumberOfChildren() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
 
     public Property getProperty(String name) {
         return tableProperties == null ? null : tableProperties.getProperty(name);

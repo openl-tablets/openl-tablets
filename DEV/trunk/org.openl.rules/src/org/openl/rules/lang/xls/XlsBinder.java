@@ -267,13 +267,16 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
     protected IBoundNode bindInternal(ISyntaxNode moduleNode, OpenL openl, ModuleBindingContext moduleContext,
             XlsModuleOpenClass module, ISelector<ISyntaxNode> childSelector, Comparator<TableSyntaxNode> cmp) {
 
-        int nchildren = moduleNode.getNumberOfChildren();
-        ArrayList<ISyntaxNode> list = new ArrayList<ISyntaxNode>(nchildren);
+        XlsModuleSyntaxNode xmsn = (XlsModuleSyntaxNode)moduleNode;
 
-        for (int i = 0; i < nchildren; i++) {
-            ISyntaxNode childNode = moduleNode.getChild(i);
-            if (childSelector == null || childSelector.select(childNode)) {
-                list.add(childNode);
+        
+        
+        ArrayList<ISyntaxNode> list = new ArrayList<ISyntaxNode>();
+
+        for (TableSyntaxNode tsn: xmsn.getXlsTableSyntaxNodes()) {
+            
+            if (childSelector == null || childSelector.select(tsn)) {
+                list.add(tsn);
             }
         }
 
