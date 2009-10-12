@@ -8,7 +8,7 @@ package org.openl.syntax.impl;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.util.text.TextInterval;
+import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
@@ -17,7 +17,7 @@ import org.openl.util.text.TextInterval;
 public class UnaryNode extends ASyntaxNode {
     ISyntaxNode left;
 
-    public UnaryNode(String type, TextInterval pos, ISyntaxNode left, IOpenSourceCodeModule module) {
+    public UnaryNode(String type, ILocation pos, ISyntaxNode left, IOpenSourceCodeModule module) {
         super(type, pos, module);
         this.left = left;
         left.setParent(this);

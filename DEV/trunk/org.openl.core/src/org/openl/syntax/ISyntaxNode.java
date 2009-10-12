@@ -39,4 +39,6 @@ public interface ISyntaxNode {
 
     // public String getNamespace();
 
+    static public ISyntaxNode[] EMPTY = {};
+    
 }
