@@ -9,7 +9,10 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.base.INamedThing;
 import org.openl.binding.OpenLRuntimeException;
@@ -56,6 +59,7 @@ import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.search.TableSearch;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.webstudio.web.jsf.WebContext;
+import org.openl.rules.webstudio.web.tableeditor.ShowTableBean;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
 import org.openl.syntax.ISyntaxError;
@@ -68,11 +72,14 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
+import org.openl.rules.webstudio.web.tableeditor.*;
 
 /**
  * @author snshor
  */
 public class ObjectViewer {
+    private static final Log LOG = LogFactory.getLog(ObjectViewer.class);
+    
     private static class GridWithNode {
         IGridTable gridTable;
         TableSyntaxNode tableSyntaxNode;
@@ -194,21 +201,24 @@ public class ObjectViewer {
 
     }
 
-    static public StringBuffer printCodeAndErrorToHtml(ILocation location, IOpenSourceCodeModule module,
-            StringBuffer buf) {
-
+    public static StringBuffer printCodeAndErrorToHtml(ILocation location,
+            IOpenSourceCodeModule module, StringBuffer buf) {
         String src = null;
         int pstart = 0;
         int pend = 0;
+        
         if (location == null || !location.isTextLocation()) {
-
             try {
                 src = module.getCode();
             } catch (NullPointerException e) {
+                LOG.info("Can't get code with error", e);
+                // suppress if we can't show code with error
             } catch (UnsupportedOperationException e) {
+                LOG.info("Showing code with error is not supported", e);
+                // suppress if we can't show code with error
             }
             if (src == null || src.trim().length() == 0) {
-                src = "Edit Table";
+                src = StringUtils.EMPTY;
             }
             pstart = 0;
             pend = src.length();
@@ -216,7 +226,8 @@ public class ObjectViewer {
             src = module.getCode();
             TextInfo info = new TextInfo(src);
             pstart = location.getStart().getAbsolutePosition(info);
-            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1, src.length());
+            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1,
+                    src.length());
         }
 
         buf.append("\n<pre>\n");
@@ -387,15 +398,35 @@ public class ObjectViewer {
         uriParser.parse(errorUri);
         buf.append("\n" + "<table><tr><td class='javacode'>");
 
-        buf.append("<a class='left' href='javascript:editError(\"").append(tableUri != null ? tableUri : "").append(
-                "\"").append(",").append("\"").append(uriParser.range).append(
-                "\")' title='Edit cell containing error'>");
-
         printCodeAndErrorToHtml(srcLocation, module, buf);
-        buf.append("</a>");
 
-        buf.append("<a href='" + WebContext.getContextPath() + "/jsp/showLinks.jsp?").append(errorUrl).append(
-                "' target='show_app_hidden' title='").append(errorUri).append("'> Edit in Excel </a>");
+        boolean canEditTable = ShowTableBean.canModifyCurrentProject();
+        if (canEditTable) {
+            buf.append("<a href='javascript:editError(\"").append(
+                    tableUri != null ? tableUri : "").append("\"").append(",")
+                    .append("\"").append(uriParser.range).append(
+                            "\")' title='Edit cell containing error'>");
+            buf.append("Edit Table");
+            buf.append(" </a>");
+            
+            buf.append("<br />");
+
+            buf.append(
+                    "<a href='" + WebContext.getContextPath()
+                            + "/jsp/showLinks.jsp?").append(errorUrl).append(
+                    "' target='show_app_hidden' title='").append(errorUri)
+                    .append("'>");
+            buf.append("Edit in Excel");
+            buf.append(" </a>");
+        } else {
+            buf.append("<a class='left' href='javascript:viewError(\"").append(
+                    tableUri != null ? tableUri : "").append("\"").append(",")
+                    .append("\"").append(uriParser.range).append(
+                            "\")' title='View table containing error'>");
+            buf.append("View Table");
+            buf.append("</a>");
+        }
+        
         buf.append("</td></tr></table>");
         buf.append("</td></tr></table>");
     }
