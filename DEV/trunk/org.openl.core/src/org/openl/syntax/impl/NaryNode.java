@@ -8,7 +8,7 @@ package org.openl.syntax.impl;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.util.text.TextInterval;
+import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
@@ -18,12 +18,12 @@ public class NaryNode extends ASyntaxNode {
 
     protected ISyntaxNode[] nodes;
 
-    public NaryNode(String type, TextInterval pos, ISyntaxNode[] nodes, IOpenSourceCodeModule module) {
+    public NaryNode(String type, ILocation pos, ISyntaxNode[] nodes, IOpenSourceCodeModule module) {
         super(type, pos, module);
-        this.nodes = nodes;
-        for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] != null) {
-                nodes[i].setParent(this);
+        this.nodes = nodes == null ? EMPTY : nodes;
+        for (int i = 0; i < this.nodes.length; i++) {
+            if (this.nodes[i] != null) {
+                this.nodes[i].setParent(this);
             }
         }
 

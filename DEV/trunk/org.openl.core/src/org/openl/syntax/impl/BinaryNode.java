@@ -8,7 +8,7 @@ package org.openl.syntax.impl;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.util.text.TextInterval;
+import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
@@ -27,7 +27,7 @@ public class BinaryNode extends ASyntaxNode {
     // this.right = right;
     // }
 
-    public BinaryNode(String type, TextInterval pos, ISyntaxNode left, ISyntaxNode right, IOpenSourceCodeModule module) {
+    public BinaryNode(String type, ILocation pos, ISyntaxNode left, ISyntaxNode right, IOpenSourceCodeModule module) {
 
         super(type, pos, module);
         this.left = left;
