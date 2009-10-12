@@ -17,4 +17,14 @@ public interface IPropertiesContextMatcher {
      * @return
      */
     MatchingResult match(String propertyName, ITableProperties tableProperties, IRulesContext context);
+    
+   
+    /**
+     * Adds a new constraint dynamically to the existing matcher, if constraint already exists, it overrides it
+     * 
+     * @param propertyName
+     * @param ctr
+     */
+    void addConstraint(String propertyName, MatchingConstraint<?, ?> ctr);
+    
  }

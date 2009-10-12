@@ -14,7 +14,7 @@ public interface ITableNodeTypes {
 
     public static final String WORKBOOK = "Workbook", WORKSHEET = "Worksheet", TABLE = "Table", CELL = "Cell";
 
-    public static final String XLS_MODULE = "xls.module", XLS_DT = "xls.dt", XLS_SPREADSHEET = "xls.spreadsheet",
+    public static final String XLS_MODULE = "xls.module", XLS_WORKBOOK = "xls.workbook", XLS_WORKSHEET = "xls.worksheet", XLS_DT = "xls.dt", XLS_SPREADSHEET = "xls.spreadsheet",
             XLS_TBASIC = "xls.tbasic", XLS_COLUMN_MATCH = "xls.columnmatch",
 
             XLS_METHOD = "xls.method", XLS_DATA = "xls.data", XLS_TEST_METHOD = "xls.test.method",

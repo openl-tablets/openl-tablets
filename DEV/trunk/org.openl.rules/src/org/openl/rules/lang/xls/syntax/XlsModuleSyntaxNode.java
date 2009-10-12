@@ -13,13 +13,12 @@ import org.openl.IOpenSourceCodeModule;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.NaryNode;
 
 /**
  * @author snshor
  *
  */
-public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
+public class XlsModuleSyntaxNode extends NodeWithProperties implements ITableNodeTypes {
 	
 	private List<IdentifierNode> extensionNodes;
 
@@ -27,7 +26,7 @@ public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
     IdentifierNode vocabularyNode;
     String allImportString;
 
-    public XlsModuleSyntaxNode(TableSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
+    public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes, IOpenSourceCodeModule module, OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode, String allImportString, List<IdentifierNode> extensionNodes) {
         super(XLS_MODULE, null, nodes, module);
 
@@ -49,8 +48,22 @@ public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
         return vocabularyNode;
     }
 
+    public WorkbookSyntaxNode[] getWorkbookSyntaxNodes() {
+        return (WorkbookSyntaxNode[]) nodes;
+    }
+    
     public TableSyntaxNode[] getXlsTableSyntaxNodes() {
-        return (TableSyntaxNode[]) nodes;
+        
+        List<TableSyntaxNode> tsnodes = new ArrayList<TableSyntaxNode>();
+        
+        for (WorkbookSyntaxNode wbsn : getWorkbookSyntaxNodes()) {
+            for (TableSyntaxNode tableSyntaxNode : wbsn.getTableSyntaxNodes()) {
+                tsnodes.add(tableSyntaxNode);
+            }
+            
+        }
+        
+        return tsnodes.toArray(new TableSyntaxNode[0]);
     }
     
     public List<IdentifierNode> getExtensionNodes() {
@@ -59,15 +72,13 @@ public class XlsModuleSyntaxNode extends NaryNode implements ITableNodeTypes {
 
 	public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {
         List<TableSyntaxNode> resultNodes = new ArrayList<TableSyntaxNode>();
-        if (nodes != null) {
-            for (TableSyntaxNode node : (TableSyntaxNode[]) nodes) {
+            for (TableSyntaxNode node : getXlsTableSyntaxNodes()) {
                 ISyntaxError[] errors = node.getErrors();
                 if (errors != null && errors.length > 0) {
                     continue;
                 }
                 resultNodes.add(node);
             }
-        }
         return resultNodes.toArray(new TableSyntaxNode[0]);
     }
 
