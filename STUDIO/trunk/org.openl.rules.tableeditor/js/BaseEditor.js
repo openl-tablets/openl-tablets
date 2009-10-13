@@ -155,7 +155,7 @@ BaseEditor.prototype = {
 
     /** Notifies table editor that editing is finished */
     doneEdit: function() {
-        this.tableEditor.editStop();
+        this.tableEditor.setCellValue();
     },
 
     /** Notifies table editor that editing is finished and cancelled */

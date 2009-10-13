@@ -62,51 +62,67 @@ TableEditor.prototype = {
     table : null,
     modFuncSuccess : null,
     editCell : null,
+    cellIdPrefix : null,
+    propIdPrefix : null,
 
     /** Constructor */
     initialize : function(editorId, url, editCell) {
         this.editorId = editorId;
+        this.cellIdPrefix = this.editorId + "_cell-";
+        this.propIdPrefix = this.editorId + "_props_prop-";
         this.tableContainer = $(editorId + "_table");
         this.tableContainer.style.cursor = 'default';
-        // Suppress text selection
+
+        // Suppress text selection BEGIN
         this.tableContainer.onselectstart = function() {
             return false;
         }
         this.tableContainer.onmousedown = function() {
             return false;
         }
-        
+        // Suppress text selection END
+
         if (editCell) this.editCell = editCell;
 
         this.baseUrl = url;
 
         var self = this;
 
-        Event.observe(/*Prototype.Browser.IE ? document.body : window */document, "keydown", function(e) {
-            self.handleKeyDown(e)
+        // Handle Properties Editor events START
+        $$('input[name^="' + this.propIdPrefix + '"]').each(function(elem) {
+            elem.observe("focus", function(e) {
+                self.handleClick(e);
+            }, false);
+            elem.observe("blur", function(e) {
+                self.handlePropBlur(e);
+            }, false);
+        });
+        // Handle Properties Editor events END
+
+        // Handle Table Editor events START
+        Event.observe(document, "keydown", function(e) {
+            self.handleKeyDown(e);
         }, false);
 
         if (Prototype.Browser.IE || Prototype.Browser.Opera) {
             document.onkeypress = function(e) {self.handleKeyPress(e || window.event)}
-        } else
-            Event.observe(/*Prototype.Browser.IE ? document.body : window */document, "keypress", function(e) {
-                self.handleKeyPress(e)
+        } else {
+            Event.observe(document, "keypress", function(e) {
+                self.handleKeyPress(e);
             }, false);
+        }
 
         this.tableContainer.observe("click", function(e) {
+            if (self.currentElement) {
+                self.currentElement.blur();
+            }
             self.handleClick(e);
         }, false);
 
-        $$('input[name^="' + this.editorId + '_props_prop-"]').each(function(elem) {
-            elem.observe("blur", function(e) {
-                self.handlePropSet(e);
-            }, false);
-        });
-
         this.tableContainer.observe("dblclick", function(e) {
             self.handleDoubleClick(e);
-            Event.stop(e);
         });
+        // Handle Table Editor events END
 
         this.modFuncSuccess = function(response) {
             response = eval(response.responseText);
@@ -229,15 +245,15 @@ TableEditor.prototype = {
      */
     handleDoubleClick: function(event) {
         var cell = Event.findElement(event, "TD");
-
-    // Save value of current editor and close it
-        this.editStop();
+        // Save value of current editor and close it
+        this.setCellValue();
         this.editBeginRequest(cell);
+        Event.stop(event);
     },
 
-    handlePropSet: function(event) {
+    handlePropBlur: function(event) {
         var prop = Event.findElement(event, "input");
-        var propName = prop.name.replace(this.editorId + "_props_prop-", "");
+        var propName = prop.name.replace(this.propIdPrefix, "");
         var propValue = prop.type == "checkbox" ? prop.checked : prop.value;
         this.setProp(propName, propValue);
     },
@@ -301,10 +317,6 @@ TableEditor.prototype = {
         prevEditor.doSwitching(this.editor);
     },
 
-    editStop : function() {
-        this.setCellValue();
-    },
-
     setCellValue : function() {
         if (this.editor) {
             if (!this.editor.isCancelled()) {
@@ -335,11 +347,13 @@ TableEditor.prototype = {
      */
     handleClick: function(e) {
         var elt = Event.element(e);
-        this.editStop();
-        if (elt.tagName == "TD") {
+        this.setCellValue();
+        if (this.isCellLocation(elt)) {
             this.selectElement(elt);
-            Event.stop(e);
+        } else if (this.isPropLocation(elt)) {
+            this.selectPropElement(elt);
         }
+        Event.stop(e);
     },
 
     buildUrl: function(action, paramString) {
@@ -388,25 +402,54 @@ TableEditor.prototype = {
         if (!wasSelected != !this.hasSelection()) this.isSelectedUpdated(!wasSelected);
     },
 
+    selectPropElement: function(elt) {
+        if (elt && this.currentElement && elt.id == this.currentElement.id) return;
+
+        this.selectionHistory.clear();
+
+        if (this.hasSelection()) {
+            this.decorator.undecorate(this.currentElement);
+            this.isSelectedUpdated(false);
+        }
+        this.currentElement = elt;
+        this.selectionPos = '';
+    },
+
     $cell: function(pos) {
-        var cell = $(this.editorId + "_cell-" + pos[0] + ":" + pos[1]);
+        var cell = $(this.cellIdPrefix + pos[0] + ":" + pos[1]);
         if (!cell) return cell;
         if (!cell.rowSpan) cell.rowSpan = 1;
         if (!cell.colSpan) cell.colSpan = 1;
         return cell;
     },
 
-    handleKeyPress:  function(event) {
+    isCellLocation: function(element) {
+        if (element && element.id.indexOf(this.cellIdPrefix) >= 0) {
+            return true;
+        }
+        return false;
+    },
+
+    isPropLocation: function(element) {
+        if (element && element.name.indexOf(this.propIdPrefix) >= 0) {
+            return true;
+        }
+        return false;
+    },
+
+    handleKeyPress: function(event) {
+        if (!this.isCellLocation(this.currentElement)) {
+            return;
+        }
         if (this.editor) {
             switch (event.keyCode) {
                 case 27: this.editor.cancelEdit(); break;
                 case 13: if ( this.editor.__do_nothing_on_enter !== true ) {
-                    this.editStop();
+                    this.setCellValue();
                     if (Prototype.Browser.Opera) event.preventDefault();
                 }
                 break;
             }
-
             return
         }
 
@@ -435,6 +478,9 @@ TableEditor.prototype = {
      * @type: private
      */
     handleKeyDown: function(event) {
+        if (!this.isCellLocation(this.currentElement)) {
+            return;
+        }
         if (this.editor) {
             switch (event.keyCode) {
                 case 113: this.editor.handleF2(event); break;
@@ -517,7 +563,6 @@ TableEditor.prototype = {
         splitted[1] = parseInt(splitted[1]);
         return splitted;
     },
-
 
     setAlignment: function(_align) {
         if (!this.hasSelection()) {
