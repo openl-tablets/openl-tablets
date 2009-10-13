@@ -25,7 +25,6 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
 
     @Override
     public void doDirectChange(IWritableGrid wgrid) {
-
         wgrid.copyCell(colFrom, rowFrom, col, row);
         moveRegion(wgrid);
     }
@@ -33,16 +32,6 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
     void moveRegion(IWritableGrid wgrid) {
         IGridRegion rrFrom = wgrid.getRegionStartingAt(colFrom, rowFrom);
         IGridRegion rrTo = wgrid.getRegionStartingAt(col, row);
-
-        if (rrFrom == null && rrTo == null) {
-            return;
-        }
-
-        // if (rrFrom != null && rrTo != null &&
-        // IGridRegion.Tool.width(rrTo) == IGridRegion.Tool.width(rrFrom)
-        // && IGridRegion.Tool.height(rrTo) == IGridRegion.Tool.height(rrFrom)
-        // )
-        // return;
 
         if (rrTo != null) {
             toRestore = new GridRegion(rrTo);
