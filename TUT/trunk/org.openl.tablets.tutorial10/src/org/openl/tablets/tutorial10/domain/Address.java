@@ -1,4 +1,4 @@
-package org.openl.tablets.tutorial10;
+package org.openl.tablets.tutorial10.domain;
 
 public class Address {
     private Country country;
