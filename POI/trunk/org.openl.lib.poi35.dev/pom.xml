@@ -85,18 +85,6 @@
                 </plugins>
                 <resources>
                         <resource>
-                                <directory>${project.build.directory}/..</directory>
-                                <includes>
-                                        <include>lib/**/*.jar</include>										
-                                </includes>				
-								<excludes>
-									<exclude>lib/**/commons-lang-2.3.jar</exclude>
-									<exclude>lib/**/commons-logging-1.1.jar</exclude>
-									<exclude>lib/**/commons-logging-api-1.0.4.jar</exclude>
-									<exclude>lib/**/dom4j-1.6.1.jar</exclude>									
-								</excludes>
-                        </resource>
-                        <resource>
                                 <directory>poi/src/resources/main/</directory>
                                 <includes>
                                         <include>**/*.*</include>
@@ -135,5 +123,30 @@
                         <artifactId>dom4j</artifactId>
                         <version>1.6.1</version>
                 </dependency>                
+                <dependency>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                        <version>1.4</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.apache.santuario</groupId>
+                        <artifactId>xmlsec</artifactId>
+                        <version>1.4.3</version>
+                </dependency>
+                <dependency>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                        <version>2.7.1</version>
+                </dependency>
+                <dependency>
+                        <groupId>joda-time</groupId>
+                        <artifactId>joda-time</artifactId>
+                        <version>1.6</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.apache.santuario</groupId>
+                        <artifactId>xmlsec</artifactId>
+                        <version>1.4.3</version>
+                </dependency>
         </dependencies>
 </project>

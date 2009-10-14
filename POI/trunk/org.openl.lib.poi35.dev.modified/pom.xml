@@ -33,19 +33,9 @@
                                                 </goals>
                                                 <configuration>
                                                         <artifactSet>
-                                                                <excludes>
-                                                                        <exclude>commons-lang:commons-lang</exclude>
-                                                                        <exclude>commons-logging:commons-logging</exclude>
-                                                                        <exclude>log4j:log4j</exclude>
-                                                                        <exclude>logkit:logkit</exclude>
-                                                                        <exclude>commons-logging:commons-logging-api</exclude>
-                                                                        <exclude>avalon-framework:avalon-framework</exclude>
-                                                                        <exclude>org.apache.poi:ooxml-schemas</exclude>
-                                                                        <exclude>org.apache.xmlbeans:xmlbeans</exclude>
-                                                                        <exclude>stax:stax-api</exclude>
-                                                                        <exclude>dom4j:dom4j</exclude>
-                                                                        <exclude>xml-apis:xml-apis</exclude>                                                                        
-                                                                </excludes>
+                                                                <includes>
+                                                                        <include>org.openl.rules:org.openl.lib.poi35.dev</include>
+                                                                </includes>
                                                         </artifactSet>									
                                                         <filters>
                                                         	<filter>
