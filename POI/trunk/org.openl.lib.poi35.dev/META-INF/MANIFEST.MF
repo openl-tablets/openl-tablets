@@ -439,4 +439,8 @@ Bundle-ClassPath: .,
  lib/dom4j-1.6.1.jar,
  lib/junit-4.5.jar,
  lib/ooxml-schemas-1.0.jar,
- lib/xmlbeans-2.3.0.jar
+ lib/xmlbeans-2.3.0.jar,
+ lib/commons-io-1.4.jar,
+ lib/xalan-2.7.1.jar,
+ lib/xmlsec-1.4.3.jar,
+ lib/joda-time-1.6.jar
