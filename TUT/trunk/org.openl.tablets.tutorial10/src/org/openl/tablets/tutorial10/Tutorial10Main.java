@@ -8,6 +8,10 @@ import static java.lang.System.out;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.tablets.tutorial10.domain.Address;
+import org.openl.tablets.tutorial10.domain.Car;
+import org.openl.tablets.tutorial10.domain.CarBrand;
+import org.openl.tablets.tutorial10.domain.Country;
 
 /**
  * Tutorial 10. Example of Spreadsheet tables.
