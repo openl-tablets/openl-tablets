@@ -53,18 +53,55 @@ public class TestTableBuilder extends TableBuilder {
     }
 
     /**
-     * Returns table header.
+     * Returns table header. 
      *
      * @param decisionTableNode Decision table node
+     * @param technicalName Technical name of the table. If <code>null</code> or empty
+     * we get default technical name. It is building with table name and postfix 'Test'. 
      * @return table header
      */
-    public static String getHeader(TableSyntaxNode decisionTableNode) {
+    public static String getHeader(TableSyntaxNode decisionTableNode, String technicalName) {
+        String result = null;
         DecisionTable decisionTable = getDecisionTable(decisionTableNode);
         if (decisionTable != null) {
             String tableName = decisionTable.getName();
-            return IXlsTableNames.TEST_METHOD_TABLE + " " + tableName + " " + tableName + TESTMETHOD_NAME_POSTFIX;
+            if (technicalName != null && !StringUtils.EMPTY.equals(technicalName)) {
+                result = IXlsTableNames.TEST_METHOD_TABLE + " " + tableName + " " + technicalName;
+            } else {
+                result = IXlsTableNames.TEST_METHOD_TABLE + " " + tableName + " " + getDefaultTechnicalName(decisionTable);
+            }
+            
         }
-        return null;
+        return result;
+    }
+    
+    /**
+     * 
+     * @param decisionTable
+     * @return Default technical name for new test table. It is build 
+     * from <code>DecisionTable</code> name and postfix 'Test'.
+     */
+    private static String getDefaultTechnicalName(DecisionTable decisionTable) {
+        String tableName = decisionTable.getName();
+        return tableName + TESTMETHOD_NAME_POSTFIX;
+    }
+    /**
+     * Gets the default technical name for new test table.
+     * At first we get the decision table from <code>TableSyntaxNode</code> and if it is not <code>null</code>
+     * calls {@link #getDefaultTechnicalName(DecisionTable)}.
+     * 
+     * @param decisionTableNode <code>TableSyntaxNode</code> from which we 
+     * tries to get the <code>DecisionTable</code>.
+     * @return Default technical name for new test table. It is build 
+     * from table name and postfix 'Test'.
+     */
+    public static String getDefaultTechnicalName(TableSyntaxNode decisionTableNode) {
+        String result = null;
+        DecisionTable decisionTable = getDecisionTable(decisionTableNode);
+        if (decisionTable != null) {
+            result = getDefaultTechnicalName(decisionTable);
+        }
+        return result;
     }
 
     /**
