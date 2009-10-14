@@ -9,6 +9,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -231,15 +232,15 @@ public class ObjectViewer {
         }
 
         buf.append("\n<pre>\n");
-        buf.append(src.substring(0, pstart));
+        buf.append(StringEscapeUtils.escapeHtml(src.substring(0, pstart)));
 
         buf.append("<span class='codeerror'>");
-        buf.append(src.substring(pstart, pend));
+        buf.append(StringEscapeUtils.escapeHtml(src.substring(pstart, pend)));
         buf.append("</span>");
         if (pend < src.length()) {
             ;
         }
-        buf.append(src.substring(pend, src.length()));
+        buf.append(StringEscapeUtils.escapeHtml(src.substring(pend, src.length())));
 
         buf.append("</pre>\n");
 

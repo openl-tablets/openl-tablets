@@ -5,6 +5,7 @@ package org.openl.rules.ui;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.openl.base.INamedThing;
 import org.openl.util.ITreeElement;
 import org.openl.util.StringTool;
@@ -177,8 +178,8 @@ public abstract class DTreeRenderer {
         int parentId = parent == null ? -1 : map.getID(parent);
         int id = map.getNewID(element);
         String url = makeURL(element);
-        String name = getDisplayName(element, INamedThing.SHORT);
-        String title = getDisplayName(element, INamedThing.REGULAR);
+        String name = StringEscapeUtils.escapeHtml(getDisplayName(element, INamedThing.SHORT));
+        String title = StringEscapeUtils.escapeHtml(getDisplayName(element, INamedThing.REGULAR));
         String target = targetFrame;
         String icon = getIcon(element, CLOSE);
         String iconOpen = getIcon(element, OPEN);
