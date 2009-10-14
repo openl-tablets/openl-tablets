@@ -446,7 +446,7 @@ public class ProjectModel implements IProjectTypes {
             if (tsn.getErrors() != null) {
                 continue;
             }
-           
+
             if ( !"on".equals(tsn.getPropertValueAsString("validateDT"))) {
                 continue;
             }
@@ -748,7 +748,7 @@ public class ProjectModel implements IProjectTypes {
 
     /**
      * Returns if current project is read only.
-     *
+     * 
      * @return <code>true</code> if project is read only.
      */
     public boolean isReadOnly() {
@@ -811,21 +811,48 @@ public class ProjectModel implements IProjectTypes {
 
         TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
 
+        // Create open methods dictionary that organizes
+        // open methods in groups using their meta info.
+        // Dictionary contains required information what will be used to create
+        // groups of methods in tree.
+        // author: Alexey Gamanovich
+        //
+        IOpenMethod[] methods = getMethods(nodes);
+        IOpenMethodGroupsDictionary methodNodesDictionary = new IOpenMethodGroupsDictionary();
+        methodNodesDictionary.addAll(methods);
+
         ATableTreeSorter[][] sorters = studio.getMode().getSorters();
         String[][] folders = studio.getMode().getFolders();
 
         for (int k = 0; k < sorters.length; k++) {
+
             ProjectTreeElement folder = root;
 
             if (folders != null && folders[k] != null) {
                 folder = new ProjectTreeElement(folders[k], "folder", null, null, 0, null);
                 root.addChild(new ATableTreeSorter.Key(k + 1, folder.getDisplayName()), folder);
             }
+
             ATableTreeSorter[] ts = sorters[k];
 
+            // Find all group sorters defined for current subtree.
+            // Group sorter should have additional information for grouping
+            // nodes by method signature.
+            // author: Alexey Gamanovich
+            //
+            for (ATableTreeSorter sorter : ts) {
+                // Set to sorter information about open methods.
+                // author: Alexey Gamanovich
+                //
+                sorter.setOpenMethodGroupsDictionary(methodNodesDictionary);
+            }
+
             HashSet<TableSyntaxNode> added = new HashSet<TableSyntaxNode>();
+
             int cnt = 0;
+
             for (int i = 0; i < nodes.length; i++) {
+
                 if (studio.getMode().select(nodes[i])) {
                     TreeSorter.addElement(folder, nodes[i], ts, 0);
                     ++cnt;
@@ -848,6 +875,31 @@ public class ProjectModel implements IProjectTypes {
         }
 
         return root;
+    }
+
+    private OpenMethodsInstanceGroupSorter[] findGroupSorters(ATableTreeSorter[] sorters) {
+
+        List<OpenMethodsInstanceGroupSorter> groupSorters = new ArrayList<OpenMethodsInstanceGroupSorter>();
+
+        for (ATableTreeSorter sorter : sorters) {
+            if (sorter instanceof OpenMethodsInstanceGroupSorter) {
+                groupSorters.add((OpenMethodsInstanceGroupSorter) sorter);
+            }
+        }
+
+        return groupSorters.toArray(new OpenMethodsInstanceGroupSorter[groupSorters.size()]);
+    }
+
+    private IOpenMethod[] getMethods(TableSyntaxNode[] nodes) {
+        List<IOpenMethod> methods = new ArrayList<IOpenMethod>();
+
+        for (TableSyntaxNode node : nodes) {
+            if (node.getMember() instanceof IOpenMethod) {
+                methods.add((IOpenMethod) node.getMember());
+            }
+        }
+
+        return methods.toArray(new IOpenMethod[methods.size()]);
     }
 
     public String makeXlsUrl(String elementUri) {
@@ -977,8 +1029,8 @@ public class ProjectModel implements IProjectTypes {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
 
         return searchBean.search(xsn);
-    }    
-    
+    }
+
     public void saveSearch(OpenLSavedSearch search) throws Exception {
         XlsWorkbookSourceCodeModule module = getWorkbookSourceCodeModule();
         if (module != null) {
@@ -1164,7 +1216,7 @@ public class ProjectModel implements IProjectTypes {
 
         TableModel tableModel = buildModel(gt, new IGridFilter[] { new ColorGridFilter(new RegionGridSelector(region,
                 true), filterHolder.makeFilter()) });
-        //FIXME: should formulas be displayed?
+        // FIXME: should formulas be displayed?
         return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null, false);
     }
 
