@@ -4,6 +4,9 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.TablePropertyDefinitionUtils;
+import org.openl.types.IOpenMethod;
 
 public class TableInstanceSorter extends ATableTreeSorter implements IProjectTypes, ITableNodeTypes {
 
@@ -12,6 +15,10 @@ public class TableInstanceSorter extends ATableTreeSorter implements IProjectTyp
     }
 
     static public String[] getTableDisplayValue(TableSyntaxNode tsn, int i) {
+        return getTableDisplayValue(tsn, i, null);
+    }
+
+    static public String[] getTableDisplayValue(TableSyntaxNode tsn, int i, IOpenMethodGroupsDictionary dictionary) {
         TableProperties tp = tsn.getTableProperties();
         String display = null;
         String name = null;
@@ -34,6 +41,30 @@ public class TableInstanceSorter extends ATableTreeSorter implements IProjectTyp
         }
 
         String sfx = (i < 2 ? "" : "(" + i + ")");
+        String dimensionInfo = StringUtils.EMPTY;
+
+        if (dictionary != null && tp != null && tsn.getMember() instanceof IOpenMethod
+                && dictionary.contains((IOpenMethod) tsn.getMember())) {
+
+            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+
+            for (String dimensionalPropertyName : dimensionalPropertyNames) {
+                String value = tp.getPropertyValueAsString(dimensionalPropertyName);
+
+                if (!StringUtils.isEmpty(value)) {
+                    String propertyInfo = StringUtils.join(new Object[] { dimensionalPropertyName, "=", value });
+                    dimensionInfo = StringUtils.join(new Object[] { dimensionInfo,
+                            StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ", propertyInfo });
+                }
+
+            }
+        }
+
+        if (!StringUtils.isEmpty(dimensionInfo)) {
+            sfx = StringUtils.join(new Object[] { sfx, StringUtils.isEmpty(sfx) ? StringUtils.EMPTY : " ", "[",
+                    dimensionInfo, "]" });
+        }
+
         return new String[] { name + sfx, display + sfx, display + sfx };
     }
 
@@ -74,7 +105,7 @@ public class TableInstanceSorter extends ATableTreeSorter implements IProjectTyp
     @Override
     public String[] getDisplayValue(Object sorterObject, int i) {
         TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
-        return getTableDisplayValue(tsn, i);
+        return getTableDisplayValue(tsn, i, getOpenMethodGroupsDictionary());
     }
 
     @Override

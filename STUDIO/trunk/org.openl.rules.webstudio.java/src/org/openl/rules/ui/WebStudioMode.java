@@ -74,7 +74,7 @@ public abstract class WebStudioMode extends NamedThing {
 
     static public class BusinessMode1 extends BusinessMode {
 
-        static ATableTreeSorter[][] sorters = { { new CategorySorter(), new TableInstanceSorter() }, };
+        static ATableTreeSorter[][] sorters = { { new CategorySorter(), new OpenMethodsInstanceGroupSorter(), new TableInstanceSorter() }, };
 
         BusinessMode1() {
             setName(BUSINESS_MODE + ".1");
@@ -91,7 +91,7 @@ public abstract class WebStudioMode extends NamedThing {
     static public class BusinessMode2 extends BusinessMode {
 
         static ATableTreeSorter[][] sorters = { { new CategorySorterN(0, "-"), new CategorySorterN(1, "-"),
-                new TableInstanceSorter() }, };
+            new OpenMethodsInstanceGroupSorter(), new TableInstanceSorter() }, };
 
         BusinessMode2() {
             setName(BUSINESS_MODE + ".2");
@@ -108,7 +108,7 @@ public abstract class WebStudioMode extends NamedThing {
     static public class BusinessMode3 extends BusinessMode {
 
         static ATableTreeSorter[][] sorters = { { new CategorySorterN(1, "-"), new CategorySorterN(0, "-"),
-                new TableInstanceSorter() }, };
+            new OpenMethodsInstanceGroupSorter(), new TableInstanceSorter() }, };
 
         BusinessMode3() {
             setName(BUSINESS_MODE + ".3");
@@ -124,8 +124,8 @@ public abstract class WebStudioMode extends NamedThing {
 
     static public class DeveloperMode extends WebStudioMode {
 
-        static ATableTreeSorter[][] sorters = { { ATableTreeSorter.TABLE_TYPE_SORTER, new TableInstanceSorter() },
-                { new WorkbookSorter(), new WorksheetSorter(), new TableInstanceSorter() } };
+        static ATableTreeSorter[][] sorters = { { ATableTreeSorter.TABLE_TYPE_SORTER, new OpenMethodsInstanceGroupSorter(), new TableInstanceSorter() },
+                { new WorkbookSorter(), new WorksheetSorter(), new OpenMethodsInstanceGroupSorter(), new TableInstanceSorter() } };
 
         static String[][] folders = { { "By Type", "Organize Project by component type", "" },
                 { "By File", "Organize project by physical location" } };

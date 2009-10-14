@@ -121,6 +121,16 @@ public abstract class ATableTreeSorter extends TreeSorter {
     }
 
     static final public TableTypeSorter TABLE_TYPE_SORTER = new TableTypeSorter();
+    
+    private IOpenMethodGroupsDictionary openMethodGroupsDictionary;
+
+    public void setOpenMethodGroupsDictionary(IOpenMethodGroupsDictionary openMethodGroupsDictionary) {
+        this.openMethodGroupsDictionary = openMethodGroupsDictionary;
+    }
+    
+    public IOpenMethodGroupsDictionary getOpenMethodGroupsDictionary() {
+        return openMethodGroupsDictionary;
+    }
 
     public abstract String[] getDisplayValue(Object sorterObject, int i);
 
