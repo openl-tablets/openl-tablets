@@ -22,16 +22,44 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
  */
 public class TestTableCreationWizard extends WizardBase {
     private SelectItem[] tableItems;
-    private int selectedTable;
+    private int selectedTable;    
+    private String technicalName;  
 
-    private void doSave() throws CreateTableException, IOException {
+    public String getTechnicalName() {
+        return technicalName;
+    }
+
+    public void setTechnicalName(String technicalName) {
+        this.technicalName = technicalName;
+    }
+    
+    private String getDefaultTechnicalName() {
+        TableSyntaxNode node = getSelectedNode();
+        String defaultName = TestTableBuilder.getDefaultTechnicalName(node);
+        return defaultName;
+    }
+    
+    /**
+     * 
+     * @return <code>TableSyntaxNode</code> from model, by the 
+     * technical name of the table we have selected. 
+     */
+    private TableSyntaxNode getSelectedNode() {
         TableSyntaxNode[] nodes = getSyntaxNodes();
         if (selectedTable < 0 || selectedTable >= nodes.length) {
             throw new IllegalStateException("not table is selected");
         }
 
         TableSyntaxNode node = nodes[selectedTable];
-        String header = TestTableBuilder.getHeader(node);
+        return node;
+    }
+
+    
+    private void doSave() throws CreateTableException, IOException {
+        TableSyntaxNode node = getSelectedNode();
+        
+        String header = TestTableBuilder.getHeader(node, technicalName);
+        
         Map<String, String> params = TestTableBuilder.getParams(node);
 
         TestTableBuilder builder = new TestTableBuilder(new XlsSheetGridModel(getDestinationSheet()));
@@ -107,5 +135,6 @@ public class TestTableCreationWizard extends WizardBase {
 
     public void setSelectedTable(int selectedTable) {
         this.selectedTable = selectedTable;
+        this.technicalName = getDefaultTechnicalName();
     }
 }
