@@ -23,6 +23,7 @@ import org.openl.rules.table.IUndoableGridAction;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.UndoableActions;
 import org.openl.rules.table.UndoableSetValueAction;
+import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
@@ -179,8 +180,7 @@ public class TableEditorModel {
         this.gridTable = table.getGridTable(view);
         this.showFormulas = showFormulas;
         region = new GridRegion(getOriginalTable(this.gridTable).getRegion());
-        numberOfNonShownRows = gridTable.getRegion().getTop() - region.getTop();
-        numberOfNonShownCols = gridTable.getRegion().getLeft() - region.getLeft();
+        calcNonShownRowsAndColumns();
         othertables = new GridSplitter(gridTable.getGrid()).split();
 
         if (gridTable.getGrid() instanceof XlsSheetGridModel) {
@@ -189,6 +189,11 @@ public class TableEditorModel {
         }
         removeThisTable(othertables);
         makeFilteredGrid(gridTable);
+    }
+    
+    private void calcNonShownRowsAndColumns(){
+        numberOfNonShownRows = Tool.height(region) - Tool.height(gridTable.getRegion());
+        numberOfNonShownCols = Tool.width(region) - Tool.width(gridTable.getRegion());
     }
 
     public boolean isBusinessView() {
@@ -283,6 +288,7 @@ public class TableEditorModel {
     }
 
     public synchronized IGridTable getUpdatedTable() {
+        calcNonShownRowsAndColumns();
         return new GridTable(region.getTop() + numberOfNonShownRows, region.getLeft() + numberOfNonShownCols,
                 region.getBottom(), region.getRight(), gridTable.getGrid());
 
