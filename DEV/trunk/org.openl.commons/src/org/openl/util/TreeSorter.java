@@ -9,48 +9,59 @@ public abstract class TreeSorter<T> {
 
         ITreeElement.Node<T> target = (ITreeElement.Node<T>) targetElement;
         Comparable<?> key = sorters[level].makeKey(obj);
-        ITreeElement<T> element = target.getChild(key);
+        ITreeElement<T> element = null;
+        
+        if (key != null) {
 
-        if (element == null) {
+            element = target.getChild(key);
 
-            element = sorters[level].makeElement(obj, 0);
+            if (element == null) {
 
-            // If element is null then sorter has not created the new element
-            // and this sorter should be skipped.
-            // author: Alexey Gamanovich
-            //
-            if (element != null) {
-                target.addChild(key, element);
-            } else {
-                element = targetElement;
-            }
+                element = sorters[level].makeElement(obj, 0);
 
-        } else if (sorters[level].isUnique()) {
+                // If element is null then sorter has not created the new
+                // element
+                // and this sorter should be skipped.
+                // author: Alexey Gamanovich
+                //
+                if (element != null) {
+                    target.addChild(key, element);
+                } else {
+                    element = targetElement;
+                }
 
-            for (int i = 2; i < 100; ++i) {
+            } else if (sorters[level].isUnique()) {
 
-                Comparable<?> key2 = sorters[level].makeKey(obj, i);
-                element = target.getChild(key2);
+                for (int i = 2; i < 100; ++i) {
 
-                if (element == null) {
+                    Comparable<?> key2 = sorters[level].makeKey(obj, i);
+                    element = target.getChild(key2);
 
-                    element = sorters[level].makeElement(obj, i);
+                    if (element == null) {
 
-                    // If element is null then sorter has not created the new
-                    // element and this sorter should be skipped.
-                    // author: Alexey Gamanovich
-                    //
-                    if (element != null) {
-                        target.addChild(key2, element);
-                    } else {
-                        element = targetElement;
+                        element = sorters[level].makeElement(obj, i);
+
+                        // If element is null then sorter has not created the
+                        // new
+                        // element and this sorter should be skipped.
+                        // author: Alexey Gamanovich
+                        //
+                        if (element != null) {
+                            target.addChild(key2, element);
+                        } else {
+                            element = targetElement;
+                        }
+
+                        break;
                     }
-
-                    break;
                 }
             }
         }
 
+        if (element == null) {
+            element = targetElement;
+        }
+        
         addElement(element, obj, sorters, level + 1);
     }
 
