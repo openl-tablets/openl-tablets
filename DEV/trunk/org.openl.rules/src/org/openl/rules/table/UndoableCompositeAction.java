@@ -3,12 +3,13 @@
  */
 package org.openl.rules.table;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class UndoableCompositeAction implements IUndoableGridAction {
 
@@ -16,6 +17,10 @@ public class UndoableCompositeAction implements IUndoableGridAction {
 
     public UndoableCompositeAction(List<IUndoableGridAction> actions) {
         this.actions = actions;
+    }
+
+    public UndoableCompositeAction(IUndoableGridAction... gridActions) {
+        this.actions = Arrays.asList(gridActions);
     }
 
     public void doAction(IWritableGrid grid, IUndoGrid undo) {
