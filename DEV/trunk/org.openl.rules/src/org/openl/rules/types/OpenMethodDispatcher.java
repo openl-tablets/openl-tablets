@@ -112,14 +112,14 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 	public String getName() {
 		return delegate.getName();
 	}
-	
-	/**
-	 * Gets <code>null</code>. The decorator hasn't info about overloaded
-	 * methods.
-	 */
-	public IOpenMethod getMethod() {
-		return null;
-	}
+
+    /**
+     * Gets <code>this</code>. The decorator can't resolve which overloaded
+     * method should be returned.
+     */
+    public IOpenMethod getMethod() {
+        return this;
+    }
 	
 	/**
 	 * Invokes appropriate method using runtime context.
