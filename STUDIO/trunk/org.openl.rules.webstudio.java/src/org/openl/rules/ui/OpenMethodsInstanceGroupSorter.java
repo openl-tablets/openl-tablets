@@ -138,7 +138,7 @@ public class OpenMethodsInstanceGroupSorter extends ATableTreeSorter {
             return new Key(getWeight(sorterObject), new String[]{hashString, hashString, hashString});
         }
         
-        return super.makeKey(obj, i);
+        return null;
     }
     
     private String getMajorityName(List<IOpenMethod> methods) {
