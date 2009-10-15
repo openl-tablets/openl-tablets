@@ -6,6 +6,7 @@ package org.openl.eclipse.base;
 import java.io.File;
 import java.net.URL;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -51,7 +52,7 @@ public class PluginClasspathVariableInitializer extends ClasspathVariableInitial
             throw new Exception("Plugin not found: " + pluginId);
         }
 
-        URL localUrl = Platform.asLocalURL(bundle.getEntry("/"));
+        URL localUrl = FileLocator.toFileURL(bundle.getEntry("/"));
         String fullPath = new File(localUrl.getPath()).getAbsolutePath();
 
         return new Path(fullPath);

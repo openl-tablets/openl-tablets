@@ -48,7 +48,7 @@ public abstract class AConsoleHyperlink extends LaunchBase implements IHyperlink
      */
     protected void activateTextEditor(String url) throws Exception {
 
-        Map urlMap = SourceCodeURLTool.parseUrl(url);
+        Map<String, String> urlMap = SourceCodeURLTool.parseUrl(url);
 
         String fileName = (String) urlMap.get(FILE);
 

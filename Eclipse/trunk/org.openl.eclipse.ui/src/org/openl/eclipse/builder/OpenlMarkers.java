@@ -35,7 +35,7 @@ public class OpenlMarkers implements SourceCodeURLConstants, IOpenlModelConstant
             String message, int severity) {
         String url = SourceCodeURLTool.makeSourceLocationURL(location, module, openl);
 
-        Map urlMap = SourceCodeURLTool.parseUrl(url);
+        Map<String, String> urlMap = SourceCodeURLTool.parseUrl(url);
 
         // !!! String fileName = (String) urlMap.get(FILE);
         // IResource resource = ResourceUtil.findWorkspaceResource(fileName);
@@ -73,7 +73,7 @@ public class OpenlMarkers implements SourceCodeURLConstants, IOpenlModelConstant
     public static void addMarker(IResource resource, String url, String message, int severity, String start,
             String end, String line) {
         try {
-            Map attributes = new HashMap();
+            Map<String, Object> attributes = new HashMap<String, Object>();
 
             if (url != null) {
                 attributes.put(URL, url);
@@ -134,7 +134,7 @@ public class OpenlMarkers implements SourceCodeURLConstants, IOpenlModelConstant
         return new CoreException(new MultiStatus(OpenlBasePlugin.PLUGIN_ID, IStatus.ERROR, "Plugin Exception:", t));
     }
 
-    protected static IMarker createMarker(IResource resource, String type, Map attributes) throws Exception {
+    protected static IMarker createMarker(IResource resource, String type, Map<String, Object> attributes) throws Exception {
         IMarker m = resource.createMarker(type);
         m.setAttributes(attributes);
         return m;

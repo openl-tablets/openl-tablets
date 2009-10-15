@@ -72,7 +72,8 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 
     private static final String MARKER_TYPE = OpenlBasePlugin.PLUGIN_ID + ".openl.problem";
 
-    static final String[] extensions = { ".openl", ".j", ".xls", ".j.science", ".dom.xml" };
+    //TODO refactor to allow dynamic register from the top-level plugins
+    static final String[] extensions = { ".openl", ".j", ".xls", ".j.science", ".dom.xml", ".xlsx" };
 
     static final String openlPropertiesFname = "openl.project.classpath.properties";
 
@@ -283,7 +284,16 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
     }
 
     boolean isOpenlFile(IFile file) {
-        return isOpenlExtension(file) && isOnSourcePath(file);
+        return isOpenlExtension(file) && isOnSourcePath(file) && !isTempFile(file);
+    }
+
+    /**
+     * Excel and Word place temp files into the same folder as main file, it is better to ignore them
+     * @param file
+     * @return
+     */
+    private boolean isTempFile(IFile file) {
+        return file.getName().contains("~");
     }
 
     public void resetOpenL() {

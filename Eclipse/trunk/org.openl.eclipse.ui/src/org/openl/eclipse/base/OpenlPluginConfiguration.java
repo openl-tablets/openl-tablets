@@ -49,7 +49,7 @@ public class OpenlPluginConfiguration extends UtilBase {
     // return (String[]) openls.toArray(new String[0]);
     // }
 
-    static Map userContextCache = new HashMap();
+    static Map<Object, Object> userContextCache = new HashMap<Object, Object>();
 
     // public String getOpenlName(String fileURL) {
     // String[] openls = getConfiguredOpenlNames(fileURL);
@@ -73,7 +73,7 @@ public class OpenlPluginConfiguration extends UtilBase {
     // }
 
     static public void reset() {
-        userContextCache = new HashMap();
+        userContextCache = new HashMap<Object, Object>();
 
         if (Debug.DEBUG) {
             Debug.debug("OpenlPluginConfiguration.clearCache()");

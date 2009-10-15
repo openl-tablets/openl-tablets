@@ -26,7 +26,6 @@ import org.openl.eclipse.util.UtilBase;
 import org.openl.eclipse.util.XxY;
 import org.openl.util.AOpenIterator;
 import org.openl.util.IConvertor;
-import org.openl.util.OpenIterator;
 
 /**
  *
