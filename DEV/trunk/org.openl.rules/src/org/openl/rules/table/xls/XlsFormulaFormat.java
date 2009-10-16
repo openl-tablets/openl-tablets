@@ -1,14 +1,14 @@
 package org.openl.rules.table.xls;
 
 import org.openl.rules.table.FormattedCell;
-import org.openl.util.Log;
+//import org.openl.util.Log;
 
 /**
  * @author Andrei Astrouski
  *
  */
 public class XlsFormulaFormat extends XlsFormat {
-    private static final String FORMULA_PREFIX = "=";
+    //private static final String FORMULA_PREFIX = "=";
     private XlsFormat formulaResultFormatter;
 
     public XlsFormulaFormat() {
@@ -42,9 +42,9 @@ public class XlsFormulaFormat extends XlsFormat {
 
     @Override
     public Object parse(String value) {
-        if (!value.startsWith(FORMULA_PREFIX)) {
+        /*if (!value.startsWith(FORMULA_PREFIX)) {
             Log.warn("Could not parse Formula: " + value);
-        }
+        }*/
         return value;
     }
 
