@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellValue;
@@ -536,11 +537,17 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             Date x = (Date) value;
             
             cell.setCellValue(x);
-            CellStyle cellStyle = cell.getSheet().getWorkbook().createCellStyle();
-            CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
-            cellStyle.setDataFormat(createHelper.createDataFormat().getFormat(DATE_FORMAT));
-            cell.setCellStyle(cellStyle);
-        } else if (value instanceof Boolean){
+            
+            // POI sets Date values to excel as double, so its
+            // impossible to see that it is a Date value without setting 
+            // date style to this cell.
+            cell
+                    .getCellStyle()
+                    .setDataFormat(
+                            (short) BuiltinFormats
+                                    .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
+
+        } else if (value instanceof Boolean) {
             Boolean boolValue = (Boolean) value;
             cell.setCellValue(boolValue.booleanValue());
         } else {
