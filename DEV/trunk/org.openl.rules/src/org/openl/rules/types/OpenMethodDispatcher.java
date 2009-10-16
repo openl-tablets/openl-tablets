@@ -120,8 +120,12 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     public IOpenMethod getMethod() {
         return this;
     }
-	
-	/**
+    
+	public List<IOpenMethod> getCandidates() {
+        return candidates;
+    }
+
+    /**
 	 * Invokes appropriate method using runtime context.
 	 */
 	public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
