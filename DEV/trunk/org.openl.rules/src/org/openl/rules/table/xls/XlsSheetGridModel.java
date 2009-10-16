@@ -550,12 +550,13 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         } else if (value instanceof Boolean) {
             Boolean boolValue = (Boolean) value;
             cell.setCellValue(boolValue.booleanValue());
-        } else {
+        } else { // String
             String strValue = String.valueOf(value);
-            // formula
-            if (strValue.startsWith("=")) {
+            // Formula
+            if (strValue.startsWith("=") && cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
                 cell.setCellFormula(strValue.replaceFirst("=", ""));
             } else {
+                cell.setCellType(Cell.CELL_TYPE_BLANK);
                 cell.setCellValue(strValue);
             }
         }

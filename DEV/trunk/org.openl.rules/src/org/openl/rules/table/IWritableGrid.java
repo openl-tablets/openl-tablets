@@ -412,9 +412,6 @@ public interface IWritableGrid extends IGrid {
         }
     }
 
-    /**
-     * @param reg
-     */
     int addMergedRegion(IGridRegion reg);
 
     void clearCell(int col, int row);
@@ -435,14 +432,9 @@ public interface IWritableGrid extends IGrid {
 
     CellMetaInfo getCellMetaInfo(int col, int row);
 
-    /**
-     * @param to
-     */
     void removeMergedRegion(IGridRegion to);
 
     void setCellMetaInfo(int col, int row, CellMetaInfo meta);
-
-    void setCellStringValue(int col, int row, String value);
 
     void setCellStyle(int col, int row, ICellStyle style);
 

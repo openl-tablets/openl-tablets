@@ -26,20 +26,11 @@ public class UndoableSetValueAction extends AUndoableCellAction {
 
     @Override
     public void doDirectChange(IWritableGrid wgrid) {
-
-        // FormattedCell fcell = wgrid.getFormattedCell(col, row);
-        // if (fcell != null)
-        // {
-        // IGridFilter filter = fcell.getFilter();
+        Object result = value;
         if (filter != null) {
-            Object res = filter.parse(value);
-            wgrid.setCellValue(col, row, res);
-            return;
+            result = filter.parse(value);
         }
-
-        // }
-
-        wgrid.setCellStringValue(col, row, value);
+        wgrid.setCellValue(col, row, result);
     }
 
 }
