@@ -455,8 +455,10 @@ public class TableEditorModel {
     }
 
     public synchronized void setCellValue(int row, int col, String value) {
-        IUndoableGridAction ua = IWritableGrid.Tool.setStringValue(col, row, fullTableRegion, value, getFilter(col, row));
-        actions.addNewAction(ua);
+        IUndoableGridAction action = IWritableGrid.Tool.setStringValue(
+                col, row, fullTableRegion, value, getFilter(col, row));
+        action.doAction(wgrid(), undoGrid);
+        actions.addNewAction(action);
     }
 
     public synchronized void setProperty(String name, String value) throws Exception {
