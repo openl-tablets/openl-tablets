@@ -7,6 +7,7 @@
 package org.openl.rules.lang.xls.binding;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -17,6 +18,11 @@ import org.openl.binding.impl.BoundError;
 import org.openl.meta.ObjectValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.utils.DoubleToDateCaster;
+import org.openl.rules.lang.xls.utils.ICustomCaster;
+import org.openl.rules.lang.xls.utils.IntegerToDateCaster;
+import org.openl.rules.lang.xls.utils.StringToBooleanCaster;
+import org.openl.rules.lang.xls.utils.StringToDateCaster;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridTableSourceCodeModule;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
@@ -76,8 +82,18 @@ public abstract class AXlsTableBinder extends ANodeBinder {
                 Object propertyValue = row.getLogicalColumn(1).getGridTable().getCell(0, 0).getObjectValue();
                 if (propertyValue == null) {
                     continue;
-                } else {
-                    validateProperty(propertyName, propertyValue, row);
+                } else {             
+                    if (isPropertyDefined(propertyName,row)) {
+                        Class<?> propDefType = getPropertyDefinitionType(propertyName);
+                        if(!canAutoCastPropertyValue(propertyValue, propDefType)) {                            
+                            ICustomCaster customCaster = getCustomCaster(propertyValue, propDefType);
+                            if(customCaster != null) {
+                                propertyValue = customCaster.cast(propertyValue);
+                            } else {
+                                throwException(propertyName, propDefType, propertyValue, row);
+                            }                            
+                        }
+                    }                    
                 }
     
                 StringValue key = new StringValue(propertyName, "key", null, row.getGridTable().getUri(0, 0));
@@ -92,18 +108,70 @@ public abstract class AXlsTableBinder extends ANodeBinder {
 
     }
     
-    /**
-     * Try to get the property definition by its given name from {@link DefaultPropertyDefinitions}.
-     * If there is no such property throws an exception. If type of the property value can`t be
-     * cast to its type from definition, also throws an error.
-     * @param propertyName Name of the property.
-     * @param propertyValue Value of the property.
-     * @param row Row in table.
-     * @throws BoundError
+    private void throwException(String propertyName, Class<?> propDefType,
+            Object propertyValue, ILogicalTable row) throws BoundError {
+        throw new BoundError(
+              null,
+              String
+                      .format(
+                              "Property \"%1s\" must be of type \"%2s\". "
+                                      + "Found type is \"%3s\". Found value is \"%4s\".",
+                              propertyName, propDefType.toString(),
+                              propertyValue.getClass().toString(),
+                              propertyValue), null,
+              new GridTableSourceCodeModule(row.getGridTable()));        
+    }
+    
+    /**     
+     * @param propertyValue Property value from table.
+     * @param propDefType Type of the property from {@link DefaultPropertyDefinitions}.
+     * @return {@link ICustomCaster} that can cast property value to property definition type.
      */
-    private void validateProperty(String propertyName, Object propertyValue,
-            ILogicalTable row) throws BoundError {
+    private ICustomCaster getCustomCaster(Object propertyValue,
+            Class<?> propDefType) {
+        ICustomCaster customCaster = null;
+        if (propDefType.equals(Date.class) && propertyValue instanceof Integer) {
+            customCaster = new IntegerToDateCaster();
+        } else if (propDefType.equals(Date.class)
+                && propertyValue instanceof Double) {
+            customCaster = new DoubleToDateCaster();
+        } else if (propDefType.equals(Boolean.class)
+                && propertyValue instanceof String) {
+            customCaster = new StringToBooleanCaster();
+        } else if (propDefType.equals(Date.class)
+                && propertyValue instanceof String) {
+            customCaster = new StringToDateCaster();
+        }
+        return customCaster;
+    }
+    
+    /**
+     * Gets the property type drom {@link DefaultPropertyDefinitions} by
+     * property name.
+     * @param propertyName Property name from table.
+     * @return
+     */
+    private Class<?> getPropertyDefinitionType(String propertyName) {
         Class<?> propDefType = Class.class;
+        TablePropertyDefinition propDef = DefaultPropertyDefinitions
+        .getPropertyByName(propertyName);
+        propDefType = propDef.getType().getInstanceClass();
+        return propDefType;
+    }
+    
+    /**
+     * 
+     * @param propertyName Property name from table.
+     * @param row Destination row to the property in table.
+     * 
+     * @return <code>True</code> if property with such name has been 
+     * defined in {@link DefaultPropertyDefinitions}.
+     * 
+     * @throws BoundError If there is no property in {@link DefaultPropertyDefinitions}
+     * with such name.
+     */
+    private boolean isPropertyDefined(String propertyName, ILogicalTable row) throws BoundError {
+        boolean result = false;
         TablePropertyDefinition propDef = DefaultPropertyDefinitions.getPropertyByName(propertyName);
         if (propDef == null) {
             throw new BoundError(null, String.format(
@@ -111,18 +179,28 @@ public abstract class AXlsTableBinder extends ANodeBinder {
                     propertyName), null, new GridTableSourceCodeModule(row
                     .getGridTable()));
         } else {
-            propDefType = propDef.getType().getInstanceClass();
-            try {
-                propDefType.cast(propertyValue);
-            } catch (ClassCastException e) {
-                throw new BoundError(null, String.format("Property \"%1s\" must be of type \"%2s\". " +
-                		"Found type is \"%3s\". Found value is \"%4s\".", 
-                		propertyName, propDefType.toString(), 
-                		propertyValue.getClass().toString(), 
-                		propertyValue),
-                        null, new GridTableSourceCodeModule(row.getGridTable()));
-            }
+            result = true;
         }
+        return result;
+        
+    }    
+
+    /**
+     * @param propertyValue Value of the property.
+     * @param propDefType Type of the property from {@link DefaultPropertyDefinitions}. 
+     *
+     * @return <code>True</code> if type of property value from source can be cast to type 
+     * of property in definitions by {@link Class#cast(Object)}. <code>False</code> if can`t.
+     */
+    private boolean canAutoCastPropertyValue(Object propertyValue, Class<?> propDefType) {
+        boolean result = false;        
+        try {
+            propDefType.cast(propertyValue);
+            result = true;
+        } catch (ClassCastException e) {
+            result = false;
+        }
+        return result;
     }
     
     public abstract IMemberBoundNode preBind(TableSyntaxNode syntaxNode, OpenL openl, IBindingContext cxt,

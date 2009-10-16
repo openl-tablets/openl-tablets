@@ -207,7 +207,7 @@ public class TableBuilder {
             gridModel.setCellValue(x, y, value);
             // we need to add data format in style for dates
             if (value instanceof Date) {
-                cellStyle = modifyCellStyle(cell, cellStyle);
+                modifyCellStyle(cell, cellStyle);                
             }
             setCellStyle(cell, cellStyle);
         } else {
@@ -230,10 +230,8 @@ public class TableBuilder {
      * @param cell Cell with value in it.
      * @param cellStyle Cell style.
      */
-    private CellStyle modifyCellStyle(Cell cell, CellStyle cellStyle) {
-        CellStyle modifCellStyle = cellStyle;
-        modifCellStyle.setDataFormat(cell.getCellStyle().getDataFormat());        
-        return modifCellStyle;
+    private void modifyCellStyle(Cell cell, CellStyle cellStyle) {        
+        cellStyle.setDataFormat(cell.getCellStyle().getDataFormat());
     }
 
     private void setCellStyle(Cell cell, CellStyle cellStyle) {
@@ -251,7 +249,7 @@ public class TableBuilder {
                 Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
                 style = workbook.createCellStyle();
                 try {
-                    style.cloneStyleFrom(cellStyle);
+                    style.cloneStyleFrom(cellStyle);                    
                 } catch (IllegalArgumentException ex) {
                     // FIXME: remove try.. catch
                 }
@@ -285,7 +283,7 @@ public class TableBuilder {
                 && cs1.getLeftBorderColor() == cs2.getLeftBorderColor()
                 && cs1.getRightBorderColor() == cs2.getRightBorderColor() && cs1.getRotation() == cs2.getRotation()
                 && cs1.getTopBorderColor() == cs2.getTopBorderColor() && cs1.getVerticalAlignment() == cs2
-                .getVerticalAlignment());
+                .getVerticalAlignment()) && cs1.getDataFormat() == cs2.getDataFormat();
     }
     
     

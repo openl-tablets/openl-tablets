@@ -15,20 +15,23 @@ import org.openl.util.Log;
  *
  */
 public class XlsDateFormat extends XlsFormat {
-
-    SimpleDateFormat format;
-
+    
+    public static String DEFAULT_JAVA_DATE_FORMAT = "MM/dd/yyyy";
+    public static String DEFAULT_XLS_DATE_FORMAT = "m/d/yy";
+    
+    private SimpleDateFormat format;
+    
     /**
      *
      * @param fmt
      * @return
      */
-    static public String convertTojavaFormat(String fmt) {
+    public static String convertTojavaFormat(String fmt) {
         // TODO this will require much more work than that
 
         return fmt.replace('m', 'M');
     }
-
+        
     public XlsDateFormat(SimpleDateFormat fmt) {
         format = fmt;
     }

@@ -1,7 +1,7 @@
 package org.openl.rules.table.properties;
 
 /**
- * 
+ * Definitions of supported properties.
  * @author snshor
  * Created Jul 21, 2009 
  *

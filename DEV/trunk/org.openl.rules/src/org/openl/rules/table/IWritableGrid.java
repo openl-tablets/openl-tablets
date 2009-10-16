@@ -411,8 +411,6 @@ public interface IWritableGrid extends IGrid {
             return new UndoableSetStyleAction(gcol, grow, style);
         }
     }
-    
-    public static final String DATE_FORMAT = "MM/dd/yyyy";
 
     /**
      * @param reg
