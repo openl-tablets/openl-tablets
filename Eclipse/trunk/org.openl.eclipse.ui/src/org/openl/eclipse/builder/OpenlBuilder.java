@@ -35,6 +35,9 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
 
 public class OpenlBuilder extends IncrementalProjectBuilder {
+    
+    
+    
 
     class OpenlDeltaVisitor implements IResourceDeltaVisitor {
         /*
@@ -73,8 +76,10 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
     private static final String MARKER_TYPE = OpenlBasePlugin.PLUGIN_ID + ".openl.problem";
 
     //TODO refactor to allow dynamic register from the top-level plugins
-    static final String[] extensions = { ".openl", ".j", ".xls", ".j.science", ".dom.xml", ".xlsx" };
-
+    
+    static final String[] fixedExtensions = { ".openl", ".j", ".xls", ".j.science", ".dom.xml"};
+    
+    
     static final String openlPropertiesFname = "openl.project.classpath.properties";
 
     static final String openlClasspathProperty = "openl.project.classpath";
@@ -106,7 +111,6 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
     }
 
     static public String getOpenlName(String fileURL) {
-        // TODO provide custom mapping
         return getDefaultOpenlName(fileURL);
     }
 
@@ -136,6 +140,15 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 
     public OpenlBuilder() {
         Debug.debug("In OpenlBuilder");
+        intiialize();
+    }
+
+    protected void intiialize() {
+        for (String ext : fixedExtensions) {
+            OpenlMain.registerExtension(ext, ext);
+            OpenlMain.registerExtension(".xlsx", ".xls");
+            OpenlMain.registerExtension(".xlsm", ".xls");
+        }
     }
 
     private void addMarker(IResource resource, SyntaxErrorException se, String openl) {
@@ -274,9 +287,9 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
     }
 
     boolean isOpenlExtension(IFile file) {
-        for (int i = 0; i < extensions.length; i++) {
+        for (String ext: OpenlMain.getExtensionsMap().keySet()) {
 
-            if (file.getName().endsWith(extensions[i])) {
+            if (file.getName().endsWith(ext)) {
                 return true;
             }
         }

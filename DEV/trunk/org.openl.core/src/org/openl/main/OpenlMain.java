@@ -11,6 +11,8 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenConfigurationException;
@@ -30,6 +32,8 @@ import org.openl.util.text.TextInfo;
  * @author sam
  */
 public class OpenlMain implements SourceCodeURLConstants {
+    public static final String ORG_OPENL = "org.openl";
+
     static public final String ARG_SOURCE_FILE_NAME = "-file";
 
     static public final String ARG_OPENL_NAME = "-openl";
@@ -66,9 +70,36 @@ public class OpenlMain implements SourceCodeURLConstants {
         if (idx < 0) {
             throw new RuntimeException("File: " + filename + " does not have an extension");
         }
+        
+        String longExt =  filename.substring(idx);
+        
+        String openlSuffix = extensionsMap.get(longExt); 
+        
+        if (openlSuffix == null)
+        {
+            idx = filename.lastIndexOf('.', idx);
+            String shortExt = filename.substring(idx);
+            openlSuffix = extensionsMap.get(shortExt);
+            if (openlSuffix == null)
+                openlSuffix = longExt;
+        }    
 
-        return "org.openl." + filename.substring(idx + 1);
+        return ORG_OPENL + openlSuffix; 
     }
+    
+    static Map<String, String> extensionsMap = new HashMap<String, String>();
+    
+    static public Map<String, String> getExtensionsMap()
+    {
+        return extensionsMap;
+    }
+    
+    static synchronized public void registerExtension(String ext, String mapped)
+    {
+        extensionsMap.put(ext, mapped);
+    }
+
+    
 
     // OpenL openl;
 
