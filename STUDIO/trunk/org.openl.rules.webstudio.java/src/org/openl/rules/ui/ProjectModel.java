@@ -14,6 +14,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -447,7 +448,7 @@ public class ProjectModel implements IProjectTypes {
                 continue;
             }
 
-            if ( !"on".equals(tsn.getPropertValueAsString("validateDT"))) {
+            if (!"on".equals(tsn.getPropertValueAsString("validateDT"))) {
                 continue;
             }
 
@@ -519,17 +520,70 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public IOpenMethod getMethod(TableSyntaxNode tsn) {
-        IOpenClass oc = wrapper.getOpenClass();
 
-        for (Iterator<IOpenMethod> iter = oc.methods(); iter.hasNext();) {
-            IOpenMethod m = iter.next();
-            IMemberMetaInfo mi = m.getInfo();
-            if (mi != null && mi.getSyntaxNode() == tsn) {
-                return m;
+        IOpenClass openClass = wrapper.getOpenClass();
+
+        for (Iterator<IOpenMethod> iter = openClass.methods(); iter.hasNext();) {
+            
+            IOpenMethod method = iter.next();
+            IOpenMethod resolvedMethod = null;
+
+            if (method instanceof OpenMethodDispatcher) {
+                 resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tsn);
+            } else {
+                resolvedMethod = resolveMethod(method, tsn);
+            }
+            
+            if (resolvedMethod != null) {
+                return resolvedMethod;
             }
         }
 
         return null;
+    }
+    
+    private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
+        
+        List<IOpenMethod> candidates = method.getCandidates();
+        
+        for (IOpenMethod candidate : candidates) {
+            
+            IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
+            
+            if (resolvedMethod != null) {
+                return method;
+            }
+        }
+        
+        return null;
+    }
+
+    private IOpenMethod resolveMethod(IOpenMethod method, TableSyntaxNode syntaxNode) {
+
+        if (isInstanceOfTable(method, syntaxNode)) {
+            return method;
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks that {@link IOpenMethod} object is instance that represents the
+     * given {@TableSyntaxNode} object. Actually,
+     * {@link IOpenMethod} object must have the same syntax node as given one.
+     * If given method is instance of {@link OpenMethodDispatcher}
+     * <code>false</code> value will be returned.
+     * 
+     * @param method method to check
+     * @param syntaxNode syntax node
+     * @return <code>true</code> if {@link IOpenMethod} object represents the
+     *         given table syntax node; <code>false</code> - otherwise
+     */
+    private boolean isInstanceOfTable(IOpenMethod method, TableSyntaxNode syntaxNode) {
+
+        IMemberMetaInfo metaInfo = method.getInfo();
+
+        return (metaInfo != null && metaInfo.getSyntaxNode() == syntaxNode);
     }
 
     public TableSyntaxNode getNode(String elementUri) {
