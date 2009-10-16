@@ -13,7 +13,7 @@ public class DefaultPropertyDefinitions
 	{		
 	    TablePropertyDefinition[] definitions = null;
 	    // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[23];
+		definitions = new TablePropertyDefinition[24];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setBusinessSearch(true);
 		definitions[0].setConstraints("unique in:module");
@@ -305,6 +305,18 @@ public class DefaultPropertyDefinitions
 		definitions[22].setPrimaryKey(false);
 		definitions[22].setTableType("xls.dt");
 		definitions[22].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+		definitions[23] = new TablePropertyDefinition();
+		definitions[23].setBusinessSearch(true);
+		definitions[23].setConstraints("Worksheet, Workbook, Module");
+		definitions[23].setDescription("Use in properties table to provide scope of the properties");
+		definitions[23].setDimensional(false);
+		definitions[23].setDisplayName("Scope");
+		definitions[23].setGroup("Dev");
+		definitions[23].setInheritable("no");
+		definitions[23].setName("scope");
+		definitions[23].setPrimaryKey(false);
+		definitions[23].setTableType("xls.props");
+		definitions[23].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
 	    
 		return definitions;
