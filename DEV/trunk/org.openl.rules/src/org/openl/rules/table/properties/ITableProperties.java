@@ -51,6 +51,8 @@ public interface ITableProperties {
 	void setFailOnMiss(java.lang.Boolean failOnMiss);	
 	java.lang.Boolean getReturnOnMiss();
 	void setReturnOnMiss(java.lang.Boolean returnOnMiss);	
+	java.lang.String getScope();
+	void setScope(java.lang.String scope);	
 	// <<< END INSERT >>>
 	
 }

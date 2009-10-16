@@ -158,6 +158,12 @@ public class DefaultTableProperties implements ITableProperties {
 	public void setReturnOnMiss(java.lang.Boolean returnOnMiss) {
 		internalMap.put("returnOnMiss", returnOnMiss);
 	}	
+	public java.lang.String getScope() {
+		return (java.lang.String) internalMap.get("scope"); 
+	}
+	public void setScope(java.lang.String scope) {
+		internalMap.put("scope", scope);
+	}	
 	// <<< END INSERT >>>
 	
 }
