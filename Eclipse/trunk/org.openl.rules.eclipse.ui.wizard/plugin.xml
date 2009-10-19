@@ -115,6 +115,14 @@
             project="true"
             id="org.openl.rules.eclipse.wizard.Tutorial9Wizard">
       </wizard>
+      <wizard
+            name="Tutorial 10 - Lookup, rules overloading and Excel 2007 example"
+            icon="icons/full/ctool16/new_openl_rules_project_wizard.gif"
+            category="org.openl.rules.wizard.openl.rules.category/org.openl.rules.wizard.tutorialscategory"
+            class="org.openl.rules.eclipse.wizard.Tutorial10Wizard"
+            project="true"
+            id="org.openl.rules.eclipse.wizard.Tutorial10Wizard">
+      </wizard>
       <category
             name="Examples"
             parentCategory="org.openl.rules.wizard.openl.rules.category"
