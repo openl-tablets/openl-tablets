@@ -125,8 +125,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
                     try {
                         resultValue = formulaEvaluator.evaluate(cell);
                     } catch (RuntimeException e) {
-                        LOG.warn(e.getMessage()+" on the sheet [" +sheet.getSheetName()+"] for cell containing next " +
-                        		"formula ["+getFormula()+"]");
+                        LOG.warn("Error while evaluating the cell on the sheet ["+sheet.getSheetName()+"], " +
+                        		"containing " +	"formula ["+getFormula()+"]", e);
                         throw new IncorrectFormulaException(e.getMessage(), e.getCause());
                     }
                     return XlsUtil.intOrDouble(resultValue.getNumberValue());
