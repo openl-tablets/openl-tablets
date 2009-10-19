@@ -333,7 +333,10 @@ TableEditor.prototype = {
                         col : self.selectionPos[1],
                         value: val
                     },
-                    onFailure: AjaxHelper.handleError
+                    onFailure: function(response) {
+                        AjaxHelper.handleError(response,
+                                "Error during setting the value.");
+                    }
                 });
             }
             this.editor.detach();
