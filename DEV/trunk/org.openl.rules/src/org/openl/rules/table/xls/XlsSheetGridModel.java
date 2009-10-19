@@ -10,13 +10,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellValue;
-import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -45,6 +46,8 @@ import org.openl.util.StringTool;
  */
 public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         XlsWorkbookSourceCodeModule.WorkbookListener {
+    
+    private final static Log LOG = LogFactory.getLog(XlsSheetGridModel.class);
 
     class XlsCell implements ICell {
 
@@ -99,7 +102,7 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             }
             return 1;
         }
-
+        
         public Object getObjectValue() {
             if (cell == null) return null;
             int valueType = cell.getCellType();
@@ -118,7 +121,14 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
                     return cell.getStringCellValue();
                 case Cell.CELL_TYPE_FORMULA:
                     FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
-                    CellValue resultValue = formulaEvaluator.evaluate(cell);
+                    CellValue resultValue = null;
+                    try {
+                        resultValue = formulaEvaluator.evaluate(cell);
+                    } catch (RuntimeException e) {
+                        LOG.warn(e.getMessage()+" on the sheet [" +sheet.getSheetName()+"] for cell containing next " +
+                        		"formula ["+getFormula()+"]");
+                        throw new IncorrectFormulaException(e.getMessage(), e.getCause());
+                    }
                     return XlsUtil.intOrDouble(resultValue.getNumberValue());
                 default:
                     return "unknown type: " + cell.getCellType();
@@ -126,7 +136,12 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
 
         public String getStringValue() {
-            Object res = getObjectValue();
+            Object res = null;
+            try {
+                res = getObjectValue();
+            } catch (IncorrectFormulaException ex) {
+                //logged in getObjectValue() method.
+            }
             return res == null ? null : String.valueOf(res);
         }
 
@@ -541,11 +556,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             // POI sets Date values to excel as double, so its
             // impossible to see that it is a Date value without setting 
             // date style to this cell.
-            cell
-                    .getCellStyle()
-                    .setDataFormat(
-                            (short) BuiltinFormats
-                                    .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
+            cell.getCellStyle().setDataFormat((short) BuiltinFormats
+                    .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
 
         } else if (value instanceof Boolean) {
             Boolean boolValue = (Boolean) value;
