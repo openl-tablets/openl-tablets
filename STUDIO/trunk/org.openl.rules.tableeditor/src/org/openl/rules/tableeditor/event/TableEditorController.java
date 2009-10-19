@@ -3,6 +3,9 @@ package org.openl.rules.tableeditor.event;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.formula.FormulaParser.FormulaParseException;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.IGridTable;
@@ -19,6 +22,9 @@ import org.openl.rules.web.jsf.util.FacesUtils;
  * @author Andrey Naumenko
  */
 public class TableEditorController extends BaseTableEditorController implements ITableEditorController {
+    
+    public static Log LOG = LogFactory.getLog(TableEditorController.class);
+    private static String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
 
     public String edit() {
         String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
@@ -175,11 +181,22 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            editorModel.setCellValue(getRow(), getCol(), value);
+            String message = null;
+            try {
+                editorModel.setCellValue(getRow(), getCol(), value);
+            } catch (FormulaParseException ex) {  
+                LOG.warn("ERROR_SET_NEW_VALUE", ex);
+                message = ERROR_SET_NEW_VALUE + ex.getMessage();   
+            }
             TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
             // rerender the table if value is a formula
-            if (value.startsWith("=")) {
-                tmResponse.setResponse(render(editorId));
+            
+            if (message != null) {
+                tmResponse.setStatus(message);
+            } else {
+                if (value.startsWith("=")) {
+                    tmResponse.setResponse(render(editorId));
+                }
             }
             return pojo2json(tmResponse);
         }
