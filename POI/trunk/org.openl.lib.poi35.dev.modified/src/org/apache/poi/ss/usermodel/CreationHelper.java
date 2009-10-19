@@ -21,7 +21,7 @@ import org.apache.poi.ss.formula.EvaluationWorkbook;
 
 /**
  * An object that handles instantiating concrete
- *  classes of the various instances one needs for 
+ *  classes of the various instances one needs for
  *  HSSF and XSSF.
  * Works around a major shortcoming in Java, where we
  *  can't have static methods on interfaces or abstract
@@ -36,16 +36,16 @@ import org.apache.poi.ss.formula.EvaluationWorkbook;
  */
 public interface CreationHelper {
     /**
-     * Creates a new RichTextString instance 
+     * Creates a new RichTextString instance
      * @param text The text to initialise the RichTextString with
      */
     RichTextString createRichTextString(String text);
-    
+
     /**
      * Creates a new DataFormat instance
      */
     DataFormat createDataFormat();
-    
+
     /**
      * Creates a new Hyperlink, of the given type
      */
