@@ -116,9 +116,8 @@ public final class FormulaParser {
 	 * Primarily used by test cases when testing for specific parsing exceptions.</p>
 	 *
 	 */
-	static final class FormulaParseException extends RuntimeException {
-		// This class was given package scope until it would become clear that it is useful to
-		// general client code.
+	public static final class FormulaParseException extends RuntimeException {
+	    
 		public FormulaParseException(String msg) {
 			super(msg);
 		}
