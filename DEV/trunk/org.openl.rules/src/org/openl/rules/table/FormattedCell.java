@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.xls.IncorrectFormulaException;
 
 /**
  * @author snshor
@@ -16,8 +17,6 @@ import org.openl.rules.table.ui.IGridFilter;
 public class FormattedCell implements ICell {
     
     private final static Log LOG = LogFactory.getLog(FormattedCell.class); 
-    
-    public static final String ERROR_VALUE = "#ERROR";
     
     private ICell delegate;
 
@@ -34,16 +33,12 @@ public class FormattedCell implements ICell {
         this.delegate = delegate;
         try {
             this.objectValue = this.delegate.getObjectValue();
-        } catch (RuntimeException e) {
-            LOG.warn(e.getMessage()+" for cell containing "+delegate.getFormula());
+        } catch (IncorrectFormulaException e) { 
+            //logged in XlsCell.getObjectValue() method.
             this.objectValue = ERROR_VALUE;
         }
-        try {
-            this.formattedValue = this.delegate.getStringValue();
-        } catch (RuntimeException e) {
-            LOG.warn(e.getMessage()+" for cell containing "+delegate.getFormula());
-            this.formattedValue = ERROR_VALUE;
-        }        
+        this.formattedValue = this.delegate.getStringValue();
+                
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());
     }
