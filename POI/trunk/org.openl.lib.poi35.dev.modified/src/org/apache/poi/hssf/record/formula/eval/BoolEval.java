@@ -19,6 +19,7 @@ package org.apache.poi.hssf.record.formula.eval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * @author zshulkins(ZS) Public constructor;
  */
 public final class BoolEval implements NumericValueEval, StringValueEval {
 
@@ -37,10 +38,12 @@ public final class BoolEval implements NumericValueEval, StringValueEval {
 	public static final BoolEval valueOf(boolean b) {
 		return b ? TRUE : FALSE;
 	}
+    //!! changed ZS
+    public BoolEval(boolean value) {
+        _value = value;
+    }
+    // end changed
 
-	private BoolEval(boolean value) {
-		_value = value;
-	}
 
 	public boolean getBooleanValue() {
 		return _value;
