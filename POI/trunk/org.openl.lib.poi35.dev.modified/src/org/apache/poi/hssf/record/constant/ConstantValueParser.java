@@ -17,6 +17,7 @@
 
 package org.apache.poi.hssf.record.constant;
 
+import org.apache.poi.hssf.record.UnicodeString;
 import org.apache.poi.util.LittleEndianInput;
 import org.apache.poi.util.LittleEndianOutput;
 import org.apache.poi.util.StringUtil;
@@ -27,6 +28,7 @@ import org.apache.poi.util.StringUtil;
  * EXTERNALNAME (5.39) records and Array tokens.<p/>
  * 
  * @author Josh Micich
+ * @author vabramovs(VIA)  Unicode String
  */
 public final class ConstantValueParser {
 	// note - these (non-combinable) enum values are sparse.
@@ -109,7 +111,16 @@ public final class ConstantValueParser {
 		if(cls == Boolean.class || cls == Double.class || cls == ErrorConstant.class) {
 			return 8;
 		}
-		String strVal = (String)object;
+//VIA
+		String strVal;
+		if(object instanceof UnicodeString)
+		{
+			strVal = ((UnicodeString)object).getString();
+			
+		}
+		else 
+			strVal = (String)object;
+//end changes VIA		
 		return StringUtil.getEncodedSize(strVal);
 	}
 
@@ -144,6 +155,14 @@ public final class ConstantValueParser {
 			StringUtil.writeUnicodeString(out, val);
 			return;
 		}
+//VIA	
+		if (value instanceof UnicodeString) {
+			out.writeByte(TYPE_STRING);
+			StringUtil.writeUnicodeString(out, ((UnicodeString)value).getString());
+			return;
+		}
+		
+//end changes VIA
 		if (value instanceof ErrorConstant) {
 			ErrorConstant ecVal = (ErrorConstant) value;
 			out.writeByte(TYPE_ERROR_CODE);
