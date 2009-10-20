@@ -139,31 +139,9 @@
   </managed-bean>
 
   <managed-bean>
-    <managed-bean-name>diffState</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.StructuredDiffState</managed-bean-class>
+    <managed-bean-name>repositoryDiffController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.RepositoryDiffController</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>diffController</managed-bean-name>
-    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.StructuredDiffController</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-    <managed-property>
-      <property-name>userWorkspace</property-name>
-      <value>#{rulesUserSession.userWorkspace}</value>
-    </managed-property>
-    <managed-property>
-      <property-name>repositoryTreeState</property-name>
-      <value>#{repositoryTreeState}</value>
-    </managed-property>
-    <managed-property>
-      <property-name>id</property-name>
-      <value>#{param.id}</value>
-    </managed-property>
-    <managed-property>
-      <property-name>treeId</property-name>
-      <value>#{param.treeId}</value>
-    </managed-property>
     <managed-property>
       <property-name>repositoryTreeState</property-name>
       <value>#{repositoryTreeState}</value>
@@ -171,14 +149,6 @@
     <managed-property>
       <property-name>designTimeRepository</property-name>
       <value>#{designTimeRepository}</value>
-    </managed-property>
-    <managed-property>
-      <property-name>diffState</property-name>
-      <value>#{diffState}</value>
-    </managed-property>
-    <managed-property>
-      <property-name>init</property-name>
-      <value>true</value>
     </managed-property>
   </managed-bean>
 
