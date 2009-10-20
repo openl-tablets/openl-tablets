@@ -38,8 +38,9 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  * the lookup_value.  If FALSE, only exact matches will be considered<br/>
  *
  * @author Josh Micich
+ * @author zsulkins(ZS)- array support
  */
-public final class Vlookup implements Function {
+public final class Vlookup implements FunctionWithArraySupport {
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		ValueEval arg3 = null;
@@ -80,5 +81,11 @@ public final class Vlookup implements Function {
 			throw EvaluationException.invalidRef();
 		}
 		return LookupUtils.createColumnVector(tableArray, colIndex);
+	}
+	
+	public boolean supportArray(int paramIndex){
+		if (paramIndex == 1)
+			return true;
+		return false;
 	}
 }
