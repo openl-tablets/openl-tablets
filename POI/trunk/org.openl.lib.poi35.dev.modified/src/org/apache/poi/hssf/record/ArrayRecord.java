@@ -17,7 +17,10 @@
 
 package org.apache.poi.hssf.record;
 
+import org.apache.poi.hssf.record.formula.AreaPtg;
+import org.apache.poi.hssf.record.formula.AreaPtgBase;
 import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.hssf.record.formula.RefPtgBase;
 import org.apache.poi.ss.formula.Formula;
 import org.apache.poi.util.HexDump;
 import org.apache.poi.util.LittleEndianOutput;
@@ -28,6 +31,7 @@ import org.apache.poi.util.LittleEndianOutput;
  * Treated in a similar way to SharedFormulaRecord
  *
  * @author Josh Micich
+ * @author vabramovs(VIA) - Array Formula support
  */
 public final class ArrayRecord extends SharedValueRecordBase {
 
@@ -84,4 +88,36 @@ public final class ArrayRecord extends SharedValueRecordBase {
 		sb.append("]");
 		return sb.toString();
 	}
+//VIA	
+	   /**
+     * @return the equivalent {@link Ptg} array that the formula would have, were it not shared.
+     */
+    public Ptg[] getFormulaTokens() {
+        int formulaRow = this.getFirstRow();
+        int formulaColumn = this.getLastColumn();
+        
+        // Use SharedFormulaRecord static method to convert formula
+        
+        Ptg[] ptgs = _formula.getTokens();
+        
+        // Convert from relative addressing to absolute
+        // because all formulas in array need to be referenced to the same ref/range
+        for(int i=0;i<ptgs.length;i++)
+        {
+	        if(ptgs[i] instanceof  AreaPtgBase){
+	        	((AreaPtgBase)ptgs[i]).setFirstRowRelative(false);
+	        	((AreaPtgBase)ptgs[i]).setLastRowRelative(false);
+	        	((AreaPtgBase)ptgs[i]).setFirstColRelative(false);
+	        	((AreaPtgBase)ptgs[i]).setLastColRelative(false);
+	        	
+	        	}	
+	        else if (ptgs[i] instanceof  RefPtgBase){
+	        	((RefPtgBase)ptgs[i]).setRowRelative(false);
+	        	((RefPtgBase)ptgs[i]).setColRelative(false);
+	        	}
+        }
+        return SharedFormulaRecord.convertSharedFormulas(ptgs, formulaRow, formulaColumn);
+    }
+// end changes VIA   
+	
 }
