@@ -43,8 +43,9 @@ import org.apache.poi.ss.usermodel.ErrorConstants;
  * </p>
  *
  * @author Josh Micich
+ * @author zshulkins(ZS) array support
  */
-public final class Countif implements Function {
+public final class Countif implements FunctionWithArraySupport {
 
 	private static final class CmpOp {
 		public static final int NONE = 0;
@@ -533,5 +534,11 @@ public final class Countif implements Function {
 				break;
 		}
 		return null;
+	}
+	
+	public boolean supportArray(int paramIndex){
+		if (paramIndex==0)
+				return true;
+		return false;  // TODO - counif does not allow first param as array - only as range 
 	}
 }
