@@ -34,7 +34,7 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  * TODO: Check this properly matches excel on edge cases
  *  like formula cells, error cells etc
  */
-public final class Count implements Function {
+public final class Count implements FunctionWithArraySupport {
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		int nArgs = args.length;
@@ -74,4 +74,9 @@ public final class Count implements Function {
 			return false;
 		}
 	};
+	
+	public boolean supportArray(int paramIndex){
+		return true;
+	}
 }
+
