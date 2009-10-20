@@ -34,6 +34,7 @@ import org.apache.poi.ss.SpreadsheetVersion;
  *
  * @author  Andrew C. Oliver (acoliver at apache dot org)
  * @author Glen Stampoultzis (glens at apache.org)
+ * @author vabramovs(VIA) - Array Formula Support
  */
 public final class HSSFRow implements Row {
 
@@ -41,7 +42,7 @@ public final class HSSFRow implements Row {
     public final static int INITIAL_CAPACITY = 5;
 
     private int rowNum;
-    private HSSFCell[] cells=new HSSFCell[INITIAL_CAPACITY];
+    private HSSFCell[] cells=new HSSFCellArEXt[INITIAL_CAPACITY];
 
     /**
      * reference to low level representation
@@ -137,8 +138,10 @@ public final class HSSFRow implements Row {
         if(columnIndex > 0x7FFF) {
             shortCellNum = (short)(0xffff - columnIndex);
         }
+//    VIA    
 
-        HSSFCell cell = new HSSFCell(book, sheet, getRowNum(), shortCellNum, type);
+        HSSFCell cell = new HSSFCellArEXt(book, sheet, getRowNum(), shortCellNum, type);
+//      end changes VIA        
         addCell(cell);
         sheet.getSheet().addValueRecord(getRowNum(), cell.getCellValueRecord());
         return cell;
@@ -197,7 +200,9 @@ public final class HSSFRow implements Row {
      * @return HSSFCell representing the low level record passed in
      */
     HSSFCell createCellFromRecord(CellValueRecordInterface cell) {
-        HSSFCell hcell = new HSSFCell(book, sheet, cell);
+//    VIA    	
+        HSSFCell hcell = new HSSFCellArEXt(book, sheet, cell);
+//    end changes VIA        
 
         addCell(hcell);
         int colIx = cell.getColumn();
@@ -300,7 +305,9 @@ public final class HSSFRow implements Row {
             if(newSize<column+1) {
                 newSize=column+1;
             }
-            cells=new HSSFCell[newSize];
+//            VIA
+            cells=new HSSFCellArEXt[newSize];
+//            end changes VIA
             System.arraycopy(oldCells,0,cells,0,oldCells.length);
         }
         cells[column]=cell;
