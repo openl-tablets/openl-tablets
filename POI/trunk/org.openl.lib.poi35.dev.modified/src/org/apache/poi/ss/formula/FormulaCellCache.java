@@ -24,7 +24,9 @@ import java.util.Map;
 /**
  * 
  * @author Josh Micich
+ * @author vabramovs(VIA) - Array Formula support
  */
+
 final class FormulaCellCache {
 
 	static interface IEntryOperation {
@@ -44,7 +46,15 @@ final class FormulaCellCache {
 		_formulaEntriesByCell.values().toArray(result);
 		return result;
 	}
-
+//	VIA
+	public Object[] getCacheKeys() {
+		return _formulaEntriesByCell.keySet().toArray();
+	}
+	public FormulaCellCacheEntry get(Object key) {
+		return _formulaEntriesByCell.get(key);
+	}
+	
+//end changes VIA
 	public void clear() {
 		_formulaEntriesByCell.clear();
 	}
