@@ -17,6 +17,7 @@
 
 package org.apache.poi.hssf.record.aggregates;
 
+import org.apache.poi.hssf.record.ArrayRecord;
 import org.apache.poi.hssf.record.CellValueRecordInterface;
 import org.apache.poi.hssf.record.FormulaRecord;
 import org.apache.poi.hssf.record.Record;
@@ -25,13 +26,16 @@ import org.apache.poi.hssf.record.SharedFormulaRecord;
 import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.hssf.record.formula.ExpPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.hssf.util.CellReference;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * The formula record aggregate is used to join together the formula record and it's
  * (optional) string record and (optional) Shared Formula Record (template reads, excel optimization).
  *
  * @author Glen Stampoultzis (glens at apache.org)
+ * @author vabramovs(VIA) - Array Formula support
  */
 public final class FormulaRecordAggregate extends RecordAggregate implements CellValueRecordInterface {
 
@@ -58,7 +62,7 @@ public final class FormulaRecordAggregate extends RecordAggregate implements Cel
 		} else {
 			// Usually stringRec is null here (in agreement with what the formula rec says).
 			// In the case where an extra StringRecord is erroneously present, Excel (2007)
-			// ignores it (see bug 46213).
+			// ignores it (see bug 46213). 
 			_stringRecord = null;
 		}
 
@@ -182,11 +186,30 @@ public final class FormulaRecordAggregate extends RecordAggregate implements Cel
 
 	public Ptg[] getFormulaTokens() {
 		if (_sharedFormulaRecord == null) {
-			return _formulaRecord.getParsedExpression();
+//VIA
+			if(_sharedValueManager != null ){
+				ArrayRecord arec =findOwnRecord(_sharedValueManager.getArray(), getRow(), getColumn());
+				if(arec != null)
+					return arec.getFormulaTokens();
+				else
+					return _formulaRecord.getParsedExpression();
+			}
+			else
+//end changes VIA			
+				return _formulaRecord.getParsedExpression();
 		}
 		return _sharedFormulaRecord.getFormulaTokens(_formulaRecord);
 	}
-
+//VIA	
+    private static ArrayRecord findOwnRecord(ArrayRecord[] array, int rowIndex, short colIndex){
+    	if(array != null)
+	    	for(int i=0;i<array.length;i++){
+	    		if(array[i].isInRange(rowIndex, colIndex))
+	    			return array[i];
+	    	}
+      return null;  	
+    }
+// end changes VIA   
 	/**
 	 * Also checks for a related shared formula and unlinks it if found
 	 */
@@ -216,4 +239,18 @@ public final class FormulaRecordAggregate extends RecordAggregate implements Cel
 			_sharedValueManager.unlink(_sharedFormulaRecord);
 		}
 	}
+// VIA	
+	public CellRangeAddress getFormulaRange(){
+		CellRangeAddress answer = null;
+		if(_sharedValueManager != null){
+			ArrayRecord arec = findOwnRecord(_sharedValueManager.getArray(),this.getRow(), this.getColumn());
+			if(arec != null){
+				CellRangeAddress8Bit adress8 = arec.getRange();
+				if(adress8 != null)
+					answer = new CellRangeAddress(adress8.getFirstRow(), adress8.getLastRow(), adress8.getFirstColumn(),adress8.getLastColumn());
+			}
+		}
+		return answer;
+	}
+//end changes VIA	
 }

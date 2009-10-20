@@ -28,6 +28,7 @@ import org.apache.poi.hssf.record.SharedFormulaRecord;
 import org.apache.poi.hssf.record.SharedValueRecordBase;
 import org.apache.poi.hssf.record.TableRecord;
 import org.apache.poi.hssf.record.formula.ExpPtg;
+import org.apache.poi.hssf.record.formula.TblPtg;
 import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.ss.util.CellReference;
 
@@ -41,6 +42,7 @@ import org.apache.poi.ss.util.CellReference;
  * </ul>
  *
  * @author Josh Micich
+ * @author vabramovs(VIA) add getArray
  */
 public final class SharedValueManager {
 
@@ -275,5 +277,9 @@ public final class SharedValueManager {
 		}
 		svg.unlinkSharedFormulas();
 	}
+//VIA
+	public ArrayRecord[] getArray(){
+		return this._arrayRecords;
+	}
+//  end chandes VIA	
 }
-
