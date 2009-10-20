@@ -24,6 +24,7 @@ import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.ss.formula.FormulaCellCache.IEntryOperation;
 import org.apache.poi.ss.formula.FormulaUsedBlankCellSet.BookSheetKey;
 import org.apache.poi.ss.formula.PlainCellCache.Loc;
+import org.apache.poi.ss.usermodel.CellArExt;
 
 /**
  * Performance optimisation for {@link HSSFFormulaEvaluator}. This class stores previously
@@ -149,12 +150,40 @@ final class EvaluationCache {
 	public FormulaCellCacheEntry getOrCreateFormulaCellEntry(EvaluationCell cell) {
 		FormulaCellCacheEntry result = _formulaCellCache.get(cell);
 		if (result == null) {
-			
+		//	VIA			
+			if(cell.isArrayFormulaContext())
+			{
+				result = getRootFormulaCellEntry(cell);
+				if(result != null)
+					return result;
+			}
+		//end changes VIA			
 			result = new FormulaCellCacheEntry();
 			_formulaCellCache.put(cell, result);
 		}
-		return result;
+			return result;
 	}
+//VIA
+	private FormulaCellCacheEntry getRootFormulaCellEntry(EvaluationCell cell){
+		FormulaCellCacheEntry answer = null;
+		if(!cell.isArrayFormulaContext())
+			return answer;
+		Object[] formulaKeys = _formulaCellCache.getCacheKeys();
+		for(int i=0;i<formulaKeys.length;i++)
+		{
+			if(formulaKeys[i] instanceof CellArExt){
+				if(((CellArExt)formulaKeys[i]).getArrayFormulaRef()== ((CellArExt)cell.getIdentityKey()).getArrayFormulaRef())
+					{ // Found calculated results for this array formula
+					System.out.println("Just found calculated results for this array formula");
+					answer = _formulaCellCache.get(formulaKeys[i]);
+					return answer;
+					}
+			}
+		}
+		return null;
+	
+	}
+//end changes VIA			
 
 	/**
 	 * Should be called whenever there are changes to input cells in the evaluated workbook.
