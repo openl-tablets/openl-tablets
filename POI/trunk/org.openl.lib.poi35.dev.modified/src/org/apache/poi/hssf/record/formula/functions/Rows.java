@@ -22,13 +22,15 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.ArrayEval;
 
 /**
  * Implementation for Excel ROWS function.
  *
  * @author Josh Micich
+ * @author zsulkins(ZS)- array support
  */
-public final class Rows implements Function {
+public final class Rows implements FunctionWithArraySupport {
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		switch(args.length) {
@@ -45,6 +47,11 @@ public final class Rows implements Function {
 		ValueEval firstArg = args[0];
 
 		int result;
+		// !!changed ZS
+		if (firstArg instanceof ArrayEval){
+			firstArg = ((ArrayEval)firstArg).arrayAsArea();
+		}
+		// end change
 		if (firstArg instanceof AreaEval) {
 			AreaEval ae = (AreaEval) firstArg;
 			result = ae.getLastRow() - ae.getFirstRow() + 1;
@@ -54,5 +61,9 @@ public final class Rows implements Function {
 			return ErrorEval.VALUE_INVALID;
 		}
 		return new NumberEval(result);
+	}
+	
+	public boolean supportArray(int paramIndex){
+		return true;
 	}
 }
