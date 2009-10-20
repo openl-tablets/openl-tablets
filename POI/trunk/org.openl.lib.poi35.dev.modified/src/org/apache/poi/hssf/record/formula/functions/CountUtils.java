@@ -20,11 +20,13 @@ package org.apache.poi.hssf.record.formula.functions;
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.ArrayEval;
 
 /**
  * Common logic for COUNT, COUNTA and COUNTIF
  *
  * @author Josh Micich
+ * @author zshulkins(ZS) - array support
  */
 final class CountUtils {
 
@@ -72,6 +74,12 @@ final class CountUtils {
 		if (eval instanceof AreaEval) {
 			return CountUtils.countMatchingCellsInArea((AreaEval) eval, criteriaPredicate);
 		}
+		// !! changed ZS
+		if (eval instanceof ArrayEval){
+			return CountUtils.countMatchingCellsInArea( ( (ArrayEval)eval).arrayAsArea(), criteriaPredicate);
+		}
+		// end change
+		
 		if (eval instanceof RefEval) {
 			return CountUtils.countMatchingCell((RefEval) eval, criteriaPredicate);
 		}
