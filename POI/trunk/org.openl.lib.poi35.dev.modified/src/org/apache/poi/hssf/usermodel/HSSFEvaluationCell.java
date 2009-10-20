@@ -19,10 +19,12 @@ package org.apache.poi.hssf.usermodel;
 
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
+import org.apache.poi.ss.usermodel.Cell;
 /**
  * HSSF wrapper for a cell under evaluation
  * 
  * @author Josh Micich
+ * @author vabramovs(VIA) - Array Formula support
  */
 final class HSSFEvaluationCell implements EvaluationCell {
 
@@ -69,4 +71,16 @@ final class HSSFEvaluationCell implements EvaluationCell {
 	public String getStringCellValue() {
 		return _cell.getRichStringCellValue().getString();
 	}
+//  VIA	
+	public boolean isArrayFormulaContext() {
+		if(_cell instanceof HSSFCellArEXt)
+		{
+			return ((HSSFCellArEXt)_cell).isArrayFormulaContext();
+		}	
+		return false;
+	}
+	public Cell getCell() {
+		return _cell;
+	}
+// end changes VIA	
 }
