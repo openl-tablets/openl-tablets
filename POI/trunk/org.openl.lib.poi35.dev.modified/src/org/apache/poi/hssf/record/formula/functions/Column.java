@@ -22,8 +22,9 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.ArrayEval;
 
-public final class Column implements Function {
+public final class Column implements Function, ArrayMode {
     public ValueEval evaluate(ValueEval[] evals, int srcCellRow, short srcCellCol) {
         ValueEval retval = null;
         int cnum = -1;
@@ -57,5 +58,17 @@ public final class Column implements Function {
         return retval;
     }
 
+    public ValueEval evaluateInArrayFormula(ValueEval[] evals, int srcCellRow, short srcCellCol) {
+    	if ( (evals.length == 1) && (evals[0] instanceof AreaEval) ){
+            AreaEval ae = (AreaEval) evals[0];
+            ValueEval[][] result= new ValueEval[1][ae.getWidth()];
+            for (int c=0; c<ae.getWidth(); c++){
+            	result[0][c] = new NumberEval(ae.getFirstColumn()+c+1);
+            }
+            return new ArrayEval(result);
+    	}
+    	return evaluate(evals, srcCellRow, srcCellCol);
+    			
+    }
 
 }
