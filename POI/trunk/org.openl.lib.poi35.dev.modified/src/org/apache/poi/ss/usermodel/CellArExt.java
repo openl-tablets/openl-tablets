@@ -8,6 +8,8 @@ import org.apache.poi.ss.formula.ArrayFormula;
 
 /**
  *   Cell Interface Extension to work with array formula
+ *	 @author vabramovs(VIA)
+
  */
 public interface CellArExt {
 
