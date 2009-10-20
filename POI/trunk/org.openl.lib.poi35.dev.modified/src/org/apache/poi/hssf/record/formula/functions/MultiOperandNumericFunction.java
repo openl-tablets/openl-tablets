@@ -27,9 +27,11 @@ import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.ArrayEval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * @author zshulkins(ZS) array support;
  * This is the super class for all excel function evaluator
  * classes that take variable number of operands, and
  * where the order of operands does not matter
@@ -151,6 +153,21 @@ public abstract class MultiOperandNumericFunction implements Function {
 			collectValue(re.getInnerValueEval(), true, temp);
 			return;
 		}
+		//!! added ZS
+		if (operand instanceof ArrayEval){
+			ArrayEval ae = (ArrayEval)operand;
+			if (ae.isIllegalForAggregation())
+				throw new EvaluationException(ErrorEval.NA); // =sum(atan2({1,2},{1,2,3})) produces error
+			for (ValueEval v: ae.getArrayAsEval()){
+				if (v instanceof ArrayEval || v instanceof AreaEval)
+					collectValues(v, temp); // array that contains arrays or areas
+				else
+					collectValue(v,false,temp);				
+			}
+			return;
+		}
+		// end added
+
 		collectValue(operand, false, temp);
 	}
 	private void collectValue(ValueEval ve, boolean isViaReference, DoubleList temp)  throws EvaluationException {
