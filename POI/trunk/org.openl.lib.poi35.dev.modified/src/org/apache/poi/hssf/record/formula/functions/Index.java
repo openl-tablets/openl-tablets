@@ -25,6 +25,7 @@ import org.apache.poi.hssf.record.formula.eval.MissingArgEval;
 import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.ArrayEval;
 
 /**
  * Implementation for the Excel function INDEX
@@ -43,10 +44,16 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  * </p>
  *
  * @author Josh Micich
+ * @author zsulkins(ZS) - array support
  */
-public final class Index implements Function {
+public final class Index implements FunctionWithArraySupport, ArrayMode {
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
+		return evaluateX(args, srcCellRow, srcCellCol, false);
+	}
+
+	
+	protected  ValueEval evaluateX(ValueEval[] args, int srcCellRow, short srcCellCol, boolean supportRowCol) {
 		int nArgs = args.length;
 		if(nArgs < 2) {
 			// too few arguments
@@ -57,6 +64,14 @@ public final class Index implements Function {
 			// convert to area ref for simpler code in getValueFromArea()
 			firstArg = ((RefEval)firstArg).offset(0, 0, 0, 0);
 		}
+		// !! changed ZS
+		if (firstArg instanceof ArrayEval){
+			firstArg = ((ArrayEval)firstArg).arrayAsArea();
+			supportRowCol = true;
+		}
+		
+		// end change
+		
 		if(!(firstArg instanceof AreaEval)) {
 
 			// else the other variation of this function takes an array as the first argument
@@ -89,7 +104,8 @@ public final class Index implements Function {
 					// too many arguments
 					return ErrorEval.VALUE_INVALID;
 			}
-			return getValueFromArea(reference, rowIx, columnIx, colArgWasPassed, srcCellRow, srcCellCol);
+			// From POI:			return getValueFromArea(reference, rowIx, columnIx, colArgWasPassed, srcCellRow, srcCellCol);
+			return getValueFromArea(reference, rowIx, columnIx, colArgWasPassed, srcCellRow, srcCellCol, supportRowCol);
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
@@ -103,12 +119,37 @@ public final class Index implements Function {
 	 *            different when only 2 args are passed.
 	 */
 	private static ValueEval getValueFromArea(AreaEval ae, int pRowIx, int pColumnIx,
-			boolean colArgWasPassed, int srcRowIx, int srcColIx) throws EvaluationException {
+			boolean colArgWasPassed, int srcRowIx, int srcColIx, boolean supportRowColum) throws EvaluationException {
 		boolean rowArgWasEmpty = pRowIx == 0;
 		boolean colArgWasEmpty = pColumnIx == 0;
 		int rowIx;
 		int columnIx;
 
+		// !!changed ZS
+		// implementation of this function isn't support all features of the Excel
+		// here I'm adding only support for return of entire row or columm
+		if ( supportRowColum && ( (rowArgWasEmpty && !ae.isRow() && pColumnIx<=ae.getWidth() && !colArgWasEmpty) ||
+			 (colArgWasEmpty && !ae.isColumn() && pRowIx<=ae.getHeight() && !rowArgWasEmpty))
+			){
+			// return row or column
+			ValueEval[][] result = null;
+			if (rowArgWasEmpty ){ // entire column
+				result = new ValueEval[ae.getHeight()][1];
+				for( int r=0; r<ae.getHeight(); r++ ){
+					result[r][0] = ae.getRelativeValue(r, pColumnIx-1);
+				}
+			}
+			else { //entire row
+				result = new ValueEval[1][ae.getWidth()];
+				for (int c=0; c<ae.getWidth(); c++){
+					result[0][c] = ae.getRelativeValue(	pRowIx-1,c);
+				}
+			}
+			return (new ArrayEval(result));
+		}
+		// end change
+		
+		
 		// when the area ref is a single row or a single column,
 		// there are special rules for conversion of rowIx and columnIx
 		if (ae.isRow()) {
@@ -194,4 +235,16 @@ public final class Index implements Function {
 		}
 		return result;
 	}
+
+	public ValueEval evaluateInArrayFormula(ValueEval[] args, int srcCellRow, short srcCellCol) {
+		// in array formula index(reference,row,0) and index(reference,0,col) should return entire row/column
+		return evaluateX(args, srcCellRow, srcCellCol, true);
+	}
+	
+	public boolean supportArray(int paramIndex){
+		if (paramIndex == 0)
+			return true;
+		return false;
+	}
+
 }
