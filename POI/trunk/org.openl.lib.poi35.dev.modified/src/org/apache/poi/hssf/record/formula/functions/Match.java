@@ -29,6 +29,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.CompareResult;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.LookupValueComparer;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
+import org.apache.poi.ss.formula.ArrayEval;
 
 /**
  * Implementation for the MATCH() Excel function.<p/>
@@ -62,8 +63,9 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  *
  *
  * @author Josh Micich
+ * @author zsulkins(ZS)- array support
  */
-public final class Match implements Function {
+public final class Match implements FunctionWithArraySupport {
 
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
@@ -90,7 +92,12 @@ public final class Match implements Function {
 		// Note - Excel does not strictly require -1 and +1
 		boolean findLargestLessThanOrEqual = match_type > 0;
 
-
+		// !! changed ZS
+		if (args[1] instanceof ArrayEval){
+			args[1] = ((ArrayEval)args[1]).arrayAsArea();
+		}
+		// end change
+		
 		try {
 			ValueEval lookupValue = OperandResolver.getSingleValue(args[0], srcCellRow, srcCellCol);
 			ValueVector lookupRange = evaluateLookupRange(args[1]);
@@ -243,6 +250,12 @@ public final class Match implements Function {
 		if(stringValue.indexOf('?') >=0 || stringValue.indexOf('*') >=0) {
 			return true;
 		}
+		return false;
+	}
+	
+	public boolean supportArray(int paramIndex){
+		if (paramIndex == 1)
+			return true;
 		return false;
 	}
 }
