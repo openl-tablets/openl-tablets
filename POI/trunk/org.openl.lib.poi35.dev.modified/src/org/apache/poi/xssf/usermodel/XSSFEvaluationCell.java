@@ -19,6 +19,7 @@ package org.apache.poi.xssf.usermodel;
 
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
+import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * XSSF wrapper for a cell under evaluation
@@ -71,5 +72,19 @@ final class XSSFEvaluationCell implements EvaluationCell {
 	}
 	public String getStringCellValue() {
 		return _cell.getRichStringCellValue().getString();
+	}
+
+//  VIA	
+	public boolean isArrayFormulaContext() {
+		if(_cell instanceof XSSFCellArExt)
+		{
+			return ((XSSFCellArExt)_cell).isArrayFormulaContext();
+		}	
+		return false;
+	}
+//	end changes VIA
+
+	public Cell getCell() {
+		return _cell;
 	}
 }
