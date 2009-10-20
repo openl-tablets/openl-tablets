@@ -41,8 +41,9 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  * <b>width</b> (default same width as base reference) is the column count for the returned area reference.<br/>
  *
  * @author Josh Micich
+ * @author zsulkins(ZS)- array support
  */
-public final class Offset implements Function {
+public final class Offset implements FunctionWithArraySupport {
 	// These values are specific to BIFF8
 	private static final int LAST_VALID_ROW_INDEX = 0xFFFF;
 	private static final int LAST_VALID_COLUMN_INDEX = 0xFF;
@@ -262,4 +263,11 @@ public final class Offset implements Function {
 		}
 		throw new RuntimeException("Unexpected eval type (" + ve.getClass().getName() + ")");
 	}
+	
+	public boolean supportArray(int paramIndex){
+		if (paramIndex==0)
+			return true;
+		return false;
+	}
 }
+
