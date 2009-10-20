@@ -25,12 +25,16 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.udf.UDFFinder;
+import org.apache.poi.ss.formula.ArrayEval;
+import org.apache.poi.ss.formula.ArrayFormula;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment;
 import org.apache.poi.ss.formula.IStabilityClassifier;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellArExt;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
@@ -42,6 +46,8 @@ import org.apache.poi.ss.usermodel.Row;
  *
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  * @author Josh Micich
+ * @author zsulkins(ZS)- array support
+ * @author vabramovs(VIA)- Array Formula support
  */
 public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 
@@ -315,6 +321,26 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 	 */
 	private CellValue evaluateFormulaCellValue(Cell cell) {
 		ValueEval eval = _bookEvaluator.evaluate(new HSSFEvaluationCell((HSSFCell)cell));
+		// !! changed ZS
+		if (eval instanceof ArrayEval) {// support of arrays
+//			VIA
+			if(cell instanceof CellArExt)
+				if(((CellArExt)cell).isArrayFormulaContext())
+				{
+					ArrayFormula af = ((CellArExt)cell).getArrayFormulaRef(); 
+					ValueEval[][] evalues = (ValueEval[][])((ArrayEval)eval).getArrayValues();
+					ValueEval[][] evaluesGrid =  (ValueEval[][])FormulaEvaluatorHelper.transform2Range(evalues, af);
+					int rowInd = cell.getRowIndex()-af.getFirstRow();
+					int colInd = cell.getColumnIndex()-af.getFirstColumn();
+					eval = evaluesGrid[rowInd][colInd] ;
+				}
+				else		
+					eval = ((ArrayEval)eval).getArrayElementAsEval(0, 0);
+			else
+				eval = ((ArrayEval)eval).getArrayElementAsEval(0, 0);
+		}
+		// end changed
+
 		if (eval instanceof NumberEval) {
 			NumberEval ne = (NumberEval) eval;
 			return new CellValue(ne.getNumberValue());
