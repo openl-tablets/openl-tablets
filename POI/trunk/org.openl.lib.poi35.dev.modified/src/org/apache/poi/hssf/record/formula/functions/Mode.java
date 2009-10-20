@@ -30,12 +30,14 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.ArrayEval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * @author zsulkins(ZS)- array support
  *
  */
-public final class Mode implements Function {
+public final class Mode implements FunctionWithArraySupport {
 
 	/**
 	 * if v is zero length or contains no duplicates, return value is
@@ -92,6 +94,13 @@ public final class Mode implements Function {
 	}
 
 	private static void collectValues(ValueEval arg, List<Double> temp) throws EvaluationException {
+		// !! change ZS
+		if (arg instanceof ArrayEval){
+			arg = ((ArrayEval)arg).arrayAsArea();
+		}
+			
+		// end change
+		
 		if (arg instanceof AreaEval) {
 			AreaEval ae = (AreaEval) arg;
 			int width = ae.getWidth();
@@ -129,5 +138,9 @@ public final class Mode implements Function {
 			return;
 		}
 		throw new RuntimeException("Unexpected value type (" + arg.getClass().getName() + ")");
+	}
+	
+	public boolean supportArray(int paramIndex){
+		return true;
 	}
 }
