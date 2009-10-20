@@ -27,9 +27,10 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * @author zsulkins(ZS)- array support
  *
  */
-public abstract class TextFunction implements Function {
+public abstract class TextFunction implements FunctionWithArraySupport {
 
 	protected static final String EMPTY_STRING = "";
 
@@ -48,6 +49,11 @@ public abstract class TextFunction implements Function {
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
+	}
+	
+    // non of the subclass functions support array
+	public boolean supportArray(int paramIndex){
+		return false;
 	}
 
 	protected abstract ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, short srcCellCol) throws EvaluationException;
