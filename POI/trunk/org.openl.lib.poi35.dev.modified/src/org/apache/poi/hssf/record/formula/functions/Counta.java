@@ -32,7 +32,7 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  *
  * @author Josh Micich
  */
-public final class Counta implements Function {
+public final class Counta implements FunctionWithArraySupport {
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		int nArgs = args.length;
@@ -69,4 +69,8 @@ public final class Counta implements Function {
 			return true;
 		}
 	};
+	
+	public boolean supportArray(int paramIndex){
+		return true;
+	}
 }
