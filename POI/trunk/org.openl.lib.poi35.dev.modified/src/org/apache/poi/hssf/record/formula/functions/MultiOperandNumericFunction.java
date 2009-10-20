@@ -36,15 +36,22 @@ import org.apache.poi.ss.formula.ArrayEval;
  * classes that take variable number of operands, and
  * where the order of operands does not matter
  */
-public abstract class MultiOperandNumericFunction implements Function {
+public abstract class MultiOperandNumericFunction implements FunctionWithArraySupport {
 
 	private final boolean _isReferenceBoolCounted;
 	private final boolean _isBlankCounted;
+	
 
 	protected MultiOperandNumericFunction(boolean isReferenceBoolCounted, boolean isBlankCounted) {
 		_isReferenceBoolCounted = isReferenceBoolCounted;
 		_isBlankCounted = isBlankCounted;
 	}
+	
+	
+	public boolean supportArray(int paramIndex){
+		return true;
+	}
+	
 
 	static final double[] EMPTY_DOUBLE_ARRAY = { };
 
