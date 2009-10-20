@@ -37,8 +37,9 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  * <b>result_vector</b> Single row or single column area reference from which the result value is chosen.<br/>
  *
  * @author Josh Micich
+ * @author zsulkins(ZS)- array support
  */
-public final class Lookup implements Function {
+public final class Lookup implements FunctionWithArraySupport {
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		switch(args.length) {
@@ -79,4 +80,15 @@ public final class Lookup implements Function {
 		// extra complexity required to emulate the way LOOKUP can handles these abnormal cases.
 		throw new RuntimeException("non-vector lookup or result areas not supported yet");
 	}
+	
+	public boolean supportArray(int paramIndex){
+		switch (paramIndex){
+			default: 
+				return false;
+			case 1:
+			case 2:
+				return true;
+		}
+	
+	}	
 }
