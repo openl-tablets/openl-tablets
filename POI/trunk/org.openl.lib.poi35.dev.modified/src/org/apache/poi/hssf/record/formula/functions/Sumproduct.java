@@ -26,6 +26,7 @@ import org.apache.poi.hssf.record.formula.eval.NumericValueEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.ArrayEval;
 
 
 /**
@@ -49,8 +50,9 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  *  )
  * </p>
  * @author Josh Micich
+ * @author zsulkins(SZ)- array support
  */
-public final class Sumproduct implements Function {
+public final class Sumproduct implements FunctionWithArraySupport {
 
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
@@ -60,6 +62,14 @@ public final class Sumproduct implements Function {
 		if(maxN < 1) {
 			return ErrorEval.VALUE_INVALID;
 		}
+		// !! changed ZS
+		for (int i=0; i<maxN; i++){
+			if (args[i] instanceof ArrayEval){
+				args[i] = ((ArrayEval)args[i]).arrayAsArea();
+			}
+		}
+		
+		// end change
 		ValueEval firstArg = args[0];
 		try {
 			if(firstArg instanceof NumericValueEval) {
@@ -113,6 +123,11 @@ public final class Sumproduct implements Function {
 				throw new EvaluationException(ErrorEval.VALUE_INVALID);
 			}
 			eval = ae.getRelativeValue(0, 0);
+		}
+
+		if (!(eval instanceof ValueEval)) {
+			throw new RuntimeException("Unexpected value eval class ("
+					+ eval.getClass().getName() + ")");
 		}
 
 		return getProductTerm(eval, true);
@@ -226,5 +241,9 @@ public final class Sumproduct implements Function {
 		}
 		throw new RuntimeException("Unexpected value eval class ("
 				+ ve.getClass().getName() + ")");
+	}
+	
+	public boolean supportArray(int paramIndex){
+		return true;
 	}
 }
