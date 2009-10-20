@@ -48,7 +48,9 @@ import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
 import org.apache.poi.hssf.record.formula.FormulaShifter;
 import org.apache.poi.hssf.util.PaneInformation;
 import org.apache.poi.hssf.util.Region;
+import org.apache.poi.ss.formula.ArrayFormula;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellArExt;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -64,6 +66,7 @@ import org.apache.poi.util.POILogger;
  * @author  Shawn Laubach (slaubach at apache dot org) (Just a little)
  * @author  Jean-Pierre Paris (jean-pierre.paris at m4x dot org) (Just a little, too)
  * @author  Yegor Kozlov (yegor at apache.org) (Autosizing columns)
+ * @author  vabramovs(VIA)- Array Formula support
  */
 public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     private static final POILogger log = POILogFactory.getLogger(HSSFSheet.class);
@@ -183,6 +186,10 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
                     Long.valueOf( System.currentTimeMillis() - cellstart ) );
 
         }
+//      VIA
+        expandArFormulaRef();
+//       end changes VIA 
+       
         if (log.check( POILogger.DEBUG ))
             log.log(DEBUG, "total sheet cell creation took ",
                 Long.valueOf(System.currentTimeMillis() - timestart));
@@ -1851,5 +1858,23 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
         int idx = wb.getSheetIndex(this);
         return wb.getSheetName(idx);
     }
+//  VIA    
+    protected void expandArFormulaRef() {
+        for(HSSFRow row : _rows.values()){
+        	Iterator<Cell> it = row.cellIterator();
+        	while(it.hasNext()){
+        		CellArExt cellExt = (CellArExt)it.next();
+        		if(cellExt.isArrayFormulaContext())
+        		{
+        			ArrayFormula af = cellExt.getArrayFormulaRef();
+        			if( af.getFormulaCell().equals(cellExt))  // This allow to avoid multiply walk within same range
+        				af.expandArFormulaRef();
+	    	 		        				
+        		}
+        	}
+        }
+		
+	}
+// end changes VIA    
 
 }
