@@ -52,7 +52,8 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellFormulaType;
  * cells that have values should be added.
  * </p>
  */
-public final class XSSFCell implements Cell {
+//VIA - delete final to allow subclassing for ARRAY Formula support
+public class XSSFCell implements Cell {
 
     private static final String FALSE_AS_STRING = "0";
     private static final String TRUE_AS_STRING  = "1";
