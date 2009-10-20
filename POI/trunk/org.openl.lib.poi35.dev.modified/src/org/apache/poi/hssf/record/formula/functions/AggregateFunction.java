@@ -22,6 +22,7 @@ import org.apache.poi.hssf.record.formula.eval.EvaluationException;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * @author zshulkins(ZS) array suport;
  *
  */
 public abstract class AggregateFunction extends MultiOperandNumericFunction {
@@ -58,6 +59,13 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 			System.arraycopy(ops, 0, values, 0, values.length);
 			return StatsLib.kthLargest(values, k);
 		}
+		
+		@Override
+		public boolean supportArray(int paramIndex){
+			if ( paramIndex == 1)
+				return false;
+			return true;
+		}
 	};
 	public static final Function MAX = new AggregateFunction() {
 		protected double evaluate(double[] values) {
@@ -89,6 +97,14 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 			System.arraycopy(ops, 0, values, 0, values.length);
 			return StatsLib.kthSmallest(values, k);
 		}
+		
+		@Override
+		public boolean supportArray(int paramIndex){
+			if ( paramIndex == 1)
+				return false;
+			return true;
+		}
+		
 	};
 	public static final Function STDEV = new AggregateFunction() {
 		protected double evaluate(double[] values) throws EvaluationException {
