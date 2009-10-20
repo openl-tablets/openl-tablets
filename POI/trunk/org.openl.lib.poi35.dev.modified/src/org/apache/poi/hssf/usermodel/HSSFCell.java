@@ -71,6 +71,8 @@ import org.apache.poi.util.POILogFactory;
  * @author  Dan Sherman (dsherman at isisph.com)
  * @author  Brian Sanders (kestrel at burdell dot org) Active Cell support
  * @author  Yegor Kozlov cell comments support
+ * @author  vbabramovs(VIA) change visibility of setCellType and _recod
+
  */
 public class HSSFCell implements Cell {
     private static POILogger log = POILogFactory.getLogger(HSSFCell.class);
@@ -90,7 +92,11 @@ public class HSSFCell implements Cell {
     private final HSSFSheet          _sheet;
     private int                      _cellType;
     private HSSFRichTextString       _stringValue;
-    private CellValueRecordInterface _record;
+    
+//  VIA
+    protected CellValueRecordInterface _record;
+//   end changes VIA    
+    
     private HSSFComment              _comment;
 
     /**
@@ -295,7 +301,9 @@ public class HSSFCell implements Cell {
      *
      */
 
-    private void setCellType(int cellType, boolean setValue, int row,short col, short styleIndex)
+ // VIA
+    protected void setCellType(int cellType, boolean setValue, int row,short col, short styleIndex)
+//    end changes VIA
     {
 
         if (cellType > CELL_TYPE_ERROR)
