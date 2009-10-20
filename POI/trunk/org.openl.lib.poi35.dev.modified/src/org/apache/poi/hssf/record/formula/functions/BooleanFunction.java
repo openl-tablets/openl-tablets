@@ -24,6 +24,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
 import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
+import org.apache.poi.ss.formula.ArrayEval;
 
 /**
  * Here are the general rules concerning Boolean functions:
@@ -36,7 +37,7 @@ import org.apache.poi.hssf.record.formula.eval.RefEval;
  *
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  */
-public abstract class BooleanFunction implements Function {
+public abstract class BooleanFunction implements FunctionWithArraySupport {
 
 	public final ValueEval evaluate(ValueEval[] args, int srcRow, short srcCol) {
 		if (args.length < 1) {
@@ -49,6 +50,10 @@ public abstract class BooleanFunction implements Function {
 			return e.getErrorEval();
 		}
 		return BoolEval.valueOf(boolResult);
+	}
+	
+	public boolean supportArray(int paramIndex){
+		return true;
 	}
 
 	private boolean calculate(ValueEval[] args) throws EvaluationException {
@@ -77,12 +82,35 @@ public abstract class BooleanFunction implements Function {
 				}
 				continue;
 			}
+			// !! changed ZS
+			if (arg instanceof ArrayEval){
+				ArrayEval ae = (ArrayEval)arg;
+				int rows = ae.getRowCounter();
+				int cols = ae.getColCounter();
+				for (int r=0; r<rows; r++){
+					for (int c=0; c<cols; c++){
+						ValueEval ve = ae.getArrayElementAsEval(r, c);
+						Boolean tempVe = OperandResolver.coerceValueToBoolean(ve, true);
+						if (tempVe != null) {
+							result = partialEvaluate(result, tempVe.booleanValue());
+							atleastOneNonBlank = true;
+						}
+						
+					}
+				}
+				continue;
+			}
+			// end change
+
 			Boolean tempVe;
 			if (arg instanceof RefEval) {
 				ValueEval ve = ((RefEval) arg).getInnerValueEval();
 				tempVe = OperandResolver.coerceValueToBoolean(ve, true);
+			} else if (arg instanceof ValueEval) {
+				ValueEval ve = (ValueEval) arg;
+				tempVe = OperandResolver.coerceValueToBoolean(ve, false);
 			} else {
-				tempVe = OperandResolver.coerceValueToBoolean(arg, false);
+				tempVe = OperandResolver.coerceValueToBoolean(arg,false);
 			}
 
 
