@@ -6,8 +6,7 @@ Bundle-Version: 5.3.0
 Require-Bundle: org.openl.rules.workspace,
  org.openl.rules, org.openl.core,
  org.openl.rules.webstudio.lib
-Export-Package: org.openl.rules.diff,
- org.openl.rules.diff.differs,
+Export-Package: org.openl.rules.diff.differs,
  org.openl.rules.diff.hierarchy,
  org.openl.rules.diff.print,
  org.openl.rules.diff.test,
