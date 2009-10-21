@@ -19,6 +19,8 @@ package org.apache.poi.xssf.usermodel;
 
 import java.util.*;
 
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.formula.ArrayFormula;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
@@ -27,7 +29,9 @@ import org.apache.poi.xssf.model.CalculationChain;
 import org.apache.poi.util.POILogger;
 import org.apache.poi.util.POILogFactory;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCell;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellFormula;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRow;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellFormulaType;
 
 /**
  * High level representation of a row of a spreadsheet.
@@ -62,7 +66,27 @@ public class XSSFRow implements Row, Comparable<XSSFRow> {
         _sheet = sheet;
         _cells = new TreeMap<Integer, Cell>();
         for (CTCell c : row.getCArray()) {
-            XSSFCell cell = new XSSFCell(this, c);
+  	// VIA            
+        	
+            XSSFCellArExt cell = new XSSFCellArExt(this, c);
+ 
+            CTCellFormula f = c.getF();
+   	        if(f != null && f.getT() == STCellFormulaType.ARRAY){
+   	        		String  range =  f.getRef();
+   	        		if (range != null){ // should not be null - just to be safe
+   	        			if (!range.contains(":"))
+   	        				range = range+":"+range; // case when formula in one cell
+   	        			CellRangeAddress rangeAdr =  (CellRangeAddress) CellRangeAddress.valueOf(range);
+   	        			ArrayFormula arrayRef =  new ArrayFormula(cell, rangeAdr);
+   	        			
+   	        			//  We set Array Formula ref only for this cell
+   	        			// Later(after sheet complete initialization) this ref will be expanded to all cells in range
+   	        			cell.setArrayFormulaRef(arrayRef);
+   	        		}
+   	        		
+   	        }
+//     end changes VIA      
+   	        
             _cells.put(cell.getColumnIndex(), cell);
             sheet.onReadCell(cell);
         }
@@ -159,7 +183,7 @@ public class XSSFRow implements Row, Comparable<XSSFRow> {
      */
     public XSSFCell createCell(int columnIndex, int type) {
         CTCell ctcell = CTCell.Factory.newInstance();
-        XSSFCell xcell = new XSSFCell(this, ctcell);
+        XSSFCellArExt xcell = new XSSFCellArExt(this, ctcell);
         xcell.setCellNum(columnIndex);
         if (type != Cell.CELL_TYPE_BLANK) {
         	xcell.setCellType(type);
