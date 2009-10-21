@@ -15,6 +15,7 @@
    limitations under the License.
 ==================================================================== */
 
+
 package org.apache.poi.xssf.usermodel;
 
 import java.io.IOException;
