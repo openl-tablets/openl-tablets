@@ -220,9 +220,6 @@ public interface IWritableGrid extends IGrid {
          * */
         public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
                 String propName, String propValue) {
-            if (StringUtils.isBlank(propValue)) {
-                return null;
-            }
             IGridFilter filter = getFilter(propName);
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
@@ -250,6 +247,10 @@ public interface IWritableGrid extends IGrid {
                         return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, filter);
                     }
                 }
+            }
+
+            if (StringUtils.isBlank(propValue)) {
+                return null;
             }
 
             int rowsToMove = h - beforeRow;
