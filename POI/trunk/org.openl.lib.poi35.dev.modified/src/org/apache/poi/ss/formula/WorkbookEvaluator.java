@@ -603,7 +603,7 @@ public final class WorkbookEvaluator {
 			for(int row = 0; row<values.length;row++)
 				for(int col=0;col<values[row].length;col++){
 					ValueEval[] opsloop = ArrayEvaluationHelper.prepareArg4Loop(operation,ops, row,col, isArrayFormula);
-					ValueEval loopresult = operation.evaluate(ops, ec);
+					ValueEval loopresult = operation.evaluate(opsloop, ec);
 					values[row][col] = loopresult;
 				}
 			return answer;
