@@ -14,6 +14,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -46,6 +47,11 @@ public class DiffHandler {
     private DiffTreeNode diffTree;
     private boolean showEqualElements = false;
 
+    public static final String excelContentTypes[] = {
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    };
+
     public void compare(ActionEvent e) {
         uploadFile(file1);
         uploadFile(file2);
@@ -66,7 +72,8 @@ public class DiffHandler {
         String errorMessage = "Only Excel files can be compared";
         if (value != null && value instanceof UploadedFile) {
             UploadedFile file = (UploadedFile) value;
-            if (file.getContentType().equalsIgnoreCase("application/vnd.ms-excel")) {
+            String fileContentType = file.getContentType();
+            if (ArrayUtils.contains(excelContentTypes, fileContentType)) {
                 ((UIInput)toValidate).setValid(true);
                 return;
             }
