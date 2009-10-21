@@ -22,7 +22,7 @@ public class RuntimeExceptionWrapper {
         if (cause instanceof RuntimeException) {
             return (RuntimeException) cause;
         }
-        return new NestableRuntimeException(cause);
+        return new NestableRuntimeException(cause.getMessage(), cause);
     }
 
 }
