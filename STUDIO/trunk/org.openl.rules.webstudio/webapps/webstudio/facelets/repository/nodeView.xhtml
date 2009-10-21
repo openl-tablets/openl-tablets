@@ -52,7 +52,7 @@
         <h:commandButton styleClass="button" value="Copy" type="button" onclick="openCopyProjectDialog();" />
         <h:commandButton styleClass="#{artefact.canDelete ? 'button':'disabledButton'}" value="Delete" type="button" onclick="#{artefact.canDelete} &amp;&amp; confirmDeleteNode();" />
         <h:commandButton styleClass="#{artefact.canRedeploy ? 'button':'disabledButton'}" value="Redeploy" type="button" onclick="#{artefact.canRedeploy} &amp;&amp; openSmartRedeployDialog();"/>
-        <h:commandButton styleClass="button" value="Compare" type="button" onclick="window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');" />
+        <h:commandButton styleClass="#{artefact.canCompare ? 'button':'disabledButton'}" value="Compare" type="button" onclick="#{artefact.canCompare} &amp;&amp; window.open('#{contextPath}/faces/facelets/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');" />
       </h:panelGrid>
       <h:panelGrid columns="3" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="#{artefact.checkedOut ? 'button':'disabledButton'}" value="Add Folder" type="button" onclick="#{artefact.checkedOut} &amp;&amp; openNewFolderDialog();" />

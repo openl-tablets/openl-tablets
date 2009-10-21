@@ -175,6 +175,13 @@ public class UserWorkspaceProjectImpl extends UserWorkspaceProjectFolderImpl imp
         return isGranted(PRIVILEGE_READ);
     }
 
+    public boolean getCanCompare() {
+        if (isLocalOnly()) {
+            return false;
+        }
+        return isGranted(PRIVILEGE_READ);
+    }
+
     public boolean getCanRedeploy() {
         if (isLocalOnly() || isCheckedOut()) {
             return false;
