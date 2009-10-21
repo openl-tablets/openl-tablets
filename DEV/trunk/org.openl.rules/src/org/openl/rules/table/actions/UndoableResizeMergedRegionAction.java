@@ -1,16 +1,21 @@
-package org.openl.rules.table;
+package org.openl.rules.table.actions;
+
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IUndoGrid;
+import org.openl.rules.table.IWritableGrid;
 
 /**
  * Action which resizes merged regions in some grid.
  * 
  * @author PUdalau
  */
-public class UndoableResizeRegionAction implements IUndoableGridAction {
+public class UndoableResizeMergedRegionAction implements IUndoableGridAction {
 
     private IGridRegion initialRegion;
     private IGridRegion newRegion;
 
-    public UndoableResizeRegionAction(IGridRegion initialRegion, int numberOfRowsOrColumns, boolean isInsert,
+    public UndoableResizeMergedRegionAction(IGridRegion initialRegion, int numberOfRowsOrColumns, boolean isInsert,
             boolean isColumns) {
         this.initialRegion = initialRegion;
         int increase = isInsert ? numberOfRowsOrColumns : -numberOfRowsOrColumns;

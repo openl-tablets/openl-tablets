@@ -1,7 +1,10 @@
 /**
  * Created Feb 16, 2007
  */
-package org.openl.rules.table;
+package org.openl.rules.table.actions;
+
+import org.openl.rules.table.IUndoGrid;
+import org.openl.rules.table.IWritableGrid;
 
 /**
  * @author snshor

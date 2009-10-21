@@ -89,6 +89,27 @@ public class TableBuilder {
     }
 
     /**
+     * Begins writing a table within the specified region.
+     *
+     * @param regionToWrite region to write table.
+     *
+     * @throws CreateTableException if unable to create table
+     * @throws IllegalStateException if <code>beginTable()</code> has already
+     *             been called without subsequent <code>endTable()</code>
+     */
+    public void beginTable(IGridRegion regionToWrite) throws CreateTableException {
+        if (region != null) {
+            throw new IllegalStateException("beginTable() has already been called");
+        }
+        region = regionToWrite;
+        if (region == null) {
+            throw new CreateTableException("could not find appropriate region for writing");
+        }
+        currentRow = 0;
+        style2style.clear();
+    }
+
+    /**
      * Finishes writing a table. Saves the changes to excel sheet.
      *
      * @throws IllegalStateException if method is called without prior
