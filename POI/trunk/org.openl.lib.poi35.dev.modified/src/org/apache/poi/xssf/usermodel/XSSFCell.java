@@ -569,13 +569,13 @@ public class XSSFCell implements Cell {
      * @throws IllegalStateException if the cell type returned by {@link #getCellType()} isn't CELL_TYPE_ERROR
      * @see FormulaError
      */
-    public String getErrorCellString() {
-        int cellType = getCellType();
+    public String getErrorCellString() {  
+        int cellType = getBaseCellType(true);  // !! ZS - fixed bug; when formula and result(value) is error - can't get it
         if(cellType != CELL_TYPE_ERROR) throw typeMismatch(CELL_TYPE_ERROR, cellType, false);
 
         return _cell.getV();
     }
-    /**
+   /**
      * Get the value of the cell as an error code.
      * <p>
      * For strings, numbers, and booleans, we throw an exception.
