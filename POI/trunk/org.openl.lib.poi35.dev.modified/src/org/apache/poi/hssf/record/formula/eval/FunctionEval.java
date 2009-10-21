@@ -227,6 +227,10 @@ public final class FunctionEval implements OperationEval {
 	public FunctionEval(AbstractFunctionPtg funcPtg) {
 		_delegate = funcPtg;
 	}
+	public Function getFunction() {
+		short fidx = _delegate.getFunctionIndex();
+		return functions[fidx];
+	}
 
 	public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
 		int fidx = _delegate.getFunctionIndex();
