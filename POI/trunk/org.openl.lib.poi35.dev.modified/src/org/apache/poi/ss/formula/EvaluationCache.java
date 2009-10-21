@@ -174,7 +174,6 @@ final class EvaluationCache {
 			if(formulaKeys[i] instanceof CellArExt){
 				if(((CellArExt)formulaKeys[i]).getArrayFormulaRef()== ((CellArExt)cell.getIdentityKey()).getArrayFormulaRef())
 					{ // Found calculated results for this array formula
-					System.out.println("Just found calculated results for this array formula");
 					answer = _formulaCellCache.get(formulaKeys[i]);
 					return answer;
 					}
