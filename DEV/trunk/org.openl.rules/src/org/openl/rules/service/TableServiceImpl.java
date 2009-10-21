@@ -3,6 +3,7 @@ package org.openl.rules.service;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
@@ -36,7 +37,7 @@ public class TableServiceImpl implements TableService {
             throw new TableServiceException("Could not remove the table", e);
         }
     }
-    
+
     /**
      * 
      * @param table Table to copy
@@ -50,7 +51,7 @@ public class TableServiceImpl implements TableService {
         try {
             if (destSheetModel == null) {
                 destSheetModel = (XlsSheetGridModel) table.getGrid();
-            }            
+            }
             TableBuilder tableBuilder = new TableBuilder(destSheetModel);
             tableBuilder.beginTable(table.getGridWidth(), table.getGridHeight());
             newRegion = tableBuilder.getTableRegion();
@@ -64,9 +65,30 @@ public class TableServiceImpl implements TableService {
         }
         return newRegion;
     }
-    
+
+    public synchronized void copyTableTo(IGridTable table, XlsSheetGridModel destSheetModel, IGridRegion destRegion)
+            throws TableServiceException {
+        if (Tool.height(destRegion) != table.getGridHeight() || Tool.width(destRegion) != table.getGridWidth()) {
+            throw new TableServiceException("Bad destination region size.");
+        }
+        try {
+            if (destSheetModel == null) {
+                destSheetModel = (XlsSheetGridModel) table.getGrid();
+            }
+            TableBuilder tableBuilder = new TableBuilder(destSheetModel);
+            tableBuilder.beginTable(destRegion);
+            tableBuilder.writeGridTable(table);
+            tableBuilder.endTable();
+            if (save) {
+                tableBuilder.save();
+            }
+        } catch (Exception e) {
+            throw new TableServiceException("Could not copy the table", e);
+        }
+    }
+
     /**
-     *
+     * 
      * @param table Table to move
      * @param destSheetModel Sheet to move the table
      * @return Region in the sheet, where table has been moved
@@ -76,10 +98,7 @@ public class TableServiceImpl implements TableService {
             throws TableServiceException {
         IGridRegion newRegion = null;
         try {
-            if (destSheetModel == null) {
-                destSheetModel = (XlsSheetGridModel) table.getGrid();
-            }         
-            newRegion = copyTable(table, destSheetModel);            
+            newRegion = copyTable(table, destSheetModel);
             removeTable(table);
         } catch (Exception e) {
             throw new TableServiceException("Could not move the table", e);
@@ -87,4 +106,13 @@ public class TableServiceImpl implements TableService {
         return newRegion;
     }
 
+    public synchronized void moveTableTo(IGridTable table, XlsSheetGridModel destSheetModel, IGridRegion destRegion)
+            throws TableServiceException {
+        try {
+            copyTableTo(table, destSheetModel, destRegion);
+            removeTable(table);
+        } catch (Exception e) {
+            throw new TableServiceException("Could not move the table", e);
+        }
+    }
 }

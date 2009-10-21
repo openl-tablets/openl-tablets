@@ -9,6 +9,13 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.table.actions.IUndoableGridAction;
+import org.openl.rules.table.actions.UndoableClearAction;
+import org.openl.rules.table.actions.UndoableCompositeAction;
+import org.openl.rules.table.actions.UndoableCopyValueAction;
+import org.openl.rules.table.actions.UndoableResizeMergedRegionAction;
+import org.openl.rules.table.actions.UndoableSetStyleAction;
+import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.table.ui.ICellStyle;
@@ -20,6 +27,7 @@ import org.openl.rules.table.xls.XlsSheetGridExporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
 import org.openl.util.export.IExporter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -119,7 +127,7 @@ public interface IWritableGrid extends IGrid {
                         .getTop())) {
                     if (isRegionMustBeResized(existingMergedRegion, firstRowOrColumn, numberOfRowsOrColumns, 
                             isColumns, regionOfTable)) {
-                        resizeActions.add(new UndoableResizeRegionAction(existingMergedRegion, numberOfRowsOrColumns,
+                        resizeActions.add(new UndoableResizeMergedRegionAction(existingMergedRegion, numberOfRowsOrColumns,
                                 isInsert, isColumns));
                     }
                 }
@@ -181,7 +189,30 @@ public interface IWritableGrid extends IGrid {
 
             return new UndoableCompositeAction(actions);
         }
+        
+        /**
+         * Checks if the table specified by its region contains property. 
+         */
+        public static boolean isPropertyExists(IGridRegion region, IWritableGrid wgrid,
+                String propName){
+            int left = region.getLeft();
+            int top = region.getTop();
 
+            String propsHeader = wgrid.getCell(left, top + 1).getStringValue();
+            if (propsHeader == null || !propsHeader.equals("properties")) {
+                //there is no properties
+                return false;
+            }
+            int propsCount = wgrid.getCell(left, top + 1).getHeight();
+            for (int i = 0; i < propsCount; i++) {
+                String pName = wgrid.getCell(left + 1, top + 1 + i).getStringValue();
+                if (pName.equals(propName)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         /**
          * TODO To refactor
          * 
@@ -189,6 +220,9 @@ public interface IWritableGrid extends IGrid {
          * */
         public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
                 String propName, String propValue) {
+            if (StringUtils.isBlank(propValue)) {
+                return null;
+            }
             IGridFilter filter = getFilter(propName);
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
@@ -217,9 +251,6 @@ public interface IWritableGrid extends IGrid {
                     }
                 }
             }
-            if (propValue == null || propValue.equals("")) {
-                return null;
-            }
 
             int rowsToMove = h - beforeRow;
 
@@ -242,7 +273,7 @@ public interface IWritableGrid extends IGrid {
 
             if (propsCount == 1) {
                 // resize 'properties' cell
-                actions.add(new UndoableResizeRegionAction(new GridRegion(top + 1, left,
+                actions.add(new UndoableResizeMergedRegionAction(new GridRegion(top + 1, left,
                         top + 1, left), nRows, INSERT, ROWS));
             } else {
                 actions.addAll(resizeMergedRegions(wgrid, beforeRow, nRows, INSERT, ROWS, region));
