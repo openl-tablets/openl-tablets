@@ -8,7 +8,7 @@
   template="/facelets/common/baseToolbar.xhtml"
   xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
 
-  <ui:define name="title">Structured Diff</ui:define>
+  <ui:define name="title">Excel Structured Diff</ui:define>
 
   <ui:define name="page">
     <a4j:loadStyle src="resource:///css/openl/flexTree.css" />
@@ -19,17 +19,17 @@
     <h:form id="diffForm" enctype="multipart/form-data">
       <h:panelGrid columns="3">
         <h:outputText value="Excel File 1" />
-        <t:inputFileUpload id="file1" storage="file" value="#{diffHandler.file1}" size="70"
-            validator="#{diffHandler.validateContentType}" required="true" />
+        <t:inputFileUpload id="file1" storage="file" value="#{excelDiffController.file1}" size="70"
+            validator="#{excelDiffController.validateContentType}" required="true" />
         <t:message for="file1" style="color:red" />
         <h:outputText value="Excel File 2" />
-        <t:inputFileUpload id="file2" storage="file" value="#{diffHandler.file2}" size="70"
-            validator="#{diffHandler.validateContentType}" required="true" />
+        <t:inputFileUpload id="file2" storage="file" value="#{excelDiffController.file2}" size="70"
+            validator="#{excelDiffController.validateContentType}" required="true" />
         <t:message for="file2" style="color:red" />
         <h:outputText value="Show equal elements" />
-        <h:selectBooleanCheckbox value="#{diffHandler.showEqualElements}" />
+        <h:selectBooleanCheckbox value="#{excelDiffController.showEqualElements}" />
         <rich:spacer />
-        <h:commandButton value="Compare" actionListener="#{diffHandler.compare}" />
+        <h:commandButton value="Compare" action="#{excelDiffController.compare}" />
       </h:panelGrid>
     </h:form>
 
@@ -63,12 +63,12 @@
           <tr>
             <td>
               <p />
-              <rules:tableEditor id="editor1" table="#{diffHandler.table1}" mode="view" collapseProps="true" />
+              <rules:tableEditor id="editor1" table="#{excelDiffController.table1}" mode="view" collapseProps="true" />
             </td>
             <td>
               <p />
-              <rules:tableEditor id="editor2" table="#{diffHandler.table2}" mode="view" collapseProps="true"
-                filter="#{diffHandler.filter2}" />
+              <rules:tableEditor id="editor2" table="#{excelDiffController.table2}" mode="view" collapseProps="true"
+                filter="#{excelDiffController.filter2}" />
             </td>
           </tr>
         </table>
