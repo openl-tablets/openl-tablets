@@ -24,6 +24,7 @@ import java.util.Stack;
 import org.apache.poi.hssf.record.formula.Area3DPtg;
 import org.apache.poi.hssf.record.formula.AreaErrPtg;
 import org.apache.poi.hssf.record.formula.AreaPtg;
+import org.apache.poi.hssf.record.formula.ArrayPtg;
 import org.apache.poi.hssf.record.formula.AttrPtg;
 import org.apache.poi.hssf.record.formula.BoolPtg;
 import org.apache.poi.hssf.record.formula.ControlPtg;
@@ -51,6 +52,7 @@ import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.hssf.record.formula.eval.FunctionEval;
 import org.apache.poi.hssf.record.formula.eval.MissingArgEval;
 import org.apache.poi.hssf.record.formula.eval.NameEval;
 import org.apache.poi.hssf.record.formula.eval.NameXEval;
@@ -59,7 +61,9 @@ import org.apache.poi.hssf.record.formula.eval.OperationEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.record.formula.functions.ArrayMode;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.hssf.record.formula.functions.Function;
 import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFoundException;
@@ -399,7 +403,21 @@ public final class WorkbookEvaluator {
 					ops[j] = p;
 				}
 //				logDebug("invoke " + operation + " (nAgs=" + numops + ")");
-				opResult = operation.evaluate(ops, ec);
+//				VIA
+				if (_workbook == null){ // used in tests
+					opResult = invokeOperationInArrayContext(operation,ops, ec, false);
+				}else {
+					EvaluationCell ecell = _workbook.getSheet(ec.getSheetIndex())
+						.getCell(ec.getRowIndex(), ec.getColumnIndex());
+					if (ecell.isArrayFormulaContext()) {
+						opResult = invokeOperationInArrayContext(operation,ops, ec, true);
+					} else {
+						// opResult = invokeOperation(operation, ops, _workbook,
+						// sheetIndex, srcRowNum, srcColNum);
+						opResult = invokeOperationInArrayContext(operation,ops, ec, false);
+					}
+				}
+//				end changes VIA
 				if (opResult == MissingArgEval.instance) {
 					opResult = BlankEval.INSTANCE;
 				}
@@ -520,6 +538,11 @@ public final class WorkbookEvaluator {
 		if (ptg instanceof AreaPtg) {
 			return new LazyAreaEval(((AreaPtg) ptg), sre);
 		}
+		// !!! added ZS
+		if (ptg instanceof ArrayPtg){
+			return new ArrayEval((ArrayPtg)ptg);
+		}
+		// --- end of added
 
 		if (ptg instanceof UnknownPtg) {
 			// POI uses UnknownPtg when the encoded Ptg array seems to be corrupted.
@@ -554,4 +577,41 @@ public final class WorkbookEvaluator {
 	public FreeRefFunction findUserDefinedFunction(String functionName) {
 		return _udfFinder.findFunction(functionName);
 	}
+	// !!changed ZS
+	private static ValueEval invokeOperationInArrayFormula(OperationEval operation, ValueEval[] ops,
+			EvaluationWorkbook workbook, OperationEvaluationContext ec) {
+
+		// I expect only function for now - could be extended
+		if (! (operation instanceof FunctionEval)){
+			throw new IllegalArgumentException("Unexpected operation class: " + operation.getClass());
+		}
+		Function func = ((FunctionEval)operation).getFunction();
+		return (ValueEval) ((ArrayMode)func).evaluateInArrayFormula(ops, ec.getRowIndex(), (short)ec.getColumnIndex());
+	}
+	
+	// end change
+
+//	VIA
+	private ValueEval invokeOperationInArrayContext(OperationEval operation,ValueEval[] ops,OperationEvaluationContext ec, boolean isArrayFormula) {
+		
+		if ( ArrayEvaluationHelper.specialModeForArray(operation) && isArrayFormula){
+			return invokeOperationInArrayFormula(operation, ops, _workbook, ec);
+		}
+		ValueEval answer = ArrayEvaluationHelper.prepareEmptyResult(operation, ops, isArrayFormula);
+		if(answer instanceof ArrayEval){
+			ValueEval[][] values = (ValueEval[][])((ArrayEval)answer).getArrayValues();
+			for(int row = 0; row<values.length;row++)
+				for(int col=0;col<values[row].length;col++){
+					ValueEval[] opsloop = ArrayEvaluationHelper.prepareArg4Loop(operation,ops, row,col, isArrayFormula);
+					ValueEval loopresult = operation.evaluate(ops, ec);
+					values[row][col] = loopresult;
+				}
+			return answer;
+		}
+		else
+		return  operation.evaluate(ops, ec);
+	}
+
+//	end changes VIA
+
 }
