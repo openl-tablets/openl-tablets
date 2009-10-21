@@ -15,7 +15,6 @@
    limitations under the License.
 ==================================================================== */
 
-
 package org.apache.poi.xssf.usermodel;
 
 import java.io.IOException;
@@ -40,6 +39,9 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.formula.ArrayFormula;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellArExt;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
@@ -164,6 +166,11 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
         }
         // Process external hyperlinks for the sheet, if there are any
         initHyperlinks();
+// VIA       
+        // Expand all Array Formula Refernce (if any) to whole range
+        expandArFormulaRef();
+//  end changes VIA      
+        
     }
 
     /**
@@ -2333,4 +2340,23 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
 
         worksheet.save(out, xmlOptions);
     }
+//  VIA    
+    protected void expandArFormulaRef() {
+        for(XSSFRow row : rows.values()){
+        	Iterator<Cell> it = row.cellIterator();
+        	while(it.hasNext()){
+        		CellArExt cellExt = (CellArExt)it.next();
+        		if(cellExt.isArrayFormulaContext())
+        		{
+        			ArrayFormula af = cellExt.getArrayFormulaRef();
+        			if( af.getFormulaCell().equals(cellExt))  // This allow to avoid multiply walk within same range
+        				af.expandArFormulaRef();
+	    	 		        				
+        		}
+        	}
+        }
+		
+	}
+// end changes VIA    
+  
 }
