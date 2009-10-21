@@ -12,7 +12,7 @@ import org.openl.rules.diff.xls.XlsProjectionBuilder;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.repository.CommonVersionImpl;
-import org.openl.rules.webstudio.web.diff.AbstractDiffHandler;
+import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.workspace.abstracts.Project;
 import org.openl.rules.workspace.abstracts.ProjectArtefact;
@@ -41,7 +41,7 @@ import javax.faces.model.SelectItem;
  *
  * @author Andrey Naumenko
  */
-public class RepositoryDiffController extends AbstractDiffHandler {
+public class RepositoryDiffController extends AbstractDiffController {
     //private static Log log = LogFactory.getLog(StructuredDiffController.class);
     private DesignTimeRepository designTimeRepository;
     private RepositoryTreeState repositoryTreeState;

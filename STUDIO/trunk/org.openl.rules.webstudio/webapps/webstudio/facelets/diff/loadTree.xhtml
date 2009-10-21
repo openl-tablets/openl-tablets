@@ -9,9 +9,9 @@
   <f:view contentType="text/xml">
 
     <tree id="#{param.id != null ? param.id : param.treeId}">
-      <t:dataList var="node" value="#{diffHandler.diffTreeNodes}">
+      <t:dataList var="node" value="#{excelDiffController.diffTreeNodes}">
           <c:set var="element" value="#{node.elements[param.treeId-1]}" />
-          <h:panelGroup rendered="#{node.elements[1].diffStatus != 'EQUALS' or diffHandler.showEqualElements}">
+          <h:panelGroup rendered="#{node.elements[1].diffStatus != 'EQUALS' or excelDiffController.showEqualElements}">
             <node
               text="#{element.projection.name}"
               tooltip="#{element.projection.name}"
