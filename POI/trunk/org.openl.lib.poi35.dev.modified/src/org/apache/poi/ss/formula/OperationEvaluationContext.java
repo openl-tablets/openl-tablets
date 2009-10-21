@@ -43,8 +43,10 @@ import org.apache.poi.ss.util.CellReference.NameType;
  * 
  * Modified 09/07/09 by Petr Udalau - added method getWorkbookEvaluator() and added API to set 
  * and roll back values of some cell for evaluation of current operation.
+ * VIA - add get sheetIndex
  */
 public final class OperationEvaluationContext {
+
 
 	private final EvaluationWorkbook _workbook;
 	private final int _sheetIndex;
@@ -291,4 +293,12 @@ public final class OperationEvaluationContext {
 	public FreeRefFunction findUserDefinedFunction(String functionName) {
 		return _bookEvaluator.findUserDefinedFunction(functionName);
 	}
+//VIA
+	/**
+	 * @return the _sheetIndex
+	 */
+	public int getSheetIndex() {
+		return _sheetIndex;
+	}
+//	end changes VIA
 }
