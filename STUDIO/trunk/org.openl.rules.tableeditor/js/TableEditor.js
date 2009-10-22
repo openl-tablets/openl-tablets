@@ -55,6 +55,7 @@ TableEditor.prototype = {
     editor : null,
     baseUrl : null,
     selectionPos : null,
+    //selectedPropValue : null,
     selectionHistory : [],
     decorator : null,
     rows : 0,
@@ -254,8 +255,10 @@ TableEditor.prototype = {
     handlePropBlur: function(event) {
         var prop = Event.findElement(event, "input");
         var propName = prop.name.replace(this.propIdPrefix, "");
-        var propValue = prop.type == "checkbox" ? prop.checked : prop.value;
-        this.setProp(propName, propValue);
+        var propValue = AjaxHelper.getInputValue(prop);
+        //if (propValue != this.selectedPropValue) {
+            this.setProp(propName, propValue);
+        //}
     },
 
     setProp : function(name, value) {
@@ -414,6 +417,9 @@ TableEditor.prototype = {
             this.decorator.undecorate(this.currentElement);
             this.isSelectedUpdated(false);
         }
+
+        //this.selectedPropValue = AjaxHelper.getInputValue(elt);
+
         this.currentElement = elt;
         this.selectionPos = '';
     },
