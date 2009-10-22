@@ -493,7 +493,9 @@ public class TableEditorModel {
             action.doAction(wgrid(), undoGrid);
             createdActions.add(action);
         }
-        actions.addNewAction(new UndoableCompositeAction(createdActions));
+        if (!createdActions.isEmpty()) {
+            actions.addNewAction(new UndoableCompositeAction(createdActions));
+        }
     }
 
     /**
