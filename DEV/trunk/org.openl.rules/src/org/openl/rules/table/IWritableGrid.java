@@ -189,11 +189,11 @@ public interface IWritableGrid extends IGrid {
 
             return new UndoableCompositeAction(actions);
         }
-        
+
         /**
          * Checks if the table specified by its region contains property. 
          */
-        public static boolean isPropertyExists(IGridRegion region, IWritableGrid wgrid,
+        public static CellKey getPropertyCoordinates(IGridRegion region, IWritableGrid wgrid,
                 String propName){
             int left = region.getLeft();
             int top = region.getTop();
@@ -201,18 +201,18 @@ public interface IWritableGrid extends IGrid {
             String propsHeader = wgrid.getCell(left, top + 1).getStringValue();
             if (propsHeader == null || !propsHeader.equals("properties")) {
                 //there is no properties
-                return false;
+                return null;
             }
             int propsCount = wgrid.getCell(left, top + 1).getHeight();
             for (int i = 0; i < propsCount; i++) {
                 String pName = wgrid.getCell(left + 1, top + 1 + i).getStringValue();
                 if (pName.equals(propName)) {
-                    return true;
+                    return new CellKey(1, 1 + i);
                 }
             }
-            return false;
+            return null;
         }
-        
+
         /**
          * TODO To refactor
          * 
