@@ -21,6 +21,10 @@ var AjaxHelper = {
             }
             alert(errorMessage);
         }
+    },
+
+    getInputValue: function(element) {
+        return element.type == "checkbox" ? element.checked : element.value;
     }
 
 }
