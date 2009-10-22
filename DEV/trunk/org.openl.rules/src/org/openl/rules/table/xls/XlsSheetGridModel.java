@@ -249,12 +249,14 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     public void copyCell(Cell cellFrom, int colTo, int rowTo, CellMetaInfo meta) {
         Cell cellTo = getXlsCell(colTo, rowTo);
 
-        if (cellFrom == null
-                || (isInOneMergedRegion(cellFrom.getColumnIndex(), cellFrom.getRowIndex(), colTo, rowTo) && isTopLeftCellInMergedRegion(
-                        colTo, rowTo))) {
-            if (cellTo != null) {
+        if (cellFrom == null) {
+            if (cellTo != null && !isTopLeftCellInMergedRegion(colTo, rowTo)) {
                 clearCell(colTo, rowTo);
             }
+            return;
+        }
+        if (isInOneMergedRegion(cellFrom.getColumnIndex(), cellFrom.getRowIndex(), colTo, rowTo)
+                && isTopLeftCellInMergedRegion(colTo, rowTo)) {
             return;
         }
 
