@@ -170,7 +170,8 @@
         </form>
 
         <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
-            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}" showFormulas="#{showTableBean.showFormulas}">
+            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
+            showFormulas="#{showTableBean.showFormulas}" collapseProps="true">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 
