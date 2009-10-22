@@ -18,7 +18,6 @@
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <modules>
-    <module>../org.openl.eclipse.sources</module>
     <module>../org.openl.eclipse.site</module>
     <module>../org.openl.eclipse.ui</module>
     <module>../org.openl.rules.eclipse.ui</module>
@@ -26,6 +25,7 @@
     <module>../org.openl.eclipse.ui.wizard</module>
     <module>../org.openl.eclipse.ui.util</module>
     <module>../org.openl.eclipse.ui.eclipse.feature</module>
+    <module>../org.openl.rules.source.eclipse.feature</module>
     <module>../org.openl.rules.all.eclipse.feature</module>
   </modules>
 
@@ -128,13 +128,13 @@
     <dependencies>
       <dependency>
   	<groupId>org.openl</groupId>
-        <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
+        <artifactId>org.openl.rules.source.eclipse.feature</artifactId>
         <version>${version}</version>
       </dependency>
 
       <dependency>
   	<groupId>org.openl</groupId>
-        <artifactId>org.openl.eclipse.sources</artifactId>
+        <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
         <version>${version}</version>
       </dependency>
 

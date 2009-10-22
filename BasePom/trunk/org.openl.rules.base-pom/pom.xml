@@ -125,7 +125,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>2.0.4</version>
+        <version>2.1.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -134,6 +134,18 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+              <Bundle-Name>${name}</Bundle-Name>
+              <Bundle-SymbolicName>${artifactId}.source</Bundle-SymbolicName>
+              <Bundle-Vendor>OpenL</Bundle-Vendor>
+              <Bundle-Version>${openl.version.eclipse}</Bundle-Version>
+              <Eclipse-SourceBundle>${artifactId};version="${openl.version.eclipse}";roots:="."</Eclipse-SourceBundle>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
