@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGridTableDelegator;
+import org.openl.rules.table.CellKey;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridSplitter;
@@ -460,7 +461,10 @@ public class TableEditorModel {
     public synchronized void setProperty(String name, String value) throws Exception {
         List<IUndoableGridAction> createdActions = new ArrayList<IUndoableGridAction>();
         int nRowsToInsert = 0;
-        if(!IWritableGrid.Tool.isPropertyExists(fullTableRegion, wgrid(), name) && StringUtils.isNotBlank(value)){
+        CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, wgrid(), name);
+        boolean propExists = propertyCoordinates != null;
+        boolean propIsBlank = StringUtils.isBlank(value);
+        if (!propExists && !propIsBlank) {
             nRowsToInsert = 1;
             if (nRowsToInsert > 0 && !canInsertRows(nRowsToInsert)) {
                 createdActions.add(moveTable(getUpdatedFullTable()));
@@ -479,12 +483,15 @@ public class TableEditorModel {
             }
             displayedTable.doAction(wgrid(), undoGrid);
             createdActions.add(displayedTable);
+        } else if (propExists && propIsBlank) {
+            removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
+            return;
         }
-        IUndoableGridAction ua = IWritableGrid.Tool
+        IUndoableGridAction action = IWritableGrid.Tool
             .insertProp(fullTableRegion, wgrid(), name, value); // returns null if set new property with empty or same value
-        if (ua != null) {
-            ua.doAction(wgrid(), undoGrid);
-            createdActions.add(ua);
+        if (action != null) {
+            action.doAction(wgrid(), undoGrid);
+            createdActions.add(action);
         }
         actions.addNewAction(new UndoableCompositeAction(createdActions));
     }
