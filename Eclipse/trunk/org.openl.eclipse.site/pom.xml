@@ -40,10 +40,9 @@
   </build>
 
   <dependencies>
-
     <dependency>
       <groupId>org.openl</groupId>
-      <artifactId>org.openl.eclipse.sources</artifactId>
+      <artifactId>org.openl.rules.source.eclipse.feature</artifactId>
     </dependency>
 
     <!-- DEV -->
@@ -100,11 +99,6 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.eclipse.ui</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openl</groupId>
-      <artifactId>org.openl.conf.ant</artifactId>
     </dependency>
 
     <dependency>
@@ -260,6 +254,141 @@
       <artifactId>org.openl.rules.ruleservice.lib</artifactId>
     </dependency>
 
+    <!--SOURCES-->
+    <!-- DEV -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.core</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.commons</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.j</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.helpers</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.validator</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.j.science</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>com.exigen.rules</groupId>
+      <artifactId>com.exigen.rules.constrainer</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.conf.ant</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <!-- STUDIO -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.tableeditor</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.util</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.workspace</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.webstudio.java</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.webtools</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.security</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.security.standalone</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.diff</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <!-- WSFrontend -->
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
   </dependencies>
 
 </project>
