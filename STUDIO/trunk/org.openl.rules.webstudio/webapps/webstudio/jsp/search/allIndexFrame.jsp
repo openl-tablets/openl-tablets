@@ -15,7 +15,7 @@ IDAT
     if (hasLetters) {
 %>
 
-<FRAMESET rows="37,*" title="" onLoad="top.loadFrames()">
+<FRAMESET rows="37,*" title="" onLoad="top.loadFrames()" border="1">
 <FRAME src="indexLetters.jsp" name="letters" title="Index Letters">
 <FRAME src="allIndex.jsp" name="allIndex" title="Search Index">
 

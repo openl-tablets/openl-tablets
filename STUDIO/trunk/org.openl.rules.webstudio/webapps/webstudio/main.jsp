@@ -82,11 +82,12 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
   studio.select(selected);
 %>
 
-<frameset rows="70,*">
-<frame src="${pageContext.request.contextPath}/faces/facelets/studio/header.xhtml" name="header" scrolling="no"  noresize resize="no" />
+<frameset rows="78,*" border="1">
+<frame src="${pageContext.request.contextPath}/faces/facelets/studio/header.xhtml" name="header" scrolling="no"
+    noresize resize="no" />
 
-<frameset cols="*,80%" framespacing="0" frameborder="1" resize="resize"  scrolling="auto" >
-<frameset rows="*,1" framespacing="0"  scrolling="auto" >
+<frameset cols="*,80%" framespacing="0" resize="resize"  scrolling="auto" border="4">
+<frameset rows="*,1" framespacing="0"  scrolling="auto" border="0">
     <frame src="tree.jsp" name="leftFrame" scrolling="auto">
     <frame src="html/nothing.html" name="show_app_hidden">
 </frameset>
