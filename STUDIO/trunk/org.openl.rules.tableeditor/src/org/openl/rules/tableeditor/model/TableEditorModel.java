@@ -439,11 +439,18 @@ public class TableEditorModel {
 
         othertables = v.toArray(new GridTable[0]);
     }
-
-    public synchronized void save() throws IOException {
-        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
+    
+    /**     
+     * @return New table URI on the sheet where it was saved. It is needed for tables that were moved
+     * to new place during adding new rows and columns on editing. We need to know new destination of the table.
+     * @throws IOException
+     */
+    public synchronized String save() throws IOException {
+        XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();        
+        String newTableUri = xlsgrid.getRangeUri(fullTableRegion);        
         xlsgrid.getSheetSource().getWorkbookSource().save();
         actions = new UndoableActions();
+        return newTableUri;
     }
 
     public synchronized void saveAs(String fname) throws IOException {
