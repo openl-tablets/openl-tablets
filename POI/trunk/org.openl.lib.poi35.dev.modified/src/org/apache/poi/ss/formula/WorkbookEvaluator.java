@@ -295,8 +295,16 @@ public final class WorkbookEvaluator {
                         result = evaluateFormula(ec, ptgs);
                         evalListener.onEndEvaluate(cce, result);
                     }
-
-                    tracker.updateCacheResult(result);
+    //              VIA  
+                   if (result == null) {
+                       if (!tracker.startEvaluate(cce)) {
+                           result = ErrorEval.CIRCULAR_REF_ERROR;
+                       }
+                   }    
+                   
+                   cce.updateValue(result);
+                   tracker.updateCacheResult(result);
+   //            end changes VIA   
                 } catch (NotImplementedException e) {
                     throw addExceptionInfo(e, sheetIndex, rowIndex, columnIndex);
                 } finally {

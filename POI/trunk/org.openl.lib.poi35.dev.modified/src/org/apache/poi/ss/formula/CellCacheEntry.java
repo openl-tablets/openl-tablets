@@ -75,6 +75,19 @@ abstract class CellCacheEntry implements ICacheEntry {
 		if (cls == BoolEval.class) {
 			return ((BoolEval)a).getBooleanValue() == ((BoolEval)b).getBooleanValue();
 		}
+//		VIA
+		if (cls == ArrayEval.class) {
+			ValueEval[][] aArray =	(ValueEval[][])((ArrayEval)a).getArrayValues();
+			ValueEval[][] bArray =	(ValueEval[][])((ArrayEval)b).getArrayValues();
+			if(aArray.length != bArray.length ||aArray[0].length != bArray[0].length )
+				return false;
+			for(int i=0; i < aArray.length;i++)
+				for(int j=0;j< aArray[0].length;j++)
+					if(areValuesEqual(aArray[i][j], aArray[i][j]))
+							return false;
+			return true;	
+		}
+//      end changes VIA		
 		if (cls == ErrorEval.class) {
 			return ((ErrorEval)a).getErrorCode() == ((ErrorEval)b).getErrorCode();
 		}
