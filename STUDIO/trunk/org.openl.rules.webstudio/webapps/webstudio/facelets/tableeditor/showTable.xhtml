@@ -126,6 +126,7 @@
                             alt="Show Formulas" />
                     </h:outputLink>
                 </c:if>
+                
             </h:form>
         </td></tr></table>
 
@@ -171,7 +172,7 @@
 
         <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
-            showFormulas="#{showTableBean.showFormulas}" collapseProps="true">
+            showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 

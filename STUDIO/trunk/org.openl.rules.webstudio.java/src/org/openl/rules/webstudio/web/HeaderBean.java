@@ -66,6 +66,11 @@ public class HeaderBean {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
         return webStudio == null || webStudio.isShowFormulas();
     }
+    
+    public boolean isCollapseProperties() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
+        return webStudio == null || webStudio.isCollapseProperties();
+    }
 
     public void setHideLogout(boolean hideLogout) {
         this.hideLogout = hideLogout;

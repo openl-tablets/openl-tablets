@@ -68,6 +68,19 @@
                             border='0px;' alt="Show Formulas"
                             src="#{contextPath}/webresource/images/show-formulas.png" /></a>
                       </c:if>
+                      
+                      <!-- Expand/Collapse Table Properties View  --> 
+                      <c:if test="#{headerBean.collapseProperties}">
+                        <a href="#{contextPath}/main.jsp?collapseProperties=false" title="Expand Properties"
+                            target="top"><img border='0px;' alt="Expand Properties"
+                            src="#{contextPath}/webresource/images/dont-show-formulas.png" /></a>
+                      </c:if>
+                      <c:if test="#{not headerBean.collapseProperties}">
+                        <a href="#{contextPath}/main.jsp?collapseProperties=true" title="Collapse Properties" target="top"><img
+                            border='0px;' alt="Collapse Properties"
+                            src="#{contextPath}/webresource/images/show-formulas.png" /></a>
+                      </c:if>
+                      
                       <f:verbatim>&amp;nbsp;</f:verbatim>
                       <c:if test="#{headerBean.localRequest}">
                         <c:if test="#{headerBean.repositoryFailed}">

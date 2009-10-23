@@ -263,6 +263,16 @@ public class ShowTableBean {
             return webStudio != null && webStudio.isShowFormulas();
         }
     }
+    
+    public boolean isCollapseProperties() {
+        String collapseProperties = FacesUtils.getRequestParameter("collapseProperties");
+        if (collapseProperties != null) {
+            return Boolean.parseBoolean(collapseProperties);
+        } else {
+            WebStudio webStudio = WebStudioUtils.getWebStudio();
+            return webStudio != null && webStudio.isCollapseProperties();
+        }
+    }
 
     public String removeTable() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
