@@ -439,7 +439,14 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             return 0;
         }
     }
-
+    
+    /**
+     * Gets the URI to the table by its four coordinates on the sheet.
+     * 
+     * @return URI to the table in the sheet. 
+     * (e.g. <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
+     * \main&wbName=Tutorial_4.xls&wsName=Vehicle-Scoring&range=B3:D12</code>)
+     */
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
 
         if (colStart == colEnd && rowStart == rowEnd) {
@@ -448,6 +455,19 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
 
         return getUri() + "&" + "range=" + getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR
                 + getCell(colEnd, rowEnd).getUri();
+    }
+    
+    /**
+     * Gets the URI to the table by table region.
+     * Just calls {@link XlsSheetGridModel#getRangeUri(int, int, int, int)}.
+     * 
+     * @param region Table region.     
+     * @return URI to the table in the sheet.
+     * (e.g. <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
+     * \main&wbName=Tutorial_4.xls&wsName=Vehicle-Scoring&range=B3:D12</code>)
+     */
+    public String getRangeUri(IGridRegion region) {
+        return getRangeUri(region.getLeft(), region.getTop(), region.getRight(), region.getBottom());
     }
 
     public CellRangeAddress getRegionContaining(int x, int y) {
