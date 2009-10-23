@@ -284,9 +284,9 @@ public class TableEditorController extends BaseTableEditorController implements 
 
     public String saveTable() throws Exception {
         TableEditorModel editorModel = getEditorModel(getEditorId());
-        if (editorModel != null) {
-            editorModel.save();
-            return pojo2json(new TableModificationResponse("", editorModel));
+        if (editorModel != null) {            
+            String newUri = editorModel.save();
+            return pojo2json(new TableModificationResponse(newUri, editorModel));
         }
         return null;
     }
