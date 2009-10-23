@@ -30,20 +30,18 @@
                 }
             </script>
           </f:verbatim>
-        <div id="container"><div id="masthead">
-        <table width="99%" cellspacing="0" cellpadding="1">
+        <div id="containerWrapper"><div id="container"><div id="masthead">
+        <table width="99%" cellspacing="0" cellpadding="1" style="padding-top: 40px;">
             <tr>
-                <td align="right">
+                <td>
                     <h:form target="top" id="headerForm">
-                        <span style="font-size:12px; font-weight:bold; color:black;">Select OpenL Module: </span>
+                        <span style="font-size:12px; font-weight:bold; color:black;">Select Module: </span>
                         <h:selectOneMenu value="#{headerBean.selectedProject}" onchange="sbmForm(this.form)"
                             id="select_wrapper">
                             <f:selectItems value="#{headerBean.projects}"/>
                         </h:selectOneMenu>
                     </h:form>
                 </td>
-            </tr>
-            <tr>
                 <td align="right" style="padding-top: 6px">
                     <h:form>
                     <span id="userName" title="Current user">
@@ -130,7 +128,7 @@
                 </td>
             </tr>  
         </table>
-        </div></div>
+        </div></div></div>
         </f:view>
     </body>
 </html>
