@@ -28,7 +28,7 @@ import javax.faces.context.FacesContext;
 
 /**
  * DOCUMENT ME!
- *
+ * 
  * @author snshor
  */
 public class WebStudio {
@@ -48,6 +48,7 @@ public class WebStudio {
     private Set<String> writableProjects;
     OpenLWrapperInfo currentWrapper;
     private boolean showFormulas;
+    private boolean collapseProperties = true;
 
     WebStudioProperties properties = new WebStudioProperties();
     // public void toggleMode() throws Exception
@@ -118,11 +119,11 @@ public class WebStudio {
 
     /**
      * DOCUMENT ME!
-     *
+     * 
      * @param modes
      * @param modeIdx
      * @param sameType
-     *
+     * 
      * @return
      */
     private int findMode(WebStudioMode[] modes, int modeIdx, boolean sameType) {
@@ -150,7 +151,7 @@ public class WebStudio {
 
     /**
      * DOCUMENT ME!
-     *
+     * 
      * @return Returns the currentWrapper.
      */
     public OpenLWrapperInfo getCurrentWrapper() {
@@ -159,7 +160,7 @@ public class WebStudio {
 
     /**
      * DOCUMENT ME!
-     *
+     * 
      * @return Returns the locator.
      */
     public OpenLProjectLocator getLocator() {
@@ -172,7 +173,7 @@ public class WebStudio {
 
     /**
      * DOCUMENT ME!
-     *
+     * 
      * @return Returns the model.
      */
     public ProjectModel getModel() {
@@ -190,7 +191,7 @@ public class WebStudio {
     /**
      * Returns path on local file system to openL workspace this instance of web
      * studio works with.
-     *
+     * 
      * @return path to openL projects workspace, i.e. folder containing openL
      *         projects.
      */
@@ -200,9 +201,9 @@ public class WebStudio {
 
     /**
      * DOCUMENT ME!
-     *
+     * 
      * @return Returns the wrappers.
-     *
+     * 
      * @throws IOException
      */
     public synchronized OpenLWrapperInfo[] getWrappers() throws IOException {
@@ -283,9 +284,9 @@ public class WebStudio {
 
     /**
      * DOCUMENT ME!
-     *
+     * 
      * @param wrapper The currentWrapper to set.
-     *
+     * 
      * @throws Exception
      */
     public void setCurrentWrapper(OpenLWrapperInfo wrapper) throws Exception {
@@ -335,6 +336,14 @@ public class WebStudio {
     }
 
     public void setShowFormulas(String showFormulas) {
-            this.showFormulas = Boolean.parseBoolean(showFormulas);
+        this.showFormulas = Boolean.parseBoolean(showFormulas);
+    }
+
+    public boolean isCollapseProperties() {
+        return collapseProperties;
+    }
+
+    public void setCollapseProperties(String collapseProperties) {
+        this.collapseProperties = Boolean.parseBoolean(collapseProperties);
     }
 }

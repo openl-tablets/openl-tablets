@@ -58,6 +58,10 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
   if (showFormulas != null)
     studio.setShowFormulas(showFormulas);
 
+  String collapseProperties = request.getParameter("collapseProperties");
+  if (collapseProperties != null)
+    studio.setCollapseProperties(collapseProperties);
+
  String mode = request.getParameter("mode");
   if (mode != null)
     studio.setMode(mode);
