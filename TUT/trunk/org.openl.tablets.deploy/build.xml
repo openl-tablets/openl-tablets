@@ -8,7 +8,7 @@
   <property name="webapp.client.name" value="demo" />
 
   <property name="plugin.base.path" location="${eclipse.pdebuild.home}../" />
-  <property name="openl.plugin.version" value="_5.3.0" />
+  <property name="openl.plugin.version" value="_5.3.1" />
 
   <property name="tomcat.path" value="${plugin.base.path}/org.openl.lib.apache.tomcat${openl.plugin.version}/apache-tomcat-5.5.17" />
 
@@ -86,7 +86,7 @@
         <include name="**/org.openl.*${openl.plugin.version}.jar" />
       </fileset>
     	
-      <!--copy org.openl.lib.poi35.dev.modified-5.3.0-SNAPSHOT.jar to webstudio lib -->    	
+      <!--copy org.openl.lib.poi35.dev.modified-5.3.1-SNAPSHOT.jar to webstudio lib -->    	
       <fileset dir="${plugin.base.path}/org.openl.poi.lib${openl.plugin.version}/lib">    	
     	<include name="**/org.openl.lib.poi35.dev.modified*.jar" />
       </fileset>    	
