@@ -55,7 +55,6 @@
                 <dependency>
                         <groupId>org.openl.rules</groupId>
                         <artifactId>org.openl.lib.poi35.dev</artifactId>
-                        <version>${dep.version}</version>
                 </dependency>
 				<dependency>
                         <groupId>junit</groupId>
