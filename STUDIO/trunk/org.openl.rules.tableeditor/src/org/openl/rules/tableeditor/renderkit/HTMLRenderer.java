@@ -208,7 +208,8 @@ public class HTMLRenderer {
                 .append(renderJS("js/NumericEditor.js"))
                 .append(renderJS("js/DropdownEditor.js"))
                 .append(renderJS("js/FormulaEditor.js"))
-                .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT, collapseProps))
+                .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT, /*collapsed properties where turned to 
+                false on edit view*/false))
                 // .append(renderJS("js/SuggestEditor.js"))
                 // .append(renderJS("js/DateEditor.js"))
                 // .append(renderJS("js/PriceEditor.js"))
