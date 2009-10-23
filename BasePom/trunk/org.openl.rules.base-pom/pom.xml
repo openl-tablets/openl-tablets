@@ -12,7 +12,7 @@
 
   <properties>
     <openl.version.eclipse>5.3.0</openl.version.eclipse>
-    <openl.version.maven>5.3.0-SNAPSHOT</openl.version.maven>
+    <openl.version.maven>5.3.0</openl.version.maven>
   </properties>
 
 
