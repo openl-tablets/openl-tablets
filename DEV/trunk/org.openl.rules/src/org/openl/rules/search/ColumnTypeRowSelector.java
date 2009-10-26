@@ -31,10 +31,15 @@ public class ColumnTypeRowSelector extends ATableCellValueSelector {
         for (int c = 0; c < nc; c++) {
             if (columnTypeSelector != null) {
                 IOpenClass ctype = tsi.getColumnType(c);
-                String ctypeName = ctype.getName();
-                if (!columnTypeSelector.isMatching(ctypeName)) {
+                if (ctype != null) {
+                    String ctypeName = ctype.getName();
+                    if (!columnTypeSelector.isMatching(ctypeName)) {
+                        continue;
+                    }
+                } else {
                     continue;
                 }
+                
             }
 
             if (cellValueSelector == null) {
