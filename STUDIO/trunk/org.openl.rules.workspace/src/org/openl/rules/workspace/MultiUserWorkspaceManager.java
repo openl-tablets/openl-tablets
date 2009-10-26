@@ -59,6 +59,9 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
         if (uw == null) {
             uw = createUserWorkspace(user);
             userWorkspaces.put(user.getUserId(), uw);
+        } else {
+            LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
+            usersLocalWorkspace.setUserWorkspace(uw);
         }
 
         return uw;
