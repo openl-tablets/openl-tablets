@@ -39,7 +39,7 @@
 <img src="webresource/images/openl-search.png">
 </td>
 
-<td valign=bottom><a href="allIndexFrame.jsp"><font size=-1>&nbsp;Index</font></a></td>
+<td valign=bottom><a href="indexSearch.jsp"><font size=-1>&nbsp;Index</font></a></td>
 <td valign=bottom align=center><a href="../../faces/facelets/search/busSearch.xhtml"><font size=-1>Business Search</font></a></td>
 <td valign=bottom align=center><a href="../../faces/facelets/search/advSearch.xhtml"><font size=-1>Advanced Search</font></a></td>
 <td valign=bottom align=right><a href="../../html/ws-intro.html#search"><font size=-1>Help&nbsp;</font></a></td>
