@@ -139,7 +139,13 @@ public class DataBase implements IDataBase {
         }
 
         public IOpenClass getColumnType(int n) {
-            return dataModel.getDescriptor()[n].getType();
+            IColumnDescriptor colDescript = dataModel.getDescriptor()[n];
+            if (!colDescript.isConstructor()) {
+                return colDescript.getType();
+            } else {
+                return null;
+            }
+            
         }
 
         /**
