@@ -1,0 +1,145 @@
+<head>
+<style>
+
+
+
+th.search
+{
+font-family: arial,sans-serif;
+font-size:70%;
+color:#8B4513;
+}
+
+td.search
+{
+font-family: arial,sans-serif;
+font-size:70%;
+}
+
+input.search-empty
+{
+font-family: arial,sans-serif;
+font-size:70%;
+font-style: italic;
+color: lightgrey;
+}
+
+input.search
+{
+font-family: arial,sans-serif;
+font-size:70%;
+font-style: bold;
+color: red;
+}
+
+
+</style>
+
+
+<script type="text/javascript">
+function jsclean(id,def_value)
+{
+ el=document.getElementById(id)
+ if (el.value == def_value)
+ {
+   el.value='';
+   el.className='search';
+ }  
+}
+</script>
+
+
+</head>
+
+<a href="test2.html">
+_<table><tr><td>aaa</td><td>bbb</td></tr></table>
+</a>
+
+
+<form action="">
+
+
+
+<table>
+<th/>
+<th class="search">Property</th>
+<th class="search">Condition</th>
+<th class="search">Value</th>
+<tr>
+<td class="search">
+<select name="andOr1" style="font-size:70%; position:relative;
+top:10px">
+<option value="EMPTY">&nbsp;</option>
+<option value="AND">AND</option>
+<option value="OR">OR</option>
+</select>
+</td>
+<td>
+<input class="search-empty" id="prop1"  name="prop1" value="prop-name" onClick="jsclean('prop1','prop-name')" />
+</select>
+</td>
+
+<td class="search">
+<select name="isNot1" style="font-size:70%">
+<option value="EMPTY">&nbsp;</option>
+<option value="not">not</option>
+</select>
+
+<select name="op1" style="font-size:70%">
+<option value="equals">equals</option>
+<option value="ends with">ends with</option>
+<option value="matches">matches</option>
+</select>
+
+
+</td>
+
+<td>
+<input class="search-empty" id="propvalue1"  name="propvalue1" value="prop-value" onClick="jsclean('propvalue1','prop-value')" />
+</select>
+</td>
+
+
+</tr>
+<tr>
+<td class="search">
+<select name="andOr2" style="font-size:70%; position:relative;
+top:12px">
+<option value="EMPTY">&nbsp;</option>
+<option value="AND">AND</option>
+<option value="OR">OR</option>
+</select>
+</td>
+<td>
+<input class="search-empty" id="prop2"  name="prop2" value="prop-name" onClick="jsclean('prop2','prop-name')" />
+</select>
+</td>
+
+<td class="search">
+<select name="isNot2" style="font-size:70%">
+<option value="EMPTY">&nbsp;</option>
+<option value="not">not</option>
+</select>
+
+<select name="op2" style="font-size:70%">
+<option value="equals">equals</option>
+<option value="ends with">ends with</option>
+<option value="matches">matches</option>
+</select>
+
+
+</td>
+
+<td>
+<input class="search-empty" id="propvalue2"  name="propvalue2" value="prop-value" onClick="jsclean('propvalue2','prop-value')" />
+</select>
+</td>
+
+
+</tr>
+
+</table>
+
+</form>
+selected="selected"
+

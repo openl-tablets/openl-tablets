@@ -1,0 +1,36 @@
+<project default="build.org.openl.any">
+
+<taskdef name="openl" classname="org.openl.conf.ant.AntOpenLTask"/>
+
+ <property file="OpenL.properties"/>
+
+ <property name="openl.extends.dir" value="."/>
+ 
+ 
+ 
+
+<target name="build.org.openl.any">
+   <echo message="Building org.openl.* ${my.openl.name} "/>	
+ 
+ 	<ant antfile="${openl.extends}.build.xml" 
+ 	target="build.${openl.extends}" 
+    dir="${openl.extends.dir}"
+ 	/>	
+ 
+   <openl category="${my.openl.name}" extendscategory="${openl.extends}"
+      
+     description="This is openl extension of a ${openl.extends}">
+ 
+  <types>
+    <typelibrary namespace="org.openl.this">
+
+      <javaimport all="${openl.local.imports}"/>
+   
+    </typelibrary>
+  </types>
+    
+ </openl>
+ 	
+</target>
+
+</project>
