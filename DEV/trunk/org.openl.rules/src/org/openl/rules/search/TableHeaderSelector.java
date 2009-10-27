@@ -7,15 +7,19 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.AStringBoolOperator;
 
 /**
+ * Handles the header selector that was set in search condition. Checks if the table matches to this selector. 
  * @author snshor
  *
  */
 
 public class TableHeaderSelector extends ATableSyntaxNodeSelector {
-    AStringBoolOperator headerSelector;
+    
+    private AStringBoolOperator headerSelector;
 
     /**
-     * @param se
+     * Constructs the object, according to the info that was set to the search condition.
+     * 
+     * @param se Search condition. 
      */
     public TableHeaderSelector(SearchConditionElement se) {
         headerSelector = se.isAny(se.getElementValue()) ? null : AStringBoolOperator.makeOperator(se.getOpType2(), se
@@ -27,7 +31,7 @@ public class TableHeaderSelector extends ATableSyntaxNodeSelector {
     }
 
     @Override
-    public boolean isTableSelected(TableSyntaxNode node) {
+    public boolean doesTableMatch(TableSyntaxNode node) {
         return headerSelector == null || headerSelector.isMatching(node.getHeaderLineValue().getValue());
     }
 

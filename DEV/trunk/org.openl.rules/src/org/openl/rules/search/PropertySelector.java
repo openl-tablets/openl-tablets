@@ -43,14 +43,14 @@ public class PropertySelector extends ATableSyntaxNodeSelector {
      * name from the table and at the same time if the property value from search condition is <code>null</code> or 
      * matches to the the property value from the table. In other way <code>false</code>.
      */
-    private boolean isPropertySelected(TableProperties.Property property, TableProperties tableProperties) {
+    private boolean doesPropertyMatch(TableProperties.Property property, TableProperties tableProperties) {
         return (propertyNameSelector == null || propertyNameSelector.isMatching(property.getKey().getValue()))
                 && (propertyValueSelector == null || propertyValueSelector.isMatching(tableProperties
                         .getPropertyValueAsString(property.getKey().getValue())));
     }
 
     @Override
-    public boolean isTableSelected(TableSyntaxNode tsn) {
+    public boolean doesTableMatch(TableSyntaxNode tsn) {
         TableProperties tableProperties = tsn.getTableProperties();
         if (tableProperties == null) {
             return propertyNameSelector == null && propertyValueSelector == null;
@@ -58,7 +58,7 @@ public class PropertySelector extends ATableSyntaxNodeSelector {
 
         TableProperties.Property[] properties = tableProperties.getProperties();
         for (int i = 0; i < properties.length; i++) {
-            if (isPropertySelected(properties[i], tableProperties)) {
+            if (doesPropertyMatch(properties[i], tableProperties)) {
                 return true;
             }
         }

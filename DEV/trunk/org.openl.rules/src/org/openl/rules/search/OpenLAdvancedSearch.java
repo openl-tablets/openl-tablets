@@ -58,6 +58,97 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
     private void deleteTablePropertyAt(int i) {
         tableElements = (SearchConditionElement[]) ArrayTool.removeValue(i, tableElements);
     }
+    
+    private boolean isRowSelected(ISearchTableRow searchTableRow, ATableRowSelector[] rowSelectors, ITableSearchInfo tableSearchInfo) {
+        for (int j = 0; j < rowSelectors.length; j++) {
+            if (!rowSelectors[j].isRowInTableSelected(searchTableRow, tableSearchInfo)) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+    
+    /** 
+     * @param tsn <code>TableSyntaxNode</code> representing the table.
+     * @param tselectors Selectors that were defined on advanced search.
+     * @return <code>True</code> if table matches to all the selectors. If it does not match even to the one selector
+     * returns <code>false</code>.
+     */
+    private boolean doesTableMatcheToSelectors(TableSyntaxNode tsn, ATableSyntaxNodeSelector[] tselectors) {
+        for (int j = 0; j < tselectors.length; j++) {
+            if (!tselectors[j].doesTableMatch(tsn)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @return
+     */
+    private ATableSyntaxNodeSelector makePropertyOrHeaderSelectors() {
+        return new TableGroupSelector(tableElements);
+    }
+
+    private TableTypeSelector makeTableTypeSelector() {
+        ArrayList<String> list = new ArrayList<String>();
+        for (int i = 0; i < selectedTableTypes.length; i++) {
+            if (selectedTableTypes[i]) {
+                list.add(types[i]);
+            }
+        }
+
+        String[] tt = list.toArray(new String[0]);
+
+        return new TableTypeSelector(tt);
+    }
+    
+    private void addResult(TableSyntaxNode table, OpenLAdvancedSearchResult res, 
+            ATableSyntaxNodeSelector[] tableSelectors, ATableRowSelector[] columnSelectors) {        
+        if (doesTableMatcheToSelectors(table, tableSelectors)) {
+            ITableSearchInfo tablSearchInfo = ATableRowSelector.getTableSearchInfo(table);
+            if (tablSearchInfo != null) {
+                ArrayList<ISearchTableRow> matchedRows = getMatchedRows(tablSearchInfo, columnSelectors);
+                res.add(table, matchedRows.toArray(new ISearchTableRow[0]));
+            } else {
+                res.add(table, new ISearchTableRow[0]);
+            }
+        }
+    }
+    
+    /**
+     * Gets the rows of tables that matches to the search info.
+     * @param tablSearchInfo
+     * @param columnSelectors
+     * @return
+     */
+    private ArrayList<ISearchTableRow> getMatchedRows(ITableSearchInfo tablSearchInfo, ATableRowSelector[] columnSelectors) {
+        ArrayList<ISearchTableRow> matchedRows = new ArrayList<ISearchTableRow>();
+        int numRows = tablSearchInfo.getNumberOfRows();
+        for (int row = 0; row < numRows; row++) {
+            ISearchTableRow tablSearchRow = new SearchTableRow(row, tablSearchInfo);
+            // Now there is implementations for ITableSearchInfo just for data tables (DataTableSearchInfo class) and 
+            // for decision tables (DecisionTableSearchInfo class) all other tables process as TableSearchInfo. It must 
+            // be implemented for other types.
+            if (!(tablSearchInfo instanceof TableSearchInfo) && !isRowSelected(tablSearchRow, columnSelectors, tablSearchInfo)) {
+                continue;
+            }
+            matchedRows.add(tablSearchRow);
+        }
+        return matchedRows;
+    }
+    
+    private ATableSyntaxNodeSelector[] getTableSelectors() {
+        ArrayList<ATableSyntaxNodeSelector> sll = new ArrayList<ATableSyntaxNodeSelector>();
+
+        sll.add(makeTableTypeSelector());
+
+        sll.add(makePropertyOrHeaderSelectors());
+
+        return sll.toArray(new ATableSyntaxNodeSelector[0]);
+    }
 
     /**
      * @param tableElements2
@@ -152,47 +243,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
         return existingTableTypes;
     }
 
-    private boolean isRowSelected(ISearchTableRow searchTableRow, ATableRowSelector[] rowSelectors, ITableSearchInfo tableSearchInfo) {
-        for (int j = 0; j < rowSelectors.length; j++) {
-            if (!rowSelectors[j].isRowInTableSelected(searchTableRow, tableSearchInfo)) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
-
-    private boolean isTableSelected(TableSyntaxNode tsn, ATableSyntaxNodeSelector[] tselectors) {
-        for (int j = 0; j < tselectors.length; j++) {
-            if (!tselectors[j].isTableSelected(tsn)) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
-
-    /**
-     * @return
-     */
-    private ATableSyntaxNodeSelector makePropertyOrHeaderSelectors() {
-        return new TableGroupSelector(tableElements);
-    }
-
-    private TableTypeSelector makeTableTypeSelector() {
-        ArrayList<String> list = new ArrayList<String>();
-        for (int i = 0; i < selectedTableTypes.length; i++) {
-            if (selectedTableTypes[i]) {
-                list.add(types[i]);
-            }
-        }
-
-        String[] tt = list.toArray(new String[0]);
-
-        return new TableTypeSelector(tt);
-    }
+    
 
     public String[] opTypeValues() {
         return AStringBoolOperator.allNames();
@@ -252,42 +303,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
             }                                    
         }
         return res;
-    }
-    
-    private void addResult(TableSyntaxNode table, OpenLAdvancedSearchResult res, 
-            ATableSyntaxNodeSelector[] tableSelectors, ATableRowSelector[] columnSelectors) {        
-        if (isTableSelected(table, tableSelectors)) {
-            ITableSearchInfo tablSearchInfo = ATableRowSelector.getTableSearchInfo(table);
-            if (tablSearchInfo != null) {
-                ArrayList<ISearchTableRow> matchedRows = getMatchedRows(tablSearchInfo, columnSelectors);
-                res.add(table, matchedRows.toArray(new ISearchTableRow[0]));
-            } else {
-                res.add(table, new ISearchTableRow[0]);
-            }
-        }
-    }
-    
-    /**
-     * Gets the rows of tables that match to the search info.
-     * @param tablSearchInfo
-     * @param columnSelectors
-     * @return
-     */
-    private ArrayList<ISearchTableRow> getMatchedRows(ITableSearchInfo tablSearchInfo, ATableRowSelector[] columnSelectors) {
-        ArrayList<ISearchTableRow> matchedRows = new ArrayList<ISearchTableRow>();
-        int numRows = tablSearchInfo.getNumberOfRows();
-        for (int row = 0; row < numRows; row++) {
-            ISearchTableRow tablSearchRow = new SearchTableRow(row, tablSearchInfo);
-            // Now there is implementations for ITableSearchInfo just for data tables (DataTableSearchInfo class) and 
-            // for decision tables (DecisionTableSearchInfo class) all other tables process as TableSearchInfo. It must 
-            // be implemented for other types.
-            if (!(tablSearchInfo instanceof TableSearchInfo) && !isRowSelected(tablSearchRow, columnSelectors, tablSearchInfo)) {
-                continue;
-            }
-            matchedRows.add(tablSearchRow);
-        }
-        return matchedRows;
-    }
+    }       
 
     public boolean getSelectedTableType(int i) {
         return selectedTableTypes[i];
@@ -312,16 +328,6 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
             }
         }
         throw new RuntimeException("Unknown type value: " + typeValue);
-    }
-
-    private ATableSyntaxNodeSelector[] getTableSelectors() {
-        ArrayList<ATableSyntaxNodeSelector> sll = new ArrayList<ATableSyntaxNodeSelector>();
-
-        sll.add(makeTableTypeSelector());
-
-        sll.add(makePropertyOrHeaderSelectors());
-
-        return sll.toArray(new ATableSyntaxNodeSelector[0]);
-    }
+    }    
 
 }

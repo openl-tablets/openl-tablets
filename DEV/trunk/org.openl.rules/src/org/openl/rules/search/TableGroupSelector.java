@@ -6,11 +6,16 @@ package org.openl.rules.search;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
+ * Adds the possibility to combine table selectors to groups.
  * @author snshor
  *
  */
 public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISearchConstants {
+    
+    protected SearchConditionElement[] tableElements;
 
+    protected ATableSyntaxNodeSelector[] selectors;
+    
     class GroupResult {
         boolean groupRes = true;
         int idx = 0;
@@ -45,9 +50,6 @@ public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISea
 
         }
     }
-    SearchConditionElement[] tableElements;
-
-    ATableSyntaxNodeSelector[] selectors;
 
     /**
      * @param tableElements
@@ -80,7 +82,7 @@ public class TableGroupSelector extends ATableSyntaxNodeSelector implements ISea
     }
 
     @Override
-    public boolean isTableSelected(TableSyntaxNode node) {
+    public boolean doesTableMatch(TableSyntaxNode node) {
         return new GroupResult().execute(node);
 
     }
