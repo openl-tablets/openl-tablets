@@ -397,7 +397,7 @@ public class HTMLRenderer {
             renderHideButton(propsId);
             result.append("</td></tr><tr><td><div id=" + propsId + " class='te_props_propstable'>");
             result.append("<table cellspacing='1' cellpadding='1'>");
-            result.append(renderJS("js/calendar_us.js"));
+            //result.append(renderJS("js/calendar_us.js"));
             result.append(renderCSS("css/calendar.css"));
             buildPropsTable();
             result.append("</table></div></td></tr></table>");
@@ -509,6 +509,7 @@ public class HTMLRenderer {
 
         private void insertCalendar(String value, String name) {
             numberOfCalendars++;
+            result.append(renderJS("js/calendar_us.js"));
             result.append("<td><input name='" + name + "' type='text' value='" + value + "' id='datepicker"
                         + numberOfCalendars +"' />")
                 .append(renderJSBody("new tcal ({'controlname': 'datepicker" + numberOfCalendars + "'});"))
