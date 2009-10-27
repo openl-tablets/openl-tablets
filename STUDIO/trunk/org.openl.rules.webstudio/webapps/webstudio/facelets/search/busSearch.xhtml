@@ -24,7 +24,7 @@
 	<fieldset><legend>Properties</legend>  
 		<table id="propertySearchTable">
 			<c:forEach items="#{bussinessSearch.propForSearch}" var="propDef">
-				<tr><td><h:outputLabel for="#{propDef.displayName}" value="#{propDef.displayName}"/></td>
+				<tr><td><h:outputLabel for="#{propDef.name}" value="#{propDef.displayName}"/></td>
 					<c:if test="#{propDef.stringType}">
 						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
 					</c:if>
