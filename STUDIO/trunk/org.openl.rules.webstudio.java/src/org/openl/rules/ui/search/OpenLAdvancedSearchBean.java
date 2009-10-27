@@ -139,8 +139,7 @@ public class OpenLAdvancedSearchBean {
                 return Collections.emptyList();
             }
             if (tableSearchList == null) {
-                ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-                model.runSearch(advancedSearchBean.search);
+                ProjectModel model = WebStudioUtils.getWebStudio().getModel();                
                 tableSearchList = model.getSearchList(model.runSearch(advancedSearchBean.search));
             }
             return tableSearchList;
