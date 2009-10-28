@@ -246,7 +246,7 @@ public class OpenLAdvancedSearch implements ITableNodeTypes, ISearchConstants, I
     
 
     public String[] opTypeValues() {
-        return AStringBoolOperator.allNames();
+        return AStringBoolOperator.getAllOperatorNames();
     }
 
     public ATableRowSelector[] getColumnSelectors() {
