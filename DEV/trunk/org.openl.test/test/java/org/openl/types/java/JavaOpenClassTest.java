@@ -91,15 +91,15 @@ public class JavaOpenClassTest extends TestCase {
 
     }
 
-    public void testJavaOpenSchema() throws Exception {
-        JavaOpenFactory factory = new JavaOpenFactory();
-
-        IOpenSchema schema = factory.getSchema("../org.openl.test/bin", false);
-
-        IOpenClass oc = schema.getType("org.openl.types.java.JavaOpenClassTest");
-
-        Assert.assertNotNull(oc);
-    }
+//    public void testJavaOpenSchema() throws Exception {
+//        JavaOpenFactory factory = new JavaOpenFactory();
+//
+//        IOpenSchema schema = factory.getSchema("../org.openl.test/bin", false);
+//
+//        IOpenClass oc = schema.getType("org.openl.types.java.JavaOpenClassTest");
+//
+//        Assert.assertNotNull(oc);
+//    }
 
     public void testMethods() {
         _testMethodKey();
