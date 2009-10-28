@@ -133,6 +133,11 @@ public class SkipList<K,V> implements Map<K,V> {
     }
 
     final int compare(K myKey, K key) {
+        
+        if (keyComparator == null) {
+            return 0;
+        }
+        
         return myKey == null ? -1 : keyComparator.compare(myKey, key);
     }
 
