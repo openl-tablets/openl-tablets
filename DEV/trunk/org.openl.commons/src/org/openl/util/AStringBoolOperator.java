@@ -8,12 +8,15 @@ import java.lang.reflect.Constructor;
 import org.openl.base.NamedThing;
 
 /**
+ * Abstract class for comparison two strings. Its children implement
+ * different operations for string comparison.
+ *  
  * @author snshor
  *
  */
 public abstract class AStringBoolOperator extends NamedThing implements IStringBoolOperator {
 
-    static public class ContainsOperator extends AStringBoolOperator {
+    public static class ContainsOperator extends AStringBoolOperator {
 
         public ContainsOperator(String sample) {
             super("contains", sample);
@@ -25,7 +28,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
     }
 
-    static public class EndsWithOperator extends AStringBoolOperator {
+    public static class EndsWithOperator extends AStringBoolOperator {
 
         public EndsWithOperator(String sample) {
             super("ends with", sample);
@@ -37,7 +40,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
     }
 
-    static public class EqualsIgnoreCaseOperator extends AStringBoolOperator {
+    public static class EqualsIgnoreCaseOperator extends AStringBoolOperator {
 
         public EqualsIgnoreCaseOperator(String sample) {
             super("equals ignore case", sample);
@@ -49,7 +52,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
     }
 
-    static public class EqualsOperator extends AStringBoolOperator {
+    public static class EqualsOperator extends AStringBoolOperator {
 
         public EqualsOperator(String sample) {
             super("equals", sample);
@@ -61,12 +64,11 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
     }
 
-    static public class Holder {
-        AStringBoolOperator op;
-
-        String name = "equals";
-
-        String sample = "";
+    public static class Holder {
+        
+        private AStringBoolOperator operator;
+        private String name = "equals";
+        private String sample = "";
 
         /**
          * @param opType
@@ -84,24 +86,24 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         public boolean op(String test) {
-            return op.isMatching(test);
+            return operator.isMatching(test);
         }
 
         public void setName(String name) {
             this.name = name;
-            op = makeOperator(name, sample);
+            operator = makeOperator(name, sample);
         }
 
         public void setSample(String sample) {
             this.sample = sample;
-            if (op != null) {
-                op.setSample(sample);
+            if (operator != null) {
+                operator.setSample(sample);
             }
         }
 
     }
 
-    static public class MatchesOperator extends AStringBoolOperator {
+    public static class MatchesOperator extends AStringBoolOperator {
 
         public MatchesOperator(String sample) {
             super("matches", sample);
@@ -113,7 +115,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
     }
 
-    static public class StartsWithOperator extends AStringBoolOperator {
+    public static class StartsWithOperator extends AStringBoolOperator {
 
         public StartsWithOperator(String sample) {
             super("starts with", sample);
@@ -125,15 +127,15 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
     }
 
-    static public Class<?>[] allTypes = { ContainsOperator.class, MatchesOperator.class, EqualsOperator.class,
+    private static Class<?>[] allTypes = { ContainsOperator.class, MatchesOperator.class, EqualsOperator.class,
             EqualsIgnoreCaseOperator.class, StartsWithOperator.class, EndsWithOperator.class };
 
-    String sampleStr;
+    private String sampleStr;
 
-    static public String[] allNames() {
+    public static String[] getAllOperatorNames() {
         String[] res = new String[allTypes.length];
         for (int i = 0; i < res.length; i++) {
-            res[i] = opName(allTypes[i]);
+            res[i] = getOperatorName(allTypes[i]);
         }
         return res;
     }
@@ -141,7 +143,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
     public static Class<?> findOperatorClass(String name) {
         for (int i = 0; i < allTypes.length; i++) {
             Class<?> c = allTypes[i];
-            if (opName(c).equals(name)) {
+            if (getOperatorName(c).equals(name)) {
                 return c;
             }
 
@@ -158,15 +160,15 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         }
 
         try {
-            Constructor<?> ctr = c.getConstructor(new Class[] { String.class });
-            AStringBoolOperator op = (AStringBoolOperator) ctr.newInstance(new Object[] { sample });
-            return op;
+            Constructor<?> constructor = c.getConstructor(new Class[] { String.class });
+            AStringBoolOperator operator = (AStringBoolOperator) constructor.newInstance(new Object[] { sample });
+            return operator;
         } catch (Throwable t) {
             throw RuntimeExceptionWrapper.wrap(t);
         }
     }
 
-    static String opName(Class<?> c) {
+    private static String getOperatorName(Class<?> c) {
         String cname = StringTool.lastToken(c.getName(), "$");
         String name = StringTool.decapitalizeName(cname, " ");
         name = name.substring(0, name.length() - " operator".length());
