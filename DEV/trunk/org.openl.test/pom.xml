@@ -9,8 +9,8 @@
     <relativePath>../org.openl.rules.dev-pom</relativePath>
   </parent>
 
-  <artifactId>org.openl.rules.helpers</artifactId>
-  <name>OpenL - DEV - Rules - Helpers</name>
+  <artifactId>org.openl.test</artifactId>
+  <name>OpenL - DEV - Tests</name>
   <description />
 
   <build>
@@ -25,6 +25,22 @@
         </configuration>
       </plugin>
     </plugins>
+
+    <testResources>
+	  <testResource>
+        <directory>test/resources</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+      </testResource>
+	  <testResource>
+        <directory>test/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </testResource>
+    </testResources>
+    
   </build>
 
   <dependencies>
@@ -32,7 +48,7 @@
    	<dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
     
     <dependency>
@@ -46,11 +62,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.openl</groupId>
       <artifactId>org.openl.conf.ant</artifactId>
     </dependency>
@@ -59,6 +70,12 @@
       <groupId>org.openl</groupId>
       <artifactId>org.openl.j</artifactId>
     </dependency>
+    
+    <dependency>
+    	<groupId>org.openl.rules</groupId>
+    	<artifactId>org.openl.rules.helpers</artifactId>
+    </dependency>
+  
   </dependencies>
 
 </project>

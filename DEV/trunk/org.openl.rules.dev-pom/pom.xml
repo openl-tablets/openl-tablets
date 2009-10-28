@@ -32,12 +32,15 @@
     <module>../org.openl.poi.lib</module>
     <module>../org.openl.poi.lib.eclipse.feature</module>
     <module>../org.openl.rules.gen</module>
+	
+	<!-- Tests -->
+	<module>../org.openl.test</module>
 
   </modules>
 
   <scm>
     <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/branches/iteration2_merge</connection>
-<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/branches/iteration2_merge</developerConnection>
+	<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/branches/iteration2_merge</developerConnection>
   </scm>
 
   <repositories>
@@ -145,15 +148,10 @@
     </profile>
   </profiles>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-  </dependencies>
-
   <dependencyManagement>
+    
     <dependencies>
+	
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.lib.poi35.dev.modified</artifactId>
@@ -282,6 +280,7 @@
       </dependency>
 
     </dependencies>
+    
   </dependencyManagement>
 
 </project>

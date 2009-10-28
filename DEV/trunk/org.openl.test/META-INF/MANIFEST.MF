@@ -10,14 +10,12 @@ Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.rules.helpers
 Eclipse-AutoStart: true
 Bundle-Vendor: OpenL
-Export-Package: all.tests,
- all.tests.openl.j,
- org.openl,
+Export-Package: org.openl.test,
  org.openl.binding,
  org.openl.conf.ant,
  org.openl.domain,
  org.openl.syntax,
- org.openl.syntax.impl,
+ org.openl.syntax,
  org.openl.types.java,
  org.openl.util,
  org.openl.util.conf,
