@@ -182,7 +182,7 @@ public class OpenLAdvancedSearchBean {
         groupOperationValues = createSelectItems(GroupOperator.names);
         notFlagValues = createSelectItems(OpenLAdvancedSearch.nfValues);
         typeValues = createSelectItems(ISearchConstants.typeValues);
-        opTypeValues = createSelectItems(AStringBoolOperator.allNames());
+        opTypeValues = createSelectItems(AStringBoolOperator.getAllOperatorNames());
 
         tableType2Index = new HashMap<String, Integer>();
         for (int i = 0; i < OpenLAdvancedSearch.existingTableTypes.length; i++) {
