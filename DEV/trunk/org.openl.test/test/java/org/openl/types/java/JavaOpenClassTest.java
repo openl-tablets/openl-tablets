@@ -1,5 +1,8 @@
 package org.openl.types.java;
 
+import java.io.File;
+import java.net.URL;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -16,7 +19,7 @@ import junit.framework.TestCase;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class JavaOpenClassTest extends TestCase {
 
@@ -42,7 +45,7 @@ public class JavaOpenClassTest extends TestCase {
 
     /**
      * Constructor for JavaOpenClassTest.
-     *
+     * 
      * @param arg0
      */
     public JavaOpenClassTest(String arg0) {
@@ -91,15 +94,16 @@ public class JavaOpenClassTest extends TestCase {
 
     }
 
-//    public void testJavaOpenSchema() throws Exception {
-//        JavaOpenFactory factory = new JavaOpenFactory();
-//
-//        IOpenSchema schema = factory.getSchema("../org.openl.test/bin", false);
-//
-//        IOpenClass oc = schema.getType("org.openl.types.java.JavaOpenClassTest");
-//
-//        Assert.assertNotNull(oc);
-//    }
+    public void testJavaOpenSchema() throws Exception {
+        JavaOpenFactory factory = new JavaOpenFactory();
+
+        URL url = this.getClass().getClassLoader().getResource(".");
+        IOpenSchema schema = factory.getSchema(url.getPath(), false);
+
+        IOpenClass oc = schema.getType("org.openl.types.java.JavaOpenClassTest");
+
+        Assert.assertNotNull(oc);
+    }
 
     public void testMethods() {
         _testMethodKey();
