@@ -453,7 +453,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                 return loadSingleParam(paramType, paramName, ruleName, dataTable, ota);
             } catch (Exception e) {
                 
-                Log.info(e);
+                Log.debug(e);
                 // do nothing, assume the type was wrong or this was not an expression
                 // let the regular flow of events take it's course
             }
