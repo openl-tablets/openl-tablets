@@ -13,6 +13,7 @@ import org.apache.poi.ss.formula.EvaluationTracker;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
+import org.apache.poi.ss.formula.eval.forked.ForkedEvaluator;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
@@ -72,7 +73,7 @@ public class LiveExcelEvaluator {
      */
     public ValueEval evaluateServiceModelUDF(String functionName, Object[] args) {
         UDFFinder functionsPack = LiveExcelFunctionsPack.instance().getUDFFinderLE(workbook);
-        WorkbookEvaluator evaluator = new WorkbookEvaluator(evaluationWorkbook, null, functionsPack);
+        WorkbookEvaluator evaluator = ForkedEvaluator.create(workbook, null, functionsPack).getWorkbookEvaluator();
         evaluationContext.createDataPool(evaluator);
         ValueEval[] processedArgs = new ValueEval[args.length];
         for (int i = 0; i < args.length; i++) {

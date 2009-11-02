@@ -19,6 +19,7 @@ package org.apache.poi.xssf.usermodel;
 
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
+import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 
 /**
  * XSSF wrapper for a sheet under evaluation
@@ -47,4 +48,16 @@ final class XSSFEvaluationSheet implements EvaluationSheet {
 		}
 		return new XSSFEvaluationCell(cell, this);
 	}
+
+    public UpdatableEvaluationCell getOrCreateUpdatableCell(int rowIndex, int columnIndex) {
+        XSSFRow row = _xs.getRow(rowIndex);
+        if (row == null) {
+            row = _xs.createRow(rowIndex);
+        }
+        XSSFCell cell = row.getCell(columnIndex);
+        if (cell == null) {
+            cell = row.createCell(columnIndex);
+        }
+        return new XSSFEvaluationCell(cell, this);
+    }
 }

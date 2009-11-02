@@ -176,6 +176,12 @@ public final class WorkbookEvaluator {
 		_sheetIndexesBySheet.clear();
 	}
 
+    public void updateCell(String sheetName, int rowIndex, int columnIndex, ValueEval value) {
+        UpdatableEvaluationCell cell = _workbook.getOrCreateUpdatableCell(sheetName, rowIndex, columnIndex);
+        cell.setValue(value);
+        notifyUpdateCell(cell);
+    }
+
     /**
      * Sets new value of cell into cache(only cache).
      */

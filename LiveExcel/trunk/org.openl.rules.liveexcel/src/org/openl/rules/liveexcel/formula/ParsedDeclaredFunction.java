@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
 
 /**
@@ -42,10 +44,12 @@ public class ParsedDeclaredFunction extends LiveExcelFunction {
             return ErrorEval.VALUE_INVALID;
         } else {
             for (int i = 0; i < parameters.size(); i++) {
-                ec.setTemporaryCellValueForEvaluationTime(parameters.get(i).getParamCell().getEvaluationCell(),
+                RefEval ref = parameters.get(i).getParamCell();
+                ec.getWorkbookEvaluator().updateCell(ref.getSheetName(), ref.getRow(), ref.getColumn(),
                         (ValueEval) args[i]);
             }
-            return ec.getWorkbookEvaluator().evaluate(returnCell.getParamCell().getEvaluationCell());
+            EvaluationCell cellToEvaluate = ec.getWorkbook().getOrCreateUpdatableCell(returnCell.getParamCell().getSheetName(), returnCell.getParamCell().getRow(), returnCell.getParamCell().getColumn());
+            return ec.getWorkbookEvaluator().evaluate(cellToEvaluate);
         }
     }
 }
