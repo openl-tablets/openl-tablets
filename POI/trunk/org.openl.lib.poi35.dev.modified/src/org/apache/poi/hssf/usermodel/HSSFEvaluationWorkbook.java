@@ -24,8 +24,6 @@ import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
 import org.apache.poi.hssf.record.formula.NamePtg;
 import org.apache.poi.hssf.record.formula.NameXPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
-import org.apache.poi.ss.formula.*;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationName;
@@ -34,6 +32,7 @@ import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.FormulaParsingWorkbook;
 import org.apache.poi.ss.formula.FormulaRenderingWorkbook;
 import org.apache.poi.ss.formula.FormulaType;
+import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 
 /**
  * Internal POI use only
@@ -171,4 +170,8 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	public org.apache.poi.ss.usermodel.Workbook getWorkbook() {
 		return _uBook;
 	}
+
+    public UpdatableEvaluationCell getOrCreateUpdatableCell(String sheetName, int rowIndex, int columnIndex) {
+        return getSheet(getSheetIndex(sheetName)).getOrCreateUpdatableCell(rowIndex, columnIndex);
+    }
 }

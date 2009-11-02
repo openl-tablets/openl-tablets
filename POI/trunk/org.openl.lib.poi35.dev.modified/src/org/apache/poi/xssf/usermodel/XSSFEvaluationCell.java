@@ -17,8 +17,15 @@
 
 package org.apache.poi.xssf.usermodel;
 
-import org.apache.poi.ss.formula.EvaluationCell;
+import org.apache.poi.hssf.record.formula.eval.BlankEval;
+import org.apache.poi.hssf.record.formula.eval.BoolEval;
+import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.hssf.record.formula.eval.NumberEval;
+import org.apache.poi.hssf.record.formula.eval.StringEval;
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
+import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 import org.apache.poi.ss.usermodel.Cell;
 
 /**
@@ -26,7 +33,7 @@ import org.apache.poi.ss.usermodel.Cell;
  * 
  * @author Josh Micich
  */
-final class XSSFEvaluationCell implements EvaluationCell {
+final class XSSFEvaluationCell implements UpdatableEvaluationCell {
 
 	private final EvaluationSheet _evalSheet;
 	private final XSSFCell _cell;
@@ -82,9 +89,39 @@ final class XSSFEvaluationCell implements EvaluationCell {
 		}	
 		return false;
 	}
+    
+    public Cell getCell() {
+        return _cell;
+    }
 //	end changes VIA
 
-	public Cell getCell() {
-		return _cell;
-	}
+    public void setValue(ValueEval value) {
+        Class<? extends ValueEval> cls = value.getClass();
+
+        if (cls == NumberEval.class) {
+            _cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+            _cell.setCellValue(((NumberEval)value).getNumberValue());
+            return;
+        }
+        if (cls == StringEval.class) {
+            _cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+            _cell.setCellValue(((StringEval)value).getStringValue());
+            return;
+        }
+        if (cls == BoolEval.class) {
+            _cell.setCellType(HSSFCell.CELL_TYPE_BOOLEAN);
+            _cell.setCellValue(((BoolEval)value).getBooleanValue());
+            return;
+        }
+        if (cls == ErrorEval.class) {
+            _cell.setCellType(HSSFCell.CELL_TYPE_ERROR);
+            _cell.setCellValue(((ErrorEval)value).getErrorCode());
+            return;
+        }
+        if (cls == BlankEval.class) {
+            _cell.setCellType(HSSFCell.CELL_TYPE_BLANK);
+            return;
+        }
+        throw new IllegalArgumentException("Unexpected value class (" + cls.getName() + ")");
+    }
 }

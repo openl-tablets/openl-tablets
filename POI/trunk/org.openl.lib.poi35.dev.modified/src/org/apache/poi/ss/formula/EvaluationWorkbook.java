@@ -20,7 +20,6 @@ package org.apache.poi.ss.formula;
 import org.apache.poi.hssf.record.formula.NamePtg;
 import org.apache.poi.hssf.record.formula.NameXPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
@@ -44,7 +43,9 @@ public interface EvaluationWorkbook {
 
 	EvaluationSheet getSheet(int sheetIndex);
 
-	/**
+	UpdatableEvaluationCell getOrCreateUpdatableCell(String sheetName, int rowIndex, int columnIndex);
+
+    /**
 	 * @return <code>null</code> if externSheetIndex refers to a sheet inside the current workbook
 	 */
 	ExternalSheet getExternalSheet(int externSheetIndex);

@@ -17,8 +17,10 @@
 
 package org.apache.poi.hssf.usermodel;
 
+
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
+import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 
 /**
  * HSSF wrapper for a sheet under evaluation
@@ -47,4 +49,16 @@ final class HSSFEvaluationSheet implements EvaluationSheet {
 		}
 		return new HSSFEvaluationCell(cell, this);
 	}
+
+    public UpdatableEvaluationCell getOrCreateUpdatableCell(int rowIndex, int columnIndex) {
+        HSSFRow row = _hs.getRow(rowIndex);
+        if (row == null) {
+            row = _hs.createRow(rowIndex);
+        }
+        HSSFCell cell = row.getCell(columnIndex);
+        if (cell == null) {
+            cell = row.createCell(columnIndex);
+        }
+        return new HSSFEvaluationCell(cell, this);
+    }
 }

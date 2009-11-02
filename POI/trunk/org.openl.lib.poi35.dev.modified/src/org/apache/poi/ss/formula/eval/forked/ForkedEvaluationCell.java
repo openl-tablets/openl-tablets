@@ -26,6 +26,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
+import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellArExt;
 
@@ -36,7 +37,7 @@ import org.apache.poi.ss.usermodel.CellArExt;
  * @author Josh Micich
  * @author vabramovs(VIA) - Arrray Formula support
  */
-final class ForkedEvaluationCell implements EvaluationCell {
+final class ForkedEvaluationCell implements UpdatableEvaluationCell {
 
 	private final EvaluationSheet _sheet;
 	/** corresponding cell from master workbook */

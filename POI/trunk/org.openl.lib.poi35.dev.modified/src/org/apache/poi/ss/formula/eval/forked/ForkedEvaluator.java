@@ -24,7 +24,6 @@ import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFEvaluationWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment;
 import org.apache.poi.ss.formula.EvaluationCell;
@@ -53,14 +52,7 @@ public final class ForkedEvaluator {
 		_evaluator = new WorkbookEvaluator(_sewb, stabilityClassifier, udfFinder);
 	}
 	private static EvaluationWorkbook createEvaluationWorkbook(Workbook wb) {
-		if (wb instanceof HSSFWorkbook) {
-			return HSSFEvaluationWorkbook.create((HSSFWorkbook) wb);
-		}
-// TODO rearrange POI build to allow this
-//		if (wb instanceof XSSFWorkbook) {
-//			return XSSFEvaluationWorkbook.create((XSSFWorkbook) wb);
-//		}
-		throw new IllegalArgumentException("Unexpected workbook type (" + wb.getClass().getName() + ")");
+	    return wb.getCreationHelper().createEvaluationWorkbook();
 	}
 	/**
 	 * @deprecated (Sep 2009) (reduce overloading) use {@link #create(Workbook, IStabilityClassifier, UDFFinder)}
@@ -75,7 +67,10 @@ public final class ForkedEvaluator {
 		return new ForkedEvaluator(createEvaluationWorkbook(wb), stabilityClassifier, udfFinder);
 	}
 
-	/**
+	public WorkbookEvaluator getWorkbookEvaluator() {
+        return _evaluator;
+    }
+    /**
 	 * Sets the specified cell to the supplied <tt>value</tt>
 	 * @param sheetName the name of the sheet containing the cell
 	 * @param rowIndex zero based
