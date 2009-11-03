@@ -19,8 +19,6 @@ package org.apache.poi.ss.formula;
 
 import java.util.HashMap;
 
-import org.apache.poi.ss.usermodel.Cell;
-
 /**
  * Abstracts a cell for the purpose of formula evaluation.  This interface represents both formula
  * and non-formula cells.<br/>
@@ -47,6 +45,5 @@ public interface EvaluationCell {
 	
 //	VIA
 	boolean isArrayFormulaContext();   // Cell belong to range of Array Formula
-	Cell getCell();
 //    end changes VIA	
 }
