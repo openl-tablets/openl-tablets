@@ -25,7 +25,6 @@ import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
-import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * HSSF wrapper for a cell under evaluation
@@ -85,10 +84,6 @@ final class HSSFEvaluationCell implements UpdatableEvaluationCell {
 			return ((HSSFCellArEXt)_cell).isArrayFormulaContext();
 		}	
 		return false;
-	}
-	
-	public Cell getCell() {
-		return _cell;
 	}
 //  end changes VIA
 	

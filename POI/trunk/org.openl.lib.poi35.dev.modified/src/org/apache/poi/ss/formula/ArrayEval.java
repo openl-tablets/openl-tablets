@@ -93,7 +93,7 @@ public class ArrayEval  implements ValueEval {
 			return new NumberEval((Double)o);
 		}
 		if (o instanceof Boolean) {
-			return new BoolEval((Boolean)o);
+			return BoolEval.valueOf((Boolean)o);
 		}
 		// I don't know what should we do if error is an array. I throw an exception for now
 		if (o instanceof ErrorConstant) {

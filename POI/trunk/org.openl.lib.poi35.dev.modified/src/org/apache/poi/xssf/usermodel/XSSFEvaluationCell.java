@@ -26,7 +26,6 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
-import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * XSSF wrapper for a cell under evaluation
@@ -89,10 +88,6 @@ final class XSSFEvaluationCell implements UpdatableEvaluationCell {
 		}	
 		return false;
 	}
-    
-    public Cell getCell() {
-        return _cell;
-    }
 //	end changes VIA
 
     public void setValue(ValueEval value) {

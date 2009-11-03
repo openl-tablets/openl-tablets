@@ -28,7 +28,6 @@ import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellArExt;
 
 /**
  * Represents a cell being used for forked evaluation that has had a value set different from the
@@ -135,15 +134,7 @@ final class ForkedEvaluationCell implements UpdatableEvaluationCell {
 
 // VIA	
 	public boolean isArrayFormulaContext() {
-		if(_masterCell.getCell() instanceof CellArExt)
-		{
-			return ((CellArExt)_masterCell.getCell()).isArrayFormulaContext();
-		}	
-		return false;
-	}
-
-	public Cell getCell() {
-		return _masterCell.getCell();
+		return _masterCell.isArrayFormulaContext();
 	}
 // end changes VIA 	
 }
