@@ -48,7 +48,9 @@ public class ParsedDeclaredFunction extends LiveExcelFunction {
                 ec.getWorkbookEvaluator().updateCell(ref.getSheetName(), ref.getRow(), ref.getColumn(),
                         (ValueEval) args[i]);
             }
-            EvaluationCell cellToEvaluate = ec.getWorkbook().getOrCreateUpdatableCell(returnCell.getParamCell().getSheetName(), returnCell.getParamCell().getRow(), returnCell.getParamCell().getColumn());
+            EvaluationCell cellToEvaluate = ec.getWorkbook().getSheet(
+                    ec.getWorkbook().getSheetIndex(returnCell.getParamCell().getSheetName())).getCell(
+                    returnCell.getParamCell().getRow(), returnCell.getParamCell().getColumn());
             return ec.getWorkbookEvaluator().evaluate(cellToEvaluate);
         }
     }
