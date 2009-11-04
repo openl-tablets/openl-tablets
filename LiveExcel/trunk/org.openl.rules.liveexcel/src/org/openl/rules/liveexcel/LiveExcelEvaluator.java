@@ -9,12 +9,13 @@ import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.hssf.record.formula.udf.UDFFinder;
-import org.apache.poi.ss.formula.EvaluationTracker;
-import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.OperationEvaluationContext;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.formula.eval.forked.ForkedEvaluator;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.liveexcel.formula.DeclaredFunctionSearcher;
 import org.openl.rules.liveexcel.formula.LiveExcelDataAccessFunction;
@@ -29,7 +30,6 @@ import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
 public class LiveExcelEvaluator {
     private Workbook workbook;
     private EvaluationContext evaluationContext;
-    private EvaluationWorkbook evaluationWorkbook;
 
     /**
      * Parse workbook and create LiveExcelEvaluator.
@@ -40,7 +40,6 @@ public class LiveExcelEvaluator {
     public LiveExcelEvaluator(Workbook workbook, EvaluationContext evaluationContext) {
         this.workbook = workbook;
         this.evaluationContext = evaluationContext;
-        evaluationWorkbook = workbook.getCreationHelper().createEvaluationWorkbook();
         new DeclaredFunctionSearcher(workbook).findFunctions();
         registerServiceModelUDFs();
         exposeInOpenL();
@@ -50,7 +49,7 @@ public class LiveExcelEvaluator {
         for (String functionName : evaluationContext.getServiceModelAPI().getAllServiceModelUDFs()) {
             LiveExcelFunctionsPack.instance().addUDF(workbook, functionName, generateGetterFunction(functionName));
         }
-        //stub for root name methods.
+        // stub for root name methods.
         for (String functionName : evaluationContext.getServiceModelAPI().getRootNames()) {
             LiveExcelFunctionsPack.instance().addUDF(workbook, functionName, new FreeRefFunction() {
                 public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
@@ -72,18 +71,61 @@ public class LiveExcelEvaluator {
      * @return Result of evaluation.
      */
     public ValueEval evaluateServiceModelUDF(String functionName, Object[] args) {
-        UDFFinder functionsPack = LiveExcelFunctionsPack.instance().getUDFFinderLE(workbook);
-        WorkbookEvaluator evaluator = ForkedEvaluator.create(workbook, null, functionsPack).getWorkbookEvaluator();
-        evaluationContext.createDataPool(evaluator);
+        ForkedEvaluator evaluator = createEvaluator();
         ValueEval[] processedArgs = new ValueEval[args.length];
         for (int i = 0; i < args.length; i++) {
-            processedArgs[i] = createEvalForObject(args[i], evaluator);
+            processedArgs[i] = createEvalForObject(args[i], evaluator.getWorkbookEvaluator());
         }
-        FreeRefFunction udf = evaluator.findUserDefinedFunction(functionName);
-        ValueEval result = udf.evaluate(processedArgs, new OperationEvaluationContext(evaluator, evaluationWorkbook,
-                -1, -1, -1, new EvaluationTracker()));
-        evaluationContext.removeDataPool(evaluator);
+        Cell formulaCell = findEmptyCell();
+        formulaCell.setCellFormula(createFormula(functionName, processedArgs));
+        ValueEval result = evaluator.evaluate(formulaCell.getSheet().getSheetName(), formulaCell.getRowIndex(),
+                formulaCell.getColumnIndex());
+        finalizeEvaluation(evaluator, formulaCell);
         return result;
+    }
+
+    private void finalizeEvaluation(ForkedEvaluator evaluator, Cell formulaCell) {
+        removeExecutedCell(formulaCell);
+        evaluationContext.removeDataPool(evaluator.getWorkbookEvaluator());
+    }
+
+    private ForkedEvaluator createEvaluator() {
+        UDFFinder functionsPack = LiveExcelFunctionsPack.instance().getUDFFinderLE(workbook);
+        ForkedEvaluator evaluator = ForkedEvaluator.create(workbook, null, functionsPack);
+        evaluationContext.createDataPool(evaluator.getWorkbookEvaluator());
+        return evaluator;
+    }
+    
+    /**
+     * @return Cell used for execution of new formula
+     */
+    private synchronized Cell findEmptyCell() {
+        int lastRowIndex = workbook.getSheetAt(0).getLastRowNum();
+        Row row = workbook.getSheetAt(0).createRow(lastRowIndex + 1);
+        return row.createCell(0);
+    }
+
+    private void removeExecutedCell(Cell cell) {
+        workbook.getSheetAt(0).removeRow(cell.getRow());
+    }
+
+    /**
+     * Generates string representation of formula for cell by function name and arguments.
+     */
+    private String createFormula(String functionName, ValueEval[] args) {
+        StringBuffer formula = new StringBuffer(functionName + "(");
+        for (int i = 0; i < args.length; i++) {
+            formula.append(extractStringValueFromValueEval(args[i]));
+            if (i < args.length - 1) {
+                formula.append(',');
+            }
+        }
+        formula.append(')');
+        return formula.toString();
+    }
+
+    private String extractStringValueFromValueEval(ValueEval eval) {
+        return FormulaEvaluatorHelper.eval2Cell(eval).formatAsString();
     }
 
     private StringEval addObjectToContext(Object object, WorkbookEvaluator evaluator) {
