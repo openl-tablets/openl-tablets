@@ -34,6 +34,7 @@ import org.apache.poi.hssf.record.formula.ErrPtg;
 import org.apache.poi.hssf.record.formula.ExpPtg;
 import org.apache.poi.hssf.record.formula.FuncVarPtg;
 import org.apache.poi.hssf.record.formula.IntPtg;
+import org.apache.poi.hssf.record.formula.MemAreaPtg;
 import org.apache.poi.hssf.record.formula.MemErrPtg;
 import org.apache.poi.hssf.record.formula.MemFuncPtg;
 import org.apache.poi.hssf.record.formula.MissingArgPtg;
@@ -80,10 +81,6 @@ import org.apache.poi.ss.usermodel.Cell;
  * For POI internal use only
  *
  * @author Josh Micich
- * 
- * Modified 09/07/09 by Petr Udalau - Expanded working with OperationEvaluationContext and plain cached values.
- * Added method setCachedCellValue(EvaluationCell, ValueEval, EvaluationTracker).
- * Added method evaluate(FreeRefFunction, ValueEval[]). 
  */
 public final class WorkbookEvaluator {
 
@@ -182,20 +179,6 @@ public final class WorkbookEvaluator {
         notifyUpdateCell(cell);
     }
 
-    /**
-     * Sets new value of cell into cache(only cache).
-     */
-    public void setCachedCellValue(EvaluationCell cell, ValueEval newValue) {
-        CellCacheEntry cce = null;
-        if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-            cce = _cache.getOrCreateFormulaCellEntry(cell);
-        } else {
-           cce = _cache.getOrCreatePlainValueEntry(_workbookIx, getSheetIndex(cell.getSheet()), cell.getRowIndex(),
-                    cell.getColumnIndex());
-        }
-        cce.updateValue(newValue);
-        cce.recurseClearCachedFormulaResults(null);
-    }
 
 	/**
 	 * Should be called to tell the cell value cache that the specified (value or formula) cell
@@ -229,7 +212,7 @@ public final class WorkbookEvaluator {
 
 	public ValueEval evaluate(EvaluationCell srcCell) {
 		int sheetIndex = getSheetIndex(srcCell.getSheet());
-		return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(), new EvaluationTracker());
+		return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(), new EvaluationTracker(_cache));
 	}
 
 	/**
@@ -253,83 +236,66 @@ public final class WorkbookEvaluator {
 	/**
 	 * @return never <code>null</code>, never {@link BlankEval}
 	 */
-	private ValueEval evaluateAny(EvaluationCell srcCell, int sheetIndex, int rowIndex, int columnIndex,
-	        EvaluationTracker tracker) {
-        // avoid tracking dependencies for cells that have constant definition
-        boolean shouldCellDependencyBeRecorded = _stabilityClassifier == null ? true : !_stabilityClassifier
-                .isCellFinal(sheetIndex, rowIndex, columnIndex);
-        CellCacheEntry result = null;
-        if (srcCell == null || srcCell.getCellType() != Cell.CELL_TYPE_FORMULA) {
-            result = getNonFormulaCellValue(srcCell, sheetIndex, rowIndex, columnIndex, tracker);
-        } else {
-            result = evaluateFormulaCell(srcCell, sheetIndex, rowIndex, columnIndex, tracker);
-        }
+	private ValueEval evaluateAny(EvaluationCell srcCell, int sheetIndex,
+				int rowIndex, int columnIndex, EvaluationTracker tracker) {
 
-        if (shouldCellDependencyBeRecorded) {
-            tracker.acceptDependency(_workbookIx, sheetIndex, rowIndex, columnIndex, result);
-        }
+		// avoid tracking dependencies for cells that have constant definition
+		boolean shouldCellDependencyBeRecorded = _stabilityClassifier == null ? true
+					: !_stabilityClassifier.isCellFinal(sheetIndex, rowIndex, columnIndex);
+		if (srcCell == null || srcCell.getCellType() != Cell.CELL_TYPE_FORMULA) {
+			ValueEval result = getValueFromNonFormulaCell(srcCell);
+			if (shouldCellDependencyBeRecorded) {
+				tracker.acceptPlainValueDependency(_workbookIx, sheetIndex, rowIndex, columnIndex, result);
+			}
+			return result;
+		}
 
-        return result.getValue();
-    }
+		FormulaCellCacheEntry cce = _cache.getOrCreateFormulaCellEntry(srcCell);
+		if (shouldCellDependencyBeRecorded || cce.isInputSensitive()) {
+			tracker.acceptFormulaDependency(cce);
+		}
+		IEvaluationListener evalListener = _evaluationListener;
+		ValueEval result;
+		if (cce.getValue() == null) {
+			if (!tracker.startEvaluate(cce)) {
+				return ErrorEval.CIRCULAR_REF_ERROR;
+			}
+			OperationEvaluationContext ec = new OperationEvaluationContext(this, _workbook, sheetIndex, rowIndex, columnIndex, tracker);
 
-    private CellCacheEntry getNonFormulaCellValue(EvaluationCell srcCell, int sheetIndex, int rowIndex, int columnIndex,
-            EvaluationTracker tracker) {
-        PlainValueCellCacheEntry entry = _cache.getOrCreatePlainValueEntry(_workbookIx, sheetIndex, rowIndex,
-                columnIndex);
-        if (entry.getValue() == null) {
-            entry.updateValue(getValueFromNonFormulaCell(srcCell));
-        }
-        return entry;
-    }
+			try {
 
-    private CellCacheEntry evaluateFormulaCell(EvaluationCell srcCell, int sheetIndex, int rowIndex, int columnIndex,
-            EvaluationTracker tracker) {
-        FormulaCellCacheEntry cce = _cache.getOrCreateFormulaCellEntry(srcCell);
-        IEvaluationListener evalListener = _evaluationListener;
-        if (cce.getValue() == null) {
-            if (!tracker.startEvaluate(cce)) {
-                cce.updateValue(ErrorEval.CIRCULAR_REF_ERROR);
-            } else{
-                OperationEvaluationContext ec = new OperationEvaluationContext(this, _workbook, sheetIndex, rowIndex, columnIndex, tracker);
-                try {
-                    ValueEval result;
-                    Ptg[] ptgs = _workbook.getFormulaTokens(srcCell);
-                    if (evalListener == null) {
-                        result = evaluateFormula(ec, ptgs);
-                    } else {
-                        evalListener.onStartEvaluate(srcCell, cce, ptgs);
-                        result = evaluateFormula(ec, ptgs);
-                        evalListener.onEndEvaluate(cce, result);
-                    }
-    //              VIA  
-                   if (result == null) {
-                       if (!tracker.startEvaluate(cce)) {
-                           result = ErrorEval.CIRCULAR_REF_ERROR;
-                       }
-                   }    
-                   
-                   cce.updateValue(result);
-                   tracker.updateCacheResult(result);
-   //            end changes VIA   
-                } catch (NotImplementedException e) {
-                    throw addExceptionInfo(e, sheetIndex, rowIndex, columnIndex);
-                } finally {
-                    tracker.endEvaluate(cce);
-                    ec.rollBackTemporaryCells();
-                }
-            }
-        } else {
-            if(evalListener != null) {
-                evalListener.onCacheHit(sheetIndex, rowIndex, columnIndex, cce.getValue());
-            }
-        }
-        if (isDebugLogEnabled()) {
-            String sheetName = getSheetName(sheetIndex);
-            CellReference cr = new CellReference(rowIndex, columnIndex);
-            logDebug("Evaluated " + sheetName + "!" + cr.formatAsString() + " to " + cce.getValue().toString());
-        }
-        return cce;
-    }
+				Ptg[] ptgs = _workbook.getFormulaTokens(srcCell);
+				if (evalListener == null) {
+					result = evaluateFormula(ec, ptgs);
+				} else {
+					evalListener.onStartEvaluate(srcCell, cce, ptgs);
+					result = evaluateFormula(ec, ptgs);
+					evalListener.onEndEvaluate(cce, result);
+				}
+
+				tracker.updateCacheResult(result);
+			} catch (NotImplementedException e) {
+				throw addExceptionInfo(e, sheetIndex, rowIndex, columnIndex);
+			} finally {
+				tracker.endEvaluate(cce);
+			}
+		} else {
+			if(evalListener != null) {
+				evalListener.onCacheHit(sheetIndex, rowIndex, columnIndex, cce.getValue());
+			}
+			return cce.getValue();
+		}
+		if (isDebugLogEnabled()) {
+			String sheetName = getSheetName(sheetIndex);
+			CellReference cr = new CellReference(rowIndex, columnIndex);
+			logDebug("Evaluated " + sheetName + "!" + cr.formatAsString() + " to " + result.toString());
+		}
+		// Usually (result === cce.getValue())
+		// But sometimes: (result==ErrorEval.CIRCULAR_REF_ERROR, cce.getValue()==null)
+		// When circular references are detected, the cache entry is only updated for
+		// the top evaluation frame
+		return result;
+	}
 
 	/**
 	 * Adds the current cell reference to the exception for easier debugging.
@@ -394,11 +360,13 @@ public final class WorkbookEvaluator {
 				// skip Parentheses, Attr, etc
 				continue;
 			}
-			if (ptg instanceof MemFuncPtg) {
+			if (ptg instanceof MemFuncPtg || ptg instanceof MemAreaPtg) {
 				// can ignore, rest of tokens for this expression are in OK RPN order
 				continue;
 			}
-			if (ptg instanceof MemErrPtg) { continue; }
+			if (ptg instanceof MemErrPtg) {
+				continue;
+			}
 
 			ValueEval opResult;
 			if (ptg instanceof OperationPtg) {
