@@ -78,6 +78,9 @@ final class HSSFEvaluationCell implements UpdatableEvaluationCell {
 		return _cell.getRichStringCellValue().getString();
 	}
 //  VIA	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.ss.formula.EvaluationCell#isArrayFormulaContext()
+	 */
 	public boolean isArrayFormulaContext() {
 		if(_cell instanceof HSSFCellArEXt)
 		{
