@@ -39,7 +39,9 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  * @author Josh Micich
  * @author zsulkins(ZS)- array support
  */
+// ZS 
 public final class Lookup implements FunctionWithArraySupport {
+// end changes ZS
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		switch(args.length) {
@@ -80,7 +82,10 @@ public final class Lookup implements FunctionWithArraySupport {
 		// extra complexity required to emulate the way LOOKUP can handles these abnormal cases.
 		throw new RuntimeException("non-vector lookup or result areas not supported yet");
 	}
-	
+//    ZS	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		switch (paramIndex){
 			default: 
@@ -90,5 +95,6 @@ public final class Lookup implements FunctionWithArraySupport {
 				return true;
 		}
 	
-	}	
+	}
+// end changes ZS		
 }
