@@ -59,13 +59,17 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 			System.arraycopy(ops, 0, values, 0, values.length);
 			return StatsLib.kthLargest(values, k);
 		}
-		
+//        ZS		
+		/* (non-Javadoc)
+		 * @see org.apache.poi.hssf.record.formula.functions.MultiOperandNumericFunction#supportArray(int)
+		 */
 		@Override
 		public boolean supportArray(int paramIndex){
 			if ( paramIndex == 1)
 				return false;
 			return true;
 		}
+//       end changes ZS		
 	};
 	public static final Function MAX = new AggregateFunction() {
 		protected double evaluate(double[] values) {
@@ -97,14 +101,17 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 			System.arraycopy(ops, 0, values, 0, values.length);
 			return StatsLib.kthSmallest(values, k);
 		}
-		
+//        ZS		
+		/* (non-Javadoc)
+		 * @see org.apache.poi.hssf.record.formula.functions.MultiOperandNumericFunction#supportArray(int)
+		 */
 		@Override
 		public boolean supportArray(int paramIndex){
 			if ( paramIndex == 1)
 				return false;
 			return true;
 		}
-		
+//	   end changes ZS	
 	};
 	public static final Function STDEV = new AggregateFunction() {
 		protected double evaluate(double[] values) throws EvaluationException {
