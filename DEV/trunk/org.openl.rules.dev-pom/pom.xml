@@ -35,6 +35,7 @@
 	
 	<!-- Tests -->
 	<module>../org.openl.test</module>
+	<!--<module>../org.openl.rules.test</module>-->
 
   </modules>
 
@@ -276,6 +277,12 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.all.eclipse.feature</artifactId>
+        <version>${version}</version>
+      </dependency>
+	  
+	  <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.test</artifactId>
         <version>${version}</version>
       </dependency>
 
