@@ -25,7 +25,9 @@ import org.apache.poi.hssf.record.formula.eval.MissingArgEval;
 import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+// ZS
 import org.apache.poi.ss.formula.ArrayEval;
+// end changes ZS
 
 /**
  * Implementation for the Excel function INDEX
@@ -46,6 +48,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author Josh Micich
  * @author zsulkins(ZS) - array support
  */
+// ZS 
 public final class Index implements FunctionWithArraySupport, ArrayMode {
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
@@ -54,6 +57,7 @@ public final class Index implements FunctionWithArraySupport, ArrayMode {
 
 	
 	protected  ValueEval evaluateX(ValueEval[] args, int srcCellRow, short srcCellCol, boolean supportRowCol) {
+// end changes ZS	
 		int nArgs = args.length;
 		if(nArgs < 2) {
 			// too few arguments
@@ -104,8 +108,10 @@ public final class Index implements FunctionWithArraySupport, ArrayMode {
 					// too many arguments
 					return ErrorEval.VALUE_INVALID;
 			}
+			// ZS
 			// From POI:			return getValueFromArea(reference, rowIx, columnIx, colArgWasPassed, srcCellRow, srcCellCol);
 			return getValueFromArea(reference, rowIx, columnIx, colArgWasPassed, srcCellRow, srcCellCol, supportRowCol);
+			// end changes ZS
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
@@ -118,8 +124,10 @@ public final class Index implements FunctionWithArraySupport, ArrayMode {
 	 *            <code>true</code>.  This parameter is needed because error codes are slightly
 	 *            different when only 2 args are passed.
 	 */
+//	ZS 
 	private static ValueEval getValueFromArea(AreaEval ae, int pRowIx, int pColumnIx,
 			boolean colArgWasPassed, int srcRowIx, int srcColIx, boolean supportRowColum) throws EvaluationException {
+//	end changes ZS		
 		boolean rowArgWasEmpty = pRowIx == 0;
 		boolean colArgWasEmpty = pColumnIx == 0;
 		int rowIx;
@@ -235,16 +243,22 @@ public final class Index implements FunctionWithArraySupport, ArrayMode {
 		}
 		return result;
 	}
-
+// ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.ArrayMode#evaluateInArrayFormula(org.apache.poi.hssf.record.formula.eval.ValueEval[], int, short)
+	 */
 	public ValueEval evaluateInArrayFormula(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		// in array formula index(reference,row,0) and index(reference,0,col) should return entire row/column
 		return evaluateX(args, srcCellRow, srcCellCol, true);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		if (paramIndex == 0)
 			return true;
 		return false;
 	}
-
+//   end changes ZS
 }
