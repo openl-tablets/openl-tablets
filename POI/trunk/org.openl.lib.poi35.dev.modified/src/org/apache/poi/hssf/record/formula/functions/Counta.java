@@ -31,8 +31,12 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  * Value1, value2, ...   are 1 to 30 arguments representing the values or ranges to be counted.
  *
  * @author Josh Micich
+ * @author zshulkins(ZS) array suport;
+
  */
+// ZS
 public final class Counta implements FunctionWithArraySupport {
+// end changes ZS	
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		int nArgs = args.length;
@@ -69,8 +73,12 @@ public final class Counta implements FunctionWithArraySupport {
 			return true;
 		}
 	};
-	
+//	ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		return true;
 	}
+//	end changes ZS
 }
