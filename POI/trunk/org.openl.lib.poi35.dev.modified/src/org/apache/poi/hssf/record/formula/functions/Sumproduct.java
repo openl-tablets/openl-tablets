@@ -26,7 +26,9 @@ import org.apache.poi.hssf.record.formula.eval.NumericValueEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+// ZS
 import org.apache.poi.ss.formula.ArrayEval;
+// end changes ZS
 
 
 /**
@@ -52,7 +54,9 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author Josh Micich
  * @author zsulkins(SZ)- array support
  */
+// ZS 
 public final class Sumproduct implements FunctionWithArraySupport {
+// end changes ZS
 
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
@@ -125,11 +129,12 @@ public final class Sumproduct implements FunctionWithArraySupport {
 			eval = ae.getRelativeValue(0, 0);
 		}
 
+// ZS
 		if (!(eval instanceof ValueEval)) {
 			throw new RuntimeException("Unexpected value eval class ("
 					+ eval.getClass().getName() + ")");
 		}
-
+// end changes ZS
 		return getProductTerm(eval, true);
 	}
 
@@ -242,8 +247,12 @@ public final class Sumproduct implements FunctionWithArraySupport {
 		throw new RuntimeException("Unexpected value eval class ("
 				+ ve.getClass().getName() + ")");
 	}
-	
+// ZS	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		return true;
 	}
+//	end changes ZS
 }
