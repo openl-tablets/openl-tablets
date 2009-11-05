@@ -12,6 +12,7 @@ import org.apache.poi.hssf.record.formula.functions.ArrayMode;
 import org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport;
 
 /**
+ * Helper class to manipulate with array formula
  * @author vabramovs
  *
  */
@@ -25,6 +26,12 @@ public class ArrayEvaluationHelper {
 	}
 	
 	
+	/**
+	 * Get type of parameter (SCALAR_TYPE or ARRAY_TYPE) which support function for given argument
+	 * @param operation
+	 * @param argIndex
+	 * @return
+	 */
 	public static int getParameterType(OperationEval operation,int argIndex){
 		int 	answer = SCALAR_TYPE; 
 		
@@ -41,6 +48,13 @@ public class ArrayEvaluationHelper {
 	}
     
 	
+	/**
+	 * Prepare empty template, which will keep result of evaluation
+	 * @param operation
+	 * @param ops
+	 * @param arrayFormula
+	 * @return
+	 */
 	public static ValueEval prepareEmptyResult(OperationEval operation,ValueEval[] ops, boolean arrayFormula) {
 	    int rowCount = Integer.MAX_VALUE;
 	    int colCount = Integer.MAX_VALUE;
@@ -92,6 +106,15 @@ public class ArrayEvaluationHelper {
 	
 
 
+	/**
+	 *  Prepare arguments for next iteration to call function
+	 * @param operation
+	 * @param ops
+	 * @param i
+	 * @param j
+	 * @param trackAreas
+	 * @return
+	 */
 	public static  ValueEval[] prepareArg4Loop(OperationEval operation,ValueEval[] ops, int i, int j, boolean trackAreas){
 		ValueEval[] answer = new ValueEval[ops.length];
 		     for(int argIn =0; argIn <ops.length;argIn++){
@@ -118,9 +141,12 @@ public class ArrayEvaluationHelper {
 	}
 	
 	
-/*
- * check if params contain arrays and those should be iterated
- */
+	/**
+	 * check if ops contain arrays and those should be iterated
+	 * @param operation
+	 * @param ops
+	 * @return
+	 */
 	public static boolean checkForArrays(OperationEval operation,ValueEval[] ops){
 		
 		for(int i=0; i<ops.length; i++){
@@ -131,6 +157,11 @@ public class ArrayEvaluationHelper {
 		
 	}
 	
+	/**
+	 * Can operation will be done in Array Mode
+	 * @param operation
+	 * @return
+	 */
 	public static boolean specialModeForArray(OperationEval operation){
 		if(operation instanceof FunctionEval) {
 			FunctionEval fe = (FunctionEval) operation;
