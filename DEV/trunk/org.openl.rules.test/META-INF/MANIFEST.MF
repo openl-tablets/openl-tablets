@@ -9,3 +9,10 @@ Require-Bundle: org.openl.rules,
  org.openl.test,
  org.openl.rules.helpers,
  org.openl.j
+Export-Package: com.exigen.rules.openl.integrator,
+ com.exigen.srp.idat,
+ org.openl.binding,
+ org.openl.rules.helpers,
+ org.openl.rules.lang.xls,
+ org.openl.rules.table,
+ org.openl.rules.test
