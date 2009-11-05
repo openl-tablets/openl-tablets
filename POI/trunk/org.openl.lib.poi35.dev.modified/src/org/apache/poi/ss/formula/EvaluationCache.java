@@ -37,6 +37,7 @@ import org.apache.poi.ss.usermodel.CellArExt;
  * 
  * 
  * @author Josh Micich
+ * @author vabramovs(VIA) - array formula support
  */
 final class EvaluationCache {
 
