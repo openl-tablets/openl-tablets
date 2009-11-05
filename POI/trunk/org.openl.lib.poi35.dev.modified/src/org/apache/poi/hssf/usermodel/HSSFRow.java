@@ -42,7 +42,9 @@ public final class HSSFRow implements Row {
     public final static int INITIAL_CAPACITY = 5;
 
     private int rowNum;
+    // VIA
     private HSSFCell[] cells=new HSSFCellArEXt[INITIAL_CAPACITY];
+    // end changes VIA
 
     /**
      * reference to low level representation
