@@ -30,7 +30,9 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  * @author zsulkins(ZS)- array support
  *
  */
+// ZS 
 public abstract class TextFunction implements FunctionWithArraySupport {
+// end changes ZS
 
 	protected static final String EMPTY_STRING = "";
 
@@ -50,11 +52,15 @@ public abstract class TextFunction implements FunctionWithArraySupport {
 			return e.getErrorEval();
 		}
 	}
-	
+	// ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
     // non of the subclass functions support array
 	public boolean supportArray(int paramIndex){
 		return false;
 	}
+	// end changes ZS
 
 	protected abstract ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, short srcCellCol) throws EvaluationException;
 
