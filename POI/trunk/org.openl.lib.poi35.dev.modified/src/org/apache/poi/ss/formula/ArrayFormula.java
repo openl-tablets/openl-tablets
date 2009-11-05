@@ -1,16 +1,13 @@
-/**
- * 
- */
+
 package org.apache.poi.ss.formula;
 
-import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellArExt;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
+ * Class to support Array Formula 
  * @author vabramovs
  *
  */
@@ -25,19 +22,39 @@ public class ArrayFormula {
 		
 	}
 	
+	/**
+	 * get first row index in range
+	 * @return
+	 */
 	public int getFirstRow(){
 		return rangeAddress.getFirstRow();
 	}
+	/**
+	 * get first column index in range
+	 * @return
+	 */
 	public int getFirstColumn(){
 		return rangeAddress.getFirstColumn();
 	}
+	/**
+	 * get last column index in range
+	 * @return
+	 */
 	public int getLastColumn(){
 		return rangeAddress.getLastColumn();
 	}
+	/**
+	 * get last row index in range
+	 * @return
+	 */
 	public int getLastRow(){
 		return rangeAddress.getLastRow();
 	}
 	
+	/**
+	 * get number of cells in range
+	 * @return
+	 */
 	public int getNumberOfCells(){
 		return rangeAddress.getNumberOfCells();
 	}
