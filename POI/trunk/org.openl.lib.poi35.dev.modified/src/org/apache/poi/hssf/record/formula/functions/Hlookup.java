@@ -40,7 +40,9 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  * @author Josh Micich
  * @author zsulkins(ZS)- array support
  */
+// ZS
 public final class Hlookup implements FunctionWithArraySupport {
+// end changes ZS
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		ValueEval arg3 = null;
@@ -82,11 +84,14 @@ public final class Hlookup implements FunctionWithArraySupport {
 		}
 		return LookupUtils.createRowVector(tableArray, rowIndex);
 	}
-	
+// ZS	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		if (paramIndex == 1)
 			return true;
 		return false;
 	}
-
+//  end changes ZS
 }
