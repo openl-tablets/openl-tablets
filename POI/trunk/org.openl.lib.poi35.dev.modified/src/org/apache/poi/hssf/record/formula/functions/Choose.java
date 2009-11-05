@@ -25,6 +25,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 /**
  *
  * @author Josh Micich
+ * @author zshulkins(ZS) array suport;
  */
 public final class Choose implements FunctionWithArraySupport {
 
@@ -44,10 +45,14 @@ public final class Choose implements FunctionWithArraySupport {
 			return e.getErrorEval();
 		}
 	}
-	
+//	ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		
 		return false;
 	}
+//	end changes ZS
 }
 
