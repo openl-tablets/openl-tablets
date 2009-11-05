@@ -48,16 +48,17 @@ import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
 import org.apache.poi.hssf.record.formula.FormulaShifter;
 import org.apache.poi.hssf.util.PaneInformation;
 import org.apache.poi.hssf.util.Region;
-import org.apache.poi.ss.formula.ArrayFormula;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellArExt;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
-
+// VIA
+import org.apache.poi.ss.formula.ArrayFormula;
+import org.apache.poi.ss.usermodel.CellArExt;
+// end changes VIA
 /**
  * High level representation of a worksheet.
  * @author  Andrew C. Oliver (acoliver at apache dot org)
@@ -1859,6 +1860,9 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
         return wb.getSheetName(idx);
     }
 //  VIA    
+    /**
+     * Set arrayFormulaRef for all cell in any range
+     */
     protected void expandArFormulaRef() {
         for(HSSFRow row : _rows.values()){
         	Iterator<Cell> it = row.cellIterator();
