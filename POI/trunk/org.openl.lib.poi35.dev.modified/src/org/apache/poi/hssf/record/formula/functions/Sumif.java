@@ -39,7 +39,9 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  * @author Josh Micich
  * @author zsulkins(ZS)- array support
  */
+// ZS 
 public final class Sumif implements FunctionWithArraySupport {
+// end changes ZS
 
 	public ValueEval evaluate(ValueEval[] args, int srcRowIndex, short srcColumnIndex) {
 		if (args.length < 2) {
@@ -119,11 +121,15 @@ public final class Sumif implements FunctionWithArraySupport {
 		}
 		throw new EvaluationException(ErrorEval.VALUE_INVALID);
 	}
-	
+//	ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		if (paramIndex == 1)   // TODO - should throw exception if array instead of range
 			return false;
 		return true;
 	}
+//  end changes ZS	
 
 }
