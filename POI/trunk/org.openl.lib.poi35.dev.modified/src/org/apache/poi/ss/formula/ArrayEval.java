@@ -13,6 +13,11 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
+/** 
+ *  Class to support evaluated array of values
+ * @author zsulkins(ZS)
+ *
+ */
 public class ArrayEval  implements ValueEval {
 
 	//ArrayPtg thePtg;
@@ -20,10 +25,19 @@ public class ArrayEval  implements ValueEval {
 	boolean illegalForAggregation = false; // if result is invalid for aggregation. it could be true, if "uncompatible in size" arrays were used 
 	
 	
+	/**
+	 *  is array unsuitable for future aggregation? 
+	 * @return
+	 */
 	public boolean isIllegalForAggregation(){
 		return illegalForAggregation;
 	}
 	
+	/**
+	 *  set feature "unsuitable for future aggregation
+	 *  it could be true, if "uncompatible in size" arrays were used
+	 * @param value
+	 */
 	public void setIllegalForAggregation(boolean value){
 		illegalForAggregation = value;
 	}
@@ -45,6 +59,9 @@ public class ArrayEval  implements ValueEval {
     	illegalForAggregation = isIllegalForAggregation;
     }
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString(){
 		StringBuffer b = new StringBuffer();
@@ -66,19 +83,40 @@ public class ArrayEval  implements ValueEval {
 	}
 
 		
+	/**
+	 * get array content
+	 * @return
+	 */
 	public Object[][] getArrayValues(){
 		return values;
 	}
 	
+	/**
+	 * get element of array
+	 * @param row
+	 * @param col
+	 * @return
+	 */
 	public Object getArrayElement(int row, int col){
 		return values[row][col];
 	}
 	
+	/**
+	 * get element of array as Value Eval
+	 * @param row
+	 * @param col
+	 * @return
+	 */
 	public ValueEval getArrayElementAsEval(int row, int col){
 		return constructEval(getArrayElement(row,col));
 	}
 	
 	
+	/**
+	 * Convert Object to ValueEval
+	 * @param o
+	 * @return
+	 */
 	public static ValueEval constructEval(Object o){
 		if (o == null) {
 			throw new RuntimeException("Array item cannot be null");
@@ -108,6 +146,11 @@ public class ArrayEval  implements ValueEval {
 	}
 	
 
+	/**
+	 * get String contains object's value
+	 * @param o
+	 * @return
+	 */
 	public static String getConstantText(Object o) {
 
 		if (o == null) {
@@ -128,6 +171,10 @@ public class ArrayEval  implements ValueEval {
 		throw new IllegalArgumentException("Unexpected constant class (" + o.getClass().getName() + ")");
 	}
 	
+	/**
+	 * return Array as ValueEval list
+	 * @return
+	 */
 	public List<ValueEval> getArrayAsEval(){
 		
 		List<ValueEval> l = new ArrayList<ValueEval>();
@@ -139,6 +186,10 @@ public class ArrayEval  implements ValueEval {
 		return l;
 	}
 	
+	/** 
+	 * Convert 2D array to 1D array
+	 * 	 * @return
+	 */
 	public Object[] getSingleDimensionalArray(){
 		Object[] l = new Object[getRowCounter()*getColCounter()];
 		for(int r=0; r< values.length; r++){
@@ -149,15 +200,27 @@ public class ArrayEval  implements ValueEval {
 		return l;		
 	}
 	
+	/**
+	 * Is array empty?
+	 * @return
+	 */
 	public Object[][] getEmptyArray(){
 		
 		return new Object[getRowCounter()][getColCounter()];
 	}
 	
+	/**
+	 * get row count
+	 * @return
+	 */
 	public int getRowCounter(){
 		return values.length;
 	}
 	
+	/**
+	 * get column count
+	 * @return
+	 */
 	public int getColCounter(){
 		if (getRowCounter() == 0)
 			return 0;
@@ -166,6 +229,14 @@ public class ArrayEval  implements ValueEval {
 	
 	/*
 	 * offset from the array
+	 */
+	/**
+	 * get subarray
+	 * @param rowFrom
+	 * @param rowTo
+	 * @param colFrom
+	 * @param colTo
+	 * @return
 	 */
 	public ArrayEval offset(int rowFrom, int rowTo, int colFrom, int colTo){
 		
@@ -187,40 +258,67 @@ public class ArrayEval  implements ValueEval {
 		return new ArrayEval(result);
 	}
 	
-	// expose Array as area on sheet (top-left)
-	// convenience methods to reuse existing code
+	/**
+	 * expose Array as area on sheet (top-left)
+	 * convenience methods to reuse existing code
+	 * @return
+	 */
 	public AreaEval arrayAsArea(){
 		
 		return new AreaEval(){
 			
+			/* (non-Javadoc)
+			 * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getFirstRow()
+			 */
 			public int getFirstRow(){
 				return 0;
 			}
 			
+			/* (non-Javadoc)
+			 * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getLastRow()
+			 */
 			public int getLastRow(){
 				return getRowCounter()-1;
 			}
 			
+			/* (non-Javadoc)
+			 * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getFirstColumn()
+			 */
 			public int getFirstColumn(){
 				return 0;
 			}
 			
+			/* (non-Javadoc)
+			 * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getLastColumn()
+			 */
 			public int getLastColumn(){
 				return getColCounter()-1;
 			}
 			
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#isRow()
+		     */
 		    public boolean isRow(){
 		    	return (getRowCounter()==1);
 		    }
 		    
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#isColumn()
+		     */
 		    public boolean isColumn(){
 		    	return (getColCounter() == 1);
 		    }
 
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getValueAt(int, int)
+		     */
 		    public ValueEval getValueAt(int row, int col){
 		    	return getArrayElementAsEval(row, col);
 		    }
 
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#contains(int, int)
+		     */
 		    public boolean contains(int row, int col){
 		    	if ( (row < getRowCounter()) && (col < getColCounter()) ){
 		    		return true;
@@ -228,18 +326,27 @@ public class ArrayEval  implements ValueEval {
 		    	return false;
 		    }
 
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#containsColumn(short)
+		     */
 		    public boolean containsColumn(short col){
 		    	if (col < getColCounter())
 		    		return true;
 		    	return false;
 		    }
 		    
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#containsRow(int)
+		     */
 		    public boolean containsRow(int row){
 		    	if (row < getRowCounter() )
 		    		return true;
 		    	return false;
 		    }
 
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getWidth()
+		     */
 		    public int getWidth(){
 		    	return getColCounter(); 
 		    	
@@ -249,10 +356,16 @@ public class ArrayEval  implements ValueEval {
 		    	return getRowCounter();
 		    }
 
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getRelativeValue(int, int)
+		     */
 		    public ValueEval getRelativeValue(int relativeRowIndex, int relativeColumnIndex){
 		    	return getArrayElementAsEval(relativeRowIndex, relativeColumnIndex);
 		    }
 
+		    /* (non-Javadoc)
+		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#offset(int, int, int, int)
+		     */
 		    public AreaEval offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx){
 		    	ArrayEval offset = ArrayEval.this.offset(relFirstRowIx, relLastRowIx, relFirstColIx, relLastColIx);
 		    	return offset.arrayAsArea();
