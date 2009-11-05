@@ -44,6 +44,10 @@ public interface EvaluationCell {
 	int getErrorCellValue();
 	
 //	VIA
-	boolean isArrayFormulaContext();   // Cell belong to range of Array Formula
+	/** 
+	 * Belong Cell  to range of Array Formula?
+	 * @return
+	 */
+	boolean isArrayFormulaContext();  
 //    end changes VIA	
 }
