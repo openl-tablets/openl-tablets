@@ -27,7 +27,9 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  * @author zsulkins(ZS)- array support
  */
+// ZS
 public abstract class NumericFunction implements FunctionWithArraySupport {
+// end changes ZS
 
 	static final double ZERO = 0.0;
 	static final double TEN = 10.0;
@@ -56,11 +58,15 @@ public abstract class NumericFunction implements FunctionWithArraySupport {
 		}
 		return new NumberEval(result);
 	}
-	
-    // those functions doesn't support arrays as arg
+	// ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
+   // those functions doesn't support arrays as arg
 	public boolean supportArray(int paramIndex){
 		return false;
 	}
+	// end changes ZS 
 
 	protected abstract double eval(ValueEval[] args, int srcCellRow, short srcCellCol) throws EvaluationException;
 
