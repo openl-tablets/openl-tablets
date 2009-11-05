@@ -24,7 +24,9 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
 import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
+// ZS
 import org.apache.poi.ss.formula.ArrayEval;
+// end changes ZS
 
 /**
  * Here are the general rules concerning Boolean functions:
@@ -36,8 +38,12 @@ import org.apache.poi.ss.formula.ArrayEval;
  * </ol>
  *
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+* @author zshulkins(ZS) array suport;
+ * 
  */
+//   ZS
 public abstract class BooleanFunction implements FunctionWithArraySupport {
+//   end changes ZS 
 
 	public final ValueEval evaluate(ValueEval[] args, int srcRow, short srcCol) {
 		if (args.length < 1) {
@@ -51,10 +57,14 @@ public abstract class BooleanFunction implements FunctionWithArraySupport {
 		}
 		return BoolEval.valueOf(boolResult);
 	}
-	
+//	ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		return true;
 	}
+//	end changes ZS
 
 	private boolean calculate(ValueEval[] args) throws EvaluationException {
 
@@ -106,11 +116,14 @@ public abstract class BooleanFunction implements FunctionWithArraySupport {
 			if (arg instanceof RefEval) {
 				ValueEval ve = ((RefEval) arg).getInnerValueEval();
 				tempVe = OperandResolver.coerceValueToBoolean(ve, true);
+//			ZS	
 			} else if (arg instanceof ValueEval) {
 				ValueEval ve = (ValueEval) arg;
 				tempVe = OperandResolver.coerceValueToBoolean(ve, false);
 			} else {
+			
 				tempVe = OperandResolver.coerceValueToBoolean(arg,false);
+//         end changes ZS 
 			}
 
 
