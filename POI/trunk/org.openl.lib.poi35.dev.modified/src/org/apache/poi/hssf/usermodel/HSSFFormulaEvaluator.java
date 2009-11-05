@@ -25,17 +25,19 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.udf.UDFFinder;
-import org.apache.poi.ss.formula.ArrayEval;
-import org.apache.poi.ss.formula.ArrayFormula;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment;
 import org.apache.poi.ss.formula.IStabilityClassifier;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellArExt;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
 import org.apache.poi.ss.usermodel.Row;
+// VIA
+import org.apache.poi.ss.formula.ArrayEval;
+import org.apache.poi.ss.formula.ArrayFormula;
+import org.apache.poi.ss.usermodel.CellArExt;
+import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
+// end changes VIA
 
 /**
  * Evaluates formula cells.<p/>
