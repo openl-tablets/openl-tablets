@@ -45,7 +45,9 @@ import org.apache.poi.ss.usermodel.ErrorConstants;
  * @author Josh Micich
  * @author zshulkins(ZS) array support
  */
+//  ZS
 public final class Countif implements FunctionWithArraySupport {
+//   end changes ZS	
 
 	private static final class CmpOp {
 		public static final int NONE = 0;
@@ -535,10 +537,14 @@ public final class Countif implements FunctionWithArraySupport {
 		}
 		return null;
 	}
-	
+//	ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		if (paramIndex==0)
 				return true;
 		return false;  // TODO - counif does not allow first param as array - only as range 
 	}
+//	end changes ZS
 }
