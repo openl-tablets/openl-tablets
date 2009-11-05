@@ -24,14 +24,18 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
+// ZS
 import org.apache.poi.ss.formula.ArrayEval;
+// end changes ZS
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  * @author zsulkins(ZS)- array support
  *
  */
+// ZS 
 public abstract class XYNumericFunction implements FunctionWithArraySupport {
+// end changes ZS
 
 	private static abstract class ValueArray implements ValueVector {
 		private final int _size;
@@ -139,10 +143,14 @@ public abstract class XYNumericFunction implements FunctionWithArraySupport {
 		}
 		return new NumberEval(result);
 	}
-	
+// ZS	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		return true;
 	}
+//	end cahnges ZS
 
 	private double evaluateInternal(ValueVector x, ValueVector y, int size)
 			throws EvaluationException {
@@ -207,12 +215,12 @@ public abstract class XYNumericFunction implements FunctionWithArraySupport {
 				throw new EvaluationException(ErrorEval.NA);
 			return new ArrayEvalValueArray((ArrayEval) arg);
 		}
-		// end change
 		
 		
 		if (arg instanceof ValueEval) {
 			return new SingleCellValueArray((ValueEval) arg);
 		}
 		throw new RuntimeException("Unexpected eval class (" + arg.getClass().getName() + ")");
+		// end change
 	}
 }
