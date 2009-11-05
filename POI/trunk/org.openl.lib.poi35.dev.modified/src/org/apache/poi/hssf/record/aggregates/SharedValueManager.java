@@ -278,6 +278,10 @@ public final class SharedValueManager {
 		svg.unlinkSharedFormulas();
 	}
 //VIA
+	/** 
+	 * Get array, if this is Array Formula, null otherwise
+	 * @return
+	 */
 	public ArrayRecord[] getArray(){
 		return this._arrayRecords;
 	}
