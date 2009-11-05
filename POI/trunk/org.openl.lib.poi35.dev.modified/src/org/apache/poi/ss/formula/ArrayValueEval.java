@@ -2,7 +2,11 @@ package org.apache.poi.ss.formula;
 
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
-// Contains ValueEval as elements
+/**
+ * Array which contains ValueEval as elements
+ * @author zsulkins
+ *
+ */
 public class ArrayValueEval extends ArrayEval{
    
 	public ArrayValueEval(ValueEval[][] array){
@@ -14,6 +18,9 @@ public class ArrayValueEval extends ArrayEval{
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.ss.formula.ArrayEval#getArrayElement(int, int)
+	 */
 	@Override 
 	public ValueEval getArrayElement(int row, int col) {
 		return (ValueEval)(super.getArrayElement(row, col));
