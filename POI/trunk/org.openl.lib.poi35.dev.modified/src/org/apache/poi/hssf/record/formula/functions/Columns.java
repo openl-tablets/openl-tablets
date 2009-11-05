@@ -22,7 +22,9 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+// ZS
 import org.apache.poi.ss.formula.ArrayEval;
+// end changes ZS
 
 /**
  * Implementation for Excel COLUMNS function.
@@ -30,7 +32,9 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author Josh Micich
  * @author zshulkins(ZS) array support
  */
+// ZS 
 public final class Columns implements FunctionWithArraySupport {
+// end changes ZS
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
 		switch(args.length) {
@@ -62,8 +66,12 @@ public final class Columns implements FunctionWithArraySupport {
 		}
 		return new NumberEval(result);
 	}
-	
+//	ZS
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
 	public boolean supportArray(int paramIndex){
 		return true;
 	}
+//  end changes ZS	
 }
