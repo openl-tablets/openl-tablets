@@ -47,9 +47,18 @@ final class FormulaCellCache {
 		return result;
 	}
 //	VIA
+	/**
+	 * get cache key set
+	 * @return
+	 */
 	public Object[] getCacheKeys() {
 		return _formulaEntriesByCell.keySet().toArray();
 	}
+	/**
+	 * get object from cache by key
+	 * @param key
+	 * @return
+	 */
 	public FormulaCellCacheEntry get(Object key) {
 		return _formulaEntriesByCell.get(key);
 	}
