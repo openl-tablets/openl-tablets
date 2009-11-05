@@ -29,7 +29,9 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.CompareResult;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.LookupValueComparer;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
+// ZS
 import org.apache.poi.ss.formula.ArrayEval;
+// end changes ZS
 
 /**
  * Implementation for the MATCH() Excel function.<p/>
@@ -65,7 +67,9 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author Josh Micich
  * @author zsulkins(ZS)- array support
  */
+// ZS 
 public final class Match implements FunctionWithArraySupport {
+// end changes ZS
 
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
@@ -252,10 +256,11 @@ public final class Match implements FunctionWithArraySupport {
 		}
 		return false;
 	}
-	
+// ZS	
 	public boolean supportArray(int paramIndex){
 		if (paramIndex == 1)
 			return true;
 		return false;
 	}
+// end changes ZS	
 }
