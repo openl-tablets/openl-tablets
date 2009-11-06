@@ -11,6 +11,7 @@
         <name>Openl - POI 3.5 - Modified</name>
         <description />
         <build>
+                <testSourceDirectory>test/resources</testSourceDirectory>
                 <plugins>
                         <plugin>
                                 <groupId>org.apache.maven.plugins</groupId>
