@@ -1,8 +1,8 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:c="http://java.sun.com/jstl/core"
   xmlns:t="http://myfaces.apache.org/tomahawk">
@@ -45,11 +45,11 @@
 
         <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{not empty availableProjects}">
           <h:commandButton styleClass="button" value="Add" action="#{deploymentController.addItem}" />
-          <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('addDeployEntry')" />
+          <input type="button" class="button" value="Cancel" onclick="#{rich:component('addDeployEntry')}.hide();" />
         </h:panelGrid>
 
         <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;" rendered="#{empty availableProjects}">
-            <h:commandButton styleClass="button" value="OK" type="button" onclick="Richfaces.hideModalPanel('addDeployEntry')" />
+            <input type="button" class="button" value="OK" onclick="#{rich:component('addDeployEntry')}.hide();" />
         </h:panelGrid>
     </h:form>
     </a4j:outputPanel>

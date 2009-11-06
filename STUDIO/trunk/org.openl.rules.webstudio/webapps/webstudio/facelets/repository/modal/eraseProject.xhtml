@@ -1,8 +1,8 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <rich:modalPanel id="modalEraseProject" width="250" minWidth="250" height="110" minHeight="110">
@@ -24,7 +24,7 @@
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton styleClass="button" value="Erase" action="#{repositoryTreeController.eraseProject}" />
-        <h:commandButton styleClass="button" value="Cancel" type="button" onclick="Richfaces.hideModalPanel('modalEraseProject');" />
+        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalEraseProject')}.hide();" />
       </h:panelGrid>
     </h:form>
   </rich:modalPanel>

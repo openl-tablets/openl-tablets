@@ -1,8 +1,8 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
-  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <rich:modalPanel id="modalSmartRedeploy" width="400" minWidth="400" height="284" minHeight="284">
@@ -45,8 +45,8 @@
       </div>
 
       <h:panelGrid columns="2" cellpadding="4px;" cellspacing="0px;">
-        <h:commandButton styleClass="button" value="Select All" type="button" onclick="selectAll4SmartRedeploy(true); return false;" />
-        <h:commandButton styleClass="button" value="Reset All" type="button" onclick="selectAll4SmartRedeploy(false); return false;" />
+        <input class="button" value="Select All" type="button" onclick="selectAll4SmartRedeploy(true); return false;" />
+        <input class="button" value="Reset All" type="button" onclick="selectAll4SmartRedeploy(false); return false;" />
       </h:panelGrid>
 
       <h:panelGrid id="processing" columns="2" cellpadding="4px;" cellspacing="0px;"
@@ -61,7 +61,7 @@
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
         <h:commandButton id="smartRedeployBtn" styleClass="disabledButton" value="Redeploy" onclick="return startSmartRedeploy()" action="#{smartRedeployController.redeploy}" />
-        <h:commandButton id="cancelBtn" styleClass="button" value="Cancel" type="button" onclick="closeSmartRedeploy();" />
+        <input id="cancelBtn" type="button" class="button" value="Cancel" onclick="closeSmartRedeploy();" />
       </h:panelGrid>
     </h:form>
   </rich:modalPanel>
