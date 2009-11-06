@@ -95,11 +95,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging-api</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>org.apache.xmlbeans</groupId>
 			<artifactId>xmlbeans</artifactId>
 		</dependency>
