@@ -4,7 +4,9 @@ Bundle-Name: POI 3.5 Dev Plug-in
 Bundle-SymbolicName: org.openl.lib.poi35.dev
 Bundle-Version: 5.3.1
 Bundle-Vendor: OpenL
-Export-Package: org.apache.poi,
+Export-Package: org.apache.commons.logging,
+ org.apache.commons.logging.impl,
+ org.apache.poi,
  org.apache.poi.common.usermodel,
  org.apache.poi.ddf,
  org.apache.poi.dev,
@@ -433,14 +435,13 @@ Export-Package: org.apache.poi,
  schemasMicrosoftComOfficeWord.impl,
  schemasMicrosoftComVml
 Bundle-ClassPath: .,
+ lib/commons-io-1.4.jar,
  lib/commons-lang-2.3.jar,
  lib/commons-logging-1.1.jar,
  lib/commons-logging-api-1.0.4.jar,
  lib/dom4j-1.6.1.jar,
- lib/junit-4.5.jar,
+ lib/joda-time-1.6.jar,
  lib/ooxml-schemas-1.0.jar,
- lib/xmlbeans-2.3.0.jar,
- lib/commons-io-1.4.jar,
  lib/xalan-2.7.1.jar,
- lib/xmlsec-1.4.3.jar,
- lib/joda-time-1.6.jar
+ lib/xmlbeans-2.3.0.jar,
+ lib/xmlsec-1.4.3.jar
