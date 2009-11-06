@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
-<web-app version="2.4"
-    xmlns="http://java.sun.com/xml/ns/j2ee"
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
   <display-name>OpenL WebStudio</display-name>
   <description>OpenL WebStudio</description>
@@ -66,16 +64,9 @@
     <param-value>false</param-value>
   </context-param>
 
-  <!--
-  <context-param>
-    <param-name>facelets.RESOURCE_RESOLVER</param-name>
-    <param-value>org.openl.rules.webstudio.web.jsf.facelets.resource.DefaultResourceResolver</param-value>
-  </context-param>
-   -->
-
   <context-param>
     <param-name>facelets.LIBRARIES</param-name>
-    <param-value>/WEB-INF/taglib/jsffn.taglib.xml;/WEB-INF/taglib/acegi.taglib.xml;/WEB-INF/taglib/tomahawk.taglib.xml</param-value>
+    <param-value>/WEB-INF/taglib/jsffn.taglib.xml;/WEB-INF/taglib/acegi.taglib.xml</param-value>
   </context-param>
 
   <context-param>
@@ -109,13 +100,13 @@
   </filter-mapping>
 
   <filter>
-    <display-name>Ajax4jsf Filter</display-name>
-    <filter-name>ajax4jsf</filter-name>
+    <display-name>RichFaces Filter</display-name>
+    <filter-name>RichFacesFilter</filter-name>
     <filter-class>org.ajax4jsf.Filter</filter-class>
   </filter>
 
   <filter-mapping>
-    <filter-name>ajax4jsf</filter-name>
+    <filter-name>RichFacesFilter</filter-name>
     <servlet-name>FacesServlet</servlet-name>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
@@ -135,22 +126,6 @@
     <filter-name>Acegi Filter Chain Proxy</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-
-  <!-- OpenSessionInViewFilter -->
-  <!--filter>
-    <filter-name>openSessionInViewFilter</filter-name>
-    <filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
-    <init-param>
-      <param-name>singleSession</param-name>
-      <param-value>true</param-value>
-    </init-param>
-  </filter-->
-
-  <!-- OpenSessionInViewFilter -->
-  <!--filter-mapping>
-    <filter-name>openSessionInViewFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping-->
 
   <filter>
     <filter-name>MyFacesExtensionsFilter</filter-name>
