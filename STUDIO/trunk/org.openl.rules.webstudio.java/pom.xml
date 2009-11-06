@@ -33,6 +33,12 @@
       <artifactId>org.openl.rules.webstudio.lib</artifactId>
       <version>${version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>
