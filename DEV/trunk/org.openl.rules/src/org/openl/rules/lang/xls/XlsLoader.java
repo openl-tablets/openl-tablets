@@ -442,7 +442,8 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         if (this.openl == null) {
             this.openl = openl;
         } else {
-            addError(new SyntaxError(openl, "Only one openl statement is allowed", null));
+            if (!this.openl.getOpenlName().equals(openl.getOpenlName()))
+                addError(new SyntaxError(openl, "Only one openl statement is allowed", null));
         }
     }
 

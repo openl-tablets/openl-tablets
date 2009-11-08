@@ -90,11 +90,11 @@ public class WordGridModel implements IGrid {
                     int colTo = getColumn(w);
 
                     for (int k = colFrom; k < colTo; k++) {
-                        grid[k][i] = new WordCell(tc);
+                        grid[k][i] = new WordCell(tc, i, k );
                     }
                     if (tc.isVerticallyMerged()) {
                         if (tc.text().length() > 1) {
-                            startNewVRegion(colFrom, colTo - 1, i);
+                            startNewVRegion(colFrom, i, colTo - 1);
                         } else {
                             mergeVRegion(colFrom, i, colTo - 1);
                         }
@@ -177,8 +177,7 @@ public class WordGridModel implements IGrid {
     }
 
     public ICell getCell(int column, int row) {
-        // TODO Auto-generated method stub
-        return null;
+        return grid[column][row];
     }
 
     public ICellStyle getCellStyle(int column, int row) {

@@ -303,6 +303,9 @@ public class DTOptimizedAlgorithm {
                 if (ra != null) {
                     return new RangeIndexedEvaluator(ra);
                 }
+                
+                if (methodType == JavaOpenClass.BOOLEAN)
+                    return new DefaultConditionEvaluator();
 
                 break;
             case 2:
