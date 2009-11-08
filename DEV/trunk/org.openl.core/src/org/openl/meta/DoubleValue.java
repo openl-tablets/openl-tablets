@@ -395,4 +395,18 @@ public class DoubleValue extends Number implements IMetaHolder, Comparable<Numbe
         return printValue();
     }
 
+    @Override 
+    public boolean equals(Object obj) {
+        if (obj instanceof DoubleValue)
+        {
+            return value == ((DoubleValue)obj).doubleValue();
+        }    
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return ((Double)value).hashCode();
+    }
+
 }
