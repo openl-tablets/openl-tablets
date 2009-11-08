@@ -2,15 +2,24 @@ package org.openl.rules.table.word;
 
 import org.apache.poi.hwpf.usermodel.RangeHack;
 import org.apache.poi.hwpf.usermodel.TableCell;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.syntax.XlsURLConstants;
+import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.ui.ICellStyle;
 
-public class WordCell {
+public class WordCell implements ICell{
     TableCell tcell;
 
     boolean merged;
+    int row; 
+    int column;
 
-    public WordCell(TableCell tc) {
+    public WordCell(TableCell tc, int row, int column) {
         tcell = tc;
+        this.row = row;
+        this.column = column;
     }
 
     public int getParEnd() {
@@ -46,6 +55,46 @@ public class WordCell {
 
     public void setMerged(boolean merged) {
         this.merged = merged;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public ICellFont getFont() {
+        return null;
+    }
+
+    public String getFormula() {
+        return null;
+    }
+
+    public int getHeight() {
+        return 1;
+    }
+
+    public Object getObjectValue() {
+        return getStringValue();
+    }
+
+    public IGridRegion getRegion() {
+        return null;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public ICellStyle getStyle() {
+        return null;
+    }
+
+    public int getType() {
+        return IGrid.CELL_TYPE_STRING;
+    }
+
+    public int getWidth() {
+        return 1;
     }
 
 }
