@@ -42,6 +42,8 @@ public class TestMetaInfo extends TestCase {
                 for (int k = 0; k < h; k++) {
                     String value = table.getCell(j, k).getStringValue();
                     CellMetaInfo mi = IWritableGrid.Tool.getCellMetaInfo(table, j, k);
+                    if (mi == null)
+                        continue;
                     String paramName = mi.getParamName();
                     IOpenClass ioc = mi.getDataType();
                     System.out.println("Value = " + value + ", paramName = " + paramName + " , type = "
