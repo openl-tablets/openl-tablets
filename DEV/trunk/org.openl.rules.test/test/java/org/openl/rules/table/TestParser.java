@@ -100,7 +100,7 @@ public class TestParser extends TestCase {
         URL url1 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test1.xls");
         URL url2 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2-2.xls");
         
-        Assert.assertEquals(1, testOpenlParse(url1.getPath()));
+        Assert.assertEquals(0, testOpenlParse(url1.getPath()));
         Assert.assertEquals(0, testOpenlParse(url2.getPath()));
     }
 
