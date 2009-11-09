@@ -24,7 +24,19 @@ var AjaxHelper = {
     },
 
     getInputValue: function(element) {
-        return element.type == "checkbox" ? element.checked : element.value;
+        if (element.type == "checkbox") {
+            return element.checked;
+        } else {
+            return element.value;
+        }
+    },
+
+    setInputValue: function(element, value) {
+        if (element.type == "checkbox") {
+            element.checked = value;
+        } else {
+            element.value = value;
+        }
     }
 
 }

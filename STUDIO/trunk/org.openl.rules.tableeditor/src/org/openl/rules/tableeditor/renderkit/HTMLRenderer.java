@@ -208,11 +208,12 @@ public class HTMLRenderer {
                 .append(renderJS("js/NumericEditor.js"))
                 .append(renderJS("js/DropdownEditor.js"))
                 .append(renderJS("js/FormulaEditor.js"))
-                .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT, /*collapsed properties where turned to 
-                false on edit view*/false))
+                .append(renderJS("js/BooleanEditor.js"))
                 // .append(renderJS("js/DateEditor.js"))
                 // .append(renderJS("js/PriceEditor.js"))
                 // .append(renderJS("js/MultipleChoiceEditor.js"))
+                .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT, /*collapsed properties where turned to 
+                false on edit view*/false))
                 .append("<div id=\"").append(tableId).append("\"></div>").append(
                         renderJSBody(editor + " = initTableEditor(\"" + editorId + "\", \""
                                 + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\");"));
