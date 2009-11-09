@@ -186,7 +186,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         return null;
     }
 
-    List<WorkbookSyntaxNode> wbnodes = new ArrayList<WorkbookSyntaxNode>();
+    List<WorkbookSyntaxNode> workbookNodes = new ArrayList<WorkbookSyntaxNode>();
 
     public IParsedCode parse(IOpenSourceCodeModule source) {
 
@@ -201,7 +201,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
 
         // TableSyntaxNode[] nodes = nodesList.toArray(new
         // TableSyntaxNode[nodesList.size()]);
-        return new ParsedCode(new XlsModuleSyntaxNode(wbnodes.toArray(new WorkbookSyntaxNode[0]), source, openl,
+        return new ParsedCode(new XlsModuleSyntaxNode(workbookNodes.toArray(new WorkbookSyntaxNode[0]), source, openl,
                 vocabulary, allImportString, extensionNodes), source, errors.toArray(new ISyntaxError[0]));
     }
 
@@ -390,36 +390,33 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         InputStream is = null;
         try {
             is = source.getByteStream();
-            Workbook wb = WorkbookFactory.create(is);
-            XlsWorkbookSourceCodeModule wbsrc = new XlsWorkbookSourceCodeModule(source, wb);
+            Workbook workbook = WorkbookFactory.create(is);
+            XlsWorkbookSourceCodeModule workbookSourceModule = new XlsWorkbookSourceCodeModule(source, workbook);
 
-            int nsheets = wb.getNumberOfSheets();
+            int nsheets = workbook.getNumberOfSheets();
 
-            WorksheetSyntaxNode[] wsnodes = new WorksheetSyntaxNode[nsheets];
+            WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nsheets];
 
             for (int i = 0; i < nsheets; i++) {
-                Sheet sheet = wb.getSheetAt(i);
-                String sheetName = wb.getSheetName(i);
+                Sheet sheet = workbook.getSheetAt(i);                          
 
-                List<TableSyntaxNode> tsnodes = new ArrayList<TableSyntaxNode>();
+                XlsSheetSourceCodeModule sheetSource = preprocessSheet(sheet, workbookSourceModule);
 
-                XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(sheet, sheetName, wbsrc);
-
-                XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSource);
-
-                IGridTable[] tables = new GridSplitter(xlsGrid).split();
-
+                IGridTable[] tables = getAllGridTables(sheetSource);
+                
+                List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
+                
                 for (int j = 0; j < tables.length; j++) {
                     TableSyntaxNode tsn = preprocessTable(tables[j], sheetSource);
-                    tsnodes.add(tsn);
+                    tableNodes.add(tsn);
                 }
                 
-                wsnodes[i] = new WorksheetSyntaxNode(tsnodes.toArray(new TableSyntaxNode[0]) , sheetSource);
+                sheetNodes[i] = new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[0]) , sheetSource);
 
             }
-            WorkbookSyntaxNode wbsn = new WorkbookSyntaxNode(wsnodes, wbsrc);
-            wbnodes.add(wbsn);
-            return wbsn;
+            WorkbookSyntaxNode workbookNode = new WorkbookSyntaxNode(sheetNodes, workbookSourceModule);
+            workbookNodes.add(workbookNode);
+            return workbookNode;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -436,6 +433,22 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
             }
         }
 
+    }
+    
+    /**
+     * Gets all grid tables from the sheet.
+     * @param sheetSource
+     * @return
+     */
+    private IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource) {
+        XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSource);
+        IGridTable[] tables = new GridSplitter(xlsGrid).split();
+        return tables;
+    }
+    
+    private XlsSheetSourceCodeModule preprocessSheet(Sheet sheet, XlsWorkbookSourceCodeModule workbookSourceModule) {
+        String sheetName = sheet.getSheetName();
+        return new XlsSheetSourceCodeModule(sheet, sheetName, workbookSourceModule);
     }
 
     void setOpenl(OpenlSyntaxNode openl) {

@@ -265,25 +265,25 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
      * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
      */
     protected IBoundNode bindInternal(ISyntaxNode moduleNode, OpenL openl, ModuleBindingContext moduleContext,
-            XlsModuleOpenClass module, ISelector<ISyntaxNode> childSelector, Comparator<TableSyntaxNode> cmp) {
+            XlsModuleOpenClass module, ISelector<ISyntaxNode> childSelector, Comparator<TableSyntaxNode> tableComparator) {
 
         XlsModuleSyntaxNode xmsn = (XlsModuleSyntaxNode)moduleNode;
 
         
         
-        ArrayList<ISyntaxNode> list = new ArrayList<ISyntaxNode>();
+        ArrayList<ISyntaxNode> childSyntaxNodes = new ArrayList<ISyntaxNode>();
 
         for (TableSyntaxNode tsn: xmsn.getXlsTableSyntaxNodes()) {
             
             if (childSelector == null || childSelector.select(tsn)) {
-                list.add(tsn);
+                childSyntaxNodes.add(tsn);
             }
         }
 
-        TableSyntaxNode[] chNodes = list.toArray(new TableSyntaxNode[0]);
+        TableSyntaxNode[] chNodes = childSyntaxNodes.toArray(new TableSyntaxNode[0]);
 
-        if (cmp != null) {
-            Arrays.sort(chNodes, cmp);
+        if (tableComparator != null) {
+            Arrays.sort(chNodes, tableComparator);
         }
 
         IMemberBoundNode[] children = new IMemberBoundNode[chNodes.length];

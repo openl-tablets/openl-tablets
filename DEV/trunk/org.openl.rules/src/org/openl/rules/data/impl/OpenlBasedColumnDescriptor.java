@@ -38,23 +38,29 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 
-    IOpenField field;
-    IdentifierNode indexTable;
-    IdentifierNode indexKey;
-    StringValue displayValue;
-    IString2DataConvertor convertor;
+    private IOpenField field;
+    private IdentifierNode indexTable;
+    private IdentifierNode indexKey;
+    private StringValue displayValue;
+    private IString2DataConvertor convertor;
 
-    OpenL openl;
+    private OpenL openl;
 
-    Map<String, Integer> uniqueIndex = null;
+    private Map<String, Integer> uniqueIndex = null;
 
+    public OpenlBasedColumnDescriptor(IOpenField field, StringValue displayValue, IString2DataConvertor convertor, OpenL openl) {
+        this.field = field;
+        this.displayValue = displayValue;
+        this.convertor = convertor;
+        this.openl = openl;
+    }
+    
     public OpenlBasedColumnDescriptor(IOpenField field, IdentifierNode indexTable, IdentifierNode indexKey,
-            StringValue displayValue, IString2DataConvertor convertor, OpenL openl) {
+            StringValue displayValue, OpenL openl) {
         this.field = field;
         this.indexTable = indexTable;
         this.indexKey = indexKey;
         this.displayValue = displayValue;
-        this.convertor = convertor;
         this.openl = openl;
     }
 
