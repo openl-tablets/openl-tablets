@@ -68,7 +68,7 @@ BaseEditor.prototype = {
     /** Obtains current value from HTML editor control */
     getValue : function() {
         var node = this.getInputElement();
-        return node ? node.value.replace(/\u00A0/g, ' ') : null;
+        return node ? AjaxHelper.getInputValue(node).toString().replace(/\u00A0/g, ' ') : null;
     },
 
     /**
@@ -124,7 +124,7 @@ BaseEditor.prototype = {
      */
     show: function(value) {
         if (this.node) {
-            this.getInputElement().value = value;
+            AjaxHelper.setInputValue(this.getInputElement(), value);
             this.td.innerHTML = "";
             this.td.appendChild(this.node);
             this.node.focus();
