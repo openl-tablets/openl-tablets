@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -353,25 +355,13 @@ public class StringTool {
     }
 
     public static String encodeURL(String url) {
-        return encodeURL(url, new StringBuffer(url.length() * 2)).toString();
-    }
-
-    public static StringBuffer encodeURL(String url, StringBuffer buf) {
-        int len = url.length();
-        for (int i = 0; i < len; i++) {
-            int ch = url.charAt(i);
-            switch (ch) {
-                case '\\':
-                case '&':
-                case '?':
-                case '%':
-                    buf.append("%").append(Integer.toHexString(ch));
-                    break;
-                default:
-                    buf.append((char) ch);
-            }
+        String encodedUrl = null;
+        try {
+            encodedUrl = URLEncoder.encode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        return buf;
+        return encodedUrl;
     }
 
     /**
