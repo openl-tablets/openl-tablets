@@ -3,14 +3,13 @@
  */
 package org.openl.rules.ui;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.ITreeElement;
+import org.openl.util.StringTool;
 
 /**
  * @author snshor
@@ -99,13 +98,7 @@ public class ProjectTreeRenderer extends DTreeRenderer implements IProjectTypes,
         String elementType = element.getType();
         if (elementType.startsWith(PT_TABLE + ".")) {
             String uri = ((ProjectTreeElement) element).getUri();
-            try {
-                uri = URLEncoder.encode(uri, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                // TODO: handle exception
-            }
-            return targetJsp + "?" + Constants.REQUEST_PARAM_URI + "=" + uri;
+            return targetJsp + "?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
         } else if (elementType.startsWith(PT_PROBLEM)) {
             return "faces/facelets/tableeditor/showError.xhtml" + "?" + Constants.REQUEST_PARAM_ID + "="
                     + map.getID(element);

@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
@@ -162,14 +160,7 @@ public class ShowTableBean {
     }
 
     public String getEncodedUri() {
-        String encodedUri = null;
-        try {
-            encodedUri = URLEncoder.encode(uri, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            // TODO: handle exception
-        }
-        return encodedUri;
+        return StringTool.encodeURL(uri);
     }
 
     public String getErrorString() {

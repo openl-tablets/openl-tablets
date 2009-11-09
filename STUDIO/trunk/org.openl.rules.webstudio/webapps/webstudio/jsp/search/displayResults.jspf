@@ -1,4 +1,3 @@
-<%@page import="java.net.URLEncoder"%>
 <%@page import="org.openl.rules.webtools.indexer.FileIndexer"%>
 <%@page import="org.openl.rules.webtools.WebTool"%>
 <%@page import="org.openl.util.StringTool"%>
@@ -41,7 +40,7 @@ for(int i = 0; i < values.length; ++i) {
   <tr>
     <td width="16"><img src="<%=contextPath%>/images/viewTable.gif" /></td>
     <td valign="top">
-        <a href="<%=contextPath%>/faces/facelets/tableeditor/showTable.xhtml?uri=<%=URLEncoder.encode(uri)%>"
+        <a href="<%=contextPath%>/faces/facelets/tableeditor/showTable.xhtml?uri=<%=StringTool.encodeURL(uri)%>"
             title="View Table in Table Editor">View Table</a>
     </td>
   </tr>

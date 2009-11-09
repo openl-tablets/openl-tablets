@@ -11,7 +11,6 @@
 <%@page import="org.openl.rules.webstudio.security.CurrentUserInfo"%>
 <%@page import="org.openl.rules.workspace.MultiUserWorkspaceManager"%>
 <%@page import = "org.openl.rules.util.net.NetUtils" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@page import="org.openl.rules.webstudio.web.jsf.WebContext"%>
 <html>
 <head>
@@ -96,9 +95,8 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
     <frame src="html/nothing.html" name="show_app_hidden">
 </frameset>
 
-<%if (request.getParameter("elementURI") != null ) {%>
-<frame src="${pageContext.request.contextPath}/jsp/tableeditor/showTable.jsf?elementURI=<%=URLEncoder.encode(request.getParameter("elementURI"), "UTF-8")%>" name="mainFrame" scrolling="auto"/>
-<%} else if (validateErrors != null) { if (validateErrors.size() > 0){%>
+
+<%if (validateErrors != null) { if (validateErrors.size() > 0){%>
 <frame src="${pageContext.request.contextPath}/html/yesValidateErrors.html" name="mainFrame" scrolling="auto"/>
 <%} else { %>
 <frame src="${pageContext.request.contextPath}/html/noValidateErrors.html" name="mainFrame" scrolling="auto"/>
