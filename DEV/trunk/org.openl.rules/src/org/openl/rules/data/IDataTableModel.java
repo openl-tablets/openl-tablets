@@ -22,5 +22,7 @@ public interface IDataTableModel {
     IOpenClass getType();
 
     public Object newInstance();
+    
+    public boolean hasColumnTytleRow();
 
 }

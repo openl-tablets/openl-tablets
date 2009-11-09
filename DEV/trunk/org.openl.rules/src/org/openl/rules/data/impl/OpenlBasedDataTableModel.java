@@ -17,16 +17,26 @@ import org.openl.types.IOpenClass;
  */
 public class OpenlBasedDataTableModel implements IDataTableModel {
 
-    String name;
-    IOpenClass type;
-    OpenL openl;
-    IColumnDescriptor[] columnDescriptor;
+    private String name;
+    private IOpenClass type;
+    private OpenL openl;
+    private IColumnDescriptor[] columnDescriptor;
+    private boolean hasColumnTytleRow; 
 
-    public OpenlBasedDataTableModel(String name, IOpenClass type, OpenL openl, IColumnDescriptor[] columnDescriptor) {
+    public OpenlBasedDataTableModel(String name, IOpenClass type, OpenL openl, IColumnDescriptor[] columnDescriptor, boolean hasColumnTytleRow) {
         this.name = name;
         this.type = type;
         this.openl = openl;
         this.columnDescriptor = columnDescriptor;
+        this.hasColumnTytleRow = hasColumnTytleRow;
+    }
+
+    public boolean hasColumnTytleRow() {
+        return hasColumnTytleRow;
+    }
+
+    public void setHasColumnTytleRow(boolean hasColumnTytleRow) {
+        this.hasColumnTytleRow = hasColumnTytleRow;
     }
 
     /**

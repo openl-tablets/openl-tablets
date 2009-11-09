@@ -285,7 +285,13 @@ public class DataBase implements IDataBase {
 
         public void preLoad(OpenlToolAdaptor ota) throws Exception {
             int rows = data.getLogicalHeight();
-            int startRow = 1;
+            int startRow;
+            if (dataModel.hasColumnTytleRow()) {
+                startRow = 1;
+            } else {
+                startRow = 0;
+            }
+            
 
             ary = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
 
@@ -417,10 +423,10 @@ public class DataBase implements IDataBase {
         return t;
     }
 
-    public void preLoadTable(ITable t, OpenlBasedDataTableModel dataModel, ILogicalTable dataWithHeader,
+    public void preLoadTable(ITable t, OpenlBasedDataTableModel dataModel, ILogicalTable dataWithTitles,
             OpenlToolAdaptor ota) throws Exception {
         t.setModel(dataModel);
-        t.setData(dataWithHeader);
+        t.setData(dataWithTitles);
         t.preLoad(ota);
     }
 
