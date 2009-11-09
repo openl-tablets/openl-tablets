@@ -33,9 +33,9 @@
     <module>../org.openl.poi.lib.eclipse.feature</module>
     <module>../org.openl.rules.gen</module>
 	
-	<!-- Tests -->
-	<module>../org.openl.test</module>
-	<!--<module>../org.openl.rules.test</module>-->
+    <!-- Tests -->
+    <module>../org.openl.test</module>
+    <module>../org.openl.rules.test</module>
 
   </modules>
 
