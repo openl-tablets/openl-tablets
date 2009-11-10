@@ -129,8 +129,10 @@ public class HTMLRenderer {
             String cellToEdit, boolean inner, String editorId, IGridFilter filter, boolean showFormulas,
             boolean collapseProps) {
         StringBuilder result = new StringBuilder();
-        result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css")).append(
-                renderCSS("css/toolbar.css")).append(renderJS("js/prototype/prototype-1.5.1.js")).append(
+        result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css"))
+            .append(renderCSS("css/toolbar.css"))
+            .append(renderCSS("css/datepicker.css"))
+            .append(renderJS("js/prototype/prototype-1.5.1.js")).append(
                 renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
                 renderJS("js/IconManager.js")).append(renderJS("js/TableEditor.js")).append(
                 renderJS("js/initTableEditor.js")).append(renderJS("js/BaseEditor.js")).append(
@@ -209,7 +211,7 @@ public class HTMLRenderer {
                 .append(renderJS("js/DropdownEditor.js"))
                 .append(renderJS("js/FormulaEditor.js"))
                 .append(renderJS("js/BooleanEditor.js"))
-                // .append(renderJS("js/DateEditor.js"))
+                .append(renderJS("js/DateEditor.js"))
                 // .append(renderJS("js/PriceEditor.js"))
                 // .append(renderJS("js/MultipleChoiceEditor.js"))
                 .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT, /*collapsed properties where turned to 
@@ -397,8 +399,6 @@ public class HTMLRenderer {
             renderHideButton(propsId);
             result.append("</td></tr><tr><td><div id=" + propsId + " class='te_props_propstable'>");
             result.append("<table cellspacing='1' cellpadding='1'>");
-            //result.append(renderJS("js/calendar_us.js"));
-            result.append(renderCSS("css/calendar.css"));
             buildPropsTable();
             result.append("</table></div></td></tr></table>");
             if (collapsed) {
@@ -509,14 +509,14 @@ public class HTMLRenderer {
 
         private void insertCalendar(String value, String name) {
             numberOfCalendars++;
-            result.append(renderJS("js/calendar_us.js"));
-            result.append("<td><input name='" + name + "' type='text' value='" + value + "' id='datepicker"
-                        + numberOfCalendars +"' />")
-                .append(renderJSBody("new tcal ({'controlname': 'datepicker" + numberOfCalendars + "'});"))
-                .append("<img src='" + WebUtil.internalPath("img/calendar/cal.gif") + "' id='tcalico_"
-                        + (numberOfCalendars - 1) + "' onclick='A_TCALS[\"" + (numberOfCalendars - 1)
-                        + "\"].f_toggle()' class='tcalIcon' alt='Open Calendar' />")
-                .append("</td>");
+            String datePickerId = "datepicker" + numberOfCalendars;
+            result.append(renderJS("js/datepicker.packed.js"));
+            result.append("<td><input name='" + name + "' type='text' value='" + value + "' id='"
+                    + datePickerId +"' />");
+            result.append(renderJSBody("var opts = {"
+                + "formElements:{\"" + datePickerId + "\":\"m-sl-d-sl-Y\"}"
+                + "};"
+                + "datePickerController.createDatePicker(opts);"));
         }
 
         /*private void insertSelect(List<String> listOfOptions) {                        

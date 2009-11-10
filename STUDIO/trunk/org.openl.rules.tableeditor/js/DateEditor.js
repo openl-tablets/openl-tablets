@@ -1,50 +1,47 @@
 /**
  * Date editor.
  *
- * Requires a part of some old version of YAHOO UI library.
- *
- * @author Andrey Naumenko
+ * @author Andrei Astrouski
  */
-
-document.write("<script src='" + jsPath + "calendar/YAHOO.js'></script>");
-document.write("<script src='" + jsPath + "calendar/event.js'></script>");
-document.write("<script src='" + jsPath + "calendar/calendar.js'></script>");
-document.write("<script src='" + jsPath + "calendar/calendar_init.js'></script>");
-document.write("<link rel='stylesheet' type='text/css' href='" + jsPath + "calendar/calendar.css'></link>");
 
 var DateEditor = Class.create();
 
-DateEditor.prototype = Object.extend(new BaseEditor(), {
+DateEditor.prototype = Object.extend(new BaseTextEditor(), {
+
     editor_initialize: function() {
-        var value =  this.td.innerHTML.unescapeHTML().strip();
+        this.node = $(document.createElement("input"));
+        this.node.setAttribute("type", "text");
+        this.node.style.border = "0px none";
+        this.node.style.height = (this.td.offsetHeight - (Prototype.Browser.IE ? 6 : 4)) + "px";
 
-        if (!window._grid_calendar) _grid_calendar_init();
-        var pos = Position.page(this.td)
-        pos[1] += Element.Methods.getDimensions(this.td).height;
-        window._grid_calendar.render(pos[0], pos[1], this, value);
-        Event.observe(window._grid_calendar.table.parentNode.parentNode, "click", BaseEditor.stopPropagationHandler, false);
+        this.node.style.fontFamily = this.td.style.fontFamily;
+        this.node.style.fontSize = this.td.style.fontSize;
+        this.node.style.fontStyle = this.td.style.fontStyle;
+        this.node.style.fontWeight = this.td.style.fontWeight;
+        this.node.style.textAlign = this.td.align;
+
+        this.node.style.margin = "0px";
+        this.node.style.padding = "0px";
+        this.node.style.width = "93%";
+
+        this.node.setAttribute("id", "datepicker111");
+
+        var self = this;
+        ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
     },
 
-    show : Prototype.emptyFunction,
-
-    getValue : function() {
-        var z = window._grid_calendar.getSelectedDates()[0];
-        return this._date2str(z);
+    show: function(value) {
+        BaseTextEditor.prototype.show.call(this, value);
+        var opts = {
+            formElements:{"datepicker111":"m-sl-d-sl-Y"}
+        };
+        datePickerController.createDatePicker(opts);
     },
 
-    _2dg : function(v) {
-        v = v.toString();
-        return (v.length == 1) ? "0" + v : v;
+    destroy: function(value) {
+        datePickerController.destroyDatePicker("datepicker111");
     },
 
-    _date2str : function(z) {
-        return ("m/d/y").replace("m", this._2dg((z.getMonth() + 1))).replace("d", this._2dg(z.getDate())).replace("y", this._2dg((z.getFullYear() * 1)));
-    },
-
-    destroy: function() {
-        window._grid_calendar.hide();
-        Event.stopObserving(window._grid_calendar.table.parentNode.parentNode, "click", BaseEditor.stopPropagationHandler);
-    }
 });
 
 TableEditor.Editors["date"] = DateEditor;
