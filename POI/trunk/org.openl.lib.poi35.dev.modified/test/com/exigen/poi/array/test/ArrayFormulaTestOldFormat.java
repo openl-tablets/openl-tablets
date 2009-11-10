@@ -314,6 +314,25 @@ public class ArrayFormulaTestOldFormat {
 		assertEquals("B55-G55",getNumericValue("G55"), calculateNumericFormula("B55"), 0);
 		assertEquals("C55-H55",getNumericValue("H55"), calculateNumericFormula("C55"), 0);
 	}
+	@Test
+	public void NumericArrayBeforeCalc(){
+		
+		Cell cell1 = wb.getSheetAt(0).getRow(59).getCell(1);  // B60
+		assertEquals("B60-precal",10.0,cell1.getNumericCellValue(), 0);
+        cell1 = wb.getSheetAt(0).getRow(59).getCell(0); //A60
+		assertEquals("A60-precal",4.0,cell1.getNumericCellValue(), 0);
+
+		// Clean cell's values before calculation
+		setNumericValue("A60", 0);
+		setNumericValue("B60", 0);
+		setNumericValue("A61", 0);
+		setNumericValue("B61", 0);
+		
+		assertEquals("A60-F60",getNumericValue("F60"), calculateNumericFormula("A60"), 0);
+		assertEquals("B60-G60",getNumericValue("G60"), calculateNumericFormula("B60"), 0);
+		assertEquals("A61-F61",getNumericValue("F61"), calculateNumericFormula("A61"), 0);
+		assertEquals("B61-G61",getNumericValue("G61"), calculateNumericFormula("B61"), 0);
+	}
 	protected Cell getCell(String cellRef){
 		
 		log.debug("Access to Cell:" + cellRef);
