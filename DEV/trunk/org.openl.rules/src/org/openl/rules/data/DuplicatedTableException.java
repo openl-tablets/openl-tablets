@@ -8,22 +8,19 @@ package org.openl.rules.data;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
+
 /**
  * @author snshor
+ * TODO - make it syntax error
  *
  */
-public class DuplicatedTableException extends RuntimeException
-// TODO - make it syntax error
-{
+public class DuplicatedTableException extends RuntimeException{
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -6269440215951548170L;
 
-    TableSyntaxNode existingTable;
-    TableSyntaxNode duplicatedTable;
-    String tableName;
+    private TableSyntaxNode existingTable;
+    private TableSyntaxNode duplicatedTable;
+    private String tableName;
 
     public DuplicatedTableException(String tableName, TableSyntaxNode existingTable, TableSyntaxNode duplicatedTable) {
         this.tableName = tableName;

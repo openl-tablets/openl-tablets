@@ -84,7 +84,7 @@ public interface ITable {
 
     TableSyntaxNode getTableSyntaxNode();
 
-    public Map<String, Integer> getUniqueIndex(int columnIndex) throws BoundError;
+    Map<String, Integer> getUniqueIndex(int columnIndex) throws BoundError;
 
     /**
      * @param col

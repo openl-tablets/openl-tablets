@@ -13,16 +13,17 @@ import org.openl.types.IOpenClass;
  *
  */
 public interface IDataTableModel {
+    
     IColumnDescriptor[] getDescriptor();
 
-    public Class<?> getInstanceClass();
+    Class<?> getInstanceClass();
 
     String getName();
 
     IOpenClass getType();
 
-    public Object newInstance();
+    Object newInstance();
     
-    public boolean hasColumnTytleRow();
+    boolean hasColumnTytleRow();
 
 }

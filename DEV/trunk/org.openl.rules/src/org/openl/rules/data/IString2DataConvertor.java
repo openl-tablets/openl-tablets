@@ -13,12 +13,13 @@ import org.openl.binding.IBindingContext;
  *
  */
 public interface IString2DataConvertor {
-    public String format(Object data, String format);
+    
+    String format(Object data, String format);
 
     // boolean isBindingContextRequired
     // public Object convertArray(String[] data);
 
-    public Object parse(String data, String format, IBindingContext cxt);
+    Object parse(String data, String format, IBindingContext cxt);
 
     // public Object makeArray(int size);
 
