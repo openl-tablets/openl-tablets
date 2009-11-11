@@ -50,6 +50,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.formula.FormulaType;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.util.POILogger;
@@ -71,8 +72,6 @@ import org.apache.poi.util.POILogFactory;
  * @author  Dan Sherman (dsherman at isisph.com)
  * @author  Brian Sanders (kestrel at burdell dot org) Active Cell support
  * @author  Yegor Kozlov cell comments support
- * @author  vbabramovs(VIA) change visibility of setCellType and _recod
-
  */
 public class HSSFCell implements Cell {
     private static POILogger log = POILogFactory.getLogger(HSSFCell.class);
@@ -92,11 +91,7 @@ public class HSSFCell implements Cell {
     private final HSSFSheet          _sheet;
     private int                      _cellType;
     private HSSFRichTextString       _stringValue;
-    
-//  VIA
-    protected CellValueRecordInterface _record;
-//   end changes VIA    
-    
+    private CellValueRecordInterface _record;
     private HSSFComment              _comment;
 
     /**
@@ -301,9 +296,7 @@ public class HSSFCell implements Cell {
      *
      */
 
- // VIA
-    protected void setCellType(int cellType, boolean setValue, int row,short col, short styleIndex)
-//    end changes VIA
+    private void setCellType(int cellType, boolean setValue, int row,short col, short styleIndex)
     {
 
         if (cellType > CELL_TYPE_ERROR)
@@ -1062,7 +1055,8 @@ public class HSSFCell implements Cell {
     protected static HSSFComment findCellComment(Sheet sheet, int row, int column) {
         // TODO - optimise this code by searching backwards, find NoteRecord first, quit if not found. Find one TXO by id
         HSSFComment comment = null;
-        ArrayList<TextObjectRecord> noteTxo = new ArrayList<TextObjectRecord>();
+        Map<Integer, TextObjectRecord> noteTxo =
+                               new HashMap<Integer, TextObjectRecord>();
         int i = 0;
         for (Iterator<RecordBase> it = sheet.getRecords().iterator(); it.hasNext();) {
             RecordBase rec = it.next();
@@ -1070,7 +1064,7 @@ public class HSSFCell implements Cell {
                 NoteRecord note = (NoteRecord) rec;
                 if (note.getRow() == row && note.getColumn() == column) {
                     if(i < noteTxo.size()) {
-                        TextObjectRecord txo = noteTxo.get(i);
+                        TextObjectRecord txo = noteTxo.get(note.getShapeId());
                         comment = new HSSFComment(note, txo);
                         comment.setRow(note.getRow());
                         comment.setColumn((short) note.getColumn());
@@ -1089,12 +1083,12 @@ public class HSSFCell implements Cell {
                 if (sub instanceof CommonObjectDataSubRecord) {
                     CommonObjectDataSubRecord cmo = (CommonObjectDataSubRecord) sub;
                     if (cmo.getObjectType() == CommonObjectDataSubRecord.OBJECT_TYPE_COMMENT) {
-                        //find the next TextObjectRecord which holds the comment's text
-                        //the order of TXO matches the order of NoteRecords: i-th TXO record corresponds to the i-th NoteRecord
+                        //map ObjectId and corresponding TextObjectRecord,
+                        //it will be used to match NoteRecord and TextObjectRecord
                         while (it.hasNext()) {
                             rec = it.next();
                             if (rec instanceof TextObjectRecord) {
-                                noteTxo.add((TextObjectRecord) rec);
+                                noteTxo.put(cmo.getObjectId(), (TextObjectRecord) rec);
                                 break;
                             }
                         }
@@ -1161,5 +1155,16 @@ public class HSSFCell implements Cell {
             throw new IllegalStateException("Only formula cells have cached results");
         }
         return ((FormulaRecordAggregate)_record).getFormulaRecord().getCachedResultType();
+    }
+
+    public CellRangeAddress getArrayFormulaRange() {
+        if(_record instanceof FormulaRecordAggregate){
+            return ((FormulaRecordAggregate)_record).getFormulaRange();
+        }
+        return null;
+    }
+
+    public boolean isArrayFormulaContext() {
+        return getArrayFormulaRange() != null;
     }
 }

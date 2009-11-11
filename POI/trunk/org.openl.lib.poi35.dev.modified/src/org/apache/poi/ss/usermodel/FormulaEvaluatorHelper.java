@@ -8,7 +8,7 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.ss.formula.ArrayFormula;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * This class contains methods, common for HSSF and XSSF FormulaEvaluator
@@ -26,22 +26,22 @@ public class FormulaEvaluatorHelper {
 	
 	/** Transform Value according aimed Range
 	 * @param cvs
-	 * @param af
+	 * @param range
 	 * @return
 	 */
-	public static Object[][] transform2Range(Object[][] cvs,ArrayFormula af){
+	public static Object[][] transform2Range(Object[][] cvs,CellRangeAddress range){
 		
 		Object[][] answer = null;
 		if(cvs[0][0] instanceof CellValue)
-			answer = new CellValue[af.getLastRow()-af.getFirstRow()+1][af.getLastColumn()-af.getFirstColumn()+1];
+			answer = new CellValue[range.getLastRow()-range.getFirstRow()+1][range.getLastColumn()-range.getFirstColumn()+1];
 		else if (cvs[0][0] instanceof ValueEval)
-			answer = new ValueEval[af.getLastRow()-af.getFirstRow()+1][af.getLastColumn()-af.getFirstColumn()+1];
+			answer = new ValueEval[range.getLastRow()-range.getFirstRow()+1][range.getLastColumn()-range.getFirstColumn()+1];
 		else
 			throw new RuntimeException("transform2Range does not support type "+cvs[0][0].getClass().getName());
-		int rowStart = af.getFirstRow();
-		int colStart = af.getFirstColumn();
-		for(int i=rowStart;i<=af.getLastRow();i++ )
-			for(int j=colStart; j<=af.getLastColumn();j++)
+		int rowStart = range.getFirstRow();
+		int colStart = range.getFirstColumn();
+		for(int i=rowStart;i<=range.getLastRow();i++ )
+			for(int j=colStart; j<=range.getLastColumn();j++)
 			{
 				if((i-rowStart)<cvs.length && (j-colStart)<cvs[i-rowStart].length){
 					answer[i-rowStart][j-colStart] = cvs[i-rowStart][j-colStart];

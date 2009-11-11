@@ -18,6 +18,7 @@
 package org.apache.poi.ss.util;
 
 import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.usermodel.Cell;
 
 
 /**
@@ -111,7 +112,14 @@ public abstract class CellRangeAddressBase {
 		return _lastRow;
 	}
 
-	/**
+    public boolean isInRange(Cell cell){
+        int rowInd = cell.getRowIndex();
+        int colInd = cell.getColumnIndex();
+        return ( getFirstRow() <= rowInd  &&  rowInd <= getLastRow() &&
+                getFirstColumn() <= colInd && colInd <= getLastColumn()); 
+    }
+
+    /**
 	 * @param firstCol column number for the upper left hand corner
 	 */
 	public final void setFirstColumn(int firstCol) {

@@ -212,9 +212,16 @@ public final class WorkbookEvaluator {
 
 	public ValueEval evaluate(EvaluationCell srcCell) {
 		int sheetIndex = getSheetIndex(srcCell.getSheet());
-		return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(), new EvaluationTracker(_cache));
-	}
+		if (srcCell.isArrayFormulaContext()) {
+            return evaluateAny(srcCell.getFirstCellInArrayFormula(), sheetIndex, srcCell.getRowIndex(), srcCell
+                    .getColumnIndex(), new EvaluationTracker(_cache));
 
+        } else {
+            return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(),
+                    new EvaluationTracker(_cache));
+        }
+	}
+	
 	/**
 	 * Case-insensitive.
 	 * @return -1 if sheet with specified name does not exist

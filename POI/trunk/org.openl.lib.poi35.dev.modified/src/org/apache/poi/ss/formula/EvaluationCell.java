@@ -50,4 +50,9 @@ public interface EvaluationCell {
 	 */
 	boolean isArrayFormulaContext();  
 //    end changes VIA	
+
+    /**
+     * @return Main cell in array formula that contains formula.
+     */
+	EvaluationCell getFirstCellInArrayFormula();  
 }

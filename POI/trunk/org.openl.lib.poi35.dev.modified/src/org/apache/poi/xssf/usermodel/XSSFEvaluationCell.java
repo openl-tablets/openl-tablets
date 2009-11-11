@@ -24,8 +24,10 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * XSSF wrapper for a cell under evaluation
@@ -82,11 +84,7 @@ final class XSSFEvaluationCell implements UpdatableEvaluationCell {
 
 //  VIA	
 	public boolean isArrayFormulaContext() {
-		if(_cell instanceof XSSFCellArExt)
-		{
-			return ((XSSFCellArExt)_cell).isArrayFormulaContext();
-		}	
-		return false;
+		return _cell.isArrayFormulaContext();
 	}
 //	end changes VIA
 
@@ -118,5 +116,10 @@ final class XSSFEvaluationCell implements UpdatableEvaluationCell {
             return;
         }
         throw new IllegalArgumentException("Unexpected value class (" + cls.getName() + ")");
+    }
+
+    public EvaluationCell getFirstCellInArrayFormula() {
+        CellRangeAddress range = _cell.getArrayFormulaRange();
+        return _evalSheet.getCell(range.getFirstRow(), range.getFirstColumn());
     }
 }
