@@ -269,7 +269,6 @@ var TableEditor = Class.create({
             var formula = cell.down("input[name='formula']");
             typedText = formula ? formula.value : '';
         }
-        response.editor = 'multiChoice';
         this.editor = new TableEditor.Editors[response.editor](this, cell, response.params, typedText);
         this.selectElement(cell);
     },
