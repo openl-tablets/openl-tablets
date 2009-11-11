@@ -20,6 +20,8 @@ package org.apache.poi.ss.usermodel;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.poi.ss.util.CellRangeAddress;
+
 /**
  * High level representation of a cell in a row of a spreadsheet.
  * <p>
@@ -364,4 +366,17 @@ public interface Cell {
      * @param link hypelrink associated with this cell
      */
     void setHyperlink(Hyperlink link);
+
+    /**
+     * get reference for Array Formula
+     * @return
+     */
+    CellRangeAddress getArrayFormulaRange();
+    
+    /**
+     * Check is cell belong to Array Formula Range
+     * @return
+     */
+    public boolean isArrayFormulaContext();
+         
 }

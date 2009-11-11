@@ -6,18 +6,14 @@ import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.FormulaError;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellArExt;
-import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCell;
 
 import static org.junit.Assert.*;
 
@@ -415,10 +411,7 @@ public class ArrayFormulaTest {
 	
 	
 	protected void setNumericValue(Cell cell, double value) {
-		if(cell instanceof XSSFCellArExt)
-			((XSSFCellArExt)cell).setCellValueInt(value);
-		else
-			cell.setCellValue(value);
+	    cell.setCellValue(value);
 		// Notify that values changed 
 		if(evaluator != null)
 		{ 
@@ -426,16 +419,7 @@ public class ArrayFormulaTest {
 		}
 	}
 	protected void setArrayFormula(String cellRef, String formula, String range){
-		setArrayFormula(getCell(cellRef),formula, range);
+	    Sheet sheet = getCell(cellRef).getSheet();
+	    sheet.setArrayFormula(formula, CellRangeAddress.valueOf(range));
 	}
-	protected void setArrayFormula(Cell cell, String formula, String range) {
-		if(cell instanceof XSSFCellArExt)
-			((XSSFCellArExt)cell).setCellFormula(formula, range);
-		else
-			throw new IllegalArgumentException("Cell does not allow Array Formula :" + cell.toString());
-			;
-		
-		
-	}
-
 }

@@ -22,21 +22,29 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.hssf.record.SharedFormulaRecord;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.ss.formula.FormulaParser;
-import org.apache.poi.ss.formula.FormulaType;
-import org.apache.poi.ss.formula.FormulaRenderer;
+import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.ss.SpreadsheetVersion;
-import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.ss.formula.FormulaParser;
+import org.apache.poi.ss.formula.FormulaRenderer;
+import org.apache.poi.ss.formula.FormulaType;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.FormulaError;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.StylesTable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCell;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellFormula;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellFormulaType;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 
 /**
  * High level representation of a cell in a row of a spreadsheet.
@@ -52,8 +60,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellFormulaType;
  * cells that have values should be added.
  * </p>
  */
-//VIA - delete final to allow subclassing for ARRAY Formula support
-public class XSSFCell implements Cell {
+public final class XSSFCell implements Cell {
 
     private static final String FALSE_AS_STRING = "0";
     private static final String TRUE_AS_STRING  = "1";
@@ -330,6 +337,10 @@ public class XSSFCell implements Cell {
         if(cellType != CELL_TYPE_FORMULA) throw typeMismatch(CELL_TYPE_FORMULA, cellType, false);
 
         CTCellFormula f = _cell.getF();
+        if (isArrayFormulaContext() && f == null) {
+            XSSFCell cell = getSheet().getFirstCellInArrayFormula(this);
+            return cell.getCellFormula();
+        }
         if(f.getT() == STCellFormulaType.SHARED){
             return convertSharedFormula((int)f.getSi());
         }
@@ -383,6 +394,11 @@ public class XSSFCell implements Cell {
         f.setStringValue(formula);
         _cell.setF(f);
         if(_cell.isSetV()) _cell.unsetV();
+    }
+
+    /* package */ void setCellFormulaReference(CellRangeAddress range) {
+        CTCellFormula formula = _cell.getF();
+        formula.setRef(range.formatAsString());
     }
 
     /**
@@ -458,9 +474,9 @@ public class XSSFCell implements Cell {
      */
     public int getCellType() {
 
-        if (_cell.getF() != null) {
+        if (_cell.getF() != null || getSheet().isCellInArrayFormulaContext(this)) {
             return CELL_TYPE_FORMULA;
-        }
+        } 
 
         return getBaseCellType(true);
     }
@@ -569,13 +585,13 @@ public class XSSFCell implements Cell {
      * @throws IllegalStateException if the cell type returned by {@link #getCellType()} isn't CELL_TYPE_ERROR
      * @see FormulaError
      */
-    public String getErrorCellString() {  
-        int cellType = getBaseCellType(true);  // !! ZS - fixed bug; when formula and result(value) is error - can't get it
+    public String getErrorCellString() {
+        int cellType = getBaseCellType(true);
         if(cellType != CELL_TYPE_ERROR) throw typeMismatch(CELL_TYPE_ERROR, cellType, false);
 
         return _cell.getV();
     }
-   /**
+    /**
      * Get the value of the cell as an error code.
      * <p>
      * For strings, numbers, and booleans, we throw an exception.
@@ -896,6 +912,23 @@ public class XSSFCell implements Cell {
                 return "";
         }
         throw new RuntimeException("Unexpected cell type (" + cellType + ")");
+    }
+
+    public CellRangeAddress getArrayFormulaRange() {
+        XSSFCell cell = getSheet().getFirstCellInArrayFormula(this);
+        if (cell != null) {
+            System.out.println(cell.getCellFormula());
+            System.out.println(cell.getRowIndex());
+            System.out.println(cell.getColumnIndex());
+            String formulaRef = cell._cell.getF().getRef();
+            return CellRangeAddress.valueOf(formulaRef);
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isArrayFormulaContext() {
+        return getSheet().isCellInArrayFormulaContext(this);
     }
 
 }

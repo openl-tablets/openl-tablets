@@ -137,4 +137,8 @@ final class ForkedEvaluationCell implements UpdatableEvaluationCell {
 		return _masterCell.isArrayFormulaContext();
 	}
 // end changes VIA 	
+
+    public EvaluationCell getFirstCellInArrayFormula() {
+        return _masterCell.getFirstCellInArrayFormula();
+    }
 }

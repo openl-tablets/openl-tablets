@@ -28,7 +28,7 @@ import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.ss.formula.FormulaCellCache.IEntryOperation;
 import org.apache.poi.ss.formula.FormulaUsedBlankCellSet.BookSheetKey;
 import org.apache.poi.ss.formula.PlainCellCache.Loc;
-import org.apache.poi.ss.usermodel.CellArExt;
+import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * Performance optimisation for {@link HSSFFormulaEvaluator}. This class stores previously
@@ -203,8 +203,8 @@ final class EvaluationCache {
 		Object[] formulaKeys = _formulaCellCache.getCacheKeys();
 		for(int i=0;i<formulaKeys.length;i++)
 		{
-			if(formulaKeys[i] instanceof CellArExt){
-				if(((CellArExt)formulaKeys[i]).getArrayFormulaRef()== ((CellArExt)cell.getIdentityKey()).getArrayFormulaRef())
+			if(formulaKeys[i] instanceof Cell){
+				if(((Cell)formulaKeys[i]).getArrayFormulaRange()== ((Cell)cell.getIdentityKey()).getArrayFormulaRange())
 					{ // Found calculated results for this array formula
 					answer = _formulaCellCache.get(formulaKeys[i]);
 					return answer;

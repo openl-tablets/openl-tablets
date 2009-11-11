@@ -6,18 +6,17 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCellArEXt;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellArExt;
 import org.apache.poi.ss.usermodel.FormulaError;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellArExt;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.BeforeClass;
@@ -209,7 +208,7 @@ public class ArrayFormulaTestOldFormat {
 
 	}
 	
-	@Test
+	@Test(expected=NotImplementedException.class)
 	public void  NewNumericArrayFormula(){
 		
 
@@ -438,28 +437,16 @@ public class ArrayFormulaTestOldFormat {
 	}
 	
 	
-	protected void setNumericValue(Cell cell, double value) {
-		if(cell instanceof HSSFCellArEXt)
-			((HSSFCellArEXt)cell).setCellValueInt(value);
-		else
-			cell.setCellValue(value);
-		// Notify that values changed 
-		if(evaluator != null)
-		{ 
-			evaluator.notifySetFormula(cell);
-		}
-	}
-	protected void setArrayFormula(String cellRef, String formula, String range){
-		setArrayFormula(getCell(cellRef),formula, range);
-	}
-	protected void setArrayFormula(Cell cell, String formula, String range) {
-		if(cell instanceof HSSFCellArEXt)
-			((HSSFCellArEXt)cell).setCellFormula(formula, range);
-		else
-			throw new IllegalArgumentException("Cell does not allow Array Formula :" + cell.toString());
-			;
-		
-		
-	}
-
+    protected void setNumericValue(Cell cell, double value) {
+        cell.setCellValue(value);
+        // Notify that values changed 
+        if(evaluator != null)
+        { 
+            evaluator.notifySetFormula(cell);
+        }
+    }
+    protected void setArrayFormula(String cellRef, String formula, String range){
+        Sheet sheet = getCell(cellRef).getSheet();
+        sheet.setArrayFormula(formula, CellRangeAddress.valueOf(range));
+    }
 }

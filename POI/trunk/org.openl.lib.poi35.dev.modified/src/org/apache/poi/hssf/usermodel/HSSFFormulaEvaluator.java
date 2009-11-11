@@ -34,10 +34,9 @@ import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 // VIA
 import org.apache.poi.ss.formula.ArrayEval;
-import org.apache.poi.ss.formula.ArrayFormula;
-import org.apache.poi.ss.usermodel.CellArExt;
 import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
 // end changes VIA
+import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * Evaluates formula cells.<p/>
@@ -326,10 +325,9 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 		// !! changed ZS
 		if (eval instanceof ArrayEval) {// support of arrays
 //			VIA
-			if(cell instanceof CellArExt)
-				if(((CellArExt)cell).isArrayFormulaContext())
+				if(cell.isArrayFormulaContext())
 				{
-					ArrayFormula af = ((CellArExt)cell).getArrayFormulaRef(); 
+					CellRangeAddress af = cell.getArrayFormulaRange(); 
 					ValueEval[][] evalues = (ValueEval[][])((ArrayEval)eval).getArrayValues();
 					ValueEval[][] evaluesGrid =  (ValueEval[][])FormulaEvaluatorHelper.transform2Range(evalues, af);
 					int rowInd = cell.getRowIndex()-af.getFirstRow();
@@ -338,8 +336,6 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 				}
 				else		
 					eval = ((ArrayEval)eval).getArrayElementAsEval(0, 0);
-			else
-				eval = ((ArrayEval)eval).getArrayElementAsEval(0, 0);
 		}
 		// end changed
 

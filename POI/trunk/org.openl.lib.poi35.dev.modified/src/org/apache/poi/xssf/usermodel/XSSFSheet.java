@@ -39,9 +39,7 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.ss.SpreadsheetVersion;
-import org.apache.poi.ss.formula.ArrayFormula;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellArExt;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
@@ -81,6 +79,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheet;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetData;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetFormatPr;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetPr;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetProtection;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetView;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetViews;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorksheet;
@@ -108,6 +107,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private ColumnHelper columnHelper;
     private CommentsTable sheetComments;
     private Map<Integer, XSSFCell> sharedFormulas;
+    private List<CellRangeAddress> arrayFormulasRanges;
 
     /**
      * Creates new XSSFSheet   - called by XSSFWorkbook to create a sheet from scratch.
@@ -166,11 +166,6 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
         }
         // Process external hyperlinks for the sheet, if there are any
         initHyperlinks();
-// VIA       
-        // Expand all Array Formula Refernce (if any) to whole range
-        expandArFormulaRef();
-//  end changes VIA      
-        
     }
 
     /**
@@ -187,7 +182,14 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private void initRows(CTWorksheet worksheet) {
         rows = new TreeMap<Integer, XSSFRow>();
         sharedFormulas = new HashMap<Integer, XSSFCell>();
+        arrayFormulasRanges = new ArrayList<CellRangeAddress>();
         for (CTRow row : worksheet.getSheetData().getRowArray()) {
+            for (CTCell cell : row.getCArray()) {
+                CTCellFormula formula = cell.getF();
+                if (formula != null && formula.getT() == STCellFormulaType.ARRAY && formula.getRef() != null) {
+                    arrayFormulasRanges.add(CellRangeAddress.valueOf(formula.getRef()));
+                }
+            }
             XSSFRow r = new XSSFRow(row, this);
             rows.put(r.getRowNum(), r);
         }
@@ -865,7 +867,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
      * @return true => protection enabled; false => protection disabled
      */
     public boolean getProtect() {
-        return worksheet.isSetSheetProtection() && worksheet.getSheetProtection().getSheet();
+        return worksheet.isSetSheetProtection() && sheetProtectionEnabled();
     }
 
     /**
@@ -2340,23 +2342,333 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
 
         worksheet.save(out, xmlOptions);
     }
-//  VIA    
-    protected void expandArFormulaRef() {
-        for(XSSFRow row : rows.values()){
-        	Iterator<Cell> it = row.cellIterator();
-        	while(it.hasNext()){
-        		CellArExt cellExt = (CellArExt)it.next();
-        		if(cellExt.isArrayFormulaContext())
-        		{
-        			ArrayFormula af = cellExt.getArrayFormulaRef();
-        			if( af.getFormulaCell().equals(cellExt))  // This allow to avoid multiply walk within same range
-        				af.expandArFormulaRef();
-	    	 		        				
-        		}
-        	}
-        }
-		
+
+	/**
+	 * @return true when Autofilters are locked and the sheet is protected.
+	 */
+	public boolean isAutoFilterLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getAutoFilter();
 	}
-// end changes VIA    
-  
+
+	/**
+	 * @return true when Deleting columns is locked and the sheet is protected.
+	 */
+	public boolean isDeleteColumnsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getDeleteColumns();
+	}
+
+	/**
+	 * @return true when Deleting rows is locked and the sheet is protected.
+	 */
+	public boolean isDeleteRowsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getDeleteRows();
+	}
+	
+	/**
+	 * @return true when Formatting cells is locked and the sheet is protected.
+	 */
+	public boolean isFormatCellsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getFormatCells();
+	}
+
+	/**
+	 * @return true when Formatting columns is locked and the sheet is protected.
+	 */
+	public boolean isFormatColumnsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getFormatColumns();
+	}
+
+	/**
+	 * @return true when Formatting rows is locked and the sheet is protected.
+	 */
+	public boolean isFormatRowsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getFormatRows();
+	}
+
+	/**
+	 * @return true when Inserting columns is locked and the sheet is protected.
+	 */
+	public boolean isInsertColumnsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getInsertColumns();
+	}
+
+	/**
+	 * @return true when Inserting hyperlinks is locked and the sheet is protected.
+	 */
+	public boolean isInsertHyperlinksLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getInsertHyperlinks();
+	}
+
+	/**
+	 * @return true when Inserting rows is locked and the sheet is protected.
+	 */
+	public boolean isInsertRowsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getInsertRows();
+	}
+
+	/**
+	 * @return true when Pivot tables are locked and the sheet is protected.
+	 */
+	public boolean isPivotTablesLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getPivotTables();
+	}
+
+	/**
+	 * @return true when Sorting is locked and the sheet is protected.
+	 */
+	public boolean isSortLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getSort();
+	}
+
+	/**
+	 * @return true when Objects are locked and the sheet is protected.
+	 */
+	public boolean isObjectsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getObjects();
+	}
+
+	/**
+	 * @return true when Scenarios are locked and the sheet is protected.
+	 */
+	public boolean isScenariosLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getScenarios();
+	}
+
+	/**
+	 * @return true when Selection of locked cells is locked and the sheet is protected.
+	 */
+	public boolean isSelectLockedCellsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getSelectLockedCells();
+	}
+
+	/**
+	 * @return true when Selection of unlocked cells is locked and the sheet is protected.
+	 */
+	public boolean isSelectUnlockedCellsLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getSelectUnlockedCells();
+	}
+
+	/**
+	 * @return true when Sheet is Protected.
+	 */
+	public boolean isSheetLocked() {
+		createProtectionFieldIfNotPresent();
+		return sheetProtectionEnabled() && worksheet.getSheetProtection().getSheet();
+	}
+
+	/**
+	 * Enable sheet protection
+	 */
+	public void enableLocking() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setSheet(true);
+	}
+	
+	/**
+	 * Disable sheet protection
+	 */
+	public void disableLocking() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setSheet(false);
+	}
+	
+	/**
+	 * Enable Autofilters locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockAutoFilter() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setAutoFilter(true);
+	}
+	
+	/**
+	 * Enable Deleting columns locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockDeleteColumns() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setDeleteColumns(true);
+	}
+
+	/**
+	 * Enable Deleting rows locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockDeleteRows() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setDeleteRows(true);		
+	}
+	
+	/**
+	 * Enable Formatting cells locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockFormatCells() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setDeleteColumns(true);	
+	}
+
+	/**
+	 * Enable Formatting columns locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockFormatColumns() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setFormatColumns(true);	
+	}
+
+	/**
+	 * Enable Formatting rows locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockFormatRows() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setFormatRows(true);	
+	}
+
+	/**
+	 * Enable Inserting columns locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockInsertColumns() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setInsertColumns(true);	
+	}
+
+	/**
+	 * Enable Inserting hyperlinks locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockInsertHyperlinks() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setInsertHyperlinks(true);	
+	}
+
+	/**
+	 * Enable Inserting rows locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockInsertRows() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setInsertRows(true);	
+	}
+
+	/**
+	 * Enable Pivot Tables locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockPivotTables() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setPivotTables(true);	
+	}
+
+	/**
+	 * Enable Sort locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockSort() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setSort(true);	
+	}
+
+	/**
+	 * Enable Objects locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockObjects() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setObjects(true);	
+	}
+
+	/**
+	 * Enable Scenarios locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockScenarios() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setScenarios(true);	
+	}
+
+	/**
+	 * Enable Selection of locked cells locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockSelectLockedCells() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setSelectLockedCells(true);	
+	}
+
+	/**
+	 * Enable Selection of unlocked cells locking.
+	 * This does not modify sheet protection status.
+	 * To enforce this locking, call {@link #enableLocking()}
+	 */
+	public void lockSelectUnlockedCells() {
+		createProtectionFieldIfNotPresent();
+		worksheet.getSheetProtection().setSelectUnlockedCells(true);
+	}
+
+	private void createProtectionFieldIfNotPresent() {
+		if (worksheet.getSheetProtection() == null) {
+			worksheet.setSheetProtection(CTSheetProtection.Factory.newInstance());
+		}
+	}
+	
+	private boolean sheetProtectionEnabled() {
+		return worksheet.getSheetProtection().getSheet();
+	}
+	
+    /* package */ boolean isCellInArrayFormulaContext(XSSFCell cell) {
+        for (CellRangeAddress range : arrayFormulasRanges) {
+            if (range.isInRange(cell)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /* package */ XSSFCell getFirstCellInArrayFormula(XSSFCell cell) {
+        for (CellRangeAddress range : arrayFormulasRanges) {
+            if (range.isInRange(cell)) {
+                return getRow(range.getFirstRow()).getCell(range.getFirstColumn());
+            }
+        }
+        return null;
+    }
+
+    public void setArrayFormula(String formula, CellRangeAddress range) {
+        arrayFormulasRanges.add(range);
+        XSSFCell mainArrayFormulaCell = getRow(range.getFirstRow()).getCell(range.getFirstColumn());
+        mainArrayFormulaCell.setCellFormula(formula);
+        mainArrayFormulaCell.setCellFormulaReference(range);
+    }
 }

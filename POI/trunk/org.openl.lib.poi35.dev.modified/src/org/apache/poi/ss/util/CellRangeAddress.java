@@ -84,6 +84,9 @@ public class CellRangeAddress extends CellRangeAddressBase {
 
     public static CellRangeAddress valueOf(String ref) {
         int sep = ref.indexOf(":");
+        if (sep == -1) {
+            return valueOf(ref + ":" + ref);
+        }
         CellReference cellFrom = new CellReference(ref.substring(0, sep));
         CellReference cellTo = new CellReference(ref.substring(sep + 1));
         return new CellRangeAddress(cellFrom.getRow(), cellTo.getRow(), cellFrom.getCol(), cellTo.getCol());

@@ -48,6 +48,7 @@ import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
 import org.apache.poi.hssf.record.formula.FormulaShifter;
 import org.apache.poi.hssf.util.PaneInformation;
 import org.apache.poi.hssf.util.Region;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -55,10 +56,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
-// VIA
-import org.apache.poi.ss.formula.ArrayFormula;
-import org.apache.poi.ss.usermodel.CellArExt;
-// end changes VIA
+
 /**
  * High level representation of a worksheet.
  * @author  Andrew C. Oliver (acoliver at apache dot org)
@@ -67,7 +65,6 @@ import org.apache.poi.ss.usermodel.CellArExt;
  * @author  Shawn Laubach (slaubach at apache dot org) (Just a little)
  * @author  Jean-Pierre Paris (jean-pierre.paris at m4x dot org) (Just a little, too)
  * @author  Yegor Kozlov (yegor at apache.org) (Autosizing columns)
- * @author  vabramovs(VIA)- Array Formula support
  */
 public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     private static final POILogger log = POILogFactory.getLogger(HSSFSheet.class);
@@ -187,10 +184,6 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
                     Long.valueOf( System.currentTimeMillis() - cellstart ) );
 
         }
-//      VIA
-        expandArFormulaRef();
-//       end changes VIA 
-       
         if (log.check( POILogger.DEBUG ))
             log.log(DEBUG, "total sheet cell creation took ",
                 Long.valueOf(System.currentTimeMillis() - timestart));
@@ -642,7 +635,24 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
         return _sheet.getPageSettings().getHCenter().getHCenter();
     }
 
+    /**
+     * Sets the arabic property for this sheet, will make it right to left.
+     * @param value true for arabic, false otherwise.
+     */
+    public void setArabic(boolean value)
+    {
+	    _sheet.getWindowTwo().setArabic(value);
+    }
 
+    /**
+     * Gets the arabic property for this sheet.
+     *
+     * @return whther the arabic mode is set
+     */
+    public boolean isArabic()
+    {
+	    return _sheet.getWindowTwo().getArabic();
+    }
 
     /**
      * removes a merged region of cells (hence letting them free)
@@ -1859,26 +1869,8 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
         int idx = wb.getSheetIndex(this);
         return wb.getSheetName(idx);
     }
-//  VIA    
-    /**
-     * Set arrayFormulaRef for all cell in any range
-     */
-    protected void expandArFormulaRef() {
-        for(HSSFRow row : _rows.values()){
-        	Iterator<Cell> it = row.cellIterator();
-        	while(it.hasNext()){
-        		CellArExt cellExt = (CellArExt)it.next();
-        		if(cellExt.isArrayFormulaContext())
-        		{
-        			ArrayFormula af = cellExt.getArrayFormulaRef();
-        			if( af.getFormulaCell().equals(cellExt))  // This allow to avoid multiply walk within same range
-        				af.expandArFormulaRef();
-	    	 		        				
-        		}
-        	}
-        }
-		
-	}
-// end changes VIA    
 
+    public void setArrayFormula(String formula, CellRangeAddress range) {
+        throw new NotImplementedException("Setting of array formula is not implementd in HSSF yet");
+    }
 }

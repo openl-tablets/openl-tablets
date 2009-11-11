@@ -780,5 +780,12 @@ public interface Sheet extends Iterable<Row> {
      * @return <code>true</code> if this sheet is currently selected
      */
     boolean isSelected();
-
+    
+    /**
+     * Sets array formula to specified region for result.  
+     * 
+     * @param formula Formula
+     * @param range Region of array formula for result.
+     */
+    void setArrayFormula(String formula, CellRangeAddress range);
 }
