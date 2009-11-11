@@ -3,9 +3,7 @@
  *
  * @author Aliaksandr Antonik.
  */
-var DropdownEditor = Class.create();
-
-DropdownEditor.prototype = Object.extend(new BaseEditor(), {
+var DropdownEditor = Class.create(BaseEditor, {
     /**
      * Constructor. Creates "select" HTML element and fills it with "option"s from param parameter.
      * @param param an Enumeration with options for this dropdown. 

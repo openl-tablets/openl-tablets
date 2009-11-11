@@ -4,9 +4,7 @@
  * @author Andrei Astrouski
  */
 
-var DateEditor = Class.create();
-
-DateEditor.prototype = Object.extend(new BaseTextEditor(), {
+var DateEditor = Class.create(BaseTextEditor, {
 
     editor_initialize: function() {
         this.node = $(document.createElement("input"));
@@ -40,7 +38,7 @@ DateEditor.prototype = Object.extend(new BaseTextEditor(), {
 
     destroy: function(value) {
         datePickerController.destroyDatePicker("datepicker111");
-    },
+    }
 
 });
 

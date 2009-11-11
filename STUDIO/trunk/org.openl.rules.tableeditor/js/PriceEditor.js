@@ -3,9 +3,7 @@
  *
  * @author Andrey Naumenko
  */
-var PriceEditor = Class.create();
-
-PriceEditor.prototype = Object.extend(new BaseTextEditor(), {
+var PriceEditor = Class.create(BaseTextEditor, {
     editor_initialize: function() {
         this.node = $(document.createElement("input"));
         this.node.setAttribute("type", "text");
