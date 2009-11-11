@@ -18,8 +18,8 @@ var MultiLineEditor = Class.create(BaseTextEditor, {
 
         this.node.style.position = "absolute";
 
-        var pos = Element.viewportOffset(this.td);
-        pos[1] += Element.Methods.getDimensions(this.td).height;
+        var pos = Element.cumulativeOffset(this.td);
+        pos[1] += this.td.getHeight();
 
         this.node.style.left = pos[0] + "px";
         this.node.style.top = pos[1] + "px";
