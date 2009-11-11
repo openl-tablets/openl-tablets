@@ -3,9 +3,7 @@
  *
  * @author Andrei Astrouski
  */
-var BooleanEditor = Class.create();
-
-BooleanEditor.prototype = Object.extend(new BaseEditor(), {
+var BooleanEditor = Class.create(BaseEditor, {
 
     editor_initialize: function() {
         this.node = $(document.createElement("input"));
@@ -15,7 +13,7 @@ BooleanEditor.prototype = Object.extend(new BaseEditor(), {
         var self = this;
 
         ["click", "dblclick"].each(function (s) {self.stopEventPropogation(s)});
-    },
+    }
 
 });
 

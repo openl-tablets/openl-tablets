@@ -132,7 +132,8 @@ public class HTMLRenderer {
         result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css"))
             .append(renderCSS("css/toolbar.css"))
             .append(renderCSS("css/datepicker.css"))
-            .append(renderJS("js/prototype/prototype-1.5.1.js")).append(
+            .append(renderJS("js/prototype/prototype-1.6.1.js"))
+            .append(
                 renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
                 renderJS("js/IconManager.js")).append(renderJS("js/TableEditor.js")).append(
                 renderJS("js/initTableEditor.js")).append(renderJS("js/BaseEditor.js")).append(

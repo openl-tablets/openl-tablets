@@ -3,9 +3,7 @@
  *
  * @author Andrey Naumenko
  */
-var MultiLineEditor = Class.create();
-
-MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
+var MultiLineEditor = Class.create(BaseTextEditor, {
     // special flag, prevents closing on pressing enter
     __do_nothing_on_enter: true,
     ta : null,
@@ -20,7 +18,7 @@ MultiLineEditor.prototype = Object.extend(new BaseTextEditor(), {
 
         this.node.style.position = "absolute";
 
-        var pos = Position.page(this.td);
+        var pos = Element.viewportOffset(this.td);
         pos[1] += Element.Methods.getDimensions(this.td).height;
 
         this.node.style.left = pos[0] + "px";

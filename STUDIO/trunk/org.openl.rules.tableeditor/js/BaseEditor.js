@@ -7,8 +7,6 @@
  * @author Andrey Naumenko
  */
 
-var BaseEditor = Class.create();
-
 /**
  * Exteding default implementation of the function unescapeHTML
  */
@@ -18,24 +16,7 @@ Object.extend(String.prototype, {
   }
 });
 
-/**
- *  A useful function
- */
-BaseEditor.T = function() {return true}
-
-/**
- * Prevents propogation of a javascript event up the DOM hierarchy in browser specific manner.
- */
-BaseEditor.stopPropagationHandler = function(e) {
-      e = e || event;
-      if (e.stopPropagation) {
-        e.stopPropagation();
-      } else {
-        e.cancelBubble = true;
-      }
-    }
-
-BaseEditor.prototype = {
+var BaseEditor = Class.create({ 
 // -------------------------------------------------------------- Object properties --
     tableEditor : null,
     node : null,
@@ -182,4 +163,21 @@ BaseEditor.prototype = {
      *  Returns HTML element which is actually main input element for this editor. It will "this.node" for most editors.
      */
     getInputElement: function() {return this.node}
+});
+
+/**
+ *  A useful function
+ */
+BaseEditor.T = function() {return true}
+
+/**
+ * Prevents propogation of a javascript event up the DOM hierarchy in browser specific manner.
+ */
+BaseEditor.stopPropagationHandler = function(e) {
+    e = e || event;
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    } else {
+        e.cancelBubble = true;
+    }
 }

@@ -3,14 +3,7 @@
  *
  * @author Aliaksandr Antonik.
  */
-var MultiChoiceEditor = Class.create();
-
-if (Prototype.Browser.IE ) {
-    document.write("<link rel='stylesheet' type='text/css' href='" + jsPath + "multi/multi_ie.css'></link>");
-}
-document.write("<link rel='stylesheet' type='text/css' href='" + jsPath + "multi/multi.css'></link>");
-
-MultiChoiceEditor.prototype = Object.extend(new BaseEditor(), {
+var MultiChoiceEditor = Class.create(BaseEditor, {
     ulElement: null,
     entries: null,
     sortedKeys: null,

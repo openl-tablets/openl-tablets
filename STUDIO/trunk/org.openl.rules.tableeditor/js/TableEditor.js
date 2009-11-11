@@ -6,49 +6,8 @@
  * @author Andrey Naumenko
  */
 
-var TableEditor = Class.create();
+var TableEditor = Class.create({
 
-/**
- *  Here is editors registry. The editors would add themselves to this hash with the name as a key
- */
-TableEditor.Editors = $H();
-
-TableEditor.Operations = {
-    LOAD : "load",
-    GET_CELL_TYPE : "getCellType",
-    SET_CELL_VALUE : "setCellValue",
-    SET_CELL_FORMULA : "setCellFormula",
-    SET_ALIGN : "setAlign",
-    SET_INDENT : "setIndent",
-    SET_PROPERTY : "setProperty",
-    REMOVE_ROW : "removeRow",
-    REMOVE_COLUMN : "removeColumn",
-    INSERT_ROW_BEFORE : "insertRowBefore",
-    INSERT_COLUMN_BEFORE : "insertColumnBefore",
-    UNDO : "undo",
-    REDO : "redo",
-    SAVE : "saveTable"
-};
-
-// standalone functions
-
-TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
-
-/**
- * returns array [row, column] from string like 'B20' - excel style cell coordinates   
- */
-TableEditor.parseXlsCell = function (s) {
-    var m = s.match(/^([A-Z]+)(\d+)$/)
-    if (m) {
-        var h = m[1];
-        var col = 0;
-        var Acode = "A".charCodeAt(0) - 1;
-        for (var i = 0; i < h.length; ++i) col = 26 * col + h.charCodeAt(i) - Acode;
-        return [Number(m[2]), col]
-    }
-    return null
-}
-TableEditor.prototype = {
     editorId : -1,    
     tableContainer : null,
     currentElement : null,
@@ -310,6 +269,7 @@ TableEditor.prototype = {
             var formula = cell.down("input[name='formula']");
             typedText = formula ? formula.value : '';
         }
+        response.editor = 'multiChoice';
         this.editor = new TableEditor.Editors[response.editor](this, cell, response.params, typedText);
         this.selectElement(cell);
     },
@@ -684,14 +644,53 @@ TableEditor.prototype = {
     undoStateUpdated : Prototype.emptyFunction,
     redoStateUpdated : Prototype.emptyFunction,
     isSelectedUpdated : Prototype.emptyFunction
+});
+
+/**
+ *  Here is editors registry. The editors would add themselves to this hash with the name as a key
+ */
+TableEditor.Editors = $H();
+
+TableEditor.Operations = {
+    LOAD : "load",
+    GET_CELL_TYPE : "getCellType",
+    SET_CELL_VALUE : "setCellValue",
+    SET_CELL_FORMULA : "setCellFormula",
+    SET_ALIGN : "setAlign",
+    SET_INDENT : "setIndent",
+    SET_PROPERTY : "setProperty",
+    REMOVE_ROW : "removeRow",
+    REMOVE_COLUMN : "removeColumn",
+    INSERT_ROW_BEFORE : "insertRowBefore",
+    INSERT_COLUMN_BEFORE : "insertColumnBefore",
+    UNDO : "undo",
+    REDO : "redo",
+    SAVE : "saveTable"
+};
+
+// standalone functions
+
+TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
+
+/**
+ * returns array [row, column] from string like 'B20' - excel style cell coordinates   
+ */
+TableEditor.parseXlsCell = function (s) {
+    var m = s.match(/^([A-Z]+)(\d+)$/)
+    if (m) {
+        var h = m[1];
+        var col = 0;
+        var Acode = "A".charCodeAt(0) - 1;
+        for (var i = 0; i < h.length; ++i) col = 26 * col + h.charCodeAt(i) - Acode;
+        return [Number(m[2]), col]
+    }
+    return null
 }
 
 /**
  *  Responsible for visual display of 'selected' element.
  */
-var Decorator = Class.create();
-
-Decorator.prototype = {
+var Decorator = Class.create({
     /** Holds changed properties of last decorated  element */
     previosState : {},
 
@@ -722,4 +721,4 @@ Decorator.prototype = {
             Object.extend(elt.style, this.previosState)
         }
     }
-}
+});

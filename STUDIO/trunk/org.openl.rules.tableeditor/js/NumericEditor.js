@@ -1,14 +1,11 @@
 /**
  * Numeric editor.
+ * 
+ * Extends base text editor to restrict input values to numeric values only. Supports min/max constraints.
  *
  * @author Andrey Naumenko
  */
-var NumericEditor = Class.create();
-
-/**
- * Extends base text editor to restrict input values to numeric values only. Supports min/max constraints.  
- */
-NumericEditor.prototype = Object.extend(new BaseTextEditor(), {
+var NumericEditor = Class.create(BaseTextEditor, {
     min: null,
     max: null,
     editor_initialize: function(param) {

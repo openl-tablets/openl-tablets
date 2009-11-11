@@ -3,9 +3,7 @@
  *
  * @author Andrei Astrouski
  */
-var FormulaEditor = Class.create();
-
-FormulaEditor.prototype = Object.extend(new BaseTextEditor(), {
+var FormulaEditor = Class.create(BaseTextEditor, {
     editor_initialize: function() {
         this.node = $(document.createElement("input"));
         this.node.setAttribute("type", "text");

@@ -1,14 +1,12 @@
 /**
  * Loads and evaluates both internal (with body) and external javascripts.
- * In Prototype 1.5.1 script tags referencing external files are ignored.
+ * In Prototype 1.6.1 script tags referencing external files are ignored.
  *
- * @requires Prototype 1.5.1 javascript library
+ * @requires Prototype 1.6.1 javascript library
  *
  * @author Andrei Astrouski
  */
-var ScriptLoader = Class.create();
-
-ScriptLoader.prototype = {
+var ScriptLoader = Class.create({
 
     initialize: function() {
 	},
@@ -27,7 +25,7 @@ ScriptLoader.prototype = {
             var div = document.createElement('div');
             (div = $(div)).innerHTML =
                 ',' + scripts.join(','); // hack for IE
-            return div.getElementsBySelector('script');
+            return div.select('script');
         }
     },
 
@@ -76,4 +74,4 @@ ScriptLoader.prototype = {
         }
     }
 
-};
+});

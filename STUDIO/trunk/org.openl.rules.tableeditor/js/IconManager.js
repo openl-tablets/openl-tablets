@@ -7,9 +7,7 @@
 /**
  * Class for managing icons: enabling/disabling
  */
-var IconManager = Class.create();
-
-IconManager.prototype = {
+var IconManager = Class.create({
     initialize: function(enabledClass, overClass, disabledClass) {
         this.disabledClass = disabledClass;
         this.enabledClass = enabledClass;
@@ -48,4 +46,4 @@ IconManager.prototype = {
         img._onclick = img.onclick;
         img.onmouseover = img.onmouseout = img.onclick = Prototype.emptyFunction;
     }
-}
+});
