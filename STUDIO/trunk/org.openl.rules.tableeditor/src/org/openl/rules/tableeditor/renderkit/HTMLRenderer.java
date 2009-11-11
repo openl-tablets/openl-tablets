@@ -132,6 +132,7 @@ public class HTMLRenderer {
         result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css"))
             .append(renderCSS("css/toolbar.css"))
             .append(renderCSS("css/datepicker.css"))
+            .append(renderCSS("css/multiselect.css"))
             .append(renderJS("js/prototype/prototype-1.6.1.js"))
             .append(
                 renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
@@ -213,8 +214,7 @@ public class HTMLRenderer {
                 .append(renderJS("js/FormulaEditor.js"))
                 .append(renderJS("js/BooleanEditor.js"))
                 .append(renderJS("js/DateEditor.js"))
-                // .append(renderJS("js/PriceEditor.js"))
-                // .append(renderJS("js/MultipleChoiceEditor.js"))
+                .append(renderJS("js/MultiselectEditor.js"))
                 .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT, /*collapsed properties where turned to 
                 false on edit view*/false))
                 .append("<div id=\"").append(tableId).append("\"></div>").append(

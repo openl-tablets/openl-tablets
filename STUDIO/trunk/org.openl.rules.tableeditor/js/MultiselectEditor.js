@@ -3,7 +3,7 @@
  *
  * @author Aliaksandr Antonik.
  */
-var MultiChoiceEditor = Class.create(BaseEditor, {
+var MultiselectEditor = Class.create(BaseEditor, {
     ulElement: null,
     entries: null,
     sortedKeys: null,
@@ -16,13 +16,13 @@ var MultiChoiceEditor = Class.create(BaseEditor, {
         // creating containing DIV
         this.node = $(document.createElement("div"));
         this.node.style.position = "absolute";
-        var pos = Position.page(this.td);
-        pos[1] += Element.Methods.getDimensions(this.td).height;
+        var pos = Element.cumulativeOffset(this.td);
+        pos[1] += this.td.getHeight();
         this.node.style.left = pos[0] + "px";
         this.node.style.top = pos[1] + "px";
         this.node.zIndex = "10";
-        this.node.className = "multi_choice_container_outer";
-        
+        this.node.className = "multiselect_container_outer";
+
         // creating buttons
         var self = this;
         this.node.innerHTML = '&nbsp;<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">&nbsp;'
@@ -33,7 +33,7 @@ var MultiChoiceEditor = Class.create(BaseEditor, {
 
         // creating inner DIV
         var container = $(document.createElement("div"));
-        container.className = "multi_choice_container";
+        container.className = "multiselect_container";
         this.node.appendChild(document.createElement("br"))
         this.node.appendChild(container)
 
@@ -47,7 +47,7 @@ var MultiChoiceEditor = Class.create(BaseEditor, {
             var li = $(document.createElement("li"));
             this.ulElement.appendChild(li);
 
-            li.innerHTML = '<input type="checkbox" name="multi_choice_cb">' + pd[ind].escapeHTML();
+            li.innerHTML = '<input type="checkbox" name="multiselect_cb">' + pd[ind].escapeHTML();
             this.entries[pc[ind]] = li.down();
         }
 
@@ -59,22 +59,29 @@ var MultiChoiceEditor = Class.create(BaseEditor, {
         document.body.appendChild(this.node);
         var entries = this.entries;
         value.split(this.separator).each(function (key) {
-            if (key && entries[key]) entries[key].checked = true;
+            if (key && entries[key]) {
+                entries[key].checked = true;
+            }
         });
     },
 
     getValue: function() {
         var entries = this.entries;
-        return this.sortedKeys.findAll(function(key) {return entries[key].checked}).join(this.separator)
+        return this.sortedKeys.findAll(function(key) {
+            return entries[key].checked}
+        ).join(this.separator)
     },
 
     destroy: function() {
         document.body.removeChild(this.node);
     },
 
-
-    // -------------- Private
-    setAllCheckBoxes: function(value) { this.entries.values().each(function (e) {e.checked = value})}
+    setAllCheckBoxes: function(value) {
+        var entries = this.entries;
+        this.sortedKeys.findAll(function(key) {
+            entries[key].checked = value;
+        });
+    }
 });
 
-TableEditor.Editors["multiChoice"] = MultiChoiceEditor;
+TableEditor.Editors["multiselect"] = MultiselectEditor;
