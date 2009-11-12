@@ -8,7 +8,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" type="text/css" href="webresource/css/openl/dtree.css"></link>
 <link rel="stylesheet" type="text/css" href="webresource/css/openl/style1.css"></link>
-<script language="JavaScript" type="text/JavaScript" src="webresource/dtree.js"></script>
+<script language="JavaScript" type="text/JavaScript" src="webresource/javascript/dtree.js"></script>
 
 
 <style type="text/css">

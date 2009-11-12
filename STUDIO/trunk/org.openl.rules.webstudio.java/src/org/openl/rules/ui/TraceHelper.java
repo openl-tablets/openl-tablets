@@ -143,6 +143,6 @@ public class TraceHelper {
 
         TableModel tableModel = ProjectModel.buildModel(gt, new IGridFilter[] { makeFilter(tto, model) });
         //TODO: Show formulas in trace
-        return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null, false);
+        return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 }
