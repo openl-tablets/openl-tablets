@@ -19,11 +19,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1257">
 <title>OpenL Tracing</title>
 <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="webresource/javascript/prototype/prototype-1.5.1.js"></script>
 <style type="text/css">
 
 table.top{font-size:80%;background:black}
-
 
 td.menu{background:lightblue}
 
@@ -36,16 +34,7 @@ visibility:hidden;
 
 
 </style>
-<script type="text/javascript">
-function showmenu(elmnt)
-{
-document.getElementById(elmnt).style.visibility="visible"
-}
-function hidemenu(elmnt)
-{
-document.getElementById(elmnt).style.visibility="hidden"
-}
-</script>
+
 </head>
 
 
@@ -93,7 +82,6 @@ if (ti != null)
  </tr>
 </table>
 
-<%@include file="/WEB-INF/include/contextMenu.inc"%>
 <%}%>
 
 <p/>

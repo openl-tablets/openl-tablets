@@ -1,3 +1,14 @@
+<script type="text/javascript">
+function showmenu(elmnt)
+{
+document.getElementById(elmnt).style.visibility="visible"
+}
+function hidemenu(elmnt)
+{
+document.getElementById(elmnt).style.visibility="hidden"
+}
+</script>
+
 <%
 	ColorFilterHolder fh  = studio.getModel().getFilterHolder();
 	String ft = request.getParameter("filterType");

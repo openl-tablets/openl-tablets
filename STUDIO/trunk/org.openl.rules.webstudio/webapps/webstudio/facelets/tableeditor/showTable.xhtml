@@ -130,9 +130,7 @@
             </h:form>
         </td></tr></table>
 
-        <ui:include src="/WEB-INF/include/facelets/errorDisplay.xhtml">
-            <ui:param name="uri" value="#{showTableBean.uri}" />
-        </ui:include>
+        <ui:include src="/WEB-INF/include/facelets/errorDisplay.xhtml" />
 
         <c:if test="#{showTableBean.tsnHasErrors}">
             <h3>Problems</h3>
@@ -166,7 +164,7 @@
             }
         </script>
 
-        <form name="searchForm" method="POST" action="#{contextPath}/jsp/search/search.jsp">
+        <form name="searchForm" method="post" action="#{contextPath}/jsp/search/search.jsp">
             <input type="hidden" name="searchQuery" value="" />
         </form>
 

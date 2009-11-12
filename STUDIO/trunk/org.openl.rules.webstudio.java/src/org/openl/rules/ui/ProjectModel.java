@@ -1271,7 +1271,7 @@ public class ProjectModel implements IProjectTypes {
         TableModel tableModel = buildModel(gt, new IGridFilter[] { new ColorGridFilter(new RegionGridSelector(region,
                 true), filterHolder.makeFilter()) });
         // FIXME: should formulas be displayed?
-        return new HTMLRenderer.TableRenderer(tableModel).renderWithMenu(null, false);
+        return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 
     public Tracer traceElement(String elementUri) throws Exception {
