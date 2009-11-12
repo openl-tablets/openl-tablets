@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 // VIA
 import org.apache.poi.ss.formula.ArrayEval;
 import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
@@ -210,15 +211,74 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 	 * @param cell The cell to evaluate
 	 * @return -1 for non-formula cells, or the type of the <em>formula result</em>
 	 */
+//  VIA		
 	public int evaluateFormulaCell(Cell cell) {
 		if (cell == null || cell.getCellType() != HSSFCell.CELL_TYPE_FORMULA) {
 			return -1;
 		}
-		CellValue cv = evaluateFormulaCellValue(cell);
 		// cell remains a formula cell, but the cached value is changed
-		setCellValue(cell, cv);
+		CellValue cv;
+		if(cell.isArrayFormulaContext())
+		{  // Array Formula Context
+			CellValue[][] cvs = evaluateFormulaCellArValues((HSSFCell)cell);
+			// cell remains a formula cell, but the cached value is changed
+			int rowIndex = cell.getRowIndex()-cell.getArrayFormulaRange().getFirstRow();
+			int colIndex = cell.getColumnIndex()-cell.getArrayFormulaRange().getFirstColumn();
+			CellValue[][] values = setCellValues(cell, cvs);
+			cv = values[rowIndex][colIndex];
+		}
+		else  
+
+		{ // Single Formula
+			
+			cv = evaluateFormulaCellValue(cell);
+			setCellValue(cell, cv);
+		}
+		//   end changes VIA			
 		return cv.getCellType();
 	}
+	
+
+	/**
+	 * Set value in Range
+	 * @param cell
+	 * @param cvs
+	 * @return
+	 */
+	private CellValue[][] setCellValues(Cell cell, CellValue[][] cvs) {
+		CellRangeAddress range = cell.getArrayFormulaRange();
+		int rowStart = range.getFirstRow();
+		int colStart = range.getFirstColumn();
+		Sheet sheet = cell.getSheet();
+		CellValue[][] answer = (CellValue[][])FormulaEvaluatorHelper.transform2Range(cvs, range);
+		for(int i=rowStart;i<=range.getLastRow();i++ )
+			for(int j=colStart; j<=range.getLastColumn();j++)
+			{
+				Row row = sheet.getRow(i);
+				Cell c = row.getCell(j);
+				CellValue cellValue = answer[i-rowStart][j-colStart];
+				setCellValue(c,cellValue);
+				// Notify that value changes
+				notifySetFormula(c);
+				
+			}
+		return answer;
+	}
+	private void setCellsTypes(Cell cell, CellValue[][] cvs) {
+	    CellRangeAddress range = cell.getArrayFormulaRange();
+		int rowStart = range.getFirstRow();
+		int colStart = range.getFirstColumn();
+		Sheet sheet = cell.getSheet();
+		for(int i=rowStart;i<=range.getLastRow();i++ )
+			for(int j=colStart; j<=range.getLastColumn();j++)
+			{
+				Row row = sheet.getRow(i);
+				Cell c = row.getCell(j);
+				if((i-rowStart)<cvs.length && (j-colStart)<cvs[i-rowStart].length)
+				setCellType(c,cvs[i-rowStart][j-colStart]);
+			}
+	}
+//   end changes VIA			
 
 	/**
 	 * If cell contains formula, it evaluates the formula, and
@@ -241,10 +301,22 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 		}
 		HSSFCell result = (HSSFCell) cell;
 		if (cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
-			CellValue cv = evaluateFormulaCellValue(cell);
-			setCellValue(cell, cv);
-			setCellType(cell, cv); // cell will no longer be a formula cell
+		// VIA			
+			if(cell.isArrayFormulaContext())
+			{  // Array Formula Context
+				CellValue[][] cvs = evaluateFormulaCellArValues((HSSFCell) cell);
+				setCellsTypes(cell, cvs); // cell will no longer be a formula cell
+				setCellValues(cell, cvs);
+				
+			}
+			else { // Single Formula
+				CellValue cv = evaluateFormulaCellValue(cell);
+				setCellType(cell, cv); // cell will no longer be a formula cell
+				setCellValue(cell, cv);
+				
+			}
 		}
+		//   end changes VIA			
 		return result;
 	}
 	private static void setCellType(Cell cell, CellValue cv) {
@@ -356,4 +428,29 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 		}
 		throw new RuntimeException("Unexpected eval class (" + eval.getClass().getName() + ")");
 	}
+//  VIA	
+	/**
+	 * Returns a Array CellValue wrapper around the supplied ArrayEval instance.
+	 */
+	private CellValue[][] evaluateFormulaCellArValues(HSSFCell cell) {
+		ValueEval eval = _bookEvaluator.evaluate(new HSSFEvaluationCell(cell));
+		if (eval instanceof ArrayEval) {// support of arrays
+			ArrayEval ae = (ArrayEval)eval;
+			int rowCount = ae.getRowCounter();
+			int ColCount = ae.getColCounter();
+			CellValue[][] answer = new CellValue[rowCount][ColCount];
+			for(int i=0;i<rowCount;i++)
+				for(int j=0;j<ColCount;j++)	{
+						ValueEval val =  ae.getArrayElementAsEval(i, j);
+						answer[i][j]= FormulaEvaluatorHelper.eval2Cell(val);
+			}		
+			return answer;
+		}
+		// non-array (usually from aggregate function)
+		CellValue[][] answer = new CellValue[1][1];
+		answer[0][0] = FormulaEvaluatorHelper.eval2Cell(eval);
+		return answer;
+	}
+// end changes VIA	
+	
 }

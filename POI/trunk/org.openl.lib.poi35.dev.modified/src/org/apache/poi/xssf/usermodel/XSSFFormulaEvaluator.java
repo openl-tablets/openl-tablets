@@ -187,7 +187,6 @@ public class XSSFFormulaEvaluator implements FormulaEvaluator {
 				Row row = sheet.getRow(i);
 				Cell c = row.getCell(j);
 				CellValue cellValue = answer[i-rowStart][j-colStart];
-				setCellType(c,cellValue);	
 				setCellValue(c,cellValue);
 				// Notify that value changes
 				notifySetFormula(c);
