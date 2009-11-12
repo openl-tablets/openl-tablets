@@ -9,6 +9,8 @@ import org.openl.util.StringTool;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
+
 /**
  * DOCUMENT ME!
  *
@@ -137,6 +139,11 @@ public class WebTool extends StringTool {
     static public String htmlStringWithSelections(String src, String[] tokens) {
         StringHighlighter sf = new StringHighlighter(tokens, src);        
         return sf.highlightStringsInText();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static String listParamsExcept(String[] usedParams, ServletRequest request) {
+        return listParamsExcept(usedParams, request.getParameterMap());
     }
 
     public static String listParamsExcept(String[] usedParams, Map<String, String[]> pmap) {
