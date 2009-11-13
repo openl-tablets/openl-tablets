@@ -107,7 +107,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     private ITableProperties getTableProperties(IOpenMethod method) {
-        return ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties2();
+        return ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties();
     }
     
     private void removeInactiveMethods(Set<IOpenMethod> candidates) {
@@ -125,7 +125,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     
     private boolean isActive(IOpenMethod method) {
         
-        ITableProperties tableProperties = ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties2();
+        ITableProperties tableProperties = ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties();
         
         return tableProperties.getActive() == null || tableProperties.getActive().booleanValue(); 
     }
