@@ -475,6 +475,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
             bb.processTable(module, propertyTable, propertiesSection, propertySectionName, propetiesClass, cxt, openl, false);
             DefaultTableProperties propertiesInstance = ((DefaultTableProperties[])propertyTable.getDataArray())[0]; 
             
+            propertiesInstance.setPropertiesSection(propertiesSection);
             tsn.setTableProperties(propertiesInstance);
         }
     }
