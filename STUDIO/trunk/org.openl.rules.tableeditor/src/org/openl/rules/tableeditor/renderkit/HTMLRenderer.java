@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
-import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -324,7 +324,7 @@ public class HTMLRenderer {
         final String tableType = table.getType();
         if (tableType !=  null && !tableType.equals(ITableNodeTypes.XLS_OTHER)
                 && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)) {
-            TableProperties props = table.getProperties();
+            ITableProperties props = table.getProperties();
             return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
                     collapseProps).renderProperties();
         }
@@ -346,13 +346,13 @@ public class HTMLRenderer {
 
         private String mode;
 
-        private TableProperties props;
+        private ITableProperties props;
 
         private String propsId;
 
         private boolean collapsed;
 
-        public PropertyRenderer(String propsId, TableProperties props, String view, boolean collapsed) {
+        public PropertyRenderer(String propsId, ITableProperties props, String view, boolean collapsed) {
             this.propsId = propsId == null ? "" : propsId;
             this.props = props;
             this.mode = view;

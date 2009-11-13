@@ -1,10 +1,10 @@
 package org.openl.rules.ui;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
 public class TableNamesCopier extends TableCopier {
@@ -21,12 +21,14 @@ public class TableNamesCopier extends TableCopier {
     }  
    
     @Override
-    protected Map<String, Object> buildProperties(Property[] properties) {
+    protected Map<String, Object> buildProperties(Map<String, Object> properties) {
         Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
         if (properties != null) {
-            for (int i = 0; i < properties.length; i++) {
-                String key = properties[i].getKey().getValue();
-                Object value = properties[i].getValue().getValue();
+            Iterator<Map.Entry<String, Object>> iter = properties.entrySet().iterator();
+            while(iter.hasNext()) {
+                Map.Entry<String, Object> pairs = iter.next();
+                String key = pairs.getKey();
+                Object value = pairs.getValue();
                 newProperties.put(key.trim(), value);
             }
         }

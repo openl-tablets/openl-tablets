@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.TablePropertyDefinition;
@@ -39,7 +38,8 @@ public class TablePropertyCopier extends TableCopier {
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String name = propDefinition.getName();
             propToCopy.add(new TableProperty(
-                    propDefinition.getDisplayName(), node.getPropertyValue(name) != null ? node.getPropertyValue(name).getValue() : null, propDefinition
+                    propDefinition.getDisplayName(), node.getTableProperties().getPropertyValue(name) != null ? 
+                            node.getTableProperties().getPropertyValue(name) : null, propDefinition
                             .getType() == null ? null : propDefinition
                             .getType().getInstanceClass(), propDefinition
                             .getGroup(), name,
@@ -59,7 +59,7 @@ public class TablePropertyCopier extends TableCopier {
     }
     
     @Override
-    protected Map<String, Object> buildProperties(Property[] tableProperties) {
+    protected Map<String, Object> buildProperties(Map<String, Object> tableProperties) {
         Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
         
         //TO DO:

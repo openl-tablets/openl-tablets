@@ -2,9 +2,8 @@ package org.openl.rules.ui;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
-import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
 
@@ -19,7 +18,7 @@ public class TableInstanceSorter extends ATableTreeSorter implements IProjectTyp
     }
 
     static public String[] getTableDisplayValue(TableSyntaxNode tsn, int i, IOpenMethodGroupsDictionary dictionary) {
-        TableProperties tp = tsn.getTableProperties();
+        ITableProperties tp = tsn.getTableProperties();
         String display = null;
         String name = null;
 

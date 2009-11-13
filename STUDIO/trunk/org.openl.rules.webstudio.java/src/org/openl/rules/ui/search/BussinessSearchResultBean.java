@@ -1,11 +1,10 @@
 package org.openl.rules.ui.search;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.openl.meta.ObjectValue;
-import org.openl.meta.StringValue;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
@@ -13,17 +12,18 @@ import org.openl.rules.tableeditor.renderkit.TableProperty;
 
 public class BussinessSearchResultBean {  
     
+    private static final String EMPTY_VALUE = "--EMPTY--";    
     private TableBusSearchResult[] tableRes = null;
     private OpenLBussinessSearchResult busSearchRes = null;
-    private List<Property> propValues = new ArrayList<Property>();
+    private Map<String, Object> propValues = new HashMap<String, Object>();
     private List<TableProperty> propsForSearch = new ArrayList<TableProperty>();    
     
     
-    public List<Property> getPropValues() {
+    public Map<String, Object> getPropValues() {
         return propValues;
     }
 
-    public void setPropValues(List<Property> propValues) {
+    public void setPropValues(Map<String, Object> propValues) {
         this.propValues = propValues;
     }
 
@@ -76,23 +76,22 @@ public class BussinessSearchResultBean {
         tableRes = new TableBusSearchResult[busSearchRes.getFoundTables().size()];
         for(TableSyntaxNode tableSearch : busSearchRes.getFoundTables()) {
             TableBusSearchResult tbsr = new TableBusSearchResult();
-            List<Property> prop = initPropListForUI(tableSearch);
+            Map<String, Object> prop = initPropListForUI(tableSearch);
             tbsr.setPropValues(prop);
             tableRes[tableRes.length-1] = tbsr;
         }   
     }
     
-    private List<Property> initPropListForUI(TableSyntaxNode tableSearch) {
-        List<Property> prop = new ArrayList<Property>();
+    private Map<String, Object> initPropListForUI(TableSyntaxNode tableSearch) {
+        Map<String, Object> prop = new HashMap<String, Object>();
         for(TableProperty propForSearch : propsForSearch) {
             String propName = propForSearch.getName();
             String propDisplName = DefaultPropertyDefinitions.getPropertyDisplayName(propName);
-            ObjectValue propValue = tableSearch.getPropertyValue(propName);
+            Object propValue = tableSearch.getTableProperties().getPropertyValue(propName);
             if(propValue==null) {
-                propValue = new ObjectValue("--EMPTY--");
-            }
-            Property pr = new Property(new StringValue(propDisplName), propValue);
-            prop.add(pr);
+                propValue = new String(EMPTY_VALUE);
+            }            
+            prop.put(propDisplName, propValue);
         }
         return prop;
     }

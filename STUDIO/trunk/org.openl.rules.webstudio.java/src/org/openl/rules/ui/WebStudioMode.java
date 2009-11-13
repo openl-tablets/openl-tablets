@@ -6,8 +6,8 @@ package org.openl.rules.ui;
 import org.openl.base.INamedThing;
 import org.openl.base.NamedThing;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.util.StringTool;
 
 /**
@@ -56,7 +56,7 @@ public abstract class WebStudioMode extends NamedThing {
         public boolean select(TableSyntaxNode tsn) {
             String view = null;
             String name = null;
-            TableProperties tp = tsn.getTableProperties();
+            ITableProperties tp = tsn.getTableProperties();
             if (tp != null) {
                 view = tp.getPropertyValueAsString("view");
                 name = tp.getPropertyValueAsString("name");
