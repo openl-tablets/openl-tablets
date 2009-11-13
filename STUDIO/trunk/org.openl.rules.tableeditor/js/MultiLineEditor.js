@@ -9,24 +9,24 @@ var MultiLineEditor = Class.create(BaseTextEditor, {
     ta : null,
 
     editor_initialize: function() {
-        this.node = document.createElement("div");
+        this.input = document.createElement("div");
         this.ta = document.createElement("textarea");
         this.ta.cols = 50;
         this.ta.rows = 6;
         this.ta.maxLength = this.MAX_FIELD_SIZE;
-        this.node.appendChild(this.ta);
+        this.input.appendChild(this.ta);
 
-        this.node.style.position = "absolute";
+        this.input.style.position = "absolute";
 
-        var pos = Element.cumulativeOffset(this.td);
-        pos[1] += this.td.getHeight();
+        var pos = Element.cumulativeOffset(this.parentElement);
+        pos[1] += this.parentElement.getHeight();
 
-        this.node.style.left = pos[0] + "px";
-        this.node.style.top = pos[1] + "px";
-        this.node.zIndex = "10";
+        this.input.style.left = pos[0] + "px";
+        this.input.style.top = pos[1] + "px";
+        this.input.zIndex = "10";
 
         this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
-        Event.observe(this.node, "keypress", this.eventHandler);
+        Event.observe(this.input, "keypress", this.eventHandler);
 
         this.stopEventPropogation("click");
     },
@@ -40,7 +40,7 @@ var MultiLineEditor = Class.create(BaseTextEditor, {
             this.ta.rows = Math.min(rows, 20);
 
         this.ta.value = value;
-        document.body.appendChild(this.node);
+        document.body.appendChild(this.input);
         this.ta.focus();
         this.handleF3();
     },
@@ -67,8 +67,8 @@ var MultiLineEditor = Class.create(BaseTextEditor, {
     },
 
     destroy: function() {
-        document.body.removeChild(this.node);
-        Event.stopObserving(this.node, "keypress", this.eventHandler);
+        document.body.removeChild(this.input);
+        Event.stopObserving(this.input, "keypress", this.eventHandler);
     },
 
     getValue : function() {

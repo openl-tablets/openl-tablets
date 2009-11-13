@@ -204,9 +204,8 @@ public class HTMLRenderer {
         final String tableId = editorId + Constants.ID_POSTFIX_TABLE;
         String editor = Constants.TABLE_EDITOR_PREFIX + editorId;
         result.append(renderJSBody("var " + editor + ";"))
-        // .append(renderJSBody("var jsPath = \"" + WebUtil.internalPath("js/")
-        // + "\""))
                 .append(renderEditorToolbar(editorId, editor))
+                .append(renderJS("js/datepicker.packed.js"))
                 .append(renderJS("js/TextEditor.js"))
                 .append(renderJS("js/MultiLineEditor.js"))
                 .append(renderJS("js/NumericEditor.js"))
@@ -337,11 +336,9 @@ public class HTMLRenderer {
      *
      */
     public class PropertyRenderer {
-                
+
         private List<TableProperty> listProperties = new ArrayList<TableProperty>();
-        
-        private int numberOfCalendars = 0;
-        
+
         private StringBuilder result;
 
         private String mode;
@@ -508,16 +505,9 @@ public class HTMLRenderer {
             result.append("</tr>");
         }
 
-        private void insertCalendar(String value, String name) {
-            numberOfCalendars++;
-            String datePickerId = "datepicker" + numberOfCalendars;
-            result.append(renderJS("js/datepicker.packed.js"));
-            result.append("<td><input name='" + name + "' type='text' value='" + value + "' id='"
-                    + datePickerId +"' />");
-            result.append(renderJSBody("var opts = {"
-                + "formElements:{\"" + datePickerId + "\":\"m-sl-d-sl-Y\"}"
-                + "};"
-                + "datePickerController.createDatePicker(opts);"));
+        private void insertCalendar(String value, String id) {
+            result.append("<td id='" + id + "'></td>")
+                .append(renderJSBody("new DateEditor('','" + id + "','','" + value + "','false')"));
         }
 
         /*private void insertSelect(List<String> listOfOptions) {                        
@@ -529,20 +519,21 @@ public class HTMLRenderer {
             result.append("</select></td>");
         }*/
 
-        private void insertEdit(String value, String name) {
-            if(value == null) {
+        private void insertEdit(String value, String id) {
+            if (value == null) {
                 value="";
             }
-            result.append("<td><input name='" + name + "' type='text' value='" + value + "' /></td>");
+            result.append("<td id='" + id + "'></td>")
+                .append(renderJSBody("new TextEditor('','" + id + "','','" + value + "','false')"));
         }
 
-        private void insertCheckbox(String value, String name) {
+        private void insertCheckbox(String value, String id) {
             Boolean bValue = new Boolean(value);
             if (value == null) {
                 bValue = false;
             }
-            result.append("<td><input name='" + name + "' type='checkbox' ").append(bValue ? "checked='checked'" : "")
-                .append(" /></td>");
+            result.append("<td id='" + id + "'></td>")
+                .append(renderJSBody("new BooleanEditor('','" + id + "','','" + bValue + "','false')"));
         }
 
         private void insertLabel(String displayName) {

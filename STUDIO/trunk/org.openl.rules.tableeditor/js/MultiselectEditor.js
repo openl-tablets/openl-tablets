@@ -14,19 +14,19 @@ var MultiselectEditor = Class.create(BaseEditor, {
         this.entries = $H();
 
         // creating containing DIV
-        this.node = $(document.createElement("div"));
-        this.node.style.position = "absolute";
-        var pos = Element.cumulativeOffset(this.td);
-        pos[1] += this.td.getHeight();
-        this.node.style.left = pos[0] + "px";
-        this.node.style.top = pos[1] + "px";
-        this.node.zIndex = "10";
-        this.node.className = "multiselect_container_outer";
+        this.input = $(document.createElement("div"));
+        this.input.style.position = "absolute";
+        var pos = Element.cumulativeOffset(this.parentElement);
+        pos[1] += this.parentElement.getHeight();
+        this.input.style.left = pos[0] + "px";
+        this.input.style.top = pos[1] + "px";
+        this.input.zIndex = "10";
+        this.input.className = "multiselect_container_outer";
 
         // creating buttons
         var self = this;
-        this.node.innerHTML = '&nbsp;<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">&nbsp;'
-        var b1 = this.node.down(), b2 = b1.next(), b3 = b2.next();
+        this.input.innerHTML = '&nbsp;<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">&nbsp;'
+        var b1 = this.input.down(), b2 = b1.next(), b3 = b2.next();
         b1.onclick = function() {self.setAllCheckBoxes(true)}
         b2.onclick = function() {self.setAllCheckBoxes(false)}
         b3.onclick = function() {self.doneEdit()}
@@ -34,8 +34,8 @@ var MultiselectEditor = Class.create(BaseEditor, {
         // creating inner DIV
         var container = $(document.createElement("div"));
         container.className = "multiselect_container";
-        this.node.appendChild(document.createElement("br"))
-        this.node.appendChild(container)
+        this.input.appendChild(document.createElement("br"))
+        this.input.appendChild(container)
 
         // creating UL HTML element
         this.ulElement = $(document.createElement("ul"));
@@ -56,7 +56,7 @@ var MultiselectEditor = Class.create(BaseEditor, {
     },
 
     show: function(value) {
-        document.body.appendChild(this.node);
+        document.body.appendChild(this.input);
         var entries = this.entries;
         value.split(this.separator).each(function (key) {
             if (key && entries[key]) {
@@ -73,7 +73,7 @@ var MultiselectEditor = Class.create(BaseEditor, {
     },
 
     destroy: function() {
-        document.body.removeChild(this.node);
+        document.body.removeChild(this.input);
     },
 
     setAllCheckBoxes: function(value) {
