@@ -189,9 +189,15 @@ public class DefaultTableProperties extends DynamicObject implements ITablePrope
         }
         return result;        
     }
+    
     public ILogicalTable getPropertiesSection() {
        return propertySection;
     }
+    
+    public void setPropertiesSection(ILogicalTable propertySection) {
+        this.propertySection = propertySection;
+     }
+    
     public int getNumberOfProperties() {
         return fieldValues.size();
     }
