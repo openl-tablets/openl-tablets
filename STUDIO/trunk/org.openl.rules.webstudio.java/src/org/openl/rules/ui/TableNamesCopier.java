@@ -1,6 +1,5 @@
 package org.openl.rules.ui;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,13 +23,11 @@ public class TableNamesCopier extends TableCopier {
     protected Map<String, Object> buildProperties(Map<String, Object> properties) {
         Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
         if (properties != null) {
-            Iterator<Map.Entry<String, Object>> iter = properties.entrySet().iterator();
-            while(iter.hasNext()) {
-                Map.Entry<String, Object> pairs = iter.next();
-                String key = pairs.getKey();
-                Object value = pairs.getValue();
-                newProperties.put(key.trim(), value);
-            }
+            for (Map.Entry<String, Object> property : properties.entrySet()) {
+                String propertyName = property.getKey();
+                Object propertyValue = property.getValue();
+                newProperties.put(propertyName.trim(), propertyValue);
+            }   
         }
         if (StringUtils.isBlank(tableBusinessName) && newProperties.containsKey(TableBuilder.TABLE_PROPERTIES_NAME)) {
             newProperties.remove(TableBuilder.TABLE_PROPERTIES_NAME);
