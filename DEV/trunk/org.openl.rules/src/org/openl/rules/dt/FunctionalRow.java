@@ -150,44 +150,73 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
     static public Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
             OpenlToolAdaptor ota) throws BoundError {
         String src = cell.getGridTable().getCell(0, 0).getStringValue();
-        if (src == null || (src = src.trim()).length() == 0) {
-            return null;
-        }
+        Object value = cell.getGridTable().getCell(0, 0).getObjectValue();
+        
+        // TODO: parse values considering underlying excel format. Note: this
+        // class doesn't know anything about Excel. Keep it storage format
+        // agnostic (don't introduce excel dependencies). Also consider adding
+        // meta info.
 
-        if (ota != null && ota.getHeader() != null) {
-            IOpenMethodHeader old_header = ota.getHeader();
-            OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(), paramType, old_header
-                    .getSignature(), old_header.getDeclaringClass());
-            ota.setHeader(newHeader);
-
-            if (src.startsWith("{") && src.endsWith("}")) {
-                GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getGridTable());
-                return ota.makeMethod(srcCode);
+        if (src != null && (src = src.trim()).length() != 0) {
+            if (ota != null && ota.getHeader() != null) {
+                IOpenMethodHeader old_header = ota.getHeader();
+                OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(), paramType, old_header
+                        .getSignature(), old_header.getDeclaringClass());
+                ota.setHeader(newHeader);
+    
+                if (src.startsWith("{") && src.endsWith("}")) {
+                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getGridTable());
+                    return ota.makeMethod(srcCode);
+                }
+    
+                if (src.startsWith("=")
+                        && (src.length() > 2 || src.length() == 2 && Character.isLetterOrDigit(src.charAt(1)))) {
+                    IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(new GridCellSourceCodeModule(cell
+                            .getGridTable()), 1);
+    
+                    return ota.makeMethod(srcCode);
+                }
             }
+            
+            Class<?> expectedType = paramType.getInstanceClass();
 
-            if (src.startsWith("=")
-                    && (src.length() > 2 || src.length() == 2 && Character.isLetterOrDigit(src.charAt(1)))) {
-                IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(new GridCellSourceCodeModule(cell
-                        .getGridTable()), 1);
-
-                return ota.makeMethod(srcCode);
+            IString2DataConvertor conv = String2DataConvertorFactory.getConvertor(expectedType);
+    
+            try {
+                Object res;
+                
+                // FIXME: It's absolute crunch! Revise parsing mechanism for cell values.
+                if (value != null && expectedType.isAssignableFrom(value.getClass())){
+                    // We've already parsed the expected value
+                    res = value;
+                    
+                    // FIXME: just for the case trying to parse it with
+                    // previously used approach. If it goes OK, then consider it
+                    // results to be proper. The parsing mechanism must be
+                    // rewritten.
+                    try {
+                        res = conv.parse(src, null, ota.getBindingContext());
+                    } catch (Throwable t) {
+                        // ignore error
+                    }
+                } else {
+                    res = conv.parse(src, null, ota.getBindingContext());
+                }
+                
+                
+                if (res instanceof IMetaHolder) {
+                    setMetaInfo((IMetaHolder) res, cell, paramName, ruleName);
+                }
+    
+                setCellMetaInfo(cell, paramName, paramType);
+                validateValue(res, paramType);
+                return res;
+            } catch (Throwable t) {
+                throw new BoundError(null, null, t, new GridCellSourceCodeModule(cell.getGridTable()));
             }
         }
-
-        IString2DataConvertor conv = String2DataConvertorFactory.getConvertor(paramType.getInstanceClass());
-
-        try {
-            Object res = conv.parse(src, null, ota.getBindingContext());
-            if (res instanceof IMetaHolder) {
-                setMetaInfo((IMetaHolder) res, cell, paramName, ruleName);
-            }
-
-            setCellMetaInfo(cell, paramName, paramType);
-            validateValue(res, paramType);
-            return res;
-        } catch (Throwable t) {
-            throw new BoundError(null, null, t, new GridCellSourceCodeModule(cell.getGridTable()));
-        }
+        
+        return null;
     }
 
     static public Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, Object[] params) {

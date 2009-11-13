@@ -3,8 +3,12 @@
  */
 package org.openl.rules.search;
 
-import org.openl.rules.lang.xls.binding.TableProperties;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.util.AStringBoolOperator;
 
 /**
@@ -37,28 +41,30 @@ public class PropertySelector extends ATableSyntaxNodeSelector {
      * 
      * @param property Property from table.
      * @param tableProperties All properties from table. This parameter is used, because of the method 
-     * <code>{@link TableProperties#getPropertyValueAsString(String)}</code> to get the value of the property as string.
+     * <code>{@link ITableProperties#getPropertyValueAsString(String)}</code> to get the value of the property as string.
      * 
      * @return <code>True</code> if property name from search condition is <code>null</code> or matches to the property 
      * name from the table and at the same time if the property value from search condition is <code>null</code> or 
      * matches to the the property value from the table. In other way <code>false</code>.
      */
-    private boolean doesPropertyMatch(TableProperties.Property property, TableProperties tableProperties) {
-        return (propertyNameSelector == null || propertyNameSelector.isMatching(property.getKey().getValue()))
+    private boolean doesPropertyMatch(String propertyName, ITableProperties tableProperties) {
+        return (propertyNameSelector == null || propertyNameSelector.isMatching(propertyName))
                 && (propertyValueSelector == null || propertyValueSelector.isMatching(tableProperties
-                        .getPropertyValueAsString(property.getKey().getValue())));
+                        .getPropertyValueAsString(propertyName)));
     }
 
     @Override
     public boolean doesTableMatch(TableSyntaxNode tsn) {
-        TableProperties tableProperties = tsn.getTableProperties();
+        ITableProperties tableProperties = tsn.getTableProperties();
         if (tableProperties == null) {
             return propertyNameSelector == null && propertyValueSelector == null;
         }
-
-        TableProperties.Property[] properties = tableProperties.getProperties();
-        for (int i = 0; i < properties.length; i++) {
-            if (doesPropertyMatch(properties[i], tableProperties)) {
+        
+        Map<String, Object> properties = tableProperties.getDefinedProperties();
+        Iterator<Map.Entry<String, Object>> iter = properties.entrySet().iterator();
+        while(iter.hasNext()) {
+            Map.Entry<String, Object> pairs = iter.next();
+            if (doesPropertyMatch(pairs.getKey(), tableProperties)) {
                 return true;
             }
         }

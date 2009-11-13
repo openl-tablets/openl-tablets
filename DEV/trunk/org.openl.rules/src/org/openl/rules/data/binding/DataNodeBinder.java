@@ -208,32 +208,24 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     
     /**
      * Checks if table representation is horizontal.
-     * @param dataTable
+     * @param dataTableBody
      * @param tableType
-     * @return
+     * @return <code>TRUE</code> if table is readable from left to right. Means parameter values are columns.
      */
-    private boolean isHorizontalTable(ILogicalTable dataTable, IOpenClass tableType) {
-        int cnt1 = countFields(dataTable, tableType);
-        int cnt2 = countFields(dataTable.transpose(), tableType);
-        return cnt1 < cnt2 ? false : true;
+    private boolean isHorizontalTable(ILogicalTable dataTableBody, IOpenClass tableType) {
+        boolean result = false;
+        // if data table body contains only one row, we consider it is vertical.
+        if (dataTableBody.getLogicalHeight() != 1) {
+            int cnt1 = countFields(dataTableBody, tableType);
+            int cnt2 = countFields(dataTableBody.transpose(), tableType);
+            result = cnt1 < cnt2 ? false : true;
+        }
+        return result;
     }    
-
-    /**
-     * 
-     * @param descriptorRows
-     * @param type
-     * @param openl
-     * @param hasForeignKeysRow
-     * @param dataWithTitleRows
-     * @param table
-     * @param hasColumnTytleRow
-     * @return
-     * @throws Exception
-     */
-    private IColumnDescriptor[] makeDescriptors(ILogicalTable descriptorRows,
-            IOpenClass type, OpenL openl, boolean hasForeignKeysRow,
-            ILogicalTable dataWithTitleRows, ITable table,
-            boolean hasColumnTytleRow) throws Exception {
+    
+    private IColumnDescriptor[] makeDescriptors(ITable table, IOpenClass type, OpenL openl,
+            ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows,
+            boolean hasForeignKeysRow, boolean hasColumnTytleRow) throws Exception {
 
         int width = descriptorRows.getLogicalWidth();
         IColumnDescriptor[] columnDescriptors = new IColumnDescriptor[width];
@@ -439,14 +431,13 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * @param tableType
      * @return Horizontal representation of table.
      */
-    protected ILogicalTable getHorizontalTable(TableSyntaxNode tsn, IOpenClass tableType) {
+    protected ILogicalTable getHorizontalTable(ILogicalTable tableBody, IOpenClass tableType) {
         ILogicalTable resultTable = null;
-        ILogicalTable dataTable = getTableBody(tsn);
 
-        if (isHorizontalTable(dataTable, tableType)) {
-            resultTable = dataTable;
+        if (isHorizontalTable(tableBody, tableType)) {
+            resultTable = tableBody;
         } else {
-            resultTable = dataTable.transpose();
+            resultTable = tableBody.transpose();
         }
         return resultTable;
      }
@@ -480,60 +471,128 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     /**
      * Default method.
      * If you call this method, you want to process table with cell title row set to <code>TRUE</code>.
+     * calls {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, 
+     * IBindingContext, OpenL, boolean)} to populate <code>ITable</code> with data. Also adds to 
+     * <code>TableSyntaxNode</code> sub table for displaying on bussiness view.
      */
     public ITable makeTable(XlsModuleOpenClass xlsOpenClass, TableSyntaxNode tsn, String tableName, IOpenClass tableType,
             IBindingContext cxt, OpenL openl) throws Exception {
-        return makeTable(xlsOpenClass, tsn, tableName, tableType, cxt, openl, true);
+        ITable resultTable = xlsOpenClass.getDataBase().addNewTable(tableName, tsn);
+        ILogicalTable tableBody = getTableBody(tsn);
+        processTable(xlsOpenClass, resultTable, tableBody, tableName, tableType, cxt, openl, true);
+        putSubTableForBussinesView(tsn, tableType);
+        
+        return resultTable;
     }
     
-    public ITable makeTable(XlsModuleOpenClass xlsOpenClass, TableSyntaxNode tsn, String tableName, IOpenClass tableType,
-            IBindingContext cxt, OpenL openl, boolean hasColumnTytleRow) throws Exception {
+    /**
+     * Populate the <code>ITable</code> with data from <code>ILogicalTable</code>. 
+     * @param xlsOpenClass Open class representing OpenL module.
+     * @param tableToProcess Table to be processed.
+     * @param tableBody Body of the table (without header and properties sections). Its like a source to process 
+     * <code>ITable</code> with data.
+     * @param tableName Name of the outcome table.
+     * @param tableType Type of the data in table.
+     * @param cxt OpenL context.
+     * @param openl OpenL instance.
+     * @param hasColumnTytleRow Flag representing if tableBody has title row for columns.
+     * @throws Exception
+     */
+    public void processTable(XlsModuleOpenClass xlsOpenClass, ITable tableToProcess, ILogicalTable tableBody, 
+            String tableName, IOpenClass tableType,
+            IBindingContext cxt, OpenL openl, boolean hasColumnTytleRow) throws Exception {        
+       
+        ILogicalTable horizDataTableBody = getHorizontalTable(tableBody, tableType);
         
-        ITable resultTable = xlsOpenClass.getDataBase().addNewTable(tableName, tsn);
+        ILogicalTable descriptorRows = getDescriptorRows(horizDataTableBody);
+        
+        ILogicalTable dataWithTitleRows = getDataWithTitleRows(horizDataTableBody);
 
-        ILogicalTable horizDataTable = getHorizontalTable(tsn, tableType);
-        
-        boolean hasForeignKeysRow = hasForeignKeysRow(horizDataTable);
-        
-        // number of row to get descriptor rows from table.
-        int toRow;
-        
-        // row to start getting data with header from table
-        int fromRow;
-        
-        if (hasForeignKeysRow) {
-            // descriptorRows will consist fieldRow + indexRow.
-            toRow = 1;
-            
-            // dataWithHeader will starts from this row.
-            fromRow = 2;            
-        } else {
-            // descriptorRows will consist only fieldRow.
-            toRow = 0;
-            
-            // dataWithHeader will starts from this row.
-            fromRow = 1;
-        }
-        
-        
-        ILogicalTable descriptorRows = horizDataTable.rows(0, toRow);
-
-        ILogicalTable dataWithTitleRows = horizDataTable.rows(fromRow);
-
-        IColumnDescriptor[] descriptors = makeDescriptors(descriptorRows, tableType, openl, hasForeignKeysRow,
-                dataWithTitleRows, resultTable, hasColumnTytleRow);
+        IColumnDescriptor[] descriptors = makeDescriptors(tableToProcess, tableType, openl, descriptorRows,  
+                dataWithTitleRows, hasForeignKeysRow(horizDataTableBody), hasColumnTytleRow);
         
         OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName, tableType, openl, descriptors, 
                 hasColumnTytleRow);
-
-        tsn.getSubTables().put(VIEW_BUSINESS, dataWithTitleRows);
-
+        
         OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, cxt);
 
-        xlsOpenClass.getDataBase().preLoadTable(resultTable, dataModel, dataWithTitleRows, ota);
-
-        return resultTable;
-    }    
+        xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
+    }
+    
+    /**
+     * Gets the Data_With_Titles rows from the data table body. Data_With_Titles start row consider to be the 
+     * next row after descriptor section of the table and till the end of the table. 
+     * @param horizDataTableBody Horizontal representation of data table body.
+     * @return Data_With_Titles rows for current data table body. 
+     */
+    private ILogicalTable getDataWithTitleRows(ILogicalTable horizDataTableBody) {
+        int startRow = getStartRowForDataWithTitlesSection(horizDataTableBody);
+        ILogicalTable dataWithTitleRows = horizDataTableBody.rows(startRow);
+        return dataWithTitleRows;
+    }
+    
+    /**
+     * Gets the number of the start row for Data_With_Titles section of the data table body.
+     * It depends on whether table has or no the foreign key row.
+     * @param horizDataTableBody Horizontal representation of data table body.
+     * @return Number of the start row for the Data_With_Titles section.
+     */
+    private int getStartRowForDataWithTitlesSection(ILogicalTable horizDataTableBody) {
+        boolean hasForeignKeysRow = hasForeignKeysRow(horizDataTableBody);
+        int startRow;
+        if (hasForeignKeysRow) {
+         // Data_With_Titles will starts from this row.
+            startRow = 2;            
+        } else {
+         // Data_With_Titles will starts from this row.
+            startRow = 1;
+        }
+        return startRow;
+    }
+    
+    /**
+     * Gets the descriptor rows from the data table body. Descriptor rows are
+     * obligatory parameter row and optional foreign key row if it exists in  the table.
+     * @param horizDataTableBody Horizontal representation of data table body.
+     * @return Descriptor rows for current data table body. 
+     */
+    private ILogicalTable getDescriptorRows(ILogicalTable horizDataTableBody) {
+        int endRow = getEndRowForDescriptorSection(horizDataTableBody);
+        ILogicalTable descriptorRows = horizDataTableBody.rows(0, endRow);
+        return descriptorRows;
+    }
+    
+    /**
+     * Gets the number of end row for descriptor section of the data table body.
+     * It depends on whether table has or no the foreign key row.
+     * @param horizDataTableBody Horizontal representation of data table body.
+     * @return Number of end row for descriptor section.
+     */
+    private int getEndRowForDescriptorSection(ILogicalTable horizDataTableBody) {
+        boolean hasForeignKeysRow = hasForeignKeysRow(horizDataTableBody);
+        int endRow;
+        
+        if (hasForeignKeysRow) {
+            // descriptorRows will consist fieldRow + iforeignKeyRow.
+            endRow = 1;
+        } else {
+            // descriptorRows will consist only fieldRow.
+            endRow = 0;
+        }
+        return endRow;
+    }
+    
+    /**
+     * Adds sub table for displaying on bussiness view.
+     * @param tsn <code>TableSyntaxNode</code> representing table.
+     * @param tableType Type of the data in table.
+     */
+    private void putSubTableForBussinesView(TableSyntaxNode tsn, IOpenClass tableType) {
+        ILogicalTable tableBody = getTableBody(tsn);
+        ILogicalTable horizDataTable = getHorizontalTable(tableBody, tableType);
+        ILogicalTable dataWithTitleRows = getDataWithTitleRows(horizDataTable);
+        tsn.getSubTables().put(VIEW_BUSINESS, dataWithTitleRows);
+    }      
     
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)

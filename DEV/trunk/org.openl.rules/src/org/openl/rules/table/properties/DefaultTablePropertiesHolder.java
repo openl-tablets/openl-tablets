@@ -29,7 +29,7 @@ public class DefaultTablePropertiesHolder implements ITablePropertiesHolder {
 		return tableProperties;
 	}
 	
-	public boolean isDefined(String propertyName) {
-		return tableProperties.isDefined(propertyName);
-	}
+//	public boolean isDefined(String propertyName) {
+//		return tableProperties.isDefined(propertyName);
+//	}
 }

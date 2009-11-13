@@ -1,11 +1,13 @@
 package org.openl.rules.search;
 
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.lang.xls.binding.TableProperties;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
+import org.openl.rules.table.properties.ITableProperties;
 
 /**
  * Class to search tables, by {@link BussinessSearchCondition}  
@@ -72,20 +74,24 @@ public class OpenLBussinessSearch implements IOpenLSearch{
      * @param tableProperties
      * @return
      */
-    private boolean isEqual(TableProperties tableProperties) {
+    private boolean isEqual(ITableProperties tableProperties) {
         boolean result = false;
         int numMatch = 0;
-        List<Property> propsFromSearch = busSearchCondit.getPropToSearch();
-        for(Property propFromSearch : propsFromSearch) {
-            if(tableProperties!=null){
-                Property property = tableProperties.getProperty(propFromSearch.getKey().getValue());
-                if(property != null) {
-                    if(property.getValue().compareTo(propFromSearch.getValue()) == 0) {
+        Map<String, Object> propsFromSearch = busSearchCondit.getPropToSearch();
+        Iterator<Map.Entry<String, Object>> iterator = propsFromSearch.entrySet().iterator();
+        while(iterator.hasNext()) {
+            Map.Entry<String, Object> pairs = iterator.next();
+            String propKeyFromSearch = pairs.getKey();
+            Object propValueFromSearch = pairs.getValue();
+            if (tableProperties != null){
+                Object propertyValue = tableProperties.getPropertyValue(propKeyFromSearch);
+                if(propertyValue != null) {
+                    if(comparePropValues(propValueFromSearch, propertyValue) == 0) {
                         numMatch++;
                     } else {
-                        if(property.getValue().getValue() instanceof String && propFromSearch.getValue().getValue() instanceof String
-                                && checkIfContainString(((String)property.getValue().getValue()).toLowerCase(),
-                                    ((String)propFromSearch.getValue().getValue()).toLowerCase())) {
+                        if(propertyValue instanceof String && propValueFromSearch instanceof String
+                                && checkIfContainString(((String)propertyValue).toLowerCase(),
+                                    ((String)propValueFromSearch).toLowerCase())) {
                             numMatch++;
                             
                         }
@@ -93,11 +99,26 @@ public class OpenLBussinessSearch implements IOpenLSearch{
                 }                
             }
         }
+        
         if(numMatch == propsFromSearch.size() && numMatch > 0) {
             result = true;
         } else {
             result = false;
         }
+        return result;
+ 
+    }
+
+    private int comparePropValues(Object propValueFromSearch, Object propertyValue) {
+        int result = -1;
+        if(propertyValue instanceof String && propValueFromSearch instanceof String) 
+            result = ((String)propertyValue).compareTo(((String)propValueFromSearch));
+        else if(propertyValue instanceof Date && propValueFromSearch instanceof Date)
+                result = ((Date)propertyValue).compareTo(((Date)propValueFromSearch));                
+        else if(propertyValue instanceof Boolean && propertyValue instanceof Boolean)
+                result = ((Boolean)propertyValue).compareTo(((Boolean)propValueFromSearch));
+        else if(propertyValue instanceof Integer && propValueFromSearch instanceof Integer)
+                result = ((Integer)propertyValue).compareTo(((Integer)propValueFromSearch));
         return result;
     }
     

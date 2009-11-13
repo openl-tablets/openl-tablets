@@ -13,12 +13,13 @@ import org.openl.base.INamedThing;
  *
  */
 public interface IOpenMember extends INamedThing {
-    public IOpenClass getDeclaringClass();
+    IOpenClass getType();
 
-    public IMemberMetaInfo getInfo();
-
-    public IOpenClass getType();
-
-    public boolean isStatic();
-
+    boolean isStatic();
+    
+    IMemberMetaInfo getInfo();
+    
+    //FIXME: seams to be conceptually wrong, the member shouldn't know to which class it belongs
+    @Deprecated
+    IOpenClass getDeclaringClass();
 }

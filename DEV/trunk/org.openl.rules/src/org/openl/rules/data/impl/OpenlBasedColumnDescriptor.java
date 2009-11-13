@@ -42,7 +42,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
     private IdentifierNode indexTable;
     private IdentifierNode indexKey;
     private StringValue displayValue;
-    private IString2DataConvertor convertor;
+    private IString2DataConvertor convertor; //FIXME: not used anywhere
 
     private OpenL openl;
 
@@ -214,6 +214,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
         values = ALogicalTable.make1ColumnTable(values);
 
         if (!indexed) {
+            // FIXME: String constant "constructor" must be extracted to some final field in some proper class
             Object res = FunctionalRow.loadSingleParam(paramType, field == null ? "constructor" : field.getName(),
                     null, values, ota);
             return res;

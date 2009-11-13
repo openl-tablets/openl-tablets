@@ -1,30 +1,30 @@
 package org.openl.rules.search;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
- * Bean consists criteria for bussiness search
+ * Bean consists criteria for business search
  * @author DLiauchuk
  *
  */
 public class BussinessSearchCondition {
     
-    private List<Property> propToSearch = new ArrayList<Property>();
+    private Map<String, Object> propToSearch = new HashMap<String, Object>();
     
     /*
      * Contain all tables that suit to table contains search cryteria 
      */
     private TableSyntaxNode[] tablesContains;
     
-    public List<Property> getPropToSearch() {
+    public Map<String, Object> getPropToSearch() {
         return propToSearch;
     }
     
-    public void setPropToSearch(List<Property> propToSearch) {
+    public void setPropToSearch(Map<String, Object> propToSearch) {
         this.propToSearch = propToSearch;
     }
     

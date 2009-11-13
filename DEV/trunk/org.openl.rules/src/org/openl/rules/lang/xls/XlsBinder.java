@@ -37,16 +37,18 @@ import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.meta.IVocabulary;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.properties.DefaultTableProperties;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.calc.SSheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
+import org.openl.rules.data.ITable;
 import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.dt.binding.DTNodeBinder;
 import org.openl.rules.extension.bind.IExtensionBinder;
 import org.openl.rules.extension.bind.NameConventionBinderFactory;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
-import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
@@ -62,6 +64,7 @@ import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.AStringConvertor;
 import org.openl.util.ISelector;
@@ -456,11 +459,24 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
             return null;
         }
         TableSyntaxNode tsn = (TableSyntaxNode) syntaxNode;
-
-        TableProperties tp = binder.loadProperties(tsn.getTable());
-        tsn.setTableProperties(tp);
-
+        
+        loadPropertiesAsDataTable(tsn, openl, cxt, module, binder);
         return binder.preBind(tsn, openl, cxt, module);
+    }
+    
+    private void loadPropertiesAsDataTable(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt,
+            XlsModuleOpenClass module, AXlsTableBinder binder) throws Exception {
+        String propertySectionName = "Properties_Section"+tsn.getUri();
+        DataNodeBinder bb = new DataNodeBinder();
+        ITable propertyTable = module.getDataBase().addNewTable(propertySectionName, null);
+        IOpenClass propetiesClass = JavaOpenClass.getOpenClass(DefaultTableProperties.class);
+        ILogicalTable propertiesSection = binder.getPropertiesTableSection(tsn.getTable());
+        if (propertiesSection != null) {
+            bb.processTable(module, propertyTable, propertiesSection, propertySectionName, propetiesClass, cxt, openl, false);
+            DefaultTableProperties propertiesInstance = ((DefaultTableProperties[])propertyTable.getDataArray())[0]; 
+            
+            tsn.setTableProperties(propertiesInstance);
+        }
     }
 
 }

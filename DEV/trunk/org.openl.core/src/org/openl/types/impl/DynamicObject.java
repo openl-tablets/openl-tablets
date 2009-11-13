@@ -80,8 +80,12 @@ public class DynamicObject implements IDynamicObject {
         return fieldValues.get(name);
     }
 
+    /* (non-Javadoc)
+     * @see org.openl.types.IDynamicObject#getFieldValues()
+     */
+    @SuppressWarnings("unchecked")
     public HashMap<String, Object> getFieldValues() {
-        return fieldValues;
+        return (HashMap<String, Object>) fieldValues.clone();
     }
 
     /**
