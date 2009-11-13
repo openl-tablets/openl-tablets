@@ -448,7 +448,7 @@ public class ProjectModel implements IProjectTypes {
                 continue;
             }
 
-            if (!"on".equals(tsn.getTableProperties().getPropertyValueAsString("validateDT"))) {
+            if (tsn.getTableProperties() != null && !"on".equals(tsn.getTableProperties().getValidateDT())) {
                 continue;
             }
 
