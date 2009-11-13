@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 
@@ -27,23 +28,21 @@ public class TablePropertyCopier extends TableCopier {
         start();
         this.elementUri = elementUri1;        
         initTableNames();  
-        initProperies();
+        initProperties();
     }    
     
-    private void initProperies() {
+    private void initProperties() {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions
                 .getDefaultDefinitions();
         TableSyntaxNode node = getCopyingTable();
         
         for (TablePropertyDefinition propDefinition : propDefinitions) {
+            ITableProperties tableProperties = node.getTableProperties();
             String name = propDefinition.getName();
-            propToCopy.add(new TableProperty(
-                    propDefinition.getDisplayName(), node.getTableProperties().getPropertyValue(name) != null ? 
-                            node.getTableProperties().getPropertyValue(name) : null, propDefinition
-                            .getType() == null ? null : propDefinition
-                            .getType().getInstanceClass(), propDefinition
-                            .getGroup(), name,
-                    propDefinition.getFormat()));
+            Object propertyValue = tableProperties.getPropertyValue(name) != null ? tableProperties.getPropertyValue(name) : null;
+            Class<?> propertyType = propDefinition.getType() == null ? null : propDefinition.getType().getInstanceClass();            
+            propToCopy.add(new TableProperty(propDefinition.getDisplayName(), propertyValue, propertyType, 
+                    propDefinition.getGroup(), name, propDefinition.getFormat()));
         }
     }
 
