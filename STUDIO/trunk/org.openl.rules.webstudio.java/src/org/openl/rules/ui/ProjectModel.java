@@ -20,7 +20,6 @@ import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -31,6 +30,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
@@ -448,7 +448,7 @@ public class ProjectModel implements IProjectTypes {
                 continue;
             }
 
-            if (!"on".equals(tsn.getPropertValueAsString("validateDT"))) {
+            if (!"on".equals(tsn.getTableProperties().getPropertyValueAsString("validateDT"))) {
                 continue;
             }
 
@@ -1212,7 +1212,7 @@ public class ProjectModel implements IProjectTypes {
             return "";
         }
 
-        TableProperties tp = tsn.getTableProperties();
+        ITableProperties tp = tsn.getTableProperties();
         if (tp == null) {
             return "";
         }

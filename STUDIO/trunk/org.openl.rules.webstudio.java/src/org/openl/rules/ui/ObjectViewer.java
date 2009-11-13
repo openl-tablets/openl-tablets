@@ -23,6 +23,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.OpenLRuntimeExceptionWithMetaInfo;
 import org.openl.meta.StringValue;
+import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.data.String2DataConvertorFactory;
 import org.openl.rules.dt.DTOverlapping;
@@ -30,8 +31,6 @@ import org.openl.rules.dt.DTRule;
 import org.openl.rules.dt.DTUncovered;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.binding.TableProperties;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.search.ISearchTableRow;
@@ -46,6 +45,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Table;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.ui.ColorGridFilter;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.IGridFilter;
@@ -73,7 +73,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
-import org.openl.rules.webstudio.web.tableeditor.*;
 
 /**
  * @author snshor
@@ -815,13 +814,13 @@ public class ObjectViewer {
     }
 
     public StringValue getTableName(TableSyntaxNode tsn) {
-        StringValue name = null;
-        Property prop = null;
-        TableProperties tableProperties = tsn.getTableProperties();
-        if (tableProperties != null && (prop = tableProperties.getProperty("name")) != null) {            
+        StringValue name = null;        
+        ITableProperties tableProperties = tsn.getTableProperties();
+        Object propValue = tableProperties.getPropertyValue("name");
+        if (tableProperties != null && (propValue != null)) {            
             
-            name = new StringValue((String)prop.getValue().getValue());
-            name.setMetaInfo(prop.getValue().getMetaInfo());
+            name = new StringValue((String)propValue);            
+            name.setMetaInfo(new ValueMetaInfo((String)propValue,(String)propValue, tsn.getUri()));
         } else {
             name = tsn.getHeaderLineValue();
         }

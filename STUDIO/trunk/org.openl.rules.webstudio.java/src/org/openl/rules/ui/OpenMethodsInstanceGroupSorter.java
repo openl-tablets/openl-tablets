@@ -7,8 +7,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
-import org.openl.rules.lang.xls.binding.TableProperties;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass.MethodKey;
 import org.openl.util.ITreeElement;
@@ -16,7 +16,7 @@ import org.openl.util.ITreeElement;
 public class OpenMethodsInstanceGroupSorter extends ATableTreeSorter {
 
     private String[] getTableDisplayValue(TableSyntaxNode tsn, int i) {
-        TableProperties tp = tsn.getTableProperties();
+        ITableProperties tp = tsn.getTableProperties();
         String display = null;
         String name = null;
 

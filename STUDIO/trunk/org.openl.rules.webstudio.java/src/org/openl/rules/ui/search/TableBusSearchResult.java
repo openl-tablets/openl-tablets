@@ -1,19 +1,17 @@
 package org.openl.rules.ui.search;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TableBusSearchResult {
     
-    List<Property> propValues = new ArrayList<Property>();
+    Map<String, Object> propValues = new HashMap<String, Object>();
 
-    public List<Property> getPropValues() {
+    public Map<String, Object> getPropValues() {
         return propValues;
     }
 
-    public void setPropValues(List<Property> propValues) {
+    public void setPropValues(Map<String, Object> propValues) {
         this.propValues = propValues;
     }
     

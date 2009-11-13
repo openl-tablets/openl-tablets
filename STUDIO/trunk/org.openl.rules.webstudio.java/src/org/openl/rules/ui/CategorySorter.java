@@ -3,14 +3,15 @@ package org.openl.rules.ui;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.ITableProperties;
 
 public class CategorySorter extends ATableTreeSorter implements IProjectTypes {
 
     String getCategory(TableSyntaxNode tsn) {
         String category = null;
-        
-        if(tsn.getPropertyValue("category") != null) { 
-             category = tsn.getPropertValueAsString("category");
+        ITableProperties tableProp = tsn.getTableProperties();
+        if (tableProp != null && tableProp.getPropertyValue("category") != null) { 
+             category = tableProp.getPropertyValueAsString("category");
         }
 
         if (category == null) {

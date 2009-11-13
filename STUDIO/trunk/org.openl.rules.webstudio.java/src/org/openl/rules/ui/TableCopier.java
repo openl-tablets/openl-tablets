@@ -10,10 +10,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.binding.TableProperties;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -77,15 +76,15 @@ public abstract class TableCopier extends WizardBase {
             builder.writeHeader(newHeader, headerStyle);
             logicTableStartRow++;
 
-            TableProperties tableProperties = node.getTableProperties();
-            Property[] properties = null;
+            ITableProperties tableProperties = node.getTableProperties();   
+            Map<String, Object> newProperties = null;
             ICellStyle propertiesStyle = null;
             if (tableProperties != null) {
                 propertiesStyle = getPropertiesStyle(tableProperties);
-                properties = tableProperties.getProperties();
+                newProperties = tableProperties.getDefinedProperties();
             }
-            builder.writeProperties(buildProperties(properties), propertiesStyle);
-            logicTableStartRow += properties == null ? 0 : properties.length;
+            builder.writeProperties(buildProperties(newProperties), propertiesStyle);
+            logicTableStartRow += newProperties == null ? 0 : newProperties.size();
         }
 
         builder.writeGridTable(table.getLogicalRegion(0, logicTableStartRow, tableWidth,
@@ -101,7 +100,7 @@ public abstract class TableCopier extends WizardBase {
      * @param properties old properties
      * @return new properties
      */
-    protected abstract Map<String, Object> buildProperties(Property[] properties);
+    protected abstract Map<String, Object> buildProperties(Map<String, Object> properties);
     
     /**
      * Creates new header.
@@ -119,7 +118,7 @@ public abstract class TableCopier extends WizardBase {
     protected void initTableNames () {
         TableSyntaxNode node = getCopyingTable();
         tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
-        tableBusinessName = node == null ? null : node.getPropertValueAsString(TableBuilder.TABLE_PROPERTIES_NAME);
+        tableBusinessName = node == null ? null : node.getTableProperties().getPropertyValueAsString(TableBuilder.TABLE_PROPERTIES_NAME);
     }
     
     protected TableSyntaxNode getCopyingTable() {
@@ -232,9 +231,9 @@ public abstract class TableCopier extends WizardBase {
         return result;
     }
     
-    protected ICellStyle getPropertiesStyle(TableProperties tableProperties) {
+    protected ICellStyle getPropertiesStyle(ITableProperties tableProperties) {
         ICellStyle propertiesStyle;
-        IGridTable propertiesTable = tableProperties.getTable().getGridTable();
+        IGridTable propertiesTable = tableProperties.getPropertiesSection().getGridTable();
         propertiesStyle = propertiesTable.getCell(0, 0).getStyle() == null ? null : propertiesTable
                 .getCell(0, 0).getStyle();
         return propertiesStyle;

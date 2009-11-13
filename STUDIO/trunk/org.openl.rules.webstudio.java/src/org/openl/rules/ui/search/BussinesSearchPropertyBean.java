@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.meta.ObjectValue;
@@ -16,7 +17,6 @@ import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 
@@ -84,14 +84,14 @@ public class BussinesSearchPropertyBean {
      */
     public void initBusSearchCond() {
         if(arePropertieValuesSet()) {
-            List<Property> listforSearch = search.getBusSearchCondit().getPropToSearch();  
-            listforSearch.clear();
+            Map<String, Object> mapforSearch = search.getBusSearchCondit().getPropToSearch();  
+            mapforSearch.clear();
             for(TableProperty prop : propForSearch) {
                 if (prop.isStringType() && prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getValueString())) {
-                    listforSearch.add(new Property(new StringValue(prop.getName()), new ObjectValue((String)prop.getValue())));
+                    mapforSearch.put(prop.getName(), (String)prop.getValue());
                 } else {
                     if (prop.isDateType() && prop.getValue()!=null) {
-                        listforSearch.add(new Property(new StringValue(prop.getName()), new ObjectValue((Date)prop.getValue())));
+                        mapforSearch.put(prop.getName(), (Date)prop.getValue());
                     }
                 }
             }            
