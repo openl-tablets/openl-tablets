@@ -1,6 +1,6 @@
 package org.openl.rules.table;
 
-import org.openl.rules.lang.xls.binding.TableProperties;
+import org.openl.rules.table.properties.ITableProperties;
 /**
  * 
  * @author DLiauchuk
@@ -10,14 +10,14 @@ import org.openl.rules.lang.xls.binding.TableProperties;
 public class Table implements ITable {
         
     private IGridTable gridTable;
-    private TableProperties properties;
+    private ITableProperties properties;
     private String type;
     
     public IGridTable getGridTable() {        
         return gridTable;
     }    
 
-    public TableProperties getProperties() {        
+    public ITableProperties getProperties() {        
         return properties;
     }
 
@@ -25,7 +25,7 @@ public class Table implements ITable {
         return gridTable;
     }
     
-    public void setProperties(TableProperties tableProperties) {
+    public void setProperties(ITableProperties tableProperties) {
         this.properties = tableProperties;
     }
 

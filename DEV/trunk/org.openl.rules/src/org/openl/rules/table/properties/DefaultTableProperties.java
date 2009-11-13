@@ -1,169 +1,203 @@
 package org.openl.rules.table.properties;
 
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.types.impl.DynamicObject;
 
-public class DefaultTableProperties implements ITableProperties {
-	
-	private Map<String, Object> internalMap = new HashMap<String, Object>();
-	
-	public void put(String key, Object value) {
-		internalMap.put(key, value);
-	}
-	
-	public Object get(String key) {
-		return get(key);
-	}
-	
-	public boolean isDefined(String propertyName) {
-		return internalMap.containsKey(propertyName);
-	}
-	
+public class DefaultTableProperties extends DynamicObject implements ITableProperties {
+    
+    private ILogicalTable propertySection;
+
 	// <<< INSERT >>>
 	public java.lang.String getName() {
-		return (java.lang.String) internalMap.get("name"); 
+		return (java.lang.String) fieldValues.get("name"); 
 	}
 	public void setName(java.lang.String name) {
-		internalMap.put("name", name);
+		fieldValues.put("name", name);
 	}	
 	public java.lang.String getCategory() {
-		return (java.lang.String) internalMap.get("category"); 
+		return (java.lang.String) fieldValues.get("category"); 
 	}
 	public void setCategory(java.lang.String category) {
-		internalMap.put("category", category);
+		fieldValues.put("category", category);
 	}	
 	public java.lang.String getDescription() {
-		return (java.lang.String) internalMap.get("description"); 
+		return (java.lang.String) fieldValues.get("description"); 
 	}
 	public void setDescription(java.lang.String description) {
-		internalMap.put("description", description);
+		fieldValues.put("description", description);
 	}	
 	public java.lang.String getTags() {
-		return (java.lang.String) internalMap.get("tags"); 
+		return (java.lang.String) fieldValues.get("tags"); 
 	}
 	public void setTags(java.lang.String tags) {
-		internalMap.put("tags", tags);
+		fieldValues.put("tags", tags);
 	}	
 	public java.util.Date getEffectiveDate() {
-		return (java.util.Date) internalMap.get("effectiveDate"); 
+		return (java.util.Date) fieldValues.get("effectiveDate"); 
 	}
 	public void setEffectiveDate(java.util.Date effectiveDate) {
-		internalMap.put("effectiveDate", effectiveDate);
+		fieldValues.put("effectiveDate", effectiveDate);
 	}	
 	public java.util.Date getExpirationDate() {
-		return (java.util.Date) internalMap.get("expirationDate"); 
+		return (java.util.Date) fieldValues.get("expirationDate"); 
 	}
 	public void setExpirationDate(java.util.Date expirationDate) {
-		internalMap.put("expirationDate", expirationDate);
+		fieldValues.put("expirationDate", expirationDate);
 	}	
 	public java.lang.String getCreatedBy() {
-		return (java.lang.String) internalMap.get("createdBy"); 
+		return (java.lang.String) fieldValues.get("createdBy"); 
 	}
 	public void setCreatedBy(java.lang.String createdBy) {
-		internalMap.put("createdBy", createdBy);
+		fieldValues.put("createdBy", createdBy);
 	}	
 	public java.util.Date getCreatedOn() {
-		return (java.util.Date) internalMap.get("createdOn"); 
+		return (java.util.Date) fieldValues.get("createdOn"); 
 	}
 	public void setCreatedOn(java.util.Date createdOn) {
-		internalMap.put("createdOn", createdOn);
+		fieldValues.put("createdOn", createdOn);
 	}	
 	public java.lang.String getModifiedBy() {
-		return (java.lang.String) internalMap.get("modifiedBy"); 
+		return (java.lang.String) fieldValues.get("modifiedBy"); 
 	}
 	public void setModifiedBy(java.lang.String modifiedBy) {
-		internalMap.put("modifiedBy", modifiedBy);
+		fieldValues.put("modifiedBy", modifiedBy);
 	}	
 	public java.util.Date getModifyOn() {
-		return (java.util.Date) internalMap.get("modifyOn"); 
+		return (java.util.Date) fieldValues.get("modifyOn"); 
 	}
 	public void setModifyOn(java.util.Date modifyOn) {
-		internalMap.put("modifyOn", modifyOn);
+		fieldValues.put("modifyOn", modifyOn);
 	}	
 	public java.lang.String getBuildPhase() {
-		return (java.lang.String) internalMap.get("buildPhase"); 
+		return (java.lang.String) fieldValues.get("buildPhase"); 
 	}
 	public void setBuildPhase(java.lang.String buildPhase) {
-		internalMap.put("buildPhase", buildPhase);
+		fieldValues.put("buildPhase", buildPhase);
 	}	
 	public java.lang.String getValidateDT() {
-		return (java.lang.String) internalMap.get("validateDT"); 
+		return (java.lang.String) fieldValues.get("validateDT"); 
 	}
 	public void setValidateDT(java.lang.String validateDT) {
-		internalMap.put("validateDT", validateDT);
+		fieldValues.put("validateDT", validateDT);
 	}	
 	public java.lang.String getLob() {
-		return (java.lang.String) internalMap.get("lob"); 
+		return (java.lang.String) fieldValues.get("lob"); 
 	}
 	public void setLob(java.lang.String lob) {
-		internalMap.put("lob", lob);
+		fieldValues.put("lob", lob);
 	}	
 	public java.lang.String getUsregion() {
-		return (java.lang.String) internalMap.get("usregion"); 
+		return (java.lang.String) fieldValues.get("usregion"); 
 	}
 	public void setUsregion(java.lang.String usregion) {
-		internalMap.put("usregion", usregion);
+		fieldValues.put("usregion", usregion);
 	}	
 	public java.lang.String getCountry() {
-		return (java.lang.String) internalMap.get("country"); 
+		return (java.lang.String) fieldValues.get("country"); 
 	}
 	public void setCountry(java.lang.String country) {
-		internalMap.put("country", country);
+		fieldValues.put("country", country);
 	}	
 	public java.lang.String getCurrency() {
-		return (java.lang.String) internalMap.get("currency"); 
+		return (java.lang.String) fieldValues.get("currency"); 
 	}
 	public void setCurrency(java.lang.String currency) {
-		internalMap.put("currency", currency);
+		fieldValues.put("currency", currency);
 	}	
 	public java.lang.String getLang() {
-		return (java.lang.String) internalMap.get("lang"); 
+		return (java.lang.String) fieldValues.get("lang"); 
 	}
 	public void setLang(java.lang.String lang) {
-		internalMap.put("lang", lang);
+		fieldValues.put("lang", lang);
 	}	
 	public java.lang.String getState() {
-		return (java.lang.String) internalMap.get("state"); 
+		return (java.lang.String) fieldValues.get("state"); 
 	}
 	public void setState(java.lang.String state) {
-		internalMap.put("state", state);
+		fieldValues.put("state", state);
 	}	
 	public java.lang.String getRegion() {
-		return (java.lang.String) internalMap.get("region"); 
+		return (java.lang.String) fieldValues.get("region"); 
 	}
 	public void setRegion(java.lang.String region) {
-		internalMap.put("region", region);
+		fieldValues.put("region", region);
 	}	
 	public java.lang.String getVersion() {
-		return (java.lang.String) internalMap.get("version"); 
+		return (java.lang.String) fieldValues.get("version"); 
 	}
 	public void setVersion(java.lang.String version) {
-		internalMap.put("version", version);
+		fieldValues.put("version", version);
 	}	
 	public java.lang.Boolean getActive() {
-		return (java.lang.Boolean) internalMap.get("active"); 
+		return (java.lang.Boolean) fieldValues.get("active"); 
 	}
 	public void setActive(java.lang.Boolean active) {
-		internalMap.put("active", active);
+		fieldValues.put("active", active);
 	}	
 	public java.lang.Boolean getFailOnMiss() {
-		return (java.lang.Boolean) internalMap.get("failOnMiss"); 
+		return (java.lang.Boolean) fieldValues.get("failOnMiss"); 
 	}
 	public void setFailOnMiss(java.lang.Boolean failOnMiss) {
-		internalMap.put("failOnMiss", failOnMiss);
+		fieldValues.put("failOnMiss", failOnMiss);
 	}	
 	public java.lang.Boolean getReturnOnMiss() {
-		return (java.lang.Boolean) internalMap.get("returnOnMiss"); 
+		return (java.lang.Boolean) fieldValues.get("returnOnMiss"); 
 	}
 	public void setReturnOnMiss(java.lang.Boolean returnOnMiss) {
-		internalMap.put("returnOnMiss", returnOnMiss);
+		fieldValues.put("returnOnMiss", returnOnMiss);
 	}	
 	public java.lang.String getScope() {
-		return (java.lang.String) internalMap.get("scope"); 
+		return (java.lang.String) fieldValues.get("scope"); 
 	}
 	public void setScope(java.lang.String scope) {
-		internalMap.put("scope", scope);
+		fieldValues.put("scope", scope);
 	}	
 	// <<< END INSERT >>>
+	
+    public Object getPropertyValue(String key) {        
+        return fieldValues.get(key);
+    }
+    
+    public String getPropertyValueAsString(String key) {
+        String result = null;
+        Object propValue = getPropertyValue(key);
+        if (propValue != null) {            
+            if (propValue instanceof String) {
+                result = (String) propValue;
+            } else {
+                if (propValue instanceof Date) {
+                    String format = DefaultPropertyDefinitions
+                            .getPropertyByName(key).getFormat();
+                    if (format != null) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                                format);
+                        result = dateFormat.format((Date) propValue);
+                    }
+                } else {
+                    if (propValue instanceof Boolean) {
+                        result = ((Boolean) propValue).toString();
+                    } else {
+                        if (propValue instanceof Integer) {
+                            result = ((Integer) propValue).toString();
+                        }
+                    }
+                }
+            }
+        }
+        return result;        
+    }
+    public ILogicalTable getPropertiesSection() {
+       return propertySection;
+    }
+    public int getNumberOfProperties() {
+        return fieldValues.size();
+    }
+    
+    public Map<String, Object> getDefinedProperties() {
+      return  super.getFieldValues();
+    }
 	
 }

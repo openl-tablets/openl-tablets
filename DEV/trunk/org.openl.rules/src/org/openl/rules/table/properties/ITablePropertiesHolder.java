@@ -4,6 +4,6 @@ public interface ITablePropertiesHolder {
 	
 	ITableProperties getTableProperties();
 	ITablePropertiesHolder getParent();
-	boolean isDefined(String propertyName);
+	//boolean isDefined(String propertyName);
 	String getPropertiesLevel();
 }

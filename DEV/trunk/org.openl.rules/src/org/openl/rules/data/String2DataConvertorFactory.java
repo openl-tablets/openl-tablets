@@ -376,6 +376,9 @@ public class String2DataConvertorFactory {
         }
 
         public Object parse(String data, String format, IBindingContext cxt) {
+            // FIXME: Wrong exception type. The error about not existing
+            // converter must be thrown in corresponding factory. Throwing error
+            // from looks like ugly design.
           throw new IllegalArgumentException("Convertor or Public Constructor " + clazz.getName()
              + "(String s) does not exist");    
         }

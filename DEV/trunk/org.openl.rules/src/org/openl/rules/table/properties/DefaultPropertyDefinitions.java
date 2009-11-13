@@ -8,11 +8,10 @@ package org.openl.rules.table.properties;
  */
 public class DefaultPropertyDefinitions 
 {
-
-	public static TablePropertyDefinition[] getDefaultDefinitions()
-	{		
-	    TablePropertyDefinition[] definitions = null;
-	    // <<< INSERT TablePropertiesDefinition >>>
+    private static final TablePropertyDefinition[] definitions;
+    
+    static {  
+        // <<< INSERT TablePropertiesDefinition >>>
 		definitions = new TablePropertyDefinition[24];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setBusinessSearch(true);
@@ -318,9 +317,15 @@ public class DefaultPropertyDefinitions
 		definitions[23].setTableType("xls.props");
 		definitions[23].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
-	    
-		return definitions;
-	}
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static TablePropertyDefinition[] getDefaultDefinitions(){
+        return definitions;
+    }
 	
 	/**
 	 * Gets the name of the property by the given display name
@@ -364,5 +369,6 @@ public class DefaultPropertyDefinitions
             }
         }
         return result;
-    }
+    }	
+	
 }

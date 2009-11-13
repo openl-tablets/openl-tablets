@@ -1,6 +1,6 @@
 package org.openl.rules.table;
 
-import org.openl.rules.lang.xls.binding.TableProperties;
+import org.openl.rules.table.properties.ITableProperties;
 
 public interface ITable {
 
@@ -8,7 +8,7 @@ public interface ITable {
 
     IGridTable getGridTable(String view);
 
-    TableProperties getProperties();
+    ITableProperties getProperties();
 
     String getType();
 }

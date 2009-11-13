@@ -1,8 +1,30 @@
 package org.openl.rules.table.properties;
 
+import java.util.Map;
+
+import org.openl.rules.table.ILogicalTable;
+
 public interface ITableProperties {
+    
+    Object getPropertyValue(String key);
+    
+    /**
+     * Returns the value of the property as <code>String</code>. 
+     * If the current property value is of <code>Date</code> type,
+     * gets the format of date from {@link DefaultPropertyDefinitions}.
+     * @param key Name of the property.
+     * @return Value formatted to string. <code>Null</code> when there is
+     * no property with such name.
+     */
+    String getPropertyValueAsString(String key);
+    
+    ILogicalTable getPropertiesSection();
+    
+    int getNumberOfProperties();
+    
+    Map<String, Object> getDefinedProperties();
 	
-	boolean isDefined(String propertyName);
+//	boolean isDefined(String propertyName);
 	
 	// <<< INSERT >>>
 	java.lang.String getName();

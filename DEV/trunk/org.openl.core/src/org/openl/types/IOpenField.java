@@ -13,13 +13,13 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public interface IOpenField extends IOpenMember {
-    public Object get(Object target, IRuntimeEnv env);
+    Object get(Object target, IRuntimeEnv env);
 
-    public boolean isConst();
+    void set(Object target, Object value, IRuntimeEnv env);
 
-    public boolean isReadable();
+    boolean isConst();
 
-    public boolean isWritable();
+    boolean isReadable();
 
-    public void set(Object target, Object value, IRuntimeEnv env);
+    boolean isWritable();
 }

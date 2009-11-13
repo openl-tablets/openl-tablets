@@ -2,18 +2,17 @@ package org.openl.rules.search;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
-import org.openl.meta.ObjectValue;
-import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.table.properties.ITableProperties;
 
 public class OpenLBussinessSearchTest {
     
@@ -29,7 +28,7 @@ public class OpenLBussinessSearchTest {
         return xsn;
     }
     
-    private void initSearchCondition(List<Property> propList) {
+    private void initSearchCondition(Map<String, Object> propList) {
         BussinessSearchCondition searchCondition = new BussinessSearchCondition();        
         searchCondition.setPropToSearch(propList);
         search.setBusSearchCondit(searchCondition);
@@ -37,9 +36,8 @@ public class OpenLBussinessSearchTest {
     
     @Test 
     public void testTableByName() {
-        List<Property> propList = new ArrayList<Property>(){{
-            add(new Property(new StringValue("name"), new ObjectValue("Vehicle Discounts"))); 
-        }};
+        Map<String, Object> propList = new HashMap<String, Object>();
+        propList.put("name", "Vehicle Discounts");
         initSearchCondition(propList);
         Object searchResult = search.search(getTables());
         if((searchResult != null) && (searchResult instanceof OpenLBussinessSearchResult)) {
@@ -53,11 +51,10 @@ public class OpenLBussinessSearchTest {
     }
     
     @Test 
-    public void testTableByNameAndCategory() {
-        List<Property> propList = new ArrayList<Property>(){{
-            add(new Property(new StringValue("name"), new ObjectValue("Vehicle Score Processing Sequence")));
-            add(new Property(new StringValue("category"), new ObjectValue("Auto-Scoring")));
-        }};
+    public void testTableByNameAndCategory() {        
+        Map<String, Object> propList = new HashMap<String, Object>();
+        propList.put("name", "Vehicle Score Processing Sequence");
+        propList.put("category", "Auto-Scoring");
         initSearchCondition(propList);
         Object searchResult = search.search(getTables());
         if((searchResult != null) && (searchResult instanceof OpenLBussinessSearchResult)) {
@@ -73,10 +70,9 @@ public class OpenLBussinessSearchTest {
     
     @Test 
     public void testWithConsists() {
-        XlsModuleSyntaxNode xls = getTables();
-        List<Property> propList = new ArrayList<Property>(){{
-            add(new Property(new StringValue("name"), new ObjectValue("Vehicle Score Processing Sequence")));            
-        }};
+        XlsModuleSyntaxNode xls = getTables();        
+        Map<String, Object> propList = new HashMap<String, Object>();
+        propList.put("name", "Vehicle Score Processing Sequence");
         initSearchCondition(propList);
         search.getBusSearchCondit().setTablesContains(getTableConsists(xls, "Vehicle Score Processing Sequence"));
         Object searchResult = search.search(xls);
@@ -95,10 +91,14 @@ public class OpenLBussinessSearchTest {
         TableSyntaxNode result = null;
         
         for(TableSyntaxNode table : xls.getXlsTableSyntaxNodes()) {
-            if(table.getProperty("name") != null && table.getPropertyValue("name").equals(nameProp) && 
-                    table.getProperty("category") == null) {
-                listTables[0] = table;
+            ITableProperties tableProp = table.getTableProperties();
+            if(tableProp != null) {
+                if(tableProp.getPropertyValue("name") != null && tableProp.getPropertyValue("name").equals(nameProp) && 
+                        tableProp.getPropertyValue("category") == null) {
+                    listTables[0] = table;
+                }
             }
+            
         }
         return listTables;
     }

@@ -10,17 +10,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.meta.ObjectValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.lang.xls.binding.TableProperties;
-import org.openl.rules.lang.xls.binding.TableProperties.Property;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
-import org.openl.rules.table.properties.DefaultTableProperties;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.ISyntaxError;
@@ -32,23 +28,21 @@ import org.openl.types.IOpenMember;
 
 public class TableSyntaxNode extends NodeWithProperties implements IIndexElement {
 
-    ILogicalTable table;
+    private ILogicalTable table;
     // String header;
 
-    HeaderSyntaxNode headerNode;
+    private HeaderSyntaxNode headerNode;
     // PropertySyntaxNode propertyNode;
+    
+    private ITableProperties tableProperties;
 
-    TableProperties tableProperties;
+    private IOpenMember member;
 
-    IOpenMember member;
+    private Map<String, ILogicalTable> subTables = new HashMap<String, ILogicalTable>();
 
-    Map<String, ILogicalTable> subTables = new HashMap<String, ILogicalTable>();
+    private ArrayList<ISyntaxError> errors;
 
-    ArrayList<ISyntaxError> errors;
-
-    Object validationResult;
-
-    private TablePropertiesAdapter tablePropertiesAdapter = new TablePropertiesAdapter();
+    private Object validationResult;
 
     public TableSyntaxNode(String type, GridLocation pos, XlsSheetSourceCodeModule module, IGridTable gridtable,
             HeaderSyntaxNode header) {
@@ -113,20 +107,9 @@ public class TableSyntaxNode extends NodeWithProperties implements IIndexElement
         return member;
     }
 
-
-    public Property getProperty(String name) {
-        return tableProperties == null ? null : tableProperties.getProperty(name);
-    }
-
-    public ObjectValue getPropertyValue(String name) {
-        if (tableProperties == null || tableProperties.getProperty(name) == null) {
-            return null;
-        }
-        return tableProperties.getProperty(name).getValue();
-    }
-
-    public String getPropertValueAsString(String name) {
-        return tableProperties == null ? null : tableProperties.getPropertyValueAsString(name);
+    
+    public ITableProperties getTableProperties() {
+        return tableProperties;
     }
 
     public Map<String, ILogicalTable> getSubTables() {
@@ -150,15 +133,6 @@ public class TableSyntaxNode extends NodeWithProperties implements IIndexElement
         return tableBody;
     }
 
-    public TableProperties getTableProperties() {
-        return tableProperties;
-    }
-
-    public ITableProperties getTableProperties2() {
-
-        return tablePropertiesAdapter.getITableProperties();
-    }
-
     public String getUri() {
         return table.getGridTable().getUri();
     }
@@ -175,61 +149,12 @@ public class TableSyntaxNode extends NodeWithProperties implements IIndexElement
         this.member = member;
     }
 
-    public void setTableProperties(TableProperties properties) {
-        tableProperties = properties;
-        tablePropertiesAdapter.setTableProperties(properties);
+    public void setTableProperties(ITableProperties properties) {
+        tableProperties = properties;        
     }
 
     public void setValidationResult(Object validationResult) {
         this.validationResult = validationResult;
     }
 
-    /**
-     * Internal adapter class that adapts {@link TableProperties} to
-     * {@link ITableProperties} interface. Used as temporal solution. In future
-     * versions {@link TableProperties} will be removed with
-     * {@link ITableProperties}.
-     * 
-     * Note: This implementation of adapter stores internally the converted
-     * values of objects.
-     * 
-     * @author Alexey Gamanovich
-     * 
-     */
-    private class TablePropertiesAdapter {
-
-        private TableProperties tableProperties;
-        private ITableProperties iTableProperties;
-
-        public TablePropertiesAdapter() {
-        }
-
-        public void setTableProperties(TableProperties tableProperties) {
-            this.tableProperties = tableProperties;
-            this.iTableProperties = convert(this.tableProperties);
-        }
-
-        public ITableProperties getITableProperties() {
-            return iTableProperties;
-        }
-
-        private ITableProperties convert(TableProperties tableProperties) {
-            
-            if (tableProperties == null) {
-                return null;
-            }
-            
-            DefaultTableProperties properties = new DefaultTableProperties();
-
-            for (TableProperties.Property tableProperty : tableProperties.getProperties()) {
-
-                String key = tableProperty.getKey().getValue();
-                Object value = tableProperty.getValue().getValue();
-
-                properties.put(key, value);
-            }
-
-            return properties;
-        }
-    }
 }
