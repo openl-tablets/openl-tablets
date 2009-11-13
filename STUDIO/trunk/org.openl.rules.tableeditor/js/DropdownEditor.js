@@ -9,11 +9,11 @@ var DropdownEditor = Class.create(BaseEditor, {
      * @param param an Enumeration with options for this dropdown. 
      */
     editor_initialize: function(param) {
-        this.node = $(document.createElement("select"));
-        this.node.style.width = "100%";
-        this.node.style.border = "0px none";
-        this.node.style.margin = "0px";
-        this.node.style.padding = "0px";
+        this.input = $(document.createElement("select"));
+        this.input.style.width = "100%";
+        this.input.style.margin = "0px";
+        this.input.style.padding = "0px";
+        this.input.style.border = "0px none";
 
         this.addOption("", "--Select value--");
         var pc = param.choices, pd = param.displayValues, len = Math.min(pc.length, pd.length);
@@ -31,14 +31,14 @@ var DropdownEditor = Class.create(BaseEditor, {
         var optionElement = document.createElement("option");
         optionElement.value = value;
         optionElement.innerHTML = name;
-        this.node.appendChild(optionElement);
+        this.input.appendChild(optionElement);
     },
 
     /**
      *  Overrides default implementation. When user chose "--Select value--" item we regard editor state as cancelled.   
      */
     isCancelled : function() {
-        return (this.initialValue == this.getValue() || this.node.value == "");
+        return (this.initialValue == this.getValue() || this.input.value == "");
     }
 });
 

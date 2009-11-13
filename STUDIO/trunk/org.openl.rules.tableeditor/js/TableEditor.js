@@ -29,7 +29,7 @@ var TableEditor = Class.create({
     initialize : function(editorId, url, editCell) {
         this.editorId = editorId;
         this.cellIdPrefix = this.editorId + "_cell-";
-        this.propIdPrefix = this.editorId + "_props_prop-";
+        this.propIdPrefix = "_" + this.editorId + "_props_prop-";
         this.tableContainer = $(editorId + "_table");
         this.tableContainer.style.cursor = 'default';
 
@@ -49,7 +49,7 @@ var TableEditor = Class.create({
         var self = this;
 
         // Handle Properties Editor events START
-        $$('input[name^="' + this.propIdPrefix + '"]').each(function(elem) {
+        $$('input[id^="' + this.propIdPrefix + '"]').each(function(elem) {
             elem.observe("focus", function(e) {
                 self.handleClick(e);
             }, false);
@@ -213,7 +213,7 @@ var TableEditor = Class.create({
 
     handlePropBlur: function(event) {
         var prop = Event.findElement(event, "input");
-        var propName = prop.name.replace(this.propIdPrefix, "");
+        var propName = prop.id.replace(this.propIdPrefix, "");
         var propValue = AjaxHelper.getInputValue(prop);
         //if (propValue != this.selectedPropValue) {
             this.setProp(propName, propValue);
@@ -264,12 +264,12 @@ var TableEditor = Class.create({
     /**
      *  @desc: Create and activate new editor
      */
-    editBegin : function(cell, response, typedText) {
+    editBegin : function(cell, response, initialValue) {
         if (response.editor == 'formula') {
             var formula = cell.down("input[name='formula']");
-            typedText = formula ? formula.value : '';
+            initialValue = formula ? formula.value : '';
         }
-        this.editor = new TableEditor.Editors[response.editor](this, cell, response.params, typedText);
+        this.editor = new TableEditor.Editors[response.editor](this, cell.id, response.params, initialValue, true);
         this.selectElement(cell);
     },
 
@@ -399,7 +399,7 @@ var TableEditor = Class.create({
     },
 
     isPropLocation: function(element) {
-        if (element && element.name.indexOf(this.propIdPrefix) >= 0) {
+        if (element && element.id.indexOf(this.propIdPrefix) >= 0) {
             return true;
         }
         return false;

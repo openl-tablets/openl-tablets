@@ -7,24 +7,14 @@
  * @author Andrey Naumenko
  */
 
-/**
- * Exteding default implementation of the function unescapeHTML
- */
-Object.extend(String.prototype, {
-  unescapeHTML: function() {
-    return this.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
-  }
-});
-
-var BaseEditor = Class.create({ 
+var BaseEditor = Class.create({
 // -------------------------------------------------------------- Object properties --
     tableEditor : null,
-    node : null,
-    td : null,
+    parentElement : null,
+    input : null,
     initialValue : null,
     stoppedEvents : null,
-
-    MAX_FIELD_SIZE : 1500,
+    focus : null,
 
     /**
      * Constructor.
@@ -32,24 +22,27 @@ var BaseEditor = Class.create({
      *   1. saves initial cell value into initialValue variable
      *   2. creates an HTML editor control (e.g. HTMLInputElement) and sets its value
      */
-    initialize: function(tableEditor, td, param, typedText) {
-        if (tableEditor) {
+    initialize: function(tableEditor, parentId, params, initialValue, focus) {
+        if (parentId) {
             this.tableEditor = tableEditor;
-            this.td = td;
-
+            this.parentElement = $(parentId);
+    
             // save initial value
-            this.initialValue = this.td.innerHTML.replace(/<br>/ig, "\n").unescapeHTML().strip();
-
-            this.editor_initialize(param);
-            this.show(typedText ? typedText : this.initialValue);
+            this.initialValue = initialValue ? initialValue
+                    : AjaxHelper.unescapeHTML(this.parentElement.innerHTML.replace(/<br>/ig, "\n")).strip();
+    
+            this.editor_initialize(params);
+            this.input.id = this.getId();
+            this.focus = focus;
+            this.show(this.initialValue);
         }
     },
 // ----------------------------------------------------------------- Public methods --
 
     /** Obtains current value from HTML editor control */
     getValue : function() {
-        var node = this.getInputElement();
-        return node ? AjaxHelper.getInputValue(node).toString().replace(/\u00A0/g, ' ') : null;
+        var input = this.getInputElement();
+        return input ? AjaxHelper.getInputValue(input).toString().replace(/\u00A0/g, ' ') : null;
     },
 
     /**
@@ -57,9 +50,9 @@ var BaseEditor = Class.create({
      */
     setTDValue : function(/* String */ value) {
         if (!value.strip()) {
-          this.td.innerHTML = "&nbsp";
+          this.parentElement.innerHTML = "&nbsp";
         } else
-            this.td.innerHTML = value.escapeHTML().replace(/\n/g, "<br>");
+            this.parentElement.innerHTML = value.escapeHTML().replace(/\n/g, "<br>");
     },
 
     /** Returns if the editing was cancelled */
@@ -74,9 +67,9 @@ var BaseEditor = Class.create({
         var v = this.isCancelled() ? this.initialValue : this.getValue();
         this.setTDValue(v);
         if (this.stoppedEvents) {
-            var node = this.node;
+            var input = this.input;
             this.stoppedEvents.each(function(evt) {
-                Event.stopObserving(node, evt, BaseEditor.stopPropagationHandler)
+                Event.stopObserving(input, evt, BaseEditor.stopPropagationHandler)
             })
         }
         this.destroy();
@@ -85,7 +78,7 @@ var BaseEditor = Class.create({
     doSwitching: function(newEditor) {
         var value = this.isCancelled() ? this.initialValue : this.getValue();
         newEditor.tableEditor = this.tableEditor;
-        newEditor.td = this.td;
+        newEditor.parentElement = this.parentElement;
         newEditor.initialValue = this.initialValue;
 
         this.isCancelled = BaseEditor.T;
@@ -104,11 +97,13 @@ var BaseEditor = Class.create({
      * Is responsible for making editor visible and active. In most cases it is not needed to be overridden.
      */
     show: function(value) {
-        if (this.node) {
+        if (this.input) {
             AjaxHelper.setInputValue(this.getInputElement(), value);
-            this.td.innerHTML = "";
-            this.td.appendChild(this.node);
-            this.node.focus();
+            this.parentElement.innerHTML = "";
+            this.parentElement.appendChild(this.input);
+            if (this.focus) {
+                this.input.focus();
+            }
         }
     },
 
@@ -119,13 +114,17 @@ var BaseEditor = Class.create({
     stopEventPropogation: function(name) {
         if (!this.stoppedEvents) this.stoppedEvents = [];
         this.stoppedEvents.push(name);
-        this.node.observe(name, BaseEditor.stopPropagationHandler, false);
+        this.input.observe(name, BaseEditor.stopPropagationHandler, false);
     },
 
     /**
      * Can be overridden in editors to clean up resources
      */
     destroy: Prototype.emptyFunction,
+
+    getId: function() {
+        return '_' + this.parentElement.id;
+    },
 
     /** Handles F2 press */
     handleF2: Prototype.emptyFunction,
@@ -160,9 +159,9 @@ var BaseEditor = Class.create({
     markValid: function() {this.getInputElement().removeClassName('editor_invalid')},
 
     /**
-     *  Returns HTML element which is actually main input element for this editor. It will "this.node" for most editors.
+     *  Returns HTML element which is actually main input element for this editor.
      */
-    getInputElement: function() {return this.node}
+    getInputElement: function() {return this.input}
 });
 
 /**

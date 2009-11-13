@@ -6,9 +6,8 @@
 var BooleanEditor = Class.create(BaseEditor, {
 
     editor_initialize: function() {
-        this.node = $(document.createElement("input"));
-        this.node.setAttribute("type", "checkbox");
-        this.node.style.border = "0px none";
+        this.input = $(document.createElement("input"));
+        this.input.setAttribute("type", "checkbox");
 
         var self = this;
 

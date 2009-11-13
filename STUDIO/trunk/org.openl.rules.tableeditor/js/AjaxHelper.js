@@ -33,10 +33,14 @@ var AjaxHelper = {
 
     setInputValue: function(element, value) {
         if (element.type == "checkbox") {
-            element.checked = value;
+            element.checked = value == "true" ? true : false;
         } else {
             element.value = value;
         }
+    },
+
+    unescapeHTML: function(html) {
+        return html.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
     }
 
 }

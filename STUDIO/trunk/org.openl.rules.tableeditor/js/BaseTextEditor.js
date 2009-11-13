@@ -8,6 +8,27 @@
  */
 
 var BaseTextEditor = Class.create(BaseEditor, {
+
+    MAX_FIELD_SIZE : 1500,
+
+    createInput: function() {
+        this.input = $(document.createElement("input"));
+
+        this.input.setAttribute("type", "text");
+        this.input.style.border = "1px solid rgb(180, 200, 255)";
+        this.input.style.height = (this.parentElement.offsetHeight - (Prototype.Browser.IE ? 6 : 4)) + "px";
+
+        this.input.style.fontFamily = this.parentElement.style.fontFamily;
+        this.input.style.fontSize = this.parentElement.style.fontSize;
+        this.input.style.fontStyle = this.parentElement.style.fontStyle;
+        this.input.style.fontWeight = this.parentElement.style.fontWeight;
+        this.input.style.textAlign = this.parentElement.align;
+
+        this.input.style.margin = "0px";
+        this.input.style.padding = "0px";
+        this.input.style.width = "100%";
+    },
+
     /**
      * Moves caret to beginning of the input
      */
@@ -45,8 +66,10 @@ var BaseTextEditor = Class.create(BaseEditor, {
         if (event) Event.stop(event);
     },
 
-    show: function(value) {
-        BaseEditor.prototype.show.call(this, value);
-        this.handleF3();
+    show: function($super, value) {
+        $super(value);
+        if (this.focus) {
+            this.handleF3();
+        }
     }
 });
