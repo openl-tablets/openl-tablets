@@ -2,7 +2,6 @@ package org.openl.rules.search;
 
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -78,13 +77,11 @@ public class OpenLBussinessSearch implements IOpenLSearch{
         boolean result = false;
         int numMatch = 0;
         Map<String, Object> propsFromSearch = busSearchCondit.getPropToSearch();
-        Iterator<Map.Entry<String, Object>> iterator = propsFromSearch.entrySet().iterator();
-        while(iterator.hasNext()) {
-            Map.Entry<String, Object> pairs = iterator.next();
-            String propKeyFromSearch = pairs.getKey();
-            Object propValueFromSearch = pairs.getValue();
+        for (Map.Entry<String, Object> propertyFromSearch : propsFromSearch.entrySet()) {            
+            String propNameFromSearch = propertyFromSearch.getKey();
+            Object propValueFromSearch = propertyFromSearch.getValue();
             if (tableProperties != null){
-                Object propertyValue = tableProperties.getPropertyValue(propKeyFromSearch);
+                Object propertyValue = tableProperties.getPropertyValue(propNameFromSearch);
                 if(propertyValue != null) {
                     if(comparePropValues(propValueFromSearch, propertyValue) == 0) {
                         numMatch++;
