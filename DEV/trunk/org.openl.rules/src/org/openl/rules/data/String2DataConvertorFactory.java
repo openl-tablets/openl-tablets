@@ -328,6 +328,93 @@ public class String2DataConvertorFactory {
 
     }
 
+    public static class String2ByteConvertor implements IString2DataConvertor {
+
+        public String format(Object data, String format) {
+            if (format == null) {
+                return String.valueOf(data);
+            }
+            DecimalFormat df = new DecimalFormat(format);
+            return df.format(((Byte) data).byteValue());
+        }
+
+        public Object parse(String data, String format, IBindingContext cxt) {
+            if (format == null) {
+                return Byte.valueOf(data);
+            }
+            DecimalFormat df = new DecimalFormat(format);
+
+            Number n;
+            try {
+                n = df.parse(data);
+            } catch (ParseException e) {
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+
+            return new Byte(n.byteValue());
+        }
+    }
+
+    public static class String2ShortConvertor implements IString2DataConvertor {
+
+        public String format(Object data, String format) {
+            if (format == null) {
+                return String.valueOf(data);
+            }
+            DecimalFormat df = new DecimalFormat(format);
+            return df.format(((Short) data).shortValue());
+        }
+
+        public Object parse(String data, String format, IBindingContext cxt) {
+            if (format == null) {
+                return Short.valueOf(data);
+            }
+            DecimalFormat df = new DecimalFormat(format);
+
+            Number n;
+            try {
+                n = df.parse(data);
+            } catch (ParseException e) {
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+
+            return new Short(n.shortValue());
+        }
+    }
+    
+    public static class String2FloatConvertor implements IString2DataConvertor {
+
+        public String format(Object data, String format) {
+            if (format == null) {
+                format = "#0.00";
+            }
+
+            DecimalFormat df = new DecimalFormat(format);
+
+            return df.format(((Float) data).floatValue());
+        }
+        
+        public Object parse(String xdata, String format, IBindingContext cxt) {
+
+            if (format != null) {
+                DecimalFormat df = new DecimalFormat(format);
+                try {
+                    Number n = df.parse(xdata);
+
+                    return new Float(n.floatValue());
+                } catch (ParseException e) {
+                    throw RuntimeExceptionWrapper.wrap("", e);
+                }
+            }
+
+            String data = numberStringWithoutModifier(xdata);
+
+            float d = Float.parseFloat(data);
+
+            return xdata == data ? new Float(d) : new Float(d * numberModifier(xdata));
+        }
+    }
+
     public static class String2OpenClassConvertor implements IString2DataConvertor {
 
         /**
@@ -399,8 +486,14 @@ public class String2DataConvertorFactory {
         convertors.put(char.class, new String2CharConvertor());
         convertors.put(boolean.class, new String2BooleanConvertor());
         convertors.put(long.class, new String2LongConvertor());
+        convertors.put(byte.class, new String2ByteConvertor());
+        convertors.put(short.class, new String2ShortConvertor());
+        convertors.put(float.class, new String2FloatConvertor());    
 
         convertors.put(Integer.class, new String2IntConvertor());
+        convertors.put(Byte.class, new String2ByteConvertor());        
+        convertors.put(Short.class, new String2ShortConvertor());        
+        convertors.put(Float.class, new String2FloatConvertor());            
         convertors.put(Double.class, new String2DoubleConvertor());
         convertors.put(Character.class, new String2CharConvertor());
         convertors.put(Boolean.class, new String2BooleanConvertor());
@@ -410,7 +503,7 @@ public class String2DataConvertorFactory {
         convertors.put(Date.class, new String2DateConvertor());
         convertors.put(Calendar.class, new String2CalendarConvertor());
         convertors.put(Class.class, new String2ClassConvertor());
-        convertors.put(IOpenClass.class, new String2OpenClassConvertor());
+        convertors.put(IOpenClass.class, new String2OpenClassConvertor());        
     }
 
     public static IString2DataConvertor getConvertor(Class<?> clazz) {
