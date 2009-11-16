@@ -814,17 +814,25 @@ public class ObjectViewer {
     }
 
     public StringValue getTableName(TableSyntaxNode tsn) {
-        StringValue name = null;        
+        StringValue resultName = null;
         ITableProperties tableProperties = tsn.getTableProperties();
-        Object propValue = tableProperties.getPropertyValue("name");
-        if (tableProperties != null && (propValue != null)) {            
-            
-            name = new StringValue((String)propValue);            
-            name.setMetaInfo(new ValueMetaInfo((String)propValue,(String)propValue, tsn.getUri()));
+        String sourceHeaderString = tsn.getHeader().getSourceString();
+        String name = null;
+        if (tableProperties != null) {
+            Object propValue = tableProperties.getName();
+            if (propValue != null) {
+                name = (String) propValue;                
+            } else {
+                name = sourceHeaderString;
+            }
         } else {
-            name = tsn.getHeaderLineValue();
+            name = sourceHeaderString;            
         }
-        return name;
+        resultName = new StringValue(name);
+        resultName.setMetaInfo(new ValueMetaInfo(name,
+                tsn.getHeader().getSourceString(), tsn.getUri()));
+
+        return resultName;
     }
 
     IGridFilter makeFilter(int[] rules, DecisionTable dt) {
