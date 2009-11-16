@@ -46,3 +46,7 @@
     background: none;
     cursor: pointer;
 }
+
+.te_props_proptextinput {
+    width: 150px;
+}
