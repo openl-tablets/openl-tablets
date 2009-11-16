@@ -23,6 +23,7 @@ import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.hssf.record.formula.RefPtgBase;
 import org.apache.poi.ss.formula.Formula;
 import org.apache.poi.util.HexDump;
+import org.apache.poi.util.LittleEndianInput;
 import org.apache.poi.util.LittleEndianOutput;
 
 /**
@@ -52,6 +53,14 @@ public final class ArrayRecord extends SharedValueRecordBase {
 		_formula = Formula.read(formulaTokenLen, in, totalFormulaLen);
 	}
 
+// VIA
+	public ArrayRecord(int options, Formula formula, LittleEndianInput inRange ) {
+		super(inRange);
+		_options = options;
+		_field3notUsed = 0;
+		_formula = formula;
+	}
+// end changes VIA
 	public boolean isAlwaysRecalculate() {
 		return (_options & OPT_ALWAYS_RECALCULATE) != 0;
 	}
