@@ -33,20 +33,23 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
 
         selectCandidates(selected, (IRulesContext) context);
-        
-        // Temporal implementation of the active/inactive method feature for overloaded methods only.
+
+        // Temporal implementation of the active/inactive method feature for
+        // overloaded methods only.
         // 
-        // Use case: if method has the active table property with 'false' value 
-        // it will be ignored by method dispatcher.  
+        // Use case: if method has the active table property with 'false' value
+        // it will be ignored by method dispatcher.
         //
         removeInactiveMethods(selected);
-
+        
         switch (selected.size()) {
             case 0:
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints that
                 // removed candidates
-                throw new RuntimeException("No matching methods for the context");
+                throw new RuntimeException(String.format(
+                        "No matching methods for the context. Details: \n%1$s\nContext: %2$s", toString(candidates),
+                        context.toString()));
 
             case 1:
                 return selected.iterator().next();
@@ -55,19 +58,20 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
-                throw new RuntimeException("Ambigous method dispatch");
+                throw new RuntimeException(String.format("Ambigous method dispatch. Details: \n%1$s\nContext: %2$s",
+                        toString(candidates), context.toString()));
         }
 
     }
 
     private void selectCandidates(Set<IOpenMethod> selected, IRulesContext context) {
         // <<< INSERT MatchingProperties >>>
-		selectCandidatesByProperty("effectiveDate", selected, context);
-		selectCandidatesByProperty("expirationDate", selected, context);
-		selectCandidatesByProperty("lob", selected, context);
-		selectCandidatesByProperty("usregion", selected, context);
-		selectCandidatesByProperty("country", selected, context);
-		selectCandidatesByProperty("state", selected, context);
+        selectCandidatesByProperty("effectiveDate", selected, context);
+        selectCandidatesByProperty("expirationDate", selected, context);
+        selectCandidatesByProperty("lob", selected, context);
+        selectCandidatesByProperty("usregion", selected, context);
+        selectCandidatesByProperty("country", selected, context);
+        selectCandidatesByProperty("state", selected, context);
         // <<< END INSERT MatchingProperties >>>
     }
 
@@ -109,24 +113,40 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private ITableProperties getTableProperties(IOpenMethod method) {
         return ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties();
     }
-    
+
     private void removeInactiveMethods(Set<IOpenMethod> candidates) {
-        
+
         List<IOpenMethod> inactiveCandidates = new ArrayList<IOpenMethod>();
-        
+
         for (IOpenMethod candidate : candidates) {
             if (!isActive(candidate)) {
                 inactiveCandidates.add(candidate);
             }
         }
-        
+
         candidates.removeAll(inactiveCandidates);
     }
-    
+
     private boolean isActive(IOpenMethod method) {
-        
+
         ITableProperties tableProperties = ((TableSyntaxNode) method.getInfo().getSyntaxNode()).getTableProperties();
-        
-        return tableProperties.getActive() == null || tableProperties.getActive().booleanValue(); 
+
+        return tableProperties.getActive() == null || tableProperties.getActive().booleanValue();
+    }
+
+    private String toString(List<IOpenMethod> methods) {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("Candidates: {\n");
+
+        for (IOpenMethod method : methods) {
+            ITableProperties tableProperties = getTableProperties(method);
+            builder.append(tableProperties.toString());
+            builder.append("\n");
+        }
+
+        builder.append("}\n");
+
+        return builder.toString();
     }
 }
