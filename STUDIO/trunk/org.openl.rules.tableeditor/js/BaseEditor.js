@@ -33,7 +33,7 @@ var BaseEditor = Class.create({
     
             this.editor_initialize(params);
             this.input.id = this.getId();
-            this.focus = focus;
+            this.focus = (focus && focus == true) ? focus : '';
             this.show(this.initialValue);
         }
     },

@@ -507,7 +507,7 @@ public class HTMLRenderer {
 
         private void insertCalendar(String value, String id) {
             result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new DateEditor('','" + id + "','','" + value + "','false')"));
+                .append(renderJSBody("new DateEditor('','" + id + "','','" + value + "','')"));
         }
 
         /*private void insertSelect(List<String> listOfOptions) {                        
@@ -524,7 +524,7 @@ public class HTMLRenderer {
                 value="";
             }
             result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new TextEditor('','" + id + "','','" + value + "','false')"));
+                .append(renderJSBody("new TextEditor('','" + id + "','','" + value + "','')"));
         }
 
         private void insertCheckbox(String value, String id) {
@@ -533,7 +533,7 @@ public class HTMLRenderer {
                 bValue = false;
             }
             result.append("<td id='" + id + "'></td>")
-                .append(renderJSBody("new BooleanEditor('','" + id + "','','" + bValue + "','false')"));
+                .append(renderJSBody("new BooleanEditor('','" + id + "','','" + bValue + "','')"));
         }
 
         private void insertLabel(String displayName) {
