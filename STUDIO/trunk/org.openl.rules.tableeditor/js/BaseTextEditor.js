@@ -16,7 +16,6 @@ var BaseTextEditor = Class.create(BaseEditor, {
 
         this.input.setAttribute("type", "text");
         this.input.style.border = "1px solid rgb(180, 200, 255)";
-        this.input.style.height = (this.parentElement.offsetHeight - (Prototype.Browser.IE ? 6 : 4)) + "px";
 
         this.input.style.fontFamily = this.parentElement.style.fontFamily;
         this.input.style.fontSize = this.parentElement.style.fontSize;
@@ -27,6 +26,7 @@ var BaseTextEditor = Class.create(BaseEditor, {
         this.input.style.margin = "0px";
         this.input.style.padding = "0px";
         this.input.style.width = "100%";
+        this.input.style.height = "100%";
     },
 
     /**

@@ -506,7 +506,7 @@ public class HTMLRenderer {
         }
 
         private void insertCalendar(String value, String id) {
-            result.append("<td id='" + id + "'></td>")
+            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
                 .append(renderJSBody("new DateEditor('','" + id + "','','" + value + "','false')"));
         }
 
@@ -523,7 +523,7 @@ public class HTMLRenderer {
             if (value == null) {
                 value="";
             }
-            result.append("<td id='" + id + "'></td>")
+            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
                 .append(renderJSBody("new TextEditor('','" + id + "','','" + value + "','false')"));
         }
 
