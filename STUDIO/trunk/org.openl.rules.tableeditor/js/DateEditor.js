@@ -18,9 +18,10 @@ var DateEditor = Class.create(BaseTextEditor, {
         $super(value);
         var id = this.getId();
         var opts = {
-            formElements:{id:"m-sl-d-sl-Y"},
+            formElements:{},
             noFadeEffect:true
         };
+        opts.formElements[id] = "m-sl-d-sl-Y";
         datePickerController.createDatePicker(opts);
     },
 
