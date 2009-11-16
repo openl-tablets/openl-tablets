@@ -208,7 +208,7 @@ public class ArrayFormulaTestOldFormat {
 
 	}
 	
-	@Test(expected=NotImplementedException.class)
+	@Test /*(expected=NotImplementedException.class)*/
 	public void  NewNumericArrayFormula(){
 		
 
@@ -332,6 +332,23 @@ public class ArrayFormulaTestOldFormat {
 		assertEquals("A61-F61",getNumericValue("F61"), calculateNumericFormula("A61"), 0);
 		assertEquals("B61-G61",getNumericValue("G61"), calculateNumericFormula("B61"), 0);
 	}
+	@Test
+	public void RemoveArrayFormula(){
+		
+		removeArrayFormula("B40");
+
+		assertEquals("A40-F40",Cell.CELL_TYPE_BLANK, getCellType("A40"), 0);
+		assertEquals("B40-G40",Cell.CELL_TYPE_BLANK, getCellType("B40"), 0);
+		assertEquals("C40-H40",Cell.CELL_TYPE_BLANK, getCellType("C40"), 0); 
+		
+	}
+	
+	protected  int getCellType(String cellRef) {
+		 Cell cell = getCell(cellRef);
+		return cell.getCellType(); 
+	}
+
+
 	protected Cell getCell(String cellRef){
 		
 		log.debug("Access to Cell:" + cellRef);
@@ -448,5 +465,10 @@ public class ArrayFormulaTestOldFormat {
     protected void setArrayFormula(String cellRef, String formula, String range){
         Sheet sheet = getCell(cellRef).getSheet();
         sheet.setArrayFormula(formula, CellRangeAddress.valueOf(range));
+    }
+    protected void removeArrayFormula(String cellRef){
+    	Cell cell = getCell(cellRef);
+        Sheet sheet = cell.getSheet();
+        sheet.removeArrayFormula(cell);
     }
 }

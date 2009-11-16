@@ -39,6 +39,7 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Footer;
@@ -2671,4 +2672,10 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
         mainArrayFormulaCell.setCellFormula(formula);
         mainArrayFormulaCell.setCellFormulaReference(range);
     }
+
+	public void removeArrayFormula(Cell cell) {
+	       throw new NotImplementedException("Removing of array formula is not implementd in XSSF yet");
+	       
+		
+	}
 }

@@ -5,6 +5,7 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
@@ -305,6 +306,21 @@ public class ArrayFormulaTest {
 		assertEquals("B55-G55",getNumericValue("G55"), calculateNumericFormula("B55"), 0);
 		assertEquals("C55-H55",getNumericValue("H55"), calculateNumericFormula("C55"), 0);
 	}
+	@Test (expected=NotImplementedException.class)
+	public void RemoveArrayFormula(){
+		
+		removeArrayFormula("B40");
+
+		assertEquals("A40-F40",Cell.CELL_TYPE_BLANK, getCellType("A40"), 0);
+		assertEquals("B40-G40",Cell.CELL_TYPE_BLANK, getCellType("B40"), 0);
+		assertEquals("C40-H40",Cell.CELL_TYPE_BLANK, getCellType("C40"), 0); 
+		
+	}
+	
+	protected  int getCellType(String cellRef) {
+		 Cell cell = getCell(cellRef);
+		return cell.getCellType(); 
+	}
 	protected Cell getCell(String cellRef){
 		
 		log.debug("Access to Cell:" + cellRef);
@@ -422,4 +438,10 @@ public class ArrayFormulaTest {
 	    Sheet sheet = getCell(cellRef).getSheet();
 	    sheet.setArrayFormula(formula, CellRangeAddress.valueOf(range));
 	}
+    protected void removeArrayFormula(String cellRef){
+    	Cell cell = getCell(cellRef);
+        Sheet sheet = cell.getSheet();
+        sheet.removeArrayFormula(cell);
+    }
+
 }

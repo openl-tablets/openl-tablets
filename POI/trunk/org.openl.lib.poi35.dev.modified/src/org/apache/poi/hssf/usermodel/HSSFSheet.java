@@ -33,6 +33,7 @@ import java.util.TreeMap;
 import org.apache.poi.ddf.EscherRecord;
 import org.apache.poi.hssf.model.Sheet;
 import org.apache.poi.hssf.model.Workbook;
+import org.apache.poi.hssf.record.ArrayRecord;
 import org.apache.poi.hssf.record.CellValueRecordInterface;
 import org.apache.poi.hssf.record.DVRecord;
 import org.apache.poi.hssf.record.EscherAggregate;
@@ -41,19 +42,26 @@ import org.apache.poi.hssf.record.NoteRecord;
 import org.apache.poi.hssf.record.Record;
 import org.apache.poi.hssf.record.RowRecord;
 import org.apache.poi.hssf.record.SCLRecord;
+import org.apache.poi.hssf.record.SharedValueRecordBase;
 import org.apache.poi.hssf.record.WSBoolRecord;
 import org.apache.poi.hssf.record.WindowTwoRecord;
 import org.apache.poi.hssf.record.aggregates.DataValidityTable;
+import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
+import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
 import org.apache.poi.hssf.record.formula.FormulaShifter;
+import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.hssf.util.PaneInformation;
 import org.apache.poi.hssf.util.Region;
+import org.apache.poi.ss.formula.Formula;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.util.LittleEndianByteArrayInputStream;
+import org.apache.poi.util.LittleEndianByteArrayOutputStream;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 
@@ -1870,7 +1878,88 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
         return wb.getSheetName(idx);
     }
 
+//    VIA    
+    /* (non-Javadoc)
+     * @see org.apache.poi.ss.usermodel.Sheet#setArrayFormula(java.lang.String, org.apache.poi.ss.util.CellRangeAddress)
+     */
     public void setArrayFormula(String formula, CellRangeAddress range) {
-        throw new NotImplementedException("Setting of array formula is not implementd in HSSF yet");
+    	HSSFRow row;
+    	HSSFCell cell;
+    	boolean setArrayFormula = false;
+    	
+    	for(int rowIn = range.getFirstRow();rowIn <= range.getLastRow();rowIn++ )
+    	   	for(int colIn = range.getFirstColumn();colIn <= range.getLastColumn();colIn++ )
+    	   	{
+    	    	row = getRow(rowIn);
+    	    	if(row==null)
+    	    		row = createRow(rowIn);
+    	    	cell = row.getCell(colIn);
+    	    	if(cell==null)
+    	    		cell = row.createCell(colIn);
+    	    	
+    	    	cell.setCellValue(0); 
+    	    	cell.setCellType(Cell.CELL_TYPE_FORMULA);
+    	    	cell.setCellFormula(formula);
+    	    	
+    	    	if(!setArrayFormula){  // Set common Array record in SharedValueManager for whole range 
+	    	    	CellValueRecordInterface rec = cell.getCellValueRecord();
+	    	    	if(rec instanceof FormulaRecordAggregate){
+	    	    		FormulaRecordAggregate frec = (FormulaRecordAggregate)rec;
+	    	    		SharedValueManager sm =  frec.get_sharedValueManager();
+	    	    		Formula formulaInt = frec.getFormulaRecord().getFormula();
+	    	    		
+	    	    		byte[] rangeBytes = new byte[6];
+	    	    		LittleEndianByteArrayOutputStream rangeStOut = new LittleEndianByteArrayOutputStream(rangeBytes,0);
+	    	    		rangeStOut.writeShort(range.getFirstRow());
+	    	    		rangeStOut.writeShort(range.getLastRow());
+	    	    		rangeStOut.writeByte(range.getFirstColumn());
+	    	    		rangeStOut.writeByte(range.getLastColumn());
+	    	    		LittleEndianByteArrayInputStream rangeStIn = new LittleEndianByteArrayInputStream(rangeBytes,0);
+	    	    		
+	    	    		ArrayRecord arr = new  ArrayRecord(2/*options*/,formulaInt,rangeStIn);
+	    	    		sm.addArrayRecord(arr);
+	    	    		setArrayFormula = true;
+	    	    	}
+	    	    	
+    	    	}
+    	   	}
+    	   	    		
     }
+    
+	/* (non-Javadoc)
+	 * @see org.apache.poi.ss.usermodel.Sheet#removeArrayFormula(org.apache.poi.ss.usermodel.Cell)
+	 */
+	public void removeArrayFormula(Cell cell) {
+		HSSFCell hcell = (HSSFCell)cell;
+		HSSFSheet sheet = hcell.getSheet();
+		// Get formula range
+    	CellValueRecordInterface rec = hcell.getCellValueRecord();
+    	if(rec instanceof FormulaRecordAggregate){
+    		FormulaRecordAggregate frec = (FormulaRecordAggregate)rec;
+    		SharedValueManager sm =  frec.get_sharedValueManager();
+    		ArrayRecord[] array= sm.getArray();
+    		for (int i=0;i<array.length;i++)
+    		{
+    			ArrayRecord ar = (ArrayRecord) array[i];
+    			if(ar.isInRange(cell.getRowIndex(), cell.getColumnIndex()))
+    			{
+        			sm.removeArrayRecord(ar);
+           	    	for(int rowIn = ar.getFirstRow();rowIn <= ar.getLastRow();rowIn++ )
+        	    	   	for(int colIn = ar.getFirstColumn();colIn <= ar.getLastColumn();colIn++ )
+        	    	   	{
+        	    	   		Cell rCell = sheet.getRow(rowIn).getCell(colIn);
+        	    	   		rCell.setCellType(Cell.CELL_TYPE_BLANK);
+      	    	   	}
+        			return;
+    				
+    			}
+    			
+    		}
+    		
+    	}
+		throw new RuntimeException("Cell did not belong to Array Formula");
+		
+	}
+//    end changes VIA
+
 }

@@ -788,4 +788,12 @@ public interface Sheet extends Iterable<Row> {
      * @param range Region of array formula for result.
      */
     void setArrayFormula(String formula, CellRangeAddress range);
+    
+    /**
+     * Remove a Array Formula from this sheet.  All cells contained in the Array Formula range are removed as well
+     *
+     * @param cell   any cell within Array Formula range
+     */
+    void removeArrayFormula(Cell cell);
+
 }

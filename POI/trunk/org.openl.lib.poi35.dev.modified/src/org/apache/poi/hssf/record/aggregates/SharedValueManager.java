@@ -113,7 +113,9 @@ public final class SharedValueManager {
 
 	public static final SharedValueManager EMPTY = new SharedValueManager(
 			new SharedFormulaRecord[0], new CellReference[0], new ArrayRecord[0], new TableRecord[0]);
-	private final ArrayRecord[] _arrayRecords;
+//	VIA
+	private  ArrayRecord[] _arrayRecords;
+//	end changes VIA
 	private final TableRecord[] _tableRecords;
 	private final Map<SharedFormulaRecord, SharedFormulaGroup> _groupsBySharedFormulaRecord;
 	/** cached for optimization purposes */
@@ -284,6 +286,40 @@ public final class SharedValueManager {
 	 */
 	public ArrayRecord[] getArray(){
 		return this._arrayRecords;
+	}
+	
+	/**
+	 * Add Array Record
+	 * @param ar
+	 */
+	public void  addArrayRecord(ArrayRecord ar){
+		ArrayRecord[] newArray = new ArrayRecord[_arrayRecords.length+1];
+		System.arraycopy(_arrayRecords, 0, newArray, 0, _arrayRecords.length);
+		newArray[_arrayRecords.length] = ar;
+		_arrayRecords = newArray; 
+	}
+	
+	/**
+	 * Remove Array Record
+	 * @param ar
+	 */
+	public void  removeArrayRecord(ArrayRecord ar){
+		int index = -1;
+		for(int i=0; i < _arrayRecords.length; i++)
+			if(_arrayRecords[i].equals(ar))
+			{
+				index = i;
+				break;
+			}
+	
+		if(index == (-1)){
+			throw new RuntimeException("Array Record did not find ");
+		}
+		
+		ArrayRecord[] newArray = new ArrayRecord[_arrayRecords.length-1];
+		System.arraycopy(_arrayRecords, 0, newArray, 0, index);
+		System.arraycopy(_arrayRecords, index+1, newArray, index,newArray.length-index);
+		_arrayRecords = newArray; 
 	}
 //  end chandes VIA	
 }
