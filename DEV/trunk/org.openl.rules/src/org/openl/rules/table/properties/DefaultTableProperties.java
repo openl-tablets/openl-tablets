@@ -4,13 +4,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.types.IOpenClass;
 import org.openl.types.impl.DynamicObject;
+import org.openl.types.java.JavaOpenClass;
 
 public class DefaultTableProperties extends DynamicObject implements ITableProperties {
     
     private ILogicalTable propertySection;
+    
+	@Override
+    public IOpenClass getType() {
+        return JavaOpenClass.getOpenClass(getClass());
+    }
+	
+    @Override
+    public void setType(IOpenClass type) {
+        throw new UnsupportedOperationException();
+    }
 
-	// <<< INSERT >>>
+    // <<< INSERT >>>
 	public java.lang.String getName() {
 		return (java.lang.String) fieldValues.get("name"); 
 	}
