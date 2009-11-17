@@ -45,6 +45,12 @@ public final class Choose implements FunctionWithArraySupport {
 			return e.getErrorEval();
 		}
 	}
+
+    public static int evaluateFirstArg(ValueEval arg0, int srcRowIndex, int srcColumnIndex)
+            throws EvaluationException {
+        ValueEval ev = OperandResolver.getSingleValue(arg0, srcRowIndex, srcColumnIndex);
+        return OperandResolver.coerceValueToInt(ev);
+    }
 //	ZS
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)

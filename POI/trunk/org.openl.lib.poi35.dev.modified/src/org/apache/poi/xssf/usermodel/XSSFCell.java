@@ -917,9 +917,6 @@ public final class XSSFCell implements Cell {
     public CellRangeAddress getArrayFormulaRange() {
         XSSFCell cell = getSheet().getFirstCellInArrayFormula(this);
         if (cell != null) {
-            System.out.println(cell.getCellFormula());
-            System.out.println(cell.getRowIndex());
-            System.out.println(cell.getColumnIndex());
             String formulaRef = cell._cell.getF().getRef();
             return CellRangeAddress.valueOf(formulaRef);
         } else {
