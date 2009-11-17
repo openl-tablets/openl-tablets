@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -362,6 +363,16 @@ public class StringTool {
             e.printStackTrace();
         }
         return encodedUrl;
+    }
+    
+    public static String decodeURL(String url) {
+        String decodedUrl = null;
+        try {
+            decodedUrl = URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return decodedUrl;
     }
 
     /**
