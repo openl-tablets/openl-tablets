@@ -53,18 +53,20 @@ import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.hssf.record.formula.eval.EvaluationException;
 import org.apache.poi.hssf.record.formula.eval.FunctionEval;
 import org.apache.poi.hssf.record.formula.eval.MissingArgEval;
 import org.apache.poi.hssf.record.formula.eval.NameEval;
 import org.apache.poi.hssf.record.formula.eval.NameXEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.OperationEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.ArrayMode;
+import org.apache.poi.hssf.record.formula.functions.Choose;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.hssf.record.formula.functions.Function;
+import org.apache.poi.hssf.record.formula.functions.If;
 import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFoundException;
@@ -246,7 +248,7 @@ public final class WorkbookEvaluator {
 	private ValueEval evaluateAny(EvaluationCell srcCell, int sheetIndex,
 				int rowIndex, int columnIndex, EvaluationTracker tracker) {
 
-		// avoid tracking dependencies for cells that have constant definition
+		// avoid tracking dependencies to cells that have constant definition
 		boolean shouldCellDependencyBeRecorded = _stabilityClassifier == null ? true
 					: !_stabilityClassifier.isCellFinal(sheetIndex, rowIndex, columnIndex);
 		if (srcCell == null || srcCell.getCellType() != Cell.CELL_TYPE_FORMULA) {
@@ -359,8 +361,67 @@ public final class WorkbookEvaluator {
 				if (attrPtg.isSum()) {
 					// Excel prefers to encode 'SUM()' as a tAttr token, but this evaluator
 					// expects the equivalent function token
-					byte nArgs = 1;  // tAttrSum always has 1 parameter
-					ptg = new FuncVarPtg("SUM", nArgs);
+					ptg = FuncVarPtg.SUM;
+				}
+				if (attrPtg.isOptimizedChoose()) {
+					ValueEval arg0 = stack.pop();
+					int[] jumpTable = attrPtg.getJumpTable();
+					int dist;
+					int nChoices = jumpTable.length;
+					try {
+						int switchIndex = Choose.evaluateFirstArg(arg0, ec.getRowIndex(), ec.getColumnIndex());
+						if (switchIndex<1 || switchIndex > nChoices) {
+							stack.push(ErrorEval.VALUE_INVALID);
+							dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
+						} else {
+							dist = jumpTable[switchIndex-1];
+						}
+					} catch (EvaluationException e) {
+						stack.push(e.getErrorEval());
+						dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
+					}
+					// Encoded dist for tAttrChoose includes size of jump table, but
+					// countTokensToBeSkipped() does not (it counts whole tokens).
+					dist -= nChoices*2+2; // subtract jump table size
+					i+= countTokensToBeSkipped(ptgs, i, dist);
+					continue;
+				}
+				if (attrPtg.isOptimizedIf()) {
+					ValueEval arg0 = stack.pop();
+					boolean evaluatedPredicate;
+					try {
+						evaluatedPredicate = If.evaluateFirstArg(arg0, ec.getRowIndex(), ec.getColumnIndex());
+					} catch (EvaluationException e) {
+						stack.push(e.getErrorEval());
+						int dist = attrPtg.getData();
+						i+= countTokensToBeSkipped(ptgs, i, dist);
+						attrPtg = (AttrPtg) ptgs[i];
+						dist = attrPtg.getData()+1;
+						i+= countTokensToBeSkipped(ptgs, i, dist);
+						continue;
+					}
+					if (evaluatedPredicate) {
+						// nothing to skip - true param folows
+					} else {
+						int dist = attrPtg.getData();
+						i+= countTokensToBeSkipped(ptgs, i, dist);
+						Ptg nextPtg = ptgs[i+1];
+						if (ptgs[i] instanceof AttrPtg && nextPtg instanceof FuncVarPtg) {
+							// this is an if statement without a false param (as opposed to MissingArgPtg as the false param)
+							i++;
+							stack.push(BoolEval.FALSE);
+						}
+					}
+					continue;
+				}
+				if (attrPtg.isSkip()) {
+					int dist = attrPtg.getData()+1;
+					i+= countTokensToBeSkipped(ptgs, i, dist);
+					if (stack.peek() == MissingArgEval.instance) {
+						stack.pop();
+						stack.push(BlankEval.INSTANCE);
+					}
+					continue;
 				}
 			}
 			if (ptg instanceof ControlPtg) {
@@ -381,9 +442,7 @@ public final class WorkbookEvaluator {
 
 				if (optg instanceof UnionPtg) { continue; }
 
-				OperationEval operation = OperationEvaluatorFactory.create(optg);
-
-				int numops = operation.getNumberOfOperands();
+				int numops = optg.getNumberOfOperands();
 				ValueEval[] ops = new ValueEval[numops];
 
 				// storing the ops in reverse order since they are popping
@@ -394,16 +453,16 @@ public final class WorkbookEvaluator {
 //				logDebug("invoke " + operation + " (nAgs=" + numops + ")");
 //				VIA
 				if (_workbook == null){ // used in tests
-					opResult = invokeOperationInArrayContext(operation,ops, ec, false);
+					opResult = invokeOperationInArrayContext(optg,ops, ec, false);
 				}else {
 					EvaluationCell ecell = _workbook.getSheet(ec.getSheetIndex())
 						.getCell(ec.getRowIndex(), ec.getColumnIndex());
 					if (ecell.isArrayFormulaContext()) {
-						opResult = invokeOperationInArrayContext(operation,ops, ec, true);
+						opResult = invokeOperationInArrayContext(optg,ops, ec, true);
 					} else {
 						// opResult = invokeOperation(operation, ops, _workbook,
 						// sheetIndex, srcRowNum, srcColNum);
-						opResult = invokeOperationInArrayContext(operation,ops, ec, false);
+						opResult = invokeOperationInArrayContext(optg,ops, ec, false);
 					}
 				}
 //				end changes VIA
@@ -434,6 +493,27 @@ public final class WorkbookEvaluator {
 		return value;
 	}
 
+	/**
+	 * Calculates the number of tokens that the evaluator should skip upon reaching a tAttrSkip.
+	 *
+	 * @return the number of tokens (starting from <tt>startIndex+1</tt>) that need to be skipped
+	 * to achieve the specified <tt>distInBytes</tt> skip distance.
+	 */
+	private static int countTokensToBeSkipped(Ptg[] ptgs, int startIndex, int distInBytes) {
+		int remBytes = distInBytes;
+		int index = startIndex;
+		while (remBytes != 0) {
+			index++;
+			remBytes -= ptgs[index].getSize();
+			if (remBytes < 0) {
+				throw new RuntimeException("Bad skip distance (wrong token size calculation).");
+			}
+			if (index >= ptgs.length) {
+				throw new RuntimeException("Skip distance too far (ran out of formula tokens).");
+			}
+		}
+		return index-startIndex;
+	}
 	/**
 	 * Dereferences a single value from any AreaEval or RefEval evaluation result.
 	 * If the supplied evaluationResult is just a plain value, it is returned as-is.
@@ -567,38 +647,33 @@ public final class WorkbookEvaluator {
 		return _udfFinder.findFunction(functionName);
 	}
 	// !!changed ZS
-	private static ValueEval invokeOperationInArrayFormula(OperationEval operation, ValueEval[] ops,
+	private static ValueEval invokeOperationInArrayFormula(OperationPtg operation, ValueEval[] ops,
 			EvaluationWorkbook workbook, OperationEvaluationContext ec) {
-
-		// I expect only function for now - could be extended
-		if (! (operation instanceof FunctionEval)){
-			throw new IllegalArgumentException("Unexpected operation class: " + operation.getClass());
-		}
-		Function func = ((FunctionEval)operation).getFunction();
-		return (ValueEval) ((ArrayMode)func).evaluateInArrayFormula(ops, ec.getRowIndex(), (short)ec.getColumnIndex());
+		Function func = OperationEvaluatorFactory.getFunction(operation);
+		return  ((ArrayMode)func).evaluateInArrayFormula(ops, ec.getRowIndex(), (short)ec.getColumnIndex());
 	}
 	
 	// end change
 
 //	VIA
-	private ValueEval invokeOperationInArrayContext(OperationEval operation,ValueEval[] ops,OperationEvaluationContext ec, boolean isArrayFormula) {
-		
-		if ( ArrayEvaluationHelper.specialModeForArray(operation) && isArrayFormula){
+	private ValueEval invokeOperationInArrayContext(OperationPtg operation,ValueEval[] ops,OperationEvaluationContext ec, boolean isArrayFormula) {
+	    Function func = OperationEvaluatorFactory.getFunction(operation);
+		if ( ArrayEvaluationHelper.specialModeForArray(func) && isArrayFormula){
 			return invokeOperationInArrayFormula(operation, ops, _workbook, ec);
 		}
-		ValueEval answer = ArrayEvaluationHelper.prepareEmptyResult(operation, ops, isArrayFormula);
+		ValueEval answer = ArrayEvaluationHelper.prepareEmptyResult(func, ops, isArrayFormula);
 		if(answer instanceof ArrayEval){
 			ValueEval[][] values = (ValueEval[][])((ArrayEval)answer).getArrayValues();
 			for(int row = 0; row<values.length;row++)
 				for(int col=0;col<values[row].length;col++){
-					ValueEval[] opsloop = ArrayEvaluationHelper.prepareArg4Loop(operation,ops, row,col, isArrayFormula);
-					ValueEval loopresult = operation.evaluate(opsloop, ec);
+					ValueEval[] opsloop = ArrayEvaluationHelper.prepareArg4Loop(func,ops, row,col, isArrayFormula);
+					ValueEval loopresult = func.evaluate(opsloop, ec.getRowIndex(), (short)ec.getColumnIndex());
 					values[row][col] = loopresult;
 				}
 			return answer;
 		}
 		else
-		return  operation.evaluate(ops, ec);
+		return  func.evaluate(ops, ec.getRowIndex(), (short)ec.getColumnIndex());
 	}
 
 //	end changes VIA
