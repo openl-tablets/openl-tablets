@@ -1,7 +1,7 @@
 
 <%@page import="org.openl.rules.webstudio.web.util.Constants"%><jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
-
+<%@page import="org.openl.util.StringTool"%>
 <% 
     String uri = request.getParameter(Constants.REQUEST_PARAM_URI);
    	if (uri != null && !uri.equals("")) {
@@ -13,10 +13,11 @@
     String text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);   
     String name = studio.getModel().getDisplayNameFull(uri);
     org.openl.rules.ui.Explanator.setCurrent(explanator);
-    String testName = request.getParameter("testName");
+    String testName = StringTool.decodeURL(request.getParameter("testName"));    
     String testID = request.getParameter("testID");
     String testDescr = request.getParameter("testDescr");
 %>
+
 
 
 
