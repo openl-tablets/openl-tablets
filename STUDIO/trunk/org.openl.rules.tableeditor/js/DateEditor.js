@@ -12,21 +12,46 @@ var DateEditor = Class.create(BaseTextEditor, {
 
         var self = this;
         ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
+
+        this.input.onkeydown = function(event) {
+        	return self.keyPressed(event || window.event)
+        }
+        this.input.oncontextmenu = function(event) {
+        	return false;
+        }
+        this.input.onclick = function() {
+        	datePickerController.show(self.getId());
+        };
     },
 
     show: function($super, value) {
         $super(value);
-        var id = this.getId();
-        var opts = {
-            formElements:{},
-            noFadeEffect:true
+
+        var inputId = this.getId();
+
+        var datePickerOpts = {
+            formElements: {},
+            noFadeEffect: true,
+            finalOpacity: 100
         };
-        opts.formElements[id] = "m-sl-d-sl-Y";
-        datePickerController.createDatePicker(opts);
+        datePickerOpts.formElements[inputId] = "m-sl-d-sl-Y";
+
+        datePickerController.createDatePicker(datePickerOpts);
     },
 
     destroy: function(value) {
         datePickerController.destroyDatePicker(this.getId());
+    },
+
+    keyPressed: function(event) {
+    	var keyCode = event.keyCode;
+        switch (keyCode) {
+        	case Event.KEY_BACKSPACE:
+        	case Event.KEY_DELETE:
+        		this.input.value = '';
+        		break;
+        }
+        return false;
     }
 
 });
