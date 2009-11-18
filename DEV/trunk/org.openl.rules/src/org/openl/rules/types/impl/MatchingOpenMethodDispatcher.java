@@ -66,12 +66,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private void selectCandidates(Set<IOpenMethod> selected, IRulesContext context) {
         // <<< INSERT MatchingProperties >>>
-        selectCandidatesByProperty("effectiveDate", selected, context);
-        selectCandidatesByProperty("expirationDate", selected, context);
-        selectCandidatesByProperty("lob", selected, context);
-        selectCandidatesByProperty("usregion", selected, context);
-        selectCandidatesByProperty("country", selected, context);
-        selectCandidatesByProperty("state", selected, context);
+		selectCandidatesByProperty("effectiveDate", selected, context);
+		selectCandidatesByProperty("expirationDate", selected, context);
+		selectCandidatesByProperty("lob", selected, context);
+		selectCandidatesByProperty("usregion", selected, context);
+		selectCandidatesByProperty("country", selected, context);
+		selectCandidatesByProperty("state", selected, context);
         // <<< END INSERT MatchingProperties >>>
     }
 

@@ -3,9 +3,11 @@ package org.openl.codegen.tools;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -16,6 +18,7 @@ import org.openl.codegen.JavaCodeGen;
 import org.openl.rules.context.DefaultRulesContext;
 import org.openl.rules.context.IRulesContext;
 import org.openl.rules.context.properties.ContextPropertyDefinition;
+import org.openl.rules.enumeration.properties.EnumPropertyDefinition;
 import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.DefaultTableProperties;
@@ -23,7 +26,10 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.util.StringTool;
+import org.openl.vm.IRuntimeEnv;
 
 public class GenRulesCode {
 
@@ -32,9 +38,11 @@ public class GenRulesCode {
     private static final String VELOCITY_PROPERTIES = "velocity.properties";
     private static final String DEFINITIONS_XLS = "../org.openl.rules/doc/TablePropertyDefinition.xlsx";
     private static final String ARRAY_NAME = "definitions";
+    private static final String ENUMS_PACKAGE_PATH = "org/openl/rules/enumeration/";
 
     private TablePropertyDefinition[] tablePropertyDefinitions;
     private ContextPropertyDefinition[] contextPropertyDefinitions;
+    private EnumerationDescriptor[] enumerationDefinitions;
     private VelocityGenerator generator;
 
     public static void main(String[] args) throws Exception {
@@ -44,6 +52,12 @@ public class GenRulesCode {
     public void run() throws Exception {
 
         prepare();
+
+        loadEnumerationDefinitions();
+        
+        generateEnumerations();
+
+        loadDefinitions();
 
         generateIRulesContextCode();
         generateDefaultRulesContextCode();
@@ -161,14 +175,28 @@ public class GenRulesCode {
         });
     }
 
-    private void prepare() throws Exception {
+    private void genSourceCode(String sourceFilePath, String templateName, Map<String, Object> variables)
+            throws Exception {
 
-        tablePropertyDefinitions = loadTablePropertyDefinitions();
-        contextPropertyDefinitions = loadContextPropertyDefinitions();
+        File file = new File(sourceFilePath);
+        FileOutputStream os = new FileOutputStream(file, false);
+
+        String codeSnippet = generator.generate(templateName, variables);
+        os.write(codeSnippet.getBytes());
+
+        os.close();
+    }
+
+    private void prepare() throws Exception {
 
         Properties properties = loadVelocityProperties();
 
         generator = VelocityGenerator.getInstance(properties);
+    }
+
+    private void loadDefinitions() {
+        tablePropertyDefinitions = loadTablePropertyDefinitions();
+        contextPropertyDefinitions = loadContextPropertyDefinitions();
     }
 
     private Properties loadVelocityProperties() throws IOException, FileNotFoundException {
@@ -198,17 +226,98 @@ public class GenRulesCode {
 
     private TablePropertyDefinition[] loadTablePropertyDefinitions() {
 
-        RuleEngineFactory<ITablePropertyDefinitionLoader> rf = new RuleEngineFactory<ITablePropertyDefinitionLoader>(
+        RuleEngineFactory<ITablePropertyDefinitionLoader> rulesFactory = new RuleEngineFactory<ITablePropertyDefinitionLoader>(
                 DEFINITIONS_XLS, ITablePropertyDefinitionLoader.class);
 
-        return rf.newInstance().getDefinitions();
+        return rulesFactory.newInstance().getDefinitions();
     }
 
     private ContextPropertyDefinition[] loadContextPropertyDefinitions() {
 
-        RuleEngineFactory<IContextPropertyDefinitionLoader> rf = new RuleEngineFactory<IContextPropertyDefinitionLoader>(
+        RuleEngineFactory<IContextPropertyDefinitionLoader> rulesFactory = new RuleEngineFactory<IContextPropertyDefinitionLoader>(
                 DEFINITIONS_XLS, IContextPropertyDefinitionLoader.class);
 
-        return rf.newInstance().getContextDefinitions();
+        return rulesFactory.newInstance().getContextDefinitions();
+    }
+    
+    private void loadEnumerationDefinitions() {
+     
+        enumerationDefinitions = loadEnumerations();
+    }
+    
+    private EnumerationDescriptor[] loadEnumerations() {
+
+        List<EnumerationDescriptor> descriptors = new ArrayList<EnumerationDescriptor>();
+        
+        RuleEngineFactory<IEmptyLoader> rulesFactory = new RuleEngineFactory<IEmptyLoader>(DEFINITIONS_XLS, IEmptyLoader.class);
+
+        IOpenClass openClass = rulesFactory.getOpenClass();
+        IRuntimeEnv env = rulesFactory.getOpenL().getVm().getRuntimeEnv();
+        Object openClassInstance = openClass.newInstance(env);
+
+        List<IOpenField> enumerationFields = findEnumerationFields(openClass);
+        
+        for (IOpenField field : enumerationFields) {
+           
+            String name = field.getName();
+            EnumPropertyDefinition[] values = (EnumPropertyDefinition[])field.get(openClassInstance, env);
+
+            EnumerationDescriptor descriptor = new EnumerationDescriptor();
+            descriptor.setEnumName(name);   
+            descriptor.setValues(values);
+            
+            descriptors.add(descriptor);
+        }
+        
+        return descriptors.toArray(new EnumerationDescriptor[descriptors.size()]);
+    }
+
+    private void generateEnumerations() throws Exception {
+        
+        for (EnumerationDescriptor descriptor : enumerationDefinitions) {
+            generateEnumeration(descriptor);
+        }
+    }
+    
+    private void generateEnumeration(EnumerationDescriptor descriptor) throws Exception {
+
+        String enumName = getEnumClassName(descriptor.getEnumName());
+        String sourceFilePath = SOURCE_LOC + ENUMS_PACKAGE_PATH + enumName + ".java";
+        
+        Map<String, Object> variables = new HashMap<String, Object>();
+
+        variables.put("enumName", enumName);
+        variables.put("values", descriptor.getValues());
+
+        genSourceCode(sourceFilePath, "rules-enum.vm", variables);
+    }
+    
+    private String getEnumClassName(String enumName) {
+        
+        return String.format("%s%sEnum", enumName.substring(0,1).toUpperCase(), enumName.toLowerCase().substring(1));
+    }
+
+    private List<IOpenField> findEnumerationFields(IOpenClass openClass) {
+
+        List<IOpenField> enumerations = new ArrayList<IOpenField>();
+        Iterator<IOpenField> iterator = openClass.fields();
+
+        while (iterator.hasNext()) {
+            IOpenField field = iterator.next();
+
+            if (isEnumeration(field)) {
+                enumerations.add(field);
+            }
+        }
+
+        return enumerations;
+    }
+
+    private boolean isEnumeration(IOpenField field) {
+
+        IOpenClass type = field.getType();
+        Class<?> clazz = type.getInstanceClass();
+
+        return clazz.equals(EnumPropertyDefinition[].class);
     }
 }
