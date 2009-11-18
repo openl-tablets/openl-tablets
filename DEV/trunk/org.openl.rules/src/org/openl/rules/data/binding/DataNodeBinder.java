@@ -41,6 +41,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
 
+    private static final int HEADER_NUM_TOKENS = 3;
+
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
     private static final String INDEX_ROW_REFERENCE_DELIMITER = " >\n\r";
@@ -122,14 +124,14 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     }
 
     // indexes of names in header
-    private static final int TYPE_INDEX = 1, TABLE_NAME_INDEX = 2, DATABASE_NAME_INDEX = 3;
-
+    private static final int TYPE_INDEX = 1;
+    private static final int TABLE_NAME_INDEX = 2;
     /**
      * The pre-defined names of system and default databases
      */
     static final public String
     // this database is used for user data, including tests
-            DEFAULT_DATAgBASE = "org.openl.database.default",
+            DEFAULT_DATABASE = "org.openl.database.default",
             /**
              * This database is used for all system data, configurations etc.
              * This database is processed first, data there can not use domain
@@ -174,12 +176,12 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     /**
      * Checks format of the data table header.
      * @param src
-     * @throws BoundError if length of header is less than 3.
+     * @throws BoundError if length of header is less than {@link #HEADER_NUM_TOKENS}.
      */
     private void checkParsedHeader(IOpenSourceCodeModule src) throws BoundError {
         parsedHeader = TokenizerParser.tokenize(src, " \n\r");
         String errMsg;
-        if (parsedHeader.length < 3) {
+        if (parsedHeader.length < HEADER_NUM_TOKENS) {
             errMsg = getErrMsgFormat();
             BoundError err = new BoundError(null, errMsg, null, src);
             throw err;
@@ -201,9 +203,13 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * @return Table body without table header and properties section.
      */
     private ILogicalTable getTableBody(TableSyntaxNode tsn) {
-        int startRow = tsn.getTableProperties() == null ? 1 : 2;
-        ILogicalTable dataTable = tsn.getTable().rows(startRow);
-        return dataTable;
+        int startRow = 0;
+        if (tsn.getTableProperties() == null) {
+            startRow = 1;
+        } else {
+            startRow = 2;
+        }
+        return tsn.getTable().rows(startRow);
     }
     
     /**
@@ -411,7 +417,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         return result;
     }
     
-    protected IOpenClass getTableType(String typeName, IBindingContext cxt,
+    private IOpenClass getTableType(String typeName, IBindingContext cxt,
             XlsModuleOpenClass module, DataTableBoundNode dataNode,
             String tableName) {
         IOpenClass tableType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE,
@@ -420,7 +426,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
 
     }
     
-    protected String getErrMsgFormat() {
+    private String getErrMsgFormat() {
         return "Data table format: Data <typename> <tablename> [database]";
     }
     
@@ -431,7 +437,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * @param tableType
      * @return Horizontal representation of table.
      */
-    protected ILogicalTable getHorizontalTable(ILogicalTable tableBody, IOpenClass tableType) {
+    private ILogicalTable getHorizontalTable(ILogicalTable tableBody, IOpenClass tableType) {
         ILogicalTable resultTable = null;
 
         if (isHorizontalTable(tableBody, tableType)) {
@@ -448,7 +454,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * @param tableType
      * @return Number of <code>{@link IOpenField}</code> found in the data table.
      */
-    protected int countFields(ILogicalTable dataTable, IOpenClass tableType) {
+    private int countFields(ILogicalTable dataTable, IOpenClass tableType) {
         int cnt = 0;
         int w = dataTable.getLogicalWidth();
         for (int i = 0; i < w; ++i) {
@@ -464,60 +470,11 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         return cnt;
     }
 
-    protected DataTableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
+    private DataTableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
         return new DataTableBoundNode(tsn, module);
     }
     
-    /**
-     * Default method.
-     * If you call this method, you want to process table with cell title row set to <code>TRUE</code>.
-     * calls {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, 
-     * IBindingContext, OpenL, boolean)} to populate <code>ITable</code> with data. Also adds to 
-     * <code>TableSyntaxNode</code> sub table for displaying on bussiness view.
-     */
-    public ITable makeTable(XlsModuleOpenClass xlsOpenClass, TableSyntaxNode tsn, String tableName, IOpenClass tableType,
-            IBindingContext cxt, OpenL openl) throws Exception {
-        ITable resultTable = xlsOpenClass.getDataBase().addNewTable(tableName, tsn);
-        ILogicalTable tableBody = getTableBody(tsn);
-        processTable(xlsOpenClass, resultTable, tableBody, tableName, tableType, cxt, openl, true);
-        putSubTableForBussinesView(tsn, tableType);
-        
-        return resultTable;
-    }
     
-    /**
-     * Populate the <code>ITable</code> with data from <code>ILogicalTable</code>. 
-     * @param xlsOpenClass Open class representing OpenL module.
-     * @param tableToProcess Table to be processed.
-     * @param tableBody Body of the table (without header and properties sections). Its like a source to process 
-     * <code>ITable</code> with data.
-     * @param tableName Name of the outcome table.
-     * @param tableType Type of the data in table.
-     * @param cxt OpenL context.
-     * @param openl OpenL instance.
-     * @param hasColumnTytleRow Flag representing if tableBody has title row for columns.
-     * @throws Exception
-     */
-    public void processTable(XlsModuleOpenClass xlsOpenClass, ITable tableToProcess, ILogicalTable tableBody, 
-            String tableName, IOpenClass tableType,
-            IBindingContext cxt, OpenL openl, boolean hasColumnTytleRow) throws Exception {        
-       
-        ILogicalTable horizDataTableBody = getHorizontalTable(tableBody, tableType);
-        
-        ILogicalTable descriptorRows = getDescriptorRows(horizDataTableBody);
-        
-        ILogicalTable dataWithTitleRows = getDataWithTitleRows(horizDataTableBody);
-
-        IColumnDescriptor[] descriptors = makeDescriptors(tableToProcess, tableType, openl, descriptorRows,  
-                dataWithTitleRows, hasForeignKeysRow(horizDataTableBody), hasColumnTytleRow);
-        
-        OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName, tableType, openl, descriptors, 
-                hasColumnTytleRow);
-        
-        OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, cxt);
-
-        xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
-    }
     
     /**
      * Gets the Data_With_Titles rows from the data table body. Data_With_Titles start row consider to be the 
@@ -526,9 +483,8 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * @return Data_With_Titles rows for current data table body. 
      */
     private ILogicalTable getDataWithTitleRows(ILogicalTable horizDataTableBody) {
-        int startRow = getStartRowForDataWithTitlesSection(horizDataTableBody);
-        ILogicalTable dataWithTitleRows = horizDataTableBody.rows(startRow);
-        return dataWithTitleRows;
+        int startRow = getStartRowForDataWithTitlesSection(horizDataTableBody);         
+        return horizDataTableBody.rows(startRow);
     }
     
     /**
@@ -557,9 +513,8 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * @return Descriptor rows for current data table body. 
      */
     private ILogicalTable getDescriptorRows(ILogicalTable horizDataTableBody) {
-        int endRow = getEndRowForDescriptorSection(horizDataTableBody);
-        ILogicalTable descriptorRows = horizDataTableBody.rows(0, endRow);
-        return descriptorRows;
+        int endRow = getEndRowForDescriptorSection(horizDataTableBody);        
+        return horizDataTableBody.rows(0, endRow);
     }
     
     /**
@@ -627,6 +582,63 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         dataNode.setTable(dataTable);
 
         return dataNode;
+    }
+    
+    /**
+     * Default method. It is called during processing OpenL module.
+     * If you call this method, you want to process table with cell title row set to <code>TRUE</code>.
+     * calls {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, 
+     * IBindingContext, OpenL, boolean)} to populate <code>ITable</code> with data. Also adds to 
+     * <code>TableSyntaxNode</code> sub table for displaying on bussiness view.
+     * @param xlsOpenClass Open class representing OpenL module.
+     * @param tsn <code>TableSyntaxNode</code> to be processed.
+     * @param tableName Name of the outcome table.
+     * @param tableType Type of the data in table.
+     * @param cxt OpenL context.
+     * @param openl OpenL instance.
+     */
+    public ITable makeTable(XlsModuleOpenClass xlsOpenClass, TableSyntaxNode tsn, String tableName, IOpenClass tableType,
+            IBindingContext cxt, OpenL openl) throws Exception {
+        ITable resultTable = xlsOpenClass.getDataBase().addNewTable(tableName, tsn);
+        ILogicalTable tableBody = getTableBody(tsn);
+        processTable(xlsOpenClass, resultTable, tableBody, tableName, tableType, cxt, openl, true);
+        putSubTableForBussinesView(tsn, tableType);
+        
+        return resultTable;
+    }
+    
+    /**
+     * Populate the <code>ITable</code> with data from <code>ILogicalTable</code>. 
+     * @param xlsOpenClass Open class representing OpenL module.
+     * @param tableToProcess Table to be processed.
+     * @param tableBody Body of the table (without header and properties sections). Its like a source to process 
+     * <code>ITable</code> with data.
+     * @param tableName Name of the outcome table.
+     * @param tableType Type of the data in table.
+     * @param cxt OpenL context.
+     * @param openl OpenL instance.
+     * @param hasColumnTytleRow Flag representing if tableBody has title row for columns.
+     * @throws Exception
+     */
+    public void processTable(XlsModuleOpenClass xlsOpenClass, ITable tableToProcess, ILogicalTable tableBody, 
+            String tableName, IOpenClass tableType,
+            IBindingContext cxt, OpenL openl, boolean hasColumnTytleRow) throws Exception {        
+       
+        ILogicalTable horizDataTableBody = getHorizontalTable(tableBody, tableType);
+        
+        ILogicalTable descriptorRows = getDescriptorRows(horizDataTableBody);
+        
+        ILogicalTable dataWithTitleRows = getDataWithTitleRows(horizDataTableBody);
+
+        IColumnDescriptor[] descriptors = makeDescriptors(tableToProcess, tableType, openl, descriptorRows,  
+                dataWithTitleRows, hasForeignKeysRow(horizDataTableBody), hasColumnTytleRow);
+        
+        OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName, tableType, openl, descriptors, 
+                hasColumnTytleRow);
+        
+        OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, cxt);
+
+        xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
     }
     
     

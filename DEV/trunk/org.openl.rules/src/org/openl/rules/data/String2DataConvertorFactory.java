@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
@@ -28,10 +30,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class String2DataConvertorFactory {
 
     public static class String2BooleanConvertor implements IString2DataConvertor {
-
-        /**
-         * 
-         */
 
         public String format(Object data, String format) {
             return String.valueOf(data);
@@ -58,10 +56,6 @@ public class String2DataConvertorFactory {
     }
 
     static public class String2CalendarConvertor implements IString2DataConvertor {
-
-        /**
-         * 
-         */
 
         public String format(Object data, String format) {
             return new String2DateConvertor().format(((Calendar) data).getTime(), format);
@@ -103,10 +97,6 @@ public class String2DataConvertorFactory {
 
     public static class String2ClassConvertor implements IString2DataConvertor {
 
-        /**
-         * 
-         */
-
         public String format(Object data, String format) {
             return String.valueOf(data);
         }
@@ -125,15 +115,11 @@ public class String2DataConvertorFactory {
 
     public static class String2ConstructorConvertor implements IString2DataConvertor {
 
-        Constructor<?> ctr;
+        private Constructor<?> ctr;
 
         String2ConstructorConvertor(Constructor<?> ctr) {
             this.ctr = ctr;
         }
-
-        /**
-         * 
-         */
 
         public String format(Object data, String format) {
             return String.valueOf(data);
@@ -151,12 +137,10 @@ public class String2DataConvertorFactory {
     }
 
     static public class String2DateConvertor implements IString2DataConvertor {
-
-        DateFormat defaultFormat = DateFormat.getDateInstance(DateFormat.SHORT, getLocale());
-
-        /**
-         * 
-         */
+        
+        private static final Log LOG = LogFactory.getLog(String2DateConvertor.class);
+        private static final int YEAR_START_COUNT = 1900;
+        private DateFormat defaultFormat = DateFormat.getDateInstance(DateFormat.SHORT, getLocale());
 
         public String format(Object data, String format) {
             DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT)
@@ -169,7 +153,6 @@ public class String2DataConvertorFactory {
         }
 
         public Date parseDate(String data, String format) {
-
             DateFormat df = format == null ? defaultFormat : new SimpleDateFormat(format, getLocale());
 
             try {
@@ -178,11 +161,12 @@ public class String2DataConvertorFactory {
                 try {
                     int value = Integer.parseInt(data);
                     Calendar cc = Calendar.getInstance();
-                    cc.set(1900, 0, 1);
+                    cc.set(YEAR_START_COUNT, 0, 1);
                     cc.add(Calendar.DATE, value - 1);
                     return cc.getTime();
 
                 } catch (Throwable t) {
+                    LOG.error(t);
                 }
                 throw RuntimeExceptionWrapper.wrap(e);
             }
@@ -191,14 +175,12 @@ public class String2DataConvertorFactory {
     }
 
     public static class String2DoubleConvertor implements IString2DataConvertor {
-
-        /**
-         * 
-         */
+        
+        private static final String DEFAULT_DOUBLE_FORMAT = "#0.00";
 
         public String format(Object data, String format) {
             if (format == null) {
-                format = "#0.00";
+                format = DEFAULT_DOUBLE_FORMAT;
             }
 
             DecimalFormat df = new DecimalFormat(format);
@@ -265,11 +247,7 @@ public class String2DataConvertorFactory {
     }
 
     public static class String2IntConvertor implements IString2DataConvertor {
-
-        /**
-         * 
-         */
-
+        
         public String format(Object data, String format) {
             if (format == null) {
                 return String.valueOf(data);
@@ -291,17 +269,13 @@ public class String2DataConvertorFactory {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
 
-            return new Integer(n.intValue());
+            return Integer.valueOf(n.intValue());
         }
 
     }
 
     public static class String2LongConvertor implements IString2DataConvertor {
-
-        /**
-         * 
-         */
-
+        
         public String format(Object data, String format) {
             if (format == null) {
                 return String.valueOf(data);
@@ -323,7 +297,7 @@ public class String2DataConvertorFactory {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
 
-            return new Long(n.longValue());
+            return Long.valueOf(n.longValue());
         }
 
     }
@@ -351,7 +325,7 @@ public class String2DataConvertorFactory {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
 
-            return new Byte(n.byteValue());
+            return Byte.valueOf(n.byteValue());
         }
     }
 
@@ -378,15 +352,17 @@ public class String2DataConvertorFactory {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
 
-            return new Short(n.shortValue());
+            return Short.valueOf(n.shortValue());
         }
     }
     
     public static class String2FloatConvertor implements IString2DataConvertor {
 
+        private static final String DEFAULT_FLOAT_FORMAT = "#0.00";
+
         public String format(Object data, String format) {
             if (format == null) {
-                format = "#0.00";
+                format = DEFAULT_FLOAT_FORMAT;
             }
 
             DecimalFormat df = new DecimalFormat(format);
@@ -409,18 +385,14 @@ public class String2DataConvertorFactory {
 
             String data = numberStringWithoutModifier(xdata);
 
-            float d = Float.parseFloat(data);
+            float floatValue = Float.parseFloat(data);
 
-            return xdata == data ? new Float(d) : new Float(d * numberModifier(xdata));
+            return xdata == data ? Float.valueOf(floatValue) : Float.valueOf((float) (floatValue * numberModifier(xdata)));
         }
     }
 
     public static class String2OpenClassConvertor implements IString2DataConvertor {
-
-        /**
-         * 
-         */
-
+        
         public String format(Object data, String format) {
             return String.valueOf(data);
         }
@@ -472,11 +444,12 @@ public class String2DataConvertorFactory {
 
     }
 
-    static Locale locale = null;
+    private static Locale locale = null;
 
-    static final String localeCountry = "US", localeLang = "en";
+    private static final String LOCALE_COUNTRY = "US";
+    private static final String LOCALE_LANG = "en";
 
-    static HashMap<Class<?>, IString2DataConvertor> convertors;
+    private static HashMap<Class<?>, IString2DataConvertor> convertors;
 
     static {
         convertors = new HashMap<Class<?>, IString2DataConvertor>();
@@ -534,7 +507,7 @@ public class String2DataConvertorFactory {
             String country = System.getProperty("org.openl.locale.country");
             String lang = System.getProperty("org.openl.locale.lang");
 
-            locale = new Locale(lang == null ? localeLang : lang, country == null ? localeCountry : country);
+            locale = new Locale(lang == null ? LOCALE_LANG : lang, country == null ? LOCALE_COUNTRY : country);
         }
 
         return locale;
@@ -556,7 +529,7 @@ public class String2DataConvertorFactory {
         return s;
     }
 
-    static public void registerConvertor(Class<?> clazz, IString2DataConvertor conv) {
+    public static void registerConvertor(Class<?> clazz, IString2DataConvertor conv) {
         convertors.put(clazz, conv);
     }
 
