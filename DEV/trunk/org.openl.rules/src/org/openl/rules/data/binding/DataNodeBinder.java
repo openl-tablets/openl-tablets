@@ -417,7 +417,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         return result;
     }
     
-    private IOpenClass getTableType(String typeName, IBindingContext cxt,
+    protected IOpenClass getTableType(String typeName, IBindingContext cxt,
             XlsModuleOpenClass module, DataTableBoundNode dataNode,
             String tableName) {
         IOpenClass tableType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE,
@@ -426,7 +426,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
 
     }
     
-    private String getErrMsgFormat() {
+    protected String getErrMsgFormat() {
         return "Data table format: Data <typename> <tablename> [database]";
     }
     
@@ -470,7 +470,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         return cnt;
     }
 
-    private DataTableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
+    protected DataTableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
         return new DataTableBoundNode(tsn, module);
     }
     
