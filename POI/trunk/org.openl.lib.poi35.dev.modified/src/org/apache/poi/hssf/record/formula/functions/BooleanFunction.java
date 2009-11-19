@@ -45,7 +45,7 @@ import org.apache.poi.ss.formula.ArrayEval;
 public abstract class BooleanFunction implements FunctionWithArraySupport {
 //   end changes ZS 
 
-	public final ValueEval evaluate(ValueEval[] args, int srcRow, short srcCol) {
+	public final ValueEval evaluate(ValueEval[] args, int srcRow, int srcCol) {
 		if (args.length < 1) {
 			return ErrorEval.VALUE_INVALID;
 		}

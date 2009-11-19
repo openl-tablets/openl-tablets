@@ -156,7 +156,7 @@ final class OperationEvaluatorFactory {
                 }
             return answer;
         } else {
-            return func.evaluate(ops, ec.getRowIndex(), (short) ec.getColumnIndex());
+            return func.evaluate(ops, ec.getRowIndex(), ec.getColumnIndex());
         }
     }
 }
