@@ -39,7 +39,6 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.ss.SpreadsheetVersion;
-import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Footer;
@@ -108,7 +107,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private ColumnHelper columnHelper;
     private CommentsTable sheetComments;
     private Map<Integer, XSSFCell> sharedFormulas;
-    private List<CellRangeAddress> arrayFormulasRanges;
+    private Map<Cell, CellRangeAddress> arrayFormulas;
 
     /**
      * Creates new XSSFSheet   - called by XSSFWorkbook to create a sheet from scratch.
@@ -183,14 +182,8 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private void initRows(CTWorksheet worksheet) {
         rows = new TreeMap<Integer, XSSFRow>();
         sharedFormulas = new HashMap<Integer, XSSFCell>();
-        arrayFormulasRanges = new ArrayList<CellRangeAddress>();
+        arrayFormulas = new HashMap<Cell, CellRangeAddress>();
         for (CTRow row : worksheet.getSheetData().getRowArray()) {
-            for (CTCell cell : row.getCArray()) {
-                CTCellFormula formula = cell.getF();
-                if (formula != null && formula.getT() == STCellFormulaType.ARRAY && formula.getRef() != null) {
-                    arrayFormulasRanges.add(CellRangeAddress.valueOf(formula.getRef()));
-                }
-            }
             XSSFRow r = new XSSFRow(row, this);
             rows.put(r.getRowNum(), r);
         }
@@ -2290,6 +2283,10 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
         if(f != null && f.getT() == STCellFormulaType.SHARED && f.isSetRef() && f.getStringValue() != null){
             sharedFormulas.put((int)f.getSi(), cell);
         }
+        CTCellFormula formula = ct.getF();
+        if (formula != null && formula.getT() == STCellFormulaType.ARRAY && formula.getRef() != null) {
+            arrayFormulas.put(cell, CellRangeAddress.valueOf(formula.getRef()));
+        }
     }
 
     @Override
@@ -2649,7 +2646,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
 	}
 	
     /* package */ boolean isCellInArrayFormulaContext(XSSFCell cell) {
-        for (CellRangeAddress range : arrayFormulasRanges) {
+        for (CellRangeAddress range : arrayFormulas.values()) {
             if (range.isInRange(cell)) {
                 return true;
             }
@@ -2658,7 +2655,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     }
 
     /* package */ XSSFCell getFirstCellInArrayFormula(XSSFCell cell) {
-        for (CellRangeAddress range : arrayFormulasRanges) {
+        for (CellRangeAddress range : arrayFormulas.values()) {
             if (range.isInRange(cell)) {
                 return getRow(range.getFirstRow()).getCell(range.getFirstColumn());
             }
@@ -2667,15 +2664,28 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     }
 
     public void setArrayFormula(String formula, CellRangeAddress range) {
-        arrayFormulasRanges.add(range);
-        XSSFCell mainArrayFormulaCell = getRow(range.getFirstRow()).getCell(range.getFirstColumn());
-        mainArrayFormulaCell.setCellFormula(formula);
-        mainArrayFormulaCell.setCellFormulaReference(range);
+        XSSFRow row = getRow(range.getFirstRow());
+        if (row == null) {
+            row = createRow(range.getFirstRow());
+        }
+        XSSFCell mainArrayFormulaCell = row.getCell(range.getFirstColumn());
+        if (mainArrayFormulaCell == null) {
+            mainArrayFormulaCell = row.createCell(range.getFirstColumn());
+        }
+        mainArrayFormulaCell.setCellArrayFormula(formula, range);
+        arrayFormulas.put(mainArrayFormulaCell, range);
     }
 
 	public void removeArrayFormula(Cell cell) {
-	       throw new NotImplementedException("Removing of array formula is not implementd in XSSF yet");
-	       
-		
-	}
+        CellRangeAddress range = arrayFormulas.remove(cell);
+        if (range == null) {
+            return;
+        }
+        for (int rowIndex = range.getFirstRow(); rowIndex <= range.getLastRow(); rowIndex++) {
+            XSSFRow row = getRow(rowIndex);
+            for (int columnIndex = range.getFirstColumn(); columnIndex <= range.getLastColumn(); columnIndex++) {
+                row.getCell(columnIndex).setCellType(Cell.CELL_TYPE_BLANK);
+            }
+        }
+    }
 }

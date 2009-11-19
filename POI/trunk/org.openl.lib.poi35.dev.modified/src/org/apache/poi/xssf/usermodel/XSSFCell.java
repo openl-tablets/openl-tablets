@@ -396,9 +396,11 @@ public final class XSSFCell implements Cell {
         if(_cell.isSetV()) _cell.unsetV();
     }
 
-    /* package */ void setCellFormulaReference(CellRangeAddress range) {
-        CTCellFormula formula = _cell.getF();
-        formula.setRef(range.formatAsString());
+    /* package */ void setCellArrayFormula(String formula, CellRangeAddress range) {
+        setCellFormula(formula);
+        CTCellFormula cellFormula = _cell.getF();
+        cellFormula.setT(STCellFormulaType.ARRAY);
+        cellFormula.setRef(range.formatAsString());
     }
 
     /**

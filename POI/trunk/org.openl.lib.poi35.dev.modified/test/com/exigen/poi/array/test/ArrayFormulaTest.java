@@ -306,10 +306,10 @@ public class ArrayFormulaTest {
 		assertEquals("B55-G55",getNumericValue("G55"), calculateNumericFormula("B55"), 0);
 		assertEquals("C55-H55",getNumericValue("H55"), calculateNumericFormula("C55"), 0);
 	}
-	@Test (expected=NotImplementedException.class)
+	@Test
 	public void RemoveArrayFormula(){
 		
-		removeArrayFormula("B40");
+		removeArrayFormula("A40");
 
 		assertEquals("A40-F40",Cell.CELL_TYPE_BLANK, getCellType("A40"), 0);
 		assertEquals("B40-G40",Cell.CELL_TYPE_BLANK, getCellType("B40"), 0);
