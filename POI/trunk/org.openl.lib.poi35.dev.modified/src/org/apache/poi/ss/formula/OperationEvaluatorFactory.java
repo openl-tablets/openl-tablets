@@ -52,6 +52,7 @@ import org.apache.poi.hssf.record.formula.eval.UnaryMinusEval;
 import org.apache.poi.hssf.record.formula.eval.UnaryPlusEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.function.FunctionMetadataRegistry;
+import org.apache.poi.hssf.record.formula.functions.ArrayMode;
 import org.apache.poi.hssf.record.formula.functions.Function;
 import org.apache.poi.hssf.record.formula.functions.Indirect;
 
@@ -113,13 +114,9 @@ final class OperationEvaluatorFactory {
 		if(ptg == null) {
 			throw new IllegalArgumentException("ptg must not be null");
 		}
-		Function result = _instancesByPtgClass.get(ptg);
+		Function func = _instancesByPtgClass.get(ptg);
 
-		if (result != null) {
-			return  result.evaluate(args, ec.getRowIndex(), (short) ec.getColumnIndex());
-		}
-
-		if (ptg instanceof AbstractFunctionPtg) {
+		if (func == null && ptg instanceof AbstractFunctionPtg) {
 			AbstractFunctionPtg fptg = (AbstractFunctionPtg)ptg;
 			int functionIndex = fptg.getFunctionIndex();
 			switch (functionIndex) {
@@ -128,27 +125,38 @@ final class OperationEvaluatorFactory {
 				case FunctionMetadataRegistry.FUNCTION_INDEX_EXTERNAL:
 					return UserDefinedFunction.instance.evaluate(args, ec);
 			}
-
-			return FunctionEval.getBasicFunction(functionIndex).evaluate(args, ec.getRowIndex(), (short) ec.getColumnIndex());
+			func = FunctionEval.getBasicFunction(functionIndex);
 		}
-		throw new RuntimeException("Unexpected operation ptg class (" + ptg.getClass().getName() + ")");
+		if (func != null) {
+            if (func instanceof ArrayMode && ec.isInArrayFormulaContext()) {
+                return evaluateInSpecialModeForArrayFormulas((ArrayMode) func, args, ec);
+            } else {
+                return invokeOperationInArrayContext(func, args, ec);
+            }
+		} else {
+		    throw new RuntimeException("Unexpected operation ptg class (" + ptg.getClass().getName() + ")");
+		}
 	}
 	
-	public static Function getFunction(OperationPtg ptg){
-        if(ptg == null) {
-            throw new IllegalArgumentException("ptg must not be null");
-        }
-        Function result = _instancesByPtgClass.get(ptg);
+    private static ValueEval evaluateInSpecialModeForArrayFormulas(ArrayMode function, ValueEval[] ops,
+            OperationEvaluationContext ec) {
+        return function.evaluateInArrayFormula(ops, ec.getRowIndex(), ec.getColumnIndex());
+    }
 
-        if (result != null) {
-            return  result;
+    private static ValueEval invokeOperationInArrayContext(Function func, ValueEval[] ops, OperationEvaluationContext ec) {
+        boolean isArrayFormula = ec.isInArrayFormulaContext();
+        ValueEval answer = ArrayEvaluationHelper.prepareEmptyResult(func, ops, isArrayFormula);
+        if (answer instanceof ArrayEval) {
+            ValueEval[][] values = (ValueEval[][]) ((ArrayEval) answer).getArrayValues();
+            for (int row = 0; row < values.length; row++)
+                for (int col = 0; col < values[row].length; col++) {
+                    ValueEval[] opsloop = ArrayEvaluationHelper.prepareArg4Loop(func, ops, row, col, isArrayFormula);
+                    ValueEval loopresult = func.evaluate(opsloop, ec.getRowIndex(), ec.getColumnIndex());
+                    values[row][col] = loopresult;
+                }
+            return answer;
+        } else {
+            return func.evaluate(ops, ec.getRowIndex(), (short) ec.getColumnIndex());
         }
-
-        if (ptg instanceof AbstractFunctionPtg) {
-            AbstractFunctionPtg fptg = (AbstractFunctionPtg)ptg;
-            int functionIndex = fptg.getFunctionIndex();
-            return FunctionEval.getBasicFunction(functionIndex);
-        }
-        throw new RuntimeException("Unexpected operation ptg class (" + ptg.getClass().getName() + ")");
-	}
+    }
 }

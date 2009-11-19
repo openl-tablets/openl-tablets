@@ -5,7 +5,6 @@ package org.apache.poi.ss.formula;
 
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.record.formula.functions.ArrayMode;
 import org.apache.poi.hssf.record.formula.functions.Function;
 import org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport;
 
@@ -143,18 +142,4 @@ public class ArrayEvaluationHelper {
         return false;
 
     }
-
-    /**
-     * Can operation will be done in Array Mode
-     * 
-     * @param function
-     * @return
-     */
-    public static boolean specialModeForArray(Function function) {
-        if (function instanceof ArrayMode) {
-            return true;
-        }
-        return false;
-    }
-
 }

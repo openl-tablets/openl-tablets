@@ -54,7 +54,6 @@ import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
-import org.apache.poi.hssf.record.formula.eval.FunctionEval;
 import org.apache.poi.hssf.record.formula.eval.MissingArgEval;
 import org.apache.poi.hssf.record.formula.eval.NameEval;
 import org.apache.poi.hssf.record.formula.eval.NameXEval;
@@ -62,10 +61,8 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.record.formula.functions.ArrayMode;
 import org.apache.poi.hssf.record.formula.functions.Choose;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
-import org.apache.poi.hssf.record.formula.functions.Function;
 import org.apache.poi.hssf.record.formula.functions.If;
 import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.hssf.util.CellReference;
@@ -269,7 +266,8 @@ public final class WorkbookEvaluator {
 			if (!tracker.startEvaluate(cce)) {
 				return ErrorEval.CIRCULAR_REF_ERROR;
 			}
-			OperationEvaluationContext ec = new OperationEvaluationContext(this, _workbook, sheetIndex, rowIndex, columnIndex, tracker);
+			OperationEvaluationContext ec = new OperationEvaluationContext(this, _workbook, sheetIndex, rowIndex,
+                    columnIndex, tracker, srcCell.isArrayFormulaContext());
 
 			try {
 
@@ -451,21 +449,7 @@ public final class WorkbookEvaluator {
 					ops[j] = p;
 				}
 //				logDebug("invoke " + operation + " (nAgs=" + numops + ")");
-//				VIA
-				if (_workbook == null){ // used in tests
-					opResult = invokeOperationInArrayContext(optg,ops, ec, false);
-				}else {
-					EvaluationCell ecell = _workbook.getSheet(ec.getSheetIndex())
-						.getCell(ec.getRowIndex(), ec.getColumnIndex());
-					if (ecell.isArrayFormulaContext()) {
-						opResult = invokeOperationInArrayContext(optg,ops, ec, true);
-					} else {
-						// opResult = invokeOperation(operation, ops, _workbook,
-						// sheetIndex, srcRowNum, srcColNum);
-						opResult = invokeOperationInArrayContext(optg,ops, ec, false);
-					}
-				}
-//				end changes VIA
+                opResult = OperationEvaluatorFactory.evaluate(optg, ops, ec);
 				if (opResult == MissingArgEval.instance) {
 					opResult = BlankEval.INSTANCE;
 				}
@@ -646,36 +630,4 @@ public final class WorkbookEvaluator {
 	public FreeRefFunction findUserDefinedFunction(String functionName) {
 		return _udfFinder.findFunction(functionName);
 	}
-	// !!changed ZS
-	private static ValueEval invokeOperationInArrayFormula(OperationPtg operation, ValueEval[] ops,
-			EvaluationWorkbook workbook, OperationEvaluationContext ec) {
-		Function func = OperationEvaluatorFactory.getFunction(operation);
-		return  ((ArrayMode)func).evaluateInArrayFormula(ops, ec.getRowIndex(), (short)ec.getColumnIndex());
-	}
-	
-	// end change
-
-//	VIA
-	private ValueEval invokeOperationInArrayContext(OperationPtg operation,ValueEval[] ops,OperationEvaluationContext ec, boolean isArrayFormula) {
-	    Function func = OperationEvaluatorFactory.getFunction(operation);
-		if ( ArrayEvaluationHelper.specialModeForArray(func) && isArrayFormula){
-			return invokeOperationInArrayFormula(operation, ops, _workbook, ec);
-		}
-		ValueEval answer = ArrayEvaluationHelper.prepareEmptyResult(func, ops, isArrayFormula);
-		if(answer instanceof ArrayEval){
-			ValueEval[][] values = (ValueEval[][])((ArrayEval)answer).getArrayValues();
-			for(int row = 0; row<values.length;row++)
-				for(int col=0;col<values[row].length;col++){
-					ValueEval[] opsloop = ArrayEvaluationHelper.prepareArg4Loop(func,ops, row,col, isArrayFormula);
-					ValueEval loopresult = func.evaluate(opsloop, ec.getRowIndex(), (short)ec.getColumnIndex());
-					values[row][col] = loopresult;
-				}
-			return answer;
-		}
-		else
-		return  func.evaluate(ops, ec.getRowIndex(), (short)ec.getColumnIndex());
-	}
-
-//	end changes VIA
-
 }

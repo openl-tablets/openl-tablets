@@ -50,15 +50,17 @@ public final class OperationEvaluationContext {
 	private final int _columnIndex;
 	private final EvaluationTracker _tracker;
 	private final WorkbookEvaluator _bookEvaluator;
+	private final boolean _inArrayFormulaContext;
 
 	public OperationEvaluationContext(WorkbookEvaluator bookEvaluator, EvaluationWorkbook workbook, int sheetIndex, int srcRowNum,
-			int srcColNum, EvaluationTracker tracker) {
+			int srcColNum, EvaluationTracker tracker, boolean inArrayFormulaContext) {
 		_bookEvaluator = bookEvaluator;
 		_workbook = workbook;
 		_sheetIndex = sheetIndex;
 		_rowIndex = srcRowNum;
 		_columnIndex = srcColNum;
 		_tracker = tracker;
+		_inArrayFormulaContext = inArrayFormulaContext;
 	}
 
 	public EvaluationWorkbook getWorkbook() {
@@ -77,7 +79,11 @@ public final class OperationEvaluationContext {
 	    return _bookEvaluator;
 	}
 
-	/* package */ SheetRefEvaluator createExternSheetRefEvaluator(ExternSheetReferenceToken ptg) {
+	public boolean isInArrayFormulaContext() {
+        return _inArrayFormulaContext;
+    }
+
+    /* package */ SheetRefEvaluator createExternSheetRefEvaluator(ExternSheetReferenceToken ptg) {
 		int externSheetIndex = ptg.getExternSheetIndex();
 		ExternalSheet externalSheet = _workbook.getExternalSheet(externSheetIndex);
 		WorkbookEvaluator targetEvaluator;
