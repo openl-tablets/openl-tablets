@@ -36,7 +36,7 @@ import org.apache.poi.ss.formula.ArrayEval;
 public final class Rows implements FunctionWithArraySupport {
 // end changes ZS
 
-	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
+	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		switch(args.length) {
 			case 1:
 				// expected

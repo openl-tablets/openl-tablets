@@ -72,7 +72,7 @@ public final class Match implements FunctionWithArraySupport {
 // end changes ZS
 
 
-	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
+	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 
 		double match_type = 1; // default
 
@@ -165,7 +165,7 @@ public final class Match implements FunctionWithArraySupport {
 
 
 
-	private static double evaluateMatchTypeArg(ValueEval arg, int srcCellRow, short srcCellCol)
+	private static double evaluateMatchTypeArg(ValueEval arg, int srcCellRow, int srcCellCol)
 			throws EvaluationException {
 		ValueEval match_type = OperandResolver.getSingleValue(arg, srcCellRow, srcCellCol);
 

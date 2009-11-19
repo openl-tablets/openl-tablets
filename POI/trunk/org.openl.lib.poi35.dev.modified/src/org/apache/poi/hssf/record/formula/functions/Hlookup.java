@@ -44,7 +44,7 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
 public final class Hlookup implements FunctionWithArraySupport {
 // end changes ZS
 
-	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
+	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		ValueEval arg3 = null;
 		switch(args.length) {
 			case 4:
