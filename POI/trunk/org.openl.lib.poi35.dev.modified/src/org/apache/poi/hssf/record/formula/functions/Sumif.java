@@ -43,7 +43,7 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
 public final class Sumif implements FunctionWithArraySupport {
 // end changes ZS
 
-	public ValueEval evaluate(ValueEval[] args, int srcRowIndex, short srcColumnIndex) {
+	public ValueEval evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex) {
 		if (args.length < 2) {
 			return ErrorEval.VALUE_INVALID;
 		}

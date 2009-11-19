@@ -36,16 +36,16 @@ public abstract class TextFunction implements FunctionWithArraySupport {
 
 	protected static final String EMPTY_STRING = "";
 
-	protected static final String evaluateStringArg(ValueEval eval, int srcRow, short srcCol) throws EvaluationException {
+	protected static final String evaluateStringArg(ValueEval eval, int srcRow, int srcCol) throws EvaluationException {
 		ValueEval ve = OperandResolver.getSingleValue(eval, srcRow, srcCol);
 		return OperandResolver.coerceValueToString(ve);
 	}
-	protected static final int evaluateIntArg(ValueEval arg, int srcCellRow, short srcCellCol) throws EvaluationException {
+	protected static final int evaluateIntArg(ValueEval arg, int srcCellRow, int srcCellCol) throws EvaluationException {
 		ValueEval ve = OperandResolver.getSingleValue(arg, srcCellRow, srcCellCol);
 		return OperandResolver.coerceValueToInt(ve);
 	}
 
-	public final ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
+	public final ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		try {
 			return evaluateFunc(args, srcCellRow, srcCellCol);
 		} catch (EvaluationException e) {
@@ -62,7 +62,7 @@ public abstract class TextFunction implements FunctionWithArraySupport {
 	}
 	// end changes ZS
 
-	protected abstract ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, short srcCellCol) throws EvaluationException;
+	protected abstract ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol) throws EvaluationException;
 
 	/* ---------------------------------------------------------------------- */
 
@@ -71,7 +71,7 @@ public abstract class TextFunction implements FunctionWithArraySupport {
 		protected SingleArgTextFunc() {
 			// no fields to initialise
 		}
-		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, short srcCellCol)
+		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
 				throws EvaluationException {
 			if (args.length != 1) {
 				return ErrorEval.VALUE_INVALID;
@@ -121,7 +121,7 @@ public abstract class TextFunction implements FunctionWithArraySupport {
 	 */
 	public static final Function MID = new TextFunction() {
 
-		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, short srcCellCol)
+		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
 				throws EvaluationException {
 			if (args.length != 3) {
 				return ErrorEval.VALUE_INVALID;
@@ -156,7 +156,7 @@ public abstract class TextFunction implements FunctionWithArraySupport {
 		protected LeftRight(boolean isLeft) {
 			_isLeft = isLeft;
 		}
-		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, short srcCellCol)
+		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
 				throws EvaluationException {
 			if (args.length != 2) {
 				return ErrorEval.VALUE_INVALID;
@@ -179,7 +179,7 @@ public abstract class TextFunction implements FunctionWithArraySupport {
 
 	public static final Function CONCATENATE = new TextFunction() {
 
-		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, short srcCellCol)
+		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
 				throws EvaluationException {
 			StringBuffer sb = new StringBuffer();
 			for (int i=0, iSize=args.length; i<iSize; i++) {
@@ -191,7 +191,7 @@ public abstract class TextFunction implements FunctionWithArraySupport {
 
 	public static final Function EXACT = new TextFunction() {
 
-		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, short srcCellCol)
+		protected ValueEval evaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
 				throws EvaluationException {
 			if (args.length != 2) {
 				return ErrorEval.VALUE_INVALID;

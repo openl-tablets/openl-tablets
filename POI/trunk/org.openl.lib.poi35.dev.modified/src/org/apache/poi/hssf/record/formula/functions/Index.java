@@ -51,12 +51,12 @@ import org.apache.poi.ss.formula.ArrayEval;
 // ZS 
 public final class Index implements FunctionWithArraySupport, ArrayMode {
 
-	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
+	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		return evaluateX(args, srcCellRow, srcCellCol, false);
 	}
 
 	
-	protected  ValueEval evaluateX(ValueEval[] args, int srcCellRow, short srcCellCol, boolean supportRowCol) {
+	protected  ValueEval evaluateX(ValueEval[] args, int srcCellRow, int srcCellCol, boolean supportRowCol) {
 // end changes ZS	
 		int nArgs = args.length;
 		if(nArgs < 2) {
@@ -228,7 +228,7 @@ public final class Index implements FunctionWithArraySupport, ArrayMode {
 	 * @return the resolved 1-based index. Zero if the arg was missing or blank
 	 * @throws EvaluationException if the arg is an error value evaluates to a negative numeric value
 	 */
-	private static int resolveIndexArg(ValueEval arg, int srcCellRow, short srcCellCol) throws EvaluationException {
+	private static int resolveIndexArg(ValueEval arg, int srcCellRow, int srcCellCol) throws EvaluationException {
 
 		ValueEval ev = OperandResolver.getSingleValue(arg, srcCellRow, srcCellCol);
 		if (ev == MissingArgEval.instance) {
@@ -247,7 +247,7 @@ public final class Index implements FunctionWithArraySupport, ArrayMode {
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.ArrayMode#evaluateInArrayFormula(org.apache.poi.hssf.record.formula.eval.ValueEval[], int, short)
 	 */
-	public ValueEval evaluateInArrayFormula(ValueEval[] args, int srcCellRow, short srcCellCol) {
+	public ValueEval evaluateInArrayFormula(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		// in array formula index(reference,row,0) and index(reference,0,col) should return entire row/column
 		return evaluateX(args, srcCellRow, srcCellCol, true);
 	}

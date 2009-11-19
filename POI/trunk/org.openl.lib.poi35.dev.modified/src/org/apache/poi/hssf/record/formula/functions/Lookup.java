@@ -43,7 +43,7 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
 public final class Lookup implements FunctionWithArraySupport {
 // end changes ZS
 
-	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
+	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		switch(args.length) {
 			case 3:
 				break;

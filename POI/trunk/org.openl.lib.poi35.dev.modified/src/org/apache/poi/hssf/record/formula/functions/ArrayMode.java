@@ -11,6 +11,6 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  */
 public interface ArrayMode {
 
-	ValueEval evaluateInArrayFormula(ValueEval[] args, int srcRowIndex, short srcColumnIndex);
+	ValueEval evaluateInArrayFormula(ValueEval[] args, int srcRowIndex, int srcColumnIndex);
 
 }

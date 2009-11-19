@@ -59,7 +59,7 @@ public final class Sumproduct implements FunctionWithArraySupport {
 // end changes ZS
 
 
-	public ValueEval evaluate(ValueEval[] args, int srcCellRow, short srcCellCol) {
+	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 
 		int maxN = args.length;
 
