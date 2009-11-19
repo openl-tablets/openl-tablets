@@ -305,15 +305,13 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 			if(cell.isArrayFormulaContext())
 			{  // Array Formula Context
 				CellValue[][] cvs = evaluateFormulaCellArValues((HSSFCell) cell);
-				setCellsTypes(cell, cvs); // cell will no longer be a formula cell
 				setCellValues(cell, cvs);
-				
+                setCellsTypes(cell, cvs); // cell will no longer be a formula cell
 			}
 			else { // Single Formula
 				CellValue cv = evaluateFormulaCellValue(cell);
-				setCellType(cell, cv); // cell will no longer be a formula cell
 				setCellValue(cell, cv);
-				
+                setCellType(cell, cv); // cell will no longer be a formula cell
 			}
 		}
 		//   end changes VIA			
