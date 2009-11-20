@@ -18,6 +18,7 @@ import org.openl.rules.data.IColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.IDataTableModel;
 import org.openl.rules.data.ITable;
+import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -285,60 +286,66 @@ public class DataBase implements IDataBase {
 
         public void preLoad(OpenlToolAdaptor ota) throws Exception {
             int rows = data.getLogicalHeight();
-            int startRow;
-            if (dataModel.hasColumnTytleRow()) {
-                startRow = 1;
-            } else {
-                startRow = 0;
-            }
-            
+            int startRow = getStartRowForData();                        
 
             ary = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
 
             // if (dataModel.getInstanceClass().isPrimitive())
             // return;
-
-            boolean isConstructor = false;
-
-            for (int i = 0; i < dataModel.getDescriptor().length; i++) {
-                IColumnDescriptor cd = dataModel.getDescriptor()[i];
-                if (cd != null && cd.isConstructor()) {
-                    isConstructor = true;
-                    break;
-                }
-
-            }
+            
+            boolean constructor = isConstructor();
 
             for (int i = startRow; i < rows; i++) {
-                Object target = null;
+                Object literal = null;
                 int rowIndex = i - startRow;
-                if (!isConstructor) {
-                    target = dataModel.newInstance();
-
-                    addToRowIndex(rowIndex, target);
-
+                if (!constructor) {
+                    literal = dataModel.newInstance();
+                    addToRowIndex(rowIndex, literal);
                 }
 
                 int columns = data.getLogicalWidth();
 
                 for (int j = 0; j < columns; j++) {
-                    IColumnDescriptor cd = dataModel.getDescriptor()[j];
-                    if (cd != null && !cd.isReference()) {
-                        if (isConstructor) {
-                            target = cd.getLiteral(dataModel.getType(), data.getLogicalRegion(j, i, 1, 1), ota);
+                    IColumnDescriptor columnDescriptor = dataModel.getDescriptor()[j];
+                    if (columnDescriptor != null && !columnDescriptor.isReference()) {
+                        if (constructor) {
+                            literal = columnDescriptor.getLiteral(dataModel.getType(), data.getLogicalRegion(j, i, 1, 1), ota);
                         } else {
-                            cd.populateLiteral(target, data.getLogicalRegion(j, i, 1, 1), ota);
+                            columnDescriptor.populateLiteral(literal, data.getLogicalRegion(j, i, 1, 1), ota);
                         }
                     }
                 }
 
-                if (target == null) {
-                    target = dataModel.getType().nullObject();
+                if (literal == null) {
+                    literal = dataModel.getType().nullObject();
                 }
-                Array.set(ary, i - startRow, target);
-
+                Array.set(ary, i - startRow, literal);
             }
+        }
+        
+        /**         
+         * @return Start row for data rows from Data_With_Titles rows. 
+         * It depends on if table has or no column title row.
+         * @see {@link DataNodeBinder#getDataWithTitleRows}  
+         */
+        private int getStartRowForData() {
+            int startRow = 0;
+            if (dataModel.hasColumnTytleRow()) {
+                startRow = 1;
+            }
+            return startRow;
+        }
 
+        private boolean isConstructor() {
+            boolean isConstructor = false;
+            for (int i = 0; i < dataModel.getDescriptor().length; i++) {
+                IColumnDescriptor columnDescriptor = dataModel.getDescriptor()[i];
+                if (columnDescriptor != null && columnDescriptor.isConstructor()) {
+                    isConstructor = true;
+                    break;
+                }
+            }
+            return isConstructor;
         }
 
         public void setData(ILogicalTable dataWithHeader) {

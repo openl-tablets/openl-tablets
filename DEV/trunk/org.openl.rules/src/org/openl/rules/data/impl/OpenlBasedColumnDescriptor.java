@@ -37,7 +37,6 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
-
     private IOpenField field;
     private IdentifierNode indexTable;
     private IdentifierNode indexKey;
@@ -106,11 +105,11 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
             throw err;
         }
 
-        boolean isArray = fieldType.getAggregateInfo().isAggregate(fieldType);
+        boolean valuesAnArray = isValuesAnArray(fieldType);
 
         Object res = null;
 
-        if (!isArray) {
+        if (!valuesAnArray) {
             String s = values.getGridTable().getCell(0, 0).getStringValue();
             if (s != null) {
 
@@ -203,47 +202,48 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
     // }
     // }
 
-    public Object getLiteral(IOpenClass paramType, ILogicalTable values, OpenlToolAdaptor ota) throws Exception {
+    public Object getLiteral(IOpenClass paramType, ILogicalTable valuesTable, OpenlToolAdaptor ota) throws Exception {
+        Object resultLiteral = null;
+        boolean valuesAnArray = isValuesAnArray(paramType);
 
-        boolean indexed = paramType.getAggregateInfo().isAggregate(paramType);
-
-        if (indexed) {
+        if (valuesAnArray) {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
         }
 
-        values = ALogicalTable.make1ColumnTable(values);
+        valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
 
-        if (!indexed) {
-            // FIXME: String constant "constructor" must be extracted to some final field in some proper class
-            Object res = FunctionalRow.loadSingleParam(paramType, field == null ? "constructor" : field.getName(),
-                    null, values, ota);
-            return res;
-        }
-        List<Object> v = new ArrayList<Object>();
-        int h = values.getLogicalHeight();
-        for (int i = 0; i < h; i++) {
-            Object res = FunctionalRow.loadSingleParam(paramType, field.getName(), null, values.getLogicalRow(i), null);
-            if (res == null) {
-                break;
-            }
-
-            v.add(res);
-        }
-
-        Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { v.size() });
-
-        // Array.newInstance(cc, v.size());
-
-        for (int i = 0; i < v.size(); i++) {
-            Array.set(ary, i, v.get(i));
-        }
-
-        return ary;
+        if (!valuesAnArray) {            
+            resultLiteral = FunctionalRow.loadSingleParam(paramType, field == null ? FunctionalRow.CONSTRUCTOR : field.getName(),
+                    null, valuesTable, ota);            
+        } else {
+            
+            //SEEMS we don`t need it. And it was copy-pasted. Always works previous branch. Can`t find use case for this branch.
+//            List<Object> values = new ArrayList<Object>();
+//            int valuesHeight = valuesTable.getLogicalHeight();
+//            for (int i = 0; i < valuesHeight; i++) {
+//                Object res = FunctionalRow.loadSingleParam(paramType, field.getName(), null, valuesTable.getLogicalRow(i), null);
+//                if (res == null) {
+//                    break;
+//                }         
+//                values.add(res);
+//            }
+//            resultLiteral = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
+//
+//            for (int i = 0; i < values.size(); i++) {
+//                Array.set(resultLiteral, i, values.get(i));
+//            }
+        }    
+        return resultLiteral;
     }
-
+    
     /**
-     *
+     * Checks if type values are represented as array of elements.
+     * @param paramType Parameter type.
+     * @return
      */
+    private boolean isValuesAnArray(IOpenClass paramType) {
+        return paramType.getAggregateInfo().isAggregate(paramType);
+    }
 
     public String getName() {
         return field == null ? "this" : field.getName();
@@ -310,10 +310,10 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 
         IOpenClass fieldType = field.getType();
 
-        boolean isArray = fieldType.getAggregateInfo().isAggregate(fieldType);
+        boolean valueAnArray = isValuesAnArray(fieldType);
         boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
 
-        if (!isArray && !isList) {
+        if (!valueAnArray && !isList) {
             String s = values.getGridTable().getCell(0, 0).getStringValue();
             if (s != null) {
 
@@ -370,7 +370,7 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 
             // Object ary = Array.newInstance(cc, v.size());
             int size = lastIndex + 1;
-            IOpenClass componentType = isArray ? fieldType.getAggregateInfo().getComponentType(fieldType)
+            IOpenClass componentType = valueAnArray ? fieldType.getAggregateInfo().getComponentType(fieldType)
                     : JavaOpenClass.OBJECT;
             Object ary = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { size });
 
@@ -395,60 +395,71 @@ public class OpenlBasedColumnDescriptor implements IColumnDescriptor {
 
     }
 
-    public void populateLiteral(Object target, ILogicalTable values, OpenlToolAdaptor ota) throws Exception {
+    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws Exception {
         if (indexTable != null) {
             return;
-        }
-
-        // Class c = field.getType().getInstanceClass();
-        //
-        // Class cc = c.isArray() ? c.getComponentType() : c;
-
+        }        
         IOpenClass paramType = field.getType();
-        boolean indexed = paramType.getAggregateInfo().isAggregate(paramType);
+        boolean valuesAnArray = isValuesAnArray(paramType);
 
-        if (indexed) {
+        if (valuesAnArray) {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
         }
 
-        values = ALogicalTable.make1ColumnTable(values);
+        valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
 
-        if (!indexed) {
-            Object res = FunctionalRow.loadSingleParam(paramType, field.getName(), null, values, ota);
+        if (!valuesAnArray) {
+            Object res = FunctionalRow.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
             if (res != null) {
-                field.set(target, res, getRuntimeEnv());
+                field.set(literal, res, getRuntimeEnv());
             }
         } else {
-            int h = values.getLogicalHeight();
+            Object arrayValues = getValuesArray(valuesTable, toolAdapter, paramType); 
+                   
+            field.set(literal, arrayValues, getRuntimeEnv());
+        }
+    }
 
-            ArrayList<Object> v = new ArrayList<Object>(h);
-            int lastIndex = -1;
-            for (int i = 0; i < h; i++) {
-                Object res = FunctionalRow.loadSingleParam(paramType, field.getName(), null, values.getLogicalRow(i),
+    private Object getValuesArray(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws BoundError {
+        Object arrayValues = null;
+        int valuesHeight = valuesTable.getLogicalHeight();
+        
+        if (valuesHeight == 1 && isCommaSeparatedArray(valuesTable)) {
+            arrayValues = getValuesArrayCommaSeparated(valuesTable, ota, paramType);
+        } else {
+            ArrayList<Object> values = new ArrayList<Object>(valuesHeight);        
+            for (int i = 0; i < valuesHeight; i++) {
+                Object res = FunctionalRow.loadSingleParam(paramType, field.getName(), null, valuesTable.getLogicalRow(i),
                         ota);
                 if (res == null) {
-                    res = paramType.nullObject();
-                }
-
-                if (res != null) {
-                    lastIndex = i;
-                }
-
-                v.add(res);
+                    res = paramType.nullObject();                                        
+                } 
+                values.add(res);
             }
+            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
 
-            int size = lastIndex + 1;
-            Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { size });
-
-            // Array.newInstance(cc, v.size());
-
-            for (int i = 0; i < size; i++) {
-                Array.set(ary, i, v.get(i));
+            for (int i = 0; i < values.size(); i++) {
+                Array.set(arrayValues, i, values.get(i));
             }
+        }        
+        return arrayValues;
+    }
+    
+    private boolean isCommaSeparatedArray(ILogicalTable valuesTable) { 
+        boolean result = false;
+        String stringValue = valuesTable.getGridTable().getCell(0, 0).getStringValue();
+        if (stringValue != null) {
+            result = stringValue.contains(FunctionalRow.ARRAY_ELEMENTS_SEPARATOR);
+        } else {
+            result = false;
+        } 
+        return result;
+    }
 
-            field.set(target, ary, getRuntimeEnv());
-
-        }
+    private Object getValuesArrayCommaSeparated(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws BoundError {
+        Object res = FunctionalRow.loadCommaSeparatedParam(paramType, field.getName(), null, valuesTable.getLogicalRow(0),
+                ota);
+        return res;
     }
 
 }
