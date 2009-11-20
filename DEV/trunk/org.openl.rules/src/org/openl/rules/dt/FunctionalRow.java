@@ -56,6 +56,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConstants {
 
+     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
+
 //    public final static Object EMPTY_CELL = new Object();
     
     static class ArrayHolder {
@@ -85,8 +87,9 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         }
     }
 
-    static String NO_PARAM = "___NO_PARAM___";
-
+    private static String NO_PARAM = "___NO_PARAM___";
+    
+    public static String CONSTRUCTOR = "constructor";
     int row;
 
     ILogicalTable decisionTable;
@@ -147,16 +150,20 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
     }
 
-    static public Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
+    public static Object loadSingleParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
             OpenlToolAdaptor ota) throws BoundError {
         String src = cell.getGridTable().getCell(0, 0).getStringValue();
         Object value = cell.getGridTable().getCell(0, 0).getObjectValue();
-        
+         
+        return loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, src, value);
+    }
+    
+    private static Object loadSingleParamInternal(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
+            OpenlToolAdaptor ota, String src, Object value) throws BoundError {
         // TODO: parse values considering underlying excel format. Note: this
         // class doesn't know anything about Excel. Keep it storage format
         // agnostic (don't introduce excel dependencies). Also consider adding
         // meta info.
-
         if (src != null && (src = src.trim()).length() != 0) {
             if (ota != null && ota.getHeader() != null) {
                 IOpenMethodHeader old_header = ota.getHeader();
@@ -215,7 +222,6 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                 throw new BoundError(null, null, t, new GridCellSourceCodeModule(cell.getGridTable()));
             }
         }
-        
         return null;
     }
 
@@ -587,6 +593,44 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         }
 
         return values;
+    }
+    
+    /**
+     * Method to support loading Arrays through {@link #ARRAY_ELEMENTS_SEPARATOR} in one cell.
+     * Gets the cell string value. Split it by {@link #ARRAY_ELEMENTS_SEPARATOR}, and process every token as single 
+     * parameter. Returns array of parameters.
+     * @param paramType
+     * @param paramName
+     * @param ruleName
+     * @param cell
+     * @param ota
+     * @return Array of parameters.
+     * @throws BoundError
+     */
+    public static Object loadCommaSeparatedParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
+            OpenlToolAdaptor ota) throws BoundError {
+        Object arrayValues = null;
+        
+        String src = cell.getGridTable().getCell(0, 0).getStringValue();
+        
+        if (src != null) {
+            String[] tokens = src.split(ARRAY_ELEMENTS_SEPARATOR);
+            ArrayList<Object> values = new ArrayList<Object>(tokens.length);
+            for(String token: tokens) {                
+                Object res = loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, token, null);
+                if (res == null) {
+                    res = paramType.nullObject();
+                } 
+                values.add(res);
+            }  
+            int valuesArraySize = values.size();
+            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { valuesArraySize });
+
+            for (int i = 0; i < valuesArraySize; i++) {
+                Array.set(arrayValues, i, values.get(i));
+            }             
+        }
+        return arrayValues;
     }
 
 }
