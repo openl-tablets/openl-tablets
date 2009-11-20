@@ -17,10 +17,12 @@
 
 package org.apache.poi.ss.formula;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.poi.hssf.record.formula.AbstractFunctionPtg;
 import org.apache.poi.hssf.record.formula.Area3DPtg;
 import org.apache.poi.hssf.record.formula.AreaErrPtg;
 import org.apache.poi.hssf.record.formula.AreaPtg;
@@ -61,6 +63,7 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.record.formula.function.FunctionMetadataRegistry;
 import org.apache.poi.hssf.record.formula.functions.Choose;
 import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.hssf.record.formula.functions.If;
@@ -348,7 +351,11 @@ public final class WorkbookEvaluator {
 	}
 	// visibility raised for testing
 	/* package */ ValueEval evaluateFormula(OperationEvaluationContext ec, Ptg[] ptgs) {
-
+		
+//		VIA
+		Stack<Boolean> stackSkip = new Stack<Boolean>();
+		Boolean isSkipActive = new Boolean(true);
+//        end changes VIA
 		Stack<ValueEval> stack = new Stack<ValueEval>();
 		for (int i = 0, iSize = ptgs.length; i < iSize; i++) {
 
@@ -363,62 +370,102 @@ public final class WorkbookEvaluator {
 				}
 				if (attrPtg.isOptimizedChoose()) {
 					ValueEval arg0 = stack.pop();
-					int[] jumpTable = attrPtg.getJumpTable();
-					int dist;
-					int nChoices = jumpTable.length;
-					try {
-						int switchIndex = Choose.evaluateFirstArg(arg0, ec.getRowIndex(), ec.getColumnIndex());
-						if (switchIndex<1 || switchIndex > nChoices) {
-							stack.push(ErrorEval.VALUE_INVALID);
-							dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
-						} else {
-							dist = jumpTable[switchIndex-1];
-						}
-					} catch (EvaluationException e) {
-						stack.push(e.getErrorEval());
-						dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
+//					VIA
+					if((arg0 instanceof ArrayEval) && ((ArrayEval)arg0).checkBooleanContent()== ArrayEval.BooleanContent.MIXED)
+					{
+						stack.push(arg0);
+						stackSkip.push(isSkipActive);
+						// Switch off skip option only for this level
+						isSkipActive = new Boolean(false);
+						continue;
 					}
-					// Encoded dist for tAttrChoose includes size of jump table, but
-					// countTokensToBeSkipped() does not (it counts whole tokens).
-					dist -= nChoices*2+2; // subtract jump table size
-					i+= countTokensToBeSkipped(ptgs, i, dist);
-					continue;
+					else{
+						ValueEval cond = arg0;
+						if((arg0 instanceof ArrayEval))
+							cond = ((ArrayEval)arg0).getArrayElementAsEval(0,0);
+//						end changes VIA	
+						int[] jumpTable = attrPtg.getJumpTable();
+						int dist;
+						int nChoices = jumpTable.length;
+						try {
+							int switchIndex = Choose.evaluateFirstArg(cond, ec.getRowIndex(), ec.getColumnIndex());
+							if (switchIndex<1 || switchIndex > nChoices) {
+								stack.push(ErrorEval.VALUE_INVALID);
+								dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
+							} else {
+								dist = jumpTable[switchIndex-1];
+							}
+						} catch (EvaluationException e) {
+							stack.push(e.getErrorEval());
+							dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
+						}
+						// Encoded dist for tAttrChoose includes size of jump table, but
+						// countTokensToBeSkipped() does not (it counts whole tokens).
+						dist -= nChoices*2+2; // subtract jump table size
+						i+= countTokensToBeSkipped(ptgs, i, dist);
+						continue;
+//					VIA	
+					}
+//					end changes VIA
 				}
 				if (attrPtg.isOptimizedIf()) {
 					ValueEval arg0 = stack.pop();
 					boolean evaluatedPredicate;
-					try {
-						evaluatedPredicate = If.evaluateFirstArg(arg0, ec.getRowIndex(), ec.getColumnIndex());
-					} catch (EvaluationException e) {
-						stack.push(e.getErrorEval());
-						int dist = attrPtg.getData();
-						i+= countTokensToBeSkipped(ptgs, i, dist);
-						attrPtg = (AttrPtg) ptgs[i];
-						dist = attrPtg.getData()+1;
-						i+= countTokensToBeSkipped(ptgs, i, dist);
+//					VIA
+					if((arg0 instanceof ArrayEval) && ((ArrayEval)arg0).checkBooleanContent()== ArrayEval.BooleanContent.MIXED)
+					{
+						stack.push(arg0);
+						stackSkip.push(isSkipActive);
+						// Switch off skip option only for this level
+						isSkipActive = new Boolean(false);
 						continue;
 					}
-					if (evaluatedPredicate) {
-						// nothing to skip - true param folows
-					} else {
-						int dist = attrPtg.getData();
-						i+= countTokensToBeSkipped(ptgs, i, dist);
-						Ptg nextPtg = ptgs[i+1];
-						if (ptgs[i] instanceof AttrPtg && nextPtg instanceof FuncVarPtg) {
-							// this is an if statement without a false param (as opposed to MissingArgPtg as the false param)
-							i++;
-							stack.push(BoolEval.FALSE);
+					else{
+						ValueEval cond = arg0;
+						if((arg0 instanceof ArrayEval))
+							cond = ((ArrayEval)arg0).getArrayElementAsEval(0,0);
+//						end changes VIA	
+						try {
+							evaluatedPredicate = If.evaluateFirstArg(cond, ec.getRowIndex(), ec.getColumnIndex());
+						} catch (EvaluationException e) {
+							stack.push(e.getErrorEval());
+							int dist = attrPtg.getData();
+							i+= countTokensToBeSkipped(ptgs, i, dist);
+							attrPtg = (AttrPtg) ptgs[i];
+							dist = attrPtg.getData()+1;
+							i+= countTokensToBeSkipped(ptgs, i, dist);
+							continue;
 						}
+						if (evaluatedPredicate) {
+							// nothing to skip - true param folows
+						} else {
+							int dist = attrPtg.getData();
+							i+= countTokensToBeSkipped(ptgs, i, dist);
+							Ptg nextPtg = ptgs[i+1];
+							if (ptgs[i] instanceof AttrPtg && nextPtg instanceof FuncVarPtg) {
+								// this is an if statement without a false param (as opposed to MissingArgPtg as the false param)
+								i++;
+								stack.push(BoolEval.FALSE);
+							}
+						}
+						continue;
+						
 					}
-					continue;
+//					end changes VIA
 				}
 				if (attrPtg.isSkip()) {
-					int dist = attrPtg.getData()+1;
-					i+= countTokensToBeSkipped(ptgs, i, dist);
-					if (stack.peek() == MissingArgEval.instance) {
-						stack.pop();
-						stack.push(BlankEval.INSTANCE);
-					}
+//					VIA
+					if(isSkipActive){
+//					end changes VIA
+						int dist = attrPtg.getData()+1;
+						i+= countTokensToBeSkipped(ptgs, i, dist);
+						if (stack.peek() == MissingArgEval.instance) {
+							stack.pop();
+							stack.push(BlankEval.INSTANCE);
+						}
+//					VIA	
+					}	
+//					end changes VIA
 					continue;
 				}
 			}
@@ -450,6 +497,10 @@ public final class WorkbookEvaluator {
 				}
 //				logDebug("invoke " + operation + " (nAgs=" + numops + ")");
                 opResult = OperationEvaluatorFactory.evaluate(optg, ops, ec);
+//                VIA
+                if(isSkipActive == false && isSkipSensitive(optg))
+                	isSkipActive = stackSkip.pop();
+//                 end changes VIA	
 				if (opResult == MissingArgEval.instance) {
 					opResult = BlankEval.INSTANCE;
 				}
@@ -477,6 +528,28 @@ public final class WorkbookEvaluator {
 		return value;
 	}
 
+	/**
+	 *  Has this function "optimized" form?
+	 * @param optg
+	 * @return
+	 */
+	static  ArrayList<Integer> skipSensitiveFunction = null;
+	private boolean isSkipSensitive(OperationPtg optg) {
+		if(optg instanceof FuncVarPtg){
+			// Skip sensitive is only "optimized" function - just only "IF" and "choose"
+			if(skipSensitiveFunction==null){
+				skipSensitiveFunction = new ArrayList<Integer>();
+				int index = FunctionMetadataRegistry.lookupIndexByName("IF");
+				skipSensitiveFunction.add(new Integer(index));
+				index = FunctionMetadataRegistry.lookupIndexByName("CHOOSE");
+				skipSensitiveFunction.add(new Integer(index));
+			}
+			AbstractFunctionPtg fptg = (AbstractFunctionPtg)optg;
+			int functionIndex = fptg.getFunctionIndex();
+			return skipSensitiveFunction.contains(new Integer(functionIndex));
+		}
+		return false;
+	}
 	/**
 	 * Calculates the number of tokens that the evaluator should skip upon reaching a tAttrSkip.
 	 *

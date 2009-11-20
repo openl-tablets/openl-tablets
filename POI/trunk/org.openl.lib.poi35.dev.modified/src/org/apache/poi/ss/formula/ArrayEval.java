@@ -258,6 +258,32 @@ public class ArrayEval  implements ValueEval {
 		return new ArrayEval(result);
 	}
 	
+	public enum BooleanContent{ONLY_FALSE,ONLY_TRUE,MIXED};
+	
+	/**
+	 *  Check if content of boolean array ONLY_FALSE, ONLY_TRUE or MIXED
+	 *  if content is not boolean then return MIXED
+	 * @return
+	 */
+	public BooleanContent checkBooleanContent(){
+		try{
+		BoolEval first =  (BoolEval)values[0][0];
+		for(int i=0;i<values.length;i++)
+			for(int j=0;j<values[i].length;j++)
+				if(first.equals((BoolEval)values[i][j]))
+						return BooleanContent.MIXED;
+						
+		if(first.getBooleanValue())
+			return BooleanContent.ONLY_TRUE;
+		else
+			return BooleanContent.ONLY_FALSE;
+		}
+		catch (Exception e){
+			return BooleanContent.MIXED;
+		}
+	}
+	
+	
 	/**
 	 * expose Array as area on sheet (top-left)
 	 * convenience methods to reuse existing code
