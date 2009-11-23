@@ -35,14 +35,17 @@ public abstract class NumericFunction implements FunctionWithArraySupport {
 	static final double TEN = 10.0;
 	static final double LOG_10_TO_BASE_e = Math.log(TEN);
 
-	protected static final double singleOperandEvaluate(ValueEval arg, int srcCellRow, int srcCellCol) throws EvaluationException {
-		ValueEval ve = OperandResolver.getSingleValue(arg, srcCellRow, srcCellCol);
+	protected static final double singleOperandEvaluate(ValueEval arg, int srcRowIndex, int srcColumnIndex) throws EvaluationException {
+		ValueEval ve = OperandResolver.getSingleValue(arg, srcRowIndex, srcColumnIndex);
 		double result = OperandResolver.coerceValueToDouble(ve);
 		checkValue(result);
 		return result;
 	}
 
-	private static final void checkValue(double result) throws EvaluationException {
+	/**
+	 * @throws EvaluationException (#NUM!) if <tt>result</tt> is <tt>NaN</> or <tt>Infinity</tt>
+	 */
+	static final void checkValue(double result) throws EvaluationException {
 		if (Double.isNaN(result) || Double.isInfinite(result)) {
 			throw new EvaluationException(ErrorEval.NUM_ERROR);
 		}
@@ -73,9 +76,20 @@ public abstract class NumericFunction implements FunctionWithArraySupport {
 	/* -------------------------------------------------------------------------- */
 	// intermediate sub-classes (one-arg, two-arg and multi-arg)
 
-	public static abstract class OneArg extends NumericFunction {
+	public static abstract class OneArg extends Fixed1ArgFunction {
 		protected OneArg() {
 			// no fields to initialise
+		}
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0) {
+			double result;
+			try {
+				double d = singleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+				result = evaluate(d);
+				checkValue(result);
+			} catch (EvaluationException e) {
+				return e.getErrorEval();
+			}
+			return new NumberEval(result);
 		}
 		protected final double eval(ValueEval[] args, int srcCellRow, int srcCellCol) throws EvaluationException {
 			if (args.length != 1) {
@@ -87,40 +101,26 @@ public abstract class NumericFunction implements FunctionWithArraySupport {
 		protected abstract double evaluate(double d) throws EvaluationException;
 	}
 
-	public static abstract class TwoArg extends NumericFunction {
+	public static abstract class TwoArg extends Fixed2ArgFunction {
 		protected TwoArg() {
 			// no fields to initialise
 		}
-		protected final double eval(ValueEval[] args, int srcCellRow, int srcCellCol) throws EvaluationException {
-			if (args.length != 2) {
-				throw new EvaluationException(ErrorEval.VALUE_INVALID);
-			}
-			double d0 = singleOperandEvaluate(args[0], srcCellRow, srcCellCol);
-			double d1 = singleOperandEvaluate(args[1], srcCellRow, srcCellCol);
-			return evaluate(d0, d1);
-		}
-		protected abstract double evaluate(double d0, double d1) throws EvaluationException;
-	}
 
-	public static abstract class MultiArg extends NumericFunction {
-		private final int _minArgs;
-		private final int _maxArgs;
-		protected MultiArg(int minArgs, int maxArgs) {
-			_minArgs = minArgs;
-			_maxArgs = maxArgs;
-		}
-		protected final double eval(ValueEval[] args, int srcCellRow, int srcCellCol) throws EvaluationException {
-			int nArgs = args.length;
-			if (nArgs < _minArgs || nArgs > _maxArgs) {
-				throw new EvaluationException(ErrorEval.VALUE_INVALID);
+
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
+			double result;
+			try {
+				double d0 = singleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+				double d1 = singleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
+				result =  evaluate(d0, d1);
+				checkValue(result);
+			} catch (EvaluationException e) {
+				return e.getErrorEval();
 			}
-			double[] ds = new double[nArgs];
-			for(int i=0; i<nArgs; i++) {
-				ds[i] = singleOperandEvaluate(args[i], srcCellRow, srcCellCol);
-			}
-			return evaluate(ds);
+			return new NumberEval(result);
 		}
-		protected abstract double evaluate(double[] ds) throws EvaluationException;
+
+		protected abstract double evaluate(double d0, double d1) throws EvaluationException;
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -175,9 +175,34 @@ public abstract class NumericFunction implements FunctionWithArraySupport {
 			return Math.toDegrees(d);
 		}
 	};
-	public static final Function DOLLAR = new OneArg() {
-		protected double evaluate(double d) {
-			return d;
+	static final NumberEval DOLLAR_ARG2_DEFAULT = new NumberEval(2.0);
+	public static final Function DOLLAR = new Var1or2ArgFunction() {
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0) {
+			return evaluate(srcRowIndex, srcColumnIndex, arg0, DOLLAR_ARG2_DEFAULT);
+		}
+
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0,
+				ValueEval arg1) {
+			double val;
+			double d1;
+			try {
+				val = singleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+				d1 = singleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
+			} catch (EvaluationException e) {
+				return e.getErrorEval();
+			}
+			// second arg converts to int by truncating toward zero
+			int nPlaces = (int)d1;
+
+			if (nPlaces > 127) {
+				return ErrorEval.VALUE_INVALID;
+			}
+
+
+			// TODO - DOLLAR() function impl is NQR
+			// result should be StringEval, with leading '$' and thousands separators
+			// current junits are asserting incorrect behaviour
+			return new NumberEval(val);
 		}
 	};
 	public static final Function EXP = new OneArg() {
@@ -307,18 +332,53 @@ public abstract class NumericFunction implements FunctionWithArraySupport {
 
 	/* -------------------------------------------------------------------------- */
 
-	public static final Function LOG = new MultiArg(1,2) {
-		protected double evaluate(double[] ds) {
+	private static final class Log extends Var1or2ArgFunction {
+		public Log() {
+			// no instance fields
+		}
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0) {
+			double result;
+			try {
+				double d0 = NumericFunction.singleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+				result = Math.log(d0) / LOG_10_TO_BASE_e;
+				NumericFunction.checkValue(result);
+			} catch (EvaluationException e) {
+				return e.getErrorEval();
+			}
+			return new NumberEval(result);
+		}
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0,
+				ValueEval arg1) {
+			double result;
+			try {
+				double d0 = NumericFunction.singleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+				double d1 = NumericFunction.singleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
+				double logE = Math.log(d0);
+				double base = d1;
+				if (base == Math.E) {
+					result = logE;
+				} else {
+					result = logE / Math.log(base);
+				}
+				NumericFunction.checkValue(result);
+			} catch (EvaluationException e) {
+				return e.getErrorEval();
+			}
+			return new NumberEval(result);
+		}
+	}
 
-			double logE = Math.log(ds[0]);
-			if (ds.length == 1) {
-				return logE / LOG_10_TO_BASE_e;
-			}
-			double base = ds[1];
-			if (base == Math.E) {
-				return logE;
-			}
-			return logE / Math.log(base);
+	public static final Function LOG = new Log();
+
+	static final NumberEval PI_EVAL = new NumberEval(Math.PI);
+	public static final Function PI = new Fixed0ArgFunction() {
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex) {
+			return PI_EVAL;
+		}
+	};
+	public static final Function RAND = new Fixed0ArgFunction() {
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex) {
+			return new NumberEval(Math.random());
 		}
 	};
 }
