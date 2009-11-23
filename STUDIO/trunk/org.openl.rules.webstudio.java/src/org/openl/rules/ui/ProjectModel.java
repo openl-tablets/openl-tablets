@@ -441,22 +441,17 @@ public class ProjectModel implements IProjectTypes {
         for (int i = 0; i < nodes.length; i++) {
             TableSyntaxNode tsn = nodes[i];
 
-            if (tsn.getType() != ITableNodeTypes.XLS_DT) {
-                continue;
+            if (tsn.getType() == ITableNodeTypes.XLS_DT) {
+                if (tsn.getErrors() == null) {
+                    if (tsn.getTableProperties() != null) {
+                        if ("on".equals(tsn.getTableProperties().getValidateDT())) {
+                            list.add(tsn);
+                        }
+                    }
+                }
             }
-            if (tsn.getErrors() != null) {
-                continue;
-            }
-
-            if (tsn.getTableProperties() != null && !"on".equals(tsn.getTableProperties().getValidateDT())) {
-                continue;
-            }
-
-            list.add(tsn);
         }
-
         return list;
-
     }
 
     public String getDisplayName(String elementUri) {
