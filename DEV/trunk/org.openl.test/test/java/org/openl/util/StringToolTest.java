@@ -3,6 +3,11 @@
  */
 package org.openl.util;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -443,5 +448,34 @@ public class StringToolTest extends TestCase {
     public void testXmlPropertyStringStringStringBuffer() {
 
     }
-
+    
+    @Test
+    public void testSplitAndEscape() {
+        String escaper = "\\";        
+        String[] escapedTokens = StringTool.splitAndEscape("Hello! I want to split it, Right , Lets Do it", ",", escaper);
+        assertTrue(escapedTokens.length == 3);                
+                
+        String[] escapedTokens1 = StringTool.splitAndEscape("Hello! I want to split it\\, Right,Lets Do it", ",", escaper);
+        assertTrue(escapedTokens1.length == 2);
+        assertTrue("Hello! I want to split it, Right".equals(escapedTokens1[0]));
+        assertTrue("Lets Do it".equals(escapedTokens1[1]));        
+        
+        String[] escapedTokens2 = StringTool.splitAndEscape("12,23,34", ",", null);
+        assertNotNull(escapedTokens2);
+        assertTrue(escapedTokens2.length == 3);
+        assertTrue("12".equals(escapedTokens2[0]));
+        assertTrue("23".equals(escapedTokens2[1]));
+        assertTrue("34".equals(escapedTokens2[2]));
+        
+        String[] escapedTokens3 = StringTool.splitAndEscape("12\\,23\\,34", ",", escaper);
+        assertNotNull(escapedTokens3);
+        assertTrue(escapedTokens3.length == 1);
+        assertTrue("12,23,34".equals(escapedTokens3[0]));
+        
+        String[] escapedTokens4 = StringTool.splitAndEscape("12\\,23\\,34,456", ",", escaper);
+        assertNotNull(escapedTokens4);
+        assertTrue(escapedTokens4.length == 2);
+        assertTrue("12,23,34".equals(escapedTokens4[0]));
+        assertTrue("456".equals(escapedTokens4[1]));
+    }
 }

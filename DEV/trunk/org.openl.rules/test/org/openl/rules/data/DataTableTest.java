@@ -181,6 +181,28 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
         }
     }
     
+    @Test
+    public void testStringArrayWithEscaper() {
+        XlsModuleSyntaxNode module = getTables();
+        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
+        for (TableSyntaxNode tsn : tsns) {
+            if ("Data TypeWithArray testStringArrayWithEscaper".equals(tsn.getDisplayName())) {
+                DataOpenField member = (DataOpenField)tsn.getMember();
+                assertNotNull(member);
+                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+                assertTrue(typeWitharray[0].getStringArray().length == 4);
+                List<String> dataList = new ArrayList<String>();
+                for (String token : typeWitharray[0].getStringArray()) {                    
+                    dataList.add(token);
+                }                                
+                assertTrue(dataList.contains("One"));
+                assertTrue(dataList.contains("two"));
+                assertTrue(dataList.contains("three,continue this"));
+                assertTrue(dataList.contains("four"));
+            }        
+        }
+    }
+    
     
     
     

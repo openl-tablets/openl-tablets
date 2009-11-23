@@ -48,6 +48,7 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
+import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -56,7 +57,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConstants {
 
-     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
+     private static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
+
+    public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
 //    public final static Object EMPTY_CELL = new Object();
     
@@ -614,7 +617,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         String src = cell.getGridTable().getCell(0, 0).getStringValue();
         
         if (src != null) {
-            String[] tokens = src.split(ARRAY_ELEMENTS_SEPARATOR);
+            String[] tokens = StringTool.splitAndEscape(src, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
             ArrayList<Object> values = new ArrayList<Object>(tokens.length);
             for(String token: tokens) {                
                 Object res = loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, token, null);
@@ -632,5 +635,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         }
         return arrayValues;
     }
+    
+    
 
 }

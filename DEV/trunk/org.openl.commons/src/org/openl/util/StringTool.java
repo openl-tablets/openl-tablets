@@ -810,4 +810,41 @@ public class StringTool {
         return c.getName().replace('.', '/') +  ".java";
     }
     
+    /**
+     * Split the string by the symbolToSplit. To avoid this symbolToEscape is used.
+     * @param src source to process. Can`t be <code>null</code>.
+     * @param symbolToSplit the delimiting symbol. Can`t be <code>null</code>.
+     * @param symbolToEscape the escaper, that is used to break splitting by symbolToSplit. If <code>null</code>, 
+     * the symbolToSplit array will be returned.
+     * @return the array of strings computed by splitting this string around matches of the given symbolToSplit and 
+     * escaped by escaper.
+     */
+    public static String[] splitAndEscape(String src, String symbolToSplit, String symbolToEscape) {
+        String[] result = null;
+        String[] tokens = src.split(symbolToSplit);
+        List<String> resultList = new ArrayList<String>();
+        StringBuffer buf = new StringBuffer();
+        if (symbolToEscape != null) {
+            for (int i=0; i<tokens.length; i++) {
+                if (tokens[i].endsWith(symbolToEscape)) {
+                    String tokenWithoutEscaper = tokens[i].substring(0,tokens[i].length()-1);
+                    buf.append(tokenWithoutEscaper).append(symbolToSplit);                
+                } else {
+                    if (buf.length() == 0) {
+                        resultList.add(tokens[i]);
+                    } else {
+                        buf.append(tokens[i]);
+                        resultList.add(buf.toString());
+                        buf.delete(0, buf.length());
+                    }                 
+                }
+            }
+            result = (String[]) resultList.toArray(new String[0]); 
+        } else {
+            result = tokens;
+        }
+        
+        return result; 
+    }
+    
 }
