@@ -1,7 +1,7 @@
 cd ..
 
 
-set CP=../org.openl.lib.apache.tomcat/apache-tomcat-5.5.17/bin/bootstrap.jar
+set CP=../org.openl.lib.apache.tomcat/apache-tomcat-6.0.20/bin/bootstrap.jar
 set CP=%CP%;../org.openl.core/bin
 set CP=%CP%;../org.openl.commons/bin
 set CP=%CP%;../org.openl.j/bin
