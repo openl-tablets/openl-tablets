@@ -57,6 +57,7 @@ import org.apache.poi.ss.formula.Formula;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -1887,6 +1888,12 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     	HSSFCell cell;
     	boolean setArrayFormula = false;
     	
+		byte[] formulaRefBytes = new byte[5];
+		LittleEndianByteArrayOutputStream rangeStOut = new LittleEndianByteArrayOutputStream(formulaRefBytes,0);
+		rangeStOut.writeByte(1);
+		rangeStOut.writeShort(range.getFirstRow());
+		rangeStOut.writeShort(range.getFirstColumn());
+
     	for(int rowIn = range.getFirstRow();rowIn <= range.getLastRow();rowIn++ )
     	   	for(int colIn = range.getFirstColumn();colIn <= range.getLastColumn();colIn++ )
     	   	{
@@ -1899,30 +1906,37 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     	    	
     	    	cell.setCellValue(0); 
     	    	cell.setCellType(Cell.CELL_TYPE_FORMULA);
-    	    	cell.setCellFormula(formula);
-    	    	
+    	    	cell.setCellFormula(formula);   // Temporary set
+    	    	CellValueRecordInterface rec = cell.getCellValueRecord();
+    	    	if(rec instanceof FormulaRecordAggregate){
+    	    		FormulaRecordAggregate frec = (FormulaRecordAggregate)rec;
+    	    		SharedValueManager sm =  frec.get_sharedValueManager();
+    	    		Formula formulaInArray = frec.getFormulaRecord().getFormula().copy();
+    	    		LittleEndianByteArrayInputStream rangeStIn = new LittleEndianByteArrayInputStream(formulaRefBytes,0);
+    	    		Formula formulaInRec = Formula.read(5,rangeStIn);
+    	    		frec.getFormulaRecord().setParsedExpression(formulaInRec.getTokens(formulaInRec));
+       	    	    	    		
     	    	if(!setArrayFormula){  // Set common Array record in SharedValueManager for whole range 
-	    	    	CellValueRecordInterface rec = cell.getCellValueRecord();
-	    	    	if(rec instanceof FormulaRecordAggregate){
-	    	    		FormulaRecordAggregate frec = (FormulaRecordAggregate)rec;
-	    	    		SharedValueManager sm =  frec.get_sharedValueManager();
-	    	    		Formula formulaInt = frec.getFormulaRecord().getFormula();
 	    	    		
 	    	    		byte[] rangeBytes = new byte[6];
-	    	    		LittleEndianByteArrayOutputStream rangeStOut = new LittleEndianByteArrayOutputStream(rangeBytes,0);
+	    	    		rangeStOut = new LittleEndianByteArrayOutputStream(rangeBytes,0);
 	    	    		rangeStOut.writeShort(range.getFirstRow());
 	    	    		rangeStOut.writeShort(range.getLastRow());
 	    	    		rangeStOut.writeByte(range.getFirstColumn());
 	    	    		rangeStOut.writeByte(range.getLastColumn());
-	    	    		LittleEndianByteArrayInputStream rangeStIn = new LittleEndianByteArrayInputStream(rangeBytes,0);
+	    	    		rangeStIn = new LittleEndianByteArrayInputStream(rangeBytes,0);
 	    	    		
-	    	    		ArrayRecord arr = new  ArrayRecord(2/*options*/,formulaInt,rangeStIn);
+	    	    		ArrayRecord arr = new  ArrayRecord(2/*options*/,formulaInArray,rangeStIn);
 	    	    		sm.addArrayRecord(arr);
 	    	    		setArrayFormula = true;
 	    	    	}
 	    	    	
     	    	}
     	   	}
+    	// Attempt to calculate formula
+    	cell = getRow(range.getFirstRow()).getCell(range.getFirstColumn());
+        FormulaEvaluator formeval  = this.getWorkbook().getCreationHelper().createFormulaEvaluator();
+		int type = formeval.evaluateFormulaCell(cell);
     	   	    		
     }
     
