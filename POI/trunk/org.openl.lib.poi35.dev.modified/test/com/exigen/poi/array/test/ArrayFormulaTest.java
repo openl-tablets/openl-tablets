@@ -1,15 +1,20 @@
 package com.exigen.poi.array.test;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -211,6 +216,66 @@ public class ArrayFormulaTest {
 		assertEquals("B35-G35",getNumericValue("G35"), calculateNumericFormula("B35"), 0);
 	}
 
+	@Test
+	public void  NewNumericArrayFormulaOut(){
+
+		// create empty workbook
+        Workbook workbook =  new XSSFWorkbook();
+        try {
+        	File excelFile = File.createTempFile("tst", ".xlsx");
+			FileOutputStream out = new FileOutputStream(excelFile);
+       	
+	         Sheet sheet = workbook.createSheet();
+		         
+	         Row rowd = sheet.createRow((short) (0));
+	       	 Cell cd = rowd.createCell((short) 0);
+	       	 CellRangeAddress range = new CellRangeAddress(0,1,0,1);
+	       	 sheet.setArrayFormula("SQRT({1,4;9,16})",range);
+	       	 
+	       	 // Set tested values
+	       	 for(int rowIn = range.getFirstRow(); rowIn <= range.getLastRow();rowIn++)
+		       	 for(int colIn = range.getFirstColumn(); colIn <= range.getLastColumn();colIn++)
+		       	 {
+		       		Cell cell = sheet.getRow(rowIn).getCell(colIn);
+		       		double value = cell.getNumericCellValue();
+		       		Row row = sheet.getRow(rowIn+5);
+		       		if(row == null)
+		       			row = sheet.createRow(rowIn+5);
+		       		row.createCell(colIn).setCellValue(value);
+		       	 }
+	       	 
+	       	 // Write file
+	         workbook.write(out);
+	         out.close();
+	         
+	       	 // Read file
+	         workbook =  new XSSFWorkbook(excelFile.getAbsolutePath());
+	         sheet = workbook.getSheetAt(0);
+	       	 // Set 0 values before calculation
+	         for(int rowIn = range.getFirstRow(); rowIn <= range.getLastRow();rowIn++)
+		       	 for(int colIn = range.getFirstColumn(); colIn <= range.getLastColumn();colIn++)
+		       	 {
+		       		Cell cell = sheet.getRow(rowIn).getCell(colIn);
+		       		sheet.getRow(rowIn).getCell(colIn).setCellValue(0.0);
+		       	 }
+             // Calculate formula (we use cell from  firstRow and firstColumn)	         
+	         FormulaEvaluator eval = workbook.getCreationHelper().createFormulaEvaluator();
+	         eval.evaluateFormulaCell(sheet.getRow(range.getFirstRow()).getCell(range.getFirstColumn()));
+	         // Check calculated values
+	         for(int rowIn = range.getFirstRow(); rowIn <= range.getLastRow();rowIn++)
+		       	 for(int colIn = range.getFirstColumn(); colIn <= range.getLastColumn();colIn++)
+		       	 {
+		       		Cell cell = sheet.getRow(rowIn).getCell(colIn);
+		       		double value = cell.getNumericCellValue();
+		       		cell = sheet.getRow(rowIn+5).getCell(colIn);
+					assertEquals("ArrayFormula:"+rowIn+","+colIn,cell.getNumericCellValue(),value, 0);
+		       		
+		       	 }
+				
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+		}
+	}
 	@Test
 	public void NumericArrayFormulaRefArguments(){
 
