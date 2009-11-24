@@ -13,7 +13,11 @@
     String text = org.openl.rules.webtools.indexer.FileIndexer.showElementHeader(uri);   
     String name = studio.getModel().getDisplayNameFull(uri);
     org.openl.rules.ui.Explanator.setCurrent(explanator);
-    String testName = StringTool.decodeURL(request.getParameter("testName"));    
+    String testNameFromRequest = request.getParameter("testName");
+    String testName = null;
+    if (testNameFromRequest != null) {
+        testName = StringTool.decodeURL(testNameFromRequest);    
+    }        
     String testID = request.getParameter("testID");
     String testDescr = request.getParameter("testDescr");
 %>
