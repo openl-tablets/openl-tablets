@@ -1933,10 +1933,10 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 	    	    	
     	    	}
     	   	}
-    	// Attempt to calculate formula
-    	cell = getRow(range.getFirstRow()).getCell(range.getFirstColumn());
-        FormulaEvaluator formeval  = this.getWorkbook().getCreationHelper().createFormulaEvaluator();
-		int type = formeval.evaluateFormulaCell(cell);
+//    	// Attempt to calculate formula
+//    	cell = getRow(range.getFirstRow()).getCell(range.getFirstColumn());
+//        FormulaEvaluator formeval  = this.getWorkbook().getCreationHelper().createFormulaEvaluator();
+//		int type = formeval.evaluateFormulaCell(cell);
     	   	    		
     }
     
