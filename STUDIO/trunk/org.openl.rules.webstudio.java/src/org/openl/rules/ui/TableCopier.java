@@ -83,8 +83,11 @@ public abstract class TableCopier extends WizardBase {
                 propertiesStyle = getPropertiesStyle(tableProperties);
                 newProperties = tableProperties.getDefinedProperties();
             }
-            builder.writeProperties(buildProperties(newProperties), propertiesStyle);
-            logicTableStartRow += newProperties == null ? 0 : newProperties.size();
+            Map<String,Object> buildedPropForNewTable = buildProperties(newProperties); 
+            if (buildedPropForNewTable.size() > 0) {
+                builder.writeProperties(buildedPropForNewTable, propertiesStyle);
+            }            
+            logicTableStartRow += buildedPropForNewTable.size() == 0 ? 0 : buildedPropForNewTable.size();
         }
 
         builder.writeGridTable(table.getLogicalRegion(0, logicTableStartRow, tableWidth,
@@ -118,7 +121,12 @@ public abstract class TableCopier extends WizardBase {
     protected void initTableNames () {
         TableSyntaxNode node = getCopyingTable();
         tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
-        tableBusinessName = node == null ? null : node.getTableProperties().getPropertyValueAsString(TableBuilder.TABLE_PROPERTIES_NAME);
+        if (node != null) {
+            ITableProperties tableProperties = node.getTableProperties();
+            if (tableProperties != null) {
+                tableBusinessName = node.getTableProperties().getPropertyValueAsString(TableBuilder.TABLE_PROPERTIES_NAME);
+            }
+        }        
     }
     
     protected TableSyntaxNode getCopyingTable() {
