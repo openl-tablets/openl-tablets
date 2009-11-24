@@ -237,6 +237,10 @@ public class ArrayFormulaTestOldFormat {
 	       	 CellRangeAddress range = new CellRangeAddress(0,1,0,1);
 	       	 sheet.setArrayFormula("SQRT({1,4;9,16})",range);
 	       	 
+	         // Calculate formula 
+	         FormulaEvaluator eval = workbook.getCreationHelper().createFormulaEvaluator();
+	         int type = eval.evaluateFormulaCell(cd);
+       	 
 	       	 // Set tested values
 	       	 for(int rowIn = range.getFirstRow(); rowIn <= range.getLastRow();rowIn++)
 		       	 for(int colIn = range.getFirstColumn(); colIn <= range.getLastColumn();colIn++)
@@ -267,8 +271,8 @@ public class ArrayFormulaTestOldFormat {
 		       		sheet.getRow(rowIn).getCell(colIn).setCellValue(0.0);
 		       	 }
              // Calculate formula (we use cell from lastRow and lastColumn)	         
-	         FormulaEvaluator eval = workbook.getCreationHelper().createFormulaEvaluator();
-	         int type = eval.evaluateFormulaCell(sheet.getRow(range.getLastRow()).getCell(range.getLastColumn()));
+	         eval = workbook.getCreationHelper().createFormulaEvaluator();
+	         eval.evaluateFormulaCell(sheet.getRow(range.getLastRow()).getCell(range.getLastColumn()));
 	         // Check calculated values
 	         for(int rowIn = range.getFirstRow(); rowIn <= range.getLastRow();rowIn++)
 		       	 for(int colIn = range.getFirstColumn(); colIn <= range.getLastColumn();colIn++)
