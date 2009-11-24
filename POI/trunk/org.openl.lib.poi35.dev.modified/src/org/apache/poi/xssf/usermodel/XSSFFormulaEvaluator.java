@@ -185,7 +185,11 @@ public class XSSFFormulaEvaluator implements FormulaEvaluator {
 			for(int j=colStart; j<=range.getLastColumn();j++)
 			{
 				Row row = sheet.getRow(i);
+				if(row == null)
+					row = sheet.createRow(i);
 				Cell c = row.getCell(j);
+				if(c == null)
+					c = row.createCell(j);
 				CellValue cellValue = answer[i-rowStart][j-colStart];
 				setCellValue(c,cellValue);
 				// Notify that value changes
