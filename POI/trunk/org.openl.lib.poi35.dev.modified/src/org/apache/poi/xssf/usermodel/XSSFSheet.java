@@ -2679,12 +2679,15 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
 	public void removeArrayFormula(Cell cell) {
         CellRangeAddress range = arrayFormulas.remove(cell);
         if (range == null) {
-            return;
+            throw new RuntimeException("Cell doesn't contain Array Formula");
         }
         for (int rowIndex = range.getFirstRow(); rowIndex <= range.getLastRow(); rowIndex++) {
             XSSFRow row = getRow(rowIndex);
             for (int columnIndex = range.getFirstColumn(); columnIndex <= range.getLastColumn(); columnIndex++) {
-                row.getCell(columnIndex).setCellType(Cell.CELL_TYPE_BLANK);
+                XSSFCell arrayFormulaCell =  row.getCell(columnIndex);
+                if(arrayFormulaCell != null){
+                    arrayFormulaCell.setCellType(Cell.CELL_TYPE_BLANK);
+                }
             }
         }
     }
