@@ -56,42 +56,42 @@ public abstract class TableCopier extends WizardBase {
      * @throws CreateTableException
      */   
     protected void buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model) throws CreateTableException {
-        IGridTable table = model.getTable(elementUri);
-        TableSyntaxNode node = model.getNode(elementUri);
-        String tableType = node.getType();
+        IGridTable baseTable = model.getTable(elementUri);
+        TableSyntaxNode baseNode = model.getNode(elementUri);
+        String baseTableType = baseNode.getType();
         
         //validateTechnicalName(node);
 
         TableBuilder builder = new TableBuilder(new XlsSheetGridModel(sourceCodeModule));
 
-        int tableWidth = table.getGridWidth();
-        int tableHeight = table.getGridHeight();
-        int logicTableStartRow = 0;
+        int baseTableWidth = baseTable.getGridWidth();
+        int baseTableHeight = baseTable.getGridHeight();
+        int logicBaseTableStartRow = 0;
 
-        builder.beginTable(tableWidth, tableHeight);
+        builder.beginTable(baseTableWidth, baseTableHeight);
 
-        if (!tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !tableType.equals(ITableNodeTypes.XLS_OTHER)) {
-            String newHeader = buildHeader(node.getHeaderLineValue().getValue(), tableType);
-            ICellStyle headerStyle = table.getCell(0, 0).getStyle();
+        if (!baseTableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !baseTableType.equals(ITableNodeTypes.XLS_OTHER)) {
+            String newHeader = buildHeader(baseNode.getHeaderLineValue().getValue(), baseTableType);
+            ICellStyle headerStyle = baseTable.getCell(0, 0).getStyle();
             builder.writeHeader(newHeader, headerStyle);
-            logicTableStartRow++;
+            logicBaseTableStartRow++;
 
-            ITableProperties tableProperties = node.getTableProperties();   
-            Map<String, Object> newProperties = null;
+            ITableProperties tableProperties = baseNode.getTableProperties();   
+            Map<String, Object> baseTableProperties = null;
             ICellStyle propertiesStyle = null;
             if (tableProperties != null) {
                 propertiesStyle = getPropertiesStyle(tableProperties);
-                newProperties = tableProperties.getDefinedProperties();
+                baseTableProperties = tableProperties.getDefinedProperties();
             }
-            Map<String,Object> buildedPropForNewTable = buildProperties(newProperties); 
+            Map<String,Object> buildedPropForNewTable = buildProperties(baseTableProperties); 
             if (buildedPropForNewTable.size() > 0) {
                 builder.writeProperties(buildedPropForNewTable, propertiesStyle);
             }            
-            logicTableStartRow += buildedPropForNewTable.size() == 0 ? 0 : buildedPropForNewTable.size();
+            logicBaseTableStartRow += baseTableProperties == null ? 0 : baseTableProperties.size();
         }
 
-        builder.writeGridTable(table.getLogicalRegion(0, logicTableStartRow, tableWidth,
-                tableHeight - logicTableStartRow).getGridTable());
+        builder.writeGridTable(baseTable.getLogicalRegion(0, logicBaseTableStartRow, baseTableWidth,
+                baseTableHeight - logicBaseTableStartRow).getGridTable());
 
         builder.endTable();
         builder.save();
