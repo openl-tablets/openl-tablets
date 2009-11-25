@@ -3,8 +3,6 @@ package org.openl.rules.liveexcel.ranges;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.poi.ss.usermodel.Cell;
-
 public class DoubleRangeParser {
 
     private double lowerBound = Double.NEGATIVE_INFINITY;
@@ -31,39 +29,16 @@ public class DoubleRangeParser {
     private static Pattern prefixFormatPattern = Pattern.compile(rangePrefixFormat);
     private static Pattern postfixFormatPattern = Pattern.compile(rangePostfixFormat);
 
-	private static ThreadLocal<Matcher> justNumberFormatMatcherLocal = new ThreadLocal<Matcher>();
-	private static ThreadLocal<Matcher> minMaxFormatMatcherLocal = new ThreadLocal<Matcher>();
-	private static ThreadLocal<Matcher> prefixFormatMatcherLocal = new ThreadLocal<Matcher>();
-	private static ThreadLocal<Matcher> postfixFormatMatcherLocal = new ThreadLocal<Matcher>();
-    
-    
-    
-	private static Matcher getMatcher(ThreadLocal<Matcher> tl, Pattern p, String range){
-		Matcher m = tl.get();
-		if (m == null){
-			m = p.matcher(range);
-			tl.set(m);
-		} else
-			m.reset(range);
-		return m;
-		
-	}
-	
-	
-	
-	
-	/**
+    /**
      * @param range Range to check
      * @return <code>true</code> if it is range.
      */
     public static boolean isRange(String range) {
         String rangeWithoutSpaces = range.replaceAll("\\s", "");
-              
-        
-        Matcher justNumberFormatMatcher = getMatcher(justNumberFormatMatcherLocal,justNumberFormatPattern,rangeWithoutSpaces);
-        Matcher minMaxFormatMatcher = getMatcher(minMaxFormatMatcherLocal, minMaxFormatPattern, rangeWithoutSpaces);
-        Matcher prefixFormatMatcher = getMatcher(prefixFormatMatcherLocal, prefixFormatPattern, rangeWithoutSpaces);
-        Matcher postfixFormatMatcher = getMatcher(postfixFormatMatcherLocal, postfixFormatPattern, rangeWithoutSpaces); 
+        Matcher justNumberFormatMatcher = justNumberFormatPattern.matcher(rangeWithoutSpaces);
+        Matcher minMaxFormatMatcher = minMaxFormatPattern.matcher(rangeWithoutSpaces);
+        Matcher prefixFormatMatcher = prefixFormatPattern.matcher(rangeWithoutSpaces);
+        Matcher postfixFormatMatcher = postfixFormatPattern.matcher(rangeWithoutSpaces);
 
         if (!justNumberFormatMatcher.matches() && !minMaxFormatMatcher.matches() && !prefixFormatMatcher.matches()
                 && !postfixFormatMatcher.matches()) {

@@ -95,19 +95,11 @@ public class MultiThreadCalculation {
 		
 		try {
 			test.init(liveExcelFile, threadCntr);
-			
-			System.out.println("Start profiler and press any key...");
-			System.in.read();  
-			System.in.read();  
-			
 
 			for (TasksPortion tport : tasksPortionList) {
 				log.info("Portion name: " + tport.getPortionName());
 				test.execute(timeout, test.prepareCallableList(tport));
 			}
-			System.out.println("Stop profiler and press any key...");
-			System.in.read();  
-			System.in.read();  
 		} catch (Throwable t) {
 			log.fatal("execution failed", t);
 		}
@@ -126,9 +118,6 @@ public class MultiThreadCalculation {
 		for(String func:funcs){
 			log.debug("Find function:"+func);
 		}
-		// hardcoded formula
-		String[] args = {"K1","L1"};
-		evaluator.initFormula("BigLookup", args);
 
 	}
 	
@@ -149,7 +138,7 @@ public class MultiThreadCalculation {
 					log.debug("Task created: " + "function :" + functionName + "  args: " + params + "  pattern: " + pattern.toString());
 				}
 				long startTime = System.nanoTime();
-				ValueEval res = evaluator.evaluateServiceModelUDF2(functionArgs);
+				ValueEval res = evaluator.evaluateServiceModelUDF(functionName, functionArgs);
 				Object result = transformValueEval(res);
 			    long endTime = System.nanoTime();
 				if (!result.equals(pattern)){

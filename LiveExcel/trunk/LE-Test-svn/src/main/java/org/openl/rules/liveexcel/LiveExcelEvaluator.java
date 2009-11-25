@@ -30,10 +30,8 @@ import org.openl.rules.liveexcel.formula.LiveExcelFunctionsPack;
 public class LiveExcelEvaluator {
     private Workbook workbook;
     private EvaluationContext evaluationContext;
-    private Cell formulaCell;
     
-	private static ThreadLocal<Cell> formulaCellLocal = new ThreadLocal<Cell>();
-	private static ThreadLocal<ForkedEvaluator> forkedEvaluatorLocal = new ThreadLocal<ForkedEvaluator>();
+	private static ThreadLocal<Cell> formulaCellLocal = new ThreadLocal<Cell>();  
 	
     /**
      * Parse workbook and create LiveExcelEvaluator.
@@ -75,12 +73,7 @@ public class LiveExcelEvaluator {
      * @return Result of evaluation.
      */
     public ValueEval evaluateServiceModelUDF(String functionName, Object[] args) {
-    	
-    	ForkedEvaluator evaluator = forkedEvaluatorLocal.get();
-    	if (evaluator == null){
-    		evaluator = createEvaluator();
-    		forkedEvaluatorLocal.set(evaluator);
-    	}
+        ForkedEvaluator evaluator = createEvaluator();
         ValueEval[] processedArgs = new ValueEval[args.length];
         for (int i = 0; i < args.length; i++) {
             processedArgs[i] = createEvalForObject(args[i], evaluator.getWorkbookEvaluator());
@@ -97,37 +90,9 @@ public class LiveExcelEvaluator {
         return result;
     }
 
-    public ValueEval evaluateServiceModelUDF2(Object[] args) {
-    	
-    	ForkedEvaluator evaluator = forkedEvaluatorLocal.get();
-    	if (evaluator == null){
-    		evaluator = createEvaluator();
-    		forkedEvaluatorLocal.set(evaluator);
-    	}
-        ValueEval[] processedArgs = new ValueEval[args.length];
-        for (int i = 0; i < args.length; i++) {
-            processedArgs[i] = createEvalForObject(args[i], evaluator.getWorkbookEvaluator());
-        }
-        // for test we assume that params always in row 0, starting from index 10 (k1)
-        int cellNum = 10;
-        String sheetName = formulaCell.getSheet().getSheetName();
-        // set params - k1,k2 etc
-        for(int i=0; i<args.length; i++){
-        	evaluator.updateCell(sheetName, 0, cellNum++,processedArgs[i] );
-        }
-        
-        
-        ValueEval result = evaluator.evaluate(formulaCell.getSheet().getSheetName(), formulaCell.getRowIndex(),
-                formulaCell.getColumnIndex());
-        finalizeEvaluation(evaluator, formulaCell);
-        return result;
-    }
-    
-    
-    
     private void finalizeEvaluation(ForkedEvaluator evaluator, Cell formulaCell) {
-        //removeExecutedCell(formulaCell);
-        //evaluationContext.removeDataPool(evaluator.getWorkbookEvaluator());
+        removeExecutedCell(formulaCell);
+        evaluationContext.removeDataPool(evaluator.getWorkbookEvaluator());
     }
 
     private ForkedEvaluator createEvaluator() {
@@ -204,20 +169,4 @@ public class LiveExcelEvaluator {
             }
         };
     }
-    
-    public void initFormula(String functionName, String[] args){
-    	formulaCell = findEmptyCell();
-        StringBuffer formula = new StringBuffer(functionName + "(");
-        for (int i = 0; i < args.length; i++) {
-            formula.append(args[i]);
-            if (i < args.length - 1) {
-                formula.append(',');
-            }
-        }
-        formula.append(')');
-        formulaCell.setCellFormula(formula.toString());
-    	
-    	
-    }
-    
 }
