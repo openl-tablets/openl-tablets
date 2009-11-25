@@ -165,7 +165,7 @@ public class String2DataConvertorFactory {
                     cc.add(Calendar.DATE, value - 1);
                     return cc.getTime();
 
-                } catch (Throwable t) {
+                } catch (NumberFormatException t) {
                     LOG.error(t);
                 }
                 throw RuntimeExceptionWrapper.wrap(e);
