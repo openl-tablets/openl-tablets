@@ -1,6 +1,8 @@
 package org.openl.rules.table.properties;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openl.rules.table.ILogicalTable;
 
@@ -76,5 +78,17 @@ public interface ITableProperties {
 	java.lang.String getScope();
 	void setScope(java.lang.String scope);	
 	// <<< END INSERT >>>
+	
+	/**
+     * Setter for property values that must be applied by default.
+     */
+    void setDefaultPropertyValue(String propertyName, Object defaultValue);
+    
+    /**
+     * Gets the collection of property names that were set by default.
+     * @return Collection of property names that were set by default.
+     */
+    Set<String> getPropertiesSetByDefault();
+    
 	
 }

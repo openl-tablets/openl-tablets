@@ -38,11 +38,17 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.properties.DefaultTableProperties;
+import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.calc.SSheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
+import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.ITable;
+import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.data.String2DataConvertorFactory.String2DateConvertor;
 import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.dt.binding.DTNodeBinder;
@@ -461,6 +467,8 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         TableSyntaxNode tsn = (TableSyntaxNode) syntaxNode;
         
         loadPropertiesAsDataTable(tsn, openl, cxt, module, binder);
+        applyDefaultPropertiesValues(tsn);
+        
         return binder.preBind(tsn, openl, cxt, module);
     }
     
@@ -469,14 +477,36 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         String propertySectionName = "Properties_Section"+tsn.getUri();
         DataNodeBinder bb = new DataNodeBinder();
         ITable propertyTable = module.getDataBase().addNewTable(propertySectionName, null);
-        IOpenClass propetiesClass = JavaOpenClass.getOpenClass(DefaultTableProperties.class);
+        IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propertiesSection = binder.getPropertiesTableSection(tsn.getTable());
         if (propertiesSection != null) {
             bb.processTable(module, propertyTable, propertiesSection, propertySectionName, propetiesClass, cxt, openl, false);
-            DefaultTableProperties propertiesInstance = ((DefaultTableProperties[])propertyTable.getDataArray())[0]; 
+            TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0]; 
             
             propertiesInstance.setPropertiesSection(propertiesSection);
             tsn.setTableProperties(propertiesInstance);
+        }
+    }
+    
+    private void applyDefaultPropertiesValues(TableSyntaxNode tsn) {
+        ITableProperties properties = tsn.getTableProperties();
+        List<TablePropertyDefinition> propertiesWithDefaultValues = DefaultPropertyDefinitions.getPropertiesToBeSetByDefault();
+        if (properties == null && propertiesWithDefaultValues.size() > 0){
+            //properties = new instance
+            properties = new TableProperties();            
+            tsn.setTableProperties(properties);
+        }
+        
+        for(TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues){
+            String propertyName = propertyWithDefaultValue.getName();
+            // check that there is no property value and only then apply default value
+            if (properties.getPropertyValue(propertyName) == null) {
+                Class<?> defaultValueType = DefaultPropertyDefinitions.getPropertyByName(propertyName).getType().getInstanceClass();
+                IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultValueType);
+                Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
+                        propertyWithDefaultValue.getFormat(), null);
+                properties.setDefaultPropertyValue(propertyName, defaultValue);
+            }
         }
     }
 

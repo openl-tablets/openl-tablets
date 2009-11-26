@@ -15,11 +15,11 @@ import org.openl.util.print.NicePrinterAdaptor;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class DynamicObject implements IDynamicObject {
 
-    static class DONIcePrinterAdaptor extends NicePrinterAdaptor {
+    private static class DONIcePrinterAdaptor extends NicePrinterAdaptor {
 
         @Override
         protected String getTypeName(Object obj) {
@@ -31,9 +31,10 @@ public class DynamicObject implements IDynamicObject {
 
         /*
          * (non-Javadoc)
-         *
-         * @see org.openl.commons.print.NicePrinterAdaptor#printObject(java.lang.Object,
-         *      int, org.openl.commons.print.NicePrinter)
+         * 
+         * @see
+         * org.openl.commons.print.NicePrinterAdaptor#printObject(java.lang.
+         * Object, int, org.openl.commons.print.NicePrinter)
          */
         @Override
         public void printObject(Object obj, int newID, NicePrinter printer) {
@@ -49,15 +50,15 @@ public class DynamicObject implements IDynamicObject {
         }
     }
 
-    protected IOpenClass type;
+    private IOpenClass type;
 
-    protected HashMap<String, Object> fieldValues = new HashMap<String, Object>();
+    private HashMap<String, Object> fieldValues = new HashMap<String, Object>();
 
     /*
      * Added to support deployment of OpenL project as web services
      */
 
-    static public NicePrinterAdaptor getNicePrinterAdaptor() {
+    public static NicePrinterAdaptor getNicePrinterAdaptor() {
         return new DONIcePrinterAdaptor();
     }
 
@@ -80,7 +81,9 @@ public class DynamicObject implements IDynamicObject {
         return fieldValues.get(name);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.openl.types.IDynamicObject#getFieldValues()
      */
     @SuppressWarnings("unchecked")

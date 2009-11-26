@@ -21,7 +21,7 @@ import org.openl.rules.context.properties.ContextPropertyDefinition;
 import org.openl.rules.enumeration.properties.EnumPropertyDefinition;
 import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.DefaultTableProperties;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
@@ -96,7 +96,7 @@ public class GenRulesCode {
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
-        String sourceFilePath = getClassSourcePath(DefaultTableProperties.class);
+        String sourceFilePath = getClassSourcePath(TableProperties.class);
         processSourceCode(sourceFilePath, "DefaultTableProperties-properties.vm", variables);
     }
 

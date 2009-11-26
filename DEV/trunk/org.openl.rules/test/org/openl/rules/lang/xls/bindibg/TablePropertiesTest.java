@@ -12,7 +12,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.DefaultTableProperties;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.ITableProperties;
 
 
@@ -42,14 +42,14 @@ public class TablePropertiesTest {
     public void testGetValueAsString() {
         String result = null;        
         String strValue = "MyName";        
-        ITableProperties tablProp = new DefaultTableProperties();
+        ITableProperties tablProp = new TableProperties();
         tablProp.setName(strValue);        
         result = tablProp.getPropertyValueAsString("name");
         assertEquals(strValue, result);
         
         String propName = "effectiveDate";
         Date dateValue = new Date(4098);
-        tablProp = new DefaultTableProperties();
+        tablProp = new TableProperties();
         tablProp.setEffectiveDate(dateValue);
         result = tablProp.getPropertyValueAsString(propName);
         SimpleDateFormat sDF = new SimpleDateFormat(DefaultPropertyDefinitions.getPropertyByName(propName).getFormat());
@@ -57,7 +57,7 @@ public class TablePropertiesTest {
         
         propName = "failOnMiss";
         Boolean boolValue = new Boolean(true);
-        tablProp = new DefaultTableProperties();
+        tablProp = new TableProperties();
         tablProp.setFailOnMiss(boolValue);
         result = tablProp.getPropertyValueAsString(propName);        
         assertEquals("true", result);

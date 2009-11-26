@@ -4,7 +4,7 @@ import org.openl.types.impl.DynamicObject;
 
 public class ScopeInstance extends DynamicObject {
 
-    DynamicObject parent;
+    private DynamicObject parent;
 
     public ScopeInstance(Scope scope) {
         super(scope);
@@ -14,20 +14,20 @@ public class ScopeInstance extends DynamicObject {
     @Override
     public Object getFieldValue(String name) {
         if (isMyField(name)) {
-            return fieldValues.get(name);
+            return super.getFieldValue(name);
         }
 
         return parent.getFieldValue(name);
     }
 
     public Scope getScope() {
-        return (Scope) type;
+        return (Scope) getType();
     }
 
     @Override
     public void setFieldValue(String name, Object value) {
         if (isMyField(name)) {
-            fieldValues.put(name, value);
+            super.setFieldValue(name, value);
             return;
         }
 
