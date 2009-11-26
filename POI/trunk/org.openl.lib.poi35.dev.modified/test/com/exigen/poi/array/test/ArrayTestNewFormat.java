@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.net.URL;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.FormulaError;
@@ -17,15 +19,15 @@ import org.junit.Test;
  * 
  * Workbook contains formulas and tests
  */
-public class ArrayTest {
+public class ArrayTestNewFormat {
 	
 	private static TestHelper th;
-	static Log log = LogFactory.getLog(ArrayTest.class);
+	static Log log = LogFactory.getLog(ArrayTestNewFormat.class);
 	
 	@BeforeClass
 	public  static void readWorkbook(){
 
-		URL url = ArrayTest.class.getClassLoader().getResource("ConstantArray.xlsx");
+		URL url = ArrayTestNewFormat.class.getClassLoader().getResource("ConstantArray.xlsx");
 		XSSFWorkbook wb;
 		try {
 		wb = new XSSFWorkbook(url.getFile());
@@ -36,6 +38,9 @@ public class ArrayTest {
 		th = new TestHelper(wb);
 	}
 	
+	public static junit.framework.Test suite() {  
+		return new JUnit4TestAdapter(ArrayTestNewFormat.class);
+	}
 	@Test
 	public void testSingleArg(){
 		

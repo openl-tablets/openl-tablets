@@ -6,21 +6,23 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.URL;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ArrayFormulaFunctionTest {
+public class ArrayFormulaFunctionTestNewFormat {
 
 	private static TestHelper th;
-	static Log log = LogFactory.getLog(ArrayFormulaFunctionTest.class);
+	static Log log = LogFactory.getLog(ArrayFormulaFunctionTestNewFormat.class);
 	
 	@BeforeClass
 	public  static void readWorkbook(){
 
-		URL url = ArrayTest.class.getClassLoader().getResource("ArrayFormulaFunctions.xlsx");
+		URL url = ArrayTestNewFormat.class.getClassLoader().getResource("ArrayFormulaFunctions.xlsx");
 		XSSFWorkbook wb;
 		try {
 		wb = new XSSFWorkbook(url.getFile());
@@ -31,6 +33,9 @@ public class ArrayFormulaFunctionTest {
 		th = new TestHelper(wb);
 	}
 	
+	public static junit.framework.Test suite() {  
+		return new JUnit4TestAdapter(ArrayFormulaFunctionTestNewFormat.class);
+	}
 	
 	// check if non-calculated array cells does not contain value
 	@Test(expected=IllegalArgumentException.class)

@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Ignore;
@@ -231,6 +232,33 @@ public class TestHelper {
 		}
 		return true;
 	}
-	
-	
+	protected void setArrayFormula(String cellRef, String formula, String range){
+	    Sheet sheet = getCell(cellRef).getSheet();
+	    sheet.setArrayFormula(formula, CellRangeAddress.valueOf(range));
+	}
+    protected void removeArrayFormula(String cellRef){
+    	Cell cell = getCell(cellRef);
+        Sheet sheet = cell.getSheet();
+        sheet.removeArrayFormula(cell);
+    }
+
+	protected String getErrorValue(Cell cell){
+		if (cell.getCellType() != Cell.CELL_TYPE_ERROR){
+			log.error("Not numeric in cell:" + cell.toString());
+			throw new IllegalArgumentException("Not error:" + cell.toString());
+		}
+		byte result = cell.getErrorCellValue();
+		log.debug("value: " + result );
+		return org.apache.poi.ss.usermodel.ErrorConstants.getText(result);
+	}
+
+	protected String getErrorValue(String cellRef){
+		
+		return getErrorValue(getCell(cellRef));
+	}
+	protected  int getCellType(String cellRef) {
+		 Cell cell = getCell(cellRef);
+		return cell.getCellType(); 
+	}
+
 }
