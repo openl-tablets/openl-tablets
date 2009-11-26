@@ -217,10 +217,15 @@ public class MultiThreadCalculation {
 	private List<Callable<Long>> prepareCallableList(TasksPortion tport){
 		
 		List<Callable<Long>> result = new ArrayList<Callable<Long>>();
+		boolean alldone = false;
 		List<TaskPrescription> tpresList = tport.getTaskList();
-		for (TaskPrescription tpres: tpresList){
-			for (int i=0; i< tpres.getIterationCount(); i++){
+		for (int i=0; alldone == false; i++){
+			alldone = true; // temporary
+			for (TaskPrescription tpres: tpresList){
+			   if( i< tpres.getIterationCount()){
 				result.add(getCalculationTask(tpres.getFunctionName(),tpres.getArgs(), tpres.getResult()));
+				alldone = false;
+			   }
 			}
 		}
 		return result;
