@@ -123,8 +123,8 @@ public class TableSyntaxNode extends NodeWithProperties implements IIndexElement
         return table;
     }
 
-    public ILogicalTable getTableBody() {
-        int startRow = tableProperties == null ? 1 : 2;
+    public ILogicalTable getTableBody() {        
+        int startRow = !hasPropertiesDefinedInTable() ? 1 : 2;
 
         if (table.getLogicalHeight() <= startRow) {
             return null;
@@ -155,6 +155,22 @@ public class TableSyntaxNode extends NodeWithProperties implements IIndexElement
 
     public void setValidationResult(Object validationResult) {
         this.validationResult = validationResult;
+    }
+    
+    /**
+     * Checks if <code>{@link TableSyntaxNode}</code> has properties that were physically defined in appropriate table
+     * in data source. <br>Properties set by default are ignoring.
+     * @return <code>TRUE</code> if <code>{@link TableSyntaxNode}</code> has properties that were physically defined 
+     * in appropriate table in data source. 
+     */
+    public boolean hasPropertiesDefinedInTable() {
+        boolean result = false;        
+        if (tableProperties != null
+                && tableProperties.getPropertiesSection() != null
+                && tableProperties.getNumberOfProperties() > tableProperties.getPropertiesSetByDefault().size()) {
+            result = true;
+        }
+        return result;
     }
 
 }

@@ -204,7 +204,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      */
     private ILogicalTable getTableBody(TableSyntaxNode tsn) {
         int startRow = 0;
-        if (tsn.getTableProperties() == null) {
+        if (!tsn.hasPropertiesDefinedInTable()) {
             startRow = 1;
         } else {
             startRow = 2;

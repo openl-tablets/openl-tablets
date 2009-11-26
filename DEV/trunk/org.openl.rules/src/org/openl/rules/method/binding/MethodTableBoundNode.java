@@ -85,8 +85,9 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         TableSyntaxNode tsn = getTableSyntaxNode();
 
         ILogicalTable lt = tsn.getTable();
-
-        int expectedHeight = tsn.getTableProperties() == null ? 2 : 3;
+        boolean tableHasProperties = tsn.hasPropertiesDefinedInTable();
+        
+        int expectedHeight = tableHasProperties ? 3 : 2;
 
         if (lt.getLogicalHeight() != expectedHeight) {
             throw new BoundError(null,

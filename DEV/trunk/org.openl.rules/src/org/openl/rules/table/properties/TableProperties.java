@@ -2,15 +2,26 @@ package org.openl.rules.table.properties;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.java.JavaOpenClass;
 
-public class DefaultTableProperties extends DynamicObject implements ITableProperties {
+public class TableProperties extends DynamicObject implements ITableProperties {
     
+    /**
+     * Table section that contains properties in appropriate table in data source.
+     */
     private ILogicalTable propertySection;
+    
+    /**
+     * Collection, to mark all properties that were set by default for current instance.
+     */
+    private Set<String> propertiesWithDefaultValue = new HashSet<String>();
     
 	@Override
     public IOpenClass getType() {
@@ -24,153 +35,153 @@ public class DefaultTableProperties extends DynamicObject implements ITablePrope
 
     // <<< INSERT >>>
 	public java.lang.String getName() {
-		return (java.lang.String) fieldValues.get("name"); 
+		return (java.lang.String) getFieldValue("name"); 
 	}
 	public void setName(java.lang.String name) {
-		fieldValues.put("name", name);
+	    setFieldValue("name", name);
 	}	
 	public java.lang.String getCategory() {
-		return (java.lang.String) fieldValues.get("category"); 
+		return (java.lang.String) getFieldValue("category"); 
 	}
 	public void setCategory(java.lang.String category) {
-		fieldValues.put("category", category);
+	    setFieldValue("category", category);
 	}	
 	public java.lang.String getDescription() {
-		return (java.lang.String) fieldValues.get("description"); 
+		return (java.lang.String) getFieldValue("description"); 
 	}
 	public void setDescription(java.lang.String description) {
-		fieldValues.put("description", description);
+	    setFieldValue("description", description);
 	}	
 	public java.lang.String getTags() {
-		return (java.lang.String) fieldValues.get("tags"); 
+		return (java.lang.String) getFieldValue("tags"); 
 	}
 	public void setTags(java.lang.String tags) {
-		fieldValues.put("tags", tags);
+	    setFieldValue("tags", tags);
 	}	
 	public java.util.Date getEffectiveDate() {
-		return (java.util.Date) fieldValues.get("effectiveDate"); 
+		return (java.util.Date) getFieldValue("effectiveDate"); 
 	}
 	public void setEffectiveDate(java.util.Date effectiveDate) {
-		fieldValues.put("effectiveDate", effectiveDate);
+	    setFieldValue("effectiveDate", effectiveDate);
 	}	
 	public java.util.Date getExpirationDate() {
-		return (java.util.Date) fieldValues.get("expirationDate"); 
+		return (java.util.Date) getFieldValue("expirationDate"); 
 	}
 	public void setExpirationDate(java.util.Date expirationDate) {
-		fieldValues.put("expirationDate", expirationDate);
+	    setFieldValue("expirationDate", expirationDate);
 	}	
 	public java.lang.String getCreatedBy() {
-		return (java.lang.String) fieldValues.get("createdBy"); 
+		return (java.lang.String) getFieldValue("createdBy"); 
 	}
 	public void setCreatedBy(java.lang.String createdBy) {
-		fieldValues.put("createdBy", createdBy);
+	    setFieldValue("createdBy", createdBy);
 	}	
 	public java.util.Date getCreatedOn() {
-		return (java.util.Date) fieldValues.get("createdOn"); 
+		return (java.util.Date) getFieldValue("createdOn"); 
 	}
 	public void setCreatedOn(java.util.Date createdOn) {
-		fieldValues.put("createdOn", createdOn);
+	    setFieldValue("createdOn", createdOn);
 	}	
 	public java.lang.String getModifiedBy() {
-		return (java.lang.String) fieldValues.get("modifiedBy"); 
+		return (java.lang.String) getFieldValue("modifiedBy"); 
 	}
 	public void setModifiedBy(java.lang.String modifiedBy) {
-		fieldValues.put("modifiedBy", modifiedBy);
+	    setFieldValue("modifiedBy", modifiedBy);
 	}	
 	public java.util.Date getModifyOn() {
-		return (java.util.Date) fieldValues.get("modifyOn"); 
+		return (java.util.Date) getFieldValue("modifyOn"); 
 	}
 	public void setModifyOn(java.util.Date modifyOn) {
-		fieldValues.put("modifyOn", modifyOn);
+	    setFieldValue("modifyOn", modifyOn);
 	}	
 	public java.lang.String getBuildPhase() {
-		return (java.lang.String) fieldValues.get("buildPhase"); 
+		return (java.lang.String) getFieldValue("buildPhase"); 
 	}
 	public void setBuildPhase(java.lang.String buildPhase) {
-		fieldValues.put("buildPhase", buildPhase);
+	    setFieldValue("buildPhase", buildPhase);
 	}	
 	public java.lang.String getValidateDT() {
-		return (java.lang.String) fieldValues.get("validateDT"); 
+		return (java.lang.String) getFieldValue("validateDT"); 
 	}
 	public void setValidateDT(java.lang.String validateDT) {
-		fieldValues.put("validateDT", validateDT);
+	    setFieldValue("validateDT", validateDT);
 	}	
 	public java.lang.String getLob() {
-		return (java.lang.String) fieldValues.get("lob"); 
+		return (java.lang.String) getFieldValue("lob"); 
 	}
 	public void setLob(java.lang.String lob) {
-		fieldValues.put("lob", lob);
+	    setFieldValue("lob", lob);
 	}	
 	public java.lang.String getUsregion() {
-		return (java.lang.String) fieldValues.get("usregion"); 
+		return (java.lang.String) getFieldValue("usregion"); 
 	}
 	public void setUsregion(java.lang.String usregion) {
-		fieldValues.put("usregion", usregion);
+	    setFieldValue("usregion", usregion);
 	}	
 	public java.lang.String getCountry() {
-		return (java.lang.String) fieldValues.get("country"); 
+		return (java.lang.String) getFieldValue("country"); 
 	}
 	public void setCountry(java.lang.String country) {
-		fieldValues.put("country", country);
+	    setFieldValue("country", country);
 	}	
 	public java.lang.String getCurrency() {
-		return (java.lang.String) fieldValues.get("currency"); 
+		return (java.lang.String) getFieldValue("currency"); 
 	}
 	public void setCurrency(java.lang.String currency) {
-		fieldValues.put("currency", currency);
+	    setFieldValue("currency", currency);
 	}	
 	public java.lang.String getLang() {
-		return (java.lang.String) fieldValues.get("lang"); 
+		return (java.lang.String) getFieldValue("lang"); 
 	}
 	public void setLang(java.lang.String lang) {
-		fieldValues.put("lang", lang);
+	    setFieldValue("lang", lang);
 	}	
 	public java.lang.String getState() {
-		return (java.lang.String) fieldValues.get("state"); 
+		return (java.lang.String) getFieldValue("state"); 
 	}
 	public void setState(java.lang.String state) {
-		fieldValues.put("state", state);
+	    setFieldValue("state", state);
 	}	
 	public java.lang.String getRegion() {
-		return (java.lang.String) fieldValues.get("region"); 
+		return (java.lang.String) getFieldValue("region"); 
 	}
 	public void setRegion(java.lang.String region) {
-		fieldValues.put("region", region);
+	    setFieldValue("region", region);
 	}	
 	public java.lang.String getVersion() {
-		return (java.lang.String) fieldValues.get("version"); 
+		return (java.lang.String) getFieldValue("version"); 
 	}
 	public void setVersion(java.lang.String version) {
-		fieldValues.put("version", version);
+	    setFieldValue("version", version);
 	}	
 	public java.lang.Boolean getActive() {
-		return (java.lang.Boolean) fieldValues.get("active"); 
+		return (java.lang.Boolean) getFieldValue("active"); 
 	}
 	public void setActive(java.lang.Boolean active) {
-		fieldValues.put("active", active);
+	    setFieldValue("active", active);
 	}	
 	public java.lang.Boolean getFailOnMiss() {
-		return (java.lang.Boolean) fieldValues.get("failOnMiss"); 
+		return (java.lang.Boolean) getFieldValue("failOnMiss"); 
 	}
 	public void setFailOnMiss(java.lang.Boolean failOnMiss) {
-		fieldValues.put("failOnMiss", failOnMiss);
+	    setFieldValue("failOnMiss", failOnMiss);
 	}	
 	public java.lang.Boolean getReturnOnMiss() {
-		return (java.lang.Boolean) fieldValues.get("returnOnMiss"); 
+		return (java.lang.Boolean) getFieldValue("returnOnMiss"); 
 	}
 	public void setReturnOnMiss(java.lang.Boolean returnOnMiss) {
-		fieldValues.put("returnOnMiss", returnOnMiss);
+	    setFieldValue("returnOnMiss", returnOnMiss);
 	}	
 	public java.lang.String getScope() {
-		return (java.lang.String) fieldValues.get("scope"); 
+		return (java.lang.String) getFieldValue("scope"); 
 	}
 	public void setScope(java.lang.String scope) {
-		fieldValues.put("scope", scope);
+	    setFieldValue("scope", scope);
 	}	
 	// <<< END INSERT >>>
 	
     public Object getPropertyValue(String key) {        
-        return fieldValues.get(key);
+        return getFieldValue(key);
     }
     
     public String getPropertyValueAsString(String key) {
@@ -209,13 +220,31 @@ public class DefaultTableProperties extends DynamicObject implements ITablePrope
     public void setPropertiesSection(ILogicalTable propertySection) {
         this.propertySection = propertySection;
      }
-    
+        
     public int getNumberOfProperties() {
-        return fieldValues.size();
+        return getFieldValues().size();
     }
     
     public Map<String, Object> getDefinedProperties() {
       return  super.getFieldValues();
+    }
+    
+    public void setDefaultPropertyValue(String propertyName, Object defaultValue) {
+        super.setFieldValue(propertyName, defaultValue);
+        
+        //mark that property value is default
+        propertiesWithDefaultValue.add(propertyName);
+    }
+        
+    @Override
+    public void setFieldValue(String name, Object value) {
+        //we need to remove property that can be set by default 
+        propertiesWithDefaultValue.remove(name);
+        super.setFieldValue(name, value);
+    }
+        
+    public Set<String> getPropertiesSetByDefault() {        
+        return propertiesWithDefaultValue;
     }
 	
 }

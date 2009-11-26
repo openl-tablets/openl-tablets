@@ -1,5 +1,8 @@
 package org.openl.rules.table.properties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Definitions of supported properties.
  * @author snshor
@@ -369,6 +372,16 @@ public class DefaultPropertyDefinitions
             }
         }
         return result;
-    }	
+    }
+	
+	public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault() {
+        List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
+        for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
+            if(tablPropDef.getDefaultValue() != null){
+                result.add(tablPropDef);
+            }
+        }
+        return result;
+    }
 	
 }

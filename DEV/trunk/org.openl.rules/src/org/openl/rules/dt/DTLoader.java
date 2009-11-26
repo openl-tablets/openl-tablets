@@ -146,8 +146,7 @@ public class DTLoader implements IDecisionTableConstants, IXlsTableNames {
             IBindingContextDelegator cxtd) throws Exception {
 
         dt.setTableSyntaxNode(tsn);
-        int startRow = tsn.getTableProperties() == null ? 1 : 2;
-        ILogicalTable tableBody = tsn.getTable().rows(startRow);
+        ILogicalTable tableBody = tsn.getTableBody();
         
         ILogicalTable transposed = tableBody.transpose();
         
