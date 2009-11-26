@@ -43,6 +43,7 @@ import org.apache.poi.hssf.record.SubRecord;
 import org.apache.poi.hssf.record.TextObjectRecord;
 import org.apache.poi.hssf.record.UnicodeString;
 import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
+import org.apache.poi.hssf.record.formula.ExpPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.ss.usermodel.Cell;
@@ -609,6 +610,19 @@ public class HSSFCell implements Cell {
         }
         agg.setParsedExpression(ptgs);
     }
+    
+    /* package */void setCellArrayFormula(String formula, CellRangeAddress range) {
+        int row=_record.getRow();
+        short col=_record.getColumn();
+        short styleIndex=_record.getXFIndex();
+        setCellType(CELL_TYPE_FORMULA, false, row, col, styleIndex);
+
+        // Billet for formula in rec
+        Ptg[] ptgsForCell = { new ExpPtg((short) range.getFirstRow(), (short) range.getFirstColumn()) };
+        FormulaRecordAggregate agg = (FormulaRecordAggregate) _record;
+        agg.setParsedExpression(ptgsForCell);
+    }
+    
     /**
      * Should be called any time that a formula could potentially be deleted.
      * Does nothing if this cell currently does not hold a formula

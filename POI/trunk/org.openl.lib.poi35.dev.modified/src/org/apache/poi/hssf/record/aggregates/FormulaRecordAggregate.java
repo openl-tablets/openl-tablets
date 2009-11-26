@@ -255,7 +255,7 @@ public final class FormulaRecordAggregate extends RecordAggregate implements Cel
 	/**
 	 * @return the _sharedValueManager
 	 */
-	public SharedValueManager get_sharedValueManager() {
+	public SharedValueManager getSharedValueManager() {
 		return _sharedValueManager;
 	}
 //end changes VIA	

@@ -303,16 +303,8 @@ public final class SharedValueManager {
 	 * Remove Array Record
 	 * @param ar
 	 */
-	public void  removeArrayRecord(ArrayRecord ar){
-		int index = -1;
-		for(int i=0; i < _arrayRecords.length; i++)
-			if(_arrayRecords[i].equals(ar))
-			{
-				index = i;
-				break;
-			}
-	
-		if(index == (-1)){
+	public void  removeArrayRecord(int index){
+		if(index < 0 || index > _arrayRecords.length){
 			throw new RuntimeException("Array Record did not find ");
 		}
 		

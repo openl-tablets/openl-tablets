@@ -107,7 +107,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private ColumnHelper columnHelper;
     private CommentsTable sheetComments;
     private Map<Integer, XSSFCell> sharedFormulas;
-    private Map<Cell, CellRangeAddress> arrayFormulas;
+    private List<CellRangeAddress> arrayFormulas;
 
     /**
      * Creates new XSSFSheet   - called by XSSFWorkbook to create a sheet from scratch.
@@ -182,7 +182,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private void initRows(CTWorksheet worksheet) {
         rows = new TreeMap<Integer, XSSFRow>();
         sharedFormulas = new HashMap<Integer, XSSFCell>();
-        arrayFormulas = new HashMap<Cell, CellRangeAddress>();
+        arrayFormulas = new ArrayList<CellRangeAddress>();
         for (CTRow row : worksheet.getSheetData().getRowArray()) {
             XSSFRow r = new XSSFRow(row, this);
             rows.put(r.getRowNum(), r);
@@ -2285,7 +2285,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
         }
         CTCellFormula formula = ct.getF();
         if (formula != null && formula.getT() == STCellFormulaType.ARRAY && formula.getRef() != null) {
-            arrayFormulas.put(cell, CellRangeAddress.valueOf(formula.getRef()));
+            arrayFormulas.add(CellRangeAddress.valueOf(formula.getRef()));
         }
     }
 
@@ -2646,7 +2646,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
 	}
 	
     /* package */ boolean isCellInArrayFormulaContext(XSSFCell cell) {
-        for (CellRangeAddress range : arrayFormulas.values()) {
+        for (CellRangeAddress range : arrayFormulas) {
             if (range.isInRange(cell)) {
                 return true;
             }
@@ -2655,7 +2655,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     }
 
     /* package */ XSSFCell getFirstCellInArrayFormula(XSSFCell cell) {
-        for (CellRangeAddress range : arrayFormulas.values()) {
+        for (CellRangeAddress range : arrayFormulas) {
             if (range.isInRange(cell)) {
                 return getRow(range.getFirstRow()).getCell(range.getFirstColumn());
             }
@@ -2673,22 +2673,25 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
             mainArrayFormulaCell = row.createCell(range.getFirstColumn());
         }
         mainArrayFormulaCell.setCellArrayFormula(formula, range);
-        arrayFormulas.put(mainArrayFormulaCell, range);
+        arrayFormulas.add(range);
     }
 
 	public void removeArrayFormula(Cell cell) {
-        CellRangeAddress range = arrayFormulas.remove(cell);
-        if (range == null) {
-            throw new RuntimeException("Cell doesn't contain Array Formula");
-        }
-        for (int rowIndex = range.getFirstRow(); rowIndex <= range.getLastRow(); rowIndex++) {
-            XSSFRow row = getRow(rowIndex);
-            for (int columnIndex = range.getFirstColumn(); columnIndex <= range.getLastColumn(); columnIndex++) {
-                XSSFCell arrayFormulaCell =  row.getCell(columnIndex);
-                if(arrayFormulaCell != null){
-                    arrayFormulaCell.setCellType(Cell.CELL_TYPE_BLANK);
+        for (CellRangeAddress range : arrayFormulas) {
+            if (range.isInRange(cell)) {
+                arrayFormulas.remove(range);
+                for (int rowIndex = range.getFirstRow(); rowIndex <= range.getLastRow(); rowIndex++) {
+                    XSSFRow row = getRow(rowIndex);
+                    for (int columnIndex = range.getFirstColumn(); columnIndex <= range.getLastColumn(); columnIndex++) {
+                        XSSFCell arrayFormulaCell = row.getCell(columnIndex);
+                        if (arrayFormulaCell != null) {
+                            arrayFormulaCell.setCellType(Cell.CELL_TYPE_BLANK);
+                        }
+                    }
                 }
+                return;
             }
         }
+        throw new RuntimeException("Cell does not belong to Array Formula");
     }
 }
