@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -53,6 +55,9 @@ public class ArrayFormulaTestOldFormat {
 
 	}
 	
+	public static junit.framework.Test suite() {  
+		return new JUnit4TestAdapter(ArrayFormulaTestOldFormat.class);
+	}
 	
 	@Test
 	public void NumericSquareArrayFormula(){
@@ -235,7 +240,8 @@ public class ArrayFormulaTestOldFormat {
 	         Row rowd = sheet.createRow((short) (0));
 	       	 Cell cd = rowd.createCell((short) 0);
 	       	 CellRangeAddress range = new CellRangeAddress(0,1,0,1);
-	       	 sheet.setArrayFormula("SQRT({1,4;9,16})",range);
+//	       	 sheet.setArrayFormula("SQRT({1,4;9,16})",range);
+	         sheet.setArrayFormula("INDEX({1,2;3,4},2)", range);
 	       	 
 	         // Calculate formula 
 	         FormulaEvaluator eval = workbook.getCreationHelper().createFormulaEvaluator();

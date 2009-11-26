@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -38,6 +40,9 @@ public class ArrayTestOldFormat {
 		th = new TestHelper(wb);
 	}
 	
+	public static junit.framework.Test suite() {  
+		return new JUnit4TestAdapter(ArrayTestOldFormat.class);
+	}
 	@Test
 	public void testSingleArg(){
 		
