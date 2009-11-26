@@ -49,7 +49,9 @@ import org.apache.poi.hssf.record.aggregates.DataValidityTable;
 import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
 import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
+import org.apache.poi.hssf.record.formula.ExpPtg;
 import org.apache.poi.hssf.record.formula.FormulaShifter;
+import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.hssf.util.PaneInformation;
 import org.apache.poi.hssf.util.Region;
@@ -1887,12 +1889,8 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     	HSSFRow row;
     	HSSFCell cell;
     	boolean setArrayFormula = false;
-    	
-		byte[] formulaRefBytes = new byte[5];
-		LittleEndianByteArrayOutputStream rangeStOut = new LittleEndianByteArrayOutputStream(formulaRefBytes,0);
-		rangeStOut.writeByte(1);
-		rangeStOut.writeShort(range.getFirstRow());
-		rangeStOut.writeShort(range.getFirstColumn());
+    	// Billet for formula in rec
+		Ptg[] ptgs = {new ExpPtg((short)range.getFirstRow(),(short)range.getFirstColumn())};
 
     	for(int rowIn = range.getFirstRow();rowIn <= range.getLastRow();rowIn++ )
     	   	for(int colIn = range.getFirstColumn();colIn <= range.getLastColumn();colIn++ )
@@ -1910,44 +1908,29 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     	    	CellValueRecordInterface rec = cell.getCellValueRecord();
     	    	if(rec instanceof FormulaRecordAggregate){
     	    		FormulaRecordAggregate frec = (FormulaRecordAggregate)rec;
-    	    		SharedValueManager sm =  frec.get_sharedValueManager();
     	    		Formula formulaInArray = frec.getFormulaRecord().getFormula().copy();
-    	    		LittleEndianByteArrayInputStream rangeStIn = new LittleEndianByteArrayInputStream(formulaRefBytes,0);
-    	    		Formula formulaInRec = Formula.read(5,rangeStIn);
-    	    		frec.getFormulaRecord().setParsedExpression(formulaInRec.getTokens(formulaInRec));
+    	    		frec.getFormulaRecord().setParsedExpression(ptgs); // Replace formula in rec
        	    	    	    		
     	    	if(!setArrayFormula){  // Set common Array record in SharedValueManager for whole range 
-	    	    		
-	    	    		byte[] rangeBytes = new byte[6];
-	    	    		rangeStOut = new LittleEndianByteArrayOutputStream(rangeBytes,0);
-	    	    		rangeStOut.writeShort(range.getFirstRow());
-	    	    		rangeStOut.writeShort(range.getLastRow());
-	    	    		rangeStOut.writeByte(range.getFirstColumn());
-	    	    		rangeStOut.writeByte(range.getLastColumn());
-	    	    		rangeStIn = new LittleEndianByteArrayInputStream(rangeBytes,0);
-	    	    		
-	    	    		ArrayRecord arr = new  ArrayRecord(2/*options*/,formulaInArray,rangeStIn);
-	    	    		sm.addArrayRecord(arr);
+	    	    		ArrayRecord arr = new  ArrayRecord(2/*options*/,formulaInArray,
+	    	    								new CellRangeAddress8Bit(range.getFirstRow(),
+	    	    											range.getLastRow(),range.getFirstColumn(),
+	    	    											range.getLastColumn())
+	    	    								);
+	    	    		frec.get_sharedValueManager().addArrayRecord(arr);
 	    	    		setArrayFormula = true;
 	    	    	}
 	    	    	
     	    	}
     	   	}
-//    	// Attempt to calculate formula
-//    	cell = getRow(range.getFirstRow()).getCell(range.getFirstColumn());
-//        FormulaEvaluator formeval  = this.getWorkbook().getCreationHelper().createFormulaEvaluator();
-//		int type = formeval.evaluateFormulaCell(cell);
-    	   	    		
     }
     
 	/* (non-Javadoc)
 	 * @see org.apache.poi.ss.usermodel.Sheet#removeArrayFormula(org.apache.poi.ss.usermodel.Cell)
 	 */
 	public void removeArrayFormula(Cell cell) {
-		HSSFCell hcell = (HSSFCell)cell;
-		HSSFSheet sheet = hcell.getSheet();
 		// Get formula range
-    	CellValueRecordInterface rec = hcell.getCellValueRecord();
+    	CellValueRecordInterface rec = ((HSSFCell)cell).getCellValueRecord();
     	if(rec instanceof FormulaRecordAggregate){
     		FormulaRecordAggregate frec = (FormulaRecordAggregate)rec;
     		SharedValueManager sm =  frec.get_sharedValueManager();
@@ -1961,7 +1944,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
            	    	for(int rowIn = ar.getFirstRow();rowIn <= ar.getLastRow();rowIn++ )
         	    	   	for(int colIn = ar.getFirstColumn();colIn <= ar.getLastColumn();colIn++ )
         	    	   	{
-        	    	   		Cell rCell = sheet.getRow(rowIn).getCell(colIn);
+        	    	   		Cell rCell = this.getRow(rowIn).getCell(colIn);
         	    	   		rCell.setCellType(Cell.CELL_TYPE_BLANK);
       	    	   	}
         			return;

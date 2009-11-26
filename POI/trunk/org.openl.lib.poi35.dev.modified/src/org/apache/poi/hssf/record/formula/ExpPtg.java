@@ -38,7 +38,14 @@ public final class ExpPtg extends ControlPtg {
       field_1_first_row = in.readShort();
       field_2_first_col = in.readShort();
     }
-
+//    VIA
+    public ExpPtg(short field_1_first_row,short field_2_first_col) 
+    {
+      this.field_1_first_row = field_1_first_row;
+      this.field_2_first_col = field_2_first_col;
+    }
+    
+//    end changes VIA
     public void write(LittleEndianOutput out) {
         out.writeByte(sid + getPtgClass());
         out.writeShort(field_1_first_row);
