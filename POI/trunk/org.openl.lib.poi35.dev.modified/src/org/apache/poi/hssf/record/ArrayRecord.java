@@ -21,8 +21,12 @@ import org.apache.poi.hssf.record.formula.AreaPtg;
 import org.apache.poi.hssf.record.formula.AreaPtgBase;
 import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.hssf.record.formula.RefPtgBase;
+import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.ss.formula.Formula;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.HexDump;
+import org.apache.poi.util.LittleEndianByteArrayInputStream;
+import org.apache.poi.util.LittleEndianByteArrayOutputStream;
 import org.apache.poi.util.LittleEndianInput;
 import org.apache.poi.util.LittleEndianOutput;
 
@@ -54,8 +58,8 @@ public final class ArrayRecord extends SharedValueRecordBase {
 	}
 
 // VIA
-	public ArrayRecord(int options, Formula formula, LittleEndianInput inRange ) {
-		super(inRange);
+	public ArrayRecord(int options, Formula formula, CellRangeAddress8Bit range ) {
+		super(range);
 		_options = options;
 		_field3notUsed = 0;
 		_formula = formula;
