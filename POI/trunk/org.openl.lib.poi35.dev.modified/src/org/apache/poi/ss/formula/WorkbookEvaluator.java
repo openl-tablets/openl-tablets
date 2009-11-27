@@ -214,9 +214,16 @@ public final class WorkbookEvaluator {
 
 	public ValueEval evaluate(EvaluationCell srcCell) {
 		int sheetIndex = getSheetIndex(srcCell.getSheet());
-        return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(), new EvaluationTracker(_cache));
-    }
+		if (srcCell.isArrayFormulaContext()) {
+            return evaluateAny(srcCell.getFirstCellInArrayFormula(), sheetIndex, srcCell.getRowIndex(), srcCell
+                    .getColumnIndex(), new EvaluationTracker(_cache));
 
+        } else {
+            return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(),
+                    new EvaluationTracker(_cache));
+        }
+	}
+	
 	/**
 	 * Case-insensitive.
 	 * @return -1 if sheet with specified name does not exist
@@ -252,9 +259,6 @@ public final class WorkbookEvaluator {
 			return result;
 		}
 
-        if (srcCell.isArrayFormulaContext()) {
-            srcCell = srcCell.getFirstCellInArrayFormula();
-        }
 		FormulaCellCacheEntry cce = _cache.getOrCreateFormulaCellEntry(srcCell);
 		if (shouldCellDependencyBeRecorded || cce.isInputSensitive()) {
 			tracker.acceptFormulaDependency(cce);
@@ -289,7 +293,7 @@ public final class WorkbookEvaluator {
 			if(evalListener != null) {
 				evalListener.onCacheHit(sheetIndex, rowIndex, columnIndex, cce.getValue());
 			}
-			result = cce.getValue();
+			return cce.getValue();
 		}
 		if (isDebugLogEnabled()) {
 			String sheetName = getSheetName(sheetIndex);
@@ -300,13 +304,6 @@ public final class WorkbookEvaluator {
 		// But sometimes: (result==ErrorEval.CIRCULAR_REF_ERROR, cce.getValue()==null)
 		// When circular references are detected, the cache entry is only updated for
 		// the top evaluation frame
-        result = dereferenceValue(result, rowIndex, columnIndex, srcCell);
-        if (result == BlankEval.INSTANCE) {
-            // Note Excel behaviour here. A blank final final value is converted to zero.
-            return NumberEval.ZERO;
-            // Formulas _never_ evaluate to blank.  If a formula appears to have evaluated to
-            // blank, the actual value is empty string. This can be verified with ISBLANK().
-        }
 		return result;
 	}
 
@@ -521,6 +518,13 @@ public final class WorkbookEvaluator {
 		if (!stack.isEmpty()) {
 			throw new IllegalStateException("evaluation stack not empty");
 		}
+		value = dereferenceValue(value, ec.getRowIndex(), ec.getColumnIndex());
+		if (value == BlankEval.INSTANCE) {
+			// Note Excel behaviour here. A blank final final value is converted to zero.
+			return NumberEval.ZERO;
+			// Formulas _never_ evaluate to blank.  If a formula appears to have evaluated to
+			// blank, the actual value is empty string. This can be verified with ISBLANK().
+		}
 		return value;
 	}
 
@@ -573,21 +577,11 @@ public final class WorkbookEvaluator {
 	 * @return a <tt>NumberEval</tt>, <tt>StringEval</tt>, <tt>BoolEval</tt>,
 	 *  <tt>BlankEval</tt> or <tt>ErrorEval</tt>. Never <code>null</code>.
 	 */
-	private static ValueEval dereferenceValue(ValueEval evaluationResult, int srcRowNum, int srcColNum, EvaluationCell evaluatedCell) {
-        if (evaluationResult instanceof RefEval) {
-            RefEval rv = (RefEval) evaluationResult;
-            return rv.getInnerValueEval();
-        }
-        if (evaluationResult instanceof ArrayEval) {
-            ArrayEval ae = (ArrayEval) evaluationResult;
-            int rowOffset = srcRowNum - evaluatedCell.getRowIndex();
-            int columnOffset = srcColNum - evaluatedCell.getColumnIndex();
-            try {
-                return ae.getArrayElementAsEval(rowOffset, columnOffset);
-            } catch (Exception e) {
-                return ErrorEval.NA;
-            }
-        }
+	private static ValueEval dereferenceValue(ValueEval evaluationResult, int srcRowNum, int srcColNum) {
+		if (evaluationResult instanceof RefEval) {
+			RefEval rv = (RefEval) evaluationResult;
+			return rv.getInnerValueEval();
+		}
 		if (evaluationResult instanceof AreaEval) {
 			AreaEval ae = (AreaEval) evaluationResult;
 			if (ae.isRow()) {
@@ -704,7 +698,18 @@ public final class WorkbookEvaluator {
 			int columnIndex, EvaluationTracker tracker) {
 
 		EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
-		return evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker);
+		if (cell.isArrayFormulaContext()){
+			int rowInArray = rowIndex-cell.getFirstCellInArrayFormula().getRowIndex();
+			int colInArray = columnIndex-cell.getFirstCellInArrayFormula().getColumnIndex();
+			ArrayEval array = (ArrayEval)evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker);
+			ValueEval result = array.getArrayElementAsEval(rowInArray,colInArray);
+			return result;
+			 
+		}
+		else {
+			return evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker);
+			
+		}
 	}
 	public FreeRefFunction findUserDefinedFunction(String functionName) {
 		return _udfFinder.findFunction(functionName);
