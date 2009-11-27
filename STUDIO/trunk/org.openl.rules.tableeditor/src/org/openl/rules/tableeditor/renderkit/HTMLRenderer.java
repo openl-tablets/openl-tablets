@@ -10,6 +10,10 @@ import java.util.Set;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
+import org.openl.rules.table.constraints.Constraint;
+import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.constraints.LessThanConstraint;
+import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinition;
@@ -205,6 +209,7 @@ public class HTMLRenderer {
         String editor = Constants.TABLE_EDITOR_PREFIX + editorId;
         result.append(renderJSBody("var " + editor + ";"))
                 .append(renderEditorToolbar(editorId, editor))
+                .append(renderJS("js/validation.js"))
                 .append(renderJS("js/datepicker.packed.js"))
                 .append(renderJS("js/TextEditor.js"))
                 .append(renderJS("js/MultiLineEditor.js"))
@@ -365,9 +370,19 @@ public class HTMLRenderer {
                 listProp.add(new TableProperty(propDefinition.getDisplayName(),
                         props != null ? props.getPropertyValue(propDefinition.getName()) : null,
                         propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(),
-                        propDefinition.getGroup(), propDefinition.getName(), propDefinition.getFormat()));
+                        propDefinition.getGroup(), propDefinition.getName(), propDefinition.getFormat(),
+                        propDefinition.getConstraints()));
             }
             return listProp;
+        }
+
+        private TableProperty getProperty(String name) {
+            for (TableProperty property : listProperties) {
+                if (property.getName().equals(name)) {
+                    return property;
+                }
+            }
+            return null;
         }
 
         private Map<String, List<TableProperty>> groupProps(List<TableProperty> props) {
@@ -484,7 +499,7 @@ public class HTMLRenderer {
                 if (prop.isStringType()) {
                     insertEdit(propValue, propId);
                 } else if (prop.isDateType()) {
-                    insertCalendar(propValue, propId);
+                    insertCalendar(prop, propId);
                 } else if (prop.isBooleanType()) {
                     insertCheckbox(propValue, propId);
                 } else if (prop.isDoubleType()) {
@@ -505,19 +520,28 @@ public class HTMLRenderer {
             result.append("</tr>");
         }
 
-        private void insertCalendar(String value, String id) {
-            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new DateEditor('','" + id + "','','" + value + "','')"));
-        }
+        private void insertCalendar(TableProperty prop, String id) {
+            String propValue = prop.getValueString();
+            Constraints constraints = prop.getConstraints();
 
-        /*private void insertSelect(List<String> listOfOptions) {                        
-            result.append("<td><select>");
-            result.append("<option></option>");
-            for(String option : listOfOptions) {
-                result.append("<option>"+option+"</option>");
+            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
+                .append(renderJSBody("new DateEditor('','" + id + "','','" + propValue + "','')"));
+
+            for (Constraint constraint : constraints.getAll()) {
+                if (constraint instanceof LessThanConstraint
+                        || constraint instanceof MoreThanConstraint) {
+                    String validator = constraint instanceof LessThanConstraint ? "lessThan" : "moreThan";
+                    String compareToField = (String) constraint.getParams()[0];
+                    String compareToFieldId = "_" + id.replaceFirst(prop.getName() + "(?=$)", compareToField);
+                    TableProperty compareToProperty = getProperty(compareToField);
+                    String compareToPropertyDisplayName = compareToProperty == null ? ""
+                            : compareToProperty.getDisplayName();
+                    result.append(renderJSBody("new Validation('_" + id + "', '"
+                            + validator + "', 'blur', {compareToFieldId:'" + compareToFieldId
+                            + "',messageParams:'" + compareToPropertyDisplayName + "'})"));
+                }
             }
-            result.append("</select></td>");
-        }*/
+        }
 
         private void insertEdit(String value, String id) {
             if (value == null) {

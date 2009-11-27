@@ -42,7 +42,7 @@ public class TablePropertyCopier extends TableCopier {
             Object propertyValue = tableProperties.getPropertyValue(name) != null ? tableProperties.getPropertyValue(name) : null;
             Class<?> propertyType = propDefinition.getType() == null ? null : propDefinition.getType().getInstanceClass();            
             propToCopy.add(new TableProperty(propDefinition.getDisplayName(), propertyValue, propertyType, 
-                    propDefinition.getGroup(), name, propDefinition.getFormat()));
+                    propDefinition.getGroup(), name, propDefinition.getFormat(), propDefinition.getConstraints()));
         }
     }
 

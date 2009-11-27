@@ -3,6 +3,8 @@ package org.openl.rules.tableeditor.renderkit;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.openl.rules.table.constraints.Constraints;
+
 /**
  * Temporary class for holding table properties
  * @author DLiauchuk
@@ -18,6 +20,7 @@ public class TableProperty {
     private String group;
     private String name;
     private String format;
+    private Constraints constraints;
     
     public String getFormat() {
         return format;
@@ -43,15 +46,16 @@ public class TableProperty {
     }
     
     public TableProperty(String displayName, Object value, Class<?> type, 
-            String group, String name, String format) {
+            String group, String name, String format, Constraints constraints) {
         this.displayName = displayName;
         this.value = value;
         this.type = type;
         this.group = group;
         this.name = name;
         this.format = format;
+        this.constraints = constraints;
     }
-    
+
     public boolean isShow() {
         return show;
     }
@@ -174,7 +178,13 @@ public class TableProperty {
         }        
         return doubleValue;
     }
-    
-    
+
+    public void setConstraints(Constraints constraints) {
+        this.constraints = constraints;
+    }
+
+    public Constraints getConstraints() {
+        return constraints;
+    }
 
 }
