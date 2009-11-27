@@ -698,18 +698,16 @@ public final class WorkbookEvaluator {
 			int columnIndex, EvaluationTracker tracker) {
 
 		EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
-		if (cell.isArrayFormulaContext()){
+		ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker); 
+		if (cell.isArrayFormulaContext() && result instanceof ArrayEval){
 			int rowInArray = rowIndex-cell.getFirstCellInArrayFormula().getRowIndex();
 			int colInArray = columnIndex-cell.getFirstCellInArrayFormula().getColumnIndex();
-			ArrayEval array = (ArrayEval)evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker);
-			ValueEval result = array.getArrayElementAsEval(rowInArray,colInArray);
-			return result;
+			ArrayEval array = (ArrayEval)result;
+			result = array.getArrayElementAsEval(rowInArray,colInArray);
 			 
 		}
-		else {
-			return evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker);
+		return result; 
 			
-		}
 	}
 	public FreeRefFunction findUserDefinedFunction(String functionName) {
 		return _udfFinder.findFunction(functionName);
