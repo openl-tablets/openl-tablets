@@ -1,6 +1,5 @@
 package org.openl.rules.ui.search;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -8,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.meta.ObjectValue;
-import org.openl.meta.StringValue;
 import org.openl.rules.search.OpenLBussinessSearch;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.TablePropertyDefinition;
@@ -68,7 +65,8 @@ public class BussinesSearchPropertyBean {
                 propForSearch.add(new TableProperty(propDefinition.getDisplayName(),
                     null,
                     propDefinition.getType() == null ? null : propDefinition.getType().getInstanceClass(),
-                    propDefinition.getGroup(), propDefinition.getName(), propDefinition.getFormat()));
+                    propDefinition.getGroup(), propDefinition.getName(), propDefinition.getFormat(),
+                    propDefinition.getConstraints()));
             }
         }
         //busSearchResBean = new BussinessSearchResultBean(propForSearch);

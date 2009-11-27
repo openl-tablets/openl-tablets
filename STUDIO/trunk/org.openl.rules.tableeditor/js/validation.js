@@ -7,8 +7,19 @@ var Validator = Class.create({
     },
 
     validate: function(value, params) {
+        this.processMessage(value, params);
         return this.validateFunc(value, params);
     },
+
+    // TODO Refactor to support more than one params
+    processMessage: function(value, params) {
+        if (/^.*\{\d+\}.*$/.test(this.errorMessage)) {
+            if (params.messageParams) {
+                value = params.messageParams;
+            }
+            this.errorMessage = this.errorMessage.replace(/\{\d+\}/, value);
+        }
+    }
 
 });
 
@@ -29,6 +40,41 @@ Validator.methods = {
     digits: function(value) {
         return value && /^\-?\d*$/.test(value);
     },
+
+    date: function(value) {
+        var date = new Date(value);
+        return !isNaN(date);
+    },
+
+    compareTo: function(value, params) {
+        var toValue;
+        if (params.compareToFieldId) {
+            toValue = $(params.compareToFieldId).value;
+        } else {
+            toValue = params;
+        }
+        if (this.date(value)) {
+            value = new Date(value);
+            toValue = new Date(toValue);
+        } else if (this.digits(value)) {
+            value = new Number(value);
+            toValue = new Number(toValue);
+        }
+        if (value > toValue) {
+            return 1;
+        } else if (value < toValue) {
+            return -1;
+        }
+        return 0;
+    },
+
+    lessThan: function(value, params) {
+        return this.compareTo(value, params) == -1;
+    },
+
+    moreThan: function(value, params) {
+        return this.compareTo(value, params) == 1;
+    }
 }
 
 var Validation = Class.create({
@@ -40,9 +86,9 @@ var Validation = Class.create({
     initialize: function(inputId, validatorName, event, params) {
         this.input = $(inputId);
         this.validatorName = validatorName;
-        this.event = event;
         this.params = params;
         if (event) {
+            this.event = event;
             this.eventHandler = this.validate.bindAsEventListener(this);
             Event.observe(this.input, event, this.eventHandler);
         }
@@ -67,6 +113,11 @@ var Validation = Class.create({
             this.hideMessage();
         }
         return result;
+    },
+
+    validateAll: function() {
+        // TODO Implement
+        return false;
     },
 
     cancel: function() {
@@ -105,6 +156,10 @@ var Validation = Class.create({
 
 });
 
+Validation.isAllValidated = function() {
+    return Validation.prototype.firedMessageTips.keys().length == 0;
+}
+
 Validation.add = function(a, b, c) {
     Validation.prototype.addValidator(a, b, c);
 }
@@ -113,11 +168,20 @@ Validation.add('required', 'This field is required', function(value, params) {
     return !Validator.methods.empty(value);
 });
 Validation.add('alpha', 'This field must contain only letters', function(value, params) {
-    return Validator.methods.alpha(value);
+    return Validator.methods.empty(value) || Validator.methods.alpha(value);
 });
 Validation.add('numeric', 'This field must contain only numbers', function(value, params) {
-    return Validator.methods.numeric(value);
+    return Validator.methods.empty(value) || Validator.methods.numeric(value);
 });
 Validation.add('digits', 'This field must contain only digits', function(value, params) {
-    return Validator.methods.digits(value);
+    return Validator.methods.empty(value) || Validator.methods.digits(value);
+});
+Validation.add('date', 'Please enter a valid date', function(value, params) {
+    return Validator.methods.empty(value) || Validator.methods.date(value);
+});
+Validation.add('lessThan', 'Value of this field must be less than {0}', function(value, params) {
+    return Validator.methods.empty(value) || Validator.methods.lessThan(value, params);
+});
+Validation.add('moreThan', 'Value of this field must be more than {0}', function(value, params) {
+    return Validator.methods.empty(value) || Validator.methods.moreThan(value, params);
 });

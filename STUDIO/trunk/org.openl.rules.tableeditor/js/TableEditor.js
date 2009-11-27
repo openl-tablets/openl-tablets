@@ -212,6 +212,7 @@ var TableEditor = Class.create({
     },
 
     handlePropBlur: function(event) {
+        if (!Validation.isAllValidated()) return false;
         var prop = Event.findElement(event, "input");
         var propName = prop.id.replace(this.propIdPrefix, "");
         var propValue = AjaxHelper.getInputValue(prop);
