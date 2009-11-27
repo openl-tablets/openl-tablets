@@ -1,5 +1,7 @@
 package org.openl.rules.table.properties;
 
+import org.openl.rules.table.constraints.Constraints;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,7 @@ public class DefaultPropertyDefinitions
 		definitions = new TablePropertyDefinition[24];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setBusinessSearch(true);
-		definitions[0].setConstraints("unique in:module");
+		definitions[0].setConstraints(new Constraints("unique in:module"));
 		definitions[0].setDescription("The name of the table, must be unique");
 		definitions[0].setDimensional(false);
 		definitions[0].setDisplayName("Name");
@@ -30,7 +32,7 @@ public class DefaultPropertyDefinitions
 		definitions[0].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[1] = new TablePropertyDefinition();
 		definitions[1].setBusinessSearch(true);
-		definitions[1].setConstraints("no");
+		definitions[1].setConstraints(new Constraints("no"));
 		definitions[1].setDescription("The category of the table, could be two-level, in this case use format: <categor"
 		 + "y>-<subcategory>");
 		definitions[1].setDimensional(false);
@@ -43,7 +45,7 @@ public class DefaultPropertyDefinitions
 		definitions[1].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[2] = new TablePropertyDefinition();
 		definitions[2].setBusinessSearch(true);
-		definitions[2].setConstraints("no");
+		definitions[2].setConstraints(new Constraints("no"));
 		definitions[2].setDescription("The description of the table component");
 		definitions[2].setDimensional(false);
 		definitions[2].setDisplayName("Description");
@@ -55,7 +57,7 @@ public class DefaultPropertyDefinitions
 		definitions[2].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[3] = new TablePropertyDefinition();
 		definitions[3].setBusinessSearch(true);
-		definitions[3].setConstraints("no");
+		definitions[3].setConstraints(new Constraints("no"));
 		definitions[3].setDescription("Add any number of comma-separated tags, could be used for search");
 		definitions[3].setDimensional(false);
 		definitions[3].setDisplayName("Tags");
@@ -68,7 +70,7 @@ public class DefaultPropertyDefinitions
 		definitions[3].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[4] = new TablePropertyDefinition();
 		definitions[4].setBusinessSearch(true);
-		definitions[4].setConstraints("effectiveDate < expirationDate");
+		definitions[4].setConstraints(new Constraints("< expirationDate"));
 		definitions[4].setDescription("The table becomes active on this date and inactive on the expiration date. There"
 		 + " can be multiple copies of the same table in the same module");
 		definitions[4].setDimensional(true);
@@ -83,7 +85,7 @@ public class DefaultPropertyDefinitions
 		definitions[4].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[5] = new TablePropertyDefinition();
 		definitions[5].setBusinessSearch(true);
-		definitions[5].setConstraints("effectiveDate < expirationDate");
+		definitions[5].setConstraints(new Constraints("> effectiveDate"));
 		definitions[5].setDescription("See effectiveDate");
 		definitions[5].setDimensional(true);
 		definitions[5].setDisplayName("Rate Expiration Date");
@@ -97,7 +99,7 @@ public class DefaultPropertyDefinitions
 		definitions[5].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[6] = new TablePropertyDefinition();
 		definitions[6].setBusinessSearch(true);
-		definitions[6].setConstraints("no");
+		definitions[6].setConstraints(new Constraints("no"));
 		definitions[6].setDescription("User Name");
 		definitions[6].setDimensional(false);
 		definitions[6].setDisplayName("Created By");
@@ -109,7 +111,7 @@ public class DefaultPropertyDefinitions
 		definitions[6].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[7] = new TablePropertyDefinition();
 		definitions[7].setBusinessSearch(true);
-		definitions[7].setConstraints("no");
+		definitions[7].setConstraints(new Constraints("no"));
 		definitions[7].setDescription("The date of the table creation");
 		definitions[7].setDimensional(false);
 		definitions[7].setDisplayName("Created On");
@@ -122,7 +124,7 @@ public class DefaultPropertyDefinitions
 		definitions[7].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[8] = new TablePropertyDefinition();
 		definitions[8].setBusinessSearch(false);
-		definitions[8].setConstraints("no");
+		definitions[8].setConstraints(new Constraints("no"));
 		definitions[8].setDescription("User Name");
 		definitions[8].setDimensional(false);
 		definitions[8].setDisplayName("Modified By");
@@ -134,7 +136,7 @@ public class DefaultPropertyDefinitions
 		definitions[8].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[9] = new TablePropertyDefinition();
 		definitions[9].setBusinessSearch(false);
-		definitions[9].setConstraints("no");
+		definitions[9].setConstraints(new Constraints("no"));
 		definitions[9].setDescription("The date of the last table modification");
 		definitions[9].setDimensional(false);
 		definitions[9].setDisplayName("Modified On");
@@ -147,7 +149,7 @@ public class DefaultPropertyDefinitions
 		definitions[9].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[10] = new TablePropertyDefinition();
 		definitions[10].setBusinessSearch(false);
-		definitions[10].setConstraints("one of: common, vocabulary[N], main[N]");
+		definitions[10].setConstraints(new Constraints("one of: common, vocabulary[N], main[N]"));
 		definitions[10].setDescription("Used to manage dependencies between build phases");
 		definitions[10].setDimensional(false);
 		definitions[10].setDisplayName("Build Phase");
@@ -159,7 +161,7 @@ public class DefaultPropertyDefinitions
 		definitions[10].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[11] = new TablePropertyDefinition();
 		definitions[11].setBusinessSearch(false);
-		definitions[11].setConstraints("one of: on, off, gaps, overlaps");
+		definitions[11].setConstraints(new Constraints("one of: on, off, gaps, overlaps"));
 		definitions[11].setDescription("Defines validation mode for DT");
 		definitions[11].setDimensional(false);
 		definitions[11].setDisplayName("Validate DT");
@@ -172,7 +174,7 @@ public class DefaultPropertyDefinitions
 		definitions[11].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[12] = new TablePropertyDefinition();
 		definitions[12].setBusinessSearch(true);
-		definitions[12].setConstraints("list: Defined by method getLob()");
+		definitions[12].setConstraints(new Constraints("list: Defined by method getLob()"));
 		definitions[12].setDescription("Defines the list of active LOBs for this table");
 		definitions[12].setDimensional(true);
 		definitions[12].setDisplayName("LOB");
@@ -185,7 +187,7 @@ public class DefaultPropertyDefinitions
 		definitions[12].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[13] = new TablePropertyDefinition();
 		definitions[13].setBusinessSearch(true);
-		definitions[13].setConstraints("list: East, West, Midwest, South");
+		definitions[13].setConstraints(new Constraints("list: East, West, Midwest, South"));
 		definitions[13].setDescription("US Region");
 		definitions[13].setDimensional(true);
 		definitions[13].setDisplayName("US Region");
@@ -198,7 +200,7 @@ public class DefaultPropertyDefinitions
 		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[14] = new TablePropertyDefinition();
 		definitions[14].setBusinessSearch(false);
-		definitions[14].setConstraints("list: countries");
+		definitions[14].setConstraints(new Constraints("list: countries"));
 		definitions[14].setDefaultValue("US");
 		definitions[14].setDescription("Country");
 		definitions[14].setDimensional(true);
@@ -212,7 +214,7 @@ public class DefaultPropertyDefinitions
 		definitions[14].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[15] = new TablePropertyDefinition();
 		definitions[15].setBusinessSearch(false);
-		definitions[15].setConstraints("list: currencies");
+		definitions[15].setConstraints(new Constraints("list: currencies"));
 		definitions[15].setDefaultValue("USD");
 		definitions[15].setDescription("Currency");
 		definitions[15].setDimensional(false);
@@ -225,7 +227,7 @@ public class DefaultPropertyDefinitions
 		definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[16] = new TablePropertyDefinition();
 		definitions[16].setBusinessSearch(false);
-		definitions[16].setConstraints("list: languages");
+		definitions[16].setConstraints(new Constraints("list: languages"));
 		definitions[16].setDefaultValue("en");
 		definitions[16].setDescription("Language");
 		definitions[16].setDimensional(false);
@@ -238,7 +240,7 @@ public class DefaultPropertyDefinitions
 		definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[17] = new TablePropertyDefinition();
 		definitions[17].setBusinessSearch(true);
-		definitions[17].setConstraints("list: US States");
+		definitions[17].setConstraints(new Constraints("list: US States"));
 		definitions[17].setDescription("US State");
 		definitions[17].setDimensional(true);
 		definitions[17].setDisplayName("US State");
@@ -251,7 +253,7 @@ public class DefaultPropertyDefinitions
 		definitions[17].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[18] = new TablePropertyDefinition();
 		definitions[18].setBusinessSearch(true);
-		definitions[18].setConstraints("list: US, EU, Asia Pacific, North America");
+		definitions[18].setConstraints(new Constraints("list: US, EU, Asia Pacific, North America"));
 		definitions[18].setDescription("Economic Region");
 		definitions[18].setDimensional(false);
 		definitions[18].setDisplayName("Region");
@@ -263,7 +265,7 @@ public class DefaultPropertyDefinitions
 		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[19] = new TablePropertyDefinition();
 		definitions[19].setBusinessSearch(false);
-		definitions[19].setConstraints("NN.NN[.NN]");
+		definitions[19].setConstraints(new Constraints("NN.NN[.NN]"));
 		definitions[19].setDescription("Version is a dimension with a specific constraint - one and only one version mus"
 		 + "t be active(per dimension), the dispatch is done automatically to the active ver"
 		 + "sion");
@@ -275,7 +277,7 @@ public class DefaultPropertyDefinitions
 		definitions[19].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[20] = new TablePropertyDefinition();
 		definitions[20].setBusinessSearch(false);
-		definitions[20].setConstraints("only one active version per dimension");
+		definitions[20].setConstraints(new Constraints("only one active version per dimension"));
 		definitions[20].setDefaultValue("true");
 		definitions[20].setDescription("Indicates an active version");
 		definitions[20].setDimensional(false);
@@ -309,7 +311,7 @@ public class DefaultPropertyDefinitions
 		definitions[22].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[23] = new TablePropertyDefinition();
 		definitions[23].setBusinessSearch(true);
-		definitions[23].setConstraints("Worksheet, Workbook, Module");
+		definitions[23].setConstraints(new Constraints("Worksheet, Workbook, Module"));
 		definitions[23].setDescription("Use in properties table to provide scope of the properties");
 		definitions[23].setDimensional(false);
 		definitions[23].setDisplayName("Scope");
