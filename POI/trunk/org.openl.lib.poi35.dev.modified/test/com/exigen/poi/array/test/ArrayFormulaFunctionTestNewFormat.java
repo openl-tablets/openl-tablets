@@ -164,5 +164,19 @@ public class ArrayFormulaFunctionTestNewFormat {
 	@Test
 	public void columnArray(){
 		assertEquals("C89",th.getNumericValue("I89"), th.calculateNumericFormula("C89"), 0);
-	}		
+	}
+	
+	public void referenceToArray(){
+		assertEquals("C99", th.getNumericValue("i99"), th.calculateNumericFormula("C99"),0);
+	}
+	
+	@Test
+	public void referenceArrayToArray(){
+		assertEquals("B102", th.getNumericValue("i102"), th.calculateNumericFormula("b102"),0.001);
+		assertEquals("B103", th.getNumericValue("i103"), th.calculateNumericFormula("b103"),0.001);
+		assertEquals("C102", th.getNumericValue("j102"), th.calculateNumericFormula("c102"),0.001);
+		assertEquals("C103", th.getNumericValue("j103"), th.calculateNumericFormula("C103"),0.001);
+	}
+	
+	
 }
