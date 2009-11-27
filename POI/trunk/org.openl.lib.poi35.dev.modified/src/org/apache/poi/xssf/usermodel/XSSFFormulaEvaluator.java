@@ -333,12 +333,7 @@ public class XSSFFormulaEvaluator implements FormulaEvaluator {
 //			VIA
 				if(cell.isArrayFormulaContext())
 				{
-					CellRangeAddress range = cell.getArrayFormulaRange(); 
-					ValueEval[][] evalues = (ValueEval[][])((ArrayEval)eval).getArrayValues();
-					ValueEval[][] evaluesGrid =  (ValueEval[][]) FormulaEvaluatorHelper.transform2Range(evalues, range);
-					int rowInd = cell.getRowIndex()-range.getFirstRow();
-					int colInd = cell.getColumnIndex()-range.getFirstColumn();
-					eval = evaluesGrid[rowInd][colInd] ;
+					eval = FormulaEvaluatorHelper.dereferenceValue((ArrayEval)eval, cell);
 				}
 				else		
 					eval = ((ArrayEval)eval).getArrayElementAsEval(0, 0);
