@@ -72,6 +72,8 @@ import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFoundException;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * Evaluates formula cells.<p/>
@@ -696,14 +698,14 @@ public final class WorkbookEvaluator {
 	 */
 	/* package */ ValueEval evaluateReference(EvaluationSheet sheet, int sheetIndex, int rowIndex,
 			int columnIndex, EvaluationTracker tracker) {
-
 		EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
 		ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker); 
 		if (cell.isArrayFormulaContext() && result instanceof ArrayEval){
+			ArrayEval array = (ArrayEval)result;
+			Object[][] rangeVal = FormulaEvaluatorHelper.transform2Range(array.getArrayValues(),((Cell)cell.getIdentityKey()).getArrayFormulaRange());
 			int rowInArray = rowIndex-cell.getFirstCellInArrayFormula().getRowIndex();
 			int colInArray = columnIndex-cell.getFirstCellInArrayFormula().getColumnIndex();
-			ArrayEval array = (ArrayEval)result;
-			result = array.getArrayElementAsEval(rowInArray,colInArray);
+			result = (ValueEval)rangeVal[rowInArray][colInArray];
 			 
 		}
 		return result; 
