@@ -401,12 +401,7 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 //			VIA
 				if(cell.isArrayFormulaContext())
 				{
-					CellRangeAddress af = cell.getArrayFormulaRange(); 
-					ValueEval[][] evalues = (ValueEval[][])((ArrayEval)eval).getArrayValues();
-					ValueEval[][] evaluesGrid =  (ValueEval[][])FormulaEvaluatorHelper.transform2Range(evalues, af);
-					int rowInd = cell.getRowIndex()-af.getFirstRow();
-					int colInd = cell.getColumnIndex()-af.getFirstColumn();
-					eval = evaluesGrid[rowInd][colInd] ;
+					eval = FormulaEvaluatorHelper.dereferenceValue((ArrayEval)eval, cell) ;
 				}
 				else		
 					eval = ((ArrayEval)eval).getArrayElementAsEval(0, 0);

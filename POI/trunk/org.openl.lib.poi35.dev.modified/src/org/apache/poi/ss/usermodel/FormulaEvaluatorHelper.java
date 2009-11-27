@@ -8,6 +8,8 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.ArrayEval;
+import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
@@ -99,6 +101,13 @@ public class FormulaEvaluatorHelper {
 		if(val instanceof ErrorEval)
 			return  new CellValue(((ErrorEval)val).getErrorCode());
 		return new CellValue(ErrorEval.VALUE_INVALID.getErrorCode());
+	}
+	public static ValueEval dereferenceValue(ArrayEval evaluationResult, Cell cell) {
+		CellRangeAddress range = cell.getArrayFormulaRange();
+		Object[][] rangeVal = FormulaEvaluatorHelper.transform2Range(evaluationResult.getArrayValues(),range);
+		int rowInArray = cell.getRowIndex()- range.getFirstRow();
+		int colInArray = cell.getColumnIndex() - range.getFirstColumn();
+		return  (ValueEval)rangeVal[rowInArray][colInArray];
 	}
 
 }

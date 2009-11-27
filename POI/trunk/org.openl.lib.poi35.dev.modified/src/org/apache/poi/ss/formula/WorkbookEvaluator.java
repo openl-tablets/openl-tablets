@@ -574,6 +574,16 @@ public final class WorkbookEvaluator {
 		return index-startIndex;
 	}
 	/**
+	 * Dereferences a single value from any ArrayEval evaluation result.
+	 * @param evaluationResult
+	 * @param cell
+	 * @return
+	 */
+	private static ValueEval dereferenceValue(ArrayEval evaluationResult, EvaluationCell evalCell ) {
+		Cell cell = (Cell)evalCell.getIdentityKey();
+		return FormulaEvaluatorHelper.dereferenceValue(evaluationResult,cell);
+	}
+	/**
 	 * Dereferences a single value from any AreaEval or RefEval evaluation result.
 	 * If the supplied evaluationResult is just a plain value, it is returned as-is.
 	 * @return a <tt>NumberEval</tt>, <tt>StringEval</tt>, <tt>BoolEval</tt>,
@@ -701,11 +711,7 @@ public final class WorkbookEvaluator {
 		EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
 		ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker); 
 		if (cell.isArrayFormulaContext() && result instanceof ArrayEval){
-			ArrayEval array = (ArrayEval)result;
-			Object[][] rangeVal = FormulaEvaluatorHelper.transform2Range(array.getArrayValues(),((Cell)cell.getIdentityKey()).getArrayFormulaRange());
-			int rowInArray = rowIndex-cell.getFirstCellInArrayFormula().getRowIndex();
-			int colInArray = columnIndex-cell.getFirstCellInArrayFormula().getColumnIndex();
-			result = (ValueEval)rangeVal[rowInArray][colInArray];
+			result = dereferenceValue((ArrayEval)result, cell);
 			 
 		}
 		return result; 
