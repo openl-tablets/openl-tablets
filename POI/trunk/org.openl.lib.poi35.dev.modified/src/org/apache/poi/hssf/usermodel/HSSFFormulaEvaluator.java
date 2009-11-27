@@ -53,7 +53,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
  */
 public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 
-    private WorkbookEvaluator _bookEvaluator;
+	private WorkbookEvaluator _bookEvaluator;
 
 	/**
 	 * @deprecated (Sep 2008) HSSFSheet parameter is ignored
@@ -211,23 +211,32 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 	 * @param cell The cell to evaluate
 	 * @return -1 for non-formula cells, or the type of the <em>formula result</em>
 	 */
+//  VIA		
 	public int evaluateFormulaCell(Cell cell) {
-        if (cell == null || cell.getCellType() != HSSFCell.CELL_TYPE_FORMULA) {
-            return -1;
-        }
-        // cell remains a formula cell, but the cached value is changed
-        CellValue cv;
-        if (cell.isArrayFormulaContext()) { // Array Formula Context
-            CellRangeAddress range = cell.getArrayFormulaRange();
-            CellValue[][] cvs = evaluateFormulaCellArValues(cell);
-            setCellValues(cell, cvs);
-            cv = cvs[cell.getRowIndex() - range.getFirstRow()][cell.getColumnIndex()- range.getFirstColumn()];
-        } else {
-            cv = evaluateFormulaCellValue(cell);
-            setCellValue(cell, cv);
-        }
-        return cv.getCellType();
-    }
+		if (cell == null || cell.getCellType() != HSSFCell.CELL_TYPE_FORMULA) {
+			return -1;
+		}
+		// cell remains a formula cell, but the cached value is changed
+		CellValue cv;
+		if(cell.isArrayFormulaContext())
+		{  // Array Formula Context
+			CellValue[][] cvs = evaluateFormulaCellArValues((HSSFCell)cell);
+			// cell remains a formula cell, but the cached value is changed
+			int rowIndex = cell.getRowIndex()-cell.getArrayFormulaRange().getFirstRow();
+			int colIndex = cell.getColumnIndex()-cell.getArrayFormulaRange().getFirstColumn();
+			CellValue[][] values = setCellValues(cell, cvs);
+			cv = values[rowIndex][colIndex];
+		}
+		else  
+
+		{ // Single Formula
+			
+			cv = evaluateFormulaCellValue(cell);
+			setCellValue(cell, cv);
+		}
+		//   end changes VIA			
+		return cv.getCellType();
+	}
 	
 
 	/**
@@ -421,20 +430,29 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 		}
 		throw new RuntimeException("Unexpected eval class (" + eval.getClass().getName() + ")");
 	}
-	
+//  VIA	
 	/**
-     * Returns a Array CellValue wrapper around the supplied ArrayEval instance.
-     */
-    private CellValue[][] evaluateFormulaCellArValues(Cell cell) {
-        CellRangeAddress range = cell.getArrayFormulaRange();
-        CellValue[][] cvs = new CellValue[range.getLastRow() + 1 - range.getFirstRow()][range.getLastColumn() + 1
-                - range.getFirstColumn()];
-        for (int row = range.getFirstRow(); row <= range.getLastRow(); row++) {
-            for (int column = range.getFirstColumn(); column <= range.getLastColumn(); column++) {
-                Cell arrayFormulaCell = cell.getSheet().getRow(row).getCell(column);
-                cvs[row - range.getFirstRow()][column - range.getFirstColumn()] = evaluateFormulaCellValue(arrayFormulaCell);
-            }
-        }
-        return cvs;
-    }
+	 * Returns a Array CellValue wrapper around the supplied ArrayEval instance.
+	 */
+	private CellValue[][] evaluateFormulaCellArValues(HSSFCell cell) {
+		ValueEval eval = _bookEvaluator.evaluate(new HSSFEvaluationCell(cell));
+		if (eval instanceof ArrayEval) {// support of arrays
+			ArrayEval ae = (ArrayEval)eval;
+			int rowCount = ae.getRowCounter();
+			int ColCount = ae.getColCounter();
+			CellValue[][] answer = new CellValue[rowCount][ColCount];
+			for(int i=0;i<rowCount;i++)
+				for(int j=0;j<ColCount;j++)	{
+						ValueEval val =  ae.getArrayElementAsEval(i, j);
+						answer[i][j]= FormulaEvaluatorHelper.eval2Cell(val);
+			}		
+			return answer;
+		}
+		// non-array (usually from aggregate function)
+		CellValue[][] answer = new CellValue[1][1];
+		answer[0][0] = FormulaEvaluatorHelper.eval2Cell(eval);
+		return answer;
+	}
+// end changes VIA	
+	
 }
