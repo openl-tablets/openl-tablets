@@ -1,5 +1,6 @@
 package org.openl.codegen;
 
+import org.openl.rules.table.constraints.Constraints;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -51,4 +52,6 @@ public interface ICodeGen {
 
     StringBuilder genLiteralNull(StringBuilder sb);
     StringBuilder genLiteralJavaOpenClass(JavaOpenClass jc, StringBuilder sb);
+
+    StringBuilder genLiteralConstraints(Constraints value, StringBuilder sb);
 }

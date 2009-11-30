@@ -3,12 +3,15 @@ package org.openl.rules.table.constraints;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.commons.collections.CollectionUtils;
+
 /**
  * @author Andrei Astrouski
  */
 public class Constraints {
 
     private List<Constraint> constraints = new ArrayList<Constraint>();
+    private String constraintsStr;
 
     public Constraints() {
     }
@@ -18,7 +21,12 @@ public class Constraints {
     }
 
     public Constraints(String constraintsStr) {
+        this.constraintsStr = constraintsStr;
         setAll(constraintsStr);
+    }
+
+    public String getConstraintsStr() {
+        return constraintsStr;
     }
 
     public void setAll(String constraintsStr) {
@@ -27,18 +35,22 @@ public class Constraints {
     }
 
     public void setAll(List<Constraint> constraints) {
-        if (!constraints.isEmpty()) {
-            this.constraints = constraints;
+        if (CollectionUtils.isNotEmpty(constraints)) {
+            constraints = new ArrayList<Constraint>(this.constraints);
         }
     }
 
     public List<Constraint> getAll() {
-        return constraints;
+        return new ArrayList<Constraint>(constraints);
     }
 
     public void addAll(String constraintsStr) {
         List<Constraint> constraints = ConstraintsParser.parse(constraintsStr);
-        if (!constraints.isEmpty()) {
+        addAll(constraints);
+    }
+
+    public void addAll(List<Constraint> constraints) {
+        if (CollectionUtils.isNotEmpty(constraints)) {
             constraints.addAll(constraints);
         }
     }
@@ -62,5 +74,4 @@ public class Constraints {
     public int size() {
         return constraints.size();
     }
-
 }

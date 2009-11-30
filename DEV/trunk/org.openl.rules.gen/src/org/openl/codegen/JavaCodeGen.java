@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.openl.rules.table.constraints.Constraints;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -447,4 +448,9 @@ public class JavaCodeGen implements ICodeGen {
 		
 		return sb;
 	}
+
+    public StringBuilder genLiteralConstraints(Constraints value, StringBuilder sb) {
+        return sb.append("new ").append(Constraints.class.getName())
+            .append("(\"").append(value.getConstraintsStr()).append("\")");
+    }
 }
