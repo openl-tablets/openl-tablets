@@ -439,7 +439,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
      *
      * @param columnIndex - the column to set (0-based)
      * @param width - the width in units of 1/256th of a character width
-     * @throws IllegalArgumentException if width > 65536 (the maximum column width in Excel)
+     * @throws IllegalArgumentException if width > 65280 (the maximum column width in Excel)
      */
     public void setColumnWidth(int columnIndex, int width) {
         _sheet.setColumnWidth(columnIndex, width);
@@ -641,26 +641,25 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
         return _sheet.getPageSettings().getHCenter().getHCenter();
     }
-
     /**
-     * Sets the arabic property for this sheet, will make it right to left.
-     * @param value true for arabic, false otherwise.
+     * Sets whether the worksheet is displayed from right to left instead of from left to right.
+     * 
+     * @param value true for right to left, false otherwise.
      */
-    public void setArabic(boolean value)
+    public void setRightToLeft(boolean value)
     {
 	    _sheet.getWindowTwo().setArabic(value);
     }
 
     /**
-     * Gets the arabic property for this sheet.
+     * Whether the text is displayed in right-to-left mode in the window
      *
-     * @return whther the arabic mode is set
+     * @return whether the text is displayed in right-to-left mode in the window
      */
-    public boolean isArabic()
+    public boolean isRightToLeft()
     {
 	    return _sheet.getWindowTwo().getArabic();
     }
-
     /**
      * removes a merged region of cells (hence letting them free)
      * @param index of the region to unmerge
