@@ -447,7 +447,7 @@ public final class Countif extends Fixed2ArgFunction implements FunctionWithArra
 		if(evaluatedCriteriaArg instanceof ErrorEval) {
 			return new ErrorMatcher(((ErrorEval)evaluatedCriteriaArg).getErrorCode(), CmpOp.OP_NONE);
 		}
-		if(evaluatedCriteriaArg == BlankEval.instance) {
+		if(evaluatedCriteriaArg == BlankEval.INSTANCE) {
 			return null;
 		}
 		throw new RuntimeException("Unexpected type for criteria ("

@@ -265,7 +265,7 @@ public final class Index implements Function2Arg, Function3Arg, Function4Arg, Fu
 		if (ev == MissingArgEval.instance) {
 			return 0;
 		}
-		if (ev == BlankEval.instance) {
+		if (ev == BlankEval.INSTANCE) {
 			return 0;
 		}
 		int result = OperandResolver.coerceValueToInt(ev);
