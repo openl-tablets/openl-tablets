@@ -30,16 +30,15 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-// ZS
+//ZS
 import org.apache.poi.ss.formula.ArrayEval;
 // end changers ZS
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
- * @author zsulkins(ZS)- array support
  *
  */
-// ZS 
+//ZS 
 public final class Mode implements FunctionWithArraySupport {
 // end changes ZS
 
@@ -102,9 +101,7 @@ public final class Mode implements FunctionWithArraySupport {
 		if (arg instanceof ArrayEval){
 			arg = ((ArrayEval)arg).arrayAsArea();
 		}
-			
 		// end change
-		
 		if (arg instanceof AreaEval) {
 			AreaEval ae = (AreaEval) arg;
 			int width = ae.getWidth();
@@ -131,7 +128,7 @@ public final class Mode implements FunctionWithArraySupport {
 		if (arg instanceof ErrorEval) {
 			throw new EvaluationException((ErrorEval) arg);
 		}
-		if (arg == BlankEval.INSTANCE || arg instanceof BoolEval || arg instanceof StringEval) {
+		if (arg == BlankEval.instance || arg instanceof BoolEval || arg instanceof StringEval) {
 			if (mustBeNumber) {
 				throw EvaluationException.invalidValue();
 			}
@@ -150,5 +147,5 @@ public final class Mode implements FunctionWithArraySupport {
 	public boolean supportArray(int paramIndex){
 		return true;
 	}
-//	end changes ZS
+//	end changes ZS	
 }
