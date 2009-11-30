@@ -478,7 +478,7 @@ public final class XSSFCell implements Cell {
 
         if (_cell.getF() != null || getSheet().isCellInArrayFormulaContext(this)) {
             return CELL_TYPE_FORMULA;
-        } 
+        }
 
         return getBaseCellType(true);
     }
@@ -590,7 +590,6 @@ public final class XSSFCell implements Cell {
     public String getErrorCellString() {
         int cellType = getBaseCellType(true);
         if(cellType != CELL_TYPE_ERROR) throw typeMismatch(CELL_TYPE_ERROR, cellType, false);
-
         return _cell.getV();
     }
     /**
