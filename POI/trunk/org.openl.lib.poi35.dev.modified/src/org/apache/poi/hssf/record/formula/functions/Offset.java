@@ -42,8 +42,9 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  *
  * @author Josh Micich
  * @author zsulkins(ZS)- array support
- */
-// ZS
+ * 
+ *  */
+//ZS
 public final class Offset implements FunctionWithArraySupport {
 // end changes ZS
 	// These values are specific to BIFF8
@@ -265,7 +266,7 @@ public final class Offset implements FunctionWithArraySupport {
 		}
 		throw new RuntimeException("Unexpected eval type (" + ve.getClass().getName() + ")");
 	}
-// ZS	
+	// ZS	
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
 	 */
@@ -274,6 +275,5 @@ public final class Offset implements FunctionWithArraySupport {
 			return true;
 		return false;
 	}
-//	end changes ZS
+//	end changes ZS	
 }
-
