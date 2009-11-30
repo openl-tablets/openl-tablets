@@ -38,145 +38,145 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 		return (java.lang.String) getFieldValue("name"); 
 	}
 	public void setName(java.lang.String name) {
-	    setFieldValue("name", name);
+		setFieldValue("name", name);
 	}	
 	public java.lang.String getCategory() {
 		return (java.lang.String) getFieldValue("category"); 
 	}
 	public void setCategory(java.lang.String category) {
-	    setFieldValue("category", category);
+		setFieldValue("category", category);
 	}	
 	public java.lang.String getDescription() {
 		return (java.lang.String) getFieldValue("description"); 
 	}
 	public void setDescription(java.lang.String description) {
-	    setFieldValue("description", description);
+		setFieldValue("description", description);
 	}	
 	public java.lang.String getTags() {
 		return (java.lang.String) getFieldValue("tags"); 
 	}
 	public void setTags(java.lang.String tags) {
-	    setFieldValue("tags", tags);
+		setFieldValue("tags", tags);
 	}	
 	public java.util.Date getEffectiveDate() {
 		return (java.util.Date) getFieldValue("effectiveDate"); 
 	}
 	public void setEffectiveDate(java.util.Date effectiveDate) {
-	    setFieldValue("effectiveDate", effectiveDate);
+		setFieldValue("effectiveDate", effectiveDate);
 	}	
 	public java.util.Date getExpirationDate() {
 		return (java.util.Date) getFieldValue("expirationDate"); 
 	}
 	public void setExpirationDate(java.util.Date expirationDate) {
-	    setFieldValue("expirationDate", expirationDate);
+		setFieldValue("expirationDate", expirationDate);
 	}	
 	public java.lang.String getCreatedBy() {
 		return (java.lang.String) getFieldValue("createdBy"); 
 	}
 	public void setCreatedBy(java.lang.String createdBy) {
-	    setFieldValue("createdBy", createdBy);
+		setFieldValue("createdBy", createdBy);
 	}	
 	public java.util.Date getCreatedOn() {
 		return (java.util.Date) getFieldValue("createdOn"); 
 	}
 	public void setCreatedOn(java.util.Date createdOn) {
-	    setFieldValue("createdOn", createdOn);
+		setFieldValue("createdOn", createdOn);
 	}	
 	public java.lang.String getModifiedBy() {
 		return (java.lang.String) getFieldValue("modifiedBy"); 
 	}
 	public void setModifiedBy(java.lang.String modifiedBy) {
-	    setFieldValue("modifiedBy", modifiedBy);
+		setFieldValue("modifiedBy", modifiedBy);
 	}	
 	public java.util.Date getModifyOn() {
 		return (java.util.Date) getFieldValue("modifyOn"); 
 	}
 	public void setModifyOn(java.util.Date modifyOn) {
-	    setFieldValue("modifyOn", modifyOn);
+		setFieldValue("modifyOn", modifyOn);
 	}	
 	public java.lang.String getBuildPhase() {
 		return (java.lang.String) getFieldValue("buildPhase"); 
 	}
 	public void setBuildPhase(java.lang.String buildPhase) {
-	    setFieldValue("buildPhase", buildPhase);
+		setFieldValue("buildPhase", buildPhase);
 	}	
 	public java.lang.String getValidateDT() {
 		return (java.lang.String) getFieldValue("validateDT"); 
 	}
 	public void setValidateDT(java.lang.String validateDT) {
-	    setFieldValue("validateDT", validateDT);
+		setFieldValue("validateDT", validateDT);
 	}	
 	public java.lang.String getLob() {
 		return (java.lang.String) getFieldValue("lob"); 
 	}
 	public void setLob(java.lang.String lob) {
-	    setFieldValue("lob", lob);
+		setFieldValue("lob", lob);
 	}	
 	public java.lang.String getUsregion() {
 		return (java.lang.String) getFieldValue("usregion"); 
 	}
 	public void setUsregion(java.lang.String usregion) {
-	    setFieldValue("usregion", usregion);
+		setFieldValue("usregion", usregion);
 	}	
 	public java.lang.String getCountry() {
 		return (java.lang.String) getFieldValue("country"); 
 	}
 	public void setCountry(java.lang.String country) {
-	    setFieldValue("country", country);
+		setFieldValue("country", country);
 	}	
 	public java.lang.String getCurrency() {
 		return (java.lang.String) getFieldValue("currency"); 
 	}
 	public void setCurrency(java.lang.String currency) {
-	    setFieldValue("currency", currency);
+		setFieldValue("currency", currency);
 	}	
 	public java.lang.String getLang() {
 		return (java.lang.String) getFieldValue("lang"); 
 	}
 	public void setLang(java.lang.String lang) {
-	    setFieldValue("lang", lang);
+		setFieldValue("lang", lang);
 	}	
 	public java.lang.String getState() {
 		return (java.lang.String) getFieldValue("state"); 
 	}
 	public void setState(java.lang.String state) {
-	    setFieldValue("state", state);
+		setFieldValue("state", state);
 	}	
 	public java.lang.String getRegion() {
 		return (java.lang.String) getFieldValue("region"); 
 	}
 	public void setRegion(java.lang.String region) {
-	    setFieldValue("region", region);
+		setFieldValue("region", region);
 	}	
 	public java.lang.String getVersion() {
 		return (java.lang.String) getFieldValue("version"); 
 	}
 	public void setVersion(java.lang.String version) {
-	    setFieldValue("version", version);
+		setFieldValue("version", version);
 	}	
 	public java.lang.Boolean getActive() {
 		return (java.lang.Boolean) getFieldValue("active"); 
 	}
 	public void setActive(java.lang.Boolean active) {
-	    setFieldValue("active", active);
+		setFieldValue("active", active);
 	}	
 	public java.lang.Boolean getFailOnMiss() {
 		return (java.lang.Boolean) getFieldValue("failOnMiss"); 
 	}
 	public void setFailOnMiss(java.lang.Boolean failOnMiss) {
-	    setFieldValue("failOnMiss", failOnMiss);
+		setFieldValue("failOnMiss", failOnMiss);
 	}	
 	public java.lang.Boolean getReturnOnMiss() {
 		return (java.lang.Boolean) getFieldValue("returnOnMiss"); 
 	}
 	public void setReturnOnMiss(java.lang.Boolean returnOnMiss) {
-	    setFieldValue("returnOnMiss", returnOnMiss);
+		setFieldValue("returnOnMiss", returnOnMiss);
 	}	
 	public java.lang.String getScope() {
 		return (java.lang.String) getFieldValue("scope"); 
 	}
 	public void setScope(java.lang.String scope) {
-	    setFieldValue("scope", scope);
+		setFieldValue("scope", scope);
 	}	
 	// <<< END INSERT >>>
 	

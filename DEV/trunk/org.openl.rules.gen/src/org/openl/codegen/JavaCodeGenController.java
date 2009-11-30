@@ -6,6 +6,7 @@ package org.openl.codegen;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.rules.table.constraints.Constraints;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -70,6 +71,12 @@ public class JavaCodeGenController implements ICodeGenController {
 				return gen.genLiteralJavaOpenClass((JavaOpenClass) value, sb);
 			}
 		});
+		map.put(Constraints.class, new Processor() {
+            
+            public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
+                return gen.genLiteralConstraints((Constraints) value, sb);
+            }
+        });
     }
 	
 	public StringBuilder processLiteralValue(Object value, ICodeGen gen, StringBuilder sb) {
