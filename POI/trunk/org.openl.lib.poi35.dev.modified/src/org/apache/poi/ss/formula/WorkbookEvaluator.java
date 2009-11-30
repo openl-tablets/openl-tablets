@@ -225,7 +225,7 @@ public final class WorkbookEvaluator {
                     new EvaluationTracker(_cache));
         }
 	}
-	
+
 	/**
 	 * Case-insensitive.
 	 * @return -1 if sheet with specified name does not exist
@@ -353,7 +353,7 @@ public final class WorkbookEvaluator {
 	}
 	// visibility raised for testing
 	/* package */ ValueEval evaluateFormula(OperationEvaluationContext ec, Ptg[] ptgs) {
-		
+
 //		VIA
 		Stack<Boolean> stackSkip = new Stack<Boolean>();
 		Boolean isSkipActive = new Boolean(true);
@@ -386,26 +386,26 @@ public final class WorkbookEvaluator {
 						if((arg0 instanceof ArrayEval))
 							cond = ((ArrayEval)arg0).getArrayElementAsEval(0,0);
 //						end changes VIA	
-						int[] jumpTable = attrPtg.getJumpTable();
-						int dist;
-						int nChoices = jumpTable.length;
-						try {
+					int[] jumpTable = attrPtg.getJumpTable();
+					int dist;
+					int nChoices = jumpTable.length;
+					try {
 							int switchIndex = Choose.evaluateFirstArg(cond, ec.getRowIndex(), ec.getColumnIndex());
-							if (switchIndex<1 || switchIndex > nChoices) {
-								stack.push(ErrorEval.VALUE_INVALID);
-								dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
-							} else {
-								dist = jumpTable[switchIndex-1];
-							}
-						} catch (EvaluationException e) {
-							stack.push(e.getErrorEval());
+						if (switchIndex<1 || switchIndex > nChoices) {
+							stack.push(ErrorEval.VALUE_INVALID);
 							dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
+						} else {
+							dist = jumpTable[switchIndex-1];
 						}
-						// Encoded dist for tAttrChoose includes size of jump table, but
-						// countTokensToBeSkipped() does not (it counts whole tokens).
-						dist -= nChoices*2+2; // subtract jump table size
-						i+= countTokensToBeSkipped(ptgs, i, dist);
-						continue;
+					} catch (EvaluationException e) {
+						stack.push(e.getErrorEval());
+						dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
+					}
+					// Encoded dist for tAttrChoose includes size of jump table, but
+					// countTokensToBeSkipped() does not (it counts whole tokens).
+					dist -= nChoices*2+2; // subtract jump table size
+					i+= countTokensToBeSkipped(ptgs, i, dist);
+					continue;
 //					VIA	
 					}
 //					end changes VIA
@@ -427,44 +427,43 @@ public final class WorkbookEvaluator {
 						if((arg0 instanceof ArrayEval))
 							cond = ((ArrayEval)arg0).getArrayElementAsEval(0,0);
 //						end changes VIA	
-						try {
+					try {
 							evaluatedPredicate = If.evaluateFirstArg(cond, ec.getRowIndex(), ec.getColumnIndex());
-						} catch (EvaluationException e) {
-							stack.push(e.getErrorEval());
-							int dist = attrPtg.getData();
-							i+= countTokensToBeSkipped(ptgs, i, dist);
-							attrPtg = (AttrPtg) ptgs[i];
-							dist = attrPtg.getData()+1;
-							i+= countTokensToBeSkipped(ptgs, i, dist);
-							continue;
-						}
-						if (evaluatedPredicate) {
-							// nothing to skip - true param folows
-						} else {
-							int dist = attrPtg.getData();
-							i+= countTokensToBeSkipped(ptgs, i, dist);
-							Ptg nextPtg = ptgs[i+1];
-							if (ptgs[i] instanceof AttrPtg && nextPtg instanceof FuncVarPtg) {
-								// this is an if statement without a false param (as opposed to MissingArgPtg as the false param)
-								i++;
-								stack.push(BoolEval.FALSE);
-							}
-						}
+					} catch (EvaluationException e) {
+						stack.push(e.getErrorEval());
+						int dist = attrPtg.getData();
+						i+= countTokensToBeSkipped(ptgs, i, dist);
+						attrPtg = (AttrPtg) ptgs[i];
+						dist = attrPtg.getData()+1;
+						i+= countTokensToBeSkipped(ptgs, i, dist);
 						continue;
-						
 					}
+					if (evaluatedPredicate) {
+						// nothing to skip - true param folows
+					} else {
+						int dist = attrPtg.getData();
+						i+= countTokensToBeSkipped(ptgs, i, dist);
+						Ptg nextPtg = ptgs[i+1];
+						if (ptgs[i] instanceof AttrPtg && nextPtg instanceof FuncVarPtg) {
+							// this is an if statement without a false param (as opposed to MissingArgPtg as the false param)
+							i++;
+							stack.push(BoolEval.FALSE);
+						}
+					}
+					continue;
+				}
 //					end changes VIA
 				}
 				if (attrPtg.isSkip()) {
 //					VIA
 					if(isSkipActive){
 //					end changes VIA
-						int dist = attrPtg.getData()+1;
-						i+= countTokensToBeSkipped(ptgs, i, dist);
-						if (stack.peek() == MissingArgEval.instance) {
-							stack.pop();
-							stack.push(BlankEval.INSTANCE);
-						}
+					int dist = attrPtg.getData()+1;
+					i+= countTokensToBeSkipped(ptgs, i, dist);
+					if (stack.peek() == MissingArgEval.instance) {
+						stack.pop();
+						stack.push(BlankEval.INSTANCE);
+					}
 //					VIA	
 					}	
 //					end changes VIA
@@ -489,6 +488,7 @@ public final class WorkbookEvaluator {
 
 				if (optg instanceof UnionPtg) { continue; }
 
+
 				int numops = optg.getNumberOfOperands();
 				ValueEval[] ops = new ValueEval[numops];
 
@@ -498,7 +498,7 @@ public final class WorkbookEvaluator {
 					ops[j] = p;
 				}
 //				logDebug("invoke " + operation + " (nAgs=" + numops + ")");
-                opResult = OperationEvaluatorFactory.evaluate(optg, ops, ec);
+				opResult = OperationEvaluatorFactory.evaluate(optg, ops, ec);
 //                VIA
                 if(isSkipActive == false && isSkipSensitive(optg))
                 	isSkipActive = stackSkip.pop();
@@ -659,29 +659,24 @@ public final class WorkbookEvaluator {
 				|| ptg instanceof DeletedArea3DPtg || ptg instanceof DeletedRef3DPtg) {
 				return ErrorEval.REF_INVALID;
 		}
+		// POI
 		if (ptg instanceof Ref3DPtg) {
-			Ref3DPtg refPtg = (Ref3DPtg) ptg;
-			SheetRefEvaluator sre = ec.createExternSheetRefEvaluator(refPtg);
-			return new LazyRefEval(refPtg, sre);
+			Ref3DPtg rptg = (Ref3DPtg) ptg;
+			return ec.getRef3DEval(rptg.getRow(), rptg.getColumn(), rptg.getExternSheetIndex());
 		}
 		if (ptg instanceof Area3DPtg) {
 			Area3DPtg aptg = (Area3DPtg) ptg;
-			SheetRefEvaluator sre = ec.createExternSheetRefEvaluator(aptg);
-			return new LazyAreaEval(aptg, sre);
+			return ec.getArea3DEval(aptg.getFirstRow(), aptg.getFirstColumn(), aptg.getLastRow(), aptg.getLastColumn(), aptg.getExternSheetIndex());
 		}
-		SheetRefEvaluator sre = ec.getRefEvaluatorForCurrentSheet();
 		if (ptg instanceof RefPtg) {
-			return new LazyRefEval(((RefPtg) ptg), sre);
+			RefPtg rptg = (RefPtg) ptg;
+			return ec.getRefEval(rptg.getRow(), rptg.getColumn());
 		}
 		if (ptg instanceof AreaPtg) {
-			return new LazyAreaEval(((AreaPtg) ptg), sre);
+			AreaPtg aptg = (AreaPtg) ptg;
+			return ec.getAreaEval(aptg.getFirstRow(), aptg.getFirstColumn(), aptg.getLastRow(), aptg.getLastColumn());
 		}
-		// !!! added ZS
-		if (ptg instanceof ArrayPtg){
-			return new ArrayEval((ArrayPtg)ptg);
-		}
-		// --- end of added
-
+// end change POI      
 		if (ptg instanceof UnknownPtg) {
 			// POI uses UnknownPtg when the encoded Ptg array seems to be corrupted.
 			// This seems to occur in very rare cases (e.g. unused name formulas in bug 44774, attachment 21790)
@@ -712,8 +707,8 @@ public final class WorkbookEvaluator {
 		ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker); 
 		if (cell.isArrayFormulaContext() && result instanceof ArrayEval){
 			result = dereferenceValue((ArrayEval)result, cell);
-			 
-		}
+
+	}
 		return result; 
 			
 	}
