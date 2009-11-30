@@ -16,14 +16,14 @@
 ==================================================================== */
 
 package org.apache.poi.hssf.record.formula.functions;
-
+import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
+import org.apache.poi.hssf.record.formula.eval.MissingArgEval;
 import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
 /**
- *
  * @author Josh Micich
  * @author zshulkins(ZS) array suport;
  */
@@ -35,22 +35,24 @@ public final class Choose implements FunctionWithArraySupport {
 		}
 
 		try {
-			ValueEval ev = OperandResolver.getSingleValue(args[0], srcRowIndex, srcColumnIndex);
-			int ix = OperandResolver.coerceValueToInt(ev);
+			int ix = evaluateFirstArg(args[0], srcRowIndex, srcColumnIndex);
 			if (ix < 1 || ix >= args.length) {
 				return ErrorEval.VALUE_INVALID;
 			}
-			return OperandResolver.getSingleValue(args[ix], srcRowIndex, srcColumnIndex);
+			ValueEval result = OperandResolver.getSingleValue(args[ix], srcRowIndex, srcColumnIndex);
+			if (result == MissingArgEval.instance) {
+				return BlankEval.INSTANCE;
+			}
+			return result;
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
 	}
-
-    public static int evaluateFirstArg(ValueEval arg0, int srcRowIndex, int srcColumnIndex)
-            throws EvaluationException {
-        ValueEval ev = OperandResolver.getSingleValue(arg0, srcRowIndex, srcColumnIndex);
-        return OperandResolver.coerceValueToInt(ev);
-    }
+	public static int evaluateFirstArg(ValueEval arg0, int srcRowIndex, int srcColumnIndex)
+			throws EvaluationException {
+		ValueEval ev = OperandResolver.getSingleValue(arg0, srcRowIndex, srcColumnIndex);
+		return OperandResolver.coerceValueToInt(ev);
+	}
 //	ZS
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
@@ -61,4 +63,3 @@ public final class Choose implements FunctionWithArraySupport {
 	}
 //	end changes ZS
 }
-
