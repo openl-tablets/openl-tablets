@@ -26,11 +26,12 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  * @author zshulkins(ZS) array suport;
- *
  */
 public abstract class AggregateFunction extends MultiOperandNumericFunction {
 
-	private static final class LargeSmall extends Fixed2ArgFunction {
+	// ZS
+	private static final class LargeSmall extends Fixed2ArgFunction implements FunctionWithArraySupport{
+// end change		
 		private final boolean _isLarge;
 		protected LargeSmall(boolean isLarge) {
 			_isLarge = isLarge;
@@ -68,6 +69,18 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 
 			return new NumberEval(result);
 		}
+		
+//      ZS		
+		/* (non-Javadoc)
+		 * @see org.apache.poi.hssf.record.formula.functions.MultiOperandNumericFunction#supportArray(int)
+		 */
+		@Override
+		public boolean supportArray(int paramIndex){
+			if ( paramIndex == 1)
+				return false;
+			return true;
+		}
+//	   end changes ZS			
 	}
 	private static final class ValueCollector extends MultiOperandNumericFunction {
 		private static final ValueCollector instance = new ValueCollector();
@@ -110,18 +123,6 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 			return values.length > 0 ? MathX.max(values) : 0;
 		}
 	};
-	//        ZS		
-		/* (non-Javadoc)
-		 * @see org.apache.poi.hssf.record.formula.functions.MultiOperandNumericFunction#supportArray(int)
-		 */
-		@Override
-		public boolean supportArray(int paramIndex){
-			if ( paramIndex == 1)
-				return false;
-			return true;
-		}
-//       end changes ZS		
-	
 	public static final Function MEDIAN = new AggregateFunction() {
 		protected double evaluate(double[] values) {
 			return StatsLib.median(values);
