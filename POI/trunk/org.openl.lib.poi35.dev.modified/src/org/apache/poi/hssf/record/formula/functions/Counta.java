@@ -31,12 +31,10 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  * Value1, value2, ...   are 1 to 30 arguments representing the values or ranges to be counted.
  *
  * @author Josh Micich
- * @author zshulkins(ZS) array suport;
-
  */
-// ZS
+//ZS
 public final class Counta implements FunctionWithArraySupport {
-// end changes ZS	
+// end changes ZS
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		int nArgs = args.length;
@@ -66,13 +64,14 @@ public final class Counta implements FunctionWithArraySupport {
 			// Error values like #VALUE!, #REF!, #DIV/0!, #NAME? etc don't cause this COUNTA to return an error
 			// in fact, they seem to get counted
 
-			if(valueEval == BlankEval.INSTANCE) {
+			if(valueEval == BlankEval.instance) {
 				return false;
 			}
 			// Note - everything but BlankEval counts
 			return true;
 		}
 	};
+	
 //	ZS
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
