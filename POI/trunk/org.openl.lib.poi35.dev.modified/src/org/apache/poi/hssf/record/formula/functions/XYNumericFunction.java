@@ -24,19 +24,17 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
-// ZS
+//ZS
 import org.apache.poi.ss.formula.ArrayEval;
 // end changes ZS
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  * @author zsulkins(ZS)- array support
- *
  */
-// ZS 
-public abstract class XYNumericFunction implements FunctionWithArraySupport {
+//ZS 
+public abstract class XYNumericFunction extends Fixed2ArgFunction implements FunctionWithArraySupport{
 // end changes ZS
-
 	private static abstract class ValueArray implements ValueVector {
 		private final int _size;
 		protected ValueArray(int size) {
@@ -92,6 +90,7 @@ public abstract class XYNumericFunction implements FunctionWithArraySupport {
 			return _ae.getRelativeValue(rowIx, colIx);
 		}
 	}
+	
 	// !!changed ZS
 	private static final class ArrayEvalValueArray extends ValueArray {
 		private final ArrayEval _ae;
@@ -110,7 +109,6 @@ public abstract class XYNumericFunction implements FunctionWithArraySupport {
 		}
 	}
     // end change	
-	
 
 	protected static interface Accumulator {
 		double accumulate(double x, double y);
@@ -121,15 +119,12 @@ public abstract class XYNumericFunction implements FunctionWithArraySupport {
 	 */
 	protected abstract Accumulator createAccumulator();
 
-	public final ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
-		if (args.length != 2) {
-			return ErrorEval.VALUE_INVALID;
-		}
+	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 
 		double result;
 		try {
-			ValueVector vvX = createValueVector(args[0]);
-			ValueVector vvY = createValueVector(args[1]);
+			ValueVector vvX = createValueVector(arg0);
+			ValueVector vvY = createValueVector(arg1);
 			int size = vvX.getSize();
 			if (size == 0 || vvY.getSize() != size) {
 				return ErrorEval.NA;
@@ -143,14 +138,6 @@ public abstract class XYNumericFunction implements FunctionWithArraySupport {
 		}
 		return new NumberEval(result);
 	}
-// ZS	
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
-		return true;
-	}
-//	end cahnges ZS
 
 	private double evaluateInternal(ValueVector x, ValueVector y, int size)
 			throws EvaluationException {
@@ -221,6 +208,14 @@ public abstract class XYNumericFunction implements FunctionWithArraySupport {
 			return new SingleCellValueArray((ValueEval) arg);
 		}
 		throw new RuntimeException("Unexpected eval class (" + arg.getClass().getName() + ")");
-		// end change
+		// end change		
 	}
+
+	// ZS	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
+	public boolean supportArray(int paramIndex){
+		return true;
+	}	
 }
