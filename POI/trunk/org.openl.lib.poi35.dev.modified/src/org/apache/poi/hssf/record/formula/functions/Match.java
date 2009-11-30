@@ -29,7 +29,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.CompareResult;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.LookupValueComparer;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
-// ZS
+//ZS
 import org.apache.poi.ss.formula.ArrayEval;
 // end changes ZS
 
@@ -67,44 +67,46 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author Josh Micich
  * @author zsulkins(ZS)- array support
  */
-// ZS 
-public final class Match implements FunctionWithArraySupport {
+
+//ZS 
+public final class Match extends Var2or3ArgFunction implements FunctionWithArraySupport {
 // end changes ZS
+	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
+		// default match_type is 1.0
+		return eval(srcRowIndex, srcColumnIndex, arg0, arg1, 1.0);
+	}
 
 
-	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
+	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+			ValueEval arg2) {
 
-		double match_type = 1; // default
+		double match_type;
 
-		switch(args.length) {
-			case 3:
-				try {
-					match_type = evaluateMatchTypeArg(args[2], srcCellRow, srcCellCol);
-				} catch (EvaluationException e) {
-					// Excel/MATCH() seems to have slightly abnormal handling of errors with
-					// the last parameter.  Errors do not propagate up.  Every error gets
-					// translated into #REF!
-					return ErrorEval.REF_INVALID;
-				}
-			case 2:
-				break;
-			default:
-				return ErrorEval.VALUE_INVALID;
+		try {
+			match_type = evaluateMatchTypeArg(arg2, srcRowIndex, srcColumnIndex);
+		} catch (EvaluationException e) {
+			// Excel/MATCH() seems to have slightly abnormal handling of errors with
+			// the last parameter.  Errors do not propagate up.  Every error gets
+			// translated into #REF!
+			return ErrorEval.REF_INVALID;
 		}
 
+		return eval(srcRowIndex, srcColumnIndex, arg0, arg1, match_type);
+	}
+
+	private static  ValueEval eval(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+			double match_type) {
 		boolean matchExact = match_type == 0;
 		// Note - Excel does not strictly require -1 and +1
 		boolean findLargestLessThanOrEqual = match_type > 0;
-
 		// !! changed ZS
-		if (args[1] instanceof ArrayEval){
-			args[1] = ((ArrayEval)args[1]).arrayAsArea();
+		if (arg1 instanceof ArrayEval){
+			arg1 = ((ArrayEval)arg1).arrayAsArea();
 		}
 		// end change
-		
 		try {
-			ValueEval lookupValue = OperandResolver.getSingleValue(args[0], srcCellRow, srcCellCol);
-			ValueVector lookupRange = evaluateLookupRange(args[1]);
+			ValueEval lookupValue = OperandResolver.getSingleValue(arg0, srcRowIndex, srcColumnIndex);
+			ValueVector lookupRange = evaluateLookupRange(arg1);
 			int index = findIndexOfValue(lookupValue, lookupRange, matchExact, findLargestLessThanOrEqual);
 			return new NumberEval(index + 1); // +1 to convert to 1-based
 		} catch (EvaluationException e) {
@@ -256,11 +258,11 @@ public final class Match implements FunctionWithArraySupport {
 		}
 		return false;
 	}
-// ZS	
+	// ZS	
 	public boolean supportArray(int paramIndex){
 		if (paramIndex == 1)
 			return true;
 		return false;
 	}
-// end changes ZS	
+// end changes ZS		
 }
