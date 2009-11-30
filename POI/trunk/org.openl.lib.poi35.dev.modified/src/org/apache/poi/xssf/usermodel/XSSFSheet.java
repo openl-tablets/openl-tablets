@@ -182,7 +182,6 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private void initRows(CTWorksheet worksheet) {
         rows = new TreeMap<Integer, XSSFRow>();
         sharedFormulas = new HashMap<Integer, XSSFCell>();
-        arrayFormulas = new ArrayList<CellRangeAddress>();
         for (CTRow row : worksheet.getSheetData().getRowArray()) {
             XSSFRow r = new XSSFRow(row, this);
             rows.put(r.getRowNum(), r);
@@ -1674,7 +1673,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
      *
      * @param columnIndex - the column to set (0-based)
      * @param width - the width in units of 1/256th of a character width
-     * @throws IllegalArgumentException if width > 65536 (the maximum column width in Excel)
+     * @throws IllegalArgumentException if width > 65280 (the maximum column width in Excel)
      */
     public void setColumnWidth(int columnIndex, int width) {
         if(width > 255*256) throw new IllegalArgumentException("The maximum column width for an individual cell is 255 characters.");
