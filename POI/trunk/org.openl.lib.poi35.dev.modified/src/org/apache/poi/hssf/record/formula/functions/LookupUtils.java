@@ -28,10 +28,9 @@ import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-// ZS
+//ZS
 import org.apache.poi.ss.formula.ArrayEval;
 // end changes ZS
-
 /**
  * Common functionality used by VLOOKUP, HLOOKUP, LOOKUP and MATCH
  *
@@ -377,30 +376,21 @@ final class LookupUtils {
 			// It doesn't matter if eval is a 2D or 3D ref, because that detail is never asked of AreaEval.
 			return refEval.offset(0, 0, 0, 0);
 		}
-		
         // !! ZS changed
 		if (eval instanceof ArrayEval){
 			return  ((ArrayEval)eval).arrayAsArea();
 		}
 		// end change
-
 		throw EvaluationException.invalidValue();
 	}
 
 
 	/**
 	 * Resolves the last (optional) parameter (<b>range_lookup</b>) to the VLOOKUP and HLOOKUP functions.
-	 * @param rangeLookupArg
-	 * @param srcCellRow
-	 * @param srcCellCol
-	 * @return
-	 * @throws EvaluationException
+	 * @param rangeLookupArg must not be <code>null</code>
 	 */
 	public static boolean resolveRangeLookupArg(ValueEval rangeLookupArg, int srcCellRow, int srcCellCol) throws EvaluationException {
-		if(rangeLookupArg == null) {
-			// range_lookup arg not provided
-			return true; // default is TRUE
-		}
+
 		ValueEval valEval = OperandResolver.getSingleValue(rangeLookupArg, srcCellRow, srcCellCol);
 		if(valEval instanceof BlankEval) {
 			// Tricky:
@@ -603,7 +593,7 @@ final class LookupUtils {
 
 	public static LookupValueComparer createLookupComparer(ValueEval lookupValue) {
 
-		if (lookupValue == BlankEval.INSTANCE) {
+		if (lookupValue == BlankEval.instance) {
 			// blank eval translates to zero
 			// Note - a blank eval in the lookup column/row never matches anything
 			// empty string in the lookup column/row can only be matched by explicit empty string
