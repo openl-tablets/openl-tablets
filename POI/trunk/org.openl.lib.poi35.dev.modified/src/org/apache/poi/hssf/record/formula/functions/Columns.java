@@ -50,7 +50,7 @@ public final class Columns extends Fixed1ArgFunction implements FunctionWithArra
 		return new NumberEval(result);
 	}
 	
-//	ZS
+//ZS
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
 	 */
