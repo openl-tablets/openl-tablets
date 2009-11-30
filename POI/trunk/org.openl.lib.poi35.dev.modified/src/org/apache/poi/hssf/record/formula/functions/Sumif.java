@@ -39,34 +39,39 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  * @author Josh Micich
  * @author zsulkins(ZS)- array support
  */
-// ZS 
-public final class Sumif implements FunctionWithArraySupport {
+//ZS 
+public final class Sumif extends Var2or3ArgFunction implements FunctionWithArraySupport {
 // end changes ZS
+	
+	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 
-	public ValueEval evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex) {
-		if (args.length < 2) {
-			return ErrorEval.VALUE_INVALID;
+		AreaEval aeRange;
+		try {
+			aeRange = convertRangeArg(arg0);
+		} catch (EvaluationException e) {
+			return e.getErrorEval();
 		}
+		return eval(srcRowIndex, srcColumnIndex, arg1, aeRange, aeRange);
+	}
+
+	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+			ValueEval arg2) {
 
 		AreaEval aeRange;
 		AreaEval aeSum;
 		try {
-			aeRange = convertRangeArg(args[0]);
-
-			switch (args.length) {
-				case 2:
-					aeSum = aeRange;
-					break;
-				case 3:
-					aeSum = createSumRange(args[2], aeRange);
-					break;
-				default:
-					return ErrorEval.VALUE_INVALID;
-			}
+			aeRange = convertRangeArg(arg0);
+			aeSum = createSumRange(arg2, aeRange);
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
-		I_MatchPredicate mp = Countif.createCriteriaPredicate(args[1], srcRowIndex, srcRowIndex);
+		return eval(srcRowIndex, srcColumnIndex, arg1, aeRange, aeSum);
+	}
+
+	private static ValueEval eval(int srcRowIndex, int srcColumnIndex, ValueEval arg1, AreaEval aeRange,
+			AreaEval aeSum) {
+		// TODO - junit to prove last arg must be srcColumnIndex and not srcRowIndex
+		I_MatchPredicate mp = Countif.createCriteriaPredicate(arg1, srcRowIndex, srcColumnIndex);
 		double result = sumMatchingCells(aeRange, mp, aeSum);
 		return new NumberEval(result);
 	}
@@ -121,6 +126,7 @@ public final class Sumif implements FunctionWithArraySupport {
 		}
 		throw new EvaluationException(ErrorEval.VALUE_INVALID);
 	}
+
 //	ZS
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
@@ -130,6 +136,5 @@ public final class Sumif implements FunctionWithArraySupport {
 			return false;
 		return true;
 	}
-//  end changes ZS	
-
+//  end changes ZS		
 }
