@@ -19,6 +19,9 @@ package org.apache.poi.hssf.record.formula.functions;
 
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
+import org.apache.poi.hssf.record.formula.eval.NumberEval;
+import org.apache.poi.hssf.record.formula.eval.OperandResolver;
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
@@ -26,6 +29,58 @@ import org.apache.poi.hssf.record.formula.eval.EvaluationException;
  *
  */
 public abstract class AggregateFunction extends MultiOperandNumericFunction {
+
+	private static final class LargeSmall extends Fixed2ArgFunction {
+		private final boolean _isLarge;
+		protected LargeSmall(boolean isLarge) {
+			_isLarge = isLarge;
+		}
+
+		public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0,
+				ValueEval arg1) {
+			double dn;
+			try {
+				ValueEval ve1 = OperandResolver.getSingleValue(arg1, srcRowIndex, srcColumnIndex);
+				dn = OperandResolver.coerceValueToDouble(ve1);
+			} catch (EvaluationException e1) {
+				// all errors in the second arg translate to #VALUE!
+				return ErrorEval.VALUE_INVALID;
+			}
+			// weird Excel behaviour on second arg
+			if (dn < 1.0) {
+				// values between 0.0 and 1.0 result in #NUM!
+				return ErrorEval.NUM_ERROR;
+			}
+			// all other values are rounded up to the next integer
+			int k = (int) Math.ceil(dn);
+
+			double result;
+			try {
+				double[] ds = ValueCollector.collectValues(arg0);
+				if (k > ds.length) {
+					return ErrorEval.NUM_ERROR;
+				}
+				result = _isLarge ? StatsLib.kthLargest(ds, k) : StatsLib.kthSmallest(ds, k);
+				NumericFunction.checkValue(result);
+			} catch (EvaluationException e) {
+				return e.getErrorEval();
+			}
+
+			return new NumberEval(result);
+		}
+	}
+	private static final class ValueCollector extends MultiOperandNumericFunction {
+		private static final ValueCollector instance = new ValueCollector();
+		public ValueCollector() {
+			super(false, false);
+		}
+		public static double[] collectValues(ValueEval...operands) throws EvaluationException {
+			return instance.getNumberArray(operands);
+		}
+		protected double evaluate(double[] values) {
+			throw new IllegalStateException("should not be called");
+		}
+	}
 
 	protected AggregateFunction() {
 		super(false, false);
@@ -49,17 +104,13 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 			return StatsLib.devsq(values);
 		}
 	};
-	public static final Function LARGE = new AggregateFunction() {
-		protected double evaluate(double[] ops) throws EvaluationException {
-			if (ops.length < 2) {
-				throw new EvaluationException(ErrorEval.NUM_ERROR);
-			}
-			double[] values = new double[ops.length-1];
-			int k = (int) ops[ops.length-1];
-			System.arraycopy(ops, 0, values, 0, values.length);
-			return StatsLib.kthLargest(values, k);
+	public static final Function LARGE = new LargeSmall(true);
+	public static final Function MAX = new AggregateFunction() {
+		protected double evaluate(double[] values) {
+			return values.length > 0 ? MathX.max(values) : 0;
 		}
-//        ZS		
+	};
+	//        ZS		
 		/* (non-Javadoc)
 		 * @see org.apache.poi.hssf.record.formula.functions.MultiOperandNumericFunction#supportArray(int)
 		 */
@@ -69,13 +120,9 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 				return false;
 			return true;
 		}
+	};	
 //       end changes ZS		
-	};
-	public static final Function MAX = new AggregateFunction() {
-		protected double evaluate(double[] values) {
-			return values.length > 0 ? MathX.max(values) : 0;
-		}
-	};
+	
 	public static final Function MEDIAN = new AggregateFunction() {
 		protected double evaluate(double[] values) {
 			return StatsLib.median(values);
@@ -91,28 +138,7 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 			return MathX.product(values);
 		}
 	};
-	public static final Function SMALL = new AggregateFunction() {
-		protected double evaluate(double[] ops) throws EvaluationException {
-			if (ops.length < 2) {
-				throw new EvaluationException(ErrorEval.NUM_ERROR);
-			}
-			double[] values = new double[ops.length-1];
-			int k = (int) ops[ops.length-1];
-			System.arraycopy(ops, 0, values, 0, values.length);
-			return StatsLib.kthSmallest(values, k);
-		}
-//        ZS		
-		/* (non-Javadoc)
-		 * @see org.apache.poi.hssf.record.formula.functions.MultiOperandNumericFunction#supportArray(int)
-		 */
-		@Override
-		public boolean supportArray(int paramIndex){
-			if ( paramIndex == 1)
-				return false;
-			return true;
-		}
-//	   end changes ZS	
-	};
+	public static final Function SMALL = new LargeSmall(false);
 	public static final Function STDEV = new AggregateFunction() {
 		protected double evaluate(double[] values) throws EvaluationException {
 			if (values.length < 1) {

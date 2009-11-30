@@ -38,7 +38,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  * </ol>
  *
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-* @author zshulkins(ZS) array suport;
+ * @author zshulkins(ZS) array suport;
  * 
  */
 //   ZS
@@ -121,8 +121,7 @@ public abstract class BooleanFunction implements FunctionWithArraySupport {
 				ValueEval ve = (ValueEval) arg;
 				tempVe = OperandResolver.coerceValueToBoolean(ve, false);
 			} else {
-			
-				tempVe = OperandResolver.coerceValueToBoolean(arg,false);
+				tempVe = OperandResolver.coerceValueToBoolean(arg, false);
 //         end changes ZS 
 			}
 
