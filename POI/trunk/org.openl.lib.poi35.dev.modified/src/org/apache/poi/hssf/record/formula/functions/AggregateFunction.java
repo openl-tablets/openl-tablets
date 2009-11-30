@@ -120,7 +120,6 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 				return false;
 			return true;
 		}
-	};	
 //       end changes ZS		
 	
 	public static final Function MEDIAN = new AggregateFunction() {
