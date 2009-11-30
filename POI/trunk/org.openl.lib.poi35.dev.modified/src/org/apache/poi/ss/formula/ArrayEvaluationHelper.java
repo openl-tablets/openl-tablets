@@ -44,6 +44,9 @@ public class ArrayEvaluationHelper {
 
     /**
      * Prepare empty template, which will keep result of evaluation
+     *   A few arguments of function may be array. In this case result array will have
+     *   dimension as  
+     * 
      * 
      * @param function
      * @param ops

@@ -675,6 +675,11 @@ public final class WorkbookEvaluator {
 			AreaPtg aptg = (AreaPtg) ptg;
 			return ec.getAreaEval(aptg.getFirstRow(), aptg.getFirstColumn(), aptg.getLastRow(), aptg.getLastColumn());
 		}
+		// !!! added ZS
+		if (ptg instanceof ArrayPtg){
+			return new ArrayEval((ArrayPtg)ptg);
+		}
+		// --- end of added
 		if (ptg instanceof UnknownPtg) {
 			// POI uses UnknownPtg when the encoded Ptg array seems to be corrupted.
 			// This seems to occur in very rare cases (e.g. unused name formulas in bug 44774, attachment 21790)

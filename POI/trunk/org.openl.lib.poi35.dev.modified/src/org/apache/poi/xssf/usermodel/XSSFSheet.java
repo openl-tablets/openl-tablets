@@ -182,6 +182,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private void initRows(CTWorksheet worksheet) {
         rows = new TreeMap<Integer, XSSFRow>();
         sharedFormulas = new HashMap<Integer, XSSFCell>();
+        arrayFormulas = new ArrayList<CellRangeAddress>();
         for (CTRow row : worksheet.getSheetData().getRowArray()) {
             XSSFRow r = new XSSFRow(row, this);
             rows.put(r.getRowNum(), r);
