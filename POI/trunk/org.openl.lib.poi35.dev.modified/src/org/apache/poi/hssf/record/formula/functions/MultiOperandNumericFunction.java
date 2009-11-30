@@ -27,7 +27,7 @@ import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-// ZS
+//ZS
 import org.apache.poi.ss.formula.ArrayEval;
 // end changes ZS
 
@@ -38,27 +38,18 @@ import org.apache.poi.ss.formula.ArrayEval;
  * classes that take variable number of operands, and
  * where the order of operands does not matter
  */
-// ZS 
+//ZS 
 public abstract class MultiOperandNumericFunction implements FunctionWithArraySupport {
 // end changes ZS
 
+
 	private final boolean _isReferenceBoolCounted;
 	private final boolean _isBlankCounted;
-	
 
 	protected MultiOperandNumericFunction(boolean isReferenceBoolCounted, boolean isBlankCounted) {
 		_isReferenceBoolCounted = isReferenceBoolCounted;
 		_isBlankCounted = isBlankCounted;
 	}
-	
-// ZS	
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
-		return true;
-	}
-//	end changes ZS
 
 	static final double[] EMPTY_DOUBLE_ARRAY = { };
 
@@ -181,7 +172,6 @@ public abstract class MultiOperandNumericFunction implements FunctionWithArraySu
 			return;
 		}
 		// end added
-
 		collectValue(operand, false, temp);
 	}
 	private void collectValue(ValueEval ve, boolean isViaReference, DoubleList temp)  throws EvaluationException {
@@ -216,7 +206,7 @@ public abstract class MultiOperandNumericFunction implements FunctionWithArraySu
 			}
 			return;
 		}
-		if (ve == BlankEval.INSTANCE) {
+		if (ve == BlankEval.instance) {
 			if (_isBlankCounted) {
 				temp.add(0.0);
 			}
@@ -225,4 +215,13 @@ public abstract class MultiOperandNumericFunction implements FunctionWithArraySu
 		throw new RuntimeException("Invalid ValueEval type passed for conversion: ("
 				+ ve.getClass() + ")");
 	}
+	
+	// ZS	
+	/* (non-Javadoc)
+	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	 */
+	public boolean supportArray(int paramIndex){
+		return true;
+	}
+//	end changes ZS	
 }
