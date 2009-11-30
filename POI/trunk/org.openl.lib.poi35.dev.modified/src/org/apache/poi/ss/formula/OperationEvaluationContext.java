@@ -42,8 +42,7 @@ import org.apache.poi.ss.util.CellReference.NameType;
  * VIA - add get sheetIndex
  */
 public final class OperationEvaluationContext {
-
-
+	public static final FreeRefFunction UDF = UserDefinedFunction.instance;
 	private final EvaluationWorkbook _workbook;
 	private final int _sheetIndex;
 	private final int _rowIndex;
@@ -74,17 +73,17 @@ public final class OperationEvaluationContext {
 	public int getColumnIndex() {
 		return _columnIndex;
 	}
-	
 	public WorkbookEvaluator getWorkbookEvaluator(){
 	    return _bookEvaluator;
 	}
 
 	public boolean isInArrayFormulaContext() {
         return _inArrayFormulaContext;
-    }
-
-    /* package */ SheetRefEvaluator createExternSheetRefEvaluator(ExternSheetReferenceToken ptg) {
-		int externSheetIndex = ptg.getExternSheetIndex();
+	
+	SheetRefEvaluator createExternSheetRefEvaluator(ExternSheetReferenceToken ptg) {
+		return createExternSheetRefEvaluator(ptg.getExternSheetIndex());
+	}
+	SheetRefEvaluator createExternSheetRefEvaluator(int externSheetIndex) {
 		ExternalSheet externalSheet = _workbook.getExternalSheet(externSheetIndex);
 		WorkbookEvaluator targetEvaluator;
 		int otherSheetIndex;
@@ -227,7 +226,7 @@ public final class OperationEvaluationContext {
 			default:
 				throw new IllegalStateException("Unexpected reference classification of '" + refStrPart1 + "'.");
 		}
-		return new LazyAreaEval(new AI(firstRow, firstCol, lastRow, lastCol), sre);
+		return new LazyAreaEval(firstRow, firstCol, lastRow, lastCol, sre);
 	}
 
 	private static int parseRowRef(String refStrPart) {
@@ -284,4 +283,23 @@ public final class OperationEvaluationContext {
 		return _sheetIndex;
 	}
 //	end changes VIA
+
+	public ValueEval getRefEval(int rowIndex, int columnIndex) {
+		SheetRefEvaluator sre = getRefEvaluatorForCurrentSheet();
+		return new LazyRefEval(rowIndex, columnIndex, sre);
+	}
+	public ValueEval getRef3DEval(int rowIndex, int columnIndex, int extSheetIndex) {
+		SheetRefEvaluator sre = createExternSheetRefEvaluator(extSheetIndex);
+		return new LazyRefEval(rowIndex, columnIndex, sre);
+	}
+	public ValueEval getAreaEval(int firstRowIndex, int firstColumnIndex,
+			int lastRowIndex, int lastColumnIndex) {
+		SheetRefEvaluator sre = getRefEvaluatorForCurrentSheet();
+		return new LazyAreaEval(firstRowIndex, firstColumnIndex, lastRowIndex, lastColumnIndex, sre);
+	}
+	public ValueEval getArea3DEval(int firstRowIndex, int firstColumnIndex,
+			int lastRowIndex, int lastColumnIndex, int extSheetIndex) {
+		SheetRefEvaluator sre = createExternSheetRefEvaluator(extSheetIndex);
+		return new LazyAreaEval(firstRowIndex, firstColumnIndex, lastRowIndex, lastColumnIndex, sre);
+	}
 }
