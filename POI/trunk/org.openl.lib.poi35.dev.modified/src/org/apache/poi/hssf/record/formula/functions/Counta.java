@@ -64,7 +64,7 @@ public final class Counta implements FunctionWithArraySupport {
 			// Error values like #VALUE!, #REF!, #DIV/0!, #NAME? etc don't cause this COUNTA to return an error
 			// in fact, they seem to get counted
 
-			if(valueEval == BlankEval.instance) {
+			if(valueEval == BlankEval.INSTANCE) {
 				return false;
 			}
 			// Note - everything but BlankEval counts

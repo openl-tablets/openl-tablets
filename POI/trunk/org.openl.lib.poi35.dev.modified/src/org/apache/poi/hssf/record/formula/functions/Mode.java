@@ -128,7 +128,7 @@ public final class Mode implements FunctionWithArraySupport {
 		if (arg instanceof ErrorEval) {
 			throw new EvaluationException((ErrorEval) arg);
 		}
-		if (arg == BlankEval.instance || arg instanceof BoolEval || arg instanceof StringEval) {
+		if (arg == BlankEval.INSTANCE || arg instanceof BoolEval || arg instanceof StringEval) {
 			if (mustBeNumber) {
 				throw EvaluationException.invalidValue();
 			}

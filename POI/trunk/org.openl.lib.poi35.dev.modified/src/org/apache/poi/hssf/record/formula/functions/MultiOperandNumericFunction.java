@@ -206,7 +206,7 @@ public abstract class MultiOperandNumericFunction implements FunctionWithArraySu
 			}
 			return;
 		}
-		if (ve == BlankEval.instance) {
+		if (ve == BlankEval.INSTANCE) {
 			if (_isBlankCounted) {
 				temp.add(0.0);
 			}

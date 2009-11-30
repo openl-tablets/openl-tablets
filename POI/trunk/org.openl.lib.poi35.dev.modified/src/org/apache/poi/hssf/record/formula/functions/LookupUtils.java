@@ -593,7 +593,7 @@ final class LookupUtils {
 
 	public static LookupValueComparer createLookupComparer(ValueEval lookupValue) {
 
-		if (lookupValue == BlankEval.instance) {
+		if (lookupValue == BlankEval.INSTANCE) {
 			// blank eval translates to zero
 			// Note - a blank eval in the lookup column/row never matches anything
 			// empty string in the lookup column/row can only be matched by explicit empty string

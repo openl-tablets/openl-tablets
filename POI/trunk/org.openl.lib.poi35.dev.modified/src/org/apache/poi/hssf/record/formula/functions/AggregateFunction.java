@@ -74,7 +74,6 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 		/* (non-Javadoc)
 		 * @see org.apache.poi.hssf.record.formula.functions.MultiOperandNumericFunction#supportArray(int)
 		 */
-		@Override
 		public boolean supportArray(int paramIndex){
 			if ( paramIndex == 1)
 				return false;
