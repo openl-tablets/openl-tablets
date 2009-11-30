@@ -21,5 +21,13 @@ public class CellEditorFactory implements ICellEditorFactory {
     public ICellEditor makeFormulaEditor() {
         return new FormulaCellEditor();
     }
+    
+    public ICellEditor makeDateEditor() {
+        return new DateCellEditor();
+    }
+    
+    public ICellEditor makeBooleanEditor() {
+        return new BooleanCellEditor();
+    }
 
 }

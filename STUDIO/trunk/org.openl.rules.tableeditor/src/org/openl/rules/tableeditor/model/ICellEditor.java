@@ -19,7 +19,8 @@ public interface ICellEditor {
                                CE_COMBO = "combo",
                                CE_DATE = "date",
                                CE_MULTICHOICE = "multiChoice",
-                               CE_FORMULA = "formula";
+                               CE_FORMULA = "formula",
+                               CE_BOOLEAN = "boolean";
 
     /**
      *
