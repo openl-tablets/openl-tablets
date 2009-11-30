@@ -76,7 +76,7 @@ public final class Count implements FunctionWithArraySupport {
 		}
 	};
 	
-	// ZS	
+	//ZS	
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
 	 */
