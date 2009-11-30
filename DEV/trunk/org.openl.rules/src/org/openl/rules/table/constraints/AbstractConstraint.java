@@ -14,15 +14,15 @@ public abstract class AbstractConstraint implements Constraint {
         this.value = value;
     }
 
-    @Override
+    //@Override
     public String getValue() {
         return value;
     }
 
-    @Override
+    //@Override
     public abstract Object[] getParams();
 
-    @Override
+    //@Override
     public abstract boolean check(Object... valuesToCheck);
 
 }
