@@ -34,10 +34,9 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  * TODO: Check this properly matches excel on edge cases
  *  like formula cells, error cells etc
  */
-// ZS  
+//ZS 
 public final class Count implements FunctionWithArraySupport {
 // end changes ZS
-
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		int nArgs = args.length;
 		if (nArgs < 1) {
@@ -76,13 +75,13 @@ public final class Count implements FunctionWithArraySupport {
 			return false;
 		}
 	};
-// ZS	
+	
+	// ZS	
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
 	 */
 	public boolean supportArray(int paramIndex){
 		return true;
 	}
-//	end changes ZS
+//	end changes ZS	
 }
-
