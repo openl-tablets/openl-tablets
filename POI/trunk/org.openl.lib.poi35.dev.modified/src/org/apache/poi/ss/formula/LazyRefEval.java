@@ -38,7 +38,7 @@ final class LazyRefEval extends RefEvalBase {
         return _evaluator.getSheetName();
     }
 
-    public LazyRefEval(int rowIndex, int columnIndex, SheetRefEvaluator sre) {
+	public LazyRefEval(int rowIndex, int columnIndex, SheetRefEvaluator sre) {
 		super(rowIndex, columnIndex);
 		if (sre == null) {
 			throw new IllegalArgumentException("sre must not be null");
