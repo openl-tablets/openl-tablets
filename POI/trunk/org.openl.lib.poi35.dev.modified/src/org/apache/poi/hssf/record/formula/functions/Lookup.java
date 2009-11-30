@@ -18,7 +18,6 @@
 package org.apache.poi.hssf.record.formula.functions;
 
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
-import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
 import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
@@ -39,26 +38,20 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  * @author Josh Micich
  * @author zsulkins(ZS)- array support
  */
-// ZS 
-public final class Lookup implements FunctionWithArraySupport {
-// end changes ZS
+//ZS
+public final class Lookup extends Var2or3ArgFunction implements FunctionWithArraySupport{
+// end changes
+	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
+		// complex rules to choose lookupVector and resultVector from the single area ref
+		throw new RuntimeException("Two arg version of LOOKUP not supported yet");
+	}
 
-	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
-		switch(args.length) {
-			case 3:
-				break;
-			case 2:
-				// complex rules to choose lookupVector and resultVector from the single area ref
-				throw new RuntimeException("Two arg version of LOOKUP not supported yet");
-			default:
-				return ErrorEval.VALUE_INVALID;
-		}
-
-
+	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+			ValueEval arg2) {
 		try {
-			ValueEval lookupValue = OperandResolver.getSingleValue(args[0], srcCellRow, srcCellCol);
-			AreaEval aeLookupVector = LookupUtils.resolveTableArrayArg(args[1]);
-			AreaEval aeResultVector = LookupUtils.resolveTableArrayArg(args[2]);
+			ValueEval lookupValue = OperandResolver.getSingleValue(arg0, srcRowIndex, srcColumnIndex);
+			AreaEval aeLookupVector = LookupUtils.resolveTableArrayArg(arg1);
+			AreaEval aeResultVector = LookupUtils.resolveTableArrayArg(arg2);
 
 			ValueVector lookupVector = createVector(aeLookupVector);
 			ValueVector resultVector = createVector(aeResultVector);
@@ -82,7 +75,8 @@ public final class Lookup implements FunctionWithArraySupport {
 		// extra complexity required to emulate the way LOOKUP can handles these abnormal cases.
 		throw new RuntimeException("non-vector lookup or result areas not supported yet");
 	}
-//    ZS	
+	
+//  ZS	
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
 	 */
@@ -96,5 +90,5 @@ public final class Lookup implements FunctionWithArraySupport {
 		}
 	
 	}
-// end changes ZS		
+// end changes ZS			
 }
