@@ -79,6 +79,7 @@ public final class OperationEvaluationContext {
 
 	public boolean isInArrayFormulaContext() {
         return _inArrayFormulaContext;
+	}   
 	
 	SheetRefEvaluator createExternSheetRefEvaluator(ExternSheetReferenceToken ptg) {
 		return createExternSheetRefEvaluator(ptg.getExternSheetIndex());
