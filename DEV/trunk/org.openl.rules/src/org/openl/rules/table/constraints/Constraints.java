@@ -21,7 +21,6 @@ public class Constraints {
     }
 
     public Constraints(String constraintsStr) {
-        this.constraintsStr = constraintsStr;
         setAll(constraintsStr);
     }
 
@@ -30,6 +29,7 @@ public class Constraints {
     }
 
     public void setAll(String constraintsStr) {
+        this.constraintsStr = constraintsStr;
         List<Constraint> constraints = ConstraintsParser.parse(constraintsStr);
         setAll(constraints);
     }
