@@ -659,7 +659,6 @@ public final class WorkbookEvaluator {
 				|| ptg instanceof DeletedArea3DPtg || ptg instanceof DeletedRef3DPtg) {
 				return ErrorEval.REF_INVALID;
 		}
-		// POI
 		if (ptg instanceof Ref3DPtg) {
 			Ref3DPtg rptg = (Ref3DPtg) ptg;
 			return ec.getRef3DEval(rptg.getRow(), rptg.getColumn(), rptg.getExternSheetIndex());
@@ -676,7 +675,6 @@ public final class WorkbookEvaluator {
 			AreaPtg aptg = (AreaPtg) ptg;
 			return ec.getAreaEval(aptg.getFirstRow(), aptg.getFirstColumn(), aptg.getLastRow(), aptg.getLastColumn());
 		}
-// end change POI      
 		if (ptg instanceof UnknownPtg) {
 			// POI uses UnknownPtg when the encoded Ptg array seems to be corrupted.
 			// This seems to occur in very rare cases (e.g. unused name formulas in bug 44774, attachment 21790)
