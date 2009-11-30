@@ -45,10 +45,9 @@ import org.apache.poi.ss.usermodel.ErrorConstants;
  * @author Josh Micich
  * @author zshulkins(ZS) array support
  */
-//  ZS
-public final class Countif implements FunctionWithArraySupport {
-//   end changes ZS	
-
+// ZS
+public final class Countif extends Fixed2ArgFunction implements FunctionWithArraySupport {
+//  end changes ZS	
 	private static final class CmpOp {
 		public static final int NONE = 0;
 		public static final int EQ = 1;
@@ -403,23 +402,14 @@ public final class Countif implements FunctionWithArraySupport {
 		}
 	}
 
-	public ValueEval evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex) {
-		switch(args.length) {
-			case 2:
-				// expected
-				break;
-			default:
-				// TODO - it doesn't seem to be possible to enter COUNTIF() into Excel with the wrong arg count
-				// perhaps this should be an exception
-				return ErrorEval.VALUE_INVALID;
-		}
+	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 
-		I_MatchPredicate mp = createCriteriaPredicate(args[1], srcRowIndex, srcColumnIndex);
+		I_MatchPredicate mp = createCriteriaPredicate(arg1, srcRowIndex, srcColumnIndex);
 		if(mp == null) {
 			// If the criteria arg is a reference to a blank cell, countif always returns zero.
 			return NumberEval.ZERO;
 		}
-		double result = countMatchingCellsInArea(args[0], mp);
+		double result = countMatchingCellsInArea(arg0, mp);
 		return new NumberEval(result);
 	}
 	/**
@@ -457,7 +447,7 @@ public final class Countif implements FunctionWithArraySupport {
 		if(evaluatedCriteriaArg instanceof ErrorEval) {
 			return new ErrorMatcher(((ErrorEval)evaluatedCriteriaArg).getErrorCode(), CmpOp.OP_NONE);
 		}
-		if(evaluatedCriteriaArg == BlankEval.INSTANCE) {
+		if(evaluatedCriteriaArg == BlankEval.instance) {
 			return null;
 		}
 		throw new RuntimeException("Unexpected type for criteria ("
@@ -537,6 +527,7 @@ public final class Countif implements FunctionWithArraySupport {
 		}
 		return null;
 	}
+	
 //	ZS
 	/* (non-Javadoc)
 	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
@@ -546,5 +537,5 @@ public final class Countif implements FunctionWithArraySupport {
 				return true;
 		return false;  // TODO - counif does not allow first param as array - only as range 
 	}
-//	end changes ZS
+//	end changes ZS	
 }
