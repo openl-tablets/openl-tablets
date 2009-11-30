@@ -1,5 +1,7 @@
 package org.openl.rules.tableeditor.model;
 
+import java.util.Date;
+
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
@@ -9,6 +11,7 @@ import org.openl.types.IOpenClass;
 
 // TODO Reimplement
 public class CellEditorSelector {
+    
     private ICellEditorFactory factory = new CellEditorFactory();
 
     private ICellEditor defaultEditor(int row, int col, TableEditorModel model) {
@@ -18,39 +21,33 @@ public class CellEditorSelector {
 
     @SuppressWarnings("unchecked")
     private ICellEditor selectEditor(CellMetaInfo meta) {
+        ICellEditor result = null;
         IOpenClass dataType = meta == null ? null : meta.getDataType();
-
-        if (dataType == null) {
-            return null;
-        }
-        IDomain domain = dataType.getDomain();
-
-        if (dataType.getInstanceClass() == int.class /*
-                                                         * ||
-                                                         * dataType.getInstanceClass() ==
-                                                         * IntRange.class
-                                                         */) {
-
-            if (domain == null) {
-                return factory.makeIntEditor(Integer.MIN_VALUE, Integer.MAX_VALUE);
+        if (dataType != null) {
+            IDomain domain = dataType.getDomain();
+            Class<?> instanceClass = dataType.getInstanceClass();
+            if (instanceClass == int.class) {
+                if (domain == null) {
+                    result = factory.makeIntEditor(Integer.MIN_VALUE,
+                            Integer.MAX_VALUE);
+                } else if (domain instanceof IntRangeDomain) {
+                    IntRangeDomain range = (IntRangeDomain) domain;
+                    result = factory.makeIntEditor(range.getMin(), range
+                            .getMax());
+                }
+            } else if (instanceClass == String.class) {
+                if (domain instanceof EnumDomain) {
+                    EnumDomain enumDomain = (EnumDomain) domain;
+                    result = factory.makeComboboxEditor((String[]) enumDomain
+                            .getEnum().getAllObjects());
+                }
+            } else if (instanceClass == Date.class) {
+                result = factory.makeDateEditor();
+            } else if (instanceClass == boolean.class) {
+                result = factory.makeBooleanEditor();
             }
-
-            if (domain instanceof IntRangeDomain) {
-                IntRangeDomain range = (IntRangeDomain) domain;
-                return factory.makeIntEditor(range.getMin(), range.getMax());
-            }
         }
-
-        if (dataType.getInstanceClass() == String.class) {
-
-            if (domain instanceof EnumDomain) {
-                EnumDomain enumDomain = (EnumDomain) domain;
-                return factory.makeComboboxEditor((String[]) enumDomain.getEnum().getAllObjects());
-            }
-
-        }
-
-        return null;
+        return result;
     }
 
     public ICellEditor selectEditor(int row, int col, TableEditorModel model) {

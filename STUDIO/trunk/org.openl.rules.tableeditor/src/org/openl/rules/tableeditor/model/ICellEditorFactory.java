@@ -33,4 +33,8 @@ public interface ICellEditorFactory {
     ICellEditor makeTextEditor();
     
     ICellEditor makeFormulaEditor();
+    
+    ICellEditor makeDateEditor();
+    
+    ICellEditor makeBooleanEditor();
 }
