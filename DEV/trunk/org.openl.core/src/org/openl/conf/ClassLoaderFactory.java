@@ -21,10 +21,10 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.OpenL;
 import org.openl.util.ASelector;
-import org.openl.util.FileTreeIterator;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.tree.FileTreeIterator;
 
 /**
  * @author snshor

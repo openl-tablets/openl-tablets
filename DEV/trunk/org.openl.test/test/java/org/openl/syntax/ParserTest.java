@@ -17,9 +17,9 @@ import org.openl.syntax.impl.LiteralNode;
 import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
-import org.openl.util.TreeIterator;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
+import org.openl.util.tree.TreeIterator;
 
 /**
  * @author snshor

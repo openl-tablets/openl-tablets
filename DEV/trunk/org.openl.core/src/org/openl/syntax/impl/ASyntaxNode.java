@@ -11,9 +11,9 @@ import java.util.Iterator;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.AIndexedIterator;
-import org.openl.util.TreeIterator;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
+import org.openl.util.tree.TreeIterator;
 
 /**
  * @author snshor

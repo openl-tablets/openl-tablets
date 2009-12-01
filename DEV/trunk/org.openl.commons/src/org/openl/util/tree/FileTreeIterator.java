@@ -4,10 +4,12 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.util;
+package org.openl.util.tree;
 
 import java.io.File;
 import java.util.Iterator;
+
+import org.openl.util.OpenIterator;
 
 /**
  * @author snshor

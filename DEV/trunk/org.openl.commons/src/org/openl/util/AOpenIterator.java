@@ -358,7 +358,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return new ModifierIterator<E, T>(it, mod);
     }
 
-    static boolean isEmpty(Iterator<?> it) {
+    public static boolean isEmpty(Iterator<?> it) {
         return it == null || it == EMPTY;
     }
 
