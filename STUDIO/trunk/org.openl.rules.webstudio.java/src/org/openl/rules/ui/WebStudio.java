@@ -7,6 +7,7 @@ package org.openl.rules.ui;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.rules.ui.view.WebStudioViewMode;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -44,7 +45,7 @@ public class WebStudio {
     ProjectModel model = new ProjectModel(this);
     private OpenLProjectLocator locator;
     OpenLWrapperInfo[] wrappers = null;
-    WebStudioMode mode = WebStudioMode.BUSINESS1;
+    WebStudioViewMode mode = WebStudioViewMode.BUSINESS1_VIEW;
     private Set<String> writableProjects;
     OpenLWrapperInfo currentWrapper;
     private boolean showFormulas;
@@ -59,9 +60,9 @@ public class WebStudio {
     // }
     int businessModeIdx = 0;
     int developerModeIdx = 0;
-    WebStudioMode[] businessModes = { WebStudioMode.BUSINESS1, WebStudioMode.BUSINESS2, WebStudioMode.BUSINESS3 };
+    WebStudioViewMode[] businessModes = { WebStudioViewMode.BUSINESS1_VIEW, WebStudioViewMode.BUSINESS2_VIEW, WebStudioViewMode.BUSINESS3_VIEW };
 
-    WebStudioMode[] developerModes = { WebStudioMode.DEVELOPER };
+    WebStudioViewMode[] developerModes = { WebStudioViewMode.DEVELOPER_VIEW };
 
     public WebStudio() {
         boolean initialized = false;
@@ -126,7 +127,7 @@ public class WebStudio {
      * 
      * @return
      */
-    private int findMode(WebStudioMode[] modes, int modeIdx, boolean sameType) {
+    private int findMode(WebStudioViewMode[] modes, int modeIdx, boolean sameType) {
         if (sameType) {
             modeIdx = (modeIdx + 1) % modes.length;
         }
@@ -167,7 +168,7 @@ public class WebStudio {
         return locator;
     }
 
-    public WebStudioMode getMode() {
+    public WebStudioViewMode getMode() {
         return mode;
     }
 
@@ -315,7 +316,7 @@ public class WebStudio {
         model.redraw();
     }
 
-    public void setMode(WebStudioMode mode) {
+    public void setMode(WebStudioViewMode mode) {
         this.mode = mode;
     }
 

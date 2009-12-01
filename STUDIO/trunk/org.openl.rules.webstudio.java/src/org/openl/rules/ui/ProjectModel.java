@@ -41,6 +41,14 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.ui.search.TableSearch;
+import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
+import org.openl.rules.ui.tree.NodeKey;
+import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
+import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
+import org.openl.rules.ui.tree.ProjectTreeNode;
+import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
+import org.openl.rules.ui.tree.TreeBuilder;
+import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.validator.dt.DTValidator;
 import org.openl.rules.webtools.WebTool;
@@ -58,7 +66,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.TreeSorter;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -85,7 +92,7 @@ public class ProjectModel implements IProjectTypes {
 
     private boolean readOnly;
 
-    ProjectTreeElement projectRoot = null;
+    ProjectTreeNode projectRoot = null;
 
     ProjectTreeRenderer ptr;
 
@@ -155,22 +162,21 @@ public class ProjectModel implements IProjectTypes {
         this.studio = studio;
     }
 
-    private void addError(Throwable se, ProjectTreeElement errorFolder, int i) {
+    private void addError(Throwable se, ProjectTreeNode errorFolder, int i) {
         String uri = null;
         /*
          * if (se instanceof SyntaxError) { uri = ((SyntaxError) se).getUri(); }
          */
         String name = se.getMessage();
         String[] names = { name, name, name };
-        errorFolder.getElements().put(new ATableTreeSorter.Key(i, names),
-                new ProjectTreeElement(names, PT_PROBLEM, uri, se, 0, null));
+        errorFolder.getElements().put(new NodeKey(i, names), new ProjectTreeNode(names, PT_PROBLEM, uri, se, 0, null));
     }
 
-    private void addErrors(CompiledOpenClass comp, ProjectTreeElement root) {
+    private void addErrors(CompiledOpenClass comp, ProjectTreeNode root) {
         String[] errName = { "All Errors", "All Errors", "All Errors" };
 
-        ProjectTreeElement errorFolder = new ProjectTreeElement(errName, "folder", null, null, 0, null);
-        root.getElements().put(new ATableTreeSorter.Key(0, errName), errorFolder);
+        ProjectTreeNode errorFolder = new ProjectTreeNode(errName, "folder", null, null, 0, null);
+        root.getElements().put(new NodeKey(0, errName), errorFolder);
 
         int pn = comp.getParsingErrors().length;
         for (int i = 0; i < pn; i++) {
@@ -417,7 +423,7 @@ public class ProjectModel implements IProjectTypes {
 
                 if (tnode.getType().equals(ITableNodeTypes.XLS_TEST_METHOD)) {
                     mm.add(m);
-                    names.add(TableInstanceSorter.getTableDisplayValue(tnode)[1]);
+                    names.add(TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1]);
                 }
             }
         }
@@ -432,9 +438,8 @@ public class ProjectModel implements IProjectTypes {
         }
         XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
 
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
-
-        TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+        XlsModuleSyntaxNode moduleSyntaxNode = xmi.getXlsModuleNode();
+        TableSyntaxNode[] nodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
 
         List<TableSyntaxNode> list = new ArrayList<TableSyntaxNode>();
 
@@ -455,7 +460,7 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public String getDisplayName(String elementUri) {
-        ProjectTreeElement pte = ptr.getElement(elementUri);
+        ProjectTreeNode pte = ptr.getElement(elementUri);
         if (pte == null) {
             return "";
         }
@@ -474,7 +479,7 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public String getDisplayNameFull(String elementUri) {
-        ProjectTreeElement pte = ptr.getElement(elementUri);
+        ProjectTreeNode pte = ptr.getElement(elementUri);
         if (pte == null) {
             return "";
         }
@@ -519,16 +524,16 @@ public class ProjectModel implements IProjectTypes {
         IOpenClass openClass = wrapper.getOpenClass();
 
         for (Iterator<IOpenMethod> iter = openClass.methods(); iter.hasNext();) {
-            
+
             IOpenMethod method = iter.next();
             IOpenMethod resolvedMethod = null;
 
             if (method instanceof OpenMethodDispatcher) {
-                 resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tsn);
+                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tsn);
             } else {
                 resolvedMethod = resolveMethod(method, tsn);
             }
-            
+
             if (resolvedMethod != null) {
                 return resolvedMethod;
             }
@@ -536,20 +541,20 @@ public class ProjectModel implements IProjectTypes {
 
         return null;
     }
-    
+
     private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
-        
+
         List<IOpenMethod> candidates = method.getCandidates();
-        
+
         for (IOpenMethod candidate : candidates) {
-            
+
             IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
-            
+
             if (resolvedMethod != null) {
                 return method;
             }
         }
-        
+
         return null;
     }
 
@@ -584,7 +589,7 @@ public class ProjectModel implements IProjectTypes {
     public TableSyntaxNode getNode(String elementUri) {
         TableSyntaxNode tsn = null;
         if (elementUri != null) {
-            ProjectTreeElement pte = ptr.getElement(elementUri);
+            ProjectTreeNode pte = ptr.getElement(elementUri);
             if (pte != null) {
                 tsn = (TableSyntaxNode) pte.getObject();
             }
@@ -595,7 +600,7 @@ public class ProjectModel implements IProjectTypes {
         return tsn;
     }
 
-    public synchronized ProjectTreeElement getProjectRoot() {
+    public synchronized ProjectTreeNode getProjectRoot() {
         if (projectRoot == null) {
             projectRoot = makeProjectTree();
         }
@@ -616,7 +621,7 @@ public class ProjectModel implements IProjectTypes {
             IMemberMetaInfo mi = runners[i].getInfo();
             TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
 
-            names[i] = TableInstanceSorter.getTableDisplayValue(tnode)[1];
+            names[i] = TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1];
         }
 
         return new AllTestsRunResult(runners, names);
@@ -715,7 +720,7 @@ public class ProjectModel implements IProjectTypes {
             IMemberMetaInfo mi = testers[i].getInfo();
             TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
 
-            names[i] = TableInstanceSorter.getTableDisplayValue(tnode)[1];
+            names[i] = TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1];
         }
 
         return new AllTestsRunResult(testers, names);
@@ -772,7 +777,7 @@ public class ProjectModel implements IProjectTypes {
 
     public int indexForNode(TableSyntaxNode tsn) {
         for (Object obj : ptr.map.getValues()) {
-            ProjectTreeElement pte = (ProjectTreeElement) obj;
+            ProjectTreeNode pte = (ProjectTreeNode) obj;
             if (pte.getObject() == tsn) {
                 return ptr.map.getID(obj);
             }
@@ -782,7 +787,7 @@ public class ProjectModel implements IProjectTypes {
 
     public int indexForNodeByURI(String uri) {
         for (Object obj : ptr.map.getValues()) {
-            ProjectTreeElement pte = (ProjectTreeElement) obj;
+            ProjectTreeNode pte = (ProjectTreeNode) obj;
             if (pte.getObject() instanceof TableSyntaxNode) {
                 TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) pte.getObject();
                 if (uri.equals(tableSyntaxNode.getUri())) {
@@ -835,88 +840,86 @@ public class ProjectModel implements IProjectTypes {
         return ProjectHelper.isTestable(m);
     }
 
-    public ProjectTreeElement makeProjectTree() {
+    public ProjectTreeNode makeProjectTree() {
+
         if (wrapper == null) {
             return null;
         }
 
-        // String name =
-        // StringTool.lastToken(wrapper.getClass()
-        // .getName(), ".");
-
-        String name = studio.getMode().getDisplayName(wrapperInfo);
-
-        ProjectTreeElement root = new ProjectTreeElement(new String[] { name, name, name }, "root", null, null, 0, null);
+        ProjectTreeNode root = makeProjectTreeRoot();
 
         XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
-
         CompiledOpenClass comp = wrapper.getCompiledOpenClass();
 
         if (comp.hasErrors() || validationExceptions != null && validationExceptions.size() > 0) {
             addErrors(comp, root);
         }
 
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
+        XlsModuleSyntaxNode moduleSyntaxNode = xmi.getXlsModuleNode();
+        TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
 
-        TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+        OpenMethodGroupsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
-        // Create open methods dictionary that organizes
-        // open methods in groups using their meta info.
-        // Dictionary contains required information what will be used to create
-        // groups of methods in tree.
-        // author: Alexey Gamanovich
-        //
-        IOpenMethod[] methods = getMethods(nodes);
-        IOpenMethodGroupsDictionary methodNodesDictionary = new IOpenMethodGroupsDictionary();
-        methodNodesDictionary.addAll(methods);
-
-        ATableTreeSorter[][] sorters = studio.getMode().getSorters();
+        TreeNodeBuilder<Object>[][] sorters = studio.getMode().getBuilders();
         String[][] folders = studio.getMode().getFolders();
+
+        TreeBuilder<Object> treeBuilder = new TreeBuilder<Object>();
 
         for (int k = 0; k < sorters.length; k++) {
 
-            ProjectTreeElement folder = root;
+            ProjectTreeNode folder = root;
 
             if (folders != null && folders[k] != null) {
-                folder = new ProjectTreeElement(folders[k], "folder", null, null, 0, null);
-                root.addChild(new ATableTreeSorter.Key(k + 1, folder.getDisplayName()), folder);
+                folder = new ProjectTreeNode(folders[k], "folder", null, null, 0, null);
+                root.addChild(new NodeKey(k + 1, folder.getDisplayName()), folder);
             }
 
-            ATableTreeSorter[] ts = sorters[k];
+            TreeNodeBuilder<Object>[] treeSorters = sorters[k];
 
             // Find all group sorters defined for current subtree.
             // Group sorter should have additional information for grouping
             // nodes by method signature.
             // author: Alexey Gamanovich
             //
-            for (ATableTreeSorter sorter : ts) {
-                // Set to sorter information about open methods.
-                // author: Alexey Gamanovich
-                //
-                sorter.setOpenMethodGroupsDictionary(methodNodesDictionary);
-            }
+            for (TreeNodeBuilder treeSorter : treeSorters) {
 
-            HashSet<TableSyntaxNode> added = new HashSet<TableSyntaxNode>();
-
-            int cnt = 0;
-
-            for (int i = 0; i < nodes.length; i++) {
-
-                if (studio.getMode().select(nodes[i])) {
-                    TreeSorter.addElement(folder, nodes[i], ts, 0);
-                    ++cnt;
-                } else if (nodes[i].getErrors() != null) {
-                    TreeSorter.addElement(folder, nodes[i], ts, 0);
-                    added.add(nodes[i]);
+                if (treeSorter instanceof OpenMethodsGroupTreeNodeBuilder) {
+                    // Set to sorter information about open methods.
+                    // author: Alexey Gamanovich
+                    //
+                    OpenMethodsGroupTreeNodeBuilder tableTreeNodeBuilder = (OpenMethodsGroupTreeNodeBuilder) treeSorter;
+                    tableTreeNodeBuilder.setOpenMethodGroupsDictionary(methodNodesDictionary);
                 }
             }
 
-            if (cnt == 0) // no selection have been made (usually in a
-            // business mode)
-            {
-                for (int i = 0; i < nodes.length; i++) {
-                    if (!nodes[i].getType().equals(ITableNodeTypes.XLS_OTHER) && !added.contains(nodes[i])) {
-                        TreeSorter.addElement(folder, nodes[i], ts, 0);
+            HashSet<TableSyntaxNode> nodesWithErrors = new HashSet<TableSyntaxNode>();
+
+            boolean treeEnlarged = false;
+
+            for (int i = 0; i < tableSyntaxNodes.length; i++) {
+
+                if (studio.getMode().select(tableSyntaxNodes[i])) {
+
+                    treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
+                    treeEnlarged = true;
+
+                } else if (tableSyntaxNodes[i].getErrors() != null) {
+
+                    treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
+                    nodesWithErrors.add(tableSyntaxNodes[i]);
+                }
+            }
+
+            if (!treeEnlarged) {
+
+                // no selection have been made (usually in a
+                // business mode)
+                for (int i = 0; i < tableSyntaxNodes.length; i++) {
+                    
+                    if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
+                            && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
+                        
+                        treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
                     }
                 }
             }
@@ -926,17 +929,39 @@ public class ProjectModel implements IProjectTypes {
         return root;
     }
 
-    private OpenMethodsInstanceGroupSorter[] findGroupSorters(ATableTreeSorter[] sorters) {
+    private OpenMethodGroupsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
 
-        List<OpenMethodsInstanceGroupSorter> groupSorters = new ArrayList<OpenMethodsInstanceGroupSorter>();
+        // Create open methods dictionary that organizes
+        // open methods in groups using their meta info.
+        // Dictionary contains required information what will be used to create
+        // groups of methods in tree.
+        // author: Alexey Gamanovich
+        //
+        IOpenMethod[] methods = getMethods(tableSyntaxNodes);
+        OpenMethodGroupsDictionary methodNodesDictionary = new OpenMethodGroupsDictionary();
+        methodNodesDictionary.addAll(methods);
 
-        for (ATableTreeSorter sorter : sorters) {
-            if (sorter instanceof OpenMethodsInstanceGroupSorter) {
-                groupSorters.add((OpenMethodsInstanceGroupSorter) sorter);
+        return methodNodesDictionary;
+    }
+
+    private ProjectTreeNode makeProjectTreeRoot() {
+
+        String name = studio.getMode().getDisplayName(wrapperInfo);
+
+        return new ProjectTreeNode(new String[] { name, name, name }, "root", null, null, 0, null);
+    }
+
+    private OpenMethodInstancesGroupTreeNodeBuilder[] findGroupSorters(BaseTableTreeNodeBuilder[] sorters) {
+
+        List<OpenMethodInstancesGroupTreeNodeBuilder> groupSorters = new ArrayList<OpenMethodInstancesGroupTreeNodeBuilder>();
+
+        for (BaseTableTreeNodeBuilder sorter : sorters) {
+            if (sorter instanceof OpenMethodInstancesGroupTreeNodeBuilder) {
+                groupSorters.add((OpenMethodInstancesGroupTreeNodeBuilder) sorter);
             }
         }
 
-        return groupSorters.toArray(new OpenMethodsInstanceGroupSorter[groupSorters.size()]);
+        return groupSorters.toArray(new OpenMethodInstancesGroupTreeNodeBuilder[groupSorters.size()]);
     }
 
     private IOpenMethod[] getMethods(TableSyntaxNode[] nodes) {
@@ -964,7 +989,7 @@ public class ProjectModel implements IProjectTypes {
 
     public String renderTree(String targetJsp) {
 
-        ProjectTreeElement tr = getProjectRoot();
+        ProjectTreeNode tr = getProjectRoot();
 
         if (tr == null) {
             String errMsg = "";
@@ -1090,7 +1115,7 @@ public class ProjectModel implements IProjectTypes {
         }
     }
 
-    public void setProjectRoot(ProjectTreeElement projectRoot) {
+    public void setProjectRoot(ProjectTreeNode projectRoot) {
         this.projectRoot = projectRoot;
     }
 
@@ -1179,12 +1204,12 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public Object showError(int elementId) {
-        ProjectTreeElement pte = ptr.getElement(elementId);
+        ProjectTreeNode pte = ptr.getElement(elementId);
         if (pte == null) {
             return null;
         }
 
-        Object error = pte.getProblem();
+        Object error = pte.getProblems();
 
         return new ObjectViewer(this).displayResult(error);
     }
@@ -1229,7 +1254,7 @@ public class ProjectModel implements IProjectTypes {
             view = studio.getMode().getTableMode();
         }
 
-        boolean showGrid = studio.getMode().showTableGrid();
+//        boolean showGrid = studio.getMode().showTableGrid();
 
         if (view != null) {
             ILogicalTable gtx = tsn.getSubTables().get(view);
@@ -1240,7 +1265,7 @@ public class ProjectModel implements IProjectTypes {
 
         // return new TableViewer().showTable(gt, new
         // ICellFilter[]{cellFilter});
-        return showTable(gt, showGrid);
+        return showTable(gt, false);
     }
 
     public String showTableWithSelection(String url, String view) {

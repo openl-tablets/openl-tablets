@@ -1,44 +1,54 @@
 /**
  * Created Apr 3, 2007
  */
-package org.openl.rules.ui;
+package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.StringTool;
 
 /**
- * @author snshor
- *
+ * Builds tree node for table category.
  */
-public class CategorySorterN extends CategorySorter {
+public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
 
-    int categoryLevel;
-    String separators;
+    private int categoryLevel;
+    private String separators;
 
-    public CategorySorterN(int categoryLevel, String separators) {
+    public CategoryNTreeNodeBuilder(int categoryLevel, String separators) {
         this.categoryLevel = categoryLevel;
         this.separators = separators;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    String getCategory(TableSyntaxNode tsn) {
+    protected String getCategory(TableSyntaxNode tableSyntaxNode) {
+
         String result = null;
-        String category = super.getCategory(tsn);
+        String category = super.getCategory(tableSyntaxNode);
 
         String[] categories = StringTool.tokenize(category, separators);
+
         if (categories.length == 0) {
             result = category;
         } else {
-            result = categoryLevel < categories.length ? categories[categoryLevel] : categories[categories.length - 1]; 
-        }        
+            result = categoryLevel < categories.length ? categories[categoryLevel] : categories[categories.length - 1];
+        }
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return "category." + categoryLevel;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getType(Object sorterObject) {
         return "category." + categoryLevel;

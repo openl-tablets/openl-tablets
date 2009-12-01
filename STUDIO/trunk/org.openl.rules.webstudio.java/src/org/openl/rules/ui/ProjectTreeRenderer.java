@@ -7,9 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
+import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.util.ITreeElement;
 import org.openl.util.StringTool;
+import org.openl.util.tree.ITreeElement;
 
 /**
  * @author snshor
@@ -51,7 +52,7 @@ public class ProjectTreeRenderer extends DTreeRenderer implements IProjectTypes,
                     "webresource/images/test-error.png", "webresource/images/test-error.png" } };
 
     ProjectModel project;
-    Map<String, ProjectTreeElement> tableMap = new HashMap<String, ProjectTreeElement>();
+    Map<String, ProjectTreeNode> tableMap = new HashMap<String, ProjectTreeNode>();
 
     /**
      * @param jsp
@@ -66,26 +67,26 @@ public class ProjectTreeRenderer extends DTreeRenderer implements IProjectTypes,
     @Override
     public void cacheElement(ITreeElement<?> element) {
         if (element.getType().startsWith(PT_TABLE + ".")) {
-            ProjectTreeElement ptr = (ProjectTreeElement) element;
+            ProjectTreeNode ptr = (ProjectTreeNode) element;
             tableMap.put(ptr.getUri(), ptr);
         }
     }
 
-    public ProjectTreeElement getElement(int id) {
-        return (ProjectTreeElement) map.getObject(id);
+    public ProjectTreeNode getElement(int id) {
+        return (ProjectTreeNode) map.getObject(id);
     }
 
-    public ProjectTreeElement getElement(String uri) {
+    public ProjectTreeNode getElement(String uri) {
         return tableMap.get(uri);
     }
 
     @Override
     protected int getState(ITreeElement element) {
-        ProjectTreeElement pte = (ProjectTreeElement) element;
-        if (pte.hasProblem()) {
+        ProjectTreeNode pte = (ProjectTreeNode) element;
+        if (pte.hasProblems()) {
             return 1;
         }
-        if (pte.tsn != null && project.isTestable(pte.tsn)) {
+        if (pte.getTableSyntaxNode() != null && project.isTestable(pte.getTableSyntaxNode())) {
             return 2;
         }
 
@@ -97,7 +98,7 @@ public class ProjectTreeRenderer extends DTreeRenderer implements IProjectTypes,
     protected String makeURL(ITreeElement element) {
         String elementType = element.getType();
         if (elementType.startsWith(PT_TABLE + ".")) {
-            String uri = ((ProjectTreeElement) element).getUri();
+            String uri = ((ProjectTreeNode) element).getUri();
             return targetJsp + "?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
         } else if (elementType.startsWith(PT_PROBLEM)) {
             return "faces/facelets/tableeditor/showError.xhtml" + "?" + Constants.REQUEST_PARAM_ID + "="

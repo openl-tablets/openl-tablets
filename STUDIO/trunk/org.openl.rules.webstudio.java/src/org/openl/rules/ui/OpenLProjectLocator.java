@@ -8,7 +8,7 @@ import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.webstudio.util.WebstudioTreeIterator;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
-import org.openl.util.TreeIterator;
+import org.openl.util.tree.TreeIterator;
 
 import java.io.BufferedReader;
 import java.io.File;

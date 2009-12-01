@@ -8,7 +8,7 @@ import org.openl.rules.webtools.FileTypeHelper;
 import org.openl.rules.webtools.indexer.FileIndexer;
 import org.openl.rules.webstudio.util.WebstudioTreeIterator;
 import org.openl.util.Log;
-import org.openl.util.TreeIterator;
+import org.openl.util.tree.TreeIterator;
 
 import java.io.File;
 import java.io.IOException;
