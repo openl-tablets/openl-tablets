@@ -337,7 +337,7 @@ public final class XSSFCell implements Cell {
         if(cellType != CELL_TYPE_FORMULA) throw typeMismatch(CELL_TYPE_FORMULA, cellType, false);
 
         CTCellFormula f = _cell.getF();
-        if (isArrayFormulaContext() && f == null) {
+        if (isPartOfArrayFormulaGroup() && f == null) {
             XSSFCell cell = getSheet().getFirstCellInArrayFormula(this);
             return cell.getCellFormula();
         }
@@ -367,18 +367,18 @@ public final class XSSFCell implements Cell {
         return FormulaRenderer.toFormulaString(fpb, fmla);
     }
 
-    /**
-     * Sets formula for this cell.
-     * <p>
-     * Note, this method only sets the formula string and does not calculate the formula value.
-     * To set the precalculated value use {@link #setCellValue(double)} or {@link #setCellValue(String)}
-     * </p>
-     *
-     * @param formula the formula to set, e.g. <code>SUM(C4:E4)</code>.
-     *  If the argument is <code>null</code> then the current formula is removed.
-     * @throws IllegalArgumentException if the formula is invalid
-     */
     public void setCellFormula(String formula) {
+        setFormula(formula, FormulaType.CELL);
+    }
+
+    /* package */ void setCellArrayFormula(String formula, CellRangeAddress range) {
+        setFormula(formula, FormulaType.ARRAY);
+        CTCellFormula cellFormula = _cell.getF();
+        cellFormula.setT(STCellFormulaType.ARRAY);
+        cellFormula.setRef(range.formatAsString());
+    }
+
+    private void setFormula(String formula, int formulaType) {
         XSSFWorkbook wb = _row.getSheet().getWorkbook();
         if (formula == null) {
             wb.onDeleteFormula(this);
@@ -388,19 +388,12 @@ public final class XSSFCell implements Cell {
 
         XSSFEvaluationWorkbook fpb = XSSFEvaluationWorkbook.create(wb);
         //validate through the FormulaParser
-        FormulaParser.parse(formula, fpb, FormulaType.CELL, wb.getSheetIndex(getSheet()));
+        FormulaParser.parse(formula, fpb, formulaType, wb.getSheetIndex(getSheet()));
 
         CTCellFormula f =  CTCellFormula.Factory.newInstance();
         f.setStringValue(formula);
         _cell.setF(f);
         if(_cell.isSetV()) _cell.unsetV();
-    }
-
-    /* package */ void setCellArrayFormula(String formula, CellRangeAddress range) {
-        setCellFormula(formula);
-        CTCellFormula cellFormula = _cell.getF();
-        cellFormula.setT(STCellFormulaType.ARRAY);
-        cellFormula.setRef(range.formatAsString());
     }
 
     /**
@@ -590,6 +583,7 @@ public final class XSSFCell implements Cell {
     public String getErrorCellString() {
         int cellType = getBaseCellType(true);
         if(cellType != CELL_TYPE_ERROR) throw typeMismatch(CELL_TYPE_ERROR, cellType, false);
+
         return _cell.getV();
     }
     /**
@@ -818,11 +812,29 @@ public final class XSSFCell implements Cell {
      * Assign a comment to this cell. If the supplied comment is null,
      * the comment for this cell will be removed.
      *
-     * @param comment comment associated with this cell
+     * @param comment the XSSFComment associated with this cell
      */
     public void setCellComment(Comment comment) {
-        String cellRef = new CellReference(_row.getRowNum(), getColumnIndex()).formatAsString();
-        getSheet().setCellComment(cellRef, (XSSFComment)comment);
+        if(comment == null) {
+            removeCellComment();
+            return;
+        }
+
+        comment.setRow(getRowIndex());
+        comment.setColumn(getColumnIndex());
+    }
+
+    /**
+     * Removes the comment for this cell, if there is one.
+    */
+    public void removeCellComment() {
+        XSSFComment comment = getCellComment();
+        if(comment != null){
+            String ref = _cell.getR();
+            XSSFSheet sh = getSheet();
+            sh.getCommentsTable(false).removeComment(ref);
+            sh.getVMLDrawing(false).removeCommentShape(getRowIndex(), getColumnIndex());
+        }
     }
 
     /**
@@ -881,7 +893,7 @@ public final class XSSFCell implements Cell {
                 int sstIndex = Integer.parseInt(_cell.getV());
                 XSSFRichTextString rt = new XSSFRichTextString(_sharedStringSource.getEntryAt(sstIndex));
                 String text = rt.getString();
-                return Boolean.valueOf(text);
+                return Boolean.parseBoolean(text);
             case CELL_TYPE_NUMERIC:
                 return Double.parseDouble(_cell.getV()) != 0;
 
@@ -917,16 +929,14 @@ public final class XSSFCell implements Cell {
 
     public CellRangeAddress getArrayFormulaRange() {
         XSSFCell cell = getSheet().getFirstCellInArrayFormula(this);
-        if (cell != null) {
-            String formulaRef = cell._cell.getF().getRef();
-            return CellRangeAddress.valueOf(formulaRef);
-        } else {
-            return null;
+        if (cell == null) {
+            throw new IllegalStateException("not an array formula cell.");
         }
+        String formulaRef = cell._cell.getF().getRef();
+        return CellRangeAddress.valueOf(formulaRef);
     }
 
-    public boolean isArrayFormulaContext() {
+    public boolean isPartOfArrayFormulaGroup() {
         return getSheet().isCellInArrayFormulaContext(this);
     }
-
 }

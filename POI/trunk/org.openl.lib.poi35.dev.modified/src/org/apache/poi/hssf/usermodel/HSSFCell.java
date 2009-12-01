@@ -83,7 +83,7 @@ public class HSSFCell implements Cell {
      */
     public static final int LAST_COLUMN_NUMBER  = SpreadsheetVersion.EXCEL97.getLastColumnIndex(); // 2^8 - 1
     private static final String LAST_COLUMN_NAME  = SpreadsheetVersion.EXCEL97.getLastColumnName();
-    
+
     public final static short        ENCODING_UNCHANGED          = -1;
     public final static short        ENCODING_COMPRESSED_UNICODE = 0;
     public final static short        ENCODING_UTF_16             = 1;
@@ -509,7 +509,7 @@ public class HSSFCell implements Cell {
     }
 
     /**
-     * set a string value for the cell. 
+     * set a string value for the cell.
      *
      * @param value value to set the cell to.  For formulas we'll set the formula
      * cached string result, for String cells we'll set its value. For other types we will
@@ -575,17 +575,6 @@ public class HSSFCell implements Cell {
         _stringValue.setUnicodeString(_book.getWorkbook().getSSTString(index));
     }
 
-    /**
-     * Sets formula for this cell.
-     * <p>
-     * Note, this method only sets the formula string and does not calculate the formula value.
-     * To set the precalculated value use {@link #setCellValue(double)} or {@link #setCellValue(String)}
-     * </p>
-     *
-     * @param formula the formula to set, e.g. <code>SUM(C4:E4)</code>.
-     *  If the argument is <code>null</code> then the current formula is removed.
-     * @throws IllegalArgumentException if the formula is unparsable
-     */
     public void setCellFormula(String formula) {
         int row=_record.getRow();
         short col=_record.getColumn();
@@ -610,19 +599,6 @@ public class HSSFCell implements Cell {
         }
         agg.setParsedExpression(ptgs);
     }
-    
-    /* package */void setCellArrayFormula(String formula, CellRangeAddress range) {
-        int row=_record.getRow();
-        short col=_record.getColumn();
-        short styleIndex=_record.getXFIndex();
-        setCellType(CELL_TYPE_FORMULA, false, row, col, styleIndex);
-
-        // Billet for formula in rec
-        Ptg[] ptgsForCell = { new ExpPtg((short) range.getFirstRow(), (short) range.getFirstColumn()) };
-        FormulaRecordAggregate agg = (FormulaRecordAggregate) _record;
-        agg.setParsedExpression(ptgsForCell);
-    }
-    
     /**
      * Should be called any time that a formula could potentially be deleted.
      * Does nothing if this cell currently does not hold a formula
@@ -933,8 +909,8 @@ public class HSSFCell implements Cell {
      */
     private static void checkBounds(int cellIndex) {
         if (cellIndex < 0 || cellIndex > LAST_COLUMN_NUMBER) {
-            throw new IllegalArgumentException("Invalid column index (" + cellIndex 
-                    + ").  Allowable column range for " + FILE_FORMAT_NAME + " is (0.." 
+            throw new IllegalArgumentException("Invalid column index (" + cellIndex
+                    + ").  Allowable column range for " + FILE_FORMAT_NAME + " is (0.."
                     + LAST_COLUMN_NUMBER + ") or ('A'..'" + LAST_COLUMN_NAME + "')");
         }
     }
@@ -1171,14 +1147,29 @@ public class HSSFCell implements Cell {
         return ((FormulaRecordAggregate)_record).getFormulaRecord().getCachedResultType();
     }
 
-    public CellRangeAddress getArrayFormulaRange() {
-        if(_record instanceof FormulaRecordAggregate){
-            return ((FormulaRecordAggregate)_record).getFormulaRange();
-        }
-        return null;
+    void setCellArrayFormula(CellRangeAddress range) {
+        int row=_record.getRow();
+        short col=_record.getColumn();
+        short styleIndex=_record.getXFIndex();
+        setCellType(CELL_TYPE_FORMULA, false, row, col, styleIndex);
+
+        // Billet for formula in rec
+        Ptg[] ptgsForCell = { new ExpPtg(range.getFirstRow(), range.getFirstColumn()) };
+        FormulaRecordAggregate agg = (FormulaRecordAggregate) _record;
+        agg.setParsedExpression(ptgsForCell);
     }
 
-    public boolean isArrayFormulaContext() {
-        return getArrayFormulaRange() != null;
+    public CellRangeAddress getArrayFormulaRange() {
+        if (_cellType != CELL_TYPE_FORMULA) {
+            throw new IllegalArgumentException("Only formula cells can have array ranges");
+        }
+        return ((FormulaRecordAggregate)_record).getArrayFormulaRange();
+    }
+
+    public boolean isPartOfArrayFormulaGroup() {
+        if (_cellType != CELL_TYPE_FORMULA) {
+            return false;
+        }
+        return ((FormulaRecordAggregate)_record).isPartOfArrayFormula();
     }
 }

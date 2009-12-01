@@ -28,6 +28,7 @@ import org.apache.poi.hssf.record.formula.ExpPtg;
 import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.hssf.util.CellReference;
+import org.apache.poi.ss.formula.Formula;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
@@ -62,7 +63,7 @@ public final class FormulaRecordAggregate extends RecordAggregate implements Cel
 		} else {
 			// Usually stringRec is null here (in agreement with what the formula rec says).
 			// In the case where an extra StringRecord is erroneously present, Excel (2007)
-			// ignores it (see bug 46213). 
+			// ignores it (see bug 46213).
 			_stringRecord = null;
 		}
 
@@ -185,31 +186,17 @@ public final class FormulaRecordAggregate extends RecordAggregate implements Cel
 	}
 
 	public Ptg[] getFormulaTokens() {
-		if (_sharedFormulaRecord == null) {
-//VIA
-			if(_sharedValueManager != null ){
-				ArrayRecord arec =findOwnRecord(_sharedValueManager.getArray(), getRow(), getColumn());
-				if(arec != null)
-					return arec.getFormulaTokens();
-				else
-					return _formulaRecord.getParsedExpression();
-			}
-			else
-//end changes VIA			
-				return _formulaRecord.getParsedExpression();
+		if (_sharedFormulaRecord != null) {
+			return _sharedFormulaRecord.getFormulaTokens(_formulaRecord);
 		}
-		return _sharedFormulaRecord.getFormulaTokens(_formulaRecord);
+		CellReference expRef = _formulaRecord.getFormula().getExpReference();
+		if (expRef != null) {
+			ArrayRecord arec = _sharedValueManager.getArrayRecord(expRef.getRow(), expRef.getCol());
+			return arec.getFormulaTokens();
+		}
+		return _formulaRecord.getParsedExpression();
 	}
-//VIA	
-    private static ArrayRecord findOwnRecord(ArrayRecord[] array, int rowIndex, short colIndex){
-    	if(array != null)
-	    	for(int i=0;i<array.length;i++){
-	    		if(array[i].isInRange(rowIndex, colIndex))
-	    			return array[i];
-	    	}
-      return null;  	
-    }
-// end changes VIA   
+
 	/**
 	 * Also checks for a related shared formula and unlinks it if found
 	 */
@@ -239,24 +226,36 @@ public final class FormulaRecordAggregate extends RecordAggregate implements Cel
 			_sharedValueManager.unlink(_sharedFormulaRecord);
 		}
 	}
-// VIA	
-	public CellRangeAddress getFormulaRange(){
-		CellRangeAddress answer = null;
-		if(_sharedValueManager != null){
-			ArrayRecord arec = findOwnRecord(_sharedValueManager.getArray(),this.getRow(), this.getColumn());
-			if(arec != null){
-				CellRangeAddress8Bit adress8 = arec.getRange();
-				if(adress8 != null)
-					answer = new CellRangeAddress(adress8.getFirstRow(), adress8.getLastRow(), adress8.getFirstColumn(),adress8.getLastColumn());
-			}
+	public boolean isPartOfArrayFormula() {
+		if (_sharedFormulaRecord != null) {
+			return false;
 		}
-		return answer;
+		return _formulaRecord.getFormula().getExpReference() != null;
+	}
+
+	public CellRangeAddress getArrayFormulaRange() {
+		if (_sharedFormulaRecord != null) {
+			throw new IllegalStateException("not an array formula cell.");
+		}
+		CellReference expRef = _formulaRecord.getFormula().getExpReference();
+		if (expRef == null) {
+			throw new IllegalStateException("not an array formula cell.");
+		}
+	    ArrayRecord arec = _sharedValueManager.getArrayRecord(expRef.getRow(), expRef.getCol());
+		CellRangeAddress8Bit a = arec.getRange();
+		return new CellRangeAddress(a.getFirstRow(), a.getLastRow(), a.getFirstColumn(),a.getLastColumn());
+	}
+	public void setArrayFormula(CellRangeAddress r, Ptg[] ptgs) {
+
+		ArrayRecord arr = new ArrayRecord(Formula.create(ptgs), new CellRangeAddress8Bit(r.getFirstRow(), r.getLastRow(), r.getFirstColumn(), r.getLastColumn()));
+		_sharedValueManager.addArrayRecord(arr);
 	}
 	/**
-	 * @return the _sharedValueManager
+	 * Removes an array formula
+	 * @return the range of the array formula containing the specified cell. Never <code>null</code>
 	 */
-	public SharedValueManager getSharedValueManager() {
-		return _sharedValueManager;
+	public CellRangeAddress removeArrayFormula(int rowIndex, int columnIndex) {
+		CellRangeAddress8Bit a = _sharedValueManager.removeArrayFormula(rowIndex, columnIndex);
+		return new CellRangeAddress(a.getFirstRow(), a.getLastRow(), a.getFirstColumn(), a.getLastColumn());
 	}
-//end changes VIA	
 }

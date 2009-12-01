@@ -6,7 +6,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+	   http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,11 @@
 
 package org.apache.poi.hssf.record.aggregates;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.record.ArrayRecord;
@@ -28,7 +30,6 @@ import org.apache.poi.hssf.record.SharedFormulaRecord;
 import org.apache.poi.hssf.record.SharedValueRecordBase;
 import org.apache.poi.hssf.record.TableRecord;
 import org.apache.poi.hssf.record.formula.ExpPtg;
-import org.apache.poi.hssf.record.formula.TblPtg;
 import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.ss.util.CellReference;
 
@@ -113,9 +114,7 @@ public final class SharedValueManager {
 
 	public static final SharedValueManager EMPTY = new SharedValueManager(
 			new SharedFormulaRecord[0], new CellReference[0], new ArrayRecord[0], new TableRecord[0]);
-//	VIA
-	private  ArrayRecord[] _arrayRecords;
-//	end changes VIA
+	private final List<ArrayRecord> _arrayRecords;
 	private final TableRecord[] _tableRecords;
 	private final Map<SharedFormulaRecord, SharedFormulaGroup> _groupsBySharedFormulaRecord;
 	/** cached for optimization purposes */
@@ -127,7 +126,7 @@ public final class SharedValueManager {
 		if (nShF != firstCells.length) {
 			throw new IllegalArgumentException("array sizes don't match: " + nShF + "!=" + firstCells.length + ".");
 		}
-		_arrayRecords = arrayRecords;
+		_arrayRecords = toList(arrayRecords);
 		_tableRecords = tableRecords;
 		Map<SharedFormulaRecord, SharedFormulaGroup> m = new HashMap<SharedFormulaRecord, SharedFormulaGroup>(nShF * 3 / 2);
 		for (int i = 0; i < nShF; i++) {
@@ -135,6 +134,14 @@ public final class SharedValueManager {
 			m.put(sfr, new SharedFormulaGroup(sfr, firstCells[i]));
 		}
 		_groupsBySharedFormulaRecord = m;
+	}
+
+	private static <Z> List<Z> toList(Z[] zz) {
+		List<Z> result = new ArrayList<Z>(zz.length);
+		for (int i = 0; i < zz.length; i++) {
+			result.add(zz[i]);
+		}
+		return result;
 	}
 
 	/**
@@ -252,14 +259,12 @@ public final class SharedValueManager {
 		// The first cell will be the top left in the range.  So we can match the
 		// ARRAY/TABLE record directly.
 
-		for (int i = 0; i < _tableRecords.length; i++) {
-			TableRecord tr = _tableRecords[i];
+		for (TableRecord tr : _tableRecords) {
 			if (tr.isFirstCell(row, column)) {
 				return tr;
 			}
 		}
-		for (int i = 0; i < _arrayRecords.length; i++) {
-			ArrayRecord ar = _arrayRecords[i];
+		for (ArrayRecord ar : _arrayRecords) {
 			if (ar.isFirstCell(row, column)) {
 				return ar;
 			}
@@ -273,45 +278,45 @@ public final class SharedValueManager {
 	 */
 	public void unlink(SharedFormulaRecord sharedFormulaRecord) {
 		SharedFormulaGroup svg = _groupsBySharedFormulaRecord.remove(sharedFormulaRecord);
-		_groups = null; // be sure to reset cached value
 		if (svg == null) {
 			throw new IllegalStateException("Failed to find formulas for shared formula");
 		}
+		_groups = null; // be sure to reset cached value
 		svg.unlinkSharedFormulas();
 	}
-//VIA
-	/** 
-	 * Get array, if this is Array Formula, null otherwise
-	 * @return
-	 */
-	public ArrayRecord[] getArray(){
-		return this._arrayRecords;
-	}
-	
+
 	/**
-	 * Add Array Record
-	 * @param ar
+	 * Add specified Array Record.
 	 */
-	public void  addArrayRecord(ArrayRecord ar){
-		ArrayRecord[] newArray = new ArrayRecord[_arrayRecords.length+1];
-		System.arraycopy(_arrayRecords, 0, newArray, 0, _arrayRecords.length);
-		newArray[_arrayRecords.length] = ar;
-		_arrayRecords = newArray; 
+	public void addArrayRecord(ArrayRecord ar) {
+		// could do a check here to make sure none of the ranges overlap
+		_arrayRecords.add(ar);
 	}
-	
+
 	/**
-	 * Remove Array Record
-	 * @param ar
+	 * Removes the {@link ArrayRecord} for the cell group containing the specified cell.
+	 * The caller should clear (set blank) all cells in the returned range.
+	 * @return the range of the array formula which was just removed. Never <code>null</code>.
 	 */
-	public void  removeArrayRecord(int index){
-		if(index < 0 || index > _arrayRecords.length){
-			throw new RuntimeException("Array Record did not find ");
+	public CellRangeAddress8Bit removeArrayFormula(int rowIndex, int columnIndex) {
+		for (ArrayRecord ar : _arrayRecords) {
+			if (ar.isInRange(rowIndex, columnIndex)) {
+				_arrayRecords.remove(ar);
+				return ar.getRange();
+			}
 		}
-		
-		ArrayRecord[] newArray = new ArrayRecord[_arrayRecords.length-1];
-		System.arraycopy(_arrayRecords, 0, newArray, 0, index);
-		System.arraycopy(_arrayRecords, index+1, newArray, index,newArray.length-index);
-		_arrayRecords = newArray; 
+		throw new IllegalArgumentException("Specified cell is not part of an array formula.");
 	}
-//  end chandes VIA	
+
+	/**
+	 * @return the shared ArrayRecord identified by (firstRow, firstColumn). never <code>null</code>.
+	 */
+	public ArrayRecord getArrayRecord(int firstRow, int firstColumn) {
+		for(ArrayRecord ar : _arrayRecords) {
+			if(ar.isFirstCell(firstRow, firstColumn)) {
+				return ar;
+			}
+		}
+		return null;
+	}
 }

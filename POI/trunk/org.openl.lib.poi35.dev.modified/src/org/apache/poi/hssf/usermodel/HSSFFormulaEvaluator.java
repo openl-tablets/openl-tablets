@@ -218,7 +218,7 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 		}
 		// cell remains a formula cell, but the cached value is changed
 		CellValue cv;
-		if(cell.isArrayFormulaContext())
+		if(cell.isPartOfArrayFormulaGroup())
 		{  // Array Formula Context
 			CellValue[][] cvs = evaluateFormulaCellArValues((HSSFCell)cell);
 			// cell remains a formula cell, but the cached value is changed
@@ -306,7 +306,7 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 		HSSFCell result = (HSSFCell) cell;
 		if (cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
 		// VIA			
-			if(cell.isArrayFormulaContext())
+			if(cell.isPartOfArrayFormulaGroup())
 			{  // Array Formula Context
 				CellValue[][] cvs = evaluateFormulaCellArValues((HSSFCell) cell);
 				setCellValues(cell, cvs);
@@ -399,7 +399,7 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 		// !! changed ZS
 		if (eval instanceof ArrayEval) {// support of arrays
 //			VIA
-				if(cell.isArrayFormulaContext())
+				if(cell.isPartOfArrayFormulaGroup())
 				{
 					eval = FormulaEvaluatorHelper.dereferenceValue((ArrayEval)eval, cell) ;
 				}

@@ -30,6 +30,8 @@ import org.apache.poi.ss.util.CellRangeAddress;
  * The most common type of sheet is the worksheet, which is represented as a grid of cells. Worksheet cells can
  * contain text, numbers, dates, and formulas. Cells can also be formatted.
  * </p>
+ *
+ * @author PUdalau set/remove array formulas
  */
 public interface Sheet extends Iterable<Row> {
 
@@ -780,20 +782,20 @@ public interface Sheet extends Iterable<Row> {
      * @return <code>true</code> if this sheet is currently selected
      */
     boolean isSelected();
-    
+
+
     /**
-     * Sets array formula to specified region for result.  
-     * 
+     * Sets array formula to specified region for result.
+     *
      * @param formula Formula
      * @param range Region of array formula for result.
      */
     void setArrayFormula(String formula, CellRangeAddress range);
-    
+
     /**
      * Remove a Array Formula from this sheet.  All cells contained in the Array Formula range are removed as well
      *
      * @param cell   any cell within Array Formula range
      */
     void removeArrayFormula(Cell cell);
-
 }
