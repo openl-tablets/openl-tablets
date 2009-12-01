@@ -73,7 +73,6 @@ import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFo
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
-import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * Evaluates formula cells.<p/>
@@ -216,14 +215,7 @@ public final class WorkbookEvaluator {
 
 	public ValueEval evaluate(EvaluationCell srcCell) {
 		int sheetIndex = getSheetIndex(srcCell.getSheet());
-		if (srcCell.isArrayFormulaContext()) {
-            return evaluateAny(srcCell.getFirstCellInArrayFormula(), sheetIndex, srcCell.getRowIndex(), srcCell
-                    .getColumnIndex(), new EvaluationTracker(_cache));
-
-        } else {
-            return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(),
-                    new EvaluationTracker(_cache));
-        }
+        return evaluateAny(srcCell, sheetIndex, srcCell.getRowIndex(), srcCell.getColumnIndex(), new EvaluationTracker(_cache));
 	}
 
 	/**
@@ -261,6 +253,9 @@ public final class WorkbookEvaluator {
 			return result;
 		}
 
+        if (srcCell.isArrayFormulaContext()) {
+            srcCell = srcCell.getFirstCellInArrayFormula();
+        }
 		FormulaCellCacheEntry cce = _cache.getOrCreateFormulaCellEntry(srcCell);
 		if (shouldCellDependencyBeRecorded || cce.isInputSensitive()) {
 			tracker.acceptFormulaDependency(cce);
@@ -702,19 +697,19 @@ public final class WorkbookEvaluator {
 	}
 
 	/**
-	 * Used by the lazy ref evals whenever they need to get the value of a contained cell.
-	 */
-	/* package */ ValueEval evaluateReference(EvaluationSheet sheet, int sheetIndex, int rowIndex,
-			int columnIndex, EvaluationTracker tracker) {
-		EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
-		ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker); 
-		if (result instanceof ArrayEval && cell.isArrayFormulaContext()){
-			result = dereferenceValue((ArrayEval)result, cell);
+     * Used by the lazy ref evals whenever they need to get the value of a
+     * contained cell.
+     */
+    /* package */ValueEval evaluateReference(EvaluationSheet sheet, int sheetIndex, int rowIndex, int columnIndex,
+            EvaluationTracker tracker) {
+        EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
+        ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker);
+        if (result instanceof ArrayEval && cell.isArrayFormulaContext()) {
+            result = dereferenceValue((ArrayEval) result, cell);
+        }
+        return result;
 
-	}
-		return result; 
-			
-	}
+    }
 	public FreeRefFunction findUserDefinedFunction(String functionName) {
 		return _udfFinder.findFunction(functionName);
 	}
