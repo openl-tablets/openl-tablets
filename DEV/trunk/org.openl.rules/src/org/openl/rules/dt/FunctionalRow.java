@@ -224,6 +224,9 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
             } catch (Throwable t) {
                 throw new BoundError(null, null, t, new GridCellSourceCodeModule(cell.getGridTable()));
             }
+        } else {
+            // Set meta info for empty cells.To suggest an appropriate editor according to cell type.
+            setCellMetaInfo(cell, paramName, paramType);
         }
         return null;
     }

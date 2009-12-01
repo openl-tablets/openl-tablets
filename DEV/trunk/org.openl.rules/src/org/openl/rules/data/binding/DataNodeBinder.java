@@ -14,10 +14,10 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
-import org.openl.rules.data.IColumnDescriptor;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.ITable;
 import org.openl.rules.data.String2DataConvertorFactory;
+import org.openl.rules.data.impl.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.impl.OpenlBasedColumnDescriptor;
 import org.openl.rules.data.impl.OpenlBasedDataTableModel;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -229,12 +229,12 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         return result;
     }    
     
-    private IColumnDescriptor[] makeDescriptors(ITable table, IOpenClass type, OpenL openl,
+    private OpenlBasedColumnDescriptor[] makeDescriptors(ITable table, IOpenClass type, OpenL openl,
             ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows,
             boolean hasForeignKeysRow, boolean hasColumnTytleRow) throws Exception {
 
         int width = descriptorRows.getLogicalWidth();
-        IColumnDescriptor[] columnDescriptors = new IColumnDescriptor[width];
+        OpenlBasedColumnDescriptor[] columnDescriptors = new OpenlBasedColumnDescriptor[width];
 
         for (int columnNum = 0; columnNum < width; columnNum++) {
             GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(
@@ -280,14 +280,14 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
                 IOpenField field = fieldAccessorChain.length == 1 ? fieldAccessorChain[0]
                         : new FieldChain(type, fieldAccessorChain);
 
-                IdentifierNode indexTable = null;
-                IdentifierNode indexKey = null;
+                IdentifierNode foreignKeyTable = null;
+                IdentifierNode foreignKey = null;
 
                 if (hasForeignKeysRow) {
                     IdentifierNode[] foreignKeyTokens = getForeignKeyTokens(descriptorRows, columnNum);
 
-                    indexTable = foreignKeyTokens.length > 0 ? foreignKeyTokens[0] : null;
-                    indexKey = foreignKeyTokens.length > 1 ? foreignKeyTokens[1] : null;
+                    foreignKeyTable = foreignKeyTokens.length > 0 ? foreignKeyTokens[0] : null;
+                    foreignKey = foreignKeyTokens.length > 1 ? foreignKeyTokens[1] : null;
                 }
 
                 StringValue header = makeColumnTitle(dataWithTitleRows,
@@ -295,15 +295,12 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
                 
                 OpenlBasedColumnDescriptor currentColumnDescriptor;
 
-                if (indexTable != null) {
-                    currentColumnDescriptor = new OpenlBasedColumnDescriptor(
-                            field, indexTable, indexKey, header, openl);
+                if (foreignKeyTable != null) {
+                    currentColumnDescriptor = new ForeignKeyColumnDescriptor(
+                            field, foreignKeyTable, foreignKey, header, openl);
                 } else {
-                    IString2DataConvertor convertor = getCellValueConvertor(
-                            cellSourceModule, targetType);
-
                     currentColumnDescriptor = new OpenlBasedColumnDescriptor(
-                            field, header, convertor, openl);
+                            field, header, openl);
                 }
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;
@@ -312,31 +309,6 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         }
         return columnDescriptors;
 
-    }
-
-    /**
-     * Gets the convertor from <code>String</code> to data for cell value.
-     * @param cellSourceModule
-     * @param targetType
-     * @return
-     * @throws BoundError
-     */
-    private IString2DataConvertor getCellValueConvertor(
-            GridCellSourceCodeModule cellSourceModule, IOpenClass targetType)
-            throws BoundError {
-        IString2DataConvertor convertor;
-
-        Class<?> targetTypeInstanceClass = targetType.getInstanceClass();
-        if (targetTypeInstanceClass.isArray()) {
-            targetTypeInstanceClass = targetTypeInstanceClass.getComponentType();
-        }
-        try {
-            convertor = String2DataConvertorFactory.getConvertor(targetTypeInstanceClass);
-        } catch (Throwable t) {
-            throw new BoundError(null, null, t, cellSourceModule);
-        }
-        
-        return convertor;
     }
 
     /**
@@ -630,7 +602,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         
         ILogicalTable dataWithTitleRows = getDataWithTitleRows(horizDataTableBody);
 
-        IColumnDescriptor[] descriptors = makeDescriptors(tableToProcess, tableType, openl, descriptorRows,  
+        OpenlBasedColumnDescriptor[] descriptors = makeDescriptors(tableToProcess, tableType, openl, descriptorRows,  
                 dataWithTitleRows, hasForeignKeysRow(horizDataTableBody), hasColumnTytleRow);
         
         OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName, tableType, openl, descriptors, 
