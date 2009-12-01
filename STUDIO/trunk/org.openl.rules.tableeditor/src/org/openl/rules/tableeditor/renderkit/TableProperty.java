@@ -21,6 +21,7 @@ public class TableProperty {
     private String name;
     private String format;
     private Constraints constraints;
+    private String description;
     
     public String getFormat() {
         return format;
@@ -185,6 +186,14 @@ public class TableProperty {
 
     public Constraints getConstraints() {
         return constraints;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
 }
