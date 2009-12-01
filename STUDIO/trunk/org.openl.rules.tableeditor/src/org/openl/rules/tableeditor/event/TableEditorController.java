@@ -91,7 +91,9 @@ public class TableEditorController extends BaseTableEditorController implements 
     }
 
     private int getCol() {
-        return getRequestIntParam(Constants.REQUEST_PARAM_COL) - 1;
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        int numberOfNonShownColumns = editorModel.getNumberOfNonShownCols();        
+        return getRequestIntParam(Constants.REQUEST_PARAM_COL) - 1 + numberOfNonShownColumns;
     }
 
     private String getEditorId() {
