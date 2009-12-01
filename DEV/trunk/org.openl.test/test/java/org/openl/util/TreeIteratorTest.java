@@ -15,6 +15,9 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.openl.util.tree.FileTreeIterator;
+import org.openl.util.tree.TreeIterator;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

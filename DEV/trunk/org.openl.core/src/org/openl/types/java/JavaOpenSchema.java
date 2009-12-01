@@ -18,12 +18,12 @@ import org.openl.types.IOpenClassHolder;
 import org.openl.types.IOpenFactory;
 import org.openl.types.impl.AOpenSchema;
 import org.openl.util.ASelector;
-import org.openl.util.FileTreeIterator;
 import org.openl.util.IConvertor;
 import org.openl.util.IOpenIterator;
 import org.openl.util.ISelector;
 import org.openl.util.OpenIterator;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.tree.FileTreeIterator;
 
 /**
  * @author snshor

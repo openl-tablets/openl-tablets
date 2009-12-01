@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 import org.openl.base.INamedThing;
 import org.openl.util.AOpenIterator;
-import org.openl.util.ITreeElement;
+import org.openl.util.tree.ITreeElement;
 
 /**
  * @author snshor

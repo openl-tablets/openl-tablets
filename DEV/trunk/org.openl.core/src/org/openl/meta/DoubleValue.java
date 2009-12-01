@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.openl.base.INamedThing;
 import org.openl.util.AOpenIterator;
-import org.openl.util.ITreeElement;
+import org.openl.util.tree.ITreeElement;
 
 public class DoubleValue extends Number implements IMetaHolder, Comparable<Number>, ITreeElement<DoubleValue>,
         INamedThing {
