@@ -69,9 +69,12 @@ final class OperandClassTransformer {
 	public void transformFormula(ParseNode rootNode) {
 		byte rootNodeOperandClass;
 		switch (_formulaType) {
-			case FormulaType.CELL:
-				rootNodeOperandClass = Ptg.CLASS_VALUE;
-				break;
+            case FormulaType.CELL:
+                rootNodeOperandClass = Ptg.CLASS_VALUE;
+                break;
+            case FormulaType.ARRAY:
+                rootNodeOperandClass = Ptg.CLASS_ARRAY;
+                break;
             case FormulaType.NAMEDRANGE:
 			case FormulaType.DATAVALIDATION_LIST:
 				rootNodeOperandClass = Ptg.CLASS_REF;
