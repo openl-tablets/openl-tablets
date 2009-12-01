@@ -3,7 +3,7 @@
  */
 package org.openl.rules.ui;
 
-import org.openl.util.ITreeElement;
+import org.openl.util.tree.ITreeElement;
 
 /**
  * @author snshor

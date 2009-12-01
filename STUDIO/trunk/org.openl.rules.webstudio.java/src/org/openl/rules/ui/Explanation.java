@@ -14,7 +14,7 @@ import org.openl.util.AOpenIterator;
 import org.openl.util.OpenIterator;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
-import org.openl.util.TreeIterator;
+import org.openl.util.tree.TreeIterator;
 
 public class Explanation {
     static class DoubleValueIterator implements TreeIterator.TreeAdaptor {

@@ -1,0 +1,103 @@
+package org.openl.rules.ui.tree;
+
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.ITableProperties;
+
+/**
+ * Builds tree node for table category.
+ */
+public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
+
+    private static final String CATEGORY_TYPE = "category";
+    private static final String CATEGORY_NAME = "category";
+    private static final String CATEGORY_TABLE_PROPERTY_NAME = "category";
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String[] getDisplayValue(Object nodeObject, int i) {
+
+        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
+        String category = getCategory(tableSyntaxNode);
+
+        return new String[] { category, category, category };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return CATEGORY_NAME;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getType(Object nodeObject) {
+        return CATEGORY_TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getUrl(Object nodeObject) {
+
+        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
+
+        return tableSyntaxNode.getUri();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getWeight(Object nodeObject) {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object makeObject(TableSyntaxNode tableSyntaxNode) {
+        return tableSyntaxNode;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object getProblems(Object nodeObject) {
+        return null;
+    }
+
+    /**
+     * Gets name of category.
+     * 
+     * @param tableSyntaxNode table syntax node
+     * @return name of category
+     */
+    protected String getCategory(TableSyntaxNode tableSyntaxNode) {
+
+        String category = null;
+
+        ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
+
+        if (tableProperties != null && tableProperties.getPropertyValue(CATEGORY_TABLE_PROPERTY_NAME) != null) {
+            category = tableProperties.getPropertyValueAsString(CATEGORY_TABLE_PROPERTY_NAME);
+        }
+
+        if (category == null) {
+
+            XlsSheetSourceCodeModule sheet = tableSyntaxNode.getXlsSheetSourceCodeModule();
+            category = sheet.getSheetName();
+        }
+
+        return category;
+    }
+}

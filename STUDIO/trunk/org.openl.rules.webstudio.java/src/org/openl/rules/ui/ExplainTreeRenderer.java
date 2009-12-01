@@ -6,8 +6,8 @@ package org.openl.rules.ui;
 import org.openl.base.INamedThing;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.util.ITreeElement;
 import org.openl.util.StringTool;
+import org.openl.util.tree.ITreeElement;
 
 /**
  * @author snshor

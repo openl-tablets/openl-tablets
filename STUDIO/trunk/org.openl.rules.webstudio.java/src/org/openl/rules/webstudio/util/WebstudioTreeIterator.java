@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.util;
 
-import org.openl.util.TreeIterator;
 import org.openl.util.OpenIterator;
+import org.openl.util.tree.TreeIterator;
 
 import java.util.Iterator;
 import java.io.File;

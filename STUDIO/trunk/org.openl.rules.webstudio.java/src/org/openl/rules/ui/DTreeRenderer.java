@@ -7,8 +7,9 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.openl.base.INamedThing;
-import org.openl.util.ITreeElement;
+import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.util.StringTool;
+import org.openl.util.tree.ITreeElement;
 
 /**
  * @author snshor
@@ -34,8 +35,8 @@ public abstract class DTreeRenderer {
 
     ObjectMap map = new ObjectMap();
 
-    static final int errIndex(ProjectTreeElement element) {
-        return element.hasProblem() ? 1 : 0;
+    static final int errIndex(ProjectTreeNode element) {
+        return element.hasProblems() ? 1 : 0;
     }
 
     public static String jsStr(String string) {
