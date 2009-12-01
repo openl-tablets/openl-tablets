@@ -84,7 +84,7 @@ final class XSSFEvaluationCell implements UpdatableEvaluationCell {
 
 //  VIA	
 	public boolean isArrayFormulaContext() {
-		return _cell.isArrayFormulaContext();
+		return _cell.isPartOfArrayFormulaGroup();
 	}
 //	end changes VIA
 

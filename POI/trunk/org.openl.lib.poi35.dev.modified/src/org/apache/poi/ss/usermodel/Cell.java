@@ -20,6 +20,7 @@ package org.apache.poi.ss.usermodel;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
@@ -78,7 +79,7 @@ public interface Cell {
      * @see #getCellType()
      */
     public final static int CELL_TYPE_ERROR = 5;
-    
+
     /**
      * Returns column index of this cell
      *
@@ -160,7 +161,7 @@ public interface Cell {
      * data type is now something besides {@link Cell#CELL_TYPE_NUMERIC}.  POI
      * does not attempt to replicate this behaviour.  To make a numeric cell
      * display as a date, use {@link #setCellStyle(CellStyle)} etc.
-     * 
+     *
      * @param value the numeric value to set this cell to.  For formulas we'll set the
      *        precalculated value, for numerics we'll set its value. For other types we
      *        will change the cell to a numerics cell and set its value.
@@ -205,6 +206,7 @@ public interface Cell {
      */
     void setCellValue(String value);
 
+
     /**
      * Sets formula for this cell.
      * <p>
@@ -212,11 +214,11 @@ public interface Cell {
      * To set the precalculated value use {@link #setCellValue(double)} or {@link #setCellValue(String)}
      * </p>
      *
-     * @param formula the formula to set, e.g. <code>SUM(C4:E4)</code>.
+     * @param formula the formula to set, e.g. <code>"SUM(C4:E4)"</code>.
      *  If the argument is <code>null</code> then the current formula is removed.
-     * @throws IllegalArgumentException if the formula is unparsable
+     * @throws FormulaParseException if the formula has incorrect syntax or is otherwise invalid
      */
-    void setCellFormula(String formula);
+    void setCellFormula(String formula) throws FormulaParseException;
 
     /**
      * Return a formula for the cell, for example, <code>SUM(C4:E4)</code>
@@ -354,6 +356,11 @@ public interface Cell {
     Comment getCellComment();
 
     /**
+     * Removes the comment for this cell, if there is one.
+     */
+    void removeCellComment();
+
+    /**
      * Returns hyperlink associated with this cell
      *
      * @return hyperlink associated with this cell or <code>null</code> if not found
@@ -368,15 +375,13 @@ public interface Cell {
     void setHyperlink(Hyperlink link);
 
     /**
-     * get reference for Array Formula
-     * @return
+     * Only valid for array formula cells
+     * @return range of the array formula group that the cell belongs to.
      */
     CellRangeAddress getArrayFormulaRange();
-    
+
     /**
-     * Check is cell belong to Array Formula Range
-     * @return
+     * @return <code>true</code> if this cell is part of group of cells having a common array formula.
      */
-    public boolean isArrayFormulaContext();
-         
+    public boolean isPartOfArrayFormulaGroup();
 }

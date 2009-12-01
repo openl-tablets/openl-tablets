@@ -70,7 +70,7 @@ public class ArrayFormulaSetRemoveTestOldFormat {
 		// create empty workbook
         Workbook workbook =  new XSSFWorkbook();
         try {
-        	File excelFile = File.createTempFile("tst", ".xlsx");
+        	File excelFile = File.createTempFile("tst", ".xls");
 			FileOutputStream out = new FileOutputStream(excelFile);
        	
 	         Sheet sheet = workbook.createSheet();

@@ -17,17 +17,12 @@
 
 package org.apache.poi.hssf.record;
 
-import org.apache.poi.hssf.record.formula.AreaPtg;
 import org.apache.poi.hssf.record.formula.AreaPtgBase;
 import org.apache.poi.hssf.record.formula.Ptg;
 import org.apache.poi.hssf.record.formula.RefPtgBase;
 import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.ss.formula.Formula;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.HexDump;
-import org.apache.poi.util.LittleEndianByteArrayInputStream;
-import org.apache.poi.util.LittleEndianByteArrayOutputStream;
-import org.apache.poi.util.LittleEndianInput;
 import org.apache.poi.util.LittleEndianOutput;
 
 /**
@@ -44,7 +39,7 @@ public final class ArrayRecord extends SharedValueRecordBase {
 	private static final int OPT_ALWAYS_RECALCULATE = 0x0001;
 	private static final int OPT_CALCULATE_ON_OPEN  = 0x0002;
 
-	private int	_options;
+	private int _options;
 	private int _field3notUsed;
 	private Formula _formula;
 
@@ -57,14 +52,13 @@ public final class ArrayRecord extends SharedValueRecordBase {
 		_formula = Formula.read(formulaTokenLen, in, totalFormulaLen);
 	}
 
-// VIA
-	public ArrayRecord(int options, Formula formula, CellRangeAddress8Bit range ) {
+	public ArrayRecord(Formula formula, CellRangeAddress8Bit range ) {
 		super(range);
-		_options = options;
+		_options = OPT_CALCULATE_ON_OPEN;
 		_field3notUsed = 0;
 		_formula = formula;
 	}
-// end changes VIA
+
 	public boolean isAlwaysRecalculate() {
 		return (_options & OPT_ALWAYS_RECALCULATE) != 0;
 	}
@@ -101,36 +95,37 @@ public final class ArrayRecord extends SharedValueRecordBase {
 		sb.append("]");
 		return sb.toString();
 	}
-//VIA	
+
 	   /**
-     * @return the equivalent {@link Ptg} array that the formula would have, were it not shared.
-     */
-    public Ptg[] getFormulaTokens() {
-        int formulaRow = this.getFirstRow();
-        int formulaColumn = this.getLastColumn();
-        
-        // Use SharedFormulaRecord static method to convert formula
-        
-        Ptg[] ptgs = _formula.getTokens();
-        
-        // Convert from relative addressing to absolute
-        // because all formulas in array need to be referenced to the same ref/range
-        for(int i=0;i<ptgs.length;i++)
-        {
-	        if(ptgs[i] instanceof  AreaPtgBase){
-	        	((AreaPtgBase)ptgs[i]).setFirstRowRelative(false);
-	        	((AreaPtgBase)ptgs[i]).setLastRowRelative(false);
-	        	((AreaPtgBase)ptgs[i]).setFirstColRelative(false);
-	        	((AreaPtgBase)ptgs[i]).setLastColRelative(false);
-	        	
-	        	}	
-	        else if (ptgs[i] instanceof  RefPtgBase){
-	        	((RefPtgBase)ptgs[i]).setRowRelative(false);
-	        	((RefPtgBase)ptgs[i]).setColRelative(false);
-	        	}
-        }
-        return SharedFormulaRecord.convertSharedFormulas(ptgs, formulaRow, formulaColumn);
-    }
-// end changes VIA   
-	
+		 * @return the equivalent {@link Ptg} array that the formula would have,
+		 *		 were it not shared.
+		 */
+	public Ptg[] getFormulaTokens() {
+		int formulaRow = this.getFirstRow();
+		int formulaColumn = this.getLastColumn();
+
+		// Use SharedFormulaRecord static method to convert formula
+
+		Ptg[] ptgs = _formula.getTokens();
+
+		// Convert from relative addressing to absolute
+		// because all formulas in array need to be referenced to the same
+		// ref/range
+		for (int i = 0; i < ptgs.length; i++) {
+			Ptg ptg = ptgs[i];
+			if (ptg instanceof AreaPtgBase) {
+				AreaPtgBase aptg = (AreaPtgBase) ptg;
+				aptg.setFirstRowRelative(false);
+				aptg.setLastRowRelative(false);
+				aptg.setFirstColRelative(false);
+				aptg.setLastColRelative(false);
+
+			} else if (ptg instanceof RefPtgBase) {
+				RefPtgBase rptg = (RefPtgBase) ptg;
+				rptg.setRowRelative(false);
+				rptg.setColRelative(false);
+			}
+		}
+		return SharedFormulaRecord.convertSharedFormulas(ptgs, formulaRow, formulaColumn);
+	}
 }

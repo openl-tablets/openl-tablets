@@ -84,7 +84,7 @@ final class HSSFEvaluationCell implements UpdatableEvaluationCell {
 	 * @see org.apache.poi.ss.formula.EvaluationCell#isArrayFormulaContext()
 	 */
 	public boolean isArrayFormulaContext() {
-		return _cell.isArrayFormulaContext();
+		return _cell.isPartOfArrayFormulaGroup();
 	}
 //  end changes VIA
 	
