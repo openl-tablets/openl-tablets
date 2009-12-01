@@ -39,7 +39,7 @@ public class ArrayFormulaSetRemoveTestNewFormat {
 	@BeforeClass
 	public  static void readWorkbook(){
 
-			URL url = ArrayTestNewFormat.class.getClassLoader().getResource("ArrayFormula.xlsx");
+			URL url = ArrayFormulaSetRemoveTestNewFormat.class.getClassLoader().getResource("ArrayFormula.xlsx");
 			Workbook wb;
 			try {
 			wb = new XSSFWorkbook(url.getFile());
