@@ -137,6 +137,7 @@ public class HTMLRenderer {
             .append(renderCSS("css/toolbar.css"))
             .append(renderCSS("css/datepicker.css"))
             .append(renderCSS("css/multiselect.css"))
+            .append(renderCSS("css/tooltip.css"))
             .append(renderJS("js/prototype/prototype-1.6.1.js"))
             .append(
                 renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
@@ -209,6 +210,7 @@ public class HTMLRenderer {
         String editor = Constants.TABLE_EDITOR_PREFIX + editorId;
         result.append(renderJSBody("var " + editor + ";"))
                 .append(renderEditorToolbar(editorId, editor))
+                .append(renderJS("js/tooltip.js"))
                 .append(renderJS("js/validation.js"))
                 .append(renderJS("js/datepicker.packed.js"))
                 .append(renderJS("js/TextEditor.js"))
@@ -367,11 +369,13 @@ public class HTMLRenderer {
             List<TableProperty> listProp = new ArrayList<TableProperty>();
             TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
             for (TablePropertyDefinition propDefinition : propDefinitions) {
-                listProp.add(new TableProperty(propDefinition.getDisplayName(),
+                TableProperty prop = new TableProperty(propDefinition.getDisplayName(),
                         props != null ? props.getPropertyValue(propDefinition.getName()) : null,
                         propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(),
                         propDefinition.getGroup(), propDefinition.getName(), propDefinition.getFormat(),
-                        propDefinition.getConstraints()));
+                        propDefinition.getConstraints());
+                prop.setDescription(propDefinition.getDescription());
+                listProp.add(prop);
             }
             return listProp;
         }
@@ -506,6 +510,8 @@ public class HTMLRenderer {
                     insertEdit(propValue, propId);
                 }
             }
+            result.append(renderJSBody("new Tooltip('_" + propId + "','"
+                    + prop.getDescription() + "',{skin:'green'})"));
             result.append("</tr>");
         }
 
