@@ -39,7 +39,7 @@ public class ArrayFormulaSetRemoveTestOldFormat {
 	@BeforeClass
 	public  static void readWorkbook(){
 
-			URL url = ArrayTestNewFormat.class.getClassLoader().getResource("ArrayFormula.xls");
+			URL url = ArrayFormulaSetRemoveTestOldFormat.class.getClassLoader().getResource("ArrayFormula.xls");
 			Workbook wb;
 			try {
 				

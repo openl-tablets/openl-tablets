@@ -1,7 +1,12 @@
 package com.exigen.poi.array.test;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaError;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -24,7 +29,50 @@ public class TestHelper {
 		wb = workBook;
 	}
 	
+	public TestHelper(){
+		
+	}
+	
+	public void readWorkbook(String fileName){
+		
+		int fileType =0;
+		int dotIndex = fileName.lastIndexOf('.');
+		if (dotIndex>0){
+			if (fileName.substring(dotIndex+1).equalsIgnoreCase("xls")){
+				fileType=1;
+			} else if (fileName.substring(dotIndex+1).equalsIgnoreCase("xlsx")){
+				fileType=2;
+			}
+			
+		}
+		if (fileType ==0 ){
+			log.error("file type not supported.: " + fileName );
+			throw new IllegalArgumentException("file type not supported.: " + fileName);
+		}
+		
+		
+		URL url = TestHelper.class.getClassLoader().getResource(fileName);
+		if (url == null){
+			log.equals("failed to find: " + fileName);
+			throw new IllegalArgumentException("failed to find: " + fileName);
+		}
 
+		try {
+			if (fileType == 1){
+				wb =  new HSSFWorkbook(new FileInputStream(url.getFile()));
+			} else {
+				wb = new XSSFWorkbook(url.getFile());
+			}
+		} catch (IOException ioe){
+			log.error("Failed to open test workbook from file:" + url.getFile(), ioe );
+			throw new IllegalArgumentException(url.getFile());
+		}
+		
+	}
+	
+	
+	
+	
 	protected Cell getCell(String cellRef){
 		
 		log.debug("Access to Cell:" + cellRef);
