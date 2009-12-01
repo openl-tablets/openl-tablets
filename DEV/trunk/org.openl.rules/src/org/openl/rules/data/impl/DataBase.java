@@ -14,7 +14,6 @@ import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.rules.data.DuplicatedTableException;
-import org.openl.rules.data.IColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.IDataTableModel;
 import org.openl.rules.data.ITable;
@@ -119,7 +118,7 @@ public class DataBase implements IDataBase {
          */
 
         public int getColumnIndex(String columnName) {
-            IColumnDescriptor[] dd = dataModel.getDescriptor();
+            OpenlBasedColumnDescriptor[] dd = dataModel.getDescriptor();
             for (int i = 0; i < dd.length; i++) {
                 if (dd[i] == null) {
                     continue;
@@ -140,7 +139,7 @@ public class DataBase implements IDataBase {
         }
 
         public IOpenClass getColumnType(int n) {
-            IColumnDescriptor colDescript = dataModel.getDescriptor()[n];
+            OpenlBasedColumnDescriptor colDescript = dataModel.getDescriptor()[n];
             if (!colDescript.isConstructor()) {
                 return colDescript.getType();
             } else {
@@ -218,7 +217,7 @@ public class DataBase implements IDataBase {
         }
 
         public Map<String, Integer> getUniqueIndex(int columnIndex) throws BoundError {
-            IColumnDescriptor cd = dataModel.getDescriptor()[columnIndex];
+            OpenlBasedColumnDescriptor cd = dataModel.getDescriptor()[columnIndex];
 
             return cd.getUniqueIndex(this, columnIndex);
 
@@ -270,12 +269,15 @@ public class DataBase implements IDataBase {
                 Object target = Array.get(ary, i - startRow);
 
                 for (int j = 0; j < columns; j++) {
-                    IColumnDescriptor cd = dataModel.getDescriptor()[j];
-                    if (cd != null && cd.isReference()) {
-                        if (cd.isConstructor()) {
-                            target = cd.getLink(dataModel.getType(), data.getLogicalRegion(j, i, 1, 1), db, cxt);
-                        } else {
-                            cd.populateLink(target, data.getLogicalRegion(j, i, 1, 1), db, cxt);
+                    OpenlBasedColumnDescriptor cd = dataModel.getDescriptor()[j];
+                    if (cd != null && (cd instanceof ForeignKeyColumnDescriptor)) {
+                        ForeignKeyColumnDescriptor colDescrFK = (ForeignKeyColumnDescriptor)cd;
+                        if(colDescrFK.isReference()) {
+                            if (cd.isConstructor()) {
+                                target = colDescrFK.getLiteralByForeignKey(dataModel.getType(), data.getLogicalRegion(j, i, 1, 1), db, cxt);
+                            } else {
+                                colDescrFK.populateLiteralByForeignKey(target, data.getLogicalRegion(j, i, 1, 1), db, cxt);
+                            }
                         }
                     }
 
@@ -306,7 +308,7 @@ public class DataBase implements IDataBase {
                 int columns = data.getLogicalWidth();
 
                 for (int j = 0; j < columns; j++) {
-                    IColumnDescriptor columnDescriptor = dataModel.getDescriptor()[j];
+                    OpenlBasedColumnDescriptor columnDescriptor = dataModel.getDescriptor()[j];
                     if (columnDescriptor != null && !columnDescriptor.isReference()) {
                         if (constructor) {
                             literal = columnDescriptor.getLiteral(dataModel.getType(), data.getLogicalRegion(j, i, 1, 1), ota);
@@ -339,7 +341,7 @@ public class DataBase implements IDataBase {
         private boolean isConstructor() {
             boolean isConstructor = false;
             for (int i = 0; i < dataModel.getDescriptor().length; i++) {
-                IColumnDescriptor columnDescriptor = dataModel.getDescriptor()[i];
+                OpenlBasedColumnDescriptor columnDescriptor = dataModel.getDescriptor()[i];
                 if (columnDescriptor != null && columnDescriptor.isConstructor()) {
                     isConstructor = true;
                     break;

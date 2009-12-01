@@ -6,6 +6,7 @@
 
 package org.openl.rules.data;
 
+import org.openl.rules.data.impl.OpenlBasedColumnDescriptor;
 import org.openl.types.IOpenClass;
 
 /**
@@ -14,7 +15,7 @@ import org.openl.types.IOpenClass;
  */
 public interface IDataTableModel {
     
-    IColumnDescriptor[] getDescriptor();
+    OpenlBasedColumnDescriptor[] getDescriptor();
 
     Class<?> getInstanceClass();
 

@@ -7,7 +7,6 @@
 package org.openl.rules.data.impl;
 
 import org.openl.OpenL;
-import org.openl.rules.data.IColumnDescriptor;
 import org.openl.rules.data.IDataTableModel;
 import org.openl.types.IOpenClass;
 
@@ -20,10 +19,10 @@ public class OpenlBasedDataTableModel implements IDataTableModel {
     private String name;
     private IOpenClass type;
     private OpenL openl;
-    private IColumnDescriptor[] columnDescriptor;
+    private OpenlBasedColumnDescriptor[] columnDescriptor;
     private boolean hasColumnTytleRow; 
 
-    public OpenlBasedDataTableModel(String name, IOpenClass type, OpenL openl, IColumnDescriptor[] columnDescriptor, boolean hasColumnTytleRow) {
+    public OpenlBasedDataTableModel(String name, IOpenClass type, OpenL openl, OpenlBasedColumnDescriptor[] columnDescriptor, boolean hasColumnTytleRow) {
         this.name = name;
         this.type = type;
         this.openl = openl;
@@ -43,7 +42,7 @@ public class OpenlBasedDataTableModel implements IDataTableModel {
      *
      */
 
-    public IColumnDescriptor[] getDescriptor() {
+    public OpenlBasedColumnDescriptor[] getDescriptor() {
         return columnDescriptor;
     }
 

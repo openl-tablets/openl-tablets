@@ -8,6 +8,14 @@ public class TypeWithArray {
     private double[] doubleArray;
     private String[] stringArray;
     
+    public ClassForStringConstructorLoadingTests getClassValues() {
+        return classValues;
+    }
+    public void setClassValues(ClassForStringConstructorLoadingTests classValue) {
+        this.classValues = classValue;
+    }
+    private ClassForStringConstructorLoadingTests classValues;
+    
     public String getStringValue() {
         return stringValue;
     }

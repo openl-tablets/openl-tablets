@@ -3,6 +3,8 @@ package org.openl.rules.data;
 import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
@@ -13,13 +15,14 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 
 public class DataTableTest {
     
-private String __src = "test/rules/Tutorial_2_Test.xls";
+    private String __src = "test/rules/Tutorial_2_Test.xls";
+    private XlsModuleSyntaxNode xsn = null;
     
-    private XlsModuleSyntaxNode getTables() {        
+    @Before
+    public void getTables() {        
         OpenClassJavaWrapper wrapper = getJavaWrapper();
         XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClassWithErrors().getMetaInfo();
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
-        return xsn;
+        xsn = xmi.getXlsModuleNode();        
     }
 
     private OpenClassJavaWrapper getJavaWrapper() {
@@ -30,7 +33,7 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
     
     @Test
     public void testSimpleStringArray() {
-        XlsModuleSyntaxNode module = getTables();
+        XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if ("Data ArrayList simpleStringArray".equals(tsn.getDisplayName())) {
@@ -53,7 +56,7 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
     
     @Test
     public void testTypeWithArrayColumns() {
-        XlsModuleSyntaxNode module = getTables();
+        XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if ("Data TypeWithArray testTypeWithArrayColumns".equals(tsn.getDisplayName())) {
@@ -75,7 +78,7 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
     
     @Test
     public void testTypeWithArrayRows() {
-        XlsModuleSyntaxNode module = getTables();
+        XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if ("Data TypeWithArray testTypewithArray2".equals(tsn.getDisplayName())) {
@@ -98,7 +101,7 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
     
     @Test
     public void testTypeWithArrayRowsOneElement() {
-        XlsModuleSyntaxNode module = getTables();
+        XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if ("Data TypeWithArray testTypewithArray3".equals(tsn.getDisplayName())) {
@@ -117,7 +120,7 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
     
     @Test
     public void testCommaSeparated() {
-        XlsModuleSyntaxNode module = getTables();
+        XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if ("Data TypeWithArray testCommaSeparated".equals(tsn.getDisplayName())) {
@@ -163,7 +166,7 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
     
     @Test
     public void testStringArray() {
-        XlsModuleSyntaxNode module = getTables();
+        XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if ("Data TypeWithArray testStringArray".equals(tsn.getDisplayName())) {
@@ -183,7 +186,7 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
     
     @Test
     public void testStringArrayWithEscaper() {
-        XlsModuleSyntaxNode module = getTables();
+        XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if ("Data TypeWithArray testStringArrayWithEscaper".equals(tsn.getDisplayName())) {
@@ -202,6 +205,50 @@ private String __src = "test/rules/Tutorial_2_Test.xls";
             }        
         }
     }
+    
+    @Test
+    public void testClass() {
+        XlsModuleSyntaxNode module = xsn;
+        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
+        for (TableSyntaxNode tsn : tsns) {
+            if ("Data TypeWithArray testClassLoading".equals(tsn.getDisplayName())) {
+                DataOpenField member = (DataOpenField)tsn.getMember();
+                assertNotNull(member);
+                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+                assertTrue(typeWitharray[0].getStringArray().length == 4);
+                List<String> dataList = new ArrayList<String>();
+                for (String token : typeWitharray[0].getStringArray()) {                    
+                    dataList.add(token);
+                }                                
+                assertTrue(dataList.contains("One"));
+                assertTrue(dataList.contains("two"));
+                assertTrue(dataList.contains("three,continue this"));
+                assertTrue(dataList.contains("four"));
+            }        
+        }
+    }
+    
+//    @Test
+//    public void testForeignKey() {
+//        XlsModuleSyntaxNode module = xsn;
+//        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
+//        for (TableSyntaxNode tsn : tsns) {
+//            if ("Data Team teamProfile1".equals(tsn.getDisplayName())) {
+//                DataOpenField member = (DataOpenField)tsn.getMember();
+//                assertNotNull(member);
+//                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+//                assertTrue(typeWitharray[0].getStringArray().length == 4);
+//                List<String> dataList = new ArrayList<String>();
+//                for (String token : typeWitharray[0].getStringArray()) {                    
+//                    dataList.add(token);
+//                }                                
+//                assertTrue(dataList.contains("One"));
+//                assertTrue(dataList.contains("two"));
+//                assertTrue(dataList.contains("three,continue this"));
+//                assertTrue(dataList.contains("four"));
+//            }        
+//        }
+//    }
     
     
     
