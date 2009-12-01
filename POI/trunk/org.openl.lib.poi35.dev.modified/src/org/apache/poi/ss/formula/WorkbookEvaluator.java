@@ -708,7 +708,7 @@ public final class WorkbookEvaluator {
 			int columnIndex, EvaluationTracker tracker) {
 		EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
 		ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker); 
-		if (cell.isArrayFormulaContext() && result instanceof ArrayEval){
+		if (result instanceof ArrayEval && cell.isArrayFormulaContext()){
 			result = dereferenceValue((ArrayEval)result, cell);
 
 	}
