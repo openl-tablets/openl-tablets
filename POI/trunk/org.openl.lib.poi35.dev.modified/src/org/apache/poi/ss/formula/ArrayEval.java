@@ -15,7 +15,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
 /** 
  *  Class to support evaluated array of values
- * @author zsulkins(ZS)
+ * @author Zahars Sulkins(ZS)(Zahars.Sulkins at exigenservices.com)
  *
  */
 public class ArrayEval  implements ValueEval {
