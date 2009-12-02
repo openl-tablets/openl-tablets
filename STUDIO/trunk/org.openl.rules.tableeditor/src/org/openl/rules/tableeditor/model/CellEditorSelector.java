@@ -26,7 +26,7 @@ public class CellEditorSelector {
         if (dataType != null) {
             IDomain domain = dataType.getDomain();
             Class<?> instanceClass = dataType.getInstanceClass();
-            if (instanceClass == int.class) {
+            if (instanceClass == int.class || instanceClass == Integer.class) {
                 if (domain == null) {
                     result = factory.makeIntEditor(Integer.MIN_VALUE,
                             Integer.MAX_VALUE);
@@ -43,7 +43,7 @@ public class CellEditorSelector {
                 }
             } else if (instanceClass == Date.class) {
                 result = factory.makeDateEditor();
-            } else if (instanceClass == boolean.class) {
+            } else if (instanceClass == boolean.class || instanceClass == Boolean.class) {
                 result = factory.makeBooleanEditor();
             }
         }
