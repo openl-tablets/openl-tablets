@@ -72,7 +72,7 @@ import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFoundException;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
+import org.apache.poi.ss.usermodel.ArrayFormulaEvaluatorHelper;
 
 /**
  * Evaluates formula cells.<p/>
@@ -576,7 +576,7 @@ public final class WorkbookEvaluator {
 	 */
 	private static ValueEval dereferenceValue(ArrayEval evaluationResult, EvaluationCell evalCell ) {
 		Cell cell = (Cell)evalCell.getIdentityKey();
-		return FormulaEvaluatorHelper.dereferenceValue(evaluationResult,cell);
+		return ArrayFormulaEvaluatorHelper.dereferenceValue(evaluationResult,cell);
 	}
 	/**
 	 * Dereferences a single value from any AreaEval or RefEval evaluation result.
