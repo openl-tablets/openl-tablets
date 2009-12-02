@@ -5,7 +5,7 @@ import com.sdicons.json.mapper.MapperException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.ss.formula.FormulaParser.FormulaParseException;
+import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.IGridTable;
