@@ -12,7 +12,7 @@ import java.util.Iterator;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.openl.util.OpenIterator;
-import org.openl.util.TreeIterator;
+import org.openl.util.tree.TreeIterator;
 
 /**
  * @author sam

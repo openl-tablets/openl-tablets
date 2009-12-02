@@ -13,7 +13,7 @@ import org.openl.eclipse.util.ResourceTreeAdaptor;
 import org.openl.util.AOpenIterator;
 import org.openl.util.IOpenIterator;
 import org.openl.util.OpenIterator;
-import org.openl.util.TreeIterator;
+import org.openl.util.tree.TreeIterator;
 
 /**
  *
