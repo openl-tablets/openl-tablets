@@ -8,8 +8,6 @@ import org.openl.util.StringTool;
 
 public abstract class BaseBusinessViewMode extends WebStudioViewMode {
 
-    private static final String[][] folders = { { "By Type", "Organize Project by component type", "" } };
-
     @Override
     public String getDisplayName(OpenLWrapperInfo wrapper) {
 
@@ -50,6 +48,6 @@ public abstract class BaseBusinessViewMode extends WebStudioViewMode {
 
     @Override
     public String[][] getFolders() {
-        return folders;
+        return null;
     }
 }
