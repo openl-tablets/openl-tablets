@@ -35,7 +35,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 // VIA
 import org.apache.poi.ss.formula.ArrayEval;
-import org.apache.poi.ss.usermodel.FormulaEvaluatorHelper;
+import org.apache.poi.ss.usermodel.ArrayFormulaEvaluatorHelper;
 // end changes VIA
 import org.apache.poi.ss.util.CellRangeAddress;
 
@@ -250,7 +250,7 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 		int rowStart = range.getFirstRow();
 		int colStart = range.getFirstColumn();
 		Sheet sheet = cell.getSheet();
-		CellValue[][] answer = (CellValue[][])FormulaEvaluatorHelper.transform2Range(cvs, range);
+		CellValue[][] answer = (CellValue[][])ArrayFormulaEvaluatorHelper.transformToRange(cvs, range);
 		for(int i=rowStart;i<=range.getLastRow();i++ )
 			for(int j=colStart; j<=range.getLastColumn();j++)
 			{
@@ -401,7 +401,7 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 //			VIA
 				if(cell.isPartOfArrayFormulaGroup())
 				{
-					eval = FormulaEvaluatorHelper.dereferenceValue((ArrayEval)eval, cell) ;
+					eval = ArrayFormulaEvaluatorHelper.dereferenceValue((ArrayEval)eval, cell) ;
 				}
 				else		
 					eval = ((ArrayEval)eval).getArrayElementAsEval(0, 0);
@@ -439,13 +439,13 @@ public class HSSFFormulaEvaluator implements FormulaEvaluator  {
 			for(int i=0;i<rowCount;i++)
 				for(int j=0;j<ColCount;j++)	{
 						ValueEval val =  ae.getArrayElementAsEval(i, j);
-						answer[i][j]= FormulaEvaluatorHelper.eval2Cell(val);
+						answer[i][j]= ArrayFormulaEvaluatorHelper.eval2Cell(val);
 			}		
 			return answer;
 		}
 		// non-array (usually from aggregate function)
 		CellValue[][] answer = new CellValue[1][1];
-		answer[0][0] = FormulaEvaluatorHelper.eval2Cell(eval);
+		answer[0][0] = ArrayFormulaEvaluatorHelper.eval2Cell(eval);
 		return answer;
 	}
 // end changes VIA	

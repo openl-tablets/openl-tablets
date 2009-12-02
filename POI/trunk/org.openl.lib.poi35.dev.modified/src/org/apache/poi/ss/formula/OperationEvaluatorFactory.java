@@ -55,6 +55,7 @@ import org.apache.poi.hssf.record.formula.function.FunctionMetadataRegistry;
 import org.apache.poi.hssf.record.formula.functions.ArrayMode;
 import org.apache.poi.hssf.record.formula.functions.Function;
 import org.apache.poi.hssf.record.formula.functions.Indirect;
+import org.apache.poi.ss.usermodel.ArrayFormulaEvaluatorHelper;
 
 /**
  * This class creates <tt>OperationEval</tt> instances to help evaluate <tt>OperationPtg</tt>
@@ -145,12 +146,12 @@ final class OperationEvaluatorFactory {
 
     private static ValueEval invokeOperationInArrayContext(Function func, ValueEval[] ops, OperationEvaluationContext ec) {
         boolean isArrayFormula = ec.isInArrayFormulaContext();
-        ValueEval answer = ArrayEvaluationHelper.prepareEmptyResult(func, ops, isArrayFormula);
+        ValueEval answer = ArrayFormulaEvaluatorHelper.prepareEmptyResult(func, ops, isArrayFormula);
         if (answer instanceof ArrayEval) {
             ValueEval[][] values = (ValueEval[][]) ((ArrayEval) answer).getArrayValues();
             for (int row = 0; row < values.length; row++)
                 for (int col = 0; col < values[row].length; col++) {
-                    ValueEval[] opsloop = ArrayEvaluationHelper.prepareArg4Loop(func, ops, row, col, isArrayFormula);
+                    ValueEval[] opsloop = ArrayFormulaEvaluatorHelper.prepareArgsForLoop(func, ops, row, col, isArrayFormula);
                     ValueEval loopresult = func.evaluate(opsloop, ec.getRowIndex(), ec.getColumnIndex());
                     values[row][col] = loopresult;
                 }
