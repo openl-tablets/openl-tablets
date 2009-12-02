@@ -156,7 +156,9 @@ public class ForeignKeyColumnDescriptor extends OpenlBasedColumnDescriptor {
 
             DomainOpenClass domainClass = new DomainOpenClass(getField().getName(),
                     JavaOpenClass.STRING, domain, null);
-
+            /**
+             * table will have 1xN size
+             */
             valuesTable = ALogicalTable.make1ColumnTable(valuesTable);
 
             IOpenClass fieldType = getField().getType();
@@ -238,19 +240,21 @@ public class ForeignKeyColumnDescriptor extends OpenlBasedColumnDescriptor {
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);                
         for (int i = 0; i < valuesHeight; i++) {
             String s = valuesTable.getGridTable().getCell(0, i).getStringValue();
-
+            
+            //we take the appropriate cell for the current value. 
+            ILogicalTable valueTable = valuesTable.getLogicalRow(i);
             if (s != null) {
                 s = s.trim();
             }
-
+            
             if (s == null || s.length() == 0) {
                 // set meta info for empty cells.
-                FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass);
+                FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass);
                 values.add(null);                        
                 continue;
             }
             Object res = null;
-            FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass);
+            FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass);
             try {                        
                 res = foreignTable.findObject(foreignKeyIndex, s, cxt);
             } catch (Exception ex) {
