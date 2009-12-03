@@ -26,7 +26,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public class OpenlBasedColumnDescriptor {
+public class ColumnDescriptor {
     
     private IOpenField field;
     private StringValue displayValue;
@@ -89,7 +89,7 @@ public class OpenlBasedColumnDescriptor {
         return res;
     }
     
-    public OpenlBasedColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl) {
+    public ColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl) {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;

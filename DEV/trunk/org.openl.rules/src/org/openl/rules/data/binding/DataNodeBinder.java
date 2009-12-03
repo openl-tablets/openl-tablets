@@ -18,7 +18,7 @@ import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.ITable;
 import org.openl.rules.data.String2DataConvertorFactory;
 import org.openl.rules.data.impl.ForeignKeyColumnDescriptor;
-import org.openl.rules.data.impl.OpenlBasedColumnDescriptor;
+import org.openl.rules.data.impl.ColumnDescriptor;
 import org.openl.rules.data.impl.OpenlBasedDataTableModel;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -229,12 +229,12 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         return result;
     }    
     
-    private OpenlBasedColumnDescriptor[] makeDescriptors(ITable table, IOpenClass type, OpenL openl,
+    private ColumnDescriptor[] makeDescriptors(ITable table, IOpenClass type, OpenL openl,
             ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows,
             boolean hasForeignKeysRow, boolean hasColumnTytleRow) throws Exception {
 
         int width = descriptorRows.getLogicalWidth();
-        OpenlBasedColumnDescriptor[] columnDescriptors = new OpenlBasedColumnDescriptor[width];
+        ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
         for (int columnNum = 0; columnNum < width; columnNum++) {
             GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(
@@ -293,13 +293,13 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
                 StringValue header = makeColumnTitle(dataWithTitleRows,
                         columnNum, hasColumnTytleRow);
                 
-                OpenlBasedColumnDescriptor currentColumnDescriptor;
+                ColumnDescriptor currentColumnDescriptor;
 
                 if (foreignKeyTable != null) {
                     currentColumnDescriptor = new ForeignKeyColumnDescriptor(
                             field, foreignKeyTable, foreignKey, header, openl);
                 } else {
-                    currentColumnDescriptor = new OpenlBasedColumnDescriptor(
+                    currentColumnDescriptor = new ColumnDescriptor(
                             field, header, openl);
                 }
 
@@ -602,7 +602,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         
         ILogicalTable dataWithTitleRows = getDataWithTitleRows(horizDataTableBody);
 
-        OpenlBasedColumnDescriptor[] descriptors = makeDescriptors(tableToProcess, tableType, openl, descriptorRows,  
+        ColumnDescriptor[] descriptors = makeDescriptors(tableToProcess, tableType, openl, descriptorRows,  
                 dataWithTitleRows, hasForeignKeysRow(horizDataTableBody), hasColumnTytleRow);
         
         OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName, tableType, openl, descriptors, 
