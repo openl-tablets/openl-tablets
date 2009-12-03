@@ -39,7 +39,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  * where the order of operands does not matter
  */
 //ZS 
-public abstract class MultiOperandNumericFunction implements FunctionWithArraySupport {
+public abstract class MultiOperandNumericFunction implements Function, FunctionWithArraySupport {
 // end changes ZS
 
 

@@ -4,10 +4,10 @@
 package org.apache.poi.hssf.record.formula.functions;
 
 /**
- * @author zsulkins
+ * @author Zahars Sulkins(ZS)(Zahars.Sulkins at exigenservices.com)
  *
  */
-public interface FunctionWithArraySupport extends Function {
+public interface FunctionWithArraySupport  {
 
 	/*
 	 * true if parameter accept array, false otherwise

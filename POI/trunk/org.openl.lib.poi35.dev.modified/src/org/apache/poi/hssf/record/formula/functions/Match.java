@@ -69,7 +69,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  */
 
 //ZS 
-public final class Match extends Var2or3ArgFunction implements FunctionWithArraySupport {
+public final class Match extends Var2or3ArgFunction implements Function, FunctionWithArraySupport {
 // end changes ZS
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 		// default match_type is 1.0

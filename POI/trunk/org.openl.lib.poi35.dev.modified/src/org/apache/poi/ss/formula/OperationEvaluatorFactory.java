@@ -53,7 +53,9 @@ import org.apache.poi.hssf.record.formula.eval.UnaryPlusEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.function.FunctionMetadataRegistry;
 import org.apache.poi.hssf.record.formula.functions.ArrayMode;
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
 import org.apache.poi.hssf.record.formula.functions.Function;
+import org.apache.poi.hssf.record.formula.functions.FunctionBase;
 import org.apache.poi.hssf.record.formula.functions.Indirect;
 import org.apache.poi.ss.usermodel.ArrayFormulaEvaluatorHelper;
 
@@ -115,18 +117,22 @@ final class OperationEvaluatorFactory {
 		if(ptg == null) {
 			throw new IllegalArgumentException("ptg must not be null");
 		}
-		Function func = _instancesByPtgClass.get(ptg);
+		FunctionBase func = _instancesByPtgClass.get(ptg);
 
 		if (func == null && ptg instanceof AbstractFunctionPtg) {
 			AbstractFunctionPtg fptg = (AbstractFunctionPtg)ptg;
 			int functionIndex = fptg.getFunctionIndex();
 			switch (functionIndex) {
 				case FunctionMetadataRegistry.FUNCTION_INDEX_INDIRECT:
-					return Indirect.instance.evaluate(args, ec);
+					func = Indirect.instance;
+					break;
 				case FunctionMetadataRegistry.FUNCTION_INDEX_EXTERNAL:
-					return UserDefinedFunction.instance.evaluate(args, ec);
+					func = UserDefinedFunction.instance;
+					break;
+				default:	
+					func = FunctionEval.getBasicFunction(functionIndex);
+				break;
 			}
-			func = FunctionEval.getBasicFunction(functionIndex);
 		}
 		if (func != null) {
             if (func instanceof ArrayMode && ec.isInArrayFormulaContext()) {
@@ -144,7 +150,7 @@ final class OperationEvaluatorFactory {
         return function.evaluateInArrayFormula(ops, ec.getRowIndex(), ec.getColumnIndex());
     }
 
-    private static ValueEval invokeOperationInArrayContext(Function func, ValueEval[] ops, OperationEvaluationContext ec) {
+    private static ValueEval invokeOperationInArrayContext(FunctionBase func, ValueEval[] ops, OperationEvaluationContext ec) {
         boolean isArrayFormula = ec.isInArrayFormulaContext();
         ValueEval answer = ArrayFormulaEvaluatorHelper.prepareEmptyResult(func, ops, isArrayFormula);
         if (answer instanceof ArrayEval) {
@@ -152,12 +158,24 @@ final class OperationEvaluatorFactory {
             for (int row = 0; row < values.length; row++)
                 for (int col = 0; col < values[row].length; col++) {
                     ValueEval[] opsloop = ArrayFormulaEvaluatorHelper.prepareArgsForLoop(func, ops, row, col, isArrayFormula);
-                    ValueEval loopresult = func.evaluate(opsloop, ec.getRowIndex(), ec.getColumnIndex());
+                    ValueEval loopresult;
+                    if(func instanceof Function){
+                    	loopresult = ((Function)func).evaluate(opsloop, ec.getRowIndex(), ec.getColumnIndex());
+                    }
+                    else {
+                    	loopresult = ((FreeRefFunction)func).evaluate(opsloop, ec);
+                    }
                     values[row][col] = loopresult;
                 }
             return answer;
         } else {
-            return func.evaluate(ops, ec.getRowIndex(), ec.getColumnIndex());
+            if(func instanceof Function){
+            	return ((Function)func).evaluate(ops, ec.getRowIndex(), ec.getColumnIndex());
+            }
+            else {
+            	return  ((FreeRefFunction)func).evaluate(ops, ec);
+                }
+       	
         }
     }
 }

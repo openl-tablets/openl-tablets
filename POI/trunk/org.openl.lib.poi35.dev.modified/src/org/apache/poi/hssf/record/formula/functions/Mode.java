@@ -39,7 +39,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  *
  */
 //ZS 
-public final class Mode implements FunctionWithArraySupport {
+public final class Mode implements Function, FunctionWithArraySupport {
 // end changes ZS
 
 	/**

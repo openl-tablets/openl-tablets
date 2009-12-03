@@ -370,6 +370,7 @@ public final class WorkbookEvaluator {
 //					VIA
 					if((arg0 instanceof ArrayEval) && ((ArrayEval)arg0).checkBooleanContent()== ArrayEval.BooleanContent.MIXED)
 					{
+						// Restore "non optimized" way to evaluate
 						stack.push(arg0);
 						stackSkip.push(isSkipActive);
 						// Switch off skip option only for this level
@@ -377,6 +378,7 @@ public final class WorkbookEvaluator {
 						continue;
 					}
 					else{
+						// Optimized evaluating
 						ValueEval cond = arg0;
 						if((arg0 instanceof ArrayEval))
 							cond = ((ArrayEval)arg0).getArrayElementAsEval(0,0);
@@ -411,6 +413,7 @@ public final class WorkbookEvaluator {
 //					VIA
 					if((arg0 instanceof ArrayEval) && ((ArrayEval)arg0).checkBooleanContent()== ArrayEval.BooleanContent.MIXED)
 					{
+						// Restore "non optimized" way to evaluate
 						stack.push(arg0);
 						stackSkip.push(isSkipActive);
 						// Switch off skip option only for this level
@@ -418,6 +421,7 @@ public final class WorkbookEvaluator {
 						continue;
 					}
 					else{
+						// Optimized evaluating
 						ValueEval cond = arg0;
 						if((arg0 instanceof ArrayEval))
 							cond = ((ArrayEval)arg0).getArrayElementAsEval(0,0);

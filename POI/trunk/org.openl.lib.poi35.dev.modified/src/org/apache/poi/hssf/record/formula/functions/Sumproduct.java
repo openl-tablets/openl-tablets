@@ -56,7 +56,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author zsulkins(SZ)- array support
 */
 //ZS 
-public final class Sumproduct implements FunctionWithArraySupport {
+public final class Sumproduct implements Function, FunctionWithArraySupport {
 // end changes ZS
 
 

@@ -46,7 +46,7 @@ import org.apache.poi.ss.usermodel.ErrorConstants;
  * @author zshulkins(ZS) array support
  */
 // ZS
-public final class Countif extends Fixed2ArgFunction implements FunctionWithArraySupport {
+public final class Countif extends Fixed2ArgFunction implements Function, FunctionWithArraySupport {
 //  end changes ZS	
 	private static final class CmpOp {
 		public static final int NONE = 0;

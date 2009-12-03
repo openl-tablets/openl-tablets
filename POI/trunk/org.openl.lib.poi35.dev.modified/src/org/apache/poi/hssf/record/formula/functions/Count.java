@@ -35,7 +35,7 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  *  like formula cells, error cells etc
  */
 //ZS 
-public final class Count implements FunctionWithArraySupport {
+public final class Count implements Function, FunctionWithArraySupport {
 // end changes ZS
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		int nArgs = args.length;

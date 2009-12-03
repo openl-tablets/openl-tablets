@@ -17,45 +17,27 @@
 
 package org.apache.poi.hssf.record.formula.functions;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
+import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.RefEval;
+import org.apache.poi.hssf.record.formula.eval.MissingArgEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.ss.formula.ArrayEval;
 
 /**
- * Implementation for Excel COLUMNS function.
+ * Common interface for all implementations of Excel built-in functions.
  *
- * @author Josh Micich
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  */
-public final class Columns extends Fixed1ArgFunction implements Function, FunctionWithArraySupport {
+public interface Function extends FunctionBase {
 
-	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0) {
-
-		int result;
-		// !!changed ZS
-		if (arg0 instanceof ArrayEval){
-			arg0 = ((ArrayEval)arg0).arrayAsArea();
-		}
-		// end change
-		
-		if (arg0 instanceof AreaEval) {
-			result = ((AreaEval) arg0).getWidth();
-		} else if (arg0 instanceof RefEval) {
-			result = 1;
-		} else { // anything else is not valid argument
-			return ErrorEval.VALUE_INVALID;
-		}
-		return new NumberEval(result);
-	}
-	
-//ZS
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
+	/**
+	 * @param args the evaluated function arguments.  Empty values are represented with
+	 * {@link BlankEval} or {@link MissingArgEval}, never <code>null</code>.
+	 * @param srcRowIndex row index of the cell containing the formula under evaluation
+	 * @param srcColumnIndex column index of the cell containing the formula under evaluation
+	 * @return The evaluated result, possibly an {@link ErrorEval}, never <code>null</code>.
+	 * <b>Note</b> - Excel uses the error code <i>#NUM!</i> instead of IEEE <i>NaN</i>, so when
+	 * numeric functions evaluate to {@link Double#NaN} be sure to translate the result to {@link
+	 * ErrorEval#NUM_ERROR}.
 	 */
-	public boolean supportArray(int paramIndex){
-		return true;
-	}
-//  end changes ZS	
+	ValueEval evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex);
 }

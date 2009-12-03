@@ -39,7 +39,7 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  * @author zsulkins(ZS)- array support
  */
 //ZS
-public final class Lookup extends Var2or3ArgFunction implements FunctionWithArraySupport{
+public final class Lookup extends Var2or3ArgFunction implements Function, FunctionWithArraySupport{
 // end changes
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 		// complex rules to choose lookupVector and resultVector from the single area ref
