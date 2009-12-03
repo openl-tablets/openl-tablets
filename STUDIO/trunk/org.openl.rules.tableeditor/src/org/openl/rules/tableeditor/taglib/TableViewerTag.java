@@ -1,16 +1,17 @@
 package org.openl.rules.tableeditor.taglib;
 
+import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 
 import org.openl.rules.tableeditor.util.Constants;
 
 public class TableViewerTag extends BaseTag {
 
-    private Object table = null;
-    private String view = null;
-    private Object filter = null;
-    private boolean showFormulas = false;
-    private boolean collapseProps = false;
+    private ValueExpression table = null;
+    private ValueExpression filter = null;
+    private ValueExpression view = null;
+    private ValueExpression showFormulas = null;
+    private ValueExpression collapseProps = null;
 
     @Override
     public String getComponentType() {
@@ -22,44 +23,35 @@ public class TableViewerTag extends BaseTag {
         return Constants.TABLE_VIEWER_TYPE;
     }
 
-    public Object getTable() {
-        return table;
-    }
-
-    public void setTable(Object table) {
+    public void setTable(ValueExpression table) {
         this.table = table;
     }
 
-    public String getView() {
-        return view;
-    }
-
-    public void setView(String view) {
-        this.view = view;
-    }
-
-    public Object getFilter() {
-        return filter;
-    }
-
-    public void setFilter(Object filter) {
+    public void setFilter(ValueExpression filter) {
         this.filter = filter;
     }
 
-    public boolean isShowFormulas() {
-        return showFormulas;
+    public void setView(ValueExpression view) {
+        this.view = view;
     }
 
-    public void setShowFormulas(boolean showFormulas) {
+    public void setShowFormulas(ValueExpression showFormulas) {
         this.showFormulas = showFormulas;
     }
 
-    public boolean isCollapseProps() {
-        return collapseProps;
+    public void setCollapseProps(ValueExpression collapseProps) {
+        this.collapseProps = collapseProps;
     }
 
-    public void setCollapseProps(boolean collapseProps) {
-        this.collapseProps = collapseProps;
+    @Override
+    public void setProperties(UIComponent component) {
+        // always call the superclass method
+        super.setProperties(component);
+        component.setValueExpression(Constants.ATTRIBUTE_TABLE, table);
+        component.setValueExpression(Constants.ATTRIBUTE_VIEW, view);
+        component.setValueExpression(Constants.ATTRIBUTE_FILTER, filter);
+        component.setValueExpression(Constants.ATTRIBUTE_SHOW_FORMULAS, showFormulas);
+        component.setValueExpression(Constants.ATTRIBUTE_COLLAPSE_PROPS, collapseProps);
     }
 
     @Override
@@ -68,18 +60,9 @@ public class TableViewerTag extends BaseTag {
         super.release();
         table = null;
         filter = null;
+        view = null;
+        showFormulas = null;
+        collapseProps = null;
     }
-
-    @Override
-    public void setProperties(UIComponent component) {
-        // always call the superclass method
-        super.setProperties(component);
-        setObject(component, Constants.ATTRIBUTE_TABLE, table);
-        setObject(component, Constants.ATTRIBUTE_VIEW, view);
-        setObject(component, Constants.ATTRIBUTE_FILTER, filter);
-        setObject(component, Constants.ATTRIBUTE_SHOW_FORMULAS, showFormulas);
-        setObject(component, Constants.ATTRIBUTE_SHOW_FORMULAS, collapseProps);
-    }
-
 
 }

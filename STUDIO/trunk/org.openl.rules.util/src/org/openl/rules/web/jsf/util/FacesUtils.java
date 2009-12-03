@@ -3,6 +3,8 @@ package org.openl.rules.web.jsf.util;
 import java.util.Map;
 import java.util.Collection;
 
+import javax.el.ELContext;
+import javax.el.MethodExpression;
 import javax.faces.FactoryFinder;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -81,6 +83,25 @@ public abstract class FacesUtils {
     public static Object getFacesVariable(String name) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         return facesContext.getApplication().createValueBinding(getBinding(name)).getValue(facesContext);
+    }
+
+    public static MethodExpression createMethodExpression(String expressionString) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        ELContext elContext = context.getELContext();
+        MethodExpression methodExpression = context.getApplication().getExpressionFactory().
+            createMethodExpression(elContext, expressionString, null, new Class[0]);
+        return methodExpression;
+    }
+
+    public static Object invokeMethodExpression(String expressionString) {
+        MethodExpression methodExpression = createMethodExpression(expressionString);
+        return methodExpression.invoke(getELContext(), new Object[0]);
+    }
+
+    public static ELContext getELContext() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        ELContext elContext = context.getELContext();
+        return elContext;
     }
 
     @SuppressWarnings("unchecked")

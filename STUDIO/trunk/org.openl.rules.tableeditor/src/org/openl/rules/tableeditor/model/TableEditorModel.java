@@ -190,6 +190,8 @@ public class TableEditorModel {
     private String view;
     private boolean showFormulas = false;
     private boolean collapseProps = false;
+    private String beforeSaveAction;
+    private String afterSaveAction;
 
     private GridTable[] othertables;
 
@@ -607,5 +609,21 @@ public class TableEditorModel {
 
     public void setCollapseProps(boolean collapseProps) {
         this.collapseProps = collapseProps;
+    }
+
+    public void setBeforeSaveAction(String beforeSaveAction) {
+        this.beforeSaveAction = beforeSaveAction;
+    }
+
+    public String getBeforeSaveAction() {
+        return beforeSaveAction;
+    }
+
+    public void setAfterSaveAction(String afterSaveAction) {
+        this.afterSaveAction = afterSaveAction;
+    }
+
+    public String getAfterSaveAction() {
+        return afterSaveAction;
     }
 }
