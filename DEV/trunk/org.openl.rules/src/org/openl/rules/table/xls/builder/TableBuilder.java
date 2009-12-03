@@ -133,7 +133,7 @@ public class TableBuilder {
         try {
             gridModel.getSheetSource().getWorkbookSource().save();
         } catch (IOException e) {
-            throw new CreateTableException("could not save table");
+            throw new CreateTableException("Ñould not save table. " + e.getMessage());
         }
     }
 
