@@ -4,7 +4,9 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class ArrayFormulaEvalTest2007 extends ArrayFormulaEvalTest{
 
@@ -15,7 +17,7 @@ public class ArrayFormulaEvalTest2007 extends ArrayFormulaEvalTest{
 	@BeforeClass 
 	public  static void readWorkbook(){
 		th = new TestHelper();
-		th.readWorkbook("ArrayFormula.xlsx");
+		th.readWorkbook("ArrayFormula.xlsm");
 	}
 	
 	public static junit.framework.Test suite() {  
@@ -25,4 +27,10 @@ public class ArrayFormulaEvalTest2007 extends ArrayFormulaEvalTest{
 	public TestHelper th(){
 		return th;
 	}
+	// Exclude after implementation
+	@Test (expected=NotImplementedException.class)
+	public void EvaluateMyFunctionInArrayContext() {
+		EvaluateMyFunctionInArrayContextInt();
+		}
+
 }

@@ -2,7 +2,19 @@ package com.exigen.poi.array.test;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport;
+import org.apache.poi.hssf.record.formula.udf.AggregatingUDFFinder;
+import org.apache.poi.hssf.record.formula.udf.DefaultUDFFinder;
+import org.apache.poi.hssf.record.formula.udf.UDFFinder;
+import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.formula.OperationEvaluationContext;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;
 
 public abstract class ArrayFormulaEvalTest {
@@ -233,12 +245,9 @@ public abstract class ArrayFormulaEvalTest {
 		assertEquals("A40-F40",th().getNumericValue("F40"), th().calculateNumericFormula("A40"), 0);
 		assertEquals("B40-G40",th().getNumericValue("G40"), th().calculateNumericFormula("B40"), 0);
 		assertEquals("C40-H40",th().getNumericValue("H40"), th().calculateNumericFormula("C40"), 0);
-		Cell cell = th().getCell("B40");
-//		evaluator.clearAllCachedResultValues();
 		th().setNumericValue("A41", 0.4);
 		th().setNumericValue("B41", 0.5);
 		th().setNumericValue("C41", 0.6);
-		cell = th().getCell("B40");
 		assertEquals("B40-G40",Math.cos(Math.sin(0.5)), th().calculateNumericFormula("B40"), 0);
 		assertEquals("A40-F40",Math.cos(Math.sin(0.4)), th().calculateNumericFormula("A40"), 0);
 		assertEquals("C40-H40",Math.cos(Math.sin(0.6)), th().calculateNumericFormula("C40"), 0);
@@ -261,6 +270,84 @@ public abstract class ArrayFormulaEvalTest {
 		assertEquals("B55-G55",th().getNumericValue("G55"), th().calculateNumericFormula("B55"), 0);
 		assertEquals("C55-H55",th().getNumericValue("H55"), th().calculateNumericFormula("C55"), 0);
 	}
+	/**
+	 * Checks that an external function can handle array and be invoked in array formula context
+	 * evaluator.
+	 */
+      // Define UDF: My Functions
+		private static class MyFuncWithoutArraySupport implements FreeRefFunction {
+			public MyFuncWithoutArraySupport() {
+				//
+			}
+
+			public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+				return args[0];
+			}
+		}
+
+		private static class MyFuncWithArraySupport implements FreeRefFunction, FunctionWithArraySupport {
+			public MyFuncWithArraySupport() {
+				//
+			}
+
+			public ValueEval evaluate(ValueEval[] args, OperationEvaluationContext ec) {
+				return args[0];
+			}
+
+			public boolean supportArray(int paramIndex) {
+				return true;
+			}
+		}
+	@Test
+	public void EvaluateMyFunctionInArrayContext() {
+		EvaluateMyFunctionInArrayContextInt();
+		}
+	protected void EvaluateMyFunctionInArrayContextInt(){
+	       	 /**
+			 * register the two test UDFs in a UDF finder, to be passed to the evaluator
+			 */
+			UDFFinder udff1 = new DefaultUDFFinder(new String[] { "MyFuncWithoutArraySupport", },
+					new FreeRefFunction[] { new MyFuncWithoutArraySupport(), });
+			UDFFinder udff2 = new DefaultUDFFinder(new String[] { "MyFuncWithArraySupport", },
+					new FreeRefFunction[] { new MyFuncWithArraySupport(), });
+			UDFFinder udff = new AggregatingUDFFinder(udff1, udff2);
+			// Clean cell's values before calculation
+			
+			th().setNumericValue("A65", 0);
+			th().setNumericValue("B65", 0);
+			th().setNumericValue("A66", 0);
+			th().setNumericValue("B66", 0);
+
+			th().setNumericValue("A68", 0);
+			th().setNumericValue("B68", 0);
+			th().setNumericValue("A69", 0);
+			th().setNumericValue("B69", 0);
+			
+		       // Calculate formula (we use cell from  range)	
+			Workbook wb = th().getWorkbook();
+			FormulaEvaluator eval;
+			if(wb instanceof HSSFWorkbook )
+				eval = HSSFFormulaEvaluator.create((HSSFWorkbook)wb, null, udff);
+			else 
+				eval = XSSFFormulaEvaluator.create((XSSFWorkbook)wb, null, udff);
+			// Calcullate A65
+	        eval.evaluateFormulaCell(th().getCell("A65"));
+			// Calcullate A68
+	        eval.evaluateFormulaCell(th().getCell("A68"));
+	        // Check results
+			assertEquals("A65-F65",th().getNumericValue("F65"), th().getCalculatedNumericValue("A65"), 0);
+			assertEquals("A66-F66",th().getNumericValue("F66"), th().getCalculatedNumericValue("A66"), 0);
+			assertEquals("A68-F68",th().getNumericValue("F68"), th().getCalculatedNumericValue("A68"), 0);
+			assertEquals("A69-F69",th().getNumericValue("F69"), th().getCalculatedNumericValue("A69"), 0);
+
+			assertEquals("B65-G65",th().getNumericValue("G65"), th().getCalculatedNumericValue("B65"), 0);
+			assertEquals("B66-G66",th().getNumericValue("G66"), th().getCalculatedNumericValue("B66"), 0);
+			assertEquals("B68-G68",th().getNumericValue("G68"), th().getCalculatedNumericValue("B68"), 0);
+			assertEquals("B69-G69",th().getNumericValue("G69"), th().getCalculatedNumericValue("B69"), 0);
+			
+		}
+		
+
 
 }
 

@@ -33,6 +33,9 @@ public class TestHelper {
 		
 	}
 	
+	public Workbook getWorkbook() {
+		return wb;
+	}
 	public void readWorkbook(String fileName){
 		
 		int fileType =0;
@@ -41,6 +44,9 @@ public class TestHelper {
 			if (fileName.substring(dotIndex+1).equalsIgnoreCase("xls")){
 				fileType=1;
 			} else if (fileName.substring(dotIndex+1).equalsIgnoreCase("xlsx")){
+				fileType=2;
+			}
+			else if (fileName.substring(dotIndex+1).equalsIgnoreCase("xlsm")){
 				fileType=2;
 			}
 			
@@ -198,11 +204,14 @@ public class TestHelper {
 			log.error("Not numeric in cell:" + cell.toString());
 			throw new IllegalArgumentException("Not numeric:" + cell.toString());
 		}
+		return getCalculatedNumericValue(cell);
+	}
+
+	protected double getCalculatedNumericValue(Cell cell){
 		double result = cell.getNumericCellValue();
 		log.debug("value: " + result );
 		return result;
 	}
-
 	protected String getStringValue(Cell cell){
 		if (cell.getCellType() != Cell.CELL_TYPE_STRING){
 			log.error("Not string in cell:" + cell.toString());
@@ -237,6 +246,10 @@ public class TestHelper {
 		return getNumericValue(getCell(cellRef));
 	}
 
+	protected double getCalculatedNumericValue(String cellRef){
+		
+		return getCalculatedNumericValue(getCell(cellRef));
+	}
 	protected String getStringValue(String cellRef){
 		
 		return getStringValue(getCell(cellRef));
