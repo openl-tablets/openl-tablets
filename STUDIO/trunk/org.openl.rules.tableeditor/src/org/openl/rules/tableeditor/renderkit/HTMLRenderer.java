@@ -527,11 +527,11 @@ public class HTMLRenderer {
         }
 
         private void insertCalendar(TableProperty prop, String id) {
-            String propValue = prop.getValueString();
+            String value = prop.getValueString();
             Constraints constraints = prop.getConstraints();
 
             result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new DateEditor('','" + id + "','','" + propValue + "','')"));
+                .append(renderJSBody("new DateEditor('','" + id + "','','" + WebUtil.toJSString(value) + "','')"));
 
             for (Constraint constraint : constraints.getAll()) {
                 if (constraint instanceof LessThanConstraint
@@ -554,7 +554,7 @@ public class HTMLRenderer {
                 value="";
             }
             result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new TextEditor('','" + id + "','','" + value + "','')"));
+                .append(renderJSBody("new TextEditor('','" + id + "','','" + WebUtil.toJSString(value) + "','')"));
         }
 
         private void insertCheckbox(String value, String id) {
