@@ -285,12 +285,33 @@ public class TableEditorController extends BaseTableEditorController implements 
     }
 
     public String saveTable() throws Exception {
-        TableEditorModel editorModel = getEditorModel(getEditorId());
-        if (editorModel != null) {            
-            String newUri = editorModel.save();
-            return pojo2json(new TableModificationResponse(newUri, editorModel));
+        if (beforeSave()) {
+            TableEditorModel editorModel = getEditorModel(getEditorId());
+            if (editorModel != null) {
+                String newUri = editorModel.save();
+                afterSave();
+                return pojo2json(new TableModificationResponse(newUri, editorModel));
+            }
         }
         return null;
+    }
+
+    private boolean beforeSave() {
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        String beforeSaveAction = editorModel.getBeforeSaveAction();
+        if (beforeSaveAction != null) {
+            boolean result = (Boolean) FacesUtils.invokeMethodExpression(beforeSaveAction);
+            return result;
+        }
+        return true;
+    }
+
+    private void afterSave() {
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        String afterSaveAction = editorModel.getAfterSaveAction();
+        if (afterSaveAction != null) {
+            FacesUtils.invokeMethodExpression(afterSaveAction);
+        }
     }
 
     private static String pojo2json(Object pojo) {

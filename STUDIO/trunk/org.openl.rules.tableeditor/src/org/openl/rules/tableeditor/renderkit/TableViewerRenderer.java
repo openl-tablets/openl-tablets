@@ -16,12 +16,12 @@ public class TableViewerRenderer extends BaseRenderer {
     @SuppressWarnings("unchecked")
     @Override
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
-        Map params = component.getAttributes();
-        ITable table = (ITable) params.get(Constants.ATTRIBUTE_TABLE);
-        IGridFilter filter = (IGridFilter) params.get(Constants.ATTRIBUTE_FILTER);
-        String view = (String) params.get(Constants.ATTRIBUTE_VIEW);
-        boolean showFormulas = toBoolean(params.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
-        boolean collapseProps = toBoolean(params.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
+        Map attributes = component.getAttributes();
+        ITable table = (ITable) attributes.get(Constants.ATTRIBUTE_TABLE);
+        IGridFilter filter = (IGridFilter) attributes.get(Constants.ATTRIBUTE_FILTER);
+        String view = (String) attributes.get(Constants.ATTRIBUTE_VIEW);
+        boolean showFormulas = (Boolean) attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS);
+        boolean collapseProps = (Boolean) attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS);
         String editorId = new HtmlOutputText().getClientId(context);
         new HTMLRenderer().render(table, view, editorId, filter, showFormulas, collapseProps);
     }

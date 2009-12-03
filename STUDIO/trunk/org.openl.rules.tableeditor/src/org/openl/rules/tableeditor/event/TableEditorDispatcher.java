@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.el.MethodBinding;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
@@ -23,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.util.net.NetUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webtools.XlsUrlParser;
 
 public class TableEditorDispatcher implements PhaseListener {
@@ -59,9 +59,9 @@ public class TableEditorDispatcher implements PhaseListener {
 
     private void handleAjaxRequest(FacesContext context, HttpServletResponse response, String path) {
         try {
-            MethodBinding methodBinding = context.getApplication().createMethodBinding(
-                    makeMehtodBindingString(path.replaceFirst(AJAX_MATCH, "")), new Class[0]);
-            String res = (String) methodBinding.invoke(context, new Object[0]);
+            String methodExpressionString = makeMehtodExpressionString(path.replaceFirst(AJAX_MATCH, ""));
+            String res = (String) FacesUtils.invokeMethodExpression(methodExpressionString);
+
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
@@ -137,7 +137,7 @@ public class TableEditorDispatcher implements PhaseListener {
         }
     }
 
-    private String makeMehtodBindingString(String request) {
+    private String makeMehtodExpressionString(String request) {
         int pos = request.indexOf('?');
         if (pos >= 0) {
             request = request.substring(0, pos);

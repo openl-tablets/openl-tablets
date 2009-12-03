@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlOutputLink;
 import javax.faces.context.ExternalContext;
@@ -24,26 +25,37 @@ public class TableEditorRenderer extends TableViewerRenderer {
     @SuppressWarnings("unchecked")
     @Override
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
-        ITable table = (ITable) component.getAttributes().get(Constants.ATTRIBUTE_TABLE);
         ResponseWriter writer = context.getResponseWriter();
-        Map editorParams = component.getAttributes();
+        Map attributes = component.getAttributes();
         // TODO Encapsulate all params into bean
-        Boolean editable = toBoolean(editorParams.get(Constants.ATTRIBUTE_EDITABLE));
+        ITable table = (ITable) attributes.get(Constants.ATTRIBUTE_TABLE);
+        Boolean editable = (Boolean) attributes.get(Constants.ATTRIBUTE_EDITABLE);
         ExternalContext externalContext = context.getExternalContext();
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
-        String mode = (String) editorParams.get(Constants.ATTRIBUTE_MODE);
-        String view = (String) editorParams.get(Constants.ATTRIBUTE_VIEW);
-        Boolean showFormulas = toBoolean(editorParams.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
-        Boolean collapseProps = toBoolean(editorParams.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
+        String mode = (String) attributes.get(Constants.ATTRIBUTE_MODE);
+        String view = (String) attributes.get(Constants.ATTRIBUTE_VIEW);
+        boolean showFormulas = (Boolean) attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS);
+        boolean collapseProps = (Boolean) attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS);
         String editorId = component.getClientId(context);
         IGridFilter filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         List<ActionLink> actionLinks = getActionLinks(component);
         String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
+        String beforeSaveAction = getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
+        String afterSaveAction = getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
         if (editable) {
-            initEditorHelper(externalContext, editorId, table, view, showFormulas, collapseProps);
+            initEditorModel(externalContext, editorId, table, view, showFormulas, collapseProps,
+                    beforeSaveAction, afterSaveAction);
         }
         writer.write(new HTMLRenderer().render(mode, table, view, actionLinks, editable, cellToEdit,
                 false, editorId, filter, showFormulas, collapseProps));
+    }
+
+    private String getValueExpressionString(UIComponent component, String attributeName) {
+        ValueExpression valueExpression = component.getValueExpression(attributeName);
+        if (valueExpression != null) {
+            return valueExpression.getExpressionString();
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -73,8 +85,8 @@ public class TableEditorRenderer extends TableViewerRenderer {
     }
 
     @SuppressWarnings("unchecked")
-    private void initEditorHelper(ExternalContext externalContext, String editorId, ITable table, String view,
-            boolean showFormulas, boolean collapseProps) {
+    private void initEditorModel(ExternalContext externalContext, String editorId, ITable table, String view,
+            boolean showFormulas, boolean collapseProps, String beforeSaveAction, String afterSaveAction) {
         Map sessionMap = externalContext.getSessionMap();
         synchronized (sessionMap) {
             Map editorModelMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_MODEL_NAME);
@@ -88,6 +100,8 @@ public class TableEditorRenderer extends TableViewerRenderer {
             }
             editorModel = new TableEditorModel(table, view, showFormulas);
             editorModel.setCollapseProps(collapseProps);
+            editorModel.setBeforeSaveAction(beforeSaveAction);
+            editorModel.setAfterSaveAction(afterSaveAction);
             editorModelMap.put(editorId, editorModel);
         }
     }
