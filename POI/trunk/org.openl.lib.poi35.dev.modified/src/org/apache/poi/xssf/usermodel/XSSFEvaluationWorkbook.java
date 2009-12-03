@@ -29,6 +29,7 @@ import org.apache.poi.ss.formula.FormulaParsingWorkbook;
 import org.apache.poi.ss.formula.FormulaRenderingWorkbook;
 import org.apache.poi.ss.formula.FormulaType;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDefinedName;
@@ -101,7 +102,7 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 
 	public NameXPtg getNameXPtg(String name) {
 		// may require to return null to make tests pass
-		throw new RuntimeException("Not implemented yet");
+		throw new NotImplementedException("Not implemented yet");
 	}
 
 	public EvaluationSheet getSheet(int sheetIndex) {
