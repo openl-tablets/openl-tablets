@@ -19,10 +19,10 @@ public class OpenlBasedDataTableModel implements IDataTableModel {
     private String name;
     private IOpenClass type;
     private OpenL openl;
-    private OpenlBasedColumnDescriptor[] columnDescriptor;
+    private ColumnDescriptor[] columnDescriptor;
     private boolean hasColumnTytleRow; 
 
-    public OpenlBasedDataTableModel(String name, IOpenClass type, OpenL openl, OpenlBasedColumnDescriptor[] columnDescriptor, boolean hasColumnTytleRow) {
+    public OpenlBasedDataTableModel(String name, IOpenClass type, OpenL openl, ColumnDescriptor[] columnDescriptor, boolean hasColumnTytleRow) {
         this.name = name;
         this.type = type;
         this.openl = openl;
@@ -42,7 +42,7 @@ public class OpenlBasedDataTableModel implements IDataTableModel {
      *
      */
 
-    public OpenlBasedColumnDescriptor[] getDescriptor() {
+    public ColumnDescriptor[] getDescriptor() {
         return columnDescriptor;
     }
 

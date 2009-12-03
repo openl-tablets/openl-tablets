@@ -616,11 +616,9 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
     public static Object loadCommaSeparatedParam(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
             OpenlToolAdaptor ota) throws BoundError {
         Object arrayValues = null;
-        
-        String src = cell.getGridTable().getCell(0, 0).getStringValue();
-        
-        if (src != null) {
-            String[] tokens = StringTool.splitAndEscape(src, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        String[] tokens = null;
+        tokens = extractElementsFromCommaSeparatedArray(cell);
+        if (tokens != null) {
             ArrayList<Object> values = new ArrayList<Object>(tokens.length);
             for(String token: tokens) {                
                 Object res = loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, token, null);
@@ -635,10 +633,16 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
             for (int i = 0; i < valuesArraySize; i++) {
                 Array.set(arrayValues, i, values.get(i));
             }             
-        }
+        }        
         return arrayValues;
     }
-    
-    
 
+    public static String[] extractElementsFromCommaSeparatedArray(ILogicalTable cell) {
+        String[] tokens = null;
+        String src = cell.getGridTable().getCell(0, 0).getStringValue();        
+        if (src != null) {
+            tokens = StringTool.splitAndEscape(src, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        }
+        return tokens;
+    }
 }

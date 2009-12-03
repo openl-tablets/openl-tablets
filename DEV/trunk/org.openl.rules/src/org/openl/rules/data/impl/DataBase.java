@@ -118,7 +118,7 @@ public class DataBase implements IDataBase {
          */
 
         public int getColumnIndex(String columnName) {
-            OpenlBasedColumnDescriptor[] dd = dataModel.getDescriptor();
+            ColumnDescriptor[] dd = dataModel.getDescriptor();
             for (int i = 0; i < dd.length; i++) {
                 if (dd[i] == null) {
                     continue;
@@ -139,7 +139,7 @@ public class DataBase implements IDataBase {
         }
 
         public IOpenClass getColumnType(int n) {
-            OpenlBasedColumnDescriptor colDescript = dataModel.getDescriptor()[n];
+            ColumnDescriptor colDescript = dataModel.getDescriptor()[n];
             if (!colDescript.isConstructor()) {
                 return colDescript.getType();
             } else {
@@ -217,7 +217,7 @@ public class DataBase implements IDataBase {
         }
 
         public Map<String, Integer> getUniqueIndex(int columnIndex) throws BoundError {
-            OpenlBasedColumnDescriptor cd = dataModel.getDescriptor()[columnIndex];
+            ColumnDescriptor cd = dataModel.getDescriptor()[columnIndex];
 
             return cd.getUniqueIndex(this, columnIndex);
 
@@ -269,7 +269,7 @@ public class DataBase implements IDataBase {
                 Object target = Array.get(ary, i - startRow);
 
                 for (int j = 0; j < columns; j++) {
-                    OpenlBasedColumnDescriptor cd = dataModel.getDescriptor()[j];
+                    ColumnDescriptor cd = dataModel.getDescriptor()[j];
                     if (cd != null && (cd instanceof ForeignKeyColumnDescriptor)) {
                         ForeignKeyColumnDescriptor colDescrFK = (ForeignKeyColumnDescriptor)cd;
                         if(colDescrFK.isReference()) {
@@ -308,7 +308,7 @@ public class DataBase implements IDataBase {
                 int columns = data.getLogicalWidth();
 
                 for (int j = 0; j < columns; j++) {
-                    OpenlBasedColumnDescriptor columnDescriptor = dataModel.getDescriptor()[j];
+                    ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[j];
                     if (columnDescriptor != null && !columnDescriptor.isReference()) {
                         if (constructor) {
                             literal = columnDescriptor.getLiteral(dataModel.getType(), data.getLogicalRegion(j, i, 1, 1), ota);
@@ -341,7 +341,7 @@ public class DataBase implements IDataBase {
         private boolean isConstructor() {
             boolean isConstructor = false;
             for (int i = 0; i < dataModel.getDescriptor().length; i++) {
-                OpenlBasedColumnDescriptor columnDescriptor = dataModel.getDescriptor()[i];
+                ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[i];
                 if (columnDescriptor != null && columnDescriptor.isConstructor()) {
                     isConstructor = true;
                     break;
