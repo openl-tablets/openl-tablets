@@ -30,7 +30,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 public abstract class AggregateFunction extends MultiOperandNumericFunction {
 
 	// ZS
-	private static final class LargeSmall extends Fixed2ArgFunction implements FunctionWithArraySupport{
+	private static final class LargeSmall extends Fixed2ArgFunction implements  Function, FunctionWithArraySupport{
 // end change		
 		private final boolean _isLarge;
 		protected LargeSmall(boolean isLarge) {

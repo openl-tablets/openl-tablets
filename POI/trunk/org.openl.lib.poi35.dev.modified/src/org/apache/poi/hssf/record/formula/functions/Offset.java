@@ -45,7 +45,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  * 
  *  */
 //ZS
-public final class Offset implements FunctionWithArraySupport {
+public final class Offset implements Function, FunctionWithArraySupport {
 // end changes ZS
 	// These values are specific to BIFF8
 	private static final int LAST_VALID_ROW_INDEX = 0xFFFF;

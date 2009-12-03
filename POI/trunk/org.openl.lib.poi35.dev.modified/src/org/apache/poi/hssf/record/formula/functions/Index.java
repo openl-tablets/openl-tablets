@@ -47,7 +47,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author zsulkins(ZS) - array support
  */
 //ZS
-public final class Index implements Function2Arg, Function3Arg, Function4Arg, FunctionWithArraySupport, ArrayMode {
+public final class Index implements Function2Arg, Function3Arg, Function4Arg, Function, FunctionWithArraySupport, ArrayMode {
 
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 		return evaluateX(srcRowIndex, srcColumnIndex, arg0, arg1, false);

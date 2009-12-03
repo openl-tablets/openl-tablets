@@ -41,7 +41,7 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  * @author zsulkins(ZS)- array support
  */
 //ZS
-public final class Hlookup extends Var3or4ArgFunction  implements FunctionWithArraySupport {
+public final class Hlookup extends Var3or4ArgFunction  implements Function, FunctionWithArraySupport {
 // end changes ZS	
 	private static final ValueEval DEFAULT_ARG3 = BoolEval.TRUE;
 

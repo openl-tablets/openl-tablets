@@ -42,7 +42,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  * 
  */
 //   ZS
-public abstract class BooleanFunction implements FunctionWithArraySupport {
+public abstract class BooleanFunction implements Function, FunctionWithArraySupport {
 //   end changes ZS 
 
 	public final ValueEval evaluate(ValueEval[] args, int srcRow, int srcCol) {

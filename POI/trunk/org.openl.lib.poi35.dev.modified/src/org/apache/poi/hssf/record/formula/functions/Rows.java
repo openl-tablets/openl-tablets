@@ -32,7 +32,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author zsulkins(ZS)- array support
  */
 // ZS
-public final class Rows extends Fixed1ArgFunction implements FunctionWithArraySupport{
+public final class Rows extends Fixed1ArgFunction implements Function, FunctionWithArraySupport{
 // end changes ZS
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0) {
 

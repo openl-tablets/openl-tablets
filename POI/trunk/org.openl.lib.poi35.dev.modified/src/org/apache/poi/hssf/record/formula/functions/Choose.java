@@ -27,7 +27,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
  * @author Josh Micich
  * @author zshulkins(ZS) array suport;
  */
-public final class Choose implements FunctionWithArraySupport {
+public final class Choose implements Function, FunctionWithArraySupport {
 
 	public ValueEval evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex) {
 		if (args.length < 2) {

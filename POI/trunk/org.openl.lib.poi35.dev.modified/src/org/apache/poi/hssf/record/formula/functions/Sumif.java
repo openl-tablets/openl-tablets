@@ -40,7 +40,7 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  * @author zsulkins(ZS)- array support
  */
 //ZS 
-public final class Sumif extends Var2or3ArgFunction implements FunctionWithArraySupport {
+public final class Sumif extends Var2or3ArgFunction implements Function, FunctionWithArraySupport {
 // end changes ZS
 	
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {

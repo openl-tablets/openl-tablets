@@ -33,7 +33,7 @@ import org.apache.poi.ss.formula.ArrayEval;
  * @author zsulkins(ZS)- array support
  */
 //ZS 
-public abstract class XYNumericFunction extends Fixed2ArgFunction implements FunctionWithArraySupport{
+public abstract class XYNumericFunction extends Fixed2ArgFunction implements Function, FunctionWithArraySupport{
 // end changes ZS
 	private static abstract class ValueArray implements ValueVector {
 		private final int _size;

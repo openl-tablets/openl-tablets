@@ -10,6 +10,7 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.Function;
+import org.apache.poi.hssf.record.formula.functions.FunctionBase;
 import org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport;
 import org.apache.poi.ss.formula.ArrayEval;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -133,7 +134,7 @@ public class ArrayFormulaEvaluatorHelper {
      * @param argIndex
      * @return
      */
-    public static int getParameterType(Function function, int argIndex) {
+    public static int getParameterType(FunctionBase function, int argIndex) {
         int answer = SCALAR_TYPE;
 
         if (function instanceof FunctionWithArraySupport) {
@@ -157,7 +158,7 @@ public class ArrayFormulaEvaluatorHelper {
      * @param arrayFormula
      * @return
      */
-    public static ValueEval prepareEmptyResult(Function function, ValueEval[] ops, boolean arrayFormula) {
+    public static ValueEval prepareEmptyResult(FunctionBase function, ValueEval[] ops, boolean arrayFormula) {
         int rowCount = Integer.MAX_VALUE;
         int colCount = Integer.MAX_VALUE;
 
@@ -212,7 +213,7 @@ public class ArrayFormulaEvaluatorHelper {
      * @param trackAreas
      * @return
      */
-    public static ValueEval[] prepareArgsForLoop(Function function, ValueEval[] ops, int i, int j, boolean trackAreas) {
+    public static ValueEval[] prepareArgsForLoop(FunctionBase function, ValueEval[] ops, int i, int j, boolean trackAreas) {
         ValueEval[] answer = new ValueEval[ops.length];
         for (int argIn = 0; argIn < ops.length; argIn++) {
             if (getParameterType(function, argIn) == SCALAR_TYPE) {
