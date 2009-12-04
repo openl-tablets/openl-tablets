@@ -41,7 +41,7 @@ public class TestParser extends TestCase {
 
         IParsedCode pc = parser.parseAsModule(scm);
 
-        ISyntaxError[] err = pc.getError();
+        ISyntaxError[] err = pc.getErrors();
 
         for (int i = 0; i < err.length; i++) {
             printSyntaxError(err[i]);
@@ -56,7 +56,7 @@ public class TestParser extends TestCase {
         IOpenParser parser = openl.getParser();
         IOpenSourceCodeModule scm = new FileSourceCodeModule(new File(fileName), null);
         IParsedCode pc = parser.parseAsModule(scm);
-        ISyntaxError[] err = pc.getError();
+        ISyntaxError[] err = pc.getErrors();
 
         for (int i = 0; i < err.length; i++) {
             printSyntaxError(err[i]);
@@ -65,7 +65,7 @@ public class TestParser extends TestCase {
         IOpenBinder binder = openl.getBinder();
         IBoundCode bc = binder.bind(pc);
 
-        err = bc.getError();
+        err = bc.getErrors();
 
         for (int i = 0; i < err.length; i++) {
             printSyntaxError(err[i]);

@@ -169,13 +169,13 @@ public class OpenL {
 
     public IOpenClass compile(IOpenSourceCodeModule src, boolean isModule) {
         IParsedCode pc = isModule ? parser.parseAsModule(src) : parser.parseAsMethodBody(src);
-        ISyntaxError[] error = pc.getError();
+        ISyntaxError[] error = pc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
         }
 
         IBoundCode bc = binder.bind(pc);
-        error = bc.getError();
+        error = bc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Binding Error:", error);
         }
@@ -190,12 +190,12 @@ public class OpenL {
 
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule src) {
         IParsedCode pc = parser.parseAsModule(src);
-        ISyntaxError[] parsingErrors = pc.getError();
+        ISyntaxError[] parsingErrors = pc.getErrors();
         // if (error.length > 0) { throw new SyntaxErrorException(
         // "Parsing Error:", error); }
 
         IBoundCode bc = binder.bind(pc);
-        ISyntaxError[] bindingErrors = bc.getError();
+        ISyntaxError[] bindingErrors = bc.getErrors();
         // if (error.length > 0) { throw new SyntaxErrorException(
         // "Binding Error:", error); }
 
@@ -212,13 +212,13 @@ public class OpenL {
 
     public Object evaluate(IOpenSourceCodeModule src, String parseType) throws OpenLRuntimeException {
         IParsedCode pc = parser.parse(src, parseType);
-        ISyntaxError[] error = pc.getError();
+        ISyntaxError[] error = pc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
         }
 
         IBoundCode bc = binder.bind(pc);
-        error = bc.getError();
+        error = bc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Binding Error:", error);
         }
@@ -242,13 +242,13 @@ public class OpenL {
     public Object evaluateMethod(IOpenSourceCodeModule code, String methodName, Object[] params)
             throws OpenLRuntimeException {
         IParsedCode pc = parser.parseAsModule(code);
-        ISyntaxError[] error = pc.getError();
+        ISyntaxError[] error = pc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
         }
 
         IBoundCode bc = binder.bind(pc);
-        error = bc.getError();
+        error = bc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Binding Error:", error);
         }

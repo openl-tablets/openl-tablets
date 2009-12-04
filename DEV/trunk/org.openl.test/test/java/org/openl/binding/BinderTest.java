@@ -50,10 +50,10 @@ public class BinderTest extends TestCase {
 
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(testCode, null));
 
-        int errnum = pc.getError().length;
+        int errnum = pc.getErrors().length;
 
         for (int i = 0; i < errnum; i++) {
-            ISyntaxError err = pc.getError()[i];
+            ISyntaxError err = pc.getErrors()[i];
             System.out.println(err);
         }
 
@@ -63,10 +63,10 @@ public class BinderTest extends TestCase {
 
         IBoundCode bc = b.bind(pc);
 
-        errnum = bc.getError().length;
+        errnum = bc.getErrors().length;
 
         for (int i = 0; i < errnum; i++) {
-            ISyntaxError err = bc.getError()[i];
+            ISyntaxError err = bc.getErrors()[i];
             System.out.println(err);
         }
 
@@ -82,10 +82,10 @@ public class BinderTest extends TestCase {
 
         IParsedCode pc = op.getParser().parseAsModule(new StringSourceCodeModule(testCode, null));
 
-        int errnum = pc.getError().length;
+        int errnum = pc.getErrors().length;
 
         for (int i = 0; i < errnum; i++) {
-            ISyntaxError err = pc.getError()[i];
+            ISyntaxError err = pc.getErrors()[i];
             System.out.println(err);
         }
 
@@ -95,10 +95,10 @@ public class BinderTest extends TestCase {
 
         IBoundCode bc = b.bind(pc);
 
-        errnum = bc.getError().length;
+        errnum = bc.getErrors().length;
 
         for (int i = 0; i < errnum; i++) {
-            ISyntaxError err = bc.getError()[i];
+            ISyntaxError err = bc.getErrors()[i];
             System.out.println(err);
         }
 

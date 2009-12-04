@@ -37,7 +37,7 @@ public class BoundCode implements IBoundCode {
      *
      * @see org.openl.binding.IBoundCode#getError()
      */
-    public ISyntaxError[] getError() {
+    public ISyntaxError[] getErrors() {
         return error;
     }
 
