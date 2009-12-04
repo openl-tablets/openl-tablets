@@ -108,9 +108,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String s) throws BoundError {        
         Object res = null;
         try {                        
-            res = foreignTable.findObject(foreignKeyIndex, s, cxt);
+            res = foreignTable.findObject(foreignKeyIndex, s, cxt);            
         } catch (BoundError ex) {
             throwIndexNotFound(valueTable, s, ex);                    
+        }
+        if (res == null) {
+            throwIndexNotFound(valueTable, s, null);
         }
         return res;
     }
