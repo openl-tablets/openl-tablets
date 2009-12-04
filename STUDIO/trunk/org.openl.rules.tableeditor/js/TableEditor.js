@@ -173,6 +173,7 @@ var TableEditor = Class.create({
      * @type: public
      */
     save: function() {
+        if (!Validation.isAllValidated()) return;
         var self = this;
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SAVE), {
             parameters : {
