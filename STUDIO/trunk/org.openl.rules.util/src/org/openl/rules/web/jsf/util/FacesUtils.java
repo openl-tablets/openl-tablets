@@ -12,8 +12,10 @@ import javax.faces.context.FacesContextFactory;
 import javax.faces.lifecycle.Lifecycle;
 import javax.faces.lifecycle.LifecycleFactory;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * Various generic helpful methods to simplify common operations with JSF.
@@ -134,6 +136,18 @@ public abstract class FacesUtils {
 
     public static ExternalContext getExternalContext() {
         return FacesContext.getCurrentInstance().getExternalContext();
+    }
+
+    public static ServletRequest getRequest() {
+        return (ServletRequest) getExternalContext().getRequest();
+    }
+
+    public static HttpSession getSession() {
+        return (HttpSession) getExternalContext().getSession(false);
+    }
+
+    public static String getContextPath() {
+        return getExternalContext().getRequestContextPath();
     }
 
 }

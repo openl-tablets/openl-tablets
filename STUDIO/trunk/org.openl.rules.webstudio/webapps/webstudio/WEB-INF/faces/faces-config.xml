@@ -248,8 +248,13 @@
       <value>#{applicationScope.hideLogout}</value>
     </managed-property>
   </managed-bean>
-  
-  
+
+  <managed-bean>
+    <managed-bean-name>treeBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.TreeBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
   <managed-bean>
     <managed-bean-name>bussinessSearch</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.search.BussinesSearchPropertyBean</managed-bean-class>

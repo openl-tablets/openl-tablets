@@ -75,10 +75,9 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
     validateErrors = studio.getModel().validateAll();
   }
 
-
     String operation = request.getParameter("operation");
     if (operation != null)
-      studio.executeOperation(operation, session);
+      studio.executeOperation(operation);
 
     String selected = request.getParameter("headerForm:select_wrapper");
 
@@ -91,7 +90,7 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
 
 <frameset cols="*,80%" frameborder="yes" border="4">
 <frameset rows="*,1" border="0">
-    <frame src="tree.jsp" name="leftFrame" scrolling="auto">
+    <frame src="${pageContext.request.contextPath}/faces/facelets/tree.xhtml" name="leftFrame" scrolling="auto">
     <frame src="html/nothing.html" name="show_app_hidden">
 </frameset>
 

@@ -3,9 +3,6 @@ package org.openl.rules.webstudio.web.tableeditor;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -21,9 +18,7 @@ import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
-import org.openl.rules.workspace.abstracts.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.syntax.ISyntaxError;
 import org.openl.util.StringTool;
 
@@ -31,57 +26,6 @@ import org.openl.util.StringTool;
  * Request scope managed bean for showTable facelet.
  */
 public class ShowTableBean {
-    public static class TestRunsResultBean {
-        public class TestProxy {
-            int index;
-
-            public TestProxy(int index) {
-                this.index = index;
-            }
-
-            public String[] getDescriptions() {
-                AllTestsRunResult.Test test = getTest();
-                String[] descriptions = new String[test.ntests()];
-                for (int i = 0; i < descriptions.length; i++) {
-                    descriptions[i] = test.getTestDescription(i);
-                }
-                return descriptions;
-            }
-
-            private AllTestsRunResult.Test getTest() {
-                return tests[index];
-            }
-
-            public String getTestName() {
-                return StringTool.encodeURL(getTest().getTestName());
-            }
-        }
-
-        private AllTestsRunResult.Test[] tests;
-
-        private TestProxy[] proxies;
-
-        public TestRunsResultBean(AllTestsRunResult.Test[] tests) {
-            this.tests = tests;
-            if (tests == null) {
-                proxies = new TestProxy[0];
-            } else {
-                proxies = new TestProxy[tests.length];
-            }
-
-            for (int i = 0; i < proxies.length; i++) {
-                proxies[i] = new TestProxy(i);
-            }
-        }
-
-        public TestProxy[] getTests() {
-            return proxies;
-        }
-
-        public boolean isNotEmpty() {
-            return tests != null && tests.length > 0;
-        }
-    }
 
     private String url;
     private String text;
@@ -127,29 +71,12 @@ public class ShowTableBean {
 
     // TODO: make internal and instance method
     public static boolean canModifyCurrentProject() {
-        UserWorkspaceProject currentProject = getCurrentProject();
-
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        UserWorkspaceProject currentProject = studio.getCurrentProject();
         if (currentProject != null) {
             return (currentProject.isCheckedOut() || currentProject.isLocalOnly());
-        } else {
-            return false;
         }
-    }
-
-    // TODO: make instance method
-    static UserWorkspaceProject getCurrentProject() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-                .getRequest();
-        HttpSession session = request.getSession();
-
-        try {
-            return studio.getCurrentProject(session);
-        } catch (ProjectException e) {
-            return null;
-        } catch (WorkspaceException e) {
-            return null;
-        }
+        return false;
     }
 
     public String getEditCell() {
@@ -276,5 +203,62 @@ public class ShowTableBean {
             return null;
         }
         return "mainPage";
+    }
+
+    public void resetStudio() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.reset();
+    }
+
+    public static class TestRunsResultBean {
+        public class TestProxy {
+            int index;
+
+            public TestProxy(int index) {
+                this.index = index;
+            }
+
+            public String[] getDescriptions() {
+                AllTestsRunResult.Test test = getTest();
+                String[] descriptions = new String[test.ntests()];
+                for (int i = 0; i < descriptions.length; i++) {
+                    descriptions[i] = test.getTestDescription(i);
+                }
+                return descriptions;
+            }
+
+            private AllTestsRunResult.Test getTest() {
+                return tests[index];
+            }
+
+            public String getTestName() {
+                return StringTool.encodeURL(getTest().getTestName());
+            }
+        }
+
+        private AllTestsRunResult.Test[] tests;
+
+        private TestProxy[] proxies;
+
+        public TestRunsResultBean(AllTestsRunResult.Test[] tests) {
+            this.tests = tests;
+            if (tests == null) {
+                proxies = new TestProxy[0];
+            } else {
+                proxies = new TestProxy[tests.length];
+            }
+
+            for (int i = 0; i < proxies.length; i++) {
+                proxies[i] = new TestProxy(i);
+            }
+        }
+
+        public TestProxy[] getTests() {
+            return proxies;
+        }
+
+        public boolean isNotEmpty() {
+            return tests != null && tests.length > 0;
+        }
     }
 }
