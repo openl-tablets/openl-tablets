@@ -36,7 +36,7 @@ public class Constraints {
 
     public void setAll(List<Constraint> constraints) {
         if (CollectionUtils.isNotEmpty(constraints)) {
-            constraints = new ArrayList<Constraint>(this.constraints);
+            this.constraints = new ArrayList<Constraint>(constraints);
         }
     }
 
