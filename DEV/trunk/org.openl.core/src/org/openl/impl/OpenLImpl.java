@@ -31,13 +31,13 @@ public class OpenLImpl implements IOpenL {
 
     public Object evaluate(IOpenSourceCodeModule code) throws OpenLRuntimeException {
         IParsedCode pc = getParser().parseAsMethodBody(code);
-        ISyntaxError[] error = pc.getError();
+        ISyntaxError[] error = pc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
         }
 
         IBoundCode bc = getBinder().bind(pc);
-        error = bc.getError();
+        error = bc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Binding Error:", error);
         }

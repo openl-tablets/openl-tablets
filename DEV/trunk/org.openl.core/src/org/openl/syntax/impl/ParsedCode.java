@@ -34,7 +34,7 @@ public class ParsedCode implements IParsedCode
      *
      * @see org.openl.syntax.IParsedCode#getError()
      */
-    public ISyntaxError[] getError() {
+    public ISyntaxError[] getErrors() {
         return syntaxErrors;
     }
 

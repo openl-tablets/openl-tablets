@@ -102,7 +102,7 @@ public class OpenlTest {
 
         IParsedCode pc = parser.parseAsModule(scm);
 
-        ISyntaxError[] err = pc.getError();
+        ISyntaxError[] err = pc.getErrors();
         for (int i = 0; i < err.length; i++) {
             System.out.println(err[i].getLocation() + " -- " + err[i]);
         }

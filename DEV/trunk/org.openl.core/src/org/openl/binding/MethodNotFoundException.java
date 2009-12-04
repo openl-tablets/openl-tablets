@@ -10,34 +10,36 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class MethodNotFoundException extends RuntimeException {
-    /**
-     *
-     */
-    private static final long serialVersionUID = -6505424809898412642L;
-    String msg;
-    String methodName;
-    IOpenClass[] pars;
 
-    public MethodNotFoundException(String msg, String methodName, IOpenClass[] pars) {
-        this.msg = msg;
+    private static final long serialVersionUID = -6505424809898412642L;
+
+    private String message;
+    private String methodName;
+    private IOpenClass[] params;
+
+    public MethodNotFoundException(String message, String methodName, IOpenClass[] params) {
+
+        this.message = message;
         this.methodName = methodName;
-        this.pars = pars;
+        this.params = params;
     }
 
     @Override
     public String getMessage() {
-        StringBuffer buf = new StringBuffer();
-        if (msg != null) {
-            buf.append(msg);
+
+        StringBuffer buffer = new StringBuffer();
+
+        if (message != null) {
+            buffer.append(message);
         }
 
-        buf.append("Method ");
-        MethodUtil.printMethod(methodName, pars, buf);
-        buf.append(" is not found");
-        return buf.toString();
-    }
+        buffer.append("Method ");
+        MethodUtil.printMethod(methodName, params, buffer);
+        buffer.append(" is not found");
 
+        return buffer.toString();
+    }
 }

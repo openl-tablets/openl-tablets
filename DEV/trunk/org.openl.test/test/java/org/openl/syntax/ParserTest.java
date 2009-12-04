@@ -64,7 +64,7 @@ public class ParserTest extends TestCase {
         OpenL op = OpenL.getInstance("org.openl.j");
         IParsedCode pc = op.getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
 
-        Assert.assertEquals(0, pc.getError().length);
+        Assert.assertEquals(0, pc.getErrors().length);
 
         ISyntaxNode syntaxNode = pc.getTopNode();
 
@@ -77,7 +77,7 @@ public class ParserTest extends TestCase {
         OpenL op = OpenL.getInstance("org.openl.j");
         IParsedCode pc = op.getParser().parseAsModule(new StringSourceCodeModule(src, null));
 
-        ISyntaxError[] error = pc.getError();
+        ISyntaxError[] error = pc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
         }
@@ -115,7 +115,7 @@ public class ParserTest extends TestCase {
         OpenL op = OpenL.getInstance("org.openl.j");
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
-        ISyntaxError[] error = pc.getError();
+        ISyntaxError[] error = pc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
         }

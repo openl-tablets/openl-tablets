@@ -96,7 +96,7 @@ public class OpenlTool {
             IOpenParser parser = openl.getParser();
 
             IParsedCode pc = parser.parseAsMethodBody(src);
-            ISyntaxError[] error = pc.getError();
+            ISyntaxError[] error = pc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Parsing Error:", error);
             }
@@ -106,7 +106,7 @@ public class OpenlTool {
             MethodBindingContext mbc = new MethodBindingContext(comp.getHeader(), cxt);
 
             IBoundCode bc = binder.bind(pc, mbc);
-            error = bc.getError();
+            error = bc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Binding Error:", error);
             }
@@ -137,7 +137,7 @@ public class OpenlTool {
             IOpenParser parser = openl.getParser();
 
             IParsedCode pc = parser.parseAsMethodHeader(src);
-            ISyntaxError[] error = pc.getError();
+            ISyntaxError[] error = pc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Parsing Error:", error);
             }
@@ -145,7 +145,7 @@ public class OpenlTool {
             IOpenBinder binder = openl.getBinder();
 
             IBoundCode bc = binder.bind(pc, cxt);
-            error = bc.getError();
+            error = bc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Binding Error:", error);
             }
@@ -174,7 +174,7 @@ public class OpenlTool {
             IOpenParser parser = openl.getParser();
 
             IParsedCode pc = parser.parseAsMethodBody(src);
-            ISyntaxError[] error = pc.getError();
+            ISyntaxError[] error = pc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Parsing Error:", error);
             }
@@ -185,7 +185,7 @@ public class OpenlTool {
             MethodBindingContext mbc = new MethodBindingContext(header, cxt, searchInContext, depthParameterSearchLevel);
 
             IBoundCode bc = binder.bind(pc, mbc);
-            error = bc.getError();
+            error = bc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Binding Error:", error);
             }
@@ -221,7 +221,7 @@ public class OpenlTool {
             IOpenParser parser = openl.getParser();
 
             IParsedCode pc = parser.parseAsMethodBody(src);
-            ISyntaxError[] error = pc.getError();
+            ISyntaxError[] error = pc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Parsing Error:", error);
             }
@@ -232,7 +232,7 @@ public class OpenlTool {
             MethodBindingContext mbc = new MethodBindingContext(header, cxt, searchInContext, depthParameterSearchLevel);
 
             IBoundCode bc = binder.bind(pc, mbc);
-            error = bc.getError();
+            error = bc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Binding Error:", error);
             }
@@ -268,7 +268,7 @@ public class OpenlTool {
             IOpenParser parser = openl.getParser();
 
             IParsedCode pc = parser.parseAsType(src);
-            ISyntaxError[] error = pc.getError();
+            ISyntaxError[] error = pc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Parsing Error:", error);
             }
@@ -276,7 +276,7 @@ public class OpenlTool {
             IOpenBinder binder = openl.getBinder();
 
             IBoundCode bc = binder.bind(pc, cxt);
-            error = bc.getError();
+            error = bc.getErrors();
             if (error.length > 0) {
                 throw new SyntaxErrorException("Binding Error:", error);
             }
