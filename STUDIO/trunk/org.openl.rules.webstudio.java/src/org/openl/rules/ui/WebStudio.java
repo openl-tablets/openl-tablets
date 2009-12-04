@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.rules.ui.view.WebStudioViewMode;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -24,8 +25,8 @@ import java.util.EventListener;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+
 import javax.servlet.http.HttpSession;
-import javax.faces.context.FacesContext;
 
 /**
  * DOCUMENT ME!
@@ -67,9 +68,7 @@ public class WebStudio {
     public WebStudio() {
         boolean initialized = false;
         try {
-            HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext()
-                    .getSession(false);
-            initialized = init(session);
+            initialized = init();
         } catch (Exception e) {
         }
 
@@ -93,10 +92,10 @@ public class WebStudio {
         listeners.add(listener);
     }
 
-    public void executeOperation(String operation, HttpSession session) {
+    public void executeOperation(String operation) {
         if ("checkIn".equals(operation)) {
             try {
-                UserWorkspaceProject project = getCurrentProject(session);
+                UserWorkspaceProject project = getCurrentProject();
                 if (project == null) {
                     return;
                 }
@@ -107,7 +106,7 @@ public class WebStudio {
         }
         if ("checkOut".equals(operation)) {
             try {
-                UserWorkspaceProject project = getCurrentProject(session);
+                UserWorkspaceProject project = getCurrentProject();
                 if (project == null) {
                     return;
                 }
@@ -140,14 +139,18 @@ public class WebStudio {
         return benchmarks.toArray(new BenchmarkInfo[0]);
     }
 
-    public UserWorkspaceProject getCurrentProject(HttpSession session) throws ProjectException, WorkspaceException {
-        if (currentWrapper == null) {
-            return null;
+    public UserWorkspaceProject getCurrentProject() {
+        if (currentWrapper != null) {
+            try {
+                String projectName = currentWrapper.getProjectInfo().getName();
+                RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+                UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectName);
+                return project;
+            } catch (Exception e) {
+                log.error("Error when trying to get current project", e);
+            }
         }
-        String projectName = currentWrapper.getProjectInfo().getName();
-        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-        UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectName);
-        return project;
+        return null;
     }
 
     /**
@@ -243,6 +246,10 @@ public class WebStudio {
         return true;
     }
 
+    public boolean init() {
+        return init(FacesUtils.getSession());
+    }
+
     public void removeBenchmark(int i) {
         benchmarks.remove(i);
     }
@@ -251,10 +258,14 @@ public class WebStudio {
         return listeners.remove(listener);
     }
 
-    public void reset() throws Exception {
-        model.reset();
-        for (StudioListener listener : listeners) {
-            listener.studioReset();
+    public void reset() {
+        try {
+            model.reset();
+            for (StudioListener listener : listeners) {
+                listener.studioReset();
+            }
+        } catch (Exception e) {
+            log.error("Error when trying to reset studio model", e);
         }
     }
 

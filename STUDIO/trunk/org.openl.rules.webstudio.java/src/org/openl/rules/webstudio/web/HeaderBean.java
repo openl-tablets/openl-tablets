@@ -1,13 +1,12 @@
 package org.openl.rules.webstudio.web;
 
 import java.io.IOException;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletRequest;
 
 import org.openl.rules.ui.OpenLWrapperInfo;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.util.net.NetUtils;
+import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import static org.openl.rules.webstudio.web.util.WebStudioUtils.getWebStudio;
 
@@ -44,8 +43,7 @@ public class HeaderBean {
     }
 
     public boolean isLocalRequest() {
-        return NetUtils.isLocalRequest((ServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-                .getRequest());
+        return NetUtils.isLocalRequest(FacesUtils.getRequest());
     }
 
     public boolean isProjectReadOnly() {

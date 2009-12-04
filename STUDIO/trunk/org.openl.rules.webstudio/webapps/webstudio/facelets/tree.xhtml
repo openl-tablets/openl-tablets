@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <link rel="stylesheet" type="text/css" href="webresource/css/openl/dtree.css"></link>
+        <script type="text/javascript" src="webresource/javascript/dtree.js"></script>
+        <style type="text/css">
+            body {
+                margin-left: 10px;
+                background: #eceef8;
+            }
+            #menu {
+                width: 95%;
+                border: 1px solid gray;
+            }
+            #menu a {
+                margin-right: 2px;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="page">
+        <p /><p />
+
+        <!-- Menu BEGIN -->
+        <table id="menu">
+            <tr>
+                <td>
+                    <h:outputLink value="#{contextPath}/main.jsp?reload=true" target="top" title="Refresh Project"><img
+                        src="webresource/images/refresh.gif" /></h:outputLink>
+                    <h:outputLink value="#{contextPath}/jsp/runAllTests.jsp" target="mainFrame" title="Run All Tests"
+                        rendered="#{treeBean.projectHasTests}"><img
+                        src="webresource/images/test_ok.gif" /></h:outputLink>
+                    <h:outputLink value="#{contextPath}/main.jsp?validate=true&amp;reload=true" target="top"
+                        title="Validate Project" rendered="#{treeBean.projectCanBeValidated}"><img
+                        src="webresource/images/validateAll.png" /></h:outputLink>
+                    <h:outputLink value="#{contextPath}/main.jsp?operation=checkIn" styleClass="actionButton"
+                        target="top" title="Check in Project" rendered="#{treeBean.projectCheckedOut}"><img
+                        src="webresource/images/repository/checkin.gif" /></h:outputLink>
+                    <h:outputLink value="#{contextPath}/main.jsp?operation=checkOut" styleClass="actionButton"
+                        target="top" title="Check out Project"
+                        rendered="#{!treeBean.projectLocalOnly and !treeBean.projectLocked}"><img
+                        src="webresource/images/repository/checkout.gif" /></h:outputLink>
+                </td>
+                <td style="text-align: right">
+                    <h:outputLink value="javascript: d.openAll(); d.o(0);" title="Expand All"><img
+                        src="webresource/images/expandall.gif"/></h:outputLink>
+                    <h:outputLink value="javascript: d.closeAll();" title="Collapse All"><img
+                        src="webresource/images/collapseall.gif"/></h:outputLink>
+                </td>
+            </tr>
+        </table>
+        <!-- Menu END -->
+
+        <p />
+
+        <!-- Tree BEGIN -->
+        <div class="errmsg" id="msg"></div>
+        <div class="dtree" id="tree"></div>
+        <script type="text/javascript" defer="defer">
+            d = new dTree('d');
+            <h:outputText value="#{treeBean.tree}" />
+            document.getElementById('tree').innerHTML = d;
+            d.o(0);
+        </script>
+        <!-- Tree END -->
+
+    </ui:define>
+</ui:composition>
