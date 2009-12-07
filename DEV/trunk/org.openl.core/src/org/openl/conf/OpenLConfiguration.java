@@ -14,6 +14,7 @@ import org.openl.OpenConfigurationException;
 import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
+import org.openl.conf.cache.CacheUtils;
 import org.openl.syntax.IGrammar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
@@ -57,7 +58,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             return opc;
         }
 
-        Object key = Cache.makeKey(name, ucxt);
+        Object key = CacheUtils.makeKey(name, ucxt);
 
         return configurations.get(key);
 
@@ -70,7 +71,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         if (shared) {
             key = name;
         } else {
-            key = Cache.makeKey(name, ucxt);
+            key = CacheUtils.makeKey(name, ucxt);
         }
 
         IOpenLConfiguration old = configurations.get(key);
@@ -86,7 +87,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     static synchronized public void unregister(String name, IUserContext ucxt) throws OpenConfigurationException {
-        Object key = Cache.makeKey(name, ucxt);
+        Object key = CacheUtils.makeKey(name, ucxt);
 
         // IOpenLConfiguration old =
         // (IOpenLConfiguration)configurations.get(key);
