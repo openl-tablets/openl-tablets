@@ -2,6 +2,7 @@
 @set _CP=.;^
 lib\acegi-security-1.0.6.jar;^
 lib\acegi-security-tiger-1.0.6.jar;^
+lib\activation-1.0.2.jar;^
 lib\ant-1.7.0.jar;^
 lib\ant-launcher-1.7.0.jar;^
 lib\antlr-2.7.6.jar;^
@@ -11,7 +12,6 @@ lib\asm-2.2.3.jar;^
 lib\asm-attrs-1.5.3.jar;^
 lib\avalon-framework-4.1.3.jar;^
 lib\bcprov-jdk14-136.jar;^
-lib\bootstrap-5.5.12.jar;^
 lib\BrowserLauncher-2-1_3.jar;^
 lib\cglib-2.1_3.jar;^
 lib\cglib-nodep-2.1_3.jar;^
@@ -20,12 +20,11 @@ lib\commons-codec-1.3.jar;^
 lib\commons-collections-3.2.jar;^
 lib\commons-dbcp-1.2.2.jar;^
 lib\commons-digester-1.6.jar;^
-lib\commons-el-1.0.jar;^
+lib\commons-discovery-0.4.jar;^
 lib\commons-fileupload-1.2.jar;^
 lib\commons-io-1.3.2.jar;^
-lib\commons-lang-2.3.jar;^
-lib\commons-logging-1.1.jar;^
-lib\commons-logging-api-1.0.4.jar;^
+lib\commons-lang-2.4.jar;^
+lib\commons-logging-1.1.1.jar;^
 lib\commons-pool-1.3.jar;^
 lib\commons-validator-1.3.1.jar;^
 lib\concurrent-1.3.4.jar;^
@@ -48,8 +47,6 @@ lib\derby-10.2.1.6.jar;^
 lib\dom4j-1.6.1.jar;^
 lib\ehcache-1.2.3.jar;^
 lib\ejb3-persistence-3.0.jar;^
-lib\el-api-1.0.jar;^
-lib\el-ri-1.0.jar;^
 lib\geronimo-activation_1.1_spec-1.0-M1.jar;^
 lib\geronimo-annotation_1.0_spec-1.1.jar;^
 lib\geronimo-javamail_1.4_spec-1.0-M1.jar;^
@@ -76,17 +73,16 @@ lib\jettison-1.0-RC2.jar;^
 lib\jetty-6.1.5.jar;^
 lib\jetty-util-6.1.5.jar;^
 lib\js-1.6R5.jar;^
-lib\jsf-facelets-1.1.13.jar;^
+lib\jsf-facelets-1.1.14.jar;^
 lib\jsontools-core-1.5.jar;^
 lib\jstl-1.1.0.jar;^
 lib\jstl-1.1.2.jar;^
 lib\jta-1.0.1B.jar;^
 lib\junit-addons-1.4.jar;^
 lib\log4j-1.2.13.jar;^
-lib\logkit-1.0.1.jar;^
 lib\lucene-core-2.0.0.jar;^
-lib\myfaces-api-1.1.5.jar;^
-lib\myfaces-impl-1.1.5.jar;^
+lib\myfaces-api-1.2.7.jar;^
+lib\myfaces-impl-1.2.7.jar;^
 lib\neethi-2.0.2.jar;^
 lib\ooxml-schemas-1.0.jar;^
 lib\org.openl.commons_5.3.1.jar;^
@@ -113,9 +109,9 @@ lib\oro-2.0.8.jar;^
 lib\persistence-api-1.0.jar;^
 lib\poi-ooxml-3.5-beta5.jar;^
 lib\org.openl.lib.poi35.dev.modified-5.3.1-SNAPSHOT.jar;^
-lib\richfaces-api-3.1.2.GA.jar;^
-lib\richfaces-impl-3.1.2.GA.jar;^
-lib\richfaces-ui-3.1.2.GA.jar;^
+lib\richfaces-api-3.3.2.SR1.jar;^
+lib\richfaces-impl-3.3.2.SR1.jar;^
+lib\richfaces-ui-3.3.2.SR1.jar;^
 lib\saaj-api-1.3.jar;^
 lib\saaj-impl-1.3.jar;^
 lib\servlet-api-2.3.jar;^
@@ -141,7 +137,6 @@ lib\xbean-2.2.0.jar;^
 lib\xercesImpl-2.8.1.jar;^
 lib\xml-apis-1.3.03.jar;^
 lib\xml-resolver-1.2.jar;^
-lib\xmlbeans-2.3.0.jar;^
 lib\xmlParserAPIs-2.6.2.jar;^
 lib\XmlSchema-1.3.2.jar;^
 lib\xmlsec-1.3.0.jar
