@@ -29,7 +29,7 @@ import java.util.HashSet;
 import javax.servlet.http.HttpSession;
 
 /**
- * DOCUMENT ME!
+ * TODO Refactor
  * 
  * @author snshor
  */
@@ -92,10 +92,10 @@ public class WebStudio {
         listeners.add(listener);
     }
 
-    public void executeOperation(String operation) {
+    public void executeOperation(String operation, HttpSession session) {
         if ("checkIn".equals(operation)) {
             try {
-                UserWorkspaceProject project = getCurrentProject();
+                UserWorkspaceProject project = getCurrentProject(session);
                 if (project == null) {
                     return;
                 }
@@ -106,7 +106,7 @@ public class WebStudio {
         }
         if ("checkOut".equals(operation)) {
             try {
-                UserWorkspaceProject project = getCurrentProject();
+                UserWorkspaceProject project = getCurrentProject(session);
                 if (project == null) {
                     return;
                 }
@@ -139,11 +139,11 @@ public class WebStudio {
         return benchmarks.toArray(new BenchmarkInfo[0]);
     }
 
-    public UserWorkspaceProject getCurrentProject() {
+    public UserWorkspaceProject getCurrentProject(HttpSession session) {
         if (currentWrapper != null) {
             try {
                 String projectName = currentWrapper.getProjectInfo().getName();
-                RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+                RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
                 UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectName);
                 return project;
             } catch (Exception e) {
@@ -151,6 +151,10 @@ public class WebStudio {
             }
         }
         return null;
+    }
+
+    public UserWorkspaceProject getCurrentProject() {
+        return getCurrentProject(FacesUtils.getSession());
     }
 
     /**
