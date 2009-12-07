@@ -101,7 +101,7 @@ public class ProjectTreeRenderer extends DTreeRenderer implements IProjectTypes,
             String uri = ((ProjectTreeNode) element).getUri();
             return targetJsp + "?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
         } else if (elementType.startsWith(PT_PROBLEM)) {
-            return "faces/facelets/tableeditor/showError.xhtml" + "?" + Constants.REQUEST_PARAM_ID + "="
+            return "tableeditor/showError.xhtml" + "?" + Constants.REQUEST_PARAM_ID + "="
                     + map.getID(element);
         }
         return null;
