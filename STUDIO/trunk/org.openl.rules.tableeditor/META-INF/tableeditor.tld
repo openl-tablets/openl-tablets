@@ -20,6 +20,13 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <description>Component binding</description>
+            <name>binding</name>
+            <deferred-value>
+                <type>javax.faces.component.UIComponent</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
             <description>Is this component rendered?</description>
             <name>rendered</name>
             <deferred-value>
@@ -73,6 +80,13 @@
             <description>The client id of this component</description>
             <name>id</name>
             <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Component binding</description>
+            <name>binding</name>
+            <deferred-value>
+                <type>javax.faces.component.UIComponent</type>
+            </deferred-value>
         </attribute>
         <attribute>
             <description>Is this component rendered?</description>
