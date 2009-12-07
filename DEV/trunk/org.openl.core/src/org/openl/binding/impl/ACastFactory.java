@@ -11,7 +11,7 @@ import java.util.HashMap;
 import org.openl.binding.AmbiguousMethodException;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
-import org.openl.conf.Cache;
+import org.openl.conf.cache.CacheUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenCast;
 import org.openl.types.IOpenClass;
@@ -266,7 +266,7 @@ public class ACastFactory implements ICastFactory {
     }
 
     public synchronized IOpenCast getCast(IOpenClass from, IOpenClass to) {
-        Object key = Cache.makeKey(from, to);
+        Object key = CacheUtils.makeKey(from, to);
 
         IOpenCast cast = castCache.get(key);
 

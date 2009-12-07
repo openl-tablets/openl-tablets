@@ -19,11 +19,11 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodNotFoundException;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.binding.impl.LiteralBoundNode;
-import org.openl.conf.Cache;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
+import org.openl.conf.cache.CacheUtils;
 import org.openl.syntax.IParsedCode;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.SyntaxErrorException;
@@ -37,8 +37,8 @@ import org.openl.util.ISelector;
 // TODO put references
 
 /**
- * @author snshor
- *
+ * 
+ * 
  * The class OpenL implements both factory(static) methods for creating OpenL
  * instances and actual OpenL functionality. Each instance of OpenL should be
  * considered as a Language Configuration(LC) <href />. You may have as many LCs
@@ -46,110 +46,118 @@ import org.openl.util.ISelector;
  * different OpenL configurations in separate classloaders, so they will not
  * interfere with each other. It allows, for example, to have 2 LCs using
  * different SAX or DOM parser implementation.
- *
+ * 
  * The actual work is done by class OpenLConfigurator.
- *
+ * 
  * @see OpenLConfigurator
+ * @author snshor
  */
 public class OpenL {
 
-    static OpenLConfigurator config = new OpenLConfigurator();
+    private static final String DEFAULT_USER_HOME = ".";
+
+    private static final int MAX_LINE_SIZE = 30;
+
+    private static OpenLConfigurator config = new OpenLConfigurator();
 
     // TODO think about weak references for nice cleanup
-    static HashMap<Object, OpenL> openlCache = new HashMap<Object, OpenL>();
+    private static HashMap<Object, OpenL> openlCache = new HashMap<Object, OpenL>();
 
-    static final int MAX_LINE_SIZE = 30;
+    private IOpenParser parser;
 
-    IOpenParser parser;
+    private IOpenBinder binder;
 
-    IOpenBinder binder;
+    private IOpenVM vm;
 
-    IOpenVM vm;
+    private IUserContext userContext;
 
-    IUserContext userContext;
+    private String name;
 
-    String name;
+    public static OpenL getInstance(String name) throws OpenConfigurationException {
 
-    static public int getEndOfLineIndex(String s) {
-        int len = s.length();
-
-        int lf = s.indexOf('\n');
-        int cr = s.indexOf('\r');
-
-        return Math.min(cr < 0 ? len : cr, lf < 0 ? len : lf);
-    }
-
-    static public OpenL getInstance(String name) throws OpenConfigurationException {
         return getInstance(name, config.getClassLoader());
     }
 
-    static synchronized public OpenL getInstance(String name, ClassLoader cl) throws OpenConfigurationException {
-        String cwd = new File(".").getAbsolutePath();
-        return getInstance(name, new UserContext(cl, cwd));
+    public static synchronized OpenL getInstance(String name, ClassLoader classLoader)
+            throws OpenConfigurationException {
+
+        String currentWorkDirectory = new File(DEFAULT_USER_HOME).getAbsolutePath();
+
+        return getInstance(name, new UserContext(classLoader, currentWorkDirectory));
     }
 
     /**
      * Gets an instance of OpenL. Each instance is cached with name and user
      * context as it's key. To remove cached instance use #remove method
-     *
+     * 
      * @see #remove
      * @see IUserContext
-     *
+     * 
      * @param name IOpenL name, for example org.openl.java12.v101
-     * @param ucxt user context
+     * @param userContext user context
      * @return instance of IOpenL
      * @throws OpenConfigurationException
      */
+    public static synchronized OpenL getInstance(String name, IUserContext userContext)
+            throws OpenConfigurationException {
 
-    static synchronized public OpenL getInstance(String name, IUserContext ucxt) throws OpenConfigurationException {
-
-        Object key = Cache.makeKey(name, ucxt);
+        Object key = CacheUtils.makeKey(name, userContext);
 
         OpenL openl = openlCache.get(key);
+
         if (openl == null) {
-            IOpenLBuilder builder = config.getBuilder(name, ucxt);
-            openl = builder.build(name);
+
+            IOpenLBuilder builder = config.getBuilder(name, userContext);
+
+            openl = createInstance(name, userContext, builder);
+
             openlCache.put(key, openl);
-            openl.userContext = ucxt;
-            openl.setName(name);
         }
 
         return openl;
     }
 
-    public static OpenL getInstance(String name, IUserContext ucxt, IOpenLBuilder builder) {
-        Object key = Cache.makeKey(name, ucxt);
+    public static OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
+
+        Object key = CacheUtils.makeKey(name, userContext);
 
         OpenL openl = openlCache.get(key);
+
         if (openl == null) {
-            openl = builder.build(name);
+
+            openl = createInstance(name, userContext, builder);
+
             openlCache.put(key, openl);
-            openl.userContext = ucxt;
-            openl.setName(name);
         }
 
         return openl;
     }
 
-    // Content description is located in the first line.
-    // Similar <code>#!"shell"</code> in unix scripts.
-    public static boolean isOpenlScript(String code) {
-        int indexOfOpenl = code.indexOf("openl");
-        return 0 <= indexOfOpenl && indexOfOpenl < MAX_LINE_SIZE && indexOfOpenl < getEndOfLineIndex(code);
+    private static OpenL createInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
+
+        OpenL openl = builder.build(name);
+        openl.userContext = userContext;
+        openl.setName(name);
+
+        return openl;
     }
 
-    static synchronized public OpenL remove(String name) throws OpenConfigurationException {
+    public static synchronized OpenL remove(String name) throws OpenConfigurationException {
+
         return remove(name, config.getClassLoader());
     }
 
-    static synchronized public OpenL remove(String name, ClassLoader cl) throws OpenConfigurationException {
-        return remove(name, new UserContext(cl, "."));
+    public static synchronized OpenL remove(String name, ClassLoader classLoader) throws OpenConfigurationException {
+
+        return remove(name, new UserContext(classLoader, DEFAULT_USER_HOME));
     }
 
-    static synchronized public OpenL remove(String name, IUserContext cxt) {
-        Object key = Cache.makeKey(name, cxt);
+    public static synchronized OpenL remove(String name, IUserContext userContext) {
+
+        Object key = CacheUtils.makeKey(name, userContext);
 
         OpenL openl = openlCache.get(key);
+
         if (openl == null) {
             return null;
         }
@@ -159,16 +167,41 @@ public class OpenL {
         return openl;
     }
 
-    static public void reset() {
+    public static void reset() {
         openlCache = new HashMap<Object, OpenL>();
+    }
+
+    // Content description is located in the first line.
+    // Similar <code>#!"shell"</code> in unix scripts.
+    private boolean isOpenlScript(String code) {
+
+        int indexOfOpenl = code.indexOf("openl");
+
+        return 0 <= indexOfOpenl && indexOfOpenl < MAX_LINE_SIZE && indexOfOpenl < getEndOfLineIndex(code);
+    }
+
+    private int getEndOfLineIndex(String s) {
+
+        int len = s.length();
+
+        int lf = s.indexOf('\n');
+        int cr = s.indexOf('\r');
+
+        return Math.min(cr < 0 ? len : cr, lf < 0 ? len : lf);
     }
 
     public IOpenClass compile(IOpenSourceCodeModule src) {
         return compile(src, !isOpenlScript(src.getCode()));
     }
 
-    public IOpenClass compile(IOpenSourceCodeModule src, boolean isModule) {
+    public IOpenClass compileModule(IOpenSourceCodeModule src) {
+        return compile(src, true);
+    }
+
+    private IOpenClass compile(IOpenSourceCodeModule src, boolean isModule) {
+
         IParsedCode pc = isModule ? parser.parseAsModule(src) : parser.parseAsMethodBody(src);
+
         ISyntaxError[] error = pc.getErrors();
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
@@ -184,20 +217,12 @@ public class OpenL {
         return ioc;
     }
 
-    public IOpenClass compileModule(IOpenSourceCodeModule src) {
-        return compile(src, true);
-    }
-
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule src) {
         IParsedCode pc = parser.parseAsModule(src);
         ISyntaxError[] parsingErrors = pc.getErrors();
-        // if (error.length > 0) { throw new SyntaxErrorException(
-        // "Parsing Error:", error); }
 
         IBoundCode bc = binder.bind(pc);
         ISyntaxError[] bindingErrors = bc.getErrors();
-        // if (error.length > 0) { throw new SyntaxErrorException(
-        // "Binding Error:", error); }
 
         IOpenClass ioc = null;
         if (bc.getTopNode() != null) {
@@ -211,17 +236,21 @@ public class OpenL {
     }
 
     public Object evaluate(IOpenSourceCodeModule src, String parseType) throws OpenLRuntimeException {
+
         IParsedCode pc = parser.parse(src, parseType);
         ISyntaxError[] error = pc.getErrors();
+
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
         }
 
         IBoundCode bc = binder.bind(pc);
         error = bc.getErrors();
+
         if (error.length > 0) {
             throw new SyntaxErrorException("Binding Error:", error);
         }
+
         IBoundNode bnode = bc.getTopNode();
 
         if (bnode instanceof IBoundMethodNode) {
@@ -241,36 +270,47 @@ public class OpenL {
 
     public Object evaluateMethod(IOpenSourceCodeModule code, String methodName, Object[] params)
             throws OpenLRuntimeException {
+
         IParsedCode pc = parser.parseAsModule(code);
         ISyntaxError[] error = pc.getErrors();
+
         if (error.length > 0) {
             throw new SyntaxErrorException("Parsing Error:", error);
         }
 
         IBoundCode bc = binder.bind(pc);
         error = bc.getErrors();
+
         if (error.length > 0) {
             throw new SyntaxErrorException("Binding Error:", error);
         }
+
         return vm.getRunner().run(((IBoundModuleNode) bc.getTopNode()).getMethodNode(methodName), params);
     }
 
-    @SuppressWarnings("unchecked")
     public Object evaluateMethod2(IOpenSourceCodeModule src, String methodName, IOpenClass[] paramTypes, Object[] params)
             throws OpenLRuntimeException, MethodNotFoundException, SyntaxErrorException {
 
-        IOpenClass ioc = compileModule(src);
+        IOpenClass openClass = compileModule(src);
 
-        Object target = ioc.newInstance(vm.getRuntimeEnv());
+        Object target = openClass.newInstance(vm.getRuntimeEnv());
+
+        IOpenMethod method = getMethod(methodName, paramTypes, openClass);
+
+        return method.invoke(target, params, vm.getRuntimeEnv());
+    }
+
+    private IOpenMethod getMethod(String methodName, IOpenClass[] paramTypes, IOpenClass openClass) {
 
         IOpenMethod method = null;
+
         if (paramTypes != null) {
-            method = ioc.getMatchingMethod(methodName, paramTypes);
+            method = openClass.getMatchingMethod(methodName, paramTypes);
         } else {
             AStringConvertor<INamedThing> sc = INamedThing.NAME_CONVERTOR;
             ISelector<IOpenMethod> nameSel = new ASelector.StringValueSelector(methodName, sc);
 
-            List<IOpenMethod> list = AOpenIterator.select(ioc.methods(), nameSel).asList();
+            List<IOpenMethod> list = AOpenIterator.select(openClass.methods(), nameSel).asList();
             if (list.size() > 1) {
                 throw new AmbiguousMethodException(methodName, IOpenClass.EMPTY, list);
             } else if (list.size() == 1) {
@@ -283,47 +323,6 @@ public class OpenL {
                     : paramTypes);
         }
 
-        return method.invoke(target, params, vm.getRuntimeEnv());
-    }
-
-    /**
-     * @return
-     */
-    public IOpenBinder getBinder() {
-        return binder;
-    }
-
-    public IOpenMethod getMethod(IOpenSourceCodeModule src, String name, IOpenClass[] paramTypes)
-            throws MethodNotFoundException, SyntaxErrorException {
-
-        IOpenClass ioc = compileModule(src);
-
-        IOpenMethod method = null;
-        if (paramTypes != null) {
-            method = ioc.getMatchingMethod(name, paramTypes);
-        } else {
-            AStringConvertor<IOpenMethod> sc = new AStringConvertor<IOpenMethod>() {
-
-                @Override
-                public String getStringValue(IOpenMethod test) {
-                    return test.getName();
-                }
-
-            };
-            List<IOpenMethod> list = AOpenIterator.select(ioc.methods(),
-                    new ASelector.StringValueSelector<IOpenMethod>(name, sc)).asList();
-            if (list.size() > 1) {
-                throw new AmbiguousMethodException(name, IOpenClass.EMPTY, list);
-            } else if (list.size() == 1) {
-                method = list.get(0);
-            }
-        }
-
-        if (method == null) {
-            throw new MethodNotFoundException("Can not run method: ", name, paramTypes == null ? IOpenClass.EMPTY
-                    : paramTypes);
-        }
-
         return method;
     }
 
@@ -331,52 +330,36 @@ public class OpenL {
         return name;
     }
 
-    /**
-     * @return
-     */
-    public IOpenParser getParser() {
-        return parser;
-    }
-
-    /**
-     * @return Returns the userContext.
-     */
-    public IUserContext getUserContext() {
-        return userContext;
-    }
-
-    /**
-     * @return
-     */
-    public IOpenVM getVm() {
-        return vm;
-    }
-
-    /**
-     * @param binder
-     */
-    public void setBinder(IOpenBinder binder) {
-        this.binder = binder;
-    }
-
-    // /////////////////// helper methods ////////////////////////////
-
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @param parser
-     */
+    public IOpenParser getParser() {
+        return parser;
+    }
+
     public void setParser(IOpenParser parser) {
         this.parser = parser;
     }
 
-    /**
-     * @param openVM
-     */
+    public IUserContext getUserContext() {
+        return userContext;
+    }
+
+    public IOpenVM getVm() {
+        return vm;
+    }
+
     public void setVm(IOpenVM openVM) {
         vm = openVM;
+    }
+
+    public IOpenBinder getBinder() {
+        return binder;
+    }
+
+    public void setBinder(IOpenBinder binder) {
+        this.binder = binder;
     }
 
 }
