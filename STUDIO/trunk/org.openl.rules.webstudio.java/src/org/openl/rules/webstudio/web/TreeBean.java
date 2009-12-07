@@ -14,6 +14,12 @@ public class TreeBean {
     public TreeBean() {
     }
 
+    public boolean isProjectExists() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        UserWorkspaceProject currentProject = studio.getCurrentProject();
+        return currentProject != null;
+    }
+
     public boolean isProjectCheckedOut() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         UserWorkspaceProject currentProject = studio.getCurrentProject();

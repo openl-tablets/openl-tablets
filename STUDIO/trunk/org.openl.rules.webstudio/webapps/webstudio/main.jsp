@@ -77,7 +77,7 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
 
     String operation = request.getParameter("operation");
     if (operation != null)
-      studio.executeOperation(operation);
+      studio.executeOperation(operation, session);
 
     String selected = request.getParameter("headerForm:select_wrapper");
 

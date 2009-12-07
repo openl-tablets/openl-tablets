@@ -26,35 +26,37 @@
     <ui:define name="page">
         <p /><p />
 
-        <!-- Menu BEGIN -->
-        <table id="menu">
-            <tr>
-                <td>
-                    <h:outputLink value="#{contextPath}/main.jsp?reload=true" target="top" title="Refresh Project"><img
-                        src="webresource/images/refresh.gif" /></h:outputLink>
-                    <h:outputLink value="#{contextPath}/jsp/runAllTests.jsp" target="mainFrame" title="Run All Tests"
-                        rendered="#{treeBean.projectHasTests}"><img
-                        src="webresource/images/test_ok.gif" /></h:outputLink>
-                    <h:outputLink value="#{contextPath}/main.jsp?validate=true&amp;reload=true" target="top"
-                        title="Validate Project" rendered="#{treeBean.projectCanBeValidated}"><img
-                        src="webresource/images/validateAll.png" /></h:outputLink>
-                    <h:outputLink value="#{contextPath}/main.jsp?operation=checkIn" styleClass="actionButton"
-                        target="top" title="Check in Project" rendered="#{treeBean.projectCheckedOut}"><img
-                        src="webresource/images/repository/checkin.gif" /></h:outputLink>
-                    <h:outputLink value="#{contextPath}/main.jsp?operation=checkOut" styleClass="actionButton"
-                        target="top" title="Check out Project"
-                        rendered="#{!treeBean.projectLocalOnly and !treeBean.projectLocked}"><img
-                        src="webresource/images/repository/checkout.gif" /></h:outputLink>
-                </td>
-                <td style="text-align: right">
-                    <h:outputLink value="javascript: d.openAll(); d.o(0);" title="Expand All"><img
-                        src="webresource/images/expandall.gif"/></h:outputLink>
-                    <h:outputLink value="javascript: d.closeAll();" title="Collapse All"><img
-                        src="webresource/images/collapseall.gif"/></h:outputLink>
-                </td>
-            </tr>
-        </table>
-        <!-- Menu END -->
+        <h:panelGroup rendered="#{treeBean.projectExists}">
+            <!-- Menu BEGIN -->
+            <table id="menu">
+                <tr>
+                    <td>
+                        <h:outputLink value="#{contextPath}/main.jsp?reload=true" target="top"
+                            title="Refresh Project"><img src="webresource/images/refresh.gif" /></h:outputLink>
+                        <h:outputLink value="#{contextPath}/jsp/runAllTests.jsp" target="mainFrame"
+                            title="Run All Tests" rendered="#{treeBean.projectHasTests}"><img
+                            src="webresource/images/test_ok.gif" /></h:outputLink>
+                        <h:outputLink value="#{contextPath}/main.jsp?validate=true&amp;reload=true" target="top"
+                            title="Validate Project" rendered="#{treeBean.projectCanBeValidated}"><img
+                            src="webresource/images/validateAll.png" /></h:outputLink>
+                        <h:outputLink value="#{contextPath}/main.jsp?operation=checkIn" styleClass="actionButton"
+                            target="top" title="Check in Project" rendered="#{treeBean.projectCheckedOut}"><img
+                            src="webresource/images/repository/checkin.gif" /></h:outputLink>
+                        <h:outputLink value="#{contextPath}/main.jsp?operation=checkOut" styleClass="actionButton"
+                            target="top" title="Check out Project"
+                            rendered="#{!treeBean.projectLocalOnly and !treeBean.projectLocked}"><img
+                            src="webresource/images/repository/checkout.gif" /></h:outputLink>
+                    </td>
+                    <td style="text-align: right">
+                        <h:outputLink value="javascript: d.openAll(); d.o(0);" title="Expand All"><img
+                            src="webresource/images/expandall.gif"/></h:outputLink>
+                        <h:outputLink value="javascript: d.closeAll();" title="Collapse All"><img
+                            src="webresource/images/collapseall.gif"/></h:outputLink>
+                    </td>
+                </tr>
+            </table>
+            <!-- Menu END -->
+        </h:panelGroup>
 
         <p />
 
