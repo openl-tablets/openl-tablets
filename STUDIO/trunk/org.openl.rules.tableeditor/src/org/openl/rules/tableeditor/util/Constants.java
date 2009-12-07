@@ -13,6 +13,8 @@ public final class Constants {
     public static final String ATTRIBUTE_COLLAPSE_PROPS = "collapseProps";
     public static final String ATTRIBUTE_BEFORE_SAVE_ACTION = "beforeSaveAction";
     public static final String ATTRIBUTE_AFTER_SAVE_ACTION = "afterSaveAction";
+    public static final String ATTRIBUTE_ON_BEFORE_SAVE = "onBeforeSave";
+    public static final String ATTRIBUTE_ON_AFTER_SAVE = "onAfterSave";
 
     public static final String REQUEST_PARAM_EDITOR_ID = "editorId";
     public static final String REQUEST_PARAM_MODE = "mode";

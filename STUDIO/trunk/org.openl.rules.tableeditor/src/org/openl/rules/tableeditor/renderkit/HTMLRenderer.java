@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ITable;
@@ -33,6 +34,231 @@ import org.openl.rules.web.jsf.util.FacesUtils;
  * @author Andrei Astrouski
  */
 public class HTMLRenderer {
+
+    /** New line */
+    public static final String NL = "\n";
+
+    @SuppressWarnings("unchecked")
+    protected Set getResourcesWritten() {
+        Map requestMap = FacesUtils.getRequestMap();
+        Set resources = (Set) requestMap.get(Constants.TABLE_EDITOR_RESOURCES);
+        if (resources == null) {
+            resources = new HashSet();
+            requestMap.put(Constants.TABLE_EDITOR_RESOURCES, resources);
+        }
+        return resources;
+    }
+
+    public String render(TableEditor editor, boolean inner, String cellToEdit, List<ActionLink> actionLinks) {
+        StringBuilder result = new StringBuilder();
+        result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css"))
+            .append(renderCSS("css/toolbar.css"))
+            .append(renderCSS("css/datepicker.css"))
+            .append(renderCSS("css/multiselect.css"))
+            .append(renderCSS("css/tooltip.css"))
+            .append(renderJS("js/prototype/prototype-1.6.1.js"))
+            .append(
+                renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
+                renderJS("js/IconManager.js")).append(renderJS("js/TableEditor.js")).append(
+                renderJS("js/initTableEditor.js")).append(renderJS("js/BaseEditor.js")).append(
+                renderJS("js/BaseTextEditor.js"));
+        if (!inner) {
+            result.append("<div id='").append(editor.getId()).append("' class='te_'>");
+        }
+        String mode = editor.getMode();
+        if (mode == null || mode.equals(Constants.MODE_VIEW)) {
+            result.append(renderViewer(editor, actionLinks));
+        } else if (mode.equals(Constants.MODE_EDIT)) {
+            result.append(renderEditor(editor, cellToEdit));
+        }
+        if (!inner) {
+            result.append("</div>");
+        }
+        result.append("</div>");
+        return result.toString();
+    }
+
+    protected String renderActionMenu(String menuId, boolean editable, List<ActionLink> actionLinks) {
+        StringBuilder result = new StringBuilder();
+
+        String editLinks = "<tr><td><a href=\"javascript:triggerEdit('"
+                + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','" + WebUtil.internalPath("ajax/edit")
+                + "')\">Edit</a></td></tr>" + "<tr><td><a href=\"javascript:triggerEditXls('"
+                + WebUtil.internalPath("excel/") + "')\">Edit in Excel</a></td></tr>";
+        String menuBegin = "<div id=\"" + menuId + "\" style=\"display:none;\">" + "<table cellpadding=\"1px\">"
+                + (editable ? editLinks : "");
+        String menuEnd = "</table>" + "</div>";
+
+        result.append(menuBegin).append(actionLinks == null ? "" : renderAddActionLinks(actionLinks)).append(menuEnd);
+
+        return result.toString();
+    }
+
+    protected String renderAddActionLinks(List<ActionLink> links) {
+        if (links == null) {
+            return null;
+        }
+        StringBuilder result = new StringBuilder();
+
+        for (ActionLink link : links) {
+            result.append("<tr><td>").append("<a href=\"").append(link.getAction()).append("\">")
+                    .append(link.getName()).append("</a>").append("</td></tr>");
+        }
+
+        return result.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public String renderCSS(String cssPath) {
+        Set resources = getResourcesWritten();
+        if (resources.add(cssPath)) {
+            StringBuilder result = new StringBuilder();
+            result.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(WebUtil.internalPath(cssPath))
+                    .append("\"></link>");
+            return result.toString();
+        }
+        return "";
+    }
+
+    protected String renderEditor(TableEditor editor, String cellToEdit) {
+        StringBuilder result = new StringBuilder();
+        cellToEdit = cellToEdit == null ? "" : cellToEdit;
+        String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
+        String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
+        String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
+        String afterSave = getEditorJSAction(editor.getOnAfterSave());
+        String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + "}";
+        result.append(renderJSBody("var " + editorJsVar + ";"))
+                .append(renderEditorToolbar(editor.getId(), editorJsVar))
+                .append(renderJS("js/tooltip.js"))
+                .append(renderJS("js/validation.js"))
+                .append(renderJS("js/datepicker.packed.js"))
+                .append(renderJS("js/TextEditor.js"))
+                .append(renderJS("js/MultiLineEditor.js"))
+                .append(renderJS("js/NumericEditor.js"))
+                .append(renderJS("js/DropdownEditor.js"))
+                .append(renderJS("js/FormulaEditor.js"))
+                .append(renderJS("js/BooleanEditor.js"))
+                .append(renderJS("js/DateEditor.js"))
+                .append(renderJS("js/MultiselectEditor.js"))
+                .append(renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT,
+                        /*collapsed properties where turned to false on edit view*/false))
+                .append("<div id=\"").append(tableId).append("\"></div>").append(
+                        renderJSBody(editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
+                                + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\"," + actions + ");"));
+        return result.toString();
+    }
+
+    protected String getEditorJSAction(String action) {
+        return StringUtils.isBlank(action) ? "''" : "function() {" + action + "}";
+    }
+
+    protected String renderEditorToolbar(String editorId, String editorJsVar) {
+        StringBuilder result = new StringBuilder();
+
+        final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif")
+                + " class=\"item_separator\"></img>";
+
+        result.append("<div class=\"te_toolbar\">").append(
+                renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save")).append(
+                renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo")).append(
+                renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo"))
+                    .append(toolbarItemSeparator).append(
+                renderEditorToolbarItem(editorId + "_insert_row_before", editorJsVar, "img/insert_row.gif",
+                        "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row before")).append(
+                renderEditorToolbarItem(editorId + "_remove_row", editorJsVar, "img/delete_row.gif",
+                        "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
+                .append(toolbarItemSeparator).append(
+                        renderEditorToolbarItem(editorId + "_insert_column_before", editorJsVar, "img/insert_column.gif",
+                                "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)",
+                                "Insert column before")).append(
+                        renderEditorToolbarItem(editorId + "_remove_column", editorJsVar, "img/delete_column.gif",
+                                "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)", "Remove column"))
+                .append(toolbarItemSeparator).append(
+                        renderEditorToolbarItem(editorId + "_align_left", editorJsVar, "img/alLeft.gif",
+                                "setAlignment('left')", "Align left")).append(
+                        renderEditorToolbarItem(editorId + "_align_center", editorJsVar, "img/alCenter.gif",
+                                "setAlignment('center')", "Align center")).append(
+                        renderEditorToolbarItem(editorId + "_align_right", editorJsVar, "img/alRight.gif",
+                                "setAlignment('right')", "Align right")).append(toolbarItemSeparator).append(
+                        renderEditorToolbarItem(editorId + "_decrease_indent", editorJsVar, "img/indent_left.gif",
+                                "indent('-1')", "Decrease indent")).append(
+                        renderEditorToolbarItem(editorId + "_increase_indent", editorJsVar, "img/indent_right.gif",
+                                "indent('1')", "Increase indent")).append(toolbarItemSeparator).append(
+                        renderEditorToolbarItem(editorId + "_help", null, "img/help.gif", "window.open('"
+                                + WebUtil.internalPath("docs/help.html") + "');", "Help")).append("</div>");
+
+        return result.toString();
+    }
+
+    protected String renderEditorToolbarItem(String itemId, String editor, String imgSrc, String action, String title) {
+        editor = (editor == null || editor.equals("")) ? "" : editor + ".";
+        StringBuilder result = new StringBuilder();
+        result.append("<img id=\"").append(itemId).append("\" src=\"").append(WebUtil.internalPath(imgSrc)).append(
+                "\" title=\"").append(title).append("\" onclick=\"").append(editor).append(action).append(
+                "\" onmouseover=\"this.className='item_over'\"")
+                .append(" onmouseout=\"this.className='item_enabled'\"").append("></img>");
+        return result.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public String renderJS(String jsPath) {
+        Set resources = getResourcesWritten();
+        if (resources.add(jsPath)) {
+            StringBuilder result = new StringBuilder();
+            result.append("<script type=\"text/javascript\" src=\"").append(WebUtil.internalPath(jsPath)).append(
+                    "\"></script>");
+            return result.toString();
+        }
+        return "";
+    }
+
+    @SuppressWarnings("unchecked")
+    public String renderJSBody(String jsBody) {
+        Set resources = getResourcesWritten();
+        if (resources.add(jsBody)) {
+            StringBuilder result = new StringBuilder();
+            result.append("<script type=\"text/javascript\">").append(jsBody).append("</script>");
+            return result.toString();
+        }
+        return "";
+    }
+
+    protected String renderViewer(TableEditor editor, List<ActionLink> actionLinks) {
+        StringBuilder result = new StringBuilder();
+        if (editor.getTable() != null) {
+            result.append(renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_VIEW,
+                    editor.isCollapseProps()));
+        }
+        if (editor.getTable() != null) {
+            IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
+            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(editor).getUpdatedTable(), filters);
+            if (tableModel != null) {
+                String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
+                TableRenderer tableRenderer = new TableRenderer(tableModel);
+                tableRenderer.setCellIdPrefix(editor.getId() + Constants.ID_POSTFIX_CELL);
+                if (editor.isEditable() || (actionLinks != null && !actionLinks.isEmpty())) {
+                    result.append(renderJS("js/popup/popupmenu.js")).append(renderJS("js/tableEditorMenu.js")).append(
+                            tableRenderer.renderWithMenu(menuId, editor.isShowFormulas())).append(
+                            renderActionMenu(menuId, editor.isEditable(), actionLinks));
+                } else {
+                    result.append(tableRenderer.render(editor.isShowFormulas()));
+                }
+            }
+        }
+        return result.toString();
+    }
+
+    protected String renderPropsEditor(String editorId, ITable table, String mode, boolean collapseProps) {
+        final String tableType = table.getType();
+        if (tableType !=  null && !tableType.equals(ITableNodeTypes.XLS_OTHER)
+                && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)) {
+            ITableProperties props = table.getProperties();
+            return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
+                    collapseProps).renderProperties();
+        }
+        return "";
+    }
 
     /**
      * Render HTML table by table model.
@@ -110,235 +336,9 @@ public class HTMLRenderer {
         }
     }
 
-    /** New line */
-    public static final String NL = "\n";
-
-    @SuppressWarnings("unchecked")
-    protected Set getResourcesWritten() {
-        Map requestMap = FacesUtils.getRequestMap();
-        Set resources = (Set) requestMap.get(Constants.TABLE_EDITOR_RESOURCES);
-        if (resources == null) {
-            resources = new HashSet();
-            requestMap.put(Constants.TABLE_EDITOR_RESOURCES, resources);
-        }
-        return resources;
-    }
-
-    public String render(ITable table, String view, String editorId, IGridFilter filter, boolean showFormulas,
-            boolean collapseProps) {
-        return render(null, table, view, null, false, null, false, editorId, filter, showFormulas, collapseProps);
-    }
-
-    public String render(String mode, ITable table, String view, List<ActionLink> actionLinks, boolean editable,
-            String cellToEdit, boolean inner, String editorId, IGridFilter filter, boolean showFormulas,
-            boolean collapseProps) {
-        StringBuilder result = new StringBuilder();
-        result.append("<div>").append(renderCSS("css/common.css")).append(renderCSS("css/menu.css"))
-            .append(renderCSS("css/toolbar.css"))
-            .append(renderCSS("css/datepicker.css"))
-            .append(renderCSS("css/multiselect.css"))
-            .append(renderCSS("css/tooltip.css"))
-            .append(renderJS("js/prototype/prototype-1.6.1.js"))
-            .append(
-                renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
-                renderJS("js/IconManager.js")).append(renderJS("js/TableEditor.js")).append(
-                renderJS("js/initTableEditor.js")).append(renderJS("js/BaseEditor.js")).append(
-                renderJS("js/BaseTextEditor.js"));
-        if (!inner) {
-            result.append("<div id='").append(editorId).append("' class='te_'>");
-        }
-        if (mode == null || mode.equals(Constants.MODE_VIEW)) {
-            result.append(renderViewer(table, view, actionLinks, editable, editorId, filter, showFormulas,
-                    collapseProps));
-        } else if (mode.equals(Constants.MODE_EDIT)) {
-            result.append(renderEditor(editorId, cellToEdit, table, showFormulas, collapseProps));
-        }
-        if (!inner) {
-            result.append("</div>");
-        }
-        result.append("</div>");
-        return result.toString();
-    }
-
-    protected String renderActionMenu(String menuId, boolean editable, List<ActionLink> actionLinks) {
-        StringBuilder result = new StringBuilder();
-
-        String editLinks = "<tr><td><a href=\"javascript:triggerEdit('"
-                + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "") + "','" + WebUtil.internalPath("ajax/edit")
-                + "')\">Edit</a></td></tr>" + "<tr><td><a href=\"javascript:triggerEditXls('"
-                + WebUtil.internalPath("excel/") + "')\">Edit in Excel</a></td></tr>";
-        String menuBegin = "<div id=\"" + menuId + "\" style=\"display:none;\">" + "<table cellpadding=\"1px\">"
-                + (editable ? editLinks : "");
-        String menuEnd = "</table>" + "</div>";
-
-        result.append(menuBegin).append(actionLinks == null ? "" : renderAddActionLinks(actionLinks)).append(menuEnd);
-
-        return result.toString();
-    }
-
-    protected String renderAddActionLinks(List<ActionLink> links) {
-        if (links == null) {
-            return null;
-        }
-        StringBuilder result = new StringBuilder();
-
-        for (ActionLink link : links) {
-            result.append("<tr><td>").append("<a href=\"").append(link.getAction()).append("\">")
-                    .append(link.getName()).append("</a>").append("</td></tr>");
-        }
-
-        return result.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    public String renderCSS(String cssPath) {
-        Set resources = getResourcesWritten();
-        if (resources.add(cssPath)) {
-            StringBuilder result = new StringBuilder();
-            result.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(WebUtil.internalPath(cssPath))
-                    .append("\"></link>");
-            return result.toString();
-        }
-        return "";
-    }
-
-    protected String renderEditor(String editorId, String cellToEdit, ITable table, boolean showFormulas,
-            boolean collapseProps) {
-        StringBuilder result = new StringBuilder();
-        cellToEdit = cellToEdit == null ? "" : cellToEdit;
-        final String tableId = editorId + Constants.ID_POSTFIX_TABLE;
-        String editor = Constants.TABLE_EDITOR_PREFIX + editorId;
-        result.append(renderJSBody("var " + editor + ";"))
-                .append(renderEditorToolbar(editorId, editor))
-                .append(renderJS("js/tooltip.js"))
-                .append(renderJS("js/validation.js"))
-                .append(renderJS("js/datepicker.packed.js"))
-                .append(renderJS("js/TextEditor.js"))
-                .append(renderJS("js/MultiLineEditor.js"))
-                .append(renderJS("js/NumericEditor.js"))
-                .append(renderJS("js/DropdownEditor.js"))
-                .append(renderJS("js/FormulaEditor.js"))
-                .append(renderJS("js/BooleanEditor.js"))
-                .append(renderJS("js/DateEditor.js"))
-                .append(renderJS("js/MultiselectEditor.js"))
-                .append(renderPropsEditor(editorId, table, Constants.MODE_EDIT, /*collapsed properties where turned to 
-                false on edit view*/false))
-                .append("<div id=\"").append(tableId).append("\"></div>").append(
-                        renderJSBody(editor + " = initTableEditor(\"" + editorId + "\", \""
-                                + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\");"));
-        return result.toString();
-    }
-
-    protected String renderEditorToolbar(String editorId, String editor) {
-        StringBuilder result = new StringBuilder();
-
-        final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif")
-                + " class=\"item_separator\"></img>";
-
-        result.append("<div class=\"te_toolbar\">").append(
-                renderEditorToolbarItem(editorId + "_save_all", editor, "img/Save.gif", "save()", "Save")).append(
-                renderEditorToolbarItem(editorId + "_undo", editor, "img/Undo.gif", "undoredo()", "Undo")).append(
-                renderEditorToolbarItem(editorId + "_redo", editor, "img/Redo.gif", "undoredo(true)", "Redo")).append(
-                toolbarItemSeparator).append(
-                renderEditorToolbarItem(editorId + "_insert_row_before", editor, "img/insert_row.gif",
-                        "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row before")).append(
-                renderEditorToolbarItem(editorId + "_remove_row", editor, "img/delete_row.gif",
-                        "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
-                .append(toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_insert_column_before", editor, "img/insert_column.gif",
-                                "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)",
-                                "Insert column before")).append(
-                        renderEditorToolbarItem(editorId + "_remove_column", editor, "img/delete_column.gif",
-                                "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)", "Remove column"))
-                .append(toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_align_left", editor, "img/alLeft.gif",
-                                "setAlignment('left')", "Align left")).append(
-                        renderEditorToolbarItem(editorId + "_align_center", editor, "img/alCenter.gif",
-                                "setAlignment('center')", "Align center")).append(
-                        renderEditorToolbarItem(editorId + "_align_right", editor, "img/alRight.gif",
-                                "setAlignment('right')", "Align right")).append(toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_decrease_indent", editor, "img/indent_left.gif",
-                                "indent('-1')", "Decrease indent")).append(
-                        renderEditorToolbarItem(editorId + "_increase_indent", editor, "img/indent_right.gif",
-                                "indent('1')", "Increase indent")).append(toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_help", null, "img/help.gif", "window.open('"
-                                + WebUtil.internalPath("docs/help.html") + "');", "Help")).append("</div>");
-
-        return result.toString();
-    }
-
-    protected String renderEditorToolbarItem(String itemId, String editor, String imgSrc, String action, String title) {
-        editor = (editor == null || editor.equals("")) ? "" : editor + ".";
-        StringBuilder result = new StringBuilder();
-        result.append("<img id=\"").append(itemId).append("\" src=\"").append(WebUtil.internalPath(imgSrc)).append(
-                "\" title=\"").append(title).append("\" onclick=\"").append(editor).append(action).append(
-                "\" onmouseover=\"this.className='item_over'\"")
-                .append(" onmouseout=\"this.className='item_enabled'\"").append("></img>");
-        return result.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    public String renderJS(String jsPath) {
-        Set resources = getResourcesWritten();
-        if (resources.add(jsPath)) {
-            StringBuilder result = new StringBuilder();
-            result.append("<script type=\"text/javascript\" src=\"").append(WebUtil.internalPath(jsPath)).append(
-                    "\"></script>");
-            return result.toString();
-        }
-        return "";
-    }
-
-    @SuppressWarnings("unchecked")
-    public String renderJSBody(String jsBody) {
-        Set resources = getResourcesWritten();
-        if (resources.add(jsBody)) {
-            StringBuilder result = new StringBuilder();
-            result.append("<script type=\"text/javascript\">").append(jsBody).append("</script>");
-            return result.toString();
-        }
-        return "";
-    }
-
-    protected String renderViewer(ITable table, String view, List<ActionLink> actionLinks, boolean editable,
-            String editorId, IGridFilter filter, boolean showFormulas, boolean collapseProps) {
-        StringBuilder result = new StringBuilder();
-        if (table != null) {
-            result.append(renderPropsEditor(editorId, table, Constants.MODE_VIEW, collapseProps));
-        }
-        if (table != null) {
-            IGridFilter[] filters = (filter == null) ? null : new IGridFilter[] { filter };
-            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(
-                    table, view, showFormulas).getUpdatedTable(), filters);
-            if (tableModel != null) {
-                String menuId = editorId + Constants.ID_POSTFIX_MENU;
-                TableRenderer tableRenderer = new TableRenderer(tableModel);
-                tableRenderer.setCellIdPrefix(editorId + Constants.ID_POSTFIX_CELL);
-                if (editable || (actionLinks != null && !actionLinks.isEmpty())) {
-                    result.append(renderJS("js/popup/popupmenu.js")).append(renderJS("js/tableEditorMenu.js")).append(
-                            tableRenderer.renderWithMenu(menuId, showFormulas)).append(
-                            renderActionMenu(menuId, editable, actionLinks));
-                } else {
-                    result.append(tableRenderer.render(showFormulas));
-                }
-            }
-        }
-        return result.toString();
-    }
-
-    protected String renderPropsEditor(String editorId, ITable table, String mode, boolean collapseProps) {
-        final String tableType = table.getType();
-        if (tableType !=  null && !tableType.equals(ITableNodeTypes.XLS_OTHER)
-                && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)) {
-            ITableProperties props = table.getProperties();
-            return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
-                    collapseProps).renderProperties();
-        }
-        return "";
-    }
-
     /**
-     * Temporary class to render properties on edit view
+     * Render properties
+     *
      * @author DLiauchuk
      *
      */

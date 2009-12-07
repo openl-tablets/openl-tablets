@@ -33,6 +33,7 @@ import org.openl.rules.table.xls.SimpleXlsFormatter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUndoGrid;
 import org.openl.rules.tableeditor.model.TableEditorModel.GridRegionAction.ActionType;
+import org.openl.rules.tableeditor.renderkit.TableEditor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -201,8 +202,11 @@ public class TableEditorModel {
 
     FilteredGrid filteredGrid;
 
-    public TableEditorModel(ITable table) {
-        this(table, null, false);
+    private TableEditor tableEditor;
+
+    public TableEditorModel(TableEditor editor) {
+        this(editor.getTable(), editor.getView(), editor.isShowFormulas());
+        setTableEditor(editor);
     }
 
     public TableEditorModel(ITable table, String view, boolean showFormulas) {
@@ -625,5 +629,13 @@ public class TableEditorModel {
 
     public String getAfterSaveAction() {
         return afterSaveAction;
+    }
+
+    public void setTableEditor(TableEditor tableEditor) {
+        this.tableEditor = tableEditor;
+    }
+
+    public TableEditor getTableEditor() {
+        return tableEditor;
     }
 }

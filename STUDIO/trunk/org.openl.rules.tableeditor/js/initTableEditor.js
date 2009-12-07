@@ -6,8 +6,8 @@ var align_items = ["_align_left", "_align_center", "_align_right"];
 var addremove_items = ["_insert_row_before", "_remove_row", "_insert_column_before", "_remove_column"];
 var other_items = ["_help"];
 
-function initTableEditor(editorId, url, cellToEdit) {
-    var tableEditor = new TableEditor(editorId, url, cellToEdit);
+function initTableEditor(editorId, url, cellToEdit, actions) {
+    var tableEditor = new TableEditor(editorId, url, cellToEdit, actions);
     var iconManager = initIconManager(editorId);
 
     tableEditor.undoStateUpdated = function(hasItems) {

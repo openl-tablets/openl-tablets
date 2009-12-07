@@ -145,5 +145,19 @@
                 <method-signature>void afterSaveAction()</method-signature>
             </deferred-method>
         </attribute>
+        <attribute>
+            <description>Before Save JS action.</description>
+            <name>onBeforeSave</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>After Save JS action.</description>
+            <name>onAfterSave</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
     </tag>
 </taglib>
