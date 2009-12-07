@@ -5,7 +5,9 @@ import java.util.Collection;
 
 import javax.el.ELContext;
 import javax.el.MethodExpression;
+import javax.el.ValueExpression;
 import javax.faces.FactoryFinder;
+import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextFactory;
@@ -148,6 +150,14 @@ public abstract class FacesUtils {
 
     public static String getContextPath() {
         return getExternalContext().getRequestContextPath();
+    }
+
+    public static String getValueExpressionString(UIComponent component, String attribute) {
+        ValueExpression valueExpression = component.getValueExpression(attribute);
+        if (valueExpression != null) {
+            return valueExpression.getExpressionString();
+        }
+        return null;
     }
 
 }

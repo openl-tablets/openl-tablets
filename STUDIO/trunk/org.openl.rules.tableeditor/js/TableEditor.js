@@ -8,30 +8,32 @@
 
 var TableEditor = Class.create({
 
-    editorId : -1,    
-    tableContainer : null,
-    currentElement : null,
-    editor : null,
-    baseUrl : null,
-    selectionPos : null,
-    //selectedPropValue : null,
-    selectionHistory : [],
-    decorator : null,
-    rows : 0,
-    columns : 0,
-    table : null,
-    modFuncSuccess : null,
-    editCell : null,
-    cellIdPrefix : null,
-    propIdPrefix : null,
+    editorId: -1,    
+    tableContainer: null,
+    currentElement: null,
+    editor: null,
+    baseUrl: null,
+    selectionPos: null,
+    //selectedPropValue: null,
+    selectionHistory: [],
+    decorator: null,
+    rows: 0,
+    columns: 0,
+    table: null,
+    modFuncSuccess: null,
+    editCell: null,
+    cellIdPrefix: null,
+    propIdPrefix: null,
+    actions: null,
 
     /** Constructor */
-    initialize : function(editorId, url, editCell) {
+    initialize : function(editorId, url, editCell, actions) {
         this.editorId = editorId;
         this.cellIdPrefix = this.editorId + "_cell-";
         this.propIdPrefix = "_" + this.editorId + "_props_prop-";
         this.tableContainer = $(editorId + "_table");
         this.tableContainer.style.cursor = 'default';
+        this.actions = actions;
 
         // Suppress text selection BEGIN
         this.tableContainer.onselectstart = function() {
@@ -173,6 +175,11 @@ var TableEditor = Class.create({
      * @type: public
      */
     save: function() {
+        var beforeSavePassed = true;
+        if (this.actions && this.actions.beforeSave) {
+            beforeSavePassed = this.actions.beforeSave();
+        }
+        if (beforeSavePassed == false) return;
         if (!Validation.isAllValidated()) return;
         var self = this;
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SAVE), {
@@ -184,9 +191,10 @@ var TableEditor = Class.create({
                 if (response.status)
                     alert(response.status);
                 else {
-                	self.processCallbacks(response, "do");
-              		window.parent.frames.leftFrame.location.reload();
-                    alert("Your changes have been saved!");
+                    self.processCallbacks(response, "do");
+                    if (self.actions && self.actions.afterSave) {
+                        self.actions.afterSave();
+                    }
                 }
             },
             onFailure: function(response) {

@@ -12,6 +12,8 @@ public class TableEditorTag extends TableViewerTag {
     private ValueExpression editable = null;
     private MethodExpression beforeSaveAction = null;
     private MethodExpression afterSaveAction = null;
+    private ValueExpression onBeforeSave = null;
+    private ValueExpression onAfterSave = null;
 
     @Override
     public String getComponentType() {
@@ -34,6 +36,14 @@ public class TableEditorTag extends TableViewerTag {
         this.afterSaveAction = afterSaveAction;
     }
 
+    public void setOnBeforeSave(ValueExpression onBeforeSave) {
+        this.onBeforeSave = onBeforeSave;
+    }
+
+    public void setOnAfterSave(ValueExpression onAfterSave) {
+        this.onAfterSave = onAfterSave;
+    }
+
     @Override
     public String getRendererType() {
         return Constants.TABLE_EDITOR_TYPE;
@@ -47,6 +57,8 @@ public class TableEditorTag extends TableViewerTag {
         component.setValueExpression(Constants.ATTRIBUTE_EDITABLE, editable);
         component.getAttributes().put(Constants.ATTRIBUTE_BEFORE_SAVE_ACTION, beforeSaveAction);
         component.getAttributes().put(Constants.ATTRIBUTE_AFTER_SAVE_ACTION, afterSaveAction);
+        component.setValueExpression(Constants.ATTRIBUTE_ON_BEFORE_SAVE, onBeforeSave);
+        component.setValueExpression(Constants.ATTRIBUTE_ON_AFTER_SAVE, onAfterSave);
     }
 
     @Override

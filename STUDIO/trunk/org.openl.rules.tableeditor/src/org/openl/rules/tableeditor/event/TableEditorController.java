@@ -13,6 +13,7 @@ import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.web.jsf.util.FacesUtils;
 
@@ -30,8 +31,9 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
         String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
         TableEditorModel editorModel = getEditorModel(editorId);
-        return new HTMLRenderer().render("edit", editorModel.getTable(), null, null, false, cellToEdit, true,
-                editorId, null, editorModel.isShowFormulas(), editorModel.isCollapseProps());
+        TableEditor editor = editorModel.getTableEditor();
+        editor.setMode("edit");
+        return new HTMLRenderer().render(editor, true, cellToEdit, null);
     }
 
     public String insertRowBefore() throws Exception {

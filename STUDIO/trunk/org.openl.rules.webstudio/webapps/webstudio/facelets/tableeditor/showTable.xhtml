@@ -147,19 +147,15 @@
         <br />
 
         <script type="text/javascript">
-            function triggerSearch(f) {               
+            function triggerSearch(f) {
 	           	f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes)
-               							.find(function(s) 
-                      						{
-                  								return s.nodeName == "#text"
-                     						})
-               								.nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "")
-                        					.split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
-                    						.reject(function(s) 
-                            						{
-                        								return !s
-                        							})
-			                        				.join(" ");                    
+               	    .find(function(s) {
+                        return s.nodeName == "#text"
+                    }).nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "")
+                      .split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
+                      .reject(function(s) {
+                          return !s;
+                      }).join(" ");
                 f.submit();
             }
         </script>
@@ -171,7 +167,8 @@
         <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
             showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
-            afterSaveAction="#{showTableBean.resetStudio}">
+            afterSaveAction="#{showTableBean.resetStudio}"
+            onAfterSave="window.parent.frames.leftFrame.location.reload();alert('Your changes have been saved111!');">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 
