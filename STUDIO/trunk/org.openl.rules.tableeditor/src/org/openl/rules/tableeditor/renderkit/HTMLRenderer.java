@@ -369,12 +369,18 @@ public class HTMLRenderer {
             List<TableProperty> listProp = new ArrayList<TableProperty>();
             TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
             for (TablePropertyDefinition propDefinition : propDefinitions) {
-                TableProperty prop = new TableProperty(propDefinition.getDisplayName(),
-                        props != null ? props.getPropertyValue(propDefinition.getName()) : null,
-                        propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(),
-                        propDefinition.getGroup(), propDefinition.getName(), propDefinition.getFormat(),
-                        propDefinition.getConstraints());
-                prop.setDescription(propDefinition.getDescription());
+                String displayName = propDefinition.getDisplayName();
+                Object value = props != null ? props.getPropertyValue(propDefinition.getName()) : null; 
+                Class<?> type = propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass();
+                String group = propDefinition.getGroup();
+                String name = propDefinition.getName();
+                String format = propDefinition.getFormat();
+                Constraints constraints = propDefinition.getConstraints();
+                String description = propDefinition.getDescription();
+                boolean system = propDefinition.isSystem();
+                TableProperty prop = new TableProperty(displayName, value, type, group, name, format, constraints);                
+                prop.setDescription(description);
+                prop.setSystem(system);
                 listProp.add(prop);
             }
             return listProp;
@@ -500,19 +506,25 @@ public class HTMLRenderer {
             String propValue = prop.getValueString();            
             String propId = propsId + Constants.ID_POSTFIX_PROP + prop.getName();
             if (prop.getType() != null) {
-                if (prop.isStringType()) {
+                if (prop.isStringType() && !prop.isSystem()) {
                     insertEdit(propValue, propId);
-                } else if (prop.isDateType()) {
+                } else if (prop.isDateType() && !prop.isSystem()) {
                     insertCalendar(prop, propId);
-                } else if (prop.isBooleanType()) {
+                } else if (prop.isBooleanType() && !prop.isSystem()) {
                     insertCheckbox(propValue, propId);
-                } else if (prop.isDoubleType()) {
+                } else if (prop.isDoubleType() && !prop.isSystem()) {
                     insertEdit(propValue, propId);
+                } else if (prop.isSystem()) {
+                    insertText(prop);
                 }
             }
-            result.append(renderJSBody("new Tooltip('_" + propId + "','"
-                    + prop.getDescription() + "',{skin:'green'})"));
+            insertTooltip(propId, prop.getDescription());
             result.append("</tr>");
+        }
+
+        private void insertTooltip(String propId, String description) {
+            result.append(renderJSBody("new Tooltip('_" + propId + "','"
+                    + description + "',{skin:'green'})"));
         }
 
         /**
