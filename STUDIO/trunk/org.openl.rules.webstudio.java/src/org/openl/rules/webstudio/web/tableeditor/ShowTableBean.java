@@ -219,16 +219,18 @@ public class ShowTableBean {
     public void resetStudio() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.reset();
+        //studio.getModel().buildProjectTree();
     }
 
+    @SuppressWarnings("unchecked")
     public boolean updateSystemProperties() {
         boolean result = false;
         String editorId = FacesUtils.getRequestParameter(
                 org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
-        Map sessionMap = FacesUtils.getSessionMap();
+        Map<String, Object> sessionMap = FacesUtils.getSessionMap();
         Map editorModelMap = (Map) sessionMap.get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
-                
+
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
         List<TablePropertyDefinition> sysProps = DefaultPropertyDefinitions.getSystemProperties();

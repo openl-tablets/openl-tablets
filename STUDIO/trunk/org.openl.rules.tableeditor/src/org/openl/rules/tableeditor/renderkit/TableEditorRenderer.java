@@ -60,7 +60,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
 
     @SuppressWarnings("unchecked")
     private void initEditorModel(ExternalContext externalContext, TableEditor tableEditor) {
-        Map sessionMap = externalContext.getSessionMap();
+        Map<String, Object> sessionMap = externalContext.getSessionMap();
         synchronized (sessionMap) {
             Map editorModelMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_MODEL_NAME);
             if (editorModelMap == null) {
