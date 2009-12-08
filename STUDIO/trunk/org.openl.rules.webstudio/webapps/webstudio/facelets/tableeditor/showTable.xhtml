@@ -157,16 +157,17 @@
                           return !s;
                       }).join(" ");
                 f.submit();
-            }
+            }            
         </script>
 
         <form name="searchForm" method="post" action="#{contextPath}/jsp/search/search.jsp">
             <input type="hidden" name="searchQuery" value="" />
         </form>
 
-        <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
+        <rules:tableEditor binding="#{showTableBean.te}" table="#{showTableBean.table}" view="#{showTableBean.view}" 
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
-            showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
+            showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"            
+            beforeSaveAction="#{showTableBean.updateSystemProperties}"
             afterSaveAction="#{showTableBean.resetStudio}"
             onAfterSave="window.parent.frames.leftFrame.location.reload();alert('Your changes have been saved!');">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>

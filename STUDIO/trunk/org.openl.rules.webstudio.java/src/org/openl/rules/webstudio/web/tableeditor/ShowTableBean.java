@@ -1,25 +1,35 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
+
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ITable;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.TablePropertyDefinition.PolicyEnum;
+import org.openl.rules.tableeditor.component.UITableEditor;
+import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.syntax.ISyntaxError;
+import org.openl.util.Log;
 import org.openl.util.StringTool;
 
 /**
@@ -38,6 +48,7 @@ public class ShowTableBean {
     private String paramsWithoutShowFormulas;
 
     private boolean switchParam;
+    private UITableEditor te;
 
     @SuppressWarnings("unchecked")
     public ShowTableBean() {
@@ -208,6 +219,43 @@ public class ShowTableBean {
     public void resetStudio() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.reset();
+    }
+
+    public boolean updateSystemProperties() {
+        boolean result = false;
+        String editorId = FacesUtils.getRequestParameter(
+                org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
+
+        Map sessionMap = FacesUtils.getSessionMap();
+        Map editorModelMap = (Map) sessionMap.get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+                
+        TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
+
+        List<TablePropertyDefinition> sysProps = DefaultPropertyDefinitions.getSystemProperties();
+        for (TablePropertyDefinition sysProp : sysProps) {
+            String resultValue = null;
+            if (sysProp.getPolicyEnum().equals(PolicyEnum.ON_EACH_EDIT)) {
+                resultValue = SystemValuesManager.instance().getSystemValue(sysProp.getSystemValueDescriptor());
+                try {
+                    editorModel.setProperty(sysProp.getName(), resultValue);
+                    System.out.println(sysProp.getName() + " value:" + resultValue);
+                    result = true;
+                } catch (Exception e) {
+                    Log.debug(String.format("Can`t update system property %d with value %d",
+                                            sysProp.getName(), resultValue),e);
+                    result = false;
+                }
+            }
+        }
+        return result;
+    }
+
+    public void setTe(UITableEditor te) {
+        this.te = te;
+    }
+
+    public UITableEditor getTe() {
+        return te;
     }
 
     public static class TestRunsResultBean {

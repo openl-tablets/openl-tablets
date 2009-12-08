@@ -22,6 +22,7 @@ public class TableProperty {
     private String format;
     private Constraints constraints;
     private String description;
+    private boolean system;
     
     public String getFormat() {
         return format;
@@ -195,5 +196,13 @@ public class TableProperty {
     public String getDescription() {
         return description;
     }
+
+    public void setSystem(boolean system) {
+        this.system = system;        
+    }
+    
+    public boolean isSystem() {
+        return system;        
+    }    
 
 }
