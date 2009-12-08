@@ -11,6 +11,9 @@ public class TablePropertyDefinition {
 	private IOpenClass type;
 	private String group;
 	private boolean businessSearch;
+	private boolean system;
+	private String systemValueDescriptor;
+	private PolicyEnum policyEnum;
 	private boolean dimensional;
 	private String securityFilter;
 	private String tableType;
@@ -20,7 +23,11 @@ public class TablePropertyDefinition {
 	private String inheritable;
 	private String description;
 	private String expression;
-
+	
+	public enum PolicyEnum {
+	    IF_BLANK_ONLY, ON_EACH_EDIT
+	}
+	
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -139,5 +146,29 @@ public class TablePropertyDefinition {
 
 	public void setExpression(String expression) {
     	this.expression = expression;
+    }
+
+    public void setSystem(boolean system) {
+        this.system = system;
+    }
+
+    public boolean isSystem() {
+        return system;
+    }
+
+    public void setSystemValueDescriptor(String systemValueDescriptor) {
+        this.systemValueDescriptor = systemValueDescriptor;
+    }
+
+    public String getSystemValueDescriptor() {
+        return systemValueDescriptor;
+    }
+
+    public void setPolicyEnum(PolicyEnum policyEnum) {
+        this.policyEnum = policyEnum;
+    }
+
+    public PolicyEnum getPolicyEnum() {
+        return policyEnum;
     }	
 }

@@ -3,6 +3,8 @@ package org.openl.rules.table.properties;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.table.properties.TablePropertyDefinition.PolicyEnum;
+
 /**
  * Definitions of supported properties.
  * @author snshor
@@ -11,7 +13,7 @@ import java.util.List;
  */
 public class DefaultPropertyDefinitions 
 {
-    private static final TablePropertyDefinition[] definitions;
+    private static final TablePropertyDefinition[] definitions;  
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
@@ -27,6 +29,7 @@ public class DefaultPropertyDefinitions
 		definitions[0].setName("name");
 		definitions[0].setPrimaryKey(false);
 		definitions[0].setSecurityFilter("no");
+		definitions[0].setSystem(false);
 		definitions[0].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[1] = new TablePropertyDefinition();
 		definitions[1].setBusinessSearch(true);
@@ -40,6 +43,7 @@ public class DefaultPropertyDefinitions
 		definitions[1].setName("category");
 		definitions[1].setPrimaryKey(false);
 		definitions[1].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[1].setSystem(false);
 		definitions[1].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[2] = new TablePropertyDefinition();
 		definitions[2].setBusinessSearch(true);
@@ -52,6 +56,7 @@ public class DefaultPropertyDefinitions
 		definitions[2].setName("description");
 		definitions[2].setPrimaryKey(false);
 		definitions[2].setSecurityFilter("no");
+		definitions[2].setSystem(false);
 		definitions[2].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[3] = new TablePropertyDefinition();
 		definitions[3].setBusinessSearch(true);
@@ -65,6 +70,7 @@ public class DefaultPropertyDefinitions
 		definitions[3].setName("tags");
 		definitions[3].setPrimaryKey(false);
 		definitions[3].setSecurityFilter("no");
+		definitions[3].setSystem(false);
 		definitions[3].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[4] = new TablePropertyDefinition();
 		definitions[4].setBusinessSearch(true);
@@ -80,6 +86,7 @@ public class DefaultPropertyDefinitions
 		definitions[4].setName("effectiveDate");
 		definitions[4].setPrimaryKey(true);
 		definitions[4].setSecurityFilter("no");
+		definitions[4].setSystem(false);
 		definitions[4].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[5] = new TablePropertyDefinition();
 		definitions[5].setBusinessSearch(true);
@@ -94,6 +101,7 @@ public class DefaultPropertyDefinitions
 		definitions[5].setName("expirationDate");
 		definitions[5].setPrimaryKey(false);
 		definitions[5].setSecurityFilter("no");
+		definitions[5].setSystem(false);
 		definitions[5].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[6] = new TablePropertyDefinition();
 		definitions[6].setBusinessSearch(true);
@@ -104,8 +112,11 @@ public class DefaultPropertyDefinitions
 		definitions[6].setGroup("Info");
 		definitions[6].setInheritable("worksheet,workbook, module");
 		definitions[6].setName("createdBy");
+		definitions[6].setPolicyEnum(PolicyEnum.IF_BLANK_ONLY);
 		definitions[6].setPrimaryKey(false);
 		definitions[6].setSecurityFilter("no");
+		definitions[6].setSystem(true);
+		definitions[6].setSystemValueDescriptor("currentUser");
 		definitions[6].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[7] = new TablePropertyDefinition();
 		definitions[7].setBusinessSearch(true);
@@ -117,8 +128,11 @@ public class DefaultPropertyDefinitions
 		definitions[7].setGroup("Info");
 		definitions[7].setInheritable("worksheet,workbook, module");
 		definitions[7].setName("createdOn");
+		definitions[7].setPolicyEnum(PolicyEnum.IF_BLANK_ONLY);
 		definitions[7].setPrimaryKey(false);
 		definitions[7].setSecurityFilter("no");
+		definitions[7].setSystem(true);
+		definitions[7].setSystemValueDescriptor("currentDate");
 		definitions[7].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[8] = new TablePropertyDefinition();
 		definitions[8].setBusinessSearch(false);
@@ -129,8 +143,11 @@ public class DefaultPropertyDefinitions
 		definitions[8].setGroup("Info");
 		definitions[8].setInheritable("no");
 		definitions[8].setName("modifiedBy");
+		definitions[8].setPolicyEnum(PolicyEnum.ON_EACH_EDIT);
 		definitions[8].setPrimaryKey(false);
 		definitions[8].setSecurityFilter("no");
+		definitions[8].setSystem(true);
+		definitions[8].setSystemValueDescriptor("currentUser");
 		definitions[8].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[9] = new TablePropertyDefinition();
 		definitions[9].setBusinessSearch(false);
@@ -142,8 +159,11 @@ public class DefaultPropertyDefinitions
 		definitions[9].setGroup("Info");
 		definitions[9].setInheritable("no");
 		definitions[9].setName("modifyOn");
+		definitions[9].setPolicyEnum(PolicyEnum.ON_EACH_EDIT);
 		definitions[9].setPrimaryKey(false);
 		definitions[9].setSecurityFilter("no");
+		definitions[9].setSystem(true);
+		definitions[9].setSystemValueDescriptor("currentDate");
 		definitions[9].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[10] = new TablePropertyDefinition();
 		definitions[10].setBusinessSearch(false);
@@ -156,6 +176,7 @@ public class DefaultPropertyDefinitions
 		definitions[10].setName("buildPhase");
 		definitions[10].setPrimaryKey(false);
 		definitions[10].setSecurityFilter("no");
+		definitions[10].setSystem(false);
 		definitions[10].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[11] = new TablePropertyDefinition();
 		definitions[11].setBusinessSearch(false);
@@ -168,6 +189,7 @@ public class DefaultPropertyDefinitions
 		definitions[11].setName("validateDT");
 		definitions[11].setPrimaryKey(false);
 		definitions[11].setSecurityFilter("no");
+		definitions[11].setSystem(false);
 		definitions[11].setTableType("xls.dt");
 		definitions[11].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[12] = new TablePropertyDefinition();
@@ -182,6 +204,7 @@ public class DefaultPropertyDefinitions
 		definitions[12].setName("lob");
 		definitions[12].setPrimaryKey(false);
 		definitions[12].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[12].setSystem(false);
 		definitions[12].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[13] = new TablePropertyDefinition();
 		definitions[13].setBusinessSearch(true);
@@ -195,6 +218,7 @@ public class DefaultPropertyDefinitions
 		definitions[13].setName("usregion");
 		definitions[13].setPrimaryKey(false);
 		definitions[13].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[13].setSystem(false);
 		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[14] = new TablePropertyDefinition();
 		definitions[14].setBusinessSearch(false);
@@ -209,6 +233,7 @@ public class DefaultPropertyDefinitions
 		definitions[14].setName("country");
 		definitions[14].setPrimaryKey(false);
 		definitions[14].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[14].setSystem(false);
 		definitions[14].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[15] = new TablePropertyDefinition();
 		definitions[15].setBusinessSearch(false);
@@ -222,6 +247,7 @@ public class DefaultPropertyDefinitions
 		definitions[15].setName("currency");
 		definitions[15].setPrimaryKey(false);
 		definitions[15].setSecurityFilter("no");
+		definitions[15].setSystem(false);
 		definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[16] = new TablePropertyDefinition();
 		definitions[16].setBusinessSearch(false);
@@ -235,6 +261,7 @@ public class DefaultPropertyDefinitions
 		definitions[16].setName("lang");
 		definitions[16].setPrimaryKey(false);
 		definitions[16].setSecurityFilter("no");
+		definitions[16].setSystem(false);
 		definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[17] = new TablePropertyDefinition();
 		definitions[17].setBusinessSearch(true);
@@ -248,6 +275,7 @@ public class DefaultPropertyDefinitions
 		definitions[17].setName("state");
 		definitions[17].setPrimaryKey(false);
 		definitions[17].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[17].setSystem(false);
 		definitions[17].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[18] = new TablePropertyDefinition();
 		definitions[18].setBusinessSearch(true);
@@ -260,6 +288,7 @@ public class DefaultPropertyDefinitions
 		definitions[18].setName("region");
 		definitions[18].setPrimaryKey(false);
 		definitions[18].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[18].setSystem(false);
 		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[19] = new TablePropertyDefinition();
 		definitions[19].setBusinessSearch(false);
@@ -272,6 +301,7 @@ public class DefaultPropertyDefinitions
 		definitions[19].setGroup("Version");
 		definitions[19].setName("version");
 		definitions[19].setPrimaryKey(false);
+		definitions[19].setSystem(false);
 		definitions[19].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[20] = new TablePropertyDefinition();
 		definitions[20].setBusinessSearch(false);
@@ -283,6 +313,7 @@ public class DefaultPropertyDefinitions
 		definitions[20].setGroup("Version");
 		definitions[20].setName("active");
 		definitions[20].setPrimaryKey(false);
+		definitions[20].setSystem(false);
 		definitions[20].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[21] = new TablePropertyDefinition();
 		definitions[21].setBusinessSearch(false);
@@ -294,6 +325,7 @@ public class DefaultPropertyDefinitions
 		definitions[21].setGroup("Dev");
 		definitions[21].setName("failOnMiss");
 		definitions[21].setPrimaryKey(false);
+		definitions[21].setSystem(false);
 		definitions[21].setTableType("xls.dt");
 		definitions[21].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[22] = new TablePropertyDefinition();
@@ -305,6 +337,7 @@ public class DefaultPropertyDefinitions
 		definitions[22].setGroup("Dev");
 		definitions[22].setName("returnOnMiss");
 		definitions[22].setPrimaryKey(false);
+		definitions[22].setSystem(false);
 		definitions[22].setTableType("xls.dt");
 		definitions[22].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[23] = new TablePropertyDefinition();
@@ -317,6 +350,7 @@ public class DefaultPropertyDefinitions
 		definitions[23].setInheritable("no");
 		definitions[23].setName("scope");
 		definitions[23].setPrimaryKey(false);
+		definitions[23].setSystem(false);
 		definitions[23].setTableType("xls.props");
 		definitions[23].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
@@ -329,7 +363,7 @@ public class DefaultPropertyDefinitions
     public static TablePropertyDefinition[] getDefaultDefinitions(){
         return definitions;
     }
-	
+    
 	/**
 	 * Gets the name of the property by the given display name
 	 * @param displayName
@@ -374,6 +408,11 @@ public class DefaultPropertyDefinitions
         return result;
     }
 	
+	/**
+	 * Gets list of properties that must me set for every table by default.
+	 *
+	 * @return list of properties.
+	 */
 	public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault() {
         List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
         for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
@@ -383,5 +422,20 @@ public class DefaultPropertyDefinitions
         }
         return result;
     }
+	
+	/**
+	 * Gets list of properties that are marked as system.
+	 *  
+	 * @return list of properties.
+	 */
+	public static List<TablePropertyDefinition> getSystemProperties() {	    
+	    List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
+	        for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
+	            if(tablPropDef.isSystem()){	                
+	                result.add(tablPropDef);
+	            }
+	        }
+        return result;
+	}
 	
 }
