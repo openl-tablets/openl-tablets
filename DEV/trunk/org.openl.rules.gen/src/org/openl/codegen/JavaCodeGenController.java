@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.properties.TablePropertyDefinition.PolicyEnum;
+import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -79,9 +79,9 @@ public class JavaCodeGenController implements ICodeGenController {
             }
         });
 		
-		map.put(PolicyEnum.class, new Processor() {            
+		map.put(SystemValuePolicy.class, new Processor() {            
             public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
-                return gen.genLiteralPolicyEnum((PolicyEnum) value, sb);
+                return gen.genLiteralSystemValuePolicy((SystemValuePolicy) value, sb);
             }
         });
     }

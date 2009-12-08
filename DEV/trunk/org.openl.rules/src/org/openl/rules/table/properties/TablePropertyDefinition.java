@@ -13,7 +13,7 @@ public class TablePropertyDefinition {
 	private boolean businessSearch;
 	private boolean system;
 	private String systemValueDescriptor;
-	private PolicyEnum policyEnum;
+	private SystemValuePolicy systemValuePolicy;
 	private boolean dimensional;
 	private String securityFilter;
 	private String tableType;
@@ -24,7 +24,7 @@ public class TablePropertyDefinition {
 	private String description;
 	private String expression;
 	
-	public enum PolicyEnum {
+	public enum SystemValuePolicy {
 	    IF_BLANK_ONLY, ON_EACH_EDIT
 	}
 	
@@ -164,11 +164,11 @@ public class TablePropertyDefinition {
         return systemValueDescriptor;
     }
 
-    public void setPolicyEnum(PolicyEnum policyEnum) {
-        this.policyEnum = policyEnum;
+    public void setSystemValuePolicy(SystemValuePolicy systemValuePolicy) {
+        this.systemValuePolicy = systemValuePolicy;
     }
 
-    public PolicyEnum getPolicyEnum() {
-        return policyEnum;
+    public SystemValuePolicy getSystemValuePolicy() {
+        return systemValuePolicy;
     }	
 }
