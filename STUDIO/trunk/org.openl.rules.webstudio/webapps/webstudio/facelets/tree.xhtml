@@ -3,6 +3,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
     template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">
@@ -57,6 +58,8 @@
             </table>
             <!-- Menu END -->
         </h:panelGroup>
+
+        <rich:modalPanel id="saveWindow" style="display: none;" />
 
         <p />
 

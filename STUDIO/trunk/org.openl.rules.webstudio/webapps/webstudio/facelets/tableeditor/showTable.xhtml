@@ -4,8 +4,9 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:rich="http://richfaces.org/rich"
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
-    template="/facelets/common/webstudioBase.xhtml">
+    template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">	 
         <script type="text/javascript">
@@ -157,19 +158,37 @@
                           return !s;
                       }).join(" ");
                 f.submit();
-            }            
+            }
+
+            function onBeforeSave() {
+                $('saveWindow').component.show();
+                window.parent.frames.leftFrame.document.getElementById('saveWindow').component.show();
+            }
+
+            function onAfterSave() {
+                $('saveWindow').component.hide();
+                window.parent.frames.leftFrame.document.getElementById('saveWindow').component.hide();
+                window.parent.frames.leftFrame.location.reload();
+            }
         </script>
+
+        <rich:modalPanel id="saveWindow" height="40" width="105" top="200"
+            style="text-align:center; background:#fff; border-color:#B4C8FF; color:#323232">
+            <h:panelGrid columns="2">
+                <h:outputText value="Saving... " />
+                <h:graphicImage url="/webresource/images/ajax-loader.gif" />
+            </h:panelGrid>
+        </rich:modalPanel>
 
         <form name="searchForm" method="post" action="#{contextPath}/jsp/search/search.jsp">
             <input type="hidden" name="searchQuery" value="" />
         </form>
 
-        <rules:tableEditor binding="#{showTableBean.te}" table="#{showTableBean.table}" view="#{showTableBean.view}" 
+        <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
-            showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"            
-            beforeSaveAction="#{showTableBean.updateSystemProperties}"
-            afterSaveAction="#{showTableBean.resetStudio}"
-            onAfterSave="window.parent.frames.leftFrame.location.reload();alert('Your changes have been saved!');">
+            showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
+            beforeSaveAction="#{showTableBean.updateSystemProperties}" afterSaveAction="#{showTableBean.resetStudio}"
+            onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave();">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 
