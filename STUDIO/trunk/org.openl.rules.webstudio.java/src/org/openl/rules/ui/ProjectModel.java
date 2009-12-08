@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
@@ -46,7 +45,6 @@ import org.openl.rules.ui.tree.NodeKey;
 import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
-import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.validator.dt.DTValidationResult;
@@ -92,11 +90,13 @@ public class ProjectModel implements IProjectTypes {
 
     private boolean readOnly;
 
-    ProjectTreeNode projectRoot = null;
+    private ProjectTreeNode projectRoot = null;
 
     ProjectTreeRenderer ptr;
 
     List<Throwable> validationExceptions;
+
+    String renderedTree;
 
     public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
         IGrid htmlGrid = gt.getGrid();
@@ -345,7 +345,7 @@ public class ProjectModel implements IProjectTypes {
         if (res == null) {
             return null;
         }
-        Class clazz = res.getClass();
+        Class<?> clazz = res.getClass();
         if (!(clazz == TestResult.class)) {
             return res;
         }
@@ -402,16 +402,15 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public AllTestsRunResult getAllTestMethods() {
-
         if (wrapper == null) {
             return null;
         }
 
         IOpenClass oc = wrapper.getOpenClass();
-        Vector mm = new Vector();
-        Vector names = new Vector();
+        List<IOpenMethod> methods = new ArrayList<IOpenMethod>();
+        List<String> names = new ArrayList<String>();
 
-        for (Iterator iter = oc.methods(); iter.hasNext();) {
+        for (Iterator<?> iter = oc.methods(); iter.hasNext();) {
             IOpenMethod m = (IOpenMethod) iter.next();
             IMemberMetaInfo mi = m.getInfo();
             ISyntaxNode node = null;
@@ -422,19 +421,19 @@ public class ProjectModel implements IProjectTypes {
                 TableSyntaxNode tnode = (TableSyntaxNode) node;
 
                 if (tnode.getType().equals(ITableNodeTypes.XLS_TEST_METHOD)) {
-                    mm.add(m);
+                    methods.add(m);
                     names.add(TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1]);
                 }
             }
         }
 
-        return new AllTestsRunResult((IOpenMethod[]) mm.toArray(new IOpenMethod[0]), (String[]) names
+        return new AllTestsRunResult((IOpenMethod[]) methods.toArray(new IOpenMethod[0]), (String[]) names
                 .toArray(new String[0]));
     }
 
     public List<TableSyntaxNode> getAllValidatedNodes() {
         if (wrapper == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
 
@@ -600,9 +599,9 @@ public class ProjectModel implements IProjectTypes {
         return tsn;
     }
 
-    public synchronized ProjectTreeNode getProjectRoot() {
+    public synchronized ProjectTreeNode getProjectTree() {
         if (projectRoot == null) {
-            projectRoot = makeProjectTree();
+            projectRoot = buildProjectTree();
         }
         return projectRoot;
     }
@@ -840,8 +839,7 @@ public class ProjectModel implements IProjectTypes {
         return ProjectHelper.isTestable(m);
     }
 
-    public ProjectTreeNode makeProjectTree() {
-
+    public synchronized ProjectTreeNode buildProjectTree() {
         if (wrapper == null) {
             return null;
         }
@@ -989,7 +987,7 @@ public class ProjectModel implements IProjectTypes {
 
     public String renderTree(String targetJsp) {
 
-        ProjectTreeNode tr = getProjectRoot();
+        ProjectTreeNode tr = getProjectTree();
 
         if (tr == null) {
             String errMsg = "";

@@ -108,8 +108,7 @@ public abstract class FacesUtils {
         return elContext;
     }
 
-    @SuppressWarnings("unchecked")
-    public static Map getRequestMap() {
+    public static Map<String, Object> getRequestMap() {
         return getExternalContext().getRequestMap();
     }
 
@@ -126,13 +125,11 @@ public abstract class FacesUtils {
         return (String) getRequestParameterMap().get(parameterName);
     }
 
-    @SuppressWarnings("unchecked")
-    public static Map getRequestParameterMap() {
+    public static Map<String, String> getRequestParameterMap() {
         return getExternalContext().getRequestParameterMap();
     }
 
-    @SuppressWarnings("unchecked")
-    public static Map getSessionMap() {
+    public static Map<String, Object> getSessionMap() {
         return getExternalContext().getSessionMap();
     }
 

@@ -40,7 +40,7 @@ public class HTMLRenderer {
 
     @SuppressWarnings("unchecked")
     protected Set getResourcesWritten() {
-        Map requestMap = FacesUtils.getRequestMap();
+        Map<String, Object> requestMap = FacesUtils.getRequestMap();
         Set resources = (Set) requestMap.get(Constants.TABLE_EDITOR_RESOURCES);
         if (resources == null) {
             resources = new HashSet();
