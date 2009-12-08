@@ -3,7 +3,7 @@ package org.openl.rules.table.properties;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.table.properties.TablePropertyDefinition.PolicyEnum;
+import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
 
 /**
  * Definitions of supported properties.
@@ -112,11 +112,11 @@ public class DefaultPropertyDefinitions
 		definitions[6].setGroup("Info");
 		definitions[6].setInheritable("worksheet,workbook, module");
 		definitions[6].setName("createdBy");
-		definitions[6].setPolicyEnum(PolicyEnum.IF_BLANK_ONLY);
 		definitions[6].setPrimaryKey(false);
 		definitions[6].setSecurityFilter("no");
 		definitions[6].setSystem(true);
 		definitions[6].setSystemValueDescriptor("currentUser");
+		definitions[6].setSystemValuePolicy(SystemValuePolicy.IF_BLANK_ONLY);
 		definitions[6].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[7] = new TablePropertyDefinition();
 		definitions[7].setBusinessSearch(true);
@@ -128,11 +128,11 @@ public class DefaultPropertyDefinitions
 		definitions[7].setGroup("Info");
 		definitions[7].setInheritable("worksheet,workbook, module");
 		definitions[7].setName("createdOn");
-		definitions[7].setPolicyEnum(PolicyEnum.IF_BLANK_ONLY);
 		definitions[7].setPrimaryKey(false);
 		definitions[7].setSecurityFilter("no");
 		definitions[7].setSystem(true);
 		definitions[7].setSystemValueDescriptor("currentDate");
+		definitions[7].setSystemValuePolicy(SystemValuePolicy.IF_BLANK_ONLY);
 		definitions[7].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[8] = new TablePropertyDefinition();
 		definitions[8].setBusinessSearch(false);
@@ -143,11 +143,11 @@ public class DefaultPropertyDefinitions
 		definitions[8].setGroup("Info");
 		definitions[8].setInheritable("no");
 		definitions[8].setName("modifiedBy");
-		definitions[8].setPolicyEnum(PolicyEnum.ON_EACH_EDIT);
 		definitions[8].setPrimaryKey(false);
 		definitions[8].setSecurityFilter("no");
 		definitions[8].setSystem(true);
 		definitions[8].setSystemValueDescriptor("currentUser");
+		definitions[8].setSystemValuePolicy(SystemValuePolicy.ON_EACH_EDIT);
 		definitions[8].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[9] = new TablePropertyDefinition();
 		definitions[9].setBusinessSearch(false);
@@ -159,11 +159,11 @@ public class DefaultPropertyDefinitions
 		definitions[9].setGroup("Info");
 		definitions[9].setInheritable("no");
 		definitions[9].setName("modifyOn");
-		definitions[9].setPolicyEnum(PolicyEnum.ON_EACH_EDIT);
 		definitions[9].setPrimaryKey(false);
 		definitions[9].setSecurityFilter("no");
 		definitions[9].setSystem(true);
 		definitions[9].setSystemValueDescriptor("currentDate");
+		definitions[9].setSystemValuePolicy(SystemValuePolicy.ON_EACH_EDIT);
 		definitions[9].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[10] = new TablePropertyDefinition();
 		definitions[10].setBusinessSearch(false);
@@ -371,9 +371,9 @@ public class DefaultPropertyDefinitions
 	 */
 	public static String getPropertyName(String displayName) {
 	    String result = null;
-	    for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
-	        if(tablPropDef.getDisplayName().equals(displayName)){
-	            result = tablPropDef.getName();
+	    for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
+	        if(propDefinition.getDisplayName().equals(displayName)){
+	            result = propDefinition.getName();
 	        }
 	    }
 	    return result;
@@ -386,9 +386,9 @@ public class DefaultPropertyDefinitions
      */
 	public static String getPropertyDisplayName(String name) {
         String result = null;
-        for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
-            if(tablPropDef.getName().equals(name)){
-                result = tablPropDef.getDisplayName();
+        for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
+            if(propDefinition.getName().equals(name)){
+                result = propDefinition.getDisplayName();
             }
         }
         return result;
@@ -400,9 +400,9 @@ public class DefaultPropertyDefinitions
      */
 	public static TablePropertyDefinition getPropertyByName(String name) {
 	    TablePropertyDefinition result = null;
-        for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
-            if(tablPropDef.getName().equals(name)){
-                result = tablPropDef;
+        for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
+            if(propDefinition.getName().equals(name)){
+                result = propDefinition;
             }
         }
         return result;
@@ -415,9 +415,9 @@ public class DefaultPropertyDefinitions
 	 */
 	public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault() {
         List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
-        for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
-            if(tablPropDef.getDefaultValue() != null){
-                result.add(tablPropDef);
+        for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
+            if(propDefinition.getDefaultValue() != null){
+                result.add(propDefinition);
             }
         }
         return result;
@@ -430,9 +430,9 @@ public class DefaultPropertyDefinitions
 	 */
 	public static List<TablePropertyDefinition> getSystemProperties() {	    
 	    List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
-	        for(TablePropertyDefinition tablPropDef : getDefaultDefinitions()){
-	            if(tablPropDef.isSystem()){	                
-	                result.add(tablPropDef);
+	        for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
+	            if(propDefinition.isSystem()){	                
+	                result.add(propDefinition);
 	            }
 	        }
         return result;
