@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.properties.TablePropertyDefinition.PolicyEnum;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -452,5 +453,10 @@ public class JavaCodeGen implements ICodeGen {
     public StringBuilder genLiteralConstraints(Constraints value, StringBuilder sb) {
         return sb.append("new ").append(Constraints.class.getName())
             .append("(\"").append(value.getConstraintsStr()).append("\")");
+    }
+
+    public StringBuilder genLiteralPolicyEnum(PolicyEnum value, StringBuilder sb) {
+        return sb.append(PolicyEnum.class.getSimpleName()).append(".")
+        .append(value);
     }
 }

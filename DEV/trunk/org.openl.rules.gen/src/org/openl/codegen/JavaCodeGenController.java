@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.properties.TablePropertyDefinition.PolicyEnum;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -75,6 +76,12 @@ public class JavaCodeGenController implements ICodeGenController {
             
             public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
                 return gen.genLiteralConstraints((Constraints) value, sb);
+            }
+        });
+		
+		map.put(PolicyEnum.class, new Processor() {            
+            public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
+                return gen.genLiteralPolicyEnum((PolicyEnum) value, sb);
             }
         });
     }

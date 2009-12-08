@@ -1,6 +1,7 @@
 package org.openl.codegen;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.properties.TablePropertyDefinition.PolicyEnum;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -54,4 +55,6 @@ public interface ICodeGen {
     StringBuilder genLiteralJavaOpenClass(JavaOpenClass jc, StringBuilder sb);
 
     StringBuilder genLiteralConstraints(Constraints value, StringBuilder sb);
+
+    StringBuilder genLiteralPolicyEnum(PolicyEnum value, StringBuilder sb);
 }
