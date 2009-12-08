@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -81,7 +82,7 @@ public abstract class TableCopier extends WizardBase {
             ICellStyle propertiesStyle = null;
             if (tableProperties != null) {
                 propertiesStyle = getPropertiesStyle(tableProperties);
-                baseTableProperties = tableProperties.getDefinedProperties();
+                baseTableProperties = tableProperties.getPropertiesIgnoreDefault();
             }
             Map<String,Object> buildedPropForNewTable = buildProperties(baseTableProperties); 
             if (buildedPropForNewTable.size() > 0) {
@@ -97,6 +98,7 @@ public abstract class TableCopier extends WizardBase {
         builder.save();
     }
     
+
     /**
      * Creates new properties.
      *
