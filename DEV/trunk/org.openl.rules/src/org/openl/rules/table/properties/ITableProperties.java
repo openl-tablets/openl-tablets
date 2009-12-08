@@ -6,6 +6,16 @@ import java.util.Set;
 import org.openl.rules.table.ILogicalTable;
 
 public interface ITableProperties {
+        
+    Map<String, Object> getPropertiesAll();
+    
+    /**
+     * Gets the collection of property names that were set by default.
+     * @return Collection of property names that were set by default.
+     */
+    Set<String> getPropertiesSetByDefault();
+    
+    Map<String, Object> getPropertiesIgnoreDefault();
     
     Object getPropertyValue(String key);
     
@@ -22,8 +32,6 @@ public interface ITableProperties {
     ILogicalTable getPropertiesSection();
     
     int getNumberOfProperties();
-    
-    Map<String, Object> getDefinedProperties();
 	
 //	boolean isDefined(String propertyName);
 	
@@ -83,11 +91,6 @@ public interface ITableProperties {
      */
     void setDefaultPropertyValue(String propertyName, Object defaultValue);
     
-    /**
-     * Gets the collection of property names that were set by default.
-     * @return Collection of property names that were set by default.
-     */
-    Set<String> getPropertiesSetByDefault();
-    
+        
 	
 }

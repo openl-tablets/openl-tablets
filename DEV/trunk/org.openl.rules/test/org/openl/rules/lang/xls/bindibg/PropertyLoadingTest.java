@@ -46,7 +46,7 @@ private String __src = "test/rules/PropertyLoadingTest.xls";
                 assertTrue("Tsn doesn`t have properties defined in appropriate table in excel",!tsn.hasPropertiesDefinedInTable());
                 
                 List<String> tsnPropNames = new ArrayList<String>();
-                for (Map.Entry<String, Object> property : tsn.getTableProperties().getDefinedProperties().entrySet()) {
+                for (Map.Entry<String, Object> property : tsn.getTableProperties().getPropertiesAll().entrySet()) {
                     tsnPropNames.add(property.getKey());
                 }
                 assertTrue("Tsn contains all properties that must be set by default",

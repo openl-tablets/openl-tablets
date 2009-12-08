@@ -225,7 +225,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return getFieldValues().size();
     }
     
-    public Map<String, Object> getDefinedProperties() {
+    public Map<String, Object> getPropertiesAll() {
       return  super.getFieldValues();
     }
     
@@ -245,6 +245,15 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         
     public Set<String> getPropertiesSetByDefault() {        
         return propertiesWithDefaultValue;
+    }
+    
+    public Map<String, Object> getPropertiesIgnoreDefault() {
+        Map<String, Object> allProps = getPropertiesAll();
+        Set<String> defaultProps = getPropertiesSetByDefault();
+        for (String defaulProp : defaultProps) {
+            allProps.remove(defaulProp);
+        }
+        return allProps;
     }
 	
 }

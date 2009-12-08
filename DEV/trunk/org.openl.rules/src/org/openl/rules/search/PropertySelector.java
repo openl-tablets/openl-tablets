@@ -60,7 +60,7 @@ public class PropertySelector extends ATableSyntaxNodeSelector {
             return propertyNameSelector == null && propertyValueSelector == null;
         }
         
-        Map<String, Object> properties = tableProperties.getDefinedProperties();        
+        Map<String, Object> properties = tableProperties.getPropertiesAll();        
         for (Map.Entry<String, Object> property : properties.entrySet()) {
             String propertName = property.getKey();
             if (doesPropertyMatch(propertName, tableProperties)) {
