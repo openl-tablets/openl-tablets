@@ -96,8 +96,6 @@ public class ProjectModel implements IProjectTypes {
 
     List<Throwable> validationExceptions;
 
-    String renderedTree;
-
     public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
         IGrid htmlGrid = gt.getGrid();
         if (!(htmlGrid instanceof FilteredGrid)) {
@@ -601,7 +599,7 @@ public class ProjectModel implements IProjectTypes {
 
     public synchronized ProjectTreeNode getProjectTree() {
         if (projectRoot == null) {
-            projectRoot = buildProjectTree();
+            buildProjectTree();
         }
         return projectRoot;
     }
@@ -839,9 +837,9 @@ public class ProjectModel implements IProjectTypes {
         return ProjectHelper.isTestable(m);
     }
 
-    public synchronized ProjectTreeNode buildProjectTree() {
+    public synchronized void buildProjectTree() {
         if (wrapper == null) {
-            return null;
+            return;
         }
 
         ProjectTreeNode root = makeProjectTreeRoot();
@@ -923,8 +921,7 @@ public class ProjectModel implements IProjectTypes {
             }
 
         }
-
-        return root;
+        projectRoot = root;
     }
 
     private OpenMethodGroupsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
@@ -1113,7 +1110,7 @@ public class ProjectModel implements IProjectTypes {
         }
     }
 
-    public void setProjectRoot(ProjectTreeNode projectRoot) {
+    public void setProjectTree(ProjectTreeNode projectRoot) {
         this.projectRoot = projectRoot;
     }
 

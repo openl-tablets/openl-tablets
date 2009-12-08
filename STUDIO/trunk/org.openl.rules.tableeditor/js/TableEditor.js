@@ -192,9 +192,9 @@ var TableEditor = Class.create({
                     alert(response.status);
                 else {
                     self.processCallbacks(response, "do");
-                    if (self.actions && self.actions.afterSave) {
-                        self.actions.afterSave();
-                    }
+                }
+                if (self.actions && self.actions.afterSave) {
+                    self.actions.afterSave();
                 }
             },
             onFailure: function(response) {

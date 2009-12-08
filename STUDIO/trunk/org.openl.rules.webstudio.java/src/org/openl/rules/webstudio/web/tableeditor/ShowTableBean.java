@@ -16,7 +16,6 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
-import org.openl.rules.tableeditor.component.UITableEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
@@ -30,7 +29,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.openl.syntax.ISyntaxError;
-import org.openl.util.Log;
 import org.openl.util.StringTool;
 
 /**
@@ -51,7 +49,6 @@ public class ShowTableBean {
     private String paramsWithoutShowFormulas;
 
     private boolean switchParam;
-    private UITableEditor te;
 
     @SuppressWarnings("unchecked")
     public ShowTableBean() {
@@ -222,7 +219,7 @@ public class ShowTableBean {
     public void resetStudio() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.reset();
-        //studio.getModel().buildProjectTree();
+        studio.getModel().buildProjectTree();
     }
 
     @SuppressWarnings("unchecked")
@@ -252,14 +249,6 @@ public class ShowTableBean {
             }
         }
         return result;
-    }
-
-    public void setTe(UITableEditor te) {
-        this.te = te;
-    }
-
-    public UITableEditor getTe() {
-        return te;
     }
 
     public static class TestRunsResultBean {
