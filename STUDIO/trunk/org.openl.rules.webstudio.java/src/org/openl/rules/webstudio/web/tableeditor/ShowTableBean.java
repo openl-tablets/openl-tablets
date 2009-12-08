@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.HashMap;
 
 
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ITable;
@@ -14,7 +15,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.TablePropertyDefinition;
-import org.openl.rules.table.properties.TablePropertyDefinition.PolicyEnum;
+import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.component.UITableEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.service.TableServiceException;
@@ -36,6 +37,8 @@ import org.openl.util.StringTool;
  * Request scope managed bean for showTable facelet.
  */
 public class ShowTableBean {
+    
+    private static final org.apache.commons.logging.Log LOG = LogFactory.getLog(ShowTableBean.class);
 
     private String url;
     private String text;
@@ -236,14 +239,13 @@ public class ShowTableBean {
         List<TablePropertyDefinition> sysProps = DefaultPropertyDefinitions.getSystemProperties();
         for (TablePropertyDefinition sysProp : sysProps) {
             String resultValue = null;
-            if (sysProp.getPolicyEnum().equals(PolicyEnum.ON_EACH_EDIT)) {
+            if (sysProp.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
                 resultValue = SystemValuesManager.instance().getSystemValue(sysProp.getSystemValueDescriptor());
                 try {
-                    editorModel.setProperty(sysProp.getName(), resultValue);
-                    System.out.println(sysProp.getName() + " value:" + resultValue);
+                    editorModel.setProperty(sysProp.getName(), resultValue);                    
                     result = true;
                 } catch (Exception e) {
-                    Log.debug(String.format("Can`t update system property %d with value %d",
+                    LOG.error(String.format("Can`t update system property %d with value %d",
                                             sysProp.getName(), resultValue),e);
                     result = false;
                 }

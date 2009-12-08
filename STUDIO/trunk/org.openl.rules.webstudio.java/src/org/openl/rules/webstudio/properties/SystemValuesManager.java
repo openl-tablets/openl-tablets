@@ -49,7 +49,12 @@ public class SystemValuesManager {
         return instance;
     }
     
-    public String getSystemValue(String descriptor) {                
-        return systemValues.get(descriptor).getValue();
+    public String getSystemValue(String descriptor) {
+        String result = null;
+        ISystemValue systemValue = systemValues.get(descriptor);
+        if (systemValue != null) {
+            result = systemValue.getValue();
+        } 
+        return result;
     }
 }
