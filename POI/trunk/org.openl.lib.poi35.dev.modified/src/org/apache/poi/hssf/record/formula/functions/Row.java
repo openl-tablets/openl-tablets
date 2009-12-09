@@ -22,11 +22,9 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-//ZS
 import org.apache.poi.ss.formula.ArrayEval;
 
 public final class Row implements Function0Arg, Function1Arg, ArrayMode {
-// end changes ZS
 
     public ValueEval evaluate(int srcRowIndex, int srcColumnIndex) {
         return new NumberEval(srcRowIndex+1);
@@ -54,24 +52,17 @@ public final class Row implements Function0Arg, Function1Arg, ArrayMode {
         }
         return ErrorEval.VALUE_INVALID;
     }
-    
- // ZS    
-    /* (non-Javadoc)
-     * @see org.apache.poi.hssf.record.formula.functions.ArrayMode#evaluateInArrayFormula(org.apache.poi.hssf.record.formula.eval.ValueEval[], int, short)
-     */
+
     public ValueEval evaluateInArrayFormula(ValueEval[] evals, int srcCellRow, int srcCellCol) {
-        if ( (evals.length == 1) && (evals[0] instanceof AreaEval) ) {
+        if ((evals.length == 1) && (evals[0] instanceof AreaEval)) {
             AreaEval ae = (AreaEval) evals[0];
-            
+
             ValueEval[][] result = new ValueEval[ae.getHeight()][1];
-            for (int r=0; r<ae.getHeight(); r++){
-            	result[r][0] = new NumberEval(ae.getFirstRow()+r+1);
+            for (int r = 0; r < ae.getHeight(); r++) {
+                result[r][0] = new NumberEval(ae.getFirstRow() + r + 1);
             }
             return new ArrayEval(result);
         }
         return evaluate(evals, srcCellRow, srcCellCol);
-    	
     }
-//   end changes ZS 
-
 }

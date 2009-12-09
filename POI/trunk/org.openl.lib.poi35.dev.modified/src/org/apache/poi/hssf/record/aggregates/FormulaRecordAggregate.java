@@ -36,7 +36,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
  * (optional) string record and (optional) Shared Formula Record (template reads, excel optimization).
  *
  * @author Glen Stampoultzis (glens at apache.org)
- * @author vabramovs(VIA) - Array Formula support
+ * @author Vladimirs Abramovs(Vladimirs.Abramovs at exigenservices.com) - Array Formula support
  */
 public final class FormulaRecordAggregate extends RecordAggregate implements CellValueRecordInterface {
 
@@ -241,7 +241,7 @@ public final class FormulaRecordAggregate extends RecordAggregate implements Cel
 		if (expRef == null) {
 			throw new IllegalStateException("not an array formula cell.");
 		}
-	    ArrayRecord arec = _sharedValueManager.getArrayRecord(expRef.getRow(), expRef.getCol());
+		ArrayRecord arec = _sharedValueManager.getArrayRecord(expRef.getRow(), expRef.getCol());
 		CellRangeAddress8Bit a = arec.getRange();
 		return new CellRangeAddress(a.getFirstRow(), a.getLastRow(), a.getFirstColumn(),a.getLastColumn());
 	}

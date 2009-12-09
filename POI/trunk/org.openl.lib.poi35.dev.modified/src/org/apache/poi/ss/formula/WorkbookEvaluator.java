@@ -17,7 +17,6 @@
 
 package org.apache.poi.ss.formula;
 
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -71,8 +70,8 @@ import org.apache.poi.hssf.record.formula.udf.UDFFinder;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFoundException;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.ArrayFormulaEvaluatorHelper;
+import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * Evaluates formula cells.<p/>
@@ -182,7 +181,6 @@ public final class WorkbookEvaluator {
         notifyUpdateCell(cell);
     }
 
-
 	/**
 	 * Should be called to tell the cell value cache that the specified (value or formula) cell
 	 * has changed.
@@ -253,9 +251,6 @@ public final class WorkbookEvaluator {
 			return result;
 		}
 
-        if (srcCell.isArrayFormulaContext()) {
-            srcCell = srcCell.getFirstCellInArrayFormula();
-        }
 		FormulaCellCacheEntry cce = _cache.getOrCreateFormulaCellEntry(srcCell);
 		if (shouldCellDependencyBeRecorded || cce.isInputSensitive()) {
 			tracker.acceptFormulaDependency(cce);
@@ -267,7 +262,7 @@ public final class WorkbookEvaluator {
 				return ErrorEval.CIRCULAR_REF_ERROR;
 			}
 			OperationEvaluationContext ec = new OperationEvaluationContext(this, _workbook, sheetIndex, rowIndex,
-                    columnIndex, tracker, srcCell.isArrayFormulaContext());
+                    columnIndex, tracker, srcCell.isArrayFormula());
 
 			try {
 
@@ -287,7 +282,7 @@ public final class WorkbookEvaluator {
 				tracker.endEvaluate(cce);
 			}
 		} else {
-			if(evalListener != null) {
+			if (evalListener != null) {
 				evalListener.onCacheHit(sheetIndex, rowIndex, columnIndex, cce.getValue());
 			}
 			return cce.getValue();
@@ -329,7 +324,7 @@ public final class WorkbookEvaluator {
 	 */
 	/* package */ static ValueEval getValueFromNonFormulaCell(EvaluationCell cell) {
 		if (cell == null) {
-			return BlankEval.INSTANCE;
+			return BlankEval.instance;
 		}
 		int cellType = cell.getCellType();
 		switch (cellType) {
@@ -340,7 +335,7 @@ public final class WorkbookEvaluator {
 			case Cell.CELL_TYPE_BOOLEAN:
 				return BoolEval.valueOf(cell.getBooleanCellValue());
 			case Cell.CELL_TYPE_BLANK:
-				return BlankEval.INSTANCE;
+				return BlankEval.instance;
 			case Cell.CELL_TYPE_ERROR:
 				return ErrorEval.valueOf(cell.getErrorCellValue());
 		}
@@ -349,10 +344,8 @@ public final class WorkbookEvaluator {
 	// visibility raised for testing
 	/* package */ ValueEval evaluateFormula(OperationEvaluationContext ec, Ptg[] ptgs) {
 
-//		VIA
 		Stack<Boolean> stackSkip = new Stack<Boolean>();
-		Boolean isSkipActive = new Boolean(true);
-//        end changes VIA
+		Boolean isSkipActive = Boolean.TRUE;
 		Stack<ValueEval> stack = new Stack<ValueEval>();
 		for (int i = 0, iSize = ptgs.length; i < iSize; i++) {
 
@@ -367,27 +360,22 @@ public final class WorkbookEvaluator {
 				}
 				if (attrPtg.isOptimizedChoose()) {
 					ValueEval arg0 = stack.pop();
-//					VIA
-					if((arg0 instanceof ArrayEval) && ((ArrayEval)arg0).checkBooleanContent()== ArrayEval.BooleanContent.MIXED)
-					{
-						// Restore "non optimized" way to evaluate
+					if (arg0 instanceof ArrayEval && ((ArrayEval)arg0).checkBooleanContent()== ArrayEval.BooleanContent.MIXED) {
 						stack.push(arg0);
 						stackSkip.push(isSkipActive);
 						// Switch off skip option only for this level
-						isSkipActive = new Boolean(false);
+						isSkipActive = Boolean.FALSE;
 						continue;
 					}
-					else{
-						// Optimized evaluating
-						ValueEval cond = arg0;
-						if((arg0 instanceof ArrayEval))
-							cond = ((ArrayEval)arg0).getArrayElementAsEval(0,0);
-//						end changes VIA	
+					ValueEval cond = arg0;
+					if (arg0 instanceof ArrayEval) {
+						cond = ((ArrayEval)arg0).getValue(0,0);
+					}
 					int[] jumpTable = attrPtg.getJumpTable();
 					int dist;
 					int nChoices = jumpTable.length;
 					try {
-							int switchIndex = Choose.evaluateFirstArg(cond, ec.getRowIndex(), ec.getColumnIndex());
+						int switchIndex = Choose.evaluateFirstArg(cond, ec.getRowIndex(), ec.getColumnIndex());
 						if (switchIndex<1 || switchIndex > nChoices) {
 							stack.push(ErrorEval.VALUE_INVALID);
 							dist = attrPtg.getChooseFuncOffset() + 4; // +4 for tFuncFar(CHOOSE)
@@ -403,31 +391,23 @@ public final class WorkbookEvaluator {
 					dist -= nChoices*2+2; // subtract jump table size
 					i+= countTokensToBeSkipped(ptgs, i, dist);
 					continue;
-//					VIA	
-					}
-//					end changes VIA
 				}
 				if (attrPtg.isOptimizedIf()) {
 					ValueEval arg0 = stack.pop();
 					boolean evaluatedPredicate;
-//					VIA
-					if((arg0 instanceof ArrayEval) && ((ArrayEval)arg0).checkBooleanContent()== ArrayEval.BooleanContent.MIXED)
-					{
-						// Restore "non optimized" way to evaluate
+					if (arg0 instanceof ArrayEval && ((ArrayEval)arg0).checkBooleanContent()== ArrayEval.BooleanContent.MIXED) {
 						stack.push(arg0);
 						stackSkip.push(isSkipActive);
 						// Switch off skip option only for this level
 						isSkipActive = new Boolean(false);
 						continue;
 					}
-					else{
-						// Optimized evaluating
-						ValueEval cond = arg0;
-						if((arg0 instanceof ArrayEval))
-							cond = ((ArrayEval)arg0).getArrayElementAsEval(0,0);
-//						end changes VIA	
+					ValueEval cond = arg0;
+					if (arg0 instanceof ArrayEval) {
+						cond = ((ArrayEval)arg0).getValue(0,0);
+					}
 					try {
-							evaluatedPredicate = If.evaluateFirstArg(cond, ec.getRowIndex(), ec.getColumnIndex());
+						evaluatedPredicate = If.evaluateFirstArg(cond, ec.getRowIndex(), ec.getColumnIndex());
 					} catch (EvaluationException e) {
 						stack.push(e.getErrorEval());
 						int dist = attrPtg.getData();
@@ -451,21 +431,15 @@ public final class WorkbookEvaluator {
 					}
 					continue;
 				}
-//					end changes VIA
-				}
 				if (attrPtg.isSkip()) {
-//					VIA
-					if(isSkipActive){
-//					end changes VIA
-					int dist = attrPtg.getData()+1;
-					i+= countTokensToBeSkipped(ptgs, i, dist);
-					if (stack.peek() == MissingArgEval.instance) {
-						stack.pop();
-						stack.push(BlankEval.INSTANCE);
+					if (isSkipActive.booleanValue()) {
+						int dist = attrPtg.getData()+1;
+						i+= countTokensToBeSkipped(ptgs, i, dist);
+						if (stack.peek() == MissingArgEval.instance) {
+							stack.pop();
+							stack.push(BlankEval.instance);
+						}
 					}
-//					VIA	
-					}	
-//					end changes VIA
 					continue;
 				}
 			}
@@ -498,12 +472,8 @@ public final class WorkbookEvaluator {
 				}
 //				logDebug("invoke " + operation + " (nAgs=" + numops + ")");
 				opResult = OperationEvaluatorFactory.evaluate(optg, ops, ec);
-//                VIA
-                if(isSkipActive == false && isSkipSensitive(optg))
-                	isSkipActive = stackSkip.pop();
-//                 end changes VIA	
-				if (opResult == MissingArgEval.instance) {
-					opResult = BlankEval.INSTANCE;
+				if (!isSkipActive.booleanValue() && isSkipSensitive(optg)) {
+					isSkipActive = stackSkip.pop();
 				}
 			} else {
 				opResult = getEvalForPtg(ptg, ec);
@@ -520,7 +490,7 @@ public final class WorkbookEvaluator {
 			throw new IllegalStateException("evaluation stack not empty");
 		}
 		value = dereferenceValue(value, ec.getRowIndex(), ec.getColumnIndex());
-		if (value == BlankEval.INSTANCE) {
+		if (value == BlankEval.instance) {
 			// Note Excel behaviour here. A blank final final value is converted to zero.
 			return NumberEval.ZERO;
 			// Formulas _never_ evaluate to blank.  If a formula appears to have evaluated to
@@ -531,26 +501,21 @@ public final class WorkbookEvaluator {
 
 	/**
 	 *  Has this function "optimized" form?
-	 * @param optg
-	 * @return
+	 * @return <code>true</code> if the operation can be optimised with tAttr tokens (if, choose, skip)
 	 */
-	static  ArrayList<Integer> skipSensitiveFunction = null;
 	private boolean isSkipSensitive(OperationPtg optg) {
-		if(optg instanceof FuncVarPtg){
+		if (optg instanceof AbstractFunctionPtg){
 			// Skip sensitive is only "optimized" function - just only "IF" and "choose"
-			if(skipSensitiveFunction==null){
-				skipSensitiveFunction = new ArrayList<Integer>();
-				int index = FunctionMetadataRegistry.lookupIndexByName("IF");
-				skipSensitiveFunction.add(new Integer(index));
-				index = FunctionMetadataRegistry.lookupIndexByName("CHOOSE");
-				skipSensitiveFunction.add(new Integer(index));
-			}
 			AbstractFunctionPtg fptg = (AbstractFunctionPtg)optg;
-			int functionIndex = fptg.getFunctionIndex();
-			return skipSensitiveFunction.contains(new Integer(functionIndex));
+			switch (fptg.getFunctionIndex()) {
+				case FunctionMetadataRegistry.FUNCTION_INDEX_IF:
+				case FunctionMetadataRegistry.FUNCTION_INDEX_CHOOSE:
+					return true;
+			}
 		}
 		return false;
 	}
+
 	/**
 	 * Calculates the number of tokens that the evaluator should skip upon reaching a tAttrSkip.
 	 *
@@ -588,7 +553,7 @@ public final class WorkbookEvaluator {
 	 * @return a <tt>NumberEval</tt>, <tt>StringEval</tt>, <tt>BoolEval</tt>,
 	 *  <tt>BlankEval</tt> or <tt>ErrorEval</tt>. Never <code>null</code>.
 	 */
-	private static ValueEval dereferenceValue(ValueEval evaluationResult, int srcRowNum, int srcColNum) {
+	public static ValueEval dereferenceValue(ValueEval evaluationResult, int srcRowNum, int srcColNum) {
 		if (evaluationResult instanceof RefEval) {
 			RefEval rv = (RefEval) evaluationResult;
 			return rv.getInnerValueEval();
@@ -596,13 +561,13 @@ public final class WorkbookEvaluator {
 		if (evaluationResult instanceof AreaEval) {
 			AreaEval ae = (AreaEval) evaluationResult;
 			if (ae.isRow()) {
-				if(ae.isColumn()) {
+				if (ae.isColumn()) {
 					return ae.getRelativeValue(0, 0);
 				}
-				return ae.getValueAt(ae.getFirstRow(), srcColNum);
+				return ae.getAbsoluteValue(ae.getFirstRow(), srcColNum);
 			}
 			if (ae.isColumn()) {
-				return ae.getValueAt(srcRowNum, ae.getFirstColumn());
+				return ae.getAbsoluteValue(srcRowNum, ae.getFirstColumn());
 			}
 			return ErrorEval.VALUE_INVALID;
 		}
@@ -674,11 +639,9 @@ public final class WorkbookEvaluator {
 			AreaPtg aptg = (AreaPtg) ptg;
 			return ec.getAreaEval(aptg.getFirstRow(), aptg.getFirstColumn(), aptg.getLastRow(), aptg.getLastColumn());
 		}
-		// !!! added ZS
-		if (ptg instanceof ArrayPtg){
+		if (ptg instanceof ArrayPtg) {
 			return new ArrayEval((ArrayPtg)ptg);
 		}
-		// --- end of added
 		if (ptg instanceof UnknownPtg) {
 			// POI uses UnknownPtg when the encoded Ptg array seems to be corrupted.
 			// This seems to occur in very rare cases (e.g. unused name formulas in bug 44774, attachment 21790)
@@ -701,19 +664,18 @@ public final class WorkbookEvaluator {
 	}
 
 	/**
-     * Used by the lazy ref evals whenever they need to get the value of a
-     * contained cell.
-     */
-    /* package */ValueEval evaluateReference(EvaluationSheet sheet, int sheetIndex, int rowIndex, int columnIndex,
-            EvaluationTracker tracker) {
-        EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
-        ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker);
-        if (result instanceof ArrayEval && cell.isArrayFormulaContext()) {
-            result = dereferenceValue((ArrayEval) result, cell);
-        }
-        return result;
+	 * Used by the lazy ref evals whenever they need to get the value of a contained cell.
+	 */
+	ValueEval evaluateReference(EvaluationSheet sheet, int sheetIndex, int rowIndex,
+			int columnIndex, EvaluationTracker tracker) {
 
-    }
+		EvaluationCell cell = sheet.getCell(rowIndex, columnIndex);
+		ValueEval result = evaluateAny(cell, sheetIndex, rowIndex, columnIndex, tracker);
+		if (result instanceof ArrayEval && cell.isArrayFormula()) {
+			result = dereferenceValue((ArrayEval) result, cell);
+		}
+		return result;
+	}
 	public FreeRefFunction findUserDefinedFunction(String functionName) {
 		return _udfFinder.findFunction(functionName);
 	}

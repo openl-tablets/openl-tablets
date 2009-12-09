@@ -25,13 +25,11 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
- * @author zshulkins(ZS) array suport;
+ * @author Zahars Sulkins(Zahars.Sulkins at exigenservices.com) - array support;
  */
 public abstract class AggregateFunction extends MultiOperandNumericFunction {
 
-	// ZS
-	private static final class LargeSmall extends Fixed2ArgFunction implements  Function, FunctionWithArraySupport{
-// end change		
+	private static final class LargeSmall extends Fixed2ArgFunction implements FunctionWithArraySupport {
 		private final boolean _isLarge;
 		protected LargeSmall(boolean isLarge) {
 			_isLarge = isLarge;
@@ -69,17 +67,10 @@ public abstract class AggregateFunction extends MultiOperandNumericFunction {
 
 			return new NumberEval(result);
 		}
-		
-//      ZS		
-		/* (non-Javadoc)
-		 * @see org.apache.poi.hssf.record.formula.functions.MultiOperandNumericFunction#supportArray(int)
-		 */
-		public boolean supportArray(int paramIndex){
-			if ( paramIndex == 1)
-				return false;
-			return true;
+
+		public boolean supportArray(int paramIndex) {
+			return paramIndex != 1;
 		}
-//	   end changes ZS			
 	}
 	private static final class ValueCollector extends MultiOperandNumericFunction {
 		private static final ValueCollector instance = new ValueCollector();

@@ -17,7 +17,6 @@
 
 package org.apache.poi.hssf.record.formula.functions;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
@@ -29,9 +28,7 @@ import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.CompareResult;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.LookupValueComparer;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
-//ZS
-import org.apache.poi.ss.formula.ArrayEval;
-// end changes ZS
+import org.apache.poi.ss.formula.TwoDEval;
 
 /**
  * Implementation for the MATCH() Excel function.<p/>
@@ -65,12 +62,9 @@ import org.apache.poi.ss.formula.ArrayEval;
  *
  *
  * @author Josh Micich
- * @author zsulkins(ZS)- array support
  */
+public final class Match extends Var2or3ArgFunction implements FunctionWithArraySupport {
 
-//ZS 
-public final class Match extends Var2or3ArgFunction implements Function, FunctionWithArraySupport {
-// end changes ZS
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 		// default match_type is 1.0
 		return eval(srcRowIndex, srcColumnIndex, arg0, arg1, 1.0);
@@ -99,11 +93,7 @@ public final class Match extends Var2or3ArgFunction implements Function, Functio
 		boolean matchExact = match_type == 0;
 		// Note - Excel does not strictly require -1 and +1
 		boolean findLargestLessThanOrEqual = match_type > 0;
-		// !! changed ZS
-		if (arg1 instanceof ArrayEval){
-			arg1 = ((ArrayEval)arg1).arrayAsArea();
-		}
-		// end change
+
 		try {
 			ValueEval lookupValue = OperandResolver.getSingleValue(arg0, srcRowIndex, srcColumnIndex);
 			ValueVector lookupRange = evaluateLookupRange(arg1);
@@ -140,8 +130,8 @@ public final class Match extends Var2or3ArgFunction implements Function, Functio
 			RefEval re = (RefEval) eval;
 			return new SingleValueVector(re.getInnerValueEval());
 		}
-		if (eval instanceof AreaEval) {
-			ValueVector result = LookupUtils.createVector((AreaEval)eval);
+		if (eval instanceof TwoDEval) {
+			ValueVector result = LookupUtils.createVector((TwoDEval)eval);
 			if (result == null) {
 				throw new EvaluationException(ErrorEval.NA);
 			}
@@ -258,11 +248,8 @@ public final class Match extends Var2or3ArgFunction implements Function, Functio
 		}
 		return false;
 	}
-	// ZS	
-	public boolean supportArray(int paramIndex){
-		if (paramIndex == 1)
-			return true;
-		return false;
+
+	public boolean supportArray(int paramIndex) {
+		return paramIndex == 1;
 	}
-// end changes ZS		
 }

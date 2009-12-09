@@ -17,7 +17,6 @@
 
 package org.apache.poi.hssf.record.formula.functions;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
@@ -27,21 +26,15 @@ import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-//ZS
-import org.apache.poi.ss.formula.ArrayEval;
-// end changes ZS
+import org.apache.poi.ss.formula.TwoDEval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
- * @author zshulkins(ZS) array support;
  * This is the super class for all excel function evaluator
  * classes that take variable number of operands, and
  * where the order of operands does not matter
  */
-//ZS 
-public abstract class MultiOperandNumericFunction implements Function, FunctionWithArraySupport {
-// end changes ZS
-
+public abstract class MultiOperandNumericFunction implements FunctionWithArraySupport {
 
 	private final boolean _isReferenceBoolCounted;
 	private final boolean _isBlankCounted;
@@ -141,13 +134,13 @@ public abstract class MultiOperandNumericFunction implements Function, FunctionW
 	 */
 	private void collectValues(ValueEval operand, DoubleList temp) throws EvaluationException {
 
-		if (operand instanceof AreaEval) {
-			AreaEval ae = (AreaEval) operand;
+		if (operand instanceof TwoDEval) {
+			TwoDEval ae = (TwoDEval) operand;
 			int width = ae.getWidth();
 			int height = ae.getHeight();
 			for (int rrIx=0; rrIx<height; rrIx++) {
 				for (int rcIx=0; rcIx<width; rcIx++) {
-					ValueEval ve = ae.getRelativeValue(rrIx, rcIx);
+					ValueEval ve = ae.getValue(rrIx, rcIx);
 					collectValue(ve, true, temp);
 				}
 			}
@@ -158,20 +151,6 @@ public abstract class MultiOperandNumericFunction implements Function, FunctionW
 			collectValue(re.getInnerValueEval(), true, temp);
 			return;
 		}
-		//!! added ZS
-		if (operand instanceof ArrayEval){
-			ArrayEval ae = (ArrayEval)operand;
-			if (ae.isIllegalForAggregation())
-				throw new EvaluationException(ErrorEval.NA); // =sum(atan2({1,2},{1,2,3})) produces error
-			for (ValueEval v: ae.getArrayAsEval()){
-				if (v instanceof ArrayEval || v instanceof AreaEval)
-					collectValues(v, temp); // array that contains arrays or areas
-				else
-					collectValue(v,false,temp);				
-			}
-			return;
-		}
-		// end added
 		collectValue(operand, false, temp);
 	}
 	private void collectValue(ValueEval ve, boolean isViaReference, DoubleList temp)  throws EvaluationException {
@@ -206,7 +185,7 @@ public abstract class MultiOperandNumericFunction implements Function, FunctionW
 			}
 			return;
 		}
-		if (ve == BlankEval.INSTANCE) {
+		if (ve == BlankEval.instance) {
 			if (_isBlankCounted) {
 				temp.add(0.0);
 			}
@@ -215,13 +194,8 @@ public abstract class MultiOperandNumericFunction implements Function, FunctionW
 		throw new RuntimeException("Invalid ValueEval type passed for conversion: ("
 				+ ve.getClass() + ")");
 	}
-	
-	// ZS	
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
+
+	public boolean supportArray(int paramIndex) {
 		return true;
 	}
-//	end changes ZS	
 }

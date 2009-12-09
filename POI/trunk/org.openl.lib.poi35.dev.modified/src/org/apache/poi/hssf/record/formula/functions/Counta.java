@@ -32,9 +32,7 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  *
  * @author Josh Micich
  */
-//ZS
-public final class Counta implements Function, FunctionWithArraySupport {
-// end changes ZS
+public final class Counta implements FunctionWithArraySupport {
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 		int nArgs = args.length;
@@ -64,20 +62,15 @@ public final class Counta implements Function, FunctionWithArraySupport {
 			// Error values like #VALUE!, #REF!, #DIV/0!, #NAME? etc don't cause this COUNTA to return an error
 			// in fact, they seem to get counted
 
-			if(valueEval == BlankEval.INSTANCE) {
+			if(valueEval == BlankEval.instance) {
 				return false;
 			}
 			// Note - everything but BlankEval counts
 			return true;
 		}
 	};
-	
-//	ZS
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
+
+	public boolean supportArray(int paramIndex) {
 		return true;
 	}
-//	end changes ZS
 }

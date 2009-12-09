@@ -37,12 +37,10 @@ import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
  *    </table><br/>
  * </p>
  * @author Josh Micich
- * @author zsulkins(ZS)- array support
+ * @author Zahars Sulkins(Zahars.Sulkins at exigenservices.com) - array support
  */
-//ZS 
-public final class Sumif extends Var2or3ArgFunction implements Function, FunctionWithArraySupport {
-// end changes ZS
-	
+public final class Sumif extends Var2or3ArgFunction implements FunctionWithArraySupport {
+
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 
 		AreaEval aeRange;
@@ -127,14 +125,10 @@ public final class Sumif extends Var2or3ArgFunction implements Function, Functio
 		throw new EvaluationException(ErrorEval.VALUE_INVALID);
 	}
 
-//	ZS
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
-		if (paramIndex == 1)   // TODO - should throw exception if array instead of range
+	public boolean supportArray(int paramIndex) {
+		if (paramIndex == 1) { // TODO - should throw exception if array instead of range
 			return false;
+		}
 		return true;
 	}
-//  end changes ZS		
 }

@@ -17,16 +17,13 @@
 
 package org.apache.poi.hssf.record.formula.functions;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
 import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
-// ZS
-import org.apache.poi.ss.formula.ArrayEval;
-// end changes ZS
+import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.TwoDEval;
 
 /**
  * Here are the general rules concerning Boolean functions:
@@ -38,12 +35,8 @@ import org.apache.poi.ss.formula.ArrayEval;
  * </ol>
  *
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
- * @author zshulkins(ZS) array suport;
- * 
  */
-//   ZS
-public abstract class BooleanFunction implements Function, FunctionWithArraySupport {
-//   end changes ZS 
+public abstract class BooleanFunction implements FunctionWithArraySupport {
 
 	public final ValueEval evaluate(ValueEval[] args, int srcRow, int srcCol) {
 		if (args.length < 1) {
@@ -57,14 +50,10 @@ public abstract class BooleanFunction implements Function, FunctionWithArraySupp
 		}
 		return BoolEval.valueOf(boolResult);
 	}
-//	ZS
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
+
+	public boolean supportArray(int paramIndex) {
 		return true;
 	}
-//	end changes ZS
 
 	private boolean calculate(ValueEval[] args) throws EvaluationException {
 
@@ -76,13 +65,13 @@ public abstract class BooleanFunction implements Function, FunctionWithArraySupp
 		 */
 		for (int i=0, iSize=args.length; i<iSize; i++) {
 			ValueEval arg = args[i];
-			if (arg instanceof AreaEval) {
-				AreaEval ae = (AreaEval) arg;
+			if (arg instanceof TwoDEval) {
+				TwoDEval ae = (TwoDEval) arg;
 				int height = ae.getHeight();
 				int width = ae.getWidth();
 				for (int rrIx=0; rrIx<height; rrIx++) {
 					for (int rcIx=0; rcIx<width; rcIx++) {
-						ValueEval ve = ae.getRelativeValue(rrIx, rcIx);
+						ValueEval ve = ae.getValue(rrIx, rcIx);
 						Boolean tempVe = OperandResolver.coerceValueToBoolean(ve, true);
 						if (tempVe != null) {
 							result = partialEvaluate(result, tempVe.booleanValue());
@@ -92,37 +81,12 @@ public abstract class BooleanFunction implements Function, FunctionWithArraySupp
 				}
 				continue;
 			}
-			// !! changed ZS
-			if (arg instanceof ArrayEval){
-				ArrayEval ae = (ArrayEval)arg;
-				int rows = ae.getRowCounter();
-				int cols = ae.getColCounter();
-				for (int r=0; r<rows; r++){
-					for (int c=0; c<cols; c++){
-						ValueEval ve = ae.getArrayElementAsEval(r, c);
-						Boolean tempVe = OperandResolver.coerceValueToBoolean(ve, true);
-						if (tempVe != null) {
-							result = partialEvaluate(result, tempVe.booleanValue());
-							atleastOneNonBlank = true;
-						}
-						
-					}
-				}
-				continue;
-			}
-			// end change
-
 			Boolean tempVe;
 			if (arg instanceof RefEval) {
 				ValueEval ve = ((RefEval) arg).getInnerValueEval();
 				tempVe = OperandResolver.coerceValueToBoolean(ve, true);
-//			ZS	
-			} else if (arg instanceof ValueEval) {
-				ValueEval ve = (ValueEval) arg;
-				tempVe = OperandResolver.coerceValueToBoolean(ve, false);
 			} else {
 				tempVe = OperandResolver.coerceValueToBoolean(arg, false);
-//         end changes ZS 
 			}
 
 

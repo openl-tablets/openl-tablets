@@ -24,7 +24,7 @@ import org.apache.poi.util.LittleEndianOutput;
 
 /**
  * See OOO documentation: excelfileformat.pdf sec 2.5.14 - 'Cell Range Address'<p/>
- * 
+ *
  * Note - {@link SelectionRecord} uses the BIFF5 version of this structure
  * @author Dragos Buleandra (dragos.buleandra@trade2b.ro)
  */
@@ -51,7 +51,7 @@ public class CellRangeAddress extends CellRangeAddressBase {
 		out.writeShort(getFirstColumn());
 		out.writeShort(getLastColumn());
 	}
-	
+
 	public CellRangeAddress(RecordInputStream in) {
 		super(readUShortAndCheck(in), in.readUShort(), in.readUShort(), in.readUShort());
 	}
@@ -72,23 +72,31 @@ public class CellRangeAddress extends CellRangeAddressBase {
 		return numberOfItems * ENCODED_SIZE;
 	}
 
-    public String formatAsString() {
-        StringBuffer sb = new StringBuffer();
-        CellReference cellRefFrom = new CellReference(getFirstRow(), getFirstColumn());
-        CellReference cellRefTo = new CellReference(getLastRow(), getLastColumn());
-        sb.append(cellRefFrom.formatAsString());
-        sb.append(':');
-        sb.append(cellRefTo.formatAsString());
-        return sb.toString();
-    }
+	public String formatAsString() {
+		StringBuffer sb = new StringBuffer();
+		CellReference cellRefFrom = new CellReference(getFirstRow(), getFirstColumn());
+		CellReference cellRefTo = new CellReference(getLastRow(), getLastColumn());
+		sb.append(cellRefFrom.formatAsString());
+		sb.append(':');
+		sb.append(cellRefTo.formatAsString());
+		return sb.toString();
+	}
 
-    public static CellRangeAddress valueOf(String ref) {
-        int sep = ref.indexOf(":");
-        if (sep == -1) {
-            return valueOf(ref + ":" + ref);
-        }
-        CellReference cellFrom = new CellReference(ref.substring(0, sep));
-        CellReference cellTo = new CellReference(ref.substring(sep + 1));
-        return new CellRangeAddress(cellFrom.getRow(), cellTo.getRow(), cellFrom.getCol(), cellTo.getCol());
-    }
+	/**
+	 * @param ref usually a standard area ref (e.g. "B1:D8").  May be a single cell
+	 *        ref (e.g. "B5") in which case the result is a 1 x 1 cell range.
+	 */
+	public static CellRangeAddress valueOf(String ref) {
+		int sep = ref.indexOf(":");
+		CellReference a;
+		CellReference b;
+		if (sep == -1) {
+			a = new CellReference(ref);
+			b = a;
+		} else {
+			a = new CellReference(ref.substring(0, sep));
+			b = new CellReference(ref.substring(sep + 1));
+		}
+		return new CellRangeAddress(a.getRow(), b.getRow(), a.getCol(), b.getCol());
+	}
 }

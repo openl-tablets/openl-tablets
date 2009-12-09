@@ -23,15 +23,12 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
-import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * XSSF wrapper for a cell under evaluation
- * 
+ *
  * @author Josh Micich
  */
 final class XSSFEvaluationCell implements UpdatableEvaluationCell {
@@ -82,44 +79,37 @@ final class XSSFEvaluationCell implements UpdatableEvaluationCell {
 		return _cell.getRichStringCellValue().getString();
 	}
 
-//  VIA	
-	public boolean isArrayFormulaContext() {
+	public boolean isArrayFormula() {
 		return _cell.isPartOfArrayFormulaGroup();
 	}
-//	end changes VIA
 
     public void setValue(ValueEval value) {
         Class<? extends ValueEval> cls = value.getClass();
 
         if (cls == NumberEval.class) {
-            _cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+            _cell.setCellType(XSSFCell.CELL_TYPE_NUMERIC);
             _cell.setCellValue(((NumberEval)value).getNumberValue());
             return;
         }
         if (cls == StringEval.class) {
-            _cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+            _cell.setCellType(XSSFCell.CELL_TYPE_STRING);
             _cell.setCellValue(((StringEval)value).getStringValue());
             return;
         }
         if (cls == BoolEval.class) {
-            _cell.setCellType(HSSFCell.CELL_TYPE_BOOLEAN);
+            _cell.setCellType(XSSFCell.CELL_TYPE_BOOLEAN);
             _cell.setCellValue(((BoolEval)value).getBooleanValue());
             return;
         }
         if (cls == ErrorEval.class) {
-            _cell.setCellType(HSSFCell.CELL_TYPE_ERROR);
+            _cell.setCellType(XSSFCell.CELL_TYPE_ERROR);
             _cell.setCellValue(((ErrorEval)value).getErrorCode());
             return;
         }
         if (cls == BlankEval.class) {
-            _cell.setCellType(HSSFCell.CELL_TYPE_BLANK);
+            _cell.setCellType(XSSFCell.CELL_TYPE_BLANK);
             return;
         }
         throw new IllegalArgumentException("Unexpected value class (" + cls.getName() + ")");
-    }
-
-    public EvaluationCell getFirstCellInArrayFormula() {
-        CellRangeAddress range = _cell.getArrayFormulaRange();
-        return _evalSheet.getCell(range.getFirstRow(), range.getFirstColumn());
     }
 }

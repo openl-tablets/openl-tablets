@@ -19,7 +19,6 @@ package org.apache.poi.hssf.record.formula.functions;
 
 import java.util.regex.Pattern;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
@@ -30,6 +29,7 @@ import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.CountUtils.I_MatchPredicate;
+import org.apache.poi.ss.formula.TwoDEval;
 import org.apache.poi.ss.usermodel.ErrorConstants;
 
 /**
@@ -43,11 +43,9 @@ import org.apache.poi.ss.usermodel.ErrorConstants;
  * </p>
  *
  * @author Josh Micich
- * @author zshulkins(ZS) array support
  */
-// ZS
-public final class Countif extends Fixed2ArgFunction implements Function, FunctionWithArraySupport {
-//  end changes ZS	
+public final class Countif extends Fixed2ArgFunction implements FunctionWithArraySupport {
+
 	private static final class CmpOp {
 		public static final int NONE = 0;
 		public static final int EQ = 1;
@@ -419,8 +417,8 @@ public final class Countif extends Fixed2ArgFunction implements Function, Functi
 
 		if (rangeArg instanceof RefEval) {
 			return CountUtils.countMatchingCell((RefEval) rangeArg, criteriaPredicate);
-		} else if (rangeArg instanceof AreaEval) {
-			return CountUtils.countMatchingCellsInArea((AreaEval) rangeArg, criteriaPredicate);
+		} else if (rangeArg instanceof TwoDEval) {
+			return CountUtils.countMatchingCellsInArea((TwoDEval) rangeArg, criteriaPredicate);
 		} else {
 			throw new IllegalArgumentException("Bad range arg type (" + rangeArg.getClass().getName() + ")");
 		}
@@ -447,7 +445,7 @@ public final class Countif extends Fixed2ArgFunction implements Function, Functi
 		if(evaluatedCriteriaArg instanceof ErrorEval) {
 			return new ErrorMatcher(((ErrorEval)evaluatedCriteriaArg).getErrorCode(), CmpOp.OP_NONE);
 		}
-		if(evaluatedCriteriaArg == BlankEval.INSTANCE) {
+		if(evaluatedCriteriaArg == BlankEval.instance) {
 			return null;
 		}
 		throw new RuntimeException("Unexpected type for criteria ("
@@ -527,15 +525,11 @@ public final class Countif extends Fixed2ArgFunction implements Function, Functi
 		}
 		return null;
 	}
-	
-//	ZS
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
-		if (paramIndex==0)
-				return true;
-		return false;  // TODO - counif does not allow first param as array - only as range 
+
+	public boolean supportArray(int paramIndex) {
+		if (paramIndex==0) {
+			return true;
+		}
+		return false;  // TODO - countif does not allow first param as array - only as range
 	}
-//	end changes ZS	
 }

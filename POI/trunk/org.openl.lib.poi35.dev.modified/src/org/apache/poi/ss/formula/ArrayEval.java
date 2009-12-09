@@ -1,405 +1,259 @@
-// !! new class  ZS 
+/* ====================================================================
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+==================================================================== */
+
 package org.apache.poi.ss.formula;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.hssf.record.UnicodeString;
 import org.apache.poi.hssf.record.constant.ErrorConstant;
 import org.apache.poi.hssf.record.formula.ArrayPtg;
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
+import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
+import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.util.NumberToTextConverter;
 
-/** 
+/**
  *  Class to support evaluated array of values
- * @author Zahars Sulkins(ZS)(Zahars.Sulkins at exigenservices.com)
  *
+ * @author Zahars Sulkins(Zahars.Sulkins at exigenservices.com)
  */
-public class ArrayEval  implements ValueEval {
+public final class ArrayEval implements TwoDEval {
 
-	//ArrayPtg thePtg;
-	Object[][] values = null;
-	boolean illegalForAggregation = false; // if result is invalid for aggregation. it could be true, if "uncompatible in size" arrays were used 
-	
-	
-	/**
-	 *  is array unsuitable for future aggregation? 
-	 * @return
-	 */
-	public boolean isIllegalForAggregation(){
-		return illegalForAggregation;
-	}
-	
-	/**
-	 *  set feature "unsuitable for future aggregation
-	 *  it could be true, if "uncompatible in size" arrays were used
-	 * @param value
-	 */
-	public void setIllegalForAggregation(boolean value){
-		illegalForAggregation = value;
-	}
-	
-	public ArrayEval(ArrayPtg ptg){
-		if (ptg == null)
+	private final ValueEval[][] _values;
+
+	public ArrayEval(ArrayPtg ptg) {
+		if (ptg == null) {
 			throw new IllegalArgumentException("ArrayPtg should not be null");
-		values = ptg.getTokenArrayValues();
-	}
-	
-    public ArrayEval(Object[][] array){
-		if (array == null)
-			throw new IllegalArgumentException("null is not allowed");
-		values = array;
-    }
-    
-    public ArrayEval(Object[][] array, boolean isIllegalForAggregation){
-    	this(array);
-    	illegalForAggregation = isIllegalForAggregation;
-    }
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString(){
-		StringBuffer b = new StringBuffer();
-		b.append("{");
-	  	for (int r=0;r<values.length;r++) {
-			if (r > 0) {
-				b.append(";");
+		}
+		Object[][] tokenValues = ptg.getTokenArrayValues();
+		int nRows = tokenValues.length;
+		int nCols = tokenValues[0].length;
+		ValueEval[][] values = new ValueEval[nRows][nCols];
+		for (int r=0; r< nRows; r++) {
+			Object[] tokenRow = tokenValues[r];
+			ValueEval[] row = values[r];
+			for (int c=0; c< nCols; c++) {
+				row[c] = constructEval(tokenRow[c]);
 			}
-			for (int c=0;c<values[r].length;r++) {
-			  	if (c > 0) {
-					b.append(",");
-				}
-		  		Object o = values[r][c];
-		  		b.append(getConstantText(o));
-		  	}
-		  }
-		b.append("}");
-		return b.toString();
+		}
+		_values = values;
 	}
 
-		
-	/**
-	 * get array content
-	 * @return
-	 */
-	public Object[][] getArrayValues(){
-		return values;
+	public ArrayEval(ValueEval[][] values) {
+		if (values == null) {
+			throw new IllegalArgumentException("null is not allowed");
+		}
+		int nRows = values.length;
+		int nCols = values[0].length;
+		for (int r=0; r< nRows; r++) {
+			ValueEval[] row = values[r];
+			for (int c=0; c< nCols; c++) {
+				validateValueEval(row[c]);
+			}
+		}
+
+		_values = values;
 	}
-	
-	/**
-	 * get element of array
-	 * @param row
-	 * @param col
-	 * @return
-	 */
-	public Object getArrayElement(int row, int col){
-		return values[row][col];
+
+	private void validateValueEval(ValueEval valueEval) {
+		if (valueEval instanceof NumberEval) {
+			return;
+		}
+		if (valueEval instanceof StringEval) {
+			return;
+		}
+		if (valueEval instanceof BoolEval) {
+			return;
+		}
+		if (valueEval instanceof ErrorEval) {
+			return;
+		}
+
+		if (valueEval == null) {
+			if (false) {
+				// TODO throw new IllegalArgumentException("Array elements cannot be null.");
+			}
+			return;
+		}
+
+		if (valueEval instanceof RefEval) {
+			throw new IllegalArgumentException("Array elements cannot be of type RefEval");
+		}
+		if (valueEval instanceof AreaEval) {
+			throw new IllegalArgumentException("Array elements cannot be of type AreaEval");
+		}
+		throw new IllegalArgumentException("Unexpected eval type ("
+				+ valueEval.getClass().getSimpleName() + ").");
 	}
-	
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getName()).append(" [");
+		sb.append("{");
+		for (int r = 0; r < _values.length; r++) {
+			if (r > 0) {
+				sb.append(";");
+			}
+			for (int c = 0; c < _values[r].length; c++) {
+				if (c > 0) {
+					sb.append(",");
+				}
+				Object o = _values[r][c];
+				sb.append(getConstantText(o));
+			}
+		}
+		sb.append("}]");
+		return sb.toString();
+	}
+
+	/**
+	 * TODO - remove this method
+	 */
+	public ValueEval[][] getArrayValues() {
+		return _values;
+	}
+
 	/**
 	 * get element of array as Value Eval
 	 * @param row
 	 * @param col
 	 * @return
 	 */
-	public ValueEval getArrayElementAsEval(int row, int col){
-		return constructEval(getArrayElement(row,col));
+	public ValueEval getValue(int row, int col) {
+		return _values[row][col];
 	}
-	
-	
+
 	/**
 	 * Convert Object to ValueEval
-	 * @param o
-	 * @return
 	 */
-	public static ValueEval constructEval(Object o){
+	private static ValueEval constructEval(Object o) {
 		if (o == null) {
 			throw new RuntimeException("Array item cannot be null");
 		}
-		if (o instanceof ValueEval)
-			return (ValueEval)o;
-		
 		if (o instanceof String) {
 			return new StringEval( (String)o );
 		}
 		if (o instanceof Double) {
-			return new NumberEval((Double)o);
+			return new NumberEval(((Double)o).doubleValue());
 		}
 		if (o instanceof Boolean) {
-			return BoolEval.valueOf((Boolean)o);
+			return BoolEval.valueOf(((Boolean)o).booleanValue());
 		}
-		// I don't know what should we do if error is an array. I throw an exception for now
 		if (o instanceof ErrorConstant) {
-			throw new IllegalArgumentException("Error in array" + ((ErrorConstant)o).getText());
+			return ErrorEval.valueOf(((ErrorConstant)o).getErrorCode());
 		}
-		// if string constants in ArrayPtg are encodes as UnicodeString
-		if (o instanceof UnicodeString){
-			return new StringEval( ((UnicodeString)o).getString());
-		}
-		
 		throw new IllegalArgumentException("Unexpected constant class (" + o.getClass());
 	}
-	
+
 
 	/**
 	 * get String contains object's value
 	 * @param o
 	 * @return
 	 */
-	public static String getConstantText(Object o) {
+	private static String getConstantText(Object o) {
 
 		if (o == null) {
-			throw new RuntimeException("Array item cannot be null");
+			return "Error - null";
+// TODO			throw new RuntimeException("Array item cannot be null");
 		}
-		if (o instanceof String) {
-			return "\"" + (String)o + "\"";
+		if (o instanceof StringEval) {
+			return "\"" + ((StringEval)o).getStringValue() + "\"";
 		}
-		if (o instanceof Double) {
-			return ((Double)o).toString();
+		if (o instanceof NumberEval) {
+			return NumberToTextConverter.toText(((NumberEval)o).getNumberValue());
 		}
 		if (o instanceof Boolean) {
 			return ((Boolean)o).booleanValue() ? "TRUE" : "FALSE";
 		}
-		if (o instanceof ErrorConstant) {
-			return ((ErrorConstant)o).getText();
+		if (o instanceof ErrorEval) {
+			return ErrorEval.getText(((ErrorEval)o).getErrorCode());
 		}
 		throw new IllegalArgumentException("Unexpected constant class (" + o.getClass().getName() + ")");
 	}
-	
+
 	/**
 	 * return Array as ValueEval list
 	 * @return
 	 */
-	public List<ValueEval> getArrayAsEval(){
-		
+	public List<ValueEval> getArrayAsEval() {
+
 		List<ValueEval> l = new ArrayList<ValueEval>();
-		for(int r=0; r< values.length; r++){
-			for (int c=0; c<values[r].length; c++){
-				l.add(ArrayEval.constructEval(values[r][c]));
+		for(int r=0; r< _values.length; r++) {
+			ValueEval[] row = _values[r];
+			for (int c=0; c<row.length; c++) {
+				l.add(row[c]);
 			}
 		}
 		return l;
 	}
-	
-	/** 
-	 * Convert 2D array to 1D array
-	 * 	 * @return
-	 */
-	public Object[] getSingleDimensionalArray(){
-		Object[] l = new Object[getRowCounter()*getColCounter()];
-		for(int r=0; r< values.length; r++){
-			for (int c=0; c<values[r].length; c++){
-				l[r*getColCounter()+c] = values[r][c];
-			}
-		}
-		return l;		
-	}
-	
-	/**
-	 * Is array empty?
-	 * @return
-	 */
-	public Object[][] getEmptyArray(){
-		
-		return new Object[getRowCounter()][getColCounter()];
-	}
-	
+
 	/**
 	 * get row count
 	 * @return
 	 */
-	public int getRowCounter(){
-		return values.length;
+	public int getHeight() {
+		return _values.length;
 	}
-	
+
 	/**
 	 * get column count
 	 * @return
 	 */
-	public int getColCounter(){
-		if (getRowCounter() == 0)
-			return 0;
-		return values[0].length;
+	public int getWidth() {
+		return _values[0].length;
 	}
-	
-	/*
-	 * offset from the array
-	 */
-	/**
-	 * get subarray
-	 * @param rowFrom
-	 * @param rowTo
-	 * @param colFrom
-	 * @param colTo
-	 * @return
-	 */
-	public ArrayEval offset(int rowFrom, int rowTo, int colFrom, int colTo){
-		
-		if (rowFrom<=0 || rowFrom >= getRowCounter() || rowTo<rowFrom || 
-			colFrom<=0 || colFrom >= getColCounter() || colTo<colFrom
-		)
-			throw new IllegalArgumentException("rowFrom: " + rowFrom + "  rowTo: " + rowTo + " colFrom: " + colFrom + " colTo: " + colTo );
-		
-		int row = Math.min(getRowCounter(), rowTo);
-		int col = Math.min(getColCounter(), colTo);
-		
-		Object[][] result = new Object[row - rowFrom+1][col - colFrom+1];
-		for (int r=rowFrom; r<=row; r++){
-			for (int c=colFrom; c<=col; c++) {
-				result[r][c] = values[r][c];
-			}
-		}
-		
-		return new ArrayEval(result);
+
+	public boolean isRow() {
+		return _values.length == 1;
 	}
-	
-	public enum BooleanContent{ONLY_FALSE,ONLY_TRUE,MIXED};
-	
+
+	public boolean isColumn() {
+		return _values[0].length == 1;
+	}
+	public enum BooleanContent{ONLY_FALSE,ONLY_TRUE,MIXED}
+
 	/**
 	 *  Check if content of boolean array ONLY_FALSE, ONLY_TRUE or MIXED
 	 *  if content is not boolean then return MIXED
 	 * @return
 	 */
-	public BooleanContent checkBooleanContent(){
-		try{
-		BoolEval first =  (BoolEval)values[0][0];
-		for(int i=0;i<values.length;i++)
-			for(int j=0;j<values[i].length;j++)
-				if(first.equals((BoolEval)values[i][j]))
+	public BooleanContent checkBooleanContent() {
+		try {
+			BoolEval first = (BoolEval) _values[0][0];
+			for (int i = 0; i < _values.length; i++) {
+				for (int j = 0; j < _values[i].length; j++) {
+					if (first.equals(_values[i][j])) {
 						return BooleanContent.MIXED;
-						
-		if(first.getBooleanValue())
-			return BooleanContent.ONLY_TRUE;
-		else
+					}
+				}
+			}
+
+			if (first.getBooleanValue()) {
+				return BooleanContent.ONLY_TRUE;
+			}
 			return BooleanContent.ONLY_FALSE;
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			return BooleanContent.MIXED;
 		}
 	}
-	
-	
-	/**
-	 * expose Array as area on sheet (top-left)
-	 * convenience methods to reuse existing code
-	 * @return
-	 */
-	public AreaEval arrayAsArea(){
-		
-		return new AreaEval(){
-			
-			/* (non-Javadoc)
-			 * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getFirstRow()
-			 */
-			public int getFirstRow(){
-				return 0;
-			}
-			
-			/* (non-Javadoc)
-			 * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getLastRow()
-			 */
-			public int getLastRow(){
-				return getRowCounter()-1;
-			}
-			
-			/* (non-Javadoc)
-			 * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getFirstColumn()
-			 */
-			public int getFirstColumn(){
-				return 0;
-			}
-			
-			/* (non-Javadoc)
-			 * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getLastColumn()
-			 */
-			public int getLastColumn(){
-				return getColCounter()-1;
-			}
-			
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#isRow()
-		     */
-		    public boolean isRow(){
-		    	return (getRowCounter()==1);
-		    }
-		    
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#isColumn()
-		     */
-		    public boolean isColumn(){
-		    	return (getColCounter() == 1);
-		    }
-
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getValueAt(int, int)
-		     */
-		    public ValueEval getValueAt(int row, int col){
-		    	return getArrayElementAsEval(row, col);
-		    }
-
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#contains(int, int)
-		     */
-		    public boolean contains(int row, int col){
-		    	if ( (row < getRowCounter()) && (col < getColCounter()) ){
-		    		return true;
-		    	}
-		    	return false;
-		    }
-
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#containsColumn(short)
-		     */
-		    public boolean containsColumn(short col){
-		    	if (col < getColCounter())
-		    		return true;
-		    	return false;
-		    }
-		    
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#containsRow(int)
-		     */
-		    public boolean containsRow(int row){
-		    	if (row < getRowCounter() )
-		    		return true;
-		    	return false;
-		    }
-
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getWidth()
-		     */
-		    public int getWidth(){
-		    	return getColCounter(); 
-		    	
-		    }
-		    
-		    public int getHeight(){
-		    	return getRowCounter();
-		    }
-
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#getRelativeValue(int, int)
-		     */
-		    public ValueEval getRelativeValue(int relativeRowIndex, int relativeColumnIndex){
-		    	return getArrayElementAsEval(relativeRowIndex, relativeColumnIndex);
-		    }
-
-		    /* (non-Javadoc)
-		     * @see org.apache.poi.hssf.record.formula.eval.AreaEval#offset(int, int, int, int)
-		     */
-		    public AreaEval offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx){
-		    	ArrayEval offset = ArrayEval.this.offset(relFirstRowIx, relLastRowIx, relFirstColIx, relLastColIx);
-		    	return offset.arrayAsArea();
-		    }
-		    
-			
-		};
-	}
-	
-	
 }
