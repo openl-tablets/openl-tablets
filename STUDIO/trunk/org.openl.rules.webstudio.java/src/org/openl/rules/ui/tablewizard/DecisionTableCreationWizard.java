@@ -3,7 +3,10 @@ package org.openl.rules.ui.tablewizard;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -13,11 +16,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.properties.SystemValuesManager;
 
 /**
  * @author Aliaksandr Antonik.
@@ -38,7 +45,8 @@ public class DecisionTableCreationWizard extends WizardBase {
     private DomainTree domainTree;
 
     private SelectItem[] domainTypes;
-
+    private Map<String, Object> systemProperties = new HashMap<String, Object>();
+    
     public DecisionTableCreationWizard() {
     }
 
@@ -127,13 +135,32 @@ public class DecisionTableCreationWizard extends WizardBase {
         }
         sbHeader.append(")");
         builder.writeHeader(sbHeader.toString());
-
+       
+        builder.writeProperties(getSystemProperties(), null);        
+        
         // writing conditions, actions and return section
         doSaveWriteArtifacts(builder, conditions);
         doSaveWriteArtifacts(builder, actions);
         doSaveWriteArtifacts(builder, Collections.singletonList(returnValue));
 
         builder.endTable();
+    }
+
+    public Map<String, Object> getSystemProperties() {        
+        if (systemProperties.isEmpty()) {
+            List<TablePropertyDefinition> systemPropDefinitions = DefaultPropertyDefinitions
+                    .getSystemProperties();
+            for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
+                if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
+                    Object systemValue = SystemValuesManager.instance().
+                        getSystemValue(systemPropDef.getSystemValueDescriptor());
+                    if (systemValue != null) {
+                        systemProperties.put(systemPropDef.getName(), systemValue);                        
+                    }
+                }
+            }
+        }
+        return systemProperties;
     }
 
     private void doSaveWriteArtifacts(DecisionTableBuilder builder, List<? extends TableArtifact> tableArtifacts) {
@@ -465,7 +492,7 @@ public class DecisionTableCreationWizard extends WizardBase {
             currentCondition.setLogicEditor(false);
         }
     }
-
+    
     private boolean validateAfterStep1() {
         if (StringUtils.isEmpty(tableName)) {
             reportError("Table name can not be empty");
