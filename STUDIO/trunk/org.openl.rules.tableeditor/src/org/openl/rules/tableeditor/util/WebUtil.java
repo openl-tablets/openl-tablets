@@ -9,11 +9,4 @@ public class WebUtil {
                 + "/faces" + Constants.TABLE_EDITOR_PATTERN + path;
     }
 
-    public static String toJSString(String string) {
-        if (string != null) {
-            return string.replaceAll("'", "\\\\'").replaceAll("\"", "\\\\\"");
-        }
-        return null;
-    }
-
 }
