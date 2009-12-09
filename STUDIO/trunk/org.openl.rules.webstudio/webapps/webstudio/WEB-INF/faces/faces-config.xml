@@ -21,12 +21,6 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
-  <!-- Special date converter to suppress rich:calendar conversion errors -->
-  <converter>
-    <converter-id>org.openl.DateConverter</converter-id>
-    <converter-class>org.openl.rules.webstudio.web.jsf.DateConverter</converter-class>
-  </converter>
-
   <component>
     <component-type>org.openl.rules.web.jsf.facelets.acegi.Authentication</component-type>
     <component-class>org.openl.rules.web.jsf.facelets.acegi.AuthenticationComponent</component-class>

@@ -176,7 +176,7 @@ public class DependencyController {
     }
 
     private RulesUserSession getRulesUserSession() {
-        return (RulesUserSession) FacesUtils.getSessionMap().get("rulesUserSession");
+        return (RulesUserSession) FacesUtils.getSessionParam("rulesUserSession");
     }
 
     public String getUpperVersion() {

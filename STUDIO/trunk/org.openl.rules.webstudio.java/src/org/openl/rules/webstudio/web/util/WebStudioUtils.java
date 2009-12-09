@@ -5,7 +5,6 @@ import javax.servlet.http.HttpSession;
 
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.jsf.JSFConst;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 
@@ -21,11 +20,11 @@ public abstract class WebStudioUtils {
         if (session == null) {
             return null;
         }
-        return (RulesUserSession) session.getAttribute(JSFConst.RULES_USER_SESSION_ATTR);
+        return (RulesUserSession) session.getAttribute(Constants.RULES_USER_SESSION);
     }
 
     public static WebStudio getWebStudio() {
-        return (WebStudio) (FacesUtils.getSessionMap().get(STUDIO_ATTR));
+        return (WebStudio) (FacesUtils.getSessionParam(STUDIO_ATTR));
     }
 
     public static WebStudio getWebStudio(boolean create) {
@@ -35,7 +34,7 @@ public abstract class WebStudioUtils {
                 return studio;
             }
 
-            Map sessionMap = FacesUtils.getSessionMap();
+            Map<String, Object> sessionMap = FacesUtils.getSessionMap();
             synchronized (sessionMap) {
                 WebStudio webStudio = getWebStudio();
                 if (webStudio == null) {

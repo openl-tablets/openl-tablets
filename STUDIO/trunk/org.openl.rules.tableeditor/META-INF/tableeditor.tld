@@ -142,7 +142,7 @@
             <description>If true the table is editable. The default is 'true'.</description>
             <name>editable</name>
             <deferred-value>
-                <type>String</type>
+                <type>boolean</type>
             </deferred-value>
         </attribute>
         <attribute>

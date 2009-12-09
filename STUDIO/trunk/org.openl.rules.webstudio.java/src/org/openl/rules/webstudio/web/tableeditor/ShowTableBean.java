@@ -228,8 +228,8 @@ public class ShowTableBean {
         String editorId = FacesUtils.getRequestParameter(
                 org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
-        Map<String, Object> sessionMap = FacesUtils.getSessionMap();
-        Map editorModelMap = (Map) sessionMap.get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+        Map editorModelMap = (Map) FacesUtils.getSessionParam(
+                org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
