@@ -132,8 +132,8 @@ final class OperationEvaluatorFactory {
 		if (func != null) {
 			if (func instanceof ArrayMode && ec.isInArrayFormulaContext()) {
 				return evaluateInSpecialModeForArrayFormulas((ArrayMode) func, args, ec);
-			} // TODO - else not array ... still invoking array though ?
-			return invokeOperationInArrayContext(func, args, ec);
+			}
+			return invokeOperation(func, args, ec);
 		}
 		throw new RuntimeException("Unexpected operation ptg class (" + ptg.getClass().getName() + ")");
 	}
@@ -143,7 +143,7 @@ final class OperationEvaluatorFactory {
 		return function.evaluateInArrayFormula(ops, ec.getRowIndex(), ec.getColumnIndex());
 	}
 
-	private static ValueEval invokeOperationInArrayContext(Function func, ValueEval[] ops, OperationEvaluationContext ec) {
+	private static ValueEval invokeOperation(Function func, ValueEval[] ops, OperationEvaluationContext ec) {
 		boolean isArrayFormula = ec.isInArrayFormulaContext();
 		ArrayEval arrayResult = ArrayFormulaEvaluatorHelper.prepareEmptyResult(func, ops, isArrayFormula);
 		int srcRowIndex = ec.getRowIndex();
