@@ -23,10 +23,10 @@
 		<table id="propertySearchTable">
 			<c:forEach items="#{bussinessSearch.propForSearch}" var="propDef">
 				<tr><td><h:outputLabel for="#{propDef.name}" value="#{propDef.displayName}"/></td>
-					<c:if test="#{propDef.stringType}">
+					<c:if test="#{propDef.string}">
 						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
 					</c:if>
-					<c:if test="#{propDef.dateType}">
+					<c:if test="#{propDef.date}">
 						<td><rich:calendar id="#{propDef.name}" 
 										   value="#{propDef.value}"										   
 										   popup="true" 
@@ -34,10 +34,8 @@
 	      								   jointPoint="bottom-left" 
 	      								   datePattern="#{propDef.format}"
 	      								   defaultTime = "00:00"
-	      								   rendered="true"
 	      								   timeZone="#{formatPatterns.defaultTimeZone}">
-	      						<f:converter converterId="org.openl.DateConverter" />
-	      					</rich:calendar>
+	       					</rich:calendar>
 	      				</td>
 					</c:if>
 				</tr>				
