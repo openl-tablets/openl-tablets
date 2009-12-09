@@ -15,7 +15,23 @@ public interface ITableProperties {
      */
     Set<String> getPropertiesSetByDefault();
     
+    /**
+     * Gets the <code>{@link Map}</code> of properties with name as key and value as value, this map
+     * excludes properties that were set by default. So it will contain all properties in source table including 
+     * system ones.
+     * 
+     * @return Map of properties excluding properties set by default.
+     */
     Map<String, Object> getPropertiesIgnoreDefault();
+    
+    /**
+     * Gets the <code>{@link Map}</code> of properties with name as key and value as value, this map
+     * excludes properties that were set by default and also properties that were set by system. 
+     * So it will contain just part of properties in source table excluding system ones.
+     * 
+     * @return Map of properties excluding properties set by default.
+     */
+    Map<String, Object> getPropertiesIgnoreDefaultAndSystem();
     
     Object getPropertyValue(String key);
     
