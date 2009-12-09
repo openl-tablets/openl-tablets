@@ -2,9 +2,11 @@ package org.openl.rules.table.properties;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
@@ -20,9 +22,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     
     /**
      * Collection, to mark all properties that were set by default for current instance.
+     * Contains it names.
      */
-    private Set<String> propertiesWithDefaultValue = new HashSet<String>();
-    
+    private Set<String> propertiesWithDefaultValue = new HashSet<String>();    
+        
 	@Override
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(getClass());
@@ -224,7 +227,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public int getNumberOfProperties() {
         return getFieldValues().size();
     }
-    
+        
     public Map<String, Object> getPropertiesAll() {
       return  super.getFieldValues();
     }
@@ -247,13 +250,30 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return propertiesWithDefaultValue;
     }
     
-    public Map<String, Object> getPropertiesIgnoreDefault() {
+    
+    public Map<String, Object> getPropertiesIgnoreDefault() {    
+        Map<String, Object> propWithoutDefault = new HashMap<String, Object>();        
         Map<String, Object> allProps = getPropertiesAll();
-        Set<String> defaultProps = getPropertiesSetByDefault();
-        for (String defaulProp : defaultProps) {
-            allProps.remove(defaulProp);
+        Set<String> defaultProps = getPropertiesSetByDefault();        
+        for (Entry<String, Object> property : allProps.entrySet()) {
+            if (!defaultProps.contains(property.getKey())) {
+                propWithoutDefault.put(property.getKey(), property.getValue());
+            }
+        }        
+        return propWithoutDefault;
+    }
+    
+    public Map<String, Object> getPropertiesIgnoreDefaultAndSystem() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> propWithoutDefault = getPropertiesIgnoreDefault();
+        for (Map.Entry<String, Object> property : propWithoutDefault.entrySet()) {
+            String propName = property.getKey();
+            TablePropertyDefinition propertyDefinition = DefaultPropertyDefinitions.getPropertyByName(propName);
+            if (!propertyDefinition.isSystem()) {
+                result.put(propName, property.getValue());                
+            }
         }
-        return allProps;
+        return result;
     }
 	
 }
