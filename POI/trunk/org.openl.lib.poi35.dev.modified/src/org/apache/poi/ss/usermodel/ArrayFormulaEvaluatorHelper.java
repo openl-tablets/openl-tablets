@@ -149,10 +149,9 @@ public class ArrayFormulaEvaluatorHelper {
 	 */
 	public static ValueEval dereferenceValue(ArrayEval evaluationResult, Cell cell) {
 		CellRangeAddress range = cell.getArrayFormulaRange();
-		ValueEval[][] rangeVal = ArrayFormulaEvaluatorHelper.transformToRange(evaluationResult.getArrayValues(),range);
 		int rowInArray = cell.getRowIndex()- range.getFirstRow();
 		int colInArray = cell.getColumnIndex() - range.getFirstColumn();
-		return rangeVal[rowInArray][colInArray];
+		return evaluationResult.getValue(rowInArray,colInArray);
 	}
 	/**
 	 * Get type of parameter (SCALAR_TYPE or ARRAY_TYPE) which support function
