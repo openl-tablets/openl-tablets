@@ -11,7 +11,7 @@ import org.openl.rules.webstudio.security.CurrentUserInfo;
  */
 public class CurrentUserValue implements ISystemValue {
 
-    public String getValue() {
+    public Object getValue() {
         CurrentUserInfo usInfo = new CurrentUserInfo();
         UserDetails usDet = usInfo.getUser();        
         return usDet.getUsername();

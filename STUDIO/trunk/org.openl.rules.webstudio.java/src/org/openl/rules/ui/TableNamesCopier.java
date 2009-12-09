@@ -13,15 +13,16 @@ public class TableNamesCopier extends TableCopier {
         initUri();
     }
 
-    public TableNamesCopier(String elementUri1) {        
+    public TableNamesCopier(String elementUri) {        
         start();
-        this.elementUri = elementUri1;
+        setElementUri(elementUri);
         initTableNames();        
     }  
    
     @Override
     protected Map<String, Object> buildProperties(Map<String, Object> properties) {
         Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
+        newProperties.putAll(buildSystemProperties());
         if (properties != null) {
             for (Map.Entry<String, Object> property : properties.entrySet()) {
                 String propertyName = property.getKey();
@@ -29,15 +30,17 @@ public class TableNamesCopier extends TableCopier {
                 newProperties.put(propertyName.trim(), propertyValue);
             }   
         }
-        if (StringUtils.isBlank(tableBusinessName) && newProperties.containsKey(TableBuilder.TABLE_PROPERTIES_NAME)) {
+        if (StringUtils.isBlank(getTableBusinessName()) && newProperties.containsKey(TableBuilder.TABLE_PROPERTIES_NAME)) {
             newProperties.remove(TableBuilder.TABLE_PROPERTIES_NAME);
-        } else if (StringUtils.isNotBlank(tableBusinessName)) {
-            newProperties.put(TableBuilder.TABLE_PROPERTIES_NAME, tableBusinessName);
+        } else if (StringUtils.isNotBlank(getTableBusinessName())) {
+            newProperties.put(TableBuilder.TABLE_PROPERTIES_NAME, getTableBusinessName());
         }
         return newProperties;
     }
     
         
+
+
 
 //    private void validateTechnicalName(TableSyntaxNode node) throws CreateTableException {
 //        String[] headerStr = node.getHeaderLineValue().getValue().split(" ");

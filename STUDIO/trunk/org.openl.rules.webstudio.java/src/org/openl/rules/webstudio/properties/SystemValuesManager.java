@@ -1,9 +1,12 @@
 package org.openl.rules.webstudio.properties;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.xls.XlsDateFormat;
+import org.openl.rules.webstudio.web.tableeditor.ShowTableBean;
 
 /**
  * Manager for system values. Handles implementations for specified system properties.
@@ -49,12 +52,36 @@ public class SystemValuesManager {
         return instance;
     }
     
-    public String getSystemValue(String descriptor) {
-        String result = null;
+    public Object getSystemValue(String descriptor) {
+        Object result = null;
         ISystemValue systemValue = systemValues.get(descriptor);
         if (systemValue != null) {
             result = systemValue.getValue();
         } 
+        return result;
+    }
+    
+    /**
+     *  
+     * @param descriptor
+     * @return
+     * FIXME: This method is workaround to get system value as string for {@link ShowTableBean#updateSystemProperties()}.
+     */
+    public String getSystemValueString(String descriptor) {
+        String result = null;
+        Object resultValue = null;
+        ISystemValue systemValue = systemValues.get(descriptor);
+        if (systemValue != null) {
+            resultValue = systemValue.getValue();
+            if(resultValue != null) {
+                if (resultValue instanceof Date) {
+                    SimpleDateFormat format = new SimpleDateFormat(XlsDateFormat.DEFAULT_JAVA_DATE_FORMAT);
+                    result = format.format((Date)resultValue);                    
+                } else {
+                    result = resultValue.toString();
+                }
+            }
+        }        
         return result;
     }
 }
