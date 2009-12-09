@@ -17,31 +17,24 @@
 
 package org.apache.poi.hssf.record.formula.functions;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.ss.formula.ArrayEval;
+import org.apache.poi.ss.formula.TwoDEval;
 
 /**
  * Implementation for Excel COLUMNS function.
  *
  * @author Josh Micich
  */
-public final class Columns extends Fixed1ArgFunction implements Function, FunctionWithArraySupport {
+public final class Columns extends Fixed1ArgFunction implements FunctionWithArraySupport {
 
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0) {
 
 		int result;
-		// !!changed ZS
-		if (arg0 instanceof ArrayEval){
-			arg0 = ((ArrayEval)arg0).arrayAsArea();
-		}
-		// end change
-		
-		if (arg0 instanceof AreaEval) {
-			result = ((AreaEval) arg0).getWidth();
+		if (arg0 instanceof TwoDEval) {
+			result = ((TwoDEval) arg0).getWidth();
 		} else if (arg0 instanceof RefEval) {
 			result = 1;
 		} else { // anything else is not valid argument
@@ -49,13 +42,8 @@ public final class Columns extends Fixed1ArgFunction implements Function, Functi
 		}
 		return new NumberEval(result);
 	}
-	
-//ZS
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
+
+	public boolean supportArray(int paramIndex) {
 		return true;
 	}
-//  end changes ZS	
 }

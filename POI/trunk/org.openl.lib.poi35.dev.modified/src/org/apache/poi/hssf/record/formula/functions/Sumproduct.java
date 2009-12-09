@@ -26,10 +26,7 @@ import org.apache.poi.hssf.record.formula.eval.NumericValueEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-//ZS
-import org.apache.poi.ss.formula.ArrayEval;
-// end changes ZS
-
+import org.apache.poi.ss.formula.TwoDEval;
 
 
 /**
@@ -53,37 +50,28 @@ import org.apache.poi.ss.formula.ArrayEval;
  *  )
  * </p>
  * @author Josh Micich
- * @author zsulkins(SZ)- array support
-*/
-//ZS 
-public final class Sumproduct implements Function, FunctionWithArraySupport {
-// end changes ZS
+ * @author Zahars Sulkins(Zahars.Sulkins at exigenservices.com) - array support
+ */
+public final class Sumproduct implements FunctionWithArraySupport {
 
 
 	public ValueEval evaluate(ValueEval[] args, int srcCellRow, int srcCellCol) {
 
 		int maxN = args.length;
 
-		if(maxN < 1) {
+		if (maxN < 1) {
 			return ErrorEval.VALUE_INVALID;
 		}
-		// !! changed ZS
-		for (int i=0; i<maxN; i++){
-			if (args[i] instanceof ArrayEval){
-				args[i] = ((ArrayEval)args[i]).arrayAsArea();
-			}
-		}		
-		// end change		
 		ValueEval firstArg = args[0];
 		try {
-			if(firstArg instanceof NumericValueEval) {
+			if (firstArg instanceof NumericValueEval) {
 				return evaluateSingleProduct(args);
 			}
-			if(firstArg instanceof RefEval) {
+			if (firstArg instanceof RefEval) {
 				return evaluateSingleProduct(args);
 			}
-			if(firstArg instanceof AreaEval) {
-				AreaEval ae = (AreaEval) firstArg;
+			if (firstArg instanceof TwoDEval) {
+				TwoDEval ae = (TwoDEval) firstArg;
 				if(ae.isRow() && ae.isColumn()) {
 					return evaluateSingleProduct(args);
 				}
@@ -128,18 +116,13 @@ public final class Sumproduct implements Function, FunctionWithArraySupport {
 			}
 			eval = ae.getRelativeValue(0, 0);
 		}
-// ZS
-		if (!(eval instanceof ValueEval)) {
-			throw new RuntimeException("Unexpected value eval class ("
-					+ eval.getClass().getName() + ")");
-		}
-// end changes ZS
+
 		return getProductTerm(eval, true);
 	}
 
 	private static ValueEval evaluateAreaSumProduct(ValueEval[] evalArgs) throws EvaluationException {
 		int maxN = evalArgs.length;
-		AreaEval[] args = new AreaEval[maxN];
+		TwoDEval[] args = new TwoDEval[maxN];
 		try {
 			System.arraycopy(evalArgs, 0, args, 0, maxN);
 		} catch (ArrayStoreException e) {
@@ -148,7 +131,7 @@ public final class Sumproduct implements Function, FunctionWithArraySupport {
 		}
 
 
-		AreaEval firstArg = args[0];
+		TwoDEval firstArg = args[0];
 
 		int height = firstArg.getHeight();
 		int width = firstArg.getWidth(); // TODO - junit
@@ -169,7 +152,7 @@ public final class Sumproduct implements Function, FunctionWithArraySupport {
 			for (int rcIx=0; rcIx<width; rcIx++) {
 				double term = 1D;
 				for(int n=0; n<maxN; n++) {
-					double val = getProductTerm(args[n].getRelativeValue(rrIx, rcIx), false);
+					double val = getProductTerm(args[n].getValue(rrIx, rcIx), false);
 					term *= val;
 				}
 				acc += term;
@@ -179,12 +162,12 @@ public final class Sumproduct implements Function, FunctionWithArraySupport {
 		return new NumberEval(acc);
 	}
 
-	private static void throwFirstError(AreaEval areaEval) throws EvaluationException {
+	private static void throwFirstError(TwoDEval areaEval) throws EvaluationException {
 		int height = areaEval.getHeight();
 		int width = areaEval.getWidth();
 		for (int rrIx=0; rrIx<height; rrIx++) {
 			for (int rcIx=0; rcIx<width; rcIx++) {
-				ValueEval ve = areaEval.getRelativeValue(rrIx, rcIx);
+				ValueEval ve = areaEval.getValue(rrIx, rcIx);
 				if (ve instanceof ErrorEval) {
 					throw new EvaluationException((ErrorEval) ve);
 				}
@@ -192,9 +175,9 @@ public final class Sumproduct implements Function, FunctionWithArraySupport {
 		}
 	}
 
-	private static boolean areasAllSameSize(AreaEval[] args, int height, int width) {
+	private static boolean areasAllSameSize(TwoDEval[] args, int height, int width) {
 		for (int i = 0; i < args.length; i++) {
-			AreaEval areaEval = args[i];
+			TwoDEval areaEval = args[i];
 			// check that height and width match
 			if(areaEval.getHeight() != height) {
 				return false;
@@ -246,12 +229,8 @@ public final class Sumproduct implements Function, FunctionWithArraySupport {
 		throw new RuntimeException("Unexpected value eval class ("
 				+ ve.getClass().getName() + ")");
 	}
-	// ZS	
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
+
+	public boolean supportArray(int paramIndex) {
 		return true;
 	}
-//	end changes ZS	
 }

@@ -22,10 +22,11 @@ import java.util.HashMap;
 /**
  * Abstracts a cell for the purpose of formula evaluation.  This interface represents both formula
  * and non-formula cells.<br/>
- * 
+ *
  * For POI internal use only
- * 
+ *
  * @author Josh Micich
+ * @author Petr Udalau(Petr.Udalau at exigenservices.com) - array formula support
  */
 public interface EvaluationCell {
 	/**
@@ -42,17 +43,9 @@ public interface EvaluationCell {
 	String getStringCellValue();
 	boolean getBooleanCellValue();
 	int getErrorCellValue();
-	
-//	VIA
-	/** 
-	 * Belong Cell  to range of Array Formula?
-	 * @return
-	 */
-	boolean isArrayFormulaContext();  
-//    end changes VIA	
 
-    /**
-     * @return Main cell in array formula that contains formula.
-     */
-	EvaluationCell getFirstCellInArrayFormula();  
+	/**
+	 * @return <code>true<code> if cell belongs to to range of Array Formula
+	 */
+	boolean isArrayFormula();
 }

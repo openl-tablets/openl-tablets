@@ -383,5 +383,5 @@ public interface Cell {
     /**
      * @return <code>true</code> if this cell is part of group of cells having a common array formula.
      */
-    public boolean isPartOfArrayFormulaGroup();
+    boolean isPartOfArrayFormulaGroup();
 }

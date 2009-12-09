@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BlankEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
@@ -30,17 +29,13 @@ import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-//ZS
-import org.apache.poi.ss.formula.ArrayEval;
-// end changers ZS
+import org.apache.poi.ss.formula.TwoDEval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
  *
  */
-//ZS 
-public final class Mode implements Function, FunctionWithArraySupport {
-// end changes ZS
+public final class Mode implements FunctionWithArraySupport {
 
 	/**
 	 * if v is zero length or contains no duplicates, return value is
@@ -97,18 +92,13 @@ public final class Mode implements Function, FunctionWithArraySupport {
 	}
 
 	private static void collectValues(ValueEval arg, List<Double> temp) throws EvaluationException {
-		// !! change ZS
-		if (arg instanceof ArrayEval){
-			arg = ((ArrayEval)arg).arrayAsArea();
-		}
-		// end change
-		if (arg instanceof AreaEval) {
-			AreaEval ae = (AreaEval) arg;
+		if (arg instanceof TwoDEval) {
+			TwoDEval ae = (TwoDEval) arg;
 			int width = ae.getWidth();
 			int height = ae.getHeight();
 			for (int rrIx = 0; rrIx < height; rrIx++) {
 				for (int rcIx = 0; rcIx < width; rcIx++) {
-					ValueEval ve1 = ae.getRelativeValue(rrIx, rcIx);
+					ValueEval ve1 = ae.getValue(rrIx, rcIx);
 					collectValue(ve1, temp, false);
 				}
 			}
@@ -128,7 +118,7 @@ public final class Mode implements Function, FunctionWithArraySupport {
 		if (arg instanceof ErrorEval) {
 			throw new EvaluationException((ErrorEval) arg);
 		}
-		if (arg == BlankEval.INSTANCE || arg instanceof BoolEval || arg instanceof StringEval) {
+		if (arg == BlankEval.instance || arg instanceof BoolEval || arg instanceof StringEval) {
 			if (mustBeNumber) {
 				throw EvaluationException.invalidValue();
 			}
@@ -140,12 +130,8 @@ public final class Mode implements Function, FunctionWithArraySupport {
 		}
 		throw new RuntimeException("Unexpected value type (" + arg.getClass().getName() + ")");
 	}
-//	ZS
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
+
+	public boolean supportArray(int paramIndex) {
 		return true;
 	}
-//	end changes ZS	
 }

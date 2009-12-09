@@ -17,7 +17,6 @@
 
 package org.apache.poi.ss.formula;
 
-import org.apache.poi.hssf.record.formula.AreaI;
 import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
@@ -36,10 +35,6 @@ import org.apache.poi.ss.util.CellReference.NameType;
  * For POI internal use only
  *
  * @author Josh Micich
- * 
- * Modified 09/07/09 by Petr Udalau - added method getWorkbookEvaluator() and added API to set 
- * and roll back values of some cell for evaluation of current operation.
- * VIA - add get sheetIndex
  */
 public final class OperationEvaluationContext {
 	public static final FreeRefFunction UDF = UserDefinedFunction.instance;
@@ -73,14 +68,15 @@ public final class OperationEvaluationContext {
 	public int getColumnIndex() {
 		return _columnIndex;
 	}
+
 	public WorkbookEvaluator getWorkbookEvaluator(){
 	    return _bookEvaluator;
 	}
 
 	public boolean isInArrayFormulaContext() {
-        return _inArrayFormulaContext;
-	}   
-	
+		return _inArrayFormulaContext;
+	}
+
 	SheetRefEvaluator createExternSheetRefEvaluator(ExternSheetReferenceToken ptg) {
 		return createExternSheetRefEvaluator(ptg.getExternSheetIndex());
 	}
@@ -238,33 +234,6 @@ public final class OperationEvaluationContext {
 		return Integer.parseInt(refStrPart) - 1;
 	}
 
-	private static final class AI implements AreaI {
-
-		private final int _fr;
-		private final int _lr;
-		private final int _fc;
-		private final int _lc;
-
-		public AI(int fr, int fc, int lr, int lc) {
-			_fr = Math.min(fr, lr);
-			_lr = Math.max(fr, lr);
-			_fc = Math.min(fc, lc);
-			_lc = Math.max(fc, lc);
-		}
-		public int getFirstColumn() {
-			return _fc;
-		}
-		public int getFirstRow() {
-			return _fr;
-		}
-		public int getLastColumn() {
-			return _lc;
-		}
-		public int getLastRow() {
-			return _lr;
-		}
-	}
-
 	private static NameType classifyCellReference(String str, SpreadsheetVersion ssVersion) {
 		int len = str.length();
 		if (len < 1) {
@@ -276,14 +245,6 @@ public final class OperationEvaluationContext {
 	public FreeRefFunction findUserDefinedFunction(String functionName) {
 		return _bookEvaluator.findUserDefinedFunction(functionName);
 	}
-//VIA
-	/**
-	 * @return the _sheetIndex
-	 */
-	public int getSheetIndex() {
-		return _sheetIndex;
-	}
-//	end changes VIA
 
 	public ValueEval getRefEval(int rowIndex, int columnIndex) {
 		SheetRefEvaluator sre = getRefEvaluatorForCurrentSheet();

@@ -17,33 +17,24 @@
 
 package org.apache.poi.hssf.record.formula.functions;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-//ZS
-import org.apache.poi.ss.formula.ArrayEval;
-// end changes ZS
+import org.apache.poi.ss.formula.TwoDEval;
+
 /**
  * Implementation for Excel ROWS function.
  *
  * @author Josh Micich
- * @author zsulkins(ZS)- array support
  */
-// ZS
-public final class Rows extends Fixed1ArgFunction implements Function, FunctionWithArraySupport{
-// end changes ZS
+public final class Rows extends Fixed1ArgFunction implements FunctionWithArraySupport {
+
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0) {
 
 		int result;
-		// !!changed ZS
-		if (arg0 instanceof ArrayEval){
-			arg0 = ((ArrayEval)arg0).arrayAsArea();
-		}
-		// end change
-		if (arg0 instanceof AreaEval) {
-			result = ((AreaEval) arg0).getHeight();
+		if (arg0 instanceof TwoDEval) {
+			result = ((TwoDEval) arg0).getHeight();
 		} else if (arg0 instanceof RefEval) {
 			result = 1;
 		} else { // anything else is not valid argument
@@ -51,13 +42,8 @@ public final class Rows extends Fixed1ArgFunction implements Function, FunctionW
 		}
 		return new NumberEval(result);
 	}
-	
-	// ZS	
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
+
+	public boolean supportArray(int paramIndex) {
 		return true;
 	}
-// end changes ZS	
 }

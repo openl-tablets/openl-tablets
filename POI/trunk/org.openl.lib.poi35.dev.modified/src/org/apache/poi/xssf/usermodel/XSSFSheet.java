@@ -49,6 +49,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
+import org.apache.poi.util.Internal;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.usermodel.helpers.ColumnHelper;
 import org.apache.poi.xssf.usermodel.helpers.XSSFRowShifter;
@@ -65,8 +66,6 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.*;
  * The most common type of sheet is the worksheet, which is represented as a grid of cells. Worksheet cells can
  * contain text, numbers, dates, and formulas. Cells can also be formatted.
  * </p>
- *
- * @author PUdalau set/remove array formulas
  */
 public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
     private static final POILogger logger = POILogFactory.getLogger(XSSFSheet.class);
@@ -222,6 +221,7 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
      *
      * @return the CTWorksheet bean holding this sheet's data
      */
+    @Internal
     public CTWorksheet getCTWorksheet() {
         return this.worksheet;
     }
@@ -2318,12 +2318,11 @@ public class XSSFSheet extends POIXMLDocumentPart implements Sheet {
         //collect cells holding shared formulas
         CTCell ct = cell.getCTCell();
         CTCellFormula f = ct.getF();
-        if(f != null && f.getT() == STCellFormulaType.SHARED && f.isSetRef() && f.getStringValue() != null){
+        if (f != null && f.getT() == STCellFormulaType.SHARED && f.isSetRef() && f.getStringValue() != null) {
             sharedFormulas.put((int)f.getSi(), cell);
         }
-        CTCellFormula formula = ct.getF();
-        if (formula != null && formula.getT() == STCellFormulaType.ARRAY && formula.getRef() != null) {
-            arrayFormulas.add(CellRangeAddress.valueOf(formula.getRef()));
+        if (f != null && f.getT() == STCellFormulaType.ARRAY && f.getRef() != null) {
+            arrayFormulas.add(CellRangeAddress.valueOf(f.getRef()));
         }
     }
 

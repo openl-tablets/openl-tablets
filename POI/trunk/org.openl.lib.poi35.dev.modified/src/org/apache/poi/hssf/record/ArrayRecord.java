@@ -31,7 +31,7 @@ import org.apache.poi.util.LittleEndianOutput;
  * Treated in a similar way to SharedFormulaRecord
  *
  * @author Josh Micich
- * @author vabramovs(VIA) - Array Formula support
+ * @author Vladimirs Abramovs(Vladimirs.Abramovs at exigenservices.com) - Array Formula support
  */
 public final class ArrayRecord extends SharedValueRecordBase {
 
@@ -96,10 +96,10 @@ public final class ArrayRecord extends SharedValueRecordBase {
 		return sb.toString();
 	}
 
-	   /**
-		 * @return the equivalent {@link Ptg} array that the formula would have,
-		 *		 were it not shared.
-		 */
+	/**
+	 * @return the equivalent {@link Ptg} array that the formula would have,
+	 *         were it not shared.
+	 */
 	public Ptg[] getFormulaTokens() {
 		int formulaRow = this.getFirstRow();
 		int formulaColumn = this.getLastColumn();

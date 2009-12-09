@@ -34,7 +34,6 @@ import org.apache.poi.ss.usermodel.Cell;
  * corresponding cell in the shared master workbook.
  *
  * @author Josh Micich
- * @author vabramovs(VIA) - Arrray Formula support
  */
 final class ForkedEvaluationCell implements UpdatableEvaluationCell {
 
@@ -51,7 +50,7 @@ final class ForkedEvaluationCell implements UpdatableEvaluationCell {
 		_sheet = sheet;
 		_masterCell = masterCell;
 		// start with value blank, but expect construction to be immediately
-		setValue(BlankEval.INSTANCE); // followed by a proper call to setValue()
+		setValue(BlankEval.instance); // followed by a proper call to setValue()
 	}
 
 	public Object getIdentityKey() {
@@ -132,13 +131,7 @@ final class ForkedEvaluationCell implements UpdatableEvaluationCell {
 		return _masterCell.getColumnIndex();
 	}
 
-// VIA	
-	public boolean isArrayFormulaContext() {
-		return _masterCell.isArrayFormulaContext();
+	public boolean isArrayFormula() {
+		return _masterCell.isArrayFormula();
 	}
-// end changes VIA 	
-
-    public EvaluationCell getFirstCellInArrayFormula() {
-        return _masterCell.getFirstCellInArrayFormula();
-    }
 }

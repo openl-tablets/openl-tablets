@@ -17,11 +17,11 @@
 
 package org.apache.poi.hssf.record.formula.functions;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.EvaluationException;
 import org.apache.poi.hssf.record.formula.eval.OperandResolver;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
+import org.apache.poi.ss.formula.TwoDEval;
 
 /**
  * Implementation of Excel function LOOKUP.<p/>
@@ -36,11 +36,10 @@ import org.apache.poi.hssf.record.formula.functions.LookupUtils.ValueVector;
  * <b>result_vector</b> Single row or single column area reference from which the result value is chosen.<br/>
  *
  * @author Josh Micich
- * @author zsulkins(ZS)- array support
+ * @author Zahars Sulkins(Zahars.Sulkins at exigenservices.com) - array support
  */
-//ZS
-public final class Lookup extends Var2or3ArgFunction implements Function, FunctionWithArraySupport{
-// end changes
+public final class Lookup extends Var2or3ArgFunction implements FunctionWithArraySupport {
+
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
 		// complex rules to choose lookupVector and resultVector from the single area ref
 		throw new RuntimeException("Two arg version of LOOKUP not supported yet");
@@ -50,8 +49,8 @@ public final class Lookup extends Var2or3ArgFunction implements Function, Functi
 			ValueEval arg2) {
 		try {
 			ValueEval lookupValue = OperandResolver.getSingleValue(arg0, srcRowIndex, srcColumnIndex);
-			AreaEval aeLookupVector = LookupUtils.resolveTableArrayArg(arg1);
-			AreaEval aeResultVector = LookupUtils.resolveTableArrayArg(arg2);
+			TwoDEval aeLookupVector = LookupUtils.resolveTableArrayArg(arg1);
+			TwoDEval aeResultVector = LookupUtils.resolveTableArrayArg(arg2);
 
 			ValueVector lookupVector = createVector(aeLookupVector);
 			ValueVector resultVector = createVector(aeResultVector);
@@ -67,7 +66,7 @@ public final class Lookup extends Var2or3ArgFunction implements Function, Functi
 		}
 	}
 
-	private static ValueVector createVector(AreaEval ae) {
+	private static ValueVector createVector(TwoDEval ae) {
 		ValueVector result = LookupUtils.createVector(ae);
 		if (result != null) {
 			return result;
@@ -75,20 +74,13 @@ public final class Lookup extends Var2or3ArgFunction implements Function, Functi
 		// extra complexity required to emulate the way LOOKUP can handles these abnormal cases.
 		throw new RuntimeException("non-vector lookup or result areas not supported yet");
 	}
-	
-//  ZS	
-	/* (non-Javadoc)
-	 * @see org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport#supportArray(int)
-	 */
-	public boolean supportArray(int paramIndex){
-		switch (paramIndex){
-			default: 
-				return false;
+
+	public boolean supportArray(int paramIndex) {
+		switch (paramIndex) {
 			case 1:
 			case 2:
 				return true;
 		}
-	
+		return false;
 	}
-// end changes ZS			
 }

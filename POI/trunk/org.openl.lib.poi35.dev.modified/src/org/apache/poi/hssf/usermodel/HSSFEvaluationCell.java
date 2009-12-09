@@ -23,16 +23,12 @@ import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
-import org.apache.poi.ss.util.CellRangeAddress;
-
 /**
  * HSSF wrapper for a cell under evaluation
- * 
+ *
  * @author Josh Micich
- * @author vabramovs(VIA) - Array Formula support
  */
 final class HSSFEvaluationCell implements UpdatableEvaluationCell {
 
@@ -79,14 +75,10 @@ final class HSSFEvaluationCell implements UpdatableEvaluationCell {
 	public String getStringCellValue() {
 		return _cell.getRichStringCellValue().getString();
 	}
-//  VIA	
-	/* (non-Javadoc)
-	 * @see org.apache.poi.ss.formula.EvaluationCell#isArrayFormulaContext()
-	 */
-	public boolean isArrayFormulaContext() {
+
+	public boolean isArrayFormula() {
 		return _cell.isPartOfArrayFormulaGroup();
 	}
-//  end changes VIA
 	
 	public void setValue(ValueEval value) {
         Class<? extends ValueEval> cls = value.getClass();
@@ -116,10 +108,5 @@ final class HSSFEvaluationCell implements UpdatableEvaluationCell {
             return;
         }
         throw new IllegalArgumentException("Unexpected value class (" + cls.getName() + ")");
-    }
-	
-    public EvaluationCell getFirstCellInArrayFormula() {
-        CellRangeAddress range = _cell.getArrayFormulaRange();
-        return _evalSheet.getCell(range.getFirstRow(), range.getFirstColumn());
     }
 }

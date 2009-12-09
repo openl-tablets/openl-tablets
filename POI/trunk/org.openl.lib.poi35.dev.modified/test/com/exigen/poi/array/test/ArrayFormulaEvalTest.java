@@ -297,6 +297,10 @@ public abstract class ArrayFormulaEvalTest {
 			public boolean supportArray(int paramIndex) {
 				return true;
 			}
+
+            public ValueEval evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex) {
+                return args[0];
+            }
 		}
 	@Test
 	public void EvaluateMyFunctionInArrayContext() {
