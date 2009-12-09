@@ -1,11 +1,9 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
-
 
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -224,7 +222,7 @@ public class ShowTableBean {
 
     @SuppressWarnings("unchecked")
     public boolean updateSystemProperties() {
-        boolean result = false;
+        boolean result = true;
         String editorId = FacesUtils.getRequestParameter(
                 org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
@@ -237,15 +235,16 @@ public class ShowTableBean {
         for (TablePropertyDefinition sysProp : sysProps) {
             String resultValue = null;
             if (sysProp.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
-                resultValue = SystemValuesManager.instance().getSystemValue(sysProp.getSystemValueDescriptor());
-                try {
-                    editorModel.setProperty(sysProp.getName(), resultValue);                    
-                    result = true;
-                } catch (Exception e) {
-                    LOG.error(String.format("Can`t update system property %d with value %d",
-                                            sysProp.getName(), resultValue),e);
-                    result = false;
-                }
+                resultValue = SystemValuesManager.instance().getSystemValueString(sysProp.getSystemValueDescriptor());
+                if (resultValue != null) {
+                    try {
+                        editorModel.setProperty(sysProp.getName(), resultValue);
+                    } catch (Exception e) {
+                        LOG.error(String.format("Can`t update system property %d with value %d",
+                                                sysProp.getName(), resultValue),e);
+                        result = false;
+                    }
+                }                
             }
         }
         return result;

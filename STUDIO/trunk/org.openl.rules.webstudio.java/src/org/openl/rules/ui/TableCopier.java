@@ -1,7 +1,8 @@
 package org.openl.rules.ui;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -13,13 +14,17 @@ import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.ui.tablewizard.WizardBase;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -31,24 +36,30 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 public abstract class TableCopier extends WizardBase {
     
     /** Logger */
-    private static final Log log = LogFactory.getLog(TableCopier.class);   
+    private static final Log LOG = LogFactory.getLog(TableCopier.class);   
     /** Table identifier */
-    protected String elementUri = null;
+    private String elementUri = null;
     /** Table technical name */
-    protected String tableTechnicalName;
+    private String tableTechnicalName;
     /** Table business name */
-    protected String tableBusinessName;
+    private String tableBusinessName;
     /** Need to save body content during coping */
-    protected boolean saveContent = true;
+    private boolean saveContent = true;
     
-    public boolean isSaveContent() {
-        return saveContent;
+    private int systemPropNumber = 0;
+    
+    /**
+     * Copies table.
+     *
+     * @throws CreateTableException
+     */
+    private void doCopy() throws CreateTableException {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = studio.getModel();
+        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
+        buildTable(sourceCodeModule, model);
     }
-
-    public void setSaveContent(boolean saveContent) {
-        this.saveContent = saveContent;
-    }
-
+    
     /**
      * Creates new table.
      *
@@ -56,7 +67,8 @@ public abstract class TableCopier extends WizardBase {
      * @param model table model
      * @throws CreateTableException
      */   
-    protected void buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model) throws CreateTableException {
+    protected void buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model) 
+        throws CreateTableException {
         IGridTable baseTable = model.getTable(elementUri);
         TableSyntaxNode baseNode = model.getNode(elementUri);
         String baseTableType = baseNode.getType();
@@ -70,8 +82,9 @@ public abstract class TableCopier extends WizardBase {
         int logicBaseTableStartRow = 0;
 
         builder.beginTable(baseTableWidth, baseTableHeight);
-
-        if (!baseTableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !baseTableType.equals(ITableNodeTypes.XLS_OTHER)) {
+        boolean envTable = baseTableType.equals(ITableNodeTypes.XLS_ENVIRONMENT);
+        boolean otherTable = baseTableType.equals(ITableNodeTypes.XLS_OTHER); 
+        if (!envTable && !otherTable) {
             String newHeader = buildHeader(baseNode.getHeaderLineValue().getValue(), baseTableType);
             ICellStyle headerStyle = baseTable.getCell(0, 0).getStyle();
             builder.writeHeader(newHeader, headerStyle);
@@ -82,13 +95,13 @@ public abstract class TableCopier extends WizardBase {
             ICellStyle propertiesStyle = null;
             if (tableProperties != null) {
                 propertiesStyle = getPropertiesStyle(tableProperties);
-                baseTableProperties = tableProperties.getPropertiesIgnoreDefault();
+                baseTableProperties = tableProperties.getPropertiesIgnoreDefaultAndSystem();
             }
-            Map<String,Object> buildedPropForNewTable = buildProperties(baseTableProperties); 
+            Map<String, Object> buildedPropForNewTable = buildProperties(baseTableProperties); 
             if (buildedPropForNewTable.size() > 0) {
                 builder.writeProperties(buildedPropForNewTable, propertiesStyle);
-            }            
-            logicBaseTableStartRow += baseTableProperties == null ? 0 : baseTableProperties.size();
+            }
+            logicBaseTableStartRow += baseTableProperties == null ? 0 : baseTableProperties.size() + systemPropNumber;
         }
 
         builder.writeGridTable(baseTable.getLogicalRegion(0, logicBaseTableStartRow, baseTableWidth,
@@ -97,7 +110,6 @@ public abstract class TableCopier extends WizardBase {
         builder.endTable();
         builder.save();
     }
-    
 
     /**
      * Creates new properties.
@@ -106,6 +118,26 @@ public abstract class TableCopier extends WizardBase {
      * @return new properties
      */
     protected abstract Map<String, Object> buildProperties(Map<String, Object> properties);
+    
+    /**
+     * Creates system properties for new table.
+     * 
+     * @return
+     */
+    protected Map<String, Object> buildSystemProperties() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        List<TablePropertyDefinition> systemPropDefinitions = DefaultPropertyDefinitions.getSystemProperties();
+        for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
+            if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
+                Object systemValue = SystemValuesManager.instance().getSystemValue(systemPropDef.getSystemValueDescriptor());
+                if (systemValue != null){
+                    result.put(systemPropDef.getName(), systemValue);
+                    systemPropNumber++;
+                }
+            }
+        }
+        return result;
+    }
     
     /**
      * Creates new header.
@@ -120,10 +152,10 @@ public abstract class TableCopier extends WizardBase {
         return header.trim().replaceFirst(repl, tableTechnicalName.trim());
     }
     
-    protected void initTableNames () {
-        TableSyntaxNode node = getCopyingTable();
-        tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
+    protected void initTableNames() {
+        TableSyntaxNode node = getCopyingTable();                
         if (node != null) {
+            tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
             ITableProperties tableProperties = node.getTableProperties();
             if (tableProperties != null) {
                 tableBusinessName = node.getTableProperties().getPropertyValueAsString(TableBuilder.TABLE_PROPERTIES_NAME);
@@ -134,9 +166,8 @@ public abstract class TableCopier extends WizardBase {
     protected TableSyntaxNode getCopyingTable() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setTableUri(elementUri);
-        ProjectModel model = studio.getModel();
-        TableSyntaxNode node = model.getNode(elementUri);
-        return node;
+        ProjectModel model = studio.getModel();        
+        return  model.getNode(elementUri);
     }
     
     /**
@@ -147,11 +178,12 @@ public abstract class TableCopier extends WizardBase {
      * @return technical name of table
      */
     protected String parseTechnicalName(String header, String tableType) {
-        if (tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) || tableType.equals(ITableNodeTypes.XLS_OTHER)) {
-            return null;
-        }
-        header = header.replaceFirst("\\(.*\\)", "");
-        String[] headerTokens = StringUtils.split(header);
+        String headerIntern = header;
+        String[] headerTokens = null;
+        if (!tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !tableType.equals(ITableNodeTypes.XLS_OTHER)) {
+            headerIntern = header.replaceFirst("\\(.*\\)", "");
+             headerTokens = StringUtils.split(headerIntern);
+        }        
         return headerTokens[headerTokens.length - 1];
     }
     
@@ -164,7 +196,57 @@ public abstract class TableCopier extends WizardBase {
         elementUri = null;
         tableTechnicalName = null;
         tableBusinessName = null;
+        systemPropNumber = 0;
     }
+    
+    protected String getElementUri() {
+        return elementUri;
+    }
+
+    protected void setElementUri(String elementUri) {
+        this.elementUri = elementUri;
+    }
+    
+    /**
+     * Initializes table information.
+     */
+    protected void initUri() {
+        elementUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        if (StringUtils.isNotBlank(elementUri)) {
+            initTableNames();
+        } else {
+            elementUri = studio.getTableUri();
+        }
+    }
+    
+    @Override
+    protected void onFinish(boolean cancelled) {
+        reset();
+    }
+    
+    @Override
+    protected void onStart() {
+        reset();
+        initWorkbooks();
+    }
+    
+    protected ICellStyle getPropertiesStyle(ITableProperties tableProperties) {
+        ICellStyle propertiesStyle;
+        IGridTable propertiesTable = tableProperties.getPropertiesSection().getGridTable();
+        propertiesStyle = propertiesTable.getCell(0, 0).getStyle();
+        return propertiesStyle;
+    }
+    
+    public boolean isSaveContent() {
+        return saveContent;
+    }
+
+    public void setSaveContent(boolean saveContent) {
+        this.saveContent = saveContent;
+    }
+
+    
     
     public String getTableBusinessName() {
         return tableBusinessName;
@@ -184,42 +266,6 @@ public abstract class TableCopier extends WizardBase {
     }
     
     /**
-     * Initializes table information.
-     */
-    protected void initUri() {
-        elementUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        if (StringUtils.isNotBlank(elementUri)) {
-            initTableNames();
-        } else {
-            elementUri = studio.getTableUri();
-        }
-    }
-    
-    /**
-     * Copies table.
-     *
-     * @throws CreateTableException
-     */
-    private void doCopy() throws CreateTableException {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
-        XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
-        buildTable(sourceCodeModule, model);
-    }
-    
-    @Override
-    protected void onFinish(boolean cancelled) {
-        reset();
-    }
-    
-    @Override
-    protected void onStart() {
-        reset();
-        initWorkbooks();
-    }
-    
-    /**
      * Copy table handler.
      */
     public String copy() {
@@ -228,10 +274,11 @@ public abstract class TableCopier extends WizardBase {
         try {
             doCopy();
             success = true;
-        } catch (Exception e) {
+        } catch (CreateTableException e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Could not copy table. "+e.getMessage(), e.getMessage()));
-            log.error("Could not copy table: ", e);
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+                            String.format("Could not copy table. %d", e.getMessage()), e.getMessage()));
+            LOG.error("Could not copy table: ", e);
             result = "copyFailed";
         }
         if (success) {
@@ -239,14 +286,6 @@ public abstract class TableCopier extends WizardBase {
             result = "copySuccess";
         }
         return result;
-    }
-    
-    protected ICellStyle getPropertiesStyle(ITableProperties tableProperties) {
-        ICellStyle propertiesStyle;
-        IGridTable propertiesTable = tableProperties.getPropertiesSection().getGridTable();
-        propertiesStyle = propertiesTable.getCell(0, 0).getStyle() == null ? null : propertiesTable
-                .getCell(0, 0).getStyle();
-        return propertiesStyle;
     }
 
 }

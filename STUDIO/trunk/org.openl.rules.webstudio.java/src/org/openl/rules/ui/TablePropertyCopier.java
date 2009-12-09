@@ -24,9 +24,9 @@ public class TablePropertyCopier extends TableCopier {
         this.propToCopy = propToCopy;
     }
     
-    public TablePropertyCopier(String elementUri1) {        
+    public TablePropertyCopier(String elementUri) {        
         start();
-        this.elementUri = elementUri1;        
+        setElementUri(elementUri);        
         initTableNames();  
         initProperties();
     }    
@@ -60,7 +60,7 @@ public class TablePropertyCopier extends TableCopier {
     @Override
     protected Map<String, Object> buildProperties(Map<String, Object> tableProperties) {
         Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
-        
+        newProperties.putAll(buildSystemProperties());
         //TO DO:
         // validateIfNecessaryPropertiesWereChanged(tableProperties);
         

@@ -8,6 +8,6 @@ package org.openl.rules.webstudio.properties;
  */
 public interface ISystemValue {
     
-    String getValue();
+    Object getValue();
 
 }
