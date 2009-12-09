@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.table.IGridTable;
@@ -169,7 +170,8 @@ public class HTMLRenderer {
                 renderEditorToolbarItem(editorId + "_remove_row", editorJsVar, "img/delete_row.gif",
                         "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
                 .append(toolbarItemSeparator).append(
-                        renderEditorToolbarItem(editorId + "_insert_column_before", editorJsVar, "img/insert_column.gif",
+                        renderEditorToolbarItem(editorId + "_insert_column_before", editorJsVar,
+                                "img/insert_column.gif",
                                 "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)",
                                 "Insert column before")).append(
                         renderEditorToolbarItem(editorId + "_remove_column", editorJsVar, "img/delete_column.gif",
@@ -232,7 +234,8 @@ public class HTMLRenderer {
         }
         if (editor.getTable() != null) {
             IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
-            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(editor).getUpdatedTable(), filters);
+            TableModel tableModel = TableModel.initializeTableModel(new TableEditorModel(editor).getUpdatedTable(),
+                    filters);
             if (tableModel != null) {
                 String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
@@ -328,7 +331,8 @@ public class HTMLRenderer {
 
         public String renderWithMenu(String menuId, boolean showFormulas) {
             menuId = menuId == null ? "" : menuId;
-            return render("onmouseover=\"openMenu('" + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"", true, showFormulas);
+            return render("onmouseover=\"openMenu('" + menuId + "',this,event)\" onmouseout=\"closeMenu(this)\"",
+                    true, showFormulas);
         }
 
         public void setCellIdPrefix(String prefix) {
@@ -371,7 +375,8 @@ public class HTMLRenderer {
             for (TablePropertyDefinition propDefinition : propDefinitions) {
                 String displayName = propDefinition.getDisplayName();
                 Object value = props != null ? props.getPropertyValue(propDefinition.getName()) : null; 
-                Class<?> type = propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass();
+                Class<?> type = propDefinition.getType() == null ? String.class : propDefinition.getType()
+                        .getInstanceClass();
                 String group = propDefinition.getGroup();
                 String name = propDefinition.getName();
                 String format = propDefinition.getFormat();
@@ -547,7 +552,8 @@ public class HTMLRenderer {
             Constraints constraints = prop.getConstraints();
 
             result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new DateEditor('','" + id + "','','" + WebUtil.toJSString(value) + "','')"));
+                .append(renderJSBody("new DateEditor('','" + id + "','','"
+                        + StringEscapeUtils.escapeJavaScript(value) + "','')"));
 
             for (Constraint constraint : constraints.getAll()) {
                 if (constraint instanceof LessThanConstraint
@@ -570,7 +576,8 @@ public class HTMLRenderer {
                 value="";
             }
             result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
-                .append(renderJSBody("new TextEditor('','" + id + "','','" + WebUtil.toJSString(value) + "','')"));
+                .append(renderJSBody("new TextEditor('','" + id + "','','"
+                        + StringEscapeUtils.escapeJavaScript(value) + "','')"));
         }
 
         private void insertCheckbox(String value, String id) {
