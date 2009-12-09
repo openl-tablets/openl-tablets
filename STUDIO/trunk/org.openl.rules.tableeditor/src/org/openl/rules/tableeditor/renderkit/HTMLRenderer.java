@@ -503,23 +503,27 @@ public class HTMLRenderer {
         private void fillEditProp(TableProperty prop) {
             result.append("<tr>");
             insertLabel(prop.getDisplayName());
-            String propValue = prop.getValueString();            
+             if (prop.isSystem()) {
+                insertText(prop);
+            } else {
+                insertInput(prop);
+            }
+            result.append("</tr>");
+        }
+
+        private void insertInput(TableProperty prop) {
             String propId = propsId + Constants.ID_POSTFIX_PROP + prop.getName();
-            if (prop.getType() != null) {
-                if (prop.isStringType() && !prop.isSystem()) {
-                    insertEdit(propValue, propId);
-                } else if (prop.isDateType() && !prop.isSystem()) {
-                    insertCalendar(prop, propId);
-                } else if (prop.isBooleanType() && !prop.isSystem()) {
-                    insertCheckbox(propValue, propId);
-                } else if (prop.isDoubleType() && !prop.isSystem()) {
-                    insertEdit(propValue, propId);
-                } else if (prop.isSystem()) {
-                    insertText(prop);
-                }
+            String propValue = prop.getValueString();
+            if (prop.isString()) {
+                insertEdit(propValue, propId);
+            } else if (prop.isDate()) {
+                insertCalendar(prop, propId);
+            } else if (prop.isBoolean()) {
+                insertCheckbox(propValue, propId);
+            } else if (prop.isDouble() ) {
+                insertEdit(propValue, propId);
             }
             insertTooltip(propId, prop.getDescription());
-            result.append("</tr>");
         }
 
         private void insertTooltip(String propId, String description) {

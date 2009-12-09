@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.webstudio.web.jsf.JSFConst;
+import org.openl.rules.webstudio.web.util.Constants;
 
 import javax.servlet.http.*;
 
@@ -12,7 +12,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
     // Session Attribute
 
     private RulesUserSession getUserRules(HttpSession session) {
-        return (RulesUserSession) session.getAttribute(JSFConst.RULES_USER_SESSION_ATTR);
+        return (RulesUserSession) session.getAttribute(Constants.RULES_USER_SESSION);
     }
 
     protected void printSession(HttpSession session) {

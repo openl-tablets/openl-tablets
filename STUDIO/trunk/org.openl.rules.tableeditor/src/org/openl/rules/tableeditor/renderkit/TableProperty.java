@@ -149,36 +149,20 @@ public class TableProperty {
         this.group = group;
     }
 
-    public boolean isStringType() {        
-        boolean stringValue = false;
-        if (type.equals(String.class)) {
-            stringValue = true;
-        }        
-        return stringValue;
+    public boolean isString() {        
+        return String.class.equals(type);
     }
 
-    public boolean isDateType() {
-        boolean dateValue = false;
-        if (type.equals(java.util.Date.class)) {
-            dateValue = true;
-        }
-        return dateValue;
+    public boolean isDate() {
+        return Date.class.equals(type);
     }
 
-    public boolean isBooleanType() {
-        boolean booleanValue = false;
-        if(type.equals(java.lang.Boolean.class)) {
-            booleanValue = true;
-        }        
-        return booleanValue;
+    public boolean isBoolean() {
+        return Boolean.class.equals(type);
     }
     
-    public boolean isDoubleType() {
-        boolean doubleValue = false;
-        if(type.equals(java.lang.Double.class)) {
-            doubleValue = true;
-        }        
-        return doubleValue;
+    public boolean isDouble() {
+        return Double.class.equals(type);
     }
 
     public void setConstraints(Constraints constraints) {

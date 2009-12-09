@@ -7,9 +7,9 @@ import java.util.Comparator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.webstudio.web.jsf.JSFConst;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceDeploymentProject;
@@ -48,7 +48,7 @@ public class RepositoryUtils {
     }
 
     public static RulesUserSession getRulesUserSession() {
-        return (RulesUserSession) FacesUtils.getSessionMap().get(JSFConst.RULES_USER_SESSION_ATTR);
+        return (RulesUserSession) FacesUtils.getSessionParam(Constants.RULES_USER_SESSION);
     }
 
     /**

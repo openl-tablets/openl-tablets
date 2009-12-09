@@ -24,8 +24,7 @@ public class BaseTableEditorController {
 
     @SuppressWarnings("unchecked")
     protected TableEditorModel getEditorModel(String editorId) {
-        Map sessionMap = FacesUtils.getSessionMap();
-        Map editorModelMap = (Map) sessionMap.get(Constants.TABLE_EDITOR_MODEL_NAME);
+        Map editorModelMap = (Map) FacesUtils.getSessionParam(Constants.TABLE_EDITOR_MODEL_NAME);
         if (editorModelMap != null) {
             return (TableEditorModel) editorModelMap.get(editorId);
         }

@@ -6,23 +6,18 @@ import java.util.Collection;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
-import javax.faces.FactoryFinder;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.context.FacesContextFactory;
-import javax.faces.lifecycle.Lifecycle;
-import javax.faces.lifecycle.LifecycleFactory;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
  * Various generic helpful methods to simplify common operations with JSF.
  *
  * @author Andrey Naumenko
+ * @author Andrei Astrouski
  */
 public abstract class FacesUtils {
     /**
@@ -56,37 +51,16 @@ public abstract class FacesUtils {
         return items;
     }
 
-    private static String getBinding(String name) {
-        if (name.startsWith("#{")) {
-            return name;
-        }
-        return "#{" + name + "}";
+    public static FacesContext getFacesContext() {
+        return FacesContext.getCurrentInstance();
     }
 
-    public static FacesContext getFacesContext(HttpServletRequest request, HttpServletResponse response) {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        if (facesContext == null) {
-            FacesContextFactory contextFactory = (FacesContextFactory) FactoryFinder
-                    .getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
-            LifecycleFactory lifecycleFactory = (LifecycleFactory) FactoryFinder
-                    .getFactory(FactoryFinder.LIFECYCLE_FACTORY);
-            Lifecycle lifecycle = lifecycleFactory.getLifecycle(LifecycleFactory.DEFAULT_LIFECYCLE);
-            facesContext = contextFactory.getFacesContext(request.getSession().getServletContext(), request, response,
-                    lifecycle);
-        }
-        return facesContext;
-    }
-
-    /**
-     * Returns variable from faces context by name using ValueBinding.
-     *
-     * @param name bean name.
-     *
-     * @return bean from context.
-     */
-    public static Object getFacesVariable(String name) {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        return facesContext.getApplication().createValueBinding(getBinding(name)).getValue(facesContext);
+    public static ValueExpression createValueExpression(String expressionString) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        ELContext elContext = context.getELContext();
+        ValueExpression valueExpression = context.getApplication().getExpressionFactory().
+            createValueExpression(elContext, expressionString, null);
+        return valueExpression;
     }
 
     public static MethodExpression createMethodExpression(String expressionString) {
@@ -97,14 +71,34 @@ public abstract class FacesUtils {
         return methodExpression;
     }
 
+    public static Object getValueExpressionValue(String expressionString) {
+        ValueExpression valueExpression = createValueExpression(expressionString);
+        return valueExpression.getValue(getELContext());
+    }
+
+    public static Object getValueExpressionValue(UIComponent component, String componentParam) {
+        ValueExpression valueExpression = component.getValueExpression(componentParam);
+        if (valueExpression != null) {
+            return valueExpression.getValue(getELContext());
+        }
+        return null;
+    }
+
+    public static String getValueExpressionString(UIComponent component, String componentParam) {
+        ValueExpression valueExpression = component.getValueExpression(componentParam);
+        if (valueExpression != null) {
+            return valueExpression.getExpressionString();
+        }
+        return null;
+    }
+
     public static Object invokeMethodExpression(String expressionString) {
         MethodExpression methodExpression = createMethodExpression(expressionString);
         return methodExpression.invoke(getELContext(), new Object[0]);
     }
 
     public static ELContext getELContext() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        ELContext elContext = context.getELContext();
+        ELContext elContext = getFacesContext().getELContext();
         return elContext;
     }
 
@@ -133,8 +127,12 @@ public abstract class FacesUtils {
         return getExternalContext().getSessionMap();
     }
 
+    public static Object getSessionParam(String name) {
+        return getSessionMap().get(name);
+    }
+
     public static ExternalContext getExternalContext() {
-        return FacesContext.getCurrentInstance().getExternalContext();
+        return getFacesContext().getExternalContext();
     }
 
     public static ServletRequest getRequest() {
@@ -147,14 +145,6 @@ public abstract class FacesUtils {
 
     public static String getContextPath() {
         return getExternalContext().getRequestContextPath();
-    }
-
-    public static String getValueExpressionString(UIComponent component, String attribute) {
-        ValueExpression valueExpression = component.getValueExpression(attribute);
-        if (valueExpression != null) {
-            return valueExpression.getExpressionString();
-        }
-        return null;
     }
 
 }
