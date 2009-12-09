@@ -166,7 +166,7 @@ public class String2DataConvertorFactory {
                     return cc.getTime();
 
                 } catch (NumberFormatException t) {
-                    LOG.error(t);
+                    LOG.debug(t);
                 }
                 throw RuntimeExceptionWrapper.wrap(e);
             }
