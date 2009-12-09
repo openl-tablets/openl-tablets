@@ -28,7 +28,7 @@ public class TableEditorController extends BaseTableEditorController implements 
     private static String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
 
     public String edit() {
-        String editorId = getRequestParam(Constants.REQUEST_PARAM_EDITOR_ID);
+        String editorId = getEditorId();
         String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
         TableEditorModel editorModel = getEditorModel(editorId);
         TableEditor editor = editorModel.getTableEditor();
