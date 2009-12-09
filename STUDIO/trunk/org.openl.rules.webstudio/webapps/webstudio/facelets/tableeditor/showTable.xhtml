@@ -41,6 +41,11 @@
                     <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
                 </h:outputLink>
 
+                <h:commandLink rendered="#{showTableBean.editable}" action="#{showTableBean.editAsNewVersion}">
+                    <h:graphicImage url="/webresource/images/editTableNewVersion.gif"
+                        alt="Edit Table as New Version" title="Edit Table as New Version" />
+                </h:commandLink>
+
                 <h:outputLink rendered="#{showTableBean.editable}"
                     value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}"
                     target="show_app_hidden">
