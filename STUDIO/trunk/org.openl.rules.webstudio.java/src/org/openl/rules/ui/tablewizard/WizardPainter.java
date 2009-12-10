@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.openl.rules.tableeditor.model.ui.BorderStyle;
 import org.openl.rules.tableeditor.model.ui.CellModel;
@@ -53,44 +54,59 @@ public class WizardPainter {
     }
 
     public String getTableHTML() {
+        int systemPropHeight = wizardDecisionTable.getSystemProperties().size();
         int conditionsWidth = countColumns(wizardDecisionTable.getConditions());
         int actionsWidth = countColumns(wizardDecisionTable.getActions());
         int returnWidth = wizardDecisionTable.getReturn().getParamsCount();
+        int widthWithProp = 0;
         int width = conditionsWidth + actionsWidth + returnWidth;
-        int height = 4 + 1 + 3; // technical info + columns headers + data rows
+        if (width < 3 && !wizardDecisionTable.getSystemProperties().isEmpty()) {
+            widthWithProp = 3;
+        } else {
+            widthWithProp = width;
+        }        
+        int height = 4 + 1 + 3 + systemPropHeight; // technical info + columns headers + data rows + system properties
 
-        tableModel = new TableModel(width, height, null);
-        addCell(0, 0, width, getTableTitle());
-
+        tableModel = new TableModel(widthWithProp, height, null);
+        addCell(0, 0, widthWithProp, getTableTitle());
+        
+        int row = 1;
+        for (Entry<String, Object> sysProp : wizardDecisionTable.getSystemProperties().entrySet()) {            
+            addCell(row, 0, 1, "properties");
+            addCell(row, 1, 1, sysProp.getKey());
+            addCell(row, 2, 1, sysProp.getValue().toString());            
+            row++;
+        }  
+        
         int col = 0;
         for (TableCondition cond : wizardDecisionTable.getConditions()) {
             int colSpan = cond.getParamsCount();
-            addCell(1, col, colSpan, cond.getName());
-            addCell(2, col, colSpan, cond.getLogic());
+            addCell(row+1, col, colSpan, cond.getName());
+            addCell(row+2, col, colSpan, cond.getLogic());
             for (Parameter p : cond.getParameters()) {
-                addCell(3, col, 1, p.getType() + " " + p.getName());
-                addCell(4, col++, 1, p.getBusinessName());
+                addCell(row+3, col, 1, p.getType() + " " + p.getName());
+                addCell(row+4, col++, 1, p.getBusinessName());
             }
         }
         for (TableArtifact action : wizardDecisionTable.getActions()) {
             int colSpan = action.getParamsCount();
-            addCell(1, col, colSpan, action.getName());
-            addCell(2, col, colSpan, action.getLogic());
+            addCell(row+1, col, colSpan, action.getName());
+            addCell(row+2, col, colSpan, action.getLogic());
             for (Parameter p : action.getParameters()) {
-                addCell(3, col, 1, p.getType() + " " + p.getName());
-                addCell(4, col++, 1, p.getBusinessName());
+                addCell(row+3, col, 1, p.getType() + " " + p.getName());
+                addCell(row+4, col++, 1, p.getBusinessName());
             }
         }
-        addCell(1, col, returnWidth, "RET1");
-        addCell(2, col, returnWidth, wizardDecisionTable.getReturn().getLogic());
+        addCell(row+1, col, returnWidth, "RET1");
+        addCell(row+2, col, returnWidth, wizardDecisionTable.getReturn().getLogic());
         for (Parameter p : wizardDecisionTable.getReturn().getParameters()) {
-            addCell(3, col, 1, p.getType() + " " + p.getName());
-            addCell(4, col++, 1, p.getBusinessName());
+            addCell(row+3, col, 1, p.getType() + " " + p.getName());
+            addCell(row+4, col++, 1, p.getBusinessName());
         }
 
-        for (int row = 5; row < height; ++row) {
+        for (int rowN = row+5; rowN < height; ++rowN) {
             for (col = 0; col < width; ++col) {
-                addCell(row, col, 1, "Data");
+                addCell(rowN, col, 1, "Data");
             }
         }
 
