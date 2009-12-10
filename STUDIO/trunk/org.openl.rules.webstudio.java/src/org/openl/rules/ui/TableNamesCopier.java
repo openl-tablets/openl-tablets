@@ -4,6 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
 public class TableNamesCopier extends TableCopier {
@@ -20,15 +23,22 @@ public class TableNamesCopier extends TableCopier {
     }  
    
     @Override
-    protected Map<String, Object> buildProperties(Map<String, Object> properties) {
+    protected Map<String, Object> buildProperties() {
         Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
         newProperties.putAll(buildSystemProperties());
-        if (properties != null) {
-            for (Map.Entry<String, Object> property : properties.entrySet()) {
-                String propertyName = property.getKey();
-                Object propertyValue = property.getValue();
-                newProperties.put(propertyName.trim(), propertyValue);
-            }   
+        TableSyntaxNode node = getCopyingTable();
+        if (node != null) {
+            ITableProperties tableProperties = node.getTableProperties();
+            if (tableProperties != null) {
+                Map<String, Object> properties = tableProperties.getPropertiesIgnoreDefaultAndSystem();
+                if (properties != null) {
+                    for (Map.Entry<String, Object> property : properties.entrySet()) {
+                        String propertyName = property.getKey();
+                        Object propertyValue = property.getValue();
+                        newProperties.put(propertyName.trim(), propertyValue);
+                    }   
+                }
+            }
         }
         if (StringUtils.isBlank(getTableBusinessName()) && newProperties.containsKey(TableBuilder.TABLE_PROPERTIES_NAME)) {
             newProperties.remove(TableBuilder.TABLE_PROPERTIES_NAME);
