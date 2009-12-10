@@ -6,7 +6,6 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd">
 
   <application>
-    <view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
     <variable-resolver>org.springframework.web.jsf.DelegatingVariableResolver</variable-resolver>
 
     <locale-config>
