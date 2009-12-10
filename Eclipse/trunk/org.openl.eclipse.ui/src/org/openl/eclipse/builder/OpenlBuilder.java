@@ -28,6 +28,7 @@ import org.openl.eclipse.base.OpenlBasePlugin;
 import org.openl.eclipse.util.Debug;
 import org.openl.eclipse.util.JDTUtil;
 import org.openl.eclipse.util.UrlUtil;
+import org.openl.engine.OpenLManager;
 import org.openl.main.OpenlMain;
 import org.openl.rules.lang.xls.XlsLoader;
 import org.openl.syntax.SyntaxErrorException;
@@ -198,7 +199,7 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 
                 openl = getOpenlConfiguration(file);
                 if (openl != null) {
-                    openl.compile(new EclipseFileSourceCodeModule(file));
+                    OpenLManager.compileModule(openl, new EclipseFileSourceCodeModule(file));
                 }
             } catch (SyntaxErrorException se) {
                 addMarker(file, se, openl.getName());
