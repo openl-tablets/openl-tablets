@@ -10,10 +10,11 @@ import java.util.Map;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
+import org.openl.OpenlUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.dt.DTOverlapping;
 import org.openl.rules.dt.DTUncovered;
 import org.openl.rules.dt.DecisionTable;
@@ -150,7 +151,7 @@ public class DTValidator implements IDTValidator {
 
             IBindingContext cxt = new ModuleBindingContext(openl.getBinder().makeBindingContext(),
                     (ModuleOpenClass) declaringClass);
-            return OpenlTool.makeMethod(src, openl, methodHeader, cxt);
+            return OpenLManager.makeMethod(openl, src, methodHeader, cxt);
 
         }
 

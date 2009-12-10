@@ -13,6 +13,7 @@ import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
@@ -23,16 +24,16 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- *
+ * 
  * @author snshor
- *
- * Class EngineFactory creates {@link Proxy} based wrappers around OpenL
- * classes. Each wrapper implements interface T and interface
- * {@link IEngineWrapper}. If OpenL IOpenClass does not have methods matching
- * interface T it will produce an error. <br/>
- *
- * NOTE: OpenL fieldValues will be exposed as get<Field> methods
- *
+ * 
+ *         Class EngineFactory creates {@link Proxy} based wrappers around OpenL
+ *         classes. Each wrapper implements interface T and interface
+ *         {@link IEngineWrapper}. If OpenL IOpenClass does not have methods
+ *         matching interface T it will produce an error. <br/>
+ * 
+ *         NOTE: OpenL fieldValues will be exposed as get<Field> methods
+ * 
  * @param <T>
  */
 
@@ -79,7 +80,7 @@ public class EngineFactory<T> {
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Object executionResult;
-            
+
             if (method.getDeclaringClass() == engineInterface) {
                 IOpenMember m = methodMap.get(method);
 
@@ -89,7 +90,7 @@ public class EngineFactory<T> {
                 } else {
                     IOpenField f = (IOpenField) m;
                     executionResult = f.get(openlInstance, openlEnv);
-                } 
+                }
             } else {
                 Class<?>[] cargs = {};
 
@@ -97,7 +98,7 @@ public class EngineFactory<T> {
                 if (args != null && args.length == 1) {
                     cargs = new Class<?>[] { Object.class };
                 }
-    
+
                 if (method.getDeclaringClass() == IEngineWrapper.class) {
                     Method myMethod = OpenLHandler.class.getDeclaredMethod(method.getName(), cargs);
                     executionResult = myMethod.invoke(this, args);
@@ -106,7 +107,7 @@ public class EngineFactory<T> {
                     executionResult = objectMethod.invoke(this, args);
                 }
             }
-            
+
             return executionResult;
 
         }
@@ -121,23 +122,26 @@ public class EngineFactory<T> {
     // This field should be always passed as constructor parameter
     private Class<T> engineInterface;
 
-    // These fieldValues may be derived from other fieldValues, or set by constructor directly
+    // These fieldValues may be derived from other fieldValues, or set by
+    // constructor directly
     private IOpenSourceCodeModule sourceCode;
     private OpenL openl;
     private IUserContext userContext;
-    
+
     private String openlName;
     private String userHome = ".";
     private String sourceFile;
-    
-    // These fields are initialized internally and can't be passed as a parameter of constructor
+
+    // These fields are initialized internally and can't be passed as a
+    // parameter of constructor
     private IOpenClass openClass;
     private Map<Method, IOpenMember> methodMap;
-    
+
     /**
      * 
      * @param openlName Name of OpenL configuration {@link OpenL}.
-     * @param factoryDef Engine factory definition {@link EngineFactoryDefinition}.
+     * @param factoryDef Engine factory definition
+     *            {@link EngineFactoryDefinition}.
      * @param engineInterface User interface of rule.
      */
     public EngineFactory(String openlName, EngineFactoryDefinition factoryDef, Class<T> engineInterface) {
@@ -147,7 +151,7 @@ public class EngineFactory<T> {
 
         this.engineInterface = engineInterface;
     }
-    
+
     /**
      * 
      * @param openlName Name of OpenL configuration {@link OpenL}
@@ -159,7 +163,7 @@ public class EngineFactory<T> {
         sourceCode = new FileSourceCodeModule(file, null);
         this.engineInterface = engineInterface;
     }
-    
+
     /**
      * 
      * @param openlName Name of OpenL configuration {@link OpenL}
@@ -171,7 +175,7 @@ public class EngineFactory<T> {
         this.sourceFile = sourceFile;
         this.engineInterface = engineInterface;
     }
-    
+
     /**
      * 
      * @param openlName Name of OpenL configuration {@link OpenL}
@@ -185,7 +189,7 @@ public class EngineFactory<T> {
         this.engineInterface = engineInterface;
         this.userContext = userContext;
     }
-    
+
     /**
      * 
      * @param openlName Name of OpenL configuration {@link OpenL}
@@ -199,7 +203,7 @@ public class EngineFactory<T> {
         this.sourceFile = sourceFile;
         this.engineInterface = engineInterface;
     }
-    
+
     /**
      * 
      * @param openlName Name of OpenL configuration {@link OpenL}
@@ -211,7 +215,7 @@ public class EngineFactory<T> {
         sourceCode = new URLSourceCodeModule(url);
         this.engineInterface = engineInterface;
     }
-    
+
     /**
      * 
      * @param openlName Name of OpenL configuration {@link OpenL}
@@ -225,8 +229,8 @@ public class EngineFactory<T> {
         this.engineInterface = engineInterface;
         this.userContext = userContext;
     }
-    
-    /**     
+
+    /**
      * @return an abstraction of a "class".
      */
     public synchronized IOpenClass getOpenClass() {
@@ -237,8 +241,8 @@ public class EngineFactory<T> {
         }
         return openClass;
     }
-    
-    /**     
+
+    /**
      * @return Openl instance.
      */
     public synchronized OpenL getOpenL() {
@@ -247,8 +251,8 @@ public class EngineFactory<T> {
         }
         return openl;
     }
-    
-    /**     
+
+    /**
      * @return source code of a file.
      */
     public synchronized IOpenSourceCodeModule getSourceCode() {
@@ -257,8 +261,8 @@ public class EngineFactory<T> {
         }
         return sourceCode;
     }
-    
-    /**     
+
+    /**
      * @return user context.
      */
     public synchronized IUserContext getUserContext() {
@@ -267,13 +271,13 @@ public class EngineFactory<T> {
         }
         return userContext;
     }
-    
+
     protected ClassLoader getDefaultUserClassLoader() {
         ClassLoader userClassLoader = Thread.currentThread().getContextClassLoader();
 
         try {
             // checking if classloader has openl, sometimes it does not
-            userClassLoader.loadClass(this.getClass().getName()); 
+            userClassLoader.loadClass(this.getClass().getName());
         } catch (ClassNotFoundException cnfe) {
             userClassLoader = this.getClass().getClassLoader();
         }
@@ -282,13 +286,14 @@ public class EngineFactory<T> {
 
     private Map<Method, IOpenMember> initializeMethodMap(IOpenClass module) {
         Map<Method, IOpenMember> methodMap = new HashMap<Method, IOpenMember>();
-        
+
         Method[] interfaceMethods = engineInterface.getDeclaredMethods();
 
         for (Method interfaceMethod : interfaceMethods) {
             String interfaceMethodName = interfaceMethod.getName();
-            
-            IOpenMethod rulesMethod = module.getMatchingMethod(interfaceMethodName, JavaOpenClass.getOpenClasses(interfaceMethod.getParameterTypes()));
+
+            IOpenMethod rulesMethod = module.getMatchingMethod(interfaceMethodName, JavaOpenClass
+                    .getOpenClasses(interfaceMethod.getParameterTypes()));
 
             if (rulesMethod != null) {
                 methodMap.put(interfaceMethod, rulesMethod);
@@ -298,23 +303,24 @@ public class EngineFactory<T> {
                     String fieldName = ""
                             + Character.toLowerCase(interfaceMethodName.charAt(fieldMethodPrefix.length()))
                             + interfaceMethodName.substring(fieldMethodPrefix.length() + 1);
-                    
+
                     IOpenField rulesField = module.getField(fieldName, true);
-                    
+
                     if (rulesField != null) {
                         if (JavaOpenClass.getOpenClass(interfaceMethod.getReturnType()) == rulesField.getType()) {
                             methodMap.put(interfaceMethod, rulesField);
                             continue;
                         } else {
-                            throw new RuntimeException(String.format("Return type of method \"%s\" should be %s", 
+                            throw new RuntimeException(String.format("Return type of method \"%s\" should be %s",
                                     interfaceMethodName, rulesField.getType()));
                         }
                     }
-                }    
-                throw new RuntimeException(String.format("There is no implementation in rules for interface method \"%s\"", interfaceMethod));
+                }
+                throw new RuntimeException(String.format(
+                        "There is no implementation in rules for interface method \"%s\"", interfaceMethod));
             }
         }
-        
+
         return methodMap;
     }
 
@@ -323,12 +329,13 @@ public class EngineFactory<T> {
     }
 
     protected IOpenClass initializeOpenClass() {
-        CompiledOpenClass compiledOpenClass = getOpenL().compileModuleWithErrors(getSourceCode());
+        CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode());
         return compiledOpenClass.getOpenClass();
     }
-    
+
     /**
      * Make new instance of rule engine
+     * 
      * @return new instance
      */
     @SuppressWarnings("unchecked")
@@ -336,7 +343,7 @@ public class EngineFactory<T> {
         IRuntimeEnv env = getOpenL().getVm().getRuntimeEnv();
 
         Object openlInstObject = getOpenClass().newInstance(env);
-        
+
         // methodMap has been initialized with current Open Class
         OpenLHandler handler = new OpenLHandler(openlInstObject, env, methodMap);
 
@@ -345,16 +352,18 @@ public class EngineFactory<T> {
 
     /**
      * Create new instance of rule engine
+     * 
      * @return new instance
      */
     public T newInstance() {
         return makeEngineInstance();
     }
-    
+
     /**
-     * Force EngineFactory to recompile the rules when creating new rules instance
+     * Force EngineFactory to recompile the rules when creating new rules
+     * instance
      */
-    public void reset(){
+    public void reset() {
         openClass = null;
         methodMap = null;
     }

@@ -4,6 +4,9 @@
 package org.openl.rules.helpers;
 
 import org.openl.OpenL;
+import org.openl.OpenlUtils;
+import org.openl.SourceType;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 
@@ -28,8 +31,8 @@ public class DoubleRange implements INumberRange {
     public DoubleRange(String s) {
         // TODO: Correct tokenizing in grammar.
         OpenL openl = OpenL.getInstance("org.openl.j");
-        RangeWithBounds res = (RangeWithBounds) openl.evaluate(new StringSourceCodeModule(s, null),
-                "range.literal.real");
+        RangeWithBounds res = (RangeWithBounds) OpenLManager.run(openl, new StringSourceCodeModule(s, null),
+                SourceType.DOUBLE_RANGE);
         lowerBound = res.getMin().doubleValue();
         upperBound = res.getMax().doubleValue();
     }

@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
 import org.openl.OpenlToolAdaptor;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -21,6 +20,7 @@ import org.openl.binding.IBoundError;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IDomain;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.data.IString2DataConvertor;
@@ -362,7 +362,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
 
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, declaringClass);
 
-        return OpenlTool.makeMethod(src, openl, methodHeader, cxt);
+        return OpenLManager.makeMethod(openl, src, methodHeader, cxt);
 
     }
 

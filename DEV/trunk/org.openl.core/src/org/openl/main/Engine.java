@@ -11,6 +11,7 @@ import java.net.URL;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
@@ -57,7 +58,7 @@ public class Engine {
             IOpenSourceCodeModule src = looksLikeFile(fileName) ? (IOpenSourceCodeModule) new FileSourceCodeModule(
                     fileName, null) : (IOpenSourceCodeModule) new URLSourceCodeModule(new URL(fileName));
 
-            openClass = openl.compileModule(src);
+            openClass = OpenLManager.compileModule(openl, src);
 
             if (methodName != null) {
                 method = openClass.getMatchingMethod(methodName, null);

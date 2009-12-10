@@ -2,10 +2,10 @@ package org.openl.rules.cmatch;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -60,7 +60,7 @@ public class ColumnMatchNodeBinder extends AXlsTableBinder {
         }
 
         SubTextSourceCodeModule codeModule = new SubTextSourceCodeModule(src, headerTokenLength);
-        OpenMethodHeader header = (OpenMethodHeader) OpenlTool.getMethodHeader(codeModule, openl,
+        OpenMethodHeader header = (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, codeModule,
                 (IBindingContextDelegator) cxt);
 
         header.setDeclaringClass(module);

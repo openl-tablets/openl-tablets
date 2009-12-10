@@ -7,11 +7,11 @@ import junit.framework.TestCase;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
 import org.openl.binding.impl.Binder;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -197,7 +197,7 @@ public class ModuleTest extends TestCase {
 
         BindingContext cxt = new BindingContext((Binder) op.getBinder(), null, op);
 
-        IOpenMethod method = OpenlTool.makeMethod(src, op, methodHeader, cxt);
+        IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
 
         IRuntimeEnv env = op.getVm().getRuntimeEnv();
 
@@ -243,7 +243,7 @@ public class ModuleTest extends TestCase {
 
         BindingContext cxt = new BindingContext((Binder) op.getBinder(), null, op);
 
-        IOpenMethod method = OpenlTool.makeMethod(src, op, methodHeader, cxt);
+        IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
 
         IRuntimeEnv env = op.getVm().getRuntimeEnv();
 
@@ -261,7 +261,7 @@ public class ModuleTest extends TestCase {
 
         ModuleBindingContext moduleContext = new ModuleBindingContext(cxt, module);
 
-        IOpenMethod method = OpenlTool.makeMethod(src, op, methodHeader, moduleContext);
+        IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, moduleContext);
 
         return method;
     }

@@ -6,6 +6,7 @@
 package org.openl;
 
 import org.openl.binding.IBindingContext;
+import org.openl.engine.OpenLManager;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -48,11 +49,11 @@ public class OpenlToolAdaptor implements IOpenlAdaptor {
      */
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src) {
-        return OpenlTool.makeMethod(src, openl, header, bindingContext);
+        return OpenLManager.makeMethod(openl, src, header, bindingContext);
     }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src, IOpenMethodHeader h2) {
-        return OpenlTool.makeMethod(src, openl, h2, bindingContext);
+        return OpenLManager.makeMethod(openl, src, h2, bindingContext);
     }
 
     /**

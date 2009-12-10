@@ -8,6 +8,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.openl.OpenL;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -29,7 +30,7 @@ public class TestMetaInfo extends TestCase {
         OpenL openl = OpenL.getInstance("org.openl.xls");
 
         FileSourceCodeModule src = new FileSourceCodeModule(url.getPath(), null);
-        XlsModuleOpenClass module = (XlsModuleOpenClass) openl.compile(src);
+        XlsModuleOpenClass module = (XlsModuleOpenClass) OpenLManager.compileModule(openl, src);
 
         TableSyntaxNode[] nodes = nodes(module);
 

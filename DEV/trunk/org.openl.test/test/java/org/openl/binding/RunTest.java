@@ -7,6 +7,9 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.openl.OpenL;
+import org.openl.OpenlUtils;
+import org.openl.SourceType;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
@@ -33,22 +36,22 @@ public class RunTest extends TestCase {
     }
 
     void _runNoError(String expr, Object expected, String openl) {
-        _runNoError(expr, expected, openl, "method.body");
+        _runNoError(expr, expected, openl, SourceType.METHOD_BODY);
     }
 
-    void _runNoError(String expr, Object expected, String openlName, String parseType) {
+    void _runNoError(String expr, Object expected, String openlName, SourceType parseType) {
         _runNoError(expr, expected, openlName, parseType, equalsAssertion);
     }
 
     @SuppressWarnings("unchecked")
-    void _runNoError(String expression, Object expected, String openlName, String parseType,
+    void _runNoError(String expression, Object expected, String openlName, SourceType parseType,
             AssertionExpression assertion) {
         OpenL openl = OpenL.getInstance(openlName);
-        Object res = openl.evaluate(new StringSourceCodeModule(expression, null), parseType);
+        Object res = OpenLManager.run(openl, new StringSourceCodeModule(expression, null), parseType);
         assertion.makeAssertion(expected, res);
     }
 
-    void _runWithError(String expr, Object expected, String openl, String parseType) {
+    void _runWithError(String expr, Object expected, String openl, SourceType parseType) {
         Throwable ex = null;
         try {
             _runNoError(expr, expected, openl, parseType, nopAssertion);
@@ -91,21 +94,21 @@ public class RunTest extends TestCase {
             }
         };
 
-        _runNoError("10.0", new RangeWithBounds(10.0, 10.0), "org.openl.j", "range.literal.real", assertion);
+        _runNoError("10.0", new RangeWithBounds(10.0, 10.0), "org.openl.j", SourceType.DOUBLE_RANGE, assertion);
         _runNoError("< 10.0K", new RangeWithBounds(Double.NEGATIVE_INFINITY, 9999.99999999999), "org.openl.j",
-                "range.literal.real", assertion);
+                SourceType.DOUBLE_RANGE, assertion);
         _runNoError("<=33.3M", new RangeWithBounds(Double.NEGATIVE_INFINITY, 33300000.0), "org.openl.j",
-                "range.literal.real", assertion);
-        _runNoError("5.0-$10.0", new RangeWithBounds(5.0, 10.0), "org.openl.j", "range.literal.real", assertion);
+                SourceType.DOUBLE_RANGE, assertion);
+        _runNoError("5.0-$10.0", new RangeWithBounds(5.0, 10.0), "org.openl.j", SourceType.DOUBLE_RANGE, assertion);
         _runNoError("2B<", new RangeWithBounds(2000000000.0001, Double.POSITIVE_INFINITY), "org.openl.j",
-                "range.literal.real", assertion);
+                SourceType.DOUBLE_RANGE, assertion);
         _runNoError("2.1B+", new RangeWithBounds(2100000000, Double.POSITIVE_INFINITY), "org.openl.j",
-                "range.literal.real", assertion);
+                SourceType.DOUBLE_RANGE, assertion);
 
-        _runWithError("10.0-2.0", SyntaxErrorException.class, "org.openl.j", "range.literal.real");
-        _runNoError("10.0-12,599.0", new RangeWithBounds(10.0, 12599.0), "org.openl.j", "range.literal.real", assertion);
+        _runWithError("10.0-2.0", SyntaxErrorException.class, "org.openl.j", SourceType.DOUBLE_RANGE);
+        _runNoError("10.0-12,599.0", new RangeWithBounds(10.0, 12599.0), "org.openl.j", SourceType.DOUBLE_RANGE, assertion);
         _runNoError("$10,222.0 .. 12,599.0   ", new RangeWithBounds(10222.0, 12599.0), "org.openl.j",
-                "range.literal.real", assertion);
+                SourceType.DOUBLE_RANGE, assertion);
 
     }
 
@@ -117,16 +120,16 @@ public class RunTest extends TestCase {
     public void testRange() {
         // _runNoError("-1-2", new RangeWithBounds(10, 10), "org.openl.j",
         // "range.literal");
-        _runNoError("10", new RangeWithBounds(10, 10), "org.openl.j", "range.literal");
-        _runNoError("< 10K", new RangeWithBounds(Integer.MIN_VALUE, 9999), "org.openl.j", "range.literal");
-        _runNoError("<=33.3M", new RangeWithBounds(Integer.MIN_VALUE, 33300000), "org.openl.j", "range.literal");
-        _runNoError("5-$10", new RangeWithBounds(5, 10), "org.openl.j", "range.literal");
-        _runNoError("2B<", new RangeWithBounds(2000000001, Integer.MAX_VALUE), "org.openl.j", "range.literal");
-        _runNoError("2.1B+", new RangeWithBounds(2100000000, Integer.MAX_VALUE), "org.openl.j", "range.literal");
+        _runNoError("10", new RangeWithBounds(10, 10), "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("< 10K", new RangeWithBounds(Integer.MIN_VALUE, 9999), "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("<=33.3M", new RangeWithBounds(Integer.MIN_VALUE, 33300000), "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("5-$10", new RangeWithBounds(5, 10), "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("2B<", new RangeWithBounds(2000000001, Integer.MAX_VALUE), "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("2.1B+", new RangeWithBounds(2100000000, Integer.MAX_VALUE), "org.openl.j", SourceType.INT_RANGE);
 
-        _runWithError("10-2", SyntaxErrorException.class, "org.openl.j", "range.literal");
-        _runNoError("10-12,599", new RangeWithBounds(10, 12599), "org.openl.j", "range.literal");
-        _runNoError("$10,222 .. 12,599   ", new RangeWithBounds(10222, 12599), "org.openl.j", "range.literal");
+        _runWithError("10-2", SyntaxErrorException.class, "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("10-12,599", new RangeWithBounds(10, 12599), "org.openl.j", SourceType.INT_RANGE);
+        _runNoError("$10,222 .. 12,599   ", new RangeWithBounds(10222, 12599), "org.openl.j", SourceType.INT_RANGE);
 
     }
 

@@ -17,10 +17,12 @@ import java.util.Map;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
+import org.openl.OpenlUtils;
 import org.openl.binding.MethodNotFoundException;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.SyntaxErrorException;
 import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.SourceLocator;
@@ -299,9 +301,9 @@ public class OpenlMain implements SourceCodeURLConstants {
             OpenL openl = OpenL.getInstance(openlName);
 
             if (methodName != null) {
-                return openl.evaluateMethod2(openlSource, methodName, null, params);
+                return OpenLManager.runMethod(openl, openlSource, methodName, null, params);
             } else {
-                return openl.evaluate(openlSource);
+                return OpenLManager.runScript(openl, openlSource);
             }
 
         } catch (OpenConfigurationException e) {

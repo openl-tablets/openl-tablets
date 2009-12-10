@@ -9,11 +9,11 @@ import java.util.Map;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -205,7 +205,7 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = createBindingContext();
-        IOpenClass filedType = OpenlTool.makeMethodWithUnknownType(src, openl, "cell_" + fieldContent.getValue(),
+        IOpenClass filedType = OpenLManager.makeMethodWithUnknownType(openl, src, "cell_" + fieldContent.getValue(),
                 signature, thisTargetClass, cxt).getMethod().getType();
         return filedType;
     }
@@ -232,7 +232,7 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = createBindingContext();
-        return OpenlTool.makeMethodWithUnknownType(src, openl, methodName, signature, thisTargetClass, cxt);
+        return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
     }
 
     private void postprocess(Algorithm algorithm) {

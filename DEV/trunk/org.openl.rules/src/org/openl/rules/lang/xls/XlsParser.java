@@ -16,122 +16,56 @@ import org.openl.util.PropertiesLocator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class XlsParser implements IOpenParser {
 
-    static final String SEARCH_PROPERTY_NAME = "org.openl.rules.include",
-            SEARCH_FILE_NAME = "org/openl/rules/org.openl.rules.include.properties";
+    private static final String SEARCH_PROPERTY_NAME = "org.openl.rules.include";
+    private static final String SEARCH_FILE_NAME = "org/openl/rules/org.openl.rules.include.properties";
 
-    IConfigurableResourceContext ucxt;
+    private IConfigurableResourceContext resourceContext;
 
-    String searchPath;
+    private String searchPath;
 
-    /**
-     * @param ucxt
-     * @param gf
-     */
-    public XlsParser(IUserContext ucxt) {
-        this.ucxt = new ConfigurableResourceContext(ucxt.getUserClassLoader(), new String[] { ucxt.getUserHome() });
+    public XlsParser(IUserContext userContext) {
+        this.resourceContext = new ConfigurableResourceContext(userContext.getUserClassLoader(),
+                new String[] { userContext.getUserHome() });
     }
 
     protected String getSearchPath() {
+
         if (searchPath != null) {
             return searchPath;
         }
 
-        searchPath = PropertiesLocator.findPropertyValue(SEARCH_PROPERTY_NAME, SEARCH_FILE_NAME, ucxt);
+        searchPath = PropertiesLocator.findPropertyValue(SEARCH_PROPERTY_NAME, SEARCH_FILE_NAME, resourceContext);
+
         return searchPath;
-
-        // URL url = ucxt.findClassPathResource(SEARCH_FILE_NAME);
-        // if (url != null)
-        // {
-        // InputStream is = null;
-        // try
-        // {
-        // is = url.openStream();
-        // Properties p = new Properties();
-        // p.load(is);
-        // searchPath = p.getProperty(SEARCH_PROPERTY_NAME);
-        // return searchPath;
-        // } catch (IOException e)
-        // {
-        // throw RuntimeExceptionWrapper.wrap(e);
-        // } finally
-        // {
-        // try
-        // {
-        // if (is != null)
-        // is.close();
-        // } catch (Throwable t)
-        // {
-        // Log.error("Error closing stream", t);
-        // }
-        // }
-        // }
-        //
-        // File f = ucxt.findFileSystemResource(SEARCH_FILE_NAME);
-        // if (f != null)
-        // {
-        // InputStream is = null;
-        // try
-        // {
-        // is = new FileInputStream(f);
-        // Properties p = new Properties();
-        // p.load(is);
-        // searchPath = p.getProperty(SEARCH_PROPERTY_NAME);
-        // return searchPath;
-        // } catch (IOException e)
-        // {
-        // throw RuntimeExceptionWrapper.wrap(e);
-        // } finally
-        // {
-        // try
-        // {
-        // if (is != null)
-        // is.close();
-        // } catch (Throwable t)
-        // {
-        // Log.error("Error closing stream", t);
-        // }
-        // }
-        // }
-        //
-        //
-        // return ucxt.findProperty(SEARCH_PROPERTY_NAME);
-
     }
 
-    public IParsedCode parse(IOpenSourceCodeModule src, String parseType) {
-        throw new UnsupportedOperationException(".xls files should only be parsed as Modules");
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenParser#parseAsMethod(org.openl.IOpenSourceCodeModule)
-     */
-    public IParsedCode parseAsMethodBody(IOpenSourceCodeModule m) {
+    public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
         throw new UnsupportedOperationException(".xls files can not be parsed as a Method Body");
     }
 
-    public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule m) {
+    public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule source) {
         throw new UnsupportedOperationException(".xls files can not be parsed as a Method Header");
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenParser#parseAsModule(org.openl.IOpenSourceCodeModule)
-     */
-    public IParsedCode parseAsModule(IOpenSourceCodeModule m) {
+    public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
 
-        return new XlsLoader(ucxt, getSearchPath()).parse(m);
-
+        return new XlsLoader(resourceContext, getSearchPath()).parse(source);
     }
 
-    public IParsedCode parseAsType(IOpenSourceCodeModule src) {
+    public IParsedCode parseAsType(IOpenSourceCodeModule source) {
         throw new UnsupportedOperationException(".xls files can not be parsed as a Type");
+    }
+
+    public IParsedCode parseAsFloatRange(IOpenSourceCodeModule source) {
+        throw new UnsupportedOperationException(".xls files can not be parsed as a float range");
+    }
+
+    public IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source) {
+        throw new UnsupportedOperationException(".xls files can not be parsed as a integer range");
     }
 
 }

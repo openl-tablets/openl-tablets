@@ -1,12 +1,12 @@
 package org.openl.rules.helpers.scope;
 
 import org.openl.OpenL;
-import org.openl.OpenlTool;
 import org.openl.base.NamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -128,7 +128,7 @@ public class ScopeExpression extends NamedThing {
 
         ModuleBindingContext cxt = new ModuleBindingContext(bcxt, scope);
 
-        CompositeMethod cm = OpenlTool.makeMethod(expression.asSourceCodeModule(), openl, header, cxt);
+        CompositeMethod cm = OpenLManager.makeMethod(openl, expression.asSourceCodeModule(), header, cxt);
 
         IOpenClass type = cm.getMethodBodyBoundNode().getType();
 

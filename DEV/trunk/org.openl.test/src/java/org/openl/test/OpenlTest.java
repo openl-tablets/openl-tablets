@@ -15,6 +15,7 @@ import org.openl.IOpenParser;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.binding.OpenLRuntimeException;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.IParsedCode;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.impl.FileSourceCodeModule;
@@ -32,7 +33,7 @@ public class OpenlTest {
 
         System.out.print(code + " = ");
 
-        Object res = op.evaluate(new StringSourceCodeModule(code, null));
+        Object res = OpenLManager.runScript(op, new StringSourceCodeModule(code, null));
 
         System.out.println(res);
 
@@ -57,7 +58,7 @@ public class OpenlTest {
         OpenL op = OpenL.getInstance(openl);
         boolean failed = false;
         try {
-            op.evaluate(new StringSourceCodeModule(code, null));
+            OpenLManager.runScript(op, new StringSourceCodeModule(code, null));
         } catch (Throwable t) {
             failed = true;
         }
@@ -77,7 +78,7 @@ public class OpenlTest {
             }
         }
 
-        Object res = op.evaluateMethod2(new StringSourceCodeModule(moduleCode, null), methodName, JavaOpenClass
+        Object res = OpenLManager.runMethod(op, new StringSourceCodeModule(moduleCode, null), methodName, JavaOpenClass
                 .getOpenClasses(cc), params);
 
         Assert.assertEquals(expected, res);
@@ -122,14 +123,14 @@ public class OpenlTest {
             }
         }
 
-        Object res = op.evaluateMethod2(moduleCode, methodName, JavaOpenClass.getOpenClasses(cc), params);
+        Object res = OpenLManager.runMethod(op, moduleCode, methodName, JavaOpenClass.getOpenClasses(cc), params);
 
         return res;
     }
 
     public static Object evaluate(String code, String openl) throws OpenLRuntimeException {
         OpenL op = OpenL.getInstance(openl);
-        return op.evaluate(new StringSourceCodeModule(code, null));
+        return OpenLManager.runScript(op, new StringSourceCodeModule(code, null));
     }
 
     public static Object evaluateFile(String filename, String openl) throws Exception {

@@ -4,7 +4,9 @@
 package org.openl.rules.test;
 
 import org.openl.OpenL;
+import org.openl.OpenlUtils;
 import org.openl.binding.MethodNotFoundException;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.impl.FileSourceCodeModule;
 
@@ -23,12 +25,12 @@ public class Tools {
 
         OpenL openl = getOpenL();
 
-        XlsModuleOpenClass xmo = (XlsModuleOpenClass) openl.compileModule(new FileSourceCodeModule(fname, null));
+        XlsModuleOpenClass xmo = (XlsModuleOpenClass) OpenLManager.compileModule(openl, new FileSourceCodeModule(fname, null));
         return xmo;
     }
 
     static public Object run(String file, String methodName, Object[] params) throws MethodNotFoundException {
-        Object res = getOpenL().evaluateMethod2(new FileSourceCodeModule(file, null), methodName, null, params);
+        Object res = OpenLManager.runMethod(getOpenL(), new FileSourceCodeModule(file, null), methodName, null, params);
         return res;
     }
 

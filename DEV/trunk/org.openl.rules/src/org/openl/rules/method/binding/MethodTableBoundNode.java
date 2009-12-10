@@ -8,12 +8,13 @@ package org.openl.rules.method.binding;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
+import org.openl.OpenlUtils;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -97,7 +98,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(lt.getLogicalRow(expectedHeight - 1).getGridTable());
 
-        OpenlTool.compileMethod(src, openl, getTableMethod(), cxt);
+        OpenLManager.compileMethod(openl, src, getTableMethod(), cxt);
 
         // method.setMethodBodyBoundNode(methodBody.getMethodBodyBoundNode());
 
