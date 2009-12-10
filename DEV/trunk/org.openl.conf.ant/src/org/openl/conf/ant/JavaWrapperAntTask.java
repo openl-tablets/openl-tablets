@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Copy;
@@ -449,30 +448,30 @@ public class JavaWrapperAntTask extends Task {
 
         buf.append("  public static org.openl.CompiledOpenClass __compiledClass;\n\n");
 
-        buf.append("  public static String __openlName = \"" + StringEscapeUtils.escapeJava(openlName) + "\";\n\n");
+        buf.append("  public static String __openlName = \"").append(StringTool.escapeJava(openlName)).append("\";\n\n");
 
-        buf.append("  public static String __src = \""
-                + StringEscapeUtils.escapeJava(deplSrcFile == null ? srcFile : deplSrcFile) + "\";\n\n");
+        buf.append("  public static String __src = \"").append(
+                StringTool.escapeJava(deplSrcFile == null ? srcFile : deplSrcFile)).append("\";\n\n");
 
-        buf.append("  public static String __srcModuleClass = "
-                + (srcModuleClass == null ? null : "\"" + StringEscapeUtils.escapeJava(srcModuleClass) + "\"")
-                + ";\n\n");
+        buf.append("  public static String __srcModuleClass = ").append(
+                (srcModuleClass == null ? null : "\"" + StringTool.escapeJava(srcModuleClass) + "\"")).append(";\n\n");
 
-        buf.append("  public static String __folder = \"" + StringEscapeUtils.escapeJava(rulesFolder) + "\";\n\n");
+        buf.append("  public static String __folder = \"").append(StringTool.escapeJava(rulesFolder)).append("\";\n\n");
 
-        buf.append("  public static String __project = \"" + StringEscapeUtils.escapeJava(getRulesProject())
-                + "\";\n\n");
+        buf.append("  public static String __project = \"").append(StringTool.escapeJava(getRulesProject())).append(
+                "\";\n\n");
 
-        buf.append("  public static String __userHome = \""
-                + StringEscapeUtils.escapeJava(deplUserHome == null ? userHome : deplUserHome) + "\";\n\n");
+        buf.append("  public static String __userHome = \"").append(
+                StringTool.escapeJava(deplUserHome == null ? userHome : deplUserHome)).append("\";\n\n");
 
         addEnvVariable(buf);
 
-        buf.append("  public " + s_class + "(){\n" + "    this(false);\n" + "  }\n\n");
+        buf.append("  public ").append(s_class).append("(){\n").append("    this(false);\n").append("  }\n\n");
 
-        buf.append("  public " + s_class + "(boolean ignoreErrors){\n" + "    __init();\n"
-                + "    if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();\n"
-                + "    __instance = __class.newInstance(__env.get());\n" + "  }\n\n");
+        buf.append("  public ").append(s_class).append("(boolean ignoreErrors){\n").append(
+                "    __init();\n").append(
+                "    if (!ignoreErrors) __compiledClass.throwErrorExceptionsIfAny();\n").append(
+                "    __instance = __class.newInstance(__env.get());\n").append("  }\n\n");
 
         buf.append("");
 
@@ -519,7 +518,7 @@ public class JavaWrapperAntTask extends Task {
         return buf.toString();
     }
 
-; String getClasspathExclude() {
+    public String getClasspathExclude() {
         return classpathExclude;
     }
 
