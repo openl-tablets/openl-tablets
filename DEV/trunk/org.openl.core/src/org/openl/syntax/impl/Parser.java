@@ -13,18 +13,15 @@ import org.openl.syntax.IGrammarFactory;
  */
 
 public class Parser extends AParser {
-    IGrammarFactory grammarFactory;
+    
+    private IGrammarFactory grammarFactory;
 
-    public Parser(IGrammarFactory gf) {
-        grammarFactory = gf;
+    public Parser(IGrammarFactory grammarFactory) {
+        this.grammarFactory = grammarFactory;
     }
 
-    /**
-     * @return
-     */
     @Override
     public IGrammarFactory getGrammarFactory() {
         return grammarFactory;
     }
-
 }

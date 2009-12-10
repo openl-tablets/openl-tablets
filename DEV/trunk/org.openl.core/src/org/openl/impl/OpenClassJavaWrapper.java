@@ -13,6 +13,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
@@ -30,7 +31,7 @@ public class OpenClassJavaWrapper {
     static public OpenClassJavaWrapper createWrapper(String openlName, IUserContext ucxt, IOpenSourceCodeModule src) {
         OpenL openl = OpenL.getInstance(openlName, ucxt);
 
-        CompiledOpenClass openClass = openl.compileModuleWithErrors(src);
+        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, src);
 
         return new OpenClassJavaWrapper(openClass, openl.getVm().getRuntimeEnv());
     }
@@ -57,7 +58,7 @@ public class OpenClassJavaWrapper {
             throw RuntimeExceptionWrapper.wrap(e);
         }
 
-        CompiledOpenClass openClass = openl.compileModuleWithErrors(src);
+        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, src);
 
         return new OpenClassJavaWrapper(openClass, openl.getVm().getRuntimeEnv());
 

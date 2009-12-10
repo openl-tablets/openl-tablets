@@ -4,7 +4,9 @@
 package org.openl.rules.helpers;
 
 import org.openl.OpenL;
+import org.openl.SourceType;
 import org.openl.domain.IntRangeDomain;
+import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 
@@ -42,8 +44,8 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         // TODO: Correct tokenizing in grammar.
         super(0, 0);
         OpenL openl = OpenL.getInstance("org.openl.j");
-        RangeWithBounds res = (RangeWithBounds) openl
-                .evaluate(new StringSourceCodeModule(range, null), "range.literal");
+        RangeWithBounds res = (RangeWithBounds) OpenLManager
+                .run(openl, new StringSourceCodeModule(range, null), SourceType.INT_RANGE);
 
         min = res.getMin().intValue();
         max = res.getMax().intValue();

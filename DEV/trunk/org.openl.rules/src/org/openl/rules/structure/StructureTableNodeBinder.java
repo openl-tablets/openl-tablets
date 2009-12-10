@@ -2,10 +2,10 @@ package org.openl.rules.structure;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -24,8 +24,8 @@ public class StructureTableNodeBinder extends AXlsTableBinder implements IXlsTab
 
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table);
 
-        IOpenMethodHeader header = OpenlTool.getMethodHeader(new SubTextSourceCodeModule(src, tsn.getHeader()
-                .getHeaderToken().getIdentifier().length()), openl, (IBindingContextDelegator) cxt);
+        IOpenMethodHeader header = OpenLManager.makeMethodHeader(openl, new SubTextSourceCodeModule(src, tsn.getHeader()
+                .getHeaderToken().getIdentifier().length()), (IBindingContextDelegator) cxt);
 
         return new MethodTableBoundNode(tsn, openl, header, module);
     }

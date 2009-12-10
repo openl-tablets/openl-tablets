@@ -7,12 +7,12 @@
 package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
-import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -68,7 +68,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
                 continue;
             }
 
-            IOpenClass fieldType = OpenlTool.makeType(src, openl, (IBindingContextDelegator) cxt);
+            IOpenClass fieldType = OpenLManager.makeType(openl, src, (IBindingContextDelegator) cxt);
 
             if (fieldType == null) {
                 BoundError err = new BoundError(null, "Type " + src.getCode() + " not found", null, src);
@@ -157,7 +157,7 @@ public class DatatypeTableMethodBoundNode implements IMemberBoundNode {
     IOpenClass findType(ILogicalTable table, IBindingContext cxt) {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table.getGridTable());
 
-        IOpenClass fieldType = OpenlTool.makeType(src, openl, (IBindingContextDelegator) cxt);
+        IOpenClass fieldType = OpenLManager.makeType(openl, src, (IBindingContextDelegator) cxt);
         return fieldType;
 
     }

@@ -3,6 +3,7 @@ package com.exigen.rules.openl.integrator;
 import java.net.URL;
 
 import org.openl.OpenL;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.dt.DTRule;
 import org.openl.rules.dt.DTRuleQuery;
 import org.openl.syntax.impl.FileSourceCodeModule;
@@ -18,8 +19,9 @@ public class RulesLoadingTest extends TestCase {
 
         URL url = this.getClass().getClassLoader().getResource("com/exigen/rules/openl/integrator/TestRule.xls");
 
-        IOpenClass ioc = OpenL.getInstance("org.openl.xls")
-                .compileModule(new FileSourceCodeModule(url.getPath(), null));
+        OpenL openl = OpenL.getInstance("org.openl.xls");
+        IOpenClass ioc = OpenLManager
+                .compileModule(openl, new FileSourceCodeModule(url.getPath(), null));
 
         rulePrinter.printRule(ioc, "authority", 1);
 

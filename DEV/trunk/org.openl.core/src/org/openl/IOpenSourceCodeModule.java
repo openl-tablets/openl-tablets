@@ -10,9 +10,9 @@ import java.io.InputStream;
 import java.io.Reader;
 
 /**
+ * IOpenSourceCodeModule is an abstraction of rules source code.
+ * 
  * @author snshor
- * IOpenSourceCodeModule an abstraction of source code of a rule.
- *
  */
 public interface IOpenSourceCodeModule {
 
@@ -23,7 +23,7 @@ public interface IOpenSourceCodeModule {
     String getCode();
 
     /**
-     *
+     * 
      * @return relative start position within a module
      */
     int getStartPosition();

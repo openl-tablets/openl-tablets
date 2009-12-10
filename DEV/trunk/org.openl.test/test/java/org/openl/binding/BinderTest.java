@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import org.openl.IOpenBinder;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.DoubleValue;
 import org.openl.syntax.IParsedCode;
 import org.openl.syntax.ISyntaxError;
@@ -37,9 +37,9 @@ public class BinderTest extends TestCase {
         super(arg0);
     }
 
-    public void _testMethodHeader(String code, IOpenClass type, String openl, int numPar) {
-        IOpenMethodHeader header = OpenlTool.getMethodHeader(new StringSourceCodeModule(code, null), OpenL
-                .getInstance(openl), null);
+    public void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
+        OpenL openl = OpenL.getInstance(openlName);
+        IOpenMethodHeader header = OpenLManager.makeMethodHeader(openl, new StringSourceCodeModule(code, null), null);
         Assert.assertEquals(type, header.getType());
         Assert.assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }

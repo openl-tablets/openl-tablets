@@ -1,9 +1,10 @@
 package org.openl.rules.calc;
 
 import org.openl.IOpenSourceCodeModule;
-import org.openl.OpenlTool;
+import org.openl.OpenlUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.data.IString2DataConvertor;
@@ -54,7 +55,7 @@ public class CellLoader {
 
                 IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(srcModule, 1, end);
 
-                return OpenlTool.makeMethod(srcCode, cxt.getOpenL(), header, cxt);
+                return OpenLManager.makeMethod(cxt.getOpenL(), srcCode, header, cxt);
             }
         }
 

@@ -19,60 +19,42 @@ import org.openl.syntax.ISyntaxNode;
  */
 public abstract class AParser implements IOpenParser {
 
+    private static final String INTEGER_RANGE_PARSING_TYPE = "range.literal";
+    private static final String FLOAT_RANGE_PARSING_TYPE = "range.literal.real";
+
     protected abstract IGrammarFactory getGrammarFactory();
 
-    ParsedCode makeParsedCode(IGrammar g, IOpenSourceCodeModule src) {
-        ISyntaxNode node = g.getTopNode();
-        return new ParsedCode(node, src, g.getErrors());
-    }
+    protected IParsedCode parse(IOpenSourceCodeModule source, String parsingType) {
+        
+        IGrammar grammar = getGrammarFactory().getGrammar();
+        grammar.setModule(source);
+        grammar.parse(source.getCharacterStream(), parsingType);
 
-    public IParsedCode parse(IOpenSourceCodeModule src, String parseType) {
-        IGrammar g = getGrammarFactory().getGrammar();
-        g.setModule(src);
-        g.parse(src.getCharacterStream(), parseType);
-
-        return makeParsedCode(g, src);
+        return makeParsedCode(grammar, source);
 
     }
 
-    public IParsedCode parseAsMethodBody(IOpenSourceCodeModule src) {
+    public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
 
-        IGrammar g = getGrammarFactory().getGrammar();
-        g.setModule(src);
-        g.parseAsMethod(src.getCharacterStream());
+        IGrammar grammar = getGrammarFactory().getGrammar();
+        grammar.setModule(source);
+        grammar.parseAsMethod(source.getCharacterStream());
 
-        return makeParsedCode(g, src);
+        return makeParsedCode(grammar, source);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenParser#parse(java.lang.String)
-     */
-    // public IParsedCode parseAsModule(String code)
-    // {
-    // return parseAsModule(new SourceCodeModule(code, null));
-    // }
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.IOpenParser#parse(java.lang.String)
-     */
-    // public IParsedCode parseAsMethod(String code)
-    // {
-    // return parseAsMethod(new SourceCodeModule(code, null));
-    // }
     /*
      * (non-Javadoc)
      *
      * @see org.openl.IOpenParser#parseAsMethodHeader(org.openl.IOpenSourceCodeModule)
      */
-    public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule src) {
-        IGrammar g = getGrammarFactory().getGrammar();
-        g.setModule(src);
-        g.parseAsMethodHeader(src.getCharacterStream());
+    public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule source) {
 
-        return makeParsedCode(g, src);
+        IGrammar grammar = getGrammarFactory().getGrammar();
+        grammar.setModule(source);
+        grammar.parseAsMethodHeader(source.getCharacterStream());
+
+        return makeParsedCode(grammar, source);
     }
 
     /*
@@ -80,25 +62,47 @@ public abstract class AParser implements IOpenParser {
      *
      * @see org.openl.IOpenParser#parse(org.openl.IOpenModule)
      */
-    public IParsedCode parseAsModule(IOpenSourceCodeModule src) {
+    public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
 
-        IGrammar g = getGrammarFactory().getGrammar();
-        g.setModule(src);
-        g.parseAsModule(src.getCharacterStream());
+        IGrammar grammar = getGrammarFactory().getGrammar();
+        grammar.setModule(source);
+        grammar.parseAsModule(source.getCharacterStream());
 
-        return makeParsedCode(g, src);
+        return makeParsedCode(grammar, source);
     }
 
-    /**
-     *
-     */
+    public IParsedCode parseAsType(IOpenSourceCodeModule source) {
+        
+        IGrammar grammar = getGrammarFactory().getGrammar();
+        grammar.setModule(source);
+        grammar.parseAsType(source.getCharacterStream());
 
-    public IParsedCode parseAsType(IOpenSourceCodeModule src) {
-        IGrammar g = getGrammarFactory().getGrammar();
-        g.setModule(src);
-        g.parseAsType(src.getCharacterStream());
+        return makeParsedCode(grammar, source);
+    }
+    
+    public IParsedCode parseAsFloatRange(IOpenSourceCodeModule source) {
 
-        return makeParsedCode(g, src);
+        IGrammar grammar = getGrammarFactory().getGrammar();
+        grammar.setModule(source);
+        grammar.parse(source.getCharacterStream(), FLOAT_RANGE_PARSING_TYPE);
+
+        return makeParsedCode(grammar, source);
+    }
+
+    public IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source) {
+        
+        IGrammar grammar = getGrammarFactory().getGrammar();
+        grammar.setModule(source);
+        grammar.parse(source.getCharacterStream(), INTEGER_RANGE_PARSING_TYPE);
+
+        return makeParsedCode(grammar, source);
+    }
+
+    private ParsedCode makeParsedCode(IGrammar grammar, IOpenSourceCodeModule source) {
+        
+        ISyntaxNode node = grammar.getTopNode();
+
+        return new ParsedCode(node, source, grammar.getErrors());
     }
 
 }

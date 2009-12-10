@@ -8,10 +8,10 @@ package org.openl.rules.dt.binding;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.OpenlTool;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -52,8 +52,8 @@ public class DTNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         // + new GridLocation(table, 0, 0)),
         // openl);
 
-        OpenMethodHeader header = (OpenMethodHeader) OpenlTool.getMethodHeader(new SubTextSourceCodeModule(src, tsn
-                .getHeader().getHeaderToken().getIdentifier().length()), openl, (IBindingContextDelegator) cxt);
+        OpenMethodHeader header = (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, new SubTextSourceCodeModule(src, tsn
+                .getHeader().getHeaderToken().getIdentifier().length()), (IBindingContextDelegator) cxt);
 
         header.setDeclaringClass(module);
 
