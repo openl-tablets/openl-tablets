@@ -24,7 +24,7 @@ import java.io.OutputStream;
  * @author Andrey Naumenko
  */
 public abstract class BaseUploadService implements Service {
-    private final static Log log = LogFactory.getLog(BaseUploadService.class);
+    private static final Log LOG = LogFactory.getLog(BaseUploadService.class);
 
     /**
      * {@inheritDoc}
@@ -39,13 +39,13 @@ public abstract class BaseUploadService implements Service {
             }
             if (params.isUnpackZipFile()) {
                 result = uploadZipFile(params);
-                if (log.isDebugEnabled()) {
-                    log.debug("Zip file uploaded and unpacked: " + result.getResultFiles());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Zip file uploaded and unpacked: " + result.getResultFiles());
                 }
             } else {
                 result = uploadNonZipFile(params);
-                if (log.isDebugEnabled()) {
-                    log.debug("File uploaded to '" + result.getResultFile().getName() + "'");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("File uploaded to '" + result.getResultFile().getName() + "'");
                 }
             }
         } finally {
@@ -122,8 +122,8 @@ public abstract class BaseUploadService implements Service {
             } finally {
                 tempFile.delete();
             }
-            if (log.isDebugEnabled()) {
-                log.debug("File '" + params.getFile().getName() + "' unpacked");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("File '" + params.getFile().getName() + "' unpacked");
             }
         } catch (IOException e) {
             throw new ServiceException(e);

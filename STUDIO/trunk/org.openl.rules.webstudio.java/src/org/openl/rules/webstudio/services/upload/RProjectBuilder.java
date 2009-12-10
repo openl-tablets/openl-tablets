@@ -15,7 +15,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProjectFolder;
 import java.io.InputStream;
 
 public class RProjectBuilder {
-    private final static Log log = LogFactory.getLog(RProjectBuilder.class);
+    private static final Log LOG = LogFactory.getLog(RProjectBuilder.class);
     private final UserWorkspaceProject project;
     private final PathFilter filter;
 
@@ -67,15 +67,15 @@ public class RProjectBuilder {
     public void cancel() {
         // it was created it will be perish
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Canceling uploading of new project");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Canceling uploading of new project");
             }
 
             project.close();
             project.delete();
             project.erase();
         } catch (ProjectException e) {
-            log.error("Failed to cancel new project", e);
+            LOG.error("Failed to cancel new project", e);
         }
     }
 

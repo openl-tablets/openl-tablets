@@ -27,7 +27,7 @@ import java.util.zip.ZipFile;
  * @author Andrey Naumenko
  */
 public class UploadService extends BaseUploadService {
-    private final static Log log = LogFactory.getLog(UploadService.class);
+    private static final Log LOG = LogFactory.getLog(UploadService.class);
     private PathFilter zipFilter;
 
     /**
@@ -62,8 +62,8 @@ public class UploadService extends BaseUploadService {
     @Secured(Privileges.PRIVILEGE_CREATE)
     protected void unpack(UploadServiceParams params, UploadServiceResult result, File tempFile) throws IOException,
             ServiceException {
-        if (log.isDebugEnabled()) {
-            log.debug("Unpacking zip file");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Unpacking zip file");
         }
 
         // unpack uploaded zip file

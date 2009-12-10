@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -33,8 +34,8 @@ import org.openl.util.StringTool;
  * Request scope managed bean for showTable facelet.
  */
 public class ShowTableBean {
-    
-    private static final org.apache.commons.logging.Log LOG = LogFactory.getLog(ShowTableBean.class);
+
+    private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
 
     private String url;
     private String text;

@@ -30,7 +30,7 @@ import org.openl.rules.webstudio.properties.SystemValuesManager;
  * @author Aliaksandr Antonik.
  */
 public class DecisionTableCreationWizard extends WizardBase {
-    private static final Log log = LogFactory.getLog(DecisionTableCreationWizard.class);
+    private static final Log LOG = LogFactory.getLog(DecisionTableCreationWizard.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
     
@@ -354,7 +354,7 @@ public class DecisionTableCreationWizard extends WizardBase {
         }
     }
 
-    private boolean removeByIndex(List list) {
+    private boolean removeByIndex(List<?> list) {
         try {
             int index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
             if (0 <= index && index < list.size()) {
@@ -442,7 +442,7 @@ public class DecisionTableCreationWizard extends WizardBase {
                 }
             }
         } catch (Exception e) {
-            log.warn("error while selecting action", e);
+            LOG.warn("error while selecting action", e);
         }
     }
 
@@ -455,7 +455,7 @@ public class DecisionTableCreationWizard extends WizardBase {
                 }
             }
         } catch (Exception e) {
-            log.warn("error while selecting condition", e);
+            LOG.warn("error while selecting condition", e);
         }
     }
 

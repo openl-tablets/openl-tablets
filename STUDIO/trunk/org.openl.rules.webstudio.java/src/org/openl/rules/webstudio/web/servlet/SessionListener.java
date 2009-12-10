@@ -7,7 +7,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import javax.servlet.http.*;
 
 public class SessionListener implements HttpSessionActivationListener, HttpSessionListener {
-    private static final Log log = LogFactory.getLog(SessionListener.class);
+    private static final Log LOG = LogFactory.getLog(SessionListener.class);
 
     // Session Attribute
 
@@ -25,7 +25,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         Object obj = getUserRules(session);
         sb.append("\n  has rulesUserSession? " + (obj != null));
 
-        log.debug(sb.toString());
+        LOG.debug(sb.toString());
     }
 
     // Global (one for all, in scope of web application)
@@ -38,36 +38,36 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     public void sessionCreated(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        log.debug("sessionCreated: " + session);
+        LOG.debug("sessionCreated: " + session);
         printSession(session);
 
         Object obj = getUserRules(session);
         if (obj == null) {
-            log.debug("no rulesUserSession");
+            LOG.debug("no rulesUserSession");
         } else {
-            log.debug("has rulesUserSession (why?)");
+            LOG.debug("has rulesUserSession (why?)");
         }
     }
 
     public void sessionDestroyed(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        log.debug("sessionDestroyed: " + session);
+        LOG.debug("sessionDestroyed: " + session);
         printSession(session);
 
         RulesUserSession obj = getUserRules(session);
         if (obj == null) {
-            log.debug("!!! no rulesUserSession");
+            LOG.debug("!!! no rulesUserSession");
         } else {
-            log.debug("removing rulesUserSession");
+            LOG.debug("removing rulesUserSession");
 
             obj.sessionDestroyed();
-            log.debug("session was destroyed");
+            LOG.debug("session was destroyed");
         }
     }
 
     public void sessionDidActivate(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        log.debug("sessionDidActivate: " + session);
+        LOG.debug("sessionDidActivate: " + session);
         printSession(session);
 
         RulesUserSession rulesUserSession = getUserRules(session);
@@ -78,7 +78,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
     public void sessionWillPassivate(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        log.debug("sessionWillPassivate: " + session);
+        LOG.debug("sessionWillPassivate: " + session);
         printSession(session);
 
         RulesUserSession rulesUserSession = getUserRules(session);

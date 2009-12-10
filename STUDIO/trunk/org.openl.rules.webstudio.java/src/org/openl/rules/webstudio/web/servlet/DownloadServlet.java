@@ -19,7 +19,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.syntax.impl.FileSourceCodeModule;
 
 public class DownloadServlet extends HttpServlet {
-    private static final Log log = LogFactory.getLog(DownloadServlet.class);
+    private static final Log LOG = LogFactory.getLog(DownloadServlet.class);
 
     private static final long serialVersionUID = -5102656998760586960L;
 
@@ -44,7 +44,7 @@ public class DownloadServlet extends HttpServlet {
             try {
                 return file.getParentFile().equals(fileSourceCodeModule.getFile().getParentFile().getCanonicalFile());
             } catch (IOException e) {
-                log.error("", e);
+                LOG.error("", e);
             }
         }
         return false;
