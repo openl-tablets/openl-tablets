@@ -69,6 +69,17 @@
                 <type>boolean</type>
             </deferred-value>
         </attribute>
+        <attribute>
+            <description>
+                Comma-separated list of javascript libraries to exclude from TableEditor html
+                to prevent conflicts with already used on page another versions of this libraries.
+                Available options: 'prototype'.
+            </description>
+            <name>excludeScripts</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
     </tag>
     <tag>
         <name>tableEditor</name>
@@ -169,6 +180,17 @@
         <attribute>
             <description>After Save JS action.</description>
             <name>onAfterSave</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>
+                Comma-separated list of javascript libraries to exclude from TableEditor html
+                to prevent conflicts with already used on page another versions of this libraries.
+                Available options: 'prototype'.
+            </description>
+            <name>excludeScripts</name>
             <deferred-value>
                 <type>String</type>
             </deferred-value>

@@ -15,6 +15,7 @@ public final class Constants {
     public static final String ATTRIBUTE_AFTER_SAVE_ACTION = "afterSaveAction";
     public static final String ATTRIBUTE_ON_BEFORE_SAVE = "onBeforeSave";
     public static final String ATTRIBUTE_ON_AFTER_SAVE = "onAfterSave";
+    public static final String ATTRIBUTE_EXCLUDE_SCRIPTS = "excludeScripts";
 
     public static final String REQUEST_PARAM_EDITOR_ID = "editorId";
     public static final String REQUEST_PARAM_MODE = "mode";
@@ -48,5 +49,7 @@ public final class Constants {
     public static final String ID_POSTFIX_PROPS_GROUP = "_group-";
     public static final String ID_POSTFIX_PROP = "_prop-";
     public static final String ID_POSTFIX_CELL = "_cell-";
+
+    public static final String THIRD_PARTY_LIBS_PROTOTYPE = "prototype";
 
 }

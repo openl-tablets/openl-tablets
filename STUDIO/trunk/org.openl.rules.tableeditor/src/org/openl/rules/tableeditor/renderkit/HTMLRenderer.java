@@ -56,9 +56,11 @@ public class HTMLRenderer {
             .append(renderCSS("css/toolbar.css"))
             .append(renderCSS("css/datepicker.css"))
             .append(renderCSS("css/multiselect.css"))
-            .append(renderCSS("css/tooltip.css"))
-            .append(renderJS("js/prototype/prototype-1.6.1.js"))
-            .append(
+            .append(renderCSS("css/tooltip.css"));
+            if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
+                result.append(renderJS("js/prototype/prototype-1.6.1.js"));
+            }
+            result.append(
                 renderJS("js/ScriptLoader.js")).append(renderJS("js/AjaxHelper.js")).append(
                 renderJS("js/IconManager.js")).append(renderJS("js/TableEditor.js")).append(
                 renderJS("js/initTableEditor.js")).append(renderJS("js/BaseEditor.js")).append(

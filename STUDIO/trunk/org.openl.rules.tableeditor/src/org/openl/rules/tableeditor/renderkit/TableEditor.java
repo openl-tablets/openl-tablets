@@ -27,6 +27,7 @@ public class TableEditor {
     private String afterSaveAction;
     private String onBeforeSave;
     private String onAfterSave;
+    private String excludeScripts;
 
     public TableEditor() {
     }
@@ -45,6 +46,8 @@ public class TableEditor {
         afterSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
         onBeforeSave = (String) attributes.get(Constants.ATTRIBUTE_ON_BEFORE_SAVE);
         onAfterSave = (String) attributes.get(Constants.ATTRIBUTE_ON_AFTER_SAVE);
+        onAfterSave = (String) attributes.get(Constants.ATTRIBUTE_ON_AFTER_SAVE);
+        excludeScripts = (String) attributes.get(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS);
     }
 
     public String getId() {
@@ -141,6 +144,14 @@ public class TableEditor {
 
     public void setOnAfterSave(String onAfterSave) {
         this.onAfterSave = onAfterSave;
+    }
+
+    public void setExcludeScripts(String excludeScripts) {
+        this.excludeScripts = excludeScripts;
+    }
+
+    public String getExcludeScripts() {
+        return excludeScripts;
     }
 
 }

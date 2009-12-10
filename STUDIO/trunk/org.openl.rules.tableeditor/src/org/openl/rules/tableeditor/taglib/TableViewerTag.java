@@ -12,6 +12,7 @@ public class TableViewerTag extends BaseTag {
     private ValueExpression view = null;
     private ValueExpression showFormulas = null;
     private ValueExpression collapseProps = null;
+    private ValueExpression excludeScripts = null;
 
     @Override
     public String getComponentType() {
@@ -43,6 +44,10 @@ public class TableViewerTag extends BaseTag {
         this.collapseProps = collapseProps;
     }
 
+    public void setExcludeScripts(ValueExpression excludeScripts) {
+        this.excludeScripts = excludeScripts;
+    }
+
     @Override
     public void setProperties(UIComponent component) {
         // always call the superclass method
@@ -52,6 +57,7 @@ public class TableViewerTag extends BaseTag {
         component.setValueExpression(Constants.ATTRIBUTE_FILTER, filter);
         component.setValueExpression(Constants.ATTRIBUTE_SHOW_FORMULAS, showFormulas);
         component.setValueExpression(Constants.ATTRIBUTE_COLLAPSE_PROPS, collapseProps);
+        component.setValueExpression(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS, excludeScripts);
     }
 
     @Override
@@ -63,6 +69,7 @@ public class TableViewerTag extends BaseTag {
         view = null;
         showFormulas = null;
         collapseProps = null;
+        excludeScripts = null;
     }
 
 }
