@@ -193,7 +193,8 @@
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
             showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
             beforeSaveAction="#{showTableBean.updateSystemProperties}" afterSaveAction="#{showTableBean.resetStudio}"
-            onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave();">
+            onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave();"
+            excludeScripts="prototype">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 
