@@ -27,7 +27,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceProject;
  *
  */
 public class SmartRedeployController {
-    private final static Log log = LogFactory.getLog(SmartRedeployController.class);
+    private static final Log LOG = LogFactory.getLog(SmartRedeployController.class);
 
     /** A controller which contains pre-built UI object tree. */
     private RepositoryTreeState repositoryTreeState;
@@ -73,7 +73,7 @@ public class SmartRedeployController {
                     latestDeploymentVersion = workspace.getDesignTimeRepository().getDDProject(
                             deploymentProject.getName());
                 } catch (RepositoryException e) {
-                    log.error("Failed to get latest version for deployment project '" + deploymentProject.getName()
+                    LOG.error("Failed to get latest version for deployment project '" + deploymentProject.getName()
                             + "'", e);
                 }
             }
@@ -191,7 +191,7 @@ public class SmartRedeployController {
                                 + "' successfully deployed with id: " + id.getName(), null));
             } catch (Exception e) {
                 String msg = "Failed to deploy '" + project.getName() + "'";
-                log.error(msg, e);
+                LOG.error(msg, e);
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
             }
@@ -246,7 +246,7 @@ public class SmartRedeployController {
             }
         } catch (ProjectException e) {
             String msg = "Failed to update deployment project '" + deploymentName + "'";
-            log.error(msg, e);
+            LOG.error(msg, e);
             FacesContext.getCurrentInstance()
                     .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null));
         }

@@ -50,7 +50,7 @@ public class DependencyChecker {
         }
     }
 
-    private final static Log log = LogFactory.getLog(DependencyChecker.class);
+    private static final Log LOG = LogFactory.getLog(DependencyChecker.class);
     /**
      * project-name -> project-version
      * <p>
@@ -97,7 +97,7 @@ public class DependencyChecker {
             } catch (RepositoryException e) {
                 String msg = "Cannot get project '" + projectName + "' version " + projectVersion.getVersionName()
                         + "!";
-                log.error(msg, e);
+                LOG.error(msg, e);
 
                 // WARNING: trick
                 projectVersions.put(projectName, null);

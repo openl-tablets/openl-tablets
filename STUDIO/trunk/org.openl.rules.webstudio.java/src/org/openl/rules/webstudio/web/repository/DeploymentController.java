@@ -33,7 +33,7 @@ import javax.faces.model.SelectItem;
  * @author Andrey Naumenko
  */
 public class DeploymentController {
-    private final static Log log = LogFactory.getLog(DeploymentController.class);
+    private static final Log LOG = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectName;
     private String version;
@@ -51,7 +51,7 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
-            log.error("Failed to add project descriptor!", e);
+            LOG.error("Failed to add project descriptor!", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to add project descriptor", e.getMessage()));
         }
@@ -75,7 +75,7 @@ public class DeploymentController {
             getSelectedProject().checkIn();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to check-in!", e);
+            LOG.error("Failed to check-in!", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check in", e.getMessage()));
         }
@@ -88,7 +88,7 @@ public class DeploymentController {
             getSelectedProject().checkOut();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to check-out!", e);
+            LOG.error("Failed to check-out!", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to check out", e.getMessage()));
         }
@@ -101,7 +101,7 @@ public class DeploymentController {
             getSelectedProject().close();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to close!", e);
+            LOG.error("Failed to close!", e);
             FacesContext.getCurrentInstance()
                     .addMessage(
                             null,
@@ -119,7 +119,7 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
-            log.error("Failed to delete project descriptor!", e);
+            LOG.error("Failed to delete project descriptor!", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "failed to add project descriptor", e.getMessage()));
         }
@@ -137,7 +137,7 @@ public class DeploymentController {
                                 + "' successfully deployed with id: " + id.getName(), null));
             } catch (Exception e) {
                 String msg = "Failed to deploy '" + project.getName() + "'";
-                log.error(msg, e);
+                LOG.error(msg, e);
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, e.getMessage()));
             }
@@ -168,7 +168,7 @@ public class DeploymentController {
         try {
             checkConflicts(items);
         } catch (ProjectException e) {
-            log.error("Failed to check conflicts!", e);
+            LOG.error("Failed to check conflicts!", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), e.getMessage()));
         }
@@ -217,7 +217,7 @@ public class DeploymentController {
                 }
                 return selectItems.toArray(new SelectItem[selectItems.size()]);
             } catch (ProjectException e) {
-                log.error("Failed to get project versions!", e);
+                LOG.error("Failed to get project versions!", e);
             }
         }
         return new SelectItem[0];
@@ -254,7 +254,7 @@ public class DeploymentController {
                         project.open();
                     }
                 } catch (ProjectException e) {
-                    log.error("Failed to open project '" + projectName + "'!", e);
+                    LOG.error("Failed to open project '" + projectName + "'!", e);
                 }
             }
             item.setSelected(false);

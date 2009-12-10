@@ -158,7 +158,7 @@ public class OpenLAdvancedSearchBean {
             this.advancedSearchBean = advancedSearchBean;
         }
     }
-    private final static Log log = LogFactory.getLog(OpenLAdvancedSearchBean.class);
+    private static final Log LOG = LogFactory.getLog(OpenLAdvancedSearchBean.class);
     private static final SelectItem[] tableTypes;
     private static final SelectItem[] columnTypeValues;
     private static final SelectItem[] groupOperationValues;
@@ -324,7 +324,7 @@ public class OpenLAdvancedSearchBean {
             } catch (Exception e) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage("Failed to save search", e.getMessage()));
-                log.error("failed to save search", e);
+                LOG.error("failed to save search", e);
             }
         }
         return null;

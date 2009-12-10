@@ -27,11 +27,11 @@ import org.openl.rules.webtools.XlsUrlParser;
 
 public class TableEditorDispatcher implements PhaseListener {
     private static final long serialVersionUID = 8617343432886373802L;
-    /** Logger */
-    private static final Log log = LogFactory.getLog(TableEditorDispatcher.class);
 
-    private static String AJAX_MATCH = "ajax/";
-    private static String EXCEL_MATCH = "excel/";
+    private static final Log LOG = LogFactory.getLog(TableEditorDispatcher.class);
+
+    private static final String AJAX_MATCH = "ajax/";
+    private static final String EXCEL_MATCH = "excel/";
 
     public void afterPhase(PhaseEvent event) {
     }
@@ -72,7 +72,7 @@ public class TableEditorDispatcher implements PhaseListener {
             writer.close();
             context.responseComplete();
         } catch (IOException e) {
-            log.error("Could not handle Ajax request", e);
+            LOG.error("Could not handle Ajax request", e);
         }
     }
 
@@ -95,7 +95,7 @@ public class TableEditorDispatcher implements PhaseListener {
             out.close();
             context.responseComplete();
         } catch (IOException e) {
-            log.error("Could not handle Resource request", e);
+            LOG.error("Could not handle Resource request", e);
         }
     }
 
@@ -132,7 +132,7 @@ public class TableEditorDispatcher implements PhaseListener {
                 }
                 context.responseComplete();
             } catch (Exception e) {
-                log.error("Could not handle Excel request", e);
+                LOG.error("Could not handle Excel request", e);
             }
         }
     }

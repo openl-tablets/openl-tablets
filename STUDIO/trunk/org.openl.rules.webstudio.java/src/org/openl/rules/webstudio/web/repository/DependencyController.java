@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 public class DependencyController {
-    private final static Log log = LogFactory.getLog(DependencyController.class);
+    private static final Log LOG = LogFactory.getLog(DependencyController.class);
 
     /** A controller which contains pre-built UI object tree. */
     private RepositoryTreeState repositoryTreeState;
@@ -74,7 +74,7 @@ public class DependencyController {
                 return null;
             }
         } catch (ProjectException e) {
-            log.error("Failed to add dependency!", e);
+            LOG.error("Failed to add dependency!", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
             return null;
@@ -153,7 +153,7 @@ public class DependencyController {
         try {
             workspace = getRulesUserSession().getUserWorkspace();
         } catch (Exception e) {
-            log.error("Failed to get user workspace!", e);
+            LOG.error("Failed to get user workspace!", e);
             return new SelectItem[0];
         }
         if (projectName == null) {
@@ -168,7 +168,7 @@ public class DependencyController {
             }
             return selectItems.toArray(new SelectItem[selectItems.size()]);
         } catch (ProjectException e) {
-            log.error("Cannot get project versions", e);
+            LOG.error("Cannot get project versions", e);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
         }
 

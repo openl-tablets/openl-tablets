@@ -42,16 +42,16 @@ public class RulesStartListener implements ServletContextListener {
 
     }
 
-    private static final Log log = LogFactory.getLog(RulesStartListener.class);
+    private static final Log LOG = LogFactory.getLog(RulesStartListener.class);
 
     public void contextDestroyed(ServletContextEvent event) {
         String name = event.getServletContext().getServletContextName();
-        log.info(name + " is down.");
+        LOG.info(name + " is down.");
     }
 
     public void contextInitialized(ServletContextEvent event) {
         String name = event.getServletContext().getServletContextName();
-        log.info("Starting " + name + "...");
+        LOG.info("Starting " + name + "...");
 
         ConfigManager configManager = new ConfigManager();
 

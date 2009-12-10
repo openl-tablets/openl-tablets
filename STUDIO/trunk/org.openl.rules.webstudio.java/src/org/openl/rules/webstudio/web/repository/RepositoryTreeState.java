@@ -37,7 +37,7 @@ import java.util.ArrayList;
  * @author Andrey Naumenko
  */
 public class RepositoryTreeState {
-    private final static Log log = LogFactory.getLog(RepositoryTreeState.class);
+    private static final Log LOG = LogFactory.getLog(RepositoryTreeState.class);
 
     /** Root node for RichFaces's tree. It is not displayed. */
     private TreeRepository root;
@@ -70,8 +70,8 @@ public class RepositoryTreeState {
         if (root != null) {
             return;
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Starting buildTree()");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Starting buildTree()");
         }
 
         root = new TreeRepository("", "", "root");
@@ -108,7 +108,7 @@ public class RepositoryTreeState {
         try {
             deploymentsProjects = userWorkspace.getDDProjects();
         } catch (RepositoryException e) {
-            log.error("Cannot get deployment projects", e);
+            LOG.error("Cannot get deployment projects", e);
         }
 
         for (UserWorkspaceDeploymentProject project : deploymentsProjects) {
@@ -116,8 +116,8 @@ public class RepositoryTreeState {
             prj.setDataBean(project);
             deploymentRepository.add(prj);
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Finishing buildTree()");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Finishing buildTree()");
         }
     }
 

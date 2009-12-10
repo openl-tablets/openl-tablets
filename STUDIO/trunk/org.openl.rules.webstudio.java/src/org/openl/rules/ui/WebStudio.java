@@ -38,7 +38,8 @@ public class WebStudio {
         void studioReset();
     }
 
-    private final static Log log = LogFactory.getLog(WebStudio.class);
+    private static final Log LOG = LogFactory.getLog(WebStudio.class);
+
     private String workspacePath;
     ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
     List<StudioListener> listeners = new ArrayList<StudioListener>();
@@ -101,7 +102,7 @@ public class WebStudio {
                 }
                 project.checkIn();
             } catch (Exception e) {
-                log.error("Can not check in!", e);
+                LOG.error("Can not check in!", e);
             }
         }
         if ("checkOut".equals(operation)) {
@@ -112,7 +113,7 @@ public class WebStudio {
                 }
                 project.checkOut();
             } catch (Exception e) {
-                log.error("Can not check out!", e);
+                LOG.error("Can not check out!", e);
             }
         }
     }
@@ -147,7 +148,7 @@ public class WebStudio {
                 UserWorkspaceProject project = rulesUserSession.getUserWorkspace().getProject(projectName);
                 return project;
             } catch (Exception e) {
-                log.error("Error when trying to get current project", e);
+                LOG.error("Error when trying to get current project", e);
             }
         }
         return null;
@@ -227,10 +228,10 @@ public class WebStudio {
             RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
             userWorkspace = rulesUserSession.getUserWorkspace();
         } catch (WorkspaceException e) {
-            log.error("Failed to get user workspace", e);
+            LOG.error("Failed to get user workspace", e);
             return false;
         } catch (ProjectException e) {
-            log.error("Failed to get user workspace", e);
+            LOG.error("Failed to get user workspace", e);
             return false;
         }
         if (userWorkspace == null) {
@@ -269,7 +270,7 @@ public class WebStudio {
                 listener.studioReset();
             }
         } catch (Exception e) {
-            log.error("Error when trying to reset studio model", e);
+            LOG.error("Error when trying to reset studio model", e);
         }
     }
 
