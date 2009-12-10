@@ -45,9 +45,7 @@ public abstract class TableCopier extends WizardBase {
     private String tableBusinessName;
     /** Need to save body content during coping */
     private boolean saveContent = true;
-    
-    private int systemPropNumber = 0;
-    
+        
     /**
      * Copies table.
      *
@@ -91,17 +89,17 @@ public abstract class TableCopier extends WizardBase {
             logicBaseTableStartRow++;
 
             ITableProperties tableProperties = baseNode.getTableProperties();   
-            Map<String, Object> baseTableProperties = null;
+            Map<String, Object> baseTablePhysicalProperties = null;
             ICellStyle propertiesStyle = null;
             if (tableProperties != null) {
                 propertiesStyle = getPropertiesStyle(tableProperties);
-                baseTableProperties = tableProperties.getPropertiesIgnoreDefaultAndSystem();
+                baseTablePhysicalProperties = tableProperties.getPropertiesIgnoreDefault();
             }
-            Map<String, Object> buildedPropForNewTable = buildProperties(baseTableProperties); 
+            Map<String, Object> buildedPropForNewTable = buildProperties(); 
             if (buildedPropForNewTable.size() > 0) {
                 builder.writeProperties(buildedPropForNewTable, propertiesStyle);
             }
-            logicBaseTableStartRow += baseTableProperties == null ? 0 : baseTableProperties.size() + systemPropNumber;
+            logicBaseTableStartRow += baseTablePhysicalProperties == null ? 0 : baseTablePhysicalProperties.size();
         }
 
         builder.writeGridTable(baseTable.getLogicalRegion(0, logicBaseTableStartRow, baseTableWidth,
@@ -113,11 +111,10 @@ public abstract class TableCopier extends WizardBase {
 
     /**
      * Creates new properties.
-     *
-     * @param properties old properties
+     *     
      * @return new properties
      */
-    protected abstract Map<String, Object> buildProperties(Map<String, Object> properties);
+    protected abstract Map<String, Object> buildProperties();
     
     /**
      * Creates system properties for new table.
@@ -131,8 +128,7 @@ public abstract class TableCopier extends WizardBase {
             if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
                 Object systemValue = SystemValuesManager.instance().getSystemValue(systemPropDef.getSystemValueDescriptor());
                 if (systemValue != null){
-                    result.put(systemPropDef.getName(), systemValue);
-                    systemPropNumber++;
+                    result.put(systemPropDef.getName(), systemValue);                    
                 }
             }
         }
@@ -195,8 +191,7 @@ public abstract class TableCopier extends WizardBase {
         super.reset();
         elementUri = null;
         tableTechnicalName = null;
-        tableBusinessName = null;
-        systemPropNumber = 0;
+        tableBusinessName = null;        
     }
     
     protected String getElementUri() {
