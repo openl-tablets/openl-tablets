@@ -18,7 +18,7 @@ public interface ICellEditor {
                                CE_MULTILINE = "multilineText",
                                CE_COMBO = "combo",
                                CE_DATE = "date",
-                               CE_MULTICHOICE = "multiChoice",
+                               CE_MULTISELECT = "multiselect",
                                CE_FORMULA = "formula",
                                CE_BOOLEAN = "boolean";
 

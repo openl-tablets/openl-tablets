@@ -30,4 +30,8 @@ public class CellEditorFactory implements ICellEditorFactory {
         return new BooleanCellEditor();
     }
 
+    public ICellEditor makeMultiSelectEditor(String[] choices) {        
+        return new MultiSelectCellEditor(choices, choices);
+    }
+
 }

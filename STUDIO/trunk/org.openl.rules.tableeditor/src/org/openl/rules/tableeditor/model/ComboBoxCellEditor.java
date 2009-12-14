@@ -31,7 +31,15 @@ public class ComboBoxCellEditor implements ICellEditor {
     }
 
     protected String[] choices, displayValues;
-
+    
+    protected ComboBoxCellEditor(String[] displayValues) {
+        this.displayValues = displayValues;
+    }
+    
+    protected void setChoices(String[] choices) {
+        this.choices = choices;
+    }
+    
     public ComboBoxCellEditor(String[] choices, String[] displayValues) {
         this.choices = choices;
         this.displayValues = displayValues;

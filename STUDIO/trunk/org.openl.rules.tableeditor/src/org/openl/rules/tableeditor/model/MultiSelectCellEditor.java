@@ -1,12 +1,15 @@
 package org.openl.rules.tableeditor.model;
 
+import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.tableeditor.event.TableEditorController;
+import org.openl.util.StringTool;
 
-public class MultiChoiceCellEditor extends ComboBoxCellEditor {
+public class MultiSelectCellEditor extends ComboBoxCellEditor {
     public static class MultiChoiceParam extends ComboBoxParam {
         private String separator;
 
         public MultiChoiceParam(String[] choices, String[] displayValues, String separator) {
+            
             super(choices, displayValues);
             this.separator = separator;
         }
@@ -20,15 +23,21 @@ public class MultiChoiceCellEditor extends ComboBoxCellEditor {
         }
     }
 
-    public MultiChoiceCellEditor(String[] choices, String[] displayValues) {
-        super(choices, displayValues);
+    public MultiSelectCellEditor(String[] choices, String[] displayValues) {
+        super(displayValues);
+        String[] insertedEscChoices = new String[choices.length];
+        for (int i=0; i<choices.length; i++) {
+            insertedEscChoices[i] = StringTool.insertStringToString(choices[i], 
+                    FunctionalRow.ARRAY_ELEMENTS_SEPARATOR, FunctionalRow.ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        }
+        super.setChoices(insertedEscChoices);
     }
 
     @Override
     public TableEditorController.EditorTypeResponse getEditorTypeAndMetadata() {
         TableEditorController.EditorTypeResponse typeResponse = new TableEditorController.EditorTypeResponse(
-                CE_MULTICHOICE);
-        typeResponse.setParams(new MultiChoiceParam(choices, displayValues, ","));
+                CE_MULTISELECT);
+        typeResponse.setParams(new MultiChoiceParam(choices, displayValues, FunctionalRow.ARRAY_ELEMENTS_SEPARATOR));
         return typeResponse;
     }
 }
