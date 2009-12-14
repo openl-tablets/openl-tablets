@@ -143,7 +143,7 @@
             </deferred-value>
         </attribute>
         <attribute>
-            <description>"view" or "edit" mode of representation</description>
+            <description>"view" or "edit" mode of representation. The default is 'view'.</description>
             <name>mode</name>
             <deferred-value>
                 <type>String</type>
