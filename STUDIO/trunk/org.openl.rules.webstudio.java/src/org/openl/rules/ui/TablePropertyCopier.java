@@ -120,8 +120,14 @@ public class TablePropertyCopier extends TableCopier {
                 String propName = defaultCopyingProp.getName();
                 Object basePropValue = baseTableProperties.getPropertyValue(propName);
                 Object newPropValue = defaultCopyingProp.getValue();
-                if (!basePropValue.equals(newPropValue)) {
-                    revaluedDefaultProperties.put(propName, newPropValue);
+                if (newPropValue != null) {
+                    boolean emptyString = false;
+                    if (newPropValue instanceof String) {
+                         emptyString = StringUtils.isEmpty((String) newPropValue);
+                    }
+                    if (!basePropValue.equals(newPropValue) && !emptyString) {
+                        revaluedDefaultProperties.put(propName, newPropValue);
+                    }
                 }
             }
         }
