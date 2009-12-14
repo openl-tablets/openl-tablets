@@ -158,23 +158,25 @@ public class ShowTableBean {
         return studio.getModel().getTableView(FacesUtils.getRequestParameter("view"));
     }
 
-    public boolean isCopyable() {
+    public boolean isCopyable() {        
+        return canModifyCurrentProject() && isCopyableNode();
+    }
+    
+    private boolean isCopyableNode() {
         boolean result = false;
         final WebStudio studio = WebStudioUtils.getWebStudio();
         TableSyntaxNode tsn = studio.getModel().getNode(getUriInternal());
         if (tsn != null) {
             String tableType = tsn.getType();
             if (!ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) && !ITableNodeTypes.XLS_OTHER.equals(tableType)) {
-                if (canModifyCurrentProject()) {
-                    result = true;
-                }
+                result = true;
             }        
         }
         return result;
     }
 
     private String getUriInternal() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
+        final WebStudio studio = WebStudioUtils.getWebStudio();        
         return uri == null ? studio.getTableUri() : uri;
     }
 
