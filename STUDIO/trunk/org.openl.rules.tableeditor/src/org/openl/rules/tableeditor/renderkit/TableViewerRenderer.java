@@ -12,6 +12,9 @@ public class TableViewerRenderer extends BaseRenderer {
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
         ResponseWriter writer = context.getResponseWriter();
         TableEditor tableEditor = new TableEditor(context, component);
+        if (tableEditor.getTable() == null) { // required attribute
+            return;
+        }
         writer.write(new HTMLRenderer().render(tableEditor, false, null, null));
     }
 

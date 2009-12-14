@@ -9,6 +9,7 @@ import org.openl.rules.table.ITable;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.util.BooleanUtils;
 
 /**
  * @author Andrei Astrouski
@@ -36,11 +37,16 @@ public class TableEditor {
         Map<String, Object> attributes = component.getAttributes();
         id = component.getClientId(context);
         table = (ITable) attributes.get(Constants.ATTRIBUTE_TABLE);
-        editable = (Boolean) attributes.get(Constants.ATTRIBUTE_EDITABLE);
+        Boolean editableObj = BooleanUtils.toBooleanObject(attributes.get(Constants.ATTRIBUTE_EDITABLE));
+        if (editableObj == null) {
+            editable = true; // The default is 'true'
+        } else {
+            editable = editableObj;
+        }
         mode = (String) attributes.get(Constants.ATTRIBUTE_MODE);
         view = (String) attributes.get(Constants.ATTRIBUTE_VIEW);
-        showFormulas = (Boolean) attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS);
-        collapseProps = (Boolean) attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS);
+        showFormulas = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
+        collapseProps = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
         beforeSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
         afterSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);

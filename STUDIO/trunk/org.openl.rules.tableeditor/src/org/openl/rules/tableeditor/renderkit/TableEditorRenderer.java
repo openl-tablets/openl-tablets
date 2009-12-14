@@ -23,6 +23,9 @@ public class TableEditorRenderer extends TableViewerRenderer {
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
         ResponseWriter writer = context.getResponseWriter();
         TableEditor tableEditor = new TableEditor(context, component);
+        if (tableEditor.getTable() == null) { // required attribute
+            return;
+        }
         ExternalContext externalContext = context.getExternalContext();
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
         String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
