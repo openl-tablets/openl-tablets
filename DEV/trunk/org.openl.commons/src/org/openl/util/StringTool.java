@@ -229,14 +229,7 @@ public class StringTool {
             out.append(s);
         }
         return out.toString();
-    }
-
-    public static String capitalize(String s) {
-        if (s == null || s.length() == 0) {
-            return s;
-        }
-        return Character.isUpperCase(s.charAt(0)) ? s : s.substring(0, 1).toUpperCase() + s.substring(1);
-    }
+    }    
 
     /**
      * See examples below: 
@@ -896,7 +889,9 @@ public class StringTool {
     }
     
     /**
-     * Split the string by the symbolToSplit. To avoid this symbolToEscape is used.
+     * Split the string by the symbolToSplit. To avoid splitting symbolToEscape is used.
+     * Trims the splitted result. For examples see tests.
+     * 
      * @param src source to process. Can`t be <code>null</code>.
      * @param symbolToSplit the delimiting symbol. Can`t be <code>null</code>.
      * @param symbolToEscape the escaper, that is used to break splitting by symbolToSplit. If <code>null</code>, 
@@ -910,14 +905,16 @@ public class StringTool {
         List<String> resultList = new ArrayList<String>();
         StringBuffer buf = new StringBuffer();
         if (symbolToEscape != null) {
-            for (int i=0; i<tokens.length; i++) {
-                if (tokens[i].endsWith(symbolToEscape)) {
+            for (int i=0; i<tokens.length; i++) {                
+                if (tokens[i].endsWith(symbolToEscape)) {    
+                    tokens[i] = tokens[i].trim();
                     String tokenWithoutEscaper = tokens[i].substring(0,tokens[i].length()-1);
                     buf.append(tokenWithoutEscaper).append(symbolToSplit);                
                 } else {
                     if (buf.length() == 0) {
+                        tokens[i] = tokens[i].trim();
                         resultList.add(tokens[i]);
-                    } else {
+                    } else {                        
                         buf.append(tokens[i]);
                         resultList.add(buf.toString());
                         buf.delete(0, buf.length());
@@ -930,6 +927,21 @@ public class StringTool {
         }
         
         return result; 
+    }
+    
+    public static String insertStringToString(String baseStr, String strToInsertBefore, String insertion) {
+        String src = baseStr;
+        String[] tokens = src.split(strToInsertBefore);
+        StringBuffer strBuf = new StringBuffer();
+        for (int i=0; i<tokens.length; i++) {
+            String token = tokens[i];
+            strBuf.append(token);
+            if (!(i == tokens.length-1)) {
+                strBuf.append(insertion);
+                strBuf.append(strToInsertBefore);                
+            }
+        }
+        return strBuf.toString();
     }
     
 }

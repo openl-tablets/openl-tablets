@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Copy;
@@ -389,7 +390,7 @@ public class JavaWrapperAntTask extends Task {
      */
     private String fieldMethodPart(IOpenField field) {
         String name = field.getName();
-        return StringTool.capitalize(name);
+        return StringUtils.capitalize(name);
 
     }
 

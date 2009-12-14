@@ -453,7 +453,7 @@ public class StringToolTest extends TestCase {
     public void testSplitAndEscape() {
         String escaper = "\\";        
         String[] escapedTokens = StringTool.splitAndEscape("Hello! I want to split it, Right , Lets Do it", ",", escaper);
-        assertTrue(escapedTokens.length == 3);                
+        assertTrue(escapedTokens.length == 3);
                 
         String[] escapedTokens1 = StringTool.splitAndEscape("Hello! I want to split it\\, Right,Lets Do it", ",", escaper);
         assertTrue(escapedTokens1.length == 2);
@@ -477,5 +477,21 @@ public class StringToolTest extends TestCase {
         assertTrue(escapedTokens4.length == 2);
         assertTrue("12,23,34".equals(escapedTokens4[0]));
         assertTrue("456".equals(escapedTokens4[1]));
+        
+        String[] escapedTokens5 = StringTool.splitAndEscape("Spencer\\, Sara's Son, Sara", ",", escaper);
+        assertNotNull(escapedTokens4);
+        assertTrue(escapedTokens5.length == 2);
+        assertTrue("Spencer, Sara's Son".equals(escapedTokens5[0]));
+        assertTrue("Sara".equals(escapedTokens5[1]));
+    }
+    
+    @Test
+    public void testInsertStringToString() {
+        String insertion = "\\";
+        String strToInsertAfter = ",";
+        String baseString = "Spencer,Sara`s son";
+        
+        String result = StringTool.insertStringToString(baseString, strToInsertAfter, insertion);
+        assertEquals("Spencer\\,Sara`s son", result);
     }
 }

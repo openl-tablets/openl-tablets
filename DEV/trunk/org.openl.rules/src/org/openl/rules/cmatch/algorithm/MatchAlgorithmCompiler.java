@@ -68,7 +68,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             if (cv != null) {
                 IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType);
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, false);
                 wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
             }
             // empty cells are left 'as is' -- suppose they are of String type
@@ -93,7 +93,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             SubValue nameSV = row.get(NAMES)[0];
             IGridRegion gridRegion = nameSV.getGridRegion();
 
-            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, null, domainOpenClass);
+            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, null, domainOpenClass, false);
             wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
         }
     }
