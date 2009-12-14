@@ -16,6 +16,7 @@ var DropdownEditor = Class.create(BaseEditor, {
         this.input.style.border = "0px none";
 
         this.addOption("", "--Select value--");
+        this.addOption(" ", "--Empty-- ");
         var pc = param.choices, pd = param.displayValues, len = Math.min(pc.length, pd.length);
         for (var ind = 0; ind < len; ++ind) this.addOption(pc[ind], pd[ind]);
 

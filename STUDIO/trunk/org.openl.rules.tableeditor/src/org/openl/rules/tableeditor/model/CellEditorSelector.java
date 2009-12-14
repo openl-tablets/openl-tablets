@@ -38,8 +38,13 @@ public class CellEditorSelector {
             } else if (instanceClass == String.class) {
                 if (domain instanceof EnumDomain) {
                     EnumDomain enumDomain = (EnumDomain) domain;
-                    result = factory.makeComboboxEditor((String[]) enumDomain
-                            .getEnum().getAllObjects());
+                    if (meta.isMultiValue()) {
+                        result = factory.makeMultiSelectEditor((String[]) enumDomain
+                                .getEnum().getAllObjects());
+                    } else {
+                        result = factory.makeComboboxEditor((String[]) enumDomain
+                                .getEnum().getAllObjects());
+                    }
                 }
             } else if (instanceClass == Date.class) {
                 result = factory.makeDateEditor();
