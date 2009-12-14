@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ITable;
+import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
@@ -158,7 +159,18 @@ public class ShowTableBean {
     }
 
     public boolean isCopyable() {
-        return canModifyCurrentProject();
+        boolean result = false;
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        TableSyntaxNode tsn = studio.getModel().getNode(uri == null ? studio.getTableUri() : uri);
+        if (tsn != null) {
+            String tableType = tsn.getType();
+            if (!ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) && !ITableNodeTypes.XLS_OTHER.equals(tableType)) {
+                if (canModifyCurrentProject()) {
+                    result = true;
+                }
+            }        
+        }
+        return result;
     }
 
     public boolean isEditable() {
