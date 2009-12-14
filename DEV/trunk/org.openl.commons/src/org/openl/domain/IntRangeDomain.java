@@ -10,8 +10,7 @@ import java.util.Iterator;
 /**
  * @author snshor
  */
-public class IntRangeDomain extends IFiniteDomain.FixedSizeDomain<Integer> implements IFiniteDomain<Integer>,
-        IIntDomain {
+public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDomain {
     class RangeIterator extends AIntIterator {
         int current;
 
