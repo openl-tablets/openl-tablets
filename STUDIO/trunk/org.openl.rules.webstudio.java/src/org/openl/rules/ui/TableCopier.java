@@ -80,8 +80,8 @@ public abstract class TableCopier extends WizardBase {
         int logicBaseTableStartRow = 0;
 
         builder.beginTable(baseTableWidth, baseTableHeight);
-        boolean envTable = baseTableType.equals(ITableNodeTypes.XLS_ENVIRONMENT);
-        boolean otherTable = baseTableType.equals(ITableNodeTypes.XLS_OTHER); 
+        boolean envTable = ITableNodeTypes.XLS_ENVIRONMENT.equals(baseTableType);
+        boolean otherTable = ITableNodeTypes.XLS_OTHER.equals(baseTableType); 
         if (!envTable && !otherTable) {
             String newHeader = buildHeader(baseNode.getHeaderLineValue().getValue(), baseTableType);
             ICellStyle headerStyle = baseTable.getCell(0, 0).getStyle();
@@ -174,13 +174,15 @@ public abstract class TableCopier extends WizardBase {
      * @return technical name of table
      */
     protected String parseTechnicalName(String header, String tableType) {
+        String result = null;
         String headerIntern = header;
         String[] headerTokens = null;
-        if (!tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) && !tableType.equals(ITableNodeTypes.XLS_OTHER)) {
+        if (!ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) && !ITableNodeTypes.XLS_OTHER.equals(tableType)) {
             headerIntern = header.replaceFirst("\\(.*\\)", "");
-             headerTokens = StringUtils.split(headerIntern);
-        }        
-        return headerTokens[headerTokens.length - 1];
+            headerTokens = StringUtils.split(headerIntern);
+            result = headerTokens[headerTokens.length - 1]; 
+        }              
+        return result;
     }
     
     /**
