@@ -11,21 +11,6 @@ import java.util.Iterator;
  *
  */
 public interface IFiniteDomain<T> extends IDomain<T> {
-    public static abstract class FixedSizeDomain<T> implements IFiniteDomain<T> {
-
-        final public boolean isFinite() {
-            return true;
-        }
-
-        final public int maxSize() {
-            return size();
-        }
-
-        final public int minSize() {
-            return size();
-        }
-
-    }
     static final public int UNKNOWN_SIZE = -1;
 
     static final public int REALLY_BIG = Integer.MAX_VALUE;

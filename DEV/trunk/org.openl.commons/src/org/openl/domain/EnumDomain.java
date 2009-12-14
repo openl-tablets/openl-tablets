@@ -8,7 +8,6 @@ package org.openl.domain;
 import java.util.BitSet;
 import java.util.Iterator;
 
-import org.openl.domain.IFiniteDomain.FixedSizeDomain;
 import org.openl.util.AOpenIterator;
 
 /**
