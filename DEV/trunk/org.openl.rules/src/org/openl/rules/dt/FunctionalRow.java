@@ -57,7 +57,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConstants {
 
-     private static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
+    public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
 
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
@@ -218,15 +218,15 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                     setMetaInfo((IMetaHolder) res, cell, paramName, ruleName);
                 }
     
-                setCellMetaInfo(cell, paramName, paramType);
+                setCellMetaInfo(cell, paramName, paramType, false);
                 validateValue(res, paramType);
                 return res;
             } catch (Throwable t) {
                 throw new BoundError(null, null, t, new GridCellSourceCodeModule(cell.getGridTable()));
             }
         } else {
-            // Set meta info for empty cells.To suggest an appropriate editor according to cell type.
-            setCellMetaInfo(cell, paramName, paramType);
+            // Set meta info for empty cells. To suggest an appropriate editor according to cell type.
+            setCellMetaInfo(cell, paramName, paramType, false);
         }
         return null;
     }
@@ -250,8 +250,8 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
      * @param paramName
      * @param paramType
      */
-    static public void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType) {
-        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType);
+    static public void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean multivalue) {
+        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, multivalue);
         IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
     }
 

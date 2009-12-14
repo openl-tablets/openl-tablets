@@ -65,8 +65,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);        
         
+        boolean multiValue = false;
         if (valuesHeight == 1 && isCommaSeparatedArray(valuesTable)) {
-            FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass);
+            multiValue = true;
+            FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
             // load array of values as comma separated parameters
             String[] tokens = FunctionalRow.extractElementsFromCommaSeparatedArray(valuesTable);
             if (tokens != null) {
@@ -82,11 +84,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String s = getCellStringValue(valueTable);                
                 if (s == null || s.length() == 0) {
                     // set meta info for empty cells.
-                    FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass);
+                    FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                     values.add(null);                        
                     continue;
                 }    
-                FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass);
+                FunctionalRow.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                 Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valueTable, s);                                       
                 values.add(res);
             }
@@ -249,10 +251,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String s = getCellStringValue(valuesTable);                
                 if (s == null || s.length() == 0) {
                     //Set meta info for empty cells
-                    FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass);
+                    FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                 } else {
                     if (s.length() > 0) {   
-                        FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass);
+                        FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                         Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, s);                        
                         getField().set(target, res, getRuntimeEnv());
                     }

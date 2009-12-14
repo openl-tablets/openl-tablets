@@ -14,6 +14,7 @@ import org.openl.OpenlToolAdaptor;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.data.ITable;
+import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
@@ -107,6 +108,10 @@ public class ColumnDescriptor {
         return displayValue.getValue();
     }
     
+    /**
+     * Method is using to load data.
+     * Is used when data table is represents <b>AS</b> a constructor (see {@link #isConstructor()}).
+     */
     public Object getLiteral(IOpenClass paramType, ILogicalTable valuesTable, OpenlToolAdaptor ota) throws Exception {
         Object resultLiteral = null;
         boolean valuesAnArray = isValuesAnArray(paramType);
@@ -161,6 +166,11 @@ public class ColumnDescriptor {
         return field == null;
     }
     
+    /**
+     * Method is using to load data.
+     * Is used when data table is represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
+     * Support loading single value, array of values.
+     */
     public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws Exception {                
         IOpenClass paramType = field.getType();
         boolean valuesAnArray = isValuesAnArray(paramType);
