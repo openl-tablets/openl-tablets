@@ -510,27 +510,31 @@ public class HTMLRenderer {
         private void fillEditProp(TableProperty prop) {
             result.append("<tr>");
             insertLabel(prop.getDisplayName());
+            final String propId = getPropId(prop);
              if (prop.isSystem()) {
-                insertText(prop);
+                insertText(prop, propId, true);
             } else {
-                insertInput(prop);
+                insertInput(prop, propId);
             }
             result.append("</tr>");
         }
 
-        private void insertInput(TableProperty prop) {
-            String propId = propsId + Constants.ID_POSTFIX_PROP + prop.getName();
+        private String getPropId(TableProperty prop) {
+            return propsId + Constants.ID_POSTFIX_PROP + prop.getName();
+        }
+
+        private void insertInput(TableProperty prop, String id) {
             String propValue = prop.getValueString();
             if (prop.isString()) {
-                insertEdit(propValue, propId);
+                insertEdit(propValue, id);
             } else if (prop.isDate()) {
-                insertCalendar(prop, propId);
+                insertCalendar(prop, id);
             } else if (prop.isBoolean()) {
-                insertCheckbox(propValue, propId);
+                insertCheckbox(propValue, id);
             } else if (prop.isDouble() ) {
-                insertEdit(propValue, propId);
+                insertEdit(propValue, id);
             }
-            insertTooltip(propId, prop.getDescription());
+            insertTooltip(id, prop.getDescription());
         }
 
         private void insertTooltip(String propId, String description) {
@@ -594,14 +598,19 @@ public class HTMLRenderer {
         private void insertLabel(String displayName) {
             result.append("<td class='te_props_proplabel'>" + displayName + ":</td>");
         }
-        
-        /**
-         * 
-         * @param value
-         */
+
         private void insertText(TableProperty prop) {
-            String propValue = prop.getValueString();            
-            result.append("<td class='te_props_propvalue'>" + propValue + "</td>");
+            insertText(prop, null, false);
+        }
+
+        private void insertText(TableProperty prop, String id, boolean showTooltip) {
+            String propValue = prop.getValueString();
+            result.append("<td class='te_props_propvalue'><span"
+                    + (StringUtils.isNotBlank(id) ? (" id='_" + id + "'") : "")
+                    + ">" + propValue + "</span></td>");
+            if (showTooltip) {
+                insertTooltip(id, prop.getDescription());
+            }
         }
     }
 }
