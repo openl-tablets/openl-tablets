@@ -11,14 +11,14 @@ import org.openl.syntax.IParsedCode;
  * operations.
  * 
  */
-public class OpenlParseManager extends BaseOpenlManager {
+public class OpenLParseManager extends OpenLHolder {
 
     /**
      * Creates new instance of OpenL engine manager.
      * 
      * @param openl {@link OpenL} instance
      */
-    public OpenlParseManager(OpenL openl) {
+    public OpenLParseManager(OpenL openl) {
         super(openl);
     }
 

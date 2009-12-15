@@ -1,9 +1,12 @@
 /**
  * Created Feb 7, 2007
  */
-package org.openl.rules.dt;
+package org.openl.rules.validator.dt;
 
-import org.openl.validate.IValidationResult;
+import org.openl.rules.dt.DTOverlapping;
+import org.openl.rules.dt.DTUncovered;
+import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.validator.IValidationResult;
 
 /**
  * @author snshor

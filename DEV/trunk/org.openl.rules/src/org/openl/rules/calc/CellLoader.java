@@ -1,7 +1,6 @@
 package org.openl.rules.calc;
 
 import org.openl.IOpenSourceCodeModule;
-import org.openl.OpenlUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BoundError;
 import org.openl.engine.OpenLManager;

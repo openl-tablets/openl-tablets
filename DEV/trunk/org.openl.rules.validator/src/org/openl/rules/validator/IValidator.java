@@ -4,7 +4,6 @@
 package org.openl.rules.validator;
 
 import org.openl.OpenL;
-import org.openl.validate.IValidationResult;
 
 /**
  * @author snshor

@@ -8,7 +8,6 @@ import java.util.Arrays;
 import org.openl.rules.dt.DTOverlapping;
 import org.openl.rules.dt.DTUncovered;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.IDTValidationResult;
 import org.openl.util.ArrayOfNamedValues;
 
 import com.exigen.ie.constrainer.consistencyChecking.Overlapping;

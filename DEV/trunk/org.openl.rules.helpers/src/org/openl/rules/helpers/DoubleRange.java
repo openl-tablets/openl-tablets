@@ -4,7 +4,6 @@
 package org.openl.rules.helpers;
 
 import org.openl.OpenL;
-import org.openl.OpenlUtils;
 import org.openl.SourceType;
 import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.StringSourceCodeModule;

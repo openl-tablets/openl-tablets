@@ -58,6 +58,7 @@ Export-Package: org.apache.poi.hwpf.usermodel,
  org.openl.rules.testmethod.binding,
  org.openl.rules.types,
  org.openl.rules.types.impl,
+ org.openl.rules.validation,
  org.openl.rules.word,
  org.openl.tablets,
  org.openl.xls

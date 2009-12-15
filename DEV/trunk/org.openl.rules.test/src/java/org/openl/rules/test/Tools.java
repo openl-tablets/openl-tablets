@@ -4,7 +4,7 @@
 package org.openl.rules.test;
 
 import org.openl.OpenL;
-import org.openl.OpenlUtils;
+import org.openl.OpenLUtils;
 import org.openl.binding.MethodNotFoundException;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;

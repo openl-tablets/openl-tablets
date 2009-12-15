@@ -27,22 +27,22 @@ import org.openl.types.java.JavaOpenClass;
  * code such as make type, make method and etc.
  * 
  */
-public class OpenlCodeManager extends BaseOpenlManager {
+public class OpenLCodeManager extends OpenLHolder {
 
-    private OpenlSourceManager sourceManager;
-    private OpenlCompileManager compileManager;
-    private OpenlBindManager bindManager;
+    private OpenLSourceManager sourceManager;
+    private OpenLCompileManager compileManager;
+    private OpenLBindManager bindManager;
 
     /**
      * Default constructor.
      * 
      * @param openl {@link OpenL} instance
      */
-    public OpenlCodeManager(OpenL openl) {
+    public OpenLCodeManager(OpenL openl) {
         super(openl);
-        sourceManager = new OpenlSourceManager(openl);
-        compileManager = new OpenlCompileManager(openl);
-        bindManager = new OpenlBindManager(openl);
+        sourceManager = new OpenLSourceManager(openl);
+        compileManager = new OpenLCompileManager(openl);
+        bindManager = new OpenLBindManager(openl);
     }
 
     /**

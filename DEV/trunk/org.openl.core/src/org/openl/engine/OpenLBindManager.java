@@ -23,14 +23,14 @@ import org.openl.types.java.JavaOpenClass;
  * operations.
  * 
  */
-public class OpenlBindManager extends BaseOpenlManager {
+public class OpenLBindManager extends OpenLHolder {
 
     /**
      * Construct new instance of manager.
      * 
      * @param openl {@link OpenL} instance
      */
-    public OpenlBindManager(OpenL openl) {
+    public OpenLBindManager(OpenL openl) {
         super(openl);
     }
 

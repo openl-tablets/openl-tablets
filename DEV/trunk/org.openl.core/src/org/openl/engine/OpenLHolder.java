@@ -3,9 +3,9 @@ package org.openl.engine;
 import org.openl.OpenL;
 
 /**
- * Class that defines an abstraction of OpenL engine manager.
+ * Class that defines an abstraction of OpenL holder. 
  */
-public abstract class BaseOpenlManager {
+public abstract class OpenLHolder {
 
     /**
      * {@link OpenL} instance. Actually OpenL engine context that used during
@@ -19,7 +19,7 @@ public abstract class BaseOpenlManager {
      * 
      * @param openl {@link OpenL} instance
      */
-    public BaseOpenlManager(OpenL openl) {
+    public OpenLHolder(OpenL openl) {
         this.openl = openl;
     }
 
