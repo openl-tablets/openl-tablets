@@ -8,6 +8,7 @@ var MultiselectEditor = Class.create(BaseEditor, {
     entries: null,
     sortedKeys: null,
     separator: null,
+    separatorEscaper: null,
 
     editor_initialize: function(param) {
         this.sortedKeys = param.choices;
@@ -53,16 +54,35 @@ var MultiselectEditor = Class.create(BaseEditor, {
 
         ["click", "dblclick"].each(function (s) {self.stopEventPropogation(s)});
         this.separator = param.separator || ',';
+        this.separatorEscaper = param.separatorEscaper;
     },
 
     show: function(value) {
         document.body.appendChild(this.input);
         var entries = this.entries;
-        value.split(this.separator).each(function (key) {
+        this.split(value).each(function (key) {
             if (key && entries[key]) {
                 entries[key].checked = true;
             }
         });
+    },
+
+    split: function(value) {
+        if (this.separatorEscaper) {
+            var tempEscaper = ";;;";
+            var escaper = this.separatorEscaper + this.separator;
+            value = value.replace(escaper, tempEscaper);
+            var sValues = value.split(this.separator);
+            var result = [];
+            sValues.each(function (sValue) {
+                if (sValue.indexOf(tempEscaper) > -1) {
+                    sValue = sValue.replace(tempEscaper, escaper);
+                }
+                result.push(sValue);
+            });
+            return result;
+        }
+        return value.split(this.separator);
     },
 
     getValue: function() {
