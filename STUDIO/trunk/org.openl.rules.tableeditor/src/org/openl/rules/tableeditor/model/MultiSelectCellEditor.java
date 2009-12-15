@@ -7,11 +7,13 @@ import org.openl.util.StringTool;
 public class MultiSelectCellEditor extends ComboBoxCellEditor {
     public static class MultiChoiceParam extends ComboBoxParam {
         private String separator;
+        private String separatorEscaper;
 
-        public MultiChoiceParam(String[] choices, String[] displayValues, String separator) {
+        public MultiChoiceParam(String[] choices, String[] displayValues, String separator, String separatorEscaper) {
             
             super(choices, displayValues);
             this.separator = separator;
+            this.setSeparatorEscaper(separatorEscaper);
         }
 
         public String getSeparator() {
@@ -20,6 +22,14 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
 
         public void setSeparator(String separator) {
             this.separator = separator;
+        }
+
+        public void setSeparatorEscaper(String separatorEscaper) {
+            this.separatorEscaper = separatorEscaper;
+        }
+
+        public String getSeparatorEscaper() {
+            return separatorEscaper;
         }
     }
 
@@ -37,7 +47,8 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
     public TableEditorController.EditorTypeResponse getEditorTypeAndMetadata() {
         TableEditorController.EditorTypeResponse typeResponse = new TableEditorController.EditorTypeResponse(
                 CE_MULTISELECT);
-        typeResponse.setParams(new MultiChoiceParam(choices, displayValues, FunctionalRow.ARRAY_ELEMENTS_SEPARATOR));
+        typeResponse.setParams(new MultiChoiceParam(choices, displayValues, FunctionalRow.ARRAY_ELEMENTS_SEPARATOR,
+                FunctionalRow.ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
         return typeResponse;
     }
 }
