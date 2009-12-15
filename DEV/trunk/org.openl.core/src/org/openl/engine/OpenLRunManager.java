@@ -3,7 +3,7 @@ package org.openl.engine;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.IOpenVM;
 import org.openl.OpenL;
-import org.openl.OpenlUtils;
+import org.openl.OpenLUtils;
 import org.openl.ProcessedCode;
 import org.openl.SourceType;
 import org.openl.binding.IBoundCode;
@@ -21,20 +21,20 @@ import org.openl.types.IOpenMethod;
  * operations.
  * 
  */
-public class OpenlRunManager extends BaseOpenlManager {
+public class OpenLRunManager extends OpenLHolder {
 
-    private OpenlSourceManager sourceManager;
-    private OpenlCompileManager compileManager;
+    private OpenLSourceManager sourceManager;
+    private OpenLCompileManager compileManager;
 
     /**
      * Creates new instance of OpenL engine manager.
      * 
      * @param openl {@link OpneL} instance
      */
-    public OpenlRunManager(OpenL openl) {
+    public OpenLRunManager(OpenL openl) {
         super(openl);
-        sourceManager = new OpenlSourceManager(openl);
-        compileManager = new OpenlCompileManager(openl);
+        sourceManager = new OpenLSourceManager(openl);
+        compileManager = new OpenLCompileManager(openl);
     }
 
     /**
@@ -57,7 +57,7 @@ public class OpenlRunManager extends BaseOpenlManager {
 
         Object target = openClass.newInstance(vm.getRuntimeEnv());
 
-        IOpenMethod method = OpenlUtils.getMethod(methodName, paramTypes, openClass);
+        IOpenMethod method = OpenLUtils.getMethod(methodName, paramTypes, openClass);
 
         return method.invoke(target, params, vm.getRuntimeEnv());
     }

@@ -15,21 +15,21 @@ import org.openl.syntax.SyntaxErrorException;
  * operations.
  * 
  */
-public class OpenlSourceManager extends BaseOpenlManager {
+public class OpenLSourceManager extends OpenLHolder {
 
-    private OpenlParseManager parseManager;
-    private OpenlBindManager bindManager;
+    private OpenLParseManager parseManager;
+    private OpenLBindManager bindManager;
 
     /**
      * Create new instance of OpenL engine manager.
      * 
      * @param openl {@link OpenL} instance
      */
-    public OpenlSourceManager(OpenL openl) {
+    public OpenLSourceManager(OpenL openl) {
         super(openl);
 
-        bindManager = new OpenlBindManager(openl);
-        parseManager = new OpenlParseManager(openl);
+        bindManager = new OpenLBindManager(openl);
+        parseManager = new OpenLParseManager(openl);
 
     }
 

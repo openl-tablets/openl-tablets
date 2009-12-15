@@ -17,7 +17,6 @@ import java.util.Map;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
-import org.openl.OpenlUtils;
 import org.openl.binding.MethodNotFoundException;
 import org.openl.binding.OpenLRuntimeException;
 import org.openl.conf.IUserContext;

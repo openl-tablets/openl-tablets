@@ -24,7 +24,7 @@ import org.openl.util.ISelector;
  * @author snshor
  * 
  */
-public final class OpenlUtils {
+public final class OpenLUtils {
 
     /**
      * Finds method with given name and parameters in open class.

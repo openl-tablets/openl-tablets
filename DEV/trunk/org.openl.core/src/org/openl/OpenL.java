@@ -7,7 +7,11 @@
 package org.openl;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
@@ -15,6 +19,8 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
 import org.openl.conf.cache.CacheUtils;
+import org.openl.message.OpenLMessage;
+import org.openl.validation.IOpenLValidator;
 
 /**
  * This class describes OpenL engine context abstraction that used during
@@ -50,6 +56,17 @@ public class OpenL {
     private IUserContext userContext;
 
     private String name;
+
+    /**
+     * OpenL messages. Used to accumulate engine messages for communication with
+     * end user.
+     */
+    private List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+
+    /**
+     * Set of validators that will be used in validation process.
+     */
+    private Set<IOpenLValidator> validators = new CopyOnWriteArraySet<IOpenLValidator>();
 
     /**
      * Gets instance of <code>OpenL</code> with given name.
@@ -303,4 +320,89 @@ public class OpenL {
     public void setBinder(IOpenBinder binder) {
         this.binder = binder;
     }
+
+    /**
+     * Gets copy list of OpenL messages.
+     * 
+     * @return list of messages
+     */
+    public List<OpenLMessage> getMessages() {
+        return new ArrayList<OpenLMessage>(messages);
+    }
+
+    /**
+     * Removes all entries from OpenL messages.
+     * 
+     */
+    public void removeMessages() {
+        messages = new ArrayList<OpenLMessage>();
+    }
+
+    /**
+     * Adds new OpenL message.
+     * 
+     * @param message new message
+     */
+    public void addMessage(OpenLMessage message) {
+        messages.add(message);
+    }
+
+    /**
+     * Adds OpenL messages.
+     * 
+     * @param messages messages to add
+     */
+    public void addMessages(List<OpenLMessage> messages) {
+
+        for (OpenLMessage message : messages) {
+            addMessage(message);
+        }
+    }
+
+    /**
+     * Adds new validator to set of validators.
+     * 
+     * @param validator validator instance
+     */
+    public void addValidator(IOpenLValidator validator) {
+        validators.add(validator);
+    }
+
+    /**
+     * Adds new validators to set of validators.
+     * 
+     * @param validators list of validator
+     */
+    public void addValidators(List<IOpenLValidator> validators) {
+
+        for (IOpenLValidator validator : validators) {
+            addValidator(validator);
+        }
+    }
+
+    /**
+     * Removes validator from set of validators.
+     * 
+     * @param validator validator to remove
+     */
+    public void removeValidator(IOpenLValidator validator) {
+        validators.remove(validator);
+    }
+
+    /**
+     * Removes all validators.
+     */
+    public void removeValidators() {
+        validators = new CopyOnWriteArraySet<IOpenLValidator>();
+    }
+
+    /**
+     * Gets set of registered validators.
+     * 
+     * @return set of validators
+     */
+    public Set<IOpenLValidator> getValidators() {
+        return validators;
+    }
+
 }

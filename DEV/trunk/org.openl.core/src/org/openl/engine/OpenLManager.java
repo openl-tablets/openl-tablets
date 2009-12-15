@@ -31,7 +31,7 @@ public class OpenLManager {
     public static IOpenClass makeType(OpenL openl, IOpenSourceCodeModule source,
             IBindingContextDelegator bindingContextDelegator) {
 
-        OpenlCodeManager codeManager = new OpenlCodeManager(openl);
+        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
         return codeManager.makeType(source, bindingContextDelegator);
 
@@ -49,7 +49,7 @@ public class OpenLManager {
     public static CompositeMethod makeMethod(OpenL openl, IOpenSourceCodeModule source, IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
 
-        OpenlCodeManager codeManager = new OpenlCodeManager(openl);
+        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
         return codeManager.makeMethod(source, methodHeader, bindingContext);
     }
@@ -65,7 +65,7 @@ public class OpenLManager {
     public static IOpenMethodHeader makeMethodHeader(OpenL openl, IOpenSourceCodeModule source,
             IBindingContextDelegator bindingContextDelegator) {
 
-        OpenlCodeManager codeManager = new OpenlCodeManager(openl);
+        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
         return codeManager.makeMethodHeader(source, bindingContextDelegator);
     }
@@ -87,7 +87,7 @@ public class OpenLManager {
     public static CompositeMethod makeMethodWithUnknownType(OpenL openl, IOpenSourceCodeModule source,
             String methodName, IMethodSignature signature, IOpenClass declaringClass, IBindingContext bindingContext) {
 
-        OpenlCodeManager codeManager = new OpenlCodeManager(openl);
+        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
         return codeManager.makeMethodWithUnknownType(source, methodName, signature, declaringClass, bindingContext);
 
@@ -104,7 +104,7 @@ public class OpenLManager {
     public static void compileMethod(OpenL openl, IOpenSourceCodeModule source, CompositeMethod compositeMethod,
             IBindingContext bindingContext) {
 
-        OpenlCompileManager compileManager = new OpenlCompileManager(openl);
+        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
 
         compileManager.compileMethod(source, compositeMethod, bindingContext);
     }
@@ -119,7 +119,7 @@ public class OpenLManager {
      */
     public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source) {
 
-        OpenlCompileManager compileManager = new OpenlCompileManager(openl);
+        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
 
         return compileManager.compileModule(source);
     }
@@ -134,7 +134,7 @@ public class OpenLManager {
      */
     public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
 
-        OpenlCompileManager compileManager = new OpenlCompileManager(openl);
+        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
 
         return compileManager.compileModuleWithErrors(source);
 
@@ -150,7 +150,7 @@ public class OpenLManager {
      */
     public static Object runScript(OpenL openl, IOpenSourceCodeModule source) throws OpenLRuntimeException {
 
-        OpenlRunManager runManager = new OpenlRunManager(openl);
+        OpenLRunManager runManager = new OpenLRunManager(openl);
 
         return runManager.runScript(source);
     }
@@ -172,7 +172,7 @@ public class OpenLManager {
             IOpenClass[] paramTypes, Object[] params) throws OpenLRuntimeException, MethodNotFoundException,
             SyntaxErrorException {
 
-        OpenlRunManager runManager = new OpenlRunManager(openl);
+        OpenLRunManager runManager = new OpenLRunManager(openl);
 
         return runManager.runMethod(source, methodName, paramTypes, params);
 
@@ -190,7 +190,7 @@ public class OpenLManager {
     public static Object run(OpenL openl, IOpenSourceCodeModule source, SourceType sourceType)
             throws OpenLRuntimeException {
 
-        OpenlRunManager runManager = new OpenlRunManager(openl);
+        OpenLRunManager runManager = new OpenLRunManager(openl);
 
         return runManager.run(source, sourceType);
 

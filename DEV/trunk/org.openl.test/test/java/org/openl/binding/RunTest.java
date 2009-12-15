@@ -7,7 +7,6 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.openl.OpenL;
-import org.openl.OpenlUtils;
 import org.openl.SourceType;
 import org.openl.engine.OpenLManager;
 import org.openl.syntax.SyntaxErrorException;

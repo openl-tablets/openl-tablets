@@ -1,7 +1,7 @@
 /**
  * Created Feb 7, 2007
  */
-package org.openl.validate;
+package org.openl.rules.validator;
 
 /**
  * @author snshor

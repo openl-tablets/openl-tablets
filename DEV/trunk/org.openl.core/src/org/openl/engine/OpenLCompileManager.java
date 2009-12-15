@@ -1,5 +1,7 @@
 package org.openl.engine;
 
+import java.util.List;
+
 import org.openl.CompiledOpenClass;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
@@ -9,29 +11,34 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.module.MethodBindingContext;
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxError;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.validation.ValidationResult;
+import org.openl.validation.ValidationUtils;
 
 /**
  * Class that defines OpenL engine manager implementation for compilation
  * operations.
  * 
  */
-public class OpenlCompileManager extends BaseOpenlManager {
+public class OpenLCompileManager extends OpenLHolder {
 
-    private OpenlSourceManager sourceManager;
-    private OpenlBindManager bindManager;
+    private OpenLSourceManager sourceManager;
+    private OpenLBindManager bindManager;
+    private OpenLValidationManager validationManager;
 
     /**
      * Construct new instance of manager.
      * 
      * @param openl {@link OpenL} instance
      */
-    public OpenlCompileManager(OpenL openl) {
+    public OpenLCompileManager(OpenL openl) {
         super(openl);
-        sourceManager = new OpenlSourceManager(openl);
-        bindManager = new OpenlBindManager(openl);
+        sourceManager = new OpenLSourceManager(openl);
+        bindManager = new OpenLBindManager(openl);
+        validationManager = new OpenLValidationManager(openl);
     }
 
     /**
@@ -62,6 +69,11 @@ public class OpenlCompileManager extends BaseOpenlManager {
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         ISyntaxError[] parsingErrors = processedCode.getParsingErrors();
         ISyntaxError[] bindingErrors = processedCode.getBindingErrors();
+        
+        List<ValidationResult> validationResults = validationManager.validate(openClass);
+        List<OpenLMessage> validationMessages = ValidationUtils.getValidationMessages(validationResults);
+        
+        getOpenL().addMessages(validationMessages);
 
         return new CompiledOpenClass(openClass, parsingErrors, bindingErrors);
     }
