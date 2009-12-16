@@ -46,13 +46,7 @@ Validator.methods = {
         return !isNaN(date);
     },
 
-    compareTo: function(value, params) {
-        var toValue;
-        if (params.compareToFieldId) {
-            toValue = $(params.compareToFieldId).value;
-        } else {
-            toValue = params;
-        }
+    compareTo: function(value, toValue) {
         if (this.date(value)) {
             value = new Date(value);
             toValue = new Date(toValue);
@@ -69,11 +63,23 @@ Validator.methods = {
     },
 
     lessThan: function(value, params) {
-        return this.compareTo(value, params) == -1;
+        var toValue = params.compareToFieldId ? $(params.compareToFieldId).value : params;
+        if (!toValue) return true;
+        var less = this.compareTo(value, toValue) == -1;
+        if (less && params.compareToFieldId) {
+            Validation.prototype.hideMessage(params.compareToFieldId);
+        }
+        return less;
     },
 
     moreThan: function(value, params) {
-        return this.compareTo(value, params) == 1;
+        var toValue = params.compareToFieldId ? $(params.compareToFieldId).value : params;
+        if (!toValue) return true;
+        var more = this.compareTo(value, toValue) == 1;
+        if (more && params.compareToFieldId) {
+            Validation.prototype.hideMessage(params.compareToFieldId);
+        }
+        return more;
     }
 }
 
@@ -106,13 +112,13 @@ var Validation = Class.create({
     validate: function() {
         var validator = this.getValidator(this.validatorName);
         var inputValue = this.input.value;
-        var result = validator.validate(inputValue, this.params);
-        if (!result) {
+        var valid = validator.validate(inputValue, this.params);
+        if (!valid) {
             this.showMessage(validator.errorMessage);
         } else {
             this.hideMessage();
         }
-        return result;
+        return valid;
     },
 
     validateAll: function() {
@@ -127,6 +133,7 @@ var Validation = Class.create({
     },
 
     showMessage: function(message) {
+        // TODO Refactor to use Tooltip
         var messageTip = $(document.createElement("div"));
         messageTip.id = this.input.id + "_message";
         messageTip.innerHTML = message;
@@ -146,12 +153,17 @@ var Validation = Class.create({
         }
     },
 
-    hideMessage: function() {
-        var currenMessageTip = this.firedMessageTips.get(this.input.id);
-        if (currenMessageTip) {
-            this.firedMessageTips.unset(this.input.id);
-            document.body.removeChild(currenMessageTip);
+    hideMessage: function(id) {
+        if (!id) id = this.input.id; // Current input id
+        var messageTip = this.firedMessageTips.get(id);
+        if (messageTip) {
+            this.firedMessageTips.unset(id);
+            document.body.removeChild(messageTip);
         }
+    },
+
+    hideAllMessages: function() {
+        // TODO Implement
     }
 
 });
