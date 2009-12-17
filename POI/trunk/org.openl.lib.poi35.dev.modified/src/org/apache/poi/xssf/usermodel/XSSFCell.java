@@ -491,7 +491,7 @@ public final class XSSFCell implements Cell {
      * on the cached value of the formula
      */
     public int getCachedFormulaResultType() {
-        if (_cell.getF() == null) {
+        if (getCellType() != CELL_TYPE_FORMULA) {
             throw new IllegalStateException("Only formula cells have cached results");
         }
 
