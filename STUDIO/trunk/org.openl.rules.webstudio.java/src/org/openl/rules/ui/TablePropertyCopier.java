@@ -6,9 +6,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.constraints.LessThanConstraint;
+import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinition;
@@ -19,7 +23,9 @@ public class TablePropertyCopier extends TableCopier {
     private List<TableProperty> propsToCopy = new ArrayList<TableProperty>();
     
     private List<TableProperty> defaultProps = new ArrayList<TableProperty>();
-    
+
+    private UIRepeat propsTable;
+
     public List<TableProperty> getPropsToCopy() {
         return propsToCopy;
     }
@@ -71,6 +77,47 @@ public class TablePropertyCopier extends TableCopier {
                 }
             }
         }
+    }
+
+    public String getValidationJS() {
+        StringBuilder validation = new StringBuilder();
+        TableProperty prop = getCurrentProp();
+        Constraints constraints = prop.getConstraints();
+        if (constraints != null) {
+            String inputId = getInputIdJS(prop.getName());
+            for (Constraint constraint : constraints.getAll()) {
+                if (constraint instanceof LessThanConstraint || constraint instanceof MoreThanConstraint) {
+                    String validator = constraint instanceof LessThanConstraint ? "lessThan" : "moreThan";
+                    String compareToField = (String) constraint.getParams()[0];
+                    String compareToFieldId = getInputIdJS(compareToField);
+                    TableProperty compareToProperty = getProperty(prop.getName());
+                    String compareToPropertyDisplayName = compareToProperty == null ? ""
+                            : compareToProperty.getDisplayName();
+                    validation.append("new Validation(" + inputId + ", '"
+                            + validator + "', '', {compareToFieldId:" + compareToFieldId
+                            + ",messageParams:'" + compareToPropertyDisplayName + "'})");
+                }
+            }
+        }
+        return validation.toString();
+    }
+
+    private String getInputIdJS(String propName) {
+        return "$('" + propsTable.getParent().getId() + "').down('input[type=hidden][name=id][value="
+            + propName + "]').up().down('input').id";
+    }
+
+    private TableProperty getCurrentProp() {
+        return (TableProperty) propsTable.getRowData();
+    }
+
+    private TableProperty getProperty(String name) {
+        for (TableProperty property : propsToCopy) {
+            if (property.getName().equals(name)) {
+                return property;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -132,5 +179,13 @@ public class TablePropertyCopier extends TableCopier {
             }
         }
         return revaluedDefaultProperties;
+    }
+
+    public void setPropsTable(UIRepeat propsTable) {
+        this.propsTable = propsTable;
+    }
+
+    public UIRepeat getPropsTable() {
+        return propsTable;
     }
 }

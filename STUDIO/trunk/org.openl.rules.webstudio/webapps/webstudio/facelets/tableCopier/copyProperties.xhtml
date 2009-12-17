@@ -6,99 +6,81 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:c="http://java.sun.com/jstl/core"    
-    template="/facelets/common/studioWizardBase.xhtml"
-    >
+    template="/facelets/common/studioWizardBase.xhtml">
     <ui:define name="header">
-        <!-- <a4j:loadScript src="resource:///javascript/validator.js" />-->
-        <style>            
+        <a4j:loadScript src="resource:///js/validation.js" />
+        <style>
             .default_Props {
                 border: 1px solid rgb(255,255,0);
-            }            
+            }
         </style>
     </ui:define>
     <ui:define name="page">
         <h:messages errorClass="error" infoStyle="color:green" />
 
         <h:form id="copyTableForm">
-		
             <h2>
-	            <h:panelGrid columns="2">                
+	            <h:panelGrid columns="2">
 	                <h:outputText value="Technical table name:" />
 	                <h:outputText id="technicalName"
 	                    value="#{tableCopierWizard.tableTechnicalName}" />
 	            </h:panelGrid>
-			</h2> 
-            <br />            
-            
-	
-	<fieldset><legend>Table Properties</legend>  
-		<table id="propertiesToCopy">
-			<c:forEach items="#{tableCopierWizard.propsToCopy}" var="propDef">
-				<tr><td><h:outputLabel for="#{propDef.displayName}" value="#{propDef.displayName}"/></td>
-					<c:if test="#{propDef.string}">
-						<td><h:inputText id="#{propDef.name}" value="#{propDef.value}" /></td>
-					</c:if>
-					<c:if test="#{propDef.date}">
-						<td><rich:calendar id="#{propDef.name}" 
-										   value="#{propDef.value}"										   
-										   popup="true" 
-										   enableManualInput="false"
-	      								   jointPoint="bottom-left" 
-	      								   datePattern="#{propDef.format}"
-	      								   defaultTime = "00:00"
-	      								   timeZone="#{formatPatterns.defaultTimeZone}">
-	       					</rich:calendar>
-	      				</td>
-					</c:if>
-					<c:if test="#{propDef.boolean}">
-						<td>
-							<h:selectBooleanCheckbox value="#{propDef.value}"/>
-						</td>
-					</c:if>
-				</tr>				
-			</c:forEach>	
-			<tr><td></td><td><b>Default properties:</b></td></tr>		
-			<c:forEach items="#{tableCopierWizard.defaultProps}" var="defaultProps">
-				<tr><td><h:outputLabel for="#{defaultProps.displayName}" value="#{defaultProps.displayName}"/></td>
-					<c:if test="#{defaultProps.string}">
-						<td class="default_Props"><h:inputText id="#{defaultProps.name}" value="#{defaultProps.value}" /></td>
-					</c:if>
-					<c:if test="#{defaultProps.date}">
-						<td class="default_Props"><rich:calendar id="#{defaultProps.name}" 
-										   value="#{defaultProps.value}"										   
-										   popup="true" 
-										   enableManualInput="false"
-	      								   jointPoint="bottom-left" 
-	      								   datePattern="#{defaultProps.format}"
-	      								   defaultTime = "00:00"
-	      								   timeZone="#{formatPatterns.defaultTimeZone}">
-	       					</rich:calendar>
-	      				</td>
-					</c:if>
-					<c:if test="#{defaultProps.boolean}">
-						<td class="default_Props">
-							<h:selectBooleanCheckbox value="#{defaultProps.value}"/>
-						</td>
-					</c:if>
-				</tr>				
-			</c:forEach>			
-		</table>
-		</fieldset>
-			<h:inputHidden value="1" id="step" binding="#{tableCopierWizardManager.hiddenStep}"/>
-      		<h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}"/>
-      		<h:commandButton value="Next" action="#{tableCopierWizardManager.next}"/>    
-      		<h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}"/>       
-        </h:form>
+			</h2>
+            <br />
 
-        <f:verbatim>
-            <script type="text/javascript">
-              function validateForm() {
-                valid = validateRequired('copyTableForm:technicalName', true);                
+	<fieldset><legend>Table Properties</legend>
+		<table>
+			<a4j:repeat value="#{tableCopierWizard.propsToCopy}" var="prop">
+				<tr>
+                    <td><h:outputText value="#{prop.displayName}"/></td>
+                    <td>
+        				<h:inputText value="#{prop.value}" rendered="#{prop.string}" />
+                        <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                            defaultTime="00:00" timeZone="#{formatPatterns.defaultTimeZone}"
+                            rendered="#{prop.date}" />
+        				<h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
+                        <input type="hidden" name="id" value="#{prop.name}" />
+                    </td>
+				</tr>
+			</a4j:repeat>
+			<tr><td></td><td><b>Default properties:</b></td></tr>
+			<a4j:repeat value="#{tableCopierWizard.defaultProps}" var="prop">
+				<tr>
+                    <td><h:outputText value="#{prop.displayName}"/></td>
+                    <td class="default_Props">
+    				    <h:inputText value="#{prop.value}" rendered="#{prop.string}" />
+                        <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                            defaultTime="00:00" timeZone="#{formatPatterns.defaultTimeZone}"
+                            rendered="#{prop.date}" />
+                        <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.boolean}" />
+                    </td>
+				</tr>
+			</a4j:repeat>
+		</table>
+
+        <script type="text/javascript">
+            var validations = [];
+            <a4j:repeat value="#{tableCopierWizard.propsToCopy}" var="prop" binding="#{tableCopierWizard.propsTable}">
+                <h:panelGroup rendered="#{not empty prop.constraints.all}">
+                    validations.push(<h:outputText value="#{tableCopierWizard.validationJS}" />);
+                </h:panelGroup>
+            </a4j:repeat>
+
+            function validateAll() {
+                var valid = true;
+                validations.each(function (v) {
+                    valid = valid &amp;&amp; v.validate();
+                });
                 return valid;
-              }            
-              
-            </script>
-        </f:verbatim>
+            }
+        </script>
+
+		</fieldset>
+			<h:inputHidden value="1" id="step" binding="#{tableCopierWizardManager.hiddenStep}" />
+      		<h:commandButton value="Prev" action="#{tableCopierWizardManager.prev}" />
+      		<h:commandButton value="Next" action="#{tableCopierWizardManager.next}" onclick="return validateAll();" />
+      		<h:commandButton value="Cancel" action="#{tableCopierWizardManager.cancel}" />
+        </h:form>
 
     </ui:define>
 </ui:composition>
