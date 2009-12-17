@@ -21,12 +21,15 @@ import org.apache.poi.hssf.record.formula.eval.AreaEval;
 import org.apache.poi.hssf.record.formula.eval.BoolEval;
 import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.NumberEval;
+import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.StringEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.record.formula.function.FunctionMetadata;
 import org.apache.poi.hssf.record.formula.functions.Function;
 import org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport;
 import org.apache.poi.ss.formula.ArrayEval;
 import org.apache.poi.ss.formula.TwoDEval;
+import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
@@ -36,6 +39,10 @@ import org.apache.poi.ss.util.CellRangeAddress;
  *  All method need to be static
  *
  * @author Vladimirs Abramovs (Vladimirs.Abramovs at exigenservices.com)
+ */
+/**
+ * @author vabramovs
+ *
  */
 public class ArrayFormulaEvaluatorHelper {
 	private static final CellValue CELL_VALUE_NA = CellValue.getError(ErrorConstants.ERROR_NA);
@@ -149,35 +156,57 @@ public class ArrayFormulaEvaluatorHelper {
 	 */
 	public static ValueEval dereferenceValue(ArrayEval evaluationResult, Cell cell) {
 		CellRangeAddress range = cell.getArrayFormulaRange();
+		ValueEval[][] rangeVal =ArrayFormulaEvaluatorHelper.transformToRange(evaluationResult.getArrayValues(),range);
 		int rowInArray = cell.getRowIndex()- range.getFirstRow();
 		int colInArray = cell.getColumnIndex() - range.getFirstColumn();
-		return evaluationResult.getValue(rowInArray,colInArray);
+		return rangeVal[rowInArray][colInArray];
 	}
 	/**
 	 * Get type of parameter (SCALAR_TYPE or ARRAY_TYPE) which support function
 	 * for given argument
 	 *
 	 * @param function
+	 * @param functionMetaData
 	 * @param argIndex
 	 * @return
 	 */
-	public static int getParameterType(Function function, int argIndex) {
-
+	public static int getParameterType(Function function, FunctionMetadata functionMetaData, int argIndex) {
+		int oldanswer = SCALAR_TYPE;
 		if (function instanceof FunctionWithArraySupport) {
 			// ask new interface(ZS) for argument type
 			if (((FunctionWithArraySupport) function).supportArray(argIndex)) {
-				return ARRAY_TYPE;
+				oldanswer = ARRAY_TYPE;
 			}
 		}
-		return SCALAR_TYPE;
+//		int answer = SCALAR_TYPE;;
+//		int index = argIndex;
+//		if (functionMetaData != null) {
+//				byte[] parameterClassCodes = functionMetaData.getParameterClassCodes();
+//				if(index >= parameterClassCodes.length){ // In case of unlimited Vargs
+//					index = parameterClassCodes.length-1;
+//				}
+//					
+//			// If function may accept reference it means that it may accept array as result of ref evaluation?
+////			if (parameterClassCodes[index] != OperationPtg.CLASS_VALUE) {
+//			if (parameterClassCodes[index] == OperationPtg.CLASS_ARRAY) {
+////				return ARRAY_TYPE;
+//				answer = ARRAY_TYPE;
+//			}
+//		}
+////      return  SCALAR_TYPE;
+//		if(answer != oldanswer){
+//			String oldtype = oldanswer==ARRAY_TYPE?"Array":"Scalar";
+//			System.out.println("Diff in function "+functionMetaData.getName()+";parameter "+(index+1)+" was "+ oldtype);
+//		}
+		return oldanswer;
 	}
 
 	/**
 	 * Prepare empty template, which will keep result of evaluation
 	 *   A few arguments of function may be array.
-	 *   In this case result array will have
-	 *   dimension as  such arguments intersection.
-	 *   This method calculates result's dimension and prepare empty results
+	 *   In this case result array will have  dimension as  such arguments union(not intersection).
+	 *   Union provides correct error setting, while arrays have no concordant dimensions .
+	 *   This method calculates result's dimension and prepare empty result's holder
 	 *
 	 *
 	 * @param function
@@ -185,20 +214,30 @@ public class ArrayFormulaEvaluatorHelper {
 	 * @param arrayFormula
 	 * @return <code>null</code> if function returns a scalar result
 	 */
-	public static ArrayEval prepareEmptyResult(Function function, ValueEval[] args, boolean arrayFormula) {
-		boolean foundArrayArg = false;
+
+	public static ArrayEval prepareEmptyResult(Function function, FunctionMetadata functionMetaData,ValueEval[] args, boolean arrayFormula) {
+		boolean foundArrayArgThatNeedIterated = false;
+		boolean criticalError = false;
 		int rowCount = Integer.MIN_VALUE;
 		int colCount = Integer.MIN_VALUE;
+		byte aggregationError = 0;
 
 		for (int i = 0; i < args.length; i++) {
 			int argRowCount = Integer.MIN_VALUE;
 			int argColCount = Integer.MIN_VALUE;
-			if (getParameterType(function, i) == SCALAR_TYPE) {
-				ValueEval arg = args[i];
+			ValueEval arg = args[i];
+			if (getParameterType(function,functionMetaData, i) == SCALAR_TYPE) {
 				if (arg instanceof ArrayEval) {
 					ArrayEval aa = (ArrayEval) arg;
 					argRowCount = aa.getHeight();
 					argColCount = aa.getWidth();
+					if(aa.getComponentError()!= 0)
+						aggregationError = aa.getComponentError();
+					else{
+						if(isArrayArgContainsRef(aa))
+							aggregationError = ErrorConstants.ERROR_VALUE;
+					}
+						
 				} else if (arg instanceof AreaEval && arrayFormula) {
 					AreaEval aa = (AreaEval) arg;
 					argRowCount = aa.getHeight();
@@ -206,19 +245,79 @@ public class ArrayFormulaEvaluatorHelper {
 				} else {
 					continue; // Arguments is not array - just skip it
 				}
-				foundArrayArg = true;
+				foundArrayArgThatNeedIterated = true;
 				rowCount = Math.max(rowCount, argRowCount);
 				colCount = Math.max(colCount, argColCount);
 			}
-		}
-
-		if (!foundArrayArg) {
+			else {  // function accepts  Array
+				
+				if (arg instanceof ArrayEval) { //  Argument already array  
+					ArrayEval aa = (ArrayEval) arg;
+					boolean thisArrayRequreIteration = false;
+					  if(aa.getComponentError() !=0)
+					  {
+						  // This error situation - in this case we don't need to invoke function - simply fill returned array by error code, taking from  from parameters
+						 criticalError = true;
+						 thisArrayRequreIteration = true;
+						 aggregationError = aa.getComponentError();
+					  }
+					
+					if(isArrayArgContainsRef(aa)){
+						// Element is reference  that means that in future results will be "aggregate" only once							
+						thisArrayRequreIteration = true;
+						aggregationError = ErrorConstants.ERROR_NA;
+					}
+					if(thisArrayRequreIteration){
+						foundArrayArgThatNeedIterated = true;
+						argRowCount = aa.getHeight();
+						argColCount = aa.getWidth();
+						rowCount = Math.max(rowCount, argRowCount);
+						colCount = Math.max(colCount, argColCount);
+					}
+				  
+				}   // ArraEval
+			}   // Array type of argument
+		} // by arguments
+		if (!foundArrayArgThatNeedIterated) {
 			return null;
+		}
+		
+		if(criticalError){
+			ErrorEval[][] errorArray = new ErrorEval[rowCount][colCount];
+			for(int row=0;row<rowCount;row++){
+				for(int col=0;col<colCount;col++){
+					errorArray[row][col] = ErrorEval.valueOf(aggregationError);
+					}
+				}
+			return  new ArrayEval(errorArray);
 		}
 
 		ValueEval[][] emptyArray = new ValueEval[rowCount][colCount];
-		return new ArrayEval(emptyArray);
+		ArrayEval answer =  new ArrayEval(emptyArray);
+		if(aggregationError != 0)
+			answer.setComponentError(aggregationError);
+		return answer;
 	}
+	
+/**
+ * Does array contain any reference ?
+ *  Some Excel function change it's behaviour when  it "array" argument contains reference 
+ * @param aa
+ * @return
+ */
+private static boolean isArrayArgContainsRef(ArrayEval aa){
+		
+	for(int j=0;j<aa.getHeight();j++){
+		for(int jj=0;jj<aa.getWidth();jj++){
+			ValueEval elem = aa.getValue(j,jj);
+			if(elem instanceof AreaEval || elem instanceof RefEval ){
+				// Element is reference  that means that in future results will be "aggregate" only once
+				return true;
+				}
+			}
+		}
+	return false;
+}
 
 	/**
 	 * Prepare arguments for next iteration to call function
@@ -230,22 +329,33 @@ public class ArrayFormulaEvaluatorHelper {
 	 * @param j
 	 * @return
 	 */
-	public static ValueEval[] prepareArgsForLoop(Function function, ValueEval[] args, int i, int j) {
+	public static ValueEval[] prepareArgsForLoop(Function function,FunctionMetadata functionMetaData, ValueEval[] args, int i, int j,boolean arrayFormula  ) {
 		ValueEval[] answer = new ValueEval[args.length];
 		for (int argIn = 0; argIn < args.length; argIn++) {
 			ValueEval arg = args[argIn];
 
-			if (getParameterType(function, argIn) == SCALAR_TYPE) {
+			if (getParameterType(function,functionMetaData, argIn) == SCALAR_TYPE ) {
 				if (arg instanceof TwoDEval) {
 					arg = getArrayValue((TwoDEval) arg, i, j);
 				}
 			}
+			else{
+				if (arg instanceof ArrayEval) {
+					ValueEval elem = getArrayValue((TwoDEval) arg, i, j);
+					if(elem instanceof AreaEval){
+						arg = WorkbookEvaluator.dereferenceValue(elem, ((AreaEval)elem).getFirstRow()+i, ((AreaEval)elem).getFirstColumn()+j);
+					}
+					else if(elem instanceof RefEval){
+						arg = WorkbookEvaluator.dereferenceValue(elem, 0, 0);
+					}
+//				System.out.println("Function "+functionMetaData.getName()+" got "+ (argIn+1)+" parameter as array");
+				}
+			}	
 			answer[argIn] = arg;
 		}
 
 		return answer;
 	}
-
 	private static ValueEval getArrayValue(TwoDEval tde, int pRowIndex, int pColIndex) {
 		int rowIndex;
 		if (pRowIndex >= tde.getHeight()) {
@@ -276,13 +386,34 @@ public class ArrayFormulaEvaluatorHelper {
 	 * @param ops
 	 * @return
 	 */
-	public static boolean checkForArrays(Function function, ValueEval[] ops) {
+	public static boolean checkForArrays(Function function,FunctionMetadata functionMetaData, ValueEval[] ops) {
 
 		for (int i = 0; i < ops.length; i++) {
-			if ((ops[i] instanceof ArrayEval) && (getParameterType(function, i) == SCALAR_TYPE)) {
+			if ((ops[i] instanceof ArrayEval) && (getParameterType(function,functionMetaData, i) == SCALAR_TYPE)) {
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Transfer component error (if any) from argument to result 
+	 * @param to
+	 * @param ops
+	 * @return
+	 */
+	public static ValueEval transferComponentError(ValueEval to, ValueEval[] ops) {
+		ValueEval result = to;
+		if(result instanceof ArrayEval){
+			for(int i=0;i<ops.length;i++){
+				if(ops[i] instanceof ArrayEval){
+					if(((ArrayEval)ops[i]).getComponentError()!= 0) {
+						((ArrayEval)result).setComponentError(((ArrayEval)ops[i]).getComponentError());
+						return result;
+					}
+				}
+			}	
+		}
+		return result;
 	}
 }

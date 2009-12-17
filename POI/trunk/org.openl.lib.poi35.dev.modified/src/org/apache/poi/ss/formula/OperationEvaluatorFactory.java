@@ -42,6 +42,7 @@ import org.apache.poi.hssf.record.formula.SubtractPtg;
 import org.apache.poi.hssf.record.formula.UnaryMinusPtg;
 import org.apache.poi.hssf.record.formula.UnaryPlusPtg;
 import org.apache.poi.hssf.record.formula.eval.ConcatEval;
+import org.apache.poi.hssf.record.formula.eval.ErrorEval;
 import org.apache.poi.hssf.record.formula.eval.FunctionEval;
 import org.apache.poi.hssf.record.formula.eval.IntersectionEval;
 import org.apache.poi.hssf.record.formula.eval.PercentEval;
@@ -51,6 +52,7 @@ import org.apache.poi.hssf.record.formula.eval.TwoOperandNumericOperation;
 import org.apache.poi.hssf.record.formula.eval.UnaryMinusEval;
 import org.apache.poi.hssf.record.formula.eval.UnaryPlusEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.hssf.record.formula.function.FunctionMetadata;
 import org.apache.poi.hssf.record.formula.function.FunctionMetadataRegistry;
 import org.apache.poi.hssf.record.formula.functions.ArrayMode;
 import org.apache.poi.hssf.record.formula.functions.Function;
@@ -117,7 +119,7 @@ final class OperationEvaluatorFactory {
 			throw new IllegalArgumentException("ptg must not be null");
 		}
 		Function func = _instancesByPtgClass.get(ptg);
-
+		FunctionMetadata functionMetaData = null;
 		if (func == null && ptg instanceof AbstractFunctionPtg) {
 			AbstractFunctionPtg fptg = (AbstractFunctionPtg)ptg;
 			int functionIndex = fptg.getFunctionIndex();
@@ -128,12 +130,13 @@ final class OperationEvaluatorFactory {
 					return UserDefinedFunction.instance.evaluate(args, ec);
 			}
 			func = FunctionEval.getBasicFunction(functionIndex);
+			functionMetaData = FunctionMetadataRegistry.getFunctionByIndex(functionIndex);
 		}
 		if (func != null) {
 			if (func instanceof ArrayMode && ec.isInArrayFormulaContext()) {
 				return evaluateInSpecialModeForArrayFormulas((ArrayMode) func, args, ec);
 			}
-			return invokeOperation(func, args, ec);
+			return invokeOperation(func, functionMetaData, args, ec);
 		}
 		throw new RuntimeException("Unexpected operation ptg class (" + ptg.getClass().getName() + ")");
 	}
@@ -143,22 +146,28 @@ final class OperationEvaluatorFactory {
 		return function.evaluateInArrayFormula(ops, ec.getRowIndex(), ec.getColumnIndex());
 	}
 
-	private static ValueEval invokeOperation(Function func, ValueEval[] ops, OperationEvaluationContext ec) {
+	private static ValueEval invokeOperation(Function func, FunctionMetadata functionMetaData,  ValueEval[] ops, OperationEvaluationContext ec) {
 		boolean isArrayFormula = ec.isInArrayFormulaContext();
-		ArrayEval arrayResult = ArrayFormulaEvaluatorHelper.prepareEmptyResult(func, ops, isArrayFormula);
+		ArrayEval arrayResult = ArrayFormulaEvaluatorHelper.prepareEmptyResult(func,functionMetaData, ops, isArrayFormula);
 		int srcRowIndex = ec.getRowIndex();
 		int srcColIndex = ec.getColumnIndex();
 		if (arrayResult == null) {
-			return func.evaluate(ops, srcRowIndex, srcColIndex);
+			return ArrayFormulaEvaluatorHelper.transferComponentError(func.evaluate(ops, srcRowIndex, srcColIndex), ops);
 		}
 		ValueEval[][] values = arrayResult.getArrayValues();
-		for (int row = 0; row < values.length; row++) {
-			for (int col = 0; col < values[row].length; col++) {
-				ValueEval[] singleInvocationArgs = ArrayFormulaEvaluatorHelper.prepareArgsForLoop(func, ops, row, col);
+		for (int row = 0; row < values.length ; row++) {
+			for (int col = 0; col < values[row].length ; col++) {
+				if(values[row][col]instanceof ErrorEval) { // We just have set Error for this element so no need to invoke function
+					continue; 
+				}
+				ValueEval[] singleInvocationArgs = ArrayFormulaEvaluatorHelper.prepareArgsForLoop(func,functionMetaData, ops, row, col,isArrayFormula);
 				ValueEval elemResult = func.evaluate(singleInvocationArgs, srcRowIndex, srcColIndex);
-				values[row][col] = WorkbookEvaluator.dereferenceValue(elemResult, srcRowIndex, srcColIndex);
+				values[row][col] = elemResult;
+//				values[row][col] = WorkbookEvaluator.dereferenceValue(elemResult, srcRowIndex, srcColIndex);
 			}
 		}
-		return arrayResult;
-	}
+			if(arrayResult.getComponentError() == 0)
+				arrayResult = (ArrayEval)ArrayFormulaEvaluatorHelper.transferComponentError(arrayResult, ops);
+			return arrayResult;
+	}	
 }

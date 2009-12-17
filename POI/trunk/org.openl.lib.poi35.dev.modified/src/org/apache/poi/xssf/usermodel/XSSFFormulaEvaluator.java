@@ -150,7 +150,8 @@ public class XSSFFormulaEvaluator implements FormulaEvaluator {
 		// cell remains a formula cell, but the cached value is changed
 		CellValue cv;
 		if (cell.isPartOfArrayFormulaGroup()) { // Array Formula Context
-			CellValue[][] cvs = evaluateFormulaCellArrayValues((XSSFCell) cell);
+			XSSFCell formulaCell = ((XSSFSheet) cell.getSheet()).getFirstCellInArrayFormula((XSSFCell) cell);
+			CellValue[][] cvs = evaluateFormulaCellArrayValues(formulaCell);
 			CellValue[][] values = setCellValues(cell, cvs);
 			int rowIndex = cell.getRowIndex() - cell.getArrayFormulaRange().getFirstRow();
 			int colIndex = cell.getColumnIndex() - cell.getArrayFormulaRange().getFirstColumn();
