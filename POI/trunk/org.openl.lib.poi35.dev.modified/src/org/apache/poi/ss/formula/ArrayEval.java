@@ -39,6 +39,7 @@ import org.apache.poi.ss.util.NumberToTextConverter;
 public final class ArrayEval implements TwoDEval {
 
 	private final ValueEval[][] _values;
+	private byte componentError = 0; 
 
 	public ArrayEval(ArrayPtg ptg) {
 		if (ptg == null) {
@@ -255,5 +256,13 @@ public final class ArrayEval implements TwoDEval {
 		} catch (Exception e) {
 			return BooleanContent.MIXED;
 		}
+	}
+
+	public byte getComponentError() {
+		return componentError;
+	}
+
+	public void setComponentError(byte componentError) {
+		this.componentError = componentError;
 	}
 }
