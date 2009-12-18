@@ -83,6 +83,7 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
      * @see org.openl.binding.IBoundNode#getType()
      */
     public IOpenClass getType() {
+        IBoundNode[] children = getChildren();
         return (children == null || children.length == 0) ? NullOpenClass.the : children[children.length - 1].getType();
     }
 

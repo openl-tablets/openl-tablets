@@ -6,6 +6,7 @@ package org.openl.rules.testmethod.binding;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.data.binding.DataTableBoundNode;
+import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.testmethod.TestMethodHelper;
@@ -51,7 +52,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     }
 
     @Override
-    protected DataTableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
         return new TestMethodBoundNode(tsn, module);
     }
 

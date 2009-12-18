@@ -24,24 +24,38 @@ public class OpenLRuntimeException extends RuntimeException {
      *
      */
     private static final long serialVersionUID = -8422089115244904493L;
-    Throwable cause;
-    IBoundNode node;
 
-    Stack<IBoundNode> openlCallStack = new Stack<IBoundNode>();
+    private IBoundNode node;
+
+    private Stack<IBoundNode> openlCallStack = new Stack<IBoundNode>();
+    
+    public OpenLRuntimeException() {
+        super();
+    }
+    
+    public OpenLRuntimeException(String message, Throwable cause) {
+        super(message, cause);        
+    }
+    
+    public OpenLRuntimeException(String message) {
+        super(message);    
+    }
+    
+    public OpenLRuntimeException(Throwable cause) {
+        super(cause);    
+    }
 
     public OpenLRuntimeException(Throwable cause, IBoundNode node) {
-        this.cause = cause;
+        super(cause);
+        this.node = node;
+    }
+    
+    public OpenLRuntimeException(String message, IBoundNode node) {
+        super(message);
         this.node = node;
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public Throwable getCause() {
-        return cause;
-    }
-
+        
     /**
      * @return
      */

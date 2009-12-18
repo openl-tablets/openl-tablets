@@ -7,6 +7,7 @@
 package org.openl.types.impl;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
@@ -87,7 +88,7 @@ public class DynamicObject implements IDynamicObject {
      * @see org.openl.types.IDynamicObject#getFieldValues()
      */
     @SuppressWarnings("unchecked")
-    public HashMap<String, Object> getFieldValues() {
+    public Map<String, Object> getFieldValues() {
         return (HashMap<String, Object>) fieldValues.clone();
     }
 

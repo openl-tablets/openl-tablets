@@ -27,6 +27,7 @@ public class QMarkNode extends ABoundNode {
     }
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+        IBoundNode[] children = getChildren();
         Boolean res = (Boolean) children[0].evaluate(env);
 
         return res.booleanValue() ? children[1].evaluate(env) : children[2].evaluate(env);
@@ -36,7 +37,7 @@ public class QMarkNode extends ABoundNode {
     public IOpenClass getType() {
         // return NullOpenClass.the;
         // TODO use both branches
-        return children[1].getType();
+        return getChildren()[1].getType();
     }
 
 }

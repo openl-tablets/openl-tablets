@@ -54,6 +54,7 @@ public class ArrayInitializerNode extends ABoundNode {
      */
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         IAggregateInfo info = type.getAggregateInfo();
+        IBoundNode[] children = getChildren();
 
         Object ary = info.makeIndexedAggregate(info.getComponentType(type), new int[] { children.length });
 

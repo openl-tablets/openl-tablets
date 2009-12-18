@@ -59,8 +59,7 @@ import org.openl.util.StringTool;
  */
 public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
 
-    static class ParsedXls extends ParsedCode {
-
+    private static class ParsedXls extends ParsedCode {
         /**
          * @param topnode
          * @param source
@@ -69,38 +68,47 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
         public ParsedXls(ISyntaxNode topnode, IOpenSourceCodeModule source, ISyntaxError[] syntaxErrors) {
             super(topnode, source, syntaxErrors);
         }
-
     }
 
-    static Map<String, String> tableHeaders;
+    private static Map<String, String> tableHeaders;
 
-    static final String[][] headerMapping = { { DECISION_TABLE, XLS_DT }, { DECISION_TABLE2, XLS_DT },
-            { SPREADSHEET_TABLE, XLS_SPREADSHEET }, { SPREADSHEET_TABLE2, XLS_SPREADSHEET },
-            { TBASIC_TABLE, XLS_TBASIC }, { TBASIC_TABLE2, XLS_TBASIC }, { COLUMN_MATCH, XLS_COLUMN_MATCH },
-            { DATA_TABLE, XLS_DATA }, { DATATYPE_TABLE, XLS_DATATYPE }, { METHOD_TABLE, XLS_METHOD },
-            { METHOD_TABLE2, XLS_METHOD }, { ENVIRONMENT_TABLE, XLS_ENVIRONMENT },
-            { TEST_METHOD_TABLE, XLS_TEST_METHOD }, { RUN_METHOD_TABLE, XLS_RUN_METHOD },
-            { PERSISTENCE_TABLE, XLS_PERSISTENT } };
+    private static final String[][] headerMapping = { 
+            { DECISION_TABLE, XLS_DT }, 
+            { DECISION_TABLE2, XLS_DT },
+            { SPREADSHEET_TABLE, XLS_SPREADSHEET }, 
+            { SPREADSHEET_TABLE2, XLS_SPREADSHEET },
+            { TBASIC_TABLE, XLS_TBASIC }, 
+            { TBASIC_TABLE2, XLS_TBASIC }, 
+            { COLUMN_MATCH, XLS_COLUMN_MATCH },
+            { DATA_TABLE, XLS_DATA }, 
+            { DATATYPE_TABLE, XLS_DATATYPE }, 
+            { METHOD_TABLE, XLS_METHOD },
+            { METHOD_TABLE2, XLS_METHOD }, 
+            { ENVIRONMENT_TABLE, XLS_ENVIRONMENT },
+            { TEST_METHOD_TABLE, XLS_TEST_METHOD }, 
+            { RUN_METHOD_TABLE, XLS_RUN_METHOD },
+            { PERSISTENCE_TABLE, XLS_PERSISTENT },
+            { PROPERTY_TABLE, XLS_PROPERTIES }};
 
-    List<ISyntaxNode> nodesList = new ArrayList<ISyntaxNode>();
+    private List<ISyntaxNode> nodesList = new ArrayList<ISyntaxNode>();
 
-    List<ISyntaxError> errors = new ArrayList<ISyntaxError>();
+    private List<ISyntaxError> errors = new ArrayList<ISyntaxError>();
 
-    OpenlSyntaxNode openl;
+    private OpenlSyntaxNode openl;
 
-    String allImportString;
+    private String allImportString;
 
-    IConfigurableResourceContext ucxt;
+    private IConfigurableResourceContext ucxt;
 
-    String searchPath;
+    private String searchPath;
 
-    IdentifierNode vocabulary;
+    private IdentifierNode vocabulary;
 
     private List<IdentifierNode> extensionNodes = new ArrayList<IdentifierNode>();
 
-    HashSet<String> preprocessedWorkBooks = new HashSet<String>();
+    private HashSet<String> preprocessedWorkBooks = new HashSet<String>();
 
-    static public Map<String, String> tableHeaders() {
+    public static Map<String, String> tableHeaders() {
         if (tableHeaders == null) {
             tableHeaders = new HashMap<String, String>();
             for (int i = 0; i < headerMapping.length; i++) {
@@ -140,11 +148,9 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
      * @return
      */
     private IOpenSourceCodeModule findInclude(String include) {
-
         if (searchPath == null) {
             searchPath = "include/";
         }
-
         String[] path = StringTool.tokenize(searchPath, ";");
 
         for (int i = 0; i < path.length; i++) {
@@ -175,18 +181,14 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
                         is.close();
                     }
                 }
-
                 return new URLSourceCodeModule(xurl);
-
             } catch (Throwable t) {
-
             }
         }
-
         return null;
     }
 
-    List<WorkbookSyntaxNode> workbookNodes = new ArrayList<WorkbookSyntaxNode>();
+    private List<WorkbookSyntaxNode> workbookNodes = new ArrayList<WorkbookSyntaxNode>();
 
     public IParsedCode parse(IOpenSourceCodeModule source) {
 
@@ -340,7 +342,7 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
 
     }
 
-    TableSyntaxNode preprocessTable(IGridTable table, XlsSheetSourceCodeModule source) {
+    private TableSyntaxNode preprocessTable(IGridTable table, XlsSheetSourceCodeModule source) {
         // String header = table.getStringValue(0, 0);
 
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
@@ -373,14 +375,11 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
     }
 
     private void preprocessVocabularyTable(IGridTable table, XlsSheetSourceCodeModule source) {
-
         String vocabularyStr = table.getCell(1, 0).getStringValue();
-
         setVocabulary(new IdentifierNode(VOCABULARY_PROPERTY, new GridLocation(table), vocabularyStr, source));
-
     }
 
-    WorkbookSyntaxNode preprocessWorkbook(IOpenSourceCodeModule source) {
+    private WorkbookSyntaxNode preprocessWorkbook(IOpenSourceCodeModule source) {
         String uri = source.getUri(0);
         if (preprocessedWorkBooks.contains(uri)) {
             return null;
@@ -417,7 +416,6 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
             WorkbookSyntaxNode workbookNode = new WorkbookSyntaxNode(sheetNodes, workbookSourceModule);
             workbookNodes.add(workbookNode);
             return workbookNode;
-
         } catch (Exception e) {
             e.printStackTrace();
             throw RuntimeExceptionWrapper.wrap(e);
@@ -432,7 +430,6 @@ public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
                 return null;
             }
         }
-
     }
     
     /**

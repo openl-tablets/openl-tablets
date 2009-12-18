@@ -38,6 +38,7 @@ public class MethodParametersNode extends ABoundNode {
     }
 
     public IMethodSignature getSignature() {
+        IBoundNode[] children = getChildren();
         int len = children.length;
 
         ParameterDeclaration[] params = new ParameterDeclaration[len];

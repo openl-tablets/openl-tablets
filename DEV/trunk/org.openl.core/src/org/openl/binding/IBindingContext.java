@@ -8,6 +8,7 @@ package org.openl.binding;
 
 import java.util.List;
 
+import org.apache.poi.hdf.model.hdftypes.TableProperties;
 import org.openl.OpenL;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
@@ -22,19 +23,19 @@ import org.openl.types.IOpenField;
  */
 public interface IBindingContext extends ICastFactory {
 
-    public void addAlias(String name, String value);
+    void addAlias(String name, String value);
 
-    public void addError(ISyntaxError error);
+    void addError(ISyntaxError error);
 
     // public void addAllErrors(Vector errors);
 
-    public ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
+    ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
 
-    public void addType(String namespace, IOpenClass type) throws Exception;
+    void addType(String namespace, IOpenClass type) throws Exception;
 
-    public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
+    ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
 
-    public INodeBinder findBinder(ISyntaxNode node);
+    INodeBinder findBinder(ISyntaxNode node);
 
     /**
      * This method is implemented by default by calling type.getFiled(fieldName,
@@ -46,13 +47,12 @@ public interface IBindingContext extends ICastFactory {
      * @param strictMatch
      * @return
      */
+    IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch);
 
-    public IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch);
-
-    public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes)
+    IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes)
             throws AmbiguousMethodException;
 
-    public IOpenClass findType(String namespace, String typeName);
+    IOpenClass findType(String namespace, String typeName);
 
     /**
      *
@@ -63,39 +63,38 @@ public interface IBindingContext extends ICastFactory {
      * @throws AmbiguousVarException
      * @see {@link IOpenClass#getField(String, boolean)}
      */
+    IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousVarException;
 
-    public IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousVarException;
+    String getAlias(String name);
 
-    public String getAlias(String name);
+    IOpenCast getCast(IOpenClass from, IOpenClass to);
 
-    public IOpenCast getCast(IOpenClass from, IOpenClass to);
+    ISyntaxError[] getError();
 
-    public ISyntaxError[] getError();
+    int getLocalVarFrameSize();
 
-    public int getLocalVarFrameSize();
-
-    public int getNumberOfErrors();
+    int getNumberOfErrors();
 
     OpenL getOpenL();
 
-    public int getParamFrameSize();
+    int getParamFrameSize();
 
-    public IOpenClass getReturnType();
+    IOpenClass getReturnType();
 
     List<ISyntaxError> popErrors();
 
-    public void popLocalVarContext();
+    void popLocalVarContext();
 
     /**
      * Used for doing temporary processing within current context
      */
     void pushErrors();
 
-    public void pushLocalVarContext();
+    void pushLocalVarContext();
 
     /**
      * @param type
      */
-    public void setReturnType(IOpenClass type);
+    void setReturnType(IOpenClass type);
 
 }

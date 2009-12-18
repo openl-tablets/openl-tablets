@@ -12,10 +12,10 @@ public class MethodCastNode extends CastNode implements IBoundMethodNode {
     }
 
     public int getLocalFrameSize() {
-        return ((IBoundMethodNode) children[0]).getLocalFrameSize();
+        return ((IBoundMethodNode) getChildren()[0]).getLocalFrameSize();
     }
 
     public int getParametersSize() {
-        return ((IBoundMethodNode) children[0]).getParametersSize();
+        return ((IBoundMethodNode) getChildren()[0]).getParametersSize();
     }
 }

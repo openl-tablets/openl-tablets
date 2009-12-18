@@ -24,7 +24,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      * Collection, to mark all properties that were set by default for current instance.
      * Contains it names.
      */
-    private Set<String> propertiesWithDefaultValue = new HashSet<String>();    
+    private Set<String> propertiesWithDefaultValue = new HashSet<String>();
+    
+    private Map<String, Object> categoryProperties = new HashMap<String, Object>();
+    
+    private Map<String, Object> moduleProperties = new HashMap<String, Object>();
+    
+    private Map<String, Object> defaultProperties = new HashMap<String, Object>();
         
 	@Override
     public IOpenClass getType() {
@@ -184,7 +190,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	// <<< END INSERT >>>
 	
     public Object getPropertyValue(String key) {        
-        return getFieldValue(key);
+        return getPropertiesAll().get(key);
     }
     
     public String getPropertyValueAsString(String key) {
@@ -223,26 +229,28 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setPropertiesSection(ILogicalTable propertySection) {
         this.propertySection = propertySection;
      }
-        
-    public int getNumberOfProperties() {
-        return getFieldValues().size();
-    }
-        
-    public Map<String, Object> getPropertiesAll() {
-      return  super.getFieldValues();
+       
+    public Map<String, Object> getPropertiesAll() {     
+      Map<String, Object> tableAndCategoryProp = merge(super.getFieldValues(), categoryProperties);
+      Map<String, Object> tableAndCategoryAndModuleProp = merge(tableAndCategoryProp, moduleProperties);     
+      return merge(tableAndCategoryAndModuleProp, defaultProperties); 
     }
     
-    public void setDefaultPropertyValue(String propertyName, Object defaultValue) {
-        super.setFieldValue(propertyName, defaultValue);
-        
-        //mark that property value is default
-        propertiesWithDefaultValue.add(propertyName);
+    private Map<String, Object> merge(Map<String, Object> downLevelProperties, Map<String, Object> upLevelProperties) {
+        Map<String, Object> resultProperties = downLevelProperties;
+        for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
+            String upLevelPropertyName = upLevelProperty.getKey();
+            Object upLevelPropertyvalue = upLevelProperty.getValue();
+            
+            if (!downLevelProperties.containsKey(upLevelPropertyName)) {
+                resultProperties.put(upLevelPropertyName, upLevelPropertyvalue);
+            }            
+        }
+        return resultProperties;
     }
-        
+    
     @Override
-    public void setFieldValue(String name, Object value) {
-        //we need to remove property that can be set by default 
-        propertiesWithDefaultValue.remove(name);
+    public void setFieldValue(String name, Object value) {       
         super.setFieldValue(name, value);
     }
         
@@ -250,22 +258,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return propertiesWithDefaultValue;
     }
     
-    
-    public Map<String, Object> getPropertiesIgnoreDefault() {    
-        Map<String, Object> propWithoutDefault = new HashMap<String, Object>();        
-        Map<String, Object> allProps = getPropertiesAll();
-        Set<String> defaultProps = getPropertiesSetByDefault();        
-        for (Entry<String, Object> property : allProps.entrySet()) {
-            if (!defaultProps.contains(property.getKey())) {
-                propWithoutDefault.put(property.getKey(), property.getValue());
-            }
-        }        
-        return propWithoutDefault;
+    public Map<String, Object> getPropertiesDefinedInTable() {    
+        return super.getFieldValues();
     }
-    
-    public Map<String, Object> getPropertiesIgnoreDefaultAndSystem() {
+        
+    public Map<String, Object> getPropertiesDefinedInTableIgnoreSystem() {
         Map<String, Object> result = new HashMap<String, Object>();
-        Map<String, Object> propWithoutDefault = getPropertiesIgnoreDefault();
+        Map<String, Object> propWithoutDefault = getPropertiesDefinedInTable();
         for (Map.Entry<String, Object> property : propWithoutDefault.entrySet()) {
             String propName = property.getKey();
             TablePropertyDefinition propertyDefinition = DefaultPropertyDefinitions.getPropertyByName(propName);
@@ -274,6 +273,30 @@ public class TableProperties extends DynamicObject implements ITableProperties {
             }
         }
         return result;
+    }
+
+    public Map<String, Object> getPropertiesAppliedForCategory() {
+        return categoryProperties;
+    }
+
+    public Map<String, Object> getPropertiesAppliedForModule() {       
+        return moduleProperties;
+    }
+
+    public void setPropertiesAppliedForCategory(Map<String, Object> categoryProperties) {
+        this.categoryProperties = categoryProperties;
+    }
+
+    public void setPropertiesAppliedForModule(Map<String, Object> moduleProperties) {
+       this.moduleProperties = moduleProperties;
+    }
+
+    public void setPropertiesToBeSetByDefault(Map<String, Object> defaultProperties) {
+        this.defaultProperties = defaultProperties;
+    }
+
+    public Map<String, Object> getPropertiesToBeSetByDefault() {
+        return defaultProperties;
     }
 	
 }

@@ -177,7 +177,7 @@ public abstract class ANodeBinder implements INodeBinder {
         return new CastNode(null, bnode, cast, type);
     }
 
-    static public IOpenCast getCast(IBoundNode bnode, IOpenClass to, IBindingContext bindingContext) throws Exception {
+    public static IOpenCast getCast(IBoundNode bnode, IOpenClass to, IBindingContext bindingContext) throws Exception {
 
         IOpenClass from = bnode.getType();
 
@@ -199,11 +199,11 @@ public abstract class ANodeBinder implements INodeBinder {
 
     }
 
-    static public String getIdentifier(ISyntaxNode node) {
+    public static String getIdentifier(ISyntaxNode node) {
         return ((IdentifierNode) node).getIdentifier();
     }
 
-    static protected IOpenClass[] getTypes(IBoundNode[] nodes) {
+    protected static IOpenClass[] getTypes(IBoundNode[] nodes) {
         IOpenClass[] types = new IOpenClass[nodes.length];
 
         for (int i = 0; i < types.length; i++) {

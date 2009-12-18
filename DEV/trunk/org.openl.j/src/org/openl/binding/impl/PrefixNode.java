@@ -33,6 +33,7 @@ public class PrefixNode extends MethodBoundNode {
      */
     @Override
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+        IBoundNode[] children = getChildren();
         Object oldValue = children[0].evaluate(env);
         Object newValue = boundMethod.invoke(null, new Object[] { oldValue }, env);
 

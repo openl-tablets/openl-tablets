@@ -1,5 +1,7 @@
 package org.openl.rules.tbasic.runtime.operations;
 
+import java.util.HashMap;
+
 import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
@@ -42,7 +44,7 @@ public abstract class RuntimeOperation {
 
         if (debugMode && significantForDebug) {
             operationTracer = new TBasicOperationTraceObject(this);
-            operationTracer.setFieldValues(environment.getTbasicTarget().getFieldValues());
+            operationTracer.setFieldValues((HashMap<String, Object>)environment.getTbasicTarget().getFieldValues());
             Tracer.getTracer().push(operationTracer);
         }
 

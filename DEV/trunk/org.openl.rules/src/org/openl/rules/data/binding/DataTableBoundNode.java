@@ -26,10 +26,10 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
 
-    static public class DataOpenField extends AOpenField {
-        ITable table;
+    public static class DataOpenField extends AOpenField {
+        private ITable table;
 
-        TableSyntaxNode tableSyntaxNode;
+        private TableSyntaxNode tableSyntaxNode;
 
         // Object data;
 
@@ -49,11 +49,11 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
          */
 
         public Object get(Object target, IRuntimeEnv env) {
-            Object data = ((IDynamicObject) target).getFieldValue(name);
+            Object data = ((IDynamicObject) target).getFieldValue(getName());
 
             if (data == null) {
                 data = table.getDataArray();
-                ((IDynamicObject) target).setFieldValue(name, data);
+                ((IDynamicObject) target).setFieldValue(getName(), data);
             }
 
             return data;
@@ -81,16 +81,16 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
          */
 
         public void set(Object target, Object value, IRuntimeEnv env) {
-            ((IDynamicObject) target).setFieldValue(name, value);
+            ((IDynamicObject) target).setFieldValue(getName(), value);
         }
 
     }
 
-    DataOpenField field;
+    private DataOpenField field;
 
-    XlsModuleOpenClass module;
+    private XlsModuleOpenClass module;
 
-    ITable table;
+    private ITable table;
 
     /**
      * @param syntaxNode
@@ -102,8 +102,10 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
     }
 
     public void addTo(ModuleOpenClass openClass) {
-        openClass.addField(field = new DataOpenField(table, getTableSyntaxNode()));
-        getTableSyntaxNode().setMember(field);
+        TableSyntaxNode tsn = getTableSyntaxNode();
+        field = new DataOpenField(table, tsn);
+        openClass.addField(field);
+        tsn.setMember(field);
     }
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
@@ -133,7 +135,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         return field.getType();
     }
 
-    void setTable(ITable table) {
+    public void setTable(ITable table) {
         this.table = table;
     }
 

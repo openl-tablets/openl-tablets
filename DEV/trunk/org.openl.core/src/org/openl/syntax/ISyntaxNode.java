@@ -15,17 +15,17 @@ import org.openl.util.text.ILocation;
  */
 public interface ISyntaxNode {
 
-    public ISyntaxNode getChild(int i);
+    ISyntaxNode getChild(int i);
 
     IOpenSourceCodeModule getModule();
 
-    public int getNumberOfChildren();
+    int getNumberOfChildren();
 
     ISyntaxNode getParent();
 
-    public ILocation getSourceLocation();
+    ILocation getSourceLocation();
 
-    public String getType();
+    String getType();
 
     /**
      * @param i
@@ -39,6 +39,6 @@ public interface ISyntaxNode {
 
     // public String getNamespace();
 
-    static public ISyntaxNode[] EMPTY = {};
+    ISyntaxNode[] EMPTY = {};
     
 }
