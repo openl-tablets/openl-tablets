@@ -99,6 +99,15 @@ abstract public class BaseArrayFormulaTest extends BaseFormulaTest {
             String formulaRef = getFormulaCellRef(rowIndex);
             
             Cell cellFormula = getCell(formulaRef, sheetIndex);
+            
+            // check, should we stop here:
+            if (cellFormula != null && cellFormula.getCellType() == Cell.CELL_TYPE_STRING) {
+                if (getFunctionEndString().equals( cellFormula.getStringCellValue() )) {
+                    // should not proceed with formula testing
+                    break;
+                }
+            }
+            
             if (cellFormula != null && cellFormula.getCellType() == Cell.CELL_TYPE_FORMULA) {
 
                 try {
@@ -255,4 +264,11 @@ abstract public class BaseArrayFormulaTest extends BaseFormulaTest {
      * @return 1-based index of the row. 
      */
     abstract protected int getTestStartingRow();
+    
+    /**
+     * Gets string used to stop tests execution. The tests will be stopped
+     * if formula cell in file contains exactly this value. 
+     * @return Not-null value used to stop tests.
+     */
+    abstract protected String getFunctionEndString();
 }
