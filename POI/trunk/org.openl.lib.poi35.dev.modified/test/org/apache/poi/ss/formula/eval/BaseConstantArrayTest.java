@@ -126,8 +126,6 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
             // test failed.
             fail( MessageFormat.format("Passed {0}, failed {1} formula(s): {2}", passedFormulasCount, failedFormulas.size(), failedFormulas) );
         }
-        
-        System.err.println( passedFormulasCount );
     }
     
     /**
