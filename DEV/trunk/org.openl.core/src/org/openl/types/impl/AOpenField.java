@@ -15,8 +15,8 @@ import org.openl.types.IMemberMetaInfo;
  *
  */
 public abstract class AOpenField implements IOpenField {
-    protected String name;
-    protected IOpenClass type;
+    private String name;
+    private IOpenClass type;
 
     protected AOpenField(String name, IOpenClass type) {
         this.name = name;

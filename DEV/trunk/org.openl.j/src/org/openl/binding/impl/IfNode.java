@@ -32,6 +32,7 @@ public class IfNode extends ABoundNode {
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+        IBoundNode[] children = getChildren();
         Boolean res = (Boolean) children[0].evaluate(env);
 
         if (res.booleanValue()) {
@@ -46,7 +47,7 @@ public class IfNode extends ABoundNode {
     public IOpenClass getType() {
         // return NullOpenClass.the;
         // TODO use both branches
-        return children[1].getType();
+        return getChildren()[1].getType();
     }
 
 }

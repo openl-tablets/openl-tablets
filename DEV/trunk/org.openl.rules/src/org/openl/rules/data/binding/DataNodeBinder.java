@@ -21,6 +21,7 @@ import org.openl.rules.data.impl.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.impl.ColumnDescriptor;
 import org.openl.rules.data.impl.OpenlBasedDataTableModel;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -129,19 +130,20 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     /**
      * The pre-defined names of system and default databases
      */
-    static final public String
+    
+    //FIXME: delete this declaration because it is not used anywhere (check)
     // this database is used for user data, including tests
-            DEFAULT_DATABASE = "org.openl.database.default",
-            /**
-             * This database is used for all system data, configurations etc.
-             * This database is processed first, data there can not use domain
-             * types etc
-             */
+    public static final String DEFAULT_DATABASE = "org.openl.database.default";
+        
+    //FIXME: delete this declaration because it is not used anywhere (check)
+    /**
+    * This database is used for all system data, configurations etc.
+    * This database is processed first, data there can not use domain
+    * types etc
+    */
+    public static final String SYSTEM_DATABASE = "system";
 
-            SYSTEM_DATABASE = "system";
-
-    public static final String CONSTRUCTOR_FIELD = "this";
-
+    private static final String CONSTRUCTOR_FIELD = "this";
     private static final String FPK = "_PK_";
 
     private IdentifierNode[] parsedHeader;
@@ -202,7 +204,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
      * @param tsn
      * @return Table body without table header and properties section.
      */
-    private ILogicalTable getTableBody(TableSyntaxNode tsn) {
+    protected ILogicalTable getTableBody(TableSyntaxNode tsn) {
         int startRow = 0;
         if (!tsn.hasPropertiesDefinedInTable()) {
             startRow = 1;
@@ -389,6 +391,15 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         return result;
     }
     
+    /**
+     * 
+     * @param typeName
+     * @param cxt
+     * @param module
+     * @param dataNode
+     * @param tableName
+     * @return
+     */
     protected IOpenClass getTableType(String typeName, IBindingContext cxt,
             XlsModuleOpenClass module, DataTableBoundNode dataNode,
             String tableName) {
@@ -399,7 +410,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     }
     
     protected String getErrMsgFormat() {
-        return "Data table format: Data <typename> <tablename> [database]";
+        return "Data table format: Data <typename> <tablename>";
     }
     
     /**
@@ -442,11 +453,9 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         return cnt;
     }
 
-    protected DataTableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
         return new DataTableBoundNode(tsn, module);
     }
-    
-    
     
     /**
      * Gets the Data_With_Titles rows from the data table body. Data_With_Titles start row consider to be the 
@@ -525,7 +534,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
             throws Exception {
 
-        DataTableBoundNode dataNode = makeNode(tsn, module);
+        DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tsn, module);
 
         ILogicalTable table = LogicalTable.logicalTable(tsn.getTable());
 

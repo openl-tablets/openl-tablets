@@ -167,7 +167,7 @@ public class TableSyntaxNode extends NodeWithProperties implements IIndexElement
         boolean result = false;        
         if (tableProperties != null
                 && tableProperties.getPropertiesSection() != null
-                && tableProperties.getNumberOfProperties() > tableProperties.getPropertiesSetByDefault().size()) {
+                && tableProperties.getPropertiesDefinedInTable().size() > 0) {
             result = true;
         }
         return result;

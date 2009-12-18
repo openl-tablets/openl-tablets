@@ -19,7 +19,7 @@ public abstract class ATableBoundNode extends ABoundNode {
     }
 
     public final TableSyntaxNode getTableSyntaxNode() {
-        return (TableSyntaxNode) syntaxNode;
+        return (TableSyntaxNode) getSyntaxNode();
     }
 
     public void parseComponents(IBindingContext cxt) {

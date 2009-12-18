@@ -62,7 +62,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      */
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         try {
-            return children[0].evaluate(env);
+            return getChildren()[0].evaluate(env);
         } catch (ControlSignalReturn signal) {
             return signal.getReturnValue();
         } catch (OpenLRuntimeException opex) {

@@ -20,9 +20,10 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class ABoundNode implements IBoundNode {
 
-    protected ISyntaxNode syntaxNode;
+    private ISyntaxNode syntaxNode;
 
-    protected IBoundNode[] children;
+    private IBoundNode[] children;
+    
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
         this.syntaxNode = syntaxNode;
         this.children = children;

@@ -1,7 +1,6 @@
 package org.openl.rules.table.properties;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.openl.rules.table.ILogicalTable;
 
@@ -10,19 +9,13 @@ public interface ITableProperties {
     Map<String, Object> getPropertiesAll();
     
     /**
-     * Gets the collection of property names that were set by default.
-     * @return Collection of property names that were set by default.
-     */
-    Set<String> getPropertiesSetByDefault();
-    
-    /**
      * Gets the <code>{@link Map}</code> of properties with name as key and value as value, this map
      * excludes properties that were set by default. So it will contain all properties in source table including 
      * system ones.
      * 
      * @return Map of properties excluding properties set by default.
      */
-    Map<String, Object> getPropertiesIgnoreDefault();
+    Map<String, Object> getPropertiesDefinedInTable();
     
     /**
      * Gets the <code>{@link Map}</code> of properties with name as key and value as value, this map
@@ -31,7 +24,11 @@ public interface ITableProperties {
      * 
      * @return Map of properties excluding properties set by default.
      */
-    Map<String, Object> getPropertiesIgnoreDefaultAndSystem();
+    Map<String, Object> getPropertiesDefinedInTableIgnoreSystem();
+    
+    Map<String, Object> getPropertiesAppliedForCategory();
+    
+    Map<String, Object> getPropertiesAppliedForModule();
     
     Object getPropertyValue(String key);
     
@@ -46,10 +43,6 @@ public interface ITableProperties {
     String getPropertyValueAsString(String key);
     
     ILogicalTable getPropertiesSection();
-    
-    int getNumberOfProperties();
-	
-//	boolean isDefined(String propertyName);
 	
 	// <<< INSERT >>>
 	java.lang.String getName();
@@ -102,11 +95,13 @@ public interface ITableProperties {
 	void setScope(java.lang.String scope);	
 	// <<< END INSERT >>>
 	
-	/**
-     * Setter for property values that must be applied by default.
-     */
-    void setDefaultPropertyValue(String propertyName, Object defaultValue);
+	
+    void setPropertiesAppliedForCategory(Map<String, Object> categoryProperties);
     
-        
+    void setPropertiesAppliedForModule(Map<String, Object> moduleProperties);    
+    
+    void setPropertiesToBeSetByDefault(Map<String, Object> defaultProperties);    
+
+    Map<String, Object> getPropertiesToBeSetByDefault();
 	
 }

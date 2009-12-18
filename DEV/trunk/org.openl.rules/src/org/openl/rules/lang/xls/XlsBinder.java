@@ -39,16 +39,17 @@ import org.openl.conf.OpenLBuilderImpl;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SSheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.ITable;
 import org.openl.rules.data.String2DataConvertorFactory;
-import org.openl.rules.data.String2DataConvertorFactory.String2DateConvertor;
 import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.dt.binding.DTNodeBinder;
@@ -61,6 +62,7 @@ import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.binding.MethodTableNodeBinder;
+import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.structure.StructureTableNodeBinder;
 import org.openl.rules.testmethod.binding.TestMethodNodeBinder;
 import org.openl.syntax.IParsedCode;
@@ -84,7 +86,7 @@ import org.openl.util.StringTool;
  */
 public class XlsBinder implements IOpenBinder, ITableNodeTypes {
 
-    static class SyntaxConvertor extends AStringConvertor<ISyntaxNode> {
+    private static class SyntaxConvertor extends AStringConvertor<ISyntaxNode> {
 
         @Override
         public String getStringValue(ISyntaxNode test) {
@@ -92,7 +94,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         }
     }
 
-    static Comparator<TableSyntaxNode> tableComparator = new Comparator<TableSyntaxNode>() {
+    private static Comparator<TableSyntaxNode> tableComparator = new Comparator<TableSyntaxNode>() {
 
         public int compare(TableSyntaxNode ts1, TableSyntaxNode ts2) {
             String s1 = ts1.getType();
@@ -107,21 +109,24 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
 
     };
 
-    static Map<String, AXlsTableBinder> binderFactory;
+    private static Map<String, AXlsTableBinder> binderFactory;
 
-    static final String[][] binders = { { XLS_DATA, DataNodeBinder.class.getName() },
-            { XLS_DATATYPE, DatatypeNodeBinder.class.getName() }, { XLS_DT, DTNodeBinder.class.getName() },
+    private static final String[][] binders = { 
+            { XLS_DATA, DataNodeBinder.class.getName() },
+            { XLS_DATATYPE, DatatypeNodeBinder.class.getName() }, 
+            { XLS_DT, DTNodeBinder.class.getName() },
             { XLS_SPREADSHEET, SSheetNodeBinder.class.getName() },
             { XLS_METHOD, MethodTableNodeBinder.class.getName() },
             { XLS_TEST_METHOD, TestMethodNodeBinder.class.getName() },
             { XLS_RUN_METHOD, TestMethodNodeBinder.class.getName() },
             { XLS_TABLE, StructureTableNodeBinder.class.getName() },
             { XLS_TBASIC, AlgorithmNodeBinder.class.getName() },
-            { XLS_COLUMN_MATCH, ColumnMatchNodeBinder.class.getName() }, };
+            { XLS_COLUMN_MATCH, ColumnMatchNodeBinder.class.getName() },
+            { XLS_PROPERTIES, PropertyTableBinder.class.getName() },};
 
-    IUserContext ucxt;
+    private IUserContext ucxt;
 
-    static synchronized public Map<String, AXlsTableBinder> binderFactory() {
+    public static synchronized Map<String, AXlsTableBinder> binderFactory() {
         if (binderFactory == null) {
             binderFactory = new HashMap<String, AXlsTableBinder>();
 
@@ -136,7 +141,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         return binderFactory;
     }
 
-    static public String getModuleName(XlsModuleSyntaxNode node) {
+    public static String getModuleName(XlsModuleSyntaxNode node) {
         String uri = node.getModule().getUri(0);
 
         try {
@@ -216,7 +221,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         proccessExtensions(module, moduleNode, moduleNode.getExtensionNodes());
 
         // IMemberBoundNode[] children = new IMemberBoundNode[nchildren];
-        ModuleBindingContext moduleContext = new ModuleBindingContext(cxt, module);
+        RulesModuleBindingContext moduleContext = new RulesModuleBindingContext(cxt, module);
         IVocabulary vocabulary = null;
         try {
             vocabulary = makeVocabulary(moduleNode);
@@ -245,13 +250,23 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
 
         ASelector<ISyntaxNode> dataTypeSelector = new ASelector.StringValueSelector<ISyntaxNode>(
                 ITableNodeTypes.XLS_DATATYPE, new SyntaxConvertor());
+        
+        ASelector<ISyntaxNode> propertiesSelector = new ASelector.StringValueSelector<ISyntaxNode>(
+                ITableNodeTypes.XLS_PROPERTIES, new SyntaxConvertor());
 
         // ASelector testMethodSelector = new ASelector.StringValueSelector(
         // ITableNodeTypes.XLS_TEST_METHOD, new SyntaxConvertor());
-
+        
+        bindInternal(moduleNode, openl, moduleContext, module, propertiesSelector, null);
+        
         bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector, null);
-
-        return bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector.not(), tableComparator);
+        
+        ISelector<ISyntaxNode> notPropertiesSelector = propertiesSelector.not();
+        ISelector<ISyntaxNode> notDataTypeSelector = dataTypeSelector.not();
+        ISelector<ISyntaxNode> notPropAnd_NotDatatypeSelectors = notDataTypeSelector.and(notPropertiesSelector);
+        
+        // TODO: bind internal without properties selector as well as without dataTypeSelector
+        return bindInternal(moduleNode, openl, moduleContext, module, notPropAnd_NotDatatypeSelectors, tableComparator);
 
         // return bindInternal(moduleNode, openl, moduleContext, module,
         // testMethodSelector);
@@ -273,7 +288,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
      *
      * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
      */
-    protected IBoundNode bindInternal(ISyntaxNode moduleNode, OpenL openl, ModuleBindingContext moduleContext,
+    protected IBoundNode bindInternal(ISyntaxNode moduleNode, OpenL openl, RulesModuleBindingContext moduleContext,
             XlsModuleOpenClass module, ISelector<ISyntaxNode> childSelector, Comparator<TableSyntaxNode> tableComparator) {
 
         XlsModuleSyntaxNode xmsn = (XlsModuleSyntaxNode)moduleNode;
@@ -375,7 +390,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         return null;
     }
 
-    String getOpenLName(OpenlSyntaxNode osn) {
+    private String getOpenLName(OpenlSyntaxNode osn) {
         return osn == null ? "org.openl.rules.java" : osn.getOpenlName();
     }
 
@@ -398,7 +413,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         throw new UnsupportedOperationException("XlsBinder is top level Binder");
     }
 
-    OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
+    private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
         String openlName = getOpenLName(moduleNode.getOpenlNode());
         String allImports = moduleNode.getAllImportString();
 
@@ -454,8 +469,8 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
 
     }
 
-    IMemberBoundNode preBindXlsNode(ISyntaxNode syntaxNode, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
-            throws Exception {
+    private IMemberBoundNode preBindXlsNode(ISyntaxNode syntaxNode, OpenL openl, RulesModuleBindingContext cxt, 
+            XlsModuleOpenClass module) throws Exception {
         String type = syntaxNode.getType();
 
         AXlsTableBinder binder = binderFactory().get(type);
@@ -466,48 +481,10 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         }
         TableSyntaxNode tsn = (TableSyntaxNode) syntaxNode;
         
-        loadPropertiesAsDataTable(tsn, openl, cxt, module, binder);
-        applyDefaultPropertiesValues(tsn);
+        PropertiesLoader propLoader = new PropertiesLoader(openl, cxt, module, binder);
+        propLoader.loadProperties(tsn);
         
         return binder.preBind(tsn, openl, cxt, module);
     }
     
-    private void loadPropertiesAsDataTable(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt,
-            XlsModuleOpenClass module, AXlsTableBinder binder) throws Exception {
-        String propertySectionName = "Properties_Section"+tsn.getUri();
-        DataNodeBinder bb = new DataNodeBinder();
-        ITable propertyTable = module.getDataBase().addNewTable(propertySectionName, null);
-        IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
-        ILogicalTable propertiesSection = binder.getPropertiesTableSection(tsn.getTable());
-        if (propertiesSection != null) {
-            bb.processTable(module, propertyTable, propertiesSection, propertySectionName, propetiesClass, cxt, openl, false);
-            TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0]; 
-            
-            propertiesInstance.setPropertiesSection(propertiesSection);
-            tsn.setTableProperties(propertiesInstance);
-        }
-    }
-    
-    private void applyDefaultPropertiesValues(TableSyntaxNode tsn) {
-        ITableProperties properties = tsn.getTableProperties();
-        List<TablePropertyDefinition> propertiesWithDefaultValues = DefaultPropertyDefinitions.getPropertiesToBeSetByDefault();
-        if (properties == null && propertiesWithDefaultValues.size() > 0){
-            //properties = new instance
-            properties = new TableProperties();            
-            tsn.setTableProperties(properties);
-        }
-        
-        for(TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues){
-            String propertyName = propertyWithDefaultValue.getName();
-            // check that there is no property value and only then apply default value
-            if (properties.getPropertyValue(propertyName) == null) {
-                Class<?> defaultValueType = DefaultPropertyDefinitions.getPropertyByName(propertyName).getType().getInstanceClass();
-                IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultValueType);
-                Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
-                        propertyWithDefaultValue.getFormat(), null);
-                properties.setDefaultPropertyValue(propertyName, defaultValue);
-            }
-        }
-    }
-
 }

@@ -39,7 +39,7 @@ public class DynamicObjectField extends AOpenField {
     public Object get(Object target, IRuntimeEnv env) {
         // return ((IDynamicObject)env.getThis()).getFieldValue(name);
 
-        Object res = ((IDynamicObject) target).getFieldValue(name);
+        Object res = ((IDynamicObject) target).getFieldValue(getName());
 
         return res != null ? res : getType().nullObject();
     }
@@ -65,7 +65,7 @@ public class DynamicObjectField extends AOpenField {
      * @see org.openl.types.IOpenField#set(java.lang.Object, java.lang.Object)
      */
     public void set(Object target, Object value, IRuntimeEnv env) {
-        ((IDynamicObject) target).setFieldValue(name, value);
+        ((IDynamicObject) target).setFieldValue(getName(), value);
     }
 
     public void setDeclaringClass(IOpenClass declaringClass) {
