@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.text.MessageFormat;
 
+import org.apache.poi.POIDataSamples;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaError;
@@ -113,8 +114,28 @@ public abstract class BaseFormulaTest extends TestCase {
     protected Workbook readWorkbook() throws IOException, IllegalStateException {
         String resourceName = getResourceName();
         
-        ClassLoader cl = getClass().getClassLoader();
-        InputStream stream = cl.getResourceAsStream(resourceName );
+        InputStream stream;
+        // get stream by resource name.
+        // this operation is performed in two steps:
+        // 1. using standard POI approach - POIDataSamples class. This requires
+        // system variable POI.testdata.path pointing to test-data directory.
+        // 2. workaround if system variable is not set - try to get resource
+        // from classpath.
+        
+        try {
+            POIDataSamples res = POIDataSamples.getSpreadSheetInstance();
+            stream = res.openResourceAsStream( resourceName );
+
+        } catch (RuntimeException rte) {
+            // looks like system variable is not set. try to get from classpath
+            ClassLoader cl = getClass().getClassLoader();
+            stream = cl.getResourceAsStream(resourceName);
+            if (stream == null) {
+                // not found in classpath - throw previous runtime exception.
+                throw rte;
+            }
+        }
+         
         if (stream == null) {
             fail( MessageFormat.format("Resource {0} is not found.", resourceName) );
             // the "fail" method should throw exception
