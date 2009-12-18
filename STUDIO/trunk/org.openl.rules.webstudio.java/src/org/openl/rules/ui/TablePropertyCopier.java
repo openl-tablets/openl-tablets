@@ -66,15 +66,16 @@ public class TablePropertyCopier extends TableCopier {
                 String group = propDefinition.getGroup(); 
                 String format = propDefinition.getFormat();
                 Constraints constraints = propDefinition.getConstraints();
-                if (tableProperties.getPropertiesSetByDefault().contains(name)) {
-                    defaultProps.add(
-                            new TableProperty(displayName, propertyValue, propertyType, 
-                                    group, name, format, constraints));
-                } else {
+                if (tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
                     propsToCopy.add(
                             new TableProperty(displayName, propertyValue, propertyType, 
-                                    group, name, format, constraints));
-                }
+                                    group, name, format, constraints));                    
+                } 
+//                else {
+//                    defaultProps.add(
+//                            new TableProperty(displayName, propertyValue, propertyType, 
+//                                    group, name, format, constraints));
+//                }
             }
         }
     }
