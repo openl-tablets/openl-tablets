@@ -17,23 +17,17 @@
 
 package org.apache.poi.hssf.record.formula.eval;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.formula.eval.BaseFormulaEvaluationTest;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.formula.eval.BaseConstantArrayTest;
 
 /**
- * <i>ArrayFormula.xls</i> formulas calculation testing class. 
+ * <i>ConstantArray.xls</i> formulas calculation testing class. 
  */
-public class TestHSSFArrayFormulaEvaluation extends BaseFormulaEvaluationTest {
+public class TestHSSFConstantArray extends BaseConstantArrayTest {
 
     /**
      * Creates test case instance.
      */
-    public TestHSSFArrayFormulaEvaluation() {
+    public TestHSSFConstantArray() {
         super();
     }
 
@@ -41,24 +35,27 @@ public class TestHSSFArrayFormulaEvaluation extends BaseFormulaEvaluationTest {
      * Creates named test case instance.
      * @param name The test case name.
      */
-    public TestHSSFArrayFormulaEvaluation(String name) {
+    public TestHSSFConstantArray(String name) {
         super(name);
     }
 
     @Override
-    /**
-     * Returns <i>ArrayFormula.xls</i> as test cases resource name.
-     */
-    protected String getResourceName() {
-        return "ArrayFormula.xls";
+    protected int getTestSheetIndex() {
+        return 0;
     }
 
     @Override
-    protected Workbook createWorkbook(File file) throws IOException {
-        if (file != null) {
-            return new HSSFWorkbook( new FileInputStream(file) );
-        } else {
-            return new HSSFWorkbook();
-        }
+    protected int getTestStartingRow() {
+        return 5;
+    }
+
+    @Override
+    protected String getResourceName() {
+        return "ConstantArray.xls";
+    }
+
+    @Override
+    protected String getFunctionEndString() {
+        return "<END-OF-FUNCTIONS>";
     }
 }
