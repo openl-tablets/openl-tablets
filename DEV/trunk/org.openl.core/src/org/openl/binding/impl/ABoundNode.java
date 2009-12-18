@@ -22,7 +22,7 @@ public abstract class ABoundNode implements IBoundNode {
 
     private ISyntaxNode syntaxNode;
 
-    private IBoundNode[] children;
+    protected IBoundNode[] children;
     
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
         this.syntaxNode = syntaxNode;

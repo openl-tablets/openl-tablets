@@ -37,8 +37,7 @@ public class MethodParametersNode extends ABoundNode {
         throw new UnsupportedOperationException();
     }
 
-    public IMethodSignature getSignature() {
-        IBoundNode[] children = getChildren();
+    public IMethodSignature getSignature() {        
         int len = children.length;
 
         ParameterDeclaration[] params = new ParameterDeclaration[len];

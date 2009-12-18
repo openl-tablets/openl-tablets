@@ -39,8 +39,7 @@ public class AssignNode extends MethodBoundNode {
      */
     @Override
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        Object res = null;
-        IBoundNode[] children = getChildren();
+        Object res = null;        
         if (boundMethod != null) {
             Object[] pars = evaluateChildren(env);
 
@@ -60,12 +59,12 @@ public class AssignNode extends MethodBoundNode {
         if (boundMethod != null) {
             return super.getType();
         }
-        return getChildren()[1].getType();
+        return children[1].getType();
     }
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addAssign(getChildren()[0], this);
+        dependencies.addAssign(children[0], this);
     }
 
 }

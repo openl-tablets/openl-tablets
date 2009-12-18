@@ -32,8 +32,7 @@ public class SuffixNode extends MethodBoundNode {
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
     @Override
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        IBoundNode[] children = getChildren();
+    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {        
         Object oldValue = children[0].evaluate(env);
         Object newValue = boundMethod.invoke(null, new Object[] { oldValue }, env);
 

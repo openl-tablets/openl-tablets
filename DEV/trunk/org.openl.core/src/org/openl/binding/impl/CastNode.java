@@ -45,7 +45,7 @@ public class CastNode extends ABoundNode {
      */
     @Override
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
-        getChildren()[0].assign(value, env);
+        children[0].assign(value, env);
     }
 
     /*
@@ -54,7 +54,7 @@ public class CastNode extends ABoundNode {
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        Object res = getChildren()[0].evaluate(env);
+        Object res = children[0].evaluate(env);
         return cast.convert(res);
     }
 
@@ -84,7 +84,7 @@ public class CastNode extends ABoundNode {
      */
     @Override
     public boolean isLvalue() {
-        return getChildren()[0].isLvalue();
+        return children[0].isLvalue();
     }
 
     @Override

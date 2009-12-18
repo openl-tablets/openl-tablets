@@ -27,8 +27,7 @@ public class BinaryOpNodeAnd extends ATargetBoundNode {
         super(syntaxNode, child);
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        IBoundNode[] children = getChildren();
+    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {        
         Boolean b1 = (Boolean) children[0].evaluate(env);
         if (b1.booleanValue()) {
             return children[1].evaluate(env);
