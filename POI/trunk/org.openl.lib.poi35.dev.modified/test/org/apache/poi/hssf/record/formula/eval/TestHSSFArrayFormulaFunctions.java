@@ -17,40 +17,23 @@
 
 package org.apache.poi.hssf.record.formula.eval;
 
-import org.apache.poi.ss.formula.eval.BaseConstantArrayTest;
+import org.apache.poi.ss.formula.eval.BaseArrayFormulaFunctionsTest;
 
 /**
- * <i>ConstantArray.xls</i> formulas calculation testing class. 
+ * <i>ArrayFormulaFunctions.xls</i> formulas calculation testing class. 
  */
-public class TestHSSFArrayEvaluation extends BaseConstantArrayTest {
+public class TestHSSFArrayFormulaFunctions extends BaseArrayFormulaFunctionsTest {
 
-    /**
-     * Creates test case instance.
-     */
-    public TestHSSFArrayEvaluation() {
+    public TestHSSFArrayFormulaFunctions() {
         super();
     }
 
-    /**
-     * Creates named test case instance.
-     * @param name The test case name.
-     */
-    public TestHSSFArrayEvaluation(String name) {
+    public TestHSSFArrayFormulaFunctions(String name) {
         super(name);
     }
 
     @Override
-    protected int getTestSheetIndex() {
-        return 0;
-    }
-
-    @Override
-    protected int getTestStartingRow() {
-        return 5;
-    }
-
-    @Override
     protected String getResourceName() {
-        return "ConstantArray.xls";
+        return "ArrayFormulaFunctions.xls";
     }
 }

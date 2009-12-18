@@ -17,23 +17,48 @@
 
 package org.apache.poi.hssf.record.formula.eval;
 
-import org.apache.poi.ss.formula.eval.BaseArrayFormulaFunctionsTest;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.formula.eval.BaseFormulaEvaluationTest;
+import org.apache.poi.ss.usermodel.Workbook;
 
 /**
- * <i>ArrayFormulaFunctions.xls</i> formulas calculation testing class. 
+ * <i>ArrayFormula.xls</i> formulas calculation testing class. 
  */
-public class TestHSSFArrayFormulaFunction extends BaseArrayFormulaFunctionsTest {
+public class TestHSSFArrayFormula extends BaseFormulaEvaluationTest {
 
-    public TestHSSFArrayFormulaFunction() {
+    /**
+     * Creates test case instance.
+     */
+    public TestHSSFArrayFormula() {
         super();
     }
 
-    public TestHSSFArrayFormulaFunction(String name) {
+    /**
+     * Creates named test case instance.
+     * @param name The test case name.
+     */
+    public TestHSSFArrayFormula(String name) {
         super(name);
     }
 
     @Override
+    /**
+     * Returns <i>ArrayFormula.xls</i> as test cases resource name.
+     */
     protected String getResourceName() {
-        return "ArrayFormulaFunctions.xls";
+        return "ArrayFormula.xls";
+    }
+
+    @Override
+    protected Workbook createWorkbook(File file) throws IOException {
+        if (file != null) {
+            return new HSSFWorkbook( new FileInputStream(file) );
+        } else {
+            return new HSSFWorkbook();
+        }
     }
 }
