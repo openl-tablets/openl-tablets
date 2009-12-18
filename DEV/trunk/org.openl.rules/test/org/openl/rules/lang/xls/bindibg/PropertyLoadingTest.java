@@ -37,9 +37,8 @@ private String __src = "test/rules/PropertyLoadingTest.xls";
             if ("Rules void hello1(int hour)".equals(tsn.getDisplayName())) {
                 List<TablePropertyDefinition> defaultPropDefinitions = DefaultPropertyDefinitions
                                                                            .getPropertiesToBeSetByDefault();
-                assertEquals("Check that number of properties that must have default values" +
-                		"equals number of properties in tsn.",
-                		tsn.getTableProperties().getPropertiesDefinedInTable().size(), defaultPropDefinitions.size());                
+                assertEquals("Check that number of properties defined in table is 0",
+                		tsn.getTableProperties().getPropertiesDefinedInTable().size(), 0);                
                 List<String> defaultPropDefinitionsNames = new ArrayList<String>();
                 for (TablePropertyDefinition dataPropertyDefinition : defaultPropDefinitions) {
                     defaultPropDefinitionsNames.add(dataPropertyDefinition.getName());
