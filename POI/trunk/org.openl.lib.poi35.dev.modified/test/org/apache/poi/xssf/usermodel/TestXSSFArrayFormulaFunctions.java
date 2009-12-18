@@ -22,13 +22,13 @@ import org.apache.poi.ss.formula.eval.BaseArrayFormulaFunctionsTest;
 /**
  * <i>ArrayFormulaFunctions.xlsx</i> formulas calculation testing class. 
  */
-public class TestXSSFArrayFormulaFunction extends BaseArrayFormulaFunctionsTest {
+public class TestXSSFArrayFormulaFunctions extends BaseArrayFormulaFunctionsTest {
 
-    public TestXSSFArrayFormulaFunction() {
+    public TestXSSFArrayFormulaFunctions() {
         super();
     }
 
-    public TestXSSFArrayFormulaFunction(String name) {
+    public TestXSSFArrayFormulaFunctions(String name) {
         super(name);
     }
 
