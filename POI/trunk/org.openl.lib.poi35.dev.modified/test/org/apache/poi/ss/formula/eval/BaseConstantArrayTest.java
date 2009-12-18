@@ -64,7 +64,7 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
         // to test a particular formula, not all formulas in Excel file, this
         // array should contain 1-based number of row where formula is defined.
         // all formulas will be tested if this array is empty. 
-        int[] testRows = { 22 };
+        int[] testRows = {};
         
         final int sheetIndex = getTestSheetIndex();
         
@@ -94,16 +94,31 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
             }
             
             String formulaRef = getFormulaCellRef(rowIndex);
-            String expectedRef = getExpectedValueCellRef(rowIndex);
+            Cell cellFormula = getCell( formulaRef, sheetIndex);
             
-            try {
-                
-                if (checkFormulaCalculation(formulaRef, expectedRef, sheetIndex)) {
-                    passedFormulasCount++;
+            // check is it end of functions:
+            if (cellFormula != null && cellFormula.getCellType() == Cell.CELL_TYPE_STRING) {
+                if (getFunctionEndString().equals(cellFormula.getStringCellValue())) {
+                    // break the loop when END-OF-FUNCTIONS is reached.
+                    break;
                 }
-            } catch (AssertionFailedError e) {
-                printShortStackTrace(e);
-                failedFormulas.add( formulaRef );
+            }
+            
+            String expectedRef = getExpectedValueCellRef(rowIndex);
+            Cell cellExpected = getCell( expectedRef, sheetIndex);
+            
+            // check are that function and expected value cells:
+            if (cellFormula != null && cellExpected != null && cellFormula.getCellType() == Cell.CELL_TYPE_FORMULA) {
+                try {
+                    checkFormulaCalculation(formulaRef, cellFormula, cellExpected, sheetIndex);
+                    passedFormulasCount++;
+                } catch (AssertionFailedError e) {
+                    printShortStackTrace(e);
+                    failedFormulas.add( formulaRef );
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                    failedFormulas.add( formulaRef );
+                }
             }
         }
         
@@ -111,6 +126,8 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
             // test failed.
             fail( MessageFormat.format("Passed {0}, failed {1} formula(s): {2}", passedFormulasCount, failedFormulas.size(), failedFormulas) );
         }
+        
+        System.err.println( passedFormulasCount );
     }
     
     /**
@@ -118,58 +135,45 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
      * @param formulaRef Reference to cell with formula, like C5.
      * @param expectedRef Reference to cell with expected value, like D5.
      * @param sheetIndex Zero-based index of sheet with test data.
-     * @return <code>true</code> if cells reference formula and expected value,
-     * <code>false</code> if not.
      */
-    protected boolean checkFormulaCalculation(String formulaRef, String expectedRef, int sheetIndex) {
-        Cell cellFormula = getCell( formulaRef, sheetIndex);
-        Cell cellExpected = getCell( expectedRef, sheetIndex);
-        
-        if (cellFormula != null && cellExpected != null) {
-            
-            // both cells exist, check are they define test case:
-            switch (cellExpected.getCellType()) {
-                case Cell.CELL_TYPE_NUMERIC: {
-                    double expected = cellExpected.getNumericCellValue();
-                    double actual = calculateNumericFormula(cellFormula);
-                    assertEquals("Failed formula in " + formulaRef, expected, actual);
-                    return true;
-                }
-                    
-                case Cell.CELL_TYPE_STRING: {
-                    String expected = cellExpected.getStringCellValue();
-                    
-                    // expected may contain description of expected error.
-                    // check, is it error:
-                    try {
-                        FormulaError fe = FormulaError.forString( expected );
-                        FormulaError actual = calculateFormulaError(cellFormula);
-                        assertEquals("Failed formula in " + formulaRef, fe, actual);
-                        return true;
-
-                    } catch (IllegalArgumentException ex) {
-                        // this is not an error, check String value:
-                        String actual = calculateStringFormula(cellFormula);
-                        assertEquals("Failed formula in " + formulaRef, expected, actual);
-                        return true;
-                    }
-                }
-                    
-                case Cell.CELL_TYPE_BOOLEAN:
-                    boolean expected = cellExpected.getBooleanCellValue();
-                    boolean actual = calculateBooleanFormula(cellFormula);
-                    assertEquals("Failed formula in " + formulaRef, expected, actual);
-                    return true;
-                    
-                default:
-                    // cells reference formula and/or value of unknown type.
-                    // this is not part of test case, so return FALSE here: 
-                    return true;
+    protected void checkFormulaCalculation(String formulaRef, Cell cellFormula, Cell cellExpected, int sheetIndex) {
+        // both cells exist, check are they define test case:
+        switch (cellExpected.getCellType()) {
+            case Cell.CELL_TYPE_NUMERIC: {
+                double expected = cellExpected.getNumericCellValue();
+                double actual = calculateNumericFormula(cellFormula);
+                assertEquals("Failed formula in " + formulaRef, expected, actual);
+                break;
             }
+                
+            case Cell.CELL_TYPE_STRING: {
+                String expected = cellExpected.getStringCellValue();
+                
+                // expected may contain description of expected error.
+                // check, is it error:
+                try {
+                    FormulaError fe = FormulaError.forString( expected );
+                    FormulaError actual = calculateFormulaError(cellFormula);
+                    assertEquals("Failed formula in " + formulaRef, fe, actual);
 
-        } else {
-            // cells are not referencing formula to test, return FALSE.
-            return false;
+                } catch (IllegalArgumentException ex) {
+                    // this is not an error, check String value:
+                    String actual = calculateStringFormula(cellFormula);
+                    assertEquals("Failed formula in " + formulaRef, expected, actual);
+                }
+                break;
+            }
+                
+            case Cell.CELL_TYPE_BOOLEAN:
+                boolean expected = cellExpected.getBooleanCellValue();
+                boolean actual = calculateBooleanFormula(cellFormula);
+                assertEquals("Failed formula in " + formulaRef, expected, actual);
+                break;
+                
+            default:
+                // cells reference formula and/or value of unknown type.
+                // this is not part of test case, ignore. 
+                break;
         }
     }
     
@@ -206,4 +210,11 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
      * @return 1-based index of the row. 
      */
     abstract protected int getTestStartingRow();
+    
+    /**
+     * Gets string used to stop tests execution. The tests will be stopped
+     * if formula cell in file contains exactly this value. 
+     * @return Not-null value used to stop tests.
+     */
+    abstract protected String getFunctionEndString();
 }
