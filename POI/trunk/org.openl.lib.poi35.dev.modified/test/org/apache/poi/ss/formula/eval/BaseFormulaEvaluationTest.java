@@ -343,4 +343,9 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
     protected int getTestStartingRow() {
         return 4;
     }
+
+    @Override
+    protected String getFunctionEndString() {
+        return "<END-OF-FUNCTIONS>";
+    }
 }
