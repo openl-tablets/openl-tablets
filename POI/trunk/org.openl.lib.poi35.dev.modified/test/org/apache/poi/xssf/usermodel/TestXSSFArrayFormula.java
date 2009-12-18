@@ -27,12 +27,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 /**
  * <i>ArrayFormula.xlsm</i> formulas calculation testing class. 
  */
-public class TestXSSFArrayFormulaEvaluation extends BaseFormulaEvaluationTest {
+public class TestXSSFArrayFormula extends BaseFormulaEvaluationTest {
 
     /**
      * Creates test case instance.
      */
-    public TestXSSFArrayFormulaEvaluation() {
+    public TestXSSFArrayFormula() {
         super();
     }
 
@@ -40,7 +40,7 @@ public class TestXSSFArrayFormulaEvaluation extends BaseFormulaEvaluationTest {
      * Creates named test case instance.
      * @param name The test case name.
      */
-    public TestXSSFArrayFormulaEvaluation(String name) {
+    public TestXSSFArrayFormula(String name) {
         super(name);
     }
 

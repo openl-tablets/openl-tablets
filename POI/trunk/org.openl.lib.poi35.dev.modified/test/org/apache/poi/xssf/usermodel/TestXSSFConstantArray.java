@@ -22,12 +22,12 @@ import org.apache.poi.ss.formula.eval.BaseConstantArrayTest;
 /**
  * <i>ConstantArray.xlsx</i> formulas calculation testing class. 
  */
-public class TestXSSFArrayEvaluation extends BaseConstantArrayTest {
+public class TestXSSFConstantArray extends BaseConstantArrayTest {
 
     /**
      * Creates test case instance.
      */
-    public TestXSSFArrayEvaluation() {
+    public TestXSSFConstantArray() {
         super();
     }
 
@@ -35,7 +35,7 @@ public class TestXSSFArrayEvaluation extends BaseConstantArrayTest {
      * Creates named test case instance.
      * @param name The test case name.
      */
-    public TestXSSFArrayEvaluation(String name) {
+    public TestXSSFConstantArray(String name) {
         super(name);
     }
 
@@ -52,5 +52,10 @@ public class TestXSSFArrayEvaluation extends BaseConstantArrayTest {
     @Override
     protected String getResourceName() {
         return "ConstantArray.xlsx";
+    }
+
+    @Override
+    protected String getFunctionEndString() {
+        return "<END-OF-FUNCTIONS>";
     }
 }
