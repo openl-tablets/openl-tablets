@@ -41,7 +41,7 @@ public class IndexNode extends ATargetBoundNode {
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
         Object target = targetNode.evaluate(env);
 
-        index.setValue(target, getChildren()[0].evaluate(env), value);
+        index.setValue(target, children[0].evaluate(env), value);
     }
 
     /*
@@ -60,7 +60,7 @@ public class IndexNode extends ATargetBoundNode {
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        return index.getValue(targetNode.evaluate(env), getChildren()[0].evaluate(env));
+        return index.getValue(targetNode.evaluate(env), children[0].evaluate(env));
     }
 
     /*

@@ -42,8 +42,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
          *
          * @see org.openl.binding.impl.module.IMemberBoundNode#addTo(org.openl.binding.impl.module.ModuleOpenClass)
          */
-        public void addTo(ModuleOpenClass openClass) {
-            IBoundNode[] children = getChildren();
+        public void addTo(ModuleOpenClass openClass) {            
             for (int i = 0; i < children.length; i++) {
                 ((IMemberBoundNode) children[i]).addTo(openClass);
             }

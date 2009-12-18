@@ -32,8 +32,7 @@ public class WhileNode extends ABoundNode {
      *
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        IBoundNode[] children = getChildren();
+    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {        
         if (children[0] != null) {
             children[0].evaluate(env);
         }
