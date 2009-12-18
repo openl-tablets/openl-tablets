@@ -30,7 +30,7 @@ public class TableNamesCopier extends TableCopier {
         if (node != null) {
             ITableProperties tableProperties = node.getTableProperties();
             if (tableProperties != null) {
-                Map<String, Object> properties = tableProperties.getPropertiesIgnoreDefaultAndSystem();
+                Map<String, Object> properties = tableProperties.getPropertiesDefinedInTableIgnoreSystem();
                 if (properties != null) {
                     for (Map.Entry<String, Object> property : properties.entrySet()) {
                         String propertyName = property.getKey();

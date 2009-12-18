@@ -93,7 +93,7 @@ public abstract class TableCopier extends WizardBase {
             ICellStyle propertiesStyle = null;
             if (tableProperties != null) {
                 propertiesStyle = getPropertiesStyle(tableProperties);
-                baseTablePhysicalProperties = tableProperties.getPropertiesIgnoreDefault();
+                baseTablePhysicalProperties = tableProperties.getPropertiesDefinedInTable();
             }
             Map<String, Object> buildedPropForNewTable = buildProperties(); 
             if (buildedPropForNewTable.size() > 0) {
@@ -274,7 +274,7 @@ public abstract class TableCopier extends WizardBase {
         } catch (CreateTableException e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                            String.format("Could not copy table. %d", e.getMessage()), e.getMessage()));
+                            String.format("Could not copy table. %s", e.getMessage()), e.getMessage()));
             LOG.error("Could not copy table: ", e);
             result = "copyFailed";
         }

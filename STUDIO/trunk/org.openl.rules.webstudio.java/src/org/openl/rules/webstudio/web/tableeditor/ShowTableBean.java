@@ -266,7 +266,7 @@ public class ShowTableBean {
                     try {
                         editorModel.setProperty(sysProp.getName(), resultValue);
                     } catch (Exception e) {
-                        LOG.error(String.format("Can`t update system property %d with value %d",
+                        LOG.error(String.format("Can`t update system property %s with value %s",
                                                 sysProp.getName(), resultValue),e);
                         result = false;
                     }
