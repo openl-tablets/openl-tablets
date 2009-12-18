@@ -8,7 +8,6 @@ package org.openl.binding;
 
 import java.util.List;
 
-import org.apache.poi.hdf.model.hdftypes.TableProperties;
 import org.openl.OpenL;
 import org.openl.syntax.ISyntaxError;
 import org.openl.syntax.ISyntaxNode;
