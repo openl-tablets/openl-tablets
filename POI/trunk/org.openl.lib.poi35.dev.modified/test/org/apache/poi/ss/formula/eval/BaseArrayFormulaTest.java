@@ -220,16 +220,27 @@ abstract public class BaseArrayFormulaTest extends BaseFormulaTest {
                 Cell cell = getCell(range, x, y, sheetIndex);
                 
                 Object value;
-                try {
-                    value = cell.getNumericCellValue();
-                } catch (IllegalStateException e) {
-                    // the cell probably contains ERROR value.
-                    value = FormulaError.forInt( cell.getErrorCellValue() );
-                } catch (NumberFormatException e) {
-                    // the cell probably contains ERROR 
-                    value = FormulaError.forInt( cell.getErrorCellValue() );
+                switch (cell.getCachedFormulaResultType()) {
+                    case Cell.CELL_TYPE_BOOLEAN:
+                        value = cell.getBooleanCellValue();
+                        break;
+
+                    case Cell.CELL_TYPE_ERROR:
+                        value = FormulaError.forInt( cell.getErrorCellValue() );
+                        break;
+
+                    case Cell.CELL_TYPE_NUMERIC:
+                        value = cell.getNumericCellValue();
+                        break;
+
+                    case Cell.CELL_TYPE_STRING:
+                        value = cell.getStringCellValue();
+                        break;
+
+                    default:
+                        value = null;
+                        break;
                 }
-                
                 result[x][y] = value;
             }
         }
