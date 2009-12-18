@@ -7,7 +7,7 @@
 package org.openl.vm;
 
 import org.openl.IOpenRunner;
-import org.openl.runtime.IContext;
+import org.openl.runtime.IRuntimeContext;
 
 /**
  * @author snshor
@@ -33,7 +33,7 @@ public interface IRuntimeEnv {
 	 * 
 	 * @return <code>IContext</code> instance
 	 */
-	IContext getContext();
+	IRuntimeContext getContext();
 	
 	/**
 	 * Sets context to runtime environment. By default, runtime environment
@@ -41,5 +41,5 @@ public interface IRuntimeEnv {
 	 * 
 	 * @param context runtime context.
 	 */
-	void setContext(IContext context);
+	void setContext(IRuntimeContext context);
 }

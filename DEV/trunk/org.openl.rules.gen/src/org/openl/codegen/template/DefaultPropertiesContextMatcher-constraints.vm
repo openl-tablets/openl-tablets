@@ -2,7 +2,7 @@
 		constraints.put("$tablePropertyDefinition.PropertyVar", new MatchingConstraint<$tablePropertyDefinition.Definition.Type.InstanceClass.Name, $tablePropertyDefinition.Definition.Type.InstanceClass.Name>() {
 
 			@Override
-			protected $tablePropertyDefinition.Definition.Type.InstanceClass.Name getContextValue(IRulesContext context) {
+			protected $tablePropertyDefinition.Definition.Type.InstanceClass.Name getContextValue(IRulesRuntimeContext context) {
 			    return context.get#upperFirstChar($tablePropertyDefinition.ContextVar)();
 			}
 			

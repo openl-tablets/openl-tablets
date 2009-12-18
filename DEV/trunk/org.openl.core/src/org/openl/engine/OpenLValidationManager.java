@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.ICompileContext;
 import org.openl.OpenL;
 import org.openl.types.IOpenClass;
 import org.openl.validation.IOpenLValidator;
@@ -34,13 +35,22 @@ public class OpenLValidationManager extends OpenLHolder {
 
         List<ValidationResult> results = new ArrayList<ValidationResult>();
 
-        Set<IOpenLValidator> validators = getOpenL().getValidators();
+        ICompileContext context = getOpenL().getCompileContext();
 
-        for (IOpenLValidator validator : validators) {
+        // Check that compile context initialized. If context is null then skip
+        // validation process.
+        //
+        if (context != null) {
 
-            ValidationResult result = validator.validate(getOpenL(), openClass);
+            Set<IOpenLValidator> validators = context.getValidators();
 
-            results.add(result);
+            for (IOpenLValidator validator : validators) {
+
+                ValidationResult result = validator.validate(getOpenL(), openClass);
+
+                results.add(result);
+            }
+
         }
 
         return results;

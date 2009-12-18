@@ -21,35 +21,25 @@ import org.openl.rules.lang.xls.XlsVM;
  */
 public class OpenLBuilder implements IOpenLBuilder {
 
-    IUserContext ucxt;
+    private IUserContext userContext;
 
-    /**
-     *
-     */
     public OpenLBuilder() {
         super();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IOpenLBuilder#build(java.lang.String)
-     */
     public OpenL build(String category) throws OpenConfigurationException {
+
         OpenL openl = new OpenL();
-        openl.setParser(new XlsParser(ucxt));
-        openl.setBinder(new XlsBinder(ucxt));
+        openl.setParser(new XlsParser(userContext));
+        openl.setBinder(new XlsBinder(userContext));
         openl.setVm(new XlsVM());
+        openl.setCompileContext(new RulesCompileContext());
+        
         return openl;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IOpenLBuilder#setConfigurableResourceContext(org.openl.conf.IConfigurableResourceContext)
-     */
     public void setConfigurableResourceContext(IConfigurableResourceContext cxt, IUserContext ucxt) {
-        this.ucxt = ucxt;
+        this.userContext = ucxt;
     }
 
 }

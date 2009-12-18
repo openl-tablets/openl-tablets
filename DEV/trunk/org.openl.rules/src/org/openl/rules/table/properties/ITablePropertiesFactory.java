@@ -1,6 +1,6 @@
 package org.openl.rules.table.properties;
 
-import org.openl.rules.context.IRulesContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
 import org.openl.rules.types.impl.IPropertiesContextMatcher;
 
@@ -46,9 +46,9 @@ public class ITablePropertiesFactory {
      * @return the Java interface for IRulesContext
      */
     
-    public Class<IRulesContext> getRulesContextInterface()
+    public Class<IRulesRuntimeContext> getRulesContextInterface()
     {
-        return IRulesContext.class;
+        return IRulesRuntimeContext.class;
     }
     
     

@@ -20,6 +20,7 @@ import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
 import org.openl.conf.IUserContext;
+import org.openl.impl.DefaultCompileContext;
 import org.openl.syntax.impl.Parser;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -111,6 +112,7 @@ public class AntOpenLBuilder implements IOpenLBuilder {
 
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
             op.setVm(new SimpleVM());
+            op.setCompileContext(new DefaultCompileContext());
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } finally {

@@ -5,11 +5,11 @@ package org.openl.rules.testmethod;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.BindingDependencies;
-import org.openl.rules.context.DefaultRulesContext;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.testmethod.binding.TestMethodBoundNode;
-import org.openl.runtime.IContext;
+import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -53,7 +53,7 @@ public class TestMethodHelper {
             addField(descr);
 
             IOpenField contextField = new DynamicObjectField(this, CONTEXT_NAME, JavaOpenClass
-                    .getOpenClass(DefaultRulesContext.class));
+                    .getOpenClass(DefaultRulesRuntimeContext.class));
             addField(contextField);
 
         }
@@ -166,9 +166,9 @@ public class TestMethodHelper {
 
                     for (int j = 0; j < ntimes; j++) {
                         IOpenField contextField = dclass.getField(CONTEXT_NAME);
-                        IContext context = (IContext) contextField.get(currentTest, env);
+                        IRuntimeContext context = (IRuntimeContext) contextField.get(currentTest, env);
 
-                        IContext oldContext = env.getContext();
+                        IRuntimeContext oldContext = env.getContext();
                         env.setContext(context);
 
                         res = testedMethod.invoke(target, mpvals, env);
@@ -245,9 +245,9 @@ public class TestMethodHelper {
 
             for (int i = 0; i < ntimes; i++) {
                 IOpenField contextField = dclass.getField(CONTEXT_NAME);
-                IContext context = (IContext) contextField.get(currentTest, env);
+                IRuntimeContext context = (IRuntimeContext) contextField.get(currentTest, env);
 
-                IContext oldContext = env.getContext();
+                IRuntimeContext oldContext = env.getContext();
                 env.setContext(context);
 
                 res = testedMethod.invoke(target, mpvals, env);

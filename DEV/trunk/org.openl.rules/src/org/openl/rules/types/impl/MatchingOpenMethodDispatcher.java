@@ -5,11 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.rules.context.IRulesContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.runtime.IContext;
+import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenMethod;
 
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
@@ -28,11 +28,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     @Override
-    protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IContext context) {
+    protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context) {
 
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
 
-        selectCandidates(selected, (IRulesContext) context);
+        selectCandidates(selected, (IRulesRuntimeContext) context);
 
         // Temporal implementation of the active/inactive method feature for
         // overloaded methods only.
@@ -64,7 +64,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     }
 
-    private void selectCandidates(Set<IOpenMethod> selected, IRulesContext context) {
+    private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         // <<< INSERT MatchingProperties >>>
 		selectCandidatesByProperty("effectiveDate", selected, context);
 		selectCandidatesByProperty("expirationDate", selected, context);
@@ -75,7 +75,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         // <<< END INSERT MatchingProperties >>>
     }
 
-    private void selectCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesContext context) {
+    private void selectCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
 
         if (propertiesSet != null && !propertiesSet.contains(propName)) {
             return;

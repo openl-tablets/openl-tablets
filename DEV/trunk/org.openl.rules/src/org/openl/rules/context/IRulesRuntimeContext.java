@@ -1,8 +1,8 @@
 package org.openl.rules.context;
 
-import org.openl.runtime.IContext;
+import org.openl.runtime.IRuntimeContext;
 
-public interface IRulesContext extends IContext {
+public interface IRulesRuntimeContext extends IRuntimeContext {
 	
 	Object getValue(String variable);
 	
