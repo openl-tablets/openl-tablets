@@ -3,7 +3,7 @@ package org.openl.rules.tbasic.runtime;
 import java.util.Stack;
 
 import org.openl.IOpenRunner;
-import org.openl.runtime.IContext;
+import org.openl.runtime.IRuntimeContext;
 import org.openl.vm.IRuntimeEnv;
 
 public class MockRuntimeEnv implements IRuntimeEnv {
@@ -12,7 +12,7 @@ public class MockRuntimeEnv implements IRuntimeEnv {
 	private final Stack<Object> thisStack = new Stack<Object>();
 	private final Stack<Object[]> frameStack = new Stack<Object[]>();
 	
-	private IContext context;
+	private IRuntimeContext context;
 	
 	public MockRuntimeEnv() {
 		this(new MockRunner(), 0, new Object[] {});
@@ -59,11 +59,11 @@ public class MockRuntimeEnv implements IRuntimeEnv {
 		thisStack.push(thisObject);
 	}
 	
-	public IContext getContext() {
+	public IRuntimeContext getContext() {
 		return context;
 	}
 	
-	public void setContext(IContext context) {
+	public void setContext(IRuntimeContext context) {
 		this.context = context;
 	}
 }

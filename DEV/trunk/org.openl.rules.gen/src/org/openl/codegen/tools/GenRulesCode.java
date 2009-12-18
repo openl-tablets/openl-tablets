@@ -15,14 +15,14 @@ import java.util.Properties;
 import org.openl.codegen.FileCodeGen;
 import org.openl.codegen.ICodeGenAdaptor;
 import org.openl.codegen.JavaCodeGen;
-import org.openl.rules.context.DefaultRulesContext;
-import org.openl.rules.context.IRulesContext;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.properties.ContextPropertyDefinition;
 import org.openl.rules.enumeration.properties.EnumPropertyDefinition;
 import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.TablePropertyDefinition;
 import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
@@ -30,6 +30,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.xls.RulesCompileContext;
 
 public class GenRulesCode {
 
@@ -54,13 +55,14 @@ public class GenRulesCode {
         prepare();
 
         loadEnumerationDefinitions();
-        
+
         generateEnumerations();
 
         loadDefinitions();
 
-        generateIRulesContextCode();
-        generateDefaultRulesContextCode();
+        generateRulesCompileContextCode();
+        generateIRulesRuntimeContextCode();
+        generateDefaultRulesRuntimeContextCode();
         generateDefaultPropertyDefinitionsCode();
 
         generateITablePropertiesCode();
@@ -109,22 +111,36 @@ public class GenRulesCode {
         processSourceCode(sourceFilePath, "ITableProperties-properties.vm", variables);
     }
 
-    private void generateDefaultRulesContextCode() throws IOException {
+    private void generateDefaultRulesRuntimeContextCode() throws IOException {
 
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
-        String sourceFilePath = getClassSourcePath(DefaultRulesContext.class);
+        String sourceFilePath = getClassSourcePath(DefaultRulesRuntimeContext.class);
+
         processSourceCode(sourceFilePath, "DefaultRulesContext-properties.vm", variables);
     }
 
-    private void generateIRulesContextCode() throws IOException {
+    private void generateIRulesRuntimeContextCode() throws IOException {
 
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
-        String sourceFilePath = getClassSourcePath(IRulesContext.class);
+        String sourceFilePath = getClassSourcePath(IRulesRuntimeContext.class);
         processSourceCode(sourceFilePath, "IRulesContext-properties.vm", variables);
+    }
+
+    private void generateRulesCompileContextCode() throws IOException {
+
+        TablePropertyValidatorsWrapper[] propertyValidatorsWrappers = getTablePropertiesValidators(tablePropertyDefinitions);
+
+        Map<String, Object> variables = new HashMap<String, Object>();
+
+        variables.put("tool", new VelocityTool());
+        variables.put("validatorsDefinitions", propertyValidatorsWrappers);
+
+        String sourceFilePath = getClassSourcePath(RulesCompileContext.class);
+        processSourceCode(sourceFilePath, "RulesCompileContext-validators.vm", variables);
     }
 
     private void generateMatchingOpenMethodDispatcherCode() throws IOException {
@@ -239,51 +255,52 @@ public class GenRulesCode {
 
         return rulesFactory.newInstance().getContextDefinitions();
     }
-    
+
     private void loadEnumerationDefinitions() {
-     
+
         enumerationDefinitions = loadEnumerations();
     }
-    
+
     private EnumerationDescriptor[] loadEnumerations() {
 
         List<EnumerationDescriptor> descriptors = new ArrayList<EnumerationDescriptor>();
-        
-        RuleEngineFactory<IEmptyLoader> rulesFactory = new RuleEngineFactory<IEmptyLoader>(DEFINITIONS_XLS, IEmptyLoader.class);
+
+        RuleEngineFactory<IEmptyLoader> rulesFactory = new RuleEngineFactory<IEmptyLoader>(DEFINITIONS_XLS,
+                IEmptyLoader.class);
 
         IOpenClass openClass = rulesFactory.getOpenClass();
         IRuntimeEnv env = rulesFactory.getOpenL().getVm().getRuntimeEnv();
         Object openClassInstance = openClass.newInstance(env);
 
         List<IOpenField> enumerationFields = findEnumerationFields(openClass);
-        
+
         for (IOpenField field : enumerationFields) {
-           
+
             String name = field.getName();
-            EnumPropertyDefinition[] values = (EnumPropertyDefinition[])field.get(openClassInstance, env);
+            EnumPropertyDefinition[] values = (EnumPropertyDefinition[]) field.get(openClassInstance, env);
 
             EnumerationDescriptor descriptor = new EnumerationDescriptor();
-            descriptor.setEnumName(name);   
+            descriptor.setEnumName(name);
             descriptor.setValues(values);
-            
+
             descriptors.add(descriptor);
         }
-        
+
         return descriptors.toArray(new EnumerationDescriptor[descriptors.size()]);
     }
 
     private void generateEnumerations() throws Exception {
-        
+
         for (EnumerationDescriptor descriptor : enumerationDefinitions) {
             generateEnumeration(descriptor);
         }
     }
-    
+
     private void generateEnumeration(EnumerationDescriptor descriptor) throws Exception {
 
         String enumName = getEnumClassName(descriptor.getEnumName());
         String sourceFilePath = SOURCE_LOC + ENUMS_PACKAGE_PATH + enumName + ".java";
-        
+
         Map<String, Object> variables = new HashMap<String, Object>();
 
         variables.put("enumName", enumName);
@@ -291,10 +308,10 @@ public class GenRulesCode {
 
         genSourceCode(sourceFilePath, "rules-enum.vm", variables);
     }
-    
+
     private String getEnumClassName(String enumName) {
-        
-        return String.format("%s%sEnum", enumName.substring(0,1).toUpperCase(), enumName.toLowerCase().substring(1));
+
+        return String.format("%s%sEnum", enumName.substring(0, 1).toUpperCase(), enumName.toLowerCase().substring(1));
     }
 
     private List<IOpenField> findEnumerationFields(IOpenClass openClass) {
@@ -319,5 +336,20 @@ public class GenRulesCode {
         Class<?> clazz = type.getInstanceClass();
 
         return clazz.equals(EnumPropertyDefinition[].class);
+    }
+
+    private TablePropertyValidatorsWrapper[] getTablePropertiesValidators(
+            TablePropertyDefinition[] tablePropertyDefinitions) {
+
+        List<TablePropertyValidatorsWrapper> wrappers = new ArrayList<TablePropertyValidatorsWrapper>();
+
+        for (TablePropertyDefinition definition : tablePropertyDefinitions) {
+
+            TablePropertyValidatorsWrapper wrapper = new TablePropertyValidatorsWrapper(definition);
+
+            wrappers.add(wrapper);
+        }
+
+        return wrappers.toArray(new TablePropertyValidatorsWrapper[wrappers.size()]);
     }
 }

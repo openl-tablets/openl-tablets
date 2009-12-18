@@ -3,7 +3,7 @@ package org.openl.rules.types.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.context.IRulesContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.table.properties.ITableProperties;
 
 public class DefaultPropertiesContextMatcher implements IPropertiesContextMatcher {
@@ -14,7 +14,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
         initilaize();
     }
 
-    public MatchingResult match(String propName, ITableProperties props, IRulesContext context) {
+    public MatchingResult match(String propName, ITableProperties props, IRulesRuntimeContext context) {
         MatchingConstraint<?, ?> mc = constraints.get(propName);
 
         if (mc == null)
@@ -33,7 +33,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 		constraints.put("effectiveDate", new MatchingConstraint<java.util.Date, java.util.Date>() {
 
 			@Override
-			protected java.util.Date getContextValue(IRulesContext context) {
+			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
 			    return context.getCurrentDate();
 			}
 			
@@ -51,7 +51,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 		constraints.put("expirationDate", new MatchingConstraint<java.util.Date, java.util.Date>() {
 
 			@Override
-			protected java.util.Date getContextValue(IRulesContext context) {
+			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
 			    return context.getCurrentDate();
 			}
 			
@@ -69,7 +69,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 		constraints.put("lob", new MatchingConstraint<java.lang.String, java.lang.String>() {
 
 			@Override
-			protected java.lang.String getContextValue(IRulesContext context) {
+			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
 			    return context.getLob();
 			}
 			
@@ -87,7 +87,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 		constraints.put("usregion", new MatchingConstraint<java.lang.String, java.lang.String>() {
 
 			@Override
-			protected java.lang.String getContextValue(IRulesContext context) {
+			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
 			    return context.getUsRegion();
 			}
 			
@@ -105,7 +105,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 		constraints.put("country", new MatchingConstraint<java.lang.String, java.lang.String>() {
 
 			@Override
-			protected java.lang.String getContextValue(IRulesContext context) {
+			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
 			    return context.getCountry();
 			}
 			
@@ -123,7 +123,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 		constraints.put("state", new MatchingConstraint<java.lang.String, java.lang.String>() {
 
 			@Override
-			protected java.lang.String getContextValue(IRulesContext context) {
+			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
 			    return context.getUsState();
 			}
 			

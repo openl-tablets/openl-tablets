@@ -10,8 +10,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
@@ -20,7 +18,6 @@ import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
 import org.openl.conf.cache.CacheUtils;
 import org.openl.message.OpenLMessage;
-import org.openl.validation.IOpenLValidator;
 
 /**
  * This class describes OpenL engine context abstraction that used during
@@ -55,6 +52,8 @@ public class OpenL {
 
     private IUserContext userContext;
 
+    private ICompileContext compileContext;
+
     private String name;
 
     /**
@@ -62,11 +61,6 @@ public class OpenL {
      * end user.
      */
     private List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-
-    /**
-     * Set of validators that will be used in validation process.
-     */
-    private Set<IOpenLValidator> validators = new CopyOnWriteArraySet<IOpenLValidator>();
 
     /**
      * Gets instance of <code>OpenL</code> with given name.
@@ -322,6 +316,24 @@ public class OpenL {
     }
 
     /**
+     * Gets compilation context.
+     * 
+     * @return {@link ICompileContext} instance
+     */
+    public ICompileContext getCompileContext() {
+        return compileContext;
+    }
+
+    /**
+     * Sets compilation context.
+     * 
+     * @param compileContext {@link ICompileContext} instance
+     */
+    public void setCompileContext(ICompileContext compileContext) {
+        this.compileContext = compileContext;
+    }
+
+    /**
      * Gets copy list of OpenL messages.
      * 
      * @return list of messages
@@ -357,52 +369,6 @@ public class OpenL {
         for (OpenLMessage message : messages) {
             addMessage(message);
         }
-    }
-
-    /**
-     * Adds new validator to set of validators.
-     * 
-     * @param validator validator instance
-     */
-    public void addValidator(IOpenLValidator validator) {
-        validators.add(validator);
-    }
-
-    /**
-     * Adds new validators to set of validators.
-     * 
-     * @param validators list of validator
-     */
-    public void addValidators(List<IOpenLValidator> validators) {
-
-        for (IOpenLValidator validator : validators) {
-            addValidator(validator);
-        }
-    }
-
-    /**
-     * Removes validator from set of validators.
-     * 
-     * @param validator validator to remove
-     */
-    public void removeValidator(IOpenLValidator validator) {
-        validators.remove(validator);
-    }
-
-    /**
-     * Removes all validators.
-     */
-    public void removeValidators() {
-        validators = new CopyOnWriteArraySet<IOpenLValidator>();
-    }
-
-    /**
-     * Gets set of registered validators.
-     * 
-     * @return set of validators
-     */
-    public Set<IOpenLValidator> getValidators() {
-        return validators;
     }
 
 }

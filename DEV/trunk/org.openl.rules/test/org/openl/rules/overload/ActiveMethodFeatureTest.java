@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
 import org.openl.rules.TestUtils;
-import org.openl.rules.context.DefaultRulesContext;
-import org.openl.rules.context.IRulesContext;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -30,7 +30,7 @@ public class ActiveMethodFeatureTest {
         ITestI instance = testHelper.getInstance();
         IRuntimeEnv env = ((IEngineWrapper<ITestI>) instance).getRuntimeEnv();
 
-        IRulesContext context = new DefaultRulesContext();
+        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         env.setContext(context);
 
         Calendar calendar = Calendar.getInstance();
@@ -57,7 +57,7 @@ public class ActiveMethodFeatureTest {
         ITestI instance = testHelper.getInstance();
         IRuntimeEnv env = ((IEngineWrapper<ITestI>) instance).getRuntimeEnv();
 
-        IRulesContext context = new DefaultRulesContext();
+        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         env.setContext(context);
 
         Calendar calendar = Calendar.getInstance();

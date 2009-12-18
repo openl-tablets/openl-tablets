@@ -4,7 +4,7 @@
 package org.openl.rules.tbasic.runtime;
 
 import org.openl.IOpenRunner;
-import org.openl.runtime.IContext;
+import org.openl.runtime.IRuntimeContext;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
@@ -98,11 +98,11 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
 		env.pushThis(thisObject);
 	}
 	
-	public IContext getContext() {
+	public IRuntimeContext getContext() {
 		return env.getContext();
 	}
 	
-	public void setContext(IContext context) {
+	public void setContext(IRuntimeContext context) {
 		env.setContext(context);
 	}
 }

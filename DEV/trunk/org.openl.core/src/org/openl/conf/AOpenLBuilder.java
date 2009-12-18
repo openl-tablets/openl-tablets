@@ -9,6 +9,7 @@ import java.util.Stack;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
+import org.openl.impl.DefaultCompileContext;
 import org.openl.syntax.impl.Parser;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -94,6 +95,7 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
 
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
             op.setVm(new SimpleVM());
+            op.setCompileContext(new DefaultCompileContext());
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } finally {

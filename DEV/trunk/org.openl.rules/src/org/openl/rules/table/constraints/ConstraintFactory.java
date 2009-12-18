@@ -12,8 +12,10 @@ public class ConstraintFactory {
             constraint = new LessThanConstraint(value);
         } else if (value.matches(MoreThanConstraint.CONSTRAINT_MATCH)) {
             constraint = new MoreThanConstraint(value);
+        } else if (value.matches(UniqueInModuleConstraint.CONSTRAINT_MATCH)) {
+            constraint = new UniqueInModuleConstraint(value);
         }
-        //to be continued...
+        // to be continued...
         return constraint;
     }
 

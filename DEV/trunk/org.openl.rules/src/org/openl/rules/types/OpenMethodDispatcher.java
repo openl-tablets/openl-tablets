@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.binding.MethodUtil;
-import org.openl.runtime.IContext;
+import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -132,7 +132,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // Gets the runtime context.
         //
-        IContext context = env.getContext();
+        IRuntimeContext context = env.getContext();
 
         if (context == null) {
             throw new RuntimeException(
@@ -196,5 +196,5 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * @param context runtime context
      * @return method to invoke
      */
-    protected abstract IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IContext context);
+    protected abstract IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context);
 }

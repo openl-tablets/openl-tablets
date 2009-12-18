@@ -1,11 +1,11 @@
 package org.openl.rules.types.impl;
 
-import org.openl.rules.context.IRulesContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.table.properties.ITableProperties;
 
 public abstract class MatchingConstraint<P, C> {
 
-    public MatchingResult match(ITableProperties properties, IRulesContext context) {
+    public MatchingResult match(ITableProperties properties, IRulesRuntimeContext context) {
 
         C contextValue = getContextValue(context);
         P propertyValue = getPropertyValue(properties);
@@ -28,7 +28,7 @@ public abstract class MatchingConstraint<P, C> {
 
     protected abstract P getPropertyValue(ITableProperties properties);
 
-    protected abstract C getContextValue(IRulesContext context);
+    protected abstract C getContextValue(IRulesRuntimeContext context);
 
     protected abstract boolean matchNotNulls(P propValue, C contextValue);
 

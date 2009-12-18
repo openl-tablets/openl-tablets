@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
 
-public class DefaultRulesContext implements IRulesContext {
+public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 
     private Map<String, Object> internalMap = new HashMap<String, Object>();
 
@@ -60,5 +60,5 @@ public class DefaultRulesContext implements IRulesContext {
 	public void setCountry(java.lang.String country) {
 		internalMap.put("country", country);
 	}	
-    // <<< END INSERT >>>
+	// <<< END INSERT >>>
 }

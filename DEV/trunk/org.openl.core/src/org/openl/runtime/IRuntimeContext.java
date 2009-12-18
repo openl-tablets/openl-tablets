@@ -8,5 +8,5 @@ package org.openl.runtime;
  * 
  * @author Alexey Gamanovich
  */
-public interface IContext {
+public interface IRuntimeContext {
 }

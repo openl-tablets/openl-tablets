@@ -1,6 +1,6 @@
 package org.openl.rules.types.impl;
 
-import org.openl.rules.context.IRulesContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.table.properties.ITableProperties;
 
 public interface IPropertiesContextMatcher {
@@ -16,7 +16,7 @@ public interface IPropertiesContextMatcher {
      * @param context
      * @return
      */
-    MatchingResult match(String propertyName, ITableProperties tableProperties, IRulesContext context);
+    MatchingResult match(String propertyName, ITableProperties tableProperties, IRulesRuntimeContext context);
     
    
     /**
