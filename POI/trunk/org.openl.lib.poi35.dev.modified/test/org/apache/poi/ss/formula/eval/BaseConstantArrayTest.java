@@ -168,6 +168,14 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
                 assertEquals("Failed formula in " + formulaRef, expected, actual);
                 break;
                 
+            case Cell.CELL_TYPE_ERROR:
+            {
+            	FormulaError fer = FormulaError.forInt(cellExpected.getErrorCellValue());
+                FormulaError result = calculateFormulaError(cellFormula);
+                assertEquals("Failed formula in " + formulaRef, fer, result);
+            }
+            	break;
+                
             default:
                 // cells reference formula and/or value of unknown type.
                 // this is not part of test case, ignore. 
