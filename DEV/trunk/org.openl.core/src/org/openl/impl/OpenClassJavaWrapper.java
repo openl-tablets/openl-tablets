@@ -12,7 +12,7 @@ import java.net.URL;
 import org.openl.CompiledOpenClass;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.conf.IUserEnvironmentContext;
+import org.openl.conf.IUserContext;
 import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.URLSourceCodeModule;
@@ -28,7 +28,7 @@ public class OpenClassJavaWrapper {
     CompiledOpenClass __compiledClass;
     IRuntimeEnv __env;
 
-    static public OpenClassJavaWrapper createWrapper(String openlName, IUserEnvironmentContext ucxt, IOpenSourceCodeModule src) {
+    static public OpenClassJavaWrapper createWrapper(String openlName, IUserContext ucxt, IOpenSourceCodeModule src) {
         OpenL openl = OpenL.getInstance(openlName, ucxt);
 
         CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, src);
@@ -36,7 +36,7 @@ public class OpenClassJavaWrapper {
         return new OpenClassJavaWrapper(openClass, openl.getVm().getRuntimeEnv());
     }
 
-    static public OpenClassJavaWrapper createWrapper(String openlName, IUserEnvironmentContext ucxt, String srcFile) {
+    static public OpenClassJavaWrapper createWrapper(String openlName, IUserContext ucxt, String srcFile) {
         OpenL openl = OpenL.getInstance(openlName, ucxt);
 
         IOpenSourceCodeModule src = null;
@@ -65,7 +65,7 @@ public class OpenClassJavaWrapper {
     }
 
     @SuppressWarnings("unchecked")
-    public static OpenClassJavaWrapper createWrapper(String name, IUserEnvironmentContext ucxt, String __src, String srcClass) {
+    public static OpenClassJavaWrapper createWrapper(String name, IUserContext ucxt, String __src, String srcClass) {
         if (srcClass == null) {
             return createWrapper(name, ucxt, __src);
         }
@@ -74,7 +74,7 @@ public class OpenClassJavaWrapper {
         try {
             clazz = Class.forName(srcClass);
             Class<IOpenSourceCodeModule> src = (Class<IOpenSourceCodeModule>) clazz;
-            Constructor<IOpenSourceCodeModule> ctr = src.getConstructor(String.class, IUserEnvironmentContext.class);
+            Constructor<IOpenSourceCodeModule> ctr = src.getConstructor(String.class, IUserContext.class);
             IOpenSourceCodeModule module = ctr.newInstance(__src, ucxt);
             return createWrapper(name, ucxt, module);
 

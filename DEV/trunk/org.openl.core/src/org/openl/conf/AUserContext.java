@@ -16,18 +16,18 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  *
  * @author sam
  */
-abstract public class AUserContext implements IUserEnvironmentContext {
-    static Properties props(IUserEnvironmentContext cxt) {
+abstract public class AUserContext implements IUserContext {
+    static Properties props(IUserContext cxt) {
         Properties properties = cxt.getUserProperties();
         return properties != null ? properties : PropertyFileLoader.NO_PROPERTIES;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof IUserEnvironmentContext)) {
+        if (obj == null || !(obj instanceof IUserContext)) {
             return false;
         }
-        IUserEnvironmentContext c = (IUserEnvironmentContext) obj;
+        IUserContext c = (IUserContext) obj;
 
         return new EqualsBuilder()
         // .append(name, k.name)

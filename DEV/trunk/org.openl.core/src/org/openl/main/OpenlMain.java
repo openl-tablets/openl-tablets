@@ -19,7 +19,7 @@ import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.binding.MethodNotFoundException;
 import org.openl.binding.OpenLRuntimeException;
-import org.openl.conf.IUserEnvironmentContext;
+import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.engine.OpenLManager;
 import org.openl.syntax.SyntaxErrorException;
@@ -160,7 +160,7 @@ public class OpenlMain implements SourceCodeURLConstants {
      * project directory - classLoader - nothing, all required classes are
      * already in the project
      */
-    IUserEnvironmentContext getUserContext() throws Exception {
+    IUserContext getUserContext() throws Exception {
         String userHome = new File(".").getCanonicalPath();
 
         ClassLoader cl = new URLClassLoader(new URL[0]);

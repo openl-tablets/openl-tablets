@@ -11,7 +11,7 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.conf.IUserEnvironmentContext;
+import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.FileSourceCodeModule;
@@ -126,7 +126,7 @@ public class EngineFactory<T> {
     // constructor directly
     private IOpenSourceCodeModule sourceCode;
     private OpenL openl;
-    private IUserEnvironmentContext userContext;
+    private IUserContext userContext;
 
     private String openlName;
     private String userHome = ".";
@@ -181,9 +181,9 @@ public class EngineFactory<T> {
      * @param openlName Name of OpenL configuration {@link OpenL}
      * @param sourceFile A pathname of rule file string
      * @param engineInterface User interface of a rule
-     * @param userContext User context {@link IUserEnvironmentContext}
+     * @param userContext User context {@link IUserContext}
      */
-    public EngineFactory(String openlName, String sourceFile, Class<T> engineInterface, IUserEnvironmentContext userContext) {
+    public EngineFactory(String openlName, String sourceFile, Class<T> engineInterface, IUserContext userContext) {
         this.openlName = openlName;
         this.sourceFile = sourceFile;
         this.engineInterface = engineInterface;
@@ -221,9 +221,9 @@ public class EngineFactory<T> {
      * @param openlName Name of OpenL configuration {@link OpenL}
      * @param url Url to rule file
      * @param engineInterface User interface of a rule
-     * @param userContext User context {@link IUserEnvironmentContext}
+     * @param userContext User context {@link IUserContext}
      */
-    public EngineFactory(String openlName, URL url, Class<T> engineInterface, IUserEnvironmentContext userContext) {
+    public EngineFactory(String openlName, URL url, Class<T> engineInterface, IUserContext userContext) {
         this.openlName = openlName;
         sourceCode = new URLSourceCodeModule(url);
         this.engineInterface = engineInterface;
@@ -265,7 +265,7 @@ public class EngineFactory<T> {
     /**
      * @return user context.
      */
-    public synchronized IUserEnvironmentContext getUserContext() {
+    public synchronized IUserContext getUserContext() {
         if (userContext == null) {
             userContext = new UserContext(getDefaultUserClassLoader(), userHome);
         }

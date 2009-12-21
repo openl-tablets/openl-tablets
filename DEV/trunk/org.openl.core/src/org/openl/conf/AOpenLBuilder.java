@@ -18,30 +18,30 @@ import org.openl.vm.SimpleVM;
 
 public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
-    static class UserContextStack extends ThreadLocal<Stack<IUserEnvironmentContext>> {
+    static class UserContextStack extends ThreadLocal<Stack<IUserContext>> {
 
         /**
          *
          */
 
         @Override
-        protected Stack<IUserEnvironmentContext> initialValue() {
-            return new Stack<IUserEnvironmentContext>();
+        protected Stack<IUserContext> initialValue() {
+            return new Stack<IUserContext>();
         }
 
-        public IUserEnvironmentContext pop() {
+        public IUserContext pop() {
             return stack().pop();
         }
 
-        public void push(IUserEnvironmentContext ucxt) {
+        public void push(IUserContext ucxt) {
             stack().push(ucxt);
         }
 
-        protected Stack<IUserEnvironmentContext> stack() {
+        protected Stack<IUserContext> stack() {
             return get();
         }
 
-        public IUserEnvironmentContext top() {
+        public IUserContext top() {
             return stack().peek();
         }
 

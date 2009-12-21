@@ -18,6 +18,6 @@ public interface IOpenLBuilder {
     public OpenL build(String category) throws OpenConfigurationException;
 
     public void setContexts(IConfigurableResourceContext resourceContext,
-            IUserEnvironmentContext userEnvironmentContext);
+            IUserContext userEnvironmentContext);
 
 }
