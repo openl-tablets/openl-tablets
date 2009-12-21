@@ -10,7 +10,7 @@ import java.net.URL;
 
 import org.openl.IOpenSourceCodeModule;
 import org.openl.OpenL;
-import org.openl.conf.IUserEnvironmentContext;
+import org.openl.conf.IUserContext;
 import org.openl.engine.OpenLManager;
 import org.openl.syntax.impl.FileSourceCodeModule;
 import org.openl.syntax.impl.URLSourceCodeModule;
@@ -45,7 +45,7 @@ public class Engine {
         init(openl, fileName, methodName);
     }
 
-    public Engine(String openlName, String fileName, String methodName, IUserEnvironmentContext ucxt) {
+    public Engine(String openlName, String fileName, String methodName, IUserContext ucxt) {
 
         OpenL openl = OpenL.getInstance(openlName, ucxt);
         init(openl, fileName, methodName);

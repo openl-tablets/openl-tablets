@@ -34,7 +34,7 @@ import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.TooManyErrorsError;
 import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IExecutable;
-import org.openl.conf.IUserEnvironmentContext;
+import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -115,7 +115,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
             { XLS_COLUMN_MATCH, ColumnMatchNodeBinder.class.getName() },
             { XLS_PROPERTIES, PropertyTableBinder.class.getName() },};
 
-    private IUserEnvironmentContext ucxt;
+    private IUserContext ucxt;
 
     public static synchronized Map<String, AXlsTableBinder> binderFactory() {
         if (binderFactory == null) {
@@ -160,7 +160,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
     /**
      *
      */
-    public XlsBinder(IUserEnvironmentContext ucxt) {
+    public XlsBinder(IUserContext ucxt) {
         this.ucxt = ucxt;
     }
 

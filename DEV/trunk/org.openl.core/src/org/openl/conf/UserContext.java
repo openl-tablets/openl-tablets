@@ -17,7 +17,7 @@ import java.util.Stack;
  */
 public class UserContext extends AUserContext {
 
-    static ThreadLocal<Stack<IUserEnvironmentContext>> contextStack = new ThreadLocal<Stack<IUserEnvironmentContext>>();
+    static ThreadLocal<Stack<IUserContext>> contextStack = new ThreadLocal<Stack<IUserContext>>();
 
     protected ClassLoader userClassLoader;
 
@@ -25,16 +25,16 @@ public class UserContext extends AUserContext {
 
     protected Properties userProperties;
 
-    public static IUserEnvironmentContext currentContext() {
-        Stack<IUserEnvironmentContext> stack = contextStack.get();
+    public static IUserContext currentContext() {
+        Stack<IUserContext> stack = contextStack.get();
         if (stack == null || stack.size() == 0) {
             return null;
         }
         return stack.peek();
     }
 
-    public static IUserEnvironmentContext makeOrLoadContext(ClassLoader cl, String home) {
-        IUserEnvironmentContext cxt = currentContext();
+    public static IUserContext makeOrLoadContext(ClassLoader cl, String home) {
+        IUserContext cxt = currentContext();
         if (cxt != null) {
             return cxt;
         }
@@ -45,10 +45,10 @@ public class UserContext extends AUserContext {
         contextStack.get().pop();
     }
 
-    public static void pushCurrentContext(IUserEnvironmentContext cxt) {
-        Stack<IUserEnvironmentContext> stack = contextStack.get();
+    public static void pushCurrentContext(IUserContext cxt) {
+        Stack<IUserContext> stack = contextStack.get();
         if (stack == null) {
-            stack = new Stack<IUserEnvironmentContext>();
+            stack = new Stack<IUserContext>();
             contextStack.set(stack);
         }
         stack.push(cxt);

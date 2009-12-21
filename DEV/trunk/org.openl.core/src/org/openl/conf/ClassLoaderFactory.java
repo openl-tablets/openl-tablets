@@ -41,9 +41,9 @@ public class ClassLoaderFactory {
         String name;
         String classpath;
         ClassLoader parent;
-        IUserEnvironmentContext cxt;
+        IUserContext cxt;
 
-        Key(String name, String classpath, ClassLoader parent, IUserEnvironmentContext cxt) {
+        Key(String name, String classpath, ClassLoader parent, IUserContext cxt) {
             this.name = name;
             this.classpath = classpath;
             this.parent = parent;
@@ -73,13 +73,13 @@ public class ClassLoaderFactory {
 
     static HashMap<Key, ClassLoader> userClassLoaders = new HashMap<Key, ClassLoader>();
 
-    static public ClassLoader createClassLoader(String classpath, ClassLoader parent, IUserEnvironmentContext ucxt)
+    static public ClassLoader createClassLoader(String classpath, ClassLoader parent, IUserContext ucxt)
             throws Exception {
 
         return createClassLoader(splitClassPath(classpath), parent, ucxt);
     }
 
-    static public ClassLoader createClassLoader(String[] classpath, ClassLoader parent, IUserEnvironmentContext ucxt)
+    static public ClassLoader createClassLoader(String[] classpath, ClassLoader parent, IUserContext ucxt)
             throws Exception {
         List<URL> urls = new ArrayList<URL>();
         for (int i = 0; i < classpath.length; i++) {
@@ -106,7 +106,7 @@ public class ClassLoaderFactory {
     }
 
     public static synchronized ClassLoader createUserClassloader(String name, String classpath, ClassLoader parent,
-            IUserEnvironmentContext ucxt) throws Exception {
+            IUserContext ucxt) throws Exception {
 
         Log.debug("name=" + name + " cp=" + classpath + " " + ucxt + " cl=" + parent);
 

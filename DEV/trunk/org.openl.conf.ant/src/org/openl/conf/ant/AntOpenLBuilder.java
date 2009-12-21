@@ -20,7 +20,7 @@ import org.openl.binding.impl.Binder;
 import org.openl.conf.BaseOpenLBuilder;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.IOpenLConfiguration;
-import org.openl.conf.IUserEnvironmentContext;
+import org.openl.conf.IUserContext;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.syntax.impl.Parser;
 import org.openl.util.Log;
@@ -33,31 +33,31 @@ import org.openl.vm.SimpleVM;
  */
 public class AntOpenLBuilder extends BaseOpenLBuilder {
 
-    static class UserContextStack extends ThreadLocal<Stack<IUserEnvironmentContext>> {
+    static class UserContextStack extends ThreadLocal<Stack<IUserContext>> {
 
         /**
          *
          */
 
         @Override
-        protected Stack<IUserEnvironmentContext> initialValue() {
-            return new Stack<IUserEnvironmentContext>();
+        protected Stack<IUserContext> initialValue() {
+            return new Stack<IUserContext>();
         }
 
-        public IUserEnvironmentContext pop() {
+        public IUserContext pop() {
             return stack().pop();
         }
 
-        public void push(IUserEnvironmentContext ucxt) {
+        public void push(IUserContext ucxt) {
             stack().push(ucxt);
         }
 
-        protected Stack<IUserEnvironmentContext> stack() {
+        protected Stack<IUserContext> stack() {
             return get();
         }
 
-        public IUserEnvironmentContext top() {
-            return (IUserEnvironmentContext) stack().peek();
+        public IUserContext top() {
+            return (IUserContext) stack().peek();
         }
 
     }

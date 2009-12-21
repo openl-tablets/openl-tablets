@@ -76,7 +76,7 @@ public class NoAntOpenLTask {
      *
      * @see org.apache.tools.ant.Task#execute()
      */
-    public void execute(IUserEnvironmentContext ucxt, String baseDir) {
+    public void execute(IUserContext ucxt, String baseDir) {
 
         // try
         // {
@@ -131,7 +131,7 @@ public class NoAntOpenLTask {
         return category;
     }
 
-    IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration, IUserEnvironmentContext ucxt,
+    IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration, IUserContext ucxt,
             String baseDir) throws Exception {
         ClassLoader parentLoader = extendsConfiguration == null ? ClassLoaderFactory.getOpenlCoreLoader(null)
                 : extendsConfiguration.getConfigurationContext().getClassLoader();
