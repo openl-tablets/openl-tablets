@@ -58,24 +58,19 @@ public class TablePropertyCopier extends TableCopier {
             if (!propDefinition.isSystem()) {
                 ITableProperties tableProperties = node.getTableProperties();
                 String name = propDefinition.getName();
-                Object propertyValue = tableProperties.getPropertyValue(name) != null ? 
+                Object propertyValue = tableProperties.getPropertyValue(name) != null ?
                         tableProperties.getPropertyValue(name) : null;
-                Class<?> propertyType = propDefinition.getType() == null ? 
+                if (!tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
+                    propertyValue = StringUtils.EMPTY;
+                }
+                Class<?> propertyType = propDefinition.getType() == null ?
                         null : propDefinition.getType().getInstanceClass();
                 String displayName = propDefinition.getDisplayName();
-                String group = propDefinition.getGroup(); 
+                String group = propDefinition.getGroup();
                 String format = propDefinition.getFormat();
                 Constraints constraints = propDefinition.getConstraints();
-                if (tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
-                    propsToCopy.add(
-                            new TableProperty(displayName, propertyValue, propertyType, 
-                                    group, name, format, constraints));                    
-                } 
-//                else {
-//                    defaultProps.add(
-//                            new TableProperty(displayName, propertyValue, propertyType, 
-//                                    group, name, format, constraints));
-//                }
+                propsToCopy.add(new TableProperty(displayName, propertyValue, propertyType,
+                        group, name, format, constraints));
             }
         }
     }
