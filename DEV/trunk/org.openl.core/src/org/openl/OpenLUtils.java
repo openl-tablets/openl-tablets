@@ -34,6 +34,7 @@ public final class OpenLUtils {
      * @param openClass {@link IOpenClass} instance
      * @return {@link IOpenMethod} instance
      */
+    @SuppressWarnings("unchecked")
     public static IOpenMethod getMethod(String methodName, IOpenClass[] paramTypes, IOpenClass openClass) {
 
         IOpenMethod method = null;
