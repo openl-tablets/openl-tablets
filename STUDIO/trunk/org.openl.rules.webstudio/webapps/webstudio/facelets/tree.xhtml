@@ -74,5 +74,15 @@
         </script>
         <!-- Tree END -->
 
+        <!--<rich:tree value="#{treeBean.tree}" switchType="client" toggleOnClick="true" var="node">
+            <rich:treeNode>
+                <h:outputText value="#{node.name}" rendered="#{node.url == null}" />
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame"
+                    rendered="#{node.url != null}">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+        </rich:tree>-->
+
     </ui:define>
 </ui:composition>
