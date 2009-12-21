@@ -46,9 +46,13 @@ import org.apache.poi.ss.formula.TwoDEval;
  *
  * @author Josh Micich
  */
-public final class Index implements Function2Arg, Function3Arg, Function4Arg, FunctionWithArraySupport {
+public final class Index implements Function2Arg, Function3Arg, Function4Arg, FunctionWithArraySupport, ArrayMode {
 
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
+		return evaluateX(srcRowIndex, srcColumnIndex,arg0,arg1,false);
+	}
+
+	public ValueEval evaluateX(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1, boolean arrayMode) {
 		TwoDEval reference = convertFirstArg(arg0);
 
 		int columnIx = 0;
@@ -67,25 +71,39 @@ public final class Index implements Function2Arg, Function3Arg, Function4Arg, Fu
 				rowIx = 0;
 			}
  
-			return getValueFromArea(reference, rowIx, columnIx);
+			return getValueFromArea(reference, rowIx, columnIx, arrayMode);
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
 	}
+
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
 			ValueEval arg2) {
+		return evaluateX(srcRowIndex, srcColumnIndex, arg0, arg1, arg2, false);
+	}
+
+	
+	public ValueEval evaluateX(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+			ValueEval arg2, boolean arrayMode) {
 		TwoDEval reference = convertFirstArg(arg0);
 
 		try {
 			int columnIx = resolveIndexArg(arg2, srcRowIndex, srcColumnIndex);
 			int rowIx = resolveIndexArg(arg1, srcRowIndex, srcColumnIndex);
-			return getValueFromArea(reference, rowIx, columnIx);
+			return getValueFromArea(reference, rowIx, columnIx, arrayMode);
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
 	}
+
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
 			ValueEval arg2, ValueEval arg3) {
+		return evaluateX(srcRowIndex, srcColumnIndex, arg0, arg1, arg2,arg3, false);
+		
+	}
+	
+	public ValueEval evaluateX(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+			ValueEval arg2, ValueEval arg3, boolean arrayMode) {
 		throw new RuntimeException("Incomplete code"
 				+ " - don't know how to support the 'area_num' parameter yet)");
 		// Excel expression might look like this "INDEX( (A1:B4, C3:D6, D2:E5 ), 1, 2, 3)
@@ -111,18 +129,24 @@ public final class Index implements Function2Arg, Function3Arg, Function4Arg, Fu
 	}
 
 	public ValueEval evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex) {
+		return evaluateX(args,srcRowIndex,srcColumnIndex,false);
+	}
+
+	
+	
+	public ValueEval evaluateX(ValueEval[] args, int srcRowIndex, int srcColumnIndex, boolean arrayMode) {
 		switch (args.length) {
 			case 2:
-				return evaluate(srcRowIndex, srcColumnIndex, args[0], args[1]);
+				return evaluateX(srcRowIndex, srcColumnIndex, args[0], args[1], arrayMode);
 			case 3:
-				return evaluate(srcRowIndex, srcColumnIndex, args[0], args[1], args[2]);
+				return evaluateX(srcRowIndex, srcColumnIndex, args[0], args[1], args[2], arrayMode);
 			case 4:
-				return evaluate(srcRowIndex, srcColumnIndex, args[0], args[1], args[2], args[3]);
+				return evaluateX(srcRowIndex, srcColumnIndex, args[0], args[1], args[2], args[3], arrayMode);
 		}
 		return ErrorEval.VALUE_INVALID;
 	}
 
-	private static ValueEval getValueFromArea(TwoDEval ae, int pRowIx, int pColumnIx )
+	private static ValueEval getValueFromArea(TwoDEval ae, int pRowIx, int pColumnIx, boolean arrayMode )
 			throws EvaluationException {
 		assert pRowIx >= 0;
 		assert pColumnIx >= 0;
@@ -132,9 +156,15 @@ public final class Index implements Function2Arg, Function3Arg, Function4Arg, Fu
 		
 		int relFirstRowIx;
 		int relLastRowIx;
+		
+		boolean tryArray = false;
+		
+		if (arrayMode || ae instanceof ArrayEval){
+			tryArray = true;
+		}
 
 		// add support of return of the entire row or column. Not all excel features are supported
-		if ( (pRowIx == 0 && !ae.isRow() && pColumnIx <= width) || (pColumnIx ==0 && !ae.isColumn() && pRowIx <= height) ){
+		if ( tryArray && ((pRowIx == 0 && !ae.isRow() && pColumnIx <= width) || (pColumnIx ==0 && !ae.isColumn() && pRowIx <= height)) && !(pRowIx ==0 && pColumnIx==0) ){
 			
 			// return row or column
 			ValueEval[][] result;
@@ -218,5 +248,12 @@ public final class Index implements Function2Arg, Function3Arg, Function4Arg, Fu
 	
 	public boolean supportArray(int paramIndex) {
 		return paramIndex == 0;
+	}
+	
+	// We need array mode here because this function behaves differently in array/non array formula
+	// in poi test =index(b14:c15,d7,2) it returns error (#VALUE) but if we put this formula as array formula it works
+	
+	public ValueEval evaluateInArrayFormula(ValueEval[] args, int row, int column){
+		return evaluateX(args,row,column,true);
 	}
 }
