@@ -13,8 +13,9 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Vector;
+import java.util.List;
 
 public class Util {
     static final String DEFAULT_DOUBLE_FORMAT = "#,##0.00";
@@ -71,13 +72,13 @@ public class Util {
     }
 
     static public String[] intersection(String[] ary1, String[] ary2) {
-        Vector v = new Vector();
+        List<String> v = new ArrayList<String>();
         for (int j = 0; j < ary2.length; ++j) {
             if (contains(ary1, ary2[j])) {
                 v.add(ary2[j]);
             }
         }
-        return (String[]) v.toArray(new String[v.size()]);
+        return  v.toArray(new String[v.size()]);
     }
 
     static public void out(String output) {
