@@ -17,7 +17,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public class BinaryOpNodeOr extends ATargetBoundNode {
+public class BinaryOpNodeOr extends ABoundNode {
     /**
      * @param syntaxNode
      * @param child
@@ -27,7 +27,8 @@ public class BinaryOpNodeOr extends ATargetBoundNode {
         super(syntaxNode, child);
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {        
+    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+
         Boolean b1 = (Boolean) children[0].evaluate(env);
         if (!b1.booleanValue()) {
             return children[1].evaluate(env);
@@ -38,6 +39,11 @@ public class BinaryOpNodeOr extends ATargetBoundNode {
     public IOpenClass getType() {
 
         return JavaOpenClass.BOOLEAN;
+    }
+
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return true;
     }
 
 }

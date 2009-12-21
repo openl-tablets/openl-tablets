@@ -32,7 +32,7 @@ public class ForNode extends ABoundNode {
      *
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {        
+    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         if (children[0] != null) {
             children[0].evaluate(env);
         }
@@ -77,6 +77,11 @@ public class ForNode extends ABoundNode {
      */
     public IOpenClass getType() {
         return NullOpenClass.the;
+    }
+
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return true;
     }
 
 }

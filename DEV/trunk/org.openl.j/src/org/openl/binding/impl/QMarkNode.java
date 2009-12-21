@@ -26,7 +26,7 @@ public class QMarkNode extends ABoundNode {
         super(syntaxNode, children);
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {        
+    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         Boolean res = (Boolean) children[0].evaluate(env);
 
         return res.booleanValue() ? children[1].evaluate(env) : children[2].evaluate(env);
@@ -37,6 +37,11 @@ public class QMarkNode extends ABoundNode {
         // return NullOpenClass.the;
         // TODO use both branches
         return children[1].getType();
+    }
+
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return true;
     }
 
 }
