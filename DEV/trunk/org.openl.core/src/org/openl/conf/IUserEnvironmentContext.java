@@ -9,17 +9,15 @@ package org.openl.conf;
 import java.util.Properties;
 
 /**
+ * The <code>IUserEnvironmentContext</code> defines an user environment
+ * configuration abstraction.
+ * 
  * @author snshor
- * IUserContext an abstraction of user environment configuration.
- *
+ * 
  */
-public interface IUserContext {
+public interface IUserEnvironmentContext {
 
-    public interface Executable {
-        public Object execute();
-    }
-
-    public Object execute(Executable run);
+    public Object execute(IExecutable run);
 
     public ClassLoader getUserClassLoader();
 

@@ -17,7 +17,7 @@ import java.util.Stack;
  */
 public class UserContext extends AUserContext {
 
-    static ThreadLocal<Stack<IUserContext>> contextStack = new ThreadLocal<Stack<IUserContext>>();
+    static ThreadLocal<Stack<IUserEnvironmentContext>> contextStack = new ThreadLocal<Stack<IUserEnvironmentContext>>();
 
     protected ClassLoader userClassLoader;
 
@@ -25,16 +25,16 @@ public class UserContext extends AUserContext {
 
     protected Properties userProperties;
 
-    public static IUserContext currentContext() {
-        Stack<IUserContext> stack = contextStack.get();
+    public static IUserEnvironmentContext currentContext() {
+        Stack<IUserEnvironmentContext> stack = contextStack.get();
         if (stack == null || stack.size() == 0) {
             return null;
         }
         return stack.peek();
     }
 
-    public static IUserContext makeOrLoadContext(ClassLoader cl, String home) {
-        IUserContext cxt = currentContext();
+    public static IUserEnvironmentContext makeOrLoadContext(ClassLoader cl, String home) {
+        IUserEnvironmentContext cxt = currentContext();
         if (cxt != null) {
             return cxt;
         }
@@ -45,10 +45,10 @@ public class UserContext extends AUserContext {
         contextStack.get().pop();
     }
 
-    public static void pushCurrentContext(IUserContext cxt) {
-        Stack<IUserContext> stack = contextStack.get();
+    public static void pushCurrentContext(IUserEnvironmentContext cxt) {
+        Stack<IUserEnvironmentContext> stack = contextStack.get();
         if (stack == null) {
-            stack = new Stack<IUserContext>();
+            stack = new Stack<IUserEnvironmentContext>();
             contextStack.set(stack);
         }
         stack.push(cxt);
@@ -64,7 +64,7 @@ public class UserContext extends AUserContext {
         this.userProperties = userProperties;
     }
 
-    public Object execute(Executable exe) {
+    public Object execute(IExecutable exe) {
         try {
             pushCurrentContext(this);
             return exe.execute();

@@ -10,7 +10,7 @@ import org.openl.IOpenParser;
 import org.openl.IOpenSourceCodeModule;
 import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IConfigurableResourceContext;
-import org.openl.conf.IUserContext;
+import org.openl.conf.IUserEnvironmentContext;
 import org.openl.syntax.IParsedCode;
 import org.openl.util.PropertiesLocator;
 
@@ -27,7 +27,7 @@ public class XlsParser implements IOpenParser {
 
     private String searchPath;
 
-    public XlsParser(IUserContext userContext) {
+    public XlsParser(IUserEnvironmentContext userContext) {
         this.resourceContext = new ConfigurableResourceContext(userContext.getUserClassLoader(),
                 new String[] { userContext.getUserHome() });
     }

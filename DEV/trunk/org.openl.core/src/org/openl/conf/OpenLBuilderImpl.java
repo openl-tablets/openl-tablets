@@ -24,7 +24,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
-        OpenL.getInstance(extendsCategory, getUserContext());
+        OpenL.getInstance(extendsCategory, getUserEnvironmentContext());
         return super.build(category);
     }
 

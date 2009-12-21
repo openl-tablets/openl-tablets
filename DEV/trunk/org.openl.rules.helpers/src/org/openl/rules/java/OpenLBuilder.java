@@ -15,7 +15,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 public class OpenLBuilder extends AOpenLBuilder {
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
-        OpenL.getInstance("org.openl.j", getUserContext());
+        OpenL.getInstance("org.openl.j", getUserEnvironmentContext());
         return super.build(category);
     }
 

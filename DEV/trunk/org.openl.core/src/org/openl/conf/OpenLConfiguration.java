@@ -51,7 +51,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     Map<String, IOpenFactoryConfiguration> openFactories = null;
 
-    static public IOpenLConfiguration getInstance(String name, IUserContext ucxt) throws OpenConfigurationException {
+    static public IOpenLConfiguration getInstance(String name, IUserEnvironmentContext ucxt) throws OpenConfigurationException {
         IOpenLConfiguration opc = configurations.get(name);
 
         if (opc != null) {
@@ -64,7 +64,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     }
 
-    static synchronized public void register(String name, IUserContext ucxt, IOpenLConfiguration oplc, boolean shared)
+    static synchronized public void register(String name, IUserEnvironmentContext ucxt, IOpenLConfiguration oplc, boolean shared)
             throws OpenConfigurationException {
         Object key = null;
 
@@ -86,7 +86,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         configurations = new HashMap<Object, IOpenLConfiguration>();
     }
 
-    static synchronized public void unregister(String name, IUserContext ucxt) throws OpenConfigurationException {
+    static synchronized public void unregister(String name, IUserEnvironmentContext ucxt) throws OpenConfigurationException {
         Object key = CacheUtils.makeKey(name, ucxt);
 
         // IOpenLConfiguration old =

@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.Stack;
 
+import org.openl.ICompileContext;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
@@ -15,32 +16,32 @@ import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.SimpleVM;
 
-public abstract class AOpenLBuilder implements IOpenLBuilder {
+public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
-    static class UserContextStack extends ThreadLocal<Stack<IUserContext>> {
+    static class UserContextStack extends ThreadLocal<Stack<IUserEnvironmentContext>> {
 
         /**
          *
          */
 
         @Override
-        protected Stack<IUserContext> initialValue() {
-            return new Stack<IUserContext>();
+        protected Stack<IUserEnvironmentContext> initialValue() {
+            return new Stack<IUserEnvironmentContext>();
         }
 
-        public IUserContext pop() {
+        public IUserEnvironmentContext pop() {
             return stack().pop();
         }
 
-        public void push(IUserContext ucxt) {
+        public void push(IUserEnvironmentContext ucxt) {
             stack().push(ucxt);
         }
 
-        protected Stack<IUserContext> stack() {
+        protected Stack<IUserEnvironmentContext> stack() {
             return get();
         }
 
-        public IUserContext top() {
+        public IUserEnvironmentContext top() {
             return stack().peek();
         }
 
@@ -50,20 +51,13 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
 
     boolean inheritExtendedConfigurationLoader = false;
 
-    IConfigurableResourceContext configurableResourceContext;
-
-    IUserContext ucxt;
-
-    public AOpenLBuilder() {
-    }
-
     public OpenL build(String openl) throws OpenConfigurationException {
         OpenL op = new OpenL();
         boolean changedClassLoader = false;
         ClassLoader oldClassLoader = null;
 
         try {
-            userCxt.push(ucxt);
+            userCxt.push(getUserEnvironmentContext());
 
             ClassLoader myClassLoader = myClassLoader();
 
@@ -74,15 +68,15 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
                 changedClassLoader = true;
             }
 
-            UserContext mycxt = new UserContext(myClassLoader, ucxt.getUserHome());
+            UserContext mycxt = new UserContext(myClassLoader, getUserEnvironmentContext().getUserHome());
 
             NoAntOpenLTask naot = getNoAntOpenLTask();
 
             naot.setInheritExtendedConfigurationLoader(inheritExtendedConfigurationLoader);
             if (inheritExtendedConfigurationLoader) {
-                naot.execute(ucxt, ucxt.getUserHome());
+                naot.execute(getUserEnvironmentContext(), getUserEnvironmentContext().getUserHome());
             } else {
-                naot.execute(mycxt, ucxt.getUserHome());
+                naot.execute(mycxt, getUserEnvironmentContext().getUserHome());
             }
 
             // OpenLConfiguration conf =
@@ -95,7 +89,7 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
 
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
             op.setVm(new SimpleVM());
-            op.setCompileContext(new DefaultCompileContext());
+            op.setCompileContext(buildCompileContext());
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } finally {
@@ -107,8 +101,21 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
         return op;
     }
 
-    public IConfigurableResourceContext getConfigurableResourceContext() {
-        return configurableResourceContext;
+    private ICompileContext buildCompileContext() {
+        ICompileContext compileContext = new DefaultCompileContext();
+
+        IConfigurableResourceContext resourceContext = getResourceContext();
+
+        if (resourceContext != null) {
+            String propertyValue = resourceContext.findProperty("validation");
+
+            if (propertyValue != null) {
+                Boolean value = Boolean.valueOf(propertyValue);
+                compileContext.setValidationEnabled(value);
+            }
+        }
+
+        return compileContext;
     }
 
     public abstract NoAntOpenLTask getNoAntOpenLTask();
@@ -117,8 +124,7 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
      * @param openl
      */
     protected Properties getProperties(String openl) {
-        URL url = configurableResourceContext.findClassPathResource(openl.replace('.', '/') + '/' + openl
-                + ".ant.properties");
+        URL url = getResourceContext().findClassPathResource(openl.replace('.', '/') + '/' + openl + ".ant.properties");
         if (url == null) {
             return null;
         }
@@ -142,14 +148,6 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
 
     }
 
-    public IUserContext getUserContext() {
-        return ucxt;
-    }
-
-    public boolean isInheritExtendedConfigurationLoader() {
-        return inheritExtendedConfigurationLoader;
-    }
-
     ClassLoader myClassLoader() {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         String myName = getClass().getName();
@@ -162,18 +160,12 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IOpenLBuilder#setConfigurableResourceContext(org.openl.conf.IConfigurableResourceContext)
-     */
-    public void setConfigurableResourceContext(IConfigurableResourceContext cxt, IUserContext ucxt) {
-        configurableResourceContext = cxt;
-        this.ucxt = ucxt;
-    }
-
     public void setInheritExtendedConfigurationLoader(boolean inheritExtendedConfigurationLoader) {
         this.inheritExtendedConfigurationLoader = inheritExtendedConfigurationLoader;
+    }
+
+    public boolean isInheritExtendedConfigurationLoader() {
+        return inheritExtendedConfigurationLoader;
     }
 
 }

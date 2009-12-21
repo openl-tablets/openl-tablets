@@ -45,7 +45,7 @@ public class OpenLConfigurator extends Configurator {
 
     // ClassLoaderFactory clFactory = new ClassLoaderFactory();
 
-    public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) throws OpenConfigurationException {
+    public synchronized IOpenLBuilder getBuilder(String openlName, IUserEnvironmentContext ucxt) throws OpenConfigurationException {
 
         // ClassLoaderFactory.setCurrentFactory(clFactory);
 
@@ -68,7 +68,7 @@ public class OpenLConfigurator extends Configurator {
 
         try {
             IOpenLBuilder builder = makeBuilder(openlName, cxt, ucxt);
-            builder.setConfigurableResourceContext(cxt, ucxt);
+            builder.setContexts(cxt, ucxt);
 
             return builder;
         } catch (Exception ex) {
@@ -104,7 +104,7 @@ public class OpenLConfigurator extends Configurator {
         }
     }
 
-    IOpenLBuilder makeBuilder(String openl, IConfigurableResourceContext cxt, IUserContext ucxt) throws Exception {
+    IOpenLBuilder makeBuilder(String openl, IConfigurableResourceContext cxt, IUserEnvironmentContext ucxt) throws Exception {
         String builderClassName = getBuilderClassName(openl, cxt);
         String builderClassPath = getBuilderClassPath(openl, cxt);
         if (builderClassName != null) {
@@ -125,7 +125,7 @@ public class OpenLConfigurator extends Configurator {
 
     }
 
-    IOpenLBuilder makeBuilderInstance(String builderClassName, String builderClassPath, IUserContext ucxt)
+    IOpenLBuilder makeBuilderInstance(String builderClassName, String builderClassPath, IUserEnvironmentContext ucxt)
             throws Exception {
 
         ClassLoader cl = ClassLoaderFactory.getOpenlCoreLoader(ucxt.getUserClassLoader());

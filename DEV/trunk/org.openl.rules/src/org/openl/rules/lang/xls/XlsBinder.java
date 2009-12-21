@@ -33,7 +33,8 @@ import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.TooManyErrorsError;
 import org.openl.binding.impl.module.ModuleNode;
-import org.openl.conf.IUserContext;
+import org.openl.conf.IExecutable;
+import org.openl.conf.IUserEnvironmentContext;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -114,7 +115,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
             { XLS_COLUMN_MATCH, ColumnMatchNodeBinder.class.getName() },
             { XLS_PROPERTIES, PropertyTableBinder.class.getName() },};
 
-    private IUserContext ucxt;
+    private IUserEnvironmentContext ucxt;
 
     public static synchronized Map<String, AXlsTableBinder> binderFactory() {
         if (binderFactory == null) {
@@ -159,7 +160,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
     /**
      *
      */
-    public XlsBinder(IUserContext ucxt) {
+    public XlsBinder(IUserEnvironmentContext ucxt) {
         this.ucxt = ucxt;
     }
 
@@ -418,7 +419,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         String category = openlName + "::" + moduleNode.getModule().getUri(0);
         builder.setCategory(category);
         builder.setImports(allImports);
-        builder.setConfigurableResourceContext(null, ucxt);
+        builder.setContexts(null, ucxt);
         builder.setInheritExtendedConfigurationLoader(true);
 
         return OpenL.getInstance(category, ucxt, builder);
@@ -437,7 +438,7 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         try {
             Thread.currentThread().setContextClassLoader(cl);
 
-            ivoc = (IVocabulary) ucxt.execute(new IUserContext.Executable() {
+            ivoc = (IVocabulary) ucxt.execute(new IExecutable() {
 
                 public Object execute() {
                     IVocabulary voc;
