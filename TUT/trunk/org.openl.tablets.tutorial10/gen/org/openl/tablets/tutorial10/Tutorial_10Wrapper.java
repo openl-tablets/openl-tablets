@@ -60,38 +60,6 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper
 
 
 
-  static org.openl.types.IOpenField getCarPrice2010Test_Field;
-
-  public org.openl.types.impl.DynamicObject[] getGetCarPrice2010Test()
-  {
-   Object __res = getCarPrice2010Test_Field.get(__instance, __env.get());
-   return (org.openl.types.impl.DynamicObject[])__res;
-  }
-
-
-  public void setGetCarPrice2010Test(org.openl.types.impl.DynamicObject[] __var)
-  {
-   getCarPrice2010Test_Field.set(__instance, __var, __env.get());
-  }
-
-
-
-  static org.openl.types.IOpenField getDiscountPercentageTest_Field;
-
-  public org.openl.types.impl.DynamicObject[] getGetDiscountPercentageTest()
-  {
-   Object __res = getDiscountPercentageTest_Field.get(__instance, __env.get());
-   return (org.openl.types.impl.DynamicObject[])__res;
-  }
-
-
-  public void setGetDiscountPercentageTest(org.openl.types.impl.DynamicObject[] __var)
-  {
-   getDiscountPercentageTest_Field.set(__instance, __var, __env.get());
-  }
-
-
-
   static org.openl.types.IOpenField getPriceForOrderTest_Field;
 
   public org.openl.types.impl.DynamicObject[] getGetPriceForOrderTest()
@@ -124,18 +92,18 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper
 
 
 
-  static org.openl.types.IOpenField getCarPrice2009Test_Field;
+  static org.openl.types.IOpenField getCarPrice2010Test_Field;
 
-  public org.openl.types.impl.DynamicObject[] getGetCarPrice2009Test()
+  public org.openl.types.impl.DynamicObject[] getGetCarPrice2010Test()
   {
-   Object __res = getCarPrice2009Test_Field.get(__instance, __env.get());
+   Object __res = getCarPrice2010Test_Field.get(__instance, __env.get());
    return (org.openl.types.impl.DynamicObject[])__res;
   }
 
 
-  public void setGetCarPrice2009Test(org.openl.types.impl.DynamicObject[] __var)
+  public void setGetCarPrice2010Test(org.openl.types.impl.DynamicObject[] __var)
   {
-   getCarPrice2009Test_Field.set(__instance, __var, __env.get());
+   getCarPrice2010Test_Field.set(__instance, __var, __env.get());
   }
 
 
@@ -156,6 +124,22 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper
 
 
 
+  static org.openl.types.IOpenField getDiscountPercentageTest_Field;
+
+  public org.openl.types.impl.DynamicObject[] getGetDiscountPercentageTest()
+  {
+   Object __res = getDiscountPercentageTest_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject[])__res;
+  }
+
+
+  public void setGetDiscountPercentageTest(org.openl.types.impl.DynamicObject[] __var)
+  {
+   getDiscountPercentageTest_Field.set(__instance, __var, __env.get());
+  }
+
+
+
   static org.openl.types.IOpenField this_Field;
 
   public org.openl.types.impl.DynamicObject getThis()
@@ -170,6 +154,59 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper
    this_Field.set(__instance, __var, __env.get());
   }
 
+
+
+  static org.openl.types.IOpenField getCarPrice2009Test_Field;
+
+  public org.openl.types.impl.DynamicObject[] getGetCarPrice2009Test()
+  {
+   Object __res = getCarPrice2009Test_Field.get(__instance, __env.get());
+   return (org.openl.types.impl.DynamicObject[])__res;
+  }
+
+
+  public void setGetCarPrice2009Test(org.openl.types.impl.DynamicObject[] __var)
+  {
+   getCarPrice2009Test_Field.set(__instance, __var, __env.get());
+  }
+
+
+
+  static org.openl.types.IOpenMethod getPriceForOrder_Method;
+  public org.openl.meta.DoubleValue getPriceForOrder(org.openl.tablets.tutorial10.domain.Car car, int numberOfCars, org.openl.tablets.tutorial10.domain.Address billingAddress)  {
+    Object[] __params = new Object[3];
+    __params[0] = car;
+    __params[1] = new Integer(numberOfCars);
+    __params[2] = billingAddress;
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = getPriceForOrder_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.meta.DoubleValue)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
+
+
+  static org.openl.types.IOpenMethod getCarPrice2010TestTestAll_Method;
+  public org.openl.rules.testmethod.TestResult getCarPrice2010TestTestAll()  {
+    Object[] __params = new Object[0];
+    try
+    {
+    Object __myInstance = __instance;
+    Object __res = getCarPrice2010TestTestAll_Method.invoke(__myInstance, __params, __env.get());
+   return (org.openl.rules.testmethod.TestResult)__res;  }
+  catch(Throwable t)
+  {
+    Log.error("Java Wrapper execution error:", t);
+    throw RuntimeExceptionWrapper.wrap(t);
+  }
+
+  }
 
 
   static org.openl.types.IOpenMethod getPriceForOrderTestTestAll_Method;
@@ -208,26 +245,6 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper
   }
 
 
-  static org.openl.types.IOpenMethod getPriceForOrder_Method;
-  public org.openl.meta.DoubleValue getPriceForOrder(org.openl.tablets.tutorial10.domain.Car car, int numberOfCars, org.openl.tablets.tutorial10.domain.Address billingAddress)  {
-    Object[] __params = new Object[3];
-    __params[0] = car;
-    __params[1] = new Integer(numberOfCars);
-    __params[2] = billingAddress;
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = getPriceForOrder_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.meta.DoubleValue)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
   static org.openl.types.IOpenMethod getCarPrice2009TestTestAll_Method;
   public org.openl.rules.testmethod.TestResult getCarPrice2009TestTestAll()  {
     Object[] __params = new Object[0];
@@ -235,23 +252,6 @@ public class Tutorial_10Wrapper implements org.openl.main.OpenLWrapper
     {
     Object __myInstance = __instance;
     Object __res = getCarPrice2009TestTestAll_Method.invoke(__myInstance, __params, __env.get());
-   return (org.openl.rules.testmethod.TestResult)__res;  }
-  catch(Throwable t)
-  {
-    Log.error("Java Wrapper execution error:", t);
-    throw RuntimeExceptionWrapper.wrap(t);
-  }
-
-  }
-
-
-  static org.openl.types.IOpenMethod getCarPrice2010TestTestAll_Method;
-  public org.openl.rules.testmethod.TestResult getCarPrice2010TestTestAll()  {
-    Object[] __params = new Object[0];
-    try
-    {
-    Object __myInstance = __instance;
-    Object __res = getCarPrice2010TestTestAll_Method.invoke(__myInstance, __params, __env.get());
    return (org.openl.rules.testmethod.TestResult)__res;  }
   catch(Throwable t)
   {
@@ -319,25 +319,25 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     __class = wrapper.getOpenClassWithErrors();
    // __env.set(wrapper.getEnv());
 
-    getCarPrice2010Test_Field = __class.getField("getCarPrice2010Test");
-    getDiscountPercentageTest_Field = __class.getField("getDiscountPercentageTest");
     getPriceForOrderTest_Field = __class.getField("getPriceForOrderTest");
     testCars_Field = __class.getField("testCars");
-    getCarPrice2009Test_Field = __class.getField("getCarPrice2009Test");
+    getCarPrice2010Test_Field = __class.getField("getCarPrice2010Test");
     testAddresses_Field = __class.getField("testAddresses");
+    getDiscountPercentageTest_Field = __class.getField("getDiscountPercentageTest");
     this_Field = __class.getField("this");
+    getCarPrice2009Test_Field = __class.getField("getCarPrice2009Test");
+    getPriceForOrder_Method = __class.getMatchingMethod("getPriceForOrder", new IOpenClass[] {
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial10.domain.Car.class),
+      JavaOpenClass.getOpenClass(int.class),
+      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial10.domain.Address.class)});
+    getCarPrice2010TestTestAll_Method = __class.getMatchingMethod("getCarPrice2010TestTestAll", new IOpenClass[] {
+});
     getPriceForOrderTestTestAll_Method = __class.getMatchingMethod("getPriceForOrderTestTestAll", new IOpenClass[] {
 });
     getCarPrice_Method = __class.getMatchingMethod("getCarPrice", new IOpenClass[] {
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial10.domain.Car.class),
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial10.domain.Address.class)});
-    getPriceForOrder_Method = __class.getMatchingMethod("getPriceForOrder", new IOpenClass[] {
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial10.domain.Car.class),
-      JavaOpenClass.getOpenClass(int.class),
-      JavaOpenClass.getOpenClass(org.openl.tablets.tutorial10.domain.Address.class)});
     getCarPrice2009TestTestAll_Method = __class.getMatchingMethod("getCarPrice2009TestTestAll", new IOpenClass[] {
-});
-    getCarPrice2010TestTestAll_Method = __class.getMatchingMethod("getCarPrice2010TestTestAll", new IOpenClass[] {
 });
     getDiscountPercentage_Method = __class.getMatchingMethod("getDiscountPercentage", new IOpenClass[] {
       JavaOpenClass.getOpenClass(org.openl.tablets.tutorial10.domain.Car.class),

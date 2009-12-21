@@ -8,8 +8,8 @@ import static java.lang.System.out;
 
 import java.util.Calendar;
 
-import org.openl.rules.context.DefaultRulesContext;
-import org.openl.rules.context.IRulesContext;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.tablets.tutorial10.domain.Address;
@@ -41,7 +41,7 @@ public class Tutorial10Main {
         IRuntimeEnv env = ((IEngineWrapper<Tutorial10Rules>) rules).getRuntimeEnv();
 
         // Creating context (most probably in future, the code will be different)
-        IRulesContext context = new DefaultRulesContext();
+        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         env.setContext(context);
 
         // Creating current date value
