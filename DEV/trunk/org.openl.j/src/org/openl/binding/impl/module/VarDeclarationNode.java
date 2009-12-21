@@ -101,4 +101,9 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
         return JavaOpenClass.VOID;
     }
 
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return true;
+    }
+    
 }

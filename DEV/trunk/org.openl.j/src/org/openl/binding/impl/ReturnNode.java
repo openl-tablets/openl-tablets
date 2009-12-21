@@ -32,7 +32,7 @@ public class ReturnNode extends ABoundNode {
      *
      * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
      */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {        
+    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         IBoundNode exprNode = children.length == 0 ? null : children[0];
         Object returnValue = exprNode == null ? null : exprNode.evaluate(env);
 
@@ -44,8 +44,14 @@ public class ReturnNode extends ABoundNode {
      *
      * @see org.openl.binding.IBoundNode#getType()
      */
-    public IOpenClass getType() {        
+    public IOpenClass getType() {
         return children.length == 0 ? NullOpenClass.the : children[0].getType();
     }
 
+    
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return true;
+    }
+    
 }
