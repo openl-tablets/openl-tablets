@@ -124,4 +124,10 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
 
     }
 
+    @Override
+    public boolean isLiteralExpressionParent() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }

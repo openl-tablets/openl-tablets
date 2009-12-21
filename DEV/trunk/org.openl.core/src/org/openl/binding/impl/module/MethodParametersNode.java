@@ -37,7 +37,7 @@ public class MethodParametersNode extends ABoundNode {
         throw new UnsupportedOperationException();
     }
 
-    public IMethodSignature getSignature() {        
+    public IMethodSignature getSignature() {
         int len = children.length;
 
         ParameterDeclaration[] params = new ParameterDeclaration[len];
@@ -59,6 +59,12 @@ public class MethodParametersNode extends ABoundNode {
     public void updateDependency(BindingDependencies dependencies) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public boolean isLiteralExpressionParent() {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

@@ -37,6 +37,17 @@ public interface IBoundNode {
 
     // Lvalue operations
     public boolean isLvalue();
+    
+    /**
+     * 
+     * @return true if it is a literal constant, or if this is an expression 
+     * containing only literal constants, operators and static methods(except void). In general,
+     * if node is literal, it must be able to evaluate properly into some value at compile-time.
+     * This property will be used for compile-time optimization, or for checking the literal 
+     * constraint on some methods. Te literal constraint on parameter or method will imply that 
+     * this parameter or all parametrs of the method are literal expressions. 
+     */
+    public boolean isLiteralExpression();
 
     /**
      * @param dependencies

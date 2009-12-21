@@ -92,4 +92,9 @@ public class CastNode extends ABoundNode {
         dependencies.addTypeDependency(castedType, this);
     }
 
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return true;
+    }
+
 }

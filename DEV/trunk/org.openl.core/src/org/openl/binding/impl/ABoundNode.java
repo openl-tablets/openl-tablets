@@ -20,10 +20,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public abstract class ABoundNode implements IBoundNode {
 
-    private ISyntaxNode syntaxNode;
+    protected ISyntaxNode syntaxNode;
 
     protected IBoundNode[] children;
-    
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
         this.syntaxNode = syntaxNode;
         this.children = children;
@@ -85,6 +84,31 @@ public abstract class ABoundNode implements IBoundNode {
         // do nothing
 
     }
+    
+    public boolean isLiteralExpression()
+    {
+        return isLiteralExpressionParent() && hasAllLiteralExpressionChildren(this);
+    }
+    
+
+     private boolean hasAllLiteralExpressionChildren(IBoundNode boundNode) {
+        IBoundNodeVisitor checkLiteral = new IBoundNodeVisitor(){
+
+            public boolean visit(IBoundNode node) {
+                return node == ABoundNode.this || node.isLiteralExpression();
+            }};
+   
+            
+            
+        return boundNode.visit(checkLiteral);
+    }
+
+    public boolean isLiteralExpressionParent()
+    {
+        return false;
+    }
+    
+
 
     public void updateDependency(BindingDependencies dependencies) {
         // do nothing

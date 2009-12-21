@@ -19,7 +19,5 @@ public interface IOpenMember extends INamedThing {
     
     IMemberMetaInfo getInfo();
     
-    //FIXME: seams to be conceptually wrong, the member shouldn't know to which class it belongs
-    @Deprecated
     IOpenClass getDeclaringClass();
 }

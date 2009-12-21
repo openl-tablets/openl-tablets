@@ -67,4 +67,9 @@ public class TypeBoundNode extends ABoundNode {
         dependencies.addTypeDependency(type, this);
     }
 
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return true;
+    }
+
 }
