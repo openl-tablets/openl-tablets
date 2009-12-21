@@ -7,7 +7,7 @@ package org.openl.tablets;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.types.IOpenClass;
-import org.openl.conf.IUserContext;
+import org.openl.conf.IUserEnvironmentContext;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 
@@ -49,7 +49,7 @@ public class Algorithm1Wrapper implements org.openl.main.OpenLWrapper {
             return;
         }
 
-        IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
+        IUserEnvironmentContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
         OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt, __src, __srcModuleClass);
         __compiledClass = wrapper.getCompiledClass();
         __class = wrapper.getOpenClassWithErrors();

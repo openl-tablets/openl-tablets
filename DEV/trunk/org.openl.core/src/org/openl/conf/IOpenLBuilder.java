@@ -11,14 +11,13 @@ import org.openl.OpenConfigurationException;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IOpenLBuilder {
 
     public OpenL build(String category) throws OpenConfigurationException;
 
-    //
-
-    public void setConfigurableResourceContext(IConfigurableResourceContext cxt, IUserContext ucxt);
+    public void setContexts(IConfigurableResourceContext resourceContext,
+            IUserEnvironmentContext userEnvironmentContext);
 
 }

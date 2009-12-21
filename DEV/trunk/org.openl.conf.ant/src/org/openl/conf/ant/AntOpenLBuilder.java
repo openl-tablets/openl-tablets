@@ -13,13 +13,14 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.Stack;
 
+import org.openl.ICompileContext;
 import org.openl.OpenConfigurationException;
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
+import org.openl.conf.BaseOpenLBuilder;
 import org.openl.conf.IConfigurableResourceContext;
-import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
-import org.openl.conf.IUserContext;
+import org.openl.conf.IUserEnvironmentContext;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.syntax.impl.Parser;
 import org.openl.util.Log;
@@ -28,44 +29,40 @@ import org.openl.vm.SimpleVM;
 
 /**
  * @author snshor
- *
+ * 
  */
-public class AntOpenLBuilder implements IOpenLBuilder {
+public class AntOpenLBuilder extends BaseOpenLBuilder {
 
-    static class UserContextStack extends ThreadLocal<Stack<IUserContext>> {
+    static class UserContextStack extends ThreadLocal<Stack<IUserEnvironmentContext>> {
 
         /**
          *
          */
 
         @Override
-        protected Stack<IUserContext> initialValue() {
-            return new Stack<IUserContext>();
+        protected Stack<IUserEnvironmentContext> initialValue() {
+            return new Stack<IUserEnvironmentContext>();
         }
 
-        public IUserContext pop() {
+        public IUserEnvironmentContext pop() {
             return stack().pop();
         }
 
-        public void push(IUserContext ucxt) {
+        public void push(IUserEnvironmentContext ucxt) {
             stack().push(ucxt);
         }
 
-        protected Stack<IUserContext> stack() {
+        protected Stack<IUserEnvironmentContext> stack() {
             return get();
         }
 
-        public IUserContext top() {
-            return (IUserContext) stack().peek();
+        public IUserEnvironmentContext top() {
+            return (IUserEnvironmentContext) stack().peek();
         }
 
     }
 
     static public UserContextStack userCxt = new UserContextStack();
-
-    IConfigurableResourceContext configurableResourceContext;
-
-    IUserContext ucxt;
 
     public static String getAntProjectConfigurationVariable(String openl) {
         return openl + ".configuration";
@@ -80,16 +77,18 @@ public class AntOpenLBuilder implements IOpenLBuilder {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.conf.IOpenLBuilder#build(java.lang.String)
      */
     public OpenL build(String openl) throws OpenConfigurationException {
+
         OpenL op = new OpenL();
+
         boolean changedClassLoader = false;
         ClassLoader oldClassLoader = null;
 
         try {
-            userCxt.push(ucxt);
+            userCxt.push(getUserEnvironmentContext());
 
             ClassLoader myClassLoader = getClass().getClassLoader();
 
@@ -112,7 +111,7 @@ public class AntOpenLBuilder implements IOpenLBuilder {
 
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
             op.setVm(new SimpleVM());
-            op.setCompileContext(new DefaultCompileContext());
+            op.setCompileContext(buildCompileContext());
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } finally {
@@ -126,9 +125,9 @@ public class AntOpenLBuilder implements IOpenLBuilder {
 
     protected String getAntFile(String openl) {
 
-        String name = configurableResourceContext.findProperty(openl + ".ant.build.file");
+        String name = getResourceContext().findProperty(openl + ".ant.build.file");
         if (name != null) {
-            File f = configurableResourceContext.findFileSystemResource(name);
+            File f = getResourceContext().findFileSystemResource(name);
             if (f != null) {
                 return f.getAbsolutePath();
             }
@@ -137,15 +136,15 @@ public class AntOpenLBuilder implements IOpenLBuilder {
 
         name = openl + ".build.xml";
         if (name != null) {
-            File f = configurableResourceContext.findFileSystemResource(name);
+            File f = getResourceContext().findFileSystemResource(name);
             if (f != null) {
                 return f.getAbsolutePath();
             }
         }
 
-        name = configurableResourceContext.findProperty("org.openl.default.ant.build.file");
+        name = getResourceContext().findProperty("org.openl.default.ant.build.file");
         if (name != null) {
-            File f = configurableResourceContext.findFileSystemResource(name);
+            File f = getResourceContext().findFileSystemResource(name);
             if (f != null) {
                 return f.getAbsolutePath();
             }
@@ -155,12 +154,28 @@ public class AntOpenLBuilder implements IOpenLBuilder {
         throw new OpenConfigurationException("Can not find Ant configuration file for " + openl, null, null);
     }
 
+    private ICompileContext buildCompileContext() {
+        ICompileContext compileContext = new DefaultCompileContext();
+
+        IConfigurableResourceContext resourceContext = getResourceContext();
+
+        if (resourceContext != null) {
+            String propertyValue = resourceContext.findProperty("validation");
+
+            if (propertyValue != null) {
+                Boolean value = Boolean.valueOf(propertyValue);
+                compileContext.setValidationEnabled(value);
+            }
+        }
+
+        return compileContext;
+    }
+
     /**
      * @param openl
      */
     protected Properties getProperties(String openl) {
-        URL url = configurableResourceContext.findClassPathResource(openl.replace('.', '/') + '/' + openl
-                + ".ant.properties");
+        URL url = getResourceContext().findClassPathResource(openl.replace('.', '/') + '/' + openl + ".ant.properties");
         if (url == null) {
             return null;
         }
@@ -182,16 +197,6 @@ public class AntOpenLBuilder implements IOpenLBuilder {
             }
         }
 
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IOpenLBuilder#setConfigurableResourceContext(org.openl.conf.IConfigurableResourceContext)
-     */
-    public void setConfigurableResourceContext(IConfigurableResourceContext cxt, IUserContext ucxt) {
-        configurableResourceContext = cxt;
-        this.ucxt = ucxt;
     }
 
 }

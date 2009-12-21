@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
-import org.openl.conf.IUserContext;
+import org.openl.conf.IUserEnvironmentContext;
 import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
 import org.openl.conf.cache.CacheUtils;
@@ -50,7 +50,7 @@ public class OpenL {
 
     private IOpenVM vm;
 
-    private IUserContext userContext;
+    private IUserEnvironmentContext userContext;
 
     private ICompileContext compileContext;
 
@@ -85,7 +85,7 @@ public class OpenL {
      * @throws OpenConfigurationException
      * 
      * @see IOpenLConfiguration
-     * @see IUserContext
+     * @see IUserEnvironmentContext
      */
     public static synchronized OpenL getInstance(String name, ClassLoader classLoader)
             throws OpenConfigurationException {
@@ -100,14 +100,14 @@ public class OpenL {
      * context as it's key. To remove cached instance use #remove method
      * 
      * @see #remove
-     * @see IUserContext
+     * @see IUserEnvironmentContext
      * 
      * @param name IOpenL name, for example org.openl.java12.v101
      * @param userContext user context
      * @return instance of IOpenL
      * @throws OpenConfigurationException
      */
-    public static synchronized OpenL getInstance(String name, IUserContext userContext)
+    public static synchronized OpenL getInstance(String name, IUserEnvironmentContext userContext)
             throws OpenConfigurationException {
 
         Object key = CacheUtils.makeKey(name, userContext);
@@ -130,7 +130,7 @@ public class OpenL {
      * Gets an instance of OpenL. Each instance is cached with name and user
      * context as it's key.
      * 
-     * @see IUserContext
+     * @see IUserEnvironmentContext
      * 
      * @param name IOpenL name
      * @param userContext user context
@@ -139,7 +139,7 @@ public class OpenL {
      * @return instance of IOpenL
      * @throws OpenConfigurationException
      */
-    public static OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
+    public static OpenL getInstance(String name, IUserEnvironmentContext userContext, IOpenLBuilder builder) {
 
         Object key = CacheUtils.makeKey(name, userContext);
 
@@ -159,12 +159,12 @@ public class OpenL {
      * Creates new instance of OpenL.
      * 
      * @param name name of OpenL
-     * @param userContext {@link IUserContext} instance
+     * @param userContext {@link IUserEnvironmentContext} instance
      * @param builder {@link IOpenLBuilder} instance which used to build new
      *            instance of OpenL if that doesn't exist
      * @return new instance of OpenL
      */
-    private static OpenL createInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
+    private static OpenL createInstance(String name, IUserEnvironmentContext userContext, IOpenLBuilder builder) {
 
         OpenL openl = builder.build(name);
         openl.userContext = userContext;
@@ -195,7 +195,7 @@ public class OpenL {
      * @throws OpenConfigurationException
      * 
      * @see IOpenLConfiguration
-     * @see IUserContext
+     * @see IUserEnvironmentContext
      */
     public static synchronized OpenL remove(String name, ClassLoader classLoader) throws OpenConfigurationException {
 
@@ -210,9 +210,9 @@ public class OpenL {
      *            OpenL
      * @return removed OpenL instance
      * 
-     * @see IUserContext
+     * @see IUserEnvironmentContext
      */
-    public static synchronized OpenL remove(String name, IUserContext userContext) {
+    public static synchronized OpenL remove(String name, IUserEnvironmentContext userContext) {
 
         Object key = CacheUtils.makeKey(name, userContext);
 
@@ -273,9 +273,9 @@ public class OpenL {
     /**
      * Gets user context which associated with current OpenL instance.
      * 
-     * @return {@link IUserContext} instance
+     * @return {@link IUserEnvironmentContext} instance
      */
-    public IUserContext getUserContext() {
+    public IUserEnvironmentContext getUserContext() {
         return userContext;
     }
 
