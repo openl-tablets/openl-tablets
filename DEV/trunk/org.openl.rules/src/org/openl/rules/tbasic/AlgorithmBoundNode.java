@@ -34,8 +34,4 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
     public Algorithm getAlgorithm() {
         return (Algorithm) method;
     }
-    @Override
-    public boolean isLiteralParent() {
-        return false;
-    }
 }

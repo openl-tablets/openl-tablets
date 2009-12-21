@@ -14,11 +14,9 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
-import org.openl.rules.data.IString2DataConvertor;
 import org.openl.rules.data.ITable;
-import org.openl.rules.data.String2DataConvertorFactory;
-import org.openl.rules.data.impl.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.impl.ColumnDescriptor;
+import org.openl.rules.data.impl.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.impl.OpenlBasedDataTableModel;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -274,7 +272,7 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
                 }
 
                 // the target type is the last field type, e.g. in driver.name the target type will be for name
-                IOpenClass targetType = loadedFieldType != null ? loadedFieldType : type;
+//                IOpenClass targetType = loadedFieldType != null ? loadedFieldType : type;
                 
                 // FIXME: If field is CONSTRUCTOR_FIELD then this variable will
                 // be null and it's intended behavior. It should be rewritten as

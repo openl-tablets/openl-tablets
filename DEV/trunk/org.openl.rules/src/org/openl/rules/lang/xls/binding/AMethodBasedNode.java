@@ -16,7 +16,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 {
 
     @Override
-    public boolean isLiteralParent() {
+    public boolean isLiteralExpressionParent() {
         return false;
     }
 

@@ -59,6 +59,7 @@ import org.openl.util.StringTool;
  */
 public class XlsLoader implements IXlsTableNames, ITableNodeTypes {
 
+    @SuppressWarnings("unused")
     private static class ParsedXls extends ParsedCode {
         /**
          * @param topnode
