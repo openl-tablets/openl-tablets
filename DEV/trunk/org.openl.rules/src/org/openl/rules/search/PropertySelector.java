@@ -3,8 +3,6 @@
  */
 package org.openl.rules.search;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

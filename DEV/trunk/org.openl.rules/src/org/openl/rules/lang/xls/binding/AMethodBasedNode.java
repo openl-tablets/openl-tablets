@@ -15,6 +15,11 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
 {
 
+    @Override
+    public boolean isLiteralParent() {
+        return false;
+    }
+
     protected OpenL openl;
     protected IOpenMethodHeader header;
 
