@@ -9,18 +9,17 @@ package org.openl.rules.data.impl;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.OpenlToolAdaptor;
 import org.openl.binding.impl.BoundError;
 import org.openl.meta.StringValue;
 import org.openl.rules.data.ITable;
-import org.openl.rules.data.binding.DataNodeBinder;
 import org.openl.rules.dt.FunctionalRow;
 import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-
 import org.openl.vm.IRuntimeEnv;
 
 /**
