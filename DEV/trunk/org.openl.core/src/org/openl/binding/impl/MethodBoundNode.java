@@ -13,6 +13,7 @@ import org.openl.binding.impl.ATargetBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -73,6 +74,15 @@ public class MethodBoundNode extends ATargetBoundNode {
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.addMethodDependency(boundMethod.getMethod(), this);
+    }
+
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return boundMethod.getMethod().isStatic() && hasLiteralReturnType(boundMethod.getMethod().getType());
+    }
+
+    private boolean hasLiteralReturnType(IOpenClass type) {
+        return type != JavaOpenClass.VOID;
     }
 
 }

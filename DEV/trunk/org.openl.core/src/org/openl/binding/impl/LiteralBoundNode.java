@@ -71,4 +71,9 @@ public class LiteralBoundNode extends ABoundNode {
 
     }
 
+    @Override
+    public boolean isLiteralExpressionParent() {
+        return true;
+    }
+
 }
