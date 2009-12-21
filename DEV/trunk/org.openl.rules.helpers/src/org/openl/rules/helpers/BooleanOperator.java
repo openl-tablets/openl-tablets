@@ -8,6 +8,7 @@ package org.openl.rules.helpers;
  * @author jacob
  */
 
+@SuppressWarnings("unchecked")
 public class BooleanOperator {
     static interface ComparableOperator {
         public boolean compare(Comparable c1, Comparable c2);
