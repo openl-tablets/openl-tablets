@@ -45,48 +45,41 @@ import org.apache.poi.ss.formula.TwoDEval;
  * </p>
  *
  * @author Josh Micich
- * @author Zahars Sulkins(Zahars.Sulkins at exigenservices.com) - array support
  */
-public final class Index implements Function2Arg, Function3Arg, Function4Arg, FunctionWithArraySupport, ArrayMode {
+public final class Index implements Function2Arg, Function3Arg, Function4Arg, FunctionWithArraySupport {
 
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1) {
-		return evaluateX(srcRowIndex, srcColumnIndex, arg0, arg1, false);
-	}
-
-
-	private ValueEval evaluateX(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1, boolean supportRowColumn) {
-
-		if (arg0 instanceof ArrayEval) {
-			supportRowColumn = true;
-		}
 		TwoDEval reference = convertFirstArg(arg0);
 
-		boolean colArgWasPassed = false;
 		int columnIx = 0;
 		try {
 			int rowIx = resolveIndexArg(arg1, srcRowIndex, srcColumnIndex);
-			return getValueFromArea(reference, rowIx, columnIx, colArgWasPassed, srcRowIndex, srcColumnIndex, supportRowColumn);
+			
+			if (!reference.isColumn()) {
+				if (!reference.isRow()) {
+					// always an error with 2-D area refs
+					// Note - the type of error changes if the pRowArg is negative
+					return ErrorEval.REF_INVALID;
+				}
+				// When the two-arg version of INDEX() has been invoked and the reference
+				// is a single column ref, the row arg seems to get used as the column index
+				columnIx = rowIx;
+				rowIx = 0;
+			}
+ 
+			return getValueFromArea(reference, rowIx, columnIx);
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
 	}
 	public ValueEval evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
 			ValueEval arg2) {
-		return evaluateX(srcRowIndex, srcColumnIndex, arg0, arg1, arg2, false);
-	}
-	private ValueEval evaluateX(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
-			ValueEval arg2, boolean supportRowColumn) {
-
-		if (arg0 instanceof ArrayEval) {
-			supportRowColumn = true;
-		}
 		TwoDEval reference = convertFirstArg(arg0);
 
-		boolean colArgWasPassed = true;
 		try {
 			int columnIx = resolveIndexArg(arg2, srcRowIndex, srcColumnIndex);
 			int rowIx = resolveIndexArg(arg1, srcRowIndex, srcColumnIndex);
-			return getValueFromArea(reference, rowIx, columnIx, colArgWasPassed, srcRowIndex, srcColumnIndex, supportRowColumn);
+			return getValueFromArea(reference, rowIx, columnIx);
 		} catch (EvaluationException e) {
 			return e.getErrorEval();
 		}
@@ -118,44 +111,34 @@ public final class Index implements Function2Arg, Function3Arg, Function4Arg, Fu
 	}
 
 	public ValueEval evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex) {
-		return evaluateX(args, srcRowIndex, srcColumnIndex, false);
-	}
-
-	private ValueEval evaluateX(ValueEval[] args, int srcRowIndex, int srcColumnIndex, boolean supportRowColumn) {
 		switch (args.length) {
 			case 2:
-				return evaluateX(srcRowIndex, srcColumnIndex, args[0], args[1], supportRowColumn);
+				return evaluate(srcRowIndex, srcColumnIndex, args[0], args[1]);
 			case 3:
-				return evaluateX(srcRowIndex, srcColumnIndex, args[0], args[1], args[2], supportRowColumn);
+				return evaluate(srcRowIndex, srcColumnIndex, args[0], args[1], args[2]);
 			case 4:
 				return evaluate(srcRowIndex, srcColumnIndex, args[0], args[1], args[2], args[3]);
 		}
 		return ErrorEval.VALUE_INVALID;
 	}
 
+	private static ValueEval getValueFromArea(TwoDEval ae, int pRowIx, int pColumnIx )
+			throws EvaluationException {
+		assert pRowIx >= 0;
+		assert pColumnIx >= 0;
+	
+		int width = ae.getWidth();
+		int height = ae.getHeight();
+		
+		int relFirstRowIx;
+		int relLastRowIx;
 
-	/**
-	 * @param colArgWasPassed <code>false</code> if the INDEX argument list had just 2 items
-	 *            (exactly 1 comma).  If anything is passed for the <tt>column_num</tt> argument
-	 *            (including {@link BlankEval} or {@link MissingArgEval}) this parameter will be
-	 *            <code>true</code>.  This parameter is needed because error codes are slightly
-	 *            different when only 2 args are passed.
-	 */
-	private static ValueEval getValueFromArea(TwoDEval ae, int pRowIx, int pColumnIx,
-			boolean colArgWasPassed, int srcRowIx, int srcColIx, boolean supportRowColumn) throws EvaluationException {
-		boolean rowArgWasEmpty = pRowIx == 0;
-		boolean colArgWasEmpty = pColumnIx == 0;
-		int rowIx;
-		int columnIx;
-
-		// implementation of this function isn't support all features of the Excel
-		// here I'm adding only support for return of entire row or columm
-		if (supportRowColumn
-				&& (rowArgWasEmpty && !ae.isRow() && pColumnIx <= ae.getWidth() && !colArgWasEmpty || colArgWasEmpty
-						&& !ae.isColumn() && pRowIx <= ae.getHeight() && !rowArgWasEmpty)) {
+		// add support of return of the entire row or column. Not all excel features are supported
+		if ( (pRowIx == 0 && !ae.isRow() && pColumnIx <= width) || (pColumnIx ==0 && !ae.isColumn() && pRowIx <= height) ){
+			
 			// return row or column
 			ValueEval[][] result;
-			if (rowArgWasEmpty ) { // entire column
+			if (pRowIx == 0 ) { // entire column
 				result = new ValueEval[ae.getHeight()][1];
 				for( int r=0; r<ae.getHeight(); r++ ) {
 					result[r][0] = ae.getValue(r, pColumnIx-1);
@@ -167,88 +150,48 @@ public final class Index implements Function2Arg, Function3Arg, Function4Arg, Fu
 				}
 			}
 			return new ArrayEval(result);
-		}
 
-		// when the area ref is a single row or a single column,
-		// there are special rules for conversion of rowIx and columnIx
-		if (ae.isRow()) {
-			if (ae.isColumn()) {
-				// single cell ref
-				rowIx = rowArgWasEmpty ? 0 : pRowIx-1;
-				columnIx = colArgWasEmpty ? 0 : pColumnIx-1;
-			} else {
-				if (colArgWasPassed) {
-					rowIx = rowArgWasEmpty ? 0 : pRowIx-1;
-					columnIx = pColumnIx-1;
-				} else {
-					// special case - row arg seems to get used as the column index
-					rowIx = 0;
-					// transfer both the index value and the empty flag from 'row' to 'column':
-					columnIx = pRowIx-1;
-					colArgWasEmpty = rowArgWasEmpty;
-				}
-			}
-		} else if (ae.isColumn()) {
-			if (rowArgWasEmpty) {
-				if (ae instanceof AreaEval) {
-					rowIx = srcRowIx - ((AreaEval) ae).getFirstRow();
-				} else {
-					// TODO - ArrayEval
-					// rowIx = relative row of evaluating cell in its array formula cell group
-					throw new RuntimeException("incomplete code - ");
-				}
-			} else {
-				rowIx = pRowIx-1;
-			}
-			if (colArgWasEmpty) {
-				columnIx = 0;
-			} else {
-				columnIx = colArgWasEmpty ? 0 : pColumnIx-1;
-			}
+		}
+		
+		
+		if ((pRowIx == 0)) {
+			relFirstRowIx = 0;
+			relLastRowIx = height-1;
 		} else {
-			// ae is an area (not single row or column)
-			if (!colArgWasPassed) {
-				// always an error with 2-D area refs
-				// Note - the type of error changes if the pRowArg is negative
-				throw new EvaluationException(pRowIx < 0 ? ErrorEval.VALUE_INVALID : ErrorEval.REF_INVALID);
+			// Slightly irregular logic for bounds checking errors
+			if (pRowIx > height) {
+				// high bounds check fail gives #REF! if arg was explicitly passed
+				throw new EvaluationException(ErrorEval.REF_INVALID);
 			}
-			// Normal case - area ref is 2-D, and both index args were provided
-			// if either arg is missing (or blank) the logic is similar to OperandResolver.getSingleValue()
-			if (rowArgWasEmpty) {
-				if (ae instanceof AreaEval) {
-					rowIx = srcRowIx - ((AreaEval) ae).getFirstRow();
-				} else {
-					// TODO - ArrayEval
-					// rowIx = relative row of evaluating cell in its array formula cell group
-					throw new RuntimeException("incomplete code - ");
-				}
-			} else {
-				rowIx = pRowIx-1;
-			}
-			if (colArgWasEmpty) {
-				if (ae instanceof AreaEval) {
-					columnIx = srcColIx - ((AreaEval) ae).getFirstColumn();
-				} else {
-					// TODO - ArrayEval
-					// colIx = relative col of evaluating cell in its array formula cell group
-					throw new RuntimeException("incomplete code - ");
-				}
-			} else {
-				columnIx = pColumnIx-1;
-			}
+			int rowIx = pRowIx-1;
+			relFirstRowIx = rowIx;
+			relLastRowIx = rowIx;
 		}
 
-		int width = ae.getWidth();
-		int height = ae.getHeight();
-		// Slightly irregular logic for bounds checking errors
-		if (!rowArgWasEmpty && rowIx >= height || !colArgWasEmpty && columnIx >= width) {
-			// high bounds check fail gives #REF! if arg was explicitly passed
-			throw new EvaluationException(ErrorEval.REF_INVALID);
+		int relFirstColIx;
+		int relLastColIx;
+		if ((pColumnIx == 0)) {
+			relFirstColIx = 0;
+			relLastColIx = width-1;
+		} else {
+			// Slightly irregular logic for bounds checking errors
+			if (pColumnIx > width) {
+				// high bounds check fail gives #REF! if arg was explicitly passed
+				throw new EvaluationException(ErrorEval.REF_INVALID);
+			}
+			int columnIx = pColumnIx-1;
+			relFirstColIx = columnIx;
+			relLastColIx = columnIx;
 		}
-		if (rowIx < 0 || columnIx < 0 || rowIx >= height || columnIx >= width) {
-			throw new EvaluationException(ErrorEval.VALUE_INVALID);
+
+		// offset should be part of TwoDEval interface
+		if ( ae instanceof ArrayEval){  
+			ArrayEval a = (ArrayEval)ae;
+			return a.offset(relFirstRowIx, relLastRowIx, relFirstColIx, relLastColIx);
 		}
-		return ae.getValue(rowIx, columnIx);
+		
+		AreaEval x = ((AreaEval) ae);
+		return x.offset(relFirstRowIx, relLastRowIx, relFirstColIx, relLastColIx);
 	}
 
 
@@ -272,12 +215,7 @@ public final class Index implements Function2Arg, Function3Arg, Function4Arg, Fu
 		}
 		return result;
 	}
-
-	public ValueEval evaluateInArrayFormula(ValueEval[] args, int srcCellRow, int srcCellCol) {
-		// in array formula index(reference,row,0) and index(reference,0,col) should return entire row/column
-		return evaluateX(args, srcCellRow, srcCellCol, true);
-	}
-
+	
 	public boolean supportArray(int paramIndex) {
 		return paramIndex == 0;
 	}

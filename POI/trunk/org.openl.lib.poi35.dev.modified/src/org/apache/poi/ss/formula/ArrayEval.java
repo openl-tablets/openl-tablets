@@ -265,4 +265,20 @@ public final class ArrayEval implements TwoDEval {
 	public void setComponentError(byte componentError) {
 		this.componentError = componentError;
 	}
+	
+	public ArrayEval offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx){
+		if ( (relFirstRowIx < 0 || relFirstRowIx > relLastRowIx || relLastRowIx>= getHeight()) || 
+			 (relFirstColIx <0 || relFirstColIx > relLastColIx || relLastColIx >= getWidth() )){
+			 throw new IllegalArgumentException("Irregular params: " + relFirstRowIx + ";" + relLastRowIx + ";" 
+					                            + relFirstColIx + ";" + relLastRowIx ); 
+		}
+		ValueEval[][] result = new ValueEval[relLastRowIx - relFirstRowIx + 1][relLastColIx - relFirstColIx +1];
+		for (int r=relFirstRowIx; r<=relLastRowIx; r++){
+			for (int c=relFirstColIx; c<=relLastColIx; c++ ){
+				result[r-relFirstRowIx][c-relFirstColIx] = _values[r][c];
+			}
+		}
+		return new ArrayEval(result);
+		
+	}	
 }
