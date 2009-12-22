@@ -48,6 +48,8 @@ public class ProjectTreeRenderer extends DTreeRenderer implements IProjectTypes,
                     "webresource/images/method-error.png", "webresource/images/method-error.png" },
             { PT_TABLE + "." + XLS_TEST_METHOD, "webresource/images/test_ok.gif", "webresource/images/test_ok.gif",
                     "webresource/images/test_ok-error.gif", "webresource/images/test_ok-error.gif" },
+            { PT_TABLE + "." + XLS_PROPERTIES, "webresource/images/data.gif", "webresource/images/data.gif",
+                        "webresource/images/data-error.png", "webresource/images/data-error.png" },
             { PT_TABLE + "." + XLS_RUN_METHOD, "webresource/images/test.gif", "webresource/images/test.gif",
                     "webresource/images/test-error.png", "webresource/images/test-error.png" } };
 
