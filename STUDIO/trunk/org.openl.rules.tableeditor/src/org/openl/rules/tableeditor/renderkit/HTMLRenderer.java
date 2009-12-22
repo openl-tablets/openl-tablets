@@ -256,8 +256,10 @@ public class HTMLRenderer {
 
     protected String renderPropsEditor(String editorId, ITable table, String mode, boolean collapseProps) {
         final String tableType = table.getType();
-        if (tableType !=  null && !tableType.equals(ITableNodeTypes.XLS_OTHER)
-                && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT)) {
+        if (tableType !=  null 
+                && !tableType.equals(ITableNodeTypes.XLS_OTHER)
+                && !tableType.equals(ITableNodeTypes.XLS_ENVIRONMENT) 
+                && !tableType.equals(ITableNodeTypes.XLS_PROPERTIES)) {
             ITableProperties props = table.getProperties();
             return new PropertyRenderer(editorId + Constants.ID_POSTFIX_PROPS, props, mode,
                     collapseProps).renderProperties();
