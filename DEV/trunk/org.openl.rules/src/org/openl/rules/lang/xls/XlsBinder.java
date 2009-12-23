@@ -245,9 +245,6 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         ASelector<ISyntaxNode> propertiesSelector = new ASelector.StringValueSelector<ISyntaxNode>(
                 ITableNodeTypes.XLS_PROPERTIES, new SyntaxConvertor());
 
-        // ASelector testMethodSelector = new ASelector.StringValueSelector(
-        // ITableNodeTypes.XLS_TEST_METHOD, new SyntaxConvertor());
-        
         bindInternal(moduleNode, openl, moduleContext, module, propertiesSelector, null);
         
         bindInternal(moduleNode, openl, moduleContext, module, dataTypeSelector, null);
@@ -255,12 +252,8 @@ public class XlsBinder implements IOpenBinder, ITableNodeTypes {
         ISelector<ISyntaxNode> notPropertiesSelector = propertiesSelector.not();
         ISelector<ISyntaxNode> notDataTypeSelector = dataTypeSelector.not();
         ISelector<ISyntaxNode> notPropAnd_NotDatatypeSelectors = notDataTypeSelector.and(notPropertiesSelector);
-        
-        // TODO: bind internal without properties selector as well as without dataTypeSelector
+                
         return bindInternal(moduleNode, openl, moduleContext, module, notPropAnd_NotDatatypeSelectors, tableComparator);
-
-        // return bindInternal(moduleNode, openl, moduleContext, module,
-        // testMethodSelector);
     }
 
     private void proccessExtensions(XlsModuleOpenClass module, XlsModuleSyntaxNode moduleNode,

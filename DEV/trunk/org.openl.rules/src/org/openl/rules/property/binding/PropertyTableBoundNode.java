@@ -16,14 +16,22 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
-
+    
+    private PropertiesOpenField field;
+    private TableProperties propertiesInstance;
+    private String tableName;
+    
     public PropertyTableBoundNode(TableSyntaxNode syntaxNode, XlsModuleOpenClass module) {
         super(syntaxNode, IBoundNode.EMPTY);        
     }
 
-    public void addTo(ModuleOpenClass openClass) {
-        // TODO Create OpenField if properties should be accessible in runtime, otherwise do nothing        
-        
+    public void addTo(ModuleOpenClass openClass) {             
+        TableSyntaxNode tsn = getTableSyntaxNode();
+        if (tableName != null) {
+            field = new PropertiesOpenField(tableName, propertiesInstance);
+            openClass.addField(field);
+            tsn.setMember(field);   
+        }
     }
     
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
@@ -36,27 +44,33 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     }
 
     public IOpenClass getType() {
-        // TODO return Properties class if properties should be accessible in runtime, otherwise null
-        // TODO discover what for this method is required
-        return null;
+        return JavaOpenClass.getOpenClass(propertiesInstance.getClass());
+    }    
+    
+    public void setPropertiesInstance(TableProperties propertiesInstance) {
+        this.propertiesInstance = propertiesInstance;
     }
 
+    public TableProperties getPropertiesInstance() {
+        return propertiesInstance;
+    }
+    
+    public void setTableName(String tableName) {
+        this.tableName = tableName;        
+    }
+    
+    public String getTableName() {
+        return tableName;        
+    }
+    
     public static class PropertiesOpenField extends AOpenField {
 
         private TableProperties propertiesInstance;
-
-        /**
-         * @param name
-         * @param type
-         */
+       
         public PropertiesOpenField(String name, TableProperties propertiesInstance) {
             super(name, JavaOpenClass.getOpenClass(propertiesInstance.getClass()));
             this.propertiesInstance = propertiesInstance;
         }
-
-        /**
-         *
-         */
 
         public Object get(Object target, IRuntimeEnv env) {
             Object data = ((IDynamicObject) target).getFieldValue(getName());
@@ -79,6 +93,5 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         }
 
     }
-
     
 }
