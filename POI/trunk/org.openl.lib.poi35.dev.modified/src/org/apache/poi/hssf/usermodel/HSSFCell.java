@@ -22,8 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.poi.hssf.model.HSSFFormulaParser;
-import org.apache.poi.hssf.model.Sheet;
-import org.apache.poi.hssf.model.Workbook;
+import org.apache.poi.hssf.model.InternalSheet;
+import org.apache.poi.hssf.model.InternalWorkbook;
 import org.apache.poi.hssf.record.BlankRecord;
 import org.apache.poi.hssf.record.BoolErrRecord;
 import org.apache.poi.hssf.record.CellValueRecordInterface;
@@ -231,7 +231,7 @@ public class HSSFCell implements Cell {
     /**
      * Returns the Workbook that this Cell is bound to
      */
-    protected Workbook getBoundWorkbook() {
+    protected InternalWorkbook getBoundWorkbook() {
         return _book.getWorkbook();
     }
 
@@ -1058,7 +1058,7 @@ public class HSSFCell implements Cell {
      *
      * @return cell comment or <code>null</code> if not found
      */
-    protected static HSSFComment findCellComment(Sheet sheet, int row, int column) {
+    protected static HSSFComment findCellComment(InternalSheet sheet, int row, int column) {
         // TODO - optimise this code by searching backwards, find NoteRecord first, quit if not found. Find one TXO by id
         HSSFComment comment = null;
         Map<Integer, TextObjectRecord> noteTxo =

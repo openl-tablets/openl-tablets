@@ -280,5 +280,15 @@ public final class ArrayEval implements TwoDEval {
 		}
 		return new ArrayEval(result);
 		
-	}	
+	}
+
+    public TwoDEval getColumn(int columnIndex) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public TwoDEval getRow(int rowIndex) {
+        // TODO Auto-generated method stub
+        return null;
+    }	
 }
