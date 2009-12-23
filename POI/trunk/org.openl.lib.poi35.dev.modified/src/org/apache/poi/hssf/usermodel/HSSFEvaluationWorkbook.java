@@ -18,7 +18,7 @@
 package org.apache.poi.hssf.usermodel;
 
 import org.apache.poi.hssf.model.HSSFFormulaParser;
-import org.apache.poi.hssf.model.Workbook;
+import org.apache.poi.hssf.model.InternalWorkbook;
 import org.apache.poi.hssf.record.NameRecord;
 import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
 import org.apache.poi.hssf.record.formula.NamePtg;
@@ -29,6 +29,7 @@ import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationName;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.formula.FormulaParsingWorkbook;
 import org.apache.poi.ss.formula.FormulaRenderingWorkbook;
 import org.apache.poi.ss.formula.FormulaType;
@@ -42,7 +43,7 @@ import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, EvaluationWorkbook, FormulaParsingWorkbook {
 
 	private final HSSFWorkbook _uBook;
-	private final Workbook _iBook;
+	private final InternalWorkbook _iBook;
 
 	public static HSSFEvaluationWorkbook create(HSSFWorkbook book) {
 		if (book == null) {
@@ -130,7 +131,7 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 			// to make sure that all formulas POI can evaluate can also be parsed.
 			try {
 				return HSSFFormulaParser.parse(cell.getCellFormula(), _uBook, FormulaType.CELL, _uBook.getSheetIndex(cell.getSheet()));
-			} catch (RuntimeException e) {
+			} catch (FormulaParseException e) {
 				// Note - as of Bugzilla 48036 (svn r828244, r828247) POI is capable of evaluating
 				// IntesectionPtg.  However it is still not capable of parsing it.
 				// So FormulaEvalTestData.xls now contains a few formulas that produce errors here.

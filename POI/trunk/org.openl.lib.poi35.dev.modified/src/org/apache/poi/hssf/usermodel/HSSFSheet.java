@@ -32,8 +32,8 @@ import java.util.TreeMap;
 
 import org.apache.poi.ddf.EscherRecord;
 import org.apache.poi.hssf.model.HSSFFormulaParser;
-import org.apache.poi.hssf.model.Sheet;
-import org.apache.poi.hssf.model.Workbook;
+import org.apache.poi.hssf.model.InternalSheet;
+import org.apache.poi.hssf.model.InternalWorkbook;
 import org.apache.poi.hssf.record.CellValueRecordInterface;
 import org.apache.poi.hssf.record.DVRecord;
 import org.apache.poi.hssf.record.EscherAggregate;
@@ -82,12 +82,12 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     public final static int INITIAL_CAPACITY = 20;
 
     /**
-     * reference to the low level {@link Sheet} object
+     * reference to the low level {@link InternalSheet} object
      */
-    private final Sheet _sheet;
+    private final InternalSheet _sheet;
     /** stores rows by zero-based row number */
     private final TreeMap<Integer, HSSFRow> _rows;
-    protected final Workbook _book;
+    protected final InternalWorkbook _book;
     protected final HSSFWorkbook _workbook;
     private int _firstrow;
     private int _lastrow;
@@ -100,7 +100,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
      * @see org.apache.poi.hssf.usermodel.HSSFWorkbook#createSheet()
      */
     protected HSSFSheet(HSSFWorkbook workbook) {
-        _sheet = Sheet.createSheet();
+        _sheet = InternalSheet.createSheet();
         _rows = new TreeMap<Integer, HSSFRow>();
         this._workbook = workbook;
         this._book = workbook.getWorkbook();
@@ -114,7 +114,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
      * @param sheet - lowlevel Sheet object this sheet will represent
      * @see org.apache.poi.hssf.usermodel.HSSFWorkbook#createSheet()
      */
-    protected HSSFSheet(HSSFWorkbook workbook, Sheet sheet) {
+    protected HSSFSheet(HSSFWorkbook workbook, InternalSheet sheet) {
         this._sheet = sheet;
         _rows = new TreeMap<Integer, HSSFRow>();
         this._workbook = workbook;
@@ -138,7 +138,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     /**
      * used internally to set the properties given a Sheet object
      */
-    private void setPropertiesFromSheet(Sheet sheet) {
+    private void setPropertiesFromSheet(InternalSheet sheet) {
 
         RowRecord row = sheet.getNextRow();
         boolean rowRecordsAlreadyPresent = row!=null;
@@ -719,7 +719,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
      * Object.
      * @return Sheet - low level representation of this HSSFSheet.
      */
-    Sheet getSheet() {
+    InternalSheet getSheet() {
         return _sheet;
     }
 
@@ -1282,7 +1282,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
         int nSheets = _workbook.getNumberOfSheets();
         for(int i=0; i<nSheets; i++) {
-            Sheet otherSheet = _workbook.getSheetAt(i).getSheet();
+            InternalSheet otherSheet = _workbook.getSheetAt(i).getSheet();
             if (otherSheet == this._sheet) {
                 continue;
             }
@@ -1698,7 +1698,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
         FontRenderContext frc = new FontRenderContext(null, true, true);
 
-        HSSFWorkbook wb = new HSSFWorkbook(_book);
+        HSSFWorkbook wb = HSSFWorkbook.create(_book); // TODO - is it important to not use _workbook?
         HSSFFont defaultFont = wb.getFontAt((short) 0);
 
         str = new AttributedString("" + defaultChar);
