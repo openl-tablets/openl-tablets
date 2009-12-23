@@ -24,7 +24,12 @@ import org.apache.poi.hssf.record.formula.eval.RefEval;
 import org.apache.poi.hssf.record.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.ArrayEval;
 
-public final class Row implements Function0Arg, Function1Arg, ArrayMode {
+/**
+ * Implementation for the Excel function ROW
+ *
+ * @author Josh Micich
+ */
+public final class RowFunc implements Function0Arg, Function1Arg, ArrayMode {
 
     public ValueEval evaluate(int srcRowIndex, int srcColumnIndex) {
         return new NumberEval(srcRowIndex+1);
@@ -52,7 +57,7 @@ public final class Row implements Function0Arg, Function1Arg, ArrayMode {
         }
         return ErrorEval.VALUE_INVALID;
     }
-
+    
     public ValueEval evaluateInArrayFormula(ValueEval[] evals, int srcCellRow, int srcCellCol) {
         if ((evals.length == 1) && (evals[0] instanceof AreaEval)) {
             AreaEval ae = (AreaEval) evals[0];
@@ -64,5 +69,5 @@ public final class Row implements Function0Arg, Function1Arg, ArrayMode {
             return new ArrayEval(result);
         }
         return evaluate(evals, srcCellRow, srcCellCol);
-    }
+    }    
 }
