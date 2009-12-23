@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.openl.rules.binding;
+package org.openl.rules.property;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.OpenLRuntimeException;
