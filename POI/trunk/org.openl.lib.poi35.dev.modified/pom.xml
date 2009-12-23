@@ -14,7 +14,7 @@
                 <testSourceDirectory>test</testSourceDirectory>
                 <testResources>
                         <testResource>
-                        <directory>test/resources</directory>
+                                <directory>test-data</directory>
                         </testResource>
                 </testResources>
                 <plugins>
@@ -25,6 +25,9 @@
                                 <archive>
                                     <manifestFile>META-INF/buildManifest/MANIFEST.MF</manifestFile>
                                 </archive>
+                                <excludes>
+                                    <exclude>**/POIDataSamples.java</exclude>
+                                </excludes>
                                 </configuration>
                         </plugin>
                         <plugin>
