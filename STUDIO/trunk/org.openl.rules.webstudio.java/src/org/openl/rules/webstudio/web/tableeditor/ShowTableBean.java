@@ -258,22 +258,44 @@ public class ShowTableBean {
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
         List<TablePropertyDefinition> sysProps = DefaultPropertyDefinitions.getSystemProperties();
-        for (TablePropertyDefinition sysProp : sysProps) {
-            String resultValue = null;
-            if (sysProp.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
-                resultValue = SystemValuesManager.instance().getSystemValueString(sysProp.getSystemValueDescriptor());
-                if (resultValue != null) {
-                    try {
-                        editorModel.setProperty(sysProp.getName(), resultValue);
-                    } catch (Exception e) {
-                        LOG.error(String.format("Can`t update system property %s with value %s",
-                                                sysProp.getName(), resultValue),e);
-                        result = false;
-                    }
-                }                
+        if (canUpdateSystemProperties(editorModel)) {
+            for (TablePropertyDefinition sysProperty : sysProps) {
+                result = updateSystemValue(editorModel, sysProperty);
+            }
+        } 
+        return result;
+    }
+    
+    private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
+        boolean result = false;
+        String systemValue = null;
+        if (sysProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
+            systemValue = SystemValuesManager.instance().getSystemValueString(sysProperty.getSystemValueDescriptor());
+            if (systemValue != null) {
+                try {
+                    editorModel.setProperty(sysProperty.getName(), systemValue);
+                    result = true;
+                } catch (Exception e) {
+                    LOG.error(String.format("Can`t update system property %s with value %s", sysProperty.getName(),
+                                                    systemValue), e);                   
+                }
             }
         }
         return result;
+    }
+    
+    private boolean canUpdateSystemProperties(TableEditorModel editorModel) {
+        boolean result = false;
+        if (editorModel.getTable() != null) {
+            String tableType = editorModel.getTable().getType();
+            if (tableType != null 
+                    &&!ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) 
+                    &&!ITableNodeTypes.XLS_OTHER.equals(tableType)
+                    &&!ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) { 
+                result = true;
+            }
+        }
+        return result;        
     }
 
     public static class TestRunsResultBean {
