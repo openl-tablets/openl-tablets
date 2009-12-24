@@ -66,7 +66,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         ArrayList<Object> values = new ArrayList<Object>(valuesHeight);        
         
         boolean multiValue = false;
-        if (valuesHeight == 1 && isCommaSeparatedArray(valuesTable)) {
+        if (valuesHeight == 1 && FunctionalRow.isCommaSeparatedArray(valuesTable)) {
             multiValue = true;
             FunctionalRow.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
             // load array of values as comma separated parameters

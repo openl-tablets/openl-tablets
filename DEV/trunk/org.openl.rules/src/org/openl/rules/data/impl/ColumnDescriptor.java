@@ -51,7 +51,7 @@ public class ColumnDescriptor {
         Object arrayValues = null;
         int valuesHeight = valuesTable.getLogicalHeight();
         
-        if (valuesHeight == 1 && isCommaSeparatedArray(valuesTable)) {
+        if (valuesHeight == 1 && FunctionalRow.isCommaSeparatedArray(valuesTable)) {
             arrayValues = getValuesArrayCommaSeparated(valuesTable, ota, paramType);
         } else {
             ArrayList<Object> values = new ArrayList<Object>(valuesHeight);        
@@ -72,17 +72,6 @@ public class ColumnDescriptor {
         return arrayValues;
     }
     
-    protected boolean isCommaSeparatedArray(ILogicalTable valuesTable) { 
-        boolean result = false;
-        String stringValue = valuesTable.getGridTable().getCell(0, 0).getStringValue();
-        if (stringValue != null) {
-            result = stringValue.contains(FunctionalRow.ARRAY_ELEMENTS_SEPARATOR);
-        } else {
-            result = false;
-        } 
-        return result;
-    }
-
     private Object getValuesArrayCommaSeparated(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType) throws BoundError {
         Object res = FunctionalRow.loadCommaSeparatedParam(paramType, field.getName(), null, valuesTable.getLogicalRow(0),
                 ota);
