@@ -158,11 +158,11 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         String src = cell.getGridTable().getCell(0, 0).getStringValue();
         Object value = cell.getGridTable().getCell(0, 0).getObjectValue();
          
-        return loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, src, value);
+        return loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, src, value, false);
     }
     
     private static Object loadSingleParamInternal(IOpenClass paramType, String paramName, String ruleName, ILogicalTable cell,
-            OpenlToolAdaptor ota, String src, Object value) throws BoundError {
+            OpenlToolAdaptor ota, String src, Object value, boolean isPartOfArray) throws BoundError {
         // TODO: parse values considering underlying excel format. Note: this
         // class doesn't know anything about Excel. Keep it storage format
         // agnostic (don't introduce excel dependencies). Also consider adding
@@ -217,8 +217,12 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                 if (res instanceof IMetaHolder) {
                     setMetaInfo((IMetaHolder) res, cell, paramName, ruleName);
                 }
-    
-                setCellMetaInfo(cell, paramName, paramType, false);
+                
+                boolean multiValue = false;
+                if (isPartOfArray) {                    
+                    multiValue = true;
+                }  
+                setCellMetaInfo(cell, paramName, paramType, multiValue);
                 validateValue(res, paramType);
                 return res;
             } catch (Throwable t) {
@@ -250,7 +254,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
      * @param paramName
      * @param paramType
      */
-    static public void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean multivalue) {
+    static public void setCellMetaInfo(ILogicalTable cell, String paramName, IOpenClass paramType, boolean multivalue) {        
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, multivalue);
         IWritableGrid.Tool.putCellMetaInfo(cell.getGridTable(), 0, 0, meta);
     }
@@ -621,7 +625,7 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
         if (tokens != null) {
             ArrayList<Object> values = new ArrayList<Object>(tokens.length);
             for(String token: tokens) {                
-                Object res = loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, token, null);
+                Object res = loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, token, null, true);
                 if (res == null) {
                     res = paramType.nullObject();
                 } 
@@ -644,5 +648,16 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
             tokens = StringTool.splitAndEscape(src, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
         }
         return tokens;
+    }
+    
+    public static boolean isCommaSeparatedArray(ILogicalTable valuesTable) { 
+        boolean result = false;
+        String stringValue = valuesTable.getGridTable().getCell(0, 0).getStringValue();
+        if (stringValue != null) {
+            result = stringValue.contains(ARRAY_ELEMENTS_SEPARATOR);
+        } else {
+            result = false;
+        } 
+        return result;
     }
 }
