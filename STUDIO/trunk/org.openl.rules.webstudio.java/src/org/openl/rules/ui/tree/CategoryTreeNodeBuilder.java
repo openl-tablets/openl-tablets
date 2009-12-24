@@ -3,13 +3,14 @@ package org.openl.rules.ui.tree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.ui.IProjectTypes;
 
 /**
  * Builds tree node for table category.
  */
 public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String CATEGORY_TYPE = "category";
+    //private static final String CATEGORY_TYPE = "category";
     private static final String CATEGORY_NAME = "category";
     private static final String CATEGORY_TABLE_PROPERTY_NAME = "category";
 
@@ -38,7 +39,8 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public String getType(Object nodeObject) {
-        return CATEGORY_TYPE;
+        //return CATEGORY_TYPE;
+        return IProjectTypes.PT_FOLDER;
     }
 
     /**

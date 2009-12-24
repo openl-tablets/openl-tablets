@@ -2,12 +2,12 @@ package org.openl.rules.webstudio.web;
 
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.WebStudio;
-//import org.openl.rules.ui.tree.ProjectTreeNode;
-//import org.openl.rules.ui.tree.RichFacesTreeBuilder;
+import org.openl.rules.ui.tree.ProjectTreeNode;
+import org.openl.rules.ui.tree.ProjectRichFacesTreeBuilder;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
-//import org.richfaces.model.TreeNode;
+import org.richfaces.model.TreeNode;
 
 /**
  * Request scope managed bean providing logic for tree page of OpenL Studio.
@@ -55,17 +55,11 @@ public class TreeBean {
         return false;
     }
 
-    public String getTree() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        return studio.getModel().renderTree(
-                FacesUtils.getContextPath() + "/faces/facelets/tableeditor/showTable.xhtml");
-    }
-
-    /*public TreeNode<?> getTree() {
+    public TreeNode<?> getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectTreeNode tree = studio.getModel().getProjectTree();
-        TreeNode<?> rfTree = new RichFacesTreeBuilder().build(tree);
+        TreeNode<?> rfTree = new ProjectRichFacesTreeBuilder(tree, studio.getModel()).build();
         return rfTree;
-    }*/
+    }
 
 }

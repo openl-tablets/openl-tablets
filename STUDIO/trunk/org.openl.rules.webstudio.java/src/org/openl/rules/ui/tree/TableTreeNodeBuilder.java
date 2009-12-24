@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.ui.IProjectTypes;
 
 /**
  * Builds tree node using table type.
@@ -85,10 +86,9 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public String getType(Object nodeObject) {
-
-        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
-
-        return "folder." + tableSyntaxNode.getType();
+        /*TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
+        return IProjectTypes.PT_FOLDER + "." + tableSyntaxNode.getType();*/
+        return IProjectTypes.PT_FOLDER;
     }
 
     /**

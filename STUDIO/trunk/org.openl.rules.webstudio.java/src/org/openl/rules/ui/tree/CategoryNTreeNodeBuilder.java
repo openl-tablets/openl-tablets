@@ -4,6 +4,7 @@
 package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.ui.IProjectTypes;
 import org.openl.util.StringTool;
 
 /**
@@ -51,7 +52,8 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
      */
     @Override
     public String getType(Object sorterObject) {
-        return "category." + categoryLevel;
+        //return "category." + categoryLevel;
+        return IProjectTypes.PT_FOLDER;
     }
 
 }
