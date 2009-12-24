@@ -27,13 +27,15 @@ public class CellEditorSelector {
             IDomain domain = dataType.getDomain();
             Class<?> instanceClass = dataType.getInstanceClass();
             if (instanceClass == int.class || instanceClass == Integer.class) {
-                if (domain == null) {
+                if (domain == null && !meta.isMultiValue()) {
                     result = factory.makeIntEditor(Integer.MIN_VALUE,
                             Integer.MAX_VALUE);
                 } else if (domain instanceof IntRangeDomain) {
                     IntRangeDomain range = (IntRangeDomain) domain;
                     result = factory.makeIntEditor(range.getMin(), range
                             .getMax());
+                } else if (meta.isMultiValue()) {
+                    factory.makeTextEditor();
                 }
             } else if (instanceClass == String.class) {
                 if (domain instanceof EnumDomain) {
