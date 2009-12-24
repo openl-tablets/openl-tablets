@@ -9,7 +9,7 @@ package org.openl.base;
  */
 public class NamedThing implements INamedThing {
 
-    String name;
+    private String name;
 
     public NamedThing() {
     }
