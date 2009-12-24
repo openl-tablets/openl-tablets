@@ -3,22 +3,25 @@ package org.openl.rules.ui.tree;
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
-import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.util.StringTool;
+import org.openl.rules.ui.ObjectMap;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 
 public class RichFacesTreeBuilder {
 
-    public RichFacesTreeBuilder() {
+    private org.openl.rules.ui.tree.TreeNode<?> root;
+    //protected ObjectMap indexNodeMap = new ObjectMap();
+
+    public RichFacesTreeBuilder(org.openl.rules.ui.tree.TreeNode<?> root) {
+        this.root = root;
     }
 
     @SuppressWarnings("unchecked")
-    public TreeNode<?> build(org.openl.rules.ui.tree.TreeNode<?> root) {
-        TreeNode<?> rfRoot = new TreeNodeImpl();
+    public TreeNode<?> build() {
+        TreeNode rfRoot = new TreeNodeImpl();
         addNodes(rfRoot, root);
         return rfRoot;
     }
@@ -32,6 +35,7 @@ public class RichFacesTreeBuilder {
             TreeNodeData data = getNodeData(child);
             rfChild.setData(data);
             rfParent.addChild(counter, rfChild);
+            //indexNodeMap.getNewID(child);
             addNodes(rfChild, child);
             counter++;
         }
@@ -41,9 +45,9 @@ public class RichFacesTreeBuilder {
         String name = StringEscapeUtils.escapeHtml(getDisplayName(node, INamedThing.SHORT));
         String title = StringEscapeUtils.escapeHtml(getDisplayName(node, INamedThing.REGULAR));
         String url = getUrl(node);
-        String icon = getIcon(node);
         String type = getType(node);
-        TreeNodeData nodeData = new TreeNodeData(name, title, url, icon, type);
+        int state = getState(node);
+        TreeNodeData nodeData = new TreeNodeData(name, title, url, state, type);
         return nodeData;
     }
 
@@ -52,23 +56,11 @@ public class RichFacesTreeBuilder {
         if (type != null) {
             return type;
         }
-        return "folder";
+        return StringUtils.EMPTY;
     }
 
-    protected String getIcon(ITreeElement<?> element) {
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected String getUrl(ITreeElement element) {
-        String elementType = element.getType();
-        if (elementType.startsWith(IProjectTypes.PT_TABLE + ".")) {
-            String uri = ((ProjectTreeNode) element).getUri();
-            return "tableeditor/showTable.xhtml" + "?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
-        } else if (elementType.startsWith(IProjectTypes.PT_PROBLEM)) {
-            return "tableeditor/showError.xhtml" + "?" + Constants.REQUEST_PARAM_ID + "=1";
-        }
-        return null;
+    protected String getUrl(ITreeElement<?> element) {
+        return StringUtils.EMPTY;
     }
 
     protected String getDisplayName(Object obj, int mode) {
@@ -76,10 +68,11 @@ public class RichFacesTreeBuilder {
             INamedThing nt = (INamedThing) obj;
             return nt.getDisplayName(mode);
         }
-        return getCustomDisplayName(obj);
-    }
-
-    protected String getCustomDisplayName(Object obj) {
         return String.valueOf(obj);
     }
+
+    protected int getState(ITreeElement<?> element) {
+        return 0;
+    }
+
 }

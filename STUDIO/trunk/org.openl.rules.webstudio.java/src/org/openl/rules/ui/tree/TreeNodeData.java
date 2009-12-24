@@ -5,17 +5,17 @@ public class TreeNodeData {
     private String name;
     private String title;
     private String url;
-    private String icon;
+    private int state;
     private String type;
 
     public TreeNodeData() {
     }
 
-    public TreeNodeData(String name, String title, String url, String icon, String type) {
+    public TreeNodeData(String name, String title, String url, int state, String type) {
         this.name = name;
         this.title = title;
         this.url = url;
-        this.icon = icon;
+        this.state = state;
         this.type = type;
     }
 
@@ -43,12 +43,12 @@ public class TreeNodeData {
         this.url = url;
     }
 
-    public String getIcon() {
-        return icon;
+    public int getState() {
+        return state;
     }
 
-    public void setIcon(String icon) {
-        this.icon = icon;
+    public void setState(int state) {
+        this.state = state;
     }
 
     public String getType() {

@@ -5,9 +5,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
@@ -68,6 +70,7 @@ import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
 import org.openl.util.export.IExporter;
+import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.Tracer;
@@ -92,9 +95,12 @@ public class ProjectModel implements IProjectTypes {
 
     private ProjectTreeNode projectRoot = null;
 
-    ProjectTreeRenderer ptr;
+    //ProjectTreeRenderer ptr;
 
     List<Throwable> validationExceptions;
+
+    private Map<String, ProjectTreeNode> uriNodeMap = new HashMap<String, ProjectTreeNode>();
+    private ObjectMap indexNodeMap = new ObjectMap();
 
     public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
         IGrid htmlGrid = gt.getGrid();
@@ -112,6 +118,11 @@ public class ProjectModel implements IProjectTypes {
         }
 
         return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
+    }
+
+    @SuppressWarnings("unchecked")
+    public int getNodeIndex(ProjectTreeNode node) {
+        return indexNodeMap.getID(node);
     }
 
     static public boolean intersects(XlsUrlParser p1, String url2) {
@@ -457,7 +468,8 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public String getDisplayName(String elementUri) {
-        ProjectTreeNode pte = ptr.getElement(elementUri);
+        //ProjectTreeNode pte = ptr.getElement(elementUri);
+        ProjectTreeNode pte = getElement(elementUri);
         if (pte == null) {
             return "";
         }
@@ -475,8 +487,17 @@ public class ProjectModel implements IProjectTypes {
 
     }
 
+    public ProjectTreeNode getElement(String uri) {
+        return uriNodeMap.get(uri);
+    }
+
+    public ProjectTreeNode getElement(int id) {
+        return (ProjectTreeNode) indexNodeMap.getObject(id);
+    }
+
     public String getDisplayNameFull(String elementUri) {
-        ProjectTreeNode pte = ptr.getElement(elementUri);
+        //ProjectTreeNode pte = ptr.getElement(elementUri);
+        ProjectTreeNode pte = getElement(elementUri);
         if (pte == null) {
             return "";
         }
@@ -586,7 +607,8 @@ public class ProjectModel implements IProjectTypes {
     public TableSyntaxNode getNode(String elementUri) {
         TableSyntaxNode tsn = null;
         if (elementUri != null) {
-            ProjectTreeNode pte = ptr.getElement(elementUri);
+            //ProjectTreeNode pte = ptr.getElement(elementUri);
+            ProjectTreeNode pte = getElement(elementUri);
             if (pte != null) {
                 tsn = (TableSyntaxNode) pte.getObject();
             }
@@ -773,27 +795,25 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public int indexForNode(TableSyntaxNode tsn) {
-        for (Object obj : ptr.map.getValues()) {
+        for (Object obj : indexNodeMap.getValues()) {
             ProjectTreeNode pte = (ProjectTreeNode) obj;
             if (pte.getObject() == tsn) {
-                return ptr.map.getID(obj);
+                return indexNodeMap.getID(obj);
             }
         }
         return -1;
     }
 
     public int indexForNodeByURI(String uri) {
-        for (Object obj : ptr.map.getValues()) {
+        for (Object obj : indexNodeMap.getValues()) {
             ProjectTreeNode pte = (ProjectTreeNode) obj;
             if (pte.getObject() instanceof TableSyntaxNode) {
                 TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) pte.getObject();
                 if (uri.equals(tableSyntaxNode.getUri())) {
-                    return ptr.map.getID(obj);
+                    return indexNodeMap.getID(obj);
                 }
-
             }
         }
-
         return -1;
     }
 
@@ -919,9 +939,21 @@ public class ProjectModel implements IProjectTypes {
                     }
                 }
             }
-
         }
         projectRoot = root;
+        buildNodeMap(projectRoot);
+    }
+
+    private void buildNodeMap(ProjectTreeNode element) {
+        for (Iterator<?> iterator = element.getChildren(); iterator.hasNext();) {
+            ProjectTreeNode child = (ProjectTreeNode) iterator.next();
+            if (child.getType().startsWith(PT_TABLE + ".")) {
+                ProjectTreeNode ptr = (ProjectTreeNode) child;
+                uriNodeMap.put(ptr.getUri(), ptr);
+            }
+            indexNodeMap.getNewID(element);
+            buildNodeMap(child);
+        }
     }
 
     private OpenMethodGroupsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
@@ -1015,7 +1047,8 @@ public class ProjectModel implements IProjectTypes {
         // StringBuffer buf = new StringBuffer(1000);
 
         // renderElement(null, tr, targetJsp, buf);
-        ptr = new ProjectTreeRenderer(this, targetJsp, "mainFrame");
+        //ptr = new ProjectTreeRenderer(this, targetJsp, "mainFrame");
+        ProjectTreeRenderer ptr = new ProjectTreeRenderer(this, targetJsp, "mainFrame");
         return ptr.renderRoot(tr);
         // return buf.toString();
     }
@@ -1199,7 +1232,8 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public Object showError(int elementId) {
-        ProjectTreeNode pte = ptr.getElement(elementId);
+        //ProjectTreeNode pte = ptr.getElement(elementId);
+        ProjectTreeNode pte = getElement(elementId);
         if (pte == null) {
             return null;
         }
