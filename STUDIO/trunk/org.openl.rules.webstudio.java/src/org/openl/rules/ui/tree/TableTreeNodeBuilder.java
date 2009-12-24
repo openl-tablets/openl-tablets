@@ -55,7 +55,10 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
                 "Environment table, used to configure OpenL project", "" }));
 
         nodeKeysMap.put(OTHER_NODE_KEY, new NodeKey(10, new String[] { "Other",
-                "The Tables that do not belong to any known OpenL type", "" }));
+                "The Tables that do not belong to any known OpenL type", "" }));        
+        nodeKeysMap.put(ITableNodeTypes.XLS_PROPERTIES, new NodeKey(11, new String[] { "Properties", 
+                "Properties Tables", "" }));
+        
     }
 
     /**

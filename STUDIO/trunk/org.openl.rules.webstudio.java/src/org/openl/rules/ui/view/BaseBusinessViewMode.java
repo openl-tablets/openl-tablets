@@ -1,5 +1,6 @@
 package org.openl.rules.ui.view;
 
+import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -35,12 +36,15 @@ public abstract class BaseBusinessViewMode extends WebStudioViewMode {
 
         String view = null;
         String name = null;
-
-        ITableProperties tableProperties = tsn.getTableProperties();
-
-        if (tableProperties != null) {
-            view = tableProperties.getPropertyValueAsString("view");
-            name = tableProperties.getPropertyValueAsString("name");
+        if (!ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType())) {
+            ITableProperties tableProperties = tsn.getTableProperties();
+    
+            if (tableProperties != null) {
+                view = tableProperties.getPropertyValueAsString("view");
+                name = tableProperties.getPropertyValueAsString("name");
+            }
+        } else {
+            name = tsn.getHeader().getSourceString();
         }
 
         return name != null && (view == null || view.indexOf(IXlsTableNames.VIEW_BUSINESS) >= 0);
