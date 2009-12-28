@@ -31,7 +31,14 @@ import org.apache.poi.ss.util.CellRangeAddress;
  */
 abstract public class BaseArrayFormulaTest extends BaseFormulaTest {
 
-    /**
+    // to test a particular formula, not all formulas in Excel file, this
+    // array should contain 1-based number of row where formula is defined.
+    // all formulas will be tested if this array is empty.
+    protected int[] testRows = { 48 };
+    // IMPORTANT! only first row from range may be used in array above!
+
+	
+	/**
      * Creates test case instance.
      */
     protected BaseArrayFormulaTest() {
@@ -61,11 +68,6 @@ abstract public class BaseArrayFormulaTest extends BaseFormulaTest {
      * data in <i>ArrayFormulaFunctions</i> file.
      */
     public void testArrayFormulaFunctions() {
-        // to test a particular formula, not all formulas in Excel file, this
-        // array should contain 1-based number of row where formula is defined.
-        // all formulas will be tested if this array is empty.
-        int[] testRows = {  };
-        // IMPORTANT! only first row from range may be used in array above!
         
         final int sheetIndex = getTestSheetIndex();
         
@@ -112,7 +114,7 @@ abstract public class BaseArrayFormulaTest extends BaseFormulaTest {
 
                 try {
                     // proceed with the formula:
-                    String message = MessageFormat.format("Invalid formula calculation at {0}.", formulaRef);
+                    String message = failedMessage(formulaRef);
                     
                     checkArrayFormula( message, cellFormula, rowIndex, sheetIndex );
                     passedFormulasCount++;

@@ -409,4 +409,8 @@ public abstract class BaseFormulaTest extends TestCase {
      * @return Name of workbook resource.
      */
     abstract protected String getResourceName();
+    
+    protected String failedMessage(String cellRef){
+    	return "Failed formula in " + cellRef + "(resource: " + getResourceName() + " )"; 
+    }
 }
