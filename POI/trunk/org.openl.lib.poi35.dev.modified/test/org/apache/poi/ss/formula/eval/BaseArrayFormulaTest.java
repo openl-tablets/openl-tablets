@@ -34,7 +34,7 @@ abstract public class BaseArrayFormulaTest extends BaseFormulaTest {
     // to test a particular formula, not all formulas in Excel file, this
     // array should contain 1-based number of row where formula is defined.
     // all formulas will be tested if this array is empty.
-    protected int[] testRows = { 48 };
+    protected int[] testRows = {  };
     // IMPORTANT! only first row from range may be used in array above!
 
 	
@@ -69,7 +69,11 @@ abstract public class BaseArrayFormulaTest extends BaseFormulaTest {
      */
     public void testArrayFormulaFunctions() {
         
-        final int sheetIndex = getTestSheetIndex();
+        if (testRows.length != 0){
+        	System.out.println("only rows defined in testRows would be tested!");
+        }
+    	
+    	final int sheetIndex = getTestSheetIndex();
         
         // index of starting row in Excel test file
         int startRow = getTestStartingRow();

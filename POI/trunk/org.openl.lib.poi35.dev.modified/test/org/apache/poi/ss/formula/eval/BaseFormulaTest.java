@@ -411,6 +411,10 @@ public abstract class BaseFormulaTest extends TestCase {
     abstract protected String getResourceName();
     
     protected String failedMessage(String cellRef){
-    	return "Failed formula in " + cellRef + "(resource: " + getResourceName() + " )"; 
+    	return "Failed formula in " + cellRef + resource(); 
+    }
+    
+    protected String resource(){
+    	return "(resource: " + getResourceName() + " )";
     }
 }
