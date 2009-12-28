@@ -121,7 +121,7 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
         // cells in formula range.
         int type = eval.evaluateFormulaCell( cell );
 
-        String message = MessageFormat.format("Incorrect type for {0} formula evaluation.", cell.getCellFormula());
+        String message = MessageFormat.format("Incorrect type for {0} formula evaluation." + resource(), cell.getCellFormula());
         assertEquals(message, Cell.CELL_TYPE_NUMERIC, type);
         return cell.getNumericCellValue();
     }
@@ -162,7 +162,12 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
      * if formula is dynamically created using API.
      */
     public void testNewNumericFormulaEvaluation() {
-        // 1. find place-holder cells in existing file.
+        if (testRows.length !=0){
+        	//skip test
+        	assertTrue(true);
+        }
+    	
+    	// 1. find place-holder cells in existing file.
         // 2. set formula to the cells
         // 3. evaluate formula and compare with expected values.
         int sheetIndex = getTestSheetIndex();
@@ -187,8 +192,8 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
             }
         }
         
-        assertNotNull("First place holder cell is not found.", cell1);
-        assertNotNull("Second place holder cell is not found.", cell2);
+        assertNotNull("First place holder cell is not found." + resource(), cell1);
+        assertNotNull("Second place holder cell is not found." + resource(), cell2);
         
         Sheet sheet = cell1.getSheet();
         CellRangeAddress range = new CellRangeAddress( cell1.getRowIndex(), cell2.getRowIndex(), cell1.getColumnIndex(), cell2.getColumnIndex() );
@@ -199,11 +204,11 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
         calculateNumericFormula(cell2);
         
         // compare with expected value for SIN(0.1)
-        String message = MessageFormat.format("Failed formula calculation for cell A{0}", cell1.getRowIndex()+1);
+        String message = MessageFormat.format("Failed formula calculation for cell A{0}" + resource(), cell1.getRowIndex()+1);
         assertFormulaCell( message, 0.0998334166468282, cell1, 0.0001);
         
         // compare with expected value for SIN(0.2)
-        message = MessageFormat.format("Failed formula calculation for cell B{0}", cell2.getRowIndex()+1);
+        message = MessageFormat.format("Failed formula calculation for cell B{0}" + resource(), cell2.getRowIndex()+1);
         assertFormulaCell(message, 0.198669330795061, cell2, 0.0001);
     }
 
@@ -211,12 +216,16 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
      * Testing the <code>Sheet.removeArrayFormula</code> functionality.
      */
     public void testRemoveNumericFormula() {
+        if (testRows.length !=0){
+        	//skip test
+        	assertTrue(true);
+        }
         String[] existingFormulaRefs = {"A9", "B9", "C9"};
         
         for (String existingFormulaRef : existingFormulaRefs) {
             Cell cell = getCell(existingFormulaRef, getTestSheetIndex());
-            assertNotNull("Expected cell not found: " + existingFormulaRef, cell);
-            assertEquals("Formula expected in cell " + existingFormulaRef, Cell.CELL_TYPE_FORMULA, cell.getCellType());
+            assertNotNull("Expected cell not found "+resource()+":"  + existingFormulaRef, cell);
+            assertEquals("Formula expected in cell " + resource() + existingFormulaRef, Cell.CELL_TYPE_FORMULA, cell.getCellType());
         }
         
         // testing the formula remove functionality
@@ -226,13 +235,17 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
 
         for (String existingFormulaRef : existingFormulaRefs) {
             Cell cell = getCell(existingFormulaRef, getTestSheetIndex());
-            assertNotNull("Expected cell not found: " + existingFormulaRef, cell);
-            assertEquals("Blank cell expected in " + existingFormulaRef, Cell.CELL_TYPE_BLANK, cell.getCellType());
+            assertNotNull("Expected cell not found: " + resource() + existingFormulaRef, cell);
+            assertEquals("Blank cell expected in " + resource() +  existingFormulaRef, Cell.CELL_TYPE_BLANK, cell.getCellType());
         }
     }
     
     
     public void testSaveNewFormula() {
+        if (testRows.length !=0){
+        	//skip test
+        	assertTrue(true);
+        }
 
         Workbook workbook;
         try {
@@ -278,7 +291,7 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
-            throw new AssertionFailedError("Cannot write workbook to temporary file.");
+            throw new AssertionFailedError("Cannot write workbook to temporary file." + resource());
         }
 
         // Read workbook from temp file
@@ -286,7 +299,7 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
             workbook = createWorkbook( tmpExcelFile );
         } catch (IOException ex) {
             ex.printStackTrace();
-            throw new AssertionFailedError("Cannot read workbook from created temporary file.");
+            throw new AssertionFailedError("Cannot read workbook from created temporary file." + resource());
         }
 
         sheet = workbook.getSheetAt(0);
@@ -309,7 +322,7 @@ abstract public class BaseFormulaEvaluationTest extends BaseArrayFormulaTest {
                Cell cell = sheet.getRow(rowIn).getCell(colIn);
                double value = cell.getNumericCellValue();
                cell = sheet.getRow(rowIn+5).getCell(colIn);
-               assertEquals("ArrayFormula:"+rowIn+","+colIn,cell.getNumericCellValue(),value, 0);
+               assertEquals("ArrayFormula:"+rowIn+","+colIn + resource(),cell.getNumericCellValue(),value, 0);
             }
         }
     }
