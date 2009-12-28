@@ -45,15 +45,19 @@ abstract public class BaseArrayFormulaFunctionsTest extends BaseArrayFormulaTest
      * in addition to base tests.
      */
     public void testPowerArrayChanged() {
-        
+        if (testRows.length != 0){
+        	// skip test
+        	assertTrue(true);
+        }
+    	
         Cell cellFormula = getCell("C16", getTestSheetIndex());
 
         Cell cellExpected = getCell("I16", getTestSheetIndex());
-        assertEquals("Error checking C16 formula with original data", cellExpected.getNumericCellValue(), calculateNumericFormula(cellFormula));
+        assertEquals("original data " + failedMessage("C16") , cellExpected.getNumericCellValue(), calculateNumericFormula(cellFormula));
         
         Cell cellData = getCell("A15", getTestSheetIndex());
         cellData.setCellValue( 2 );
-        assertEquals("Error calculating C16 formula with changed data", 4.0, calculateNumericFormula(cellFormula));
+        assertEquals("changed data " + failedMessage("C16"), 4.0, calculateNumericFormula(cellFormula));
     }
     
     
@@ -62,7 +66,13 @@ abstract public class BaseArrayFormulaFunctionsTest extends BaseArrayFormulaTest
      * in addition to base tests.
      */
     public void testOneCellCalculation() {
-        String[] formulas = {"C4", "D4", "E4"};
+        if (testRows.length != 0){
+        	// skip test
+        	assertTrue(true);
+        }
+
+    	
+    	String[] formulas = {"C4", "D4", "E4"};
         String[] expected = {"I4", "J4", "K4"};
         
         for (int i = 0; i < expected.length; i++) {
@@ -75,7 +85,13 @@ abstract public class BaseArrayFormulaFunctionsTest extends BaseArrayFormulaTest
      * in addition to base tests.
      */
     public void testOneCellCalculationWithDelta() {
-        String[] formulas = {"B102", "B103", "C102", "C103"};
+        if (testRows.length != 0){
+        	// skip test
+        	assertTrue(true);
+        }
+
+    	
+    	String[] formulas = {"B102", "B103", "C102", "C103"};
         String[] expected = {"I102", "I103", "J102", "J103"};
         
         for (int i = 0; i < expected.length; i++) {
@@ -96,7 +112,7 @@ abstract public class BaseArrayFormulaFunctionsTest extends BaseArrayFormulaTest
         
         double exp = cellExpected.getNumericCellValue();
         double actual = calculateNumericFormula(cellFormula);
-        assertEquals("Invalid formula calculation for cell " + formulaRef, exp, actual, delta);
+        assertEquals(failedMessage(formulaRef), exp, actual, delta);
     }
 
     /**

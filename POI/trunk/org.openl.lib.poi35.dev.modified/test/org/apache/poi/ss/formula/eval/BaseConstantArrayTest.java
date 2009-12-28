@@ -140,7 +140,7 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
             case Cell.CELL_TYPE_NUMERIC: {
                 double expected = cellExpected.getNumericCellValue();
                 double actual = calculateNumericFormula(cellFormula);
-                assertEquals("Failed formula in " + formulaRef, expected, actual);
+                assertEquals(failedMessage(formulaRef), expected, actual);
                 break;
             }
                 
@@ -152,12 +152,12 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
                 try {
                     FormulaError fe = FormulaError.forString( expected );
                     FormulaError actual = calculateFormulaError(cellFormula);
-                    assertEquals("Failed formula in " + formulaRef, fe, actual);
+                    assertEquals(failedMessage(formulaRef), fe, actual);
 
                 } catch (IllegalArgumentException ex) {
                     // this is not an error, check String value:
                     String actual = calculateStringFormula(cellFormula);
-                    assertEquals("Failed formula in " + formulaRef, expected, actual);
+                    assertEquals(failedMessage(formulaRef), expected, actual);
                 }
                 break;
             }
@@ -165,14 +165,14 @@ abstract public class BaseConstantArrayTest extends BaseFormulaTest {
             case Cell.CELL_TYPE_BOOLEAN:
                 boolean expected = cellExpected.getBooleanCellValue();
                 boolean actual = calculateBooleanFormula(cellFormula);
-                assertEquals("Failed formula in " + formulaRef, expected, actual);
+                assertEquals(failedMessage(formulaRef), expected, actual);
                 break;
                 
             case Cell.CELL_TYPE_ERROR:
             {
             	FormulaError fer = FormulaError.forInt(cellExpected.getErrorCellValue());
                 FormulaError result = calculateFormulaError(cellFormula);
-                assertEquals("Failed formula in " + formulaRef, fer, result);
+                assertEquals(failedMessage(formulaRef), fer, result);
             }
             	break;
                 
