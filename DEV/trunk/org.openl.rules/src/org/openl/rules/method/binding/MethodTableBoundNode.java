@@ -11,15 +11,14 @@ import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.impl.BoundError;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.openl.GridTableSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.CompositeSourceCodeModule;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -87,15 +86,26 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         ILogicalTable lt = tsn.getTable();
         boolean tableHasProperties = tsn.hasPropertiesDefinedInTable();
         
-        int expectedHeight = tableHasProperties ? 3 : 2;
+        
+        
+        ILogicalTable bodyTable = lt.rows(tableHasProperties ? 2 : 1); 
+        
 
-        if (lt.getLogicalHeight() != expectedHeight) {
-            throw new BoundError(null,
-                    "Method table must have 2 row cells, and one optional property row: <header> [properties] <body>",
-                    null, new GridTableSourceCodeModule(lt.getGridTable()));
+//        if (lt.getLogicalHeight() != expectedHeight) {
+//            throw new BoundError(null,
+//                    "Method table must have 2 row cells, and one optional property row: <header> [properties] <body>",
+//                    null, new GridTableSourceCodeModule(lt.getGridTable()));
+//        }
+
+        int h = bodyTable.getLogicalHeight();
+        
+        IOpenSourceCodeModule[] cellSources = new IOpenSourceCodeModule[h];
+        
+        for (int i = 0; i < h; i++) {
+            cellSources[i] = new GridCellSourceCodeModule(bodyTable.getLogicalRow(i).getGridTable());
         }
-
-        IOpenSourceCodeModule src = new GridCellSourceCodeModule(lt.getLogicalRow(expectedHeight - 1).getGridTable());
+        
+        IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources);
 
         OpenLManager.compileMethod(openl, src, getTableMethod(), cxt);
 
