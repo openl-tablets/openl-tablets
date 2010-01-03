@@ -15,8 +15,6 @@ import org.openl.IOpenSourceCodeModule;
 /**
  * @author snshor
  *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
     IOpenSourceCodeModule[] modules;
