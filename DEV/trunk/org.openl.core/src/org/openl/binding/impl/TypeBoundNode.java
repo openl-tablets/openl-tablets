@@ -72,4 +72,9 @@ public class TypeBoundNode extends ABoundNode {
         return true;
     }
 
+    public boolean isStaticTarget() {
+        return true;
+    }
+
+    
 }

@@ -130,4 +130,9 @@ public abstract class ABoundNode implements IBoundNode {
         return true;
     }
 
+    public boolean isStaticTarget() {
+        return false;
+    }
+
+
 }
