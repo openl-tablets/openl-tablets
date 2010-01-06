@@ -85,6 +85,12 @@ public class IdentifierBinder extends ANodeBinder {
                 throw new FieldNotFoundException("Identifier: ", fieldName, target.getType());
             }
 
+            if (target.isStaticTarget() != of.isStatic())
+            {
+                String msg = of.isStatic() ? "Warning: access of a static field from non-static object" : "Error: access non-static field from a static object";
+                bindingContext.addError(new BoundError(node, msg));
+            }    
+            
             return new FieldBoundNode(node, of, target);
 
         } catch (Throwable t) {

@@ -82,6 +82,14 @@ public class MethodNodeBinder extends ANodeBinder {
 
             throw new BoundError(node, buf.toString(), null);
         }
+        
+        if (target.isStaticTarget() != om.getMethod().isStatic())
+        {
+            String msg = om.getMethod().isStatic() ? "Warning: access of a static method from non-static object" : "Error: access of a non-static method from a static object";
+            bindingContext.addError(new BoundError(node, msg));
+        }    
+        
+        
 
         MethodBoundNode res = new MethodBoundNode(node, children, om, target);
         res.setTargetNode(target);
