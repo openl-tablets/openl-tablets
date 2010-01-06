@@ -43,7 +43,7 @@ public class RunTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    void _runNoError(String expression, Object expected, String openlName, SourceType parseType,
+    static void _runNoError(String expression, Object expected, String openlName, SourceType parseType,
             AssertionExpression assertion) {
         OpenL openl = OpenL.getInstance(openlName);
         Object res = OpenLManager.run(openl, new StringSourceCodeModule(expression, null), parseType);
@@ -185,5 +185,13 @@ public class RunTest extends TestCase {
 
         _runNoError("long Of =-1;int y=60; Of >>> y ", (long) -1 >>> 60, "org.openl.j");
 
+    }
+    
+    public void testStatic()
+    {
+        _runNoError("int.class", int.class, "org.openl.j");
+        _runWithError("String.length()", SyntaxErrorException.class, "org.openl.j", SourceType.METHOD_BODY);
+
+        _runWithError("int x = 5; x.class", SyntaxErrorException.class, "org.openl.j", SourceType.METHOD_BODY);
     }
 }
