@@ -571,15 +571,13 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             cell.setCellValue(x.doubleValue());
         } else if (value instanceof Date) {
             Date x = (Date) value;
-            
             cell.setCellValue(x);
             
-            // POI sets Date values to excel as double, so its
-            // impossible to see that it is a Date value without setting 
-            // date style to this cell.
+            CellStyle previousStyle = cell.getCellStyle();
+            cell.setCellStyle(sheet.getWorkbook().createCellStyle());
+            cell.getCellStyle().cloneStyleFrom(previousStyle);
             cell.getCellStyle().setDataFormat((short) BuiltinFormats
                     .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
-
         } else if (value instanceof Boolean) {
             Boolean boolValue = (Boolean) value;
             cell.setCellValue(boolValue.booleanValue());
