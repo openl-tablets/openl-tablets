@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.properties.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -76,7 +77,9 @@ public class JavaCodeGen implements ICodeGen {
 	}
 	
 	public StringBuilder genLiteralArray(Object ary, ICodeGenController ctr, StringBuilder sb) {
-		
+	    
+	    sb.append("new ").append(ary.getClass().getSimpleName()).append(" ");
+	    
 		sb.append('{');
 		
 		int len = Array.getLength(ary);
@@ -457,6 +460,12 @@ public class JavaCodeGen implements ICodeGen {
 
     public StringBuilder genLiteralSystemValuePolicy(SystemValuePolicy value, StringBuilder sb) {
         return sb.append(SystemValuePolicy.class.getSimpleName()).append(".")
+        .append(value);
+    }
+
+    public StringBuilder genLiteralLevelInheritance(InheritanceLevel value,
+            StringBuilder sb) {
+        return sb.append(InheritanceLevel.class.getSimpleName()).append(".")
         .append(value);
     }
 }

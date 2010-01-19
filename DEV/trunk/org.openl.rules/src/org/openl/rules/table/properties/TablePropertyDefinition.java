@@ -19,14 +19,18 @@ public class TablePropertyDefinition {
 	private String tableType;
 	private String defaultValue;
 	private Constraints constraints;
-	private String format;
-	private String inheritable;
+	private String format;	
+	private InheritanceLevel[] inheritanceLevel;
 	private String description;
 	private String expression;
 	
-	public enum SystemValuePolicy {
+    public enum SystemValuePolicy {
 	    IF_BLANK_ONLY, ON_EACH_EDIT
 	}
+	
+	public enum InheritanceLevel {
+        MODULE, CATEGORY, TABLE
+    }
 	
 	public String getDisplayName() {
 		return displayName;
@@ -116,14 +120,6 @@ public class TablePropertyDefinition {
 		this.format = format;
 	}
 
-	public String getInheritable() {
-		return inheritable;
-	}
-
-	public void setInheritable(String inheritable) {
-		this.inheritable = inheritable;
-	}
-
 	public String getDescription() {
 		return description;
 	}
@@ -170,5 +166,15 @@ public class TablePropertyDefinition {
 
     public SystemValuePolicy getSystemValuePolicy() {
         return systemValuePolicy;
+    }
+
+    public void setInheritanceLevel(InheritanceLevel[] inheritanceLevel) {
+        this.inheritanceLevel = inheritanceLevel;        
+    }
+
+    public InheritanceLevel[] getInheritanceLevel() {
+        return inheritanceLevel;
     }	
+    
+    
 }

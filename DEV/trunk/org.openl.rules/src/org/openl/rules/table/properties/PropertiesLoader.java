@@ -1,9 +1,13 @@
 package org.openl.rules.table.properties;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.IString2DataConvertor;
@@ -16,6 +20,7 @@ import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.properties.TablePropertyDefinition.InheritanceLevel;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -27,7 +32,10 @@ import org.openl.types.java.JavaOpenClass;
  *
  */
 public class PropertiesLoader {
-        
+    
+    private final Log LOG = LogFactory.getLog(PropertiesLoader.class);
+    
+    private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
     private OpenL openl;
     private RulesModuleBindingContext cxt;
     private XlsModuleOpenClass module; 
@@ -45,10 +53,11 @@ public class PropertiesLoader {
      * Load properties from source table as data table.
      * 
      * @param tsn Tsn to load properties.
-     * @throws Exception
+     * @throws Exception when there problems loading properties with data table mechanism.
+     * @throws InvalidPropertyLevelException if any property can`t be defined on table level.
      */
     private void loadPropertiesAsDataTable(TableSyntaxNode tsn) throws Exception {
-        String propertySectionName = "Properties_Section" + tsn.getUri();
+        String propertySectionName = PROPERTIES_SECTION_NAME + tsn.getUri();
         DataNodeBinder bb = new DataNodeBinder();
         ITable propertyTable = module.getDataBase().addNewTable(propertySectionName, null);
         IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
@@ -58,7 +67,8 @@ public class PropertiesLoader {
                     false);
             TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0]; 
             
-            propertiesInstance.setPropertiesSection(propertiesSection);
+            propertiesInstance.setPropertiesSection(propertiesSection);          
+            InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.TABLE, propertiesInstance.getPropertiesDefinedInTable());
             tsn.setTableProperties(propertiesInstance);
         }
     }
@@ -67,12 +77,14 @@ public class PropertiesLoader {
      * Load to tsn category properties from context.
      * 
      * @param tsn Tsn to load properties.
+     * @throws InvalidPropertyLevelException if any property can`t be defined on category level.
      */
-    private void loadCategoryProperties(TableSyntaxNode tsn) {
+    private void loadCategoryProperties(TableSyntaxNode tsn) throws InvalidPropertyLevelException {
         ITableProperties tableProperties = tsn.getTableProperties();        
         String category = getCategory(tsn);  
         ITableProperties categoryProperties = cxt.getCategotyProperties(category);
         if (categoryProperties != null) {
+            InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, categoryProperties.getPropertiesAll());
             tableProperties.setPropertiesAppliedForCategory(categoryProperties.getPropertiesAll());
         }
         
@@ -94,12 +106,14 @@ public class PropertiesLoader {
      * Load to tsn module properties from context.
      * 
      * @param tsn Tsn to load properties.
+     * @throws InvalidPropertyLevelException if any property can`t be defined on module level. 
      */
-    private void loadModuleProperties(TableSyntaxNode tsn) {
+    private void loadModuleProperties(TableSyntaxNode tsn) throws InvalidPropertyLevelException {
         ITableProperties tableProperties = tsn.getTableProperties();
         ITableProperties moduleProperties = cxt.getModuleProperties();
         if (tableProperties != null) {
             if (moduleProperties != null) {
+                InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.MODULE, moduleProperties.getPropertiesAll());
                 tableProperties.setPropertiesAppliedForModule(moduleProperties.getPropertiesAll());
             }            
         }
@@ -138,6 +152,8 @@ public class PropertiesLoader {
         properties = new TableProperties();            
         tsn.setTableProperties(properties);
     }
+    
+    
 
 
     public void loadProperties(TableSyntaxNode tsn) throws Exception {
