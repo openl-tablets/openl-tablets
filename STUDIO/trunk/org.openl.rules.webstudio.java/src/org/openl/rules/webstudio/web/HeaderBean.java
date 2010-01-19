@@ -19,10 +19,6 @@ public class HeaderBean {
 
     public SelectItem[] getProjects() throws IOException {
         OpenLWrapperInfo[] wrappers = getWebStudio().getWrappers();
-        if (wrappers.length == 0) {
-            return new SelectItem[] { new SelectItem("-- No OpenL Projects in the Workspace --") };
-        }
-
         SelectItem[] selectItems = new SelectItem[wrappers.length];
         for (int i = 0; i < wrappers.length; i++) {
             selectItems[i] = new SelectItem(wrappers[i].getWrapperClassName(), wrappers[i].getDisplayName());

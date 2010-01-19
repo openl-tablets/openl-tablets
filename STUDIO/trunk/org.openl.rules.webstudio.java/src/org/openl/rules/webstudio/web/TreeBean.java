@@ -4,7 +4,6 @@ import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.ProjectRichFacesTreeBuilder;
-import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
 import org.richfaces.model.TreeNode;
@@ -58,8 +57,11 @@ public class TreeBean {
     public TreeNode<?> getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectTreeNode tree = studio.getModel().getProjectTree();
-        TreeNode<?> rfTree = new ProjectRichFacesTreeBuilder(tree, studio.getModel()).build();
-        return rfTree;
+        if (tree != null) {
+            TreeNode<?> rfTree = new ProjectRichFacesTreeBuilder(tree, studio.getModel()).build();
+            return rfTree;
+        }
+        return null;
     }
 
 }

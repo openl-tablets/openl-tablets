@@ -35,11 +35,15 @@
             <tr>
                 <td>
                     <h:form target="top" id="headerForm">
-                        <span style="font-size:12px; font-weight:bold; color:black;">Select Module: </span>
-                        <h:selectOneMenu value="#{headerBean.selectedProject}" onchange="sbmForm(this.form)"
-                            id="select_wrapper">
-                            <f:selectItems value="#{headerBean.projects}"/>
-                        </h:selectOneMenu>
+                        <h:panelGroup rendered="#{not empty headerBean.projects}">
+                            <span style="font-size:12px; font-weight:bold; color:black;">Select Module: </span>
+                            <h:selectOneMenu value="#{headerBean.selectedProject}" onchange="sbmForm(this.form)"
+                                id="select_wrapper">
+                                <f:selectItems value="#{headerBean.projects}"/>
+                            </h:selectOneMenu>
+                        </h:panelGroup>
+                        <h:outputText value="No OpenL Projects in the Workspace" style="font-size:16px; color:red"
+                            rendered="#{empty headerBean.projects}" />
                     </h:form>
                 </td>
                 <td align="right" style="padding-top: 6px">
