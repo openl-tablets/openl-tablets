@@ -20,6 +20,15 @@
             #menu a {
                 margin-right: 2px;
             }
+            #tree a {
+                text-decoration: none;
+                color: black;
+            }
+            #tree .treeNodeSelected {
+                border: 0px;
+                font-size: 95%;
+                font-weight: bold;
+            }
         </style>
     </ui:define>
 
@@ -63,8 +72,8 @@
         <p />
 
         <!-- Tree BEGIN -->
-        <rich:tree value="#{treeBean.tree}" switchType="client" toggleOnClick="true" var="node"
-            nodeFace="#{node.type}">
+        <rich:tree id="tree" value="#{treeBean.tree}" switchType="client" toggleOnClick="true" var="node"
+            nodeFace="#{node.type}" selectedClass="treeNodeSelected">
             <c:set var="img" value="webresource/images" />
             <rich:treeNode type="folder"
                 icon="#{node.state == 1 ? 'webresource/images/dtree/folder-error.png' : 'webresource/images/dtree/folder.png'}">
