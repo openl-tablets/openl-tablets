@@ -3,6 +3,7 @@ package org.openl.rules.table.properties;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.table.properties.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
 
 /**
@@ -25,7 +26,7 @@ public class DefaultPropertyDefinitions
 		definitions[0].setDimensional(false);
 		definitions[0].setDisplayName("Name");
 		definitions[0].setGroup("Info");
-		definitions[0].setInheritable("no");
+		definitions[0].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[0].setName("name");
 		definitions[0].setPrimaryKey(false);
 		definitions[0].setSecurityFilter("no");
@@ -39,7 +40,7 @@ public class DefaultPropertyDefinitions
 		definitions[1].setDimensional(false);
 		definitions[1].setDisplayName("Category");
 		definitions[1].setGroup("Info");
-		definitions[1].setInheritable("worksheet");
+		definitions[1].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[1].setName("category");
 		definitions[1].setPrimaryKey(false);
 		definitions[1].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
@@ -52,7 +53,7 @@ public class DefaultPropertyDefinitions
 		definitions[2].setDimensional(false);
 		definitions[2].setDisplayName("Description");
 		definitions[2].setGroup("Info");
-		definitions[2].setInheritable("no");
+		definitions[2].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[2].setName("description");
 		definitions[2].setPrimaryKey(false);
 		definitions[2].setSecurityFilter("no");
@@ -66,7 +67,7 @@ public class DefaultPropertyDefinitions
 		definitions[3].setDisplayName("Tags");
 		definitions[3].setFormat("comma separated");
 		definitions[3].setGroup("Info");
-		definitions[3].setInheritable("no");
+		definitions[3].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[3].setName("tags");
 		definitions[3].setPrimaryKey(false);
 		definitions[3].setSecurityFilter("no");
@@ -82,7 +83,7 @@ public class DefaultPropertyDefinitions
 		definitions[4].setExpression("le(currentDate)");
 		definitions[4].setFormat("MM/dd/yyyy");
 		definitions[4].setGroup("Business Dimension");
-		definitions[4].setInheritable("worksheet,workbook");
+		definitions[4].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[4].setName("effectiveDate");
 		definitions[4].setPrimaryKey(true);
 		definitions[4].setSecurityFilter("no");
@@ -97,7 +98,7 @@ public class DefaultPropertyDefinitions
 		definitions[5].setExpression("gt(currentDate)");
 		definitions[5].setFormat("MM/dd/yyyy");
 		definitions[5].setGroup("Business Dimension");
-		definitions[5].setInheritable("worksheet,workbook");
+		definitions[5].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[5].setName("expirationDate");
 		definitions[5].setPrimaryKey(false);
 		definitions[5].setSecurityFilter("no");
@@ -110,7 +111,7 @@ public class DefaultPropertyDefinitions
 		definitions[6].setDimensional(false);
 		definitions[6].setDisplayName("Created By");
 		definitions[6].setGroup("Info");
-		definitions[6].setInheritable("worksheet,workbook, module");
+		definitions[6].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[6].setName("createdBy");
 		definitions[6].setPrimaryKey(false);
 		definitions[6].setSecurityFilter("no");
@@ -126,7 +127,7 @@ public class DefaultPropertyDefinitions
 		definitions[7].setDisplayName("Created On");
 		definitions[7].setFormat("MM/dd/yyyy");
 		definitions[7].setGroup("Info");
-		definitions[7].setInheritable("worksheet,workbook, module");
+		definitions[7].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[7].setName("createdOn");
 		definitions[7].setPrimaryKey(false);
 		definitions[7].setSecurityFilter("no");
@@ -141,7 +142,7 @@ public class DefaultPropertyDefinitions
 		definitions[8].setDimensional(false);
 		definitions[8].setDisplayName("Modified By");
 		definitions[8].setGroup("Info");
-		definitions[8].setInheritable("no");
+		definitions[8].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[8].setName("modifiedBy");
 		definitions[8].setPrimaryKey(false);
 		definitions[8].setSecurityFilter("no");
@@ -157,7 +158,7 @@ public class DefaultPropertyDefinitions
 		definitions[9].setDisplayName("Modified On");
 		definitions[9].setFormat("MM/dd/yyyy");
 		definitions[9].setGroup("Info");
-		definitions[9].setInheritable("no");
+		definitions[9].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[9].setName("modifyOn");
 		definitions[9].setPrimaryKey(false);
 		definitions[9].setSecurityFilter("no");
@@ -172,7 +173,7 @@ public class DefaultPropertyDefinitions
 		definitions[10].setDimensional(false);
 		definitions[10].setDisplayName("Build Phase");
 		definitions[10].setGroup("Dev");
-		definitions[10].setInheritable("worksheet, workbook");
+		definitions[10].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[10].setName("buildPhase");
 		definitions[10].setPrimaryKey(false);
 		definitions[10].setSecurityFilter("no");
@@ -185,7 +186,7 @@ public class DefaultPropertyDefinitions
 		definitions[11].setDimensional(false);
 		definitions[11].setDisplayName("Validate DT");
 		definitions[11].setGroup("Dev");
-		definitions[11].setInheritable("worksheet, workbook, module");
+		definitions[11].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[11].setName("validateDT");
 		definitions[11].setPrimaryKey(false);
 		definitions[11].setSecurityFilter("no");
@@ -200,7 +201,7 @@ public class DefaultPropertyDefinitions
 		definitions[12].setDisplayName("LOB");
 		definitions[12].setExpression("eq(lob)");
 		definitions[12].setGroup("Business Dimension");
-		definitions[12].setInheritable("worksheet,workbook, module");
+		definitions[12].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[12].setName("lob");
 		definitions[12].setPrimaryKey(false);
 		definitions[12].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
@@ -214,7 +215,7 @@ public class DefaultPropertyDefinitions
 		definitions[13].setDisplayName("US Region");
 		definitions[13].setExpression("eq(usRegion)");
 		definitions[13].setGroup("Business Dimension");
-		definitions[13].setInheritable("worksheet,workbook");
+		definitions[13].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[13].setName("usregion");
 		definitions[13].setPrimaryKey(false);
 		definitions[13].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
@@ -229,7 +230,7 @@ public class DefaultPropertyDefinitions
 		definitions[14].setDisplayName("Country");
 		definitions[14].setExpression("eq(country)");
 		definitions[14].setGroup("Business Dimension");
-		definitions[14].setInheritable("worksheet,workbook");
+		definitions[14].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[14].setName("country");
 		definitions[14].setPrimaryKey(false);
 		definitions[14].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
@@ -243,7 +244,7 @@ public class DefaultPropertyDefinitions
 		definitions[15].setDimensional(false);
 		definitions[15].setDisplayName("Currency");
 		definitions[15].setGroup("Business Dimension");
-		definitions[15].setInheritable("worksheet,workbook");
+		definitions[15].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[15].setName("currency");
 		definitions[15].setPrimaryKey(false);
 		definitions[15].setSecurityFilter("no");
@@ -257,7 +258,7 @@ public class DefaultPropertyDefinitions
 		definitions[16].setDimensional(false);
 		definitions[16].setDisplayName("Language");
 		definitions[16].setGroup("Business Dimension");
-		definitions[16].setInheritable("worksheet,workbook");
+		definitions[16].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[16].setName("lang");
 		definitions[16].setPrimaryKey(false);
 		definitions[16].setSecurityFilter("no");
@@ -271,7 +272,7 @@ public class DefaultPropertyDefinitions
 		definitions[17].setDisplayName("US State");
 		definitions[17].setExpression("eq(usState)");
 		definitions[17].setGroup("Business Dimension");
-		definitions[17].setInheritable("worksheet,workbook");
+		definitions[17].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[17].setName("state");
 		definitions[17].setPrimaryKey(false);
 		definitions[17].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
@@ -284,7 +285,7 @@ public class DefaultPropertyDefinitions
 		definitions[18].setDimensional(false);
 		definitions[18].setDisplayName("Region");
 		definitions[18].setGroup("Business Dimension");
-		definitions[18].setInheritable("worksheet,workbook");
+		definitions[18].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY});
 		definitions[18].setName("region");
 		definitions[18].setPrimaryKey(false);
 		definitions[18].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
@@ -299,6 +300,7 @@ public class DefaultPropertyDefinitions
 		definitions[19].setDimensional(false);
 		definitions[19].setDisplayName("Version");
 		definitions[19].setGroup("Version");
+		definitions[19].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[19].setName("version");
 		definitions[19].setPrimaryKey(false);
 		definitions[19].setSystem(false);
@@ -311,6 +313,7 @@ public class DefaultPropertyDefinitions
 		definitions[20].setDimensional(false);
 		definitions[20].setDisplayName("Active");
 		definitions[20].setGroup("Version");
+		definitions[20].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[20].setName("active");
 		definitions[20].setPrimaryKey(false);
 		definitions[20].setSystem(false);
@@ -323,6 +326,7 @@ public class DefaultPropertyDefinitions
 		definitions[21].setDimensional(false);
 		definitions[21].setDisplayName("Fail On Miss");
 		definitions[21].setGroup("Dev");
+		definitions[21].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[21].setName("failOnMiss");
 		definitions[21].setPrimaryKey(false);
 		definitions[21].setSystem(false);
@@ -335,6 +339,7 @@ public class DefaultPropertyDefinitions
 		definitions[22].setDimensional(false);
 		definitions[22].setDisplayName("Return On Miss");
 		definitions[22].setGroup("Dev");
+		definitions[22].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[22].setName("returnOnMiss");
 		definitions[22].setPrimaryKey(false);
 		definitions[22].setSystem(false);
@@ -347,7 +352,7 @@ public class DefaultPropertyDefinitions
 		definitions[23].setDimensional(false);
 		definitions[23].setDisplayName("Scope");
 		definitions[23].setGroup("Dev");
-		definitions[23].setInheritable("no");
+		definitions[23].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY});
 		definitions[23].setName("scope");
 		definitions[23].setPrimaryKey(false);
 		definitions[23].setSystem(false);

@@ -15,11 +15,13 @@ public class JavaCodeGenTest extends TestCase {
 
     public void testGenLiteralArray() 
     {
-        Assert.assertEquals("{}", cg.genLiteralArray(new Object[]{},ctr, sb()).toString());
-        Assert.assertEquals("{1, 'a'}", cg.genLiteralArray(new Object[]{1, 'a'},ctr, sb()).toString());
-        Assert.assertEquals("{{1, 'a'}, {\"xxx\"}}", cg.genLiteralArray(new Object[][]{{1, 'a'}, {"xxx"}},ctr, sb()).toString());
-
-        Assert.assertEquals("{{1, 'a', 3.0, 255L}, {\"xxx\"}}", cg.genLiteralArray(new Object[][]{{1, 'a', 3.0, 255L}, {"xxx"}},ctr, sb()).toString());
+        Assert.assertEquals("new Object[] {}", cg.genLiteralArray(new Object[]{},ctr, sb()).toString());
+        Assert.assertEquals("new Object[] {1, 'a'}", cg.genLiteralArray(new Object[]{1, 'a'},ctr, sb()).toString());
+        Assert.assertEquals("new Object[][] {new Object[] {1, 'a'}, new Object[] {\"xxx\"}}",
+                cg.genLiteralArray(new Object[][]{{1, 'a'}, {"xxx"}},ctr, sb()).toString());
+        
+        Assert.assertEquals("new Object[][] {new Object[] {1, 'a', 3.0, 255L}, new Object[] {\"xxx\"}}",
+                cg.genLiteralArray(new Object[][]{{1, 'a', 3.0, 255L}, {"xxx"}},ctr, sb()).toString());
     }
 
     public void testGenLiteralChar() 
