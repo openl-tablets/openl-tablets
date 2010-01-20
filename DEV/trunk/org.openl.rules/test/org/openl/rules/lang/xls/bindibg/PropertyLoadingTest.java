@@ -14,8 +14,8 @@ import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 public class PropertyLoadingTest {
     
@@ -35,7 +35,7 @@ private String __src = "test/rules/PropertyLoadingTest.xls";
         TableSyntaxNode[] tsns = tables.getXlsTableSyntaxNodesWithoutErrors();
         for (TableSyntaxNode tsn : tsns) {
             if ("Rules void hello1(int hour)".equals(tsn.getDisplayName())) {
-                List<TablePropertyDefinition> defaultPropDefinitions = DefaultPropertyDefinitions
+                List<TablePropertyDefinition> defaultPropDefinitions = TablePropertyDefinitionUtils
                                                                            .getPropertiesToBeSetByDefault();
                 assertEquals("Check that number of properties defined in table is 0",
                 		tsn.getTableProperties().getPropertiesDefinedInTable().size(), 0);                

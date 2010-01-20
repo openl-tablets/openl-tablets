@@ -16,8 +16,8 @@ import org.openl.rules.table.actions.UndoableCopyValueAction;
 import org.openl.rules.table.actions.UndoableResizeMergedRegionAction;
 import org.openl.rules.table.actions.UndoableSetStyleAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.table.xls.XlsBooleanFormat;
@@ -285,7 +285,7 @@ public interface IWritableGrid extends IGrid {
         
         private static IGridFilter getFilter(String propName) {
             IGridFilter result = null;
-            TablePropertyDefinition tablProp= DefaultPropertyDefinitions.getPropertyByName(propName);
+            TablePropertyDefinition tablProp= TablePropertyDefinitionUtils.getPropertyByName(propName);
             if(tablProp != null) {
                 if(String.class.equals(tablProp.getType().getInstanceClass())) {
                     result = null;

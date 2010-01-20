@@ -1,5 +1,7 @@
 package org.openl.rules.table.properties;
 
+//TODO: Unused. Should be deleted.
+@Deprecated
 public interface ITablePropertiesHolder {
 	
 	ITableProperties getTableProperties();

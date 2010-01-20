@@ -3,6 +3,7 @@ package org.openl.rules.table.properties;
 import java.util.Map;
 
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 
 public interface ITableProperties {
         

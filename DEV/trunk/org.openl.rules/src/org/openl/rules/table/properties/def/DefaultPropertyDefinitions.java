@@ -1,10 +1,8 @@
-package org.openl.rules.table.properties;
+package org.openl.rules.table.properties.def;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import org.openl.rules.table.properties.TablePropertyDefinition.InheritanceLevel;
-import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 
 /**
  * Definitions of supported properties.
@@ -368,79 +366,5 @@ public class DefaultPropertyDefinitions
     public static TablePropertyDefinition[] getDefaultDefinitions(){
         return definitions;
     }
-    
-	/**
-	 * Gets the name of the property by the given display name
-	 * @param displayName
-	 * @return name
-	 */
-	public static String getPropertyName(String displayName) {
-	    String result = null;
-	    for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
-	        if(propDefinition.getDisplayName().equals(displayName)){
-	            result = propDefinition.getName();
-	        }
-	    }
-	    return result;
-	}
-	
-	/**
-     * Gets the display name of the property by the given name
-     * @param name
-     * @return diplayName
-     */
-	public static String getPropertyDisplayName(String name) {
-        String result = null;
-        for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
-            if(propDefinition.getName().equals(name)){
-                result = propDefinition.getDisplayName();
-            }
-        }
-        return result;
-    }
-	/**
-     * Gets the property by its given name
-     * @param name
-     * @return property definition
-     */
-	public static TablePropertyDefinition getPropertyByName(String name) {
-	    TablePropertyDefinition result = null;
-        for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
-            if(propDefinition.getName().equals(name)){
-                result = propDefinition;
-            }
-        }
-        return result;
-    }
-	
-	/**
-	 * Gets list of properties that must me set for every table by default.
-	 *
-	 * @return list of properties.
-	 */
-	public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault() {
-        List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
-        for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
-            if(propDefinition.getDefaultValue() != null){
-                result.add(propDefinition);
-            }
-        }
-        return result;
-    }
-	
-	/**
-	 * Gets list of properties that are marked as system.
-	 *  
-	 * @return list of properties.
-	 */
-	public static List<TablePropertyDefinition> getSystemProperties() {	    
-	    List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
-	        for(TablePropertyDefinition propDefinition : getDefaultDefinitions()){
-	            if(propDefinition.isSystem()){	                
-	                result.add(propDefinition);
-	            }
-	        }
-        return result;
-	}
 	
 }

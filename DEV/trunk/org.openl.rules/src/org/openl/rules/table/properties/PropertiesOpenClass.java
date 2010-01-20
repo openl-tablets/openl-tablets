@@ -1,5 +1,7 @@
 package org.openl.rules.table.properties;
 
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+
 /**
  * 
  * @author snshor
@@ -7,7 +9,8 @@ package org.openl.rules.table.properties;
  *
  *	This class is used to load TableProperties as data beans
  */
-
+//TODO: Unused class. Should be deleted.
+@Deprecated
 public class PropertiesOpenClass 
 {
 	
