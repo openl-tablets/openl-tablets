@@ -48,6 +48,7 @@ import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
+import org.openl.rules.ui.tree.TreeNode;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.validator.dt.DTValidator;
@@ -940,6 +941,8 @@ public class ProjectModel implements IProjectTypes {
             }
         }
         projectRoot = root;
+        uriNodeMap = new HashMap<String, ProjectTreeNode>();
+        indexNodeMap = new ObjectMap();
         buildNodeMap(projectRoot);
     }
 
@@ -950,7 +953,7 @@ public class ProjectModel implements IProjectTypes {
                 ProjectTreeNode ptr = (ProjectTreeNode) child;
                 uriNodeMap.put(ptr.getUri(), ptr);
             }
-            indexNodeMap.getNewID(element);
+            indexNodeMap.getNewID(child);
             buildNodeMap(child);
         }
     }

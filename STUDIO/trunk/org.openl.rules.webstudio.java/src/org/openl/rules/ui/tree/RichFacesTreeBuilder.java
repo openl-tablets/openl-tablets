@@ -5,7 +5,6 @@ import java.util.Iterator;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
-import org.openl.rules.ui.ObjectMap;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
@@ -13,7 +12,6 @@ import org.richfaces.model.TreeNodeImpl;
 public class RichFacesTreeBuilder {
 
     private org.openl.rules.ui.tree.TreeNode<?> root;
-    //protected ObjectMap indexNodeMap = new ObjectMap();
 
     public RichFacesTreeBuilder(org.openl.rules.ui.tree.TreeNode<?> root) {
         this.root = root;
@@ -35,7 +33,6 @@ public class RichFacesTreeBuilder {
             TreeNodeData data = getNodeData(child);
             rfChild.setData(data);
             rfParent.addChild(counter, rfChild);
-            //indexNodeMap.getNewID(child);
             addNodes(rfChild, child);
             counter++;
         }
