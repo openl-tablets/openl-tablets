@@ -1,5 +1,7 @@
 package org.openl.rules.table.properties;
 
+// TODO: Unused class. Should be deleted. 
+@Deprecated
 public class DefaultTablePropertiesHolder implements ITablePropertiesHolder {
 	
 	private ITablePropertiesHolder parent;

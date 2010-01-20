@@ -1,4 +1,4 @@
-package org.openl.rules.table.properties;
+package org.openl.rules.table.properties.def;
 
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.types.IOpenClass;

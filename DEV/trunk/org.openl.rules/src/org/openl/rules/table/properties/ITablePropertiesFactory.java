@@ -1,6 +1,8 @@
 package org.openl.rules.table.properties;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
 import org.openl.rules.types.impl.IPropertiesContextMatcher;
 
@@ -17,7 +19,8 @@ import org.openl.rules.types.impl.IPropertiesContextMatcher;
  *  2) by defining new property definitions within OpenL Tablets dynamically per-project 
  *
  */
-
+//TODO: Unused class. Should be deleted.
+@Deprecated
 public class ITablePropertiesFactory {
 
     /**

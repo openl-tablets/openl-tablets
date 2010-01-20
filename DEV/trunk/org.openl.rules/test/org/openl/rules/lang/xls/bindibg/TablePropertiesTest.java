@@ -16,10 +16,10 @@ import org.openl.rules.data.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 
 public class TablePropertiesTest {
@@ -58,7 +58,7 @@ public class TablePropertiesTest {
         tablProp = new TableProperties();
         tablProp.setEffectiveDate(dateValue);
         result = tablProp.getPropertyValueAsString(propName);
-        SimpleDateFormat sDF = new SimpleDateFormat(DefaultPropertyDefinitions.getPropertyByName(propName).getFormat());
+        SimpleDateFormat sDF = new SimpleDateFormat(TablePropertyDefinitionUtils.getPropertyByName(propName).getFormat());
         assertEquals(sDF.format(dateValue), result);
         
         propName = "failOnMiss";
@@ -98,7 +98,7 @@ public class TablePropertiesTest {
         moduleProperties.put("createdBy", "Vasia Pupkin");
         tableProperties.setPropertiesAppliedForModule(moduleProperties);
         
-        List<TablePropertyDefinition> propertiesWithDefaultValues = DefaultPropertyDefinitions
+        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
                                                                         .getPropertiesToBeSetByDefault();    
         Map<String, Object> defaultProperties = new HashMap<String, Object>();
         

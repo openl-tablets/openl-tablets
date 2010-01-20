@@ -1,10 +1,8 @@
 package org.openl.rules.table.properties;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,7 +18,11 @@ import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.properties.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
+import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -68,7 +70,8 @@ public class PropertiesLoader {
             TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0]; 
             
             propertiesInstance.setPropertiesSection(propertiesSection);          
-            InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.TABLE, propertiesInstance.getPropertiesDefinedInTable());
+            InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.TABLE, propertiesInstance
+                    .getPropertiesDefinedInTable().keySet());
             tsn.setTableProperties(propertiesInstance);
         }
     }
@@ -84,7 +87,8 @@ public class PropertiesLoader {
         String category = getCategory(tsn);  
         ITableProperties categoryProperties = cxt.getCategotyProperties(category);
         if (categoryProperties != null) {
-            InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, categoryProperties.getPropertiesAll());
+            InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, categoryProperties
+                    .getPropertiesAll().keySet());
             tableProperties.setPropertiesAppliedForCategory(categoryProperties.getPropertiesAll());
         }
         
@@ -113,7 +117,8 @@ public class PropertiesLoader {
         ITableProperties moduleProperties = cxt.getModuleProperties();
         if (tableProperties != null) {
             if (moduleProperties != null) {
-                InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.MODULE, moduleProperties.getPropertiesAll());
+                InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.MODULE, moduleProperties
+                        .getPropertiesAll().keySet());
                 tableProperties.setPropertiesAppliedForModule(moduleProperties.getPropertiesAll());
             }            
         }
@@ -126,12 +131,12 @@ public class PropertiesLoader {
      */
     private void loadDefaultProperties(TableSyntaxNode tsn) {
         ITableProperties properties = tsn.getTableProperties();
-        List<TablePropertyDefinition> propertiesWithDefaultValues = DefaultPropertyDefinitions
+        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
                                                                             .getPropertiesToBeSetByDefault();    
         Map<String, Object> defaultProperties = new HashMap<String, Object>();
         for(TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues){            
             String propertyName = propertyWithDefaultValue.getName();            
-            Class<?> defaultValueType = DefaultPropertyDefinitions.getPropertyByName(propertyName).getType()
+            Class<?> defaultValueType = TablePropertyDefinitionUtils.getPropertyByName(propertyName).getType()
             .getInstanceClass();
             IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultValueType);
             Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),

@@ -3,7 +3,6 @@
 		return ($tablePropertyDefinition.Type.InstanceClass.Name) getFieldValue("$tablePropertyDefinition.Name"); 
 	}
 	public void set#upperFirstChar($tablePropertyDefinition.Name)($tablePropertyDefinition.Type.InstanceClass.Name $tablePropertyDefinition.Name) {
-		canBeOverridenOnTableLevel("$tablePropertyDefinition.Name", $tablePropertyDefinition.Name);
 		setFieldValue("$tablePropertyDefinition.Name", $tablePropertyDefinition.Name);
 	}	
 #end
