@@ -386,10 +386,10 @@ public class HTMLRenderer {
                 String format = propDefinition.getFormat();
                 Constraints constraints = propDefinition.getConstraints();
                 String description = propDefinition.getDescription();
-                boolean system = propDefinition.isSystem();
-                TableProperty prop = new TableProperty(displayName, value, type, group, name, format, constraints);                
-                prop.setDescription(description);
-                prop.setSystem(system);
+                boolean system = propDefinition.isSystem();                
+                TableProperty prop = new TableProperty.TablePropertyBuilder(name, displayName)
+                    .value(value).type(type).group(group).format(format).constraints(constraints)
+                    .description(description).system(system).build();
                 listProp.add(prop);
             }
             return listProp;
@@ -513,7 +513,7 @@ public class HTMLRenderer {
             result.append("<tr>");
             insertLabel(prop.getDisplayName());
             final String propId = getPropId(prop);
-             if (prop.isSystem()) {
+             if (prop.isSystem() || !prop.canBeOverridenInTable() ) {
                 insertText(prop, propId, true);
             } else {
                 insertInput(prop, propId);
