@@ -149,7 +149,7 @@ public class PropertiesLoader {
 //            }
             defaultProperties.put(propertyName, defaultValue);
         }
-        properties.setPropertiesToBeSetByDefault(defaultProperties);
+        properties.setPropertiesAppliedByDefault(defaultProperties);
     }
     
     private void createTableProperties(TableSyntaxNode tsn) {       

@@ -31,6 +31,8 @@ public interface ITableProperties {
     
     Map<String, Object> getPropertiesAppliedForModule();
     
+    Map<String, Object> getPropertiesAppliedByDefault();
+    
     Object getPropertyValue(String key);
     
     /**
@@ -43,6 +45,9 @@ public interface ITableProperties {
      */
     String getPropertyValueAsString(String key);
     
+    /**
+     * Gets the logical table of the properties defined in table.
+     */
     ILogicalTable getPropertiesSection();
 	
 	// <<< INSERT >>>
@@ -101,8 +106,6 @@ public interface ITableProperties {
     
     void setPropertiesAppliedForModule(Map<String, Object> moduleProperties);    
     
-    void setPropertiesToBeSetByDefault(Map<String, Object> defaultProperties);    
-
-    Map<String, Object> getPropertiesToBeSetByDefault();
+    void setPropertiesAppliedByDefault(Map<String, Object> defaultProperties);    
 	
 }
