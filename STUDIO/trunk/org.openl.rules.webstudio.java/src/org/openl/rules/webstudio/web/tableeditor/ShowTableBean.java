@@ -13,9 +13,9 @@ import org.openl.rules.table.ITable;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.TablePropertyDefinition;
-import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
@@ -257,7 +257,7 @@ public class ShowTableBean {
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
-        List<TablePropertyDefinition> sysProps = DefaultPropertyDefinitions.getSystemProperties();
+        List<TablePropertyDefinition> sysProps = TablePropertyDefinitionUtils.getSystemProperties();
         if (canUpdateSystemProperties(editorModel)) {
             for (TablePropertyDefinition sysProperty : sysProps) {
                 result = updateSystemValue(editorModel, sysProperty);

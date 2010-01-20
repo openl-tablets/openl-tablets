@@ -14,10 +14,10 @@ import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.TablePropertyDefinition;
-import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -123,7 +123,7 @@ public abstract class TableCopier extends WizardBase {
      */
     protected Map<String, Object> buildSystemProperties() {
         Map<String, Object> result = new HashMap<String, Object>();
-        List<TablePropertyDefinition> systemPropDefinitions = DefaultPropertyDefinitions.getSystemProperties();
+        List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
         for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
             if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
                 Object systemValue = SystemValuesManager.instance().getSystemValue(systemPropDef.getSystemValueDescriptor());

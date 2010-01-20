@@ -3,8 +3,8 @@ package org.openl.rules.webstudio.properties;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsDateFormat;
 import org.openl.rules.webstudio.web.tableeditor.ShowTableBean;
 
@@ -24,7 +24,7 @@ public class SystemValuesManager {
     private final String currentDatedescription = "currentDate";
     
     private SystemValuesManager() {        
-        for (TablePropertyDefinition propDef :DefaultPropertyDefinitions.getSystemProperties()) {
+        for (TablePropertyDefinition propDef :TablePropertyDefinitionUtils.getSystemProperties()) {
             if (currentUserDescription.equals(propDef.getSystemValueDescriptor())) {
                 if (!systemValues.containsKey(currentUserDescription)) {
                     systemValues.put(currentUserDescription, new CurrentUserValue());

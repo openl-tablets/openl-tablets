@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.search.OpenLBussinessSearchResult;
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 
 public class BussinessSearchResultBean {  
@@ -86,7 +86,7 @@ public class BussinessSearchResultBean {
         Map<String, Object> prop = new HashMap<String, Object>();
         for(TableProperty propForSearch : propsForSearch) {
             String propName = propForSearch.getName();
-            String propDisplName = DefaultPropertyDefinitions.getPropertyDisplayName(propName);
+            String propDisplName = TablePropertyDefinitionUtils.getPropertyDisplayName(propName);
             Object propValue = tableSearch.getTableProperties().getPropertyValue(propName);
             if(propValue==null) {
                 propValue = new String(EMPTY_VALUE);

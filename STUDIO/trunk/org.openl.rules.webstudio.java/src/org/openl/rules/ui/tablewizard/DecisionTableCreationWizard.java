@@ -16,9 +16,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.TablePropertyDefinition;
-import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
@@ -148,7 +148,7 @@ public class DecisionTableCreationWizard extends WizardBase {
 
     public Map<String, Object> getSystemProperties() {        
         if (systemProperties.isEmpty()) {
-            List<TablePropertyDefinition> systemPropDefinitions = DefaultPropertyDefinitions
+            List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils
                     .getSystemProperties();
             for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
                 if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {

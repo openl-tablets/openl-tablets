@@ -8,8 +8,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.search.OpenLBussinessSearch;
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
