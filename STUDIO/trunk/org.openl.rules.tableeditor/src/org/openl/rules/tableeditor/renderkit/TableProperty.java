@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
+import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 
 /**
  * Temporary class for holding table properties
@@ -11,23 +14,33 @@ import org.openl.rules.table.constraints.Constraints;
  *
  */
 public class TableProperty {
-    
+    private String name;
     private String displayName;
     private Object value;
     private Class<?> type;
-    private boolean show;
-    private boolean canEdit;
-    private String group;
-    private String name;
+    
+    private String group;    
     private String format;
     private Constraints constraints;
     private String description;
     private boolean system;
     
+    private TableProperty(TablePropertyBuilder builder) {
+        this.name = builder.name;
+        this.displayName = builder.displayName;
+        this.value = builder.value;
+        this.type = builder.type;
+        this.group = builder.group;
+        this.format = builder.format;
+        this.constraints = builder.constraints;
+        this.description = builder.description;
+        this.system = builder.system;
+    }
+    
     public String getFormat() {
         return format;
-    }
-
+    }    
+    
     public void setFormat(String format) {
         this.format = format;
     }
@@ -39,41 +52,21 @@ public class TableProperty {
     public void setName(String name) {
         this.name = name;
     }
-
-    public TableProperty(String displayName, Object value, Class<?> type, String group) {
-        this.displayName = displayName;
-        this.value = value;
-        this.type = type;
-        this.group = group;
-    }
     
-    public TableProperty(String displayName, Object value, Class<?> type, 
-            String group, String name, String format, Constraints constraints) {
-        this.displayName = displayName;
-        this.value = value;
-        this.type = type;
-        this.group = group;
-        this.name = name;
-        this.format = format;
-        this.constraints = constraints;
+    /**
+     * 
+     * @return <code>TRUE</code> if property value can be overriden on TABLE level.
+     */
+    public boolean canBeOverridenInTable() {
+        boolean result = false;
+        try {
+            InheritanceLevelChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
+            result = true;
+        } catch (InvalidPropertyLevelException e) {            
+        }
+        return result;
     }
 
-    public boolean isShow() {
-        return show;
-    }
-
-    public void setShow(boolean show) {
-        this.show = show;
-    }
-
-    public boolean isCanEdit() {
-        return canEdit;
-    }
-
-    public void setCanEdit(boolean canEdit) {
-        this.canEdit = canEdit;
-    }
-    
     public String getDisplayName() {
         return displayName;
     }
@@ -188,5 +181,68 @@ public class TableProperty {
     public boolean isSystem() {
         return system;        
     }    
-
+    
+    /**
+     * Builder for TableProperties
+     * @author DLiauchuk
+     *
+     */
+    public static class TablePropertyBuilder {
+        // Required parameters
+        private String name;
+        private String displayName;                
+        
+        // Optional parameters
+        private Object value;
+        private Class<?> type;
+        private String group;
+        private String format;
+        private Constraints constraints;
+        private String description;
+        private boolean system;
+        
+        public TablePropertyBuilder(String name, String displayName) {
+            this.name = name;
+            this.displayName = displayName;
+        }
+        
+        public TablePropertyBuilder value(Object val) {
+            value = val;
+            return this;
+        }
+        
+        public TablePropertyBuilder type(Class<?> val) {
+            type = val;
+            return this;
+        }
+        
+        public TablePropertyBuilder group(String val) {
+            group = val;
+            return this;
+        }
+        
+        public TablePropertyBuilder format(String val) {
+            format = val;
+            return this;
+        }
+        
+        public TablePropertyBuilder constraints(Constraints val) {
+            constraints = val;
+            return this;
+        }
+        
+        public TablePropertyBuilder description(String val) {
+            description = val;
+            return this;
+        }
+        
+        public TablePropertyBuilder system(boolean val) {
+            system = val;
+            return this;
+        }
+        
+        public TableProperty build() {
+            return new TableProperty(this);
+        }
+    }
 }
