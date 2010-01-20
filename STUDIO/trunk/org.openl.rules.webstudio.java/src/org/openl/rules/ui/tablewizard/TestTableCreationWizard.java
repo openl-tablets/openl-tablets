@@ -15,9 +15,9 @@ import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
-import org.openl.rules.table.properties.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.TablePropertyDefinition;
-import org.openl.rules.table.properties.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -81,7 +81,7 @@ public class TestTableCreationWizard extends WizardBase {
 
     private Map<String, Object> getSystemProperties() {        
         Map<String, Object> result = new HashMap<String, Object>();
-            List<TablePropertyDefinition> systemPropDefinitions = DefaultPropertyDefinitions
+            List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils
                     .getSystemProperties();
             for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
                 if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
