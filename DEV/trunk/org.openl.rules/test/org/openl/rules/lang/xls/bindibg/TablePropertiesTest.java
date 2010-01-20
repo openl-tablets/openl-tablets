@@ -106,7 +106,7 @@ public class TablePropertiesTest {
             String propertyName = propertyWithDefaultValue.getName();
             defaultProperties.put(propertyName, propertyName);
         }
-        tableProperties.setPropertiesToBeSetByDefault(defaultProperties);
+        tableProperties.setPropertiesAppliedByDefault(defaultProperties);
         
         Map<String, Object> allProperties = tableProperties.getPropertiesAll();
         assertTrue(allProperties.containsKey("name"));
