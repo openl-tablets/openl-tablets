@@ -11,7 +11,7 @@ import org.openl.util.tree.ITreeElement;
 public class TraceTreeRenderer extends DTreeRenderer {
 
     static String[][] icons = {
-            { "decision", "webresource/images/ruleset.gif", "webresource/images/ruleset-h.gif",
+            { "decision", "webresource/images/ruleset.gif", "webresource/images/ruleset.gif",
                     "webresource/images/ruleset-error.png", "webresource/images/ruleset-error.png" },
             { "rule", "webresource/images/test_ok.gif", "webresource/images/test_ok.gif",
                     "webresource/images/data-error.png", "webresource/images/data-error.png" },
