@@ -25,12 +25,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     private ILogicalTable propertySection;
     
-    /**
-     * Collection, to mark all properties that were set by default for current instance.
-     * Contains it names.
-     */
-    private Set<String> propertiesWithDefaultValue = new HashSet<String>();
-    
     private Map<String, Object> categoryProperties = new HashMap<String, Object>();
     
     private Map<String, Object> moduleProperties = new HashMap<String, Object>();
@@ -277,10 +271,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setFieldValue(String name, Object value) {  
         canBeOverridenOnTableLevel(name);
         super.setFieldValue(name, value);
-    }
-        
-    public Set<String> getPropertiesSetByDefault() {        
-        return propertiesWithDefaultValue;
     }
     
     public Map<String, Object> getPropertiesDefinedInTable() {    
