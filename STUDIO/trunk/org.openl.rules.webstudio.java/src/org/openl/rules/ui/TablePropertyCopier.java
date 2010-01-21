@@ -49,6 +49,10 @@ public class TablePropertyCopier extends TableCopier {
         initProperties();
     }    
     
+    /**
+     * When doing the copy of the table, just properties that where physically defined in original table
+     * get to the properties copying page.
+     */
     private void initProperties() {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions
                 .getDefaultDefinitions();
@@ -65,11 +69,13 @@ public class TablePropertyCopier extends TableCopier {
                 }
                 Class<?> propertyType = null;
                 if (propDefinition.getType() != null) {
-                    propDefinition.getType().getInstanceClass();
+                    propertyType = propDefinition.getType().getInstanceClass();
                 }
                 String displayName = propDefinition.getDisplayName();                
+                String format = propDefinition.getFormat();
+                
                 propsToCopy.add(new TableProperty.TablePropertyBuilder(name, displayName)
-                        .value(propertyValue).type(propertyType)
+                        .value(propertyValue).type(propertyType).format(format)
                         .build());
             }
         }
