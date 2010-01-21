@@ -14,6 +14,7 @@ import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -228,10 +229,18 @@ public abstract class TableCopier extends WizardBase {
         initWorkbooks();
     }
     
+    /**
+     * 
+     * @param tableProperties properties of the table that is going to be copied.  
+     * @return style of the properties section in table if exists. If no <code>NULL</code>.
+     */
     protected ICellStyle getPropertiesStyle(ITableProperties tableProperties) {
-        ICellStyle propertiesStyle;
-        IGridTable propertiesTable = tableProperties.getPropertiesSection().getGridTable();
-        propertiesStyle = propertiesTable.getCell(0, 0).getStyle();
+        ICellStyle propertiesStyle = null;
+        ILogicalTable propertiesSection = tableProperties.getPropertiesSection();
+        if (propertiesSection != null) {
+            IGridTable propertiesTable = propertiesSection.getGridTable();
+            propertiesStyle = propertiesTable.getCell(0, 0).getStyle();
+        }        
         return propertiesStyle;
     }
     

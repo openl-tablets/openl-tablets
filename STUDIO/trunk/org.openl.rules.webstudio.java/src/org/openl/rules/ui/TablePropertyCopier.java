@@ -63,14 +63,14 @@ public class TablePropertyCopier extends TableCopier {
                 if (!tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
                     propertyValue = StringUtils.EMPTY;
                 }
-                Class<?> propertyType = propDefinition.getType() == null ?
-                        null : propDefinition.getType().getInstanceClass();
-                String displayName = propDefinition.getDisplayName();
-                String group = propDefinition.getGroup();
-                String format = propDefinition.getFormat();
-                Constraints constraints = propDefinition.getConstraints();
-                propsToCopy.add(new TableProperty.TablePropertyBuilder(name, displayName).value(propertyValue).type(propertyType)
-                        .group(group).format(format).constraints(constraints).build());
+                Class<?> propertyType = null;
+                if (propDefinition.getType() != null) {
+                    propDefinition.getType().getInstanceClass();
+                }
+                String displayName = propDefinition.getDisplayName();                
+                propsToCopy.add(new TableProperty.TablePropertyBuilder(name, displayName)
+                        .value(propertyValue).type(propertyType)
+                        .build());
             }
         }
     }
