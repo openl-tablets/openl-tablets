@@ -3,32 +3,12 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">
-        <style type="text/css">
-            body {
-                margin-left: 10px;
-                background: #eceef8;
-            }
-            #menu {
-                width: 95%;
-                border: 1px solid gray;
-            }
-            #menu a {
-                margin-right: 2px;
-            }
-            #tree a {
-                text-decoration: none;
-                color: black;
-            }
-            #tree .treeNodeSelected {
-                border: 0px;
-                font-size: 95%;
-                font-weight: bold;
-            }
-        </style>
+        <a4j:loadStyle src="resource:///css/tree.css" />
     </ui:define>
 
     <ui:define name="page">
@@ -36,7 +16,7 @@
 
         <h:panelGroup rendered="#{treeBean.projectExists}">
             <!-- Menu BEGIN -->
-            <table id="menu">
+            <table class="treeMenu">
                 <tr>
                     <td>
                         <h:outputLink value="#{contextPath}/main.jsp?reload=true" target="top"
@@ -71,7 +51,7 @@
         <p />
 
         <!-- Tree BEGIN -->
-        <rich:tree id="tree" value="#{treeBean.tree}" switchType="client" toggleOnClick="true" var="node"
+        <rich:tree styleClass="tree" value="#{treeBean.tree}" switchType="client" toggleOnClick="true" var="node"
             nodeFace="#{node.type}" selectedClass="treeNodeSelected">
             <rich:treeNode type="folder"
                 icon="#{node.state == 1 ? 'webresource/images/dtree/folder-error.png' : 'webresource/images/dtree/folder.png'}">

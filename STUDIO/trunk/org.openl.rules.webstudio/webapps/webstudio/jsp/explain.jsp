@@ -9,19 +9,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
-<style type="text/css">
-    body {  
-        margin-left: 10px;
-        background: #eceef8;
-    }
-    #menu {
-        width: 95%;
-        border: 1px solid gray;
-    }
-    #menu a {
-        margin-right: 2px;
-    }
-</style>
+<link href="webresource/css/tree.css" rel="stylesheet" type="text/css"/>
 
 <%
 String header = request.getParameter("header");
@@ -47,7 +35,7 @@ if (header != null)
 
 <FORM>
 
-<table id="menu">
+<table class="treeMenu">
 <tr>
 <td>
 <a href="<%=request.getContextPath()%>/faces/facelets/explain/tree.xhtml?rootID=<%=rootID%>" title="Tree View"><img

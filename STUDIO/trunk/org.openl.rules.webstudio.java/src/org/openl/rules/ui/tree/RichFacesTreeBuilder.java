@@ -18,40 +18,42 @@ public class RichFacesTreeBuilder extends AbstractTreeBuilder<TreeNode<?>> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public TreeNode<?> build() {
-        TreeNode rfRoot = new TreeNodeImpl();
-        addNodes(rfRoot, root);
-        return rfRoot;
+        return build(false);
     }
 
     @SuppressWarnings("unchecked")
-    public TreeNode<?> build(boolean withRoot) {
-        TreeNode rfRoot = new TreeNodeImpl();
-        if (withRoot) {
-            TreeNode rfRootNode = new TreeNodeImpl();
+    public TreeNode<?> build(boolean hasRoot) {
+        TreeNode rfTree = new TreeNodeImpl();
+        addNodes(rfTree, root);
+        if (hasRoot) {
             TreeNodeData data = getNodeData(root);
-            rfRootNode.setData(data);
-            rfRoot.addChild(0, rfRootNode);
-            addNodes(rfRootNode, root);
+            rfTree.setData(data);
+            TreeNode rfRoot = new TreeNodeImpl();
+            rfRoot.addChild(0, rfTree);
             return rfRoot;
         }
-        addNodes(rfRoot, root);
-        return rfRoot;
+        return rfTree;
     }
 
     @SuppressWarnings("unchecked")
     private void addNodes(TreeNode<?> rfParent, ITreeElement<?> parent) {
-        int counter = 1;
+        int index = 1;
         for (Iterator pi = parent.getChildren(); pi.hasNext();) {
             ITreeElement child = (ITreeElement) pi.next();
-            TreeNode rfChild = new TreeNodeImpl();
-            TreeNodeData data = getNodeData(child);
-            rfChild.setData(data);
-            rfParent.addChild(counter, rfChild);
+            TreeNode rfChild = toRFNode(child);
+            rfParent.addChild(index, rfChild);
             addNodes(rfChild, child);
-            counter++;
+            index++;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private TreeNode<?> toRFNode(ITreeElement<?> node) {
+        TreeNode rfNode = new TreeNodeImpl();
+        TreeNodeData data = getNodeData(node);
+        rfNode.setData(data);
+        return rfNode;
     }
 
     protected TreeNodeData getNodeData(ITreeElement<?> node) {
