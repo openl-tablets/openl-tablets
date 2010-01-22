@@ -85,6 +85,7 @@ public class IdObjectMap<T> {
     }
 
     public void reset() {
+        id = 0;
         idObjMap = new HashMap<Integer, T>();
         objIdMap = new HashMap<T, Integer>();
     }
