@@ -398,16 +398,12 @@ span.codeerror
 	border-color: black;
 }
 
-
-table {margin-left: 4px;}
-
 span.rule-keyword
 {
 font-family: arial,sans-serif;
 font-size:70%;
 color:#8B4513;
 }
-
 
 span.rule-parameter
 {
