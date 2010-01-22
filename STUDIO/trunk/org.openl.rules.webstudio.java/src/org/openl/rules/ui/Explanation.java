@@ -28,7 +28,6 @@ public class Explanation {
                 return AOpenIterator.EMPTY;
             }
         }
-
     }
 
     static final int MAX_LEVEL = 2; // Maximum expansion level for formulas
@@ -150,7 +149,7 @@ public class Explanation {
         return header;
     }
 
-    public DoubleValue getRoot() {
+    public DoubleValue getExplainTree() {
         return root;
     }
 
@@ -251,10 +250,6 @@ public class Explanation {
 
     public void setHeader(String header) {
         this.header = header;
-    }
-
-    public void setRoot(DoubleValue root) {
-        this.root = root;
     }
 
     public void setShowNamesInFormula(boolean showNamesInFormula) {

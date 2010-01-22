@@ -10,7 +10,7 @@ public class ProjectRichFacesTreeBuilder extends RichFacesTreeBuilder {
 
     private ProjectModel projectModel;
 
-    public ProjectRichFacesTreeBuilder(TreeNode<?> root, ProjectModel projectModel) {
+    public ProjectRichFacesTreeBuilder(ITreeElement<?> root, ProjectModel projectModel) {
         super(root);
         this.projectModel = projectModel;
     }
@@ -28,15 +28,14 @@ public class ProjectRichFacesTreeBuilder extends RichFacesTreeBuilder {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected String getUrl(ITreeElement element) {
+    protected String getUrl(ITreeElement<?> element) {
         String elementType = element.getType();
         if (elementType.startsWith(IProjectTypes.PT_TABLE + ".")) {
             String uri = ((ProjectTreeNode) element).getUri();
             return "tableeditor/showTable.xhtml?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
         } else if (elementType.startsWith(IProjectTypes.PT_PROBLEM)) {
             return "tableeditor/showError.xhtml?" + Constants.REQUEST_PARAM_ID + "="
-                + projectModel.getNodeIndex((ProjectTreeNode) element);
+                + projectModel.getNodeIndex(element);
         }
         return null;
     }

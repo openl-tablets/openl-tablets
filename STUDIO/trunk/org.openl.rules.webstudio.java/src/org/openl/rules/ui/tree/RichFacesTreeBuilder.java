@@ -9,14 +9,15 @@ import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 
-public class RichFacesTreeBuilder {
+public class RichFacesTreeBuilder extends AbstractTreeBuilder<TreeNode<?>> {
 
-    private org.openl.rules.ui.tree.TreeNode<?> root;
+    private ITreeElement<?> root;
 
-    public RichFacesTreeBuilder(org.openl.rules.ui.tree.TreeNode<?> root) {
+    public RichFacesTreeBuilder(ITreeElement<?> root) {
         this.root = root;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public TreeNode<?> build() {
         TreeNode rfRoot = new TreeNodeImpl();
@@ -25,10 +26,25 @@ public class RichFacesTreeBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    private void addNodes(TreeNode<?> rfParent, org.openl.rules.ui.tree.TreeNode<?> parent) {
+    public TreeNode<?> build(boolean withRoot) {
+        TreeNode rfRoot = new TreeNodeImpl();
+        if (withRoot) {
+            TreeNode rfRootNode = new TreeNodeImpl();
+            TreeNodeData data = getNodeData(root);
+            rfRootNode.setData(data);
+            rfRoot.addChild(0, rfRootNode);
+            addNodes(rfRootNode, root);
+            return rfRoot;
+        }
+        addNodes(rfRoot, root);
+        return rfRoot;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addNodes(TreeNode<?> rfParent, ITreeElement<?> parent) {
         int counter = 1;
         for (Iterator pi = parent.getChildren(); pi.hasNext();) {
-            org.openl.rules.ui.tree.TreeNode child = (org.openl.rules.ui.tree.TreeNode) pi.next();
+            ITreeElement child = (ITreeElement) pi.next();
             TreeNode rfChild = new TreeNodeImpl();
             TreeNodeData data = getNodeData(child);
             rfChild.setData(data);
@@ -38,7 +54,7 @@ public class RichFacesTreeBuilder {
         }
     }
 
-    protected TreeNodeData getNodeData(org.openl.rules.ui.tree.TreeNode<?> node) {
+    protected TreeNodeData getNodeData(ITreeElement<?> node) {
         String name = StringEscapeUtils.escapeHtml(getDisplayName(node, INamedThing.SHORT));
         String title = StringEscapeUtils.escapeHtml(getDisplayName(node, INamedThing.REGULAR));
         String url = getUrl(node);

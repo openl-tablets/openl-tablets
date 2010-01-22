@@ -249,6 +249,18 @@
   </managed-bean>
 
   <managed-bean>
+    <managed-bean-name>traceTreeBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.TraceTreeBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>explainTreeBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.ExplainTreeBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
     <managed-bean-name>bussinessSearch</managed-bean-name>
     <managed-bean-class>org.openl.rules.ui.search.BussinesSearchPropertyBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
