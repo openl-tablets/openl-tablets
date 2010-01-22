@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
@@ -42,13 +41,11 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.TestResult;
 import org.openl.rules.ui.AllTestsRunResult.Test;
 import org.openl.rules.ui.search.TableSearch;
-import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
 import org.openl.rules.ui.tree.NodeKey;
-import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
-import org.openl.rules.ui.tree.TreeNode;
+import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.validator.dt.DTValidator;
@@ -71,6 +68,7 @@ import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
 import org.openl.util.export.IExporter;
+import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.openl.vm.Tracer;
@@ -95,12 +93,11 @@ public class ProjectModel implements IProjectTypes {
 
     private ProjectTreeNode projectRoot = null;
 
-    //ProjectTreeRenderer ptr;
+    private TreeCache projectTreeCache = new TreeCache();
 
     List<Throwable> validationExceptions;
 
     private Map<String, ProjectTreeNode> uriNodeMap = new HashMap<String, ProjectTreeNode>();
-    private ObjectMap indexNodeMap = new ObjectMap();
 
     public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
         IGrid htmlGrid = gt.getGrid();
@@ -120,9 +117,8 @@ public class ProjectModel implements IProjectTypes {
         return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
     }
 
-    @SuppressWarnings("unchecked")
-    public int getNodeIndex(ProjectTreeNode node) {
-        return indexNodeMap.getID(node);
+    public int getNodeIndex(ITreeElement<?> node) {
+        return projectTreeCache.getIndex(node);
     }
 
     static public boolean intersects(XlsUrlParser p1, String url2) {
@@ -492,11 +488,10 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public ProjectTreeNode getElement(int id) {
-        return (ProjectTreeNode) indexNodeMap.getObject(id);
+        return (ProjectTreeNode) projectTreeCache.get(id);
     }
 
     public String getDisplayNameFull(String elementUri) {
-        //ProjectTreeNode pte = ptr.getElement(elementUri);
         ProjectTreeNode pte = getElement(elementUri);
         if (pte == null) {
             return "";
@@ -619,7 +614,7 @@ public class ProjectModel implements IProjectTypes {
         return tsn;
     }
 
-    public synchronized ProjectTreeNode getProjectTree() {
+    public synchronized ITreeElement<?> getProjectTree() {
         if (projectRoot == null) {
             buildProjectTree();
         }
@@ -795,22 +790,22 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public int indexForNode(TableSyntaxNode tsn) {
-        for (Object obj : indexNodeMap.getValues()) {
+        for (Object obj : projectTreeCache.getAll()) {
             ProjectTreeNode pte = (ProjectTreeNode) obj;
             if (pte.getObject() == tsn) {
-                return indexNodeMap.getID(obj);
+                return projectTreeCache.getIndex(pte);
             }
         }
         return -1;
     }
 
     public int indexForNodeByURI(String uri) {
-        for (Object obj : indexNodeMap.getValues()) {
+        for (Object obj : projectTreeCache.getAll()) {
             ProjectTreeNode pte = (ProjectTreeNode) obj;
             if (pte.getObject() instanceof TableSyntaxNode) {
                 TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) pte.getObject();
                 if (uri.equals(tableSyntaxNode.getUri())) {
-                    return indexNodeMap.getID(obj);
+                    return projectTreeCache.getIndex(pte);
                 }
             }
         }
@@ -897,7 +892,7 @@ public class ProjectModel implements IProjectTypes {
             // nodes by method signature.
             // author: Alexey Gamanovich
             //
-            for (TreeNodeBuilder treeSorter : treeSorters) {
+            for (TreeNodeBuilder<?> treeSorter : treeSorters) {
 
                 if (treeSorter instanceof OpenMethodsGroupTreeNodeBuilder) {
                     // Set to sorter information about open methods.
@@ -941,20 +936,20 @@ public class ProjectModel implements IProjectTypes {
             }
         }
         projectRoot = root;
-        uriNodeMap = new HashMap<String, ProjectTreeNode>();
-        indexNodeMap = new ObjectMap();
-        buildNodeMap(projectRoot);
+        uriNodeMap.clear();
+        projectTreeCache.clear();
+        cacheTree(projectRoot);
     }
 
-    private void buildNodeMap(ProjectTreeNode element) {
-        for (Iterator<?> iterator = element.getChildren(); iterator.hasNext();) {
+    private void cacheTree(ProjectTreeNode treeNode) {
+        for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ProjectTreeNode child = (ProjectTreeNode) iterator.next();
             if (child.getType().startsWith(PT_TABLE + ".")) {
                 ProjectTreeNode ptr = (ProjectTreeNode) child;
                 uriNodeMap.put(ptr.getUri(), ptr);
             }
-            indexNodeMap.getNewID(child);
-            buildNodeMap(child);
+            projectTreeCache.put(child);
+            cacheTree(child);
         }
     }
 
@@ -980,18 +975,15 @@ public class ProjectModel implements IProjectTypes {
         return new ProjectTreeNode(new String[] { name, name, name }, "root", null, null, 0, null);
     }
 
-    private OpenMethodInstancesGroupTreeNodeBuilder[] findGroupSorters(BaseTableTreeNodeBuilder[] sorters) {
-
+    /*private OpenMethodInstancesGroupTreeNodeBuilder[] findGroupSorters(BaseTableTreeNodeBuilder[] sorters) {
         List<OpenMethodInstancesGroupTreeNodeBuilder> groupSorters = new ArrayList<OpenMethodInstancesGroupTreeNodeBuilder>();
-
         for (BaseTableTreeNodeBuilder sorter : sorters) {
             if (sorter instanceof OpenMethodInstancesGroupTreeNodeBuilder) {
                 groupSorters.add((OpenMethodInstancesGroupTreeNodeBuilder) sorter);
             }
         }
-
         return groupSorters.toArray(new OpenMethodInstancesGroupTreeNodeBuilder[groupSorters.size()]);
-    }
+    }*/
 
     private IOpenMethod[] getMethods(TableSyntaxNode[] nodes) {
         List<IOpenMethod> methods = new ArrayList<IOpenMethod>();
@@ -1016,9 +1008,8 @@ public class ProjectModel implements IProjectTypes {
         projectRoot = null;
     }
 
-    public String renderTree(String targetJsp) {
-
-        ProjectTreeNode tr = getProjectTree();
+    /*public String renderTree(String targetJsp) {
+        ProjectTreeNode tr = (ProjectTreeNode) getProjectTree();
 
         if (tr == null) {
             String errMsg = "";
@@ -1050,10 +1041,8 @@ public class ProjectModel implements IProjectTypes {
 
         // renderElement(null, tr, targetJsp, buf);
         //ptr = new ProjectTreeRenderer(this, targetJsp, "mainFrame");
-        ProjectTreeRenderer ptr = new ProjectTreeRenderer(this, targetJsp, "mainFrame");
-        return ptr.renderRoot(tr);
         // return buf.toString();
-    }
+    }*/
 
     public void reset() throws Exception {
         if (wrapperInfo != null) {
@@ -1325,12 +1314,12 @@ public class ProjectModel implements IProjectTypes {
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 
-    public Tracer traceElement(String elementUri) throws Exception {
+    public Tracer traceElement(String elementUri) {
         IOpenMethod m = getMethod(elementUri);
         return traceMethod(m);
     }
 
-    public Tracer traceMethod(IOpenMethod m) throws Exception {
+    public Tracer traceMethod(IOpenMethod m) {
         Tracer t = new Tracer();
         Tracer.setTracer(t);
 

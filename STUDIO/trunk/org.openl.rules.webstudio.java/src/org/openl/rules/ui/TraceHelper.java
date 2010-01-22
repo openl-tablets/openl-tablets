@@ -5,6 +5,7 @@
 package org.openl.rules.ui;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openl.base.INamedThing;
@@ -21,8 +22,11 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.ui.tree.TreeCache;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.util.tree.ITreeElement;
 import org.openl.vm.ITracerObject;
+import org.openl.vm.Tracer;
 
 /**
  * @author snshor
@@ -30,9 +34,7 @@ import org.openl.vm.ITracerObject;
  */
 public class TraceHelper {
 
-    ITracerObject root;
-
-    TraceTreeRenderer traceRenderer;
+    TreeCache traceTreeCache = new TreeCache();
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
         for (ITableTracerObject child : tto.getTableTracers()) {
@@ -46,7 +48,7 @@ public class TraceHelper {
     }
 
     public String getProjectNodeUri(int id, ProjectModel model) {
-        ITracerObject tracer = (ITracerObject) traceRenderer.map.getObject(id);
+        ITracerObject tracer = (ITracerObject) traceTreeCache.get(id);
         if (!(tracer instanceof ITableTracerObject)) {
             return null;
         }
@@ -55,7 +57,7 @@ public class TraceHelper {
     }
 
     public TableInfo getTableInfo(int elementID) {
-        ITracerObject tt = (ITracerObject) traceRenderer.map.getObject(elementID);
+        ITracerObject tt = (ITracerObject) traceTreeCache.get(elementID);
 
         if (tt == null) {
             return null;
@@ -113,18 +115,27 @@ public class TraceHelper {
         return buf.toString();
     }
 
-    public String renderTraceTree(String targetJsp, String targetFrame) {
-        traceRenderer = new TraceTreeRenderer(targetJsp, targetFrame);
-
-        return traceRenderer.renderRoot(root);
+    public ITreeElement<?> getTraceTree(Tracer tracer) {
+        ITreeElement<?> tree = tracer.getRoot();
+        traceTreeCache.clear();
+        cacheTree(tree);
+        return tree;
     }
 
-    public void setRoot(ITracerObject root) {
-        this.root = root;
+    private void cacheTree(ITreeElement<?> treeNode) {
+        for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
+            ITreeElement<?> child = (ITreeElement<?>) iterator.next();
+            traceTreeCache.put(child);
+            cacheTree(child);
+        }
+    }
+
+    public int getNodeIndex(ITreeElement<?> node) {
+        return traceTreeCache.getIndex(node);
     }
 
     public String showTrace(int id, ProjectModel model, String view) {
-        ITracerObject tt = (ITracerObject) traceRenderer.map.getObject(id);
+        ITracerObject tt = (ITracerObject) traceTreeCache.get(id);
 
         if (tt == null) {
             return "ERROR ID = " + id;

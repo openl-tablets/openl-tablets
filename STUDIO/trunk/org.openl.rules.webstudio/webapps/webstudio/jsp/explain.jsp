@@ -5,28 +5,22 @@
 <jsp:useBean id='studio' scope='session' class="org.openl.rules.ui.WebStudio" />
 <jsp:useBean id="explanator" scope="session" class="org.openl.rules.ui.Explanator"/>
 
-
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" type="text/css" href="webresource/css/openl/dtree.css"></link>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link href="webresource/css/openl/style1.css" rel="stylesheet" type="text/css"/>
 <style type="text/css">
-
-BODY {
-	padding: 0;
-	margin: 0 0 0 10px;
-	background: #eceef8;
-	}
-
-
-#tree {
-	text-overflow: ellipsis;
-	overflow : hidden
-	width: 100%;
-	height: 100%;
-	}
-
+    body {  
+        margin-left: 10px;
+        background: #eceef8;
+    }
+    #menu {
+        width: 95%;
+        border: 1px solid gray;
+    }
+    #menu a {
+        margin-right: 2px;
+    }
 </style>
 
 <%
@@ -53,23 +47,23 @@ if (header != null)
 
 <FORM>
 
-<table width=95% cellpadding=0 cellspacing=0 style="border-style: solid; border-width: 1;">
-<tr><td>
-<a href="../explaintree.jsp?rootID=<%=rootID%>" title="Tree View"><img border=0 src="webresource/images/treeview.gif"></a>
-<a href="javascript: top.close()" title="Close Window"><img border=0 src="webresource/images/close.gif"></a>
-
+<table id="menu">
+<tr>
+<td>
+<a href="<%=request.getContextPath()%>/faces/facelets/explain/tree.xhtml?rootID=<%=rootID%>" title="Tree View"><img
+    border=0 src="webresource/images/treeview.gif"></a>
 </td>
 <td align=right>
 <INPUT TYPE='checkbox' name="showNames" <%=checkedShowNames%> onclick="submit()">Names</input>
 <INPUT TYPE='checkbox' name="showValues" <%=checkedShowValues%> onclick="submit()">Values</input>
 </td></tr></table>
+
 <input type="hidden" name="header" value="<%=header%>"/>
 <input type="hidden" name="rootID" value="<%=rootID%>"/>
 </FORM>
 
-
-
 <p/>
+
 <table>
 <tr>
 <th>Value</th>
@@ -86,7 +80,7 @@ if (header != null)
    String expandID = request.getParameter("expandID");
    if (expandID != null)
    		expl.expand(expandID);
-   String[] cc = expl.htmlTable(expl.getRoot());
+   String[] cc = expl.htmlTable(expl.getExplainTree());
 %>
 
 <tr>

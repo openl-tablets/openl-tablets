@@ -4,7 +4,6 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:c="http://java.sun.com/jstl/core"
     template="/facelets/common/studioBase.xhtml">
 
     <ui:define name="header">
@@ -57,9 +56,9 @@
                             src="webresource/images/repository/checkout.gif" /></h:outputLink>
                     </td>
                     <td style="text-align: right">
-                        <h:outputLink value="javascript: d.openAll(); d.o(0);" title="Expand All"><img
+                        <h:outputLink value="#" title="Expand All"><img
                             src="webresource/images/expandall.gif"/></h:outputLink>
-                        <h:outputLink value="javascript: d.closeAll();" title="Collapse All"><img
+                        <h:outputLink value="#" title="Collapse All"><img
                             src="webresource/images/collapseall.gif"/></h:outputLink>
                     </td>
                 </tr>
@@ -74,7 +73,6 @@
         <!-- Tree BEGIN -->
         <rich:tree id="tree" value="#{treeBean.tree}" switchType="client" toggleOnClick="true" var="node"
             nodeFace="#{node.type}" selectedClass="treeNodeSelected">
-            <c:set var="img" value="webresource/images" />
             <rich:treeNode type="folder"
                 icon="#{node.state == 1 ? 'webresource/images/dtree/folder-error.png' : 'webresource/images/dtree/folder.png'}">
                 <h:outputText value="#{node.name}" />

@@ -2,10 +2,10 @@ package org.openl.rules.webstudio.web;
 
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.ProjectRichFacesTreeBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
+import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 
 /**
@@ -56,7 +56,7 @@ public class TreeBean {
 
     public TreeNode<?> getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectTreeNode tree = studio.getModel().getProjectTree();
+        ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
             TreeNode<?> rfTree = new ProjectRichFacesTreeBuilder(tree, studio.getModel()).build();
             return rfTree;
