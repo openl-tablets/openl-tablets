@@ -7,6 +7,7 @@ import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableTreeNodeBuilder;
+import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.ui.tree.WorkbookTreeNodeBuilder;
 import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
@@ -15,9 +16,11 @@ import org.openl.util.StringTool;
 public class DeveloperViewMode extends WebStudioViewMode {
 
     private static final BaseTableTreeNodeBuilder[][] sorters = {
-            { new TableTreeNodeBuilder(), new OpenMethodInstancesGroupTreeNodeBuilder(), new TableInstanceTreeNodeBuilder() },
-            { new WorkbookTreeNodeBuilder(), new WorksheetTreeNodeBuilder(), new OpenMethodInstancesGroupTreeNodeBuilder(),
-                    new TableInstanceTreeNodeBuilder() } };
+            { new TableTreeNodeBuilder(), new OpenMethodInstancesGroupTreeNodeBuilder(),
+                    new TableInstanceTreeNodeBuilder(), new TableVersionTreeNodeBuilder() },
+            { new WorkbookTreeNodeBuilder(), new WorksheetTreeNodeBuilder(),
+                    new OpenMethodInstancesGroupTreeNodeBuilder(), new TableInstanceTreeNodeBuilder(),
+                    new TableVersionTreeNodeBuilder() } };
 
     private static final String[][] folders = { { "By Type", "Organize Project by component type", "" },
             { "By File", "Organize project by physical location" } };

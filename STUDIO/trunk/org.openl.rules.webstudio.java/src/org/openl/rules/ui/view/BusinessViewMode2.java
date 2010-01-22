@@ -4,13 +4,14 @@ import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
 import org.openl.rules.ui.tree.CategoryNTreeNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
+import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 public class BusinessViewMode2 extends BaseBusinessViewMode {
 
     private static final BaseTableTreeNodeBuilder[][] sorters = { { new CategoryNTreeNodeBuilder(0, "-"),
             new CategoryNTreeNodeBuilder(1, "-"), new OpenMethodInstancesGroupTreeNodeBuilder(),
-            new TableInstanceTreeNodeBuilder() } };
+            new TableInstanceTreeNodeBuilder(), new TableVersionTreeNodeBuilder() } };
 
     public BusinessViewMode2() {
         setName(WebStudioViewMode.BUSINESS_MODE_TYPE + ".2");
