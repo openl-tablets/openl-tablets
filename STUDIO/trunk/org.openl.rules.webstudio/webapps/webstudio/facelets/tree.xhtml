@@ -93,6 +93,7 @@
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.dt"
+                icon="#{node.state == 1 ? 'webresource/images/dt3-error.png' : (node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png')}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/dt3-error.png' : (node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png')}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />

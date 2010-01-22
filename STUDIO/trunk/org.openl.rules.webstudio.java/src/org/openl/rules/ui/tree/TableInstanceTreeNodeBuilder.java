@@ -1,8 +1,10 @@
 package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
+import org.openl.types.IOpenMethod;
 
 /**
  * Builds tree node for table instance.
@@ -79,7 +81,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     @Override
     public boolean isUnique() {
 
-        return true;
+        return false;
     }
 
     /**
@@ -89,5 +91,30 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     public Object makeObject(TableSyntaxNode tsn) {
 
         return tsn;
+    }
+
+    @Override
+    public Comparable<?> makeKey(TableSyntaxNode tableSyntaxNode) {
+        if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
+
+            TableSyntaxNodeKey key = new TableSyntaxNodeKey(tableSyntaxNode);
+
+            int hash = key.hashCode();
+            String hashString = String.valueOf(hash);
+
+            Object nodeObject = makeObject(tableSyntaxNode);
+
+            return new NodeKey(getWeight(nodeObject), new String[] { hashString, hashString, hashString });
+        }
+        return null;
+    }
+    
+    @Override
+    public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+        Object nodeObject = makeObject(tableSyntaxNode);
+        String[] displayNames = getDisplayValue(nodeObject, 0);
+        ProjectTreeNode projectTreeNode = new VersionedTreeNode(displayNames, tableSyntaxNode);
+        projectTreeNode.setObject(nodeObject);
+        return projectTreeNode;
     }
 }
