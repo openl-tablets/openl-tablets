@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core"
+                xmlns:a4j="http://richfaces.org/a4j"
+                template="/facelets/common/wizardBase.xhtml">
+
+  <ui:define name="page">
+  
+  <h2>Select scope</h2>
+  	<h:form id="scopeForm">
+    	<fieldset><legend>Table Scope</legend>
+    	<a4j:region>
+	      <h:selectOneMenu value="#{tableWizard.selectedScopeType}" id="scopeType" onchange="updateCategoryNameSelector()">	      	
+	        <f:selectItems value="#{tableWizard.scopeTypes}"/>
+	      </h:selectOneMenu>
+	    </a4j:region>
+	   	</fieldset>
+	   	
+	   	<fieldset><legend>Category Name Selector</legend>
+	   		 <div align="left">
+	   		 <a4j:region>
+			      <h:selectOneRadio value="#{tableWizard.categoryNameSelector}" id="categoryNameSelector" layout="pageDirection">
+			      	<a4j:support event="onchange" reRender="categoryNamesList" ajaxSingle="true" oncomplete="updateControls()"/>
+			        <f:selectItem itemValue="LIST" itemLabel="Select from list"/>
+			        <f:selectItem itemValue="NEW" itemLabel="Enter new category name"/>
+			        <f:selectItem itemValue="SHEETNAME" itemLabel="Sheet name as category"/>			        
+			      </h:selectOneRadio>
+			      </a4j:region>		      
+    		</div>
+	   	</fieldset>
+	   	
+	   	<fieldset><legend>Category Names</legend>
+	   		<h:selectOneMenu value="#{tableWizard.selectedCategoryName}" id="categoryNamesList">
+            	<f:selectItems value="#{tableWizard.categoryNamesList}"/>
+          	</h:selectOneMenu>
+          	<br/><br/>
+          	<h:inputText value="#{tableWizard.newCategoryName}" id="newCategoryName"/>	   	
+	   	</fieldset>
+
+	      <hr/>
+	      <h:inputHidden value="1" id="step" binding="#{tableCreatorWizardManager.hiddenStep}"/>
+	      <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
+	      <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}"/>
+	      <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}"/>
+    </h:form>    
+    
+    <f:verbatim>
+    <script type="text/javascript">
+      
+      function updateCategoryNameSelector() {
+    	  var e = document.forms['scopeForm']['scopeForm:scopeType'].value;
+    	  var scopeTypeModule = e == 'Module';
+    	  var radioGrp = document.forms['scopeForm']['scopeForm:categoryNameSelector'];    	  
+          for(i=0; radioGrp.length>i;i++){
+			radioGrp[i].disabled = scopeTypeModule;		
+          }
+          if(scopeTypeModule) {
+          	disableControls(scopeTypeModule);
+          }
+    	  
+      }
+
+      function updateControls() {
+        var list = document.forms['scopeForm']['scopeForm:categoryNameSelector'][0];
+        var newName = document.forms['scopeForm']['scopeForm:categoryNameSelector'][1];
+        var categorySelectorList = list == 'LIST' ? list.checked : !list.checked;
+        var categorySelectorNew = newName == 'NEW' ? newName.checked : !newName.checked;
+        $('scopeForm:categoryNamesList').disabled = categorySelectorList;
+        $('scopeForm:newCategoryName').disabled = categorySelectorNew;  
+        //updateCategoryNameSelector();              
+      }
+
+      function disableControls() {
+    	  $('scopeForm:categoryNamesList').disabled = true;
+          $('scopeForm:newCategoryName').disabled = true;
+      }
+
+      
+
+    </script>
+    </f:verbatim>
+    
+    
+    
+    
+    
+  </ui:define>
+
+</ui:composition>
+

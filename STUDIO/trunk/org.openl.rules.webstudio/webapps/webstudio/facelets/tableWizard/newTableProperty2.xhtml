@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core"
+                xmlns:a4j="http://richfaces.org/a4j"
+                template="/facelets/common/wizardBase.xhtml">
+
+  <ui:define name="page">
+  
+  <h2>Enter Property Table Information</h2>
+  <h:form id="newTableProperty">
+      <h:panelGroup style="text-align:left;"><h:messages showDetail="true" globalOnly="true" tooltip="true" errorClass="error" /></h:panelGroup>
+      <h:panelGroup>
+        <h:panelGrid columns="2">
+          <h:outputLabel value="Table Name" for="techName"/>
+          <h:inputText id="techName" value="#{tableWizard.tableName}"/>
+          <h:outputText value="Parameters:"/>
+          <h:commandLink action="#{tableWizard.addParameter}"><h:graphicImage value="/images/add_obj.gif" alt="Add more" /></h:commandLink>
+        </h:panelGrid>
+  	</h:panelGroup>
+  	</h:form>
+    
+  </ui:define>
+
+</ui:composition>

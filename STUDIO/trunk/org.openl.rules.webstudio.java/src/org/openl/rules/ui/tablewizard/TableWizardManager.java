@@ -7,7 +7,8 @@ public class TableWizardManager extends TableWizard{
     static enum TableType {
         UNKNOWN,
         DECISION,
-        TEST
+        TEST,
+        PROPERTY
     }
 
     private TableType tableType = TableType.DECISION;
@@ -48,6 +49,8 @@ public class TableWizardManager extends TableWizard{
                 break;
             case TEST:
                 wizard = new TestTableCreationWizard();
+            case PROPERTY:
+                wizard = new PropertyTableCreationWizard();
                 break;
             default:
                 return null;
