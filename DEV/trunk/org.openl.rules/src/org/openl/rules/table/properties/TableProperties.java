@@ -3,9 +3,7 @@ package org.openl.rules.table.properties;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import org.openl.rules.table.ILogicalTable;
@@ -49,15 +47,24 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return result;
     }
     
+    /**
+     * The result <code>{@link Map}</code> will contain all pairs from downLevelProperties and pairs from 
+     * upLevelProperties that are not defined in downLevelProperties.
+     * 
+     * @param downLevelProperties properties that are on the down level. 
+     * @param upLevelProperties properties that are on the up level. 
+     *  
+     * @return
+     */
     private Map<String, Object> mergeLevelProperties(Map<String, Object> downLevelProperties, 
             Map<String, Object> upLevelProperties) {
         Map<String, Object> resultProperties = downLevelProperties;
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
             String upLevelPropertyName = upLevelProperty.getKey();
-            Object upLevelPropertyvalue = upLevelProperty.getValue();
+            Object upLevelPropertyValue = upLevelProperty.getValue();
             
             if (!downLevelProperties.containsKey(upLevelPropertyName)) {
-                resultProperties.put(upLevelPropertyName, upLevelPropertyvalue);
+                resultProperties.put(upLevelPropertyName, upLevelPropertyValue);
             }            
         }
         return resultProperties;
@@ -220,10 +227,16 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	}	
 	// <<< END INSERT >>>
 	
+	/**
+	 * {@inheritDoc}
+	 */
     public Object getPropertyValue(String key) {        
         return getPropertiesAll().get(key);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public String getPropertyValueAsString(String key) {
         String result = null;
         Object propValue = getPropertyValue(key);
@@ -252,7 +265,36 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         }
         return result;        
     }
-        
+    
+    /**
+     * {@inheritDoc}
+     */
+    public InheritanceLevel getPropertyLevelDefinedOn(String propertyName) {
+        InheritanceLevel result = null;
+        if (getPropertiesDefinedInTable().containsKey(propertyName)) {
+            result = InheritanceLevel.TABLE;
+        } else if (getPropertiesAppliedForCategory().containsKey(propertyName)) {
+            result = InheritanceLevel.CATEGORY;
+        } else if (getPropertiesAppliedForModule().containsKey(propertyName)) {
+            result = InheritanceLevel.MODULE;
+        }
+        return result;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPropertyAppliedByDefault(String propertyName) {
+        boolean result = false;
+        if (getPropertyLevelDefinedOn(propertyName) == null && defaultProperties.containsKey(propertyName)) {
+            result = true;
+        }
+        return result;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public ILogicalTable getPropertiesSection() {
        return propertySection;
     }
@@ -261,6 +303,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         this.propertySection = propertySection;
      }
     
+    /**
+     * {@inheritDoc}
+     */
     public Map<String, Object> getPropertiesAll() {     
       Map<String, Object> tableAndCategoryProp = mergeLevelProperties(super.getFieldValues(), categoryProperties);
       Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp, moduleProperties);     
@@ -273,14 +318,20 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         super.setFieldValue(name, value);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public Map<String, Object> getPropertiesDefinedInTable() {    
         return super.getFieldValues();
     }
-        
+    
+    /**
+     * {@inheritDoc}
+     */
     public Map<String, Object> getPropertiesDefinedInTableIgnoreSystem() {
         Map<String, Object> result = new HashMap<String, Object>();
-        Map<String, Object> propWithoutDefault = getPropertiesDefinedInTable();
-        for (Map.Entry<String, Object> property : propWithoutDefault.entrySet()) {
+        Map<String, Object> propDefinedInTable = getPropertiesDefinedInTable();
+        for (Map.Entry<String, Object> property : propDefinedInTable.entrySet()) {
             String propName = property.getKey();
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propName);
             if (!propertyDefinition.isSystem()) {
@@ -294,6 +345,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         this.categoryProperties = categoryProperties;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public Map<String, Object> getPropertiesAppliedForCategory() {
         return categoryProperties;
     }
@@ -301,7 +355,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setPropertiesAppliedForModule(Map<String, Object> moduleProperties) {
         this.moduleProperties = moduleProperties;
      }
-
+    
+    /**
+     * {@inheritDoc}
+     */
     public Map<String, Object> getPropertiesAppliedForModule() {       
         return moduleProperties;
     }
@@ -310,6 +367,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         this.defaultProperties = defaultProperties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Map<String, Object> getPropertiesAppliedByDefault() {
         return defaultProperties;
     }
