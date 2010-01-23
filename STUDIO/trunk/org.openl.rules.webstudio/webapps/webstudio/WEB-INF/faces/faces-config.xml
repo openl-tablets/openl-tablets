@@ -378,6 +378,10 @@
       <from-outcome>newTestTable</from-outcome>
       <to-view-id>/facelets/tableWizard/newTableTest1.xhtml</to-view-id>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>newTableProperty</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableProperty1.xhtml</to-view-id>
+    </navigation-case>
   </navigation-rule>
 
   <!-- Decision table wizard -->
@@ -491,6 +495,34 @@
       <to-view-id>/facelets/tableWizard/newTableTest2.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
+  
+  <!-- Property table wizard -->
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTableProperty1.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableProperty2.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable0.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTableProperty2.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableProperty3.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableProperty1.xhtmll</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
+  
+  
   
   <!-- Change names copy table wizard -->
   <navigation-rule>
