@@ -135,19 +135,13 @@ public class PropertiesLoader {
                                                                             .getPropertiesToBeSetByDefault();    
         Map<String, Object> defaultProperties = new HashMap<String, Object>();
         for(TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues){            
-            String propertyName = propertyWithDefaultValue.getName();            
-            Class<?> defaultValueType = TablePropertyDefinitionUtils.getPropertyByName(propertyName).getType()
+            String defaultPropertyName = propertyWithDefaultValue.getName();            
+            Class<?> defaultPropertyValueType = TablePropertyDefinitionUtils.getPropertyByName(defaultPropertyName).getType()
             .getInstanceClass();
-            IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultValueType);
+            IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
             Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
                     propertyWithDefaultValue.getFormat(), null);
-            
-            // check that there is no property value and only then apply default value
-            // TODO: remove setting default property value. migrate to mechanism with maps.
-//            if (properties.getPropertyValue(propertyName) == null) {
-//                properties.setDefaultPropertyValue(propertyName, defaultValue);             
-//            }
-            defaultProperties.put(propertyName, defaultValue);
+            defaultProperties.put(defaultPropertyName, defaultValue);
         }
         properties.setPropertiesAppliedByDefault(defaultProperties);
     }
