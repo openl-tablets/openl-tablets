@@ -22,7 +22,6 @@ public class VersionedTreeNode extends ProjectTreeNode {
 
     public VersionedTreeNode(String[] displayName, TableSyntaxNode table) {
         super(displayName, IProjectTypes.PT_TABLE + "." + table.getType(), null, null, 0, null);
-        linkedChild = table;
     }
 
     @Override
