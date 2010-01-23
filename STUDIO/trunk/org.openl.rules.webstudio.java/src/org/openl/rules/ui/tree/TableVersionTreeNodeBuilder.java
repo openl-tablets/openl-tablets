@@ -3,7 +3,6 @@ package org.openl.rules.ui.tree;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.ui.TableSyntaxNodeUtils;
 
 /**
  * Build tree node for one version of some table.
@@ -13,6 +12,7 @@ import org.openl.rules.ui.TableSyntaxNodeUtils;
 public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
     private static final String TABLE_VERSION = "Table Version";
+    private static final String VERSION_NOT_SPECIFIED = "Version not specified";
 
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
@@ -24,7 +24,7 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
                 return new String[] { version, version, version };
             }
         }
-        return TableSyntaxNodeUtils.getTableDisplayValue(tsn, i, null);
+        return new String[] { VERSION_NOT_SPECIFIED, VERSION_NOT_SPECIFIED, VERSION_NOT_SPECIFIED };
     }
 
     @Override
