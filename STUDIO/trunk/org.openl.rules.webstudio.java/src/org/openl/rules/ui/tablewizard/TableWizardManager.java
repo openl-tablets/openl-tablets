@@ -49,6 +49,7 @@ public class TableWizardManager extends TableWizard{
                 break;
             case TEST:
                 wizard = new TestTableCreationWizard();
+                break;
             case PROPERTY:
                 wizard = new PropertyTableCreationWizard();
                 break;
