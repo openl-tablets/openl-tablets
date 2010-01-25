@@ -234,12 +234,6 @@ public class ShowTableBean {
         return "mainPage";
     }
 
-    public String editAsNewVersion() {
-        // save new table
-        // rebuild project model
-        return null;
-    }
-
     public void resetStudio() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.reset();
