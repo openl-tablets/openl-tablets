@@ -1,11 +1,13 @@
 package org.openl.rules.ui;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -28,6 +30,7 @@ import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
 
 /**
  * Backing bean for table coping.
@@ -40,13 +43,18 @@ public abstract class TableCopier extends WizardBase {
     private static final Log LOG = LogFactory.getLog(TableCopier.class);   
     /** Table identifier */
     private String elementUri = null;
+    /** New table identifier */
+    private String newTableUri = null;
     /** Table technical name */
     private String tableTechnicalName;
     /** Table business name */
     private String tableBusinessName;
     /** Need to save body content during coping */
     private boolean saveContent = true;
-        
+    /** <code>true</code> when copied table have to be displayed in edit mode
+     * <code>false</code> when copied table have to be displayed in view mode*/
+    private boolean edit = false;
+
     /**
      * Copies table.
      *
@@ -56,7 +64,7 @@ public abstract class TableCopier extends WizardBase {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
         XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
-        buildTable(sourceCodeModule, model);
+        newTableUri = buildTable(sourceCodeModule, model);
     }
     
     /**
@@ -64,17 +72,18 @@ public abstract class TableCopier extends WizardBase {
      *
      * @param sourceCodeModule excel sheet to save in
      * @param model table model
+     * @return URI of new table.
      * @throws CreateTableException
      */   
-    protected void buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model) 
+    protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model)
         throws CreateTableException {
         IGridTable baseTable = model.getTable(elementUri);
         TableSyntaxNode baseNode = model.getNode(elementUri);
         String baseTableType = baseNode.getType();
-        
+        XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
         //validateTechnicalName(node);
 
-        TableBuilder builder = new TableBuilder(new XlsSheetGridModel(sourceCodeModule));
+        TableBuilder builder = new TableBuilder(gridModel);
 
         int baseTableWidth = baseTable.getGridWidth();
         int baseTableHeight = baseTable.getGridHeight();
@@ -106,8 +115,10 @@ public abstract class TableCopier extends WizardBase {
         builder.writeGridTable(baseTable.getLogicalRegion(0, logicBaseTableStartRow, baseTableWidth,
                 baseTableHeight - logicBaseTableStartRow).getGridTable());
 
+        String uri = gridModel.getRangeUri(builder.getTableRegion());
         builder.endTable();
         builder.save();
+        return uri;
     }
 
     /**
@@ -204,7 +215,19 @@ public abstract class TableCopier extends WizardBase {
     protected void setElementUri(String elementUri) {
         this.elementUri = elementUri;
     }
-    
+
+    public String getNewTableUri() {
+        return newTableUri;
+    }
+
+    public boolean isEdit() {
+        return edit;
+    }
+
+    protected void setEdit(boolean edit) {
+        this.edit = edit;
+    }
+
     /**
      * Initializes table information.
      */
@@ -290,8 +313,28 @@ public abstract class TableCopier extends WizardBase {
         if (success) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Table was copied successful"));
             result = "copySuccess";
+            resetStudio();
+            HttpServletResponse resp = (HttpServletResponse) FacesUtils.getExternalContext().getResponse();
+            try {
+                resp.sendRedirect(makeUrlForNewTable());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return result;
     }
 
+    private void resetStudio() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.reset();
+        studio.getModel().buildProjectTree();
+    }
+    
+    private String makeUrlForNewTable(){
+        StringBuffer buffer = new StringBuffer(FacesUtils.getExternalContext().getRequestContextPath()
+                + "/faces/facelets/tableeditor/showTable.xhtml");
+        buffer.append("?uri="+StringTool.encodeURL(newTableUri));
+        buffer.append("&mode="+(edit?"edit":"view"));
+        return buffer.toString();
+    }
 }

@@ -63,6 +63,15 @@ public class TableCopierWizardManager extends TableWizard{
         return ret;
     }
     
+    public String editAsNewVersion() {
+        reload();
+        copyType = CopyType.CHANGE_PROPERTIES;
+        wizard = new TablePropertyCopier(elementUri, true);
+        String ret = wizard.getName();
+        wizard.next();
+        return ret;
+    }
+    
     private void reload() {
         elementUri = null;
         init();        

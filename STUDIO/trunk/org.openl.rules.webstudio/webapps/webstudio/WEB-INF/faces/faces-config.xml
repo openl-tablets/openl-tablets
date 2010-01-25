@@ -537,6 +537,15 @@
     </navigation-case>
   </navigation-rule>
   
+  <!-- Copy table during "Edit as new version"-->
+  <navigation-rule>
+   <from-view-id>/facelets/tableeditor/showTable.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>changeProperties</from-outcome>
+      <to-view-id>/facelets/tableCopier/copyProperties.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
   <!-- Change names navigation -->   
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/copyNames.xhtml</from-view-id>
@@ -552,10 +561,6 @@
   
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/copyNamesSelectDestination.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>copySuccess</from-outcome>
-      <to-view-id>/facelets/tableCopier/copySuccess.xhtml</to-view-id>
-    </navigation-case>    
     <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableCopier/copyNames.xhtml</to-view-id>
@@ -586,10 +591,6 @@
   
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</from-view-id>  
-    <navigation-case>
-      <from-outcome>copySuccess</from-outcome>
-      <to-view-id>/facelets/tableCopier/copySuccess.xhtml</to-view-id>
-    </navigation-case>   
     <navigation-case>
       <from-outcome>prev</from-outcome>
       <to-view-id>/facelets/tableCopier/copyProperties.xhtml</to-view-id>

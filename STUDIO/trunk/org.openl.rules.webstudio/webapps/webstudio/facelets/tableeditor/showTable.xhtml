@@ -41,7 +41,8 @@
                     <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
                 </h:outputLink>
 
-                <h:commandLink rendered="#{showTableBean.editable}" action="#{showTableBean.editAsNewVersion}">
+                <h:commandLink rendered="#{showTableBean.editable}" action="#{tableCopierWizardManager.editAsNewVersion}">
+                    <f:param name="uri" value="#{showTableBean.uri}" />
                     <h:graphicImage url="/webresource/images/editTableNewVersion.gif"
                         alt="Edit Table as New Version" title="Edit Table as New Version" />
                 </h:commandLink>

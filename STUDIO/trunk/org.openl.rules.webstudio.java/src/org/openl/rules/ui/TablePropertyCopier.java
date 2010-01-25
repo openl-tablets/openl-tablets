@@ -46,20 +46,28 @@ public class TablePropertyCopier extends TableCopier {
         start();
         setElementUri(elementUri);        
         initTableNames();  
-        initProperties();
+        initProperties(false);
+    }    
+    
+    public TablePropertyCopier(String elementUri, boolean editAsNewVersion) {        
+        start();
+        setElementUri(elementUri);        
+        initTableNames();
+        setEdit(editAsNewVersion);
+        initProperties(editAsNewVersion == true);
     }    
     
     /**
      * When doing the copy of the table, just properties that where physically defined in original table
      * get to the properties copying page.
      */
-    private void initProperties() {
+    private void initProperties(boolean excludeDimensionalProperties) {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions
                 .getDefaultDefinitions();
         TableSyntaxNode node = getCopyingTable();
         
         for (TablePropertyDefinition propDefinition : propDefinitions) {
-            if (!propDefinition.isSystem()) {
+            if (!propDefinition.isSystem() && !(excludeDimensionalProperties && propDefinition.isDimensional())) {
                 ITableProperties tableProperties = node.getTableProperties();
                 String name = propDefinition.getName();
                 Object propertyValue = tableProperties.getPropertyValue(name) != null ?
