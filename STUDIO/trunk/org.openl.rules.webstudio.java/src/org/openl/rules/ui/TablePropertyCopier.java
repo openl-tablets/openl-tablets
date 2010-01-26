@@ -198,4 +198,13 @@ public class TablePropertyCopier extends TableCopier {
     public UIRepeat getPropsTable() {
         return propsTable;
     }
+
+    /**
+     * It is only necessary for version editor.
+     * 
+     * @return "Version" TableProperty.
+     */
+    public TableProperty getVersion(){
+        return getProperty("version");
+    }
 }
