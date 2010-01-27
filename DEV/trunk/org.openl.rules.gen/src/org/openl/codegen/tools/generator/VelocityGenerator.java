@@ -1,4 +1,4 @@
-package org.openl.codegen.tools;
+package org.openl.codegen.tools.generator;
 
 import java.io.StringWriter;
 import java.util.Map;

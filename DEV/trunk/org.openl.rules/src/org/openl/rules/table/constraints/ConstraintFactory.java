@@ -14,6 +14,8 @@ public class ConstraintFactory {
             constraint = new MoreThanConstraint(value);
         } else if (value.matches(UniqueInModuleConstraint.CONSTRAINT_MATCH)) {
             constraint = new UniqueInModuleConstraint(value);
+        } else if (value.matches(DataEnumConstraint.CONSTRAINT_MATCH)) {
+            constraint = new DataEnumConstraint(value);
         }
         // to be continued...
         return constraint;

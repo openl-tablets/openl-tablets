@@ -1,4 +1,4 @@
-package org.openl.codegen.tools;
+package org.openl.codegen.tools.type;
 
 import org.openl.rules.enumeration.properties.EnumPropertyDefinition;
 

@@ -1,18 +1,18 @@
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-		constraints.put("$tablePropertyDefinition.PropertyVar", new MatchingConstraint<$tablePropertyDefinition.Definition.Type.InstanceClass.Name, $tablePropertyDefinition.Definition.Type.InstanceClass.Name>() {
+		constraints.put("$tablePropertyDefinition.PropertyVar", new MatchingConstraint<$tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass), $tool.getTypeName($contextPropertyDefinitionWrappers.findWrapper($tablePropertyDefinition.ContextVar).Definition.Type.InstanceClass)>() { 
 
 			@Override
-			protected $tablePropertyDefinition.Definition.Type.InstanceClass.Name getContextValue(IRulesRuntimeContext context) {
-			    return context.get#upperFirstChar($tablePropertyDefinition.ContextVar)();
+			protected $tool.getTypeName($contextPropertyDefinitionWrappers.findWrapper($tablePropertyDefinition.ContextVar).Definition.Type.InstanceClass) getContextValue(IRulesRuntimeContext context) {
+			    return context.get$tool.formatAccessorName($tablePropertyDefinition.ContextVar)();
 			}
 			
 			@Override
-			protected $tablePropertyDefinition.Definition.Type.InstanceClass.Name getPropertyValue(ITableProperties properties) {
-			    return properties.get#upperFirstChar($tablePropertyDefinition.PropertyVar)();
+			protected $tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass) getPropertyValue(ITableProperties properties) {
+			    return properties.get$tool.formatAccessorName($tablePropertyDefinition.PropertyVar)();
 			}
 			
 			@Override
-			protected boolean matchNotNulls($tablePropertyDefinition.Definition.Type.InstanceClass.Name propertyValue, $tablePropertyDefinition.Definition.Type.InstanceClass.Name contextValue) {
+			protected boolean matchNotNulls($tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass) propertyValue, $tool.getTypeName($contextPropertyDefinitionWrappers.findWrapper($tablePropertyDefinition.ContextVar).Definition.Type.InstanceClass) contextValue) {
 			    return ${tablePropertyDefinition.Operation}(propertyValue, contextValue);
 			}
 			

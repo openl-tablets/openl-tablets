@@ -398,6 +398,20 @@ public class String2DataConvertorFactory {
         }
 
         public Object parse(String data, String format, IBindingContext cxt) {
+            
+            if (data.endsWith("[]")) {
+                
+                String baseCode = data.substring(0, data.length() - 2);
+                IOpenClass baseType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, baseCode);
+                
+                if (baseType == null) {
+                    return null;
+                }
+                
+                return baseType.getAggregateInfo().getIndexedAggregateType(baseType, 1);
+            }
+
+            
             IOpenClass c = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, data);
 
             if (c == null) {
@@ -421,6 +435,22 @@ public class String2DataConvertorFactory {
 
     }
 
+    public class String2ArrayConvertor implements IString2DataConvertor {
+
+        private Object type;
+        
+        public String format(Object data, String format) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public Object parse(String data, String format, IBindingContext cxt) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+        
+    }
+    
     public static class NoConvertor implements IString2DataConvertor {
 
         private Class<?> clazz;

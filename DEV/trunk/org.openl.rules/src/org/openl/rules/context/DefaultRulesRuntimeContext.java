@@ -54,10 +54,10 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	public void setUsState(java.lang.String usState) {
 		internalMap.put("usState", usState);
 	}	
-	public java.lang.String getCountry() {
-		return (java.lang.String) internalMap.get("country"); 
+	public org.openl.rules.enumeration.CountriesEnum getCountry() {
+		return (org.openl.rules.enumeration.CountriesEnum) internalMap.get("country"); 
 	}
-	public void setCountry(java.lang.String country) {
+	public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
 		internalMap.put("country", country);
 	}	
 	// <<< END INSERT >>>

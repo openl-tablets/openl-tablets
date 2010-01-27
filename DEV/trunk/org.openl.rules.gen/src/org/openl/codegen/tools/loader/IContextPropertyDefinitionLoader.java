@@ -1,4 +1,4 @@
-package org.openl.codegen.tools;
+package org.openl.codegen.tools.loader;
 
 import org.openl.rules.context.properties.ContextPropertyDefinition;
 
