@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -165,10 +166,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setUsregion(java.lang.String usregion) {
 		setFieldValue("usregion", usregion);
 	}	
-	public java.lang.String getCountry() {
-		return (java.lang.String) getPropertyValue("country"); 
+	public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
+		return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country"); 
 	}
-	public void setCountry(java.lang.String country) {
+	public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
 		setFieldValue("country", country);
 	}	
 	public java.lang.String getCurrency() {

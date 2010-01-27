@@ -1,8 +1,8 @@
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-	public $tablePropertyDefinition.Type.InstanceClass.Name get#upperFirstChar($tablePropertyDefinition.Name)() {
-		return ($tablePropertyDefinition.Type.InstanceClass.Name) getPropertyValue("$tablePropertyDefinition.Name"); 
+	public $tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($tablePropertyDefinition.Name)() {
+		return ($tool.getTypeName($tablePropertyDefinition.Type.InstanceClass)) getPropertyValue("$tablePropertyDefinition.Name"); 
 	}
-	public void set#upperFirstChar($tablePropertyDefinition.Name)($tablePropertyDefinition.Type.InstanceClass.Name $tablePropertyDefinition.Name) {
+	public void set$tool.formatAccessorName($tablePropertyDefinition.Name)($tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) $tablePropertyDefinition.Name) {
 		setFieldValue("$tablePropertyDefinition.Name", $tablePropertyDefinition.Name);
 	}	
 #end

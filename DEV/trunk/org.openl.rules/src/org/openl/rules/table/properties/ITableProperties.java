@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 
@@ -107,53 +106,53 @@ public interface ITableProperties {
 	
 	// <<< INSERT >>>
 	java.lang.String getName();
-	void setName(java.lang.String name);	
+	void setName(java.lang.String name);
 	java.lang.String getCategory();
-	void setCategory(java.lang.String category);	
+	void setCategory(java.lang.String category);
 	java.lang.String getDescription();
-	void setDescription(java.lang.String description);	
+	void setDescription(java.lang.String description);
 	java.lang.String getTags();
-	void setTags(java.lang.String tags);	
+	void setTags(java.lang.String tags);
 	java.util.Date getEffectiveDate();
-	void setEffectiveDate(java.util.Date effectiveDate);	
+	void setEffectiveDate(java.util.Date effectiveDate);
 	java.util.Date getExpirationDate();
-	void setExpirationDate(java.util.Date expirationDate);	
+	void setExpirationDate(java.util.Date expirationDate);
 	java.lang.String getCreatedBy();
-	void setCreatedBy(java.lang.String createdBy);	
+	void setCreatedBy(java.lang.String createdBy);
 	java.util.Date getCreatedOn();
-	void setCreatedOn(java.util.Date createdOn);	
+	void setCreatedOn(java.util.Date createdOn);
 	java.lang.String getModifiedBy();
-	void setModifiedBy(java.lang.String modifiedBy);	
+	void setModifiedBy(java.lang.String modifiedBy);
 	java.util.Date getModifyOn();
-	void setModifyOn(java.util.Date modifyOn);	
+	void setModifyOn(java.util.Date modifyOn);
 	java.lang.String getBuildPhase();
-	void setBuildPhase(java.lang.String buildPhase);	
+	void setBuildPhase(java.lang.String buildPhase);
 	java.lang.String getValidateDT();
-	void setValidateDT(java.lang.String validateDT);	
+	void setValidateDT(java.lang.String validateDT);
 	java.lang.String getLob();
-	void setLob(java.lang.String lob);	
+	void setLob(java.lang.String lob);
 	java.lang.String getUsregion();
-	void setUsregion(java.lang.String usregion);	
-	java.lang.String getCountry();
-	void setCountry(java.lang.String country);	
+	void setUsregion(java.lang.String usregion);
+	org.openl.rules.enumeration.CountriesEnum[] getCountry();
+	void setCountry(org.openl.rules.enumeration.CountriesEnum[] country);
 	java.lang.String getCurrency();
-	void setCurrency(java.lang.String currency);	
+	void setCurrency(java.lang.String currency);
 	java.lang.String getLang();
-	void setLang(java.lang.String lang);	
+	void setLang(java.lang.String lang);
 	java.lang.String getState();
-	void setState(java.lang.String state);	
+	void setState(java.lang.String state);
 	java.lang.String getRegion();
-	void setRegion(java.lang.String region);	
+	void setRegion(java.lang.String region);
 	java.lang.String getVersion();
-	void setVersion(java.lang.String version);	
+	void setVersion(java.lang.String version);
 	java.lang.Boolean getActive();
-	void setActive(java.lang.Boolean active);	
+	void setActive(java.lang.Boolean active);
 	java.lang.Boolean getFailOnMiss();
-	void setFailOnMiss(java.lang.Boolean failOnMiss);	
+	void setFailOnMiss(java.lang.Boolean failOnMiss);
 	java.lang.Boolean getReturnOnMiss();
-	void setReturnOnMiss(java.lang.Boolean returnOnMiss);	
+	void setReturnOnMiss(java.lang.Boolean returnOnMiss);
 	java.lang.String getScope();
-	void setScope(java.lang.String scope);	
+	void setScope(java.lang.String scope);
 	// <<< END INSERT >>>
 	
 	

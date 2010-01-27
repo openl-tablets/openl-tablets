@@ -15,7 +15,7 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
 	void setUsRegion(java.lang.String usRegion);	
 	java.lang.String getUsState();
 	void setUsState(java.lang.String usState);	
-	java.lang.String getCountry();
-	void setCountry(java.lang.String country);	
+	org.openl.rules.enumeration.CountriesEnum getCountry();
+	void setCountry(org.openl.rules.enumeration.CountriesEnum country);	
 	// <<< END INSERT >>>
 }

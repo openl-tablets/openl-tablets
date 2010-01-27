@@ -30,7 +30,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
     protected void initilaize() {
         // <<< INSERT >>>
-		constraints.put("effectiveDate", new MatchingConstraint<java.util.Date, java.util.Date>() {
+		constraints.put("effectiveDate", new MatchingConstraint<java.util.Date, java.util.Date>() { 
 
 			@Override
 			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
@@ -48,7 +48,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("expirationDate", new MatchingConstraint<java.util.Date, java.util.Date>() {
+		constraints.put("expirationDate", new MatchingConstraint<java.util.Date, java.util.Date>() { 
 
 			@Override
 			protected java.util.Date getContextValue(IRulesRuntimeContext context) {
@@ -66,7 +66,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("lob", new MatchingConstraint<java.lang.String, java.lang.String>() {
+		constraints.put("lob", new MatchingConstraint<java.lang.String, java.lang.String>() { 
 
 			@Override
 			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
@@ -84,7 +84,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("usregion", new MatchingConstraint<java.lang.String, java.lang.String>() {
+		constraints.put("usregion", new MatchingConstraint<java.lang.String, java.lang.String>() { 
 
 			@Override
 			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
@@ -102,25 +102,25 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("country", new MatchingConstraint<java.lang.String, java.lang.String>() {
+		constraints.put("country", new MatchingConstraint<org.openl.rules.enumeration.CountriesEnum[], org.openl.rules.enumeration.CountriesEnum>() { 
 
 			@Override
-			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
+			protected org.openl.rules.enumeration.CountriesEnum getContextValue(IRulesRuntimeContext context) {
 			    return context.getCountry();
 			}
 			
 			@Override
-			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			protected org.openl.rules.enumeration.CountriesEnum[] getPropertyValue(ITableProperties properties) {
 			    return properties.getCountry();
 			}
 			
 			@Override
-			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
-			    return EQ(propertyValue, contextValue);
+			protected boolean matchNotNulls(org.openl.rules.enumeration.CountriesEnum[] propertyValue, org.openl.rules.enumeration.CountriesEnum contextValue) {
+			    return CONTAINS(propertyValue, contextValue);
 			}
 			
         });
-		constraints.put("state", new MatchingConstraint<java.lang.String, java.lang.String>() {
+		constraints.put("state", new MatchingConstraint<java.lang.String, java.lang.String>() { 
 
 			@Override
 			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
