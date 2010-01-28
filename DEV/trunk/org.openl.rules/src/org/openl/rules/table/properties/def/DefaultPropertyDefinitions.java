@@ -1,6 +1,10 @@
 package org.openl.rules.table.properties.def;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 
@@ -109,7 +113,7 @@ public class DefaultPropertyDefinitions
 		definitions[6].setDimensional(false);
 		definitions[6].setDisplayName("Created By");
 		definitions[6].setGroup("Info");
-		definitions[6].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[6].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[6].setName("createdBy");
 		definitions[6].setPrimaryKey(false);
 		definitions[6].setSecurityFilter("no");
@@ -125,7 +129,7 @@ public class DefaultPropertyDefinitions
 		definitions[7].setDisplayName("Created On");
 		definitions[7].setFormat("MM/dd/yyyy");
 		definitions[7].setGroup("Info");
-		definitions[7].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[7].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[7].setName("createdOn");
 		definitions[7].setPrimaryKey(false);
 		definitions[7].setSecurityFilter("no");
@@ -358,12 +362,19 @@ public class DefaultPropertyDefinitions
         // <<< END INSERT TablePropertiesDefinition >>>
     }
 
-    /**
-     * 
-     * @return
-     */
-    public static TablePropertyDefinition[] getDefaultDefinitions(){
+    public static TablePropertyDefinition[] getDefaultDefinitions() {
         return definitions;
     }
-	
+
+    public static TablePropertyDefinition[] getDefaultDefinitionsByInheritanceLevel(
+            InheritanceLevel inheritanceLevel) {
+        List<TablePropertyDefinition> resultDefinitions = new ArrayList<TablePropertyDefinition>();
+        for (TablePropertyDefinition propertyDefinition : definitions) {
+            if (ArrayUtils.contains(propertyDefinition.getInheritanceLevel(), inheritanceLevel)) {
+                resultDefinitions.add(propertyDefinition);
+            }
+        }
+        return resultDefinitions.toArray(new TablePropertyDefinition[0]);
+    }
+
 }
