@@ -45,7 +45,7 @@ public class PropertyTableTest {
                 assertTrue(moduleProperties.size() == 3);
                 assertEquals("module",(String) moduleProperties.get("scope"));
                 assertEquals("Any phase",(String) moduleProperties.get("buildPhase"));                
-                assertEquals("Vasia Pupkin",(String) moduleProperties.get("createdBy"));
+                assertEquals("on",(String) moduleProperties.get("validateDT"));
                 
                 Map<String, Object> categoryProperties = tableProperties.getPropertiesAppliedForCategory();                
                 assertTrue(categoryProperties.size() == 3);
