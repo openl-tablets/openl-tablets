@@ -517,13 +517,23 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTableProperty1.xhtmll</to-view-id>
+      <to-view-id>/facelets/tableWizard/newTableProperty1.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
-  
-  
-  
-  
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTableProperty3.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>done</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable7.xhtml</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTableProperty2.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
   <!-- Change names copy table wizard -->
   <navigation-rule>
     <from-view-id>/facelets/tableCopier/copyTableSelectOptions.xhtml</from-view-id>

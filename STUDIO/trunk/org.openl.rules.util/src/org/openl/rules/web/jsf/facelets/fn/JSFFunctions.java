@@ -90,4 +90,8 @@ public class JSFFunctions {
     public static String unescape(String string) {
         return StringEscapeUtils.unescapeHtml(string);
     }
+
+    public static Integer toInteger(String string) {
+        return Integer.valueOf(string);
+    }
 }

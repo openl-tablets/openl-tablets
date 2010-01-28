@@ -70,12 +70,12 @@ public abstract class WizardBase extends BaseWizardBean {
 
     public List<SelectItem> getWorksheets() {
         if (workbook == null || workbooks == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         XlsWorkbookSourceCodeModule currentSheet = workbooks.get(workbook);
         if (currentSheet == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         Workbook workbook = currentSheet.getWorkbook();
