@@ -19,7 +19,11 @@ public interface ICellEditorFactory {
      */
     ICellEditor makeComboboxEditor(String[] choices);
     
+    ICellEditor makeComboboxEditor(String[] choices, String[] displayValues);
+    
     ICellEditor makeMultiSelectEditor(String[] choices);
+    
+    ICellEditor makeMultiSelectEditor(String[] choices, String[] displayValues);
 
     /**
      * Creates int range editor with min,max bounds.
