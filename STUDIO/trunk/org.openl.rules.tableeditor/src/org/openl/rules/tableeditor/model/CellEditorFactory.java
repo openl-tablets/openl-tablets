@@ -3,7 +3,11 @@ package org.openl.rules.tableeditor.model;
 public class CellEditorFactory implements ICellEditorFactory {
 
     public ICellEditor makeComboboxEditor(String[] choices) {
-        return new ComboBoxCellEditor(choices, choices);
+        return makeComboboxEditor(choices, choices);
+    }
+    
+    public ICellEditor makeComboboxEditor(String[] choices, String[] displayValues) {
+        return new ComboBoxCellEditor(choices, displayValues);
     }
 
     public ICellEditor makeIntEditor(int min, int max) {
@@ -31,7 +35,11 @@ public class CellEditorFactory implements ICellEditorFactory {
     }
 
     public ICellEditor makeMultiSelectEditor(String[] choices) {        
-        return new MultiSelectCellEditor(choices, choices);
+        return makeMultiSelectEditor(choices, choices);
+    }
+
+    public ICellEditor makeMultiSelectEditor(String[] choices, String[] dispalayValues) {        
+        return new MultiSelectCellEditor(choices, dispalayValues);
     }
 
 }
