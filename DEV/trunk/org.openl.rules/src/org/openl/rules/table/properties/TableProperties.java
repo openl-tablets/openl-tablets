@@ -100,10 +100,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setDescription(java.lang.String description) {
 		setFieldValue("description", description);
 	}	
-	public java.lang.String getTags() {
-		return (java.lang.String) getPropertyValue("tags"); 
+	public java.lang.String[] getTags() {
+		return (java.lang.String[]) getPropertyValue("tags"); 
 	}
-	public void setTags(java.lang.String tags) {
+	public void setTags(java.lang.String[] tags) {
 		setFieldValue("tags", tags);
 	}	
 	public java.util.Date getEffectiveDate() {
@@ -172,10 +172,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
 		setFieldValue("country", country);
 	}	
-	public java.lang.String getCurrency() {
-		return (java.lang.String) getPropertyValue("currency"); 
+	public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
+		return (org.openl.rules.enumeration.CurrenciesEnum) getPropertyValue("currency"); 
 	}
-	public void setCurrency(java.lang.String currency) {
+	public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
 		setFieldValue("currency", currency);
 	}	
 	public java.lang.String getLang() {

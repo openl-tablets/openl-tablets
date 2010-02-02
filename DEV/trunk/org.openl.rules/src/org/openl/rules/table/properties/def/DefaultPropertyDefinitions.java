@@ -74,7 +74,7 @@ public class DefaultPropertyDefinitions
 		definitions[3].setPrimaryKey(false);
 		definitions[3].setSecurityFilter("no");
 		definitions[3].setSystem(false);
-		definitions[3].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[3].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
 		definitions[4] = new TablePropertyDefinition();
 		definitions[4].setBusinessSearch(true);
 		definitions[4].setConstraints(new org.openl.rules.table.constraints.Constraints("< expirationDate"));
@@ -239,7 +239,7 @@ public class DefaultPropertyDefinitions
 		definitions[14].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CountriesEnum[].class));
 		definitions[15] = new TablePropertyDefinition();
 		definitions[15].setBusinessSearch(false);
-		definitions[15].setConstraints(new org.openl.rules.table.constraints.Constraints("list: currencies"));
+		definitions[15].setConstraints(new org.openl.rules.table.constraints.Constraints("data: currencies"));
 		definitions[15].setDefaultValue("USD");
 		definitions[15].setDescription("Currency");
 		definitions[15].setDimensional(false);
@@ -250,7 +250,7 @@ public class DefaultPropertyDefinitions
 		definitions[15].setPrimaryKey(false);
 		definitions[15].setSecurityFilter("no");
 		definitions[15].setSystem(false);
-		definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CurrenciesEnum.class));
 		definitions[16] = new TablePropertyDefinition();
 		definitions[16].setBusinessSearch(false);
 		definitions[16].setConstraints(new org.openl.rules.table.constraints.Constraints("list: languages"));
