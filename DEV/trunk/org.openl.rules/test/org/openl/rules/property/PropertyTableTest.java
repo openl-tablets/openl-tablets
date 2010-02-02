@@ -53,10 +53,11 @@ public class PropertyTableTest {
                 assertEquals("alaska",(String) categoryProperties.get("usregion"));                
                 assertEquals("east",(String) categoryProperties.get("region"));
                 
-                Map<String, Object> defaultProperties = tableProperties.getPropertiesAppliedByDefault();                
-//                assertTrue(defaultProperties.size() == 5);
-//                assertEquals("US",(String) defaultProperties.get("country"));
-                assertEquals("USD",(String) defaultProperties.get("currency"));                
+                Map<String, Object> defaultProperties = tableProperties.getPropertiesAppliedByDefault();
+                // assertTrue(defaultProperties.size() == 5);
+                // assertEquals("US",(String) defaultProperties.get("country"));
+                assertEquals(org.openl.rules.enumeration.CurrenciesEnum.USD,
+                        (org.openl.rules.enumeration.CurrenciesEnum) defaultProperties.get("currency"));
                 assertEquals("en",(String) defaultProperties.get("lang"));
                 assertTrue((Boolean) defaultProperties.get("active"));
                 assertTrue((Boolean) defaultProperties.get("failOnMiss"));
