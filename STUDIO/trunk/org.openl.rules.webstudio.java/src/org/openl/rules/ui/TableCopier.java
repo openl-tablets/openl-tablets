@@ -60,13 +60,13 @@ public abstract class TableCopier extends WizardBase {
      *
      * @throws CreateTableException
      */
-    private void doCopy() throws CreateTableException {
+    protected void doCopy() throws CreateTableException {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
         XlsSheetSourceCodeModule sourceCodeModule = getDestinationSheet();
         newTableUri = buildTable(sourceCodeModule, model);
     }
-    
+
     /**
      * Creates new table.
      *
@@ -77,7 +77,7 @@ public abstract class TableCopier extends WizardBase {
      */   
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model)
         throws CreateTableException {
-        IGridTable baseTable = model.getTable(elementUri);
+        IGridTable originalTable = model.getTable(elementUri);
         TableSyntaxNode baseNode = model.getNode(elementUri);
         String baseTableType = baseNode.getType();
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
@@ -85,8 +85,8 @@ public abstract class TableCopier extends WizardBase {
 
         TableBuilder builder = new TableBuilder(gridModel);
 
-        int baseTableWidth = baseTable.getGridWidth();
-        int baseTableHeight = baseTable.getGridHeight();
+        int baseTableWidth = originalTable.getGridWidth();
+        int baseTableHeight = originalTable.getGridHeight();
         int logicBaseTableStartRow = 0;
 
         builder.beginTable(baseTableWidth, baseTableHeight);
@@ -94,7 +94,7 @@ public abstract class TableCopier extends WizardBase {
         boolean otherTable = ITableNodeTypes.XLS_OTHER.equals(baseTableType); 
         if (!envTable && !otherTable) {
             String newHeader = buildHeader(baseNode.getHeaderLineValue().getValue(), baseTableType);
-            ICellStyle headerStyle = baseTable.getCell(0, 0).getStyle();
+            ICellStyle headerStyle = originalTable.getCell(0, 0).getStyle();
             builder.writeHeader(newHeader, headerStyle);
             logicBaseTableStartRow++;
 
@@ -112,7 +112,7 @@ public abstract class TableCopier extends WizardBase {
             logicBaseTableStartRow += baseTablePhysicalProperties == null ? 0 : baseTablePhysicalProperties.size();
         }
 
-        builder.writeGridTable(baseTable.getLogicalRegion(0, logicBaseTableStartRow, baseTableWidth,
+        builder.writeGridTable(originalTable.getLogicalRegion(0, logicBaseTableStartRow, baseTableWidth,
                 baseTableHeight - logicBaseTableStartRow).getGridTable());
 
         String uri = gridModel.getRangeUri(builder.getTableRegion());

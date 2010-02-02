@@ -22,6 +22,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.search.IOpenLSearch;
 import org.openl.rules.search.OpenLSavedSearch;
@@ -29,6 +30,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.ITable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.ui.ColorGridFilter;
@@ -51,6 +53,7 @@ import org.openl.rules.validator.dt.DTValidationResult;
 import org.openl.rules.validator.dt.DTValidator;
 import org.openl.rules.webtools.WebTool;
 import org.openl.rules.webtools.XlsUrlParser;
+import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.tableeditor.model.ui.TableViewer;
@@ -1374,5 +1377,13 @@ public class ProjectModel implements IProjectTypes {
             tsn.setValidationResult(t);
             ve.add(t);
         }
+    }
+
+    public TableEditorModel getTableEditorModel(String tableUri) {
+        TableSyntaxNode tableNode = getNode(tableUri);
+        ITable table = new TableSyntaxNodeAdapter(tableNode);
+        String tableView = getTableView(null);
+        TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
+        return tableModel;
     }
 }

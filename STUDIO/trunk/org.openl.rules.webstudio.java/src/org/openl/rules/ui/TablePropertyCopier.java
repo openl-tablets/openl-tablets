@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.ajax4jsf.component.UIRepeat;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
@@ -16,12 +19,16 @@ import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class TablePropertyCopier extends TableCopier {
-    
+
+    private static final Log LOG = LogFactory.getLog(TablePropertyCopier.class);
+
     private List<TableProperty> propsToCopy = new ArrayList<TableProperty>();
-    
+
     private List<TableProperty> defaultProps = new ArrayList<TableProperty>();
 
     private UIRepeat propsTable;
@@ -41,22 +48,19 @@ public class TablePropertyCopier extends TableCopier {
     public List<TableProperty> getDefaultProps() {
         return defaultProps;
     }
-    
-    public TablePropertyCopier(String elementUri) {        
+
+    public TablePropertyCopier(String elementUri) {
+        this(elementUri, false);
+    }
+
+    public TablePropertyCopier(String elementUri, boolean edit) {
         start();
-        setElementUri(elementUri);        
-        initTableNames();  
-        initProperties(false);
-    }    
-    
-    public TablePropertyCopier(String elementUri, boolean editAsNewVersion) {        
-        start();
-        setElementUri(elementUri);        
+        setElementUri(elementUri);
         initTableNames();
-        setEdit(editAsNewVersion);
-        initProperties(editAsNewVersion == true);
-    }    
-    
+        initProperties(edit);
+        setEdit(edit);
+    }
+
     /**
      * When doing the copy of the table, just properties that where physically defined in original table
      * get to the properties copying page.
@@ -204,7 +208,27 @@ public class TablePropertyCopier extends TableCopier {
      * 
      * @return "Version" TableProperty.
      */
-    public TableProperty getVersion(){
+    public TableProperty getVersion() {
         return getProperty("version");
     }
+
+    protected void updatePropertiesForOriginalTable(Map<String, String> properties) {
+        if (properties.size() > 0) {
+            WebStudio studio = WebStudioUtils.getWebStudio();
+            ProjectModel model = studio.getModel();
+            TableEditorModel tableEditorModel = model.getTableEditorModel(getElementUri());
+
+            Set<String> propNames = properties.keySet();
+            try {
+                for (String propName : propNames) {
+                    String propValue = properties.get(propName);
+                    tableEditorModel.setProperty(propName, propValue);
+                }
+                tableEditorModel.save();
+            } catch (Exception e) {
+                LOG.error("Can not update table properties", e);
+            }
+        }
+    }
+
 }
