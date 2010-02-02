@@ -24,7 +24,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
 
         @Override
         public boolean isMatching(String sample, String test) {
-            return test.indexOf(sample) >= 0;
+            return test != null && test.indexOf(sample) >= 0;
         }
     }
 
