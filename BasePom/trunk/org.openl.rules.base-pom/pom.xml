@@ -15,6 +15,11 @@
     <openl.version.maven>5.3.1-SNAPSHOT</openl.version.maven>
   </properties>
 
+ <scm>
+  <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/trunk</connection> 
+  <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/trunk</developerConnection> 
+  </scm>
+
 
   <pluginRepositories>
     <!-- for maven-depgraph-plugin --> 
