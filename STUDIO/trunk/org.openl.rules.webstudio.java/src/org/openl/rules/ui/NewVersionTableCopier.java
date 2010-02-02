@@ -58,7 +58,7 @@ public class NewVersionTableCopier extends TablePropertyCopier {
         }
     }
 
-    public Version getInitVersion() {
+    public Version getMinVersion() {
         Version nextVersion;
         Version originalVersion = getOriginalVersion();
         if (originalVersion != null) {
