@@ -4,6 +4,7 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:c="http://java.sun.com/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
     template="/facelets/common/studioBase.xhtml">
@@ -41,7 +42,9 @@
                     <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
                 </h:outputLink>
 
-                <h:commandLink rendered="#{showTableBean.editable}" action="#{tableCopierWizardManager.editAsNewVersion}">
+                <h:commandLink rendered="#{showTableBean.editable}"
+                    action="#{tableCopierWizardManager.startWizard}">
+                    <a4j:actionparam assignTo="#{tableCopierWizardManager.copyType}" value="CHANGE_VERSION" />
                     <f:param name="uri" value="#{showTableBean.uri}" />
                     <h:graphicImage url="/webresource/images/editTableNewVersion.gif"
                         alt="Edit Table as New Version" title="Edit Table as New Version" />

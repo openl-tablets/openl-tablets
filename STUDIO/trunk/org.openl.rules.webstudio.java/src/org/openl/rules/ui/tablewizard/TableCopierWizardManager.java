@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.ui.NewVersionTableCopier;
 import org.openl.rules.ui.TablePropertyCopier;
 import org.openl.rules.ui.TableNamesCopier;
 import org.openl.rules.ui.WebStudio;
@@ -8,12 +9,12 @@ import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
+public class TableCopierWizardManager extends TableWizard {    
 
-    
-public class TableCopierWizardManager extends TableWizard{    
     static enum CopyType {
         CHANGE_NAMES,
-        CHANGE_PROPERTIES        
+        CHANGE_PROPERTIES,
+        CHANGE_VERSION
     }    
     
     public String elementUri;
@@ -43,35 +44,27 @@ public class TableCopierWizardManager extends TableWizard{
             this.copyType = CopyType.CHANGE_NAMES;
         }
     }
-    
+
     @Override
     public String startWizard() {
         reload();
-         switch (copyType) {
+        switch (copyType) {
             case CHANGE_NAMES:
                 wizard = new TableNamesCopier(elementUri);                
                 break;
             case CHANGE_PROPERTIES:
                 wizard = new TablePropertyCopier(elementUri);
                 break;
+            case CHANGE_VERSION:
+                wizard = new NewVersionTableCopier(elementUri);
+                break;
             default:
                 return null;
         }
+        wizard.next();
+        return wizard.getName();
+    }
 
-        String ret = wizard.getName();
-        wizard.next();
-        return ret;
-    }
-    
-    public String editAsNewVersion() {
-        reload();
-        copyType = CopyType.CHANGE_PROPERTIES;
-        wizard = new TablePropertyCopier(elementUri, true);
-        String ret = wizard.getName();
-        wizard.next();
-        return ret;
-    }
-    
     private void reload() {
         elementUri = null;
         init();        
@@ -84,11 +77,11 @@ public class TableCopierWizardManager extends TableWizard{
         }
         return "newTableCancel";
     }
-    
+
     private void init() {
         elementUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
         WebStudio studio = WebStudioUtils.getWebStudio();
-        if (!StringUtils.isNotBlank(elementUri)) {
+        if (StringUtils.isBlank(elementUri)) {
             elementUri = studio.getTableUri();
         } 
     }
