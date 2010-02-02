@@ -111,8 +111,8 @@ public interface ITableProperties {
 	void setCategory(java.lang.String category);
 	java.lang.String getDescription();
 	void setDescription(java.lang.String description);
-	java.lang.String getTags();
-	void setTags(java.lang.String tags);
+	java.lang.String[] getTags();
+	void setTags(java.lang.String[] tags);
 	java.util.Date getEffectiveDate();
 	void setEffectiveDate(java.util.Date effectiveDate);
 	java.util.Date getExpirationDate();
@@ -135,8 +135,8 @@ public interface ITableProperties {
 	void setUsregion(java.lang.String usregion);
 	org.openl.rules.enumeration.CountriesEnum[] getCountry();
 	void setCountry(org.openl.rules.enumeration.CountriesEnum[] country);
-	java.lang.String getCurrency();
-	void setCurrency(java.lang.String currency);
+	org.openl.rules.enumeration.CurrenciesEnum getCurrency();
+	void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency);
 	java.lang.String getLang();
 	void setLang(java.lang.String lang);
 	java.lang.String getState();
