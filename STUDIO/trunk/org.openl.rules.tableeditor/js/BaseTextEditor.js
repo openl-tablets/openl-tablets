@@ -15,7 +15,8 @@ var BaseTextEditor = Class.create(BaseEditor, {
         this.input = $(document.createElement("input"));
 
         this.input.setAttribute("type", "text");
-        this.input.style.border = "1px solid rgb(180, 200, 255)";
+        this.input.style.borderWidth = "1px";
+        this.input.style.borderStyle = "solid";
 
         this.input.style.fontFamily = this.parentElement.style.fontFamily;
         this.input.style.fontSize = this.parentElement.style.fontSize;

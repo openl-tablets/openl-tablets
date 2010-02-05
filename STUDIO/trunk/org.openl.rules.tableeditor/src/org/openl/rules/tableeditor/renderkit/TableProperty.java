@@ -24,7 +24,8 @@ public class TableProperty {
     private Constraints constraints;
     private String description;
     private boolean system;
-    
+    private InheritanceLevel inheritanceLevel;
+
     private TableProperty(TablePropertyBuilder builder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
@@ -35,6 +36,7 @@ public class TableProperty {
         this.constraints = builder.constraints;
         this.description = builder.description;
         this.system = builder.system;
+        this.inheritanceLevel = builder.inheritanceLevel;
     }
     
     public String getFormat() {
@@ -67,6 +69,14 @@ public class TableProperty {
         return result;
     }
 
+    public boolean isModuleLevelProperty() {
+        return InheritanceLevel.MODULE.equals(inheritanceLevel);
+    }
+
+    public boolean isCategoryLevelProperty() {
+        return InheritanceLevel.CATEGORY.equals(inheritanceLevel);
+    }
+
     public String getDisplayName() {
         return displayName;
     }
@@ -84,43 +94,24 @@ public class TableProperty {
      * It converts its value from any type to string.
      * @return
      */
-    public String getValueString() {
+    public String getStringValue() {
         String result = "";
-        if(value != null) {
+        if (value != null) {
             if (value instanceof String) {
-                result = (String)value;
-            } else {
-                if (value instanceof Date) {
-                    SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
-                    result = sdf.format((Date)value);
-                } else {
-                    if (value instanceof Boolean) {
-                        result = ((Boolean)value).toString();                    
-                    } else {
-                        if (value instanceof Integer) {
-                            // if date format for cell was not set in excel, it will process as
-                            // general and we will get the integer value on UI.
-                            // We must display it as Date.  
-//                            if (type != null && isDateType()) {
-//                                Date dateFromInt = DateUtil.getJavaDate(((Integer)value).doubleValue());
-//                                SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
-//                                result = sdf.format(dateFromInt);
-//                            } else {
-                                result = ((Integer)value).toString();
-//                            }
-                            
-                        } else {
-                            if (value instanceof Double) {
-                                result = ((Double)value).toString();
-                            }
-                        }
-                    }            
-                }
+                result = (String) value;
+            } else if (value instanceof Date) {
+                SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
+                result = sdf.format((Date) value);
+            } else if (value instanceof Boolean) {
+                result = ((Boolean) value).toString();
+            } else if (value instanceof Integer) {
+                result = ((Integer) value).toString();
+            } else if (value instanceof Double) {
+                result = ((Double) value).toString();
             }
-        }        
+        }
         return result;
     }
-    
 
     public Class<?> getType() {
         return type;
@@ -177,11 +168,19 @@ public class TableProperty {
     public void setSystem(boolean system) {
         this.system = system;        
     }
-    
+
     public boolean isSystem() {
         return system;        
     }    
-    
+
+    public InheritanceLevel getInheritanceLevel() {
+        return inheritanceLevel;
+    }
+
+    public void setInheritanceLevel(InheritanceLevel inheritanceLevel) {
+        this.inheritanceLevel = inheritanceLevel;
+    }
+
     /**
      * Builder for TableProperties
      * @author DLiauchuk
@@ -200,6 +199,7 @@ public class TableProperty {
         private Constraints constraints;
         private String description;
         private boolean system;
+        private InheritanceLevel inheritanceLevel;
         
         public TablePropertyBuilder(String name, String displayName) {
             this.name = name;
@@ -240,7 +240,12 @@ public class TableProperty {
             system = val;
             return this;
         }
-        
+
+        public TablePropertyBuilder inheritanceLevel(InheritanceLevel val) {
+            inheritanceLevel = val;
+            return this;
+        }
+
         public TableProperty build() {
             return new TableProperty(this);
         }

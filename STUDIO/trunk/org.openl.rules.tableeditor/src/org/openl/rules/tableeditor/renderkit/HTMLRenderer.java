@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
@@ -19,6 +20,7 @@ import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.table.ui.IGridFilter;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
@@ -28,6 +30,7 @@ import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.tableeditor.util.WebUtil;
 import org.openl.rules.web.jsf.util.FacesUtils;
+import org.openl.util.StringTool;
 
 /**
  * Render TableEditor HTML.
@@ -377,19 +380,20 @@ public class HTMLRenderer {
             List<TableProperty> listProp = new ArrayList<TableProperty>();
             TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
             for (TablePropertyDefinition propDefinition : propDefinitions) {
+                String name = propDefinition.getName();
                 String displayName = propDefinition.getDisplayName();
                 Object value = props != null ? props.getPropertyValue(propDefinition.getName()) : null; 
                 Class<?> type = propDefinition.getType() == null ? String.class : propDefinition.getType()
                         .getInstanceClass();
+                InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(name);
                 String group = propDefinition.getGroup();
-                String name = propDefinition.getName();
                 String format = propDefinition.getFormat();
                 Constraints constraints = propDefinition.getConstraints();
                 String description = propDefinition.getDescription();
-                boolean system = propDefinition.isSystem();                
+                boolean system = propDefinition.isSystem();
                 TableProperty prop = new TableProperty.TablePropertyBuilder(name, displayName)
                     .value(value).type(type).group(group).format(format).constraints(constraints)
-                    .description(description).system(system).build();
+                    .description(description).system(system).inheritanceLevel(inheritanceLevel).build();
                 listProp.add(prop);
             }
             return listProp;
@@ -486,13 +490,63 @@ public class HTMLRenderer {
             result.append("<div id='" + groupId + "' class='te_props_grouptable'>");
             result.append("<table>");
             for (TableProperty prop : groupList) {
-                if (mode.equals("edit")) {
-                    fillEditProp(prop);
-                } else {
-                    fillViewProp(prop);
-                }
+                insertProp(prop);
             }
             result.append("</table></div>");
+        }
+
+        private void insertProp(TableProperty prop) {
+            String inheritPropStyleClass = "";
+            if (prop.isModuleLevelProperty() || prop.isCategoryLevelProperty()) {
+                inheritPropStyleClass = " te_props_prop_inherited'";
+            }
+            result.append("<tr class='te_props_prop" + inheritPropStyleClass + "'>");
+            insertPropLabel(prop.getDisplayName());
+            insertPropValue(prop, mode);
+            insertPropertiesTableLink(prop, mode);
+            result.append("</tr>");
+        }
+
+        private void insertPropValue(TableProperty prop, String mode) {
+            if ("edit".equals(mode)) {
+                final String propId = getPropId(prop);
+                if (prop.isSystem() || !prop.canBeOverridenInTable() ) {
+                    insertText(prop, propId, true);
+                } else {
+                    insertInput(prop, propId, true);
+                }
+            } else {
+                insertText(prop);
+            }
+        }
+
+        private void insertPropertiesTableLink(TableProperty prop, String mode) {
+            result.append("<td>");
+            String propsTableUri = getProprtiesTablePageUrl(prop, mode);
+            if (propsTableUri != null) {
+                String imgUp = WebUtil.internalPath("img/up.gif");
+                result.append("<a href='" + propsTableUri + "' title=''><img src='"
+                        + imgUp + "' title='Go to Properties table' alt='Go to Properties table' /></a>");
+            }
+            result.append("</td>");
+        }
+
+        private String getProprtiesTablePageUrl(TableProperty prop, String mode) {
+            String url = null;
+            ILogicalTable propertiesTable = null;
+            if (prop.isModuleLevelProperty()) {
+                propertiesTable = props.getModulePropertiesTable();
+            } else if (prop.isCategoryLevelProperty()) {
+                propertiesTable = props.getCategoryPropertiesTable();
+            }
+            if (propertiesTable != null) {
+                String tableUri = propertiesTable.getGridTable().getUri();
+                url = "?uri=" + StringTool.encodeURL(tableUri);
+                if ("edit".equals(mode)) {
+                    url += "&mode=edit";
+                }
+            }
+            return url;
         }
 
         private void renderHideButton(String idToHide) {
@@ -505,38 +559,22 @@ public class HTMLRenderer {
                     + " title='Hide' class='te_props_hidebutton' />");
         }
 
-        /**
-         * Fills the row in edit table, depending on the type of property value
-         * @param prop
-         */
-        private void fillEditProp(TableProperty prop) {
-            result.append("<tr>");
-            insertLabel(prop.getDisplayName());
-            final String propId = getPropId(prop);
-             if (prop.isSystem() || !prop.canBeOverridenInTable() ) {
-                insertText(prop, propId, true);
-            } else {
-                insertInput(prop, propId);
-            }
-            result.append("</tr>");
-        }
-
         private String getPropId(TableProperty prop) {
             return propsId + Constants.ID_POSTFIX_PROP + prop.getName();
         }
 
-        private void insertInput(TableProperty prop, String id) {
-            String propValue = prop.getValueString();
-            if (prop.isString()) {
-                insertEdit(propValue, id);
+        private void insertInput(TableProperty prop, String id, boolean showTooltip) {
+            String propValue = prop.getStringValue();
+            if (prop.isString() || prop.isDouble()) {
+                insertTextbox(prop, id);
             } else if (prop.isDate()) {
                 insertCalendar(prop, id);
             } else if (prop.isBoolean()) {
                 insertCheckbox(propValue, id);
-            } else if (prop.isDouble() ) {
-                insertEdit(propValue, id);
             }
-            insertTooltip(id, prop.getDescription());
+            if (showTooltip) {
+                insertTooltip(id, prop.getDescription());
+            }
         }
 
         private void insertTooltip(String propId, String description) {
@@ -544,21 +582,9 @@ public class HTMLRenderer {
                     + description + "',{skin:'green'})"));
         }
 
-        /**
-         * Fills the row in view table
-         * @param prop
-         */
-        private void fillViewProp(TableProperty prop) {
-            result.append("<tr>");
-            insertLabel(prop.getDisplayName());
-            insertText(prop);
-            result.append("</tr>");
-        }
-
         private void insertCalendar(TableProperty prop, String id) {
-            String value = prop.getValueString();
+            String value = prop.getStringValue();
             Constraints constraints = prop.getConstraints();
-
             result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
                 .append(renderJSBody("new DateEditor('','" + id + "','','"
                         + StringEscapeUtils.escapeJavaScript(value) + "','')"));
@@ -579,7 +605,8 @@ public class HTMLRenderer {
             }
         }
 
-        private void insertEdit(String value, String id) {
+        private void insertTextbox(TableProperty prop, String id) {
+            String value = prop.getStringValue();
             if (value == null) {
                 value="";
             }
@@ -597,7 +624,7 @@ public class HTMLRenderer {
                 .append(renderJSBody("new BooleanEditor('','" + id + "','','" + bValue + "','')"));
         }
 
-        private void insertLabel(String displayName) {
+        private void insertPropLabel(String displayName) {
             result.append("<td class='te_props_proplabel'>" + displayName + ":</td>");
         }
 
@@ -606,7 +633,7 @@ public class HTMLRenderer {
         }
 
         private void insertText(TableProperty prop, String id, boolean showTooltip) {
-            String propValue = prop.getValueString();
+            String propValue = prop.getStringValue();
             result.append("<td class='te_props_propvalue'><span"
                     + (StringUtils.isNotBlank(id) ? (" id='_" + id + "'") : "")
                     + ">" + propValue + "</span></td>");
