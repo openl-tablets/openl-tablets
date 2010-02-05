@@ -87,7 +87,7 @@ public class BussinesSearchPropertyBean {
             Map<String, Object> mapforSearch = search.getBusSearchCondit().getPropToSearch();  
             mapforSearch.clear();
             for(TableProperty prop : propForSearch) {
-                if (prop.isString() && prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getValueString())) {
+                if (prop.isString() && prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getStringValue())) {
                     mapforSearch.put(prop.getName(), (String)prop.getValue());
                 } else {
                     if (prop.isDate() && prop.getValue()!=null) {
@@ -106,7 +106,7 @@ public class BussinesSearchPropertyBean {
     public boolean arePropertieValuesSet() {
         boolean result = false;
         for(TableProperty prop : propForSearch) {
-            if (prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getValueString())){
+            if (prop.getValue() != null && !StringUtils.EMPTY.equals(prop.getStringValue())){
                 result = true;
             }
         }

@@ -29,6 +29,19 @@
     border-top: 1px dashed rgb(192,196,200);
 }
 
+.te_props_prop {
+}
+
+.te_props_prop_inherited {
+    background: #E8ECF0;
+    color: rgb(55,105,165);
+}
+
+.te_props_prop_inherited input {
+    border-color: rgb(180,200,255);
+    color: rgb(55,105,165);
+}
+
 .te_props_proplabel {
     font-weight: bold;
     color: rgb(50,50,50);
@@ -50,3 +63,4 @@
 .te_props_proptextinput {
     width: 150px;
 }
+
