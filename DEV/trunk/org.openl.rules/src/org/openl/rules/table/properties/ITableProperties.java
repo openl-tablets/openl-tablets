@@ -84,7 +84,13 @@ public interface ITableProperties {
      * Gets the logical table of the properties defined in table.
      */
     ILogicalTable getPropertiesSection();
-    
+
+    ILogicalTable getModulePropertiesTable();
+    void setModulePropertiesTable(ILogicalTable modulePropertiesTable);
+
+    ILogicalTable getCategoryPropertiesTable();
+    void setCategoryPropertiesTable(ILogicalTable categoryPropertiesTable);
+
     /**
      * Goes through the hierarchy of properties from TABLE to CATEGORY and then to MODULE and returns the level
      * on which property is inherited or defined.  

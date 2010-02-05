@@ -52,9 +52,10 @@ public class PropertyTableBinder extends DataNodeBinder {
         ILogicalTable  propTableBody = getTableBody(tsn);     
         
         processTable(module, propertyTable, propTableBody, tableName, propertiesClass, cxt, openl, false);
-        
+
         TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0];
-        
+        propertiesInstance.setPropertiesSection(tsn.getTable());
+
         analysePropertiesNode(tsn, propertiesInstance, (RulesModuleBindingContext)cxt, propertyNode);
         
         propertyNode.setPropertiesInstance(propertiesInstance);

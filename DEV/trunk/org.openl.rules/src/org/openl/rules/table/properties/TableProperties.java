@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -18,18 +17,22 @@ import org.openl.types.impl.DynamicObject;
 import org.openl.types.java.JavaOpenClass;
 
 public class TableProperties extends DynamicObject implements ITableProperties {
-    
+
     /**
      * Table section that contains properties in appropriate table in data source.
      */
     private ILogicalTable propertySection;
-    
+
+    private ILogicalTable modulePropertiesTable;
+
+    private ILogicalTable categoryPropertiesTable;
+
     private Map<String, Object> categoryProperties = new HashMap<String, Object>();
-    
+
     private Map<String, Object> moduleProperties = new HashMap<String, Object>();
-    
+
     private Map<String, Object> defaultProperties = new HashMap<String, Object>();
-    
+
     /**
      * Check if property can be overriden on table level.
      * TODO: Decide what to do when it is impossible to override. 
@@ -47,7 +50,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         }
         return result;
     }
-    
+
     /**
      * The result <code>{@link Map}</code> will contain all pairs from downLevelProperties and pairs from 
      * upLevelProperties that are not defined in downLevelProperties.
@@ -70,12 +73,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         }
         return resultProperties;
     }
-        
+
 	@Override
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(getClass());
     }
-	
+
     @Override
     public void setType(IOpenClass type) {
         throw new UnsupportedOperationException();
@@ -227,46 +230,38 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 		setFieldValue("scope", scope);
 	}	
 	// <<< END INSERT >>>
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
     public Object getPropertyValue(String key) {        
         return getPropertiesAll().get(key);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public String getPropertyValueAsString(String key) {
         String result = null;
         Object propValue = getPropertyValue(key);
-        if (propValue != null) {            
+        if (propValue != null) {
             if (propValue instanceof String) {
                 result = (String) propValue;
-            } else {
-                if (propValue instanceof Date) {
-                    String format = TablePropertyDefinitionUtils
-                            .getPropertyByName(key).getFormat();
-                    if (format != null) {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                                format);
-                        result = dateFormat.format((Date) propValue);
-                    }
-                } else {
-                    if (propValue instanceof Boolean) {
-                        result = ((Boolean) propValue).toString();
-                    } else {
-                        if (propValue instanceof Integer) {
-                            result = ((Integer) propValue).toString();
-                        }
-                    }
+            } else if (propValue instanceof Date) {
+                String format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
+                if (format != null) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                    result = dateFormat.format((Date) propValue);
                 }
+            } else if (propValue instanceof Boolean) {
+                result = ((Boolean) propValue).toString();
+            } else if (propValue instanceof Integer) {
+                result = ((Integer) propValue).toString();
             }
         }
-        return result;        
+        return result;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -281,7 +276,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         }
         return result;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -292,18 +287,34 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         }
         return result;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public ILogicalTable getPropertiesSection() {
        return propertySection;
     }
-    
+
     public void setPropertiesSection(ILogicalTable propertySection) {
         this.propertySection = propertySection;
-     }
-    
+    }
+
+    public ILogicalTable getModulePropertiesTable() {
+        return modulePropertiesTable;
+    }
+
+    public void setModulePropertiesTable(ILogicalTable modulePropertiesTable) {
+        this.modulePropertiesTable = modulePropertiesTable;
+    }
+
+    public ILogicalTable getCategoryPropertiesTable() {
+        return categoryPropertiesTable;
+    }
+
+    public void setCategoryPropertiesTable(ILogicalTable categoryPropertiesTable) {
+        this.categoryPropertiesTable = categoryPropertiesTable;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -312,20 +323,20 @@ public class TableProperties extends DynamicObject implements ITableProperties {
       Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp, moduleProperties);     
       return mergeLevelProperties(tableAndCategoryAndModuleProp, defaultProperties); 
     }
-    
+
     @Override
     public void setFieldValue(String name, Object value) {  
         canBeOverridenOnTableLevel(name);
         super.setFieldValue(name, value);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public Map<String, Object> getPropertiesDefinedInTable() {    
         return super.getFieldValues();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -341,22 +352,22 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         }
         return result;
     }
-    
+
     public void setPropertiesAppliedForCategory(Map<String, Object> categoryProperties) {
         this.categoryProperties = categoryProperties;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public Map<String, Object> getPropertiesAppliedForCategory() {
         return categoryProperties;
     }
-    
+
     public void setPropertiesAppliedForModule(Map<String, Object> moduleProperties) {
         this.moduleProperties = moduleProperties;
-     }
-    
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -374,5 +385,5 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public Map<String, Object> getPropertiesAppliedByDefault() {
         return defaultProperties;
     }
-	
+
 }

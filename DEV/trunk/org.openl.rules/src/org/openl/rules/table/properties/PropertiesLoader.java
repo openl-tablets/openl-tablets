@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.IString2DataConvertor;
@@ -35,7 +35,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class PropertiesLoader {
     
-    private final Log LOG = LogFactory.getLog(PropertiesLoader.class);
+    //private final Log LOG = LogFactory.getLog(PropertiesLoader.class);
     
     private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
     private OpenL openl;
@@ -75,7 +75,7 @@ public class PropertiesLoader {
             tsn.setTableProperties(propertiesInstance);
         }
     }
-    
+
     /**
      * Load to tsn category properties from context.
      * 
@@ -90,10 +90,10 @@ public class PropertiesLoader {
             InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, categoryProperties
                     .getPropertiesAll().keySet());
             tableProperties.setPropertiesAppliedForCategory(categoryProperties.getPropertiesAll());
+            tableProperties.setCategoryPropertiesTable(categoryProperties.getPropertiesSection());
         }
-        
     }
-    
+
     private String getCategory(TableSyntaxNode tsn) {
         String result = null;
         ITableProperties tableProperties = tsn.getTableProperties();
@@ -115,15 +115,14 @@ public class PropertiesLoader {
     private void loadModuleProperties(TableSyntaxNode tsn) throws InvalidPropertyLevelException {
         ITableProperties tableProperties = tsn.getTableProperties();
         ITableProperties moduleProperties = cxt.getModuleProperties();
-        if (tableProperties != null) {
-            if (moduleProperties != null) {
-                InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.MODULE, moduleProperties
-                        .getPropertiesAll().keySet());
-                tableProperties.setPropertiesAppliedForModule(moduleProperties.getPropertiesAll());
-            }            
+        if (tableProperties != null && moduleProperties != null) {
+            InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.MODULE, moduleProperties
+                    .getPropertiesAll().keySet());
+            tableProperties.setPropertiesAppliedForModule(moduleProperties.getPropertiesAll());
+            tableProperties.setModulePropertiesTable(moduleProperties.getPropertiesSection());
         }
     }
-    
+
     /**
      * Load to tsn default properties.
      * 
