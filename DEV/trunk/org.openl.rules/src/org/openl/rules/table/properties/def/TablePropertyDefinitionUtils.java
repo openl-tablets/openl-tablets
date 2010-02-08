@@ -3,6 +3,9 @@ package org.openl.rules.table.properties.def;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+
 
 public class TablePropertyDefinitionUtils {
     
@@ -97,5 +100,16 @@ public class TablePropertyDefinitionUtils {
                 }
             }
         return result;
+    }
+
+    public static TablePropertyDefinition[] getDefaultDefinitionsByInheritanceLevel(
+            InheritanceLevel inheritanceLevel) {
+        List<TablePropertyDefinition> resultDefinitions = new ArrayList<TablePropertyDefinition>();
+        for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+            if (ArrayUtils.contains(propertyDefinition.getInheritanceLevel(), inheritanceLevel)) {
+                resultDefinitions.add(propertyDefinition);
+            }
+        }
+        return resultDefinitions.toArray(new TablePropertyDefinition[0]);
     }
 }
