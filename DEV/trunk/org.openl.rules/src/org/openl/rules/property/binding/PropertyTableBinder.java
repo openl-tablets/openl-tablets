@@ -54,7 +54,10 @@ public class PropertyTableBinder extends DataNodeBinder {
         processTable(module, propertyTable, propTableBody, tableName, propertiesClass, cxt, openl, false);
 
         TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0];
+        
         propertiesInstance.setPropertiesSection(tsn.getTable());
+        
+        tsn.setTableProperties(propertiesInstance);
 
         analysePropertiesNode(tsn, propertiesInstance, (RulesModuleBindingContext)cxt, propertyNode);
         
@@ -157,5 +160,17 @@ public class PropertyTableBinder extends DataNodeBinder {
 
     protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
         return new PropertyTableBoundNode(tsn, module);
-    }    
+    }   
+    
+    @Override
+    public ILogicalTable getPropertiesTableSection(ILogicalTable table) {
+        if (table.getLogicalHeight() < 1) {
+            return null;
+        }
+
+        ILogicalTable propTable = table.rows(1);
+        
+        
+        return propTable;
+    }
 }
