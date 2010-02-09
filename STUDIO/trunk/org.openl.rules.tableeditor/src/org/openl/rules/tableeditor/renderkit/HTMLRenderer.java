@@ -498,7 +498,7 @@ public class HTMLRenderer {
         private void insertProp(TableProperty prop) {
             String inheritPropStyleClass = "";
             if (prop.isModuleLevelProperty() || prop.isCategoryLevelProperty()) {
-                inheritPropStyleClass = " te_props_prop_inherited'";
+                inheritPropStyleClass = " te_props_prop_inherited";
             }
             result.append("<tr class='te_props_prop" + inheritPropStyleClass + "'>");
             insertPropLabel(prop.getDisplayName());
