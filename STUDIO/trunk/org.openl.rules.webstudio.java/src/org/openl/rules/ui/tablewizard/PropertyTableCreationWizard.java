@@ -18,8 +18,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -156,7 +156,7 @@ public class PropertyTableCreationWizard extends WizardBase {
 
     public List<SelectItem> getPropertyNamesList() {
         List<SelectItem> propertyNames = new ArrayList<SelectItem>();
-        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions
+        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
             .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
@@ -180,7 +180,7 @@ public class PropertyTableCreationWizard extends WizardBase {
     }
 
     private TablePropertyDefinition getPropByName(String name) {
-        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions
+        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
             .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (propDefinition.getName().equals(name)) {
