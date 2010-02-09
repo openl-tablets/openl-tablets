@@ -8,7 +8,7 @@
 
 var TableEditor = Class.create({
 
-    editorId: -1,    
+    editorId: -1,
     tableContainer: null,
     currentElement: null,
     editor: null,
@@ -25,6 +25,7 @@ var TableEditor = Class.create({
     cellIdPrefix: null,
     propIdPrefix: null,
     actions: null,
+    inheritedPropStyleClass: null,
 
     /** Constructor */
     initialize : function(editorId, url, editCell, actions) {
@@ -33,6 +34,7 @@ var TableEditor = Class.create({
         this.propIdPrefix = "_" + this.editorId + "_props_prop-";
         this.tableContainer = $(editorId + "_table");
         this.tableContainer.style.cursor = 'default';
+        this.inheritedPropStyleClass = 'te_props_prop_inherited';
         this.actions = actions;
 
         // Suppress text selection BEGIN
@@ -219,26 +221,41 @@ var TableEditor = Class.create({
     handlePropBlur: function(event) {
         if (!Validation.isAllValidated()) return false;
         var prop = Event.findElement(event, "input");
-        var propName = prop.id.replace(this.propIdPrefix, "");
-        var propValue = AjaxHelper.getInputValue(prop);
-        //if (propValue != this.selectedPropValue) {
-            this.setProp(propName, propValue);
-        //}
+        this.setProp(prop);
     },
 
-    setProp : function(name, value) {
+    setProp: function(property) {
+        var name = property.id.replace(this.propIdPrefix, "");
+        var value = AjaxHelper.getInputValue(property);
+        // if (propValue != this.selectedPropValue) {
+        var self = this;
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_PROPERTY), {
             method    : "get",
             encoding   : "utf-8",
             contentType : "text/javascript",
-            onSuccess : this.modFuncSuccess,
             parameters: {
                 editorId: this.editorId,
                 propName : name,
                 propValue : value
             },
+            onSuccess: function(response) {
+                self.modFuncSuccess(response);
+                self.updateInheritedProperty(property, response);
+            },
             onFailure: AjaxHelper.handleError
         });
+        //}
+    },
+
+    updateInheritedProperty: function(prop, response) {
+        response = eval(response.responseText);
+        var propRow = prop.up("tr");
+        if (response.inheritedValue) {
+            prop.value = response.inheritedValue;
+            prop.up("tr").addClassName(this.inheritedPropStyleClass);
+        } else {
+            propRow.removeClassName(this.inheritedPropStyleClass);
+        }
     },
 
     /**

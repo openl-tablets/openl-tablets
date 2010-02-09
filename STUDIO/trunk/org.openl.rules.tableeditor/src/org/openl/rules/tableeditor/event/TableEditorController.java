@@ -3,9 +3,12 @@ package org.openl.rules.tableeditor.event;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.formula.FormulaParseException;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.IGridTable;
@@ -214,11 +217,20 @@ public class TableEditorController extends BaseTableEditorController implements 
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
             editorModel.setProperty(name, value);
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            PropertyModificationResponse response = new PropertyModificationResponse(editorModel);
             if (!editorModel.isBusinessView()) {
-                tmResponse.setResponse(render(editorId));
+                response.setResponse(render(editorId));
             }
-            return pojo2json(tmResponse);
+            if (StringUtils.isBlank(value)) {
+                ITableProperties props = editorModel.getTable().getProperties();
+                InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(name);
+                if (InheritanceLevel.MODULE.equals(inheritanceLevel)
+                        || InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
+                    String inheritedValue = props.getPropertyValueAsString(name);
+                    response.setInheritedValue(inheritedValue);
+                }
+            }
+            return pojo2json(response);
         }
         return null;
     }
@@ -465,6 +477,30 @@ public class TableEditorController extends BaseTableEditorController implements 
 
         public void setStatus(String status) {
             this.status = status;
+        }
+
+    }
+
+    public static class PropertyModificationResponse extends TableModificationResponse {
+
+        private String inheritedValue;
+
+        public PropertyModificationResponse(TableEditorModel model) {
+            super(null, null, model);
+        }
+
+        public PropertyModificationResponse(String response, String status, TableEditorModel model,
+                String inheritedValue) {
+            super(response, status, model);
+            this.inheritedValue = inheritedValue;
+        }
+
+        public String getInheritedValue() {
+            return inheritedValue;
+        }
+
+        public void setInheritedValue(String inheritedValue) {
+            this.inheritedValue = inheritedValue;
         }
 
     }
