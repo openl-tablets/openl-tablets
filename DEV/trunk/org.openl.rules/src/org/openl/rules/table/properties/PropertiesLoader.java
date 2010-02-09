@@ -69,9 +69,11 @@ public class PropertiesLoader {
                     false);
             TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0]; 
             
-            propertiesInstance.setPropertiesSection(propertiesSection);          
+            propertiesInstance.setPropertiesSection(propertiesSection);   
+            
             InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.TABLE, propertiesInstance
-                    .getPropertiesDefinedInTable().keySet());
+                        .getPropertiesDefinedInTable().keySet());
+                        
             tsn.setTableProperties(propertiesInstance);
         }
     }
@@ -155,6 +157,9 @@ public class PropertiesLoader {
 
 
     public void loadProperties(TableSyntaxNode tsn) throws Exception {
+        // don`t need to load properties for tables with type XLS_PROPERTIES,
+        // it will be processed during its binding.
+        // author: DLiauchuk
         if (!ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType())) {
             loadPropertiesAsDataTable(tsn);
             if (tsn.getTableProperties() == null) {
