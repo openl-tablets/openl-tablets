@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
@@ -183,7 +184,7 @@ public class ProjectModel implements IProjectTypes {
     private void addErrors(CompiledOpenClass comp, ProjectTreeNode root) {
         String[] errName = { "All Errors", "All Errors", "All Errors" };
 
-        ProjectTreeNode errorFolder = new ProjectTreeNode(errName, "folder", null, null, 0, null);
+        ProjectTreeNode errorFolder = new ProjectTreeNode(errName, PT_FOLDER, null, null, 0, null);
         root.getElements().put(new NodeKey(0, errName), errorFolder);
 
         int pn = comp.getParsingErrors().length;
@@ -371,9 +372,8 @@ public class ProjectModel implements IProjectTypes {
         return new ObjectViewer(this).displayResult(res);
     }
 
-    public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {
-        XlsModuleSyntaxNode xsn = getXlsModuleNode();
-        TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+    public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {        
+        TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i].getType().equals(ITableNodeTypes.XLS_DT)
@@ -396,9 +396,8 @@ public class ProjectModel implements IProjectTypes {
         return findNode(parsedUrl);
     }
 
-    public TableSyntaxNode findNode(XlsUrlParser p1) {
-        XlsModuleSyntaxNode xsn = getXlsModuleNode();
-        TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+    public TableSyntaxNode findNode(XlsUrlParser p1) {        
+        TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
             if (intersects(p1, nodes[i].getTable().getGridTable().getUri())) {
@@ -443,10 +442,8 @@ public class ProjectModel implements IProjectTypes {
         if (wrapper == null) {
             return Collections.emptyList();
         }
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
-
-        XlsModuleSyntaxNode moduleSyntaxNode = xmi.getXlsModuleNode();
-        TableSyntaxNode[] nodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
+        
+        TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         List<TableSyntaxNode> list = new ArrayList<TableSyntaxNode>();
 
@@ -647,8 +644,7 @@ public class ProjectModel implements IProjectTypes {
 
     public OpenLSavedSearch[] getSavedSearches() {
         if (savedSearches == null && isReady()) {
-            XlsModuleSyntaxNode xsn = getXlsModuleNode();
-            TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+            TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
             List<OpenLSavedSearch> savedSearches = new ArrayList<OpenLSavedSearch>();
 
@@ -861,17 +857,10 @@ public class ProjectModel implements IProjectTypes {
         }
 
         ProjectTreeNode root = makeProjectTreeRoot();
+        buildErrorsFolder(root);
 
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
-        CompiledOpenClass comp = wrapper.getCompiledOpenClass();
-
-        if (comp.hasErrors() || validationExceptions != null && validationExceptions.size() > 0) {
-            addErrors(comp, root);
-        }
-
-        XlsModuleSyntaxNode moduleSyntaxNode = xmi.getXlsModuleNode();
-        TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
-
+        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
+        
         OpenMethodGroupsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
         TreeNodeBuilder<Object>[][] sorters = studio.getMode().getBuilders();
@@ -910,31 +899,28 @@ public class ProjectModel implements IProjectTypes {
 
             boolean treeEnlarged = false;
 
-            for (int i = 0; i < tableSyntaxNodes.length; i++) {
+            for (int i = 0; i < tableSyntaxNodes.length; i++) {                
+                    if (studio.getMode().select(tableSyntaxNodes[i])) {
 
-                if (studio.getMode().select(tableSyntaxNodes[i])) {
+                        treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
+                        treeEnlarged = true;
 
-                    treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
-                    treeEnlarged = true;
+                    } else if (tableSyntaxNodes[i].getErrors() != null) {
 
-                } else if (tableSyntaxNodes[i].getErrors() != null) {
-
-                    treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
-                    nodesWithErrors.add(tableSyntaxNodes[i]);
-                }
+                        treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
+                        nodesWithErrors.add(tableSyntaxNodes[i]);
+                    }
             }
 
             if (!treeEnlarged) {
-
                 // no selection have been made (usually in a
                 // business mode)
-                for (int i = 0; i < tableSyntaxNodes.length; i++) {
-                    
-                    if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
-                            && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
-                        
-                        treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
-                    }
+                for (int i = 0; i < tableSyntaxNodes.length; i++) {                    
+                        if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
+                                && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
+                            
+                            treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
+                        }
                 }
             }
         }
@@ -942,6 +928,20 @@ public class ProjectModel implements IProjectTypes {
         uriNodeMap.clear();
         projectTreeCache.clear();
         cacheTree(projectRoot);
+    }
+
+    private TableSyntaxNode[] getTableSyntaxNodes() {
+        XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
+        TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
+        return tableSyntaxNodes;
+    }
+
+    private void buildErrorsFolder(ProjectTreeNode root) {
+        CompiledOpenClass comp = wrapper.getCompiledOpenClass();
+
+        if (comp.hasErrors() || validationExceptions != null && validationExceptions.size() > 0) {
+            addErrors(comp, root);
+        }
     }
 
     private void cacheTree(ProjectTreeNode treeNode) {
