@@ -231,7 +231,8 @@ public class PropertyTableCreationWizard extends WizardBase {
         } else if (StringUtils.isNotBlank(newCategoryName)) {
             categoryName = this.newCategoryName;
         } else {
-            categoryName = getDestinationSheet().getSheetName();
+            // this for the case when sheet name selected for category name.
+            categoryName = null;
         }
         return categoryName;
     }
@@ -241,7 +242,9 @@ public class PropertyTableCreationWizard extends WizardBase {
         resultProperties.put("scope", scopeType.toLowerCase());
         if (InheritanceLevel.CATEGORY.name().equalsIgnoreCase(scopeType)) {
             String categoryName = buildCategoryName();
-            resultProperties.put("category", categoryName);
+            if (categoryName != null) {
+                resultProperties.put("category", categoryName);
+            }            
         }
         for (int i = 0; i < properties.size(); i++) {
             String name = (properties.get(i)).getName();
