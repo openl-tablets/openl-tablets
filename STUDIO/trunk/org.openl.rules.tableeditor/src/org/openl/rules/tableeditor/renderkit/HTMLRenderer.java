@@ -28,6 +28,7 @@ import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.ICellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.util.Constants;
+import org.openl.rules.tableeditor.util.EnumUtils;
 import org.openl.rules.tableeditor.util.WebUtil;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.util.StringTool;
@@ -572,6 +573,12 @@ public class HTMLRenderer {
                 insertCalendar(prop, id);
             } else if (prop.isBoolean()) {
                 insertCheckbox(propValue, id);
+                
+//          } else if (prop.getType().isEnum()) {
+//              insertSingleSelectForEnum(prop, id);
+//
+//          } else if (prop.getType().isArray() && prop.getType().getComponentType().isEnum()) {
+//              insertMultiSelectForEnum(prop, id);
             } else {
                 inserted = false;
             }
@@ -608,6 +615,74 @@ public class HTMLRenderer {
             }
         }
 
+        private void insertSingleSelect(String componentId, String[] values, String[] displayValues, String value) {
+
+            String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
+            String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+
+            String params = String
+                    .format("{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"\\\\\"}",
+                            choisesString, displayValuesString);
+
+            String jsCode = String.format("new DropdownEditor('', '%s', %s, '%s', '');", componentId, params,
+                    StringEscapeUtils.escapeJavaScript(value));
+
+            result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
+                    renderJSBody(jsCode));
+
+        }
+
+        private void insertSingleSelectForEnum(TableProperty prop, String id) {
+
+            Class<?> instanceClass = prop.getType();
+            String value = "";
+
+            if (prop.getValue() != null) {
+                value = prop.getValue().toString();
+            }
+
+            String[] values = EnumUtils.getNames(instanceClass);
+            String[] displayValues = EnumUtils.getValues(instanceClass);
+
+            insertSingleSelect(id, values, displayValues, value);
+        }
+
+        private void insertMultiSelectForEnum(TableProperty prop, String id) {
+
+            Class<?> instanceClass = prop.getType().getComponentType();
+            
+            String valueString = "";
+
+            if (prop.getValue() != null) {
+
+                Object[] values = (Object[]) prop.getValue();
+                String[] names = EnumUtils.getNames(values);
+                
+                valueString = StringUtils.join(names, ",");
+            }
+
+            String[] values = EnumUtils.getNames(instanceClass);
+            String[] displayValues = EnumUtils.getValues(instanceClass);
+
+            insertMultiSelect(id, values, displayValues, valueString);
+        }
+
+        private void insertMultiSelect(String componentId, String[] values, String[] displayValues, String value) {
+
+            String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
+            String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+
+            String params = String
+                    .format("{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"\\\\\"}",
+                            choisesString, displayValuesString);
+
+            String jsCode = String.format("new MultiselectEditor('', '%s', %s, '%s', '');", componentId, params,
+                    StringEscapeUtils.escapeJavaScript(value));
+
+            result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
+                    renderJSBody(jsCode));
+
+        }
         private void insertTextbox(TableProperty prop, String id) {
             String value = prop.getStringValue();
             if (value == null) {
