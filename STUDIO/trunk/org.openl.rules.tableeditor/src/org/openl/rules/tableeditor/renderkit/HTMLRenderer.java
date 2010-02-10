@@ -146,7 +146,7 @@ public class HTMLRenderer {
                 .append(renderJS("js/FormulaEditor.js"))
                 .append(renderJS("js/BooleanEditor.js"))
                 .append(renderJS("js/DateEditor.js"))
-                .append(renderJS("js/MultiselectEditor.js"))
+                .append(renderJS("js/MultiselectEditor2.js"))
                 .append(renderPropsEditor(editor.getId(), editor.getTable(), Constants.MODE_EDIT,
                         /*collapsed properties where turned to false on edit view*/false))
                 .append("<div id=\"").append(tableId).append("\"></div>").append(
@@ -564,6 +564,7 @@ public class HTMLRenderer {
         }
 
         private void insertInput(TableProperty prop, String id, boolean showTooltip) {
+            boolean inserted = true;
             String propValue = prop.getStringValue();
             if (prop.isString() || prop.isDouble()) {
                 insertTextbox(prop, id);
@@ -571,8 +572,10 @@ public class HTMLRenderer {
                 insertCalendar(prop, id);
             } else if (prop.isBoolean()) {
                 insertCheckbox(propValue, id);
+            } else {
+                inserted = false;
             }
-            if (showTooltip) {
+            if (showTooltip && inserted) {
                 insertTooltip(id, prop.getDescription());
             }
         }
