@@ -13,6 +13,7 @@ import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.property.DublicatedPropertiesTableException;
+import org.openl.rules.property.UnrecognisedPropertiesTableExeption;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -104,24 +105,42 @@ public class PropertyTableBinder extends DataNodeBinder {
     private void analysePropertiesNode(TableSyntaxNode tsn, TableProperties propertiesInstance, 
             RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) 
             throws DublicatedPropertiesTableException {        
-         
-        if (isModuleProperties(propertiesInstance)) {
-            XlsWorkbookSourceCodeModule  module = ((XlsSheetSourceCodeModule)tsn.getModule()).getWorkbookSource();
-            if (!cxt.isExistModuleProperties()) {
-                cxt.setModuleProperties(propertiesInstance);
-            } else {
-                String moduleName = module.getDisplayName();
-                throw new DublicatedPropertiesTableException(String.format("Properties for module %s already exists",
-                        moduleName), propertyNode);
-            }
+        String scope = propertiesInstance.getScope();
+        if (scope != null) { 
+                if (isModuleProperties(scope)) {
+                    processModuleProperties(tsn, propertiesInstance, cxt, propertyNode);
+                } else if (isCategoryProperties(scope)) {
+                    processCategoryProperties(tsn, propertiesInstance, cxt, propertyNode);
+                } else {
+                    throw new UnrecognisedPropertiesTableExeption("Value of the property [scope] is neither " +
+                    		"[module] or [category]", propertyNode);
+                }
         } else {
-            String category = getCategoryToApplyProperties(tsn, propertiesInstance);
-            if (!cxt.isExistCategoryProperties(category)){
-                cxt.addCategoryProperties(category, propertiesInstance);
-            } else {           
-                throw new DublicatedPropertiesTableException(String.format("Properties for category %s already exists", 
-                        category), propertyNode);
-            }
+            throw new UnrecognisedPropertiesTableExeption("There is no property with name [scope] defined " +
+            		"in Properties component. It is obligatory.", propertyNode);
+        }
+    }
+    
+    private void processCategoryProperties(TableSyntaxNode tsn, TableProperties propertiesInstance, 
+            RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) {
+        String category = getCategoryToApplyProperties(tsn, propertiesInstance);
+        if (!cxt.isExistCategoryProperties(category)){
+            cxt.addCategoryProperties(category, propertiesInstance);
+        } else {           
+            throw new DublicatedPropertiesTableException(String.format("Properties for category %s already exists", 
+                    category), propertyNode);
+        }
+    }
+
+    private void processModuleProperties(TableSyntaxNode tsn, TableProperties propertiesInstance, 
+            RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) {
+        XlsWorkbookSourceCodeModule  module = ((XlsSheetSourceCodeModule)tsn.getModule()).getWorkbookSource();
+        if (!cxt.isExistModuleProperties()) {
+            cxt.setModuleProperties(propertiesInstance);
+        } else {
+            String moduleName = module.getDisplayName();
+            throw new DublicatedPropertiesTableException(String.format("Properties for module %s already exists",
+                    moduleName), propertyNode);
         }
     }
     
@@ -143,16 +162,17 @@ public class PropertyTableBinder extends DataNodeBinder {
         return result;
     }
     
-    /**
-     * Checks if properties are module properties.
-     * 
-     * @param properties <code>{@link TableProperties}</code>
-     * @return <code>TRUE</code> if there is property 'scope' with value 'module'.
-     */
-    private boolean isModuleProperties(TableProperties properties) {
-        boolean result = false;
-        String scope = properties.getScope();
-        if (scope != null && "module".equals(scope)) {
+    private boolean isModuleProperties(String scope) {
+        boolean result = false;        
+        if ("module".equals(scope)) {
+            result = true;
+        }
+        return result;
+    }
+    
+    private boolean isCategoryProperties(String scope) {
+        boolean result = false;        
+        if ("category".equals(scope)) {
             result = true;
         }
         return result;
