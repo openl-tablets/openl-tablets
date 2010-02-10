@@ -83,10 +83,17 @@ public class VersionedTreeNode extends ProjectTreeNode {
      *         0 if tables are "inactive" and have similar versions
      */
     public static int findLaterTable(TableSyntaxNode first, TableSyntaxNode second) {
-        if (first.getTableProperties().getActive()) {
-            return -1;
-        } else if (second.getTableProperties().getActive()) {
-            return 1;
+        // Not all the tables have the property 'active'. e.g. it is more common case when Property table component 
+        // doesn`t have this property. So we need to check if the property exists. 
+        // author: DLiauchuk
+        if (first.getTableProperties().getActive() != null) {
+            if (first.getTableProperties().getActive()) {
+                return -1;
+            } else if (second.getTableProperties().getActive()) {
+                return 1;
+            }
+        } else {
+            return 0;
         }
         Version firstNodeVersion = Version.parseVersion(first.getTableProperties().getVersion(), 0, "..");
         Version secondNodeVersion = Version.parseVersion(second.getTableProperties().getVersion(), 0, "..");
