@@ -42,7 +42,7 @@
                     <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
                 </h:outputLink>
 
-                <h:commandLink rendered="#{showTableBean.editable}"
+                <h:commandLink rendered="#{showTableBean.editableAsNewVersion}"
                     action="#{tableCopierWizardManager.startWizard}">
                     <a4j:actionparam assignTo="#{tableCopierWizardManager.copyType}" value="CHANGE_VERSION" />
                     <f:param name="uri" value="#{showTableBean.uri}" />
