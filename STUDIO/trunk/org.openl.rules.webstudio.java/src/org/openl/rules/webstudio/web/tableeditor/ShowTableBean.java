@@ -159,16 +159,17 @@ public class ShowTableBean {
     }
 
     public boolean isCopyable() {        
-        return canModifyCurrentProject() && isCopyableNode();
+        return canModifyCurrentProject() && !isServiceNode();
     }
     
-    private boolean isCopyableNode() {
+    private boolean isServiceNode() {
         boolean result = false;
         final WebStudio studio = WebStudioUtils.getWebStudio();
         TableSyntaxNode tsn = studio.getModel().getNode(getUriInternal());
         if (tsn != null) {
             String tableType = tsn.getType();
-            if (!ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) && !ITableNodeTypes.XLS_OTHER.equals(tableType)) {
+            if (ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) || ITableNodeTypes.XLS_OTHER.equals(tableType) 
+                    || ITableNodeTypes.XLS_PROPERTIES.equals(tableType)) {
                 result = true;
             }        
         }
@@ -182,6 +183,10 @@ public class ShowTableBean {
 
     public boolean isEditable() {
         return canModifyCurrentProject();
+    }
+    
+    public boolean isEditableAsNewVersion() {
+        return canModifyCurrentProject() && !isServiceNode();
     }
 
     public boolean isHasErrors() {
