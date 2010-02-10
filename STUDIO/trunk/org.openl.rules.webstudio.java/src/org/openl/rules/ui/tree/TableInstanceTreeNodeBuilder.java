@@ -114,6 +114,10 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         Object nodeObject = makeObject(tableSyntaxNode);
         String[] displayNames = getDisplayValue(nodeObject, 0);
+        // it seems we need to process only those tables that have properties that are using for version sorting.
+        // in other case return original tableSyntaxNode.
+        // ???
+        // author: DLiauchuk
         ProjectTreeNode projectTreeNode = new VersionedTreeNode(displayNames, tableSyntaxNode);
         projectTreeNode.setObject(nodeObject);
         return projectTreeNode;
