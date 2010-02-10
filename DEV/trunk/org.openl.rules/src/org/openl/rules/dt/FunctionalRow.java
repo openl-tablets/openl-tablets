@@ -628,6 +628,11 @@ public abstract class FunctionalRow implements IDecisionRow, IDecisionTableConst
                 Object res = loadSingleParamInternal(paramType, paramName, ruleName, cell, ota, token, null, true);
                 if (res == null) {
                     res = paramType.nullObject();
+                    
+                    // Set cell meta info manually.   
+                    //
+                    //
+                    setCellMetaInfo(cell, paramName, paramType, true);
                 } 
                 values.add(res);
             }  
