@@ -13,6 +13,11 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 
+/**
+ * 
+ * @author DLiauchuk
+ *
+ */
 public class DataTableTest {
     
     private String __src = "test/rules/Tutorial_2_Test.xls";
@@ -31,114 +36,135 @@ public class DataTableTest {
         return wrapper;
     }
     
-    @Test
-    public void testSimpleStringArray() {
+    private TableSyntaxNode findTable(String tableName, TableSyntaxNode[] tsns) {
+        TableSyntaxNode result = null;
+        for (TableSyntaxNode tsn : tsns) {
+            if (tableName.equals(tsn.getDisplayName())) {
+                result = tsn;   
+            }
+        }
+        return result;
+    }
+
+    private TableSyntaxNode[] getTableSyntaxNodes() {
         XlsModuleSyntaxNode module = xsn;
         TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Data ArrayList simpleStringArray".equals(tsn.getDisplayName())) {
-                DataOpenField member = (DataOpenField)tsn.getMember();
-                assertNotNull(member);
-                String[] stringData = (String[])member.getTable().getDataArray();
-                assertTrue(stringData.length == 5);
-                List<String> dataList = new ArrayList<String>();
-                for (String data : stringData) {
-                    dataList.add(data);
-                }                
-                assertTrue(dataList.contains("StringValue1"));
-                assertTrue(dataList.contains("StringValue2"));
-                assertTrue(dataList.contains("StringValue3"));
-                assertTrue(dataList.contains("StringValue4"));
-                assertTrue(dataList.contains("StringValue5"));                
-            }        
-        }
+        return tsns;
     }
     
     @Test
+    public void testSimpleStringArray() {
+        String tableName = "Data String simpleStringArray";
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        if (resultTsn != null) {
+            DataOpenField member = (DataOpenField)resultTsn.getMember();
+            assertNotNull(member);
+            String[] stringData = (String[])member.getTable().getDataArray();
+            assertTrue(stringData.length == 5);
+            List<String> dataList = new ArrayList<String>();
+            for (String data : stringData) {
+                dataList.add(data);
+            }                
+            assertTrue(dataList.contains("StringValue1"));
+            assertTrue(dataList.contains("StringValue2"));
+            assertTrue(dataList.contains("StringValue3"));
+            assertTrue(dataList.contains("StringValue4"));
+            assertTrue(dataList.contains("StringValue5"));  
+        } else {
+            fail();
+        }
+    }    
+    
+    @Test
     public void testTypeWithArrayColumns() {
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Data TypeWithArray testTypeWithArrayColumns".equals(tsn.getDisplayName())) {
-                DataOpenField member = (DataOpenField)tsn.getMember();
-                assertNotNull(member);
-                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-                assertTrue(typeWitharray[0].getIntArray().length == 4);
-                List<Integer> dataList = new ArrayList<Integer>();
-                for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
-                    dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
-                }                                
-                assertTrue(dataList.contains(111));
-                assertTrue(dataList.contains(23));
-                assertTrue(dataList.contains(5));
-                assertTrue(dataList.contains(67));  
-            }        
+        String tableName = "Data TypeWithArray testTypeWithArrayColumns";
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        if (resultTsn != null) {
+            DataOpenField member = (DataOpenField)resultTsn.getMember();
+            assertNotNull(member);
+            TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+            assertTrue(typeWitharray[0].getIntArray().length == 4);
+            List<Integer> dataList = new ArrayList<Integer>();
+            for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
+                dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
+            }                                
+            assertTrue(dataList.contains(111));
+            assertTrue(dataList.contains(23));
+            assertTrue(dataList.contains(5));
+            assertTrue(dataList.contains(67));  
+        } else {        
+            fail();
         }
     }
     
     @Test
     public void testTypeWithArrayRows() {
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Data TypeWithArray testTypewithArray2".equals(tsn.getDisplayName())) {
-                DataOpenField member = (DataOpenField)tsn.getMember();
-                assertNotNull(member);
-                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-                assertTrue(typeWitharray[0].getIntArray().length == 5);
-                List<Integer> dataList = new ArrayList<Integer>();
-                for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
-                    dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
-                }                                
-                assertTrue(dataList.contains(12));
-                assertTrue(dataList.contains(13));
-                assertTrue(dataList.contains(14));
-                assertTrue(dataList.contains(15));
-                assertTrue(dataList.contains(16));
-            }        
+        String tableName = "Data TypeWithArray testTypeWithArrayRows";
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        if (resultTsn != null) {
+            DataOpenField member = (DataOpenField)resultTsn.getMember();
+            assertNotNull(member);
+            TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+            assertTrue(typeWitharray[0].getIntArray().length == 5);
+            List<Integer> dataList = new ArrayList<Integer>();
+            for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
+                dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
+            }                                
+            assertTrue(dataList.contains(12));
+            assertTrue(dataList.contains(13));
+            assertTrue(dataList.contains(14));
+            assertTrue(dataList.contains(15));
+            assertTrue(dataList.contains(16));  
+        } else {
+            fail();
         }
     }
     
     @Test
     public void testTypeWithArrayRowsOneElement() {
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Data TypeWithArray testTypewithArray3".equals(tsn.getDisplayName())) {
-                DataOpenField member = (DataOpenField)tsn.getMember();
-                assertNotNull(member);
-                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-                assertTrue(typeWitharray[0].getIntArray().length == 1);
-                List<Integer> dataList = new ArrayList<Integer>();
-                for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
-                    dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
-                }                                
-                assertTrue(dataList.contains(12));               
-            }        
-        }
+        String tableName = "Data TypeWithArray testTypeWithArrayRowsOneElement";
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        if (resultTsn != null) {
+            DataOpenField member = (DataOpenField)resultTsn.getMember();
+            assertNotNull(member);
+            TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+            assertTrue(typeWitharray[0].getIntArray().length == 1);
+            List<Integer> dataList = new ArrayList<Integer>();
+            for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
+                dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
+            }                                
+            assertTrue(dataList.contains(12));  
+        } else {
+            fail();
+        }   
     }
     
     @Test
     public void testCommaSeparated() {
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Data TypeWithArray testCommaSeparated".equals(tsn.getDisplayName())) {
-                DataOpenField member = (DataOpenField)tsn.getMember();
-                assertNotNull(member);
-                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-                assertTrue(typeWitharray[0].getIntArray().length == 5);
-                List<Integer> dataList = new ArrayList<Integer>();
-                for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
-                    dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
-                }                                
-                assertTrue(dataList.contains(1));
-                assertTrue(dataList.contains(56));
-                assertTrue(dataList.contains(78));
-                assertTrue(dataList.contains(45));
-                assertTrue(dataList.contains(99));
-            }        
-        }
+        String tableName = "Data TypeWithArray testCommaSeparated";
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        if (resultTsn != null) {
+            DataOpenField member = (DataOpenField)resultTsn.getMember();
+            assertNotNull(member);
+            TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+            assertTrue(typeWitharray[0].getIntArray().length == 5);
+            List<Integer> dataList = new ArrayList<Integer>();
+            for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
+                dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
+            }                                
+            assertTrue(dataList.contains(1));
+            assertTrue(dataList.contains(56));
+            assertTrue(dataList.contains(78));
+            assertTrue(dataList.contains(45));
+            assertTrue(dataList.contains(99));  
+        } else {
+            fail();
+        }  
     }
     
 //    @Test
@@ -166,65 +192,68 @@ public class DataTableTest {
     
     @Test
     public void testStringArray() {
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Data TypeWithArray testStringArray".equals(tsn.getDisplayName())) {
-                DataOpenField member = (DataOpenField)tsn.getMember();
-                assertNotNull(member);
-                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-                assertTrue(typeWitharray[0].getStringArray().length == 2);
-                List<String> dataList = new ArrayList<String>();
-                for (String token : typeWitharray[0].getStringArray()) {                    
-                    dataList.add(token);
-                }                                
-                assertTrue(dataList.contains("Hello Denis! My name is vova."));
-                assertTrue(dataList.contains("Yeah you are right."));                
-            }        
+        String tableName = "Data TypeWithArray testStringArray";
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        if (resultTsn != null) {
+            DataOpenField member = (DataOpenField)resultTsn.getMember();
+            assertNotNull(member);
+            TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+            assertTrue(typeWitharray[0].getStringArray().length == 2);
+            List<String> dataList = new ArrayList<String>();
+            for (String token : typeWitharray[0].getStringArray()) {                    
+                dataList.add(token);
+            }                                
+            assertTrue(dataList.contains("Hello Denis! My name is vova."));
+            assertTrue(dataList.contains("Yeah you are right."));  
+        } else {
+            fail();
         }
     }
     
     @Test
     public void testStringArrayWithEscaper() {
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Data TypeWithArray testStringArrayWithEscaper".equals(tsn.getDisplayName())) {
-                DataOpenField member = (DataOpenField)tsn.getMember();
-                assertNotNull(member);
-                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-                assertTrue(typeWitharray[0].getStringArray().length == 4);
-                List<String> dataList = new ArrayList<String>();
-                for (String token : typeWitharray[0].getStringArray()) {                    
-                    dataList.add(token);
-                }                                
-                assertTrue(dataList.contains("One"));
-                assertTrue(dataList.contains("two"));
-                assertTrue(dataList.contains("three,continue this"));
-                assertTrue(dataList.contains("four"));
-            }        
+        String tableName = "Data TypeWithArray testStringArrayWithEscaper";
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        if (resultTsn != null) {
+            DataOpenField member = (DataOpenField)resultTsn.getMember();
+            assertNotNull(member);
+            TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+            assertTrue(typeWitharray[0].getStringArray().length == 4);
+            List<String> dataList = new ArrayList<String>();
+            for (String token : typeWitharray[0].getStringArray()) {                    
+                dataList.add(token);
+            }                                
+            assertTrue(dataList.contains("One"));
+            assertTrue(dataList.contains("two"));
+            assertTrue(dataList.contains("three,continue this"));
+            assertTrue(dataList.contains("four"));  
+        } else {
+            fail();
         }
     }
     
     @Test
     public void testClass() {
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Data TypeWithArray testClassLoading".equals(tsn.getDisplayName())) {
-                DataOpenField member = (DataOpenField)tsn.getMember();
-                assertNotNull(member);
-                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-                assertTrue(typeWitharray[0].getStringArray().length == 4);
-                List<String> dataList = new ArrayList<String>();
-                for (String token : typeWitharray[0].getStringArray()) {                    
-                    dataList.add(token);
-                }                                
-                assertTrue(dataList.contains("One"));
-                assertTrue(dataList.contains("two"));
-                assertTrue(dataList.contains("three,continue this"));
-                assertTrue(dataList.contains("four"));
-            }        
+        String tableName = "Data TypeWithArray testClassLoading";
+        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);
+        if (resultTsn != null) {
+            DataOpenField member = (DataOpenField)resultTsn.getMember();
+            assertNotNull(member);
+            TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
+            assertTrue(typeWitharray[0].getStringArray().length == 4);
+            List<String> dataList = new ArrayList<String>();
+            for (String token : typeWitharray[0].getStringArray()) {                    
+                dataList.add(token);
+            }                                
+            assertTrue(dataList.contains("One"));
+            assertTrue(dataList.contains("two"));
+            assertTrue(dataList.contains("three,continue this"));
+            assertTrue(dataList.contains("four"));  
+        } else {
+            fail();
         }
     }
     
