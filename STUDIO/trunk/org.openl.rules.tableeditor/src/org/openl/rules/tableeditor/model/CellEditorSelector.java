@@ -7,7 +7,7 @@ import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.lang.xls.types.CellMetaInfo; //import org.openl.rules.helpers.IntRange;
 import org.openl.rules.table.ICell;
-import org.openl.rules.tableeditor.util.EnumUtils;
+import org.openl.util.EnumUtils;
 import org.openl.types.IOpenClass;
 
 // TODO Reimplement

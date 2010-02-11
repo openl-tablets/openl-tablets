@@ -9,38 +9,49 @@ var DropdownEditor = Class.create(BaseEditor, {
      * @param param an Enumeration with options for this dropdown. 
      */
     editor_initialize: function(param) {
-        this.input = $(document.createElement("select"));
-        this.input.style.width = "100%";
-        this.input.style.margin = "0px";
-        this.input.style.padding = "0px";
-        this.input.style.border = "0px none";
+        this.createInput();
 
-        this.addOption("", "--Select value--");
-        this.addOption(" ", "--Empty-- ");
-        var pc = param.choices, pd = param.displayValues, len = Math.min(pc.length, pd.length);
-        for (var ind = 0; ind < len; ++ind) this.addOption(pc[ind], pd[ind]);
+        this.addOption("", "");
+        var pc = param.choices;
+        var pd = param.displayValues;
+        var len = Math.min(pc.length, pd.length);
+
+        for (var ind = 0; ind < len; ++ind) {
+            this.addOption(pc[ind], pd[ind]);
+        }
 
         var self = this;                       
-        ["click", "mousedown", "selectstart"].each(function (s) {self.stopEventPropogation(s)})
+        ["click", "mousedown", "selectstart"].each(function (s) { self.stopEventPropogation(s) })
+    },
+
+    createInput: function() {
+        this.input = new Element("select");
+
+        this.input.style.borderWidth = "1px";
+        this.input.style.borderStyle = "solid";
+
+        this.input.style.fontFamily = this.parentElement.style.fontFamily;
+        this.input.style.fontSize = this.parentElement.style.fontSize;
+        this.input.style.fontStyle = this.parentElement.style.fontStyle;
+        this.input.style.fontWeight = this.parentElement.style.fontWeight;
+        this.input.style.textAlign = this.parentElement.align;
+
+        this.input.style.margin = "0px";
+        this.input.style.padding = "0px";
+        this.input.style.width = "100%";
     },
 
     /**
      *  @desc add an option element to this select
      *  @type public
      */
-    addOption : function(/* String */ value, /* String */ name) {
-        var optionElement = document.createElement("option");
+    addOption : function(value, name) {
+        var optionElement = new Element("option");
         optionElement.value = value;
         optionElement.innerHTML = name;
         this.input.appendChild(optionElement);
-    },
-
-    /**
-     *  Overrides default implementation. When user chose "--Select value--" item we regard editor state as cancelled.   
-     */
-    isCancelled : function() {
-        return (this.initialValue == this.getValue() || this.input.value == "");
     }
+
 });
 
 TableEditor.Editors["combo"] = DropdownEditor;

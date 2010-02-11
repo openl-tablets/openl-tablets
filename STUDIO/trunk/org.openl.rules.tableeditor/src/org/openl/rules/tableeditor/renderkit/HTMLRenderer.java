@@ -28,7 +28,7 @@ import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.ICellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.tableeditor.util.EnumUtils;
+import org.openl.util.EnumUtils;
 import org.openl.rules.tableeditor.util.WebUtil;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.util.StringTool;
@@ -573,12 +573,10 @@ public class HTMLRenderer {
                 insertCalendar(prop, id);
             } else if (prop.isBoolean()) {
                 insertCheckbox(propValue, id);
-                
-//          } else if (prop.getType().isEnum()) {
-//              insertSingleSelectForEnum(prop, id);
-//
-//          } else if (prop.getType().isArray() && prop.getType().getComponentType().isEnum()) {
-//              insertMultiSelectForEnum(prop, id);
+            } else if (prop.isEnum()) {
+                insertSingleSelectForEnum(prop, id);
+            } else if (prop.isEnumArray()) {
+                insertMultiSelectForEnum(prop, id);
             } else {
                 inserted = false;
             }
@@ -636,9 +634,8 @@ public class HTMLRenderer {
 
             Class<?> instanceClass = prop.getType();
             String value = "";
-
             if (prop.getValue() != null) {
-                value = prop.getValue().toString();
+                value = ((Enum<?>) prop.getValue()).name();
             }
 
             String[] values = EnumUtils.getNames(instanceClass);

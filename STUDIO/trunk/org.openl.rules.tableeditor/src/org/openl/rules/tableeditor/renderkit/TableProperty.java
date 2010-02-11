@@ -3,10 +3,12 @@ package org.openl.rules.tableeditor.renderkit;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
+import org.openl.util.EnumUtils;
 
 /**
  * Temporary class for holding table properties
@@ -97,17 +99,15 @@ public class TableProperty {
     public String getStringValue() {
         String result = "";
         if (value != null) {
-            if (value instanceof String) {
-                result = (String) value;
-            } else if (value instanceof Date) {
+            if (value instanceof Date) {
                 SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
                 result = sdf.format((Date) value);
-            } else if (value instanceof Boolean) {
-                result = ((Boolean) value).toString();
-            } else if (value instanceof Integer) {
-                result = ((Integer) value).toString();
-            } else if (value instanceof Double) {
-                result = ((Double) value).toString();
+            } else if (EnumUtils.isEnumArray(value)) {
+                Object[] enums = (Object[]) value;
+                String[] values = EnumUtils.getValues(enums);
+                result = StringUtils.join(values, ",");
+            } else {
+                result = value.toString();
             }
         }
         return result;
@@ -147,6 +147,14 @@ public class TableProperty {
     
     public boolean isDouble() {
         return Double.class.equals(type);
+    }
+
+    public boolean isEnum() {
+        return type != null && type.isEnum();
+    }
+
+    public boolean isEnumArray() {
+        return type != null && type.isArray() && type.getComponentType().isEnum();
     }
 
     public void setConstraints(Constraints constraints) {
