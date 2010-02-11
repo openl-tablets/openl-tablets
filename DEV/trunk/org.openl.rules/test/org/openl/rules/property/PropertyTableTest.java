@@ -48,7 +48,8 @@ public class PropertyTableTest {
                 assertEquals("on",(String) moduleProperties.get("validateDT"));
                 
                 Map<String, Object> categoryProperties = tableProperties.getPropertiesAppliedForCategory();                
-                assertTrue(categoryProperties.size() == 3);
+                assertTrue(categoryProperties.size() == 4);
+                assertEquals("category",(String) categoryProperties.get("scope"));
                 assertEquals("newLob",(String) categoryProperties.get("lob"));
                 assertEquals("alaska",(String) categoryProperties.get("usregion"));                
                 assertEquals("east",(String) categoryProperties.get("region"));
