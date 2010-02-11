@@ -53,7 +53,8 @@ var TableEditor = Class.create({
         var self = this;
 
         // Handle Properties Editor events START
-        $$('input[id^="' + this.propIdPrefix + '"]').each(function(elem) {
+        var propIdSelector = 'id^="' + this.propIdPrefix + '"';
+        $$('input[' + propIdSelector + ']', 'select[' + propIdSelector + ']').each(function(elem) {
             elem.observe("focus", function(e) {
                 self.handleClick(e);
             }, false);
@@ -221,6 +222,9 @@ var TableEditor = Class.create({
     handlePropBlur: function(event) {
         if (!Validation.isAllValidated()) return false;
         var prop = Event.findElement(event, "input");
+        if (!prop) {
+            prop = Event.findElement(event, "select");
+        }
         this.setProp(prop);
     },
 

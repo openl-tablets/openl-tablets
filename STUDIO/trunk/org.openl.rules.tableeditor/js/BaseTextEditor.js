@@ -12,9 +12,9 @@ var BaseTextEditor = Class.create(BaseEditor, {
     MAX_FIELD_SIZE : 1500,
 
     createInput: function() {
-        this.input = $(document.createElement("input"));
-
+        this.input = new Element("input");
         this.input.setAttribute("type", "text");
+
         this.input.style.borderWidth = "1px";
         this.input.style.borderStyle = "solid";
 
