@@ -1,8 +1,6 @@
 package org.openl.rules.table.properties.def;
 
-
-
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 
 /**

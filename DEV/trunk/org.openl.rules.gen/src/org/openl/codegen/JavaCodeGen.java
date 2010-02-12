@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;

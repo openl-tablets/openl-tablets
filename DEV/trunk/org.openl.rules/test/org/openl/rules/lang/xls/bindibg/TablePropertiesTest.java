@@ -18,7 +18,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 
 
 public class TablePropertiesTest {

@@ -12,7 +12,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 
 public class PropertyTableTest {    
 
@@ -44,13 +44,13 @@ public class PropertyTableTest {
                 
                 Map<String, Object> moduleProperties = tableProperties.getPropertiesAppliedForModule();                
                 assertTrue(moduleProperties.size() == 3);
-                assertEquals(InheritanceLevel.MODULE.getLevelName(),(String) moduleProperties.get("scope"));
+                assertEquals(InheritanceLevel.MODULE.getDisplayName(),(String) moduleProperties.get("scope"));
                 assertEquals("Any phase",(String) moduleProperties.get("buildPhase"));                
                 assertEquals("on",(String) moduleProperties.get("validateDT"));
                 
                 Map<String, Object> categoryProperties = tableProperties.getPropertiesAppliedForCategory();                
                 assertTrue(categoryProperties.size() == 4);
-                assertEquals(InheritanceLevel.CATEGORY.getLevelName(),(String) categoryProperties.get("scope"));
+                assertEquals(InheritanceLevel.CATEGORY.getDisplayName(),(String) categoryProperties.get("scope"));
                 assertEquals("newLob",(String) categoryProperties.get("lob"));
                 assertEquals("alaska",(String) categoryProperties.get("usregion"));                
                 assertEquals("east",(String) categoryProperties.get("region"));

@@ -18,7 +18,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
 import org.openl.types.IOpenClass;
@@ -115,8 +115,8 @@ public class PropertyTableBinder extends DataNodeBinder {
                     processCategoryProperties(tsn, propertiesInstance, cxt, propertyNode);
                 } else {
                     throw new UnrecognisedPropertiesTableExeption(String.format("Value of the property [%s] " +
-                    		"is neither [%s] or [%s]", SCOPE_PROPERTY_NAME, InheritanceLevel.MODULE.getLevelName(),
-                    		InheritanceLevel.CATEGORY.getLevelName()), propertyNode);
+                    		"is neither [%s] or [%s]", SCOPE_PROPERTY_NAME, InheritanceLevel.MODULE.getDisplayName(),
+                    		InheritanceLevel.CATEGORY.getDisplayName()), propertyNode);
                 }
         } else {
             throw new UnrecognisedPropertiesTableExeption(String.format("There is no property with name [%s] defined " +
@@ -167,7 +167,7 @@ public class PropertyTableBinder extends DataNodeBinder {
     
     private boolean isModuleProperties(String scope) {
         boolean result = false;        
-        if (InheritanceLevel.MODULE.getLevelName().equals(scope)) {
+        if (InheritanceLevel.MODULE.getDisplayName().equals(scope)) {
             result = true;
         }
         return result;
@@ -175,7 +175,7 @@ public class PropertyTableBinder extends DataNodeBinder {
     
     private boolean isCategoryProperties(String scope) {
         boolean result = false;        
-        if (InheritanceLevel.CATEGORY.getLevelName().equals(scope)) {
+        if (InheritanceLevel.CATEGORY.getDisplayName().equals(scope)) {
             result = true;
         }
         return result;
