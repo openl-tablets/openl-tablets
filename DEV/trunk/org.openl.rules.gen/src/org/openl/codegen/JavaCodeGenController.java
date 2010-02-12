@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.types.java.JavaOpenClass;
 

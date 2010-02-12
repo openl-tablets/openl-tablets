@@ -1,6 +1,7 @@
 package org.openl.rules.table.properties.def;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.types.IOpenClass;
 
 public class TablePropertyDefinition {
@@ -23,27 +24,11 @@ public class TablePropertyDefinition {
 	private InheritanceLevel[] inheritanceLevel;
 	private String description;
 	private String expression;
-	
+
     public enum SystemValuePolicy {
 	    IF_BLANK_ONLY, ON_EACH_EDIT
 	}
-	
-	public enum InheritanceLevel {
-	    MODULE("Module"),
-        CATEGORY("Category"), 
-        TABLE("Table");
-        
-        private String levelName;
-        
-        InheritanceLevel(String levelName) {
-            this.levelName = levelName;
-        }
-        
-        public String getLevelName() {
-            return levelName;
-        }
-    }
-	
+
 	public String getDisplayName() {
 		return displayName;
 	}

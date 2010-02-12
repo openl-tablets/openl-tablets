@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 
 /**
  * Class to check properties level according to its definition.
@@ -54,7 +54,7 @@ public class InheritanceLevelChecker {
             if (inheritanceLevels != null && inheritanceLevels.length > 0) {
                 if (!Arrays.asList(inheritanceLevels).contains(currentLevel)) {
                     String msg = "Property with name "+ name + " can`t be defined on the " 
-                    + currentLevel.getLevelName() + " level";
+                    + currentLevel.getDisplayName() + " level";
                     LOG.debug(msg);
                     throw new InvalidPropertyLevelException(msg);
                 } 
