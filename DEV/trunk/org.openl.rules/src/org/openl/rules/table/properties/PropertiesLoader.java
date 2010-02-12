@@ -161,10 +161,15 @@ public class PropertiesLoader {
         // it will be processed during its binding.
         // author: DLiauchuk
         if (!ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType())) {
-            loadPropertiesAsDataTable(tsn);
-            if (tsn.getTableProperties() == null) {
+            try {
+                loadPropertiesAsDataTable(tsn);
+                if (tsn.getTableProperties() == null) {
+                    createTableProperties(tsn);
+                }
+            } catch(Exception ex) {                
                 createTableProperties(tsn);
-            }
+                throw ex;
+            }            
             loadCategoryProperties(tsn);
             loadModuleProperties(tsn);
             loadDefaultProperties(tsn);        
