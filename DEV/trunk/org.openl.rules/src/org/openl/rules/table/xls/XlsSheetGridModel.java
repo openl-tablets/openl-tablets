@@ -38,6 +38,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.util.EnumUtils;
 import org.openl.util.StringTool;
 
 /**
@@ -581,6 +582,8 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         } else if (value instanceof Boolean) {
             Boolean boolValue = (Boolean) value;
             cell.setCellValue(boolValue.booleanValue());
+        } else if (EnumUtils.isEnum(value)) {
+            cell.setCellValue(((Enum<?>) value).name());
         } else { // String
             String strValue = String.valueOf(value);
             // Formula
