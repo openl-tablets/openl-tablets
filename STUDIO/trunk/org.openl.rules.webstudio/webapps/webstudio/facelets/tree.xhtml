@@ -78,30 +78,35 @@
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.spreadsheet"
+                icon="#{node.state == 1 ? 'webresource/images/spreadsheet-error.gif' : 'webresource/images/spreadsheet.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/spreadsheet-error.gif' : 'webresource/images/spreadsheet.gif'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.tbasic"
+                icon="#{node.state == 1 ? 'webresource/images/tbasic-error.gif' : (node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif')}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/tbasic-error.gif' : (node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif')}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.columnmatch"
+                icon="#{node.state == 1 ? 'webresource/images/cmatch-error.gif' : (node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif')}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/cmatch-error.gif' : (node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif')}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.data"
+                icon="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.datatype"
+                icon="#{node.state == 1 ? 'webresource/images/dataobject-error.png' : 'webresource/images/dataobject.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/dataobject-error.png' : 'webresource/images/dataobject.gif'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
@@ -114,18 +119,21 @@
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.method"
+                icon="#{node.state == 1 ? 'webresource/images/method-error.png' : 'webresource/images/method.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/method-error.png' : 'webresource/images/method.gif'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.test.method"
+                icon="#{node.state == 1 ? 'webresource/images/test_ok-error.gif' : 'webresource/images/test_ok.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/test_ok-error.gif' : 'webresource/images/test_ok.gif'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.run.method"
+                icon="#{node.state == 1 ? 'webresource/images/test-error.png' : 'webresource/images/test.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/test-error.png' : 'webresource/images/test.gif'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                     <h:outputText value="#{node.name}" />
