@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -584,6 +585,10 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             cell.setCellValue(boolValue.booleanValue());
         } else if (EnumUtils.isEnum(value)) {
             cell.setCellValue(((Enum<?>) value).name());
+        } else if (EnumUtils.isEnumArray(value)) {
+            Object[] enums = (Object[]) value;
+            String[] names = EnumUtils.getNames(enums);
+            cell.setCellValue(StringUtils.join(names, ","));
         } else { // String
             String strValue = String.valueOf(value);
             // Formula
