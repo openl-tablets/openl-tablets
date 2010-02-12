@@ -4,7 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 
@@ -71,7 +71,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
         if (tableProperties != null) {
             String propValue = tableProperties.getScope();
             if (StringUtils.isNotEmpty(propValue)) {                
-                if (InheritanceLevel.CATEGORY.getLevelName().equals(propValue)) {
+                if (InheritanceLevel.CATEGORY.getDisplayName().equals(propValue)) {
                     result = true;
                 }
             } 
