@@ -4,7 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 
@@ -70,7 +70,7 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         if (tableProperties != null) {
             String propValue = tableProperties.getScope();
-            if (StringUtils.isNotEmpty(propValue) && InheritanceLevel.MODULE.getLevelName().equals(propValue)) {
+            if (StringUtils.isNotEmpty(propValue) && InheritanceLevel.MODULE.getDisplayName().equals(propValue)) {
                 result = true;
             }
         }

@@ -20,7 +20,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
+import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.PropertiesTableBuilder;
@@ -239,8 +239,8 @@ public class PropertyTableCreationWizard extends WizardBase {
 
     private Map<String, Object> buildProperties() {
         Map<String, Object> resultProperties = new LinkedHashMap<String, Object>();
-        resultProperties.put("scope", scopeType.toLowerCase());
-        if (InheritanceLevel.CATEGORY.name().equalsIgnoreCase(scopeType)) {
+        resultProperties.put("scope", scopeType);
+        if (InheritanceLevel.CATEGORY.getDisplayName().equals(scopeType)) {
             String categoryName = buildCategoryName();
             if (categoryName != null) {
                 resultProperties.put("category", categoryName);
