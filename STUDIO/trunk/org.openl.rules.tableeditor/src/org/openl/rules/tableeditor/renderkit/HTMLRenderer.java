@@ -614,7 +614,6 @@ public class HTMLRenderer {
         }
 
         private void insertSingleSelect(String componentId, String[] values, String[] displayValues, String value) {
-
             String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
             String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
 
@@ -627,16 +626,11 @@ public class HTMLRenderer {
 
             result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
                     renderJSBody(jsCode));
-
         }
 
         private void insertSingleSelectForEnum(TableProperty prop, String id) {
-
             Class<?> instanceClass = prop.getType();
-            String value = "";
-            if (prop.getValue() != null) {
-                value = ((Enum<?>) prop.getValue()).name();
-            }
+            String value = prop.getStringValue();
 
             String[] values = EnumUtils.getNames(instanceClass);
             String[] displayValues = EnumUtils.getValues(instanceClass);
@@ -645,18 +639,9 @@ public class HTMLRenderer {
         }
 
         private void insertMultiSelectForEnum(TableProperty prop, String id) {
-
             Class<?> instanceClass = prop.getType().getComponentType();
-            
-            String valueString = "";
 
-            if (prop.getValue() != null) {
-
-                Object[] values = (Object[]) prop.getValue();
-                String[] names = EnumUtils.getNames(values);
-                
-                valueString = StringUtils.join(names, ",");
-            }
+            String valueString = prop.getStringValue();
 
             String[] values = EnumUtils.getNames(instanceClass);
             String[] displayValues = EnumUtils.getValues(instanceClass);
@@ -665,7 +650,6 @@ public class HTMLRenderer {
         }
 
         private void insertMultiSelect(String componentId, String[] values, String[] displayValues, String value) {
-
             String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
             String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
 
@@ -678,13 +662,10 @@ public class HTMLRenderer {
 
             result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
                     renderJSBody(jsCode));
-
         }
+
         private void insertTextbox(TableProperty prop, String id) {
             String value = prop.getStringValue();
-            if (value == null) {
-                value="";
-            }
             result.append("<td id='" + id + "' class='te_props_proptextinput'></td>")
                 .append(renderJSBody("new TextEditor('','" + id + "','','"
                         + StringEscapeUtils.escapeJavaScript(value) + "','')"));
@@ -708,7 +689,7 @@ public class HTMLRenderer {
         }
 
         private void insertText(TableProperty prop, String id, boolean showTooltip) {
-            String propValue = prop.getStringValue();
+            String propValue = prop.getDisplayValue();
             result.append("<td class='te_props_propvalue'><span"
                     + (StringUtils.isNotBlank(id) ? (" id='_" + id + "'") : "")
                     + ">" + propValue + "</span></td>");

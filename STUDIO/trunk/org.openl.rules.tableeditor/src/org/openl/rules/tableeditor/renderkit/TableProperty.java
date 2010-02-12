@@ -96,7 +96,7 @@ public class TableProperty {
      * It converts its value from any type to string.
      * @return
      */
-    public String getStringValue() {
+    public String getDisplayValue() {
         String result = "";
         if (value != null) {
             if (value instanceof Date) {
@@ -106,6 +106,25 @@ public class TableProperty {
                 Object[] enums = (Object[]) value;
                 String[] values = EnumUtils.getValues(enums);
                 result = StringUtils.join(values, ",");
+            } else {
+                result = value.toString();
+            }
+        }
+        return result;
+    }
+
+    public String getStringValue() {
+        String result = "";
+        if (value != null) {
+            if (value instanceof Date) {
+                SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
+                result = sdf.format((Date) value);
+            } else if (EnumUtils.isEnum(value)) {
+                result = ((Enum<?>) value).name();
+            } else if (EnumUtils.isEnumArray(value)) {
+                Object[] enums = (Object[]) value;
+                String[] names = EnumUtils.getNames(enums);
+                result = StringUtils.join(names, ",");
             } else {
                 result = value.toString();
             }
