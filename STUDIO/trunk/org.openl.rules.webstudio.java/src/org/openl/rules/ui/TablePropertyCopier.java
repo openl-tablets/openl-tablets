@@ -57,7 +57,7 @@ public class TablePropertyCopier extends TableCopier {
         start();
         setElementUri(elementUri);
         initTableNames();
-        initProperties(edit);
+        initProperties(false);
         setEdit(edit);
     }
 
