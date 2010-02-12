@@ -54,7 +54,7 @@ public class InheritanceLevelChecker {
             if (inheritanceLevels != null && inheritanceLevels.length > 0) {
                 if (!Arrays.asList(inheritanceLevels).contains(currentLevel)) {
                     String msg = "Property with name "+ name + " can`t be defined on the " 
-                    + currentLevel.toString() + " level";
+                    + currentLevel.getLevelName() + " level";
                     LOG.debug(msg);
                     throw new InvalidPropertyLevelException(msg);
                 } 

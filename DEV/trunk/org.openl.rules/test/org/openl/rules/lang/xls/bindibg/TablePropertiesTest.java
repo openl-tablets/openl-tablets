@@ -110,7 +110,7 @@ public class TablePropertiesTest {
     public void testPropertyDef() {
         TableSyntaxNode[] tsns = getTables().getXlsTableSyntaxNodes(); 
         assertTrue(61 == tsns.length);        
-        assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getPropertyValueAsString(PROPERTY_NAME));
+        assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         assertEquals("02/04/2237", sdf.format(((Date)tsns[4].getTableProperties()
                 .getPropertyValue(PROPERTY_EFFECTIVE_DATE))));

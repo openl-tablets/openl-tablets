@@ -188,8 +188,6 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         }
     }
 
-    
-
     private IOpenField findField(String fieldName, ITable table, IOpenClass tableType) {
         if (FPK.equals(fieldName)) {
             return new PrimaryKeyField(FPK, table);
@@ -213,10 +211,26 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
     }
     
     /**
-     * Checks if table representation is horizontal.
-     * @param dataTableBody
+     * Checks if table representation is horizontal. Horizontal is data table where parameters are listed from left 
+     * to right.</br>
+     * Example:
+     *  
+     * <table cellspacing="2">  
+     * <tr bgcolor="#ccffff">
+     * <td align="center">param1</td>
+     * <td align="center">param2</td>
+     * <td align="center">param3</td>
+     * </tr>
+     * <tr bgcolor="#ffff99">
+     * <td align="center"><b>param1 value</b></td>
+     * <td align="center"><b>param2 value</b></td>
+     * <td align="center"><b>param3 value</b></td>
+     * </tr>
+     * </table>
+     * 
+     * @param dataTableBody                                                        
      * @param tableType
-     * @return <code>TRUE</code> if table is readable from left to right. Means parameter values are columns.
+     * @return <code>TRUE</code> if table is horizontal.
      */
     private boolean isHorizontalTable(ILogicalTable dataTableBody, IOpenClass tableType) {
         boolean result = false;
