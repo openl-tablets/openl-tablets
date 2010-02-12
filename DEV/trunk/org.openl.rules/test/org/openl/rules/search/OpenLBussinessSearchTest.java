@@ -93,8 +93,8 @@ public class OpenLBussinessSearchTest {
         for(TableSyntaxNode table : xls.getXlsTableSyntaxNodes()) {
             ITableProperties tableProp = table.getTableProperties();
             if(tableProp != null) {
-                if(tableProp.getPropertyValue("name") != null && tableProp.getPropertyValue("name").equals(nameProp) && 
-                        tableProp.getPropertyValue("category") == null) {
+                if(tableProp.getName() != null && tableProp.getName().equals(nameProp) && 
+                        tableProp.getCategory() == null) {
                     listTables[0] = table;
                 }
             }

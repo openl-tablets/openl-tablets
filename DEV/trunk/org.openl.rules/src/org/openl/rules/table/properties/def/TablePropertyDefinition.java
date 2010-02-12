@@ -29,7 +29,19 @@ public class TablePropertyDefinition {
 	}
 	
 	public enum InheritanceLevel {
-        MODULE, CATEGORY, TABLE
+	    MODULE("Module"),
+        CATEGORY("Category"), 
+        TABLE("Table");
+        
+        private String levelName;
+        
+        InheritanceLevel(String levelName) {
+            this.levelName = levelName;
+        }
+        
+        public String getLevelName() {
+            return levelName;
+        }
     }
 	
 	public String getDisplayName() {

@@ -18,6 +18,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.TokenizerParser;
 import org.openl.types.IOpenClass;
@@ -32,6 +33,7 @@ import org.openl.types.java.JavaOpenClass;
 public class PropertyTableBinder extends DataNodeBinder {
 
     private static final String DEFAULT_TABLE_NAME_PREFIX = "InheritedProperties: ";
+    private static final String SCOPE_PROPERTY_NAME = "scope";
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl,
@@ -112,12 +114,13 @@ public class PropertyTableBinder extends DataNodeBinder {
                 } else if (isCategoryProperties(scope)) {
                     processCategoryProperties(tsn, propertiesInstance, cxt, propertyNode);
                 } else {
-                    throw new UnrecognisedPropertiesTableExeption("Value of the property [scope] is neither " +
-                    		"[module] or [category]", propertyNode);
+                    throw new UnrecognisedPropertiesTableExeption(String.format("Value of the property [%s] " +
+                    		"is neither [%s] or [%s]", SCOPE_PROPERTY_NAME, InheritanceLevel.MODULE.getLevelName(),
+                    		InheritanceLevel.CATEGORY.getLevelName()), propertyNode);
                 }
         } else {
-            throw new UnrecognisedPropertiesTableExeption("There is no property with name [scope] defined " +
-            		"in Properties component. It is obligatory.", propertyNode);
+            throw new UnrecognisedPropertiesTableExeption(String.format("There is no property with name [%s] defined " +
+            		"in Properties component. It is obligatory.", SCOPE_PROPERTY_NAME), propertyNode);
         }
     }
     
@@ -164,7 +167,7 @@ public class PropertyTableBinder extends DataNodeBinder {
     
     private boolean isModuleProperties(String scope) {
         boolean result = false;        
-        if ("module".equals(scope)) {
+        if (InheritanceLevel.MODULE.getLevelName().equals(scope)) {
             result = true;
         }
         return result;
@@ -172,7 +175,7 @@ public class PropertyTableBinder extends DataNodeBinder {
     
     private boolean isCategoryProperties(String scope) {
         boolean result = false;        
-        if ("category".equals(scope)) {
+        if (InheritanceLevel.CATEGORY.getLevelName().equals(scope)) {
             result = true;
         }
         return result;

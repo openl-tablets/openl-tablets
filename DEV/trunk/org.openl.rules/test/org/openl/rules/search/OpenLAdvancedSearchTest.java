@@ -129,9 +129,9 @@ public class OpenLAdvancedSearchTest {
             for(int i = 0; i<2; i++) {
                 assertTrue(result.tablesAndRows()[i].getRows().length > 0);
                 if(i==0) {
-                    assertEquals("Theft Rating Table", (String)result.tablesAndRows()[i].tsn.getTableProperties().getPropertyValue("name"));
+                    assertEquals("Theft Rating Table", result.tablesAndRows()[i].tsn.getTableProperties().getName());
                 } else {
-                    assertEquals("Injury Rating Table", (String)result.tablesAndRows()[i].tsn.getTableProperties().getPropertyValue("name"));
+                    assertEquals("Injury Rating Table", result.tablesAndRows()[i].tsn.getTableProperties().getName());
                 }
             }
             for(int i = 2; i<result.tablesAndRows().length; i++) {
@@ -165,9 +165,9 @@ public class OpenLAdvancedSearchTest {
             for(int i = 0; i<2; i++) {
                 assertTrue(result.tablesAndRows()[i].getRows().length > 0);
                 if(i==0) {
-                    assertEquals("Injury Rating Table", (String)result.tablesAndRows()[i].tsn.getTableProperties().getPropertyValue("name"));
+                    assertEquals("Injury Rating Table", (String)result.tablesAndRows()[i].tsn.getTableProperties().getName());
                 } else {
-                    assertEquals("Vehicle Discounts", (String)result.tablesAndRows()[i].tsn.getTableProperties().getPropertyValue("name"));
+                    assertEquals("Vehicle Discounts", (String)result.tablesAndRows()[i].tsn.getTableProperties().getName());
                 }
             }
             for(int i = 2; i<result.tablesAndRows().length; i++) {
