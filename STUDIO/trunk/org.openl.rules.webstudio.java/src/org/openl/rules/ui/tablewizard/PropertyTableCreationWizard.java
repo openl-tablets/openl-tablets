@@ -141,7 +141,7 @@ public class PropertyTableCreationWizard extends WizardBase {
         for (TableSyntaxNode node : syntaxNodes) {
             ITableProperties tableProperties = node.getTableProperties();
             if (tableProperties != null) {
-                String categoryName = tableProperties.getPropertyValueAsString("category");
+                String categoryName = tableProperties.getCategory();
                 if (StringUtils.isNotBlank(categoryName)) {
                     categories.add(categoryName);
                 }

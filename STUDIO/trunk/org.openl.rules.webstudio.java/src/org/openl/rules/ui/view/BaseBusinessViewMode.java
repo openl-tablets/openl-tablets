@@ -40,8 +40,10 @@ public abstract class BaseBusinessViewMode extends WebStudioViewMode {
             ITableProperties tableProperties = tsn.getTableProperties();
     
             if (tableProperties != null) {
+                // FIXME: there is no such property 'view'!!
+                // author: DLiauchuk
                 view = tableProperties.getPropertyValueAsString("view");
-                name = tableProperties.getPropertyValueAsString("name");
+                name = tableProperties.getName();
             }
         } else {
             name = tsn.getHeader().getSourceString();

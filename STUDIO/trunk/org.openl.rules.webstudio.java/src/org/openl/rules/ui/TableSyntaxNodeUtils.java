@@ -9,8 +9,7 @@ import org.openl.types.IOpenMethod;
 
 public class TableSyntaxNodeUtils {
 
-    private static final String DISPLAY_TABLE_PROPERTY_NAME = "display";
-    private static final String NAME_TABLE_PROPERTY_NAME = "name";
+    private static final String DISPLAY_TABLE_PROPERTY_NAME = "display";    
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode) {
         
@@ -31,7 +30,8 @@ public class TableSyntaxNodeUtils {
 
         if (tableProperties != null) {
 
-            name = tableProperties.getPropertyValueAsString(NAME_TABLE_PROPERTY_NAME);
+            name = tableProperties.getName();
+            // FIXME: What a property name 'display'??? there is no such property.
             display = tableProperties.getPropertyValueAsString(DISPLAY_TABLE_PROPERTY_NAME);
         
             if (display == null) {

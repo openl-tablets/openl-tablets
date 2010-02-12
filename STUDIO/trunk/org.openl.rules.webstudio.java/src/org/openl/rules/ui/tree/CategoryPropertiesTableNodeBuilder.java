@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 
@@ -16,8 +17,6 @@ import org.openl.rules.ui.TableSyntaxNodeUtils;
 public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     
     private static final String FOLDER_NAME = "Category Properties";
-    private static final String VALUE_PROPERTY_SCOPE = "category";
-    private static final String NAME_PROPERTY_SCOPE = "scope";
     private static final String CATEGORY_PROPERTIES_TABLE = "Category Properties Table";
     
     @Override
@@ -70,17 +69,12 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
         boolean result = false;
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         if (tableProperties != null) {
-            String propValue = tableProperties.getPropertyValueAsString(NAME_PROPERTY_SCOPE);
-            if (StringUtils.isNotEmpty(propValue)) {
-                // if such property exists, check if value is equal to VALUE_PROPERTY_SCOPE.
-                if (VALUE_PROPERTY_SCOPE.equals(propValue)) {
+            String propValue = tableProperties.getScope();
+            if (StringUtils.isNotEmpty(propValue)) {                
+                if (InheritanceLevel.CATEGORY.getLevelName().equals(propValue)) {
                     result = true;
                 }
-            } else {
-                // also when there is no property with name NAME_PROPERTY_SCOPE, we consider that is property table for
-                // the whole sheet.
-                result = true;
-            }
+            } 
         }
         return result;
     }

@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 
@@ -16,8 +17,6 @@ import org.openl.rules.ui.TableSyntaxNodeUtils;
 public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     
     private static final String FOLDER_NAME = "Module Properties";
-    private static final String VALUE_PROPERTY_SCOPE = "module";
-    private static final String NAME_PROPERTY_SCOPE = "scope";
     private static final String MODULE_PROPERTIES_TABLE = "Module Properties Table";
     
     @Override
@@ -70,8 +69,8 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
         boolean result = false;
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         if (tableProperties != null) {
-            String propValue = tableProperties.getPropertyValueAsString(NAME_PROPERTY_SCOPE);
-            if (StringUtils.isNotEmpty(propValue) && VALUE_PROPERTY_SCOPE.equals(propValue)) {
+            String propValue = tableProperties.getScope();
+            if (StringUtils.isNotEmpty(propValue) && InheritanceLevel.MODULE.getLevelName().equals(propValue)) {
                 result = true;
             }
         }
