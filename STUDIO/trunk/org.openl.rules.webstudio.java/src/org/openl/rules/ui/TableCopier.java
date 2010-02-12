@@ -166,7 +166,7 @@ public abstract class TableCopier extends WizardBase {
             tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
             ITableProperties tableProperties = node.getTableProperties();
             if (tableProperties != null) {
-                tableBusinessName = node.getTableProperties().getPropertyValueAsString(TableBuilder.TABLE_PROPERTIES_NAME);
+                tableBusinessName = node.getTableProperties().getName();
             }
         }        
     }

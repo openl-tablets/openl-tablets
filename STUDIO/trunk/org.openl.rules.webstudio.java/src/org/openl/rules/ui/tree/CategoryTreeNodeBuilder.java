@@ -9,10 +9,9 @@ import org.openl.rules.ui.IProjectTypes;
  * Builds tree node for table category.
  */
 public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
-
-    //private static final String CATEGORY_TYPE = "category";
-    private static final String CATEGORY_NAME = "category";
-    private static final String CATEGORY_TABLE_PROPERTY_NAME = "category";
+    
+    private static final String CATEGORY_BUILDER_NAME = "Category Builder";
+    
 
     /**
      * {@inheritDoc}
@@ -31,7 +30,7 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public String getName() {
-        return CATEGORY_NAME;
+        return CATEGORY_BUILDER_NAME;
     }
 
     /**
@@ -90,8 +89,8 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
 
-        if (tableProperties != null && tableProperties.getPropertyValue(CATEGORY_TABLE_PROPERTY_NAME) != null) {
-            category = tableProperties.getPropertyValueAsString(CATEGORY_TABLE_PROPERTY_NAME);
+        if (tableProperties != null && tableProperties.getCategory() != null) {
+            category = tableProperties.getCategory();
         }
 
         if (category == null) {
