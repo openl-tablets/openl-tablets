@@ -136,23 +136,22 @@
                             alt="Show Formulas" />
                     </h:outputLink>
                 </c:if>
-                
+
             </h:form>
         </td></tr></table>
 
-        <ui:include src="/WEB-INF/include/facelets/errorDisplay.xhtml" />
-
-        <c:if test="#{showTableBean.tsnHasErrors}">
-            <h3>Problems</h3>
-            <table border="1">
-                <tr>
-                    <td>
-                        <h:outputText value="#{showTableBean.errorString}"
-                            escape="false" />
-                    </td>
-                </tr>
-            </table>
-        </c:if>
+        <h:panelGroup rendered="#{showTableBean.tsnHasErrors}" layout="block" style="margin-top: 10px;">
+            <ui:include src="/WEB-INF/include/facelets/errorDisplay.xhtml" />
+            <div style="font-weight: bold; font-size: 12px; margin: 0px 2px;">
+                <span style="margin-right: 4px">Problems</span>
+                <h:graphicImage url="/webresource/images/arrow_down.gif" title="Hide Errors"
+                    onclick="$('errorsPanel').toggle();this.src=(this.title == 'Hide Errors' ? '#{contextPath}/images/arrow_right.gif' : '#{contextPath}/images/arrow_down.gif');this.title=(this.title == 'Hide Errors' ? 'Show Errors' : 'Hide Errors');" />
+            </div>
+            <div id="errorsPanel">
+                <h:outputText value="#{showTableBean.errorString}" escape="false" />
+                <br />
+            </div>
+        </h:panelGroup>
 
         <br />
 
