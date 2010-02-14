@@ -8,6 +8,7 @@ import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.webstudio.util.WebstudioTreeIterator;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
+import org.openl.util.StringTool;
 import org.openl.util.tree.TreeIterator;
 
 import java.io.BufferedReader;
@@ -170,25 +171,40 @@ public class OpenLProjectLocator {
         return v.toArray(new OpenLWrapperInfo[0]);
     }
 
+    public String[] listPotentialOpenLWrappersClassNames(File project) throws IOException {
+        
+        List<String> list = new ArrayList<String>();
+        
+        String startDirs = System.getProperty(IRulesLaunchConstants.WRAPPER_SEARCH_START_DIR_PROPERTY, IRulesLaunchConstants.WRAPPER_SEARCH_START_DIR_DEFAULT);
+        String wrapperSuffixes = System.getProperty(IRulesLaunchConstants.WRAPPER_SOURCE_SUFFIX_PROPERTY, IRulesLaunchConstants.WRAPPER_SOURCE_SUFFIX_DEFAULT);
+        
+        String[] srcRoots = StringTool.tokenize(startDirs, ", ");
+        String[] suffixes = StringTool.tokenize(wrapperSuffixes, ", ");
+        
+        for(String srcRoot: srcRoots)
+            listPotentialOpenLWrappersClassNames(project,srcRoot, suffixes, list);
+        
+        
+        return list.toArray(new String[list.size()]);
+    }
+    
     /**
      * @param project
      * @return
      * @throws IOException
      */
-    public String[] listPotentialOpenLWrappersClassNames(File project) throws IOException {
+    public void listPotentialOpenLWrappersClassNames(File project, String srcRoot, String[] suffixes, List<String> list) throws IOException {
 
-        String srcroot = "gen";
-        File searchDir = new File(project.getCanonicalPath(), srcroot);
+        File searchDir = new File(project.getCanonicalPath(), srcRoot);
         TreeIterator<File> fti = new WebstudioTreeIterator(searchDir, 0);
-        ArrayList<String> v = new ArrayList<String>();
         for (; fti.hasNext();) {
             File f = fti.next();
-            if (f.getName().endsWith("Wrapper.java")) {
-                v.add(javaClassName(f, searchDir.getCanonicalPath()));
-            }
+            for(String suffix: suffixes)
+                if (f.getName().endsWith(suffix)) {
+                    list.add(javaClassName(f, searchDir.getCanonicalPath()));
+                }
         }
 
-        return v.toArray(new String[0]);
     }
 
     File[] listProjects() {
