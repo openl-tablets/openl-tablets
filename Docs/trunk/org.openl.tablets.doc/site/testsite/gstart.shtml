@@ -34,7 +34,7 @@
 It is recommended (even though not required) that both folders <code>plugins/</code> 
 and <code>workspace/</code> are located in the same <code>eclipse/</code> folder.
 All tutorials and examples are pre-configured for this situation and this will save 
-you some time, effort and once in a while - sanity :) 
+you some time, effort and, once in a while - sanity :) 
   
 <p/>
 2.	JDK 1.5 or higher 
@@ -44,6 +44,11 @@ you some time, effort and once in a while - sanity :)
 If you have OpenL Tablets previously installed in your Eclipse, uninstall it by going to <b>Help | Software Updates | Manage Configuration</b>.  
 Locate OpenL Tablets for Eclipse … and first <b>Disable</b> it, then <b>Uninstall</b> it(Since Eclipse 3.3 you can do it in one step - 
 right click + Uninstall ). 
+<p>
+Note: we found that some recent versions of Eclipse do not perform a proper cleanup after Uninstall and this prevents the installation procedure 
+to complete properly. We advise you to go to plugins/ folder of your Eclipse installation and manually claen all org.openl.* folders and files that 
+have been left after Uninstall procedure.
+
 
 <h3>From Sourceforge.net Remote Site(only the latest published version)</h3> 
 1.	Select Eclipse menu <b>Help | Software Updates | Find and Install</b><br/>
