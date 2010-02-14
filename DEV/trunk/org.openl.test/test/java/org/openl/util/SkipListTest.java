@@ -5,14 +5,12 @@
  */
 package org.openl.util;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
-
-import org.openl.util.meta.IOrderMetaInfo;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.openl.util.meta.IOrderMetaInfo;
 
 /**
  * @author snshor
