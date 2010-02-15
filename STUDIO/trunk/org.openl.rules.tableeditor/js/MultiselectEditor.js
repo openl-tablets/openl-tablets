@@ -2,40 +2,41 @@
  * Multiple choice editor.
  *
  * @author Aliaksandr Antonik
+ * @author Andrei Astrouski
  */
 var MultiselectEditor = Class.create(BaseTextEditor, {
-    multiselectBox: null,
+    multiselectPanel: null,
     ulElement: null,
     entries: null,
-    sortedKeys: null,
+    choices: null,
     separator: null,
     separatorEscaper: null,
     destroyed: null,
 
     editor_initialize: function(param) {
         this.createInput();
-        this.sortedKeys = param.choices;
+        this.choices = param.choices;
         this.entries = $H();
 
         // creating containing DIV
-        multiselectBox = new Element("div");
-        multiselectBox.style.position = "absolute";
-        multiselectBox.zIndex = "10";
-        multiselectBox.className = "multiselect_container_outer";
+        this.multiselectPanel = new Element("div");
+        this.multiselectPanel.style.position = "absolute";
+        this.multiselectPanel.zIndex = "10";
+        this.multiselectPanel.className = "multiselect_container_outer";
 
         // creating buttons
         var self = this;
-        multiselectBox.innerHTML = '&nbsp;<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">&nbsp;'
-        var b1 = multiselectBox.down(), b2 = b1.next(), b3 = b2.next();
+        this.multiselectPanel.innerHTML = '&nbsp;<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">&nbsp;'
+        var b1 = this.multiselectPanel.down(), b2 = b1.next(), b3 = b2.next();
         b1.onclick = function() {self.setAllCheckBoxes(true)}
         b2.onclick = function() {self.setAllCheckBoxes(false)}
-        b3.onclick = function() {self.close()}
+        b3.onclick = function() {self.finishEdit()}
 
         // creating inner DIV
         var container = new Element("div");
         container.className = "multiselect_container";
-        multiselectBox.appendChild(new Element("br"));
-        multiselectBox.appendChild(container);
+        this.multiselectPanel.appendChild(new Element("br"));
+        this.multiselectPanel.appendChild(container);
 
         // creating UL HTML element
         this.ulElement = new Element("ul");
@@ -63,6 +64,8 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
             return false;
         }
 
+        this.documentClickListener = this.documentClickHandler.bindAsEventListener(this);
+
         this.separator = param.separator || ',';
         this.separatorEscaper = param.separatorEscaper;
 
@@ -73,12 +76,12 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         $super(value);
         var pos = Element.cumulativeOffset(this.input);
         pos[1] += this.input.getHeight();
-        multiselectBox.style.left = pos[0] + "px";
-        multiselectBox.style.top = pos[1] + "px";
+        this.multiselectPanel.style.left = pos[0] + "px";
+        this.multiselectPanel.style.top = pos[1] + "px";
     },
 
     open: function() {
-        document.body.appendChild(multiselectBox);
+        document.body.appendChild(this.multiselectPanel);
         this.destroyed = false;
         var entries = this.entries;
         this.splitValue(this.input.value).each(function (key) {
@@ -86,9 +89,18 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
                 entries[key].checked = true;
             }
         });
+        Event.observe(document, 'click', this.documentClickListener);
     },
 
     close: function() {
+        if (!this.destroyed) {
+            Event.stopObserving(document, 'click', this.documentClickListener);
+            Element.remove(this.multiselectPanel);
+            this.destroyed = true;
+        }
+    },
+
+    finishEdit: function() {
         AjaxHelper.setInputValue(this.input, this.combineValue());
         this.handleF3();
         this.destroy();
@@ -114,24 +126,35 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
     combineValue: function() {
         var entries = this.entries;
-        return this.sortedKeys.findAll(function(key) {
+        return this.choices.findAll(function(key) {
             return entries[key].checked}
         ).join(this.separator)
     },
 
     destroy: function() {
-        if (!this.destroyed) {
-            document.body.removeChild(multiselectBox);
-            this.destroyed = true;
-        }
+        this.close();
     },
 
     setAllCheckBoxes: function(value) {
         var entries = this.entries;
-        this.sortedKeys.findAll(function(key) {
+        this.choices.findAll(function(key) {
             entries[key].checked = value;
         });
+    },
+
+    documentClickHandler: function(e) {
+        var element = Event.element(e);
+        var abort = false;
+        do {
+            if (element == this.multiselectPanel) {
+                abort = true;
+            }
+        } while (element = element.parentNode);
+        if (!abort) {
+            this.close();
+        }
     }
+
 });
 
 TableEditor.Editors["multiselect"] = MultiselectEditor;
