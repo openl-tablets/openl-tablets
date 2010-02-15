@@ -74,13 +74,14 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
     show: function($super, value) {
         $super(value);
+    },
+
+    open: function() {
         var pos = Element.cumulativeOffset(this.input);
         pos[1] += this.input.getHeight();
         this.multiselectPanel.style.left = pos[0] + "px";
         this.multiselectPanel.style.top = pos[1] + "px";
-    },
 
-    open: function() {
         document.body.appendChild(this.multiselectPanel);
         this.destroyed = false;
         var entries = this.entries;
