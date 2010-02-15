@@ -72,10 +72,6 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         this.destroyed = true;
     },
 
-    show: function($super, value) {
-        $super(value);
-    },
-
     open: function() {
         var pos = Element.cumulativeOffset(this.input);
         pos[1] += this.input.getHeight();
