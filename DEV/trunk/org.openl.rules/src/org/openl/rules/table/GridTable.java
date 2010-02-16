@@ -113,4 +113,13 @@ public class GridTable extends AGridTable implements IGridRegion {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return  "G[" + getTop() + "," + getLeft() + "," + getBottom() + "," + getRight() + "]";
+    }
+    
+    
+
+    
+    
 }

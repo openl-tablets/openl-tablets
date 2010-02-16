@@ -77,4 +77,11 @@ public class GridRegion implements IGridRegion {
         this.top = top;
     }
 
+    @Override
+    public String toString() {
+        return  "[" + getTop() + "," + getLeft() + "," + getBottom() + "," + getRight() + "]";
+    }
+    
+    
+
 }

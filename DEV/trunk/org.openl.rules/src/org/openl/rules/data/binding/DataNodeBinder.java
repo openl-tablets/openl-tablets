@@ -622,6 +622,8 @@ public class DataNodeBinder extends AXlsTableBinder implements IXlsTableNames {
         ILogicalTable descriptorRows = getDescriptorRows(horizDataTableBody);
         
         ILogicalTable dataWithTitleRows = getDataWithTitleRows(horizDataTableBody);
+        
+        dataWithTitleRows = LogicalTable.logicalTable(dataWithTitleRows, descriptorRows, null);
 
         ColumnDescriptor[] descriptors = makeDescriptors(tableToProcess, tableType, openl, descriptorRows,  
                 dataWithTitleRows, hasForeignKeysRow(horizDataTableBody), hasColumnTytleRow);

@@ -78,4 +78,11 @@ public abstract class ALogicalTable implements ILogicalTable {
 
     protected abstract ILogicalTable rowsInternal(int from, int to);
 
+    @Override
+    public String toString(){
+        return "T(" + getLogicalWidth() + " x " + getLogicalHeight() + ")";
+    }
+
+    
+    
 }
