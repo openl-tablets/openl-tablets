@@ -511,7 +511,8 @@ public class HTMLRenderer {
         private void insertPropValue(TableProperty prop, String mode) {
             if ("edit".equals(mode)) {
                 final String propId = getPropId(prop);
-                if (prop.isSystem() || !prop.canBeOverridenInTable() ) {
+                if (prop.isSystem() || !prop.canBeOverridenInTable()
+                        || "version".equalsIgnoreCase(prop.getName())) {
                     insertText(prop, propId, true);
                 } else {
                     insertInput(prop, propId, true);
