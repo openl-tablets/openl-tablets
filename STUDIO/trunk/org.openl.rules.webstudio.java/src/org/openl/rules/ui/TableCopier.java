@@ -49,8 +49,7 @@ public abstract class TableCopier extends WizardBase {
     private String tableTechnicalName;
     /** Table business name */
     private String tableBusinessName;
-    /** Need to save body content during coping */
-    private boolean saveContent = true;
+
     /** <code>true</code> when copied table have to be displayed in edit mode
      * <code>false</code> when copied table have to be displayed in view mode*/
     private boolean edit = false;
@@ -266,17 +265,7 @@ public abstract class TableCopier extends WizardBase {
         }        
         return propertiesStyle;
     }
-    
-    public boolean isSaveContent() {
-        return saveContent;
-    }
 
-    public void setSaveContent(boolean saveContent) {
-        this.saveContent = saveContent;
-    }
-
-    
-    
     public String getTableBusinessName() {
         return tableBusinessName;
     }
