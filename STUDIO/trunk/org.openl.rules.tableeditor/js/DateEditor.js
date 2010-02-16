@@ -36,6 +36,12 @@ var DateEditor = Class.create(BaseTextEditor, {
         };
         datePickerOpts.formElements[inputId] = "m-sl-d-sl-Y";
 
+        var datePickerGlobalOpts = {
+            noDrag: true
+        };
+
+        datePickerController.setGlobalVars(datePickerGlobalOpts);
+
         datePickerController.createDatePicker(datePickerOpts);
     },
 
