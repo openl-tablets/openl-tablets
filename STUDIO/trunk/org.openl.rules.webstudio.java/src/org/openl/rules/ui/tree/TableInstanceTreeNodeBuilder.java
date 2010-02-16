@@ -13,6 +13,14 @@ import org.openl.types.IOpenMethod;
 public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
     private static final String TABLE_INSTANCE_NAME = "Table Instance";
+    private boolean unique;
+    
+    /**
+     * Creates new tree node builder with specified uniqueness.
+     */
+    public TableInstanceTreeNodeBuilder(boolean unique) {
+        this.unique = unique;
+    }
 
     /**
      * {@inheritDoc}
@@ -80,8 +88,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      */
     @Override
     public boolean isUnique() {
-
-        return false;
+        return unique;
     }
 
     /**

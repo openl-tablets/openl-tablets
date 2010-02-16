@@ -22,7 +22,11 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;        
-        return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i);
+        if (ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode)) {
+            return new String[]{FOLDER_NAME, FOLDER_NAME, FOLDER_NAME};
+        } else {
+            return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i);
+        }
     }
 
     @Override

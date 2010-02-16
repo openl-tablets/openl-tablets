@@ -13,7 +13,7 @@ public class BusinessViewMode1 extends BaseBusinessViewMode {
 
     private static final BaseTableTreeNodeBuilder[][] sorters = { {new ModulePropertiesTableNodeBuilder(), 
             new CategoryTreeNodeBuilder(), new CategoryPropertiesTableNodeBuilder(),
-            new OpenMethodInstancesGroupTreeNodeBuilder(), new TableInstanceTreeNodeBuilder(),
+            new OpenMethodInstancesGroupTreeNodeBuilder(), new TableInstanceTreeNodeBuilder(false),
             new TableVersionTreeNodeBuilder() } };
 
     public BusinessViewMode1() {
