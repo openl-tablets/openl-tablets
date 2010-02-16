@@ -18,6 +18,7 @@ import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.InheritanceLevel;
@@ -64,7 +65,10 @@ public class PropertiesLoader {
         ITable propertyTable = module.getDataBase().addNewTable(propertySectionName, null);
         IOpenClass propetiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propertiesSection = binder.getPropertiesTableSection(tsn.getTable());
+        
+        
         if (propertiesSection != null) {
+            propertiesSection = LogicalTable.logicalTable(propertiesSection);
             bb.processTable(module, propertyTable, propertiesSection, propertySectionName, propetiesClass, cxt, openl,
                     false);
             TableProperties propertiesInstance = ((TableProperties[])propertyTable.getDataArray())[0]; 

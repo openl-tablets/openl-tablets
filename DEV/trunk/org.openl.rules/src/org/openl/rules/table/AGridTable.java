@@ -112,4 +112,12 @@ public abstract class AGridTable extends ALogicalTable implements IGridTable {
     	return new GridTableCell(column, row, this);
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + (isNormalOrientation() ? "N" : "T") +  getRegion().toString();
+    }
+
+    
+    
+    
 }

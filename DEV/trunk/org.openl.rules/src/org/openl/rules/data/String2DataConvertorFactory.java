@@ -435,21 +435,22 @@ public class String2DataConvertorFactory {
 
     }
 
-    public class String2ArrayConvertor implements IString2DataConvertor {
-
-        private Object type;
-        
-        public String format(Object data, String format) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        public Object parse(String data, String format, IBindingContext cxt) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-        
-    }
+// not used?    
+//    public class String2ArrayConvertor implements IString2DataConvertor {
+//
+//        private Object type;
+//        
+//        public String format(Object data, String format) {
+//            // TODO Auto-generated method stub
+//            return null;
+//        }
+//
+//        public Object parse(String data, String format, IBindingContext cxt) {
+//            // TODO Auto-generated method stub
+//            return null;
+//        }
+//        
+//    }
     
     public static class NoConvertor implements IString2DataConvertor {
 

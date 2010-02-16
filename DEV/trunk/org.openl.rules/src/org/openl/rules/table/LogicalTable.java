@@ -41,6 +41,27 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
         return rows;
     }
 
+    static public ILogicalTable logicalTable(ILogicalTable table, ILogicalTable columnOffsetsTable, ILogicalTable rowOffsetsTable) {
+        IGridTable gridTable = table.getGridTable();
+        
+        int[] columnOffsets = null;
+        if (columnOffsetsTable != null && columnOffsetsTable instanceof LogicalTable)
+        {
+            columnOffsets = ((LogicalTable)columnOffsetsTable).columnOffset;
+        }    
+
+        int[] rowOffsets = null;
+        if (rowOffsetsTable != null && rowOffsetsTable instanceof LogicalTable)
+        {
+            rowOffsets = ((LogicalTable)rowOffsetsTable).rowOffset;
+        }
+        
+        if (rowOffsets == null && columnOffsets == null)
+          return logicalTable(gridTable);
+        
+        return new LogicalTable(gridTable, columnOffsets, rowOffsets);
+    }
+
     static public ILogicalTable logicalTable(ILogicalTable table) {
         IGridTable gridTable = table.getGridTable();
         int width = calcLogicalColumns(gridTable);
@@ -177,18 +198,30 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
 
     public LogicalTable(IGridTable gridTable, int width, int height) {
         this.gridTable = gridTable;
-        rowOffset = new int[height + 1];
-        columnOffset = new int[width + 1];
-        calculateOffsets();
+        calculateRowOffsets(height);
+        calculateColumnOffsets(width);
     }
 
     public LogicalTable(IGridTable gridTable, int[] columnOffset, int[] rowOffset) {
         this.gridTable = gridTable;
-        this.rowOffset = rowOffset;
-        this.columnOffset = columnOffset;
+        
+        if (columnOffset == null)
+        {
+            int width = calcLogicalColumns(gridTable);
+            calculateColumnOffsets(width);
+        }    
+        else this.columnOffset = columnOffset;
+        
+        if (rowOffset == null)
+        {
+            int height = calcLogicalRows(gridTable);
+            calculateRowOffsets(height);
+        }    
+        else this.rowOffset = rowOffset;
     }
 
-    private void calculateOffsets() {
+    private void calculateRowOffsets(int height) {
+        rowOffset = new int[height + 1];
         int cellHeight = 0, offset = 0;
         int i = 0;
         for (; i < rowOffset.length - 1; offset += cellHeight, ++i) {
@@ -197,9 +230,15 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
         }
         rowOffset[i] = offset;
 
+    }
+
+
+    
+    private void calculateColumnOffsets(int width) {
+        columnOffset = new int[width+1];
         int cellWidth = 0;
-        offset = 0;
-        i = 0;
+        int offset = 0;
+        int i = 0;
         for (; i < columnOffset.length - 1; offset += cellWidth, ++i) {
             columnOffset[i] = offset;
             cellWidth = gridTable.getCell(offset, 0).getWidth();
@@ -368,6 +407,14 @@ public class LogicalTable extends ALogicalTable implements ILogicalTable {
 
     public ILogicalTable transpose() {
         return LogicalTable.logicalTable(new TransposedGridTable(gridTable));
+    }
+
+    public int[] getRowOffset() {
+        return rowOffset;
+    }
+
+    public int[] getColumnOffset() {
+        return columnOffset;
     }
 
 }
