@@ -2,28 +2,21 @@ package org.openl.rules.search;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
-
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.BaseOpenlBuilder;
 import org.openl.rules.search.ISearchConstants;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 
-public class OpenLAdvancedSearchTest {
+public class OpenLAdvancedSearchTest extends BaseOpenlBuilder{
     
     private String __src = "test/rules/Tutorial_4_Test.xls";
     
     private OpenLAdvancedSearch search = new OpenLAdvancedSearch();
     
-    private XlsModuleSyntaxNode getTables() {        
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, __src);
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
-        return xsn;
+    @Before
+    public void buildOpenlWrapper() {
+        buildXlsModuleSyntaxNode(__src);
     }
     
     @Test 
@@ -37,7 +30,7 @@ public class OpenLAdvancedSearchTest {
         SearchConditionElement[] tableElements = {searchElem};
         search.selectTableType(0, true);
         search.setTableElements(tableElements);
-        Object searchResult = search.search(getTables());
+        Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
             assertTrue(8 == ((OpenLAdvancedSearchResult)searchResult).tablesAndRows().length);
@@ -61,7 +54,7 @@ public class OpenLAdvancedSearchTest {
         SearchConditionElement[] tableElements = {searchElem};
         search.selectTableType(0, true);
         search.setTableElements(tableElements);
-        Object searchResult = search.search(getTables());
+        Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
             assertTrue(11 == ((OpenLAdvancedSearchResult)searchResult).tablesAndRows().length);
@@ -94,7 +87,7 @@ public class OpenLAdvancedSearchTest {
         search.selectTableType(0, true);
         search.setTableElements(tableElements);
         search.setColumnElements(columnElements);
-        Object searchResult = search.search(getTables());
+        Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
             assertTrue(31 == ((OpenLAdvancedSearchResult)searchResult).tablesAndRows().length);
@@ -120,7 +113,7 @@ public class OpenLAdvancedSearchTest {
         search.selectTableType(0, true);
         
         search.setColumnElements(columnElements);
-        Object searchResult = search.search(getTables());
+        Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
             OpenLAdvancedSearchResult result = ((OpenLAdvancedSearchResult)searchResult);
@@ -156,7 +149,7 @@ public class OpenLAdvancedSearchTest {
         search.selectTableType(0, true);
         
         search.setColumnElements(columnElements);
-        Object searchResult = search.search(getTables());
+        Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLAdvancedSearchResult)) {
             assertTrue(true);   
             OpenLAdvancedSearchResult result = ((OpenLAdvancedSearchResult)searchResult);

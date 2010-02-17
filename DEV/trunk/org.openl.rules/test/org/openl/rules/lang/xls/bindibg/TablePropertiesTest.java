@@ -9,19 +9,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
 
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.BaseOpenlBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.InheritanceLevel;
 
 
-public class TablePropertiesTest {
+public class TablePropertiesTest extends BaseOpenlBuilder{
     
     private String __src = "test/rules/Tutorial_4_Test.xls";
         
@@ -36,15 +33,6 @@ public class TablePropertiesTest {
     private static final String PROPERTY_EXPIRATION_DATE = "expirationDate";
     private static final String PROPERTY_NAME = "name";
     private static final String PROPERTY_FAIL_ON_MISS ="failOnMiss";
-   
-    
-    private XlsModuleSyntaxNode getTables() {        
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, __src);
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
-        return xsn;
-    }
     
     private TableProperties initTableProperties() {
         TableProperties tableProperties = new TableProperties();
@@ -108,7 +96,7 @@ public class TablePropertiesTest {
     
     @Test
     public void testPropertyDef() {
-        TableSyntaxNode[] tsns = getTables().getXlsTableSyntaxNodes(); 
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src); 
         assertTrue(61 == tsns.length);        
         assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
