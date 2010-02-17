@@ -9,6 +9,10 @@ public class EnumUtils {
         return constant.name();
     }
     
+    public static Object valueOf(Class enumClass, String constantName) {
+        return Enum.valueOf(enumClass, constantName);
+    }
+    
     public static String[] getNames(Object[] constants) {
         List<String> names = new ArrayList<String>();
         for (Object constant : constants) {
