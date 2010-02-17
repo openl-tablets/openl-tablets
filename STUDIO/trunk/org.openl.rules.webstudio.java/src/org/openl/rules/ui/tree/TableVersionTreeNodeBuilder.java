@@ -51,12 +51,6 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     }
 
     @Override
-    public boolean isUnique() {
-
-        return false;
-    }
-
-    @Override
     public int getWeight(Object nodeObject) {
         return 0;
     }

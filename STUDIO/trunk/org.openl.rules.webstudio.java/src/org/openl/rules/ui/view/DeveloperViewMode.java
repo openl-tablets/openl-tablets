@@ -17,9 +17,9 @@ public class DeveloperViewMode extends WebStudioViewMode {
 
     private static final BaseTableTreeNodeBuilder[][] sorters = {
             { new TableTreeNodeBuilder(), new OpenMethodInstancesGroupTreeNodeBuilder(),
-                    new TableInstanceTreeNodeBuilder(true), new TableVersionTreeNodeBuilder() },
+                    new TableInstanceTreeNodeBuilder(), new TableVersionTreeNodeBuilder() },
             { new WorkbookTreeNodeBuilder(), new WorksheetTreeNodeBuilder(),
-                    new OpenMethodInstancesGroupTreeNodeBuilder(), new TableInstanceTreeNodeBuilder(true),
+                    new OpenMethodInstancesGroupTreeNodeBuilder(), new TableInstanceTreeNodeBuilder(),
                     new TableVersionTreeNodeBuilder() } };
 
     private static final String[][] folders = { { "By Type", "Organize Project by component type", "" },

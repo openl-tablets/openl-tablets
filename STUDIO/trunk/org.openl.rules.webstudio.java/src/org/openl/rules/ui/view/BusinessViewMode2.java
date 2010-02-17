@@ -15,7 +15,7 @@ public class BusinessViewMode2 extends BaseBusinessViewMode {
             new CategoryNTreeNodeBuilder(0, "-"),
             new CategoryNTreeNodeBuilder(1, "-"), new CategoryPropertiesTableNodeBuilder(), 
             new OpenMethodInstancesGroupTreeNodeBuilder(),
-            new TableInstanceTreeNodeBuilder(false), new TableVersionTreeNodeBuilder() } };
+            new TableInstanceTreeNodeBuilder(), new TableVersionTreeNodeBuilder() } };
 
     public BusinessViewMode2() {
         setName(WebStudioViewMode.BUSINESS_MODE_TYPE + ".2");

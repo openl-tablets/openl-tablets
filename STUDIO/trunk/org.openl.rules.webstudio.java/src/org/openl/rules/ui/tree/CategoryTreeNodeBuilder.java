@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tree;
 
+import org.openl.rules.lang.xls.ITableNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -75,6 +76,16 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public Object getProblems(Object nodeObject) {
         return null;
+    }
+    
+    @Override
+    public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
+        if (ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNode.getType())
+                && ModulePropertiesTableNodeBuilder.isModulePropertyTable(tableSyntaxNode)) {
+            //category tree builder skips module properties 
+            return false;
+        }
+        return true;
     }
 
     /**

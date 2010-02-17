@@ -57,12 +57,16 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     }
     
     @Override
-    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+    public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         if (ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode)) {
-            String folderName = FOLDER_NAME;
-            return makeFolderNode(folderName);
+            return true;
         }
-        return null;
+        return false;
+    }
+    
+    @Override
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+        return makeFolderNode(FOLDER_NAME);
     }
     
     private boolean isCategoryPropertyTable(TableSyntaxNode tableSyntaxNode) {
