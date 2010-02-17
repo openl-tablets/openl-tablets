@@ -38,10 +38,8 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      * {@inheritDoc}
      */
     @Override
-    public Object getProblems(Object sorterObject) {
-
-        TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
-
+    public Object getProblems(Object nodeObject) {
+        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
         return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
     }
 
@@ -117,7 +115,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
             return super.makeKey(tableSyntaxNode);
         }
     }
-    
+
     @Override
     public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         Object nodeObject = makeObject(tableSyntaxNode);

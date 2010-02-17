@@ -130,7 +130,8 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
      */
     @Override
     public Object getProblems(Object nodeObject) {
-        return null;
+        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
+        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
     }
 
     /**
