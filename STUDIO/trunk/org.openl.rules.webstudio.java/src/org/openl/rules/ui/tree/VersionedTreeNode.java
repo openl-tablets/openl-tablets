@@ -40,6 +40,11 @@ public class VersionedTreeNode extends ProjectTreeNode {
     }
 
     @Override
+    public boolean hasProblems() {
+        return getProblems() != null;
+    }
+
+    @Override
     public TableSyntaxNode getTableSyntaxNode() {
         return linkedChild;
     }
