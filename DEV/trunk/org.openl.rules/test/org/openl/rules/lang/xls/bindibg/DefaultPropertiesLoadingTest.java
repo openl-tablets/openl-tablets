@@ -29,31 +29,42 @@ public class DefaultPropertiesLoadingTest {
         return xsn;
     }
     
+    private TableSyntaxNode findTable(String tableName, TableSyntaxNode[] tsns) {
+        TableSyntaxNode result = null;
+        for (TableSyntaxNode tsn : tsns) {
+            if (tableName.equals(tsn.getDisplayName())) {
+                result = tsn;   
+            }
+        }
+        return result;
+    }
+    
     @Test
-    public void testLoadingDefaultValuesForPreviouslyEmptyProp() {       
+    public void testLoadingDefaultValuesForPreviouslyEmptyProp() {  
+        String tableName = "Rules void hello1(int hour)";
         XlsModuleSyntaxNode tables = getTables();
         TableSyntaxNode[] tsns = tables.getXlsTableSyntaxNodesWithoutErrors();
-        for (TableSyntaxNode tsn : tsns) {
-            if ("Rules void hello1(int hour)".equals(tsn.getDisplayName())) {
-                List<TablePropertyDefinition> defaultPropDefinitions = TablePropertyDefinitionUtils
+        TableSyntaxNode resultTsn = findTable(tableName, tsns);       
+        if (resultTsn != null) {
+            List<TablePropertyDefinition> defaultPropDefinitions = TablePropertyDefinitionUtils
                                                                            .getPropertiesToBeSetByDefault();
-                assertEquals("Check that number of properties defined in table is 0",
-                		tsn.getTableProperties().getPropertiesDefinedInTable().size(), 0);                
-                List<String> defaultPropDefinitionsNames = new ArrayList<String>();
-                for (TablePropertyDefinition dataPropertyDefinition : defaultPropDefinitions) {
-                    defaultPropDefinitionsNames.add(dataPropertyDefinition.getName());
-                }
-                assertTrue("Tsn doesn`t have properties defined in appropriate table in excel", 
-                        !tsn.hasPropertiesDefinedInTable());                
-                List<String> tsnPropNames = new ArrayList<String>();
-                for (Map.Entry<String, Object> property : tsn.getTableProperties().getPropertiesAll().entrySet()) {
-                    tsnPropNames.add(property.getKey());
-                }
-                assertTrue("Tsn contains all properties that must be set by default",
-                        tsnPropNames.containsAll(defaultPropDefinitionsNames));
-            }        
-        }
-       
-    }    
+            assertEquals("Check that number of properties defined in table is 0",
+                    resultTsn.getTableProperties().getPropertiesDefinedInTable().size(), 0);                
+            List<String> defaultPropDefinitionsNames = new ArrayList<String>();
+            for (TablePropertyDefinition dataPropertyDefinition : defaultPropDefinitions) {
+                defaultPropDefinitionsNames.add(dataPropertyDefinition.getName());
+            }
+            assertTrue("Tsn doesn`t have properties defined in appropriate table in excel", 
+                    !resultTsn.hasPropertiesDefinedInTable());                
+            List<String> tsnPropNames = new ArrayList<String>();
+            for (Map.Entry<String, Object> property : resultTsn.getTableProperties().getPropertiesAll().entrySet()) {
+                tsnPropNames.add(property.getKey());
+            }
+            assertTrue("Tsn contains all properties that must be set by default",
+                    tsnPropNames.containsAll(defaultPropDefinitionsNames));
+       } else {
+           fail();
+       }
+    } 
 
 }
