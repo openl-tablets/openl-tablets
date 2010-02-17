@@ -20,11 +20,16 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.IGridFilter;
+import org.openl.rules.table.xls.XlsArrayFormat;
 import org.openl.rules.table.xls.XlsBooleanFormat;
 import org.openl.rules.table.xls.XlsDateFormat;
+import org.openl.rules.table.xls.XlsEnumFormat;
+import org.openl.rules.table.xls.XlsFormat;
 import org.openl.rules.table.xls.XlsNumberFormat;
 import org.openl.rules.table.xls.XlsSheetGridExporter;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.XlsStringFormat;
+
 import static org.openl.rules.table.xls.XlsSheetGridExporter.SHEET_NAME;
 import org.openl.util.export.IExporter;
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +42,7 @@ import org.apache.poi.ss.usermodel.Workbook;
  */
 public interface IWritableGrid extends IGrid {
     static public class Tool {
-        static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;        
+        static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 
         public static IExporter createExporter(IWritableGrid wGrid) {
             if (wGrid instanceof XlsSheetGridModel) {
@@ -125,10 +130,10 @@ public interface IWritableGrid extends IGrid {
                 // merged region is contained by region of grid
                 if (IGridRegion.Tool.contains(regionOfTable, existingMergedRegion.getLeft(), existingMergedRegion
                         .getTop())) {
-                    if (isRegionMustBeResized(existingMergedRegion, firstRowOrColumn, numberOfRowsOrColumns, 
-                            isColumns, regionOfTable)) {
-                        resizeActions.add(new UndoableResizeMergedRegionAction(existingMergedRegion, numberOfRowsOrColumns,
-                                isInsert, isColumns));
+                    if (isRegionMustBeResized(existingMergedRegion, firstRowOrColumn, numberOfRowsOrColumns, isColumns,
+                            regionOfTable)) {
+                        resizeActions.add(new UndoableResizeMergedRegionAction(existingMergedRegion,
+                                numberOfRowsOrColumns, isInsert, isColumns));
                     }
                 }
             }
@@ -137,15 +142,17 @@ public interface IWritableGrid extends IGrid {
 
         /**
          * Checks if the specified region must be resized.
-         *
-         * If we delete all we remove all rows/columns in region then region must be deleted(not resized).
+         * 
+         * If we delete all we remove all rows/columns in region then region
+         * must be deleted(not resized).
          */
         private static boolean isRegionMustBeResized(IGridRegion region, int firstRowOrColumn,
                 int numberOfRowsOrColumns, boolean isColumns, IGridRegion regionOfTable) {
             if (isColumns) {
                 // merged region contains column which we copy/remove
                 if (IGridRegion.Tool.width(region) > numberOfRowsOrColumns
-                        && IGridRegion.Tool.contains(region,regionOfTable.getLeft() +firstRowOrColumn, region.getTop())) {
+                        && IGridRegion.Tool.contains(region, regionOfTable.getLeft() + firstRowOrColumn, region
+                                .getTop())) {
                     return true;
                 } else {
                     return false;
@@ -153,14 +160,15 @@ public interface IWritableGrid extends IGrid {
             } else {
                 // merged region contains row which we copy/remove
                 if (IGridRegion.Tool.height(region) > numberOfRowsOrColumns
-                        && IGridRegion.Tool.contains(region, region.getLeft(), regionOfTable.getTop() +  firstRowOrColumn)) {
+                        && IGridRegion.Tool.contains(region, region.getLeft(), regionOfTable.getTop()
+                                + firstRowOrColumn)) {
                     return true;
                 } else {
                     return false;
                 }
             }
         }
-        
+
         public static IUndoableGridAction insertColumns(int nColumns, int beforeColumns, IGridRegion region,
                 IWritableGrid wgrid) {
             int h = IGridRegion.Tool.height(region);
@@ -191,25 +199,28 @@ public interface IWritableGrid extends IGrid {
         }
 
         /**
-         * Checks if the table specified by its region contains property. 
+         * Checks if the table specified by its region contains property.
          */
-        public static CellKey getPropertyCoordinates(IGridRegion region, IWritableGrid wgrid,
-                String propName){
+        public static CellKey getPropertyCoordinates(IGridRegion region, IWritableGrid wgrid, String propName) {
             int left = region.getLeft();
             int top = region.getTop();
 
             String propsHeader = wgrid.getCell(left, top + 1).getStringValue();
             if (propsHeader == null || !propsHeader.equals("properties")) {
-                //there is no properties
+                // there is no properties
                 return null;
             }
             int propsCount = wgrid.getCell(left, top + 1).getHeight();
+
             for (int i = 0; i < propsCount; i++) {
+
                 String pName = wgrid.getCell(left + 1, top + 1 + i).getStringValue();
-                if (pName.equals(propName)) {
+
+                if (pName != null && pName.equals(propName)) {
                     return new CellKey(1, 1 + i);
                 }
             }
+
             return null;
         }
 
@@ -218,8 +229,8 @@ public interface IWritableGrid extends IGrid {
          * 
          * @return null if set new property with empty or same value
          * */
-        public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
-                String propName, String propValue) {
+        public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid, String propName,
+                String propValue) {
             IGridFilter filter = getFilter(propName);
             int h = IGridRegion.Tool.height(region);
             int w = IGridRegion.Tool.width(region);
@@ -241,7 +252,7 @@ public interface IWritableGrid extends IGrid {
                     String pName = wgrid.getCell(left + 1, top + 1 + i).getStringValue();
                     if (pName.equals(propName)) {
                         String pValue = wgrid.getCell(left + 2, top + 1 + i).getStringValue();
-                        if (pValue!= null && propValue!= null &&  pValue.trim().equals(propValue.trim())) {
+                        if (pValue != null && propValue != null && pValue.trim().equals(propValue.trim())) {
                             return null;
                         }
                         return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, filter);
@@ -274,31 +285,59 @@ public interface IWritableGrid extends IGrid {
 
             if (propsCount == 1) {
                 // resize 'properties' cell
-                actions.add(new UndoableResizeMergedRegionAction(new GridRegion(top + 1, left,
-                        top + 1, left), nRows, INSERT, ROWS));
+                actions.add(new UndoableResizeMergedRegionAction(new GridRegion(top + 1, left, top + 1, left), nRows,
+                        INSERT, ROWS));
             } else {
                 actions.addAll(resizeMergedRegions(wgrid, beforeRow, nRows, INSERT, ROWS, region));
             }
 
             return new UndoableCompositeAction(actions);
         }
-        
-        private static IGridFilter getFilter(String propName) {
+
+        private static IGridFilter getFilter(String propertyName) {
+
             IGridFilter result = null;
-            TablePropertyDefinition tablProp= TablePropertyDefinitionUtils.getPropertyByName(propName);
-            if(tablProp != null) {
-                if(String.class.equals(tablProp.getType().getInstanceClass())) {
-                    result = null;
-                } else if(Date.class.equals(tablProp.getType().getInstanceClass())) {
-                    result = new XlsDateFormat(tablProp.getFormat()); 
-                } else if(Boolean.class.equals(tablProp.getType().getInstanceClass())) {
-                    result = new XlsBooleanFormat();
-                } else if(Integer.class.equals(tablProp.getType().getInstanceClass())) {                                
-                    result = XlsNumberFormat.General;
-                } else if(Double.class.equals(tablProp.getType().getInstanceClass())) {
-                    result = XlsNumberFormat.General;
-                }
+            TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils
+                    .getPropertyByName(propertyName);
+
+            if (tablePropeprtyDefinition != null) {
+
+                Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
+                result = getFilter(type, tablePropeprtyDefinition);
             }
+
+            return result;
+        }
+
+        private static IGridFilter getFilter(Class<?> type, TablePropertyDefinition tablePropeprtyDefinition) {
+
+            IGridFilter result = null;
+
+            if (String.class.equals(type)) {
+                result = new XlsStringFormat();
+
+            } else if (Date.class.equals(type)) {
+                result = new XlsDateFormat(tablePropeprtyDefinition.getFormat());
+
+            } else if (Boolean.class.equals(type)) {
+                result = new XlsBooleanFormat();
+
+            } else if (type.isEnum()) {
+                result = new XlsEnumFormat(type);
+
+            } else if (Integer.class.equals(type)) {
+                result = XlsNumberFormat.General;
+
+            } else if (Double.class.equals(type)) {
+                result = XlsNumberFormat.General;
+
+            } else if (type.isArray()) {
+
+                Class<?> componentType = type.getComponentType();
+                IGridFilter componentFilter = getFilter(componentType, tablePropeprtyDefinition);
+                result = new XlsArrayFormat((XlsFormat) componentFilter);
+            }
+
             return result;
         }
 
@@ -312,8 +351,8 @@ public interface IWritableGrid extends IGrid {
 
             wgrid.setCellMetaInfo(gcol, grow, meta);
         }
-        
-        private static List<IUndoableGridAction> clearCells(int startColumn,int nCols, int startRow,int nRows){
+
+        private static List<IUndoableGridAction> clearCells(int startColumn, int nCols, int startRow, int nRows) {
             ArrayList<IUndoableGridAction> clearActions = new ArrayList<IUndoableGridAction>();
             for (int i = startColumn; i < startColumn + nCols; i++) {
                 for (int j = startRow; j < startRow + nRows; j++) {
@@ -324,24 +363,24 @@ public interface IWritableGrid extends IGrid {
         }
 
         /**
-         * Checks if cell is the top left cell in merged region.
-         * We don't have to remove value from this cell because value of merged
-         * cell will be lost.
+         * Checks if cell is the top left cell in merged region. We don't have
+         * to remove value from this cell because value of merged cell will be
+         * lost.
          * 
          */
         @SuppressWarnings("unused")
         private static boolean isTopLeftInMergedRegion(int column, int row, IWritableGrid wgrid) {
             for (int i = 0; i < wgrid.getNumberOfMergedRegions(); i++) {
                 IGridRegion existingMergedRegion = wgrid.getMergedRegion(i);
-                if (existingMergedRegion.getLeft() == column
-                        && existingMergedRegion.getTop() == row) {
+                if (existingMergedRegion.getLeft() == column && existingMergedRegion.getTop() == row) {
                     return true;
                 }
             }
             return false;
         }
 
-        private static List<IUndoableGridAction> shiftColumns(int startColumn, int nCols,boolean isInsert, IGridRegion region){
+        private static List<IUndoableGridAction> shiftColumns(int startColumn, int nCols, boolean isInsert,
+                IGridRegion region) {
             ArrayList<IUndoableGridAction> shiftActions = new ArrayList<IUndoableGridAction>();
             int direction, colFromCopy, colToCopy;
             if (isInsert) {// shift columns left
@@ -392,7 +431,7 @@ public interface IWritableGrid extends IGrid {
             actions.addAll(shiftColumns(firstToMove, nCols, REMOVE, region));
             actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h));
             actions.addAll(resizeMergedRegions(wgrid, startColumn, nCols, REMOVE, COLUMNS, region));
-            
+
             return new UndoableCompositeAction(actions);
         }
 
@@ -409,7 +448,7 @@ public interface IWritableGrid extends IGrid {
 
             return new UndoableCompositeAction(actions);
         }
-        
+
         public static IUndoableGridAction setStringValue(int col, int row, IGridRegion region, String value,
                 IGridFilter filter) {
 

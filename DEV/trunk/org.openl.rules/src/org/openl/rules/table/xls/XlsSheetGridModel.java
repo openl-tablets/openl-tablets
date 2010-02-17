@@ -564,14 +564,20 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
     }
 
     public void setCellValue(int col, int row, Object value) {
+        
         if (value == null) {
             return;
         }
+        
         Cell cell = getOrCreateXlsCell(col, row);
+        
         if (value instanceof Number) {
+            
             Number x = (Number) value;
             cell.setCellValue(x.doubleValue());
+        
         } else if (value instanceof Date) {
+
             Date x = (Date) value;
             cell.setCellValue(x);
             
@@ -580,16 +586,23 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
             cell.getCellStyle().cloneStyleFrom(previousStyle);
             cell.getCellStyle().setDataFormat((short) BuiltinFormats
                     .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
+        
         } else if (value instanceof Boolean) {
+        
             Boolean boolValue = (Boolean) value;
             cell.setCellValue(boolValue.booleanValue());
+        
         } else if (EnumUtils.isEnum(value)) {
             cell.setCellValue(((Enum<?>) value).name());
+        
         } else if (EnumUtils.isEnumArray(value)) {
+        
             Object[] enums = (Object[]) value;
             String[] names = EnumUtils.getNames(enums);
             cell.setCellValue(StringUtils.join(names, ","));
+        
         } else { // String
+        
             String strValue = String.valueOf(value);
             // Formula
             if (strValue.startsWith("=") && cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
