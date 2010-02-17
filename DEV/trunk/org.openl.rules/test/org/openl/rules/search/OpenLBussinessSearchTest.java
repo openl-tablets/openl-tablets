@@ -6,26 +6,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.BaseOpenlBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 
-public class OpenLBussinessSearchTest {
+public class OpenLBussinessSearchTest extends BaseOpenlBuilder{
     
     private String __src = "test/rules/Tutorial_4_Test.xls";
     
     private OpenLBussinessSearch search = new OpenLBussinessSearch();
     
-    private XlsModuleSyntaxNode getTables() {        
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, __src);
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClass().getMetaInfo();
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
-        return xsn;
+    @Before
+    public void buildOpenlWrapper() {
+        buildXlsModuleSyntaxNode(__src);
     }
     
     private void initSearchCondition(Map<String, Object> propList) {
@@ -39,7 +35,7 @@ public class OpenLBussinessSearchTest {
         Map<String, Object> propList = new HashMap<String, Object>();
         propList.put("name", "Vehicle Discounts");
         initSearchCondition(propList);
-        Object searchResult = search.search(getTables());
+        Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLBussinessSearchResult)) {
             List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
             assertTrue("There is only one table for this cryteria",foundTables.size()==1);
@@ -56,7 +52,7 @@ public class OpenLBussinessSearchTest {
         propList.put("name", "Vehicle Score Processing Sequence");
         propList.put("category", "Auto-Scoring");
         initSearchCondition(propList);
-        Object searchResult = search.search(getTables());
+        Object searchResult = search.search(getModuleSuntaxNode());
         if((searchResult != null) && (searchResult instanceof OpenLBussinessSearchResult)) {
             List<TableSyntaxNode> foundTables = ((OpenLBussinessSearchResult) searchResult).getFoundTables();
             assertTrue("There is only one table for this cryteria",foundTables.size()==1);
@@ -70,7 +66,7 @@ public class OpenLBussinessSearchTest {
     
     @Test 
     public void testWithConsists() {
-        XlsModuleSyntaxNode xls = getTables();        
+        XlsModuleSyntaxNode xls = getModuleSuntaxNode();        
         Map<String, Object> propList = new HashMap<String, Object>();
         propList.put("name", "Vehicle Score Processing Sequence");
         initSearchCondition(propList);

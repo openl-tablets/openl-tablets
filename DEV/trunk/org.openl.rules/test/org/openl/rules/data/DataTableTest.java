@@ -3,59 +3,25 @@ package org.openl.rules.data;
 import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.rules.BaseOpenlBuilder;
 import org.openl.rules.data.binding.DataTableBoundNode.DataOpenField;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 
 /**
  * 
  * @author DLiauchuk
  *
  */
-public class DataTableTest {
+public class DataTableTest extends BaseOpenlBuilder{
     
     private String __src = "test/rules/Tutorial_2_Test.xls";
-    private XlsModuleSyntaxNode xsn = null;
-    
-    @Before
-    public void getTables() {        
-        OpenClassJavaWrapper wrapper = getJavaWrapper();
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClassWithErrors().getMetaInfo();
-        xsn = xmi.getXlsModuleNode();        
-    }
-
-    private OpenClassJavaWrapper getJavaWrapper() {
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, __src);
-        return wrapper;
-    }
-    
-    private TableSyntaxNode findTable(String tableName, TableSyntaxNode[] tsns) {
-        TableSyntaxNode result = null;
-        for (TableSyntaxNode tsn : tsns) {
-            if (tableName.equals(tsn.getDisplayName())) {
-                result = tsn;   
-            }
-        }
-        return result;
-    }
-
-    private TableSyntaxNode[] getTableSyntaxNodes() {
-        XlsModuleSyntaxNode module = xsn;
-        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-        return tsns;
-    }
     
     @Test
     public void testSimpleStringArray() {
         String tableName = "Data String simpleStringArray";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -79,7 +45,7 @@ public class DataTableTest {
     @Test
     public void testTypeWithArrayColumns() {
         String tableName = "Data TypeWithArray testTypeWithArrayColumns";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -102,7 +68,7 @@ public class DataTableTest {
     @Test
     public void testTypeWithArrayRows() {
         String tableName = "Data TypeWithArray testTypeWithArrayRows";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -126,7 +92,7 @@ public class DataTableTest {
     @Test
     public void testTypeWithArrayRowsOneElement() {
         String tableName = "Data TypeWithArray testTypeWithArrayRowsOneElement";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -146,7 +112,7 @@ public class DataTableTest {
     @Test
     public void testCommaSeparated() {
         String tableName = "Data TypeWithArray testCommaSeparated";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -167,33 +133,10 @@ public class DataTableTest {
         }  
     }
     
-//    @Test
-//    public void testDoubleArray() {
-//        XlsModuleSyntaxNode module = getTables();
-//        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-//        for (TableSyntaxNode tsn : tsns) {
-//            if ("Data TypeWithArray testDoubleArray".equals(tsn.getDisplayName())) {
-//                DataOpenField member = (DataOpenField)tsn.getMember();
-//                assertNotNull(member);
-//                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-//                assertTrue(typeWitharray[0].getIntArray().length == 5);
-//                List<Integer> dataList = new ArrayList<Integer>();
-//                for (int i=0; i< typeWitharray[0].getIntArray().length; i++) {                    
-//                    dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
-//                }                                
-//                assertTrue(dataList.contains(1));
-//                assertTrue(dataList.contains(56));
-//                assertTrue(dataList.contains(78));
-//                assertTrue(dataList.contains(45));
-//                assertTrue(dataList.contains(99));
-//            }        
-//        }
-//    }
-    
     @Test
     public void testStringArray() {
         String tableName = "Data TypeWithArray testStringArray";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -214,7 +157,7 @@ public class DataTableTest {
     @Test
     public void testStringArrayWithEscaper() {
         String tableName = "Data TypeWithArray testStringArrayWithEscaper";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -237,7 +180,7 @@ public class DataTableTest {
     @Test
     public void testClass() {
         String tableName = "Data TypeWithArray testClassLoading";
-        TableSyntaxNode[] tsns = getTableSyntaxNodes();        
+        TableSyntaxNode[] tsns = getTableSyntaxNodes(__src);        
         TableSyntaxNode resultTsn = findTable(tableName, tsns);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -256,31 +199,5 @@ public class DataTableTest {
             fail();
         }
     }
-    
-//    @Test
-//    public void testForeignKey() {
-//        XlsModuleSyntaxNode module = xsn;
-//        TableSyntaxNode[] tsns = module.getXlsTableSyntaxNodes();
-//        for (TableSyntaxNode tsn : tsns) {
-//            if ("Data Team teamProfile1".equals(tsn.getDisplayName())) {
-//                DataOpenField member = (DataOpenField)tsn.getMember();
-//                assertNotNull(member);
-//                TypeWithArray[] typeWitharray = (TypeWithArray[])member.getTable().getDataArray();
-//                assertTrue(typeWitharray[0].getStringArray().length == 4);
-//                List<String> dataList = new ArrayList<String>();
-//                for (String token : typeWitharray[0].getStringArray()) {                    
-//                    dataList.add(token);
-//                }                                
-//                assertTrue(dataList.contains("One"));
-//                assertTrue(dataList.contains("two"));
-//                assertTrue(dataList.contains("three,continue this"));
-//                assertTrue(dataList.contains("four"));
-//            }        
-//        }
-//    }
-    
-    
-    
-    
 
 }
