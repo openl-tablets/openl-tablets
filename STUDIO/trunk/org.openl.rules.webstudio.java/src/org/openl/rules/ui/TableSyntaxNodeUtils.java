@@ -47,7 +47,7 @@ public class TableSyntaxNodeUtils {
             display = str2display(tableSyntaxNode.getTable().getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getType());
         }
 
-        String sfx = (i < 2 ? "" : "(" + i + ")");
+        String sfx = (i < 2 ? "" : " (" + i + ")");
         String dimensionInfo = StringUtils.EMPTY;
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode.getMember() instanceof IOpenMethod
