@@ -42,7 +42,9 @@ import org.apache.poi.ss.usermodel.Workbook;
  */
 public interface IWritableGrid extends IGrid {
     static public class Tool {
-        static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
+
+        private static final String PROPERTIES_SECTION_NAME = "properties";
+        static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;        
 
         public static IExporter createExporter(IWritableGrid wGrid) {
             if (wGrid instanceof XlsSheetGridModel) {
@@ -206,7 +208,7 @@ public interface IWritableGrid extends IGrid {
             int top = region.getTop();
 
             String propsHeader = wgrid.getCell(left, top + 1).getStringValue();
-            if (propsHeader == null || !propsHeader.equals("properties")) {
+            if (propsHeader == null || !propsHeader.equals(PROPERTIES_SECTION_NAME)) {
                 // there is no properties
                 return null;
             }
@@ -229,70 +231,84 @@ public interface IWritableGrid extends IGrid {
          * 
          * @return null if set new property with empty or same value
          * */
-        public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid, String propName,
-                String propValue) {
-            IGridFilter filter = getFilter(propName);
-            int h = IGridRegion.Tool.height(region);
-            int w = IGridRegion.Tool.width(region);
+
+        public static IUndoableGridAction insertProp(IGridRegion region, IWritableGrid wgrid,
+                String newPropName, String newPropValue) {
+            IGridFilter filter = getFilter(newPropName);
+            int regionHeight = IGridRegion.Tool.height(region);
+            int regionWidth = IGridRegion.Tool.width(region);
             int nRows = 1;
             int beforeRow = 1;
 
-            int left = region.getLeft();
-            int top = region.getTop();
+            int leftCell = region.getLeft();
+            int topCell = region.getTop();
 
-            boolean bProps = false;
-            String propsHeader = wgrid.getCell(left, top + 1).getStringValue();
-            if (propsHeader != null && propsHeader.equals("properties")) {
-                bProps = true;
-            }
+            
+            String propsHeader = wgrid.getCell(leftCell, topCell + 1).getStringValue();
+            boolean containsPropSection = tableContainsPropertySection(propsHeader);
             int propsCount = 0;
-            if (bProps) {
-                propsCount = wgrid.getCell(left, top + 1).getHeight();
+            if (containsPropSection) {
+                propsCount = wgrid.getCell(leftCell, topCell + 1).getHeight();
                 for (int i = 0; i < propsCount; i++) {
-                    String pName = wgrid.getCell(left + 1, top + 1 + i).getStringValue();
-                    if (pName.equals(propName)) {
-                        String pValue = wgrid.getCell(left + 2, top + 1 + i).getStringValue();
-                        if (pValue != null && propValue != null && pValue.trim().equals(propValue.trim())) {
+
+                    String propNameFromTable = wgrid.getCell(leftCell + 1, topCell + 1 + i).getStringValue();
+                    // if such name already exists in the table, we need to change its value.
+                    if (propNameFromTable.equals(newPropName)) {
+                        String propValueFromTable = wgrid.getCell(leftCell + 2, topCell + 1 + i).getStringValue();
+                        if (propValueFromTable!= null && newPropValue!= null 
+                                && propValueFromTable.trim().equals(newPropValue.trim())) {
+                            // property with such name and value already exists.
                             return null;
                         }
-                        return new UndoableSetValueAction(left + 2, top + 1 + i, propValue, filter);
+                        return new UndoableSetValueAction(leftCell + 2, topCell + 1 + i, newPropValue, filter);
                     }
                 }
             }
 
-            if (StringUtils.isBlank(propValue)) {
+            if (StringUtils.isBlank(newPropValue)) {
                 return null;
             }
 
-            int rowsToMove = h - beforeRow;
+            int rowsToMove = regionHeight - beforeRow;
 
-            ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(w * rowsToMove);
+            ArrayList<IUndoableGridAction> actions = new ArrayList<IUndoableGridAction>(regionWidth * rowsToMove);
 
             int firstToMove = region.getTop() + beforeRow;
             actions.addAll(shiftRows(firstToMove, nRows, INSERT, region));
 
-            if (!bProps) {
-                actions.add(new UndoableSetValueAction(left, top + beforeRow, "properties", null));
-                if (w > 3) {
+            if (!containsPropSection) {
+                actions.add(new UndoableSetValueAction(leftCell, topCell + beforeRow, PROPERTIES_SECTION_NAME, null));
+                if (regionWidth > 3) {
                     // clear cells
-                    for (int j = left + 3; j < left + w; j++) {
-                        actions.add(new UndoableClearAction(j, top + beforeRow));
+                    for (int j = leftCell + 3; j < leftCell + regionWidth; j++) {
+                        actions.add(new UndoableClearAction(j, topCell + beforeRow));
                     }
                 }
             }
-            actions.add(new UndoableSetValueAction(left + 1, top + beforeRow, propName, null));
-            actions.add(new UndoableSetValueAction(left + 2, top + beforeRow, propValue, filter));
+            actions.add(new UndoableSetValueAction(leftCell + 1, topCell + beforeRow, newPropName, null));
+            actions.add(new UndoableSetValueAction(leftCell + 2, topCell + beforeRow, newPropValue, filter));
 
             if (propsCount == 1) {
                 // resize 'properties' cell
-                actions.add(new UndoableResizeMergedRegionAction(new GridRegion(top + 1, left, top + 1, left), nRows,
-                        INSERT, ROWS));
+
+                actions.add(new UndoableResizeMergedRegionAction(new GridRegion(topCell + 1, leftCell,
+                        topCell + 1, leftCell), nRows, INSERT, ROWS));
             } else {
                 actions.addAll(resizeMergedRegions(wgrid, beforeRow, nRows, INSERT, ROWS, region));
             }
 
             return new UndoableCompositeAction(actions);
         }
+
+
+        private static boolean tableContainsPropertySection(String propsHeader) {
+            boolean containsPropSection = false;
+            if (propsHeader != null && propsHeader.equals(PROPERTIES_SECTION_NAME)) {
+                containsPropSection = true;
+            }
+            return containsPropSection;
+        }
+        
 
         private static IGridFilter getFilter(String propertyName) {
 
@@ -332,7 +348,6 @@ public interface IWritableGrid extends IGrid {
                 result = XlsNumberFormat.General;
 
             } else if (type.isArray()) {
-
                 Class<?> componentType = type.getComponentType();
                 IGridFilter componentFilter = getFilter(componentType, tablePropeprtyDefinition);
                 result = new XlsArrayFormat((XlsFormat) componentFilter);

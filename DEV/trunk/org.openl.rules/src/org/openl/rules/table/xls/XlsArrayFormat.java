@@ -1,5 +1,6 @@
 package org.openl.rules.table.xls;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,15 +46,25 @@ public class XlsArrayFormat extends XlsFormat {
 
         String[] elementValues = StringTool.splitAndEscape(value, ARRAY_ELEMENTS_SEPARATOR,
                 ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        
         List<Object> elements = new ArrayList<Object>();
-
+        Class<?> elementType = null;         
+        
         for (String elementValue : elementValues) {
 
             Object element = elementFormat.parse(elementValue);
             elements.add(element);
+            elementType = element.getClass();
+            
+        }        
+        
+        if (elementType == null) {
+            return null;
         }
-
-        return elements.toArray(new Object[elements.size()]);
+        
+        Object[] resultArray = (Object[])Array.newInstance(elementType,elements.size());
+        
+        return elements.toArray(resultArray); 
     }
 
     public FormattedCell filterFormat(FormattedCell cell) {

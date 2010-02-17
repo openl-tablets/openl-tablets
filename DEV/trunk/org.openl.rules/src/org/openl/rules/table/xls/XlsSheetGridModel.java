@@ -39,6 +39,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringTool;
 
@@ -570,46 +571,71 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         }
         
         Cell cell = getOrCreateXlsCell(col, row);
-        
+        String strValue = String.valueOf(value);
         if (value instanceof Number) {
             
-            Number x = (Number) value;
-            cell.setCellValue(x.doubleValue());
-        
+            Number numberValue = (Number) value;
+            cell.setCellValue(numberValue.doubleValue());
+            
+            // we need to set cell meta info for the cell, to open appropriate editor for it on UI.
+            CellMetaInfo numberMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
+                    JavaOpenClass.getOpenClass(numberValue.getClass()), false);            
+            setCellMetaInfo(col, row, numberMeta);
         } else if (value instanceof Date) {
 
-            Date x = (Date) value;
-            cell.setCellValue(x);
+            Date dateValue = (Date) value;
+            cell.setCellValue(dateValue);
             
             CellStyle previousStyle = cell.getCellStyle();
             cell.setCellStyle(sheet.getWorkbook().createCellStyle());
             cell.getCellStyle().cloneStyleFrom(previousStyle);
             cell.getCellStyle().setDataFormat((short) BuiltinFormats
                     .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
+            
+            CellMetaInfo dateMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
+                    JavaOpenClass.getOpenClass(dateValue.getClass()), false);            
+            setCellMetaInfo(col, row, dateMeta);
         
         } else if (value instanceof Boolean) {
         
             Boolean boolValue = (Boolean) value;
             cell.setCellValue(boolValue.booleanValue());
+            
+            CellMetaInfo booleanMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
+                    JavaOpenClass.getOpenClass(boolValue.getClass()), false);            
+            setCellMetaInfo(col, row, booleanMeta);
         
         } else if (EnumUtils.isEnum(value)) {
             cell.setCellValue(((Enum<?>) value).name());
+            
+            CellMetaInfo enumMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
+                    JavaOpenClass.getOpenClass(value.getClass()), false);            
+            setCellMetaInfo(col, row, enumMeta);
         
         } else if (EnumUtils.isEnumArray(value)) {
         
             Object[] enums = (Object[]) value;
             String[] names = EnumUtils.getNames(enums);
             cell.setCellValue(StringUtils.join(names, ","));
+            
+            // we have an array of Enums. we need to set as meta info information that domain class is Enum, so we 
+            // need to take a component class and multiValue to true as it is an array.
+            CellMetaInfo enumArrayMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
+                    JavaOpenClass.getOpenClass(value.getClass().getComponentType()), true);            
+            setCellMetaInfo(col, row, enumArrayMeta);
         
-        } else { // String
-        
-            String strValue = String.valueOf(value);
+        } else { // String       
+            
             // Formula
             if (strValue.startsWith("=") && cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
                 cell.setCellFormula(strValue.replaceFirst("=", ""));
             } else {
                 cell.setCellType(Cell.CELL_TYPE_BLANK);
                 cell.setCellValue(strValue);
+                
+                CellMetaInfo enumArrayMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue, 
+                        JavaOpenClass.getOpenClass(strValue.getClass()), false);            
+                setCellMetaInfo(col, row, enumArrayMeta);
             }
         }
     }
