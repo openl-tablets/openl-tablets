@@ -38,7 +38,7 @@ var DropdownEditor = Class.create(BaseEditor, {
 
         this.input.style.margin = "0px";
         this.input.style.padding = "0px";
-        this.input.style.width = "100%";
+        this.input.style.width = "101%";
     },
 
     /**
