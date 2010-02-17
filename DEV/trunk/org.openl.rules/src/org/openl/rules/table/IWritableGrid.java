@@ -253,7 +253,7 @@ public interface IWritableGrid extends IGrid {
 
                     String propNameFromTable = wgrid.getCell(leftCell + 1, topCell + 1 + i).getStringValue();
                     // if such name already exists in the table, we need to change its value.
-                    if (propNameFromTable.equals(newPropName)) {
+                    if (propNameFromTable != null && propNameFromTable.equals(newPropName)) {
                         String propValueFromTable = wgrid.getCell(leftCell + 2, topCell + 1 + i).getStringValue();
                         if (propValueFromTable!= null && newPropValue!= null 
                                 && propValueFromTable.trim().equals(newPropValue.trim())) {
