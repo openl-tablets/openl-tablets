@@ -15,7 +15,7 @@ public class BusinessViewMode3 extends BaseBusinessViewMode {
             new CategoryNTreeNodeBuilder(1, "-"),
             new CategoryNTreeNodeBuilder(0, "-"), new CategoryPropertiesTableNodeBuilder(),
             new OpenMethodInstancesGroupTreeNodeBuilder(),
-            new TableInstanceTreeNodeBuilder(false), new TableVersionTreeNodeBuilder() } };
+            new TableInstanceTreeNodeBuilder(), new TableVersionTreeNodeBuilder() } };
 
     public BusinessViewMode3() {
         setName(WebStudioViewMode.BUSINESS_MODE_TYPE + ".3");

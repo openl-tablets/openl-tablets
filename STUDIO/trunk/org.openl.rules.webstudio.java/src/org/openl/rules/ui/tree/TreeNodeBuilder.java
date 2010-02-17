@@ -29,15 +29,24 @@ public interface TreeNodeBuilder<T extends Object> {
      * key. (The first node have number <code>0</code>, the second -
      * <code>2</code>, the third <code>3</code> etc.)
      * 
-     * @param object The object for key generating.
+     * @param object The object for displaying in the tree.
      * @param i Order number of object.
      * @return Key for object.
      */
     Comparable<?> makeKey(T object, int i);
 
     /**
-     * @return <code>true</code> if each node have to be displayed in even if
-     *         the tree already has element with similar key
+     * @param object The object that can be processed by tree builder.
+     * @return <code>true</code> if specified object must be processed by tree
+     *         builder <code>false</code> if current tree builder must skip
+     *         object.
      */
-    boolean isUnique();
+    boolean isBuilderApplicableForObject(T object);
+
+    /**
+     * @param object The object to check.
+     * @return <code>true</code> if node is obligatory to display even if the
+     *         tree already has element with similar key
+     */
+    boolean isUnique(T object);
 }

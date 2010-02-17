@@ -56,7 +56,7 @@ public class TreeBuilder<T> {
 
         // If key is null the rest of building node process should be skipped.
         //
-        if (key != null) {
+        if (treeNodeBuilders[level].isBuilderApplicableForObject(object) && key != null) {
 
             // Try to find child node with the same object.
             //
@@ -85,7 +85,7 @@ public class TreeBuilder<T> {
             // ///////
             // ???????????????????
             // //////
-            else if (treeNodeBuilders[level].isUnique()) {
+            else if (treeNodeBuilders[level].isUnique(object)) {
 
                 for (int i = 2; i < 100; ++i) {
 

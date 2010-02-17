@@ -44,8 +44,15 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     /**
      * {@inheritDoc}
      */
-    public boolean isUnique() {
+    public boolean isUnique(TableSyntaxNode tableSyntaxNode) {
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
+        return true;
     }
 
     /**

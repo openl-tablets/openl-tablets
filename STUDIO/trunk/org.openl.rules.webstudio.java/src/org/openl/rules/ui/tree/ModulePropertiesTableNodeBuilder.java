@@ -6,7 +6,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.ui.TableSyntaxNodeUtils;
 
 /**
  * Builder for module properties table. 
@@ -21,12 +20,7 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
-        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;        
-        if (ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode)) {
-            return new String[]{FOLDER_NAME, FOLDER_NAME, FOLDER_NAME};
-        } else {
-            return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i);
-        }
+        return new String[]{FOLDER_NAME, FOLDER_NAME, FOLDER_NAME};
     }
 
     @Override
@@ -61,15 +55,20 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     }
     
     @Override
-    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+    public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         if (ITableNodeTypes.XLS_PROPERTIES.equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode)) {
-            String folderName = FOLDER_NAME;
-            return makeFolderNode(folderName);
+            return true;
         }
-        return null;
+        return false;
     }
     
-    private boolean isModulePropertyTable(TableSyntaxNode tableSyntaxNode) {
+    @Override
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+        String folderName = FOLDER_NAME;
+        return makeFolderNode(folderName);
+    }
+    
+    public static boolean isModulePropertyTable(TableSyntaxNode tableSyntaxNode) {
         boolean result = false;
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         if (tableProperties != null) {

@@ -71,37 +71,36 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     public Object makeObject(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode;
     }
+    
+    @Override
+    public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
+        if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
+            IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
+            OpenMethodGroupsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
+            if (openMethodGroupsDictionary.contains(method)) {
+                List<IOpenMethod> groupMethods = openMethodGroupsDictionary.getGroup(method);
+                // If group of methods size is over then 1 create the tree
+                // element (folder); otherwise - method is unique and additional
+                // element will not be created.
+                // author: Alexey Gamanovich
+                if (groupMethods != null && groupMethods.size() > 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
-
-        if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
-
-            IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
-
-            OpenMethodGroupsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
-
-            if (openMethodGroupsDictionary.contains(method)) {
-                List<IOpenMethod> groupMethods = openMethodGroupsDictionary.getGroup(method);
-
-                // If group of methods size is over then 1 create the tree
-                // element (folder); otherwise - method is unique and additional
-                // element will not be created.
-                // author: Alexey Gamanovich
-                //
-                if (groupMethods != null && groupMethods.size() > 1) {
-
-                    String folderName = getMajorityName(groupMethods);
-
-                    return makeFolderNode(folderName);
-                }
-            }
-        }
-
-        return null;
+        IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
+        OpenMethodGroupsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
+        List<IOpenMethod> groupMethods = openMethodGroupsDictionary.getGroup(method);
+        String folderName = getMajorityName(groupMethods);
+        return makeFolderNode(folderName);
     }
 
     /**
