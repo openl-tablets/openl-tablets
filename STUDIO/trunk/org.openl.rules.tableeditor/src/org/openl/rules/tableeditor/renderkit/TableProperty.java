@@ -5,7 +5,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.properties.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.util.EnumUtils;

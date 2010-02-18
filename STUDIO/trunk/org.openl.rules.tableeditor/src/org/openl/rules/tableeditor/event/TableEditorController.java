@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.IGridTable;
