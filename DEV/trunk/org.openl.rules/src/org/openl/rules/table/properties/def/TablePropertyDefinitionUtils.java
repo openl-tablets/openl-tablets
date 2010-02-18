@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.openl.rules.table.properties.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 
 public class TablePropertyDefinitionUtils {

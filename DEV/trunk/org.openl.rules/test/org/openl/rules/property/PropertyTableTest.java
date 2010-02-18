@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 public class PropertyTableTest extends BaseOpenlBuilder{    
 

@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.InheritanceLevel;
 
 /**
  * Class to check properties level according to its definition.

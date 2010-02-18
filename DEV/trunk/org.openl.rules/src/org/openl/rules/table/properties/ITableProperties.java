@@ -5,7 +5,7 @@ import java.util.Map;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 public interface ITableProperties {
     

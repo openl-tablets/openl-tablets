@@ -3,7 +3,6 @@ package org.openl.rules.table.properties.inherit;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.rules.table.properties.InheritanceLevel;
 
 public class InheritanceLevelCheckerTest {
     

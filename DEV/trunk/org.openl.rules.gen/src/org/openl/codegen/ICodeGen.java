@@ -1,8 +1,8 @@
 package org.openl.codegen;
 
 import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;

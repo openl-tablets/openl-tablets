@@ -1,4 +1,4 @@
-package org.openl.rules.table.properties;
+package org.openl.rules.table.properties.inherit;
 
 public enum InheritanceLevel {
 

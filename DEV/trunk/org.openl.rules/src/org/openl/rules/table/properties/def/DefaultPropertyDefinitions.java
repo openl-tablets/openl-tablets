@@ -1,7 +1,7 @@
 package org.openl.rules.table.properties.def;
 
-import org.openl.rules.table.properties.InheritanceLevel;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 /**
  * Definitions of supported properties.
