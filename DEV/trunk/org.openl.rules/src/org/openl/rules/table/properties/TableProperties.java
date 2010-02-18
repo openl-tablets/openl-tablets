@@ -10,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
 import org.openl.types.IOpenClass;

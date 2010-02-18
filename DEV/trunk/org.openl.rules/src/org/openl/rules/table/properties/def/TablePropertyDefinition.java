@@ -1,7 +1,7 @@
 package org.openl.rules.table.properties.def;
 
 import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.properties.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.IOpenClass;
 
 public class TablePropertyDefinition {
