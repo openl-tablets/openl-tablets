@@ -1,8 +1,9 @@
 package org.openl.rules.ui.tree;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import org.openl.rules.ui.ObjectMap;
 import org.openl.util.tree.ITreeElement;
 
 public class TreeCache {
@@ -10,31 +11,30 @@ public class TreeCache {
     public TreeCache() {
     }
 
-    private ObjectMap indexTreeMap = new ObjectMap();
+    private List<ITreeElement<?>> treeElements = new ArrayList<ITreeElement<?>>();
 
     public ITreeElement<?> get(int index) {
-        return (ITreeElement<?>) indexTreeMap.getObject(index);
+        return (ITreeElement<?>) treeElements.get(index);
     }
 
-    @SuppressWarnings("unchecked")
     public int getIndex(ITreeElement<?> treeNode) {
-        return indexTreeMap.getID(treeNode);
+        return treeElements.indexOf(treeNode);
     }
 
     public Collection<?> getAll() {
-        return indexTreeMap.getValues();
+        return treeElements;
     }
 
-    @SuppressWarnings("unchecked")
-    public int put(ITreeElement<?> treeNode) {
-        return indexTreeMap.getNewID(treeNode);
+    public boolean put(ITreeElement<?> treeNode) {
+        return treeElements.add(treeNode);
     }
 
-    public int remove(int index) {
-        return indexTreeMap.remove(index);
+    public ITreeElement<?> remove(int index) {
+        return treeElements.remove(index);
     }
 
     public void clear() {
-        indexTreeMap.reset();
+        treeElements.clear();
     }
+
 }
