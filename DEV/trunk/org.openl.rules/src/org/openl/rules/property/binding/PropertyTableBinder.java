@@ -12,7 +12,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.property.DublicatedPropertiesTableException;
+import org.openl.rules.property.DuplicatedPropertiesTableException;
 import org.openl.rules.property.UnrecognisedPropertiesTableExeption;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTable;
@@ -95,18 +95,18 @@ public class PropertyTableBinder extends DataNodeBinder {
      * Checks if current property table is a module level property or a category level. Adds it to 
      * <code>{@link RulesModuleBindingContext}</code>. 
      * <br>If module level properties already exists, or there are properties for the category with the same 
-     * name throws an <code>{@link DublicatedPropertiesTableException}</code>.
+     * name throws an <code>{@link DuplicatedPropertiesTableException}</code>.
      * 
      * @param tsn <code>{@link TableSyntaxNode}</code>.
      * @param propertiesInstance <code>{@link TableProperties}</code>.
      * @param cxt <code>{@link RulesModuleBindingContext}</code>.
      * @param propertyNode Bound node for current property table.
-     * @throws DublicatedPropertiesTableException if module level properties already exists, or there are 
+     * @throws DuplicatedPropertiesTableException if module level properties already exists, or there are 
      * properties for the category with the same name.
      */
     private void analysePropertiesNode(TableSyntaxNode tsn, TableProperties propertiesInstance, 
             RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) 
-            throws DublicatedPropertiesTableException {        
+            throws DuplicatedPropertiesTableException {        
         String scope = propertiesInstance.getScope();
         if (scope != null) { 
                 if (isModuleProperties(scope)) {
@@ -130,7 +130,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         if (!cxt.isExistCategoryProperties(category)){
             cxt.addCategoryProperties(category, propertiesInstance);
         } else {           
-            throw new DublicatedPropertiesTableException(String.format("Properties for category %s already exists", 
+            throw new DuplicatedPropertiesTableException(String.format("Properties for category %s already exists", 
                     category), propertyNode);
         }
     }
@@ -142,7 +142,7 @@ public class PropertyTableBinder extends DataNodeBinder {
             cxt.setModuleProperties(propertiesInstance);
         } else {
             String moduleName = module.getDisplayName();
-            throw new DublicatedPropertiesTableException(String.format("Properties for module %s already exists",
+            throw new DuplicatedPropertiesTableException(String.format("Properties for module %s already exists",
                     moduleName), propertyNode);
         }
     }

@@ -38,7 +38,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public boolean isExistCategoryProperties(String categoryName) {
-        return this.categoryProperties.containsValue(categoryName);
+        return this.categoryProperties.containsKey(categoryName);
     }
 
     public void setModuleProperties(TableProperties theModuleProperties) {
