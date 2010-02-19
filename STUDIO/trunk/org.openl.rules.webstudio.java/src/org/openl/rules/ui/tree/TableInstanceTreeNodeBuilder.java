@@ -79,7 +79,16 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      */
     @Override
     public boolean isUnique(TableSyntaxNode tsn) {
-        return true;
+        if (ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType())
+                || ITableNodeTypes.XLS_ENVIRONMENT.equals(tsn.getType())) {
+            return true;
+        }
+        if(tsn.getErrors() != null){
+            // TableSyntaxNodes with errors have to displayed(for example it is
+            // for removing wrong or duplicated tables)
+            return true;
+        }
+        return false;
     }
 
     /**
