@@ -90,9 +90,11 @@ public class PropertiesLoader {
      */
     private void loadCategoryProperties(TableSyntaxNode tsn) throws InvalidPropertyLevelException {
         ITableProperties tableProperties = tsn.getTableProperties();        
-        String category = getCategory(tsn);  
-        ITableProperties categoryProperties = cxt.getCategotyProperties(category);
-        if (categoryProperties != null) {
+        String category = getCategory(tsn); 
+        TableSyntaxNode categoryPropertiesTsn = cxt
+                .getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
+        if (categoryPropertiesTsn != null) {
+            ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
             InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.CATEGORY, categoryProperties
                     .getPropertiesAll().keySet());
             tableProperties.setPropertiesAppliedForCategory(categoryProperties.getPropertiesAll());
@@ -120,8 +122,9 @@ public class PropertiesLoader {
      */
     private void loadModuleProperties(TableSyntaxNode tsn) throws InvalidPropertyLevelException {
         ITableProperties tableProperties = tsn.getTableProperties();
-        ITableProperties moduleProperties = cxt.getModuleProperties();
-        if (tableProperties != null && moduleProperties != null) {
+        TableSyntaxNode modulePropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
+        if (tableProperties != null && modulePropertiesTsn != null) {
+            ITableProperties moduleProperties = modulePropertiesTsn.getTableProperties();
             InheritanceLevelChecker.checkPropertiesLevel(InheritanceLevel.MODULE, moduleProperties
                     .getPropertiesAll().keySet());
             tableProperties.setPropertiesAppliedForModule(moduleProperties.getPropertiesAll());
