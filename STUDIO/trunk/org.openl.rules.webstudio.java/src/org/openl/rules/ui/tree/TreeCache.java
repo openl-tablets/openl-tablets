@@ -1,40 +1,41 @@
 package org.openl.rules.ui.tree;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import org.openl.util.tree.ITreeElement;
+import org.apache.commons.collections.BidiMap;
+import org.apache.commons.collections.bidimap.DualHashBidiMap;
 
-public class TreeCache {
+public class TreeCache<K, V> {
+
+    private BidiMap nodesMap = new DualHashBidiMap();
 
     public TreeCache() {
     }
 
-    private List<ITreeElement<?>> treeElements = new ArrayList<ITreeElement<?>>();
-
-    public ITreeElement<?> get(int index) {
-        return (ITreeElement<?>) treeElements.get(index);
+    @SuppressWarnings("unchecked")
+    public V getNode(K key) {
+        return (V) nodesMap.get(key);
     }
 
-    public int getIndex(ITreeElement<?> treeNode) {
-        return treeElements.indexOf(treeNode);
+    public Collection<?> getAllNodes() {
+        return nodesMap.values();
     }
 
-    public Collection<?> getAll() {
-        return treeElements;
+    @SuppressWarnings("unchecked")
+    public K getKey(V node) {
+        return (K) nodesMap.getKey(node);
     }
 
-    public boolean put(ITreeElement<?> treeNode) {
-        return treeElements.add(treeNode);
+    public void put(K key, V node) {
+        nodesMap.put(key, node);
     }
 
-    public ITreeElement<?> remove(int index) {
-        return treeElements.remove(index);
+    public void remove(K key) {
+        nodesMap.remove(key);
     }
 
     public void clear() {
-        treeElements.clear();
+        nodesMap.clear();
     }
 
 }

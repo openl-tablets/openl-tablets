@@ -10,18 +10,14 @@ public class ShowTableErrorBean {
     public ShowTableErrorBean() {
     }
 
-    private int getElementId() {
-        int elementId = -1;
-        String elementIdStr = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-        if (elementIdStr != null) {
-            elementId = Integer.parseInt(elementIdStr);
-        }
-        return elementId;
+    private String getElementKey() {
+        String elementKey = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        return elementKey;
     }
 
     public String getError() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
-        return (String) webStudio.getModel().showError(getElementId());
+        return (String) webStudio.getModel().showError(getElementKey());
     }
 
 }

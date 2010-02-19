@@ -5,11 +5,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -97,11 +95,11 @@ public class ProjectModel implements IProjectTypes {
 
     private ProjectTreeNode projectRoot = null;
 
-    private TreeCache projectTreeCache = new TreeCache();
+    private TreeCache<String, ITreeElement<?>> idTreeCache = new TreeCache<String, ITreeElement<?>>();
+
+    private TreeCache<String, ProjectTreeNode> uriTreeCache = new TreeCache<String, ProjectTreeNode>();
 
     List<Throwable> validationExceptions;
-
-    private Map<String, ProjectTreeNode> uriNodeMap = new HashMap<String, ProjectTreeNode>();
 
     public static TableModel buildModel(IGridTable gt, IGridFilter[] filters) {
         IGrid htmlGrid = gt.getGrid();
@@ -119,10 +117,6 @@ public class ProjectModel implements IProjectTypes {
         }
 
         return new TableViewer(htmlGrid, gt.getRegion()).buildModel(gt);
-    }
-
-    public int getNodeIndex(ITreeElement<?> node) {
-        return projectTreeCache.getIndex(node);
     }
 
     static public boolean intersects(XlsUrlParser p1, String url2) {
@@ -465,7 +459,7 @@ public class ProjectModel implements IProjectTypes {
 
     public String getDisplayName(String elementUri) {
         //ProjectTreeNode pte = ptr.getElement(elementUri);
-        ProjectTreeNode pte = getElement(elementUri);
+        ProjectTreeNode pte = getTreeNodeByUri(elementUri);
         if (pte == null) {
             return "";
         }
@@ -483,16 +477,26 @@ public class ProjectModel implements IProjectTypes {
 
     }
 
-    public ProjectTreeNode getElement(String uri) {
-        return uriNodeMap.get(uri);
+    public String getTreeNodeId(ITreeElement<?> treeNode) {
+        return idTreeCache.getKey(treeNode);
     }
 
-    public ProjectTreeNode getElement(int id) {
-        return (ProjectTreeNode) projectTreeCache.get(id);
+    public String getTreeNodeId(String uri) {
+        ProjectTreeNode node = uriTreeCache.getNode(uri);
+        String nodeId = idTreeCache.getKey(node);
+        return nodeId;
+    }
+
+    public ProjectTreeNode getTreeNodeById(String id) {
+        return (ProjectTreeNode) idTreeCache.getNode(id);
+    }
+
+    public ProjectTreeNode getTreeNodeByUri(String uri) {
+        return uriTreeCache.getNode(uri);
     }
 
     public String getDisplayNameFull(String elementUri) {
-        ProjectTreeNode pte = getElement(elementUri);
+        ProjectTreeNode pte = getTreeNodeByUri(elementUri);
         if (pte == null) {
             return "";
         }
@@ -603,7 +607,7 @@ public class ProjectModel implements IProjectTypes {
         TableSyntaxNode tsn = null;
         if (elementUri != null) {
             //ProjectTreeNode pte = ptr.getElement(elementUri);
-            ProjectTreeNode pte = getElement(elementUri);
+            ProjectTreeNode pte = getTreeNodeByUri(elementUri);
             if (pte != null) {
                 tsn = (TableSyntaxNode) pte.getObject();
             }
@@ -788,29 +792,6 @@ public class ProjectModel implements IProjectTypes {
 
     }
 
-    public int indexForNode(TableSyntaxNode tsn) {
-        for (Object obj : projectTreeCache.getAll()) {
-            ProjectTreeNode pte = (ProjectTreeNode) obj;
-            if (pte.getObject() == tsn) {
-                return projectTreeCache.getIndex(pte);
-            }
-        }
-        return -1;
-    }
-
-    public int indexForNodeByURI(String uri) {
-        for (Object obj : projectTreeCache.getAll()) {
-            ProjectTreeNode pte = (ProjectTreeNode) obj;
-            if (pte.getObject() instanceof TableSyntaxNode) {
-                TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) pte.getObject();
-                if (uri.equals(tableSyntaxNode.getUri())) {
-                    return projectTreeCache.getIndex(pte);
-                }
-            }
-        }
-        return -1;
-    }
-
     /**
      * Returns if current project is read only.
      * 
@@ -925,8 +906,8 @@ public class ProjectModel implements IProjectTypes {
             }
         }
         projectRoot = root;
-        uriNodeMap.clear();
-        projectTreeCache.clear();
+        uriTreeCache.clear();
+        idTreeCache.clear();
         cacheTree(projectRoot);
     }
 
@@ -944,16 +925,23 @@ public class ProjectModel implements IProjectTypes {
         }
     }
 
-    private void cacheTree(ProjectTreeNode treeNode) {
+    private void cacheTree(String key, ProjectTreeNode treeNode) {
+        int childNumber = 0;
         for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ProjectTreeNode child = (ProjectTreeNode) iterator.next();
             if (child.getType().startsWith(PT_TABLE + ".")) {
                 ProjectTreeNode ptr = (ProjectTreeNode) child;
-                uriNodeMap.put(ptr.getUri(), ptr);
+                uriTreeCache.put(ptr.getUri(), ptr);
             }
-            projectTreeCache.put(child);
-            cacheTree(child);
+            String childKey = (StringUtils.isNotBlank(key) ? key + ":" : "") + (childNumber + 1);
+            idTreeCache.put(childKey, child);
+            childNumber++;
+            cacheTree(childKey, child);
         }
+    }
+
+    private void cacheTree(ProjectTreeNode treeNode) {
+        cacheTree(null, treeNode);
     }
 
     private OpenMethodGroupsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
@@ -1141,21 +1129,6 @@ public class ProjectModel implements IProjectTypes {
         this.projectRoot = projectRoot;
     }
 
-    // /**
-    // * @return Returns the folders.
-    // */
-    // public String[] getFolders() {
-    // return folders;
-    // }
-    //
-    // /**
-    // * @param folders
-    // * The folders to set.
-    // */
-    // public void setFolders(String[] folders) {
-    // this.folders = folders;
-    // }
-
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
     }
@@ -1163,8 +1136,6 @@ public class ProjectModel implements IProjectTypes {
     public void setWrapper(OpenLWrapper wrapper) {
         this.wrapper = wrapper;
     }
-
-    // String errorMsg = null;
 
     public void setWrapperInfo(OpenLWrapperInfo wrapperInfo) throws Exception {
         setWrapperInfo(wrapperInfo, false);
@@ -1225,9 +1196,8 @@ public class ProjectModel implements IProjectTypes {
 
     }
 
-    public Object showError(int elementId) {
-        //ProjectTreeNode pte = ptr.getElement(elementId);
-        ProjectTreeNode pte = getElement(elementId);
+    public Object showError(String nodeKey) {
+        ProjectTreeNode pte = getTreeNodeById(nodeKey);
         if (pte == null) {
             return null;
         }

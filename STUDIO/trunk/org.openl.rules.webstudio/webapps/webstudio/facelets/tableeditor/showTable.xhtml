@@ -176,7 +176,17 @@
             function onAfterSave() {
                 $('saveWindow').component.hide();
                 window.parent.frames.leftFrame.document.getElementById('saveWindow').component.hide();
-                window.parent.frames.leftFrame.location.reload();                
+                resetTree();
+            }
+
+            function resetTree() {
+                var treeHref = window.parent.frames.leftFrame.location.href;
+                var nodeToOpenParam = treeHref.toQueryParams().nodeToOpen;
+                if (nodeToOpenParam) {
+                    treeHref = treeHref.replace(/\?nodeToOpen.*/ ,'');
+                }
+                treeHref += '?nodeToOpen=#{showTableBean.treeNodeId}';
+                window.parent.frames.leftFrame.location.href = treeHref;
             }
         </script>
 

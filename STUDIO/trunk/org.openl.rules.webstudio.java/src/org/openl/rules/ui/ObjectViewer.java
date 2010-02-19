@@ -596,11 +596,13 @@ public class ObjectViewer {
 
         if (res instanceof GridWithNode) {
             if (projectModel != null) {
-                int index = projectModel.indexForNode(((GridWithNode) res).tableSyntaxNode);
-                if (index >= 0) {
+                TableSyntaxNode tsn = ((GridWithNode) res).tableSyntaxNode;
+                String uri = tsn != null ? tsn.getUri() : null;
+                String nodeKey = projectModel.getTreeNodeId(uri);
+                if (StringUtils.isNotBlank(nodeKey)) {
                     TableModel tableModel = ProjectModel.buildModel(((GridWithNode) res).gridTable, null);
                     HTMLRenderer.TableRenderer renderer = new HTMLRenderer.TableRenderer(tableModel);
-                    renderer.setCellIdPrefix("cell-" + index + "-");
+                    renderer.setCellIdPrefix("cell-" + nodeKey + "-");
                     //FIXME: should formulas be displayed?
                     return renderer.renderWithMenu(null, false);
                 }

@@ -128,7 +128,7 @@ public class ShowTableBean {
 
     public ITable getTable() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        TableSyntaxNode tsn = studio.getModel().getNode(getUriInternal());
+        TableSyntaxNode tsn = studio.getModel().getNode(getUri());
         return new TableSyntaxNodeAdapter(tsn);
     }
 
@@ -165,7 +165,7 @@ public class ShowTableBean {
     private boolean isServiceNode() {
         boolean result = false;
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        TableSyntaxNode tsn = studio.getModel().getNode(getUriInternal());
+        TableSyntaxNode tsn = studio.getModel().getNode(getUri());
         if (tsn != null) {
             String tableType = tsn.getType();
             if (ITableNodeTypes.XLS_ENVIRONMENT.equals(tableType) || ITableNodeTypes.XLS_OTHER.equals(tableType) 
@@ -174,11 +174,6 @@ public class ShowTableBean {
             }        
         }
         return result;
-    }
-
-    private String getUriInternal() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();        
-        return uri == null ? studio.getTableUri() : uri;
     }
 
     public boolean isEditable() {
@@ -295,6 +290,12 @@ public class ShowTableBean {
             }
         }
         return result;        
+    }
+
+    public String getTreeNodeId() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        String id = studio.getModel().getTreeNodeId(getUri());
+        return id;
     }
 
     public static class TestRunsResultBean {

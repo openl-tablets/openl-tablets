@@ -35,7 +35,7 @@ public class ProjectRichFacesTreeBuilder extends RichFacesTreeBuilder {
             return "tableeditor/showTable.xhtml?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
         } else if (elementType.startsWith(IProjectTypes.PT_PROBLEM)) {
             return "tableeditor/showError.xhtml?" + Constants.REQUEST_PARAM_ID + "="
-                + projectModel.getNodeIndex(element);
+                + projectModel.getTreeNodeId(element);
         }
         return null;
     }
