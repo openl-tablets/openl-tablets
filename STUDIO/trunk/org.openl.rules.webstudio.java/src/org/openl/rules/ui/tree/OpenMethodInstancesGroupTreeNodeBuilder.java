@@ -119,7 +119,11 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
 
             Object nodeObject = makeObject(tableSyntaxNode);
 
-            return new NodeKey(getWeight(nodeObject), new String[] { hashString, hashString, hashString });
+            String[] displayNames = getDisplayValue(tableSyntaxNode, 0);
+            for(int k = 0; k < displayNames.length; k++){
+                displayNames[i] += hashString;
+            }
+            return new NodeKey(getWeight(nodeObject), displayNames);
         }
 
         return null;
