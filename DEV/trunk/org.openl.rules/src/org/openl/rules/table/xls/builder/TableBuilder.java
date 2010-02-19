@@ -10,11 +10,13 @@ import java.io.IOException;
 
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.rules.table.xls.XlsCellStyle2;
+import org.openl.rules.table.xls.XlsDateFormat;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -209,26 +211,17 @@ public class TableBuilder {
      * @param value cell value
      * @param style cell style
      */
-    protected void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
-       
-        CellStyle cellStyle = null;
-        if (style != null) {
-            if (style instanceof XlsCellStyle) {
-                cellStyle = ((XlsCellStyle) style).getXlsStyle();
-            } else if (style instanceof XlsCellStyle2) {
-                cellStyle = ((XlsCellStyle2) style).getXlsStyle();
-            }           
-        } else {
-            cellStyle = getDefaultCellStyle();               
-        }
+    protected void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {       
+        CellStyle cellStyle = analyseCellStyle(style);
         x += region.getLeft();
         y += region.getTop();
         if (width == 1 && height == 1) {
             Cell cell = gridModel.getOrCreateXlsCell(x, y);
             gridModel.setCellValue(x, y, value);
-            // we need to add data format in style for dates
+            // we need to create new style if value is of type date.
             if (value instanceof Date) {
-                modifyCellStyle(cell, cellStyle);                
+                cellStyle = null;
+                cellStyle = getDateCellStyle(cell);                
             }
             setCellStyle(cell, cellStyle);
         } else {
@@ -245,14 +238,40 @@ public class TableBuilder {
         }
     }
     
-    /**
-     * If the value was set to the cell of type date, we need to modify our 
-     * default style with data format for dates.
-     * @param cell Cell with value in it.
-     * @param cellStyle Cell style.
+    /** 
+     * Analyse the type of cell style.
+     * 
+     * @param style Incoming cell style.
+     * @return CellStyle according to its type. If income value was <code>NULL</code> returns {@link #defaultCellStyle}.
+     * 
+     * @author DLiauchuk
      */
-    private void modifyCellStyle(Cell cell, CellStyle cellStyle) {        
-        cellStyle.setDataFormat(cell.getCellStyle().getDataFormat());
+    private CellStyle analyseCellStyle(ICellStyle style) {
+        CellStyle returnStyle = null;
+        if (style != null) {
+            if (style instanceof XlsCellStyle) {
+                returnStyle = ((XlsCellStyle) style).getXlsStyle();
+            } else if (style instanceof XlsCellStyle2) {
+                returnStyle = ((XlsCellStyle2) style).getXlsStyle();
+            }           
+        } else {
+            returnStyle = getDefaultCellStyle();               
+        }
+        return returnStyle;
+    }
+    
+    /**
+     * If the value was set to the cell of type date, we need to create new style for this cell 
+     * with data format for dates.
+     * @param cell Cell with value in it.     
+     */
+    private CellStyle getDateCellStyle(Cell cell) {
+        CellStyle previousStyle = cell.getCellStyle();
+        cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
+        cell.getCellStyle().cloneStyleFrom(previousStyle);
+        cell.getCellStyle().setDataFormat((short) BuiltinFormats
+                .getBuiltinFormat(XlsDateFormat.DEFAULT_XLS_DATE_FORMAT));
+        return cell.getCellStyle();
     }
 
     private void setCellStyle(Cell cell, CellStyle cellStyle) {
