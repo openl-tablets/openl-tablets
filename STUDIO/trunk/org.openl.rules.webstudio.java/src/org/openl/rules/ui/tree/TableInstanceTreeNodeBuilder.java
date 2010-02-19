@@ -79,11 +79,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      */
     @Override
     public boolean isUnique(TableSyntaxNode tsn) {
-        if (ITableNodeTypes.XLS_PROPERTIES.equals(tsn.getType())
-                || ITableNodeTypes.XLS_ENVIRONMENT.equals(tsn.getType())) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**

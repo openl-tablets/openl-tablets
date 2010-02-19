@@ -127,8 +127,9 @@ public class PropertyTableBinder extends DataNodeBinder {
     private void processCategoryProperties(TableSyntaxNode tsn, TableProperties propertiesInstance, 
             RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) {
         String category = getCategoryToApplyProperties(tsn, propertiesInstance);
-        if (!cxt.isExistCategoryProperties(category)){
-            cxt.addCategoryProperties(category, propertiesInstance);
+        String key = RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category;
+        if (!cxt.isTableSyntaxNodeExist(key)){
+            cxt.registerTableSyntaxNode(key, tsn);
         } else {           
             throw new DuplicatedPropertiesTableException(String.format("Properties for category %s already exists", 
                     category), propertyNode);
@@ -137,10 +138,11 @@ public class PropertyTableBinder extends DataNodeBinder {
 
     private void processModuleProperties(TableSyntaxNode tsn, TableProperties propertiesInstance, 
             RulesModuleBindingContext cxt, PropertyTableBoundNode propertyNode) {
-        XlsWorkbookSourceCodeModule  module = ((XlsSheetSourceCodeModule)tsn.getModule()).getWorkbookSource();
-        if (!cxt.isExistModuleProperties()) {
-            cxt.setModuleProperties(propertiesInstance);
+        String key = RulesModuleBindingContext.MODULE_PROPERTIES_KEY; 
+        if (!cxt.isTableSyntaxNodeExist(key)) {
+            cxt.registerTableSyntaxNode(key, tsn);
         } else {
+            XlsWorkbookSourceCodeModule  module = ((XlsSheetSourceCodeModule)tsn.getModule()).getWorkbookSource();
             String moduleName = module.getDisplayName();
             throw new DuplicatedPropertiesTableException(String.format("Properties for module %s already exists",
                     moduleName), propertyNode);
