@@ -108,8 +108,12 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
         
         public Object getObjectValue() {
             if (cell == null) return null;
-            int valueType = cell.getCellType();
-            switch (valueType) {
+            Object value = extractCellValue(false);
+            return value;
+        }
+        
+        private Object extractCellValue(boolean useCachedValue){
+            switch (useCachedValue ? cell.getCachedFormulaResultType() : cell.getCellType()) {
                 case Cell.CELL_TYPE_BLANK:
                     return null;
                 case Cell.CELL_TYPE_BOOLEAN:
@@ -123,16 +127,13 @@ public class XlsSheetGridModel extends AGridModel implements IWritableGrid,
                 case Cell.CELL_TYPE_STRING:
                     return cell.getStringCellValue();
                 case Cell.CELL_TYPE_FORMULA:
-                    FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
-                    CellValue resultValue = null;
                     try {
-                        resultValue = formulaEvaluator.evaluate(cell);
+                        FormulaEvaluator formulaEvaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
+                        formulaEvaluator.evaluateFormulaCell(cell);
                     } catch (RuntimeException e) {
-                        LOG.warn("Error while evaluating the cell on the sheet ["+sheet.getSheetName()+"], " +
-                        		"containing " +	"formula ["+getFormula()+"]", e);
-                        throw new IncorrectFormulaException(e.getMessage(), e.getCause());
                     }
-                    return XlsUtil.intOrDouble(resultValue.getNumberValue());
+                    //extract new calculated value or previously cached value if calculation failed
+                    return extractCellValue(true);
                 default:
                     return "unknown type: " + cell.getCellType();
             }
