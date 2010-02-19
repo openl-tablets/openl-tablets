@@ -17,7 +17,7 @@ public class TraceRichFacesTreeBuilder extends RichFacesTreeBuilder {
     @Override
     protected String getUrl(ITreeElement<?> element) {
         return FacesUtils.getContextPath() + "/jsp/showTraceTable.jsp?" + Constants.REQUEST_PARAM_ID + "="
-            + traceHelper.getNodeIndex(element);
+            + traceHelper.getNodeKey(element);
     }
 
 }

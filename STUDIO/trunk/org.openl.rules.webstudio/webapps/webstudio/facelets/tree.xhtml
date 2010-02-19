@@ -52,7 +52,7 @@
 
         <!-- Tree BEGIN -->
         <rich:tree styleClass="tree" value="#{treeBean.tree}" switchType="client" toggleOnClick="true" var="node"
-            nodeFace="#{node.type}" selectedClass="treeNodeSelected">
+            nodeFace="#{node.type}" selectedClass="treeNodeSelected" stateAdvisor="#{treeBean.stateManager}">
             <rich:treeNode type="folder"
                 icon="#{node.state == 1 ? 'webresource/images/dtree/folder-error.png' : 'webresource/images/dtree/folder.png'}">
                 <h:outputText value="#{node.name}" />

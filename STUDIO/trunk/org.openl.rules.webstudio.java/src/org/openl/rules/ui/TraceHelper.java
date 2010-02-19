@@ -34,7 +34,7 @@ import org.openl.vm.Tracer;
  */
 public class TraceHelper {
 
-    TreeCache traceTreeCache = new TreeCache();
+    TreeCache<Integer, ITreeElement<?>> traceTreeCache = new TreeCache<Integer, ITreeElement<?>>();
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
         for (ITableTracerObject child : tto.getTableTracers()) {
@@ -48,7 +48,7 @@ public class TraceHelper {
     }
 
     public String getProjectNodeUri(int id, ProjectModel model) {
-        ITracerObject tracer = (ITracerObject) traceTreeCache.get(id);
+        ITracerObject tracer = (ITracerObject) traceTreeCache.getNode(id);
         if (!(tracer instanceof ITableTracerObject)) {
             return null;
         }
@@ -57,7 +57,7 @@ public class TraceHelper {
     }
 
     public TableInfo getTableInfo(int elementID) {
-        ITracerObject tt = (ITracerObject) traceTreeCache.get(elementID);
+        ITracerObject tt = (ITracerObject) traceTreeCache.getNode(elementID);
 
         if (tt == null) {
             return null;
@@ -118,24 +118,24 @@ public class TraceHelper {
     public ITreeElement<?> getTraceTree(Tracer tracer) {
         ITreeElement<?> tree = tracer.getRoot();
         traceTreeCache.clear();
-        cacheTree(tree);
+        cacheTree(1, tree);
         return tree;
     }
 
-    private void cacheTree(ITreeElement<?> treeNode) {
+    private void cacheTree(int key, ITreeElement<?> treeNode) {
         for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ITreeElement<?> child = (ITreeElement<?>) iterator.next();
-            traceTreeCache.put(child);
-            cacheTree(child);
+            traceTreeCache.put(key++, child);
+            cacheTree(key, child);
         }
     }
 
-    public int getNodeIndex(ITreeElement<?> node) {
-        return traceTreeCache.getIndex(node);
+    public int getNodeKey(ITreeElement<?> node) {
+        return traceTreeCache.getKey(node);
     }
 
     public String showTrace(int id, ProjectModel model, String view) {
-        ITracerObject tt = (ITracerObject) traceTreeCache.get(id);
+        ITracerObject tt = (ITracerObject) traceTreeCache.getNode(id);
 
         if (tt == null) {
             return "ERROR ID = " + id;
