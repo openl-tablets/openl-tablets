@@ -8,20 +8,22 @@ import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.InheritanceLevelChecker;
 import org.openl.rules.table.properties.inherit.InvalidPropertyLevelException;
+import org.openl.util.ArrayUtils;
 import org.openl.util.EnumUtils;
 
 /**
  * Temporary class for holding table properties
+ * 
  * @author DLiauchuk
- *
+ * 
  */
 public class TableProperty {
     private String name;
     private String displayName;
     private Object value;
     private Class<?> type;
-    
-    private String group;    
+
+    private String group;
     private String format;
     private Constraints constraints;
     private String description;
@@ -40,11 +42,11 @@ public class TableProperty {
         this.system = builder.system;
         this.inheritanceLevel = builder.inheritanceLevel;
     }
-    
+
     public String getFormat() {
         return format;
-    }    
-    
+    }
+
     public void setFormat(String format) {
         this.format = format;
     }
@@ -56,17 +58,18 @@ public class TableProperty {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     /**
      * 
-     * @return <code>TRUE</code> if property value can be overriden on TABLE level.
+     * @return <code>TRUE</code> if property value can be overriden on TABLE
+     *         level.
      */
     public boolean canBeOverridenInTable() {
         boolean result = false;
         try {
             InheritanceLevelChecker.checkPropertyLevel(InheritanceLevel.TABLE, name);
             result = true;
-        } catch (InvalidPropertyLevelException e) {            
+        } catch (InvalidPropertyLevelException e) {
         }
         return result;
     }
@@ -87,30 +90,18 @@ public class TableProperty {
         this.displayName = displayName;
     }
 
-    public Object getValue() {        
+    public Object getValue() {
         return value;
     }
 
     /**
-     * This method must be used for all the cases when you need to display property on UI.
-     * It converts its value from any type to string.
+     * This method must be used for all the cases when you need to display
+     * property on UI. It converts its value from any type to string.
+     * 
      * @return
      */
     public String getDisplayValue() {
-        String result = "";
-        if (value != null) {
-            if (value instanceof Date) {
-                SimpleDateFormat sdf = new SimpleDateFormat(getFormat());
-                result = sdf.format((Date) value);
-            } else if (EnumUtils.isEnumArray(value)) {
-                Object[] enums = (Object[]) value;
-                String[] values = EnumUtils.getValues(enums);
-                result = StringUtils.join(values, ",");
-            } else {
-                result = value.toString();
-            }
-        }
-        return result;
+        return getStringValue();
     }
 
     public String getStringValue() {
@@ -123,8 +114,12 @@ public class TableProperty {
                 result = ((Enum<?>) value).name();
             } else if (EnumUtils.isEnumArray(value)) {
                 Object[] enums = (Object[]) value;
-                String[] names = EnumUtils.getNames(enums);
-                result = StringUtils.join(names, ",");
+                if (!ArrayUtils.isEmpty(enums)) {
+                    String[] names = EnumUtils.getNames(enums);
+                    result = StringUtils.join(names, ",");
+                } else {
+                    result = "";
+                }
             } else {
                 result = value.toString();
             }
@@ -152,7 +147,7 @@ public class TableProperty {
         this.group = group;
     }
 
-    public boolean isString() {        
+    public boolean isString() {
         return String.class.equals(type);
     }
 
@@ -163,7 +158,7 @@ public class TableProperty {
     public boolean isBoolean() {
         return Boolean.class.equals(type);
     }
-    
+
     public boolean isDouble() {
         return Double.class.equals(type);
     }
@@ -193,12 +188,12 @@ public class TableProperty {
     }
 
     public void setSystem(boolean system) {
-        this.system = system;        
+        this.system = system;
     }
 
     public boolean isSystem() {
-        return system;        
-    }    
+        return system;
+    }
 
     public InheritanceLevel getInheritanceLevel() {
         return inheritanceLevel;
@@ -210,14 +205,15 @@ public class TableProperty {
 
     /**
      * Builder for TableProperties
+     * 
      * @author DLiauchuk
-     *
+     * 
      */
     public static class TablePropertyBuilder {
         // Required parameters
         private String name;
-        private String displayName;                
-        
+        private String displayName;
+
         // Optional parameters
         private Object value;
         private Class<?> type;
@@ -227,42 +223,42 @@ public class TableProperty {
         private String description;
         private boolean system;
         private InheritanceLevel inheritanceLevel;
-        
+
         public TablePropertyBuilder(String name, String displayName) {
             this.name = name;
             this.displayName = displayName;
         }
-        
+
         public TablePropertyBuilder value(Object val) {
             value = val;
             return this;
         }
-        
+
         public TablePropertyBuilder type(Class<?> val) {
             type = val;
             return this;
         }
-        
+
         public TablePropertyBuilder group(String val) {
             group = val;
             return this;
         }
-        
+
         public TablePropertyBuilder format(String val) {
             format = val;
             return this;
         }
-        
+
         public TablePropertyBuilder constraints(Constraints val) {
             constraints = val;
             return this;
         }
-        
+
         public TablePropertyBuilder description(String val) {
             description = val;
             return this;
         }
-        
+
         public TablePropertyBuilder system(boolean val) {
             system = val;
             return this;

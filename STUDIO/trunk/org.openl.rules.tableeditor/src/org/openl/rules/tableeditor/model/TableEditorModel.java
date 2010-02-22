@@ -472,12 +472,19 @@ public class TableEditorModel {
     }
 
     public synchronized void setProperty(String name, String value) throws Exception {
+        
         List<IUndoableGridAction> createdActions = new ArrayList<IUndoableGridAction>();
         int nRowsToInsert = 0;
         CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, wgrid(), name);
+        
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = StringUtils.isBlank(value);
-        if (!propExists && !propIsBlank) {
+        
+        if (propExists) {
+            removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
+        }
+        
+        if (/*!propExists &&*/ !propIsBlank) {
             nRowsToInsert = 1;
             if (nRowsToInsert > 0 && !canInsertRows(nRowsToInsert)) {
                 createdActions.add(moveTable(getUpdatedFullTable()));
@@ -496,10 +503,15 @@ public class TableEditorModel {
             }
             displayedTable.doAction(wgrid(), undoGrid);
             createdActions.add(displayedTable);
-        } else if (propExists && propIsBlank) {
-            removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
-            return;
+//        } 
+//        else     
+//        if (propExists && propIsBlank) {
+//            removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
+//            return;
         }
+    
+        if (propIsBlank) {return;}
+        
         IUndoableGridAction action = IWritableGrid.Tool
             .insertProp(fullTableRegion, wgrid(), name, value); // returns null if set new property with empty or same value
         if (action != null) {
