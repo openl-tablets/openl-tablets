@@ -51,10 +51,15 @@ public class ColumnDescriptor {
     private Object getArrayValues(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType)
             throws BoundError {
 
-        if (valuesTable.getLogicalHeight() == 1) {
+        if (valuesTable.getLogicalHeight() == 1 && valuesTable.getLogicalWidth() == 1) {
             return loadSingleRowArray(valuesTable, ota, paramType);
         }
 
+        if (valuesTable.getLogicalHeight() != 1) {
+            valuesTable.transpose();
+            return loadMultiRowArray(valuesTable, ota, paramType);
+        }
+        
         return loadMultiRowArray(valuesTable, ota, paramType);
     }
 
