@@ -511,9 +511,22 @@ public class ProjectModel implements IProjectTypes {
     }
 
     public ISyntaxError[] getErrors(String elementUri) {
+        
         TableSyntaxNode tsn = getNode(elementUri);
-        ISyntaxError[] se = tsn.getErrors();
+        ISyntaxError[] se = null;
+
+        if (tsn != null) {
+            se = tsn.getErrors();
+        }
+
         return se == null ? ISyntaxError.EMPTY : se;
+    }
+    
+    public boolean hasErrors(String elementUri) {
+        
+        ISyntaxError[] se = getErrors(elementUri);
+        
+        return se.length > 0;
     }
 
     public ColorFilterHolder getFilterHolder() {
@@ -785,13 +798,6 @@ public class ProjectModel implements IProjectTypes {
         return xsn;
     }
 
-    public boolean hasErrors(String elementUri) {
-        TableSyntaxNode tsn = getNode(elementUri);
-        ISyntaxError[] se = tsn.getErrors();
-        return se != null || tsn.getValidationResult() != null;
-
-    }
-
     /**
      * Returns if current project is read only.
      * 
@@ -998,43 +1004,7 @@ public class ProjectModel implements IProjectTypes {
     public void redraw() throws Exception {
         projectRoot = null;
     }
-
-    /*public String renderTree(String targetJsp) {
-        ProjectTreeNode tr = (ProjectTreeNode) getProjectTree();
-
-        if (tr == null) {
-            String errMsg = "";
-            if (projectProblem != null) {
-                Throwable t = projectProblem;
-                try {
-                    t = ExceptionUtils.getCause(projectProblem);
-                    if (t == null) {
-                        t = projectProblem;
-                    }
-                } catch (Exception e) {
-                }
-
-                errMsg = new ObjectViewer(this).displayResult(t);
-            }
-
-            if (errMsg == "" && wrapper == null) {
-                return "document.getElementById('msg').innerHTML = 'No OpenL Projects in the Workspace'";
-            }
-
-            return "document.getElementById('msg').innerHTML = 'There was a problem opening OpenL Project."
-                    + " Try to run <i>Generate Wrapper</i> procedure in Eclipse for this project."
-                    + " You will have to refresh the <i>Eclipse project</i> and <a href=\"/webstudio/index.jsp?reload=true\" target=\"_top\">refresh the Web Studio</a> afterwards."
-                    + " Check Eclipse Console for more details. <p/>" + errMsg + "'";
-
-        }
-
-        // StringBuffer buf = new StringBuffer(1000);
-
-        // renderElement(null, tr, targetJsp, buf);
-        //ptr = new ProjectTreeRenderer(this, targetJsp, "mainFrame");
-        // return buf.toString();
-    }*/
-
+    
     public void reset() throws Exception {
         if (wrapperInfo != null) {
             wrapperInfo.reset();
