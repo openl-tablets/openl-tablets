@@ -4,6 +4,7 @@
 <%@page import="org.openl.rules.webstudio.web.util.WebStudioUtils"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspace"%>
 <%@page import="org.openl.rules.ui.WebStudio"%>
+<%@page import="org.openl.util.StringTool"%>
 <%@page import="java.util.*"%>
 <%@page import="org.openl.rules.workspace.abstracts.Project"%>
 <%@page import="org.openl.rules.workspace.uw.UserWorkspaceProject"%>
@@ -67,6 +68,14 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
   String reload = request.getParameter("reload");
   if (reload != null)
     studio.reset();
+  
+  String tableUri = request.getParameter("tableUri");
+  String nodeToOpen = null;
+  String encodedTableUri = null;
+  if (tableUri != null) {
+      nodeToOpen = studio.getModel().getTreeNodeId(tableUri);   
+      encodedTableUri = StringTool.encodeURL(tableUri);
+  }
 
   String validate = request.getParameter("validate");
   List validateErrors = null;
@@ -90,7 +99,7 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
 
 <frameset cols="*,79%" frameborder="yes" border="4">
 <frameset rows="*,1" border="0">
-    <frame src="${pageContext.request.contextPath}/faces/facelets/tree.xhtml" name="leftFrame" scrolling="auto">
+    <frame src="${pageContext.request.contextPath}/faces/facelets/tree.xhtml?nodeToOpen=<%=nodeToOpen%>" name="leftFrame" scrolling="auto">
     <frame src="html/nothing.html" name="show_app_hidden">
 </frameset>
 
@@ -100,8 +109,11 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
 <%} else { %>
 <frame src="${pageContext.request.contextPath}/html/noValidateErrors.html" name="mainFrame" scrolling="auto"/>
 <%}} else { %>
+<%if (encodedTableUri != null) {%>
+<frame src="${pageContext.request.contextPath}/faces/facelets/tableeditor/showTable.xhtml?uri=<%=encodedTableUri%>" name="mainFrame" scrolling="auto"/>
+<%} else { %>
 <frame src="<%=System.getProperty( "org.openl.webstudio.intro.html", "webresource/html/ws-intro.html")%>" name="mainFrame" scrolling="auto"/>
-<%} %>
+<%}} %>
 
 
 </frameset>
