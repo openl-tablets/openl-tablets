@@ -850,67 +850,54 @@ public class ProjectModel implements IProjectTypes {
         
         OpenMethodGroupsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
-        TreeNodeBuilder<Object>[][] sorters = studio.getMode().getBuilders();
-        String[][] folders = studio.getMode().getFolders();
-
         TreeBuilder<Object> treeBuilder = new TreeBuilder<Object>();
 
-        for (int k = 0; k < sorters.length; k++) {
+        TreeNodeBuilder<Object>[] treeSorters = studio.getMode().getBuilders();
 
-            ProjectTreeNode folder = root;
+        // Find all group sorters defined for current subtree.
+        // Group sorter should have additional information for grouping
+        // nodes by method signature.
+        // author: Alexey Gamanovich
+        //
+        for (TreeNodeBuilder<?> treeSorter : treeSorters) {
 
-            if (folders != null && folders[k] != null) {
-                folder = new ProjectTreeNode(folders[k], "folder", null, null, 0, null);
-                root.addChild(new NodeKey(k + 1, folder.getDisplayName()), folder);
-            }
-
-            TreeNodeBuilder<Object>[] treeSorters = sorters[k];
-
-            // Find all group sorters defined for current subtree.
-            // Group sorter should have additional information for grouping
-            // nodes by method signature.
-            // author: Alexey Gamanovich
-            //
-            for (TreeNodeBuilder<?> treeSorter : treeSorters) {
-
-                if (treeSorter instanceof OpenMethodsGroupTreeNodeBuilder) {
-                    // Set to sorter information about open methods.
-                    // author: Alexey Gamanovich
-                    //
-                    OpenMethodsGroupTreeNodeBuilder tableTreeNodeBuilder = (OpenMethodsGroupTreeNodeBuilder) treeSorter;
-                    tableTreeNodeBuilder.setOpenMethodGroupsDictionary(methodNodesDictionary);
-                }
-            }
-
-            HashSet<TableSyntaxNode> nodesWithErrors = new HashSet<TableSyntaxNode>();
-
-            boolean treeEnlarged = false;
-
-            for (int i = 0; i < tableSyntaxNodes.length; i++) {                
-                    if (studio.getMode().select(tableSyntaxNodes[i])) {
-
-                        treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
-                        treeEnlarged = true;
-
-                    } else if (tableSyntaxNodes[i].getErrors() != null) {
-
-                        treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
-                        nodesWithErrors.add(tableSyntaxNodes[i]);
-                    }
-            }
-
-            if (!treeEnlarged) {
-                // no selection have been made (usually in a
-                // business mode)
-                for (int i = 0; i < tableSyntaxNodes.length; i++) {                    
-                        if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
-                                && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
-                            
-                            treeBuilder.addToNode(folder, tableSyntaxNodes[i], treeSorters);
-                        }
-                }
+            if (treeSorter instanceof OpenMethodsGroupTreeNodeBuilder) {
+                // Set to sorter information about open methods.
+                // author: Alexey Gamanovich
+                //
+                OpenMethodsGroupTreeNodeBuilder tableTreeNodeBuilder = (OpenMethodsGroupTreeNodeBuilder) treeSorter;
+                tableTreeNodeBuilder.setOpenMethodGroupsDictionary(methodNodesDictionary);
             }
         }
+
+        HashSet<TableSyntaxNode> nodesWithErrors = new HashSet<TableSyntaxNode>();
+
+        boolean treeEnlarged = false;
+
+        for (int i = 0; i < tableSyntaxNodes.length; i++) {                
+                if (studio.getMode().select(tableSyntaxNodes[i])) {
+
+                    treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+                    treeEnlarged = true;
+
+                } else if (tableSyntaxNodes[i].getErrors() != null) {
+
+                    treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+                    nodesWithErrors.add(tableSyntaxNodes[i]);
+                }
+        }
+
+        if (!treeEnlarged) {
+            // no selection have been made (usually in a business mode)
+            for (int i = 0; i < tableSyntaxNodes.length; i++) {                    
+                    if (!ITableNodeTypes.XLS_OTHER.equals(tableSyntaxNodes[i].getType())
+                            && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
+                        
+                        treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+                    }
+            }
+        }
+
         projectRoot = root;
         uriTreeCache.clear();
         idTreeCache.clear();

@@ -14,14 +14,6 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
  */
 public abstract class WebStudioViewMode extends NamedThing {
 
-    public static final String DEVELOPER_MODE_TYPE = "developer";
-    public static final String BUSINESS_MODE_TYPE = "business";
-
-    public static final WebStudioViewMode DEVELOPER_VIEW = new DeveloperViewMode();
-    public static final WebStudioViewMode BUSINESS1_VIEW = new BusinessViewMode1();
-    public static final WebStudioViewMode BUSINESS2_VIEW = new BusinessViewMode2();
-    public static final WebStudioViewMode BUSINESS3_VIEW = new BusinessViewMode3();
-
     protected String displayName;
     protected String description;
 
@@ -52,18 +44,11 @@ public abstract class WebStudioViewMode extends NamedThing {
     public abstract String getDisplayName(OpenLWrapperInfo wrapper);
 
     /**
-     * Gets folders that used as roots of folder structure.
-     * 
-     * @return folder names
-     */
-    public abstract String[][] getFolders();
-
-    /**
      * Gets array of tree node builders.
      * 
      * @return tree node builders
      */
-    public abstract TreeNodeBuilder<Object>[][] getBuilders();
+    public abstract TreeNodeBuilder<Object>[] getBuilders();
 
     /**
      * Gets table view mode.

@@ -7,6 +7,13 @@ package org.openl.rules.ui;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openl.rules.ui.view.BaseBusinessViewMode;
+import org.openl.rules.ui.view.BaseDeveloperViewMode;
+import org.openl.rules.ui.view.BusinessViewMode1;
+import org.openl.rules.ui.view.BusinessViewMode2;
+import org.openl.rules.ui.view.BusinessViewMode3;
+import org.openl.rules.ui.view.DeveloperByFileViewMode;
+import org.openl.rules.ui.view.DeveloperByTypeViewMode;
 import org.openl.rules.ui.view.WebStudioViewMode;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -40,6 +47,15 @@ public class WebStudio {
 
     private static final Log LOG = LogFactory.getLog(WebStudio.class);
 
+    public WebStudioViewMode DEVELOPER_BYTYPE_VIEW = new DeveloperByTypeViewMode();
+    public WebStudioViewMode DEVELOPER_BYFILE_VIEW = new DeveloperByFileViewMode();
+    public WebStudioViewMode BUSINESS1_VIEW = new BusinessViewMode1();
+    public WebStudioViewMode BUSINESS2_VIEW = new BusinessViewMode2();
+    public WebStudioViewMode BUSINESS3_VIEW = new BusinessViewMode3();
+
+    WebStudioViewMode[] businessModes = { BUSINESS1_VIEW, BUSINESS2_VIEW, BUSINESS3_VIEW };
+    WebStudioViewMode[] developerModes = { DEVELOPER_BYTYPE_VIEW, DEVELOPER_BYFILE_VIEW };
+
     private String workspacePath;
     ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
     List<StudioListener> listeners = new ArrayList<StudioListener>();
@@ -47,24 +63,17 @@ public class WebStudio {
     ProjectModel model = new ProjectModel(this);
     private OpenLProjectLocator locator;
     OpenLWrapperInfo[] wrappers = null;
-    WebStudioViewMode mode = WebStudioViewMode.BUSINESS1_VIEW;
+
+    WebStudioViewMode mode = BUSINESS1_VIEW;
     private Set<String> writableProjects;
     OpenLWrapperInfo currentWrapper;
     private boolean showFormulas;
     private boolean collapseProperties = true;
 
     WebStudioProperties properties = new WebStudioProperties();
-    // public void toggleMode() throws Exception
-    // {
-    // mode = mode == WebStudioMode.BUSINESS ? WebStudioMode.DEVELOPER
-    // : WebStudioMode.BUSINESS;
-    // model.reset();
-    // }
+
     int businessModeIdx = 0;
     int developerModeIdx = 0;
-    WebStudioViewMode[] businessModes = { WebStudioViewMode.BUSINESS1_VIEW, WebStudioViewMode.BUSINESS2_VIEW, WebStudioViewMode.BUSINESS3_VIEW };
-
-    WebStudioViewMode[] developerModes = { WebStudioViewMode.DEVELOPER_VIEW };
 
     public WebStudio() {
         boolean initialized = false;
@@ -78,6 +87,16 @@ public class WebStudio {
                     .getProperty("openl.webstudio.home");
             locator = new OpenLProjectLocator(workspacePath);
         }
+    }
+
+    public WebStudioViewMode[] getViewSubModes(String modeType) {
+        WebStudioViewMode[] modes = null;
+        if (BaseDeveloperViewMode.TYPE.equals(modeType)) {
+            modes = developerModes;
+        } else if (BaseBusinessViewMode.TYPE.equals(modeType)) {
+            modes = businessModes;
+        }
+        return modes;
     }
 
     public WebStudio(String workspacePath) {
@@ -296,7 +315,6 @@ public class WebStudio {
             setCurrentWrapper(ww[0]);
         }
 
-        // throw new RuntimeException("Unknown wrapper: " + name);
     }
 
     /**
@@ -318,22 +336,42 @@ public class WebStudio {
         }
     }
 
-    public void setMode(String modeStr) throws Exception {
-        boolean sameType = modeStr.equals(mode.getType());
+    public void switchMode(String type) throws Exception {
+        boolean sameType = type.equals(mode.getType());
 
-        if ("business".equals(modeStr)) {
+        if ("business".equals(type)) {
             businessModeIdx = findMode(businessModes, businessModeIdx, sameType);
-        } else if ("developer".equals(modeStr)) {
+        } else if ("developer".equals(type)) {
             developerModeIdx = findMode(developerModes, developerModeIdx, sameType);
         } else {
-            throw new RuntimeException("Invalid Mode: " + modeStr);
+            throw new RuntimeException("Invalid Mode: " + type);
         }
 
         model.redraw();
     }
 
-    public void setMode(WebStudioViewMode mode) {
+    public void setMode(WebStudioViewMode mode) throws Exception {
         this.mode = mode;
+        model.redraw();
+    }
+
+    public void setMode(String name) throws Exception {
+        WebStudioViewMode mode = getViewMode(name);
+        setMode(mode);
+    }
+
+    public WebStudioViewMode getViewMode(String name) {
+        for (WebStudioViewMode mode : businessModes) {
+            if (name.equals(mode.getName())) {
+                return mode;
+            }
+        }
+        for (WebStudioViewMode mode : developerModes) {
+            if (name.equals(mode.getName())) {
+                return mode;
+            }
+        }
+        return null;
     }
 
     public void setProperties(WebStudioProperties properties) {

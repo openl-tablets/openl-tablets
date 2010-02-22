@@ -63,7 +63,7 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
 
  String mode = request.getParameter("mode");
   if (mode != null)
-    studio.setMode(mode);
+    studio.switchMode(mode);
   String reload = request.getParameter("reload");
   if (reload != null)
     studio.reset();
@@ -88,7 +88,7 @@ if (rulesUserSession != null && !NetUtils.isLocalRequest(request) && (session.ge
 <frame src="${pageContext.request.contextPath}/faces/facelets/studio/header.xhtml" name="header" scrolling="no"
     noresize="noresize" />
 
-<frameset cols="*,80%" frameborder="yes" border="4">
+<frameset cols="*,79%" frameborder="yes" border="4">
 <frameset rows="*,1" border="0">
     <frame src="${pageContext.request.contextPath}/faces/facelets/tree.xhtml" name="leftFrame" scrolling="auto">
     <frame src="html/nothing.html" name="show_app_hidden">

@@ -1,30 +1,27 @@
 package org.openl.rules.ui.view;
 
 import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
-import org.openl.rules.ui.tree.CategoryNTreeNodeBuilder;
-import org.openl.rules.ui.tree.CategoryPropertiesTableNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
-import org.openl.rules.ui.tree.ModulePropertiesTableNodeBuilder;
 import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.ui.tree.WorkbookTreeNodeBuilder;
+import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 
-public class BusinessViewMode3 extends BaseBusinessViewMode {
+public class DeveloperByFileViewMode extends BaseDeveloperViewMode {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
-        new ModulePropertiesTableNodeBuilder(),
-        new CategoryNTreeNodeBuilder(1, "-"),
-        new CategoryNTreeNodeBuilder(0, "-"),
-        new CategoryPropertiesTableNodeBuilder(),
+        new WorkbookTreeNodeBuilder(),
+        new WorksheetTreeNodeBuilder(),
         new OpenMethodInstancesGroupTreeNodeBuilder(),
         new TableInstanceTreeNodeBuilder(),
         new TableVersionTreeNodeBuilder()
     };
 
-    public BusinessViewMode3() {
-        setName(getType() + ".3");
-        displayName = "By Category Inversed";
-        description = "Business View 3. Provides inversed categorized view";
+    public DeveloperByFileViewMode() {
+        setName(getType() + ".byFile");
+        displayName = "By File";
+        description = "Developer Mode 2. Organize project by physical location";
     }
 
     @SuppressWarnings("unchecked")

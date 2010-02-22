@@ -1,9 +1,16 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.faces.model.SelectItem;
+
+import org.openl.base.INamedThing;
 import org.openl.rules.ui.AllTestsRunResult;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.ProjectRichFacesTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeStateManager;
+import org.openl.rules.ui.view.WebStudioViewMode;
 import org.openl.rules.web.jsf.util.FacesUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspaceProject;
@@ -24,6 +31,31 @@ public class TreeBean {
 
     public TreeStateManager getStateManager() {
         return stateManager;
+    }
+
+    public String getCurrentSubMode() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        String mode = studio.getMode().getName();
+        return mode;
+    }
+
+    public void setCurrentSubMode(String currentSubMode) throws Exception {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.setMode(currentSubMode);
+    }
+
+    public List<SelectItem> getSubModes() {
+        List<SelectItem> subModes = new ArrayList<SelectItem>();
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        WebStudioViewMode mode = studio.getMode();
+        String modeType = (String) mode.getType();
+        WebStudioViewMode[] modes = studio.getViewSubModes(modeType);
+        if (modes != null) {
+            for (WebStudioViewMode viewMode : modes) {
+                subModes.add(new SelectItem(viewMode.getName(), viewMode.getDisplayName(INamedThing.REGULAR)));
+            }
+        }
+        return subModes;
     }
 
     public boolean isProjectExists() {

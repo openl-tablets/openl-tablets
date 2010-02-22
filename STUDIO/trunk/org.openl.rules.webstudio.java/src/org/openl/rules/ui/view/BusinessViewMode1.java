@@ -11,18 +11,25 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 public class BusinessViewMode1 extends BaseBusinessViewMode {
 
-    private static final BaseTableTreeNodeBuilder[][] sorters = { {new ModulePropertiesTableNodeBuilder(), 
-            new CategoryTreeNodeBuilder(), new CategoryPropertiesTableNodeBuilder(),
-            new OpenMethodInstancesGroupTreeNodeBuilder(), new TableInstanceTreeNodeBuilder(),
-            new TableVersionTreeNodeBuilder() } };
+    private static final BaseTableTreeNodeBuilder[] sorters = {
+        new ModulePropertiesTableNodeBuilder(), 
+        new CategoryTreeNodeBuilder(),
+        new CategoryPropertiesTableNodeBuilder(),
+        new OpenMethodInstancesGroupTreeNodeBuilder(),
+        new TableInstanceTreeNodeBuilder(),
+        new TableVersionTreeNodeBuilder()
+    };
 
     public BusinessViewMode1() {
-        setName(WebStudioViewMode.BUSINESS_MODE_TYPE + ".1");
-        displayName = "Business View 1. Provides categorized view";
+        setName(getType() + ".1");
+        displayName = "By Category";
+        description = "Business View 1. Provides categorized view";
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public TreeNodeBuilder[][] getBuilders() {
+    public TreeNodeBuilder[] getBuilders() {
         return sorters;
     }
+
 }
