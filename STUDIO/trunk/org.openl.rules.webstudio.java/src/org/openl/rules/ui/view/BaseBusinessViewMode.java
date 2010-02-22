@@ -9,6 +9,8 @@ import org.openl.util.StringTool;
 
 public abstract class BaseBusinessViewMode extends WebStudioViewMode {
 
+    public static final String TYPE = "business";
+
     @Override
     public String getDisplayName(OpenLWrapperInfo wrapper) {
 
@@ -28,7 +30,7 @@ public abstract class BaseBusinessViewMode extends WebStudioViewMode {
 
     @Override
     public Object getType() {
-        return WebStudioViewMode.BUSINESS_MODE_TYPE;
+        return TYPE;
     }
 
     @Override
@@ -52,8 +54,4 @@ public abstract class BaseBusinessViewMode extends WebStudioViewMode {
         return name != null && (view == null || view.indexOf(IXlsTableNames.VIEW_BUSINESS) >= 0);
     }
 
-    @Override
-    public String[][] getFolders() {
-        return null;
-    }
 }
