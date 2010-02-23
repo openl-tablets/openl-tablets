@@ -240,6 +240,12 @@ public class ShowTableBean {
         studio.getModel().buildProjectTree();
     }
 
+    public void afterSaveAction(String newUri) {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.setTableUri(newUri);
+        resetStudio();
+    }
+
     @SuppressWarnings("unchecked")
     public boolean updateSystemProperties() {
         boolean result = true;

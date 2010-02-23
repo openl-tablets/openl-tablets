@@ -303,7 +303,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             TableEditorModel editorModel = getEditorModel(getEditorId());
             if (editorModel != null) {
                 String newUri = editorModel.save();
-                afterSave();
+                afterSave(newUri);
                 return pojo2json(new TableModificationResponse(newUri, editorModel));
             }
         }
@@ -320,11 +320,14 @@ public class TableEditorController extends BaseTableEditorController implements 
         return true;
     }
 
-    private void afterSave() {
+    private void afterSave(String newUri) {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         String afterSaveAction = editorModel.getAfterSaveAction();
         if (afterSaveAction != null) {
-            FacesUtils.invokeMethodExpression(afterSaveAction);
+            FacesUtils.invokeMethodExpression(
+                    afterSaveAction,
+                    StringUtils.isNotBlank(newUri) ? new String[] { newUri } : null,
+                    StringUtils.isNotBlank(newUri) ? new Class[] { String.class } : null);
         }
     }
 

@@ -64,10 +64,15 @@ public abstract class FacesUtils {
     }
 
     public static MethodExpression createMethodExpression(String expressionString) {
+        return createMethodExpression(expressionString, null);
+    }
+
+    public static MethodExpression createMethodExpression(String expressionString, Class<?>[] paramTypes) {
         FacesContext context = FacesContext.getCurrentInstance();
         ELContext elContext = context.getELContext();
         MethodExpression methodExpression = context.getApplication().getExpressionFactory().
-            createMethodExpression(elContext, expressionString, null, new Class[0]);
+            createMethodExpression(elContext, expressionString, null,
+                    paramTypes == null ? new Class[0] : paramTypes);
         return methodExpression;
     }
 
@@ -93,8 +98,12 @@ public abstract class FacesUtils {
     }
 
     public static Object invokeMethodExpression(String expressionString) {
-        MethodExpression methodExpression = createMethodExpression(expressionString);
-        return methodExpression.invoke(getELContext(), new Object[0]);
+        return invokeMethodExpression(expressionString, null, null);
+    }
+
+    public static Object invokeMethodExpression(String expressionString, Object[] params, Class<?>[] paramTypes) {
+        MethodExpression methodExpression = createMethodExpression(expressionString, paramTypes);
+        return methodExpression.invoke(getELContext(), params == null ? new Object[0] : params);
     }
 
     public static ELContext getELContext() {
