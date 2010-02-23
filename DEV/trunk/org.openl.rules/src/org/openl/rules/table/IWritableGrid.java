@@ -16,6 +16,7 @@ import org.openl.rules.table.actions.UndoableCopyValueAction;
 import org.openl.rules.table.actions.UndoableResizeMergedRegionAction;
 import org.openl.rules.table.actions.UndoableSetStyleAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
+import org.openl.rules.table.actions.UnmergeByColumnsAction;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
@@ -277,6 +278,7 @@ public interface IWritableGrid extends IGrid {
             actions.addAll(shiftRows(firstToMove, nRows, INSERT, region));
 
             if (!containsPropSection) {
+                actions.add(new UnmergeByColumnsAction(new GridRegion(topCell + beforeRow, leftCell, topCell + beforeRow, region.getRight())));
                 actions.add(new UndoableSetValueAction(leftCell, topCell + beforeRow, PROPERTIES_SECTION_NAME, null));
                 if (regionWidth > 3) {
                     // clear cells
