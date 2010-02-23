@@ -163,6 +163,8 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator {
                 continue;
             }
 
+            
+            
             Comparable<Object> vFrom = null;
             Comparable<Object> vTo = null;
 
@@ -178,6 +180,9 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator {
                 map.putInterval(vFrom, vTo, fe);
             }
 
+//TODO          fix null from and To, last coud be replaces with very big value
+//TODO DoubleRange            
+            
             map.putInterval(vFrom, vTo, new Integer(i));
 
         }
@@ -204,10 +209,10 @@ public class RangeIndexedEvaluator implements IDTConditionEvaluator {
                 idxAry[j] = list.get(j);
             }
 
-            if (idxAry.length > 0) {
+//            if (idxAry.length > 0) {
                 rules.add(new DTRuleNode(idxAry));
                 index.add(indexObj);
-            }
+//            }
         }
 
         RangeIndex rix = new RangeIndex(emptyBuilder.makeNode(), index.toArray(new Comparable[0]), rules
