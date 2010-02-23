@@ -35,6 +35,7 @@ import org.openl.vm.Tracer;
 public class TraceHelper {
 
     TreeCache<Integer, ITreeElement<?>> traceTreeCache = new TreeCache<Integer, ITreeElement<?>>();
+    private int treeElementsNumber = 0;
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
         for (ITableTracerObject child : tto.getTableTracers()) {
@@ -117,19 +118,24 @@ public class TraceHelper {
 
     public ITreeElement<?> getTraceTree(Tracer tracer) {
         ITreeElement<?> tree = tracer.getRoot();
-        traceTreeCache.clear();
-        cacheTree(1, tree);
+        cleanCachedTree();
+        cacheTree(tree);
         return tree;
     }
 
-    private void cacheTree(int key, ITreeElement<?> treeNode) {
-        for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
-            ITreeElement<?> child = (ITreeElement<?>) iterator.next();
-            traceTreeCache.put(key++, child);
-            cacheTree(key, child);
-        }
+    private void cleanCachedTree() {
+        traceTreeCache.clear();
+        treeElementsNumber=0;
     }
 
+    private void cacheTree(ITreeElement<?> treeNode) {        
+        for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {            
+            ITreeElement<?> child = (ITreeElement<?>) iterator.next();
+            traceTreeCache.put(treeElementsNumber++, child);
+            cacheTree(child);
+        }
+    }
+    
     public int getNodeKey(ITreeElement<?> node) {
         return traceTreeCache.getKey(node);
     }
