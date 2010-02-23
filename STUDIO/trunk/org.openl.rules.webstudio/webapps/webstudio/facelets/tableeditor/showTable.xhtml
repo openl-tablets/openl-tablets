@@ -205,9 +205,9 @@
         <rules:tableEditor table="#{showTableBean.table}" view="#{showTableBean.view}"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
             showFormulas="#{showTableBean.showFormulas}" collapseProps="#{showTableBean.collapseProperties}"
-            beforeSaveAction="#{showTableBean.updateSystemProperties}" afterSaveAction="#{showTableBean.resetStudio}"
-            onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave();"
-            excludeScripts="prototype">
+            beforeSaveAction="#{showTableBean.updateSystemProperties}"
+            afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
+            onAfterSave="javascript:onAfterSave();" excludeScripts="prototype">
             <h:outputLink value="javascript:triggerSearch(document.forms.searchForm)">Search</h:outputLink>
         </rules:tableEditor>
 
