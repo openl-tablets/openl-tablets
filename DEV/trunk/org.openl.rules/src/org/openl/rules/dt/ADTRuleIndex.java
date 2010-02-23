@@ -100,7 +100,7 @@ public abstract class ADTRuleIndex {
 
         DTRuleNode node = findNodeInIndex(value);
 
-        return node == null ? emptyOrFormulaNodes : node;
+        return node == null || node.rules.length == 0 ? emptyOrFormulaNodes : node;
     }
 
     public abstract DTRuleNode findNodeInIndex(Object value);
