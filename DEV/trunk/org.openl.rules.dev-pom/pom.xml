@@ -11,7 +11,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.dev-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.3.1-SNAPSHOT</version>
+  <version>5.4.0.RC3</version>
   <name>OpenL - DEV</name>
   <description>Dev</description>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
@@ -40,8 +40,8 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/branches/iteration2_merge</connection>
-	<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/branches/iteration2_merge</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/tags/release-5.4.0.RC3</connection>
+	<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/tags/release-5.4.0.RC3</developerConnection>
   </scm>
 
   <repositories>
