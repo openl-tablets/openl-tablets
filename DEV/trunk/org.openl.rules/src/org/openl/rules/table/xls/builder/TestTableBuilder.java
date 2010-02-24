@@ -33,6 +33,15 @@ public class TestTableBuilder extends TableBuilder {
     private static final String TESTMETHOD_NAME_POSTFIX = "Test";
 
     /**
+     * Creates new instance.
+     *
+     * @param gridModel represents interface for operations with excel sheets
+     */
+    public TestTableBuilder(XlsSheetGridModel gridModel) {
+        super(gridModel);
+    }
+
+    /**
      * Returns Decision table from node.
      *
      * @param node Decision table node
@@ -147,15 +156,6 @@ public class TestTableBuilder extends TableBuilder {
             return id;
         }
         return sb.toString().trim();
-    }
-
-    /**
-     * Creates new instance.
-     *
-     * @param gridModel represents interface for operations with excel sheets
-     */
-    public TestTableBuilder(XlsSheetGridModel gridModel) {
-        super(gridModel);
     }
 
     /**
