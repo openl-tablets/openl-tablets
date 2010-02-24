@@ -1,0 +1,29 @@
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core">
+    <f:verbatim>
+        <script type="text/javascript">
+            function editError(tableUri, errorCell) {
+                showError(tableUri, errorCell, "edit");
+            }
+
+            function viewError(tableUri, errorCell) {
+                showError(tableUri, errorCell, "view");
+            }
+
+            function showError(tableUri, errorCell, tableMode) {
+                var f = document.forms.errorForm;
+                f.mode.value = tableMode;
+                f.uri.value = tableUri;
+                f.cell.value = errorCell;
+                f.submit();
+            }
+        </script>
+        <form name="errorForm"
+            action="#{facesContext.externalContext.request.contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+            <input type="hidden" name="mode" value=""></input>
+            <input type="hidden" name="uri" value=""></input>
+            <input type="hidden" name="cell" value=""></input>
+            <input type="hidden" name="view" value="view.developer"></input>
+       </form>
+    </f:verbatim>
+</ui:composition>
