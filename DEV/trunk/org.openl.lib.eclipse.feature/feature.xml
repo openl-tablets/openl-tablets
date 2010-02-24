@@ -2,7 +2,7 @@
 <feature
       id="org.openl.lib.eclipse.feature"
       label="OpenL 3rd party libraries"
-      version="5.4.0.RC3"
+      version="5.3.1"
       provider-name="OpenL">
 
    <description url="http://www.example.com/description">
@@ -221,6 +221,6 @@
          id="org.openl.lib"
          download-size="0"
          install-size="0"
-         version="5.4.0.RC3"/>
+         version="5.3.1"/>
 
 </feature>
