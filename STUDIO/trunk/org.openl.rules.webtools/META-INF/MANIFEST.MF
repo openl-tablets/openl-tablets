@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Webtools Plug-in
 Bundle-SymbolicName: org.openl.rules.webtools
-Bundle-Version: 5.3.1
+Bundle-Version: 5.4.0.RC3
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.rules;visibility:=reexport,
